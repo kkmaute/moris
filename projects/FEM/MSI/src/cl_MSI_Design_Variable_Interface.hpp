@@ -16,16 +16,12 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Map.hpp"
-// GEN/src
 #include "cl_GEN_Pdv_Enums.hpp"
-// FEM/INT/src
 #include "cl_FEM_Enums.hpp"
-// FEM/MSI/src
 #include "cl_MSI_Dof_Type_Enums.hpp"
 
 namespace moris
 {
-
     namespace sol
     {
         class Dist_Vector;
@@ -36,28 +32,35 @@ namespace moris
         class Equation_Model;
         class Design_Variable_Interface
         {
+            //------------------------------------------------------------------------------
+
           private:
-            Matrix< DDRMat > mTime;
 
-            std::shared_ptr< MSI::Equation_Model > mModel = nullptr;
+            Matrix< DDRMat >                       mTime;
+            std::shared_ptr< MSI::Equation_Model > mModel         = nullptr;
+            bool                                   mdQIdpImported = false;
+            sol::Dist_Vector*                      mdQIdp         = nullptr;
 
-            bool              mdQIdpImported = false;
-            sol::Dist_Vector* mdQIdp         = nullptr;
+            //------------------------------------------------------------------------------
 
           public:
+
             //------------------------------------------------------------------------------
+
             /**
              * trivial constructor
              */
             Design_Variable_Interface(){};
 
             //------------------------------------------------------------------------------
+
             /**
              * trivial destructor
              */
             virtual ~Design_Variable_Interface(){};
 
             //------------------------------------------------------------------------------
+
             /**
              * set model pointer
              * @param[ in ] aModel Model pointer
@@ -69,6 +72,7 @@ namespace moris
             }
 
             //------------------------------------------------------------------------------
+
             /**
              * set time
              * @param[ in ] aTime Time
@@ -88,6 +92,7 @@ namespace moris
             void set_requested_IQIs( const moris::Cell< std::string >& aRequestedIQIs );
 
             //------------------------------------------------------------------------------
+
             /**
              * get unique dv types for set
              * @param[ in ] aIntegrationMeshSetIndex
@@ -102,6 +107,7 @@ namespace moris
                     Cell< enum PDV_Type >&   aDvTypes ) = 0;
 
             //------------------------------------------------------------------------------
+
             /**
              * get pdv values for requested vertex indices and dv types
              * @param[ in ] aIntegrationMeshSetIndex  integration Mesh index
@@ -116,6 +122,14 @@ namespace moris
                     Cell< Cell< enum PDV_Type > >& aDvTypes ) = 0;
 
             //------------------------------------------------------------------------------
+
+            virtual void set_GenMeshMap( moris::Cell<moris_index> aGenMeshMap )
+            {
+                MORIS_ERROR( false, "MSI_Design_Variable_Interface::set_GenMeshMap() - This function is not defined in this class" );
+            }
+
+            //------------------------------------------------------------------------------
+
             /**
              * get pdv values for requested vertex indices and dv types
              * @param[ in ]     aNodeIndices list of vertex indices
@@ -136,6 +150,7 @@ namespace moris
                     moris::Cell< moris::Matrix< DDSMat > >& aIsActiveDv ) = 0;
 
             //------------------------------------------------------------------------------
+
             /**
              * get pdv values for requested vertex indices and dv types
              * @param[ in ]     aNodeIndices list of vertex indices
@@ -153,6 +168,7 @@ namespace moris
                     moris::Cell< moris::Matrix< DDRMat > >& aDvValues ) = 0;
 
             //------------------------------------------------------------------------------
+
             /**
              * reshape pdv values
              * i.e. reshape a cell of matrix to a matrix
@@ -183,12 +199,14 @@ namespace moris
             }
 
             //------------------------------------------------------------------------------
+
             /**
              * return local to global dv map
              */
             virtual const moris::Matrix< DDSMat >& get_my_local_global_map() = 0;
 
             //------------------------------------------------------------------------------
+
             /**
              * return local to global dv type map
              * @param[ in ] aVertexIndex   List of vertex indices
@@ -206,6 +224,7 @@ namespace moris
                     Cell< moris::Matrix< IdMat > >& aDvIds ) = 0;
 
             //------------------------------------------------------------------------------
+
             /**
              * get requested dv types for sensitivity analysis
              * @param[ in ] aDvTypes list of dv types to fill
@@ -213,6 +232,7 @@ namespace moris
             virtual void get_ip_requested_dv_types( Cell< enum PDV_Type >& aDvTypes ) = 0;
 
             //------------------------------------------------------------------------------
+
             /**
              * get requested dv types for sensitivity analysis
              * @param[ in ] aDvTypes list of dv types to fill
@@ -220,6 +240,7 @@ namespace moris
             virtual void get_ig_requested_dv_types( Cell< enum PDV_Type >& aDvTypes ) = 0;
 
             //------------------------------------------------------------------------------
+
             /**
              * returns the dQIdp
              * @param[ out ] dQIdp matrix filled with dQIdp
@@ -227,12 +248,19 @@ namespace moris
             virtual sol::Dist_Vector* get_dQIdp();
 
             //------------------------------------------------------------------------------
+
             /**
              * returns the dQIdp
              * @param[ out ] dQIdp matrix filled with dQIdp
              */
             void set_dQIdp_dist_vect( sol::Dist_Vector* adQIdp );
-        };
+
+            //------------------------------------------------------------------------------
+
+        }; // class Design_Variable_Interface
+
+        //------------------------------------------------------------------------------
+
     }    // namespace MSI
 }    // namespace moris
 

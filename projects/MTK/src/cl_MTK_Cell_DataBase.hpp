@@ -44,10 +44,10 @@ namespace moris::mtk
          * @param aCellInfo a cell info
          * @param aVerteices begining of list of vertices
          */
-        Cell_DataBase( mtk::Cell&                    aCell,
-            std::shared_ptr< moris::mtk::Cell_Info > aCellInfo,
-            moris_index                              aCellIndex2,
-            mtk::Mesh*                               aMesh );
+        Cell_DataBase( mtk::Cell&                        aCell,
+                std::shared_ptr< moris::mtk::Cell_Info > aCellInfo,
+                moris_index                              aCellIndex2,
+                mtk::Mesh*                               aMesh );
 
         //------------------------------------------------------------------------------
 
@@ -58,8 +58,8 @@ namespace moris::mtk
          * @param aVerteices begining of list of vertices
          */
         Cell_DataBase( mtk::Cell& aCell,
-            moris_index           aCellIndex2,
-            mtk::Mesh*            aMesh );
+                moris_index       aCellIndex2,
+                mtk::Mesh*        aMesh );
 
         //------------------------------------------------------------------------------
 
@@ -70,7 +70,7 @@ namespace moris::mtk
          * @param aVerteices begining of list of vertices
          */
         Cell_DataBase( moris_index aCellIndex2,
-            mtk::Mesh*             aMesh );
+                mtk::Mesh*         aMesh );
 
         //------------------------------------------------------------------------------
 
@@ -89,6 +89,11 @@ namespace moris::mtk
 
         virtual moris::Cell< Vertex* >
         get_vertex_pointers() const override;
+
+        //------------------------------------------------------------------------------
+
+        virtual void
+        remove_vertex_pointer( moris_index aIndex ) override;
 
         //------------------------------------------------------------------------------
 
@@ -120,7 +125,7 @@ namespace moris::mtk
          *
          * @return uint
          */
-        virtual mtk::Cell const*
+        virtual mtk::Cell const *
         get_base_cell() const override;
 
         //------------------------------------------------------------------------------
@@ -164,7 +169,7 @@ namespace moris::mtk
          * @return mtk::Cell_Info const*
          */
 
-        virtual mtk::Cell_Info const*
+        virtual mtk::Cell_Info const *
         get_cell_info() const override;
 
         //------------------------------------------------------------------------------
@@ -208,7 +213,13 @@ namespace moris::mtk
          */
         virtual moris_id
         get_owner() const;
-    };
-}// namespace moris::mtk
+
+        //------------------------------------------------------------------------------
+
+    }; // class Cell_DataBase
+
+    //------------------------------------------------------------------------------
+
+}    // namespace moris::mtk
 
 #endif /* cl_MTK_Cell_DataBase.hpp */

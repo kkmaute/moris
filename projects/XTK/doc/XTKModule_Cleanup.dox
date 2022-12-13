@@ -1,0 +1,92 @@
+namespace moris {
+
+/** @defgroup XTKCleanup Mesh Cleanup
+
+@section Overview
+
+The xtk::Integration_Mesh_Cleanup class reduces the number of integration cells, by iteratively merging pairs of vertices.
+
+@image html OverviewMerge.png "Figure 1: Overview of a merge: one vertex and two cells are deleted." width=1200px
+
+@section Initialization
+xtk::Integration_Mesh_Cleanup::perform() begins with several function calls to initialize the merge class:
+
+xtk::Integration_Mesh_Cleanup::set_vertex_cell_connectivity() maps vertex indices to adjacent cell indices. The map is stored in xtk::Integration_Mesh_Cleanup::mVertIndToCells. Merging or deleting a vertex only affects adjacent cells, so this map allows direct access to cells that must be altered.
+
+xtk::Integration_Mesh_Cleanup::set_vertex_vertex_connectivity() maps vertex indices to connected vertex indices. The map is stored in xtk::Integration_Mesh_Cleanup::mVertIndToVerts. Similarly to Vertex-Cell map, this map allows direct access to affected vertices during merge.
+
+xtk::Integration_Mesh_Cleanup::set_blk_phase_vertex_flags() assigns a bool to each vertex, which is only true if the vertex is on the boundary between two cells of different bulk phases. The bools are stored in xtk::Integration_Mesh_Cleanup::mBlkPhaseBoundary.
+
+xtk::Integration_Mesh_Cleanup::set_child_mesh_boundary_flag() assigns a bool to each vertex, which is only true if the vertex is on the boundary of a child mesh. The bools are stored in xtk::Integration_Mesh_Cleanup::mChildMeshBoundary.
+
+
+Next, the vertices eligible for deletion/merging are saved in xtk::Integration_Mesh_Cleanup::mMergeInds using xtk::Integration_Mesh_Cleanup::num_merges(). A vertex is deemed eligible for deletion/merging if it is not on a bulk phase boundary, and it is not on a child mesh boundary. Additionally, the number of vertices being deleted is saved in xtk::Integration_Mesh_Cleanup::mMergeNum for memory allocation purposes. 
+
+Once initialization is complete, the list of vertex indices to be merged xtk::Integration_Mesh_Cleanup::mMergeInds is cycled through, and each vertex merged. 
+
+@section Additional_checks
+
+Given a vertex index to merge/delete, xtk::Integration_Mesh_Cleanup::get_attached_vertex() returns a vertex index with which the original vertex can/should be merged with. The convention here is that Vert1 is the vertex being deleted/merged, and Vert2 is the vertex Vert1 is being merged with. The merge combines both vertices, and places the resulting vertex where Vert2 was positioned. The function xtk::Integration_Mesh_Cleanup::get_attached_vertex() attempts to find the best Vert2 for Vert1 to merge with, taking into account the formation of degenerate and inverted cells.
+
+All vertices connected to Vert1 are considered for a merge, and ranked based on a delaney condition. The inner angles of the newly modified cells are compared, and the minimum angle used as a fitness value for that merge. The vertex Vert2 with the highest (minimum) angle, and therefore fitness value, is chosen for the merge.
+
+Additionally, vertices that lead to inverted cells are flagged, and given a fitness value of -1. An example of a merge resulting in an inverted cell is shown in the figure below. To flag for an inverted cell, the vectors originating from the vertex being merged are placed in a matrix, of which the sign of the determinant is calculated. If the sign of the determinant changes during the merge, the cell has "flipped", and is no longer a bijective map of the domain.
+
+@image html InvertedMerge.png "Figure 2: Avoiding inverted cells" width=1200px
+
+If all vertices have a fitness value of -1, every merge would result in an inverted cell, and the merge is not performed. Otherwise, the vertex with the highest fitness value is chosen for the merge. If the highest value is 0, this signifies that the formation of a degenerate cell is unavoidable.
+
+@section Merge
+
+xtk::Integration_Mesh_Cleanup::merge() performs a single merge, combining Vert1 and Vert2. It mainly alters lists of pointers to cells and vertices, some of which are listed below:
+
+xtk::Cut_Integration_Mesh::mIntegrationCells
+
+xtk::Cut_Integration_Mesh::mControlledIgCells
+
+xtk::Cut_Integration_Mesh::mIntegrationCellGroups
+
+xtk::Cut_Integration_Mesh::mIntegrationVertices
+
+xtk::Cut_Integration_Mesh::mControlledIgVerts
+
+xtk::Cut_Integration_Mesh::mIntegrationVertexGroups
+
+Additionally, maps such as index to id, or cell/vertex to group are altered, as well as connectivity structures linking cells, vertices, and facets.
+
+The xtk::Integration_Mesh_Cleanup::merge() function is split into two parts, deleting the appropriate cells, and then the vertex Vert1:
+
+Deleting cells:
+
+First, the pointers to vertices in each affected cell is altered, so that the pointers to Vert1 are replaced by pointers to Vert2.
+Next, cells containing both Vert1 and Vert2 are deallocated and deleted iteratively, from all lists of cell pointers. For all cell indices above the value of the cell index being deleted, the cell indices are shifted down to maintain index continuity. This process is repeated for each cell that is deleted.
+
+Deleting Vertices:
+
+For a single merge, in 2D and in 3D, only one vertex is deleted. Similar to the deletion of a cell, the vertex is deallocated, and pointers to the vertex removed from lists. The indices of the remaining vertices are also reduced by one, if the previous index was above the index of the vertex being deleted.
+
+
+@section Facet_Connectivity
+
+The structure xtk::Facet_Based_Connectivity contains member variables linking facets, vertices, and cells.
+
+During the merge function, xtk::Facet_Based_Connectivity::merge_vertices() replaces the references to Vert1 by those to Vert2 in these member variables.
+
+Next, in xtk::Facet_Based_Connectivity::remove_facets(), facets originally containing both vertices Vert1 and Vert2 are removed from all lists.
+
+When a cell is deleted during a merge, two of its facets coincide. These two facets are merged with xtk::Facet_Based_Connectivity::merge_facets(), taking into account that the conjoined facet contains the sum of references of the two coinciding facets. The cell is also removed from the facet connectivity lists during this function.
+
+
+@section Vertex_Cell_Connectivity
+
+xtk::Integration_Mesh_Cleanup::mVertIndToCells provides a map from every vertex to the cells attached to it. The map is generated before the cleanup procedure, and altered after each merge, as opposed to re-generating it completely. The altering of the map is done in several steps: When a cell is deleted, all references to the cell are removed from the map, and the indices of consecutive cells shifted down.
+When the vertex Vert1 is deleted, the cell indices connected to Vert1 are added to the cell indices connected to Vert2, before the list of references for Vert1 is deleted.
+
+@section Vertex_Vertex_Connectivity
+
+needs images
+
+*/
+ 
+ 
+ }

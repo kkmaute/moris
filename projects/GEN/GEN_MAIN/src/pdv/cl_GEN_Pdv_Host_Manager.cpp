@@ -180,6 +180,15 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
+        Pdv_Host_Manager::set_GenMeshMap( moris::Cell< moris_index > aGenMeshMap )
+        {
+            mGenMeshMap              = aGenMeshMap;
+            mGenMeshMapIsInitialized = true;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
         Pdv_Host_Manager::get_ip_pdv_value(
                 const Matrix< IndexMat >& aNodeIndices,
                 const Cell< PDV_Type >&   aPdvTypes,
@@ -289,7 +298,14 @@ namespace moris
                 // loop over the requested dv types
                 for ( uint tNode = 0; tNode < tNumIndices; tNode++ )
                 {
-                    if ( mIntersectionNodes( aNodeIndices( tNode ) ) )
+                    // get the node index within GEN, if mtk mesh has been cleaned up, translate vertex index between GEN and MTK
+                    uint tGenMeshNodeIndex = aNodeIndices( tNode );
+                    if ( mGenMeshMapIsInitialized )
+                    {
+                        tGenMeshNodeIndex = mGenMeshMap( tGenMeshNodeIndex );
+                    }
+
+                    if ( mIntersectionNodes( tGenMeshNodeIndex ) )
                     {
                         aDvValues( tPdvTypeIndex )( tNode ) =                    //
                                 mIntersectionNodes( aNodeIndices( tNode ) )->    //
@@ -384,10 +400,16 @@ namespace moris
                 // loop over the node indices
                 for ( uint tNode = 0; tNode < tNumIndices; tNode++ )
                 {
-                    if ( mIntersectionNodes( aNodeIndices( tNode ) ) )
+                    uint tGenMeshNodeIndex = aNodeIndices( tNode );
+                    if ( mGenMeshMapIsInitialized )
+                    {
+                        tGenMeshNodeIndex = mGenMeshMap( aNodeIndices( tNode ) );
+                    }
+
+                    if ( mIntersectionNodes( tGenMeshNodeIndex ) )
                     {
                         aDvIds( tPdvTypeIndex )( tNode ) =
-                                mIntersectionNodes( aNodeIndices( tNode ) )->get_starting_pdv_id()
+                                mIntersectionNodes( tGenMeshNodeIndex )->get_starting_pdv_id()
                                 + static_cast< uint >( aPdvTypes( tPdvTypeIndex ) );
                     }
                 }
@@ -1078,12 +1100,19 @@ namespace moris
 
             // Loop over intersection node pdvs
             for ( moris::uint Ij = 0; Ij < mIntersectionNodes.size(); Ij++ )
+            // for ( moris::uint Ij = 0; Ij < mGenMeshMap.size(); Ij++ )
             {
-                if ( mIntersectionNodes( Ij ) != nullptr )
+                uint tMeshNodeIndex = Ij;
+                if ( mGenMeshMapIsInitialized )
                 {
-                    uint tNumPdvsOnIntersectionNode = mIntersectionNodes( Ij )->get_num_pdvs();
+                    tMeshNodeIndex = mGenMeshMap( Ij );
+                }
 
-                    if ( mIntersectionNodes( Ij )->get_owner() == par_rank() )
+                if ( mIntersectionNodes( tMeshNodeIndex ) != nullptr )
+                {
+                    uint tNumPdvsOnIntersectionNode = mIntersectionNodes( tMeshNodeIndex )->get_num_pdvs();
+
+                    if ( mIntersectionNodes( tMeshNodeIndex )->get_owner() == par_rank() )
                     {
                         mNumOwnedPdvs += tNumPdvsOnIntersectionNode;
                     }
@@ -1174,15 +1203,20 @@ namespace moris
 
             // Loop over intersection node pdvs
             for ( moris::uint Ij = 0; Ij < mIntersectionNodes.size(); Ij++ )
+            // for ( moris::uint Ij = 0; Ij < mGenMeshMap.size(); Ij++ )
             {
-                if ( mIntersectionNodes( Ij ) != nullptr )
+                uint tMeshNodeIndex = Ij;
+                if ( mGenMeshMapIsInitialized )
                 {
-                    if ( mIntersectionNodes( Ij )->get_owner() == par_rank() )
+                    tMeshNodeIndex = mGenMeshMap( Ij );
+                }
+
+                if ( mIntersectionNodes( tMeshNodeIndex ) != nullptr )
+                {
+                    if ( mIntersectionNodes( tMeshNodeIndex )->get_owner() == par_rank() )
                     {
-                        mIntersectionNodes( Ij )->set_starting_pdv_id( aOwnedIdCounter );
-
-                        uint tNumPdvsOnIntersectionNode = mIntersectionNodes( Ij )->get_num_pdvs();
-
+                        mIntersectionNodes( tMeshNodeIndex )->set_starting_pdv_id( aOwnedIdCounter );
+                        uint tNumPdvsOnIntersectionNode = mIntersectionNodes( tMeshNodeIndex )->get_num_pdvs();
                         aOwnedIdCounter += tNumPdvsOnIntersectionNode;
                     }
                 }
@@ -1194,6 +1228,7 @@ namespace moris
 
             return aOwnedIdCounter;
         }
+
         //--------------------------------------------------------------------------------------------------------------
 
         void
@@ -1451,15 +1486,23 @@ namespace moris
 
             // Loop over pdvs
             for ( moris::uint Ij = 0; Ij < mIntersectionNodes.size(); Ij++ )
+            // for ( moris::uint Ij = 0; Ij < mGenMeshMap.size(); Ij++ )
             {
+
+                uint tMeshNodeIndex = Ij;
+                if ( mGenMeshMapIsInitialized )
+                {
+                    tMeshNodeIndex = mGenMeshMap( Ij );
+                }
+
                 // Check if pdv at this position is not NULL
-                if ( mIntersectionNodes( Ij ) != nullptr )
+                if ( mIntersectionNodes( tMeshNodeIndex ) != nullptr )
                 {
                     // Check if owning processor is this processor
-                    if ( mIntersectionNodes( Ij )->get_owner() != par_rank() )
+                    if ( mIntersectionNodes( tMeshNodeIndex )->get_owner() != par_rank() )
                     {
                         // get owning procssor
-                        moris::moris_id tProcID = mIntersectionNodes( Ij )->get_owner();
+                        moris::moris_id tProcID = mIntersectionNodes( tMeshNodeIndex )->get_owner();
 
                         moris::sint tProcIdPos = tCommTableMap( tProcID );
 
@@ -1486,21 +1529,28 @@ namespace moris
 
             // Loop over pdvs
             for ( moris::uint Ij = 0; Ij < mIntersectionNodes.size(); Ij++ )
+            // for ( moris::uint Ij = 0; Ij < mGenMeshMap.size(); Ij++ )
             {
+                uint tMeshNodeIndex = Ij;
+                if ( mGenMeshMapIsInitialized )
+                {
+                    tMeshNodeIndex = mGenMeshMap( Ij );
+                }
+
                 // Check if pdv at this position is not NULL
-                if ( mIntersectionNodes( Ij ) != nullptr )
+                if ( mIntersectionNodes( tMeshNodeIndex ) != nullptr )
                 {
                     // Check if owning processor is this processor
-                    if ( mIntersectionNodes( Ij )->get_owner() != par_rank() )
+                    if ( mIntersectionNodes( tMeshNodeIndex )->get_owner() != par_rank() )
                     {
                         // Get owning processor
-                        moris::moris_id tProcID = mIntersectionNodes( Ij )->get_owner();
+                        moris::moris_id tProcID = mIntersectionNodes( tMeshNodeIndex )->get_owner();
 
                         moris::sint tProcIdPos = tCommTableMap( tProcID );
 
                         // Add owning processor id to moris::Mat
                         tSharedPdvPosGlobal( tProcIdPos )( tSharedPdvPosPerProc( tProcIdPos ) ) =
-                                mIntersectionNodes( Ij )->get_id();
+                                mIntersectionNodes( tMeshNodeIndex )->get_id();
 
                         // Add pdv position to Mat
                         tSharedPdvPosLocal( tProcIdPos )( tSharedPdvPosPerProc( tProcIdPos ) ) = tCounter;
@@ -1541,10 +1591,16 @@ namespace moris
 
                     moris::uint tLocalPdvInd = tIter->second;
 
-                    MORIS_ASSERT( ( mIntersectionNodes( tLocalPdvInd )->get_owner() ) == par_rank(),
+                    uint tMeshNodeIndex = tLocalPdvInd;
+                    if ( mGenMeshMapIsInitialized )
+                    {
+                        tMeshNodeIndex = mGenMeshMap( tLocalPdvInd );
+                    }
+
+                    MORIS_ASSERT( ( mIntersectionNodes( tMeshNodeIndex )->get_owner() ) == par_rank(),
                             "Pdv_Host_Manager::communicate_shared_pdv_ids(): Pdv not owned by this processor" );
 
-                    tSharedPdvIdList( Ik )( Ii ) = mIntersectionNodes( tLocalPdvInd )->get_starting_pdv_id();
+                    tSharedPdvIdList( Ik )( Ii ) = mIntersectionNodes( tMeshNodeIndex )->get_starting_pdv_id();
                 }
             }
 
@@ -1590,7 +1646,13 @@ namespace moris
             // Set the Id of the shared pdvs
             for ( moris::uint Ij = 0; Ij < tListSharedPdvIds.numel(); Ij++ )
             {
-                mIntersectionNodes( tListSharedPdvPos( Ij ) )->set_starting_pdv_id( tListSharedPdvIds( Ij ) );
+                uint tMeshNodeIndex = tListSharedPdvPos( Ij );
+                if ( mGenMeshMapIsInitialized )
+                {
+                    tMeshNodeIndex = mGenMeshMap( tListSharedPdvPos( Ij ) );
+                }
+
+                mIntersectionNodes( tMeshNodeIndex )->set_starting_pdv_id( tListSharedPdvIds( Ij ) );
             }
         }
 
@@ -1632,18 +1694,26 @@ namespace moris
 
             // Loop over intersection node pdvs
             for ( moris::uint Ij = 0; Ij < mIntersectionNodes.size(); Ij++ )
+            // for ( moris::uint Ij = 0; Ij < mGenMeshMap.size(); Ij++ )
             {
-                if ( mIntersectionNodes( Ij ) != nullptr )
+                uint tMeshNodeIndex = Ij;
+                if ( mGenMeshMapIsInitialized )
                 {
-                    uint tNumPdvsOnIntersectionNode = mIntersectionNodes( Ij )->get_num_pdvs();
+                    tMeshNodeIndex = mGenMeshMap( Ij );
+                }
+
+                if ( mIntersectionNodes( tMeshNodeIndex ) != nullptr )
+                {
+                    uint tNumPdvsOnIntersectionNode = mIntersectionNodes( tMeshNodeIndex )->get_num_pdvs();
 
                     for ( moris::uint Ik = 0; Ik < tNumPdvsOnIntersectionNode; Ik++ )
                     {
-                        if ( mIntersectionNodes( Ij )->get_owner() == par_rank() )
+                        if ( mIntersectionNodes( tMeshNodeIndex )->get_owner() == par_rank() )
                         {
-                            mOwnedPdvLocalToGlobalMap( tCounter++ ) = mIntersectionNodes( Ij )->get_starting_pdv_id() + Ik;
+                            mOwnedPdvLocalToGlobalMap( tCounter++ ) = mIntersectionNodes( tMeshNodeIndex )->get_starting_pdv_id() + Ik;
                         }
-                        mOwnedAndSharedPdvLocalToGlobalMap( tCounter2++ ) = mIntersectionNodes( Ij )->get_starting_pdv_id() + Ik;
+
+                        mOwnedAndSharedPdvLocalToGlobalMap( tCounter2++ ) = mIntersectionNodes( tMeshNodeIndex )->get_starting_pdv_id() + Ik;
                     }
                 }
             }
@@ -1682,6 +1752,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+
         void
         Pdv_Host_Manager::set_dQIdp( Cell< Matrix< DDRMat >* > adQIdp,
                 Matrix< DDSMat >*                              aMap )
@@ -1723,7 +1794,11 @@ namespace moris
                 }
             }
 
+
             this->set_dQIdp_dist_vect( tdQIDp );
         }
+
+        //--------------------------------------------------------------------------------------------------------------
+
     }    // namespace ge
 }    // namespace moris

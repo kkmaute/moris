@@ -46,9 +46,15 @@ namespace moris
             moris::Cell< moris::Cell< moris::mtk::Set * > > mDoubleSideSetToColor;
             moris::Cell< moris::Cell< moris::mtk::Set * > > mAllSetToColor;
 
+            // ----------------------------------------------------------------------------
+
           public:
+            // ----------------------------------------------------------------------------
+
             Integration_Mesh(){};
             // Functions only valid for integration meshes
+
+            // ----------------------------------------------------------------------------
 
             virtual ~Integration_Mesh();
 
@@ -82,7 +88,7 @@ namespace moris
             get_num_sets() const;
 
             // ----------------------------------------------------------------------------
-            /*!
+            /**
              * @brief Get mesh set by name
              * @param[in] aSetLabel Set label
              */
@@ -90,7 +96,8 @@ namespace moris
             get_set_by_name( std::string aSetLabel ) const;
 
             // ----------------------------------------------------------------------------
-            /*!
+
+            /**
              * @brief Get set name by set index
              * @param[in] aIndex Set index
              */
@@ -98,7 +105,12 @@ namespace moris
             get_set_by_index( moris_index aIndex ) const;
 
             // ----------------------------------------------------------------------------
-            /*!
+
+            void get_Mesh_GEN_map( moris::Cell< moris_index > &aMesh_GEN_map );
+
+            // ----------------------------------------------------------------------------
+
+            /**
              * @brief Get set index by set name
              * @param[in] aSetLabel Set label
              * @return Set index
@@ -107,7 +119,8 @@ namespace moris
             get_set_index_by_name( std::string aSetLabel );
 
             // ----------------------------------------------------------------------------
-            /*!
+
+            /**
              * @brief Get block sets with color
              * @param[in] aColor Set color
              */
@@ -115,7 +128,8 @@ namespace moris
             get_block_sets_with_color( moris_index const &aColor );
 
             // ----------------------------------------------------------------------------
-            /*!
+
+            /**
              * @brief Get block set names with color
              * @param[in] aColor    Set color
              * @param[in] aSetNames List of set names
@@ -126,7 +140,8 @@ namespace moris
                     moris::Cell< std::string > &aSetNames );
 
             // ----------------------------------------------------------------------------
-            /*!
+
+            /**
              * @brief Get side sets with color
              * @param[in] aColor Set color
              */
@@ -134,7 +149,8 @@ namespace moris
             get_side_sets_with_color( moris_index const &aColor );
 
             // ----------------------------------------------------------------------------
-            /*!
+
+            /**
              * @brief Get double side sets with color
              * @param[in] aColor Set color
              */
@@ -142,7 +158,8 @@ namespace moris
             get_double_side_sets_with_color( moris_index const &aColor );
 
             // ----------------------------------------------------------------------------
-            /*!
+
+            /**
              * @brief Get all sets with color
              * @param[in] aColor Set color
              */
@@ -150,7 +167,8 @@ namespace moris
             get_all_sets_with_color( moris_index const &aColor );
 
             // ----------------------------------------------------------------------------
-            /*!
+
+            /**
              * @brief Print sets by colors
              */
             void
@@ -158,13 +176,15 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            /*
+            /**
              * Get block set names
              */
             virtual moris::Cell< std::string >
             get_block_set_names() const = 0;
 
-            /*!
+            // ----------------------------------------------------------------------------
+
+            /**
              * Returns the label
              */
             virtual std::string
@@ -172,13 +192,14 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            /*!
+            /**
              * Returns the index given a label
              */
             virtual moris_index
             get_block_set_index( std::string aBlockSetLabel ) const;
 
             // ----------------------------------------------------------------------------
+
             /*
              * Get number of blocks
              */
@@ -186,7 +207,8 @@ namespace moris
             get_num_blocks() const;
 
             // ----------------------------------------------------------------------------
-            /*
+
+            /**
              * Get number of blocks
              * Sometimes num side set * 2. Ask Keenan
              */
@@ -194,7 +216,8 @@ namespace moris
             get_num_side_set() const;
 
             // ----------------------------------------------------------------------------
-            /*
+
+            /**
              * Get number of blocks
              * Sometimes num side set * 2. Ask Keenan
              */
@@ -211,6 +234,8 @@ namespace moris
             virtual moris::Cell< Cluster const * >
             get_cell_clusters_in_set( moris_index aBlockSetOrdinal ) const = 0;
 
+            // ----------------------------------------------------------------------------
+
             virtual uint
             get_num_cell_cluster_groups( const moris_index aDiscretizationMeshIndex ) const
             {
@@ -218,12 +243,16 @@ namespace moris
                 return 0;
             }
 
+            // ----------------------------------------------------------------------------
+
             virtual uint
             get_num_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const
             {
                 MORIS_ERROR( false, "mtk::Integration_Mesh::get_num_side_cluster_groups() - Not implemented in base class." );
                 return 0;
             }
+
+            // ----------------------------------------------------------------------------
 
             virtual uint
             get_num_dbl_side_single_side_cluster_groups( const moris_index aDiscretizationMeshIndex ) const
@@ -235,7 +264,8 @@ namespace moris
             //##############################################
             // Side Cluster Access
             //##############################################
-            /*!
+
+            /**
              * Get side clusters within a side set
              */
             virtual moris::Cell< Cluster const * >
@@ -243,7 +273,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            /*!
+            /**
              * get number of side sets
              */
             virtual uint
@@ -251,7 +281,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            /*!
+            /**
              * Returns the label
              */
             virtual std::string
@@ -259,7 +289,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            /*!
+            /**
              * Returns the index given a label
              */
             virtual moris_index
@@ -271,7 +301,7 @@ namespace moris
             // Double Side Set Cluster Access
             //##############################################
 
-            /*!
+            /**
              * Returns the number of double sided side sets in the mesh
              */
             virtual uint
@@ -279,7 +309,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            /*!
+            /**
              * Returns the label
              */
             virtual std::string
@@ -287,7 +317,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            /*!
+            /**
              * Returns the index given a label
              */
             virtual moris_index
@@ -295,7 +325,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            /*!
+            /**
              * Returns the double side clusters in the side set
              */
             virtual moris::Cell< Cluster const * >
@@ -303,7 +333,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            /*!
+            /**
              * adds a double sided side set to the mesh
              */
             void
@@ -311,7 +341,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            /*!
+            /**
              * adds a double sided side set to the mesh
              */
             void
@@ -319,16 +349,20 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            /*!
+            /**
              * Save MPC tp hdf5
              */
             void
             save_MPC_to_hdf5( std::string aFileName );
 
+            // ----------------------------------------------------------------------------
+
             void
             create_MPC_maps(
                     Matrix< IdMat > &tBSToIPMap,
                     Matrix< IdMat > &tIPToIGMap );
+
+            // ----------------------------------------------------------------------------
 
             void
             build_hanging_node_MPC(
@@ -339,11 +373,13 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            /*!
+            /**
              * Save nodal T-matrices for IG-mesh nodes to .hdf5 or .dat file
              */
             void
             save_IG_node_TMatrices_to_file( std::string tFileName );
+
+            // ----------------------------------------------------------------------------
 
             void
             get_IG_to_IP_nodal_T_matrices(
@@ -351,11 +387,15 @@ namespace moris
                     moris::Cell< Matrix< DDRMat > > &aIGtoIPWeights,
                     uint                             aSetIndex );
 
+            // ----------------------------------------------------------------------------
+
             void
             get_IP_to_BS_nodal_T_matrices(
                     moris::Cell< Matrix< IdMat > >  &aIPtoBSIds,
                     moris::Cell< Matrix< DDRMat > > &aIPtoBSWeights,
                     uint                             aSetIndex );
+
+            // ----------------------------------------------------------------------------
 
             void
             get_IG_to_BS_nodal_T_matrices(
@@ -366,7 +406,11 @@ namespace moris
                     moris::Cell< Matrix< IdMat > >  &aIGtoIPIds,
                     moris::Cell< Matrix< DDRMat > > &aIGtoIPWeights );
 
+            // ----------------------------------------------------------------------------
+
             uint get_max_IP_ID_on_set( uint aSetIndex );
+
+            // ----------------------------------------------------------------------------
 
             void
             build_sparse_extraction_operator(
@@ -375,13 +419,16 @@ namespace moris
                     Matrix< DDUMat >                &aSparseIndices,
                     Matrix< DDRMat >                &aWeights );
 
+            // ----------------------------------------------------------------------------
+
             bool
             is_pure_IP_vertex(
                     Cell_Info const *aCellInfo,
                     const uint       aLocalVertIndex );
 
             // ----------------------------------------------------------------------------
-            /*!
+
+            /**
              * Returns the list of sets based on the a set type specified
              * by default it return all sets
              *@param[ in ] aSetType indicates if it is a bulk,sideset,dblsideset,or all
@@ -390,7 +437,8 @@ namespace moris
             get_list_of_sets( SetType aSetType = SetType::END_ENUM ) const;
 
             // ----------------------------------------------------------------------------
-            /*!
+
+            /**
              * Returns the list of sets to colors based on the a set type specified
              * by default it return all set to color list
              *@param[ in ] aSetType indicates if it is a bulk,sideset,dblsideset or all
@@ -399,14 +447,16 @@ namespace moris
             get_list_of_set_to_color( SetType aSetType = SetType::END_ENUM ) const;
 
             // ----------------------------------------------------------------------------
-            /*!
+
+            /**
              * Returns set name to index map
              */
             map< std::string, moris_index > const &
             get_set_name_to_index_map() const;
 
             // ----------------------------------------------------------------------------
-            /*!
+
+            /**
              * Returns max color
              */
             moris_index const &
@@ -430,7 +480,10 @@ namespace moris
             setup_set_to_color();
 
             // ----------------------------------------------------------------------------
-        };
+
+        };    // class mtk::Integration_Mesh
+
+        // ----------------------------------------------------------------------------
     }    // namespace mtk
 }    // namespace moris
 

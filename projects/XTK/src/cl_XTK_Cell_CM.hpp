@@ -12,12 +12,12 @@
 #define PROJECTS_XTK_SRC_XTK_CL_MTK_CELL_XTK_IMPL_HPP_
 
 #include "cl_MTK_Cell.hpp"
-#include "typedefs.hpp" //MRS/COR/src
-#include "cl_Cell.hpp"  //MRS/CON/src
+#include "typedefs.hpp"    //MRS/COR/src
+#include "cl_Cell.hpp"     //MRS/CON/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_MTK_Vertex.hpp" //MTK/src
-#include "cl_MTK_Enums.hpp"  //MTK/src
+#include "cl_MTK_Vertex.hpp"    //MTK/src
+#include "cl_MTK_Enums.hpp"     //MTK/src
 #include "cl_XTK_Child_Mesh.hpp"
 #include "cl_MTK_Cell_Info_Tet4.hpp"
 #include "fn_cross.hpp"
@@ -34,15 +34,17 @@ namespace xtk
 namespace xtk
 {
     //------------------------------------------------------------------------------
-    /**
-    * \brief This is the XTK cell implementation when there is a child mesh to use.
-    */
 
+    /**
+     * \brief This is the XTK cell implementation when there is a child mesh to use.
+     */
     class Cell_XTK_CM : public mtk::Cell
     {
-    private:
+
+      private:
         //------------------------------------------------------------------------------
-    public:
+
+      public:
         //------------------------------------------------------------------------------
 
         /**
@@ -50,17 +52,18 @@ namespace xtk
          */
         Cell_XTK_CM();
 
-        Cell_XTK_CM(moris::moris_id aElementId,
-                    moris::moris_index aElementIndex,
-                    moris::moris_index aElementOwner,
-                    moris::moris_index aCMElementIndex,
-                    xtk::Child_Mesh   *aChildMeshPtr,
-                    xtk::Background_Mesh *aBackgroundMeshPtr);
+        Cell_XTK_CM(
+                moris::moris_id       aElementId,
+                moris::moris_index    aElementIndex,
+                moris::moris_index    aElementOwner,
+                moris::moris_index    aCMElementIndex,
+                xtk::Child_Mesh      *aChildMeshPtr,
+                xtk::Background_Mesh *aBackgroundMeshPtr );
         //------------------------------------------------------------------------------
 
         /**
-        * Destructor
-        */
+         * Destructor
+         */
         ~Cell_XTK_CM();
 
         //------------------------------------------------------------------------------
@@ -76,16 +79,21 @@ namespace xtk
         /**
          * fills a moris::cell with pointers to connected vertices
          */
-        //FIXME: SDF's Triangle_Vertex causes this to not be able to return a reference.
-        moris::Cell<mtk::Vertex *>
+        // FIXME: SDF's Triangle_Vertex causes this to not be able to return a reference.
+        moris::Cell< mtk::Vertex * >
         get_vertex_pointers() const;
+
+        //------------------------------------------------------------------------------
+
+        void
+        remove_vertex_pointer( moris_index aIndex );
 
         //------------------------------------------------------------------------------
 
         /**
          * returns a Mat with IDs of connected vertices
          */
-        Matrix<IdMat>
+        Matrix< IdMat >
         get_vertex_ids() const;
 
         //------------------------------------------------------------------------------
@@ -93,7 +101,7 @@ namespace xtk
         /**
          * returns a Mat with indices of connected vertices
          */
-        Matrix<IndexMat>
+        Matrix< IndexMat >
         get_vertex_inds() const;
 
         //------------------------------------------------------------------------------
@@ -102,7 +110,7 @@ namespace xtk
          * returns a Mat of dimension
          * < number of vertices * number of dimensions >
          */
-        Matrix<DDRMat>
+        Matrix< DDRMat >
         get_vertex_coords() const;
 
         //------------------------------------------------------------------------------
@@ -113,16 +121,18 @@ namespace xtk
         capacity();
         //------------------------------------------------------------------------------
 
-    private:
+      private:
         moris::moris_index mCMElementIndex; /* Needed to access connectivity (verts) */
 
-        xtk::Child_Mesh *mChildMeshPtr;           /* Needed to access connectivity (verts) */
+        xtk::Child_Mesh      *mChildMeshPtr;      /* Needed to access connectivity (verts) */
         xtk::Background_Mesh *mBackgroundMeshPtr; /* Needed to access coordinates */
 
         //------------------------------------------------------------------------------
-    };
 
-} // namespace xtk
+    }; // class Cell_XTK_CM
+
+    //------------------------------------------------------------------------------
+
+}    // namespace xtk
 
 #endif /* PROJECTS_XTK_SRC_XTK_CL_MTK_CELL_XTK_IMPL_HPP_ */
-

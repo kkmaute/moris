@@ -24,17 +24,18 @@ namespace moris
         class Cell_Proxy : public Cell
         {
             //------------------------------------------------------------------------------
-        public:
-            moris::moris_id mId       = gNoID;
-            moris::moris_index mIndex = gNoIndex;
-            moris::moris_id mOwner    = gNoID;
 
-            moris::Cell<Vertex *> mVertices;
-            moris::uint mSpatialDim               = 3;
-            enum Geometry_Type mGeometryType      = Geometry_Type::UNDEFINED;
-            enum Interpolation_Order mInterpOrder = Interpolation_Order::UNDEFINED;
-            enum Integration_Order mIntegOrder    = Integration_Order::UNDEFINED;
-            moris::mtk::Cell_Info *mCellInfo      = nullptr;
+          public:
+            moris::moris_id    mId    = gNoID;
+            moris::moris_index mIndex = gNoIndex;
+            moris::moris_id    mOwner = gNoID;
+
+            moris::Cell< Vertex * >  mVertices;
+            moris::uint              mSpatialDim   = 3;
+            enum Geometry_Type       mGeometryType = Geometry_Type::UNDEFINED;
+            enum Interpolation_Order mInterpOrder  = Interpolation_Order::UNDEFINED;
+            enum Integration_Order   mIntegOrder   = Integration_Order::UNDEFINED;
+            moris::mtk::Cell_Info   *mCellInfo     = nullptr;
 
             //------------------------------------------------------------------------------
 
@@ -54,7 +55,7 @@ namespace moris
             moris_id
             get_id() const
             {
-                MORIS_ASSERT(mId != gNoID, "Cell ID not initialized");
+                MORIS_ASSERT( mId != gNoID, "Cell ID not initialized" );
 
                 return mId;
             }
@@ -69,7 +70,7 @@ namespace moris
             moris_index
             get_index() const
             {
-                MORIS_ASSERT(mIndex != gNoIndex, "Cell index not initialized");
+                MORIS_ASSERT( mIndex != gNoIndex, "Cell index not initialized" );
 
                 return mIndex;
             }
@@ -94,7 +95,7 @@ namespace moris
             moris_id
             get_owner() const
             {
-                MORIS_ASSERT(mOwner != gNoID, "Cell ownership not initialized");
+                MORIS_ASSERT( mOwner != gNoID, "Cell ownership not initialized" );
 
                 return mOwner;
             }
@@ -104,10 +105,20 @@ namespace moris
             /**
              * fills a moris::cell with pointers to connected vertices
              */
-            moris::Cell<Vertex *>
+            moris::Cell< Vertex * >
             get_vertex_pointers() const
             {
                 return mVertices;
+            }
+
+            //------------------------------------------------------------------------------
+            
+            // TODO MESHCLEANUP
+            void
+            remove_vertex_pointer( moris_index aIndex )
+            {
+                // do nothing for now
+                // std::cout<<"In MTK Cell Proxy"<<std::endl;
             }
 
             //------------------------------------------------------------------------------
@@ -115,14 +126,14 @@ namespace moris
             /**
              * returns a Mat with IDs of connected vertices
              */
-            Matrix<IdMat>
+            Matrix< IdMat >
             get_vertex_ids() const
             {
-                Matrix<IdMat> tVertexIds(mVertices.size(), 1);
+                Matrix< IdMat > tVertexIds( mVertices.size(), 1 );
 
-                for (moris::uint i = 0; i < this->get_number_of_vertices(); i++)
+                for ( moris::uint i = 0; i < this->get_number_of_vertices(); i++ )
                 {
-                    tVertexIds(i) = mVertices(i)->get_id();
+                    tVertexIds( i ) = mVertices( i )->get_id();
                 }
 
                 return tVertexIds;
@@ -133,14 +144,14 @@ namespace moris
             /**
              * returns a Mat with indices of connected vertices
              */
-            Matrix<IndexMat>
+            Matrix< IndexMat >
             get_vertex_inds() const
             {
-                Matrix<IndexMat> tVertexInd(mVertices.size(), 1);
+                Matrix< IndexMat > tVertexInd( mVertices.size(), 1 );
 
-                for (moris::uint i = 0; i < this->get_number_of_vertices(); i++)
+                for ( moris::uint i = 0; i < this->get_number_of_vertices(); i++ )
                 {
-                    tVertexInd(i) = mVertices(i)->get_index();
+                    tVertexInd( i ) = mVertices( i )->get_index();
                 }
 
                 return tVertexInd;
@@ -152,14 +163,14 @@ namespace moris
              * returns a Mat of dimension
              * < number of vertices * number of dimensions >
              */
-            Matrix<DDRMat>
+            Matrix< DDRMat >
             get_vertex_coords() const
             {
-                size_t tNumVertices = this->get_number_of_vertices();
-                Matrix<DDRMat> tVertexCoords(tNumVertices, mSpatialDim);
-                for (size_t i = 0; i < tNumVertices; i++)
+                size_t           tNumVertices = this->get_number_of_vertices();
+                Matrix< DDRMat > tVertexCoords( tNumVertices, mSpatialDim );
+                for ( size_t i = 0; i < tNumVertices; i++ )
                 {
-                    tVertexCoords.set_row(i, mVertices(i)->get_coords());
+                    tVertexCoords.set_row( i, mVertices( i )->get_coords() );
                 }
                 return tVertexCoords;
             }
@@ -198,43 +209,48 @@ namespace moris
             }
 
             //------------------------------------------------------------------------------
+            
             moris::real
             compute_cell_measure() const
             {
-                return mCellInfo->compute_cell_size(this);
+                return mCellInfo->compute_cell_size( this );
             }
 
             //------------------------------------------------------------------------------
+
             moris::real
-            compute_cell_measure_deriv(uint aLocalVertexID, uint aDirection) const
+            compute_cell_measure_deriv( uint aLocalVertexID, uint aDirection ) const
             {
-                return mCellInfo->compute_cell_size_deriv_general(this, aLocalVertexID, aDirection);
+                return mCellInfo->compute_cell_size_deriv_general( this, aLocalVertexID, aDirection );
             }
 
             //------------------------------------------------------------------------------
+
             moris::real
-            compute_cell_side_measure(moris_index const &aSideOrdinal) const
+            compute_cell_side_measure( moris_index const &aSideOrdinal ) const
             {
-                return mCellInfo->compute_cell_side_size(this, aSideOrdinal);
+                return mCellInfo->compute_cell_side_size( this, aSideOrdinal );
             }
+
             //------------------------------------------------------------------------------
 
             moris::real
             compute_cell_side_measure_deriv(
-                    moris_index const & aCellSideOrd,
-                    uint aLocalVertexID,
-                    uint aDirection) const
+                    moris_index const &aCellSideOrd,
+                    uint               aLocalVertexID,
+                    uint               aDirection ) const
             {
-                MORIS_ERROR(0,"compute_cell_side_measure_deriv - Not implemented.");
+                MORIS_ERROR( 0, "compute_cell_side_measure_deriv - Not implemented." );
                 return 0.0;
             }
 
             //------------------------------------------------------------------------------
 
-        };
+        }; // class Cell_Proxy
+
         //------------------------------------------------------------------------------
-    } /* namespace mtk */
-} // namespace moris
+        
+    } // namespace
+}    // namespace moris
 
 #endif /* PROJECTS_MTK_TEST_CL_MTK_CELL_PROXY_HPP_ */
-

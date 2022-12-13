@@ -502,6 +502,14 @@ namespace moris
 
         //------------------------------------------------------------------
 
+        void
+        remove( T const & value )
+        {
+            mCell.erase( std::remove( mCell.begin(), mCell.end(), value ), mCell.end() );
+        }
+
+        //------------------------------------------------------------------
+
         /**
          * @brief Appends the given element value to the end of the container
          *
@@ -724,7 +732,10 @@ namespace moris
         {
             mCell.emplace_back( std::forward< _Args >( __args )... );
         }
-    };
+
+        //------------------------------------------------------------------
+
+    }; // class Cell
 
     //------------------------------------------------------------------
 
@@ -857,6 +868,9 @@ namespace moris
         // trim outer cell
         aCell.shrink_to_fit();
     }
+
+    //------------------------------------------------------------------
+
 }    // namespace moris
 
 #endif /* MORIS_CONTAINERS_CL_Cell_HPP_ */

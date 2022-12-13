@@ -38,7 +38,7 @@
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Dist_Map.hpp"
 
-#include "cl_Stopwatch.hpp"    //CHR/src
+#include "cl_Stopwatch.hpp"
 
 namespace moris
 {
@@ -199,6 +199,14 @@ namespace moris
         {
             delete mOwnedADVs;
             delete mPrimitiveADVs;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Pdv_Host_Manager*
+        Geometry_Engine::get_pdv_host_manager()
+        {
+            return &mPDVHostManager;
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -32,14 +32,12 @@ namespace xtk
         //------------------------------------------------------------------------------
 
       private:
-
         mtk::Cell_Info const *      mCellInfo = nullptr;
         moris::Cell< mtk::Vertex* > mCellVertices;
 
         //------------------------------------------------------------------------------
 
       public:
-
         //------------------------------------------------------------------------------
 
         /**
@@ -49,7 +47,7 @@ namespace xtk
 
         //------------------------------------------------------------------------------
 
-        Cell_XTK_No_CM( 
+        Cell_XTK_No_CM(
                 moris::moris_id                   aElementId,
                 moris::moris_index                aElementIndex,
                 moris::moris_index                aElementOwner,
@@ -96,6 +94,22 @@ namespace xtk
 
         //------------------------------------------------------------------------------
 
+        void
+        replace_vertex_pointer( mtk::Vertex* aVertex, moris_index aIndex )
+        {
+            mCellVertices( aIndex ) = aVertex;
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        remove_vertex_pointer( moris_index aIndex )
+        {
+            mCellVertices.erase( aIndex );
+        }
+
+        //------------------------------------------------------------------------------
+
         /**
          * returns a Mat of dimension
          * < number of vertices * number of dimensions >
@@ -105,11 +119,11 @@ namespace xtk
 
         //------------------------------------------------------------------------------
 
-    }; // end class definition
+    };    // class Cell_XTK_No_CM
 
     //------------------------------------------------------------------------------
 
-}// namespace xtk
+}    // namespace xtk
 
 //------------------------------------------------------------------------------
 

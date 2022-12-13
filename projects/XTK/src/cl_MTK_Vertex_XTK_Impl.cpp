@@ -17,36 +17,36 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        Vertex_XTK::Vertex_XTK(){}
+        Vertex_XTK::Vertex_XTK() {}
 
         Vertex_XTK::Vertex_XTK(
-            moris::moris_id           aVertexId,
-            moris::moris_index        aVertexIndex,
-            moris::moris_index        aOwner,
-            std::shared_ptr<moris::Matrix<moris::DDRMat>> aCoordinates)
-        :
-        mVertexId(aVertexId),
-        mVertexIndex(aVertexIndex),
-        mVertexOwner(aOwner),
-        mCoordinates(aCoordinates)
+                moris::moris_id                                   aVertexId,
+                moris::moris_index                                aVertexIndex,
+                moris::moris_index                                aOwner,
+                std::shared_ptr< moris::Matrix< moris::DDRMat > > aCoordinates )
+                : mVertexId( aVertexId )
+                , mVertexIndex( aVertexIndex )
+                , mVertexOwner( aOwner )
+                , mCoordinates( aCoordinates )
         {
         }
 
         //------------------------------------------------------------------------------
 
-        Vertex_XTK::~Vertex_XTK(){}
+        Vertex_XTK::~Vertex_XTK() {}
 
         //------------------------------------------------------------------------------
 
         void
-        Vertex_XTK::set_vertex_interpolation(Vertex_Interpolation_XTK * aVertexInterpolation)
+        Vertex_XTK::set_vertex_interpolation( Vertex_Interpolation_XTK* aVertexInterpolation )
         {
-            MORIS_ASSERT(aVertexInterpolation != nullptr, "aVertexInterpolation provided is a null ptr");
+            MORIS_ASSERT( aVertexInterpolation != nullptr, "aVertexInterpolation provided is a null ptr" );
             mVertexInterpolation = aVertexInterpolation;
         }
+
         //------------------------------------------------------------------------------
 
-        Matrix<DDRMat>
+        Matrix< DDRMat >
         Vertex_XTK::get_coords() const
         {
             return *mCoordinates;
@@ -67,27 +67,41 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
+        void
+        Vertex_XTK::set_index( const moris_index aIndex )
+        {
+            mVertexIndex = aIndex;
+        }
+
+        //------------------------------------------------------------------------------
+
         moris_index
         Vertex_XTK::get_owner() const
         {
             return mVertexOwner;
         }
+
         //------------------------------------------------------------------------------
-        Vertex_Interpolation *
-        Vertex_XTK::get_interpolation(const uint aOrder)
+
+        Vertex_Interpolation*
+        Vertex_XTK::get_interpolation( const uint aOrder )
         {
-            MORIS_ASSERT(mVertexInterpolation != nullptr, "mInterpolation is a null ptr");
+            MORIS_ASSERT( mVertexInterpolation != nullptr, "mInterpolation is a null ptr" );
             return mVertexInterpolation;
         }
 
         //------------------------------------------------------------------------------
-        const Vertex_Interpolation *
-        Vertex_XTK::get_interpolation(const uint aOrder) const
+
+        const Vertex_Interpolation*
+        Vertex_XTK::get_interpolation( const uint aOrder ) const
         {
-            MORIS_ASSERT(mVertexInterpolation != nullptr, "mInterpolation is a null ptr");
+            MORIS_ASSERT( mVertexInterpolation != nullptr, "mInterpolation is a null ptr" );
             return mVertexInterpolation;
         }
+
         //------------------------------------------------------------------------------
+
         uint
         Vertex_XTK::get_level() const
         {
@@ -95,18 +109,19 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         size_t
         Vertex_XTK::capacity()
         {
             size_t tTotal = 0;
-            tTotal += sizeof(mVertexId);
-            tTotal += sizeof(mVertexIndex);
-            tTotal += sizeof(mVertexInterpolation);
-            tTotal += sizeof(mCoordinates);
+            tTotal += sizeof( mVertexId );
+            tTotal += sizeof( mVertexIndex );
+            tTotal += sizeof( mVertexInterpolation );
+            tTotal += sizeof( mCoordinates );
             return tTotal;
         }
+
         //------------------------------------------------------------------------------
 
-    } // namespace mtk
-} // namespace moris
-
+    }    // namespace mtk
+}    // namespace moris

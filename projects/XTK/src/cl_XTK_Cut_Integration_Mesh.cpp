@@ -25,20 +25,117 @@ using namespace moris;
 
 namespace xtk
 {
-    IG_Cell_Group::IG_Cell_Group( moris_index aNumCellsInGroup ) :
-            mIgCellGroup( aNumCellsInGroup, nullptr )
-            {
-            }
+    // ----------------------------------------------------------------------------------
+
+    IG_Cell_Group::IG_Cell_Group(
+            moris_index aNumCellsInGroup )
+            : mIgCellGroup( aNumCellsInGroup, nullptr )
+    {
+    }
+
+    // ----------------------------------------------------------------------------------
 
     IG_Cell_Group::IG_Cell_Group()
     {
     }
+
+    // ----------------------------------------------------------------------------------
+
+    void
+    IG_Cell_Group::add_Cell( moris::mtk::Cell* aCell )
+    {
+        moris_index tNewCellOrdinal = (moris_index)mIgCellGroup.size();
+
+        if ( mIgCellIndexToCellOrdinal.find( aCell->get_index() ) != mIgCellIndexToCellOrdinal.end() )
+        {
+            std::cout << "New cell index = " << aCell->get_index() << " | mIgCellIndexToCellOrdinal.find( aCell->get_index() ) = " << mIgCellIndexToCellOrdinal.find( aCell->get_index() )->first << std::endl;
+        }
+
+        MORIS_ASSERT( mIgCellIndexToCellOrdinal.find( aCell->get_index() ) == mIgCellIndexToCellOrdinal.end(), "Duplicate vertex in group" );
+        mIgCellGroup.push_back( aCell );
+        mIgCellIndexToCellOrdinal[ aCell->get_index() ] = tNewCellOrdinal;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    moris_index
+    IG_Cell_Group::get_cell_group_ordinal( moris_index aCell )
+    {
+        auto tIter = mIgCellIndexToCellOrdinal.find( aCell );
+        MORIS_ERROR( tIter != mIgCellIndexToCellOrdinal.end(), "Provided cell not in group" );
+        return tIter->second;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    void
+    IG_Cell_Group::remove_cell( moris_index aCell )
+    {
+
+        moris_index tOrdinal = this->get_cell_group_ordinal( aCell );
+
+        mIgCellGroup.erase( tOrdinal );
+        mIgCellIndexToCellOrdinal.erase( aCell );
+
+        // rewrite index to ordinal map
+        std::unordered_map< moris::moris_index, moris::moris_index > tTempMap;
+
+        for ( std::pair< moris::moris_index, moris::moris_index > el : mIgCellIndexToCellOrdinal )
+        {
+            moris_index key = el.first;
+            moris_index val = el.second;
+            if ( el.first >= aCell )
+            {
+                key = el.first - 1;
+            }
+            if ( el.second >= tOrdinal )
+            {
+                val = el.second - 1;
+            }
+
+            tTempMap[ key ] = val;
+        }
+        mIgCellIndexToCellOrdinal = tTempMap;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    bool
+    IG_Cell_Group::cell_is_in_group( moris_index aCell )
+    {
+        return mIgCellIndexToCellOrdinal.find( aCell ) != mIgCellIndexToCellOrdinal.end();
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    void
+    IG_Cell_Group::shift_indices( moris_index aCell )
+    {
+        std::unordered_map< moris::moris_index, moris::moris_index > tTempMap;
+
+        for ( std::pair< moris::moris_index, moris::moris_index > el : mIgCellIndexToCellOrdinal )
+        {
+            moris_index key = el.first;
+            moris_index val = el.second;
+            if ( el.first >= aCell )
+            {
+                key = el.first - 1;
+            }
+
+            tTempMap[ key ] = val;
+        }
+        mIgCellIndexToCellOrdinal = tTempMap;
+    }
+
+    // ----------------------------------------------------------------------------------
 
     IG_Cell_Side_Group::IG_Cell_Side_Group( moris_index aEstimatedNumCells )
     {
         mIgCells.reserve( aEstimatedNumCells );
         mIgCellSideOrdinals.reserve( aEstimatedNumCells );
     }
+
+    // ----------------------------------------------------------------------------------
 
     IG_Cell_Double_Side_Group::IG_Cell_Double_Side_Group( moris_index aEstimatedNumCells )
     {
@@ -48,17 +145,23 @@ namespace xtk
         mFollowerIgCellSideOrdinals.reserve( aEstimatedNumCells );
     }
 
-    IG_Vertex_Group::IG_Vertex_Group( moris_index aNumVerticesInGroup ) :
-            mIgVertexGroup( 0, nullptr )
+    // ----------------------------------------------------------------------------------
+
+    IG_Vertex_Group::IG_Vertex_Group( moris_index aNumVerticesInGroup )
+            : mIgVertexGroup( 0, nullptr )
     {
         mIgVertexGroup.reserve( aNumVerticesInGroup );
     }
+
+    // ----------------------------------------------------------------------------------
 
     std::size_t
     IG_Vertex_Group::size()
     {
         return mIgVertexGroup.size();
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     IG_Vertex_Group::reserve( std::size_t aReserveSize )
@@ -67,9 +170,11 @@ namespace xtk
         mIgVertexLocalCoords.reserve( aReserveSize );
     }
 
+    // ----------------------------------------------------------------------------------
+
     void
     IG_Vertex_Group::add_vertex(
-            moris::mtk::Vertex const *                 aVertex,
+            moris::mtk::Vertex const *          aVertex,
             std::shared_ptr< Matrix< DDRMat > > aVertexLocalCoord )
     {
         moris_index tNewVertexOrdinal = (moris_index)mIgVertexGroup.size();
@@ -84,19 +189,25 @@ namespace xtk
         MORIS_ASSERT( mIgVertexGroup.size() == mIgVertexLocalCoords.size(), "Size issue" );
         mIgVertexGroup.push_back( aVertex );
         mIgVertexLocalCoords.push_back( aVertexLocalCoord );
-        mIgVertexIndexToVertexOrdinal[aVertex->get_index()] = tNewVertexOrdinal;
+        mIgVertexIndexToVertexOrdinal[ aVertex->get_index() ] = tNewVertexOrdinal;
     }
+
+    // ----------------------------------------------------------------------------------
 
     void
     IG_Vertex_Group::add_vertex_local_coord_pointers()
     {
     }
 
+    // ----------------------------------------------------------------------------------
+
     moris::mtk::Vertex const *
     IG_Vertex_Group::get_vertex( moris_index aGroupVertexOrdinal )
     {
         return mIgVertexGroup( aGroupVertexOrdinal );
     }
+
+    // ----------------------------------------------------------------------------------
 
     moris_index
     IG_Vertex_Group::get_vertex_group_ordinal( moris_index aVertex )
@@ -106,17 +217,23 @@ namespace xtk
         return tIter->second;
     }
 
+    // ----------------------------------------------------------------------------------
+
     std::shared_ptr< Matrix< DDRMat > >
     IG_Vertex_Group::get_vertex_local_coords( moris_index aVertex )
     {
         return mIgVertexLocalCoords( this->get_vertex_group_ordinal( aVertex ) );
     }
 
+    // ----------------------------------------------------------------------------------
+
     bool
-    IG_Vertex_Group::vertex_is_in_group(moris_index aVertex)
+    IG_Vertex_Group::vertex_is_in_group( moris_index aVertex )
     {
         return mIgVertexIndexToVertexOrdinal.find( aVertex ) != mIgVertexIndexToVertexOrdinal.end();
     }
+
+    // ----------------------------------------------------------------------------------
 
     moris::uint
     IG_Vertex_Group::get_vertex_local_coords_dim() const
@@ -130,6 +247,9 @@ namespace xtk
             return 0;
         }
     }
+
+    // ----------------------------------------------------------------------------------
+
     void
     IG_Vertex_Group::print()
     {
@@ -152,11 +272,67 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+
+    void
+    IG_Vertex_Group::remove_vertex( moris_index aVertex )
+    {
+        moris_index tOrdinal = this->get_vertex_group_ordinal( aVertex );
+
+        mIgVertexGroup.erase( tOrdinal );
+        mIgVertexLocalCoords.erase( tOrdinal );
+        mIgVertexIndexToVertexOrdinal.erase( aVertex );
+
+        // rewrite index to ordinal map
+        std::unordered_map< moris::moris_index, moris::moris_index > tTempMap;
+
+        for ( std::pair< moris::moris_index, moris::moris_index > el : mIgVertexIndexToVertexOrdinal )
+        {
+            moris_index key = el.first;
+            moris_index val = el.second;
+            if ( el.first >= aVertex )
+            {
+                key = el.first - 1;
+            }
+            if ( el.second >= tOrdinal )
+            {
+                val = el.second - 1;
+            }
+
+            tTempMap[ key ] = val;
+        }
+
+        mIgVertexIndexToVertexOrdinal = tTempMap;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    void
+    IG_Vertex_Group::shift_indices( moris_index aVertex )
+    {
+        std::unordered_map< moris::moris_index, moris::moris_index > tTempMap;
+
+        for ( std::pair< moris::moris_index, moris::moris_index > el : mIgVertexIndexToVertexOrdinal )
+        {
+            moris_index key = el.first;
+            moris_index val = el.second;
+            if ( el.first >= aVertex )
+            {
+                key = el.first - 1;
+            }
+
+            tTempMap[ key ] = val;
+        }
+
+        mIgVertexIndexToVertexOrdinal = tTempMap;
+    }
+
+    // ----------------------------------------------------------------------------------
+
     Cut_Integration_Mesh::Cut_Integration_Mesh(
             moris::mtk::Mesh* aBackgroundMesh,
-            xtk::Model*       aXTKModel ) :
-            mBackgroundMesh( aBackgroundMesh ),
-            mXTKModel( aXTKModel )
+            xtk::Model*       aXTKModel )
+            : mBackgroundMesh( aBackgroundMesh )
+            , mXTKModel( aXTKModel )
     {
         //
         mSpatialDimension = aBackgroundMesh->get_spatial_dim();
@@ -181,7 +357,7 @@ namespace xtk
             MORIS_ERROR( mIntegrationCellIdToIndexMap.find( mIntegrationCells( iCell )->get_id() ) == mIntegrationCellIdToIndexMap.end(), "Provided Cell Id is already in the integration vertex map: Vertex Id =%uon process %u", mIntegrationCells( iCell )->get_id(), par_rank() );
 
             // add the vertex to id to index map
-            mIntegrationCellIdToIndexMap[mIntegrationCells( iCell )->get_id()] = (moris_index)iCell;
+            mIntegrationCellIdToIndexMap[ mIntegrationCells( iCell )->get_id() ] = (moris_index)iCell;
 
             mParentCellCellGroupIndex( iCell ) = iCell;
         }
@@ -214,7 +390,7 @@ namespace xtk
             MORIS_ERROR( mIntegrationVertexIdToIndexMap.find( mIntegrationVertices( iV )->get_id() ) == mIntegrationVertexIdToIndexMap.end(), "Provided Vertex Id is already in the integration vertex map: Vertex Id =%uon process %u", mIntegrationVertices( iV )->get_id(), par_rank() );
 
             // add the vertex to id to index map
-            mIntegrationVertexIdToIndexMap[mIntegrationVertices( iV )->get_id()] = (moris_index)iV;
+            mIntegrationVertexIdToIndexMap[ mIntegrationVertices( iV )->get_id() ] = (moris_index)iV;
         }
 
         this->setup_comm_map();
@@ -323,17 +499,17 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Cut_Integration_Mesh::add_proc_to_comm_table(moris_index aProcRank)
+    Cut_Integration_Mesh::add_proc_to_comm_table( moris_index aProcRank )
     {
         moris_index tIndex = mCommunicationMap.numel();
 
-        for(moris::uint i = 0 ; i < mCommunicationMap.numel(); i++)
+        for ( moris::uint i = 0; i < mCommunicationMap.numel(); i++ )
         {
-            MORIS_ERROR(mCommunicationMap(i) != aProcRank,"Processor rank already in communication table");
+            MORIS_ERROR( mCommunicationMap( i ) != aProcRank, "Processor rank already in communication table" );
         }
 
-        mCommunicationMap.resize(1,mCommunicationMap.numel()+1);
-        mCommunicationMap(tIndex) = aProcRank;
+        mCommunicationMap.resize( 1, mCommunicationMap.numel() + 1 );
+        mCommunicationMap( tIndex ) = aProcRank;
     }
 
     // ----------------------------------------------------------------------------------
@@ -411,6 +587,7 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+
     moris_index
     Cut_Integration_Mesh::get_loc_entity_ind_from_entity_glb_id(
             moris_id        aEntityId,
@@ -449,6 +626,7 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+
     Matrix< IndexMat >
     Cut_Integration_Mesh::get_entity_connected_to_entity_loc_inds(
             moris_index       aEntityIndex,
@@ -463,6 +641,7 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+
     moris::Cell< std::string >
     Cut_Integration_Mesh::get_set_names( enum EntityRank aSetEntityRank ) const
     {
@@ -494,12 +673,13 @@ namespace xtk
             {
                 MORIS_ERROR( 0, "Currently only supporting block, node and side sets in XTK enriched integration meshes" );
             }
-            return moris::Cell< std::string >( 0 );
-            break;
+                return moris::Cell< std::string >( 0 );
+                break;
         }
     }
 
     // ----------------------------------------------------------------------------------
+
     moris_index
     Cut_Integration_Mesh::get_block_set_index( std::string aBlockSetLabel ) const
     {
@@ -623,6 +803,8 @@ namespace xtk
         return &mVertexCoordinates;
     }
 
+    // ----------------------------------------------------------------------------------
+
     moris::Cell< std::shared_ptr< IG_Cell_Group > >&
     Cut_Integration_Mesh::get_all_cell_groups()
     {
@@ -630,12 +812,14 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+
     std::shared_ptr< Child_Mesh_Experimental >
     Cut_Integration_Mesh::get_child_mesh( moris_index aChildMeshIndex )
     {
         MORIS_ERROR( mChildMeshes.size() > (uint)aChildMeshIndex, "Child mesh index out of bounds" );
         return mChildMeshes( aChildMeshIndex );
     }
+
     // ----------------------------------------------------------------------------
 
     uint
@@ -645,6 +829,7 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------
+
     mtk::Vertex&
     Cut_Integration_Mesh::get_mtk_vertex( moris_index aVertexIndex )
     {
@@ -656,7 +841,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------
 
-    mtk::Vertex const&
+    mtk::Vertex const &
     Cut_Integration_Mesh::get_mtk_vertex( moris_index aVertexIndex ) const
     {
         MORIS_ASSERT( aVertexIndex < (moris_index)mIntegrationVertices.size(),
@@ -664,20 +849,26 @@ namespace xtk
 
         return *mIntegrationVertices( aVertexIndex );
     }
+
     // ----------------------------------------------------------------------------------
+
     std::unordered_map< moris_id, moris_index >
     Cut_Integration_Mesh::get_vertex_glb_id_to_loc_vertex_ind_map() const
     {
         return mIntegrationVertexIdToIndexMap;
     }
+
     // ----------------------------------------------------------------------------------
+
     bool
     Cut_Integration_Mesh::vertex_exists( moris_index tId ) const
     {
         return mIntegrationVertexIdToIndexMap.find( tId ) != mIntegrationVertexIdToIndexMap.end();
     }
+
     // ----------------------------------------------------------------------------------
-    mtk::Cell const&
+
+    mtk::Cell const &
     Cut_Integration_Mesh::get_mtk_cell( moris_index aElementIndex ) const
     {
         return *mIntegrationCells( aElementIndex );
@@ -687,25 +878,33 @@ namespace xtk
     {
         return *mIntegrationCells( aElementIndex );
     }
+
     // ----------------------------------------------------------------------------------
+
     moris::mtk::Vertex*
     Cut_Integration_Mesh::get_mtk_vertex_pointer( moris_index aVertexIndex )
     {
         return mIntegrationVertices( aVertexIndex );
     }
+
     // ----------------------------------------------------------------------------------
+
     std::shared_ptr< IG_Vertex_Group >
     Cut_Integration_Mesh::get_vertex_group( moris_index aVertexGroupIndex )
     {
         return mIntegrationVertexGroups( aVertexGroupIndex );
     }
+
     // ----------------------------------------------------------------------------------
+
     moris_index
     Cut_Integration_Mesh::get_parent_cell_group_index( moris_index aParentCellIndex )
     {
         return mParentCellCellGroupIndex( aParentCellIndex );
     }
+
     // ----------------------------------------------------------------------------------
+
     void
     Cut_Integration_Mesh::replace_controlled_ig_cell(
             moris_index                              aCellIndex,
@@ -722,7 +921,9 @@ namespace xtk
         mControlledIgCells( tIndexInControlledCells )->set_mtk_cell_info( aCellInfo );
         mControlledIgCells( tIndexInControlledCells )->set_vertex_pointers( aVertexPointers );
     }
+
     // ----------------------------------------------------------------------------------
+
     void
     Cut_Integration_Mesh::set_integration_cell(
             moris_index                            aCellIndex,
@@ -745,7 +946,7 @@ namespace xtk
         MORIS_ERROR( (moris::uint)aCellIndex >= mIntegrationCells.size(), "Index mismatch between adding cell and current data." );
 
         mControlledIgCells.push_back( aNewCell );
-        mIntegrationCells.push_back(aNewCell.get());
+        mIntegrationCells.push_back( aNewCell.get() );
     }
 
     // ----------------------------------------------------------------------------------
@@ -760,6 +961,26 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+
+    moris_index
+    Cut_Integration_Mesh::get_integration_vertex_controlled_index(
+            moris_index aVertIndex )
+    {
+        MORIS_ERROR( aVertIndex >= mFirstControlledVertexIndex,
+                "Cut_Integration_Mesh::get_integration_vertex_controlled_index() - Vertex index provided I do not control" );
+
+        if ( aVertIndex >= mFirstControlledVertexIndex )
+        {
+            return aVertIndex - mFirstControlledVertexIndex;
+        }
+        else
+        {
+            return -1;
+        }
+    }
+
+    // ----------------------------------------------------------------------------------
+
     void
     Cut_Integration_Mesh::add_cell_to_cell_group(
             moris_index aCellIndex,
@@ -770,10 +991,13 @@ namespace xtk
         MORIS_ERROR( aCellIndex < (moris_index)mIntegrationCells.size(),
                 "Cut_Integration_Mesh::add_cell_to_cell_group() - Cell Index out of bounds." );
 
-        mIntegrationCellGroups( aCellGroupIndex )->mIgCellGroup.push_back( mIntegrationCells( aCellIndex ) );
+        //mIntegrationCellGroups( aCellGroupIndex )->mIgCellGroup.push_back( mIntegrationCells( aCellIndex ) );
+        mIntegrationCellGroups(aCellGroupIndex)->add_Cell( mIntegrationCells( aCellIndex ) );
         mIntegrationCellToCellGroupIndex( aCellIndex ).push_back( aCellGroupIndex );
     }
+
     // ----------------------------------------------------------------------------------
+
     moris_id
     Cut_Integration_Mesh::allocate_entity_ids(
             moris::size_t   aNumIdstoAllocate,
@@ -784,7 +1008,7 @@ namespace xtk
         int tProcSize = moris::par_size();
 
         // size_t is defined as uint here because of aNumRequested
-        //Initialize gathered information outputs (information which will be scattered across processors)
+        // Initialize gathered information outputs (information which will be scattered across processors)
         moris::Cell< moris::moris_id > aGatheredInfo;
         moris::Cell< moris::moris_id > tFirstId( 1 );
         moris::Cell< moris::moris_id > tNumIdsRequested( 1 );
@@ -840,7 +1064,7 @@ namespace xtk
         moris::Cell< moris::moris_id > tNumIdsRequested( 1 );
 
         // put current processors ID request size into the Cell that will be shared across procs
-        tNumIdsRequested( 0 ) = (moris::moris_id) aNumIdstoAllocate;
+        tNumIdsRequested( 0 ) = (moris::moris_id)aNumIdstoAllocate;
 
         // hand ID range size request to root processor
         moris::gather( tNumIdsRequested, aGatheredInfo );
@@ -892,24 +1116,33 @@ namespace xtk
 
         return MORIS_INDEX_MAX;
     }
+
+    // ----------------------------------------------------------------------------------
+
     moris::uint
     Cut_Integration_Mesh::get_num_ig_cell_groups()
     {
         return mIntegrationCellGroups.size();
     }
+
     // ----------------------------------------------------------------------------------
+
     std::shared_ptr< IG_Cell_Group >
     Cut_Integration_Mesh::get_ig_cell_group( moris_index aGroupIndex )
     {
         return mIntegrationCellGroups( aGroupIndex );
     }
+
     // ----------------------------------------------------------------------------------
-    moris::Cell< moris_index > const&
+
+    moris::Cell< moris_index > const &
     Cut_Integration_Mesh::get_ig_cell_group_memberships( moris_index aIgCellIndex )
     {
         return mIntegrationCellToCellGroupIndex( aIgCellIndex );
     }
+
     // ----------------------------------------------------------------------------------
+
     moris::mtk::Cell*
     Cut_Integration_Mesh::get_ig_cell_group_parent_cell( moris_index aGroupIndex )
     {
@@ -941,11 +1174,15 @@ namespace xtk
         mChildMeshes( aCMIndex )->set_subphase_groups( tIgCellSubphases );
     }
 
+    // ----------------------------------------------------------------------------------
+
     moris::uint
     Cut_Integration_Mesh::get_num_subphases()
     {
         return mSubPhaseCellGroups.size();
     }
+
+    // ----------------------------------------------------------------------------------
 
     moris::uint
     Cut_Integration_Mesh::get_num_subphase_groups( moris_index aMeshIndexInList )
@@ -995,7 +1232,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    const moris::Cell< moris_index > &
+    const moris::Cell< moris_index >&
     Cut_Integration_Mesh::get_ig_cells_in_SPG( moris_index aMeshIndexInList, moris_index aSubphaseGroupIndex )
     {
         return mBsplineMeshInfos( aMeshIndexInList )->mSubphaseGroups( aSubphaseGroupIndex )->get_ig_cell_indices_in_group();
@@ -1035,7 +1272,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     moris_index
-    Cut_Integration_Mesh::get_subphase_group_id( 
+    Cut_Integration_Mesh::get_subphase_group_id(
             moris_index aSubphaseGroupIndex,
             moris_index aBsplineMeshListIndex )
     {
@@ -1097,7 +1334,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Cell< moris_index > const&
+    moris::Cell< moris_index > const &
     Cut_Integration_Mesh::get_parent_cell_subphases( moris_index aParentCellIndex )
     {
         return mParentCellToSubphase( aParentCellIndex );
@@ -1106,7 +1343,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     moris_index
-    Cut_Integration_Mesh::get_vertex_parent_index( moris_index const& aVertexIndex )
+    Cut_Integration_Mesh::get_vertex_parent_index( moris_index const & aVertexIndex )
     {
         return mIgVertexParentEntityIndex( aVertexIndex );
     }
@@ -1114,7 +1351,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     moris_index
-    Cut_Integration_Mesh::get_vertex_parent_rank( moris_index const& aVertexIndex )
+    Cut_Integration_Mesh::get_vertex_parent_rank( moris_index const & aVertexIndex )
     {
         return mIgVertexParentEntityRank( aVertexIndex );
     }
@@ -1142,7 +1379,7 @@ namespace xtk
             {
                 MORIS_ERROR( 0, "Only support get num entities for nodes and elements currently" );
             }
-            return 0;
+                return 0;
         }
     }
 
@@ -1196,7 +1433,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Cell< moris_index > const&
+    moris::Cell< moris_index > const &
     Cut_Integration_Mesh::get_interface_facets()
     {
         return mInterfaceFacets;
@@ -1212,7 +1449,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Cell< moris::Cell< std::shared_ptr< IG_Cell_Double_Side_Group > > > const&
+    moris::Cell< moris::Cell< std::shared_ptr< IG_Cell_Double_Side_Group > > > const &
     Cut_Integration_Mesh::get_bulk_phase_to_bulk_phase_dbl_side_interface()
     {
         return mBptoBpDblSideInterfaces;
@@ -1221,14 +1458,14 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Cut_Integration_Mesh::set_background_facet_to_child_facet_connectivity( moris::Cell< std::shared_ptr< moris::Cell< moris::moris_index > > > const& aBgtoChildFacet )
+    Cut_Integration_Mesh::set_background_facet_to_child_facet_connectivity( moris::Cell< std::shared_ptr< moris::Cell< moris::moris_index > > > const & aBgtoChildFacet )
     {
         mBGFacetToChildFacet = aBgtoChildFacet;
     }
 
     // ----------------------------------------------------------------------------------
 
-    moris::Cell< std::shared_ptr< moris::Cell< moris::moris_index > > > const&
+    moris::Cell< std::shared_ptr< moris::Cell< moris::moris_index > > > const &
     Cut_Integration_Mesh::get_background_facet_to_child_facet_connectivity()
     {
         return mBGFacetToChildFacet;
@@ -1260,7 +1497,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Cell< Bspline_Mesh_Info* > &
+    moris::Cell< Bspline_Mesh_Info* >&
     Cut_Integration_Mesh::get_bspline_mesh_info()
     {
         return mBsplineMeshInfos;
@@ -1281,7 +1518,7 @@ namespace xtk
             }
             MORIS_ASSERT( tSubphaseId != MORIS_INDEX_MAX, "Subphase id set to max" );
             MORIS_ASSERT( mGlobalToLocalSubphaseMap.find( tSubphaseId ) == mGlobalToLocalSubphaseMap.end(), "Subphase id already in map" );
-            mGlobalToLocalSubphaseMap[tSubphaseId] = i;
+            mGlobalToLocalSubphaseMap[ tSubphaseId ] = i;
         }
     }
 
@@ -1309,11 +1546,11 @@ namespace xtk
             moris_id tSpgId = tBsplineMeshInfo->get_id_for_spg_index( iSPG );
 
             // check validity of SPG ID
-            MORIS_ERROR( tSpgId != MORIS_ID_MAX, 
+            MORIS_ERROR( tSpgId != MORIS_ID_MAX,
                     "Cut_Integration_Mesh::construct_spg_id_to_index_map() - "
                     "Subphase Group ID not set. Should be set when this function is called." );
 
-            MORIS_ASSERT( tSpgIdtoIndexMap.find( tSpgId ) == tSpgIdtoIndexMap.end(), 
+            MORIS_ASSERT( tSpgIdtoIndexMap.find( tSpgId ) == tSpgIdtoIndexMap.end(),
                     "Cut_Integration_Mesh::construct_spg_id_to_index_map() - "
                     "Subphase id already in map" );
 
@@ -1333,7 +1570,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     Cell< moris_index >
-    Cut_Integration_Mesh::register_side_set_names( moris::Cell< std::string > const& aSideSetNames )
+    Cut_Integration_Mesh::register_side_set_names( moris::Cell< std::string > const & aSideSetNames )
     {
         uint tNumSetsToRegister = aSideSetNames.size();
 
@@ -1351,7 +1588,7 @@ namespace xtk
             MORIS_ASSERT( mSideSideSetLabelToOrd.find( aSideSetNames( i ) ) == mSideSideSetLabelToOrd.end(),
                     "Duplicate side set in mesh" );
 
-            mSideSideSetLabelToOrd[aSideSetNames( i )] = tSideSetOrds( i );
+            mSideSideSetLabelToOrd[ aSideSetNames( i ) ] = tSideSetOrds( i );
         }
         return tSideSetOrds;
     }
@@ -1360,8 +1597,8 @@ namespace xtk
 
     Cell< moris_index >
     Cut_Integration_Mesh::register_block_set_names(
-            moris::Cell< std::string > const& aBlockSetNames,
-            enum CellTopology                 aCellTopo )
+            moris::Cell< std::string > const & aBlockSetNames,
+            enum CellTopology                  aCellTopo )
     {
         uint tNumSetsToRegister = aBlockSetNames.size();
 
@@ -1380,7 +1617,7 @@ namespace xtk
             MORIS_ASSERT( mBlockSetLabelToOrd.find( aBlockSetNames( i ) ) == mBlockSetLabelToOrd.end(),
                     "Duplicate block set in mesh" );
 
-            mBlockSetLabelToOrd[aBlockSetNames( i )] = tBlockOrds( i );
+            mBlockSetLabelToOrd[ aBlockSetNames( i ) ] = tBlockOrds( i );
         }
 
         return tBlockOrds;
@@ -1444,7 +1681,7 @@ namespace xtk
     Cut_Integration_Mesh::get_coarsest_bspline_mesh_index_on_base_ip_cell( moris_index aBaseIpCellIndex ) const
     {
         // check that the input makes sense
-        MORIS_ASSERT( (uint) aBaseIpCellIndex < mCoarsestBsplineMesh.size(), 
+        MORIS_ASSERT( (uint)aBaseIpCellIndex < mCoarsestBsplineMesh.size(),
                 "Cut_Integration_Mesh::get_coarsest_bspline_mesh_index_on_base_ip_cell() - "
                 "Map has not been constructed yet, or base IP cell index out of bounds." );
 
@@ -1454,72 +1691,72 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::Cell< moris_index > const&
+    moris::Cell< moris_index > const &
     Cut_Integration_Mesh::get_union_MSD_indices_for_base_IP_cell( const moris_index aBaseIpCellIndex ) const
     {
-        MORIS_ASSERT( mUnionMsdInidices.size() > 0, 
+        MORIS_ASSERT( mUnionMsdInidices.size() > 0,
                 "Cut_Integration_Mesh::get_union_MSD_indices_for_base_IP_cell() - information not constructed yet" );
-        MORIS_ASSERT( mUnionMsdInidices.size() > (uint) aBaseIpCellIndex, 
+        MORIS_ASSERT( mUnionMsdInidices.size() > (uint)aBaseIpCellIndex,
                 "Cut_Integration_Mesh::get_union_MSD_indices_for_base_IP_cell() - IP cell index out of bounds" );
         return mUnionMsdInidices( aBaseIpCellIndex );
     }
 
     // ----------------------------------------------------------------------------------
 
-    moris::Cell< moris_index > const&
-    Cut_Integration_Mesh::get_material_SPG_indices_for_base_IP_cell( 
+    moris::Cell< moris_index > const &
+    Cut_Integration_Mesh::get_material_SPG_indices_for_base_IP_cell(
             const moris_index aBsplineMeshListIndex,
             const moris_index aBaseIpCellIndex ) const
     {
-        MORIS_ASSERT( mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellMaterialSpgs.size() > 0, 
+        MORIS_ASSERT( mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellMaterialSpgs.size() > 0,
                 "Cut_Integration_Mesh::get_material_SPG_indices_for_base_IP_cell() - information not constructed yet" );
         return mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellMaterialSpgs( aBaseIpCellIndex );
     }
 
     // ----------------------------------------------------------------------------------
 
-    moris::Cell< moris_index > const&
-    Cut_Integration_Mesh::get_material_MSD_indices_for_base_IP_cell( 
+    moris::Cell< moris_index > const &
+    Cut_Integration_Mesh::get_material_MSD_indices_for_base_IP_cell(
             const moris_index aBsplineMeshListIndex,
             const moris_index aBaseIpCellIndex ) const
     {
-        MORIS_ASSERT( mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellMaterialMsdIndices.size() > 0, 
+        MORIS_ASSERT( mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellMaterialMsdIndices.size() > 0,
                 "Cut_Integration_Mesh::get_material_MSD_indices_for_base_IP_cell() - information not constructed yet" );
         return mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellMaterialMsdIndices( aBaseIpCellIndex );
     }
-    
+
     // ----------------------------------------------------------------------------------
 
-    moris::Cell< moris_index > const&
-    Cut_Integration_Mesh::get_void_SPG_indices_for_base_IP_cell( 
+    moris::Cell< moris_index > const &
+    Cut_Integration_Mesh::get_void_SPG_indices_for_base_IP_cell(
             const moris_index aBsplineMeshListIndex,
             const moris_index aBaseIpCellIndex ) const
     {
-        MORIS_ASSERT( mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellVoidSpgs.size() > 0, 
+        MORIS_ASSERT( mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellVoidSpgs.size() > 0,
                 "Cut_Integration_Mesh::get_void_SPG_indices_for_base_IP_cell() - information not constructed yet" );
         return mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellVoidSpgs( aBaseIpCellIndex );
     }
 
     // ----------------------------------------------------------------------------------
 
-    moris::Cell< moris_index > const&
-    Cut_Integration_Mesh::get_void_MSD_indices_for_base_IP_cell( 
+    moris::Cell< moris_index > const &
+    Cut_Integration_Mesh::get_void_MSD_indices_for_base_IP_cell(
             const moris_index aBsplineMeshListIndex,
             const moris_index aBaseIpCellIndex ) const
     {
-        MORIS_ASSERT( mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellVoidMsdIndices.size() > 0, 
+        MORIS_ASSERT( mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellVoidMsdIndices.size() > 0,
                 "Cut_Integration_Mesh::get_void_MSD_indices_for_base_IP_cell() - information not constructed yet" );
         return mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellVoidMsdIndices( aBaseIpCellIndex );
     }
 
     // ----------------------------------------------------------------------------------
 
-    moris::Cell< moris_index > const&
-    Cut_Integration_Mesh::get_free_void_MSD_indices_for_base_IP_cell( 
+    moris::Cell< moris_index > const &
+    Cut_Integration_Mesh::get_free_void_MSD_indices_for_base_IP_cell(
             const moris_index aBsplineMeshListIndex,
             const moris_index aBaseIpCellIndex ) const
     {
-        MORIS_ASSERT( mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellFreeVoidMsdIndices.size() > 0, 
+        MORIS_ASSERT( mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellFreeVoidMsdIndices.size() > 0,
                 "Cut_Integration_Mesh::get_free_void_MSD_indices_for_base_IP_cell() - information not constructed yet" );
         return mBsplineMeshInfos( aBsplineMeshListIndex )->mExtractionCellFreeVoidMsdIndices( aBaseIpCellIndex );
     }
@@ -1574,8 +1811,8 @@ namespace xtk
 
             tStringStream << std::to_string( tCell.get_id() ) + ",";
             if ( !aOmitIndex ) { tStringStream << std::to_string( tCell.get_index() ) + ","; }
-            tStringStream <<  std::to_string(tCell.get_owner())<<",";
-            tStringStream <<  std::to_string(par_rank())<<",";
+            tStringStream << std::to_string( tCell.get_owner() ) << ",";
+            tStringStream << std::to_string( par_rank() ) << ",";
             tStringStream << std::to_string( this->get_cell_bulk_phase( i ) ) + ",";
             tStringStream << std::scientific << tCell.compute_cell_measure() << ",";
 
@@ -1750,7 +1987,7 @@ namespace xtk
                 if ( tCommunicationMap.find( tOwner ) == tCommunicationMap.end() && tOwner != par_rank() )
                 {
                     tCellOfProcs.push_back( tOwner );
-                    tCommunicationMap[tOwner] = 1;
+                    tCommunicationMap[ tOwner ] = 1;
                 }
             }
 
@@ -1795,7 +2032,7 @@ namespace xtk
                 }
 
                 // convert to a matrix
-                for ( moris::uint i = 0; i < (uint) par_size(); i++ )
+                for ( moris::uint i = 0; i < (uint)par_size(); i++ )
                 {
                     tReturnMats( i ).resize( 1, tProcToProc( i ).size() );
 
@@ -1810,7 +2047,7 @@ namespace xtk
                 }
 
                 // send processor-to-processor communication table back individual processors
-                for ( moris::uint i = 0; i < (uint) par_size(); i++ )
+                for ( moris::uint i = 0; i < (uint)par_size(); i++ )
                 {
                     nonblocking_send(
                             tReturnMats( i ),
@@ -1840,7 +2077,7 @@ namespace xtk
 
                         mCommunicationMap.resize( 1, mCommunicationMap.numel() + 1 );
 
-                        tCommunicationMap[tTempCommMap( i )] = 1;
+                        tCommunicationMap[ tTempCommMap( i ) ] = 1;
 
                         mCommunicationMap( tIndex ) = tTempCommMap( i );
                     }
@@ -1878,6 +2115,7 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------------
+
     void
     Cut_Integration_Mesh::assign_controlled_ig_cell_ids()
     {
@@ -1905,7 +2143,7 @@ namespace xtk
 
                 MORIS_ASSERT( mIntegrationCellIdToIndexMap.find( tCellGroup->mIgCellGroup( iCell )->get_id() ) == mIntegrationCellIdToIndexMap.end(), "Id already in the map" );
 
-                mIntegrationCellIdToIndexMap[tCellGroup->mIgCellGroup( iCell )->get_id()] = tCellGroup->mIgCellGroup( iCell )->get_index();
+                mIntegrationCellIdToIndexMap[ tCellGroup->mIgCellGroup( iCell )->get_id() ] = tCellGroup->mIgCellGroup( iCell )->get_index();
             }
         }
 
@@ -1954,7 +2192,9 @@ namespace xtk
 
         barrier();
     }
+
     // ----------------------------------------------------------------------------------
+
     void
     Cut_Integration_Mesh::prepare_child_element_identifier_requests(
             Cell< Cell< moris_id > >&                 aNotOwnedChildMeshesToProcs,
@@ -1972,7 +2212,7 @@ namespace xtk
 
         for ( moris::size_t i = 0; i < tCommTable.numel(); i++ )
         {
-            aProcRankToDataIndex[tCommTable( i )] = tCurrentIndex;
+            aProcRankToDataIndex[ tCommTable( i ) ] = tCurrentIndex;
             aProcRanks.push_back( tCommTable( i ) );
             aNotOwnedChildMeshesToProcs.push_back( Cell< moris_id >( 0 ) );
             tCounts.push_back( 0 );
@@ -1982,7 +2222,7 @@ namespace xtk
         for ( moris::size_t i = 0; i < mNotOwnedIntegrationCellGroups.size(); i++ )
         {
             moris_index tOwnerProc     = mIntegrationCellGroupsParentCell( mNotOwnedIntegrationCellGroups( i ) )->get_owner();
-            moris_index tProcDataIndex = aProcRankToDataIndex[tOwnerProc];
+            moris_index tProcDataIndex = aProcRankToDataIndex[ tOwnerProc ];
             aNotOwnedChildMeshesToProcs( tProcDataIndex ).push_back( mNotOwnedIntegrationCellGroups( i ) );
         }
 
@@ -2018,7 +2258,9 @@ namespace xtk
             }
         }
     }
+
     // ----------------------------------------------------------------------------------
+
     void
     Cut_Integration_Mesh::prepare_child_cell_id_answers(
             Cell< Matrix< IndexMat > >& aReceivedParentCellIds,
@@ -2074,11 +2316,13 @@ namespace xtk
             }
         }
     }
+
     // ----------------------------------------------------------------------------------
+
     void
     Cut_Integration_Mesh::handle_received_child_cell_id_request_answers(
-            Cell< Cell< moris_index > > const& aChildMeshesInInNotOwned,
-            Cell< Matrix< IndexMat > > const&  aReceivedChildCellIdOffset )
+            Cell< Cell< moris_index > > const & aChildMeshesInInNotOwned,
+            Cell< Matrix< IndexMat > > const &  aReceivedChildCellIdOffset )
     {
         // iterate through received data
         for ( moris::uint i = 0; i < aChildMeshesInInNotOwned.size(); i++ )
@@ -2102,7 +2346,7 @@ namespace xtk
 
                     MORIS_ASSERT( mIntegrationCellIdToIndexMap.find( tCellGroup->mIgCellGroup( iCell )->get_id() ) == mIntegrationCellIdToIndexMap.end(), "Id already in the map" );
 
-                    mIntegrationCellIdToIndexMap[tCellGroup->mIgCellGroup( iCell )->get_id()] = tCellGroup->mIgCellGroup( iCell )->get_index();
+                    mIntegrationCellIdToIndexMap[ tCellGroup->mIgCellGroup( iCell )->get_id() ] = tCellGroup->mIgCellGroup( iCell )->get_index();
                 }
             }
         }
@@ -2118,7 +2362,7 @@ namespace xtk
 
         if ( mBackgroundMesh->get_num_elems() > 0 )
         {
-            moris::mtk::Cell const& tCell = mBackgroundMesh->get_mtk_cell( 0 );
+            moris::mtk::Cell const & tCell = mBackgroundMesh->get_mtk_cell( 0 );
 
             // MORIS_ERROR(  tCell.get_geometry_type() == mtk::Geometry_Type::HEX || tCell.get_geometry_type() == mtk::Geometry_Type::QUAD ,
             //     "Need to abstract by adding get cell topo to cell info class" );
@@ -2140,13 +2384,12 @@ namespace xtk
     Cut_Integration_Mesh::trim_data()
     {
         // trim inner and outer cells
-        shrink_to_fit_all(mControlledIgCells );
-        shrink_to_fit_all(mIntegrationCells );
-        shrink_to_fit_all(mIntegrationCellToCellGroupIndex );
-        shrink_to_fit_all(mIntegrationCellBulkPhase );
+        shrink_to_fit_all( mControlledIgCells );
+        shrink_to_fit_all( mIntegrationCells );
+        shrink_to_fit_all( mIntegrationCellToCellGroupIndex );
+        shrink_to_fit_all( mIntegrationCellBulkPhase );
     }
 
     // ----------------------------------------------------------------------------------
 
-}// namespace xtk
-
+}    // namespace xtk

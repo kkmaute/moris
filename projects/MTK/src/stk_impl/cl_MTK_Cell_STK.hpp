@@ -11,12 +11,12 @@
 #ifndef PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_STK_HPP_
 #define PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_STK_HPP_
 
-#include "typedefs.hpp"    //MRS/COR/src
+#include "typedefs.hpp"
 #include "cl_Logger.hpp"
-#include "cl_Cell.hpp"              //MRS/CON/src
-#include "cl_MTK_Vertex_STK.hpp"    //MTK/src
-#include "cl_MTK_Cell.hpp"          //MTK/src
-#include "cl_MTK_Enums.hpp"         //MTK/src
+#include "cl_Cell.hpp"
+#include "cl_MTK_Vertex_STK.hpp"
+#include "cl_MTK_Cell.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Cell_Info.hpp"
 #include "cl_MTK_Cell_Info_Factory.hpp"
@@ -24,6 +24,7 @@
 #include "fn_norm.hpp"
 #include "fn_trans.hpp"
 #include "op_div.hpp"
+
 //------------------------------------------------------------------------------
 namespace moris
 {
@@ -97,6 +98,15 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
+            // TODO MESHCLEANUP
+            void
+            remove_vertex_pointer( moris_index aIndex )
+            {
+                std::cout << "In MTK Cell STK" << std::endl;
+            }
+
+            //------------------------------------------------------------------------------
+
             /**
              * returns a Matrix of dimension
              * < number of vertices * number of dimensions >
@@ -123,12 +133,16 @@ namespace moris
             {
                 return mBulkSetId;
             }
-        };
+
+            //------------------------------------------------------------------------------
+
+        }; // class Cell_STK
 
         //------------------------------------------------------------------------------
+
     } /* namespace mtk */
 } /* namespace moris */
+
 //------------------------------------------------------------------------------
 
 #endif /* PROJECTS_MTK_SRC_STK_IMPL_CL_MTK_CELL_STK_HPP_ */
-

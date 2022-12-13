@@ -9,7 +9,6 @@
  */
 
 #include "cl_MTK_Cell_DataBase.hpp"
-//#include "cl_MTK_Cell_Info.hpp"
 
 #include "cl_MTK_Mesh_Core.hpp"
 #include "fn_TOL_Capacities.hpp"
@@ -18,34 +17,34 @@ namespace moris::mtk
 {
     //------------------------------------------------------------------------------
 
-    Cell_DataBase::Cell_DataBase( mtk::Cell&     aCell,
-        std::shared_ptr< moris::mtk::Cell_Info > aCellInfo,
-        moris_index                              aCellIndex2,
-        mtk::Mesh*                               aMesh ) :
-        Cell( aCell.get_id(), aCell.get_index(), aCell.get_owner(), aCellInfo ),
-        mBaseCell( aCell.get_base_cell() ),
-        mCellIndex2( aCellIndex2 ),
-        mMesh( aMesh )
+    Cell_DataBase::Cell_DataBase( mtk::Cell&         aCell,
+            std::shared_ptr< moris::mtk::Cell_Info > aCellInfo,
+            moris_index                              aCellIndex2,
+            mtk::Mesh*                               aMesh )
+            : Cell( aCell.get_id(), aCell.get_index(), aCell.get_owner(), aCellInfo )
+            , mBaseCell( aCell.get_base_cell() )
+            , mCellIndex2( aCellIndex2 )
+            , mMesh( aMesh )
     {
     }
 
     //------------------------------------------------------------------------------
 
     Cell_DataBase::Cell_DataBase( mtk::Cell& aCell,
-        moris_index                          aCellIndex2,
-        mtk::Mesh*                           aMesh ) :
-        Cell( aCell.get_id(), aCell.get_index(), aCell.get_owner(), aCell.get_cell_info_sp() ),
-        mCellIndex2( aCellIndex2 ),
-        mMesh( aMesh )
+            moris_index                      aCellIndex2,
+            mtk::Mesh*                       aMesh )
+            : Cell( aCell.get_id(), aCell.get_index(), aCell.get_owner(), aCell.get_cell_info_sp() )
+            , mCellIndex2( aCellIndex2 )
+            , mMesh( aMesh )
     {
     }
 
     //------------------------------------------------------------------------------
 
     Cell_DataBase::Cell_DataBase( moris_index aCellIndex2,
-        mtk::Mesh*                            aMesh ) :
-        mCellIndex2( aCellIndex2 ),
-        mMesh( aMesh )
+            mtk::Mesh*                        aMesh )
+            : mCellIndex2( aCellIndex2 )
+            , mMesh( aMesh )
     {
     }
 
@@ -70,6 +69,15 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
+    // TODO MESHCLEANUP
+    void
+    Cell_DataBase::remove_vertex_pointer( moris_index aIndex )
+    {
+        std::cout << "In Cell Database" << std::endl;
+    }
+
+    //------------------------------------------------------------------------------
+
     Matrix< DDRMat >
     Cell_DataBase::get_vertex_coords() const
     {
@@ -85,7 +93,7 @@ namespace moris::mtk
         // loop over vertices to set the coords of the individual vertices
         for ( uint i = 0; i < tNumVertices; i++ )
         {
-            Matrix< DDRMat > tVertCoord = tVertices[i]->get_coords();
+            Matrix< DDRMat > tVertCoord = tVertices[ i ]->get_coords();
 
             tVertexCoords.set_row( i, tVertCoord );
         }
@@ -103,7 +111,7 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
-    mtk::Cell const*
+    mtk::Cell const *
     Cell_DataBase::get_base_cell() const
     {
         return mBaseCell;
@@ -146,7 +154,7 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
-    Cell_Info const*
+    Cell_Info const *
     Cell_DataBase::get_cell_info() const
     {
         return this->get_cell_info_sp().get();
@@ -164,7 +172,7 @@ namespace moris::mtk
     moris_id
     Cell_DataBase::get_id() const
     {
-         return mMesh->get_entity_id( EntityRank::ELEMENT, mCellIndex2 );
+        return mMesh->get_entity_id( EntityRank::ELEMENT, mCellIndex2 );
     }
 
     //------------------------------------------------------------------------------
@@ -182,4 +190,7 @@ namespace moris::mtk
     {
         return mMesh->get_entity_owner( EntityRank::ELEMENT, mCellIndex2 );
     }
-}// namespace moris::mtk
+
+    //------------------------------------------------------------------------------
+
+}    // namespace moris::mtk

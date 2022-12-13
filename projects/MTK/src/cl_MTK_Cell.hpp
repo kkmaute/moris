@@ -48,6 +48,7 @@ namespace moris
             moris_id mCellId;
             moris_id mCellIndex;
             moris_id mCellOwner;
+            
             //------------------------------------------------------------------------------
 
           public:
@@ -156,6 +157,22 @@ namespace moris
             virtual moris::Cell< Vertex * >
             get_vertex_pointers() const = 0;
 
+            //-----------------------------------------------------------------------------
+
+            /**
+             * @brief
+             *
+             * @param aIndex
+             */
+
+            virtual void
+            remove_vertex_pointer( moris_index aIndex ) = 0;
+
+            //-----------------------------------------------------------------------------
+
+            virtual void
+            remove_vertex( moris_index aIndex );
+
             //------------------------------------------------------------------------------
 
             /**
@@ -193,6 +210,17 @@ namespace moris
              */
             virtual Matrix< IndexMat >
             get_vertex_inds() const;
+
+            //------------------------------------------------------------------------------
+
+            // TODO MESHCLEANUP
+            // virtual void
+            // set_vertex_pointers( mtk::Vertex* aVertex, moris_index aIndex );
+
+            //------------------------------------------------------------------------------
+
+            virtual bool
+            check_unique_vertex_inds() const;
 
             //------------------------------------------------------------------------------
 
@@ -386,8 +414,13 @@ namespace moris
 
             virtual moris::Matrix< moris::DDRMat >
             get_cell_geometric_coords_on_side_ordinal( moris::moris_index aSideOrdinal ) const;
-        };
 
+            //------------------------------------------------------------------------------
+
+        }; // class mtk::Cell
+
+        //------------------------------------------------------------------------------
+        
         // operators for printing
         inline std::ostream &
         operator<<( std::ostream &os, const mtk::Cell &dt )
@@ -397,6 +430,8 @@ namespace moris
             return os;
         }
 
+        //------------------------------------------------------------------------------
+        
         inline std::ostream &
         operator<<( std::ostream &os, mtk::Cell const *const &dt )
         {
@@ -406,9 +441,10 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
     } /* namespace mtk */
 } /* namespace moris */
+
 //------------------------------------------------------------------------------
 
 #endif /* SRC_MESH_CL_MTK_CELL_HPP_ */
-

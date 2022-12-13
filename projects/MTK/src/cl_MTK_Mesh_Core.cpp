@@ -31,6 +31,14 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
+        void
+        Mesh::get_Mesh_GEN_map( moris::Cell< moris_index >& aMesh_GEN_map )
+        {
+            MORIS_ASSERT( false, "get_Mesh_GEN_map(), not implemented for base class" );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
         uint
         Mesh::get_num_sets() const
         {
@@ -1503,5 +1511,8 @@ namespace moris
             MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
             return nullptr;
         }
+
+        //--------------------------------------------------------------------------------------------------------------
+
     }    // namespace mtk
 }    // namespace moris

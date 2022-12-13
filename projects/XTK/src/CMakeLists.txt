@@ -90,6 +90,7 @@ set(HEADERS
     cl_XTK_Decomposition_Algorithm_Factory.hpp
     cl_XTK_Diagnostics.hpp
     cl_XTK_Subphase_Group.hpp
+    cl_XTK_Integration_Mesh_Cleanup.hpp
     fn_XTK_convert_cell_to_map.hpp 
     fn_XTK_convert_cell_to_multiset.hpp  
     fn_XTK_find_most_frequent_int_in_cell.hpp
@@ -165,7 +166,9 @@ cl_XTK_Node_Hierarchy_Template_Library.cpp
 cl_XTK_Elevate_Order_Interface.cpp
 cl_XTK_Octree_Interface.cpp
 
-cl_XTK_Diagnostics.cpp)
+cl_XTK_Diagnostics.cpp
+
+cl_XTK_Integration_Mesh_Cleanup.cpp )
 
 # List library dependencies
 set(LIB_DEPENDENCIES 

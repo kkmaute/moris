@@ -26,216 +26,225 @@ namespace moris
         class Mesh_Base;
 
         class Element;
-        class Basis ;
+        class Basis;
         // ----------------------------------------------------------------------------
 
         class Facet : public mtk::Facet
         {
-                // ----------------------------------------------------------------------------
-            protected:
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                const Background_Facet * mFacet;
+          protected:
 
-                //! index of this face
-                moris_id mID = gNoID;
+            // ----------------------------------------------------------------------------
 
-                //! id of this face
-                moris_index mIndex = gNoIndex;
+            const Background_Facet* mFacet;
 
-                //! pointer to master element
-                Element * mMaster = nullptr;
+            // index of this face
+            moris_id mID = gNoID;
 
-                //! pointer to slave element
-                Element * mSlave = nullptr;
+            // id of this face
+            moris_index mIndex = gNoIndex;
 
-                uint mIndexOnMaster = MORIS_UINT_MAX;
+            // pointer to master element
+            Element* mMaster = nullptr;
 
-                //! pointer to parent
-                //Facet * mParent = nullptr;
+            // pointer to slave element
+            Element* mSlave = nullptr;
 
-                //! flag telling if facet has children
-                //bool mHasChildren = false;
+            uint mIndexOnMaster = MORIS_UINT_MAX;
 
-                //! cell containing children
-                //moris::Cell< Facet * > mChildren;
+            // pointer to parent
+            // Facet * mParent = nullptr;
 
-                //! child index of this facet
-                //uint     mChildIndex;
+            // flag telling if facet has children
+            // bool mHasChildren = false;
 
-                // ----------------------------------------------------------------------------
+            // cell containing children
+            // moris::Cell< Facet * > mChildren;
 
-            public:
+            // child index of this facet
+            // uint mChildIndex;
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                Facet(  Mesh_Base           * aMesh,
-                        Background_Facet    * aBackgroundFacet );
+          public:
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                virtual ~Facet();
+            Facet( Mesh_Base*         aMesh,
+                    Background_Facet* aBackgroundFacet );
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                /**
-                 * returns the domain wide id of the cell
-                 *
-                 * @return moris_id ID
-                 */
-                moris_id get_id() const;
+            virtual ~Facet();
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                /**
-                 * returns the local index of the cell
-                 *
-                 * @return moris_index ID
-                 */
-                moris_index get_index() const;
+            /**
+             * returns the domain wide id of the cell
+             *
+             * @return moris_id ID
+             */
+            moris_id get_id() const;
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                /**
-                 * tells how many vertices are connected to this cell
-                 */
-                virtual uint get_number_of_vertices() const = 0;
+            /**
+             * returns the local index of the cell
+             *
+             * @return moris_index ID
+             */
+            moris_index get_index() const;
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                /**
-                 * returns the proc id of the owner of this cell
-                 */
-                moris_id get_owner() const;
+            /**
+             * tells how many vertices are connected to this cell
+             */
+            virtual uint get_number_of_vertices() const = 0;
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                /**
-                 * fills a moris::cell with pointers to connected vertices
-                 */
-                moris::Cell< mtk::Vertex* > get_vertex_pointers() const;
+            /**
+             * returns the proc id of the owner of this cell
+             */
+            moris_id get_owner() const;
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                /**
-                 * returns a Mat with IDs of connected vertices
-                 */
-                Matrix< IdMat > get_vertex_ids() const;
+            /**
+             * fills a moris::cell with pointers to connected vertices
+             */
+            moris::Cell< mtk::Vertex* > get_vertex_pointers() const;
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                /**
-                 * returns a Mat with Indices of connected vertices
-                 */
-                Matrix< IndexMat > get_vertex_inds() const;
+            void remove_vertex_pointer( moris_index aIndex );
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                /**
-                 * returns a Mat of dimension
-                 * < number of vertices * number of dimensions >
-                 */
-                virtual Matrix< DDRMat > get_vertex_coords() const = 0;
+            /**
+             * returns a Mat with IDs of connected vertices
+             */
+            Matrix< IdMat > get_vertex_ids() const;
 
-                //------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                /**
-                 * returns an enum that defines the geometry type of the element
-                 */
-                virtual mtk::Geometry_Type get_geometry_type() const = 0;
+            /**
+             * returns a Mat with Indices of connected vertices
+             */
+            Matrix< IndexMat > get_vertex_inds() const;
 
-                //------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                /**
-                 * returns the order of the element
-                 */
-                virtual mtk::Interpolation_Order get_interpolation_order() const = 0;
+            /**
+             * returns a Mat of dimension
+             * < number of vertices * number of dimensions >
+             */
+            virtual Matrix< DDRMat > get_vertex_coords() const = 0;
 
-                //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-                mtk::Cell * get_master();
+            /**
+             * returns an enum that defines the geometry type of the element
+             */
+            virtual mtk::Geometry_Type get_geometry_type() const = 0;
 
-                //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-                const mtk::Cell * get_master() const;
+            /**
+             * returns the order of the element
+             */
+            virtual mtk::Interpolation_Order get_interpolation_order() const = 0;
 
-                //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-                mtk::Cell * get_slave();
+            mtk::Cell* get_master();
 
-                //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-                const mtk::Cell * get_slave() const;
+            const mtk::Cell* get_master() const;
 
-                //-----------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-                uint get_index_on_master() const;
+            mtk::Cell* get_slave();
 
-                //-----------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
 
-                uint get_index_on_slave() const;
+            const mtk::Cell* get_slave() const;
 
-                // ----------------------------------------------------------------------------
+            //-----------------------------------------------------------------------------
 
-                virtual const mtk::Vertex * get_vertex( const uint & aIndex ) const = 0;
+            uint get_index_on_master() const;
 
-                // ----------------------------------------------------------------------------
-                //      HMR public:
-                // ----------------------------------------------------------------------------
+            //-----------------------------------------------------------------------------
 
-                /**
-                 * inverts the order of the nodes
-                 */
-                void flip();
+            uint get_index_on_slave() const;
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                bool is_active() const;
+            virtual const mtk::Vertex* get_vertex( const uint& aIndex ) const = 0;
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
+            //      HMR public:
+            // ----------------------------------------------------------------------------
 
-                void set_id( const moris_id & aID );
+            /**
+             * inverts the order of the nodes
+             */
+            void flip();
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                /** increase id by given increment
-                 *
-                 * @param aIncrement increment by which id is increased
-                 */
-                void increment_id( const moris_id aIncrement = 1);
+            bool is_active() const;
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                void set_index( const moris_index & aIndex );
+            void set_id( const moris_id& aID );
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                Element * get_hmr_master();
+            /** increase id by given increment
+             *
+             * @param aIncrement increment by which id is increased
+             */
+            void increment_id( const moris_id aIncrement = 1 );
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                Element * get_hmr_slave();
+            void set_index( const moris_index& aIndex );
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                uint get_level() const;
+            Element* get_hmr_master();
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                virtual Basis * get_basis( const uint & aIndex ) = 0;
+            Element* get_hmr_slave();
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                virtual const Basis * get_basis( const uint & aIndex ) const = 0;
+            uint get_level() const;
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-            private:
+            virtual Basis* get_basis( const uint& aIndex ) = 0;
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
-                void swap_master_and_slave();
-        };
+            virtual const Basis* get_basis( const uint& aIndex ) const = 0;
+
+            // ----------------------------------------------------------------------------
+
+          private:
+
+            // ----------------------------------------------------------------------------
+
+            void swap_master_and_slave();
+
+            // ----------------------------------------------------------------------------
+
+        };  // class Facet
 
         // ----------------------------------------------------------------------------
 
@@ -243,4 +252,3 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_FACE_BASE_HPP_ */
-

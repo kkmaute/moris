@@ -16,37 +16,54 @@ namespace xtk
     // ----------------------------------------------------------------------------------
     // Constructor/Deconstructor Source code
     // ----------------------------------------------------------------------------------
-    Cell_XTK_CM::Cell_XTK_CM(){}
 
-    Cell_XTK_CM::Cell_XTK_CM(moris::moris_id aElementId,
-                             moris::moris_index aElementIndex,
-                             moris::moris_index aElementOwner,
-                             moris::moris_index aCMElementIndex,
-                             xtk::Child_Mesh *aChildMeshPtr,
-                             xtk::Background_Mesh *aBackgroundMeshPtr)
-                             : Cell(aElementId,aElementIndex,aElementOwner, aChildMeshPtr->get_cell_info_sp()),
-                               mCMElementIndex(aCMElementIndex),
-                               mChildMeshPtr(aChildMeshPtr),
-                               mBackgroundMeshPtr(aBackgroundMeshPtr)
+    Cell_XTK_CM::Cell_XTK_CM() {}
+
+    // ----------------------------------------------------------------------------------
+
+    Cell_XTK_CM::Cell_XTK_CM(
+            moris::moris_id       aElementId,
+            moris::moris_index    aElementIndex,
+            moris::moris_index    aElementOwner,
+            moris::moris_index    aCMElementIndex,
+            xtk::Child_Mesh      *aChildMeshPtr,
+            xtk::Background_Mesh *aBackgroundMeshPtr )
+            : Cell( aElementId, aElementIndex, aElementOwner, aChildMeshPtr->get_cell_info_sp() )
+            , mCMElementIndex( aCMElementIndex )
+            , mChildMeshPtr( aChildMeshPtr )
+            , mBackgroundMeshPtr( aBackgroundMeshPtr )
     {
     }
 
-    moris::Cell<mtk::Vertex *>
+    // ----------------------------------------------------------------------------------
+
+    Cell_XTK_CM::~Cell_XTK_CM() {}
+
+    // ----------------------------------------------------------------------------------
+
+    moris::Cell< mtk::Vertex * >
     Cell_XTK_CM::get_vertex_pointers() const
     {
-        Matrix<IndexMat> tVertexIndices = this->get_vertex_inds();
-        moris::Cell<mtk::Vertex *> tVertices(tVertexIndices.numel());
+        Matrix< IndexMat >           tVertexIndices = this->get_vertex_inds();
+        moris::Cell< mtk::Vertex * > tVertices( tVertexIndices.numel() );
 
-        for (moris::uint i = 0; i < tVertices.size(); i++)
+        for ( moris::uint i = 0; i < tVertices.size(); i++ )
         {
-            tVertices(i) = &mBackgroundMeshPtr->get_mtk_vertex(tVertexIndices(i));
+            tVertices( i ) = &mBackgroundMeshPtr->get_mtk_vertex( tVertexIndices( i ) );
         }
         return tVertices;
     }
 
     // ----------------------------------------------------------------------------------
 
-    Cell_XTK_CM::~Cell_XTK_CM(){}
+    // TODO MESHCLEANUP
+    void
+    Cell_XTK_CM::remove_vertex_pointer( moris_index aIndex )
+    {
+        std::cout << "In XTK Cell CM" << std::endl;
+    }
+
+    // ----------------------------------------------------------------------------------
 
     uint
     Cell_XTK_CM::get_number_of_vertices() const
@@ -56,24 +73,24 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    Matrix<IdMat>
+    Matrix< IdMat >
     Cell_XTK_CM::get_vertex_ids() const
     {
-        return mChildMeshPtr->get_element_to_node_glob_ids(mCMElementIndex);
+        return mChildMeshPtr->get_element_to_node_glob_ids( mCMElementIndex );
     }
 
     // ----------------------------------------------------------------------------------
-    Matrix<IndexMat>
+    Matrix< IndexMat >
     Cell_XTK_CM::get_vertex_inds() const
     {
-        return mChildMeshPtr->get_element_to_node().get_row(mCMElementIndex);
+        return mChildMeshPtr->get_element_to_node().get_row( mCMElementIndex );
     }
 
     // ----------------------------------------------------------------------------------
-    Matrix<DDRMat>
+    Matrix< DDRMat >
     Cell_XTK_CM::get_vertex_coords() const
     {
-        return mBackgroundMeshPtr->get_selected_node_coordinates_loc_inds(this->get_vertex_inds());
+        return mBackgroundMeshPtr->get_selected_node_coordinates_loc_inds( this->get_vertex_inds() );
     }
 
     // ----------------------------------------------------------------------------------
@@ -82,11 +99,12 @@ namespace xtk
     Cell_XTK_CM::capacity()
     {
         size_t tTotal = 0;
-        tTotal +=  sizeof(mCMElementIndex);
-        tTotal +=  sizeof(mChildMeshPtr);
-        tTotal +=  sizeof(mBackgroundMeshPtr);
+        tTotal += sizeof( mCMElementIndex );
+        tTotal += sizeof( mChildMeshPtr );
+        tTotal += sizeof( mBackgroundMeshPtr );
         return tTotal;
     }
 
-} // namespace xtk
+    // ----------------------------------------------------------------------------------
 
+}    // namespace xtk

@@ -59,6 +59,16 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
+        void
+        Integration_Mesh::get_Mesh_GEN_map( moris::Cell<moris_index> &aMesh_GEN_map)
+        {
+            std::cout<<"in integrtion mesh class"<<std::endl;
+            
+            aMesh_GEN_map = this->mMesh_GEN_map;
+        }
+
+        // ----------------------------------------------------------------------------
+
         moris::uint Integration_Mesh::get_num_sets() const
         {
             return mListOfAllSets.size();

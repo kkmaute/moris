@@ -414,6 +414,9 @@ The following modules introduce the XTK and its core functionalities.
 
 /** @addtogroup XTKTutorial
 	@ingroup XTKModule */
+
+/** @addtogroup XTKCleanup
+	@ingroup XTKModule */
     
 //------------------------------------------------------------------------------   
     
