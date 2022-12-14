@@ -148,6 +148,13 @@ spack add openblas
 
 *------------------------------------------------------------
 
+* on OS openSuse you may run into issue with the spack installation
+* of python to avoid this, install python seperately 
+
+spack add python 
+
+*------------------------------------------------------------
+
 * if patch, pkgconf, and/or texinfo are not installed 
 * on your OS add one or multiple of the following packages
 
@@ -177,6 +184,26 @@ spack concretize -f -U
 spack install patch
 spack install pkgconf
 spack install texinfo
+
+*------------------------------------------------------------
+
+* on OS openSuse and if python is installed seperately, 
+* install python first and fix issue with path to lib-dynload
+
+spack install python
+
+* identify python installation under spack/opt/spack/linux-opensuse..../gcc-7.5.0/
+
+setenv PYIDIR $WORKSPACE/spack/opt/spack/linux-opensuse_leap15-zen/gcc-7.5.0/python-3.10.8-5lrlebeza4fdp634rsxkfejolsdbs4dj/
+
+* if not 3.10 replace 3.10 with actual version number (major-minor)
+
+ln -s $PYIDIR/lib64/python3.10/lib-dynload $PYIDIR/lib/python3.10/.
+
+unsetenv PYIDIR
+
+spack location --install-dir python
+
 
 *------------------------------------------------------------
 
