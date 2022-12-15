@@ -26,6 +26,7 @@ namespace moris
             , mLibraryType( Library_Type::UNDEFINED ) // base class library-type is undefined
             , mParameterLists( (uint)( Parameter_List_Type::END_ENUM ) ) // list of module parameter lists sized to the number of modules that exist
             , mXmlWriter( std::make_unique< XML_Parser >() )
+            , mSupportedParamListTypes()
     {
         // do nothing else
     }
@@ -246,6 +247,66 @@ namespace moris
                 break;
 
         } // end: switch( aFileType )
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    void
+    Library_IO::load_parameters_from_shared_object_library()
+    {
+        // check that an .so file has been initialized
+        MORIS_ERROR( mSoLibIsInitialized, "Library_IO::load_parameters_from_shared_object_library() - No .so file has been loaded." );
+
+        // go through the various parameter list names and see if they exist in the provided .so file
+        for( uint iParamListType = 0; iParamListType < (uint)( Parameter_List_Type::END_ENUM ); iParamListType++ )
+        {
+            // get the current enum
+            Parameter_List_Type tParamListType = (Parameter_List_Type)( iParamListType );
+            
+            // get the name of the parameter list function
+            std::string tParamListFuncName = get_name_for_parameter_list_type( tParamListType );
+
+            // see if a function for this parameter list function exists in the provide input file
+            Parameter_Function tUserDefinedParmListFunc = reinterpret_cast< Parameter_Function >( dlsym( mLibraryHandle, tParamListFuncName.c_str() ) );
+            bool tParamListFuncExists = ( tUserDefinedParmListFunc != nullptr );
+
+            // if the parameter list function exists, use it to overwrite and add to the standard parameters
+            if( tParamListFuncExists )
+            {
+                // log that the parameter list has been recognized
+                MORIS_LOG( "Parameters provided for %s in .so file.", convert_parameter_list_enum_to_string( tParamListType ).c_str() );
+
+                // throw out a warning if unknown parameter list types are used
+                if( mSupportedParamListTypes.find( tParamListType ) == mSupportedParamListTypes.end() )
+                {
+                    MORIS_LOG( "These parameters are irrelevant for chosen workflow and will be ignored." );
+                }
+                else // otherwise, if parameter list is supported, overwrite and add parameters to standard parameters
+                {
+                    // create a copy of the parameter list the .so file provided
+                    ModuleParameterList tUserDefinedParamList;
+                    tUserDefinedParmListFunc( tUserDefinedParamList );
+
+                    // get the parameter list to the currently 
+                    ModuleParameterList& tCurrentModuleStandardParamList = mParameterLists( iParamListType );
+
+                    // superseed standard parameters with user-defined parameters
+                    this->overwrite_and_add_parameters( tCurrentModuleStandardParamList, tUserDefinedParamList );
+                }
+            } 
+
+        } // end for: parameter list types that could be specified
+    }
+
+    //------------------------------------------------------------------------------------------------------------------
+
+    void
+    Library_IO::load_parameters_from_xml()
+    {
+        // check that an XML file has been initialized
+        MORIS_ERROR( mXmlParserIsInitialized, "Library_IO::load_parameters_from_xml() - No XML file has been loaded." );
+
+        // TODO
     }
 
     //------------------------------------------------------------------------------------------------------------------

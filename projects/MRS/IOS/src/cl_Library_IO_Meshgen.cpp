@@ -19,6 +19,9 @@ namespace moris
     {
         // set the type of this library
         mLibraryType = Library_Type::MESHGEN;
+
+        // list of supported parameter list types
+        mSupportedParamListTypes = { Parameter_List_Type::HMR, Parameter_List_Type::XTK, Parameter_List_Type::GEN };
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -45,50 +48,14 @@ namespace moris
         // if an .so file has been parsed, first use its parameters (if any were defined in it) to overwrite or add to the standard parameters
         if( mSoLibIsInitialized )
         {
-            // go through the various parameter list names and see if they exist in the provided .so file
-            for( uint iParamListType = 0; iParamListType < (uint)( Parameter_List_Type::END_ENUM ); iParamListType++ )
-            {
-                // get the current enum
-                Parameter_List_Type tParamListType = (Parameter_List_Type)( iParamListType );
-                
-                // get the name of the parameter list function
-                std::string tParamListFuncName = get_name_for_parameter_list_type( tParamListType );
+            this->load_parameters_from_shared_object_library();
+        }
 
-                // see if a function for this parameter list function exists in the provide input file
-                Parameter_Function tUserDefinedParmListFunc = reinterpret_cast< Parameter_Function >( dlsym( mLibraryHandle, tParamListFuncName.c_str() ) );
-                bool tParamListFuncExists = ( tUserDefinedParmListFunc != nullptr );
-
-                // if the parameter list function exists, use it to overwrite and add to the standard parameters
-                if( tParamListFuncExists )
-                {
-                    // log that the parameter list has been recognized
-                    MORIS_LOG( "Parameters provided for %s in .so file.", convert_parameter_list_enum_to_string( tParamListType ).c_str() );
-
-                    // throw out a warning if unknown parameter list types are used
-                    if( mSupportedParamListTypes.find( tParamListType ) == mSupportedParamListTypes.end() )
-                    {
-                        MORIS_LOG( "These parameters are irrelevant for mesh generation and will be ignored." );
-                    }
-                    else // otherwise, if parameter list is supported, overwrite and add parameters to standard parameters
-                    {
-                        // create a copy of the parameter list the .so file provided
-                        ModuleParameterList tUserDefinedParamList;
-                        tUserDefinedParmListFunc( tUserDefinedParamList );
-
-                        // get the parameter list to the currently 
-                        ModuleParameterList& tCurrentModuleStandardParamList = mParameterLists( iParamListType );
-
-                        // superseed standard parameters with user-defined parameters
-                        this->overwrite_and_add_parameters( tCurrentModuleStandardParamList, tUserDefinedParamList );
-                    }
-                } 
-
-            } // end for: parameter list types that could be specified
-
-        } // end if: SO library is initialized
-
-        // load parameters from xml
-        // TODO: this->load_parameters_from_xml();
+        // load parameters from xml, overwrites parameters specified in either the standard parameters or an .so file if parsed
+        if( mXmlParserIsInitialized )
+        {
+            this->load_parameters_from_xml();
+        }
 
         // check the parameters for validity
         // TODO: this->check_parameters();
@@ -223,7 +190,8 @@ namespace moris
             aParameterList( 0 )( 0 ).insert( "deactivate_all_but_side_sets", "" );
             aParameterList( 0 )( 0 ).insert( "write_enrichment_fields", false );
             aParameterList( 0 )( 0 ).insert( "write_enrichment_fields_probe_spheres", "" );
-            aParameterList( 0 )( 0 ).insert( "T_matrix_output_file", "" );
+            aParameterList( 0 )( 0 ).insert( "global_T_matrix_output_file", "" );
+            aParameterList( 0 )( 0 ).insert( "nodal_T_matrix_output_file", "" );
             aParameterList( 0 )( 0 ).insert( "MPC_output_file", "" );
             aParameterList( 0 )( 0 ).insert( "triangulate_all_in_post", false );
             aParameterList( 0 )( 0 ).insert( "output_path", "./" );
@@ -258,7 +226,8 @@ namespace moris
         aParameterList( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
         aParameterList( 0 )( 0 ).set( "high_to_low_dbl_side_sets", true );
         aParameterList( 0 )( 0 ).set( "print_enriched_ig_mesh", true );
-        aParameterList( 0 )( 0 ).set( "T_matrix_output_file", "Extraction_Operator" );
+        aParameterList( 0 )( 0 ).set( "global_T_matrix_output_file", "Global_Extraction_Operator" );
+        aParameterList( 0 )( 0 ).set( "nodal_T_matrix_output_file", "Nodal_Extraction_Operators" );
 
         // TODO: ...
         // aParameterList( 0 )( 0 ).set( "enrich_mesh_indices",       "0" ) ; // TODO

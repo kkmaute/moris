@@ -11,7 +11,6 @@
 #ifndef MORIS_CL_LIBRARY_IO_STANDARD_HPP
 #define MORIS_CL_LIBRARY_IO_STANDARD_HPP
 
-#include <set>
 #include "cl_Library_IO.hpp"
 
 namespace moris
@@ -25,29 +24,7 @@ namespace moris
     {
         // -----------------------------------------------------------------------------
 
-      protected:
-
-        // -----------------------------------------------------------------------------
-
-        // list of supported parameter list types
-        std::set< Parameter_List_Type > mSupportedParamListTypes = {
-            Parameter_List_Type::OPT,
-            Parameter_List_Type::HMR,
-            Parameter_List_Type::STK,
-            Parameter_List_Type::XTK,
-            Parameter_List_Type::GEN,
-            Parameter_List_Type::FEM,
-            Parameter_List_Type::SOL,
-            Parameter_List_Type::MSI,
-            Parameter_List_Type::VIS,
-            Parameter_List_Type::MIG,
-            Parameter_List_Type::WRK,
-            Parameter_List_Type::MORISGENERAL };
-
-        // -----------------------------------------------------------------------------
-
       public:
-
         // -----------------------------------------------------------------------------
 
         /**
@@ -67,25 +44,23 @@ namespace moris
         /**
          * @brief finishes the initialization of the library and locks it from modification
          */
-        virtual
         void
-        finalize();
+        finalize() override;
 
         // -----------------------------------------------------------------------------
 
         /**
          * @brief fills the member parameter lists with the standard parameters for all modules
          */
-        virtual
         void
-        load_all_standard_parameters();
+        load_all_standard_parameters() override;
 
         // -----------------------------------------------------------------------------
 
-    }; // class Library_IO_Standard
+    };    // class Library_IO_Standard
 
-// -----------------------------------------------------------------------------
+    // -----------------------------------------------------------------------------
 
-} // namespace moris
+}    // namespace moris
 
 #endif    // MORIS_CL_LIBRARY_IO_STANDARD_HPP

@@ -12,6 +12,7 @@
 #define MORIS_CL_LIBRARY_IO_HPP
 
 #include <string>
+#include <set>
 #include "dlfcn.h"
 #include "assert.hpp"
 
@@ -66,6 +67,9 @@ namespace moris
 
         // XML parser for output
         std::unique_ptr< XML_Parser > mXmlWriter;
+
+        // list of parameter lists supported by the particular workflow
+        std::set< Parameter_List_Type > mSupportedParamListTypes;
 
         // -----------------------------------------------------------------------------
 
@@ -159,6 +163,36 @@ namespace moris
         {
             MORIS_ERROR( false, "Library_IO::finalize() - Function not implemented in this base class." );
         }
+
+        // -----------------------------------------------------------------------------
+
+        /**
+         * @brief fills the member parameter lists with the standard parameters for all modules
+         */
+        virtual
+        void
+        load_all_standard_parameters()
+        {
+            MORIS_ERROR( false, "Library_IO::load_all_standard_parameters() - Function not implemented in this base class." );
+        }
+
+        // -----------------------------------------------------------------------------
+
+        /**
+         * @brief loads parameters from an shared object library and overwrites any previously specified parameters by it
+         */
+        virtual
+        void
+        load_parameters_from_shared_object_library();
+
+        // -----------------------------------------------------------------------------
+
+        /**
+         * @brief loads parameters from an xml file and overwrites any previously specified parameters by it
+         */
+        virtual
+        void
+        load_parameters_from_xml();
 
         // -----------------------------------------------------------------------------
 
