@@ -496,10 +496,21 @@ namespace moris
                 xtk::Model* const &                        aXTKPerformer )
         {
             // Output T-matrices if requested
-            std::string tTmatrixFileName = aXTKPerformer->get_T_matrix_output_file_name();
+            std::string tTmatrixFileName = aXTKPerformer->get_global_T_matrix_output_file_name();
             if ( tTmatrixFileName != "" )
             {
                 mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_integration_mesh()->save_IG_node_TMatrices_to_file( tTmatrixFileName );
+
+                // return flag stopping the workflow after the T-Matrix output
+                return true;
+            }
+
+            // Output T-matrices if requested
+            std::string tElementalTmatrixFileName = aXTKPerformer->get_nodal_T_matrix_output_file_name();
+            if ( tElementalTmatrixFileName != "" )
+            {
+                uint tNumBsplineMeshes = mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_interpolation_mesh()->get_num_interpolations();
+                mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_integration_mesh()->save_elemental_T_matrices_to_file( tElementalTmatrixFileName,  tNumBsplineMeshes );
 
                 // return flag stopping the workflow after the T-Matrix output
                 return true;

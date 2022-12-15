@@ -374,6 +374,19 @@ namespace moris
             // ----------------------------------------------------------------------------
 
             /**
+             * @brief Save elemental T-matrices for the IG-mesh elements to .hdf5
+             * 
+             * @param aFileName 
+             * @param aNumBsplineMeshes 
+             */
+            void
+            save_elemental_T_matrices_to_file( 
+                    std::string aFileName, 
+                    const uint  aNumBsplineMeshes = 1 );
+
+            // ----------------------------------------------------------------------------
+
+            /**
              * Save nodal T-matrices for IG-mesh nodes to .hdf5 or .dat file
              */
             void
@@ -381,14 +394,35 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
+            // elemental
             void
+            get_IG_to_IP_elmental_T_matrices(
+                    moris::Cell< moris_id >           &aIgCellIds,
+                    moris::Cell< Matrix< IndexMat > > &aIgToIpIndices,
+                    moris::Cell< Matrix< DDRMat > >   &aIgToIpTmatrices );
+
+            // ----------------------------------------------------------------------------
+
+            // global
+            void 
             get_IG_to_IP_nodal_T_matrices(
                     moris::Cell< Matrix< IdMat > >  &aIGtoIPIds,
                     moris::Cell< Matrix< DDRMat > > &aIGtoIPWeights,
                     uint                             aSetIndex );
 
+
             // ----------------------------------------------------------------------------
 
+            // elemental
+            void
+            get_IP_to_BS_nodal_T_matrices(
+                    moris::Cell< moris::Cell< Matrix< IdMat > > >&  aIPtoBSIds,
+                    moris::Cell< moris::Cell< Matrix< DDRMat > > >& aIPtoBSWeights,
+                    const uint                                      aNumBsplineMeshes );
+
+            // ----------------------------------------------------------------------------
+
+            // global
             void
             get_IP_to_BS_nodal_T_matrices(
                     moris::Cell< Matrix< IdMat > >  &aIPtoBSIds,
@@ -397,6 +431,19 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
+            // elemental
+            void
+            get_elemental_IG_to_BS_T_matrices(
+                    moris::Cell< Matrix< IndexMat > > const              &aIgToIpIndices,        // outer cell: IG cell index
+                    moris::Cell< Matrix< DDRMat > > const                &aIgToIpTmatrices,     // outer cell: IG cell index
+                    moris::Cell< moris::Cell< Matrix< IdMat > > > const  &aIPtoBSIds,           // outer cell: B-spline mesh index | inner cell: enr. Lagrange BF index
+                    moris::Cell< moris::Cell< Matrix< DDRMat > > > const &aIPtoBSWeights,       // outer cell: B-spline mesh index | inner cell: enr. Lagrange BF index
+                    moris::Cell< moris::Cell< Matrix< IdMat > > >        &aIGtoBSIds,           // outer cell: B-spline mesh index | inner cell: IG cell index
+                    moris::Cell< moris::Cell< Matrix< DDRMat > > >       &aIGtoBSWeights );     // outer cell: B-spline mesh index | inner cell: IG cell index
+
+            // ----------------------------------------------------------------------------
+
+            // global
             void
             get_IG_to_BS_nodal_T_matrices(
                     moris::Cell< Matrix< IdMat > >  &aIGtoBSIds,
@@ -409,6 +456,10 @@ namespace moris
             // ----------------------------------------------------------------------------
 
             uint get_max_IP_ID_on_set( uint aSetIndex );
+
+            // ----------------------------------------------------------------------------
+
+            uint get_max_IP_index_in_mesh();
 
             // ----------------------------------------------------------------------------
 
