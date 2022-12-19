@@ -396,7 +396,7 @@ namespace moris
 
             // elemental
             void
-            get_IG_to_IP_elmental_T_matrices(
+            get_IG_to_IP_elemental_T_matrices(
                     moris::Cell< moris_id >           &aIgCellIds,
                     moris::Cell< Matrix< IndexMat > > &aIgToIpIndices,
                     moris::Cell< Matrix< DDRMat > >   &aIgToIpTmatrices );

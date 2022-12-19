@@ -57,7 +57,7 @@ namespace moris
                 moris::Cell< moris_id >           tIgCellIdList;
                 moris::Cell< Matrix< IndexMat > > tIgToIpIndices;
                 moris::Cell< Matrix< DDRMat > >   tIgToIpTmatrices;
-                this->get_IG_to_IP_elmental_T_matrices( tIgCellIdList, tIgToIpIndices, tIgToIpTmatrices );
+                this->get_IG_to_IP_elemental_T_matrices( tIgCellIdList, tIgToIpIndices, tIgToIpTmatrices );
 
                 // compute T-matrices from Lagrange mesh to the different B-spline meshes
                 moris::Cell< moris::Cell< Matrix< IdMat > > > tIPtoBSIds;
@@ -89,7 +89,7 @@ namespace moris
             for( uint iBspMesh = 0; iBspMesh < tNumBsplineMeshes; iBspMesh++ )
             {
                 // construct string from output file name
-                std::string tStrOutputFile = aFileName + "." + std::to_string( iBspMesh ) + "." + std::to_string( par_rank() ) + ".hdf5";
+                std::string tStrOutputFile = aFileName + "_B" + std::to_string( iBspMesh ) + ".hdf5";
 
                 // log/print that the extraction operator is output to
                 MORIS_LOG_INFO( "Saving elemental extraction operators for B-spline mesh #%i to file: %s", iBspMesh, tStrOutputFile.c_str() );
@@ -207,7 +207,7 @@ namespace moris
         // ----------------------------------------------------------------------------
 
         void
-        Integration_Mesh::get_IG_to_IP_elmental_T_matrices( 
+        Integration_Mesh::get_IG_to_IP_elemental_T_matrices( 
                 moris::Cell< moris_id >&           aIgCellIds,
                 moris::Cell< Matrix< IndexMat > >& aIgToIpIndices,
                 moris::Cell< Matrix< DDRMat > >&   aIgToIpTmatrices )
@@ -333,6 +333,8 @@ namespace moris
                             // get the vertex index inside the cluster
                             auto tIter = tIgVertexMap.find( tVertexIndex );
                             uint tVertexIndexInCluster = tIter->second;
+                            MORIS_ASSERT( tIter != tIgVertexMap.end(), "Integration_Mesh::get_IG_element_to_IP_T_matrices() - "
+                                    "Vertex index not found in list of IG vertices on the current IG cell." );
 
                             Matrix< DDRMat >& tWeightsOnCurrentIgVert = tWeights( tVertexIndexInCluster );
                             Matrix< DDRMat >& tIgToIpWeightsOnCurrentCell = aIgToIpTmatrices( tCellIndex );
@@ -554,19 +556,9 @@ namespace moris
                             Matrix< IdMat >  tBSpIDs    = tIPVertices( iIpVert )->get_interpolation( iBspMesh )->get_ids();
                             Matrix< DDRMat > tBSWeights = *tIPVertices( iIpVert )->get_interpolation( iBspMesh )->get_weights();
 
-                            // get number of B-splines assiciated with current IP vertex
-                            uint tNumBspOnIpNode = tBSpIDs.numel();
-
-                            // resize nodal T-matrix to accommodate all B-spline IDs and weights
-                            aIPtoBSIds( iBspMesh )( tLagBfIndex ).set_size( 1, tNumBspOnIpNode, gNoID );
-                            aIPtoBSWeights( iBspMesh )( tLagBfIndex ).set_size( 1, tNumBspOnIpNode, -1 );
-
-                            // create T-matrices - copy list of associated B-spline IDs and their weights
-                            for ( uint iBsp = 0; iBsp < tNumBspOnIpNode; iBsp++ )
-                            {
-                                aIPtoBSIds( iBspMesh )( tLagBfIndex )( iBsp )     = tBSpIDs( iBsp );
-                                aIPtoBSWeights( iBspMesh )( tLagBfIndex )( iBsp ) = tBSWeights( iBsp );
-                            }
+                            // copy the weights and basis IDs onto the output T-matrices
+                            aIPtoBSIds( iBspMesh )( tLagBfIndex ) = trans( tBSpIDs );
+                            aIPtoBSWeights( iBspMesh )( tLagBfIndex ) = trans( tBSWeights );
 
                         } // end for: B-spline meshes for which the T-matrix should be retrieved
                     } // end for: unzipped IP vertices on cluster
@@ -632,7 +624,7 @@ namespace moris
                             Matrix< IdMat >  tBSpIDs    = tIPVertices( iIpVert )->get_interpolation( 0 )->get_ids();
                             Matrix< DDRMat > tBSWeights = *tIPVertices( iIpVert )->get_interpolation( 0 )->get_weights();
 
-                            // get number of B-splines assiciated with current IP vertex
+                            // get number of B-splines associated with current IP vertex
                             uint tNumBspOnIpNode = tBSpIDs.numel();
 
                             // resize nodal T-matrix to accommodate all B-spline IDs and weights
@@ -725,18 +717,18 @@ namespace moris
                     // get the number of nodes on the current IG cell
                     uint tNumNodesOnIgElem = aIgToIpTmatrices( iIgCell ).n_rows();
 
-                    // get access to the current IG element's T-matrix
-                    Matrix< IdMat >& tCurrentIgCelltoBSIds = aIGtoBSIds( iBspMesh )( iIgCell );
-                    Matrix< DDRMat >& tCurrentIgCelltoBSWeights = aIGtoBSWeights( iBspMesh )( iIgCell );
+                    // get access to where the current IG element's T-matrix will be stored
+                    Matrix< IdMat >& tCurrentIgCellToBSIds = aIGtoBSIds( iBspMesh )( iIgCell );
+                    Matrix< DDRMat >& tCurrentIgCellToBSWeights = aIGtoBSWeights( iBspMesh )( iIgCell );
 
                     // correctly size the T-matrix information
-                    tCurrentIgCelltoBSIds.set_size( 1, tNumBspBfsInElem );
-                    tCurrentIgCelltoBSWeights.set_size( tNumNodesOnIgElem, tNumBspBfsInElem, 0.0 );
+                    tCurrentIgCellToBSIds.set_size( 1, tNumBspBfsInElem );
+                    tCurrentIgCellToBSWeights.set_size( tNumNodesOnIgElem, tNumBspBfsInElem, 0.0 );
 
                     // loop over map entries and dump them into the T-matrix ID information
                     for ( auto const& iBspBF : tBsplineIdToLocalIndexMap )
                     {
-                        tCurrentIgCelltoBSIds( iBspBF.second ) = iBspBF.first;
+                        tCurrentIgCellToBSIds( iBspBF.second ) = iBspBF.first;
                     }
 
                     // go over the weights for each Lagrange basis and multiply them by the weights for the B-spline basis functions
@@ -771,11 +763,11 @@ namespace moris
                             uint tLocalIndex = tIter->second;
 
                             // grab the part of the elemental T-matrix which the weights should be written into
-                            auto tCopyWeightsIntoThis = tCurrentIgCelltoBSWeights( { 0, tNumNodesOnIgElem - 1 },{ tLocalIndex, tLocalIndex } );
+                            auto tCopyWeightsIntoThis = tCurrentIgCellToBSWeights( { 0, tNumNodesOnIgElem - 1 },{ tLocalIndex, tLocalIndex } );
                             auto tCopyWeightsFromThis = tBspWeights( { 0, tNumNodesOnIgElem - 1 },{ iBspBf, iBspBf } );
 
                             // copy the weights into this
-                            tCopyWeightsIntoThis = tCopyWeightsFromThis;
+                            tCopyWeightsIntoThis += tCopyWeightsFromThis;
 
                         } // end for: B-spline basis functions interpolating into Lagrange basis function
                     }  // end for: Lagrange basis functions interpolating into IG element
