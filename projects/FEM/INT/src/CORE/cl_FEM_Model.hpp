@@ -11,8 +11,8 @@
 #ifndef PROJECTS_FEM_MDL_SRC_CL_FEM_MODEL_HPP_
 #define PROJECTS_FEM_MDL_SRC_CL_FEM_MODEL_HPP_
 
-#include "typedefs.hpp" //MRS/COR/src
-#include "cl_Cell.hpp"  //MRS/CON/src
+#include "typedefs.hpp"
+#include "cl_Cell.hpp"
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
@@ -20,7 +20,7 @@
 #include "fn_Parsing_Tools.hpp"
 #include "cl_Communication_Tools.hpp"
 
-#include "fn_PRM_FEM_Parameters.hpp" //FEM/INT/src
+#include "fn_PRM_FEM_Parameters.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
 #include "cl_GEN_Pdv_Enums.hpp"
 
