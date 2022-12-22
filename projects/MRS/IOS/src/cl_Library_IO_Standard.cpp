@@ -9,6 +9,8 @@
  */
 
 #include "cl_Library_IO_Standard.hpp"
+#include "enums.hpp"
+#include "parameters.hpp"
 
 namespace moris
 {
@@ -85,8 +87,96 @@ namespace moris
     void
     Library_IO_Standard::load_all_standard_parameters()
     {
-        // FIXME: use PRM functions once everything is moved
-        // do nothing for now
+        // go over all modules and check that
+        for( uint iModule = 0; iModule < (uint)( Parameter_List_Type::END_ENUM ); iModule++ )
+        {
+            // get the current module
+            Parameter_List_Type tParamListType = (Parameter_List_Type)( iModule );
+
+            // get access to this module's parameter list
+            ModuleParameterList tModuleParamList = mParameterLists( iModule );
+
+            // most modules must use a 1x1 parameter list, so resize here to this default
+            tModuleParamList.resize( 1 );
+            tModuleParamList( 0 ).resize( 1 );
+
+            // for each parameter list type, initialize it with a default
+            switch( tParamListType )
+            {
+                case Parameter_List_Type::OPT : 
+                    tModuleParamList( 0 )( 0 ) = prm::create_opt_problem_parameter_list();
+                    break;
+
+                case Parameter_List_Type::HMR :
+                    tModuleParamList( 0 )( 0 ) = prm::create_hmr_parameter_list();
+                    break;
+
+                case Parameter_List_Type::STK :
+                    tModuleParamList( 0 )( 0 ) = prm::create_stk_parameter_list();
+                    break;
+
+                case Parameter_List_Type::XTK :
+                    tModuleParamList( 0 )( 0 ) = prm::create_xtk_parameter_list();
+                    break;
+
+                case Parameter_List_Type::GEN :
+                    tModuleParamList.resize( 3 );
+                    tModuleParamList( 0 ).resize( 1 );
+                    tModuleParamList( 0 )( 0 ) = prm::create_gen_parameter_list();
+                    break;
+
+                case Parameter_List_Type::FEM :
+                    tModuleParamList.resize( 9 );
+                    tModuleParamList( 5 ).resize( 1 );
+                    tModuleParamList( 5 )( 0 ) = prm::create_computation_parameter_list();
+                    break;
+
+                case Parameter_List_Type::SOL :
+                    tModuleParamList.resize( 7 );
+                    for ( uint i = 0; i < 7; i++ )
+                    {
+                        tModuleParamList( i ).resize( 1 );
+                    }
+                    tModuleParamList( 0 )( 0 ) = prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+                    tModuleParamList( 1 )( 0 ) = prm::create_linear_solver_parameter_list();
+                    tModuleParamList( 2 )( 0 ) = prm::create_nonlinear_algorithm_parameter_list();
+                    tModuleParamList( 3 )( 0 ) = prm::create_nonlinear_solver_parameter_list();
+                    tModuleParamList( 4 )( 0 ) = prm::create_time_solver_algorithm_parameter_list();
+                    tModuleParamList( 5 )( 0 ) = prm::create_time_solver_parameter_list();
+                    tModuleParamList( 6 )( 0 ) = prm::create_solver_warehouse_parameterlist();
+                    break;
+
+                case Parameter_List_Type::MSI :
+                    tModuleParamList( 0 )( 0 ) = prm::create_msi_parameter_list();
+                    break;
+
+                case Parameter_List_Type::VIS :
+                    tModuleParamList( 0 )( 0 ) = prm::create_vis_parameter_list();
+                    tModuleParamList( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
+                    tModuleParamList( 0 )( 0 ).set( "Save_Frequency", 1 );
+                    break;
+
+                case Parameter_List_Type::WRK :
+                    tModuleParamList( 0 )( 0 ) = prm::create_wrk_parameter_list();
+                    break;
+
+                case Parameter_List_Type::MORISGENERAL :
+                    tModuleParamList.resize( 3 );
+                    break;
+
+                case Parameter_List_Type::END_ENUM :
+                    MORIS_ERROR( false, "Library_IO_Standard::load_all_standard_parameters() - "
+                            "Parameter_List_Type is END_ENUM. This loop shouldn't get here." );
+                    break;
+
+                default : 
+                    MORIS_ERROR( false, "Library_IO_Standard::load_all_standard_parameters() - "
+                            "No standard library defined for module parameter list type #%i. "
+                            "Most likely a new enum has been defined that isn't used in this function.", 
+                            (uint)( tParamListType ) );
+                    break;
+            }
+        }
     }
 
     //------------------------------------------------------------------------------------------------------------------

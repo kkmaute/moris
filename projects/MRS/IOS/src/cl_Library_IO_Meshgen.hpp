@@ -114,18 +114,6 @@ namespace moris
         void
         create_standard_GEN_parameter_list( ModuleParameterList& aParameterList );
 
-        void
-        create_standard_geometry_parameter_list( ParameterList& aParameterList );
-
-        void
-        create_standard_user_defined_geometry_parameter_list( ParameterList& aParameterList );
-
-        void
-        create_standard_voxel_field_parameter_list( ParameterList& aParameterList );
-
-        void
-        create_standard_image_sdf_field_parameter_list( ParameterList& aParameterList );
-
         // -----------------------------------------------------------------------------
 
     };    // class Library_IO_Meshgen
