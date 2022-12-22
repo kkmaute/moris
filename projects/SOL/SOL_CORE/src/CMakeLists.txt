@@ -21,8 +21,7 @@ set(HEADERS
     cl_Communicator_Epetra.hpp
 	cl_Map_Epetra.hpp
     cl_Sparse_Matrix_EpetraFECrs.hpp
-    cl_Vector_Epetra.hpp
-    cl_SOL_Enums.hpp)
+    cl_Vector_Epetra.hpp )
 
 if (${MORIS_HAVE_PETSC})
 list( APPEND HEADERS
@@ -57,6 +56,7 @@ endif()
 # List library dependencies
 set(LIB_DEPENDENCIES
     ${DLA}-lib
+    ${ENM}-lib
     )
 
 # Set the output path for library

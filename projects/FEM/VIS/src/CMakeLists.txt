@@ -39,6 +39,7 @@ set(LIB_DEPENDENCIES
     ${CON}-lib
     ${HMR}-lib
     ${MTK}-lib
+    ${ENM}-lib
     #${MDL}-lib
    )
 

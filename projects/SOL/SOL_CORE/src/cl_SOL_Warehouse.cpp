@@ -374,10 +374,18 @@ SOL_Warehouse::create_time_solvers()
 
             for ( uint Ia = 0; Ia < tOutputCriteria.size(); Ia++ )
             {
-                Pointer_Function tCriteriaFunc = mLibrary->load_function< Pointer_Function >( tOutputCriteria( Ia ) );
-
-                mTimeSolvers( Ik )->set_output( tOutputIndices( Ia ),
-                        reinterpret_cast< bool ( * )( moris::tsa::Time_Solver* ) >( tCriteriaFunc ) );
+                // if a criterion for the output has been defined
+                if( tOutputCriteria( Ia ) != "" && tOutputCriteria( Ia ) != "Default_Output_Criterion" )
+                {
+                    Pointer_Function tCriteriaFunc = mLibrary->load_function< Pointer_Function >( tOutputCriteria( Ia ) );
+                    mTimeSolvers( Ik )->set_output( tOutputIndices( Ia ),
+                            reinterpret_cast< bool ( * )( moris::tsa::Time_Solver* ) >( tCriteriaFunc ) );
+                }
+                // use default criterion (output after every time step) for output
+                else 
+                {
+                    mTimeSolvers( Ik )->set_output( tOutputIndices( Ia ), Default_Output_Criterion );
+                }
             }
         }
 

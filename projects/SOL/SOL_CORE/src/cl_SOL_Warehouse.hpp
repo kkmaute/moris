@@ -46,47 +46,64 @@ namespace moris
     }    // namespace tsa
     namespace sol
     {
+        //--------------------------------------------------------------------------------------------------------
+
+        /**
+         * @brief Default function for the output criterion
+         * 
+         * @param aTimeSolver 
+         * @return true 
+         * @return false 
+         */
+        inline bool 
+        Default_Output_Criterion( moris::tsa::Time_Solver * aTimeSolver )
+        {
+            return true;
+        }
+
+        //--------------------------------------------------------------------------------------------------------
+
         class SOL_Warehouse
         {
           private:
-            //! Pointer to the solver interface
+            // Pointer to the solver interface
             moris::Solver_Interface* mSolverInterface;
 
-            //! List of solver algorithms and solvers
+            // List of solver algorithms and solvers
             Cell< std::shared_ptr< dla::Linear_Solver_Algorithm > > mLinearSolverAlgorithms;
             Cell< dla::Linear_Solver* >                             mLinearSolvers;
 
-            //! List of nonlinear solver algorithms and solvers
+            // List of nonlinear solver algorithms and solvers
             Cell< std::shared_ptr< NLA::Nonlinear_Algorithm > > mNonlinearSolverAlgoriths;
             Cell< NLA::Nonlinear_Solver* >                      mNonlinearSolvers;
 
-            //! List of time solver algorithms and solvers
+            // List of time solver algorithms and solvers
             Cell< std::shared_ptr< tsa::Time_Solver_Algorithm > > mTimeSolverAlgorithms;
             Cell< tsa::Time_Solver* >                             mTimeSolvers;
 
-            //! Parameterlist for (0) Linear Algorithm (1) Linear Solver (2) nonlinear Algorithm (3)
-            //! Nonlinear Solver (4) TimeSolver Algorithm (5) Time Solver (6) Warehouse
+            // Parameterlist for (0) Linear Algorithm (1) Linear Solver (2) nonlinear Algorithm (3)
+            // Nonlinear Solver (4) TimeSolver Algorithm (5) Time Solver (6) Warehouse
             moris::Cell< moris::Cell< moris::ParameterList > > mParameterlist;
 
-            //! pointer to synamically linked library
+            // pointer to synamically linked library
             std::shared_ptr< Library_IO > mLibrary = nullptr;
 
-            //! TPL type
+            // TPL type
             enum sol::MapType mTPLType = sol::MapType::Epetra;
 
-            //! save operator to matlab string
+            // save operator to matlab string
             std::string mOperatorToMatlab = std::string( "" );
 
-            //! save final solution vector to file string
+            // save final solution vector to file string
             std::string mSaveFinalSolVecToFile = std::string( "" );
 
-            //! load final solution vector from file. This option will skip assembly and solve
+            // load final solution vector from file. This option will skip assembly and solve
             std::string mLoadSolVecFromFile = std::string( "" );
 
-            //! save final adjoint vector to file string
+            // save final adjoint vector to file string
             std::string mSaveFinalAdjointVecToFile = std::string( "" );
 
-            //! load initial guess solution vector from file
+            // load initial guess solution vector from file
             std::string mFilenameInitialGuess = std::string( "" );
 
             //--------------------------------------------------------------------------------------------------------

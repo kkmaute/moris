@@ -13,9 +13,9 @@
 
 #include "cl_Param_List.hpp"
 
-#include "cl_SOL_Enums.hpp"                     // TODO
-#include "cl_NLA_Nonlinear_Solver_Enums.hpp"    // TODO
-#include "cl_TSA_Time_Solver_Enums.hpp"         // TODO
+#include "cl_SOL_Enums.hpp"
+#include "cl_NLA_Nonlinear_Solver_Enums.hpp"
+#include "cl_TSA_Time_Solver_Enums.hpp"
 
 namespace moris
 {
@@ -728,9 +728,9 @@ namespace moris
             // Maximal number of linear solver restarts on fail
             tTimeParameterList.insert( "TSA_Max_Time_Solver_Restarts", 0 );
 
-            tTimeParameterList.insert( "TSA_Output_Indices", "" );
-
-            tTimeParameterList.insert( "TSA_Output_Crteria", "" );
+            tTimeParameterList.insert( "TSA_Output_Indices", "0" );
+            
+            tTimeParameterList.insert( "TSA_Output_Crteria", "Default_Output_Criterion" );
 
             tTimeParameterList.insert( "TSA_Initialize_Sol_Vec", "" );    // initial GUESS
 

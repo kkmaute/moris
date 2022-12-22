@@ -17,7 +17,6 @@ set(HEADERS
     cl_TSA_Monolithic_Time_Solver.hpp
     cl_TSA_Staggered_Time_Solver.hpp
     cl_TSA_Time_Solver_Factory.hpp
-    cl_TSA_Time_Solver_Enums.hpp
     cl_TSA_Time_Solver.hpp
  )
 
@@ -39,6 +38,7 @@ set(LIB_DEPENDENCIES
     ${DLA}-lib
     ${NLA}-lib
     ${MSI}-lib
+    ${ENM}-lib
     )
 
 # Set the output path for library

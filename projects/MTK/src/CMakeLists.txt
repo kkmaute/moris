@@ -29,7 +29,6 @@ set_property(GLOBAL PROPERTY MTK_SRC_LIST "${MTK_INTERNAL_INCLUDES}")
 
 # List header files
 set(HEADERS
-cl_Mesh_Enums.hpp
 cl_MTK_Mesh_Factory.hpp
 cl_MTK_Block_Sets_Info.hpp
 cl_MTK_Block.hpp
@@ -51,7 +50,6 @@ cl_MTK_Double_Side_Cluster_Input.hpp
 cl_MTK_Double_Side_Cluster.hpp
 cl_MTK_Double_Side_Set.hpp
 cl_MTK_Edge.hpp
-cl_MTK_Enums.hpp
 cl_MTK_Exodus_IO_Helper.hpp
 cl_MTK_Facet.hpp
 cl_MTK_Field.hpp
@@ -208,7 +206,6 @@ cl_MTK_Exodus_IO_Helper.cpp
 cl_MTK_Field.cpp
 cl_MTK_Field_Analytic.cpp
 cl_MTK_Field_Discrete.cpp
-cl_MTK_Enums.cpp
 cl_MTK_Writer_Exodus.cpp
 cl_MTK_Reader_Exodus.cpp
 cl_MTK_Cell_Info_Factory.cpp
@@ -281,6 +278,7 @@ set(LIB_DEPENDENCIES
 	${LINALG}-lib
 	${HMR}-lib
     ${TOL}-lib
+    ${ENM}-lib
     )
 
 # Set the output path for library

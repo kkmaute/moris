@@ -42,7 +42,6 @@ set(HEADERS
 
     CORE/cl_FEM_Set.hpp
     CORE/cl_FEM_NodeProxy.hpp
-    CORE/cl_FEM_Enums.hpp
     CORE/cl_FEM_Node_Base.hpp
     CORE/cl_FEM_Node.hpp
     CORE/cl_FEM_Field.hpp        
@@ -477,6 +476,7 @@ set(LIB_DEPENDENCIES
     ${MSI}-lib
     ${VIS}-lib
     ${PRM}-lib
+    ${ENM}-lib
     )
 
 set(MTK_INCLUDES

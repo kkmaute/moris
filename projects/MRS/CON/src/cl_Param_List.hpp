@@ -22,12 +22,10 @@
 
 // MORIS library header files.
 #include "typedefs.hpp"
-#include "cl_Matrix.hpp"
 #include "assert.hpp"
 #include "core.hpp"
 #include "ios.hpp"
 #include "fn_Parsing_Tools.hpp"
-#include "cl_Library_Enums.hpp"
 
 namespace moris
 {
@@ -482,7 +480,7 @@ namespace moris
 
         else
         {
-            tStringStream << PRINT_ERROR << std::endl;
+            tStringStream << "print_error" << std::endl;
         }
 
         return tStringStream.str();

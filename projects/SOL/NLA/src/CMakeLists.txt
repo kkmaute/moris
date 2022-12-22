@@ -22,7 +22,6 @@ set(HEADERS
 	cl_NLA_NLBGS.hpp
 	cl_NLA_Nonlinear_Algorithm.hpp
 	cl_NLA_Nonlinear_Problem.hpp
-	cl_NLA_Nonlinear_Solver_Enums.hpp
 	cl_NLA_Nonlinear_Solver_Factory.hpp
 	cl_NLA_Nonlinear_Solver.hpp
 	)
@@ -51,6 +50,7 @@ set(LIB_DEPENDENCIES
     ${COM}-lib
     ${MSI}-lib
     ${SOL_CORE}-lib
+    ${ENM}-lib
     )
 
 # Set the output path for library

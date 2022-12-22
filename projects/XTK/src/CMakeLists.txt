@@ -46,7 +46,6 @@ set(HEADERS
     cl_XTK_Downward_Inheritance.hpp
     cl_XTK_Enrichment.hpp
     cl_XTK_Entity.hpp
-    cl_XTK_Enums.hpp
     cl_XTK_Integration_Mesh_Generator.hpp
     cl_XTK_Decomposition_Algorithm.hpp
     cl_XTK_Regular_Subdivision_Interface.hpp
@@ -182,6 +181,7 @@ set(LIB_DEPENDENCIES
     ${MAP}-lib
     ${HMR}-lib
     ${TOL}-lib
+    ${ENM}-lib
     )
 
 # Set the output path for library

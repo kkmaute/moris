@@ -15,7 +15,6 @@ set(${MSI}_VERSION ${MORIS_VERSION})
 set(HEADERS
     cl_MSI_Adof.hpp
     cl_MSI_Dof_Manager.hpp
-    cl_MSI_Dof_Type_Enums.hpp
     cl_MSI_Model_Solver_Interface.hpp
     cl_MSI_Equation_Model.hpp
     cl_MSI_Equation_Object.hpp
@@ -52,6 +51,7 @@ set(LIB_DEPENDENCIES
     ${INT}-lib
     ${DLA}-lib
     ${PRM}-lib
+    ${ENM}-lib
     #${MDL}-lib
    )
 

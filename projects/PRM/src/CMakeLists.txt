@@ -37,7 +37,7 @@ set(LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
-    ${INT}-lib
+    ${ENM}-lib
      )
 
 # Set the output path for library

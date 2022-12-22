@@ -14,8 +14,8 @@
 
 #include "cl_Param_List.hpp"
 
-#include "cl_FEM_Enums.hpp"           // TODO
-#include "cl_VIS_Output_Enums.hpp"    // TODO
+#include "cl_FEM_Enums.hpp"
+#include "cl_VIS_Output_Enums.hpp"
 
 namespace moris
 {

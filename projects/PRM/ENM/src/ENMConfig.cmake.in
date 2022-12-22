@@ -1,0 +1,41 @@
+
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
+### Parameters Library Config File ###
+
+if(@ENM@_CONFIGURED)
+	return()
+endif()
+
+set(@ENM@_CONFIGURED TRUE)
+
+# CMake configuration
+@PACKAGE_INIT@
+
+# Additional macros
+include(CMakeFindDependencyMacro)
+
+# Compilers and used in build
+set(@ENM@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@ENM@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@ENM@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@ENM_COMPILE_DEFINITIONS@")
+set(@ENM@_C_FLAGS "@MORIS_C_FLAGS@" "@ENM_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@ENM_CONFIG_TPL_DEPENDENCIES@
+@ENM_CONFIG_MORIS_DEPENDENCIES@
+
+# Create library target
+include("@PACKAGE_ENM_CONFIG_INSTALL_DIR@/@ENM@Targets.cmake")
+
+# Library target list
+set(@ENM@_LIBRARIES @ENM@-lib)
+set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@ENM@-lib")
+
