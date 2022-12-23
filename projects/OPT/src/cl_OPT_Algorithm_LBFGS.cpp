@@ -16,6 +16,7 @@
 #include "cl_Tracer.hpp"
 #include "fn_Parsing_Tools.hpp"
 #include "fn_norm.hpp"
+#include "cl_Fortran.hpp"
 
 #ifdef FORT_NO_
 #define _FORTRAN( a ) a
@@ -28,22 +29,22 @@
 extern "C" {
 // L-BFGS-B (a Fortran implementation of BFGS) function declaration
 void setulb_(
-        int*    n,
-        int*    m,
+        int&    n,
+        int&    m,
         double* x,
         double* l,
         double* u,
         int*    nbd,
-        double* f,
+        double& f,
         double* g,
-        double* mNormDrop,
-        double* mGradTolerance,
+        double& mNormDrop,
+        double& mGradTolerance,
         double* wa,
         int*    iwa,
         char*   task,
-        int*    iprint,
+        int&    iprint,
         char*   csave,
-        bool*   lsave,
+        int*    lsave,
         int*    isave,
         double* dsave );
 }
@@ -158,17 +159,18 @@ namespace moris
 
             int iprint = mLBFGSprint;    // Prevents the algorithm from printing anything
 
-            char csave[ 61 ];
-            bool lsave[ 4 ] = { false };
+            //initialize with null terminated empty str
+            char csave[ 60 ];
+            strcpy( csave, "" ); 
+
+            moris::fortran::LOGICAL lsave[ 4 ] = { false };
 
             int*    isave = isaveCell.memptr();
             double* dsave = dsaveCell.memptr();
 
             // starts the algorithm , if initialized static it must  be of size 61
-            char* task = new char[ 61 ]{ 'S', 'T', 'A', 'R', 'T', '\0' };
-
-            // pad the string with the spaces as it is the convention in fortran
-            std::fill( &task[ 0 ] + std::strlen( &task[ 0 ] ), &task[ 0 ] + 60, ' ' );
+            char task[ 60 ];
+            strcpy( task, "START" );
 
             // upper and lower bounds user defined will be overwritten later
             Matrix< DDRMat > tLowerBoundsUserDefined = mProblem->get_lower_bounds();
@@ -216,31 +218,38 @@ namespace moris
                 // value to store previous optimization iteration
                 double f_previous = 0.0;
 
+                // restart the optimization in every outer iter
+                strcpy( task, "START" );
+
                 // inner loop to go through internal iterations
                 for ( size_t iInnerIteration = 0; iInnerIteration < tNumberOfInnerIterations; iInnerIteration++ )
                 {
-                    // call the Fortran subroutine
-                    setulb_( &n,
-                            &mNumCorrections,
-                            x,
-                            l,
-                            u,
-                            nbd,
-                            &f,
-                            g,
-                            &mNormDrop,
-                            &mGradTolerance,
-                            wa,
-                            iwa,
-                            task,
-                            &iprint,
-                            csave,
-                            lsave,
-                            isave,
-                            dsave );
+                    {
+                        moris::fortran::CHARACTER tTaskFortran( task, 60 );
+                        moris::fortran::CHARACTER tCsaveFortran( csave, 60 );
+                        // call the Fortran subroutine
+                        setulb_( n,
+                                mNumCorrections,
+                                x,
+                                l,
+                                u,
+                                nbd,
+                                f,
+                                g,
+                                mNormDrop,
+                                mGradTolerance,
+                                wa,
+                                iwa,
+                                tTaskFortran,
+                                iprint,
+                                tCsaveFortran,
+                                lsave,
+                                isave,
+                                dsave );
+                    }
 
                     // only assign f_previous at iteration 1
-                    f_previous = iInnerIteration == 1 ? f : f_previous;
+                    f_previous = iInnerIteration == 0 ? f : f_previous;
 
                     if ( strncmp( task, "FG", 2 ) == 0 || strncmp( task, "NEW_X", 5 ) == 0 )
                     {
@@ -296,7 +305,7 @@ namespace moris
                             break;
                         }
                     }
-                    
+
                     // if all the adv satisfy the bounds then we have converged and outer loop breaks
                     if ( tIsConverged == true )
                     {
@@ -305,9 +314,6 @@ namespace moris
                     }
                 }
             }
-
-            // delete the pointer
-            delete[] task;
         }
 
         //--------------------------------------------------------------------------------------------------------------
