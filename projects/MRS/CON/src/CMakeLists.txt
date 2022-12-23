@@ -21,7 +21,8 @@ set(HEADERS
     cl_Param_List.hpp
     cl_Tuple.hpp
     containers.hpp
-    fn_zip.hpp )
+    fn_zip.hpp
+    cl_Fortran.hpp )
     
 # List library source files
 set(LIB_SOURCES
