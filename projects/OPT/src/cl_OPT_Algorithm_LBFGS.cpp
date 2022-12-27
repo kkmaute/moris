@@ -135,9 +135,6 @@ namespace moris
             // get number of design variables
             int tNumAdvs = mProblem->get_num_advs();
 
-            // pointer to vector of optimization variables
-            auto x = mProblem->get_advs().data();
-
             // NOTE:  this is done in order to be able to use native functions on the input data that will be passed on to Fortran
             // algorithm inputs in terms of cell
             moris::Cell< int >    nbdCell( tNumAdvs, 2 );    // This algorithm parameter is hard-coded to assume that the variables are bounded
@@ -168,6 +165,9 @@ namespace moris
             // initialize empty str
             char csave[ 60 + 1 ];
             csave[ 60 ] = '\0';
+
+            // get optimization variables
+            Matrix< DDRMat >& tAdvs = mProblem->get_advs();
 
             // upper and lower bounds (fixed and prescribed)
             const Matrix< DDRMat >& tLowerBounds = mProblem->get_lower_bounds();
@@ -209,13 +209,16 @@ namespace moris
                 // determine user defined upper and lower bounds
                 for ( uint iADV = 0; iADV < (uint)tNumAdvs; iADV++ )
                 {
-                    tTmpLowerBounds( iADV ) = std::max( tLowerBounds( iADV ), x[ iADV ] - tStep * ( tUpperBounds( iADV ) - tLowerBounds( iADV ) ) );
-                    tTmpUpperBounds( iADV ) = std::min( tUpperBounds( iADV ), x[ iADV ] + tStep * ( tUpperBounds( iADV ) - tLowerBounds( iADV ) ) );
+                    tAdvs( iADV ) = std::max( tLowerBounds( iADV ), std::min( tAdvs( iADV ), tUpperBounds( iADV ) ) );
+
+                    tTmpLowerBounds( iADV ) = std::max( tLowerBounds( iADV ), tAdvs( iADV ) - tStep * ( tUpperBounds( iADV ) - tLowerBounds( iADV ) ) );
+                    tTmpUpperBounds( iADV ) = std::min( tUpperBounds( iADV ), tAdvs( iADV ) + tStep * ( tUpperBounds( iADV ) - tLowerBounds( iADV ) ) );
                 }
 
-                // extract pointers for temporary upper and lower bounds
-                auto l = tTmpLowerBounds.data();
-                auto u = tTmpUpperBounds.data();
+                // extract pointers for optimization variables and temporary upper and lower bounds
+                double* x = tAdvs.data();
+                double* l = tTmpLowerBounds.data();
+                double* u = tTmpUpperBounds.data();
 
                 // value to store previous optimization iteration
                 double f_previous = 0.0;
