@@ -173,6 +173,10 @@ namespace moris
             const Matrix< DDRMat >& tLowerBounds = mProblem->get_lower_bounds();
             const Matrix< DDRMat >& tUpperBounds = mProblem->get_upper_bounds();
 
+            // check for consistent length of variable and bound vectors
+            MORIS_ERROR( tAdvs.numel() == tLowerBounds.numel() && tAdvs.numel() == tUpperBounds.numel(),
+                    "Algorithm_LBFGS::lbfgs_solve - inconsistent length of ADV and lower/upper bound vectors." );
+
             // create arrays for temporary upper and lower bounds
             Matrix< DDRMat > tTmpLowerBounds( tNumAdvs, 1 );
             Matrix< DDRMat > tTmpUpperBounds( tNumAdvs, 1 );
