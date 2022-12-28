@@ -515,7 +515,7 @@ namespace xtk
         get_global_T_matrix_output_file_name();
 
         std::string
-        get_nodal_T_matrix_output_file_name();
+        get_elemental_T_matrix_output_file_name();
 
         std::string
         get_MPC_output_file_name();

@@ -1653,10 +1653,10 @@ namespace xtk
     }
 
     std::string
-    Model::get_nodal_T_matrix_output_file_name()
+    Model::get_elemental_T_matrix_output_file_name()
     {
         // get value from parameterlist
-        return mParameterList.get< std::string >( "nodal_T_matrix_output_file" );
+        return mParameterList.get< std::string >( "elemental_T_matrix_output_file" );
     }
 
     std::string
@@ -1672,7 +1672,7 @@ namespace xtk
     Model::kill_workflow_flag()
     {
         // indicate to kill workflow if T-matrix output of full triangulation in post-processing of the cut IG mesh has been requested
-        if ( this->get_global_T_matrix_output_file_name() != "" || this->get_nodal_T_matrix_output_file_name() != "" || mTriangulateAllInPost )
+        if ( this->get_global_T_matrix_output_file_name() != "" || this->get_elemental_T_matrix_output_file_name() != "" || mTriangulateAllInPost )
         {
             return true;
         }

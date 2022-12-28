@@ -78,7 +78,7 @@ namespace moris
 
             // T-Matrix output if needed
             tParameterList.insert( "global_T_matrix_output_file", "" );
-            tParameterList.insert( "nodal_T_matrix_output_file", "" );
+            tParameterList.insert( "elemental_T_matrix_output_file", "" );
             tParameterList.insert( "MPC_output_file", "" );
 
             // triangulate mesh at the end of constructing, this allows non-uniform refinement in the Lagrange mesh

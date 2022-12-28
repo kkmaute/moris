@@ -506,7 +506,7 @@ namespace moris
             }
 
             // Output T-matrices if requested
-            std::string tElementalTmatrixFileName = aXTKPerformer->get_nodal_T_matrix_output_file_name();
+            std::string tElementalTmatrixFileName = aXTKPerformer->get_elemental_T_matrix_output_file_name();
             if ( tElementalTmatrixFileName != "" )
             {
                 uint tNumBsplineMeshes = mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_interpolation_mesh()->get_num_interpolations();
