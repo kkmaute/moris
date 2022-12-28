@@ -20,7 +20,7 @@ namespace moris
             , mLibraryHandle( nullptr )
             , mSoLibIsInitialized( false )
             , mXmlFilePath( "" )
-            , mXmlParser( std::make_unique< XML_Parser >() )
+            , mXmlReader( std::make_unique< XML_Parser >() )
             , mXmlParserIsInitialized( false )
             , mLibraryIsFinalized( false )
             , mLibraryType( Library_Type::UNDEFINED ) // base class library-type is undefined
@@ -233,7 +233,7 @@ namespace moris
                 mXmlFilePath = this->convert_to_absolute_file_path( aFileName );
 
                 // load the xml file in the parser
-                mXmlParser->initialize_read( mXmlFilePath );
+                mXmlReader->initialize_read( mXmlFilePath );
 
                 // mark the xml-parser as initialized
                 mXmlParserIsInitialized = true;

@@ -53,7 +53,7 @@ namespace moris
 
         // data for xml input file
         std::string mXmlFilePath;                 // path to the .xml input file
-        std::unique_ptr< XML_Parser > mXmlParser; // XML_Parser
+        std::unique_ptr< XML_Parser > mXmlReader; // XML_Parser
         bool mXmlParserIsInitialized;             // flag whether the xml parser has its file
 
         // flag indicating whether the library is complete and initialized

@@ -101,6 +101,17 @@ namespace moris
 
     // -----------------------------------------------------------------------------
 
+    /**
+     * @brief Get the number of sub parameter lists that can be defined in a given module
+     * 
+     * @param aModule the module
+     * @return uint number of sub parameter lists in Module
+     */
+    uint
+    get_number_of_sub_parameter_lists_in_module( Parameter_List_Type aModule );
+
+    // -----------------------------------------------------------------------------
+
     std::string
     get_outer_sub_parameter_list_name( 
             Parameter_List_Type aModule,
@@ -112,6 +123,18 @@ namespace moris
     get_inner_sub_parameter_list_name( 
             Parameter_List_Type aModule,
             uint                aParamListIndex );
+
+    // -----------------------------------------------------------------------------
+
+    // define enums for geometry types
+    enum class Geometry_Type
+    {
+        UNDEFINED,
+        PRE_DEFINED,
+        USER_DEFINED,
+        IMAGE_FILE,
+        END_ENUM
+    };
 
     // -----------------------------------------------------------------------------
 

@@ -167,8 +167,7 @@ namespace moris
         moris::size_t tCount = 0;
 
         // loop over all entries in this tag
-        BOOST_FOREACH ( boost::property_tree::ptree::value_type &v,
-                mTree.get_child( aSubTree ) )
+        BOOST_FOREACH ( boost::property_tree::ptree::value_type &v, mTree.get_child( aSubTree ) )
         {
             if ( v.first.data() == aLabel )
             {
@@ -214,6 +213,47 @@ namespace moris
                     "be sure to check for extraneous spaces" );
             return false;
         };
+    }
+
+    // -----------------------------------------------------------------------------
+
+    bool
+    XML_Parser::copy_subtree_into_buffer(
+            const std::string&  aNodeNestedUnder,
+            const std::string&  aSubTreeLabel,
+            const moris::size_t aIndex )
+    {
+        // check that the buffer is a read buffer
+        MORIS_ASSERT( mMode == XML_Mode::READ, "XML_Parser::copy_subtree_into_buffer() - "
+                "This operation should only be performed in READ mode. XML-parser is currently in mode #%i.",
+                (uint)( mMode ) );
+
+        // initialize counter to keep 
+        moris::size_t tCount = 0;
+
+        // loop over all entries in this tag
+        BOOST_FOREACH ( boost::property_tree::ptree::value_type & iNode, mTree.get_child( aNodeNestedUnder ) )
+        {
+            // if this is the instance of type of subtree this function is looking for
+            if ( iNode.first.data() == aSubTreeLabel )
+            {
+                // if this is the particular instance we're looking for, copy it into the buffer
+                if( aIndex == tCount )
+                {
+                    // store subtree in buffer
+                    mBuffer = iNode.second;
+                    
+                    // stop and return that the subtree has been buffered successfully
+                    return true;
+                }
+
+                // otherwise skip this instance and look for the next one
+                tCount++;
+            }
+        }
+
+        // return that the subtree has NOT been buffered successfully
+        return false;
     }
 
     // -----------------------------------------------------------------------------

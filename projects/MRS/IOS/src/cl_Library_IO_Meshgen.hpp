@@ -51,6 +51,14 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         /**
+         * @brief loads parameters from the simplified xml file and overwrites any previously specified parameters by it
+         */
+        void
+        load_parameters_from_xml() override;
+
+        // -----------------------------------------------------------------------------
+
+        /**
          * @brief fills the member parameter lists with the standard parameters for all modules
          */
         void
@@ -62,7 +70,7 @@ namespace moris
          * @brief Get the standard parameters for the specified module in the mesh generation only workflow
          * note: this function deletes all previous entries in the parameter list passed to it to fill
          *
-         * @param aParamListType module for which the standar parameters are to be provided
+         * @param aParamListType module for which the standard parameters are to be provided
          * @param aParameterList address to the parameter list to fill with standard parameters
          */
         void

@@ -50,6 +50,56 @@ namespace moris
 
     // -----------------------------------------------------------------------------
 
+    uint
+    get_number_of_sub_parameter_lists_in_module( Parameter_List_Type aModule )
+    {
+        // get the names of the sub-parameter lists for each of the modules
+        switch( aModule )
+        {
+            case Parameter_List_Type::OPT:
+                return 1;
+
+            case Parameter_List_Type::HMR:
+                return 1;
+
+            case Parameter_List_Type::STK:
+                return 1;
+
+            case Parameter_List_Type::XTK:
+                return 1;
+
+            case Parameter_List_Type::GEN:
+                return 3;
+
+            case Parameter_List_Type::FEM:
+                return 9;
+
+            case Parameter_List_Type::SOL:
+                return 7;
+
+            case Parameter_List_Type::MSI:
+                return 1;
+
+            case Parameter_List_Type::VIS:
+                return 1;
+
+            case Parameter_List_Type::MIG:
+                return 1;
+
+            case Parameter_List_Type::WRK:
+                return 1;
+
+            case Parameter_List_Type::MORISGENERAL:
+                return 3;
+
+            default:
+                MORIS_ERROR( false, "Library_Enums::get_number_of_sub_parameter_lists_in_module() - Parameter list type enum unknown." );
+                return 0;
+        }
+    }
+
+    // -----------------------------------------------------------------------------
+
     std::string
     get_outer_sub_parameter_list_name( 
             Parameter_List_Type aModule,
@@ -62,7 +112,7 @@ namespace moris
         switch( aModule )
         {
             case Parameter_List_Type::OPT:
-                tNames = { "OptimizationProblem", "Interface", "Algorithms" };
+                tNames = { "OptimizationProblems", "Interface", "Algorithms" };
                 break;
 
             case Parameter_List_Type::HMR:

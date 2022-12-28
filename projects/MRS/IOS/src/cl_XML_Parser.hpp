@@ -53,10 +53,10 @@ namespace moris
          * opens a path and writes the content into mTree
          */
         XML_Parser()
-            : mMode( XML_Mode::UNINITIALIZED )
-            , mFilePath( "" )
-            , mTree()
-            , mBuffer()
+                : mMode( XML_Mode::UNINITIALIZED )
+                , mFilePath( "" )
+                , mTree()
+                , mBuffer()
         {
             // nothing else
         }
@@ -65,7 +65,7 @@ namespace moris
 
         /**
          * @brief constructor for both creating and initializing the XML_Parser at the same time
-         * 
+         *
          * @param aFilePath file path to open
          * @param aMode whether the XML parser is initialized as a reader or writer
          */
@@ -105,6 +105,18 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         /**
+         * gets a key from the tree and writes the value into aValue
+         */
+        template< typename T >
+        void
+        get( const std::string aKey, T& aValue, T aDefault ) const
+        {
+            aValue = mTree.get< T >( aKey, aDefault );
+        }
+
+        // -----------------------------------------------------------------------------
+
+        /**
          * sets a value in the tree
          */
         template< typename T >
@@ -112,6 +124,42 @@ namespace moris
         set( const std::string aKey, const T& aValue )
         {
             mTree.put( aKey, aValue );
+        }
+
+        // -----------------------------------------------------------------------------
+
+        /**
+         * @brief get a value in the buffer
+         *
+         * @tparam T type of variable to get from the buffer
+         * @param aKey key to find in the buffer
+         * @param aValue value for that key
+         */
+        template< typename T >
+        void
+        get_from_buffer( const std::string aKey, T& aValue ) const
+        {
+            aValue = mBuffer.get< T >( aKey );
+        }
+
+        // -----------------------------------------------------------------------------
+
+        /**
+         * @brief get a value in the buffer
+         *
+         * @tparam T type of variable to get from the buffer
+         * @param aKey key to find in the buffer
+         * @param aValue value for that key
+         * @param aDefault default to be returned when the key is not found
+         */
+        template< typename T >
+        void
+        get_from_buffer(
+                const std::string aKey,
+                T&                aValue,
+                T                 aDefault ) const
+        {
+            aValue = mBuffer.get< T >( aKey, aDefault );
         }
 
         // -----------------------------------------------------------------------------
@@ -129,6 +177,52 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         /**
+         * @brief Get an attribute within the buffer tree
+         *
+         * @param aAttributeName attribute name
+         * @param aAttributeValue fill the value of the attribute
+         * @param aLocation subtree name which holds the attribute
+         */
+        template< typename T >
+        void
+        get_attribute_in_buffer(
+                const std::string& aAttributeName,
+                T&                 aAttributeValue,
+                const std::string  aLocation = "" ) const
+        {
+            std::string tKey = "<xmlattr>." + aAttributeName;
+            if ( aLocation != "" )
+            {
+                tKey = aLocation + "." + tKey;
+            }
+            aAttributeValue = mBuffer.get< T >( tKey );
+        }
+
+        // -----------------------------------------------------------------------------
+
+        template< typename T >
+        T
+        get_attribute_from_buffer(
+                const std::string& aAttributeName,
+                T                  aDefault ) const
+        {
+            std::string tKey = "<xmlattr>." + aAttributeName;
+            return mBuffer.get< T >( tKey );
+        }
+
+        // -----------------------------------------------------------------------------
+
+        moris_index
+        get_index_of_buffer_subtree() const
+        {
+            std::string tKey   = "<xmlattr>.ind";
+            moris_index tIndex = mBuffer.get< moris_index >( tKey, moris_index( -1 ) );
+            return tIndex;
+        }
+
+        // -----------------------------------------------------------------------------
+
+        /**
          * sets a value in the tree
          */
         template< typename T >
@@ -139,9 +233,9 @@ namespace moris
                 const std::string  aLocation = "" )
         {
             std::string tKey = "<xmlattr>." + aAttributeName;
-            if( aLocation != "" )
-            { 
-                tKey = aLocation + "." + tKey; 
+            if ( aLocation != "" )
+            {
+                tKey = aLocation + "." + tKey;
             }
             mBuffer.put( tKey, aAttributeValue );
         }
@@ -156,7 +250,8 @@ namespace moris
         /**
          * writes the data into a file
          */
-        void save( const std::string& aFilePath )
+        void
+        save( const std::string& aFilePath )
         {
             boost::property_tree::xml_writer_settings< std::string > tWriteSettings( '\t', 1 );
             boost::property_tree::write_xml( aFilePath, mTree, std::locale(), tWriteSettings );
@@ -191,6 +286,22 @@ namespace moris
                 const moris::size_t& aIndex,
                 Cell< std::string >& aFirst,
                 Cell< std::string >& aSecond );
+
+        // -----------------------------------------------------------------------------
+
+        /**
+         * @brief copies a particular instance of a subtree into the buffer
+         *
+         * @param aNodeNestedUnder the tree location under which to find the subtree to buffer
+         * @param aSubTreeLabel name of the subtree to buffer
+         * @param aIndex n-th instance of a subtree with this name (default: 0th)
+         * @return true/false whether the buffering was successful
+         */
+        bool
+        copy_subtree_into_buffer(
+                const std::string&  aNodeNestedUnder,
+                const std::string&  aSubTreeLabel,
+                const moris::size_t aIndex = 0 );
 
         // -----------------------------------------------------------------------------
 
