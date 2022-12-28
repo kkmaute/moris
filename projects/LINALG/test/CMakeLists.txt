@@ -66,6 +66,7 @@ set(TEST_SOURCES
     op_not_equal.cpp
     op_plus.cpp
     op_times.cpp
+    fn_max.cpp
     test_main.cpp)
 
 # List test dependencies

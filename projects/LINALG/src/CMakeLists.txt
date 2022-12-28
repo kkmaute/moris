@@ -190,6 +190,8 @@ Arma_Impl/op_plus_Arma.hpp
 Arma_Impl/op_times_Arma.hpp
 Arma_Impl/fn_rank_Arma.hpp
 Arma_Impl/fn_join_horiz_Arma.hpp
+Arma_Impl/fn_max_Arma.hpp
+Arma_Impl/fn_min_Arma.hpp
   )
 endif()
 
