@@ -954,6 +954,8 @@ namespace moris
             tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
             tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
             tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "TEMP" );
+            tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "" );
+            tParameterlist( 5 )( 0 ).set( "TSA_Output_Crteria", "" );
 
             tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
             tParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", static_cast< uint >( sol::MapType::Petsc ) );
@@ -1237,6 +1239,8 @@ namespace moris
             tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
             tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
             tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "TEMP" );
+            tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "" );
+            tParameterlist( 5 )( 0 ).set( "TSA_Output_Crteria", "" );
 
             tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
             tParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", static_cast< uint >( sol::MapType::Petsc ) );

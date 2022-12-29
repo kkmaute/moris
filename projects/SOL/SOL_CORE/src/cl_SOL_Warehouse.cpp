@@ -375,7 +375,7 @@ SOL_Warehouse::create_time_solvers()
             for ( uint Ia = 0; Ia < tOutputCriteria.size(); Ia++ )
             {
                 // if a criterion for the output has been defined
-                if( tOutputCriteria( Ia ) != "" && tOutputCriteria( Ia ) != "Default_Output_Criterion" )
+                if( tOutputCriteria( Ia ) != "Default_Output_Criterion" )
                 {
                     Pointer_Function tCriteriaFunc = mLibrary->load_function< Pointer_Function >( tOutputCriteria( Ia ) );
                     mTimeSolvers( Ik )->set_output( tOutputIndices( Ia ),
