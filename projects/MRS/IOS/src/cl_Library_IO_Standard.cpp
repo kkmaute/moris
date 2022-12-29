@@ -156,8 +156,12 @@ namespace moris
                     tModuleParamList( 0 )( 0 ).set( "Save_Frequency", 1 );
                     break;
 
-                case Parameter_List_Type::WRK :
+                case Parameter_List_Type::MIG :
                     tModuleParamList( 0 )( 0 ) = prm::create_wrk_parameter_list();
+                    break;
+
+                case Parameter_List_Type::WRK :
+                    tModuleParamList( 0 )( 0 ) = prm::create_mig_parameter_list();
                     break;
 
                 case Parameter_List_Type::MORISGENERAL :
