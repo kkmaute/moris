@@ -25,7 +25,7 @@ Vector_Epetra::Vector_Epetra(
         , mVecBuildWithPointMap( aPointMap )
 {
     // store map as Epetra map
-    mMap = dynamic_cast< Map_Epetra* >( aMapClass );
+    mMap = reinterpret_cast< Map_Epetra* >( aMapClass );
 
     // store number of columns for multi-column vectors
     mNumVectors = aNumVectors;
@@ -51,6 +51,11 @@ Vector_Epetra::~Vector_Epetra()
 
     delete mImporter;
     mImporter = nullptr;
+
+    if ( mManageMap )
+    {
+        delete mMap;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -429,7 +434,9 @@ Vector_Epetra::read_vector_from_HDF5( const char* aFilename )
     mEpetraVector = NewVector;
 
     mValuesPtr = mEpetraVector->Values();
+
     // FIXME
+    delete NewMap;
     //     mMap->get_epetra_map() = NewMap;
     // mMap->get_epetra_full_overlapping_map() = NewMap;
 }

@@ -26,7 +26,7 @@ Vector_PETSc::Vector_PETSc(
         : sol::Dist_Vector( aManageMap )
 {
     // store map as PETSc map
-    mMap = dynamic_cast< Map_PETSc* >( aMap );
+    mMap = reinterpret_cast< Map_PETSc* >( aMap );
 
     // build either vector of only owned or vector of owned and shared DOFs, i.e., full vector
     if ( mMap->is_full_map() )
@@ -74,6 +74,11 @@ Vector_PETSc::Vector_PETSc(
 Vector_PETSc::~Vector_PETSc()
 {
     VecDestroy( &mPetscVector );
+
+    if ( mManageMap )
+    {
+        delete mMap;
+    }
 }
 
 //-----------------------------------------------------------------------------
