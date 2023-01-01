@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_FEM_INT_SRC_CL_FEM_IQI_MAX_DOF_HPP_
-#define PROJECTS_FEM_INT_SRC_CL_FEM_IQI_MAX_DOF_HPP_
+#pragma once
 
 #include <map>
 
@@ -27,22 +26,27 @@ namespace moris
     {
         //------------------------------------------------------------------------------
 
-        class IQI_Max_Dof : public IQI
+        class IQI_ALM_Dof : public IQI
         {
-
             /**
-             * @brief IQI to compute integral over space and time of
+             * @brief Implementation of Augmented Lagrange Multiplier Method defined by integral over space and time of
              *
-             * ( ( dof-value / mRefValue - mShift)^pm )^mExponent
+             * lambda * gplus + 0.5 * cpen * gplus^2
              *
-             * where the integrand can be considered if strictly positive or negative or both
+             * where gplus is the constraint (g = dof-value / mRefValue - mShift <= 0) and defined by
+             *
+             * gplus = max(g, - lambda/cpen)
+             *
+             * and lambda is the Lagrange multiplier field and cpen the penalty factor
+             *
              */
 
             //------------------------------------------------------------------------------
 
             enum class IQI_Property_Type
             {
-                WEIGHT,
+                LAGRANGE_MULTIPLIER,
+                PENALTY_FACTOR,
                 MAX_ENUM
             };
 
@@ -51,23 +55,13 @@ namespace moris
             /*
              * constructor
              */
-            IQI_Max_Dof()
-            {
-                // set size for the property pointer cell
-                mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
-
-                // populate the property map
-                mPropertyMap[ "Weight" ] = static_cast< uint >( IQI_Property_Type::WEIGHT );
-
-                // set FEM IQI type
-                mFEMIQIType = fem::IQI_Type::MAX_DOF;
-            }
+            IQI_ALM_Dof();
 
             //------------------------------------------------------------------------------
             /**
              * trivial destructor
              */
-            ~IQI_Max_Dof(){};
+            ~IQI_ALM_Dof(){};
 
             //------------------------------------------------------------------------------
 
@@ -77,14 +71,9 @@ namespace moris
             //! initialization flag
             bool mIsInitialized = false;
 
-            //! parameters: reference value, exponent, shift, sign
+            //! parameters: reference value and shift
             real mRefValue;
-            real mExponent;
             real mShift;
-            sint mSign;    /// flag to consider the integrand for
-                           /// only positive values (1) or
-                           /// only negative values (-1) or
-                           /// all values (0) (default)
 
             //------------------------------------------------------------------------------
             /**
@@ -126,5 +115,3 @@ namespace moris
         };
     } /* end namespace fem */
 } /* end namespace moris */
-
-#endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_MAX_DOF_HPP_ */

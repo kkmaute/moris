@@ -16,6 +16,7 @@
 #include "cl_FEM_IQI_Strain_Energy.hpp"
 #include "cl_FEM_IQI_Stress.hpp"
 #include "cl_FEM_IQI_Dof.hpp"
+#include "cl_FEM_IQI_ALM_Dof.hpp"
 #include "cl_FEM_IQI_Max_Dof.hpp"
 #include "cl_FEM_IQI_Property.hpp"
 #include "cl_FEM_IQI_L2_Error_Analytic.hpp"
@@ -57,6 +58,9 @@ namespace moris
             {
                 case IQI_Type::DOF:
                     return std::make_shared< IQI_Dof >();
+
+                case IQI_Type::ALM_DOF:
+                    return std::make_shared< IQI_ALM_Dof >();
 
                 case IQI_Type::MAX_DOF:
                     return std::make_shared< IQI_Max_Dof >();
@@ -179,4 +183,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
