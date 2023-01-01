@@ -154,6 +154,7 @@ namespace moris
             STRAIN_ENERGY,
             VOLUME_FRACTION,
             DOF,
+            ALM_DOF,
             MAX_DOF,
             PROPERTY,
             STABILIZATION,
@@ -389,4 +390,3 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_ENUMS_HPP_ */
-
