@@ -48,7 +48,10 @@ namespace moris
             mPrint = aParameterList.get< bool >( "print" );
 
             // open HDF5 file
-            mFileID = create_hdf5_file( aParameterList.get< std::string >( "hdf5_path" ) );
+            if ( par_rank() == 0 )
+            {
+                mFileID = create_hdf5_file( aParameterList.get< std::string >( "hdf5_path" ) );
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -455,4 +458,3 @@ namespace moris
 
     }    // namespace opt
 }    // namespace moris
-
