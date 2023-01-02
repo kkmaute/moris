@@ -372,9 +372,6 @@ Time_Solver::solve()
 
         if ( tType == "hdf5" || tType == "h5" )
         {
-            // delete vector constructed previously
-            delete mFullVector( 1 );
-
             // read solution vector from file
             mFullVector( 1 )->read_vector_from_HDF5( tSolVecPath.c_str() );
         }
