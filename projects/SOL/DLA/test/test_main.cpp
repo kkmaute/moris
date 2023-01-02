@@ -32,6 +32,8 @@
 moris::Comm_Manager gMorisComm;
 moris::Logger       gLogger;
 
+//------------------------------------------------------------------------------------
+
 void
 test_pause()
 {
