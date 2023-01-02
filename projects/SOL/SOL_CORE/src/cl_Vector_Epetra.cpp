@@ -431,6 +431,12 @@ Vector_Epetra::read_vector_from_HDF5( const char* aFilename )
     HDF5.Read( "LHS", *NewMap, NewVector );
     HDF5.Close();
 
+    // delete old Epetra Vector
+    if ( mEpetraVector )
+    {
+        delete mEpetraVector;
+    }
+
     mEpetraVector = NewVector;
 
     mValuesPtr = mEpetraVector->Values();
