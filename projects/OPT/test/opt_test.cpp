@@ -168,7 +168,7 @@ namespace moris
 
                 tAlgorithmParameterList.set( "max_its", 10 );
                 tAlgorithmParameterList.set( "num_corr", 5 );
-                tAlgorithmParameterList.set( "norm_drop", 1.0e-8 );
+                tAlgorithmParameterList.set( "norm_drop", 1.0e-12 );
 
                 tAlgorithmParameterList.set( "step_size", "0.2,0.1" );
                 tAlgorithmParameterList.set( "step_size_index", "0,10" );
