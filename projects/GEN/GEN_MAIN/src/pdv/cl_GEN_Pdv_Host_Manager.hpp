@@ -78,7 +78,6 @@ namespace moris
             //-------------------------------------------------------------------------------
 
           public:
-
             //-------------------------------------------------------------------------------
 
             /**
@@ -125,12 +124,12 @@ namespace moris
              *
              * @param aNumNodes Number of nodes
              */
-            void 
+            void
             set_num_background_nodes( uint aNumNodes );
 
             //-------------------------------------------------------------------------------
 
-            void 
+            void
             set_communication_table( const Matrix< IdMat >& aCommTable );
 
             //-------------------------------------------------------------------------------
@@ -150,7 +149,7 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            void 
+            void
             set_GenMeshMap( moris::Cell< moris_index > aGenMeshMap );
 
             //-------------------------------------------------------------------------------
@@ -158,7 +157,7 @@ namespace moris
             /**
              * Resets the stored information about PDV hosts.
              */
-            void 
+            void
             reset();
 
             //-------------------------------------------------------------------------------
@@ -169,7 +168,7 @@ namespace moris
              * @param aIPMeshSetIndex integration mesh index
              * @param aPdvTypes       list of groups of dv types to fill
              */
-            void 
+            void
             get_ip_dv_types_for_set(
                     const moris_index         aIGMeshSetIndex,
                     Cell< Cell< PDV_Type > >& aPdvTypes );
@@ -182,7 +181,7 @@ namespace moris
              * @param aIGMeshSetIndex integration mesh index
              * @param aPdvTypes       list of groups of dv types to fill
              */
-            void 
+            void
             get_ig_dv_types_for_set(
                     const moris_index         aIGMeshSetIndex,
                     Cell< Cell< PDV_Type > >& aPdvTypes );
@@ -195,7 +194,7 @@ namespace moris
              * @param aIPMeshSetIndex integration mesh index
              * @param aPdvTypes       list dv types to fill
              */
-            void 
+            void
             get_ip_unique_dv_types_for_set(
                     const moris_index aIGMeshSetIndex,
                     Cell< PDV_Type >& aPdvTypes );
@@ -208,7 +207,7 @@ namespace moris
              * @param aIGMeshSetIndex integration mesh index
              * @param aPdvTypes       list dv types to fill
              */
-            void 
+            void
             get_ig_unique_dv_types_for_set(
                     const moris_index aIGMeshSetIndex,
                     Cell< PDV_Type >& aPdvTypes );
@@ -222,7 +221,7 @@ namespace moris
              * @param aPdvTypes    list of dv types
              * @param aDvValues    list of returned dv values (DvType)(vertexIndex)
              */
-            void 
+            void
             get_ip_pdv_value(
                     const Matrix< IndexMat >& aNodeIndices,
                     const Cell< PDV_Type >&   aPdvTypes,
@@ -238,7 +237,7 @@ namespace moris
              * @param aDvValues    list of returned dv values (DvType)(vertexIndex)
              * @param aIsActive    list of if design variable is active (vertexIndex)(DvType)
              */
-            void 
+            void
             get_ip_pdv_value(
                     const Matrix< IndexMat >& aNodeIndices,
                     const Cell< PDV_Type >&   aPdvTypes,
@@ -254,7 +253,7 @@ namespace moris
              * @param aPdvTypes    list of dv types
              * @param aDvValues    list of dv values (DvType)(vertexIndex)
              */
-            void 
+            void
             get_ig_pdv_value(
                     const Matrix< IndexMat >& aNodeIndices,
                     const Cell< PDV_Type >&   aPdvTypes,
@@ -270,7 +269,7 @@ namespace moris
              * @param aDvValues    list of dv values (DvType)(vertexIndex)
              * @param aIsActive    list of active design variables (vertexIndex)(DvType)
              */
-            void 
+            void
             get_ig_pdv_value(
                     const Matrix< IndexMat >& aNodeIndices,
                     const Cell< PDV_Type >&   aPdvTypes,
@@ -349,6 +348,19 @@ namespace moris
                     const Cell< Matrix< DDSMat > >&         aNodeOwnersPerSet,
                     const Cell< Matrix< DDRMat > >&         aNodeCoordinates,
                     const Cell< Cell< Cell< PDV_Type > > >& aPdvTypes );
+
+            //-------------------------------------------------------------------------------
+
+            /**
+             * Remove columns of sensitivity values associated with unused (invalid) ADVs
+             *
+             *@param aADVIds Vector of ADV IDs
+             *@param aHostADVSensitivities Matrix of sensitivity values
+             */
+            void
+            remove_sensitivities_of_unused_variables(
+                    Matrix< DDSMat >& aADVIds,
+                    Matrix< DDRMat >& aHostADVSensitivities );
 
             //-------------------------------------------------------------------------------
 
@@ -474,7 +486,6 @@ namespace moris
             //-------------------------------------------------------------------------------
 
           private:
-
             //-------------------------------------------------------------------------------
 
             void communicate_check_if_owned_pdv_exists();
