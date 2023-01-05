@@ -41,6 +41,34 @@ bool gPrintReferenceValues = false;
 
 int fn_WRK_Workflow_Main_Interface( int argc, char* argv[] );
 
+
+//------------------------------------------------------------------------------------
+
+void
+test_pause()
+{
+    // communicate process ids
+    pid_t tPId = getpid();
+
+    moris::Matrix< moris::DDSMat > tPIdVec;
+    comm_gather_and_broadcast( tPId, tPIdVec );
+
+    if ( moris::par_rank() == 0 )
+    {
+        // print process Ids
+        for ( int i = 0; i < moris::par_size(); ++i )
+        {
+            fprintf( stderr, "Process Rank %d ID: %d\n", i, tPIdVec( i ) );
+        }
+
+        std::string dummy;
+
+        std::cout << "Press enter to continue . . .\n"
+                  << std::flush;
+        std::getline( std::cin, dummy );
+    }
+}
+
 //---------------------------------------------------------------
 
 extern "C" void
@@ -337,6 +365,17 @@ check_results(
 TEST_CASE( "Bedding_Sensitivity_Test",
         "[moris],[example],[optimization],[bedding]" )
 {
+    // remove files from previous test runs
+    // FIXME: should be made independent of OS; note std::remove does not take wild cards
+    if ( par_rank() == 0 )
+    {
+        std::system( "rm -f *exo*" );
+        std::system( "rm -f *hdf5*" );
+    }
+
+    // for debugging in parallel
+    // test_pause();
+
     // define command line call
     int argc = 2;
 
@@ -354,13 +393,15 @@ TEST_CASE( "Bedding_Sensitivity_Test",
     MORIS_LOG_INFO( "Executing Contact Sensitivity Test - 2D - %i Processors.", par_size() );
     MORIS_LOG_INFO( "" );
 
-    if ( par_size() == 1 )
+    if ( par_size() == 2 )
     {
         // set test case index
         gTestCaseIndex = 0;
 
         // call to performance manager main interface
         fn_WRK_Workflow_Main_Interface( argc, argv );
+
+        barrier();
 
         // perform check for Test Case 0
         check_results( "Bedding_Sensitivity_Test_0.exo.e-s.0001", "Bedding_Sensitivity_Test_0_SEN.hdf5", gTestCaseIndex );
@@ -417,4 +458,3 @@ TEST_CASE( "Bedding_Sensitivity_Test",
         }
     }
 }
-
