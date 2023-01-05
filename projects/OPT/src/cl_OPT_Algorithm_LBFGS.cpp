@@ -243,9 +243,14 @@ namespace moris
                 tIsConverged = false;
 
                 // inner loop to go through internal iterations
+<<<<<<< HEAD
+=======
+                // for ( uint iInnerIteration = 0; iInnerIteration < tNumberOfInnerIterations; iInnerIteration++ )
+>>>>>>> bce15d3fe5e8ac326952591c30c20657877d9a39
                 uint iInnerIteration = 0;
                 while ( iInnerIteration < tNumberOfInnerIterations )
                 {
+                    std::cout<<"xxx task: "<<std::to_string(iInnerIteration)<< "  : " <<task<<std::endl;
                     // call the Fortran subroutine
                     setulb_(
                             tNumAdvs,
@@ -287,6 +292,7 @@ namespace moris
                     }
                     else if ( strncmp( task, "NEW_X", 5 ) == 0 )
                     {
+<<<<<<< HEAD
                         // increase inner iteration count
                         iInnerIteration++;
 
@@ -324,6 +330,10 @@ namespace moris
 
                             break;
                         }
+=======
+                        iInnerIteration++;
+                        // do nothing for right now; could check for convergence (see driver2.f)
+>>>>>>> bce15d3fe5e8ac326952591c30c20657877d9a39
                     }
                     else if ( strncmp( task, "FG", 2 ) == 0 )
                     {
