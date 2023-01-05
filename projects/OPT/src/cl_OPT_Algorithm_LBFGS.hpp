@@ -20,28 +20,29 @@ namespace moris
     {
         class Algorithm_LBFGS : public Algorithm
         {
-        private:
+          private:
+            uint mOptIter = 0;    // optimization iteration counter
+            uint mResFlag;        // Flag from L-BFGS describing result of optimization algorithm
 
-            uint mOptIter = 0;         // optimization iteration counter
-            uint mResFlag;             // Flag from L-BFGS describing result of optimization algorithm
-            sint mMaxIt;               // Maximum number of optimization iterations
-            int mNumCorrections;       // Number of limited memory corrections
-            double mNormDrop;          // Convergence criteria based on norm
-            double mGradTolerance;      // Convergence criteria based on projected gradients
-            sint mLBFGSprint;
+            sint mMaxIt;         // Maximum number of optimization iterations
+            sint mLBFGSprint;    // flag to control printing within LBFGS algorithm
+
+            int mNumCorrections;           // Number of limited memory corrections
+            int mNumberOfFunctionEvals;    // maximum number of function evaluations
+
+            double mNormDrop;         // Convergence criteria based on norm
+            double mGradTolerance;    // Convergence criteria based on projected gradients
 
             // these 3 data sets are a pair
-            Matrix<DDUMat> mNumberOfInnerIterations;  //  number of inner iterations in each interval
-            Matrix<DDUMat> mStepSizeIndex; // index which the step size correction will be applied
-            Matrix<DDRMat> mStepSize;  // setp size fraction that will be adjusted
+            Matrix< DDUMat > mNumberOfInnerIterations;    //  number of inner iterations in each interval
+            Matrix< DDUMat > mStepSizeIndex;              // index which the step size correction will be applied
+            Matrix< DDRMat > mStepSize;                   // setp size fraction that will be adjusted
 
-
-        public:
-
+          public:
             /**
              * Constructor
              */
-            Algorithm_LBFGS(ParameterList aParameterList);
+            Algorithm_LBFGS( ParameterList aParameterList );
 
             /**
              * Destructor
@@ -57,8 +58,8 @@ namespace moris
              *            data regarding ADVs, the objective and constraints
              */
             uint solve(
-                    uint aCurrentOptAlgInd,
-                    std::shared_ptr<Problem> aOptProb );
+                    uint                       aCurrentOptAlgInd,
+                    std::shared_ptr< Problem > aOptProb );
 
             /**
              * @brief MORIS-GCMMA interface for evaluation of objectives and
@@ -84,8 +85,8 @@ namespace moris
              *             function
              */
             void grad(
-                    double*  aAdv,
-                    double*  aD_Obj );
+                    double* aAdv,
+                    double* aD_Obj );
 
             /**
              *@brief Prints result of the L-BFGS algorithm based on mStopFlag
@@ -95,13 +96,12 @@ namespace moris
             //--------------------------------------------------------------------------------------------------------------
 
             /**
-             * @brief specific solve implemenattion for this algorthim 
-             * 
+             * @brief specific solve implemenattion for this algorthim
+             *
              */
             void lbfgs_solve();
         };
-    }
-}
+    }    // namespace opt
+}    // namespace moris
 
 #endif /* MORIS_CL_OPT_ALGORITHM_LBFGS_HPP_ */
-

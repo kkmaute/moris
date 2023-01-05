@@ -60,10 +60,11 @@ namespace moris
 
         Algorithm_LBFGS::Algorithm_LBFGS( ParameterList aParameterList )
                 : mMaxIt( aParameterList.get< sint >( "max_its" ) )
+                , mLBFGSprint( aParameterList.get< sint >( "internal_lbfgs_print_severity" ) )
                 , mNumCorrections( aParameterList.get< sint >( "num_corr" ) )
+                , mNumberOfFunctionEvals( aParameterList.get< sint >( "num_function_evaluations" ) )
                 , mNormDrop( aParameterList.get< real >( "norm_drop" ) )
                 , mGradTolerance( aParameterList.get< real >( "grad_tol" ) )
-                , mLBFGSprint( aParameterList.get< sint >( "internal_lbfgs_print_severity" ) )
         {
             // convert input parameters ti matrix
             string_to_mat< DDRMat >( aParameterList.get< std::string >( "step_size" ), mStepSize );
@@ -158,6 +159,9 @@ namespace moris
             int*    isave = isaveCell.memptr();
             double* dsave = dsaveCell.memptr();
 
+            // convert user-defind required norm drop to LBFGS specific definition
+            real tLbfgsNormDrop = mNormDrop / MORIS_REAL_EPS;
+
             // starts the algorithm, if initialized static it must  be of size 61
             char task[ 60 + 1 ];
             task[ 60 ] = '\0';
@@ -205,7 +209,7 @@ namespace moris
                     }
                 }
 
-                MORIS_LOG_INFO( "%d Outer Iteration  StepSize = %e  Num Inner Iterations = %d",
+                MORIS_LOG_INFO( "Outer Iteration: %d  StepSize = %e  Num Inner Iterations = %d",
                         iOuterIteration + 1,
                         tStep,
                         tNumberOfInnerIterations );
@@ -224,9 +228,6 @@ namespace moris
                 double* l = tTmpLowerBounds.data();
                 double* u = tTmpUpperBounds.data();
 
-                // value to store previous optimization iteration
-                double f_previous = 0.0;
-
                 // restart the optimization in every outer iter
                 strcpy( task, "START" );
                 strcpy( csave, "" );
@@ -235,8 +236,15 @@ namespace moris
                 moris::fortran::CHARACTER tTaskFortran( task, 60 );
                 moris::fortran::CHARACTER tCsaveFortran( csave, 60 );
 
+                // log total and inner iterations
+                MORIS_LOG_INFO( "Total iteration: %d   Inner iteration: %d", mOptIter + 1, 1 );
+
+                // set convergence flag to false before inner iterations
+                tIsConverged = false;
+
                 // inner loop to go through internal iterations
-                for ( uint iInnerIteration = 0; iInnerIteration < tNumberOfInnerIterations; iInnerIteration++ )
+                uint iInnerIteration = 0;
+                while ( iInnerIteration < tNumberOfInnerIterations )
                 {
                     // call the Fortran subroutine
                     setulb_(
@@ -248,7 +256,7 @@ namespace moris
                             nbd,
                             f,
                             g,
-                            mNormDrop,
+                            tLbfgsNormDrop,
                             mGradTolerance,
                             wa,
                             iwa,
@@ -259,9 +267,6 @@ namespace moris
                             isave,
                             dsave );
 
-                    // only assign f_previous at iteration 1
-                    f_previous = iInnerIteration == 0 ? f : f_previous;
-
                     // evaluate task string
                     if ( strncmp( task, "ERROR", 5 ) == 0 )
                     {
@@ -271,6 +276,10 @@ namespace moris
                     }
                     if ( strncmp( task, "CONV", 4 ) == 0 )
                     {
+                        // set convergence flag to true
+                        tIsConverged = true;
+
+                        // log task
                         MORIS_LOG_INFO( "%s", task );
 
                         // leave inner iteration
@@ -278,30 +287,57 @@ namespace moris
                     }
                     else if ( strncmp( task, "NEW_X", 5 ) == 0 )
                     {
-                        // do nothing for right now; could check for convergence (see driver2.f)
+                        // increase inner iteration count
+                        iInnerIteration++;
+
+                        // increase total iteration count
+                        mOptIter++;
+
+                        // log total and inner iterations
+                        MORIS_LOG_INFO( "Total iterations: %d   Inner iteration: %d  ",
+                                mOptIter + 1,
+                                iInnerIteration + 1 );
+
+                        // log number of function calls, objective and projected gradient norm
+                        MORIS_LOG_INFO( "Function Evals = %d   Objective = %e   |proj g| = %e",
+                                isave[ 33 ],
+                                f,
+                                dsave[ 12 ] );
+
+                        // check whether stop criteria met
+
+                        // terminate if the total number of f and g evaluations exceeds limit
+                        if ( isave[ 33 ] >= mNumberOfFunctionEvals )
+                        {
+                            MORIS_LOG_INFO( "Total number of function calls has been reached" );
+
+                            break;
+                        }
+
+                        // terminate if  |proj g|/(1+|f|) < 1.0d-10, where "proj g" denoted the projected gradient
+                        if ( dsave[ 12 ] <= 1e-10 * ( 1.0 + std::abs( f ) ) )
+                        {
+                            // set convergence flag to true
+                            tIsConverged = true;
+
+                            MORIS_LOG_INFO( "The projected gradient is sufficiently small" );
+
+                            break;
+                        }
                     }
                     else if ( strncmp( task, "FG", 2 ) == 0 )
                     {
-                        // call to compute objective
+                        // compute objective
                         this->func( mOptIter, x, f );
 
-                        // call to compute gradients
+                        // compute gradients
                         this->grad( x, g );
                     }
-
-                    // increment the iteration
-                    mOptIter++;
                 }
 
-                // compute reference value for convergence check
-                real tReferenceObjective = std::max( { std::abs( f ), std::abs( f_previous ), 1.0 } );
-
-                // check if the LBFGS has converged wrt objective values
-                if ( std::abs( f - f_previous ) / tReferenceObjective < mNormDrop * MORIS_REAL_EPS )
+                // check if the LBFGS has converged
+                if ( tIsConverged )
                 {
-                    // set convergence to true
-                    tIsConverged = true;
-
                     // check if ADVs are within temporary bounds or on prescribed bounds
                     for ( uint iADV = 0; iADV < (uint)tNumAdvs; iADV++ )
                     {
@@ -331,6 +367,8 @@ namespace moris
                         // check if current ADV is converged
                         if ( !tAdvConverged )
                         {
+                            MORIS_LOG_INFO( "Solution of inner iterations not within or on upper/lower bounds" );
+
                             tIsConverged = false;
                             break;
                         }
