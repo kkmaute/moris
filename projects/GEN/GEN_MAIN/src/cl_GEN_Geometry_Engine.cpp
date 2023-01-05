@@ -642,8 +642,16 @@ namespace moris
         void
         Geometry_Engine::admit_queued_intersection( uint aNodeIndex )
         {
-            // Assign as PDV host
-            if ( mGeometries( mActiveGeometryIndex )->depends_on_advs() )
+            // get parent indices
+            moris_index tFirstParentIndex  = mQueuedIntersectionNode->get_first_parent_node_index();
+            moris_index tSecondParentIndex = mQueuedIntersectionNode->get_second_parent_node_index();
+
+            // check if parent nodes are PDVs, i.e. are defined directly or indirectly on variable geometry
+            bool tFirstParentIsPDV  = mPDVHostManager.get_intersection_node( tFirstParentIndex ) != nullptr;
+            bool tSecondParentIsPDV = mPDVHostManager.get_intersection_node( tSecondParentIndex ) != nullptr;
+
+            // Assign as PDV host if constructed on adv dependent geometry or parent nodes are adv dependent
+            if ( mGeometries( mActiveGeometryIndex )->depends_on_advs() || tFirstParentIsPDV || tSecondParentIsPDV )
             {
                 mPDVHostManager.set_intersection_node( aNodeIndex, mQueuedIntersectionNode );
             }
