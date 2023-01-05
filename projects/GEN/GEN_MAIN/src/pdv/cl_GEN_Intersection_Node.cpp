@@ -194,6 +194,16 @@ namespace moris
                 tSensitivitiesToAdd =
                         0.5 * this->get_dxi_dfield_from_ancestor( tAncestorNode ) * mParentVector * tFieldSensitivities;
 
+                //                fprintf( stderr, "tAncestorNode = %d\n", tAncestorNode );
+                //                for ( uint ii = 0; ii < tSensitivitiesToAdd.n_rows(); ++ii )
+                //                {
+                //                    for ( uint jj = 0; jj < tSensitivitiesToAdd.n_cols(); ++jj )
+                //                    {
+                //                        fprintf( stderr, "  %e", tSensitivitiesToAdd( ii, jj ) );
+                //                    }
+                //                    fprintf( stderr, "\n" );
+                //                }
+
                 // Join sensitivities
                 this->join_coordinate_sensitivities( tSensitivitiesToAdd );
             }
@@ -205,6 +215,16 @@ namespace moris
 
                 tSensitivitiesToAdd = 0.5 * ( tLocCoord + mParentVector * this->get_dxi_dcoordinate_first_parent() ) * mFirstParentNode->get_dcoordinate_dadv();
 
+                //                fprintf( stderr, "mFirstParentNode \n" );
+                //                for ( uint ii = 0; ii < tSensitivitiesToAdd.n_rows(); ++ii )
+                //                {
+                //                    for ( uint jj = 0; jj < tSensitivitiesToAdd.n_cols(); ++jj )
+                //                    {
+                //                        fprintf( stderr, "  %e", tSensitivitiesToAdd( ii, jj ) );
+                //                    }
+                //                    fprintf( stderr, "\n" );
+                //                }
+
                 this->join_coordinate_sensitivities( tSensitivitiesToAdd );
             }
 
@@ -214,6 +234,16 @@ namespace moris
                 Matrix< DDRMat > tLocCoord = { { 1.0 + mLocalCoordinate, 0.0 }, { 0.0, 1.0 + mLocalCoordinate } };
 
                 tSensitivitiesToAdd = 0.5 * ( tLocCoord + mParentVector * this->get_dxi_dcoordinate_second_parent() ) * mSecondParentNode->get_dcoordinate_dadv();
+
+                //                fprintf( stderr, "mSecondParentNode \n" );
+                //                for ( uint ii = 0; ii < tSensitivitiesToAdd.n_rows(); ++ii )
+                //                {
+                //                    for ( uint jj = 0; jj < tSensitivitiesToAdd.n_cols(); ++jj )
+                //                    {
+                //                        fprintf( stderr, "  %e", tSensitivitiesToAdd( ii, jj ) );
+                //                    }
+                //                    fprintf( stderr, "\n" );
+                //                }
 
                 this->join_coordinate_sensitivities( tSensitivitiesToAdd );
             }
@@ -407,4 +437,3 @@ namespace moris
 
     }    // namespace ge
 }    // namespace moris
-
