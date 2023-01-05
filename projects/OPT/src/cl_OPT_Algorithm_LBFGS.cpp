@@ -236,8 +236,11 @@ namespace moris
                 moris::fortran::CHARACTER tCsaveFortran( csave, 60 );
 
                 // inner loop to go through internal iterations
-                for ( uint iInnerIteration = 0; iInnerIteration < tNumberOfInnerIterations; iInnerIteration++ )
+                // for ( uint iInnerIteration = 0; iInnerIteration < tNumberOfInnerIterations; iInnerIteration++ )
+                uint iInnerIteration = 0;
+                while ( iInnerIteration < tNumberOfInnerIterations )
                 {
+                    std::cout<<"xxx task: "<<std::to_string(iInnerIteration)<< "  : " <<task<<std::endl;
                     // call the Fortran subroutine
                     setulb_(
                             tNumAdvs,
@@ -278,6 +281,7 @@ namespace moris
                     }
                     else if ( strncmp( task, "NEW_X", 5 ) == 0 )
                     {
+                        iInnerIteration++;
                         // do nothing for right now; could check for convergence (see driver2.f)
                     }
                     else if ( strncmp( task, "FG", 2 ) == 0 )
