@@ -13,6 +13,7 @@
 #include "cl_GEN_Interpolation.hpp"
 #include "cl_XTK_Linear_Basis_Functions.hpp"
 #include "fn_trans.hpp"
+#include "fn_dot.hpp"
 
 namespace moris
 {
@@ -64,13 +65,19 @@ namespace moris
                 Matrix< DDRMat >& aSensitivities )
         {
             // Geometry values
-            real tPhi0 = aField->get_field_value( mAncestorNodeIndices( 0 ), mAncestorNodeCoordinates( 0 ) );
-            real tPhi1 = aField->get_field_value( mAncestorNodeIndices( 1 ), mAncestorNodeCoordinates( 1 ) );
+            real tDeltaPhi = aField->get_field_value( mAncestorNodeIndices( 1 ), mAncestorNodeCoordinates( 1 ) )    //
+                           - aField->get_field_value( mAncestorNodeIndices( 0 ), mAncestorNodeCoordinates( 0 ) );
 
-            // Sensitivities
-            for ( uint tCoordinateIndex = 0; tCoordinateIndex < mParentVector.length(); tCoordinateIndex++ )
+            // get number of spatial dimensions;
+            uint tNumDim = mParentVector.length();
+
+            // Compute square of length of parent vector
+            real tParentLengthSquared = dot( mParentVector, mParentVector );
+
+            // Sensitivities: dPhi/dx_i  = delta(Phi) / L_i where L_i = PaerentVectorLenth^2 / (ParentVector * e_i)
+            for ( uint tCoordinateIndex = 0; tCoordinateIndex < tNumDim; tCoordinateIndex++ )
             {
-                aSensitivities( tCoordinateIndex ) = ( tPhi1 - tPhi0 ) / ( mParentVector( tCoordinateIndex ) + 1E-12 * ( mParentVector( tCoordinateIndex ) == 0 ) );
+                aSensitivities( tCoordinateIndex ) = tDeltaPhi * mParentVector( tCoordinateIndex ) / ( tParentLengthSquared + MORIS_REAL_EPS );
             }
         }
 
@@ -116,11 +123,12 @@ namespace moris
             std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
             // Compute sensitivity of the local coordinate with respect to the ancestor coordinates
-            Matrix< DDRMat > tCoordinateSensitivities( 1, 2 );
+            Matrix< DDRMat > tCoordinateSensitivities( 1, mGlobalCoordinates.n_cols() );
             tLockedInterfaceGeometry->get_dfield_dcoordinates(
                     mAncestorNodeIndices( 1 ),
                     mAncestorNodeCoordinates( 1 ),
                     tCoordinateSensitivities );
+
             return this->get_dxi_dfield_from_ancestor( 1 ) * tCoordinateSensitivities;
         }
 
@@ -149,4 +157,3 @@ namespace moris
 
     }    // namespace ge
 }    // namespace moris
-
