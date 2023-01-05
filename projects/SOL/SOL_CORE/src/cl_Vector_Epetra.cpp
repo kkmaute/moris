@@ -81,6 +81,17 @@ Vector_Epetra::replace_global_values(
         const moris::Matrix< DDRMat >& aValues,
         const uint&                    aVectorIndex )
 {
+    // check for empty vector
+    if ( aGlobalIds.numel() == 0 )
+    {
+        return;
+    }
+
+    // check for valid IDs
+    MORIS_ASSERT( aGlobalIds.min() >= 0 && aGlobalIds.max() < MORIS_SINT_MAX,
+            "Vector_Epetra::sum_into_global_values - invalid ID provided" );
+
+    // call native epetra function
     int error = reinterpret_cast< Epetra_FEVector* >( mEpetraVector )->    //
                 ReplaceGlobalValues(                                       //
                         aGlobalIds.numel(),
@@ -100,6 +111,17 @@ Vector_Epetra::sum_into_global_values(
         const moris::Matrix< DDRMat >& aValues,
         const uint&                    aVectorIndex )
 {
+    // check for empty vector
+    if ( aGlobalIds.numel() == 0 )
+    {
+        return;
+    }
+
+    // check for valid IDs
+    MORIS_ASSERT( aGlobalIds.min() >= 0 && aGlobalIds.max() < MORIS_SINT_MAX,
+            "Vector_Epetra::sum_into_global_values - invalid ID provided" );
+
+    // call native epetra function
     if ( mVecBuildWithPointMap )
     {
         Matrix< IdMat > tPointFreeIds;
