@@ -171,8 +171,8 @@ namespace moris
                 tAlgorithmParameterList.set( "norm_drop", 1.0e-12 );
 
                 tAlgorithmParameterList.set( "step_size", "0.2,0.1" );
-                tAlgorithmParameterList.set( "step_size_index", "0,10" );
-                tAlgorithmParameterList.set( "number_inner_iterations", "10,10" );
+                tAlgorithmParameterList.set( "outer_iteration_index", "0,1" );
+                tAlgorithmParameterList.set( "number_inner_iterations", "10,20" );
 
                 // Create interface
                 std::shared_ptr< Criteria_Interface > tInterface = std::make_shared< Interface_User_Defined >(

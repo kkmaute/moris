@@ -68,11 +68,11 @@ namespace moris
         {
             // convert input parameters ti matrix
             string_to_mat< DDRMat >( aParameterList.get< std::string >( "step_size" ), mStepSize );
-            string_to_mat< DDUMat >( aParameterList.get< std::string >( "step_size_index" ), mStepSizeIndex );
+            string_to_mat< DDUMat >( aParameterList.get< std::string >( "outer_iteration_index" ), mOuterIterationIndex );
             string_to_mat< DDUMat >( aParameterList.get< std::string >( "number_inner_iterations" ), mNumberOfInnerIterations );
 
             // check if the input matrices have the same size
-            MORIS_ASSERT( mStepSize.numel() == mStepSizeIndex.numel() and mStepSizeIndex.numel() == mNumberOfInnerIterations.numel(),
+            MORIS_ASSERT( mStepSize.numel() == mOuterIterationIndex.numel() and mOuterIterationIndex.numel() == mNumberOfInnerIterations.numel(),
                     "Algorithm_LBFGS::Algorithm_LBFGS failed, three inputs step_size,step_size_index and number_inner_iterations must have the same size" );
         }
 
@@ -196,15 +196,18 @@ namespace moris
             // outer iteration for lbfgs
             for ( uint iOuterIteration = 0; iOuterIteration < (uint)mMaxIt; iOuterIteration++ )
             {
-                // adjust the step size if there is more than 1 step size through optimization
-                // NOTE: step size only should be adjusted in outer iterations
+                // adjust the step size and number of inner iterations
                 if ( iCounter + 1 < mStepSize.numel() )
                 {
-                    if ( mOptIter == mStepSizeIndex( iCounter + 1 ) )
+                    if ( iOuterIteration == mOuterIterationIndex( iCounter + 1 ) )
                     {
-                        // adjust the step size
-                        tStep                    = mStepSize( iCounter + 1 );
+                        // adjust step size
+                        tStep = mStepSize( iCounter + 1 );
+
+                        // adjust number of inner iterations
                         tNumberOfInnerIterations = mNumberOfInnerIterations( iCounter + 1 );
+
+                        // increase counter
                         iCounter++;
                     }
                 }
