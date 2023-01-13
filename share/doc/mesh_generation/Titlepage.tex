@@ -1,0 +1,59 @@
+% ------------------------------------------------------------------- %
+% Title
+
+\newpage
+\thispagestyle{empty}
+
+\vspace{3.0cm}
+
+\bigskip
+\centerline{ \Large{ \textbf{ MORIS }}} 
+\vspace{0.3cm}
+\centerline{ \Large{ \textbf{ Mesh Generation }}}
+
+% ------------------------------------------------------------------- %
+% Date
+
+\vspace{1.0cm}
+
+\begin{center}
+	\centerline{Last updated:} 
+    \today
+\end{center}
+
+
+% ------------------------------------------------------------------- %
+% Abstract
+
+\vspace{1.6cm}
+
+\paragraph{Foreword}
+This document serves as a user guide to using MORIS' mesh generation abilities to output body-fitted finite element meshes alongside extraction operators projecting the basis of the foreground mesh into a tensor-product B-spline basis. The mesh data generated is intended for \emph{interpolation-based immersed finite element analysis} as introduced by Fromm et al. \cite{Fromm2022}. 
+
+The document is split into two parts. The first provides a brief overview of some theoretical and algorithmic aspects in \Cref{sec:overview}, the second lays out all currently supported features and how to use them with an \textsc{XML} input file in \Cref{sec:tutorial}. 
+
+This guide assumes that MORIS has already been installed and compiled. An installation guide is provided in the MORIS GitHub repository:
+\href{https://github.com/kkmaute/moris/tree/main/share/install}{github.com/kkmaute/moris}.
+Note that the features outlined in this document currently undergo expansion and changes. Please check back regularly for any updates.
+
+If you have questions, comments, feature requests, or find any bugs, please contact \href{mailto:nils.wunsch@colorado.com}{Nils Wunsch \Letter}
+
+
+% ------------------------------------------------------------------- %
+% Authorship
+
+\vspace{1.8cm}
+
+\centerline{This documentation is part of MORIS which is licensed under the MIT license. }
+\centerline{See \href{https://github.com/kkmaute/moris/blob/main/LICENSE.txt}{LICENSE.txt \ExternalLink} for details.}
+
+\vspace{1.5cm}
+
+\centerline{Topology Optimiation Research Group}
+\centerline{Aerospace Mechanics Research Center (AMReC)}
+\centerline{Ann \& H. J. Smead Department of Aerospace Engineering Sciences}
+\centerline{University of Colorado Boulder}
+
+
+% ------------------------------------------------------------------- %
+\newpage

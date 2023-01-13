@@ -1,0 +1,159 @@
+% Settings for english language
+% last language is used language
+\usepackage[english]{babel}
+
+% Font Encoding (Ausgabe); T1 contains Umlauts as separate glyphs
+\usepackage[T1]{fontenc}
+
+% enable pdf_tex files to be used for figures
+\usepackage{import}
+
+% Input file encoding; Save all files as utf8 in your editor! (exception: BibTeX-files)
+\usepackage[utf8]{inputenc}
+
+% Type1-font in pdf-file (Latin Modern)
+\usepackage{lmodern} 
+
+% Set margins
+\usepackage{textcomp}
+
+% automatically set white spaces for consistent formatting
+\usepackage{xspace}
+
+% set custom line spacing 
+\usepackage{setspace}
+
+% beautify justified text
+\usepackage{microtype}
+
+% dropped capital letter at beginning of paragraph
+\usepackage{lettrine}
+           
+% enable include of whole pdf pages
+\usepackage{pdfpages}
+
+% add margin notes to document: \marginpar{text} --> text is printed in the right or outer margin of the page
+\usepackage{marginnote}    
+
+% allow for single landscape pages
+\usepackage{lscape}
+
+% Utilities for figures
+\usepackage{graphicx} 
+\usepackage{transparent}
+\usepackage{subcaption}
+\usepackage{float}                % enables dynamic placing of figures
+% \usepackage{wrapfig}            % enables figures in textblocks
+\usepackage{color} 
+\usepackage{geometry}
+\usepackage{rotating}
+\usepackage{tikz}
+\graphicspath{{./Figures/}}
+
+% enable use of lists with description items
+\usepackage{enumitem}   
+
+% text symbols
+\usepackage{marvosym}
+
+% use listings and define color of comments etc. and format
+\usepackage{listings}
+\usepackage{color}
+  
+%%%%%%%%%%%%%%%%%%
+%% Typeset Math %%
+%%%%%%%%%%%%%%%%%%
+
+% math formatting
+\usepackage{bm}
+\usepackage{upgreek}
+\usepackage{booktabs}
+\usepackage{multirow}
+
+% Intlimits setzt Integralgrenzen ober-/unterhalb des Integralzeichens und nicht seitlich versetzt
+\usepackage[intlimits]{amsmath}
+
+% amsthm:     extends Latex's \newtheorem command
+% amssymb:    enables the use of special symbols
+\usepackage{amsthm, amssymb}
+
+% colored tables
+\usepackage{colortbl}
+
+% Streichen
+\usepackage{cancel}
+
+% beautifies arrays
+\usepackage{esvect}
+
+% SI-Units
+% locale = US --> 1.2 m
+% per-mode=fraction --> Bruchstriche
+%\usepackage[locale = US,per-mode=fraction]{siunitx}
+\usepackage{siunitx}
+%Kopf- und Fußzeile
+\usepackage{scrlayer-scrpage}  
+\usepackage{scrhack}
+
+% ifthen:    if/then decision
+\usepackage{ifthen}
+
+% FixME: für Hinweise in der draft-Version, aber nicht in der Final-Version... (notes on things that should be fixed)
+% \usepackage{fixme}
+
+% filler texts
+\usepackage{lipsum}            
+
+% Setup fixme package
+% layout = inline     --> display note inline ??
+% theme = color     --> using colors
+% silent = true        --> suppress logging (notes are not recorded in the log file)
+% lang = 
+% \fxsetup{ layout=inline,
+% theme=color,
+% silent=true,
+% lang=ngerman}
+
+% Korrektur der \listoffixmes zur Verwendung mit KOMA-Skript-Klassen
+% makeatletter:    weist at-Zeichen Kategorie-Code 11 zu (11 = normale Zeichen/Klein- und Großbuchstaben)
+\makeatletter
+
+% toc = table of contents
+% lox = Dateiendung
+%\addtotoclist[float]{lox}
+% setuptoc{Dateiendung}{Liste von Eigenschaften}
+% chapteratlist:    sorgt dafür, dass in dieses Verzeichnis bei jedem neuen Kapitel eine optionale Gliederung eingefügt wird
+%\setuptoc{lox}{chapteratlist}
+% Überschriften
+%\renewcommand*{\lox@heading}{\listoftoc[{\@fxlistfixmename}]{lox}}
+% makeatother: weist at-Zeichen Kategorie-Code 12 zu (12 = andere Zeichen(at war ursprünglich Kategorie-Code 12))
+\makeatother
+% lot = list of tables?
+%\setuptoc{lot}{totoc}
+
+
+% Letztes package: Hyperreferenzierung    
+\definecolor{webblack}{rgb}{0,0,0} %black
+\usepackage{hyperref}
+\hypersetup{
+    unicode=true,           % non-Latin characters in Acrobat’s bookmarks
+    pdftoolbar=true,        % show Acrobat’s toolbar?
+    pdfmenubar=true,        % show Acrobat’s menu?
+    pdffitwindow=false,     % window fit to page when opened
+    pdfstartview={FitH},    % fits the width of the page to the window
+    pdfnewwindow=true,      % links in new window
+    colorlinks=false,       % false: boxed links; true: colored links
+    linkcolor=red,          % color of internal links (change box color with linkbordercolor)
+    linktoc=all,                        % defines which part of an entry in the table of contents is made into a link
+    citecolor=green,        % color of links to bibliography
+    filecolor=magenta,      % color of file links
+    urlcolor=cyan,          % color of external links
+    bookmarksopenlevel=1,
+    bookmarksopen=true
+}
+
+\usepackage[capitalise, nameinlink]{cleveref}
+
+\usepackage[all]{hypcap}
+
+% WICHTIG: Ab hier kein usepackage mehr !!!

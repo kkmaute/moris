@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- All parameters are nested under this root -->
+<MeshGenerationParameterList>
+
+    <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+    <!-- % Parameters defining the Geometries to be used % -->
+    <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+    <Geometries>
+    
+        <Geometry type="image_file"> 
+            <FileName>Cali_Bear.hdf5</FileName>
+            <ImageDimensions>3.81,1.95</ImageDimensions>
+            <ImageOrigin>0.0,0.0</ImageOrigin>
+        </Geometry>
+
+    </Geometries>
+    
+    <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+    <!-- % Parameters defining the background meshes to be used % -->
+    <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+    <BackgroundMeshes>
+
+        <!-- Define a uniform grid all grids and meshes will be derived from -->
+        <BaseGrid>
+            <Size>190,97</Size>
+            <Dimensions>3.81,1.95</Dimensions>
+            <Origin>0.0,0.0</Origin>
+        </BaseGrid>
+        
+        <!-- Define the grids from which the background meshes will be generated and give them an index for identification -->
+        <MeshGrids>
+            <MeshGrid ind="0">
+                <InitialRefinements>0</InitialRefinements>
+            </MeshGrid>
+        </MeshGrids>
+        
+        <!-- Define B-spline background meshes for which a basis will be constructed  -->
+        <BsplineMeshes>
+            <BsplineMesh ind="0">
+                <MeshGridIndex>0</MeshGridIndex>
+                <PolynomialOrder>1</PolynomialOrder>
+            </BsplineMesh>
+        </BsplineMeshes>
+ 
+    </BackgroundMeshes>
+    
+    <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+    <!-- % Parameters defining the foreground mesh to be generated % -->
+    <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+    <ForegroundMesh>
+        <DecompositionGrid>0</DecompositionGrid>
+        <InterfaceRefinements>0</InterfaceRefinements>
+        <FgPolynomialOrder>1</FgPolynomialOrder>
+        <TriangulateAllFgElems>false</TriangulateAllFgElems>
+        <ExtractionOperatorFormat>Elemental</ExtractionOperatorFormat>
+    </ForegroundMesh>
+
+</MeshGenerationParameterList>

@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- All parameters are nested under this root -->
+<MeshGenerationParameterList>
+
+    <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+    <!-- % Parameters defining the Geometries to be used % -->
+    <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+    <Geometries>
+    
+        <Geometry type="pre_defined" geom="plane"> 
+            <Point>-0.70710678118,0.0</Point>
+            <Normal>-1.0,1.0</Normal>
+        </Geometry>
+    
+        <Geometry type="pre_defined" geom="plane"> 
+            <Point>-0.70710678118,0.0</Point>
+            <Normal>-1.0,-1.0</Normal>
+        </Geometry>
+        
+        <Geometry type="pre_defined" geom="plane"> 
+            <Point>0.70710678118,0.0</Point>
+            <Normal>1.0,1.0</Normal>
+        </Geometry>
+        
+        <Geometry type="pre_defined" geom="plane"> 
+            <Point>0.70710678118,0.0</Point>
+            <Normal>1.0,-1.0</Normal>
+        </Geometry>
+    
+        <PhaseMap>1,0;2,0;3,0;4,0;5,0;8,0;10,0;12,0;0,1</PhaseMap>
+
+    </Geometries>
+    
+    <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+    <!-- % Parameters defining the background meshes to be used % -->
+    <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+    <BackgroundMeshes>
+
+        <!-- Define a uniform grid all grids and meshes will be derived from -->
+        <BaseGrid>
+            <Size>8,8</Size>
+            <Dimensions>2.0,2.0</Dimensions>
+            <Origin>-1.0,-1.0</Origin>
+        </BaseGrid>
+        
+        <!-- Define the grids from which the background meshes will be generated and give them an index for identification -->
+        <MeshGrids>
+            <MeshGrid ind="1">
+                <InitialRefinements>0</InitialRefinements>
+            </MeshGrid>
+            <MeshGrid ind="0">
+                <InitialRefinements>1</InitialRefinements>
+            </MeshGrid>
+        </MeshGrids>
+        
+        <!-- Define B-spline background meshes for which a basis will be constructed  -->
+        <BsplineMeshes>
+            <BsplineMesh ind="0">
+                <MeshGridIndex>0</MeshGridIndex>
+                <PolynomialOrder>2</PolynomialOrder>
+            </BsplineMesh>
+            <BsplineMesh ind="1">
+                <MeshGridIndex>1</MeshGridIndex>
+                <PolynomialOrder>1</PolynomialOrder>
+            </BsplineMesh>
+        </BsplineMeshes>
+ 
+    </BackgroundMeshes>
+    
+    <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+    <!-- % Parameters defining the foreground mesh to be generated % -->
+    <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+    <ForegroundMesh>
+        <DecompositionGrid>0</DecompositionGrid>
+        <InterfaceRefinements>1</InterfaceRefinements>
+        <FgPolynomialOrder>2</FgPolynomialOrder>
+        <TriangulateAllFgElems>false</TriangulateAllFgElems>
+        <ExtractionOperatorFormat>Elemental</ExtractionOperatorFormat>
+    </ForegroundMesh>
+
+</MeshGenerationParameterList>

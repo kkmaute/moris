@@ -1,0 +1,76 @@
+%% Creator: Inkscape inkscape 0.92.4, www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'workflow.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \newcommand*\fsize{\dimexpr\f@size pt\relax}%
+  \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{372.00122263bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,0.60187999)%
+    \lineheight{1}%
+    \setlength\tabcolsep{0pt}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{workflow.pdf}}%
+    \put(0.19321051,0.46274264){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.20000005}\smash{\begin{tabular}[t]{c}Hierararchical Background \\Mesh Generator\\(HMR)\\\end{tabular}}}}%
+    \put(0.82536675,0.46020175){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.20000005}\smash{\begin{tabular}[t]{c}Geometry Engine\\(GEN)\end{tabular}}}}%
+    \put(0.46345634,0.13598114){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.20000005}\smash{\begin{tabular}[t]{c}Extended FE Tool Kit\\(XTK)\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{workflow.pdf}}%
+    \put(0.01631867,0.33399287){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.20000005}\smash{\begin{tabular}[t]{l}Create hierarchially \\refined tensor-product \\B-spline meshes\end{tabular}}}}%
+    \put(0.67443872,0.37071535){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.20000005}\smash{\begin{tabular}[t]{l}Answer geometry \\queries based off \\level-set information\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{workflow.pdf}}%
+    \put(0.5194321,0.43985069){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.20000005}\smash{\begin{tabular}[t]{c}Check geometric \\refinement criteria\end{tabular}}}}%
+    \put(0.13148819,0.1500798){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.20000005}\smash{\begin{tabular}[t]{c}Background \\meshes\end{tabular}}}}%
+    \put(0.8164994,0.21171049){\color[rgb]{0,0,0}\makebox(0,0)[t]{\lineheight{1.20000005}\smash{\begin{tabular}[t]{c}Intersection \\requests\end{tabular}}}}%
+    \put(0.62600759,0.49495973){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\begin{minipage}{0.40322448\unitlength}\raggedright \end{minipage}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=4]{workflow.pdf}}%
+    \put(0.31513678,0.05317596){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.20000005}\smash{\begin{tabular}[t]{l}$\cdot$ Decomposition\\$\cdot$ Enrichment\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=5]{workflow.pdf}}%
+    \put(0.69929943,0.08243576){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.20000005}\smash{\begin{tabular}[t]{l}$\cdot$ Foreground mesh\\$\cdot$ Extraction operators\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=6]{workflow.pdf}}%
+    \put(0.05300175,0.58119374){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.20000005}\smash{\begin{tabular}[t]{l}$\cdot$ Mesh size\\$\cdot$ Refinement criteria\end{tabular}}}}%
+    \put(0.72467198,0.54093218){\color[rgb]{0,0,0}\makebox(0,0)[lt]{\lineheight{1.20000005}\smash{\begin{tabular}[t]{l}Level-set fields\\\end{tabular}}}}%
+  \end{picture}%
+\endgroup%

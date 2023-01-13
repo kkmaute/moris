@@ -1,0 +1,43 @@
+% !TeX root = main.tex
+% ^ This is the root .tex file in this and its nested directories 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Document Configuration
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% declare document type
+\documentclass[%
+letterpaper,
+12pt,
+headsepline,
+footsepline,
+% listof=totoc,
+bibliography=totoc,
+]{scrreprt}
+
+% load packages, settings, commands, etc.
+\include{Packages}
+\include{Settings}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% Document Body
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+% Title Page
+\include{Titlepage}
+
+% table of contents
+\cleardoublepage
+\pagestyle{scrheadings}
+\tableofcontents 
+
+% The two chapters
+\include{Overview}
+\include{Tutorial}
+
+% include references
+\bibliography{Bibliography} 
+
+\end{document}
+

@@ -1,0 +1,124 @@
+% Seitenränder
+\geometry{includeheadfoot}	% Kopf und Fußzeile für geometry teil des body
+\geometry{vmargin={2.5cm}}	% oberer und unterer Rand
+\geometry{inner={3.5cm}}	% innerer Rand (für zweiseitige Dokumente)
+\geometry{outer={2.5cm}}	% äußerer Rand (für zweiseitige Dokumente)
+
+% Abstände bei einem Absatz
+% 	Abstand zwischen den Absätzen: halbe Höhe vom kleinen x in der aktuellen Schriftart
+\setlength{\parskip}{0.5ex}
+% 	Einzug am Anfang eines Absatzes: auf Null setzen
+\setlength{\parindent}{0ex}
+
+% Nummerierung und Inhaltsverzeichnis
+% Bis zu subsubsections numerieren
+\setcounter{secnumdepth}{3}
+% Aber nur bis zu subsections ins Inhaltsverzeichnis aufnehmen
+\setcounter{tocdepth}{2}
+% Equation numbers are <chapter>.<eq. in chapter> (Bsp. 1.1, 1.2, ..., 2.1, 2.2)
+\numberwithin{equation}{chapter}
+% Bibliography DIN but with english features, change to plaindin for german
+%\bibliographystyle{plaindin_custom} 
+%\bibliographystyle{siam}
+\bibliographystyle{abbrv}
+	
+% Auch bei Fußnoten soll die Linie die gesamte Textbreite haben
+\renewcommand{\footnoterule}{%
+  \kern -3pt
+  \hrule width \textwidth
+  \kern 2.6pt
+}
+
+% Kopf und Fußzeilen
+\pagestyle{scrheadings}
+\automark[section]{chapter} 
+\ohead[]{\headmark}
+\chead[]{}
+\ihead[]{}
+\ofoot[\pagemark]{\pagemark}
+\cfoot[]{}
+\ifoot[]{}
+\renewcommand*\chapterpagestyle{scrplain}
+
+\KOMAoptions{cleardoublepage=scrplain}
+
+
+%%%%%%%%%%%%%%%%%%
+%% Typeset Code %%
+%%%%%%%%%%%%%%%%%%
+
+% define colors
+\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{gray}{rgb}{0.5,0.5,0.5}
+\definecolor{darkgray}{rgb}{0.3,0.3,0.3}
+\definecolor{mauve}{rgb}{0.58,0,0.82}
+
+% define XML style
+% \lstdefinelanguage{XML}
+% {
+%     morestring=[b]",
+%     morestring=[s]{>}{<},
+%     morecomment=[s]{<?}{?>},
+%     stringstyle=\color{black},
+%     identifierstyle=\color{darkblue},
+%     keywordstyle=\color{cyan},
+%     morekeywords={xmlns,version,type},
+%     backgroundcolor=\color{lightgray},
+%     numbers=left,
+%     numberstyle=\footnotesize\ttfamily\color{gray},
+%     numbersep=0.5pt
+% }
+
+% define listing style
+\lstset{
+    frame=single, % other options: none|leftline|topline|bottomline|lines|single|shadowbox 
+    language=XML,
+    aboveskip=3mm,
+    belowskip=3mm,
+    showstringspaces=false,
+    columns=flexible,
+    basicstyle={\small\ttfamily},
+    numbers=none,
+    %float,
+    %$morekeywords=[s]{>}{<},
+    numberstyle=\tiny\color{gray},
+    keywordstyle=\color{blue},
+    commentstyle=\color{dkgreen},
+    stringstyle=\color{mauve},
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4
+}
+
+% define standalone keywords in text
+\newcommand{\att}[1]{\texttt{\color{mauve} #1}}
+\renewcommand{\tag}[1]{\texttt{\color{blue} #1}}
+
+% paragraphs that are linked
+\newcommand{\refpar}[2]{\par \vspace{0.3cm} \hypertarget{#1}{\textbf{#2}}}
+
+% define a style to typeset a shell command
+\newcommand{\shellcmd}[1]{ {\color{darkgray} \vspace{0.2cm} \par \indent \hspace{0.5cm} \texttt{\normalsize > #1} \vspace{0.2cm} \par } }
+
+% external link symbol
+\newcommand{\ExternalLink}{%
+\tikz[x=1.2ex, y=1.2ex, baseline=-0.05ex]{% 
+    \begin{scope}[x=1ex, y=1ex]
+        \clip (-0.1,-0.1) 
+            --++ (-0, 1.2) 
+            --++ (0.6, 0) 
+            --++ (0, -0.6) 
+            --++ (0.6, 0) 
+            --++ (0, -1);
+        \path[draw, 
+            line width = 0.5, 
+            rounded corners=0.5] 
+            (0,0) rectangle (1,1);
+    \end{scope}
+    \path[draw, line width = 0.5] (0.5, 0.5) 
+        -- (1, 1);
+    \path[draw, line width = 0.5] (0.6, 1) 
+        -- (1, 1) -- (1, 0.6);
+    }
+\!\!\!\!
+}
