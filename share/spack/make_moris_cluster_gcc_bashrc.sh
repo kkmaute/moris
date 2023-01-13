@@ -22,6 +22,9 @@ echo 'export MORISBUILDDBG=build_dbg'                                          >
 echo 'export MORISBUILDOPT=build_opt'                                          >> $HOME/.bashrc_moris
 echo 'export MORISOUTPUT=$MORISROOT/$MORISBUILDDBG/'                           >> $HOME/.bashrc_moris
 echo ""                                                                        >> $HOME/.bashrc_moris
+echo 'setenv MRD $MORISROOT/build_dbg/projects/mains/moris'                    >> $HOME/.bashrc_moris
+echo 'setenv MRO $MORISROOT/build_opt/projects/mains/moris'                    >> $HOME/.bashrc_moris
+echo ""                                                                        >> $HOME/.bashrc_moris
 echo "export MPI_HOME=`spack location --install-dir openmpi`"                  >> $HOME/.bashrc_moris
 echo ""                                                                        >> $HOME/.bashrc_moris
 echo "export PETSC_DIR=$PETSC_DIR"                                             >> $HOME/.bashrc_moris
