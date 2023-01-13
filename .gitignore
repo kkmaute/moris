@@ -34,6 +34,16 @@ CMakeCache.txt
 *.h5
 *.e
 
+# Don't commit latex compiler output
+*.fls
+*.aux
+*.fdb_latexmk
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+
 # Used by individual developers
 /CMakeFiles/clion-environment.txt
 /CMakeFiles/clion-log.txt
