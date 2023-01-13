@@ -326,7 +326,7 @@ namespace moris
             moris_index tNumRefines = tRefinements( tPos );
 
             // add separators in string
-            if( iGrid > 0 )
+            if ( iGrid > 0 )
             {
                 tInitialRefinements += ",";
                 tPatterns += ",";
@@ -409,7 +409,7 @@ namespace moris
 
         // check which T-matrix outputs have been requested
         std::string tTmatOutputFormats = "";
-        mXmlReader->get( tXtkPath + ".ExtractionOperatorFormat", tTmatOutputFormats, std::string("") );
+        mXmlReader->get( tXtkPath + ".ExtractionOperatorFormat", tTmatOutputFormats, std::string( "" ) );
         bool tOutputElemental = ( tTmatOutputFormats.find( "Elemental" ) != std::string::npos );
         bool tOutputGlobal    = ( tTmatOutputFormats.find( "Global" ) != std::string::npos );
 
@@ -467,29 +467,29 @@ namespace moris
             // create parameter lists according to geometry type
             if ( tGeomType == "pre_defined" )
             {
-                // get the point
-                std::string tPoint = "";
-                mXmlReader->get_from_buffer( "Point", tPoint, std::string( "" ) );
-                MORIS_ERROR( tPoint != "",
-                        "Library_IO_Meshgen::load_parameters_from_xml() - "
-                        "All pre-defined geometries must have a parameter 'Point' specified of format e.g.: '1.2,3.4'" );
-                Matrix< DDRMat > tPointMat;
-                moris::string_to_mat( tPoint, tPointMat );
-                MORIS_ERROR( tPointMat.numel() == tNumDims || tPointMat.n_cols() == tNumDims,
-                        "Library_IO_Meshgen::load_parameters_from_xml() - "
-                        "Number of entries in 'Point' vector does not match number of spatial dimensions" );
-
                 // find the 'geom' attribute
                 std::string tPreDefGeom = mXmlReader->get_attribute_from_buffer( "geom", std::string( "" ) );
                 MORIS_ERROR( tPreDefGeom != "",
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "All pre-defined geometries must have an attribute 'geom' specified. Supported Options are 'plane' and 'circle'." );
-                MORIS_ERROR( tPreDefGeom == "plane" || tPreDefGeom == "circle",
-                        "Library_IO_Meshgen::load_parameters_from_xml() - "
-                        "Unknown pre-defined geometry. Supported Options are 'plane' and 'circle'." );
+
+                // -------------------------------- //
+                // PLANE
 
                 if ( tPreDefGeom == "plane" )
                 {
+                    // get the point
+                    std::string tPoint = "";
+                    mXmlReader->get_from_buffer( "Point", tPoint, std::string( "" ) );
+                    MORIS_ERROR( tPoint != "",
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "All pre-defined geometries must have a parameter 'Point' specified of format e.g.: '1.2,3.4'" );
+                    Matrix< DDRMat > tPointMat;
+                    moris::string_to_mat( tPoint, tPointMat );
+                    MORIS_ERROR( tPointMat.numel() == tNumDims || tPointMat.n_cols() == tNumDims,
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "Number of entries in 'Point' vector does not match number of spatial dimensions" );
+
                     // get the normal
                     std::string tNormal = "";
                     mXmlReader->get_from_buffer( "Normal", tNormal, std::string( "" ) );
@@ -500,14 +500,30 @@ namespace moris
                     moris::string_to_mat( tNormal, tNormalMat );
                     MORIS_ERROR( tNormalMat.numel() == tNumDims || tNormalMat.n_cols() == tNumDims,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
-                            "Number of entries in 'Normal' vector does not match number of spatial dimensions" );
+                            "Number of entries in 'Normal' vector does not match number of spatial dimensions for the 'plane'." );
 
                     // set the parameters in the GEN parameter list
                     tGenParamList( 1 )( iGeom ).set( "type", "plane" );
                     tGenParamList( 1 )( iGeom ).set( "constant_parameters", tPoint + "," + tNormal );
                 }
+
+                // -------------------------------- //
+                // CIRCLE
+
                 else if ( tPreDefGeom == "circle" )
                 {
+                    // get the point
+                    std::string tPoint = "";
+                    mXmlReader->get_from_buffer( "Point", tPoint, std::string( "" ) );
+                    MORIS_ERROR( tPoint != "",
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "The 'circle' must have a parameter 'Point' specified of format e.g.: '1.2,3.4'" );
+                    Matrix< DDRMat > tPointMat;
+                    moris::string_to_mat( tPoint, tPointMat );
+                    MORIS_ERROR( tPointMat.numel() == 2 || tPointMat.n_cols() == 2,
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "Number of entries in 'Point' vector for a 'circle' needs to be two." );
+
                     // get the radius
                     std::string tRadius = "";
                     mXmlReader->get_from_buffer( "Radius", tRadius, std::string( "" ) );
@@ -519,11 +535,182 @@ namespace moris
                     tGenParamList( 1 )( iGeom ).set( "type", "circle" );
                     tGenParamList( 1 )( iGeom ).set( "constant_parameters", tPoint + "," + tRadius );
                 }
+
+                // -------------------------------- //
+                // ELLIPSE
+
+                else if ( tPreDefGeom == "ellipse" )
+                {
+                    // get the point
+                    std::string tPoint = "";
+                    mXmlReader->get_from_buffer( "Point", tPoint, std::string( "" ) );
+                    MORIS_ERROR( tPoint != "",
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "The 'ellipse' must have a parameter 'Point' specified of format e.g.: '1.2,3.4'" );
+                    Matrix< DDRMat > tPointMat;
+                    moris::string_to_mat( tPoint, tPointMat );
+                    MORIS_ERROR( tPointMat.numel() == 2 || tPointMat.n_cols() == 2,
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "Number of entries in 'Point' vector for a 'ellipse' needs to be two." );
+
+                    // get the half diameters
+                    std::string tSemiDiameters = "";
+                    mXmlReader->get_from_buffer( "SemiDiameters", tSemiDiameters, std::string( "" ) );
+                    MORIS_ERROR( tSemiDiameters != "",
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "The 'ellipse' must have a parameter 'SemiDiameters' specified of format e.g.: '1.2,3.4'" );
+                    Matrix< DDRMat > tSemiDiametersMat;
+                    moris::string_to_mat( tSemiDiameters, tSemiDiametersMat );
+                    MORIS_ERROR( tSemiDiametersMat.numel() == 2 || tSemiDiametersMat.n_cols() == 2,
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "Number of entries in 'SemiDiameters' vector for a 'ellipse' needs to be two." );
+
+                    // get the exponent, default to 2.0 if not specified
+                    std::string tExponent = "2.0";
+                    mXmlReader->get_from_buffer( "Exponent", tExponent, std::string( "2.0" ) );
+                    if ( tExponent == "" ) { tExponent = "2.0"; };
+
+                    // set the parameters in the GEN parameter list
+                    tGenParamList( 1 )( iGeom ).set( "type", "superellipse" );
+                    std::string tParamString = tPoint + "," + tSemiDiameters + "," + tExponent + ",1.0,0.0,0.0";
+                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tParamString );
+                }
+
+                // -------------------------------- //
+                // SPHERE
+
+                else if ( tPreDefGeom == "sphere" )
+                {
+                    // check dimensionality
+                    MORIS_ERROR( tNumDims != 2,
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "A 'sphere' can only be defined in 3D, but mesh is 2D." );
+
+                    // get the point
+                    std::string tPoint = "";
+                    mXmlReader->get_from_buffer( "Point", tPoint, std::string( "" ) );
+                    MORIS_ERROR( tPoint != "",
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "The 'circle' must have a parameter 'Point' specified of format e.g.: '1.2,3.4,5.6'" );
+                    Matrix< DDRMat > tPointMat;
+                    moris::string_to_mat( tPoint, tPointMat );
+                    MORIS_ERROR( tPointMat.numel() == 3 || tPointMat.n_cols() == 3,
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "Number of entries in 'Point' vector for a 'sphere' needs to be three." );
+
+                    // get the radius
+                    std::string tRadius = "";
+                    mXmlReader->get_from_buffer( "Radius", tRadius, std::string( "" ) );
+                    MORIS_ERROR( tRadius != "",
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "All planes must have a parameter 'Radius' specified of format e.g.: '5.6'" );
+
+                    // set the parameters in the GEN parameter list
+                    tGenParamList( 1 )( iGeom ).set( "type", "sphere" );
+                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tPoint + "," + tRadius );
+                }
+
+                // -------------------------------- //
+                // ELLIPSE
+
+                else if ( tPreDefGeom == "ellipsoid" )
+                {
+                    // check dimensionality
+                    MORIS_ERROR( tNumDims != 2,
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "A 'sphere' can only be defined in 3D, but mesh is 2D." );
+
+                    // get the point
+                    std::string tPoint = "";
+                    mXmlReader->get_from_buffer( "Point", tPoint, std::string( "" ) );
+                    MORIS_ERROR( tPoint != "",
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "The 'ellipsoid' must have a parameter 'Point' specified of format e.g.: '1.2,3.4,5.6'" );
+                    Matrix< DDRMat > tPointMat;
+                    moris::string_to_mat( tPoint, tPointMat );
+                    MORIS_ERROR( tPointMat.numel() == 3 || tPointMat.n_cols() == 3,
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "Number of entries in 'Point' vector for a 'ellipsoid' needs to be three." );
+
+                    // get the half diameters
+                    std::string tSemiDiameters = "";
+                    mXmlReader->get_from_buffer( "Point", tSemiDiameters, std::string( "" ) );
+                    MORIS_ERROR( tSemiDiameters != "",
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "The 'ellipsoid' must have a parameter 'SemiDiameters' specified of format e.g.: '1.2,3.4,5.6'" );
+                    Matrix< DDRMat > tSemiDiametersMat;
+                    moris::string_to_mat( tSemiDiameters, tSemiDiametersMat );
+                    MORIS_ERROR( tSemiDiametersMat.numel() == 3 || tSemiDiametersMat.n_cols() == 3,
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "Number of entries in 'SemiDiameters' vector for a 'ellipsoid' needs to be three." );
+
+                    // get the exponent, default to 2.0 if not specified
+                    std::string tExponent = "2.0";
+                    mXmlReader->get_from_buffer( "Exponent", tExponent, std::string( "2.0" ) );
+                    if ( tExponent == "" ) { tExponent = "2.0"; };
+
+                    // set the parameters in the GEN parameter list
+                    tGenParamList( 1 )( iGeom ).set( "type", "superellipsoid" );
+                    tGenParamList( 1 )( iGeom ).set( "constant_parameters", tPoint + "," + tSemiDiameters + "," + tExponent );
+                }
+
+                // -------------------------------- //
+                // UNKNOWN GEOMETRY
+
+                else
+                {
+                    MORIS_ERROR( false,
+                            "Library_IO_Meshgen::load_parameters_from_xml() - "
+                            "Unknown pre-defined geometry. Supported Options are 'plane', 'circle', 'sphere', 'ellipse', and 'ellipsoid'." );
+                }
             }    // end if: pre-defined geometry
 
             if ( tGeomType == "image_file" )
             {
-                // TODO...
+                // initialize with the image sdf default parameter list
+                tGenParamList( 1 )( iGeom ) = prm::create_image_sdf_field_parameter_list();
+
+                // get the file name and check it for validity
+                std::string tFileName = "";
+                mXmlReader->get_from_buffer( "FileName", tFileName, std::string( "" ) );
+                MORIS_ERROR( tFileName != "",
+                        "Library_IO_Meshgen::load_parameters_from_xml() - "
+                        "No image file name provided for geometry #%i. Please provide an .hdf5 image file using the tag 'FileName' ",
+                        iGeom );
+                MORIS_ERROR( this->string_ends_with( tFileName, ".h5" ) || this->string_ends_with( tFileName, ".hdf5" ),
+                        "Library_IO_Meshgen::load_parameters_from_xml() - "
+                        "File provided is not an .h5 or .hdf5 file. Image data needs to be provided in this format." );
+                tGenParamList( 1 )( iGeom ).set( "image_file", tFileName );
+
+                // get the image dimensions
+                std::string tImageDimStr = "";
+                mXmlReader->get_from_buffer( "ImageDimensions", tImageDimStr, std::string( "" ) );
+                MORIS_ERROR( tFileName != "",
+                        "Library_IO_Meshgen::load_parameters_from_xml() - "
+                        "No image dimensions provided for geometry #%i. "
+                        "Please provide image dimensions using the tag 'ImageDimensions' in the the format e.g. '1.2,3.3' ",
+                        iGeom );
+                Matrix< DDRMat > tImageDimVec;
+                moris::string_to_mat( tImageDimStr, tImageDimVec );
+                MORIS_ERROR( tImageDimVec.numel() == tNumDims || tImageDimVec.n_cols() == tNumDims,
+                        "Library_IO_Meshgen::load_parameters_from_xml() - "
+                        "Number of entries in 'ImageDimensions' vector does not match number of spatial dimensions" );
+                tGenParamList( 1 )( iGeom ).set( "image_dimensions", tImageDimStr );
+
+                // get the image offset
+                std::string tImageOffsetStr = "";
+                mXmlReader->get_from_buffer( "ImageOrigin", tImageOffsetStr, std::string( "" ) );
+                MORIS_ERROR( tFileName != "",
+                        "Library_IO_Meshgen::load_parameters_from_xml() - "
+                        "No image origin provided for geometry #%i. "
+                        "Please provide image origin/offset using the tag 'ImageOrigin' in the the format e.g. '1.2,3.3' ",
+                        iGeom );
+                Matrix< DDRMat > tImageOffsetVec;
+                moris::string_to_mat( tImageOffsetStr, tImageOffsetVec );
+                MORIS_ERROR( tImageOffsetVec.numel() == tNumDims || tImageOffsetVec.n_cols() == tNumDims,
+                        "Library_IO_Meshgen::load_parameters_from_xml() - "
+                        "Number of entries in 'ImageOrigin' vector does not match number of spatial dimensions" );
+                tGenParamList( 1 )( iGeom ).set( "image_offset", tImageOffsetStr );
             }
 
         }    // end for: loop over geometries in input file
@@ -659,7 +846,7 @@ namespace moris
         aParameterList( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
         aParameterList( 0 )( 0 ).set( "high_to_low_dbl_side_sets", true );
         aParameterList( 0 )( 0 ).set( "print_enriched_ig_mesh", true );
-        aParameterList( 0 )( 0 ).set( "global_T_matrix_output_file", "Global_Extraction_Operator" );
+        aParameterList( 0 )( 0 ).set( "global_T_matrix_output_file", "" );
         aParameterList( 0 )( 0 ).set( "elemental_T_matrix_output_file", "Elemental_Extraction_Operators" );
     }
 

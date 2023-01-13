@@ -107,19 +107,23 @@ namespace moris
                     // get the current IG cell's ID
                     moris_id tID = tIgCellIds( iIgCell );
 
-                    // assemble names
-                    std::string tIDsName = "IDs_" + std::to_string( tID );
-                    std::string tWeightsName = "Weights_" + std::to_string( tID );
+                    // skip if this is an unused cell
+                    if( tID > -1 )
+                    {
+                        // assemble names
+                        std::string tIDsName = "IDs_" + std::to_string( tID );
+                        std::string tWeightsName = "Weights_" + std::to_string( tID );
 
-                    // write the IDs
-                    save_matrix_to_hdf5_file( tFileID, tIDsName, tIGtoBSIds( iBspMesh )( iIgCell ), tStatus );
-                    MORIS_ERROR( tStatus == 0, "Integration_Mesh::save_elemental_T_matrices_to_file() - "
-                            "HDF5 writer returned status %i writing the basis IDs for IG cell %i.", tStatus, tID );
+                        // write the IDs
+                        save_matrix_to_hdf5_file( tFileID, tIDsName, tIGtoBSIds( iBspMesh )( iIgCell ), tStatus );
+                        MORIS_ERROR( tStatus == 0, "Integration_Mesh::save_elemental_T_matrices_to_file() - "
+                                "HDF5 writer returned status %i writing the basis IDs for IG cell %i.", tStatus, tID );
 
-                    // write the IDs
-                    save_matrix_to_hdf5_file( tFileID, tWeightsName, tIGtoBSWeights( iBspMesh )( iIgCell ), tStatus );
-                    MORIS_ERROR( tStatus == 0, "Integration_Mesh::save_elemental_T_matrices_to_file() - "
-                            "HDF5 writer returned status %i writing the weights for IG cell %i.", tStatus, tID );
+                        // write the IDs
+                        save_matrix_to_hdf5_file( tFileID, tWeightsName, tIGtoBSWeights( iBspMesh )( iIgCell ), tStatus );
+                        MORIS_ERROR( tStatus == 0, "Integration_Mesh::save_elemental_T_matrices_to_file() - "
+                                "HDF5 writer returned status %i writing the weights for IG cell %i.", tStatus, tID );
+                    }
                 }
 
                 // close the hdf5 file

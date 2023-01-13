@@ -279,6 +279,23 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
+        /**
+         * @brief Checks whether a string has a certain ending. Good for checking file types.
+         * 
+         * @param aString string to check the ending of
+         * @param aEnding ending to check for
+         * @return true/false whether this string has this ending
+         */
+        bool
+        string_ends_with(
+                std::string const & aString,
+                std::string const & aEnding )
+        {
+            return aString.substr( aString.length() - aEnding.length() ) == aEnding;
+        }
+
+        // -----------------------------------------------------------------------------
+
     }; // class Library_IO
 
 // -----------------------------------------------------------------------------
