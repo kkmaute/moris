@@ -7,8 +7,8 @@ This code provides a research platform for PDE constrained optimization with foc
 
 # Documentation
 
-## Installation 
-all install instructions can be found in [share/install](https://github.com/kkmaute/moris/tree/main/share/install). For workstations: Install.md. For linux clusters and gcc: Install_Cluster_gcc.md. For linux clusters and intel compilers: Install_Cluster_intel.md.
+## Installation
+Install instructions can be found in [share/install](https://github.com/kkmaute/moris/tree/main/share/install). For workstations: Install.md. For linux clusters and gcc: Install_Cluster_gcc.md. For linux clusters and intel compilers: Install_Cluster_intel.md.
 
-## Mesh Generation for Interpolation Based Finite Element Analysis 
-Documentation for generating and outputting meshes and extraction operators can be found [here](https://github.com/kkmaute/moris/blob/main/share/doc/mesh_generation/main.pdf). GitHub's integrated PDF viewer doesn't support links, so please download the pdf to use them. Example input files can be found in [share/doc/mesh_generation/examples](https://github.com/kkmaute/moris/tree/main/share/doc/mesh_generation/examples).
+## Mesh Generation for Interpolation Based Finite Element Analysis
+Documentation for generating and outputting meshes and extraction operators as defined in this [paper](https://doi.org/10.1016/j.cma.2023.115890) can be found [here](https://github.com/kkmaute/moris/blob/main/share/doc/mesh_generation/main.pdf). GitHub's integrated PDF viewer doesn't support links, so please download the pdf to use them. Example input files can be found in [share/doc/mesh_generation/examples](https://github.com/kkmaute/moris/tree/main/share/doc/mesh_generation/examples).
