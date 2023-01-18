@@ -1,0 +1,60 @@
+\documentclass[times]{article} 
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{bm}
+\usepackage{tikz,ifthen}
+\usepackage{pgfplots}
+\usetikzlibrary{patterns}
+\usepackage[active,tightpage]{preview}
+\PreviewEnvironment{tikzpicture}
+\setlength\PreviewBorder{2mm}
+\begin{document}
+
+\begin{tikzpicture}
+%Used symbol
+\draw [dashed,red,thick,fill=white] (1.7,1.8) circle (1.3);
+%\filldraw [color=white, fill=white,thick,smooth] plot  coordinates {(1,1) (3,3) (3.8,0.2) (0.2,0.2) (1,1)};
+
+
+
+
+
+
+\draw(0,0)[thick]--(4,0)--(4,4)--(0,4)--(0,0);
+\draw(1.0,3.5)node{\Large $\Omega^1$};
+
+\draw(3.5,3.5)node{\Large $\Omega^2$};
+
+
+
+
+\draw  [color=white, fill=white] (1.7,1.8) circle (1.3);
+\begin{scope}
+\path [clip,draw,smooth] plot coordinates {(2,4) (0.5,0.5) (3,2) (4,2) };
+\clip  (1.7,1.8) circle (1.3);
+\fill[color=green] (1.7,1.8) circle (1.3);;
+\end{scope}
+\draw [color=black,thick,smooth] plot  coordinates {(2,4) (0.5,0.5) (3,2) (4,2) };
+\draw [dashed,red,thick] (1.7,1.8) circle (1.3);
+\draw(1.9,2.7)node{\footnotesize $l=3$};
+
+\draw [red,thick] (1.7,1.8) circle (0.015);
+
+\draw[red](2.0,2.0)node{\Large $B$};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+\end{tikzpicture}
+
+\end{document}

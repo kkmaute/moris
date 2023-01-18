@@ -7,7 +7,7 @@ The goal of this chapter is to give an as brief but complete overview of the the
 %This chapter will lay out the some pieces of theory that are beneficial to understanding the mesh generation and its output. 
 As mentioned in the foreword, the output data is intended to perform interpolation-based immersed finite element analysis, the theory for which, with the exception of a brief introduction to \hyperref[sec:overview_extraction]{Lagrange extraction}, will not be discussed in this document. Instead the reader is advised to consult the publication by Fromm et al. \cite{Fromm2022}
 
-\refpar{moris_overview}{MORIS} ("Multi-physics Optimization Research and Innovation System") is a standalone finite element and topology optimization software framework. The analysis method utilized inside of MORIS itself is a quadrature-based immersed isogeometric method. The interpolation function basis is provided by a rectangular tensor-product B-spline mesh, the \textbf{background mesh}, that can be hierarchically refined. Next, geometries are immersed into said mesh. The geometry is described implicitly by level-set fields $\Phi(\bm{x})$ and their iso-contours  $\Phi(\bm{x}) = c$. A quadrature rule for evaluating the discretized weak form is found by tessellating, or \hyperlink{decomposition}{"\emph{decomposing}"}, the background mesh's elements intersected by the iso-contours into triangles or tetrahedrons whose Gauss points and weights provide the integration rule. Additionally, the background basis is heaviside enriched to solve problems with multiple materials. For the interested reader, the isogeometric analysis framework inside of MORIS is explained in more detail in Schmidt et al. \cite{Schmidt2022}.
+\refpar{moris_overview}{MORIS} ("Multi-physics Optimization Research and Innovation System") is a standalone finite element and topology optimization software framework. The analysis method utilized inside of MORIS itself is a quadrature-based immersed isogeometric method. The interpolation function basis is provided by a rectangular \hyperref[sec:overview_background]{tensor-product B-spline mesh}, the \textbf{background mesh}, that can be \hyperlink{hierarchical_refinement}{hierarchically refined}. Next, geometries are immersed into said mesh. The geometry is described implicitly by \hyperref[sec:overview_geometry]{level-set fields} $\Phi(\bm{x})$ and their iso-contours  $\Phi(\bm{x}) = c$. A quadrature rule for evaluating the discretized weak form is found by tessellating, or \hyperlink{decomposition}{"\emph{decomposing}"}, the background mesh's elements intersected by the iso-contours into triangles or tetrahedrons whose Gauss points and weights provide the integration rule. Additionally, the background basis is \hyperlink{enrichment}{Heaviside enriched} to solve problems with multiple materials. For the interested reader, the isogeometric analysis framework inside of MORIS is explained in more detail in Schmidt et al. \cite{Schmidt2022}.
 
 The set of non-intersected background elements and triangular elements within intersected elements together form a body-fitted mesh which from here on will be referred to as the \textbf{foreground mesh}. This body-fitted foreground mesh and its known relation to the background mesh it is constructed from together form the mesh information needed for interpolation-based immersed analysis. Hence, the mesh generation abilities of MORIS can directly be exploited to provide all mesh information needed to also perform interpolation-based immersed finite element analysis.
 
@@ -48,7 +48,7 @@ This leads to a straight forward definition of what is \emph{inside} and \emph{o
 \end{equation}
 
 \hypertarget{phase_assignment}{}
-If multiple level-set fields, and therefore geometries, are introduced, each point $\bm{x}$ is defined to be either inside or outside with respect to each of the geometries. Each region of points that is a certain combination inside/outside with respect to each of the geometries is called a \emph{phase}. This leads to there being up to $n_p = 2^{n_{LSF}}$ phases inside a given domain, when $n_{LSF}$ geometries are defined. \emph{Material} sub-domains can simply be defined by merging these phases, as illustrated in \Cref{fig:phase_mergin}
+If multiple level-set fields, and therefore geometries, are introduced, each point $\bm{x}$ is defined to be either inside or outside with respect to each of the geometries. Each region of points that is a certain combination of inside/outside with respect to each of the geometries is called a \emph{phase}. This leads to there being up to $n_p = 2^{n_{LSF}}$ phases inside a given domain, when $n_{LSF}$ geometries are defined. \emph{Material} sub-domains can simply be defined by merging these phases, as illustrated in \Cref{fig:phase_mergin}
 
 \begin{figure}[h]
     \begin{center}
@@ -65,7 +65,135 @@ Any geometry definition that has a notion of "inside" and "outside" can be conve
 \section{Background Basis and Enrichment}
 \label{sec:overview_background}
 
-TODO...
+\paragraph{The Tensor-Product B-spline Basis}
+B-spline basis functions are used to define the function basis of the background mesh. 
+The B-Spline basis functions $N_{i,p}$ of polynomial order $p$ are defined by a knot vector $\left\{\xi_i\right\}_{i = 1}^{n}$ containing a set of control points, and the Cox-de Boor recursive formula.  The definition of the $i$-th basis function starts with piecewise constant parts for zeroth order $p=0$ B-spline basis function.
+
+\begin{equation} 
+\label{eqn:BasisP0}
+    N_{i,0}(\xi) = 
+    \left\{
+    \begin{array}{ll}1 \ if \ \xi_i \leq \xi < \xi_{i+1}\\  0\ else\end{array}
+    \right.
+\end{equation} 
+
+B-spline basis functions of higher order can be constructed by evaluating the following equation recursively:
+    
+\begin{equation}
+\label{eqn:CoxBoor}
+    N_{i,p}(\xi) = 
+    \frac{\xi - \xi_i}{\xi_{i+p} - \xi_i} N_{i,p-1}(\xi) + 
+    \frac{\xi_{i+p+1} - \xi}{\xi_{i+p+1} - \xi_{i+1}} N_{i+1,p-1}(\xi)
+\end{equation}
+
+This recursive definition leads to a piece-wise polynomial definition of the  B-spline basis functions. 
+
+\begin{figure}[H]
+    % \vspace{0.2cm}
+    \begin{center}
+    \def\svgwidth{13.0cm}
+    \input{Figures/BSp_Basis.pdf_tex}
+    \caption{$C^{p-1}$ continuous B-spline basis functions constructed from unique and uniform knot vectors or orders $p = {1,2,3}$ defining an interpolation basis for the computational domain $\mathcal{A} = [1,3]$} 
+    \label{fig:Bsp_basis}
+    \end{center}
+\end{figure}
+
+Using a knot vector of unique and equispaced control points $\xi_i$ results in \textbf{$C^{p-1}$ continuous} basis functions that are translated and repeated. The intervals between the control points can be considered elements (i.e. \textbf{the control points act as mesh lines}), as in each of these regions a unique set of $p+1$ basis functions interpolate into. With exception of the first and last $p$ knot intervals, each of theses sets of basis functions form a complete polynomial basis and a partition of unity. Hence, these intervals are excluded from the ambient domain $\mathcal{A}$ on which a complete interpolation basis is defined. The polynomial basis and the domain they cover is shown in \Cref{fig:Bsp_basis}. A notable feature of basis functions defined this way is their \textbf{increasing support size for increasing polynomial orders} $p$.
+
+The definition of the basis is extended into multiple ($d$) spatial dimensions by forming tensor products from these basis functions.
+
+\begin{equation}
+\label{eqn:tensor_product}
+    N_{i_1, \cdots, i_d}(\bm{\xi}) = \prod_{d}^{n_d}N_{i_d}(\xi_d)
+\end{equation}
+
+The basic tensor-product B-spline basis used inside of MORIS is constructed from a grid of equispaced grid whose lines represent the unique control points used to define the B-spline basis functions in each of the spatial dimensions.
+
+\paragraph{Hierarchical Refinement}
+\hypertarget{hierarchical_refinement}{}
+
+H-refinement could be performed by inserting additional knot points and therefore mesh lines. However, this would result in additional mesh lines created through refinement to propagate through the whole domain.
+Instead, a hierarchical basis is used to perform local refinement of the tensor-product B-spline background mesh.
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \includegraphics[width = 7.5cm]{Figures/truncation.jpg}
+        \caption{The black basis function is a \\ sum of the blue translated, \\ scaled, and weighted versions \\ of itself. }
+        \label{fig:truncation}
+    \end{minipage}%
+    \begin{minipage}{0.5\textwidth}
+        \centering
+        \includegraphics[width = 7.8cm]{Figures/thb_basis.jpg}
+        \caption{Construction of a 1D hierarchical \\ B-spline basis. }
+        \label{fig:thb_basis}
+    \end{minipage}
+\end{figure}
+
+Each B-spline basis function can be represented as a sum of translated, scaled and weighted versions of itself, like shown in \Cref{fig:truncation}. These \emph{finer} versions of a \emph{coarse} basis function are constructed from the coarse knot vectors that have additional knots inserted at the midpoints of their knot intervals.
+
+This allows a coarse basis function at a refinement level $l$ to be replaced by a weighted set of basis functions of refinement level $l+1$. The underlying tensor-product elements can be understood to undergo \textbf{quadtree or octtree refinement} due to the introduction of additional mesh lines splitting them into four or eight elements in 2D and 3D respectively.
+
+Let's call the domain of the elements which should be refined for level $l$ as $\Omega^{l+1}$. If a domain $\Omega^{l+1}$, e.g. the single element domain $\Omega^{1} = [2,3]$ shown in \Cref{fig:thb_basis}, is marked for refinement, a set of finer basis interpolating into it is constructed on a refined level $l+1$. Assuming that all coarse basis functions $N^l$ are represented by a weighted sum of finer basis functions $N^{l+1}$, the contribution of the finer basis functions actually constructed can be subtracted from them. This leads to either \textbf{truncation} or removal of the coarse basis functions as shown in the top row of \Cref{fig:thb_basis}. The definition of the resulting truncated coarse basis can be written as:
+\begin{equation}
+\label{eqn:truncation}
+\begin{split}
+    trunc^{l+1}(N^l) = \sum_{j: N_j \nsubseteq \Omega^{l+1}} \alpha_j N_j^{l+1}
+\end{split}{}
+\end{equation}{}
+
+The new, locally refined basis is the sum of the constructed fine basis and truncated coarse basis, as shown in the third row of \Cref{fig:thb_basis}. The truncated hierarchical basis can be written as a sum of recursively defined components:
+
+\begin{equation}
+\label{eqn:thb_basis}
+\begin{split}
+    %\mathcal{T}^0 \ \ &= \ \mathcal{B}^0 \\
+    &\mathcal{V}^{h} = \bigcup_{l=0}^{L} \mathcal{V}^{l} \\
+    where ~~~\mathcal{V}^{l+1} &= \left\{ trunc^{l+1}(N) \ | \ B \in \mathcal{V}^l \land supp(N) \nsubseteq \Omega^{l+1}  \right\} \\
+    & \ \ \ \ \cup \left\{ N \in \mathcal{V}^{l+1} \ | \ supp(N) \subseteq \Omega^{l+1}  \right\}
+\end{split}{}
+\end{equation}{}
+
+and where $\mathcal{V}^{0}$ is the tensor-product B-spline basis described at the \hyperref[sec:overview_background]{beginning of this section}.
+
+\begin{figure}[H]
+    \centering
+	\includegraphics[width=0.33\columnwidth]{Figures/fig_hMesh1}\hspace{0.35cm}
+	\includegraphics[width=0.31\columnwidth]{Figures/fig_hMesh2}
+	\caption{Definition of multiple background mesh grids by marking sub-domains $\Omega_{i}^{l}$ for refinement.}
+	\label{fig:hierarchical_refined_mesh}
+\end{figure}
+
+MORIS enables multiple hierarchically refined B-spline meshes to be created by refining a single mesh grid in different ways, like shown in \Cref{fig:hierarchical_refined_mesh}. Additionally, B-spline basis functions of various polynomial degrees $p$ can then be defined on the resulting grids.
+
+\paragraph{Enrichment}
+\hypertarget{enrichment}{}
+
+Individual B-spline elements may contain multiple materials within them. Meanwhile, the state variable fields within these materials are decoupled. This is achieved by employing a Heaviside enrichment. 
+
+For each basis function $N_j(\bm{x})$ a set of degrees of freedom (DoFs) $\left\{d_{j}^{e}\right\}_{e=1}^{n_e}$ are introduced. Indicator functions $\psi_{j}^{e}(\bm{x})$ provide the information whether a combination of DoF and basis function active or $=0$ at a given point $\bm{x}$. 
+
+\begin{equation}
+\label{eqn:enrichment}
+    u^h(\bm{x}) = \sum_{j = 1}^{n_B} \sum_{e = 1}^{n_{e,j}} \psi_{j}^{e}(\bm{x}) \cdot N_j(\bm{x}) \cdot d_{j}^{e}
+\end{equation}{}
+
+The index $e$ would traditionally correspond to the material index of a given point. However, for small scale features, like the protrusion shown in \Cref{fig:basis_function_enrichment} (a), artificial coupling in the solution between the material regions on either side of it could still be observed due to the same basis B interpolating into either separated region.
+
+\begin{figure}[H]
+    \centering
+	\centering
+	\includegraphics[width=0.23\textwidth]{Figures/fig_enrichment.pdf}
+	\includegraphics[width=0.23\textwidth]{Figures/fig_enrichment1.pdf}	\includegraphics[width=0.23\textwidth]{Figures/fig_enrichment2.pdf}
+	\includegraphics[width=0.23\textwidth]{Figures/fig_enrichment3.pdf}
+	\caption{ Basis function enrichment for a two material problem. The support of a basis function $B$ with arbitrary support is illustrated in red. The basis function is enriched three times based on the three topologically disconnected regions of the two materials it is interpolating into. {\color{red}TODO: rename material domains and index so they're not confused hierarchical stuff + add letters} }
+	\label{fig:basis_function_enrichment}
+\end{figure}
+
+To alleviate this issue, MORIS considers the material layout within a given basis functions support. Enrichment levels $e$ and corresponding DoFs $d_{j}^{e}$ are created for each disconnected material region within the support. This implies that a different set of non-zero B-spline basis functions interpolates into a point on a material interface depending not only on the material index with respect to which it is considered, but also the material layout in its vicinity. An example is provided by \Cref{fig:basis_function_enrichment}.
+
+The enrichment strategy is presented in complete in Doble et al. \cite{Doble2023}.
 
 % ------------------------------------------------------------------- %
 \section{Foreground Mesh}
@@ -75,17 +203,18 @@ As mentioned in the \hyperlink{moris_overview}{overview of MORIS}, the foregroun
 
 \refpar{decomposition}{The Decomposition} consists of three steps which are also visualized in \Cref{fig:decomposition}
 \begin{itemize}
-    \item The first step is to identify which particular background elements are intersected and need to be decomposed. To do so, the values of all level-set fields $\Phi_i(\bm{x})$ is checked at the vertices, i.e. the "corners", of the background element. If a sign change is detected between level-set values, the element is marked for decomposition. Note, that due to this particular way of intersection detection, elements that may contain material enclosures that are completely contained within itself, or protrude that background element on only one facet, may not be decomposed.
+    \item The first step is to identify which particular background elements are intersected and need to be decomposed. To do so, the values of all level-set fields $\Phi_i(\bm{x})$ are checked at the vertices, i.e. the "corners", of the background element. If a sign change is detected between level-set values, the element is marked for decomposition. Note, that due to this particular way of intersection detection, elements that may contain material enclosures that are completely contained within itself, or protrude that background element on only one facet, may not be decomposed.
 
     \item \hypertarget{regular_subdivision}{In a next step,} each intersected background element is subdivided into triangles or tetrahedrons, depending on dimensionality. This step will be referred to as the \emph{regular subdivision}.
 
     \item The edges of the triangular elements created in the regular subdivision can again be checked for sign changes in the level-set fields. Depending on which edges of a given triangle or tetrahedron are intersected, the element can be further subdivided into a pre-defined set of triangles or tetrahedrons.
     This step is subsequently repeated for each geometry in the order that the level-set fields are defined. Hence, the resulting foreground mesh may differ slightly depending on the order in which the level-set fields are defined.
-
-    \item All elements are assigned a material membership based on the signs of the level-set functions, as \hyperlink{phase_assignment}{discussed previously}.
     
     \item At this point the elements are just geometric entities. By placing nodes at the vertices linear elements are obtained. Higher order elements are obtained by positioning equispaced (with respect to a standardized parametric element) nodes along the edges and the inside of the resulting triangles and tetrahedrons.
+    
+    \item All elements are assigned a material membership based on the signs of the level-set functions, as \hyperlink{phase_assignment}{discussed previously}.
 \end{itemize}
+
 A detailed discussion of this decomposition procedure can be found in Doble et al. \cite{Doble2023} 
 
 \begin{figure}[h]
@@ -116,6 +245,7 @@ The \hyperlink{decomposition}{decomposition process} layed out above leads to a 
 \end{itemize}
 
 % ------------------------------------------------------------------- %
+\newpage
 \section{Lagrange Extraction}
 \label{sec:overview_extraction}
 
@@ -144,14 +274,14 @@ The key to performing interpolation-based analysis is the fact that Lagrange bas
     \end{center}
 \end{figure}
 
-A Lagrange element can be placed into another mesh that may provide another type of interpolation $u^{h,B} = \sum_{j=1}^{n} N_j^B(\bm{x}) \cdot d_j$. The two interpolations $u^{h}$ can be assumed to be approximately equal to each other (in a mathematically crude fashion).
+A Lagrange element can be placed into another mesh that may provide another type of interpolation $u^{h,B} = \sum_{j=1}^{n_B} N_j(\bm{x}) \cdot d_j$. The two interpolations $u^{h}$ can be assumed to be approximately equal to each other (in a mathematically crude fashion).
 
 \begin{equation}
 \label{eq:approx}
 \begin{split}
     u^{h,B} 
     &\approx u^{h,L} \\
-    \sum_{j=1}^{n} N_j(\bm{x}) \cdot d_j 
+    \sum_{j=1}^{n_B} N_j(\bm{x}) \cdot d_j 
     &\approx \sum_{i=1}^{\nu} \phi_j(\bm{x}) \cdot c_j
 \end{split}
 \end{equation}
@@ -161,11 +291,11 @@ Substituting identity \eqref{eq:interpolatory} into the equation at the nodal po
 \begin{equation}
     \label{eq:derive_extraction_operator}
     \begin{split}
-        \sum_{j=1}^{n} N_j(\hat{\bm{x}}_i) \cdot d_j 
+        \sum_{j=1}^{n_B} N_j(\hat{\bm{x}}_i) \cdot d_j 
         &\approx \sum_{i=1}^{\nu} \phi_j(\hat{\bm{x}}_i) \cdot c_j \\
-        \sum_{j=1}^{n} M_{ij} \cdot d_j 
+        \sum_{j=1}^{n_B} M_{ij} \cdot d_j 
         &\approx \sum_{i=1}^{\nu} \delta_{ij} \cdot c_j \\
-        \sum_{j=1}^{n} M_{ij} \cdot d_j 
+        \sum_{j=1}^{n_B} M_{ij} \cdot d_j 
         &\approx c_i \\
     \end{split}
 \end{equation}
@@ -186,7 +316,7 @@ Note that due to the enrichment of the basis of the background mesh to decouple 
     \right\}_{j=1}^{n}
 \end{equation}
 
-Using \eqref{eq:derive_extraction_operator}, the elemental stiffness matrices $A^{(e)}$ and force vectors $B^{(e)}$ assembled in a "standard" finite element procedure can easily be projected into the space of the background mesh, or more precisely, the \emph{interpolated} background basis \eqref{eq:interpolated_basis}.
+Using \eqref{eq:derive_extraction_operator}, the elemental stiffness matrices $A^{(e)}$ and force vectors $B^{(e)}$ assembled in a "standard" finite element procedure can easily be projected into the space of the background mesh, or more precisely, the \emph{interpolated} background basis \eqref{eq:interpolated_basis} as stated in equation \eqref{eq:transform_elemental}.
 
 \begin{equation}
     \label{eq:transform_elemental}

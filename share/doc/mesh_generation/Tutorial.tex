@@ -68,6 +68,8 @@ Each new LSF (and hence geometry) is defined using a \tag{Geometry} tag and nest
     \item \hyperlink{plane}{line/plane}
 \end{itemize}
 
+\newpage
+
 \refpar{circle}{A Circle} is defined by a center point in the $xy$-plane and its radius using the tags \tag{Point} and \tag{Radius} respectively. The vector defining the center point must have two entries defining the $(x,y)$-position of the point; the array entries are comma-separated. Example parameters are shown in \Cref{lst:circle}. The level-set function is defined to be positive inside the circle, and negative outside.
 
 \begin{minipage}{\linewidth}
@@ -167,8 +169,8 @@ The generated SDF is assumed to occupy a rectangular or cuboidal domain dependin
     $6$ & + & + & - \\ 
     $7$ & + & + & + \\ 
 \end{tabular}
-\label{tab:default_phase_assignment}
 \caption{Default phase assignment for three level-set functions}
+\label{tab:default_phase_assignment}
 \end{center}
 \end{table}
 
@@ -307,12 +309,15 @@ The \hyperref[eq:extraction_operator]{extraction operators} are computed per for
 Each of the first contains an array called \texttt{Cell\_IDs} that is an element index to ID array. An example is shown in \Cref{fig:extraction_operator_output}, bottom left. The index of an array entry represents the index of a foreground cell, the value of the entry is the ID. Note, the array may contain IDs whose value is $-1$ which indicates the corresponding element is not part of the foreground mesh outputted to the EXODUS file and can be ignored.
 
 \begin{figure}[h]
+    \vspace{0.5cm}
     \begin{center}
     \includegraphics[width=13cm]{Figures/extraction_operator_output.png}
     \caption{Output of the extraction operators in HDF5 format for a foreground mesh consisting of only four TRI3 elements. The file contains a list of element IDs (bottom left), and for each element the extraction operator (bottom right) and an assembly map (top right).} 
     \label{fig:extraction_operator_output}
     \end{center}
 \end{figure}
+
+\newpage
 
 For each foreground element ID the extraction operator named \texttt{Weights\_<ID>} and a list ob background basis function IDs named \texttt{IDs\_<ID>} are written to the HDF5 files. Examples are shown on the right in \Cref{fig:extraction_operator_output}. The weights are the extraction operators that are supposed to be applied to the elemental Jacobians, residuals, stiffness matrices, etc. as stated in equation \eqref{eq:transform_elemental} and demonstrated in \Cref{fig:assembly}. Once this operation is completed the ID vector is used to assemble the elemental matrix, or vector into the global system. In the elemental stiffness matrix example in \Cref{fig:assembly}, the entry in the second row and column, i.e. position $(2,3)$ would be assembled into position $(2,4)$ of the global stiffness matrix.
 
