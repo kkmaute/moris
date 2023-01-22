@@ -27,6 +27,7 @@ namespace moris
             mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
+            mPropertyMap[ "L2coefficient" ] = static_cast< uint >( IWG_Property_Type::L2COEFFICIENT );
             mPropertyMap[ "H1coefficient" ] = static_cast< uint >( IWG_Property_Type::H1COEFFICIENT );
             mPropertyMap[ "Diffusion" ]     = static_cast< uint >( IWG_Property_Type::DIFFUSION );
             mPropertyMap[ "Source" ]        = static_cast< uint >( IWG_Property_Type::SOURCE );
@@ -48,6 +49,17 @@ namespace moris
 
             // get the field interpolator for residual dof type
             Field_Interpolator* tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+       
+            // get L2 coefficient
+            const std::shared_ptr< Property >& tPropL2Term =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::L2COEFFICIENT ) );
+
+            real tL2Term = 1.0;
+
+            if ( tPropL2Term != nullptr )
+            {
+                    tL2Term = tPropL2Term->val()(0);
+            }
 
             // get H1 coefficient property
             const std::shared_ptr< Property >& tPropH1Term =
@@ -67,11 +79,11 @@ namespace moris
             // add L2 contribution to residual
             if ( tPropSource != nullptr )
             {
-                tRes += aWStar * tFI->N_trans() * ( tFI->val() - tPropSource->val() );
+                tRes += aWStar * tL2Term * tFI->N_trans() * ( tFI->val() - tPropSource->val() );
             }
             else    // FIXME: replace mNodalWeakBCs with field interpolator
             {
-                tRes += aWStar * tFI->N_trans() * ( tFI->val() - tFI->N() * mNodalWeakBCs );
+                tRes += aWStar * tL2Term * tFI->N_trans() * ( tFI->val() - tFI->N() * mNodalWeakBCs );
             }
 
             // add H1 contribution to residual
@@ -112,6 +124,17 @@ namespace moris
             // get the field interpolator for residual dof type
             Field_Interpolator* tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
+             // get L2 coefficient
+            const std::shared_ptr< Property >& tPropL2Term =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::L2COEFFICIENT ) );
+
+            real tL2Term = 1.0;
+
+            if ( tPropL2Term != nullptr )
+            {
+                    tL2Term = tPropL2Term->val()(0);
+            }
+
             // get H1 coefficient property
             const std::shared_ptr< Property >& tPropH1Term =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::H1COEFFICIENT ) );
@@ -147,7 +170,7 @@ namespace moris
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // compute Jacobian
-                    tJac += aWStar * tFI->N_trans() * tFI->N();
+                    tJac += aWStar * tL2Term * tFI->N_trans() * tFI->N();
 
                     // add contribution from H1 term to Jacobian
                     if ( tPropH1Term != nullptr )
@@ -166,7 +189,7 @@ namespace moris
                 {
                     if ( tPropSource->check_dof_dependency( tDofType ) )
                     {
-                        tJac -= aWStar * tFI->N_trans() * tPropSource->dPropdDOF( tDofType );
+                        tJac -= aWStar * tL2Term * tFI->N_trans() * tPropSource->dPropdDOF( tDofType );
                     }
 
                     if ( tPropH1Term != nullptr )
