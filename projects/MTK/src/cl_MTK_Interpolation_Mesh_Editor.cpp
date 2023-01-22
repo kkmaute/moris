@@ -153,9 +153,9 @@ namespace moris::mtk
 
             // transfer pointers to the indices
             std::transform( tVertexPointers.begin(),
-                tVertexPointers.end(),
-                mIPMeshInfo->mCellToVertexIndicies.begin() + mOutputMesh->mCellToVertexOffSet( iCell ),
-                []( Vertex*& aVertex ) -> moris_index { return aVertex->get_index(); } );
+                    tVertexPointers.end(),
+                    mIPMeshInfo->mCellToVertexIndicies.begin() + mOutputMesh->mCellToVertexOffSet( iCell ),
+                    []( Vertex*& aVertex ) -> moris_index { return aVertex->get_index(); } );
         }
     }
 
@@ -309,7 +309,7 @@ namespace moris::mtk
 
             // constrcut the vertex and put it in the list
             mOutputMesh->mVertices.emplace_back( Vertex_DataBase( iCounter,
-                mOutputMesh ) );
+                    mOutputMesh ) );
 
             // increase the count
             iCounter++;
@@ -335,7 +335,7 @@ namespace moris::mtk
 
         // FIXME : we assume all IP cells have the same topology
         // get a refernce cell to the get the IP cell geometry
-        mtk::Cell const& tCell = mInputMesh.get_mtk_cell( 0 );
+        mtk::Cell const & tCell = mInputMesh.get_mtk_cell( 0 );
 
         // FIXME: will be changed in the xtk_refactor branch
         //  enum CellTopology tCellTopology = tCell.get_cell_info()->get_cell_topology();
@@ -355,9 +355,9 @@ namespace moris::mtk
         for ( size_t iCell = 0; iCell < mIPMeshInfo->mNumCells; iCell++ )
         {
             mOutputMesh->mCells.push_back( Cell_DataBase( mInputMesh.get_mtk_cell( iCell ),
-                mOutputMesh->mCellInfo,
-                iCell,
-                mOutputMesh ) );
+                    mOutputMesh->mCellInfo,
+                    iCell,
+                    mOutputMesh ) );
 
             // get cell id and index
             mOutputMesh->mCellIdList.push_back( mInputMesh.get_mtk_cell( iCell ).get_id() );
@@ -385,7 +385,7 @@ namespace moris::mtk
         {
             MORIS_ASSERT( iVertex.get_index() == iCounter, "Index alignment issue in vertices" );
 
-            mOutputMesh->mVertexGlobalIdToLocalIndex[iVertex.get_id()] = iVertex.get_index();
+            mOutputMesh->mVertexGlobalIdToLocalIndex[ iVertex.get_id() ] = iVertex.get_index();
 
             iCounter++;
         }
@@ -395,12 +395,12 @@ namespace moris::mtk
     void
     Interpolation_Mesh_Editor::create_adof_map()
     {
-        // ressize enough space fo the maps on different mesh
+        // resize enough space fo the maps on different mesh
         mOutputMesh->mAdofMap.resize( mIPMeshInfo->mNumInterpolations );
 
         // loop over the bspline meshes to get the adof map
         // this is copied from the old mesh directly because we don't assign id and index
-        // for the vertex interpoltions
+        // for the vertex interpolations
         for ( uint iBSpline = 0; iBSpline < mIPMeshInfo->mNumInterpolations; iBSpline++ )
         {
             mInputMesh.get_adof_map( iBSpline, mOutputMesh->mAdofMap( iBSpline ) );
@@ -456,17 +456,17 @@ namespace moris::mtk
 
         // check to see if the vertices are stored in consecutive manner and have the same id and indices
         bool tVertexIdAndIndexEqual = std::equal( mOutputMesh->mVertices.begin(),
-            mOutputMesh->mVertices.end(),
-            mIPMeshInfo->mVertices.begin(),
-            []( Vertex_DataBase a, mtk::Vertex const* b ) -> bool { return a.get_id() == b->get_id() and a.get_index() == b->get_index(); } );
+                mOutputMesh->mVertices.end(),
+                mIPMeshInfo->mVertices.begin(),
+                []( Vertex_DataBase a, mtk::Vertex const * b ) -> bool { return a.get_id() == b->get_id() and a.get_index() == b->get_index(); } );
 
         // check if old vertices and new vertices have the same coords
         bool tEqualCoords = std::equal( mOutputMesh->mVertices.begin(),
-            mOutputMesh->mVertices.end(),
-            mIPMeshInfo->mVertices.begin(),
-            []( Vertex_DataBase a, mtk::Vertex const* b ) -> bool {
-                return std::equal( a.get_coords().begin(), a.get_coords().end(), b->get_coords().begin() );
-            } );
+                mOutputMesh->mVertices.end(),
+                mIPMeshInfo->mVertices.begin(),
+                []( Vertex_DataBase a, mtk::Vertex const * b ) -> bool {
+                    return std::equal( a.get_coords().begin(), a.get_coords().end(), b->get_coords().begin() );
+                } );
 
         return ( tEqualCoords and tVertexIdAndIndexEqual );
     }
@@ -525,8 +525,8 @@ namespace moris::mtk
         for ( size_t iCell = 0; iCell < tNumCells; iCell++ )
         {
             // get the cells of the old and new mesh
-            mtk::Cell const& tCellOldMesh = mInputMesh.get_mtk_cell( iCell );
-            mtk::Cell const& tCellNewMesh = mOutputMesh->get_mtk_cell( iCell );
+            mtk::Cell const & tCellOldMesh = mInputMesh.get_mtk_cell( iCell );
+            mtk::Cell const & tCellNewMesh = mOutputMesh->get_mtk_cell( iCell );
 
             // check to cells have the same id
             bool tSameCellId = tCellOldMesh.get_id() == tCellNewMesh.get_id();
@@ -541,11 +541,11 @@ namespace moris::mtk
 
             // vertices have the same id and index
             bool tVertexIdAndIndexEqual = std::equal( tOldVertices.begin(),
-                tOldVertices.end(),
-                tNewVertices.begin(),
-                []( Vertex* a, Vertex* b ) -> bool {
-                    return a->get_id() == b->get_id() && a->get_index() == b->get_index();
-                } );
+                    tOldVertices.end(),
+                    tNewVertices.begin(),
+                    []( Vertex* a, Vertex* b ) -> bool {
+                        return a->get_id() == b->get_id() && a->get_index() == b->get_index();
+                    } );
 
             bool tCoordsEqual = std::equal( tVertexCoordsOld.begin(), tVertexCoordsOld.end(), tVertexCoordsNew.begin() );
 
@@ -555,10 +555,10 @@ namespace moris::mtk
             if ( !tOutput )
             {
                 MORIS_LOG_ERROR( "Cell number %u of the mesh, is inconsistent, tCoordsEqual: %d ,tSameCellId: %d,tVertexIdAndIndexEqual: %d  ",
-                    iCell,
-                    tCoordsEqual,
-                    tSameCellId,
-                    tVertexIdAndIndexEqual );
+                        iCell,
+                        tCoordsEqual,
+                        tSameCellId,
+                        tVertexIdAndIndexEqual );
                 return tOutput;
             }
         }
@@ -578,5 +578,4 @@ namespace moris::mtk
 
         MORIS_ASSERT( this->check_cells(), " Cells are not matching" );
     }
-}// namespace moris::mtk
-
+}    // namespace moris::mtk

@@ -65,7 +65,9 @@ namespace moris
         {
             // Reserve of temporary pdof type list
             moris::Cell< enum Dof_Type > tTemporaryPdofTypeList;
+
             tTemporaryPdofTypeList.reserve( static_cast< int >( Dof_Type::END_ENUM ) + 1 );
+
             Matrix< DDUMat > tListToCheckIfEnumExist( ( static_cast< int >( Dof_Type::END_ENUM ) + 1 ), 1, 0 );
 
             // Get number of equation objects
@@ -285,6 +287,7 @@ namespace moris
                 }
             }
 
+            // communicate time level and set mPdofHostTimeLevelList
             this->communicate_time_list( tPdofHostTimeLevelList );
         }
 
@@ -728,11 +731,6 @@ namespace moris
                         // Add adof to owned  and shared adof list
                         mAdofListOwnedAndShared( Ij )( tCounterOwnedAndShared++ ) = aAdofListofTypes( Ij )( Ib );
 
-                        //                    else
-                        //                    {
-                        //                        mAdofListShared( tCounterShared ) = tAdofListofTypes( Ij )( Ib );
-                        //                        tCounterShared = tCounterShared + 1;
-                        //                    }
                         // Add adof to adof list
                         mAdofList( tCounter++ ) = aAdofListofTypes( Ij )( Ib );
                     }
@@ -799,14 +797,14 @@ namespace moris
             // loop over all dof types
             for ( uint Ik = 0; Ik < mPdofTypeList.size(); Ik++ )
             {
+                // get discretization index for this dof type
+                uint tDiscretizationIndex =
+                        (uint)mModelSolverInterface->get_adof_index_for_type( Ik );
+
                 // loop over all time levels for this dof type
                 for ( uint Ii = 0; Ii < mPdofHostTimeLevelList( Ik ); Ii++ )
                 {
-                    // get discretization index for this dof type
-                    uint tDiscretizationIndex =
-                            (uint)mModelSolverInterface->get_adof_index_for_type( Ik );
-
-                    // assemble index into list
+                    // assign discretization index  to all time levels for this dof type
                     tDiscretizationIndexPerTypeAndTime( tCounter++ ) = tDiscretizationIndex;
                 }
             }
@@ -817,6 +815,7 @@ namespace moris
         void
         Dof_Manager::create_adofs()
         {
+            // set time levels and populate mPdofHostTimeLevelList
             this->initialize_pdof_host_time_level_list();
 
             mTimeLevelOffsets.set_size( mPdofHostTimeLevelList.numel(), 1, 0 );
@@ -825,7 +824,7 @@ namespace moris
                 mTimeLevelOffsets( Ik ) = mTimeLevelOffsets( Ik - 1 ) + mPdofHostTimeLevelList( Ik - 1 );
             }
 
-            // Get number of pdoftypes and size of pdof host list
+            // Get number of pdof types and size of pdof host list
             uint tNumPdofHosts      = mPdofHostList.size();
             uint tNumTypeTimeLevels = sum( mPdofHostTimeLevelList );
             sint tMaxNodeAdofId     = -1;
@@ -854,7 +853,7 @@ namespace moris
             }
 
             // Check if shared adof exists
-            if ( !( par_size() <= 1 ) )
+            if ( par_size() > 1 )
             {
                 this->communicate_check_if_owned_adof_exists( tAdofListofTypes, tDiscretizationIndexPerTypeAndTime );
             }
@@ -942,7 +941,7 @@ namespace moris
             // set the owned adof ids
             this->set_owned_adofs_ids( tAdofListofTypes, tAdofOffset );
 
-            if ( !( par_size() <= 1 ) )
+            if ( par_size() > 1 )
             {
                 // Create vector storing information about adof ids and position for communication
                 moris::Cell< Matrix< DDUMat > > tListSharedAdofIds( tNumTypeTimeLevels );

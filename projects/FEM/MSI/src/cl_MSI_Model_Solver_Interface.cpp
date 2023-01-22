@@ -23,37 +23,41 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Model_Solver_Interface::Model_Solver_Interface(
-                ParameterList                                       aMSIParameterList,
-                std::shared_ptr< MSI::Equation_Model >              aEquationModel,
-                mtk::Mesh                                         * aMesh )
-        : mMSIParameterList( aMSIParameterList ),
-          mEquationBlocks( aEquationModel->get_equation_sets() ),
-          mDofMgn( aMesh->get_communication_table(), this ),
-          mMesh( aMesh ),
-          mEquationModel( aEquationModel )
+                ParameterList                          aMSIParameterList,
+                std::shared_ptr< MSI::Equation_Model > aEquationModel,
+                mtk::Mesh*                             aMesh )
+                : mMSIParameterList( aMSIParameterList )
+                , mEquationBlocks( aEquationModel->get_equation_sets() )
+                , mDofMgn( aMesh->get_communication_table(), this )
+                , mMesh( aMesh )
+                , mEquationModel( aEquationModel )
         {
             this->create_equation_object_list();
 
+            // determine maximum number of generic adof among all interpolation mesh
             uint tNumCoeffs = 0;
 
-            for( uint Ik = 0; Ik < mMesh->get_num_interpolations(); Ik++)
+            for ( uint Ik = 0; Ik < mMesh->get_num_interpolations(); Ik++ )
             {
                 tNumCoeffs = std::max( tNumCoeffs, mMesh->get_max_num_coeffs_on_proc( Ik ) );
             }
 
+            // set maximum number of generic adof among all interpolation meshes
             mDofMgn.set_max_num_adofs( tNumCoeffs );
 
+            // create list of all pdof types used in equation objects
             mDofMgn.initialize_pdof_type_list( mEquationBlocks );
         }
 
         //------------------------------------------------------------------------------
 
-        void Model_Solver_Interface::finalize()
+        void
+        Model_Solver_Interface::finalize()
         {
             // get map from mesh
-            Cell< moris::map< moris::moris_id, moris::moris_index > > & tCoefficientsIdtoIndexMap = mDofMgn.get_adof_map();
+            Cell< moris::map< moris::moris_id, moris::moris_index > >& tCoefficientsIdtoIndexMap = mDofMgn.get_adof_map();
 
-            if( mMesh != nullptr)         //FIXME fix all constructors to be able to get rid of this if statement
+            if ( mMesh != nullptr )    // FIXME fix all constructors to be able to get rid of this if statement
             {
                 // get num discretizations
                 uint tNumDiscretizations = mMesh->get_num_interpolations();
@@ -62,7 +66,7 @@ namespace moris
                 tCoefficientsIdtoIndexMap.resize( tNumDiscretizations );
 
                 // let mesh fill id to index maps
-                for( uint Ik = 0; Ik < tNumDiscretizations; Ik++ )
+                for ( uint Ik = 0; Ik < tNumDiscretizations; Ik++ )
                 {
                     mMesh->get_adof_map( Ik, tCoefficientsIdtoIndexMap( Ik ) );
                 }
@@ -75,8 +79,10 @@ namespace moris
 
             mDofMgn.initialize_pdof_host_list( mEquationObjectList );
 
+            // create adofs
             mDofMgn.create_adofs();
 
+            // set T matrix
             mDofMgn.set_pdof_t_matrix();
 
             for ( Equation_Object* tElement : mEquationObjectList )
@@ -95,7 +101,7 @@ namespace moris
                 mMultigrid->multigrid_initialize();
             }
 
-            if( mMSIParameterList.get< bool >( "msi_checker" ) )
+            if ( mMSIParameterList.get< bool >( "msi_checker" ) )
             {
                 this->msi_checker();
             }
@@ -103,7 +109,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::sint Model_Solver_Interface::get_max_adof_index()
+        moris::sint
+        Model_Solver_Interface::get_max_adof_index()
         {
             // max BSpline mesh index. However, not limited to BSpline meshes.
             sint tMaxAdofIndex = 0;
@@ -111,19 +118,20 @@ namespace moris
             uint tNumDofTypes = mDofMgn.get_num_dof_types();
 
             // loop over all used Ddf type indices
-            for( uint Ik = 0; Ik< tNumDofTypes; Ik++)
+            for ( uint Ik = 0; Ik < tNumDofTypes; Ik++ )
             {
                 sint tIndex = this->get_adof_index_for_type( Ik );
 
                 tMaxAdofIndex = std::max( tIndex, tMaxAdofIndex );
             }
 
-            return tMaxAdofIndex+1;
+            return tMaxAdofIndex + 1;
         }
 
         //------------------------------------------------------------------------------
 
-        moris::sint Model_Solver_Interface::get_adof_index_for_type( moris::uint aDofType )
+        moris::sint
+        Model_Solver_Interface::get_adof_index_for_type( moris::uint aDofType )
         {
             // Note: Make sure to add for each DOF type a default interpolation index to the MSI Parameter list
 
@@ -136,7 +144,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris_index Model_Solver_Interface::get_adof_index_for_type( MSI::Dof_Type aDofType )
+        moris_index
+        Model_Solver_Interface::get_adof_index_for_type( MSI::Dof_Type aDofType )
         {
             // just call the designated function and pass the MSI parameter list
             return get_mesh_index_for_dof_type( aDofType, mMSIParameterList );
@@ -144,52 +153,54 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Model_Solver_Interface::msi_checker()
+        void
+        Model_Solver_Interface::msi_checker()
         {
             this->pdof_host_checker();
 
             // add more msi checks here!!!
         }
 
-        void Model_Solver_Interface::pdof_host_checker()
+        void
+        Model_Solver_Interface::pdof_host_checker()
         {
             for ( luint Ik = 0; Ik < mEquationBlocks.size(); ++Ik )
             {
-                Cell< MSI::Equation_Object * > & tEquationObj = mEquationBlocks( Ik )->get_equation_object_list();
+                Cell< MSI::Equation_Object* >& tEquationObj = mEquationBlocks( Ik )->get_equation_object_list();
 
                 // variables used for number of system check.
-                uint tNumEquationSys = 0;
+                uint tNumEquationSys    = 0;
                 bool tNumEquationSysSet = false;
 
                 // variables used for pdof host check
                 Matrix< DDUMat > tNumPdofsOnPdofHosts;
-                uint tNumPotentialPdofs = 0;
-                bool tNumPdofsOnPdofHostsSet = false;
+                uint             tNumPotentialPdofs      = 0;
+                bool             tNumPdofsOnPdofHostsSet = false;
 
                 for ( luint Ij = 0; Ij < tEquationObj.size(); ++Ij )
                 {
-                    const moris::Cell< moris::Cell< Pdof_Host * > > & tPdofHosts = tEquationObj( Ij )->get_pdof_hosts();
+                    const moris::Cell< moris::Cell< Pdof_Host* > >& tPdofHosts = tEquationObj( Ij )->get_pdof_hosts();
 
-                    if( !tNumEquationSysSet )
+                    if ( !tNumEquationSysSet )
                     {
                         tNumEquationSysSet = true;
-                        tNumEquationSys = tPdofHosts.size();
+                        tNumEquationSys    = tPdofHosts.size();
                     }
 
                     MORIS_ERROR( tPdofHosts.size() == tNumEquationSys,
-                            "Equation Objects on Set do not have the same number of systems. This might indicate that there are elements without vertices");
+                            "Equation Objects on Set do not have the same number of systems. This might indicate that there are elements without vertices" );
 
                     for ( luint Ii = 0; Ii < tPdofHosts.size(); ++Ii )
                     {
                         for ( luint Ia = 0; Ia < tPdofHosts( Ii ).size(); ++Ia )
                         {
-                            moris::Cell< moris::Cell< Pdof* > > & tPdofHostPdofList = tPdofHosts( Ii )( Ia )-> get_pdof_hosts_pdof_list();
+                            moris::Cell< moris::Cell< Pdof* > >& tPdofHostPdofList = tPdofHosts( Ii )( Ia )->get_pdof_hosts_pdof_list();
 
-                            if( !tNumPdofsOnPdofHostsSet )
+                            if ( !tNumPdofsOnPdofHostsSet )
                             {
                                 tNumPdofsOnPdofHostsSet = true;
-                                tNumPotentialPdofs = tPdofHostPdofList.size();
-                                tNumPdofsOnPdofHosts.set_size( tNumPotentialPdofs,1, 0 );
+                                tNumPotentialPdofs      = tPdofHostPdofList.size();
+                                tNumPdofsOnPdofHosts.set_size( tNumPotentialPdofs, 1, 0 );
 
                                 for ( luint Ib = 0; Ib < tNumPotentialPdofs; ++Ib )
                                 {
@@ -198,18 +209,17 @@ namespace moris
                             }
 
                             MORIS_ERROR( tNumPotentialPdofs == tPdofHostPdofList.size(),
-                                    "Some Pdof hosts on set have different number of potential pdofs. Check global dof type list!");
+                                    "Some Pdof hosts on set have different number of potential pdofs. Check global dof type list!" );
 
                             for ( luint Ib = 0; Ib < tPdofHostPdofList.size(); ++Ib )
                             {
                                 MORIS_ERROR( tNumPdofsOnPdofHosts( Ib ) == tPdofHostPdofList( Ib ).size(),
-                                        "Some Pdof hosts on set do not share the same dofs. Check dof dependencies in input file. (Especially ghost in parallel)");
+                                        "Some Pdof hosts on set do not share the same dofs. Check dof dependencies in input file. (Especially ghost in parallel)" );
                             }
                         }
                     }
                 }
             }
         }
-    }
-}
-
+    }    // namespace MSI
+}    // namespace moris

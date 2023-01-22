@@ -71,7 +71,7 @@ This unique map is used to create a map which maps the dof type to a dof index. 
         this->initialize_pdof_type_list( aListEqnObj );
 @endcode
 
-In a second step all pdof hosts are created. Therefore, it loops over all equation objects and akes the equation object to check if its pdof host exist and in case it does not,
+In a second step all pdof hosts are created. Therefore, it loops over all equation objects and aks the equation object to check if its pdof host exist and in case it does not,
 create the pdof hosts. The equation object stores the created pdof hosts in a given list. After all pdof hosts were created, they are inserted in a contiguous list.
 Unit tests are: [Dof_Mgn_ini_pdof_host_list]
 
