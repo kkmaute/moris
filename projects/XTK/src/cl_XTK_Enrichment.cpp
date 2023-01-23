@@ -1712,13 +1712,13 @@ namespace xtk
         // copy all information for each processor into matrices, instead of cells (for easier communication later)
         for ( uint iProc = 0; iProc < aBasisIdToBasisOwner.size(); iProc++ )
         {
-            tBasisIdToBasisOwnerMat( iProc ) = Matrix< IndexMat >( 1, aBasisIdToBasisOwner( iProc ).size() );
-            tSubphaseGroupIdInSupport( iProc )    = Matrix< IndexMat >( 1, aBasisIdToBasisOwner( iProc ).size() );
+            tBasisIdToBasisOwnerMat( iProc )   = Matrix< IndexMat >( 1, aBasisIdToBasisOwner( iProc ).size() );
+            tSubphaseGroupIdInSupport( iProc ) = Matrix< IndexMat >( 1, aBasisIdToBasisOwner( iProc ).size() );
 
             for ( uint jBF = 0; jBF < aBasisIdToBasisOwner( iProc ).size(); jBF++ )
             {
-                tBasisIdToBasisOwnerMat( iProc )( jBF ) = aBasisIdToBasisOwner( iProc )( jBF );
-                tSubphaseGroupIdInSupport( iProc )( jBF )    = aSubphaseGroupIdInSupport( iProc )( jBF );
+                tBasisIdToBasisOwnerMat( iProc )( jBF )   = aBasisIdToBasisOwner( iProc )( jBF );
+                tSubphaseGroupIdInSupport( iProc )( jBF ) = aSubphaseGroupIdInSupport( iProc )( jBF );
             }
 
             if ( aBasisIdToBasisOwner( iProc ).size() == 0 )
@@ -1732,9 +1732,9 @@ namespace xtk
         }
 
         // STEP 1: send request information to respective processors (no particular reason for these tag number choices)
-        moris_index tBasisIdsTag    = 1219;
+        moris_index tBasisIdsTag         = 1219;
         moris_index tMaxSubphaseGroupTag = 1220;
-        moris_index tReturnIdTag    = 1221;
+        moris_index tReturnIdTag         = 1221;
 
         for ( uint iProc = 0; iProc < tBasisIdToBasisOwnerMat.size(); iProc++ )
         {
@@ -1939,13 +1939,13 @@ namespace xtk
 
     bool
     Enrichment::subphase_is_in_support(
-            moris_index const& aEnrichmentDataIndex,
-            moris_index        aSubphaseIndex,
-            moris_index        aEnrichedBasisIndex )
+            moris_index const & aEnrichmentDataIndex,
+            moris_index         aSubphaseIndex,
+            moris_index         aEnrichedBasisIndex )
     {
-        // get list of 
-        moris::Matrix< moris::IndexMat > & tSPsInEnrBasis = mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInEnrichedBasis( aEnrichedBasisIndex );
-        
+        // get list of
+        moris::Matrix< moris::IndexMat >& tSPsInEnrBasis = mEnrichmentData( aEnrichmentDataIndex ).mSubphaseIndsInEnrichedBasis( aEnrichedBasisIndex );
+
         // get the number of SPs in support of curent enr. BF
         uint tNumSPsInSupport = tSPsInEnrBasis.numel();
 
@@ -1967,7 +1967,7 @@ namespace xtk
             {
                 return false;
             }
-        }  
+        }
 
         // if SP not found until here, return not found
         return false;
@@ -1977,13 +1977,13 @@ namespace xtk
 
     bool
     Enrichment::subphase_group_is_in_support(
-            moris_index const& aBsplineMeshListIndex,
-            moris_index        aSubphaseGroupIndex,
-            moris_index        aEnrichedBasisIndex )
+            moris_index const & aBsplineMeshListIndex,
+            moris_index         aSubphaseGroupIndex,
+            moris_index         aEnrichedBasisIndex )
     {
         // get list of SPGs in the enriched basis' suppport
-        moris::Matrix< moris::IndexMat > & tSPGsInEnrBasis = mEnrichmentData( aBsplineMeshListIndex ).mSubphaseGroupIndsInEnrichedBasis( aEnrichedBasisIndex );
-        
+        moris::Matrix< moris::IndexMat >& tSPGsInEnrBasis = mEnrichmentData( aBsplineMeshListIndex ).mSubphaseGroupIndsInEnrichedBasis( aEnrichedBasisIndex );
+
         // get the number of SPGs in support of curent enr. BF
         uint tNumSPGsInSupport = tSPGsInEnrBasis.numel();
 
@@ -1998,7 +1998,7 @@ namespace xtk
             {
                 return true;
             }
-        }  
+        }
 
         // if SPG not found until here, return not found
         return false;
@@ -2078,7 +2078,7 @@ namespace xtk
         this->construct_enriched_interpolation_vertices_and_cells();
 
         // TODO: check that there are no empty enriched T-matrices
-        // MORIS_ASSERT( this->check_for_empty_T_matrices(), 
+        // MORIS_ASSERT( this->check_for_empty_T_matrices(),
         //         "Enrichment::construct_enriched_interpolation_mesh() - "
         //         "Check for emtpy T-matrices failed. There should be a error statement previous to this." );
 
@@ -2159,8 +2159,8 @@ namespace xtk
         this->construct_UIPC_to_unzipping_index();
 
         // unzip all IP cells and vertices and construct the whole enr. IP mesh
-        // Note: This constructs all unzipped (i.e. enriched) IP cells with unzipped interpolation vertices being attached to 
-        // note: a single cell this also handles the case of multiple enrichments where the number of interpolation vertices vary 
+        // Note: This constructs all unzipped (i.e. enriched) IP cells with unzipped interpolation vertices being attached to
+        // note: a single cell this also handles the case of multiple enrichments where the number of interpolation vertices vary
         // this->construct_enriched_interpolation_vertices_and_cells_based_on_SPGs();
         this->construct_enriched_interpolation_vertices_and_cells_based_on_SPGs_new();
 
@@ -2187,15 +2187,6 @@ namespace xtk
 
         // tell the enriched IP mesh to finish setting itself up
         mXTKModelPtr->mEnrichedInterpMesh( 0 )->finalize_setup_new();
-
-        // initialize local to global maps
-        mXTKModelPtr->mEnrichedInterpMesh( 0 )->mLocalToGlobalMaps = Cell< Matrix< IdMat > >( 4 );
-        mXTKModelPtr->mEnrichedInterpMesh( 0 )->mGlobaltoLobalMaps = Cell< std::unordered_map< moris_id, moris_index > >( 4 );
-        mXTKModelPtr->mEnrichedInterpMesh( 0 )->setup_cell_maps();
-        mXTKModelPtr->mEnrichedInterpMesh( 0 )->setup_basis_maps();
-        mXTKModelPtr->mEnrichedInterpMesh( 0 )->assign_ip_vertex_ids();
-        mXTKModelPtr->mEnrichedInterpMesh( 0 )->setup_vertex_maps();
-        // FIXME: aren't the above steps already done in the finalize_setup() call in Enriched_Interpolation_Mesh::setup_local_to_global_maps()?
 
         // moris::Cell< mtk::Vertex* > tVerticesToCommunicate;
         // for(auto & iVert: mXTKModelPtr->mEnrichedInterpMesh(0)->mEnrichedInterpVerts)
@@ -2465,13 +2456,13 @@ namespace xtk
         // initialize subphase to UIPC map
         mSubphaseIndexToEnrIpCellIndex.resize( mCutIgMesh->get_num_subphases() );
 
-        /* Maps assembled below: 
-        * - mEnrIpCellIndices               // input: base IP cell index, index of unzipping || output: index of enr. IP cell
-        * - mSubphaseIndexToEnrIpCellIndex  // input: subphase index || output: enriched interpolation cell index
-        * - mUnzippingToSpgIndex            // input: B-spline mesh list index, base IP cell index, index of unzipping || output: SPG index the UIPC belongs to
-        * - mBaseIpCellAndSpgToUnzipping    // input: B-spline mesh list index, base IP cell index, SPG index local to corresponding B-spline element || output: Enr. IP cell index
-        * - mSpgToUipcIndex                 // input: B-spline mesh list index, SPG index || output: List of enr. IP cells / cell clusters on SPG
-        */
+        /* Maps assembled below:
+         * - mEnrIpCellIndices               // input: base IP cell index, index of unzipping || output: index of enr. IP cell
+         * - mSubphaseIndexToEnrIpCellIndex  // input: subphase index || output: enriched interpolation cell index
+         * - mUnzippingToSpgIndex            // input: B-spline mesh list index, base IP cell index, index of unzipping || output: SPG index the UIPC belongs to
+         * - mBaseIpCellAndSpgToUnzipping    // input: B-spline mesh list index, base IP cell index, SPG index local to corresponding B-spline element || output: Enr. IP cell index
+         * - mSpgToUipcIndex                 // input: B-spline mesh list index, SPG index || output: List of enr. IP cells / cell clusters on SPG
+         */
 
         // initialize lists with correct size for each B-spline mesh
         for ( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
@@ -2493,13 +2484,13 @@ namespace xtk
             // get the Union MSD indices for the current IP cell
             const Cell< moris_index >& tUnionMsdIndices = mCutIgMesh->get_union_MSD_indices_for_base_IP_cell( iIpCell );
             const uint                 tNumVoidUIPCs    = tUnionMsdIndices.size();
-            
+
             // get number of times this IP cell needs to be unzipped
             uint tNumUnzippingsOfIpCell = tNumSPs + tNumVoidUIPCs;
 
             // correct size for list of enr. IP cell indices on current Ip cell and their SPGs
             mEnrIpCellIndices( iIpCell ).resize( tNumUnzippingsOfIpCell );
-            
+
             // count up enriched IP cells to be constructed on the current base IP cell and index them
             for ( uint iUnzipping = 0; iUnzipping < tNumUnzippingsOfIpCell; iUnzipping++ )
             {
@@ -2521,7 +2512,7 @@ namespace xtk
             }
 
             // construct information on the UIPCs related to B-spline meshes
-            for( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
+            for ( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
             {
                 // get the current B-spline mesh info
                 Bspline_Mesh_Info* tBsplineMeshInfo = mBsplineMeshInfos( iBspMesh );
@@ -2542,7 +2533,7 @@ namespace xtk
                     // store the SPG index for this unzipping
                     mUnzippingToSpgIndex( iBspMesh )( iIpCell )( iUnzipping ) = tSpgIndex;
 
-                    // get the correspond UIPC's index 
+                    // get the correspond UIPC's index
                     moris_index tUipcIndex = mEnrIpCellIndices( iIpCell )( iUnzipping );
 
                     // get the local index of this SPG
@@ -2550,7 +2541,7 @@ namespace xtk
 
                     // store that the current UIPC is associated with this SPG
                     mSpgToUipcIndex( iBspMesh )( tSpgIndex ).push_back( tUipcIndex );
-                    mBaseIpCellAndSpgToUnzipping( iBspMesh )( iIpCell )( tLocalSpgIndex ) = tUipcIndex; 
+                    mBaseIpCellAndSpgToUnzipping( iBspMesh )( iIpCell )( tLocalSpgIndex ) = tUipcIndex;
                 }
 
                 // get the list of void MSD indices and convert it to a map
@@ -2567,7 +2558,7 @@ namespace xtk
                 Cell< bool > tFreeVoidMsdIndicesFound( tFreeVoidMsdIndices.size(), false );
 
                 // go over the union MSD indices (i.e. void clusters to be constructed on the current IP cell)
-                for( uint iUnionMSDI = 0; iUnionMSDI < tUnionMsdIndices.size(); iUnionMSDI++ )
+                for ( uint iUnionMSDI = 0; iUnionMSDI < tUnionMsdIndices.size(); iUnionMSDI++ )
                 {
                     // get the index of the unzipping
                     uint tUnzipping = tNumSPs + iUnionMSDI;
@@ -2579,7 +2570,7 @@ namespace xtk
                     moris_index tPositionInListOfVoidMSDIs = xtk::find_in_cell( tVoidMsdIndices, tUnionMsdIndex, tVoidMsdIndicesFound );
 
                     // if the MSD index is found among the void MSD indices, note this down
-                    if( tPositionInListOfVoidMSDIs != -1 )
+                    if ( tPositionInListOfVoidMSDIs != -1 )
                     {
                         // get the corresponding SPG
                         moris_index tSpgIndex = tVoidSpgIndices( tPositionInListOfVoidMSDIs );
@@ -2587,7 +2578,7 @@ namespace xtk
                         // assign the SPG used for enrichment
                         mUnzippingToSpgIndex( iBspMesh )( iIpCell )( tUnzipping ) = tSpgIndex;
 
-                        // get the correspond UIPC's index 
+                        // get the correspond UIPC's index
                         moris_index tUipcIndex = mEnrIpCellIndices( iIpCell )( tUnzipping );
 
                         // get the local index of this SPG
@@ -2595,19 +2586,19 @@ namespace xtk
 
                         // store that the current UIPC is associated with this SPG
                         mSpgToUipcIndex( iBspMesh )( tSpgIndex ).push_back( tUipcIndex );
-                        mBaseIpCellAndSpgToUnzipping( iBspMesh )( iIpCell )( tLocalSpgIndex ) = tUipcIndex; 
+                        mBaseIpCellAndSpgToUnzipping( iBspMesh )( iIpCell )( tLocalSpgIndex ) = tUipcIndex;
                     }
-                    else // if the MSD index doesn't correspond to one of the SPGs related to the current IP cell
+                    else    // if the MSD index doesn't correspond to one of the SPGs related to the current IP cell
                     {
                         // find the MSD index in the free void MSD indices for the current IP cell
                         moris_index tPositionInListOfFreeVoidMSDIs = xtk::find_in_cell( tFreeVoidMsdIndices, tUnionMsdIndex, tFreeVoidMsdIndicesFound );
 
                         // check that the index is found, if not something must be wrong
-                        MORIS_ERROR( tPositionInListOfFreeVoidMSDIs != -1, 
+                        MORIS_ERROR( tPositionInListOfFreeVoidMSDIs != -1,
                                 "Enrichment::allocate_interpolation_cells_based_on_SPGs_new() - "
                                 "Union MSD index #%i for IP cell #%i on B-spline mesh #%i neither found "
                                 "in void or free void MSD indices for this cell. There must be a bug.",
-                                tUnionMsdIndex, 
+                                tUnionMsdIndex,
                                 iIpCell,
                                 mMeshIndices( iBspMesh ) );
 
@@ -2615,7 +2606,7 @@ namespace xtk
                         mUnzippingToSpgIndex( iBspMesh )( iIpCell )( tUnzipping ) = -1;
                     }
 
-                } // end for: all Union free MSD indices on IP cell for current B-spline mesh
+                }    // end for: all Union free MSD indices on IP cell for current B-spline mesh
 
                 // check that the UIPCs on the current base IP cell on the current B-spline mesh have been fully assigned
                 MORIS_ERROR( xtk::punch_card_sum( tVoidMsdIndicesFound ) == tVoidMsdIndices.size(),
@@ -2632,9 +2623,9 @@ namespace xtk
                         iIpCell,
                         mMeshIndices( iBspMesh ) );
 
-            } // end for: all B-spline mesh indices
+            }    // end for: all B-spline mesh indices
 
-        } // end for: all base IP cells
+        }    // end for: all base IP cells
 
         // store the number of enr. IP cells
         mNumEnrIpCells = (moris_index)tEnrIpCellCounter;
@@ -3354,8 +3345,8 @@ namespace xtk
                 uint tNumUnzippings = this->get_num_unzippings_of_base_ip_cell( iIpCell );
 
                 // get the number of clusters with material in them
-                Cell< moris_index > const& tMaterialSpgIndices = mCutIgMesh->get_material_SPG_indices_for_base_IP_cell( iBspMesh, iIpCell );
-                uint tNumMaterialClusters = tMaterialSpgIndices.size();
+                Cell< moris_index > const & tMaterialSpgIndices  = mCutIgMesh->get_material_SPG_indices_for_base_IP_cell( iBspMesh, iIpCell );
+                uint                        tNumMaterialClusters = tMaterialSpgIndices.size();
 
                 // iterate through the enriched IP cells that are to be constructed on the current base IP cell
                 for ( uint iUnzipping = 0; iUnzipping < tNumUnzippings; iUnzipping++ )
@@ -3374,21 +3365,21 @@ namespace xtk
 
                     // get the SPG whose B-spline basis coefficients will be used
                     moris_index tBasisSpgIndex = -1;
-                    if( !tNeedsBasisExtension )
+                    if ( !tNeedsBasisExtension )
                     {
                         // for clusters with associated SPGs the assignement is trivial
                         tBasisSpgIndex = tAssociatedSpgIndex;
                     }
-                    else // extension needed
+                    else    // extension needed
                     {
                         // if one of the material clusters requests an extension something must have gone wrong
                         bool tIsVoidCluster = ( iUnzipping >= tNumMaterialClusters );
-                        MORIS_ERROR( tIsVoidCluster, 
+                        MORIS_ERROR( tIsVoidCluster,
                                 "Enrichment::construct_enriched_interpolation_vertices_and_cells_new() - "
                                 "Unzipping #%i on base IP cell #%i (which should result in a material cluster) "
                                 "marked for extension on B-spline mesh #%i. This shouldn't happen.",
                                 iUnzipping,
-                                iIpCell, 
+                                iIpCell,
                                 iBspMesh );
 
                         // see if a trivial extension is possible and if so, get the SPG from which the basis will be copied
@@ -3404,9 +3395,9 @@ namespace xtk
                     // initialize the enriched T-matrix
                     Vertex_Enrichment tVertEnrichment;
 
-                    // if the cluster doesn't need extension, or the extension is trivial, 
+                    // if the cluster doesn't need extension, or the extension is trivial,
                     // just collect the basis indices and compute the T-matrices for the individual vertices based on position later
-                    if( !tBasisExtensionIsNonTrival )
+                    if ( !tBasisExtensionIsNonTrival )
                     {
                         // get list of non-enriched basis indices interpolating into the current subphase group
                         Cell< moris_index > tBasisInCell = mEnrichmentData( tMeshIndex ).mSubphaseGroupBGBasisIndices( tBasisSpgIndex );
@@ -3414,9 +3405,9 @@ namespace xtk
                         // construct a map between non-enriched BF index and index relative to the list of basis interpolating into the current SPG
                         convert_cell_to_map( tBasisInCell, tBasisInCellMap );
                     }
-                    else // if a non-trivial basis extension is needed ...
+                    else    // if a non-trivial basis extension is needed ...
                     {
-                        // ... collect the basis indices and their weights in a larger B-spline element 
+                        // ... collect the basis indices and their weights in a larger B-spline element
                         // and construct a T-matrix that produces represents an average of the field
                         // this T-matrix will be copied into the enriched vertices where needed
                         this->construct_averaged_T_matrix_for_extension_on_enriched_IP_cell(
@@ -3431,7 +3422,7 @@ namespace xtk
                     for ( uint iIpCellVertex = 0; iIpCellVertex < tNumVertices; iIpCellVertex++ )
                     {
                         // if the cluster doesn't need extension, or the extension is trivial ...
-                        if( !tBasisExtensionIsNonTrival )
+                        if ( !tBasisExtensionIsNonTrival )
                         {
                             // ... create the enriched T-matrices in the usual manner
                             this->construct_enriched_vertex_interpolation(
@@ -3441,16 +3432,16 @@ namespace xtk
                                     tBasisInCellMap,
                                     tVertEnrichment );
                         }
-                        else // else: the T-matrix to be copied is already filled with the average
+                        else    // else: the T-matrix to be copied is already filled with the average
                         {
                             // only set the related base vertex to the already constructed T-matrix
                             tVertEnrichment.add_base_vertex_interpolation( tVertexInterpolations( iIpCellVertex ) );
                         }
 
                         // add vertex enrichment to enriched interpolation mesh
-                        bool tNewVertFlag = false;
-                        mtk::Vertex* tBaseVertexPtr = tVertices( iIpCellVertex );
-                        moris_index tVertEnrichIndex = tEnrInterpMesh->add_vertex_enrichment(
+                        bool         tNewVertFlag     = false;
+                        mtk::Vertex* tBaseVertexPtr   = tVertices( iIpCellVertex );
+                        moris_index  tVertEnrichIndex = tEnrInterpMesh->add_vertex_enrichment(
                                 tMeshIndex,
                                 tBaseVertexPtr,    // feed non-enriched Vertex
                                 tVertEnrichment,
@@ -3464,10 +3455,10 @@ namespace xtk
                             // Create interpolation vertex with only the first Vertex enrichment
                             tEnrInterpMesh->mEnrichedInterpVerts( tVertexCount ) =
                                     new Interpolation_Vertex_Unzipped(
-                                            tBaseVertexPtr,                                                           // non-enriched IP vertices
-                                            tVertId,                                                                  // current IP vertex' ID
-                                            tVertexCount,                                                             // index for enriched IP vertex
-                                            tBaseVertexPtr->get_owner(),                                              // owning proc
+                                            tBaseVertexPtr,                 // non-enriched IP vertices
+                                            tVertId,                        // current IP vertex' ID
+                                            tVertexCount,                   // index for enriched IP vertex
+                                            tBaseVertexPtr->get_owner(),    // owning proc
                                             // NOTE: the two inputs below are only for initialization, not final information
                                             tMeshIndex,                                                               // current DMI
                                             tEnrInterpMesh->get_vertex_enrichment( tMeshIndex, tVertEnrichIndex ),    // T-matrix
@@ -3485,13 +3476,13 @@ namespace xtk
                         else
                         {
                             // the unzipped interpolation vertex' index
-                            moris_index tVertexIndexInIp = tEnrInterpCellToVertex( tUipcIndex, iIpCellVertex );
+                            moris_index tUipvIndex = tEnrInterpCellToVertex( tUipcIndex, iIpCellVertex );
 
                             // get the vertex interpolation to be added
                             Vertex_Enrichment* tVertEnrichmentToAddToUipv = tEnrInterpMesh->get_vertex_enrichment( tMeshIndex, tVertEnrichIndex );
 
                             // add the vertex interpolation for new mesh index
-                            tEnrInterpMesh->mEnrichedInterpVerts( tVertexIndexInIp )    //
+                            tEnrInterpMesh->mEnrichedInterpVerts( tUipvIndex )    //
                                     ->add_vertex_interpolation( tMeshIndex, tVertEnrichmentToAddToUipv );
                         }
                     }    // end for: loop over IP vertices
@@ -3531,11 +3522,11 @@ namespace xtk
 
                     // get the bulk-phase index, even for void clusters their hypothetical primary bulk-phase index
                     moris_index tBulkPhaseIndex = -1;
-                    if( !tNeedsBasisExtension )
+                    if ( !tNeedsBasisExtension )
                     {
                         tBulkPhaseIndex = mBsplineMeshInfos( iBspMesh )->get_bulk_phase_for_subphase_group( tAssociatedSpgIndex );
                     }
-                    
+
                     // store SPG and Bulk-phase indices for the current mesh index
                     tEnrInterpMesh->mEnrichedInterpCells( tUipcIndex )    //
                             ->set_SPG_and_BP_indices_for_DM_list_index( iBspMesh, tAssociatedSpgIndex, tBulkPhaseIndex );
@@ -3574,9 +3565,9 @@ namespace xtk
     //-------------------------------------------------------------------------------------
 
     moris_index
-    Enrichment::get_SPG_for_basis_extension( 
-            const moris_index aIpCellIndex, 
-            const moris_index aUnzippingOnIpCell, 
+    Enrichment::get_SPG_for_basis_extension(
+            const moris_index aIpCellIndex,
+            const moris_index aUnzippingOnIpCell,
             const moris_index aBsplineMeshIndex ) const
     {
 
@@ -3595,25 +3586,25 @@ namespace xtk
         moris_index tMsdIndex = mCutIgMesh->get_union_MSD_indices_for_base_IP_cell( aIpCellIndex )( tVoidUnzipping );
 
         // get the list of void Msd Indices
-        Cell< moris_index > const& tVoidMsdIndices = mCutIgMesh->get_void_MSD_indices_for_base_IP_cell( aBsplineMeshIndex, aIpCellIndex );
+        Cell< moris_index > const & tVoidMsdIndices = mCutIgMesh->get_void_MSD_indices_for_base_IP_cell( aBsplineMeshIndex, aIpCellIndex );
 
         // check if the the MSD index is found in that list
         moris_index tPositionFound = xtk::find_in_cell( tVoidMsdIndices, tMsdIndex );
 
         // if found ...
-        if( tPositionFound > -1 )
+        if ( tPositionFound > -1 )
         {
             // ... return the corresponding SPG
             return mCutIgMesh->get_void_SPG_indices_for_base_IP_cell( aBsplineMeshIndex, aIpCellIndex )( tPositionFound );
         }
-        else // if not found among the void MSD indices...
+        else    // if not found among the void MSD indices...
         {
             // ... check if the MSD index is found in the list of material MSD indices
-            Cell< moris_index > const& tMaterialMsdIndices = mCutIgMesh->get_material_MSD_indices_for_base_IP_cell( aBsplineMeshIndex, aIpCellIndex );
-            moris_index tPositionFoundMaterial = xtk::find_in_cell( tMaterialMsdIndices, tMsdIndex );
+            Cell< moris_index > const & tMaterialMsdIndices    = mCutIgMesh->get_material_MSD_indices_for_base_IP_cell( aBsplineMeshIndex, aIpCellIndex );
+            moris_index                 tPositionFoundMaterial = xtk::find_in_cell( tMaterialMsdIndices, tMsdIndex );
 
             // if it is found in the list of material MSD indices ...
-            if( tPositionFoundMaterial > -1 )
+            if ( tPositionFoundMaterial > -1 )
             {
                 // ... return the corresponding SPG
                 return mCutIgMesh->get_material_SPG_indices_for_base_IP_cell( aBsplineMeshIndex, aIpCellIndex )( tPositionFoundMaterial );
@@ -3627,19 +3618,19 @@ namespace xtk
     //-------------------------------------------------------------------------------------
 
     void
-    Enrichment::construct_averaged_T_matrix_for_extension_on_enriched_IP_cell( 
+    Enrichment::construct_averaged_T_matrix_for_extension_on_enriched_IP_cell(
             const moris_index  aIpCellIndex,
             const moris_index  aUnzippingIndex,
             const moris_index  aBsplineMeshIndex,
             Vertex_Enrichment& aAverageEnrichedTmatrix ) const
     {
-        // check that the B-spline mesh index makes sense 
+        // check that the B-spline mesh index makes sense
         MORIS_ERROR( aBsplineMeshIndex != mCutIgMesh->get_coarsest_bspline_mesh_index_on_base_ip_cell( aIpCellIndex ),
                 "Enrichment::collect_enriched_basis_indices_in_coarsest_Bspline_element() - "
                 "A non-trival basis extension should never be requested on the coarsest B-spline mesh, as a trivial one always exists." );
-        
+
         // get the SPs in the material subdomain whose field needs to be extended
-        Cell< moris_index > const& tSpsInMaterialSubDomain = 
+        Cell< moris_index > const & tSpsInMaterialSubDomain =
                 this->collect_SPs_in_coarsest_element_in_same_material_subdomain_as_unzipped_cell( aIpCellIndex, aUnzippingIndex );
         uint tNumSpsInCoarsestElement = tSpsInMaterialSubDomain.size();
 
@@ -3649,11 +3640,11 @@ namespace xtk
 
         // for each SP, and therefore material cluster, that exists in this material sub-domain on the coarsest B-spline element
         // collect an averaged T-matrix
-        for( uint iMaterialCluster = 0; iMaterialCluster < tNumSpsInCoarsestElement; iMaterialCluster++ )
+        for ( uint iMaterialCluster = 0; iMaterialCluster < tNumSpsInCoarsestElement; iMaterialCluster++ )
         {
             // create a new T-matrix
             tAvgTmatrices( iMaterialCluster ) = new Vertex_Enrichment();
-            
+
             // compute the averaged enriched T-matrix for this cluster
             this->get_averaged_vertex_enrichment_for_subphase(
                     tSpsInMaterialSubDomain( iMaterialCluster ),
@@ -3661,13 +3652,13 @@ namespace xtk
                     tAvgTmatrices( iMaterialCluster ) );
 
             // get the relative volume of the Lagrange element
-            moris_index tSpIndex = tSpsInMaterialSubDomain( iMaterialCluster );
-            mtk::Cell* tBaseIpCell = mCutIgMesh->get_subphase_parent_cell( tSpIndex );
-            real tRefinementLevel = (real) tBaseIpCell->get_base_cell()->get_level();
-            real tNumSpatialDims = (real) mXTKModelPtr->get_spatial_dim();
+            moris_index tSpIndex                       = tSpsInMaterialSubDomain( iMaterialCluster );
+            mtk::Cell*  tBaseIpCell                    = mCutIgMesh->get_subphase_parent_cell( tSpIndex );
+            real        tRefinementLevel               = (real)tBaseIpCell->get_base_cell()->get_level();
+            real        tNumSpatialDims                = (real)mXTKModelPtr->get_spatial_dim();
             tRelativeIpCellVolumes( iMaterialCluster ) = std::pow( 0.5, tNumSpatialDims * tRefinementLevel );
 
-        } // end for: loop over material clusters for a given material sub-domain
+        }    // end for: loop over material clusters for a given material sub-domain
 
         // create and compute average T-matrix
         aAverageEnrichedTmatrix = Vertex_Enrichment();
@@ -3687,12 +3678,12 @@ namespace xtk
     {
         // create dummy information
         Matrix< IndexMat > tBasisIndices( 1, 1, MORIS_INDEX_MAX - 1 );
-        Matrix< IdMat >    tBasisIds(     1, 1, MORIS_ID_MAX - 1 );
-        Matrix< IndexMat > tBasisOwners(  1, 1, 0 );
+        Matrix< IdMat >    tBasisIds( 1, 1, MORIS_ID_MAX - 1 );
+        Matrix< IndexMat > tBasisOwners( 1, 1, 0 );
         Matrix< DDRMat >   tBasisWeights( 1, 1, std::numeric_limits< real >::signaling_NaN() );
 
         // create map storing relationship between proc-local basis index and the position in the map
-        IndexMap& tBasisIndexToPositionMap = aDummyEnrichedTmatrix.get_basis_map();
+        IndexMap& tBasisIndexToPositionMap              = aDummyEnrichedTmatrix.get_basis_map();
         tBasisIndexToPositionMap[ MORIS_INDEX_MAX - 1 ] = 0;
 
         // add the dummy information to the T-matrix
@@ -3713,7 +3704,7 @@ namespace xtk
         // check that the inputs make sense
         MORIS_ASSERT( aAverageTmatrices.size() == aWeights.size(),
                 "Enrichment::average_T_matrices() - Number of T-matrices and weights provided do not match." );
-        
+
         // initialize map finding position of basis indices in complete list of indices
         IndexMap& tBasisIndexToPositionMap = aAverageEnrichedTmatrix.get_basis_map();
         MORIS_ASSERT( tBasisIndexToPositionMap.size() == 0,
@@ -3723,13 +3714,13 @@ namespace xtk
         uint tNumBfIndices = 0;
 
         // go over all basis indices and register them in the map
-        for( uint iTmatrix = 0; iTmatrix < aAverageTmatrices.size(); iTmatrix++ )
+        for ( uint iTmatrix = 0; iTmatrix < aAverageTmatrices.size(); iTmatrix++ )
         {
             // get all the basis indices
-            Matrix< IndexMat > const& tBasisIndices = aAverageTmatrices( iTmatrix )->get_basis_indices();
+            Matrix< IndexMat > const & tBasisIndices = aAverageTmatrices( iTmatrix )->get_basis_indices();
 
             // loop  over the basis indices in the current T-matrix and register them
-            for( uint iBF = 0; iBF < tBasisIndices.numel(); iBF++ )
+            for ( uint iBF = 0; iBF < tBasisIndices.numel(); iBF++ )
             {
                 // get the current enr. basis index
                 moris_index tBfIndex = tBasisIndices( iBF );
@@ -3738,7 +3729,7 @@ namespace xtk
                 auto tIter = tBasisIndexToPositionMap.find( tBfIndex );
 
                 // if the index is not yet registered in the map add it and give it a position index
-                if( tIter == tBasisIndexToPositionMap.end() )
+                if ( tIter == tBasisIndexToPositionMap.end() )
                 {
                     tBasisIndexToPositionMap[ tBfIndex ] = tNumBfIndices;
                     tNumBfIndices++;
@@ -3748,12 +3739,12 @@ namespace xtk
 
         // initialize T-matrix data
         Matrix< IndexMat > tAvgBasisIndices( tNumBfIndices, 1, MORIS_INDEX_MAX );
-        Matrix< IdMat >    tAvgBasisIds(     tNumBfIndices, 1, MORIS_ID_MAX );
-        Matrix< IndexMat > tAvgBasisOwners(  tNumBfIndices, 1, MORIS_INDEX_MAX );
+        Matrix< IdMat >    tAvgBasisIds( tNumBfIndices, 1, MORIS_ID_MAX );
+        Matrix< IndexMat > tAvgBasisOwners( tNumBfIndices, 1, MORIS_INDEX_MAX );
         Matrix< DDRMat >   tAvgBasisWeights( tNumBfIndices, 1, 0.0 );
 
         // loop over all T-matrices and add their information into the average T-matrix information
-        for( uint iTmatrix = 0; iTmatrix < aAverageTmatrices.size(); iTmatrix++ )
+        for ( uint iTmatrix = 0; iTmatrix < aAverageTmatrices.size(); iTmatrix++ )
         {
             // get the information
             Matrix< IndexMat > const & tBasisIndices = aAverageTmatrices( iTmatrix )->get_basis_indices();
@@ -3762,11 +3753,11 @@ namespace xtk
             Matrix< DDRMat > const &   tBasisWeights = aAverageTmatrices( iTmatrix )->get_basis_weights();
 
             // loop  over the basis indices in the current T-matrix and register them
-            for( uint iBF = 0; iBF < tBasisIndices.numel(); iBF++ )
+            for ( uint iBF = 0; iBF < tBasisIndices.numel(); iBF++ )
             {
                 // get the current enr. basis index and position in map
                 moris_index tBfIndex = tBasisIndices( iBF );
-                moris_index tPos = tBasisIndexToPositionMap.find( tBfIndex )->second;
+                moris_index tPos     = tBasisIndexToPositionMap.find( tBfIndex )->second;
 
                 // fill information
                 tAvgBasisIndices( tPos ) = tBasisIndices( iBF );
@@ -3784,7 +3775,7 @@ namespace xtk
         // average the weighted sum of weights
         tAvgBasisWeights = tAvgBasisWeights / tSumOfWeights;
 
-        // copy the information into the 
+        // copy the information into the
         aAverageEnrichedTmatrix.add_basis_information( tAvgBasisIndices, tAvgBasisIds );
         aAverageEnrichedTmatrix.add_basis_owners( tAvgBasisIndices, tAvgBasisOwners );
         aAverageEnrichedTmatrix.add_basis_weights( tAvgBasisIndices, tAvgBasisWeights );
@@ -3795,7 +3786,7 @@ namespace xtk
 
     //-------------------------------------------------------------------------------------
 
-    Cell< moris_index > const&
+    Cell< moris_index > const &
     Enrichment::collect_SPs_in_coarsest_element_in_same_material_subdomain_as_unzipped_cell(
             const moris_index aIpCellIndex,
             const moris_index aUnzippingIndex ) const
@@ -3816,9 +3807,9 @@ namespace xtk
         moris_index tMsdIndex = mCutIgMesh->get_union_MSD_indices_for_base_IP_cell( aIpCellIndex )( tVoidUnzipping );
 
         // get access to the B-spline mesh information for the coarsest and current B-spline meshes
-        moris_index tCoarsestBspElemMeshIndex = mCutIgMesh->get_coarsest_bspline_mesh_index_on_base_ip_cell( aIpCellIndex );
-        Bspline_Mesh_Info* tCoarsestBspMeshInfo = mBsplineMeshInfos( tCoarsestBspElemMeshIndex );
-        
+        moris_index        tCoarsestBspElemMeshIndex = mCutIgMesh->get_coarsest_bspline_mesh_index_on_base_ip_cell( aIpCellIndex );
+        Bspline_Mesh_Info* tCoarsestBspMeshInfo      = mBsplineMeshInfos( tCoarsestBspElemMeshIndex );
+
         // get the SPs in the material subdomain whose field needs to be extended and return them
         moris_index tCoarseSpgIndex = tCoarsestBspMeshInfo->get_SPG_indices_associated_with_extraction_cell( aIpCellIndex )( tMsdIndex );
         return tCoarsestBspMeshInfo->mSubphaseGroups( tCoarseSpgIndex )->get_SP_indices_in_group();
@@ -3843,12 +3834,12 @@ namespace xtk
 
         // get access to the T-matrices of the non-enriched vertices
         moris::Cell< mtk::Vertex_Interpolation* > tVertexInterpolations = this->get_vertex_interpolations( *tIpCell, aBsplineMeshIndex );
-        uint tNumVertices = tVertexInterpolations.size();
+        uint                                      tNumVertices          = tVertexInterpolations.size();
 
         // check that there are no empty aura vertices
         for ( uint iVert = 0; iVert < tVertexInterpolations.size(); iVert++ )
         {
-            if( tVertexInterpolations( iVert ) == nullptr )
+            if ( tVertexInterpolations( iVert ) == nullptr )
             {
                 // if there is one, return a nullptr for the averaged T-matrix
                 aAveragedTmatrix = nullptr;
@@ -3877,14 +3868,14 @@ namespace xtk
             Matrix< IndexMat > tBaseVertCoeffInds = tVertexInterpolations( iVert )->get_indices();
 
             // treat each basis index from previous list
-            for( uint iBF = 0; iBF < tBaseVertCoeffInds.numel(); iBF++ )
+            for ( uint iBF = 0; iBF < tBaseVertCoeffInds.numel(); iBF++ )
             {
                 // get the index of the current base BF
                 moris_index tBfIndex = tBaseVertCoeffInds( iBF );
 
                 // find it in list of basis indices in the current SPG
                 auto tIter = tBasisInSpgMap.find( tBfIndex );
-                MORIS_ASSERT( tIter != tBasisInSpgMap.end(), 
+                MORIS_ASSERT( tIter != tBasisInSpgMap.end(),
                         "Enrichment::get_averaged_vertex_enrichment_for_subphase() - "
                         "Interpolation vertex contains contribution from basis that is not in the "
                         "list of basis indices in SPG #%i in the enrichment data for B-spline mesh #%i",
@@ -3901,7 +3892,7 @@ namespace xtk
                 moris_index tEnrBfIndex = mEnrichmentData( aBsplineMeshIndex ).mBasisEnrichmentIndices( tBfIndex )( tEnrLev );
 
                 // check if this enriched basis function has already been found, if not ...
-                if( tEnrBasisIndexToPositionMap.find( tEnrBfIndex ) == tEnrBasisIndexToPositionMap.end() )
+                if ( tEnrBasisIndexToPositionMap.find( tEnrBfIndex ) == tEnrBasisIndexToPositionMap.end() )
                 {
                     // ... store it and count up the number of active basis functions
                     tEnrBasisIndexToPositionMap[ tEnrBfIndex ] = tNumActiveBFs;
@@ -3909,21 +3900,21 @@ namespace xtk
                 }
             }
         }
-        
+
         // initialize list of averaged weights
         Matrix< IndexMat > tEnrBasisIndices( tNumActiveBFs, 1, MORIS_INDEX_MAX );
-        Matrix< IdMat >    tEnrBasisIds(     tNumActiveBFs, 1, MORIS_ID_MAX );
-        Matrix< IndexMat > tEnrBasisOwners(  tNumActiveBFs, 1, MORIS_INDEX_MAX );
+        Matrix< IdMat >    tEnrBasisIds( tNumActiveBFs, 1, MORIS_ID_MAX );
+        Matrix< IndexMat > tEnrBasisOwners( tNumActiveBFs, 1, MORIS_INDEX_MAX );
         Matrix< DDRMat >   tAveragedWeights( tNumActiveBFs, 1, 0.0 );
 
         // find enriched BF indices and IDs for every basis coefficient interpolating into the current subphase
         for ( uint iVert = 0; iVert < tNumVertices; iVert++ )
         {
             // collect information from non-enriched T-matrices
-            uint tNumCoeffs = tVertexInterpolations( iVert )->get_number_of_coefficients();
-            Matrix< IndexMat > tBaseVertCoeffInds = tVertexInterpolations( iVert )->get_indices();
-            Matrix< IndexMat > tBaseVertOwners = tVertexInterpolations( iVert )->get_owners();
-            const Matrix< DDRMat >* tBaseVertWeights = tVertexInterpolations( iVert )->get_weights();
+            uint                    tNumCoeffs         = tVertexInterpolations( iVert )->get_number_of_coefficients();
+            Matrix< IndexMat >      tBaseVertCoeffInds = tVertexInterpolations( iVert )->get_indices();
+            Matrix< IndexMat >      tBaseVertOwners    = tVertexInterpolations( iVert )->get_owners();
+            const Matrix< DDRMat >* tBaseVertWeights   = tVertexInterpolations( iVert )->get_weights();
 
             // find enriched BF indices and IDs for every basis coefficient interpolating into the current element
             for ( uint iBF = 0; iBF < tNumCoeffs; iBF++ )
@@ -3933,7 +3924,7 @@ namespace xtk
 
                 // find it in list of basis indices in the current SPG
                 auto tIterPosInSpg = tBasisInSpgMap.find( tBfIndex );
-                MORIS_ASSERT( tIterPosInSpg != tBasisInSpgMap.end(), 
+                MORIS_ASSERT( tIterPosInSpg != tBasisInSpgMap.end(),
                         "Enrichment::get_averaged_vertex_enrichment_for_subphase() - "
                         "Interpolation vertex contains contribution from basis that is not in the "
                         "list of basis indices in SPG #%i in the enrichment data for B-spline mesh #%i",
@@ -3951,7 +3942,7 @@ namespace xtk
 
                 // get the position in the T-matrix
                 auto tIterPosInTmat = tEnrBasisIndexToPositionMap.find( tEnrBfIndex );
-                MORIS_ASSERT( tIterPosInTmat != tEnrBasisIndexToPositionMap.end(), 
+                MORIS_ASSERT( tIterPosInTmat != tEnrBasisIndexToPositionMap.end(),
                         "Enrichment::get_averaged_vertex_enrichment_for_subphase() - "
                         "Map giving position to enriched basis indices in averaged T-matrix doesn't contain index. "
                         "Something must have gone wrong in the construction of that map." );
@@ -3959,15 +3950,15 @@ namespace xtk
 
                 // store the indices and IDs
                 tEnrBasisIndices( tPosOfBfInTmat ) = tEnrBfIndex;
-                tEnrBasisIds( tPosOfBfInTmat ) = mEnrichmentData( aBsplineMeshIndex ).mEnrichedBasisIndexToId( tEnrBfIndex );
-                tEnrBasisOwners( tPosOfBfInTmat ) = tBaseVertOwners( iBF );
-                
+                tEnrBasisIds( tPosOfBfInTmat )     = mEnrichmentData( aBsplineMeshIndex ).mEnrichedBasisIndexToId( tEnrBfIndex );
+                tEnrBasisOwners( tPosOfBfInTmat )  = tBaseVertOwners( iBF );
+
                 // sum up the total basis weights
-                tAveragedWeights( tPosOfBfInTmat ) += (*tBaseVertWeights)( iBF );
+                tAveragedWeights( tPosOfBfInTmat ) += ( *tBaseVertWeights )( iBF );
 
-            } // end for: basis interpolating into vertex
+            }    // end for: basis interpolating into vertex
 
-        } // end for: vertices on IP cell
+        }    // end for: vertices on IP cell
 
         // average the weights
         tAveragedWeights = tAveragedWeights / (real)tNumVertices;
@@ -3976,7 +3967,7 @@ namespace xtk
         aAveragedTmatrix->add_basis_information( tEnrBasisIndices, tEnrBasisIds );
         aAveragedTmatrix->add_basis_owners( tEnrBasisIndices, tEnrBasisOwners );
         aAveragedTmatrix->add_basis_weights( tEnrBasisIndices, tAveragedWeights );
-        aAveragedTmatrix->add_base_vertex_interpolation( nullptr );   
+        aAveragedTmatrix->add_base_vertex_interpolation( nullptr );
     }
 
     //-------------------------------------------------------------------------------------
@@ -4297,7 +4288,7 @@ namespace xtk
                 // find the coefficients index within this subphase cluster
                 auto tIter = aMapBasisIndexToLocInSubPhase.find( tCoeffIndex );
 
-                MORIS_ASSERT( tIter != aMapBasisIndexToLocInSubPhase.end(), 
+                MORIS_ASSERT( tIter != aMapBasisIndexToLocInSubPhase.end(),
                         "Enrichment::construct_enriched_vertex_interpolation() - Basis not found in vertex map" );
 
                 // The basis local index relative to the subphase

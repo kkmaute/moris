@@ -121,7 +121,7 @@ namespace moris
                 moris::Cell< moris::Cell< Adof* > >& aAdofList,
                 Model_Solver_Interface*              aModelSolverInterface )
         {
-            // Get number of pdof Types in this pdof host
+            // Get number of DoF Types (i.e. number of PDofs created on this node/host per DoF in time direction)
             uint tNumPdofTypes = mListOfPdofTimePerType.size();
 
             // Loop over all pdof types to create adofs
