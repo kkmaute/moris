@@ -575,7 +575,7 @@ namespace moris
                     // get the mesh index from the parameter list
                     moris_index tMeshIndex = MSI::get_mesh_index_for_dof_type( tDofTypeEnum, mMSIParameterList( 0 )( 0 ) );
 
-                    // store mesh index for DoT type in map
+                    // store mesh index for Dof type in map
                     tDofTypeToMeshIndex[ tDofTypeEnum ] = tMeshIndex;
                 }
             }

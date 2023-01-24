@@ -31,6 +31,7 @@ namespace moris
         {
             enum class IWG_Property_Type
             {
+                L2COEFFICIENT,    // coefficient for L2 norm term
                 H1COEFFICIENT,    // coefficient for H1 semi-norm term
                 DIFFUSION,        // diffusion coefficient
                 SOURCE,           // source term
