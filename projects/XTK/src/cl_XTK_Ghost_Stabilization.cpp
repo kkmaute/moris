@@ -42,6 +42,9 @@ namespace xtk
     void
     Ghost_Stabilization::setup_ghost_stabilization()
     {
+        // get access to the B-spline mesh information
+        mMeshIndices = mXTKModel->mEnrichment->get_mesh_indices();
+
         Ghost_Setup_Data tGhostSetupData;
 
         // construct trivial subphase interpolation cells
