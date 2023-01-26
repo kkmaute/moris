@@ -2406,7 +2406,7 @@ namespace moris
                     }
                 }
 
-                // this is kind of a hack. recommending rewriting it properly when rewriting GEN
+                // FIXME: this is kind of a hack. recommending rewriting it properly when rewriting GEN (why is it a hack, what should be done about it?)
                 if ( tSetPointer->get_set_type() == moris::SetType::DOUBLE_SIDED_SIDESET )
                 {
                     // loop over the clusters on mesh set

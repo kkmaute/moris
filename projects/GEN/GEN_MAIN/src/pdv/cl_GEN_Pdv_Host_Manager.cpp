@@ -995,7 +995,7 @@ namespace moris
                                 // get position of communicating processor in communication table
                                 moris::sint tProcIdPos = tCommTableMap( tProcIndex, 0 );
 
-                                // check that processor exists in communication talbe
+                                // check that processor exists in communication table
                                 MORIS_ASSERT( tProcIdPos != -1,
                                         "Pdv_Host_Manager::communicate_check_if_owned_pdv_exists: Processor does ",
                                         "not exist in communication table" );
@@ -1555,7 +1555,7 @@ namespace moris
                     // Check if owning processor is this processor
                     if ( mIntersectionNodes( tMeshNodeIndex )->get_owner() != par_rank() )
                     {
-                        // get owning procssor
+                        // get owning processor
                         moris::moris_id tProcID = mIntersectionNodes( tMeshNodeIndex )->get_owner();
 
                         moris::sint tProcIdPos = tCommTableMap( tProcID );
@@ -1673,7 +1673,7 @@ namespace moris
             Matrix< DDUMat > tListSharedPdvIds( tSharedCounter, 1, MORIS_UINT_MAX );
             Matrix< DDUMat > tListSharedPdvPos( tSharedCounter, 1, MORIS_UINT_MAX );
 
-            // assemble Ids in list of shared pdv ids and assemble the corresponding postions
+            // assemble Ids in list of shared pdv ids and assemble the corresponding positions
             for ( moris::uint Ik = 0; Ik < tMatsToReceive2.size(); Ik++ )
             {
                 if ( tMatsToReceive2( Ik ).numel() >= 1 )
