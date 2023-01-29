@@ -33,8 +33,14 @@ class Moris(CMakePackage):
 
     version('main', branch='main', submodules=True, preferred=True)
 
-    variant( 'default',     default=True,    description='Compile with default setting'          )
-
+    variant("default",  default=True, description="Compile with default setting")
+    variant("petsc",    default=True, description="Compile with support for petsc")
+    variant("pardiso",  default=True, description="Compile with support for pardiso solver")
+    variant("mumps",    default=True, description="Compile with support for mumps solver")
+    variant("gcmma",    default=True, description="Compile with support for gcmma algorithm")
+    variant("snopt",    default=True, description="Compile with support for snopt algorithm")
+    variant("lbfgs",    default=True, description="Compile with support for lbfgs algorithm")
+    
     depends_on('armadillo@9.800.3')
 
     depends_on('arpack-ng@3.8.0')
@@ -43,23 +49,27 @@ class Moris(CMakePackage):
 
     depends_on('eigen')
 
-    depends_on('gcmma')
-
+    depends_on('gcmma', when="+gcmma")
+    
     depends_on('hdf5')
 
-    depends_on('lbfgs')
+    depends_on('lbfgs', when="+lbfgs")
  
     depends_on('mpi')
  
     depends_on('superlu')
     
-    depends_on('snopt')
+    depends_on('snopt', when="+snopt")
 
     depends_on('trilinos@13.4')
-    depends_on('trilinos+boost+hdf5+mpi+mumps+suite-sparse+superlu-dist+pardiso+amesos+anasazi+aztec+belos+chaco+epetra+exodus+ifpack+ifpack2+ml+rol+stk+zoltan2')
-
-    depends_on('petsc@3.17.4')
-    depends_on('petsc+mpi+metis+hypre+mumps+mkl-pardiso+suite-sparse')
+    depends_on('trilinos+boost+hdf5+mpi+suite-sparse+superlu-dist+amesos+anasazi+aztec+belos+chaco+epetra+exodus+ifpack+ifpack2+ml+rol+stk+zoltan2')
+    depends_on('trilinos+mumps',   when="+mumps")
+    depends_on('trilinos+pardiso', when="+pardiso")
+    
+    depends_on('petsc@3.17.4', when="+petsc")
+    depends_on('petsc+mpi+metis+hypre+suite-sparse', when="+petsc")
+    depends_on('petsc+mumps',         when="+mumps")
+    depends_on('petsc+mkl-pardiso',   when="+pardiso")
  
     def cmake_args(self):
     
@@ -67,5 +77,20 @@ class Moris(CMakePackage):
         options = []
 
         options.extend([ '-DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON' ])
+        
+        if '-petsc' in spec:
+            options.extend([ '-DMORIS_HAVE_PETSC=OFF' ])
+        
+        if '-gcmma' in spec:
+            options.extend([ '-DMORIS_HAVE_GCMMA=OFF' ])
+
+        if '-lbfgs' in spec:
+            options.extend([ '-DMORIS_HAVE_LBFGS=OFF' ])
+
+        if '-snopt' in spec:
+            options.extend([ '-DMORIS_HAVE_SNOPT=OFF' ])
+
+        if '-pardiso' in spec:
+            options.extend([ '-DMORIS_USE_PARDISO=OFF' ])
 
         return options

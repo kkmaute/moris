@@ -13,6 +13,34 @@
 *------------------------------------------------------------
 
 *------------------------------------------------------------
+* Prerequisites regarding third party libraries:
+* 
+* MORIS uses the following third party libraries
+* armadillo (required)
+* arpack (required)
+* boost (required) with the following packages
+*    filesystem+log+serialization+system+thread+timer
+* eigen (required)
+* hdf5 (required)
+* mpi implementation (required)
+* petsc (optional) with the following package
+*    mpi+metis+hypre+mumps+suite-sparse
+*    optional: mkl-pardiso
+* superlu (required)
+* trilinos (required) with the following package
+*    boost+hdf5+mpi+mumps+suite-sparse+superlu-dist+amesos+anasazi+aztec+belos+chaco+epetra+exodus+ifpack+ifpack2+ml+rol+stk+zoltan2
+*    optional: pardiso
+*
+* in addition MORIS has interfaces to the follow optimization algorithms
+* gcmma 
+* snopt
+* lbfgs
+*
+* Libraries for these optimization algorithms are not provided with the MORIS GitHub repository. Unless these libraries 
+* are provided, MORIS cmake configuration options need to be set to install MORIS without optimization libraries. 
+*------------------------------------------------------------
+
+*------------------------------------------------------------
 * Prerequisites on OS installation:
 *
 * The following packages should be installed; 
@@ -117,20 +145,27 @@ git clone git@github.com:kkmaute/moris
 * add moris specific packages to spack; ignore warnings
 * note: you may have to add "dummy" after "--skip-editor"
 
+spack create --name moris --skip-editor
+
+* if optimizaiton algorithm libraries are available
+
 spack create --name gcmma --skip-editor
 spack create --name lbfgs --skip-editor
 spack create --name snopt --skip-editor
-spack create --name moris --skip-editor
+
 
 *------------------------------------------------------------
 
 * add package files; overwrite trilinos package file to enable mkl and pardiso
 
+cp $WORKSPACE/moris/share/spack/trilinos_package.py  $WORKSPACE/spack/var/spack/repos/builtin/packages/trilinos/package.py
+cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/moris/package.py
+
+* if optimizaiton algorithm libraries are available
+
 cp $WORKSPACE/moris/share/spack/gcmma_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/gcmma/package.py
 cp $WORKSPACE/moris/share/spack/lbfgs_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/lbfgs/package.py
 cp $WORKSPACE/moris/share/spack/snopt_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/snopt/package.py
-cp $WORKSPACE/moris/share/spack/trilinos_package.py  $WORKSPACE/spack/var/spack/repos/builtin/packages/trilinos/package.py
-cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/moris/package.py
 
 *------------------------------------------------------------
 
@@ -139,6 +174,15 @@ cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack/var/spack/
 spack env create -d .
 
 spack env activate .
+
+*------------------------------------------------------------
+
+* By default MORIS is installed with support for petsc, pardiso, and mumps; to turn these option off, 
+* use for example:
+
+spack add moris~petsc~pardiso~mumps
+
+* otherwise use the following spack command to install default configuration
 
 spack add moris
 
