@@ -34,9 +34,9 @@ namespace moris
          *
          * @param[in] msg Error message.
          */
-        //template< typename Exception = std::runtime_error >
+        // template< typename Exception = std::runtime_error >
         inline void
-        error( std::string const& msg )
+        error( std::string const & msg )
         {
             MORIS_LOG_ERROR( "*** Error: " );
             MORIS_LOG_ERROR( msg.c_str() );
@@ -52,13 +52,13 @@ namespace moris
          * @param[in] check     Check that raised assertion.
          * @param[in] exception Exception raised by check.
          */
-        //template< typename Exception >
+        // template< typename Exception >
         inline void
         error(
-                std::string const&        location,
-                std::string const&        task,
-                std::string const&        check,
-                std::runtime_error const& exception )
+                std::string const &        location,
+                std::string const &        task,
+                std::string const &        check,
+                std::runtime_error const & exception )
         {
             std::string tString;
 
@@ -104,13 +104,13 @@ namespace moris
          * @param[in] check     Check that raised assertion.
          * @param[in] exception Exception raised by check.
          */
-        //template<typename Exception>
+        // template<typename Exception>
         inline void
         moris_assert(
-                std::string const        & file,
-                moris::size_t const      & line,
-                std::string const        & function,
-                std::string const        & check,
+                std::string const &        file,
+                moris::size_t const &      line,
+                std::string const &        function,
+                std::string const &        check,
                 std::runtime_error const & exception )
         {
             std::stringstream location;
@@ -137,20 +137,21 @@ namespace moris
         template< typename... Args >
         inline void
         moris_assert(
-                const std::string          & file,
-                const moris::size_t        & line,
-                const std::string          & function,
-                const std::string          & check,
+                const std::string&   file,
+                const moris::size_t& line,
+                const std::string&   function,
+                const std::string&   check,
+                const char*          format,
                 const Args... aArgs )
         {
             // Determine size of string
-            auto tSize = snprintf( nullptr, 0, aArgs... );
+            auto tSize = snprintf( nullptr, 0, format, aArgs... );
 
             // create char pointer with size of string length + 1 for \0
-            std::unique_ptr< char[] > tMsg( new char[tSize + 1] );
+            std::unique_ptr< char[] > tMsg( new char[ tSize + 1 ] );
 
             // write string into buffered char pointer
-            snprintf( tMsg.get(), tSize + 1, aArgs... );
+            snprintf( tMsg.get(), tSize + 1, format, aArgs... );
 
             moris::assert::moris_assert(
                     file,
@@ -172,10 +173,11 @@ namespace moris
         template< typename... Args >
         inline void
         moris_warning(
-                std::string const        & file,
-                moris::size_t const      & line,
-                std::string const        & function,
-                std::string const        & check,
+                std::string const &   file,
+                moris::size_t const & line,
+                std::string const &   function,
+                std::string const &   check,
+                const char*           format,
                 const Args... aArgs )
         {
             std::stringstream location;
@@ -188,13 +190,13 @@ namespace moris
             reason << "Assertion " << check << " may indicate an problem.";
 
             // Determine size of string
-            auto tSize = snprintf( nullptr, 0, aArgs... );
+            auto tSize = snprintf( nullptr, 0, format, aArgs... );
 
             // create char pointer with size of string length + 1 for \0
-            std::unique_ptr< char[] > tMsg( new char[tSize + 1] );
+            std::unique_ptr< char[] > tMsg( new char[ tSize + 1 ] );
 
             // write string into buffered char pointer
-            snprintf( tMsg.get(), tSize + 1, aArgs... );
+            snprintf( tMsg.get(), tSize + 1, format, aArgs... );
 
             const std::runtime_error exception( std::string( tMsg.get(), tMsg.get() + tSize ).c_str() );
 
@@ -232,8 +234,7 @@ namespace moris
 
             MORIS_LOG_WARNING( tString.c_str() );
         }
-    }// namespace assert
-}// namespace moris
+    }    // namespace assert
+}    // namespace moris
 
 #endif /* MORIS_ASSERT_FN_LOG_ASSERT_HPP_ */
-
