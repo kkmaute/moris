@@ -26,9 +26,8 @@ from spack import *
 class Moris(CMakePackage):
     """MORIS"""
 
-    #git      = "ssh://git@github.com/kkmaute/moris"
-    git      = "ssh://pegasus:/home/maute/codes/moris"
-
+    git      = "ssh://git@github.com/kkmaute/moris"
+    
     maintainers = ['kmaute']
 
     version('main', branch='main', submodules=True, preferred=True)

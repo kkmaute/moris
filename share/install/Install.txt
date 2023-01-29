@@ -16,6 +16,7 @@
 * Prerequisites regarding third party libraries:
 * 
 * MORIS uses the following third party libraries
+
 * armadillo (required)
 * arpack (required)
 * boost (required) with the following packages
@@ -24,14 +25,17 @@
 * hdf5 (required)
 * mpi implementation (required)
 * petsc (optional) with the following package
-*    mpi+metis+hypre+mumps+suite-sparse
+*    mpi+metis+hypre+suite-sparse
 *    optional: mkl-pardiso
+*    optional: mumps (without mumps some tests will fail)
 * superlu (required)
 * trilinos (required) with the following package
-*    boost+hdf5+mpi+mumps+suite-sparse+superlu-dist+amesos+anasazi+aztec+belos+chaco+epetra+exodus+ifpack+ifpack2+ml+rol+stk+zoltan2
+*    boost+hdf5+mpi+suite-sparse+superlu-dist+amesos+anasazi+aztec+belos+chaco+epetra+exodus+ifpack+ifpack2+ml+rol+stk+zoltan2
 *    optional: pardiso
+*    optional: mumps (without mumps some tests will fail)
 *
 * in addition MORIS has interfaces to the follow optimization algorithms
+
 * gcmma 
 * snopt
 * lbfgs
@@ -146,9 +150,6 @@ git clone git@github.com:kkmaute/moris
 * note: you may have to add "dummy" after "--skip-editor"
 
 spack create --name moris --skip-editor
-
-* if optimizaiton algorithm libraries are available
-
 spack create --name gcmma --skip-editor
 spack create --name lbfgs --skip-editor
 spack create --name snopt --skip-editor
@@ -160,9 +161,6 @@ spack create --name snopt --skip-editor
 
 cp $WORKSPACE/moris/share/spack/trilinos_package.py  $WORKSPACE/spack/var/spack/repos/builtin/packages/trilinos/package.py
 cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/moris/package.py
-
-* if optimizaiton algorithm libraries are available
-
 cp $WORKSPACE/moris/share/spack/gcmma_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/gcmma/package.py
 cp $WORKSPACE/moris/share/spack/lbfgs_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/lbfgs/package.py
 cp $WORKSPACE/moris/share/spack/snopt_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/snopt/package.py
@@ -177,16 +175,20 @@ spack env activate .
 
 *------------------------------------------------------------
 
-* By default MORIS is installed with support for petsc, pardiso, and mumps; to turn these option off, 
-* use for example:
+* By default MORIS is installed with support for petsc, pardiso, and mumps, as well as the optimization libraries; 
+* to turn off one or all of these options, use for example:
 
-spack add moris~petsc~pardiso~mumps
+spack add moris~petsc~pardiso~mumps~gcmma~lbfgs~snopt
 
 * otherwise use the following spack command to install default configuration
 
 spack add moris
 
+* set local moris directory as source for spack install
+
 spack develop --path $WORKSPACE/moris moris@main
+
+* add openblas
 
 spack add openblas
 
@@ -278,7 +280,18 @@ tcsh $WORKSPACE/moris/share/spack/make_moris_cshrc.sh
 *
 *------------------------------------------------------------
 
+* if you have disabled one of the default packages add to the cmake options one or more of the following 
+* of the following directives:
+
+* without petsc:   -DMORIS_HAVE_PETSC=OFF
+* without pardiso: -DMORIS_USE_PARDISO=OFF 
+* without gcmma:   -DMORIS_HAVE_GCMMA=OFF
+* without lbfgs:   -DMORIS_HAVE_LBFGS=OFF
+* without snopt:   -DMORIS_HAVE_SNOPT=OFF
+
 * build moris optimized version and run tests
+
+*------------------------------------------------------------
 
 source $HOME/.cshrc_moris
 
@@ -296,10 +309,16 @@ cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..
 cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_MKL=ON -DMORIS_USE_OPENBLAS=OFF ..
 cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_MKL=ON -DMORIS_USE_OPENBLAS=OFF ..
 
+* if you do not want to use neither MKL nor OPENBLAS 
+
+cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_OPENBLAS=OFF -DMORIS_USE_LAPACK=ON ..
+cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_OPENBLAS=OFF -DMORIS_USE_LAPACK=ON ..
 
 make -j 16
 
 ctest
+
+* NOte that some tests will fail if trilinos was configured with out mumps 
 
 *------------------------------------------------------------
 
@@ -321,7 +340,13 @@ cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE
 cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_MKL=ON -DMORIS_USE_OPENBLAS=OFF ..
 cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_MKL=ON -DMORIS_USE_OPENBLAS=OFF ..
 
+* if you do not want to use neither MKL nor OPENBLAS 
+
+cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_OPENBLAS=OFF -DMORIS_USE_LAPACK=ON ..
+cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_OPENBLAS=OFF -DMORIS_USE_LAPACK=ON ..
+
 make -j 16
 
 ctest
 
+* NOte that some tests will fail if trilinos was configured with out mumps 
