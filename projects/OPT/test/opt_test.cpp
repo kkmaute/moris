@@ -30,6 +30,7 @@ namespace moris
 
             // ---------------------------------------------------------------------------------------------------------
 
+#ifdef MORIS_HAVE_GCMMA
             SECTION( "GCMMA" )
             {
                 // Set up default parameter lists
@@ -116,9 +117,11 @@ namespace moris
                     REQUIRE( norm( tManager.get_advs() - 1.0 ) < 1E-4 );             // check value of design variables
                 }
             }
+#endif
 
             // ---------------------------------------------------------------------------------------------------------
 
+#ifdef MORIS_HAVE_SNOPT
             SECTION( "SQP" )
             {
                 // Set up default parameter lists
@@ -156,9 +159,11 @@ namespace moris
                     REQUIRE( norm( tManager.get_advs() - 1.0 ) < 1E-3 );             // check value of design variables
                 }
             }
+#endif
 
             // ---------------------------------------------------------------------------------------------------------
 
+#ifdef MORIS_HAVE_LBFGS
             SECTION( "LBFGS" )
             {
                 // This optimization problem does not use the constraints!
@@ -205,6 +210,7 @@ namespace moris
                     REQUIRE( norm( tManager.get_advs() - 1.0 ) < 1E-4 );             // check value of design variables
                 }
             }
+#endif
 
             // ---------------------------------------------------------------------------------------------------------
 

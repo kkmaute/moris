@@ -23,6 +23,7 @@
 #define _FORTRAN( a ) a##__
 #endif
 
+#ifdef MORIS_HAVE_SNOPT
 extern "C" {
 // SNOPT (a Fortran implementation of SQP) function declarations
 void sninit_(
@@ -209,6 +210,7 @@ void snlog_(
         double* rw,
         int*    lenrw );
 }
+#endif
 
 // ---------------------------------------------------------------------------------------------------------------------
 
@@ -218,6 +220,7 @@ namespace moris
     {
         Algorithm_SQP::Algorithm_SQP( ParameterList aParameterList )
         {
+#ifdef MORIS_HAVE_SNOPT
             // Initialize
             int tPrint = 0;
             int tSumm  = 0;
@@ -314,6 +317,9 @@ namespace moris
                     assert::error( "In cl_Algorithm_SQP.cpp" );
                 }
             }
+#else
+            MORIS_ERROR( false, "MORIS was compiled without SNOPT support" );
+#endif
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -368,6 +374,7 @@ namespace moris
         void
         Algorithm_SQP::sqp_solve()
         {
+#ifdef MORIS_HAVE_SNOPT
             int tInform = 0;
             int tPrint  = 0;
             int tSumm   = 0;
@@ -578,6 +585,9 @@ namespace moris
             free( mCW );
             free( mIW );
             free( mRW );
+#else
+            MORIS_ERROR( false, "MORIS was compiled without SNOPT support" );
+#endif
         }
 
         //--------------------------------------------------------------------------------------------------------------

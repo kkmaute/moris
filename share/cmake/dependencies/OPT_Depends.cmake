@@ -19,11 +19,23 @@ set(OPT_CONFIGURED_ONCE "YES")
 list(APPEND MORIS_SOURCE_DIRS ${OPT})
 
 # Include libraries needed by OPT
-set(OPT_TPL_DEPENDENCIES
-    "gcmma"
-    "snopt"
-    "lbfgsb"
-    )
+set(OPT_TPL_DEPENDENCIES )
+
+# Include gcmma if used
+if(${MORIS_HAVE_GCMMA})
+    list(APPEND OPT_TPL_DEPENDENCIES "gcmma")
+endif()
+    
+# Include snopt if used
+if(${MORIS_HAVE_SNOPT})
+    list(APPEND OPT_TPL_DEPENDENCIES "snopt")
+endif()
+    
+# Include lbfgsb if used
+if(${MORIS_HAVE_LBFGS})
+    list(APPEND OPT_TPL_DEPENDENCIES "lbfgsb")
+endif()
+    
 
 # Make sure needed moris libraries are built
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)

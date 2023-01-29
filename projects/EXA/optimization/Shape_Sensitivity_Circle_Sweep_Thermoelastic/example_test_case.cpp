@@ -190,6 +190,7 @@ TEST_CASE( "Shape_Sensitivity_Circle_Sweep_Thermoelastic_Staggered",
 TEST_CASE( "Shape_Sensitivity_Circle_Sweep_Thermoelastic_GCMMA",
         "[moris],[example],[optimization],[gcmma_thermoelastic]" )
 {
+#ifdef MORIS_HAVE_GCMMA
     // define command line call
     int argc = 2;
 
@@ -203,4 +204,5 @@ TEST_CASE( "Shape_Sensitivity_Circle_Sweep_Thermoelastic_GCMMA",
 
     // catch test statements should follow
     REQUIRE( tRet == 0 );
+#endif
 }

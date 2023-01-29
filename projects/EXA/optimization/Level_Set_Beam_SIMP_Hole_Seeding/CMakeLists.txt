@@ -95,8 +95,8 @@ foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
     dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
 endforeach()
 
-# Add parallel tests
-if(MORIS_HAVE_PARALLEL_TESTS)
+# Add tests
+if(MORIS_HAVE_PARALLEL_TESTS AND MORIS_HAVE_GCMMA)
     foreach(PROCS ${EXAMPLE_PROCS})
         add_test(NAME Level_Set_Beam_SIMP_Hole_Seeding-${PROCS}-procs
         COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA} $<TARGET_FILE:${EXAMPLE_MAIN}>

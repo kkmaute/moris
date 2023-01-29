@@ -96,7 +96,7 @@ foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
 endforeach()
 
 # Add parallel tests
-if(MORIS_HAVE_PARALLEL_TESTS)
+if(MORIS_HAVE_PARALLEL_TESTS AND MORIS_HAVE_GCMMA)
     foreach(PROCS ${EXAMPLE_PROCS})
         add_test(NAME Zienkiewicz_Zhu_Adaptive_Refinement-${PROCS}-procs
         COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA} $<TARGET_FILE:${EXAMPLE_MAIN}>

@@ -26,6 +26,7 @@
 #define _FORTRAN( a ) a##__
 #endif
 
+#ifdef MORIS_HAVE_LBFGS
 extern "C" {
 // L-BFGS-B (a Fortran implementation of BFGS) function declaration
 void setulb_(
@@ -48,6 +49,7 @@ void setulb_(
         int*    isave,
         double* dsave );
 }
+#endif
 
 //----------------------------------------------------------------------------------------------------------------------
 
@@ -66,6 +68,10 @@ namespace moris
                 , mNormDrop( aParameterList.get< real >( "norm_drop" ) )
                 , mGradTolerance( aParameterList.get< real >( "grad_tol" ) )
         {
+#ifndef MORIS_HAVE_LBFGS
+            MORIS_ERROR( false, "MORIS was compiled without LBFGS support" );
+#endif
+
             // convert input parameters ti matrix
             string_to_mat< DDRMat >( aParameterList.get< std::string >( "step_size" ), mStepSize );
             string_to_mat< DDUMat >( aParameterList.get< std::string >( "outer_iteration_index" ), mOuterIterationIndex );
@@ -133,6 +139,7 @@ namespace moris
         void
         Algorithm_LBFGS::lbfgs_solve()
         {
+#ifdef MORIS_HAVE_LBFGS
             // get number of design variables
             int tNumAdvs = mProblem->get_num_advs();
 
@@ -385,6 +392,7 @@ namespace moris
                     }
                 }
             }
+#endif
         }
 
         //--------------------------------------------------------------------------------------------------------------
