@@ -13,7 +13,7 @@
 
 #include "cl_WRK_Workflow.hpp"
 #include "cl_OPT_Criteria_Interface.hpp"
-#include "typedefs.hpp"                       //MRS/COR/src
+#include "typedefs.hpp"    //MRS/COR/src
 #include "cl_Cell.hpp"
 
 #include "cl_Matrix.hpp"
@@ -58,64 +58,62 @@ namespace moris
         // Naming convention here means the background mesh is constructed by HMR and the integration mesh is constructed by XTK
         class Workflow_HMR_XTK : public Workflow
         {
-            private:
+          private:
 
-            public:
+          public:
+            //------------------------------------------------------------------------------
+            /**
+             * constructor
+             */
+            Workflow_HMR_XTK( wrk::Performer_Manager* aPerformerManager );
 
-                //------------------------------------------------------------------------------
-                /**
-                 * constructor
-                 */
-                Workflow_HMR_XTK( wrk::Performer_Manager * aPerformerManager );
+            //------------------------------------------------------------------------------
+            /**
+             * destructor
+             */
+            ~Workflow_HMR_XTK(){};
 
-                //------------------------------------------------------------------------------
-                /**
-                 * destructor
-                 */
-                ~Workflow_HMR_XTK(){};
+            //------------------------------------------------------------------------------
+            /**
+             * Initializes the vectors of ADV values, lower bounds, and upper bounds
+             */
+            void initialize(
+                    Matrix< DDRMat >& aADVs,
+                    Matrix< DDRMat >& aLowerBounds,
+                    Matrix< DDRMat >& aUpperBounds,
+                    Matrix< IdMat >&  aIjklIDs );
 
-                //------------------------------------------------------------------------------
-                /**
-                 * Initializes the vectors of ADV values, lower bounds, and upper bounds
-                 */
-                void initialize(
-                        Matrix<DDRMat>& aADVs,
-                        Matrix<DDRMat>& aLowerBounds,
-                        Matrix<DDRMat>& aUpperBounds,
-                        Matrix< IdMat  >& aIjklIDs);
+            //------------------------------------------------------------------------------
+            /**
+             * Gets the criteria values given a new set of ADVs
+             *
+             * @return vector of criteria
+             */
+            Matrix< DDRMat > perform( Matrix< DDRMat >& aNewADVs );
 
-                //------------------------------------------------------------------------------
-                /**
-                 * Gets the criteria values given a new set of ADVs
-                 *
-                 * @return vector of criteria
-                 */
-                Matrix< DDRMat > perform( Matrix< DDRMat >& aNewADVs );
+            //------------------------------------------------------------------------------
+            /**
+             * Gets the derivative of the criteria with respect to the advs
+             *
+             * @return matrix d(criteria)_i/d(adv)_j
+             */
+            Matrix< DDRMat > compute_dcriteria_dadv();
 
-                //------------------------------------------------------------------------------
-                /**
-                 * Gets the derivative of the criteria with respect to the advs
-                 *
-                 * @return matrix d(criteria)_i/d(adv)_j
-                 */
-                Matrix<DDRMat> compute_dcriteria_dadv();
-
-                //------------------------------------------------------------------------------
-                /**
-                 * @brief Performs T-Matrix and MPC outputs (used for project work) if requested
-                 * by user.
-                 *
-                 * @param aMTKPerformer pointer to MTK Mesh_Manager
-                 * @param aXTKPerformer pointer to XTK_Model
-                 */
-                bool
-                output_T_matrices(
-                        const std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer,
-                        xtk::Model* const &                        aXTKPerformer );
+            //------------------------------------------------------------------------------
+            /**
+             * @brief Performs T-Matrix and MPC outputs (used for project work) if requested
+             * by user.
+             *
+             * @param aMTKPerformer pointer to MTK Mesh_Manager
+             * @param aXTKPerformer pointer to XTK_Model
+             */
+            bool
+            output_T_matrices(
+                    const std::shared_ptr< mtk::Mesh_Manager > aMTKPerformer,
+                    xtk::Model* const &                        aXTKPerformer );
         };
         //------------------------------------------------------------------------------
-    } /* namespace mdl */
+    }    // namespace wrk
 } /* namespace moris */
 
 #endif /* PROJECTS_FEM_MDL_SRC_CL_WRK_WORKFLOW_HMR_XTK_HPP_ */
-
