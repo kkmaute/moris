@@ -26,13 +26,12 @@ from spack import *
 class Moris(CMakePackage):
     """MORIS"""
 
-    git      = "ssh://git@github.com/kkmaute/moris"
+    git = "ssh://git@github.com/kkmaute/moris"
     
     maintainers = ['kmaute']
 
     version('main', branch='main', submodules=True, preferred=True)
 
-    variant("default",  default=True, description="Compile with default setting")
     variant("petsc",    default=True, description="Compile with support for petsc")
     variant("pardiso",  default=True, description="Compile with support for pardiso solver")
     variant("mumps",    default=True, description="Compile with support for mumps solver")
@@ -67,8 +66,8 @@ class Moris(CMakePackage):
     
     depends_on('petsc@3.17.4', when="+petsc")
     depends_on('petsc+mpi+metis+hypre+suite-sparse', when="+petsc")
-    depends_on('petsc+mumps',         when="+mumps")
-    depends_on('petsc+mkl-pardiso',   when="+pardiso")
+    depends_on('petsc+mumps',         when="+petsc +mumps")
+    depends_on('petsc+mkl-pardiso',   when="+petsc +pardiso")
  
     def cmake_args(self):
     

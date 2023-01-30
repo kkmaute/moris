@@ -154,7 +154,6 @@ spack create --name gcmma --skip-editor
 spack create --name lbfgs --skip-editor
 spack create --name snopt --skip-editor
 
-
 *------------------------------------------------------------
 
 * add package files; overwrite trilinos package file to enable mkl and pardiso
@@ -250,7 +249,6 @@ unsetenv PYIDIR
 
 spack location --install-dir python
 
-
 *------------------------------------------------------------
 
 * install moris dependencies; 
@@ -271,7 +269,7 @@ spack clean
 * create the following resource file and source it as part of your .cshrc
 
 tcsh $WORKSPACE/moris/share/spack/make_moris_cshrc.sh
-        
+
 *------------------------------------------------------------
 *
 * Important: .cshrc_moris needs to be sourced when working with moris
