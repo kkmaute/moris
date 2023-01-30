@@ -28,7 +28,7 @@ class Moris(CMakePackage):
 
     git = "ssh://git@github.com/kkmaute/moris"
     
-    maintainers = ['kmaute']
+    maintainers = ['kkmaute']
 
     version('main', branch='main', submodules=True, preferred=True)
 
@@ -38,6 +38,8 @@ class Moris(CMakePackage):
     variant("gcmma",    default=True, description="Compile with support for gcmma algorithm")
     variant("snopt",    default=True, description="Compile with support for snopt algorithm")
     variant("lbfgs",    default=True, description="Compile with support for lbfgs algorithm")
+    variant("openblas", default=False,description="Compile with support for openblas")
+    variant("mkl",      default=True, description="Compile with support for intel-mkl")
     
     depends_on('armadillo@9.800.3')
 
@@ -51,6 +53,8 @@ class Moris(CMakePackage):
     
     depends_on('hdf5')
 
+    depends_on('intel-mkl') #, when="mkl")
+
     depends_on('lbfgs', when="+lbfgs")
  
     depends_on('mpi')
@@ -61,13 +65,17 @@ class Moris(CMakePackage):
 
     depends_on('trilinos@13.4')
     depends_on('trilinos+boost+hdf5+mpi+suite-sparse+superlu-dist+amesos+anasazi+aztec+belos+chaco+epetra+exodus+ifpack+ifpack2+ml+rol+stk+zoltan2')
-    depends_on('trilinos+mumps',   when="+mumps")
     depends_on('trilinos+pardiso', when="+pardiso")
+    depends_on('trilinos+mumps',   when="+mumps")
     
-    depends_on('petsc@3.17.4', when="+petsc")
+    depends_on('petsc@3.17.4',                       when="+petsc")
     depends_on('petsc+mpi+metis+hypre+suite-sparse', when="+petsc")
-    depends_on('petsc+mumps',         when="+petsc +mumps")
-    depends_on('petsc+mkl-pardiso',   when="+petsc +pardiso")
+    depends_on('petsc+mkl-pardiso',                  when="+petsc +pardiso")
+    depends_on('petsc+mumps',                        when="+petsc +mumps")
+ 
+    conflicts('openblas',   when='+pardiso')
+    conflicts('openblas',   when='+mkl')
+    conflicts('mkl',        when='+openblas')
  
     def cmake_args(self):
     
