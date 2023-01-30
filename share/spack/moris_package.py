@@ -54,7 +54,7 @@ class Moris(CMakePackage):
     
     depends_on('hdf5')
 
-    depends_on('intel-mkl') #, when="mkl")
+    depends_on('intel-mkl', when="pardiso")
 
     depends_on('lbfgs', when="+lbfgs")
  
