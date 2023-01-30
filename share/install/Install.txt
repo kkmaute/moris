@@ -181,7 +181,7 @@ spack add moris~petsc~pardiso~mumps~gcmma~lbfgs~snopt
 
 * otherwise use the following spack command to install default configuration
 
-spack add moris
+spack add moris+pardiso
 
 * set local moris directory as source for spack install
 

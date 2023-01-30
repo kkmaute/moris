@@ -32,6 +32,7 @@ class Moris(CMakePackage):
 
     version('main', branch='main', submodules=True, preferred=True)
 
+    variant("default",  default=True, description="Compile with default setting")
     variant("petsc",    default=True, description="Compile with support for petsc")
     variant("pardiso",  default=True, description="Compile with support for pardiso solver")
     variant("mumps",    default=True, description="Compile with support for mumps solver")
