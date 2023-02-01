@@ -259,9 +259,9 @@ namespace moris
 
             // TODO: MESHCLEANUP
             // load Mesh-GEN map
-            //moris::Cell<moris_index> tMesh_GEN_map;
-            //tMesh_GEN_map.reserve(660);
-            //aIGMesh->get_Mesh_GEN_map( tMesh_GEN_map );
+            // moris::Cell<moris_index> tMesh_GEN_map;
+            // tMesh_GEN_map.reserve(660);
+            // aIGMesh->get_Mesh_GEN_map( tMesh_GEN_map );
 
             // loop over IG mesh vertices
             for ( uint iNode = 0; iNode < tNumIGNodes; iNode++ )
@@ -1054,7 +1054,10 @@ namespace moris
 
                 if ( not tFieldParameter.get< std::string >( "field_create_from_file" ).empty() )
                 {
-                    tField->set_field_from_file( tFieldParameter.get< std::string >( "field_create_from_file" ) );
+                    tField->set_field_from_file(
+                            tFieldParameter.get< std::string >( "field_create_from_file" ),
+                            tFieldParameter.get< sint >( "field_file_time_index" ),
+                            tFieldParameter.get< sint >( "field_file_field_index" ) );
                 }
 
                 if ( not tFieldParameter.get< std::string >( "IQI_Name" ).empty() )

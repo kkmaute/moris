@@ -60,6 +60,8 @@ namespace moris
             tParameterList.insert( "field_entity_type", "" );
             tParameterList.insert( "field_type", "" );
             tParameterList.insert( "field_create_from_file", "" );
+            tParameterList.insert( "field_file_time_index", 0 );
+            tParameterList.insert( "field_file_field_index", 0 );
             tParameterList.insert( "IQI_Name", "" );
             tParameterList.insert( "field_output_to_file", "" );
 

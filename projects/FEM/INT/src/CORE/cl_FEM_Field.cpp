@@ -25,7 +25,7 @@ namespace moris
         Field::Field( mtk::Mesh_Pair        aMeshPair,
                 enum mtk::Field_Entity_Type aFieldEntityType,
                 uint                        aDiscretizationMeshIndex )
-        : mtk::Field( aMeshPair,1, aFieldEntityType )
+                : mtk::Field( aMeshPair, 1, aFieldEntityType )
         {
             mUpdateNodalValues = false;
 
@@ -40,7 +40,8 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        void Field::set_field_type( const moris::Cell< mtk::Field_Type > & aType )
+        void
+        Field::set_field_type( const moris::Cell< mtk::Field_Type >& aType )
         {
             mFieldType = aType;
 
@@ -49,7 +50,8 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        void Field::set_IQI_name( const std::string & aString )
+        void
+        Field::set_IQI_name( const std::string& aString )
         {
             mIQIName = aString;
 
@@ -58,26 +60,28 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        const std::string & Field::get_IQI_name()
+        const std::string&
+        Field::get_IQI_name()
         {
             return mIQIName;
         }
 
         //-----------------------------------------------------------------------------
 
-        void Field::get_values(
-                Matrix< IndexMat > const      & aIndex,
-                Matrix< DDRMat >              & aValues,
-                Cell< mtk::Field_Type > const & aFieldTypes)
+        void
+        Field::get_values(
+                Matrix< IndexMat > const &      aIndex,
+                Matrix< DDRMat >&               aValues,
+                Cell< mtk::Field_Type > const & aFieldTypes )
         {
             // FIXME translate field types into index. implement map
             uint tNumFields = mFieldType.size();
 
             MORIS_ASSERT( tNumFields != 0, "Field::get_values(), No field types set for this field" );
 
-            //FIXME this can be saved as a member variable or done in a smarter way
+            // FIXME this can be saved as a member variable or done in a smarter way
             moris::Matrix< IndexMat > tFieldIndex( tNumFields, 1 );
-            for( uint Ik = 0; Ik<tNumFields; Ik++ )
+            for ( uint Ik = 0; Ik < tNumFields; Ik++ )
             {
                 tFieldIndex( Ik ) = Ik;
             }
@@ -90,58 +94,66 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        void Field::set_field_from_file( const std::string & aString )
+        void
+        Field::set_field_from_file(
+                const std::string& aString,
+                const uint         aTimeIndex,
+                const uint         aFieldIndex )
         {
             // detect file type
-            std::string tType = aString.substr( aString.find_last_of(".")+1, aString.length() );
+            std::string tType = aString.substr( aString.find_last_of( "." ) + 1, aString.length() );
 
-            if( tType == "hdf5" || tType == "h5" )
+            if ( tType == "hdf5" || tType == "h5" )
             {
+                MORIS_ERROR( aTimeIndex == 0 && aFieldIndex == 0,
+                        "Field::set_field_from_file - when loading from hdf5 time and vector indices need to be zero" );
+
                 this->load_nodal_values_from_hdf5( aString );
             }
             else if ( tType == "exo" || tType == "e" )
             {
-                load_field_from_exodus( aString );
+                load_field_from_exodus( aString, aTimeIndex, { { aFieldIndex } } );
             }
             else
             {
-                MORIS_ERROR( false, "Field::set_field_from_file(), field type not known. New types can be implemented here.");
+                MORIS_ERROR( false, "Field::set_field_from_file(), field type not known. New types can be implemented here." );
             }
         }
 
         //-----------------------------------------------------------------------------
 
-        void Field::set_field_to_file( const std::string & aString )
+        void
+        Field::set_field_to_file( const std::string& aString )
         {
             mOutputFilePath = aString;
         }
 
         //------------------------------------------------------------------------------
 
-        void Field::output_field_to_file()
+        void
+        Field::output_field_to_file()
         {
-            if( not mOutputFilePath.empty() )
+            if ( not mOutputFilePath.empty() )
             {
                 // detect file type
-                std::string tType = mOutputFilePath.substr( mOutputFilePath.find_last_of(".")+1, mOutputFilePath.length() );
+                std::string tType = mOutputFilePath.substr( mOutputFilePath.find_last_of( "." ) + 1, mOutputFilePath.length() );
 
-                if( tType == "hdf5" || tType == "h5" )
+                if ( tType == "hdf5" || tType == "h5" )
                 {
                     this->save_nodal_values_to_hdf5( mOutputFilePath );
                 }
-                else if( tType == "exo" || tType == "e" )
+                else if ( tType == "exo" || tType == "e" )
                 {
                     this->save_field_to_exodus( mOutputFilePath );
                 }
                 else
                 {
                     MORIS_ERROR( false,
-                            "Field::output_field_to_file(), field type not known. New types can be implemented here.");
+                            "Field::output_field_to_file(), field type not known. New types can be implemented here." );
                 }
             }
         }
 
         //------------------------------------------------------------------------------
-    } /* namespace hmr */
+    }    // namespace fem
 } /* namespace moris */
-

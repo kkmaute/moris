@@ -68,7 +68,10 @@ namespace moris
 
             //-----------------------------------------------------------------------------
 
-            void set_field_from_file( const std::string& aString );
+            void set_field_from_file(
+                    const std::string& aString,
+                    const uint         aTimeIndex,
+                    const uint         aFieldIndex );
 
             //-----------------------------------------------------------------------------
 
