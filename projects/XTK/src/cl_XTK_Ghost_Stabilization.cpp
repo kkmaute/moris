@@ -605,23 +605,36 @@ namespace xtk
 
         for ( uint iV = 0; iV < aGhostVerticesWithoutInterpolation.size(); iV++ )
         {
-
-            // vertex owner
-            moris_index tOwnerProc = aGhostVerticesWithoutInterpolation( iV )->get_owner();
-
-
             // get the background xtk vertex
             Interpolation_Vertex_Unzipped* tXTKIpVert = tEnrInterpMesh.get_unzipped_vertex_pointer( aGhostVerticesWithoutInterpolation( iV )->get_index() );
 
             // get the xtk cell
             Interpolation_Cell_Unzipped* tEnrIpCell = tEnrIpCells( aGhostIpCellConnectedToVertex( iV )->get_index() );
 
+            // unzipped cell owner always knows the T-matrices for all the vertices
+            moris_index tOwnerProc = tEnrIpCell->get_owner();
+
             // get the index of this proc
             auto tProcIndexInData = aProcRankToDataIndex.find( tOwnerProc );
 
+// check that the vertices are found
+#ifdef MORIS_HAVE_DEBUG
+            if( tProcIndexInData == aProcRankToDataIndex.end() )
+            {
+                std::cout << "Proc #" << par_rank() << ": Trying to communicate T-matrices on unzipped vertex which should be constructed by proc #" << 
+                        tOwnerProc << " which is not part of the communication list." << std::endl;
+                std::cout << "UIPV #" << tXTKIpVert->get_index() << ", ID: " << tXTKIpVert->get_id() << std::endl;
+                moris::print_as_row_vector( tXTKIpVert->get_coords(), "Coords" );
+                std::cout << "Vertex is part of UIPC #" << tEnrIpCell->get_index() << ", ID: " << tEnrIpCell->get_id() << 
+                        " owned by proc #" << tEnrIpCell->get_owner() << std::endl;
+
+                MORIS_ASSERT( false, "Ghost_Stabilization::prepare_interpolation_vertex_t_matrix_requests() - "
+                        "Error in T-matrix communication. See information above." );
+            }
+#endif
+
             tNotOwnedIPVertIndsToProcs( tProcIndexInData->second ).push_back( tXTKIpVert->get_index() );
             tNotOwnedBGIPVertsIdsToProcs( tProcIndexInData->second ).push_back( tXTKIpVert->get_base_vertex()->get_id() );
-
 
             tNotOwnedIpCellIdToProcs( tProcIndexInData->second ).push_back( tEnrIpCell->get_id() );
             tNotOwnedIpCellBulkPhase( tProcIndexInData->second ).push_back( tEnrIpCell->get_bulkphase_index() );
