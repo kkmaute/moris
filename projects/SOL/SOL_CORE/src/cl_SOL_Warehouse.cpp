@@ -218,6 +218,15 @@ SOL_Warehouse::create_nonlinear_solvers()
 
         for ( uint Ii = 0; Ii < tMat.numel(); Ii++ )
         {
+            // check that algorithm exists
+            MORIS_ERROR( mNonlinearSolverAlgoriths.size() > (uint)tMat( Ii ),
+                    "SOL_Warehouse::create_nonlinear_solvers - NLA_Nonlinear_solver_algorithm %d does not exist",
+                    tMat( Ii ) );
+
+            MORIS_ERROR( mNonlinearSolverAlgoriths( tMat( Ii ) ),
+                    "SOL_Warehouse::create_nonlinear_solvers - NLA_Nonlinear_solver_algorithms %d has not been created",
+                    tMat( Ii ) );
+
             mNonlinearSolvers( Ik )->set_nonlinear_algorithm( mNonlinearSolverAlgoriths( tMat( Ii ) ), Ii );
         }
 
@@ -375,14 +384,14 @@ SOL_Warehouse::create_time_solvers()
             for ( uint Ia = 0; Ia < tOutputCriteria.size(); Ia++ )
             {
                 // if a criterion for the output has been defined
-                if( tOutputCriteria( Ia ) != "Default_Output_Criterion" )
+                if ( tOutputCriteria( Ia ) != "Default_Output_Criterion" )
                 {
                     Pointer_Function tCriteriaFunc = mLibrary->load_function< Pointer_Function >( tOutputCriteria( Ia ) );
                     mTimeSolvers( Ik )->set_output( tOutputIndices( Ia ),
                             reinterpret_cast< bool ( * )( moris::tsa::Time_Solver* ) >( tCriteriaFunc ) );
                 }
                 // use default criterion (output after every time step) for output
-                else 
+                else
                 {
                     mTimeSolvers( Ik )->set_output( tOutputIndices( Ia ), Default_Output_Criterion );
                 }
