@@ -1794,8 +1794,6 @@ namespace xtk
     {
         this->setup_local_to_global_maps();
 
-        // this->setup_vertex_to_bulk_phase(); // the information setup in this function remains unused
-
         this->setup_basis_ownership();
 
         // note: this information is feed to the enr. IP mesh from the outside, as it is already constructed in the enrichment data
