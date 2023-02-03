@@ -207,7 +207,10 @@ Newton_Solver::solver_nonlinear_system( Nonlinear_Problem* aNonlinearProblem )
         }
 
         // Update solution
-        ( mNonlinearProblem->get_full_vector() )->vec_plus_vec( -tRelaxationParameter, *mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(), 1.0 );
+        ( mNonlinearProblem->get_full_vector() )->vec_plus_vec(    //
+                -tRelaxationParameter,
+                *mNonlinearProblem->get_linearized_problem()->get_full_solver_LHS(),
+                1.0 );
     }
 }
 
