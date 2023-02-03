@@ -40,7 +40,6 @@ class Moris(CMakePackage):
     variant("snopt",    default=True, description="Compile with support for snopt algorithm")
     variant("lbfgs",    default=True, description="Compile with support for lbfgs algorithm")
     variant("openblas", default=False,description="Compile with support for openblas")
-    variant("mkl",      default=True, description="Compile with support for intel-mkl")
     
     depends_on('armadillo@9.800.3')
 
@@ -74,9 +73,7 @@ class Moris(CMakePackage):
     depends_on('petsc+mkl-pardiso',                  when="+petsc +pardiso")
     depends_on('petsc+mumps',                        when="+petsc +mumps")
  
-    conflicts('+openblas',   when='+pardiso')
-    conflicts('+openblas',   when='+mkl')
-    conflicts('+mkl',        when='+openblas')
+    conflicts('+openblas', when='+pardiso')
  
     def cmake_args(self):
     
@@ -97,13 +94,17 @@ class Moris(CMakePackage):
         if '-snopt' in spec:
             options.extend([ '-DMORIS_HAVE_SNOPT=OFF' ])
 
-        if '-pardiso' in spec:
-            options.extend([ '-DMORIS_USE_PARDISO=OFF' ])
-
         if '-mumps' in spec:
             options.extend([ '-DMORIS_USE_MUMPS=OFF' ])
 
-        if '+mkl' in spec:
+        if '+pardiso' in spec:
+            options.extend([ '-DMORIS_USE_OPENBLAS=OFF' ])
+            options.extend([ '-DMORIS_USE_MKL=ON' ])
+
+        if '-pardiso' in spec:
+            options.extend([ '-DMORIS_USE_PARDISO=OFF' ])
+
+       if '-openblas' in spec:
             options.extend([ '-DMORIS_USE_OPENBLAS=OFF' ])
             options.extend([ '-DMORIS_USE_MKL=ON' ])
 
