@@ -185,7 +185,10 @@ option(MORIS_USE_MKL
     "Use the Inel Math kernel library as the linear algebra package." OFF )
 
 option(MORIS_USE_PARDISO
-    "Build MORIS with PARDISO used in Trilinos." ON )
+    "Build MORIS with PARDISO used in Trilinos and Petsc." ON )
+
+option(MORIS_USE_MUMPS
+    "Build MORIS with MUMPS used in Trilinos and Petsc." ON )
 
 option(MORIS_HAVE_TRILINOS_OLD
     "Build MORIS with support for old Trilinos version." OFF )

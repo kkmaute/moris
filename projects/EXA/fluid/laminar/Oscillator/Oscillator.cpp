@@ -211,7 +211,7 @@ namespace moris
         tParameterlist.resize( 1 );
         tParameterlist( 0 ).resize( 1 );
 
-        std::string tPrefix = moris::get_base_moris_dir();
+        std::string tPrefix       = moris::get_base_moris_dir();
         std::string tMeshFileName = tPrefix + "/projects/EXA/fluid/laminar/Oscillator/Oscillator.g";
 
         tParameterlist( 0 )( 0 ) = prm::create_stk_parameter_list();
@@ -498,8 +498,10 @@ namespace moris
         }
 
         tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
-        tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Mumps" );
 
+#ifdef MORIS_USE_MUMPS
+        tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Mumps" );
+#endif
         //------------------------------------------------------------------------------
 
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();

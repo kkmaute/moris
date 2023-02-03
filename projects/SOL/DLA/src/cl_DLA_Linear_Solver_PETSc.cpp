@@ -194,6 +194,7 @@ Linear_Solver_PETSc::construct_solver_and_preconditioner( Linear_Problem *aLinea
     // set direct solver: mumps
     if ( !strcmp( mParameterList.get< std::string >( "KSPType" ).c_str(), "mumps" ) )
     {
+#ifdef MORIS_USE_MUMPS
         // set solver is defined flag
         tIsSolverDefined = true;
 
@@ -225,7 +226,12 @@ Linear_Solver_PETSc::construct_solver_and_preconditioner( Linear_Problem *aLinea
         PetscInt ival = 2, icntl = 7;
 
         // pass control parameters to MUMPS
+
         MatMumpsSetIcntl( F, icntl, ival );
+#else
+        MORIS_ERROR( false,
+                "Linear_Solver_PETSc::construct_solver_and_preconditioner - MORIS installed without support for MUMPS" );
+#endif
     }
 
     // set iterative solver: kspgmres

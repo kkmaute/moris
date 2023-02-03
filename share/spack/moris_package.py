@@ -54,7 +54,7 @@ class Moris(CMakePackage):
     
     depends_on('hdf5')
 
-    depends_on('intel-mkl', when="pardiso")
+    depends_on('intel-mkl', when="+pardiso")
 
     depends_on('lbfgs', when="+lbfgs")
  
@@ -74,9 +74,9 @@ class Moris(CMakePackage):
     depends_on('petsc+mkl-pardiso',                  when="+petsc +pardiso")
     depends_on('petsc+mumps',                        when="+petsc +mumps")
  
-    conflicts('openblas',   when='+pardiso')
-    conflicts('openblas',   when='+mkl')
-    conflicts('mkl',        when='+openblas')
+    conflicts('+openblas',   when='+pardiso')
+    conflicts('+openblas',   when='+mkl')
+    conflicts('+mkl',        when='+openblas')
  
     def cmake_args(self):
     
@@ -99,5 +99,12 @@ class Moris(CMakePackage):
 
         if '-pardiso' in spec:
             options.extend([ '-DMORIS_USE_PARDISO=OFF' ])
+
+        if '-mumps' in spec:
+            options.extend([ '-DMORIS_USE_MUMPS=OFF' ])
+
+        if '+mkl' in spec:
+            options.extend([ '-DMORIS_USE_OPENBLAS=OFF' ])
+            options.extend([ '-DMORIS_USE_MKL=ON' ])
 
         return options

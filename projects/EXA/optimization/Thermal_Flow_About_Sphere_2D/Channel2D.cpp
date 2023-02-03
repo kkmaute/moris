@@ -1313,10 +1313,12 @@ namespace moris
         tParameterlist( 0 ).resize( 2 );
 
         tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
-        tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Mumps" );
-
         tParameterlist( 0 )( 1 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+
+#ifdef MORIS_USE_MUMPS
+        tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Mumps" );
         tParameterlist( 0 )( 1 ).set( "Solver_Type", "Amesos_Mumps" );
+#endif
 
         /*
         tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL );
@@ -1453,4 +1455,3 @@ namespace moris
 #ifdef __cplusplus
 }
 #endif
-

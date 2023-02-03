@@ -1931,7 +1931,10 @@ namespace moris
         tParameterlist( 0 ).resize( 1 );
 
         tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+
+#ifdef MORIS_USE_MUMPS
         tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Mumps" );
+#endif
 
         //------------------------------------------------------------------------------
 
