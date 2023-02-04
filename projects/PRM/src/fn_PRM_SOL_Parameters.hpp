@@ -377,7 +377,11 @@ namespace moris
 
             tLinAlgorithmParameterList.insert( "Solver_Implementation", (uint)( tType ) );
 
+#ifdef MORIS_USE_PARDISO
             tLinAlgorithmParameterList.insert( "Solver_Type", "Amesos_Pardiso" );
+#else
+            tLinAlgorithmParameterList.insert( "Solver_Type", "Amesos_Umfpack" );
+#endif
 
             tLinAlgorithmParameterList.insert( "PrintStatus", false );
 
