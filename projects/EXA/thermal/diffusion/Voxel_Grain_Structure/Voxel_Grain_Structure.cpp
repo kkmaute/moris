@@ -620,6 +620,10 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
 
+#ifndef MORIS_USE_PARDISO
+        tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Superludist" );
+#endif
+
         // tParameterlist( 0 )( 0 ).set("Solver Type", "MINRES" );
         // tParameterlist( 0 )( 0 ).set("Maximum Restarts",    1e-04 );
         // tParameterlist( 0 )( 0 ).set("Maximum Iterations",    10000 );
@@ -716,4 +720,3 @@ tParameterlist( 5 )(0).set("TSA_Output_Crteria" , std::string("Output_Criterion"
 #ifdef __cplusplus
 }
 #endif
-
