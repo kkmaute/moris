@@ -29,9 +29,9 @@
 #include "fn_assert.hpp"
 #include "catch.hpp"
 
-
 #include "AztecOO.h"
 
+extern moris::Logger gLogger;
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,11 +41,9 @@ extern "C" {
 namespace moris
 {
     // Input file
-    // std::string tMeshFileName = "./exomesh.e";
     std::string tOutputFileName = "AxisymmetricProblem.exo";
     std::string tRoot           = get_base_moris_dir();
     std::string tFieldRefPath   = tRoot + "projects/EXA/structure/thermo_elastic/MOPAR/exomesh.e";
-    // std::string tFieldRefPath = "./exomesh.e";
 
     bool byGeometry = false;
 
@@ -405,6 +403,8 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_stk_parameter_list();
         tParameterlist( 0 )( 0 ).set( "input_file", tMeshFileName );
+
+        gLogger.set_severity_level( 0 );
     }
 
     //------------------------------------------------------------------------------
@@ -493,10 +493,22 @@ namespace moris
         tParameterList( 0 )( tPropCounter ).set( "function_parameters", tRefTemp );
         tPropCounter++;
 
-        // properties of bedding (supression for RBMs)
+        // properties of dummy L2 projection of stress fields (supression for RBMs)
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
-        tParameterList( 0 )( tPropCounter ).set( "property_name", "PropBedding" );
-        tParameterList( 0 )( tPropCounter ).set( "function_parameters", tBedding );
+        tParameterList( 0 )( tPropCounter ).set( "property_name", "DummySource" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters", "0.0" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
+        tPropCounter++;
+
+        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
+        tParameterList( 0 )( tPropCounter ).set( "property_name", "DummyL2Coefficient" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters", "0.0" );
+        tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
+        tPropCounter++;
+
+        tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
+        tParameterList( 0 )( tPropCounter ).set( "property_name", "DummyDiffusionCoefficient" );
+        tParameterList( 0 )( tPropCounter ).set( "function_parameters", "0.00001" );
         tParameterList( 0 )( tPropCounter ).set( "value_function", "Func_Const" );
         tPropCounter++;
 
@@ -616,7 +628,7 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
         tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropBedding,Bedding;PropRotAxis,Thickness" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropRotAxis,Thickness" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", "block_1" );
         tIWGCounter++;
 
@@ -627,13 +639,13 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
         tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso2,ElastLinIso" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropBedding,Bedding;PropRotAxis,Thickness" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropRotAxis,Thickness" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", "block_2" );
         tIWGCounter++;
 
         // Dirichlet Boundary
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletU" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletU_1" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
@@ -641,6 +653,17 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", "side_2" );
+        tIWGCounter++;
+
+        tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletU_2" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropDirichlet,Dirichlet;PropSelectX,Select;PropRotAxis,Thickness" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso2,ElastLinIso" );
+        tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", "side_3" );
         tIWGCounter++;
 
         // Neumann Boundary
@@ -653,9 +676,9 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", "side_1" );
         tIWGCounter++;
 
-
+        // Stress projection for block 1
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGStress" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGStress_1" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_VON_MISES_STRESS ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "STRESS_DOF" );
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
@@ -663,8 +686,20 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", "block_1" );
         tIWGCounter++;
 
+        // Dummy equation for STRESS_DOF in block_2
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGStress" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGL2_1" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", (uint)fem::IWG_Type::L2 );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "STRESS_DOF" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_properties",    //
+                "DummySource,Source;DummyL2Coefficient,L2coefficient;DummyDiffusionCoefficient,Diffusion" );
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", "block_2" );
+        tIWGCounter++;
+
+        // Stress projection for block 2
+        tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGStress_2" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_VON_MISES_STRESS ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "VX" );
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
@@ -672,6 +707,16 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", "block_2" );
         tIWGCounter++;
 
+        // Dummy equation for VX in block_1
+        tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGL2_1" );
+        tParameterList( 3 )( tIWGCounter ).set( "IWG_type", (uint)fem::IWG_Type::L2 );
+        tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "VX" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        tParameterList( 3 )( tIWGCounter ).set( "master_properties",    //
+                "DummySource,Source;DummyL2Coefficient,L2coefficient;DummyDiffusionCoefficient,Diffusion" );
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", "block_1" );
+        tIWGCounter++;
 
         //------------------------------------------------------------------------------
         // init IQI counter
@@ -704,7 +749,6 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", "block_1" );
         tIQICounter++;
-
 
         // nodal von-mises stresses for shell
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
@@ -766,21 +810,35 @@ namespace moris
 
         tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
 
-#ifndef MORIS_USE_PARDISO
-        tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Superludist" );
-#endif
-
         tParameterlist( 1 ).push_back( moris::prm::create_linear_solver_parameter_list() );
 
         tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
         tParameterlist( 2 )( 0 ).set( "NLA_rel_res_norm_drop", 1e-09 );
         tParameterlist( 2 )( 0 ).set( "NLA_relaxation_parameter", 1.0 );
-        tParameterlist( 2 )( 0 ).set( "NLA_max_iter", 5 );
+        tParameterlist( 2 )( 0 ).set( "NLA_max_iter", 1 );
+
+        tParameterlist( 2 ).push_back( moris::prm::create_nonlinear_algorithm_parameter_list() );
+        tParameterlist( 2 )( 1 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
+        tParameterlist( 2 )( 1 ).set( "NLA_rel_res_norm_drop", 10.0 );
+        tParameterlist( 2 )( 1 ).set( "NLA_max_iter", 1 );
 
         tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
-        tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "UX,UY;STRESS_DOF;VX" );
+        tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "UX,UY" );
+
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
+        tParameterlist( 3 )( 1 ).set( "NLA_DofTypes", "STRESS_DOF" );
+
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
+        tParameterlist( 3 )( 2 ).set( "NLA_DofTypes", "VX" );
+
+        tParameterlist( 3 ).push_back( moris::prm::create_nonlinear_solver_parameter_list() );
+        tParameterlist( 3 )( 3 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
+        tParameterlist( 3 )( 3 ).set( "NLA_Nonlinear_solver_algorithms", "1" );
+        tParameterlist( 3 )( 3 ).set( "NLA_Sub_Nonlinear_Solver", "0,1,2" );
+        tParameterlist( 3 )( 3 ).set( "NLA_DofTypes", "UX,UY;STRESS_DOF;VX" );
 
         tParameterlist( 4 ).push_back( moris::prm::create_time_solver_algorithm_parameter_list() );
+        tParameterlist( 4 )( 0 ).set( "TSA_Nonlinear_solver", 3 );
 
         tParameterlist( 5 ).push_back( moris::prm::create_time_solver_parameter_list() );
         tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY;STRESS_DOF;VX" );
