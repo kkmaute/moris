@@ -103,7 +103,7 @@ namespace moris
             // Direct solver parameters
 
             // Exact solve via direct solver: "Amesos_Lapack", "Amesos_Klu", "Amesos_Umfpack",
-            //                                "Amesos_Superlu", "Amesos_Mumps", "Amesos_Dscpack", "Amesos_Pardiso"
+            //                                "Amesos_Superludist", "Amesos_Mumps", "Amesos_Dscpack", "Amesos_Pardiso"
             aParameterlist.insert( "amesos: solver type", "Amesos_Klu" );
 
             // Incomplete factorization parameters
@@ -289,7 +289,7 @@ namespace moris
             tLinAlgorithmParameterList.insert( "AZ_output", INT_MAX );
 
             // Determines the submatrices factored with the domain decomposition algorithms
-            // Option to specify with how many rows from other processors each processor’s local submatrix is augmented.
+            // Option to specify with how many rows from other processors each processor's local submatrix is augmented.
             tLinAlgorithmParameterList.insert( "AZ_overlap", INT_MAX );
 
             // Determines how overlapping subdomain results are combined when different processors have computed different values for the same unknown.
@@ -297,7 +297,7 @@ namespace moris
             tLinAlgorithmParameterList.insert( "AZ_type_overlap", INT_MAX );
 
             // Determines whether RCM reordering will be done in conjunction with domain decomposition incomplete factorizations.
-            // Option to enable (=1) or disable (=0) the Reverse Cuthill–McKee (RCM) algorithm to reorder system equations for smaller bandwidth
+            // Option to enable (=1) or disable (=0) the Reverse Cuthill-McKee (RCM) algorithm to reorder system equations for smaller bandwidth
             tLinAlgorithmParameterList.insert( "AZ_reorder", INT_MAX );
 
             // Use preconditioner from a previous Iterate() call
@@ -733,7 +733,7 @@ namespace moris
             tTimeParameterList.insert( "TSA_Max_Time_Solver_Restarts", 0 );
 
             tTimeParameterList.insert( "TSA_Output_Indices", "0" );
-            
+
             tTimeParameterList.insert( "TSA_Output_Crteria", "Default_Output_Criterion" );
 
             tTimeParameterList.insert( "TSA_Initialize_Sol_Vec", "" );    // initial GUESS
@@ -744,7 +744,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        
+
         // creates a parameter list with default inputs
         inline ParameterList
         create_linear_algorithm_parameter_list(
