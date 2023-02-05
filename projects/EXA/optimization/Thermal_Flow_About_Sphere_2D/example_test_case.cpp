@@ -325,7 +325,7 @@ check_results(
                         tConstraintsAnalytical( tConIndex, tADVIndex ),
                         tFDTypes( tFDIndex ).c_str(),
                         tConstraintsFD( tConIndex, tADVIndex ),
-                        100 * tRelConstraintDifference );
+                        100.0 * tRelConstraintDifference );
 
                 CHECK( tRelConstraintDifference < tToleranceSensivities );
             }

@@ -138,7 +138,7 @@ check_results(
                     tConstraintsAnalytical( tADVIndex ),
                     tFDTypes( tFDIndex ).c_str(),
                     tConstraintsFD( tADVIndex ),
-                    100 * tRelConstraintDifference );
+                    100.0 * tRelConstraintDifference );
 
             if ( std::abs( tObjectiveFD( tADVIndex ) ) > 1e-6 )
             {

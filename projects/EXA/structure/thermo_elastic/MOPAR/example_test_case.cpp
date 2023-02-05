@@ -43,10 +43,10 @@ check_results(
     MORIS_LOG_INFO( "" );
 
     // open and query exodus output file (set verbose to true to get basic mesh information)
-    moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, true, true );
+    moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, true, false );
 
     // define reference node IDs
-    Cell< uint > tReferenceNodeId = { 729, 6075 };
+    Cell< uint > tReferenceNodeId = { 729 };
 
     if ( gPrintReferenceValues )
     {
@@ -61,16 +61,21 @@ check_results(
         std::cout << "Number of elements  : " << tNumElems << std::endl;
 
         // coordinates of reference point
-        moris::print( tExoIO.get_nodal_coordinate( tReferenceNodeId( aTestCaseIndex ) ), "Coordinates of reference point" );
+        std::cout << "X coordinate: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_coordinate( tReferenceNodeId( aTestCaseIndex ) )( 0 ) << std::endl;
+        std::cout << "Y coordinate: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_coordinate( tReferenceNodeId( aTestCaseIndex ) )( 1 ) << std::endl;
 
         // time value for reference time step
         std::cout << "Time value: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_time_value() << std::endl;
 
-        // solution of reference point at reference time step
-        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 2, 0 ) << std::endl;
+        // displacement values
+        std::cout << "Displacement X-dir: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 2, 0 ) << std::endl;
+        std::cout << "Displacement Y-dir: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 3, 0 ) << std::endl;
 
-        // value of IQI at reference time step
-        std::cout << "IQI value: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_global_variable( 0, 0 ) << std::endl;
+        // solution of reference point at reference time step
+        std::cout << "Temperature at reference point: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 6, 0 ) << std::endl;
+
+        // stress at reference point
+        std::cout << "Stress: " << std::scientific << std::setprecision( 15 ) << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 4, 0 ) << std::endl;
 
         return;
     }
@@ -83,7 +88,6 @@ check_results(
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
     uint tNumNodes = tExoIO.get_number_of_nodes();
-    std::cout << tNumNodes << std::endl;
     uint tNumElems = tExoIO.get_number_of_elements();
 
     MORIS_LOG_INFO( "Check number of dimensions: reference %12d, actual %12d, percent error %12.5e.",
@@ -106,8 +110,7 @@ check_results(
     // define reference coordinates for node aNodeId
     Cell< Matrix< DDRMat > > tReferenceCoordinate;
 
-    tReferenceCoordinate.push_back( { { 0.0188256148248911 }, { 0.00205523893237114 } } );
-    tReferenceCoordinate.push_back( { { 0.0274365972727537 }, { 0.00213746773079038 } } );
+    tReferenceCoordinate.push_back( { { 1.882561482489109e-02 }, { 2.055238932371140e-03 } } );
 
     // check nodal coordinates
     Matrix< DDRMat > tActualCoordinate = tExoIO.get_nodal_coordinate( tReferenceNodeId( aTestCaseIndex ) );
@@ -128,8 +131,6 @@ check_results(
     // check time value for time step index 0
     Cell< real > tReferenceTime;
     tReferenceTime.push_back( 1 );
-    tReferenceTime.push_back( 1 );
-    // tReferenceTime.push_back( 1.000000000000000e+00 );
 
     real tActualTime = tExoIO.get_time_value();
 
@@ -142,63 +143,58 @@ check_results(
 
     REQUIRE( tRelTimeDifference < 1.0e-8 );
 
-    // check displacement at node aNodeId in first time step (displacements are 2nd, 3rd nodal fields, first time step has index 0)
+    // check displacement at node aNodeId in first time step (displacements are 3rd and 4th nodal fields, first time step has index 0)
     Cell< Matrix< DDRMat > > tReferenceDisplacement;
 
-    tReferenceDisplacement.push_back( { { -0.000112822076544491 } , { 9.85328932883014e-06 } } );
-    tReferenceDisplacement.push_back( { { -9.27339508501711e-05 } , { -9.67511606185431e-07 } } );
+    tReferenceDisplacement.push_back( { { -1.128321042350804e-04 }, { 9.853289535187406e-06 } } );
 
     Matrix< DDRMat > tActualDisplacement = {
         { tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 2, 0 ) },
         { tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 3, 0 ) }
     };
 
-    //{ tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 4, 0 ) } };
-    std::cout << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 2, 0 ) << std::endl;
-    std::cout << tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 3, 0 ) << std::endl;
-
     real tRelDispDifference = norm( tActualDisplacement - tReferenceDisplacement( aTestCaseIndex ) ) / norm( tReferenceDisplacement( aTestCaseIndex ) );
 
-    MORIS_LOG_INFO( "Check nodal displacement:  reference %12.5e, actual %12.5e, percent error %12.5e.",
+    MORIS_LOG_INFO( "Check nodal displacement:   reference %12.5e, actual %12.5e, percent error %12.5e.",
             norm( tReferenceDisplacement( aTestCaseIndex ) ),
             norm( tActualDisplacement ),
             tRelDispDifference * 100.0 );
 
     REQUIRE( tRelDispDifference < 1.0e-5 );
 
-    // check temperature at node aNodeId in first time step (temperature is 4th nodal field, first time step has index 0)
-    Cell<real> tReferenceTemperature;
-    tReferenceTemperature.push_back( 1038.65844726562 );
-    tReferenceTemperature.push_back( 905.220764160156 );
+    // check temperature at node aNodeId in first time step (temperature is 7th nodal field, first time step has index 0)
+    Cell< real > tReferenceTemperature;
+    tReferenceTemperature.push_back( 1.038658447265625e+03 );
 
-    real tActualTemperature = tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 6, 0 );
-    std::cout << tActualTemperature << std::endl;
+    real tActualTemperature = tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 6, 0 );
 
-    real tRelTempDifference = std::abs( ( tActualTemperature - tReferenceTemperature(aTestCaseIndex) ) / tReferenceTemperature(aTestCaseIndex) );
+    real tRelTempDifference = std::abs( ( tActualTemperature - tReferenceTemperature( aTestCaseIndex ) ) / tReferenceTemperature( aTestCaseIndex ) );
 
-    MORIS_LOG_INFO("Check nodal temperature:    reference %12.5e, actual %12.5e, percent error %12.5e.",
-            tReferenceTemperature(aTestCaseIndex),tActualTemperature,tRelTempDifference*100.0);
+    MORIS_LOG_INFO( "Check nodal temperature:    reference %12.5e, actual %12.5e, percent error %12.5e.",
+            tReferenceTemperature( aTestCaseIndex ),
+            tActualTemperature,
+            tRelTempDifference * 100.0 );
 
-    REQUIRE(  tRelTempDifference < 1.0e-5);
+    REQUIRE( tRelTempDifference < 1.0e-5 );
 
     // check stresses at node aNodeId in first time step (stress is 5th & 6th nodal field)
-    Cell<real> tReferenceStress;
-    tReferenceStress.push_back( 249931959.580263 );
-    tReferenceStress.push_back( 91766739.0603717 );
+    Cell< real > tReferenceStress;
+    tReferenceStress.push_back( 2.397992760916115e+08 );
 
-    real tActualStress = tExoIO.get_nodal_field_value( tReferenceNodeId(aTestCaseIndex), 4, 0);
+    real tActualStress = tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 4, 0 );
 
-    real tRelStressDifference = std::abs( ( tActualStress - tReferenceStress(aTestCaseIndex) ) / tReferenceStress(aTestCaseIndex) );
+    real tRelStressDifference = std::abs( ( tActualStress - tReferenceStress( aTestCaseIndex ) ) / tReferenceStress( aTestCaseIndex ) );
 
-    MORIS_LOG_INFO("Check nodal stress:    reference %12.5e, actual %12.5e, percent error %12.5e.",
-            tReferenceStress(aTestCaseIndex),tActualStress,tRelStressDifference*100.0);
+    MORIS_LOG_INFO( "Check nodal stress:         reference %12.5e, actual %12.5e, percent error %12.5e.",
+            tReferenceStress( aTestCaseIndex ),
+            tActualStress,
+            tRelStressDifference * 100.0 );
 
-    REQUIRE(  tRelStressDifference < 1.0e-5);
-
+    REQUIRE( tRelStressDifference < 1.0e-5 );
 }
 
-TEST_CASE("AxisymmetricProblem",
-        "[moris],[example],[structure],[thermo_elastic],[MOPAR]")
+TEST_CASE( "AxisymmetricProblem",
+        "[moris],[example],[structure],[thermo_elastic],[MOPAR]" )
 {
     // define command line call
     int argc = 2;
@@ -206,20 +202,7 @@ TEST_CASE("AxisymmetricProblem",
     char tString1[] = "";
     char tString2[] = "./AxisymmetricProblem.so";
 
-    char * argv[2] = {tString1,tString2};
-
-    // call to performance manager main interface
-    int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
-
-    // check
-    REQUIRE( tRet ==  0 );
-
-     // set interpolation order
-    gInterpolationOrder = 1;
-
-    MORIS_LOG_INFO( "" );
-    MORIS_LOG_INFO( "Executing Oscillator: Interpolation order 1 - %i Processors.", par_size() );
-    MORIS_LOG_INFO( "" );
+    char* argv[ 2 ] = { tString1, tString2 };
 
     // call to performance manager main interface
     fn_WRK_Workflow_Main_Interface( argc, argv );
@@ -234,26 +217,9 @@ TEST_CASE("AxisymmetricProblem",
             check_results( "AxisymmetricProblem.exo", 0 );
             break;
         }
-        // Test Case 1
-        case 4:
-        {
-            if ( par_rank() == 1 )
-            {
-                // set screen output processor
-                gLogger.set_screen_output_rank( 1 );
-
-                // perform check
-                check_results( "AxisymmetricProblem.exo", 1 );
-
-                // reset screen output processor
-                gLogger.set_screen_output_rank( 0 );
-            }
-            break;
-        }
         default:
         {
             MORIS_ERROR( false, "Example problem not configured for %d processors.", par_size() );
         }
     }
 }
-

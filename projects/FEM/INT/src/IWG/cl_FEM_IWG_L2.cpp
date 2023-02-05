@@ -49,7 +49,7 @@ namespace moris
 
             // get the field interpolator for residual dof type
             Field_Interpolator* tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
-       
+
             // get L2 coefficient
             const std::shared_ptr< Property >& tPropL2Term =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::L2COEFFICIENT ) );
@@ -58,7 +58,7 @@ namespace moris
 
             if ( tPropL2Term != nullptr )
             {
-                    tL2Term = tPropL2Term->val()(0);
+                tL2Term = tPropL2Term->val()( 0 );
             }
 
             // get H1 coefficient property
@@ -91,18 +91,18 @@ namespace moris
             {
                 if ( tPropSource != nullptr )
                 {
-                    tRes += aWStar * tPropH1Term->val() * trans( tFI->dnNdxn( 1 ) ) * ( tFI->gradx( 1 ) - tPropSource->dnPropdxn( 1 ) );
+                    tRes += aWStar * tPropH1Term->val()( 0 ) * trans( tFI->dnNdxn( 1 ) ) * ( tFI->gradx( 1 ) - tPropSource->dnPropdxn( 1 ) );
                 }
                 else
                 {
-                    tRes += aWStar * tPropH1Term->val() * trans( tFI->dnNdxn( 1 ) ) * ( tFI->gradx( 1 ) - tFI->dnNdxn( 1 ) * mNodalWeakBCs );
+                    tRes += aWStar * tPropH1Term->val()( 0 ) * trans( tFI->dnNdxn( 1 ) ) * ( tFI->gradx( 1 ) - tFI->dnNdxn( 1 ) * mNodalWeakBCs );
                 }
             }
 
             // add diffusion term to residual
             if ( tPropDiffusion != nullptr )
             {
-                tRes += aWStar * tPropDiffusion->val() * trans( tFI->dnNdxn( 1 ) ) * tFI->gradx( 1 );
+                tRes += aWStar * tPropDiffusion->val()( 0 ) * trans( tFI->dnNdxn( 1 ) ) * tFI->gradx( 1 );
             }
         }
 
@@ -124,7 +124,7 @@ namespace moris
             // get the field interpolator for residual dof type
             Field_Interpolator* tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
-             // get L2 coefficient
+            // get L2 coefficient
             const std::shared_ptr< Property >& tPropL2Term =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::L2COEFFICIENT ) );
 
@@ -132,7 +132,7 @@ namespace moris
 
             if ( tPropL2Term != nullptr )
             {
-                    tL2Term = tPropL2Term->val()(0);
+                tL2Term = tPropL2Term->val()( 0 );
             }
 
             // get H1 coefficient property
@@ -175,13 +175,13 @@ namespace moris
                     // add contribution from H1 term to Jacobian
                     if ( tPropH1Term != nullptr )
                     {
-                        tJac += aWStar * tPropH1Term->val() * trans( tFI->dnNdxn( 1 ) ) * tFI->dnNdxn( 1 );
+                        tJac += aWStar * tPropH1Term->val()( 0 ) * trans( tFI->dnNdxn( 1 ) ) * tFI->dnNdxn( 1 );
                     }
 
                     // add contribution from diffusion term to Jacobian
                     if ( tPropDiffusion != nullptr )
                     {
-                        tJac += aWStar * tPropDiffusion->val() * trans( tFI->dnNdxn( 1 ) ) * tFI->dnNdxn( 1 );
+                        tJac += aWStar * tPropDiffusion->val()( 0 ) * trans( tFI->dnNdxn( 1 ) ) * tFI->dnNdxn( 1 );
                     }
                 }
 
@@ -241,4 +241,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
