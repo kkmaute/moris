@@ -104,7 +104,7 @@ class Moris(CMakePackage):
         if '-pardiso' in spec:
             options.extend([ '-DMORIS_USE_PARDISO=OFF' ])
 
-       if '-openblas' in spec:
+        if '-openblas' in spec:
             options.extend([ '-DMORIS_USE_OPENBLAS=OFF' ])
             options.extend([ '-DMORIS_USE_MKL=ON' ])
 
