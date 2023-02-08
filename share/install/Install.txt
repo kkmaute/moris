@@ -183,7 +183,7 @@ spack env activate .
 * By default MORIS is installed with support for petsc, pardiso, and mumps, as well as the optimization libraries; 
 * to turn off one or all of these options, use for example:
 
-spack add moris~petsc~pardiso~mumps~gcmma~lbfgs~snopt
+spack add moris+openblas~petsc~pardiso~mumps~gcmma~lbfgs~snopt
 
 * otherwise use the following spack command to install default configuration
 
@@ -260,9 +260,13 @@ spack location --install-dir python
 * install moris dependencies; 
 * add -j <num procs> to limit the number of processors
 
+* for developers
 spack install --only dependencies moris
 
 spack install openblas
+
+* for users
+spack install moris
 
 *------------------------------------------------------------
 
