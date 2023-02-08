@@ -27,12 +27,12 @@
 * petsc (optional) with the following package
 *    mpi+metis+hypre+suite-sparse
 *    optional: mkl-pardiso
-*    optional: mumps (without mumps some tests will fail)
+*    optional: mumps 
 * superlu (required)
 * trilinos (required) with the following package
 *    boost+hdf5+mpi+suite-sparse+superlu-dist+amesos+anasazi+aztec+belos+chaco+epetra+exodus+ifpack+ifpack2+ml+rol+stk+zoltan2
 *    optional: pardiso
-*    optional: mumps (without mumps some tests will fail)
+*    optional: mumps 
 *
 * in addition MORIS has interfaces to the follow optimization algorithms
 
@@ -289,6 +289,7 @@ tcsh $WORKSPACE/moris/share/spack/make_moris_cshrc.sh
 
 * without petsc:   -DMORIS_HAVE_PETSC=OFF
 * without pardiso: -DMORIS_USE_PARDISO=OFF 
+* without mumps:   -DMORIS_USE_MUMPS=OFF 
 * without gcmma:   -DMORIS_HAVE_GCMMA=OFF
 * without lbfgs:   -DMORIS_HAVE_LBFGS=OFF
 * without snopt:   -DMORIS_HAVE_SNOPT=OFF
@@ -305,6 +306,8 @@ mkdir build_opt
 
 cd build_opt
 
+* depending on your spack installation setting, you may be able to use one of the following settings 
+
 cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..
 cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..
 
@@ -318,11 +321,18 @@ cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_MKL=ON -DMORIS_USE_OPEN
 cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_OPENBLAS=OFF -DMORIS_USE_LAPACK=ON ..
 cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_OPENBLAS=OFF -DMORIS_USE_LAPACK=ON ..
 
+* if you do not have installed petsc, pardiso, and the optimization libraries:
+
+cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_HAVE_PETSC=OFF -DMORIS_USE_PARDISO=OFF -DMORIS_USE_MUMPS=OFF -DMORIS_HAVE_GCMMA=OFF -DMORIS_HAVE_LBFGS=OFF -DMORIS_HAVE_SNOPT=OFF ..
+cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_HAVE_PETSC=OFF -DMORIS_USE_PARDISO=OFF -DMORIS_USE_MUMPS=OFF -DMORIS_HAVE_GCMMA=OFF -DMORIS_HAVE_LBFGS=OFF -DMORIS_HAVE_SNOPT=OFF ..
+
+* compile moris
+
 make -j 16
 
-ctest
+* run tests
 
-* NOte that some tests will fail if trilinos was configured with out mumps 
+ctest
 
 *------------------------------------------------------------
 
@@ -349,8 +359,15 @@ cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE
 cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_OPENBLAS=OFF -DMORIS_USE_LAPACK=ON ..
 cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_OPENBLAS=OFF -DMORIS_USE_LAPACK=ON ..
 
+* if you do not have installed petsc, pardiso, and the optimization libraries:
+
+cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_HAVE_PETSC=OFF -DMORIS_USE_PARDISO=OFF -DMORIS_USE_MUMPS=OFF -DMORIS_HAVE_GCMMA=OFF -DMORIS_HAVE_LBFGS=OFF -DMORIS_HAVE_SNOPT=OFF ..
+cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_HAVE_PETSC=OFF -DMORIS_USE_PARDISO=OFF -DMORIS_USE_MUMPS=OFF -DMORIS_HAVE_GCMMA=OFF -DMORIS_HAVE_LBFGS=OFF -DMORIS_HAVE_SNOPT=OFF ..
+
+* compile moris
+
 make -j 16
 
-ctest
+* run tests
 
-* NOte that some tests will fail if trilinos was configured with out mumps 
+ctest
