@@ -580,9 +580,13 @@ if (HAVE_PEDANTIC)
 endif()
 
 # Define exceptions to strict error checking
-check_cxx_compiler_flag("-Wno-unused-parameter" HAVE_PEDANTIC )
-if (HAVE_PEDANTIC)
+check_cxx_compiler_flag("-Wno-unused-parameter" HAVE_EXCEPTION )
+if (HAVE_EXCEPTION)
     set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-unused-parameter" )
+endif()
+check_cxx_compiler_flag("-Wno-format-security" HAVE_EXCEPTION )
+if (HAVE_EXCEPTION)
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-format-security" )
 endif()
 
 # Check for C++17 and lower version support.
