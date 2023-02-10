@@ -169,8 +169,8 @@ TEST_CASE( "Leveset Boxbeam Adaptive Refinement",
     // FIXME: should be made independent of OS; note std::remove does not take wild cards
     if ( par_rank() == 0 )
     {
-        std::system( "rm -f *exo*" );
-        std::system( "rm -f *hdf5*" );
+        MORIS_ERROR( std::system( "rm -f *exo*" )  == 0, "Leveset Boxbeam Adaptive Refinement - removing *exo* files failed" );
+        MORIS_ERROR( std::system( "rm -f *hdf5*" ) == 0, "Leveset Boxbeam Adaptive Refinement - removing *hdf5* files failed" );
     }
 
     // define command line call
