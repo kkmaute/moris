@@ -109,8 +109,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         sol::Dist_Vector*
-        MSI_Solver_Interface::get_solution_vector( const moris::Cell< enum MSI::Dof_Type >& aListOfDofTypes,
-                moris::Cell< moris_index > const &                                          aLocalCoefficientsIndices )
+        MSI_Solver_Interface::get_solution_vector(
+                const moris::Cell< enum MSI::Dof_Type >& aListOfDofTypes,
+                moris::Cell< moris_index > const &       aLocalCoefficientsIndices )
         {
             // create the factory based on the tpl
             sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
@@ -131,7 +132,7 @@ namespace moris
             // create a dist. vector
             sol::Dist_Vector* tDofDVec = tMatFactory.create_vector( this, tDofDMap, 1 );
 
-            //populate the vector based on the map
+            // populate the vector based on the map
             tDofDVec->import_local_to_global( *mSolutionVector );
 
             // return the dist vector
@@ -260,7 +261,7 @@ namespace moris
         {
             mSolverWarehouse = aSolverWarehouse;
         }
-        
+
         //-------------------------------------------------------------------------------------------------------
 
 
