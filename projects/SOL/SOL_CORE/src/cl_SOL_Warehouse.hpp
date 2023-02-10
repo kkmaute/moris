@@ -50,13 +50,13 @@ namespace moris
 
         /**
          * @brief Default function for the output criterion
-         * 
-         * @param aTimeSolver 
-         * @return true 
-         * @return false 
+         *
+         * @param aTimeSolver
+         * @return true
+         * @return false
          */
-        inline bool 
-        Default_Output_Criterion( moris::tsa::Time_Solver * aTimeSolver )
+        inline bool
+        Default_Output_Criterion( moris::tsa::Time_Solver* aTimeSolver )
         {
             return true;
         }
@@ -81,11 +81,11 @@ namespace moris
             Cell< std::shared_ptr< tsa::Time_Solver_Algorithm > > mTimeSolverAlgorithms;
             Cell< tsa::Time_Solver* >                             mTimeSolvers;
 
-            // Parameterlist for (0) Linear Algorithm (1) Linear Solver (2) nonlinear Algorithm (3)
+            // Parameter list for (0) Linear Algorithm (1) Linear Solver (2) nonlinear Algorithm (3)
             // Nonlinear Solver (4) TimeSolver Algorithm (5) Time Solver (6) Warehouse
             moris::Cell< moris::Cell< moris::ParameterList > > mParameterlist;
 
-            // pointer to synamically linked library
+            // pointer to dynamically linked library
             std::shared_ptr< Library_IO > mLibrary = nullptr;
 
             // TPL type
