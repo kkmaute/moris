@@ -704,6 +704,7 @@ namespace moris
         }
     }
 
+#ifdef MORIS_HAVE_PETSC
     TEST_CASE( "HMR Interpolation XTK Cut Diffusion Model Multigrid", "[XTK_HMR_DIFF_MULTIGRID]" )
     {
         if ( par_size() == 1 )
@@ -1272,5 +1273,6 @@ namespace moris
             delete tInterpMesh;
         }
     }
+#endif
 
 }    // namespace moris

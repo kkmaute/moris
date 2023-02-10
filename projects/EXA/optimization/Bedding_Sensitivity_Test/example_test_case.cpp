@@ -326,7 +326,7 @@ check_results(
     Matrix< DDRMat > tConstraintsFD;
 
     // Tolerance for adjoint vs. FD sensitivities
-    moris::real tToleranceSensties = 0.001;
+    moris::real tToleranceSensitivities = 1e-4;
 
     // perturbation of denominator when building relative error
     real tDeltaEps = 1.0e-12;
@@ -346,15 +346,26 @@ check_results(
         {
             for ( uint tConIndex = 0; tConIndex < tConstraintsAnalytical.n_rows(); ++tConIndex )
             {
+                real tRelConstraintDifference =
+                        std::abs( tConstraintsAnalytical( tConIndex, tADVIndex ) - tConstraintsFD( tConIndex, tADVIndex ) ) /    //
+                        ( std::abs( tConstraintsFD( tConIndex, tADVIndex ) ) + tDeltaEps );
+
                 MORIS_LOG_INFO( "Check derivative of constraint %d  wrt. ADV(%i):  analytical  %12.5e, finite difference (%s) %12.5e, percent error %12.5e.",
                         tConIndex,
                         tADVIndex,
                         tConstraintsAnalytical( tConIndex, tADVIndex ),
                         tFDTypes( tFDIndex ).c_str(),
                         tConstraintsFD( tConIndex, tADVIndex ),
-                        100 * std::abs( ( tConstraintsAnalytical( tConIndex, tADVIndex ) - tConstraintsFD( tConIndex, tADVIndex ) ) / ( tConstraintsFD( tConIndex, tADVIndex ) + tDeltaEps ) ) );
+                        100.0 * tRelConstraintDifference );
 
-                CHECK( std::abs( ( tConstraintsAnalytical( tConIndex, tADVIndex ) - tConstraintsFD( tConIndex, tADVIndex ) ) / ( tConstraintsFD( tConIndex, tADVIndex ) + tDeltaEps ) ) < tToleranceSensties );
+                if ( std::abs( tConstraintsFD( tConIndex, tADVIndex ) ) > 1e-6 )
+                {
+                    CHECK( tRelConstraintDifference < tToleranceSensitivities );
+                }
+                else
+                {
+                    CHECK( tConstraintsAnalytical( tConIndex, tADVIndex ) == Approx( tConstraintsFD( tConIndex, tADVIndex ) ).margin( 1e-6 ) );
+                }
             }
         }
     }

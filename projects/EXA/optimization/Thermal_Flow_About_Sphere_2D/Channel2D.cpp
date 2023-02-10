@@ -1318,6 +1318,9 @@ namespace moris
 #ifdef MORIS_USE_MUMPS
         tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Mumps" );
         tParameterlist( 0 )( 1 ).set( "Solver_Type", "Amesos_Mumps" );
+#else
+        tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Superludist" );
+        tParameterlist( 0 )( 1 ).set( "Solver_Type", "Amesos_Superludist" );
 #endif
 
         /*

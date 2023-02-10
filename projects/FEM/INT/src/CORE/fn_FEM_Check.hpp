@@ -22,13 +22,16 @@ namespace moris
         //------------------------------------------------------------------------------
         inline bool
         check(
-                moris::Matrix< moris::DDRMat >& aMatrixCheck,
-                moris::Matrix< moris::DDRMat >& aMatrixRef,
-                moris::real                     aEpsilon,
-                bool                            aShowDifferences    = true,
-                bool                            aShowMaxDifferences = false,
-                moris::real                     aFDtolerance        = -1.0 )
+                Matrix< DDRMat >& aMatrixCheck,
+                Matrix< DDRMat >& aMatrixRef,
+                real              aEpsilon,
+                bool              aShowDifferences    = true,
+                bool              aShowMaxDifferences = false,
+                real              aFDtolerance        = -1.0 )
         {
+            // set tolerance on reference value above which relative difference is computed
+            const real tRelDiffThreshold = 1e-12;
+
             // check if FD tolerance is defined
             // aFDtolerance is the absolute error do to finite differencing,
             // i.e. the absolute error that will accepted by the check, even if the relative error check fails
@@ -51,12 +54,12 @@ namespace moris
             bool tCheckBool = true;
 
             // define a real for absolute difference
-            moris::real tAbsolute    = 0.0;
-            moris::real tAbsoluteMax = 0.0;
+            real tAbsolute    = 0.0;
+            real tAbsoluteMax = 0.0;
 
             // define a real for relative difference
-            moris::real tRelative    = 0.0;
-            moris::real tRelativeMax = 0.0;
+            real tRelative    = 0.0;
+            real tRelativeMax = 0.0;
 
             for ( uint ii = 0; ii < aMatrixCheck.n_rows(); ii++ )
             {
@@ -67,7 +70,11 @@ namespace moris
                     tAbsoluteMax = std::max( tAbsoluteMax, tAbsolute );
 
                     // get relative difference
-                    tRelative = std::abs( ( aMatrixRef( ii, jj ) - aMatrixCheck( ii, jj ) ) / aMatrixRef( ii, jj ) );
+                    real tAbsReference = std::abs( aMatrixRef( ii, jj ) );
+
+                    tRelative = tAbsReference > tRelDiffThreshold ? tAbsolute / tAbsReference : 0.0;
+
+                    // store maximum of absolute and relative difference if larger than FD tolerance
                     if ( tAbsolute > aFDtolerance )
                     {
                         tRelativeMax = std::max( tRelativeMax, tRelative );

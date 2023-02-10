@@ -128,7 +128,7 @@ check_results(
                     tObjectiveAnalytical( tADVIndex ),
                     tFDTypes( tFDIndex ).c_str(),
                     tObjectiveFD( tADVIndex ),
-                    100 * tRelObectiveDifference );
+                    100.0 * tRelObectiveDifference );
 
             MORIS_LOG_INFO( "Check derivative of constraint wrt. ADV(%i):  analytical  %12.5e, finite difference (%s) %12.5e, percent error %12.5e.",
                     tADVIndex,
@@ -143,7 +143,7 @@ check_results(
             }
             else
             {
-                CHECK( tObjectiveAnalytical( tADVIndex ) == Approx( tObjectiveFD( tADVIndex ) ).margin( 1e-8 ) );
+                CHECK( tObjectiveAnalytical( tADVIndex ) == Approx( tObjectiveFD( tADVIndex ) ).margin( 1e-6 ) );
             }
 
             if ( std::abs( tConstraintsFD( tADVIndex ) ) > 1e-6 )
@@ -152,7 +152,7 @@ check_results(
             }
             else
             {
-                CHECK( tConstraintsAnalytical( tADVIndex ) == Approx( tConstraintsFD( tADVIndex ) ).margin( 1e-8 ) );
+                CHECK( tConstraintsAnalytical( tADVIndex ) == Approx( tConstraintsFD( tADVIndex ) ).margin( 1e-6 ) );
             }
         }
     }

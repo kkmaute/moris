@@ -27,7 +27,7 @@ class Moris(CMakePackage):
     """MORIS"""
 
     git = "ssh://git@github.com/kkmaute/moris"
-    
+
     maintainers = ['kkmaute']
 
     version('main', branch='main', submodules=True, preferred=True)
@@ -40,8 +40,9 @@ class Moris(CMakePackage):
     variant("snopt",    default=True, description="Compile with support for snopt algorithm")
     variant("lbfgs",    default=True, description="Compile with support for lbfgs algorithm")
     variant("openblas", default=False,description="Compile with support for openblas")
-    variant("mkl",      default=True, description="Compile with support for intel-mkl")
-    
+    variant("tests",    default=False,description="Compile with unit tests")
+    variant("examples", default=False,description="Compile with examples")
+
     depends_on('armadillo@9.800.3')
 
     depends_on('arpack-ng@3.8.0')
@@ -51,10 +52,12 @@ class Moris(CMakePackage):
     depends_on('eigen')
 
     depends_on('gcmma', when="+gcmma")
-    
+
     depends_on('hdf5')
 
     depends_on('intel-mkl', when="+pardiso")
+
+    depends_on('openblas', when="+openblas")
 
     depends_on('lbfgs', when="+lbfgs")
  
@@ -74,20 +77,18 @@ class Moris(CMakePackage):
     depends_on('petsc+mkl-pardiso',                  when="+petsc +pardiso")
     depends_on('petsc+mumps',                        when="+petsc +mumps")
  
-    conflicts('+openblas',   when='+pardiso')
-    conflicts('+openblas',   when='+mkl')
-    conflicts('+mkl',        when='+openblas')
+    conflicts('+openblas', when='+pardiso')
  
     def cmake_args(self):
     
         spec = self.spec
         options = []
 
-        options.extend([ '-DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON' ])
-        
+        options.extend([ '-DBUILD_ALL=ON' ])
+
         if '-petsc' in spec:
             options.extend([ '-DMORIS_HAVE_PETSC=OFF' ])
-        
+
         if '-gcmma' in spec:
             options.extend([ '-DMORIS_HAVE_GCMMA=OFF' ])
 
@@ -97,14 +98,30 @@ class Moris(CMakePackage):
         if '-snopt' in spec:
             options.extend([ '-DMORIS_HAVE_SNOPT=OFF' ])
 
-        if '-pardiso' in spec:
-            options.extend([ '-DMORIS_USE_PARDISO=OFF' ])
-
         if '-mumps' in spec:
             options.extend([ '-DMORIS_USE_MUMPS=OFF' ])
 
-        if '+mkl' in spec:
+        if '+pardiso' in spec:
             options.extend([ '-DMORIS_USE_OPENBLAS=OFF' ])
             options.extend([ '-DMORIS_USE_MKL=ON' ])
+
+        if '-pardiso' in spec:
+            options.extend([ '-DMORIS_USE_PARDISO=OFF' ])
+
+        if '-openblas' in spec:
+            options.extend([ '-DMORIS_USE_OPENBLAS=OFF' ])
+            options.extend([ '-DMORIS_USE_MKL=ON' ])
+
+        if '+tests' in spec:
+            options.extend([ '-DMORIS_USE_TESTS=ON' ])
+
+        if '-tests' in spec:
+            options.extend([ '-DMORIS_USE_TESTS=OFF' ])
+
+        if '+examples' in spec:
+            options.extend([ '-DMORIS_USE_EXAMPLES=ON' ])
+
+        if '-examples' in spec:
+            options.extend([ '-DMORIS_USE_EXAMPLES=OFF' ])
 
         return options
