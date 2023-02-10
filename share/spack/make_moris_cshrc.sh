@@ -67,7 +67,7 @@ setenv PETSC_DIR    `spack location --install-dir petsc`
 echo "setenv PETSC_DIR"        $PETSC_DIR                                      >> $HOME/.cshrc_moris
 endif
 if ( $MKL_INSTALLED == "1" ) then
-echo "setenv MKL_DIR "         `spack location --install-dir intel-mkl`"/mkl"  >> $HOME/.cshrc_moris
+echo "setenv MKL_DIR"          `spack location --install-dir intel-mkl`"/mkl"  >> $HOME/.cshrc_moris
 endif
 if ( $OBLAS_INSTALLED == "1" ) then
 setenv OPENBLAS_DIR `spack location --install-dir openblas`"/lib"
