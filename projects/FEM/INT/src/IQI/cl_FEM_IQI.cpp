@@ -592,6 +592,28 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        void
+        IQI::set_field_interpolator_manager_eigen_vector(
+                Field_Interpolator_Manager* aFieldInterpolatorManager,
+                mtk::Master_Slave           aIsMaster )
+        {
+            switch ( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER:
+                {
+                    mMasterEigenFIManager = aFieldInterpolatorManager;
+                    break;
+                }
+
+                default:
+                {
+                    MORIS_ERROR( false, "IQI::set_field_interpolator_manager_eigen_vector - can only be master" );
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         const moris::Cell< moris::Cell< mtk::Field_Type > >&
         IQI::get_field_type_list(
                 mtk::Master_Slave aIsMaster ) const

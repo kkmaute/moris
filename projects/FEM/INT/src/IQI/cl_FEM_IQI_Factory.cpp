@@ -16,6 +16,7 @@
 #include "cl_FEM_IQI_Strain_Energy.hpp"
 #include "cl_FEM_IQI_Stress.hpp"
 #include "cl_FEM_IQI_Dof.hpp"
+#include "cl_FEM_IQI_Eigen_Vector.hpp"
 #include "cl_FEM_IQI_ALM_Dof.hpp"
 #include "cl_FEM_IQI_Max_Dof.hpp"
 #include "cl_FEM_IQI_Property.hpp"
@@ -58,6 +59,9 @@ namespace moris
             {
                 case IQI_Type::DOF:
                     return std::make_shared< IQI_Dof >();
+
+                case IQI_Type::EIGEN_VECTOR:
+                    return std::make_shared< IQI_Eigen_Vector >();
 
                 case IQI_Type::ALM_DOF:
                     return std::make_shared< IQI_ALM_Dof >();
