@@ -100,7 +100,13 @@ Time_Solver::delete_pointers()
         }
 
         mFullVector.clear();
-        delete mFullMap;
+
+        for ( auto tFullSolVec : mFullEigenVector )
+        {
+            delete tFullSolVec;
+        }
+
+        mFullEigenVector.clear();
 
         for ( auto tFullSolVec : mFullVectorSensitivity )
         {
@@ -110,6 +116,8 @@ Time_Solver::delete_pointers()
         mFullVectorSensitivity.clear();
 
         mTimeFrames.clear();
+
+        delete mFullMap;
     }
 }
 
@@ -352,6 +360,19 @@ Time_Solver::solve()
     // set time level 0 sol vec to interface
     mSolverInterface->set_solution_vector( mFullVector( 1 ) );
     mSolverInterface->set_solution_vector_prev_time_step( mFullVector( 0 ) );
+
+    // get number of eigen vectors
+    uint tNumEigenVectors = mSolverInterface->get_num_eigen_vectors();
+
+    // create full vector for eigen vectors
+    if ( tNumEigenVectors > 0 )
+    {
+        mFullEigenVector.resize( 1, nullptr );
+        mFullEigenVector( 0 ) = tMatFactory.create_vector( mSolverInterface, mFullMap, tNumEigenVectors );
+
+        // set eigen vector in interface
+        mSolverInterface->set_eigen_solution_vector( mFullEigenVector( 0 ) );
+    }
 
     // initialize solution vector and prev solution vector
     this->initialize_sol_vec();
