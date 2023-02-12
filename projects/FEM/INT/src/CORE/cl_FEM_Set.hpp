@@ -89,6 +89,10 @@ namespace moris
             Field_Interpolator_Manager* mMasterFIManager         = nullptr;
             Field_Interpolator_Manager* mSlaveFIManager          = nullptr;
             Field_Interpolator_Manager* mMasterPreviousFIManager = nullptr;
+            Field_Interpolator_Manager* mMasterEigenFIManager    = nullptr;
+
+            // number of eigen vectors
+            uint mNumEigenVectors = 0;
 
             // cell of pointers to IWG objects
             moris::Cell< std::shared_ptr< IWG > > mIWGs;
@@ -787,6 +791,15 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * get the field interpolator manager for eigen vectors
+             * @param[ in ]  aIsMaster an enum for master or slave
+             * @param[ out ] mFIManger a field interpolator manager pointer
+             */
+            Field_Interpolator_Manager* get_field_interpolator_manager_eigen_vectors(
+                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+
+            //------------------------------------------------------------------------------
+            /**
              * auto detect full integration scheme
              * @param[ in ]  aGeometryType       a geometry type
              * @param[ in ]  aInterpolationOrder an interpolation order
@@ -1039,7 +1052,7 @@ namespace moris
             void get_ig_unique_dv_types_for_set( moris::Cell< enum PDV_Type >& aGeoPdvType );
 
             //------------------------------------------------------------------------------
-            
+
             /**
              * get ip dv types for set from design variable interface
              * @param[ in ] aMatPdvType list of group of ip pdv types on set
