@@ -61,6 +61,7 @@ namespace moris
             sol::Dist_Vector* mPrevSolutionVector            = nullptr;
             sol::Dist_Vector* mAdjointSolutionVector         = nullptr;
             sol::Dist_Vector* mPreviousAdjointSolutionVector = nullptr;
+            sol::Dist_Vector* mEigenSolutionVector           = nullptr;
 
             sol::Dist_Map* mdQIdpMap = nullptr;
 
@@ -193,6 +194,28 @@ namespace moris
             get_previous_solution_vector()
             {
                 return mPrevSolutionVector;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * set eigen vectors
+             * @param[ in ] aEigenVector distributed solution vector
+             */
+            void
+            set_eigen_solution_vector( sol::Dist_Vector* aEigenSolutionVector )
+            {
+                mEigenSolutionVector = aEigenSolutionVector;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * get previous solution vector
+             * @param[ out ] aSolutionVector previous distributed solution vector
+             */
+            sol::Dist_Vector*
+            get_eigen_solution_vector()
+            {
+                return mEigenSolutionVector;
             }
 
             //------------------------------------------------------------------------------

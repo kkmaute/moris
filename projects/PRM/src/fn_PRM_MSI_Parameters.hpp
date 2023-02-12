@@ -67,6 +67,9 @@ namespace moris
 
             mMSIParameterList.insert( "msi_checker", false );
 
+            // Number of eigen vectors
+            mMSIParameterList.insert( "number_eigen_vectors", 0 );
+
             // Geometric multigrid parameters
             mMSIParameterList.insert( "multigrid", false );
             mMSIParameterList.insert( "level", 2 );

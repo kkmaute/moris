@@ -161,6 +161,8 @@ namespace moris
             // add more msi checks here!!!
         }
 
+        //------------------------------------------------------------------------------
+
         void
         Model_Solver_Interface::pdof_host_checker()
         {

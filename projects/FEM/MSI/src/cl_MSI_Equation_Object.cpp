@@ -1156,6 +1156,38 @@ namespace moris
         //-------------------------------------------------------------------------------------------------
 
         void
+        Equation_Object::compute_my_eigen_vector_values()
+        {
+            Matrix< DDRMat > tTMatrix;
+
+            // build T-matrix
+            this->build_PADofMap( tTMatrix );
+
+            moris::Cell< Matrix< DDRMat > > tMyValues;
+
+            // Extract this equation objects adof values from solution vector
+            mEquationSet->mEquationModel
+                    ->get_eigen_solution_vector()
+                    ->extract_my_values( tTMatrix.n_cols(), mUniqueAdofList, 0, tMyValues );
+
+            if ( mEquationSet->mEigenVectorPdofValues.size() != tMyValues.size() )
+            {
+                mEquationSet->mEigenVectorPdofValues.resize( tMyValues.size() );
+            }
+
+            // multiply t_matrix with adof values to get pdof values
+            for ( uint Ik = 0; Ik < tMyValues.size(); Ik++ )
+            {
+                mEquationSet->mEigenVectorPdofValues( Ik ) = tTMatrix * tMyValues( Ik );
+            }
+
+            // FIXME should not be in MSI. Should be in FEM
+            this->set_vector_entry_number_of_pdof();
+        }
+
+        //-------------------------------------------------------------------------------------------------
+
+        void
         Equation_Object::compute_my_adjoint_values()
         {
             Matrix< DDRMat > tTMatrix;

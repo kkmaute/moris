@@ -74,6 +74,15 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
+        MSI_Solver_Interface::set_eigen_solution_vector( sol::Dist_Vector* aSolutionVector )
+        {
+            mEigenSolutionVector = aSolutionVector;
+            mMSI->mEquationModel->set_eigen_solution_vector( mEigenSolutionVector );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
         MSI_Solver_Interface::postmultiply_implicit_dQds()
         {
             mMSI->mEquationModel->compute_explicit_and_implicit_dQIdp();
@@ -214,6 +223,7 @@ namespace moris
         {
             return mMSI->get_equation_model()->get_num_rhs();
         }
+
         //-------------------------------------------------------------------------------------------------------
 
         void
