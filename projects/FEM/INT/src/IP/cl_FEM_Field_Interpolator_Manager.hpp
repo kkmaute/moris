@@ -60,8 +60,11 @@ namespace moris
             // list of field interpolators
             moris::Cell< Field_Interpolator* > mFI;
 
-            // maximum number of field interpolators
+            // maximum number of field interpolators for all dof types
             moris::uint mMaxNumDofFI;
+
+            // number of solution sets
+            moris::uint mNumSolutionSets = 1;
 
             // dof type list for the FI manager
             const moris::Cell< moris::Cell< enum PDV_Type > > mDvTypes;
@@ -160,9 +163,12 @@ namespace moris
             //------------------------------------------------------------------------------
             /**
              * create the field interpolator for the FI manager
-             * @param[ in ] aModelSolverInterface a pointer to the corresponding model solver interface
+             * @param[ in ] aModelSolverInterface  pointer to the corresponding model solver interface
+             * @param[ in ] tNumSolutionSets       number of solutions sets (e.g. eigen vectors)
              */
-            void create_field_interpolators( MSI::Model_Solver_Interface* aModelSolverInterface );
+            void create_field_interpolators(
+                    MSI::Model_Solver_Interface* aModelSolverInterface,
+                    uint                         tNumSolutionSets = 1 );
 
             //------------------------------------------------------------------------------
             /**
@@ -223,6 +229,17 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
+             * get the number of solution sets
+             * @param[ out ] mMaxNumDofFI the maximum number of dof FI on the manager
+             */
+            moris::uint
+            get_num_set_field_interpolators()
+            {
+                return mNumSolutionSets;
+            }
+
+            //------------------------------------------------------------------------------
+            /**
              * get the maximum number of dv field interpolators on the manager
              * @param[ out ] mMaxNumDvFI the maximum number of dv FI on the manager
              */
@@ -237,7 +254,9 @@ namespace moris
              * get the field interpolator for a given dof type
              * @param[ in ] aDofType a dof type enum
              */
-            Field_Interpolator* get_field_interpolators_for_type( enum MSI::Dof_Type aDofType );
+            Field_Interpolator* get_field_interpolators_for_type(
+                    const enum MSI::Dof_Type aDofType,
+                    const uint               aSolutionSetIndex = 0 );
 
             //------------------------------------------------------------------------------
             /**
@@ -274,8 +293,9 @@ namespace moris
              * @param[ in ] aCoeff   coefficients to be set
              */
             void set_coeff_for_type(
-                    enum MSI::Dof_Type      aDofType,
-                    const Matrix< DDRMat >& aCoeff );
+                    const enum MSI::Dof_Type aDofType,
+                    const Matrix< DDRMat >&  aCoeff,
+                    const uint               aSolutionSetIndex = 0 );
 
             //------------------------------------------------------------------------------
             /**
@@ -338,4 +358,3 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_FIELD_INTERPLATOR_MANAGER_HPP_ */
-
