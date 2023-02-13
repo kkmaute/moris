@@ -58,6 +58,8 @@ namespace moris
             moris::Cell< sol::Dist_Vector* > mFullVector;
             moris::Cell< sol::Dist_Vector* > mFullVectorSensitivity;
 
+            moris::Cell< sol::Dist_Vector* > mFullEigenVector;
+
             moris::Cell< moris::Matrix< DDRMat > > mTimeFrames;
 
             sol::Dist_Map* mFullMap = nullptr;

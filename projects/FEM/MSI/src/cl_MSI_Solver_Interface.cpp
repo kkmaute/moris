@@ -74,6 +74,15 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
+        MSI_Solver_Interface::set_eigen_solution_vector( sol::Dist_Vector* aSolutionVector )
+        {
+            mEigenSolutionVector = aSolutionVector;
+            mMSI->mEquationModel->set_eigen_solution_vector( mEigenSolutionVector );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
         MSI_Solver_Interface::postmultiply_implicit_dQds()
         {
             mMSI->mEquationModel->compute_explicit_and_implicit_dQIdp();
@@ -109,8 +118,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         sol::Dist_Vector*
-        MSI_Solver_Interface::get_solution_vector( const moris::Cell< enum MSI::Dof_Type >& aListOfDofTypes,
-                moris::Cell< moris_index > const &                                          aLocalCoefficientsIndices )
+        MSI_Solver_Interface::get_solution_vector(
+                const moris::Cell< enum MSI::Dof_Type >& aListOfDofTypes,
+                moris::Cell< moris_index > const &       aLocalCoefficientsIndices )
         {
             // create the factory based on the tpl
             sol::Matrix_Vector_Factory tMatFactory( mSolverWarehouse->get_tpl_type() );
@@ -131,7 +141,7 @@ namespace moris
             // create a dist. vector
             sol::Dist_Vector* tDofDVec = tMatFactory.create_vector( this, tDofDMap, 1 );
 
-            //populate the vector based on the map
+            // populate the vector based on the map
             tDofDVec->import_local_to_global( *mSolutionVector );
 
             // return the dist vector
@@ -213,6 +223,7 @@ namespace moris
         {
             return mMSI->get_equation_model()->get_num_rhs();
         }
+
         //-------------------------------------------------------------------------------------------------------
 
         void
@@ -260,7 +271,7 @@ namespace moris
         {
             mSolverWarehouse = aSolverWarehouse;
         }
-        
+
         //-------------------------------------------------------------------------------------------------------
 
 

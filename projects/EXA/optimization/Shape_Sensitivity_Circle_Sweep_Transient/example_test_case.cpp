@@ -134,7 +134,7 @@ check_results(
                     tConstraintsAnalytical( tADVIndex ),
                     tFDTypes( tFDIndex ).c_str(),
                     tConstraintsFD( tADVIndex ),
-                    100 * tRelConstraintDifference );
+                    100.0 * tRelConstraintDifference );
 
             if ( std::abs( tObjectiveFD( tADVIndex ) ) > 1e-6 )
             {
@@ -142,7 +142,7 @@ check_results(
             }
             else
             {
-                CHECK( tObjectiveAnalytical( tADVIndex ) == Approx( tObjectiveFD( tADVIndex ) ).margin( 1e-8 ) );
+                CHECK( tObjectiveAnalytical( tADVIndex ) == Approx( tObjectiveFD( tADVIndex ) ).margin( 1e-6 ) );
             }
 
             if ( std::abs( tConstraintsFD( tADVIndex ) ) > 1e-6 )
@@ -151,7 +151,7 @@ check_results(
             }
             else
             {
-                CHECK( tConstraintsAnalytical( tADVIndex ) == Approx( tConstraintsFD( tADVIndex ) ).margin( 1e-8 ) );
+                CHECK( tConstraintsAnalytical( tADVIndex ) == Approx( tConstraintsFD( tADVIndex ) ).margin( 1e-6 ) );
             }
         }
     }

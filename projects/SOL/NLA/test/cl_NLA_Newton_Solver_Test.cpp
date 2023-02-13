@@ -439,6 +439,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+#ifdef MORIS_HAVE_PETSC
         TEST_CASE( "Newton Solver Test Petsc", "[NLA],[NLA_Test_Petsc]" )
         {
             if ( par_size() == 1 )
@@ -487,7 +488,7 @@ namespace moris
                 delete ( tSolverInput );
             }
         }
-
+#endif
         //------------------------------------------------------------------------------
 
         TEST_CASE( "Newton Solver Test InvResidual Relaxation", "[NLA],[NLA_Test_InvResidual_Relaxation]" )

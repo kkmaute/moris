@@ -283,6 +283,11 @@ namespace moris
                 delete mMasterPreviousFIManager;
                 mMasterPreviousFIManager = nullptr;
             }
+            if ( mMasterEigenFIManager != nullptr )
+            {
+                delete mMasterEigenFIManager;
+                mMasterEigenFIManager = nullptr;
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -1165,6 +1170,29 @@ namespace moris
                 // create the field interpolators on the master FI manager
                 mMasterPreviousFIManager->create_field_interpolators( aModelSolverInterface );
             }
+
+            // if eigen vectors
+            mNumEigenVectors = aModelSolverInterface->get_num_eigen_vectors();
+
+            if ( mNumEigenVectors > 0 )
+            {
+                // create the master field interpolator manager
+                mMasterEigenFIManager = new Field_Interpolator_Manager(
+                        mMasterDofTypes,
+                        mMasterDvTypes,
+                        mMasterFieldTypes,
+                        this );
+
+                // assign cell shape to the field interpolator manager
+                mMasterEigenFIManager->set_IG_cell_shape( mMeshSet->get_IG_cell_shape() );
+                mMasterEigenFIManager->set_IP_cell_shape( mMeshSet->get_IP_cell_shape() );
+
+                // create the geometry interpolators on the master FI manager
+                mMasterEigenFIManager->create_geometry_interpolators();
+
+                // create the field interpolators on the master FI manager
+                mMasterEigenFIManager->create_field_interpolators( aModelSolverInterface, mNumEigenVectors );
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -1197,6 +1225,23 @@ namespace moris
             {
                 case mtk::Master_Slave::MASTER:
                     return mMasterPreviousFIManager;
+
+                default:
+                    MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be master." );
+                    return mMasterPreviousFIManager;
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        Field_Interpolator_Manager*
+        Set::get_field_interpolator_manager_eigen_vectors(
+                mtk::Master_Slave aIsMaster )
+        {
+            switch ( aIsMaster )
+            {
+                case mtk::Master_Slave::MASTER:
+                    return mMasterEigenFIManager;
 
                 default:
                     MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be master." );
@@ -1501,6 +1546,12 @@ namespace moris
                     tIQI->set_field_interpolator_manager(
                             mSlaveFIManager,
                             mtk::Master_Slave::SLAVE );
+                }
+
+                // set IQI master FI manager for eigen vectors
+                if ( mMasterEigenFIManager )
+                {
+                    tIQI->set_field_interpolator_manager_eigen_vector( mMasterEigenFIManager );
                 }
             }
         }
@@ -1923,7 +1974,7 @@ namespace moris
         Set::create_mat_pdv_assembly_map()
         {
             // get the list of requested dv types by the opt solver
-            moris::Cell< enum PDV_Type >  tRequestedDvTypes = mUniqueDvTypeList;
+            moris::Cell< enum PDV_Type > tRequestedDvTypes = mUniqueDvTypeList;
 
             // init the max index for dv types
             sint tMaxDvIndex = -1;
@@ -2570,7 +2621,7 @@ namespace moris
                 uint tNumPdvCoefficients = 0;
 
                 // loop over the requested dv types
-                for ( uint Ik = 0; Ik < tRequestedDvTypes.size() ; Ik++ )
+                for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
                 {
                     // get the set index for the master dof type
                     sint tDvIndex = this->get_dv_index_for_type(
@@ -3449,7 +3500,7 @@ namespace moris
         void
         Set::get_ip_dv_types_for_set(
                 moris::Cell< moris::Cell< enum PDV_Type > >& aMatPdvType,
-                mtk::Master_Slave aIsMaster )
+                mtk::Master_Slave                            aIsMaster )
         {
             // choose based on the master, slave type
             // the output here is gather from fem

@@ -31,10 +31,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Geometry_Interpolator::Geometry_Interpolator(
-                const mtk::Interpolation_Rule & aInterpolationRule,
-                const CellShape               & aInterpolationShape,
-                const bool                      aSpaceSideset,
-                const bool                      aTimeSideset )
+                const mtk::Interpolation_Rule& aInterpolationRule,
+                const CellShape&               aInterpolationShape,
+                const bool                     aSpaceSideset,
+                const bool                     aTimeSideset )
         {
             // set bool for side interpolation to true
             mSpaceSideset = aSpaceSideset;
@@ -44,16 +44,16 @@ namespace moris
 
             // create member pointer to space interpolator
             mSpaceInterpolator = new mtk::Space_Interpolator(
-                aInterpolationRule,
-                aInterpolationShape,
-                aSpaceSideset );
+                    aInterpolationRule,
+                    aInterpolationShape,
+                    aSpaceSideset );
 
             // getting mapping size and flag from space interpolator
             mMappedPoint = mSpaceInterpolator->get_initialized_mapped_point();
-            mMapFlag = mSpaceInterpolator->get_map_flag();
+            mMapFlag     = mSpaceInterpolator->get_map_flag();
 
             // create member pointer to time interpolation function
-            mTimeInterpolation  = aInterpolationRule.create_time_interpolation_function();
+            mTimeInterpolation = aInterpolationRule.create_time_interpolation_function();
 
             // number of space bases and dimensions
             mNumSpaceParamDim = mSpaceInterpolator->get_number_of_param_dimensions();
@@ -72,11 +72,11 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Geometry_Interpolator::Geometry_Interpolator(
-                const mtk::Interpolation_Rule & aInterpolationRule,
-                const mtk::Interpolation_Rule & aIPMapInterpolationRule,
-                const CellShape               & aInterpolationShape,
-                const bool                      aSpaceSideset,
-                const bool                      aTimeSideset )
+                const mtk::Interpolation_Rule& aInterpolationRule,
+                const mtk::Interpolation_Rule& aIPMapInterpolationRule,
+                const CellShape&               aInterpolationShape,
+                const bool                     aSpaceSideset,
+                const bool                     aTimeSideset )
         {
             // set bool for side interpolation to true
             mSpaceSideset = aSpaceSideset;
@@ -86,17 +86,17 @@ namespace moris
 
             // create member pointer to space interpolator
             mSpaceInterpolator = new mtk::Space_Interpolator(
-                aInterpolationRule,
-                aIPMapInterpolationRule,
-                aInterpolationShape,
-                aSpaceSideset );
+                    aInterpolationRule,
+                    aIPMapInterpolationRule,
+                    aInterpolationShape,
+                    aSpaceSideset );
 
             // getting mapping size and flag from space interpolator
             mMappedPoint = mSpaceInterpolator->get_initialized_mapped_point();
-            mMapFlag = mSpaceInterpolator->get_map_flag();
+            mMapFlag     = mSpaceInterpolator->get_map_flag();
 
             // create member pointer to time interpolation function
-            mTimeInterpolation  = aInterpolationRule.create_time_interpolation_function();
+            mTimeInterpolation = aInterpolationRule.create_time_interpolation_function();
 
             // number of space bases and dimensions
             mNumSpaceParamDim = mSpaceInterpolator->get_number_of_param_dimensions();
@@ -116,13 +116,13 @@ namespace moris
 
         Geometry_Interpolator::~Geometry_Interpolator()
         {
-            if( mTimeInterpolation )
+            if ( mTimeInterpolation )
             {
                 delete mTimeInterpolation;
                 mTimeInterpolation = nullptr;
             }
 
-            if( mSpaceInterpolator )
+            if ( mSpaceInterpolator )
             {
                 delete mSpaceInterpolator;
                 mSpaceInterpolator = nullptr;
@@ -131,45 +131,47 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::reset_eval_flags()
+        void
+        Geometry_Interpolator::reset_eval_flags()
         {
             // reset booleans for evaluation
-            mValtEval     = true;
+            mValtEval = true;
 
             mNTauEval     = true;
             mdNdTauEval   = true;
             md2NdTau2Eval = true;
             md3NdTau3Eval = true;
 
-            mTimeDetJEval    = true;
-            mTimeJacEval     = true;
-            mInvTimeJacEval  = true;
+            mTimeDetJEval   = true;
+            mTimeJacEval    = true;
+            mInvTimeJacEval = true;
         }
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::reset_eval_flags_coordinates()
+        void
+        Geometry_Interpolator::reset_eval_flags_coordinates()
         {
-            mValtEval        = true;
+            mValtEval = true;
 
-            mTimeDetJEval    = true;
-            mTimeJacEval     = true;
-            mInvTimeJacEval  = true;
+            mTimeDetJEval   = true;
+            mTimeJacEval    = true;
+            mInvTimeJacEval = true;
         }
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::set_coeff(
-                const Matrix< DDRMat > & aXHat,
-                const Matrix< DDRMat > & aTHat )
+        void
+        Geometry_Interpolator::set_coeff(
+                const Matrix< DDRMat >& aXHat,
+                const Matrix< DDRMat >& aTHat )
         {
-
             // set the space coefficients
-            mSpaceInterpolator->set_space_coeff(aXHat);
+            mSpaceInterpolator->set_space_coeff( aXHat );
 
-            //check the time coefficients input size
+            // check the time coefficients input size
             MORIS_ASSERT( aTHat.n_rows() == mNumTimeBases,
-                    " Geometry_Interpolator::set_coeff - Wrong input size (aTHat). ");
+                    " Geometry_Interpolator::set_coeff - Wrong input size (aTHat). " );
 
             // set the time coefficients
             mTHat = aTHat;
@@ -180,11 +182,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::set_space_coeff( const Matrix< DDRMat > & aXHat )
+        void
+        Geometry_Interpolator::set_space_coeff( const Matrix< DDRMat >& aXHat )
         {
-
             // set the space coefficients
-            mSpaceInterpolator->set_space_coeff(aXHat);
+            mSpaceInterpolator->set_space_coeff( aXHat );
 
             // reset evaluation flags
             this->reset_eval_flags_coordinates();
@@ -192,12 +194,13 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::set_time_coeff( const Matrix< DDRMat > & aTHat )
+        void
+        Geometry_Interpolator::set_time_coeff( const Matrix< DDRMat >& aTHat )
         {
-            //check the time coefficients input size
-            // fixme can not check the number of cols for aTHat
+            // check the time coefficients input size
+            //  fixme can not check the number of cols for aTHat
             MORIS_ASSERT( aTHat.n_rows() == mNumTimeBases,
-                    " Geometry_Interpolator::set_time_coeff - Wrong input size (aTHat). ");
+                    " Geometry_Interpolator::set_time_coeff - Wrong input size (aTHat). " );
 
             // set the time coefficients
             mTHat = aTHat;
@@ -208,7 +211,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::set_param_coeff()
+        void
+        Geometry_Interpolator::set_param_coeff()
         {
             // default implementation
             // set space and time param coords
@@ -223,17 +227,17 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::set_param_coeff(
-                const Matrix< DDRMat > & aXiHat,
-                const Matrix< DDRMat > & aTauHat )
+        void
+        Geometry_Interpolator::set_param_coeff(
+                const Matrix< DDRMat >& aXiHat,
+                const Matrix< DDRMat >& aTauHat )
         {
-
             // set the space coefficients
-            mSpaceInterpolator->set_space_param_coeff(aXiHat);
+            mSpaceInterpolator->set_space_param_coeff( aXiHat );
 
-            //check the time param coefficients input size
+            // check the time param coefficients input size
             MORIS_ASSERT( aTauHat.n_rows() == mNumTimeBases,
-                    " Geometry_Interpolator::set_time_coeff - Wrong input size (aTauHat). ");
+                    " Geometry_Interpolator::set_time_coeff - Wrong input size (aTauHat). " );
 
             // set the time coefficients
             mTauHat = aTauHat;
@@ -244,10 +248,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::set_space_param_coeff( const Matrix< DDRMat > & aXiHat )
+        void
+        Geometry_Interpolator::set_space_param_coeff( const Matrix< DDRMat >& aXiHat )
         {
             // set the space coefficients
-            mSpaceInterpolator->set_space_param_coeff(aXiHat);
+            mSpaceInterpolator->set_space_param_coeff( aXiHat );
 
             // reset evaluation flags
             this->reset_eval_flags_coordinates();
@@ -255,12 +260,13 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::set_time_param_coeff( const Matrix< DDRMat > & aTauHat )
+        void
+        Geometry_Interpolator::set_time_param_coeff( const Matrix< DDRMat >& aTauHat )
         {
-            //check the time param coefficients input size
-            // fixme can not check the number of cols for aTauHat
+            // check the time param coefficients input size
+            //  fixme can not check the number of cols for aTauHat
             MORIS_ASSERT( aTauHat.n_rows() == mNumTimeBases,
-                    " Geometry_Interpolator::set_time_coeff - Wrong input size (aTauHat). ");
+                    " Geometry_Interpolator::set_time_coeff - Wrong input size (aTauHat). " );
 
             // set the time coefficients
             mTauHat = aTauHat;
@@ -271,26 +277,27 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::set_space_time( const Matrix< DDRMat > & aParamPoint )
+        void
+        Geometry_Interpolator::set_space_time( const Matrix< DDRMat >& aParamPoint )
         {
             // check input size aParamPoint
-            MORIS_ASSERT( ( ( aParamPoint.n_cols() == 1 ) && ( aParamPoint.n_rows() == mNumSpaceParamDim + mNumTimeDim )),
-                    "Geometry_Interpolator::set_space_time - Wrong input size ( aParamPoint ).");
+            MORIS_ASSERT( ( ( aParamPoint.n_cols() == 1 ) && ( aParamPoint.n_rows() == mNumSpaceParamDim + mNumTimeDim ) ),
+                    "Geometry_Interpolator::set_space_time - Wrong input size ( aParamPoint )." );
 
             // check input values are between -1 and 1
             // fixme what about TRI and TET
             for ( uint Ik = 0; Ik < mNumSpaceParamDim + mNumTimeDim; Ik++ )
             {
                 MORIS_ASSERT( ( ( aParamPoint( Ik ) <= 1.0 + mEpsilon ) && ( aParamPoint( Ik ) >= -1.0 - mEpsilon ) ),
-                        "Geometry_Interpolator::set_space_time - Wrong input value ( aParamPoint ).");
+                        "Geometry_Interpolator::set_space_time - Wrong input value ( aParamPoint )." );
             }
 
             // set input values
-            mSpaceInterpolator->set_space_time(aParamPoint);
+            mSpaceInterpolator->set_space_time( aParamPoint );
             mTauLocal = aParamPoint( mNumSpaceParamDim );
 
             // if no mapping required
-            if( !mMapFlag )
+            if ( !mMapFlag )
             {
                 mMappedPoint = aParamPoint;
             }
@@ -302,15 +309,16 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::set_space( const Matrix< DDRMat > & aSpaceParamPoint )
+        void
+        Geometry_Interpolator::set_space( const Matrix< DDRMat >& aSpaceParamPoint )
         {
             // set input values
-            mSpaceInterpolator->set_space(aSpaceParamPoint);
+            mSpaceInterpolator->set_space( aSpaceParamPoint );
 
             // if no mapping required
-            if( !mMapFlag )
+            if ( !mMapFlag )
             {
-                mMappedPoint( { 0, mNumSpaceParamDim-1 }, { 0, 0 } ) =
+                mMappedPoint( { 0, mNumSpaceParamDim - 1 }, { 0, 0 } ) =
                         aSpaceParamPoint.matrix_data();
             }
 
@@ -321,25 +329,26 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::set_time( const Matrix< DDRMat > & aTimeParamPoint )
+        void
+        Geometry_Interpolator::set_time( const Matrix< DDRMat >& aTimeParamPoint )
         {
             // check input size aParamPoint
-            MORIS_ASSERT( ( ( aTimeParamPoint.n_cols() == 1 ) && ( aTimeParamPoint.n_rows() == mNumTimeDim )),
-                    "Geometry_Interpolator::set_space - Wrong input size ( aTimeParamPoint ).");
+            MORIS_ASSERT( ( ( aTimeParamPoint.n_cols() == 1 ) && ( aTimeParamPoint.n_rows() == mNumTimeDim ) ),
+                    "Geometry_Interpolator::set_space - Wrong input size ( aTimeParamPoint )." );
 
             // check input values are between -1 and 1
             // fixme what about TRI and TET
             for ( uint Ik = 0; Ik < mNumTimeDim; Ik++ )
             {
                 MORIS_ASSERT( ( ( aTimeParamPoint( Ik ) <= 1.0 + mEpsilon ) && ( aTimeParamPoint( Ik ) >= -1.0 - mEpsilon ) ),
-                        "Geometry_Interpolator::set_time - Wrong input value ( aTimeParamPoint ).");
+                        "Geometry_Interpolator::set_time - Wrong input value ( aTimeParamPoint )." );
             }
 
             // set input values
-            mTauLocal  = aTimeParamPoint;
+            mTauLocal = aTimeParamPoint;
 
             // if no mapping required
-            if( !mMapFlag )
+            if ( !mMapFlag )
             {
                 mMappedPoint( mNumSpaceParamDim ) = aTimeParamPoint( 0 );
             }
@@ -351,10 +360,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        real Geometry_Interpolator::get_time_step()
+        real
+        Geometry_Interpolator::get_time_step()
         {
             // check that mTHat is set
-            MORIS_ASSERT( mTHat.numel()>0, "Geometry_Interpolator::get_time_step - mTHat is not set." );
+            MORIS_ASSERT( mTHat.numel() > 0, "Geometry_Interpolator::get_time_step - mTHat is not set." );
 
             // compute time increment deltat
             return mTHat.max() - mTHat.min();
@@ -362,7 +372,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Geometry_Interpolator::NXi()
+        const Matrix< DDRMat >&
+        Geometry_Interpolator::NXi()
         {
             // return member value
             return mSpaceInterpolator->NXi();
@@ -370,10 +381,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Geometry_Interpolator::NTau()
+        const Matrix< DDRMat >&
+        Geometry_Interpolator::NTau()
         {
             // if shape functions need to be evaluated
-            if( mNTauEval )
+            if ( mNTauEval )
             {
                 // evaluate the shape functions
                 this->eval_NTau();
@@ -388,7 +400,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::eval_NTau()
+        void
+        Geometry_Interpolator::eval_NTau()
         {
             // check that mXiLocal is set
             MORIS_ASSERT( mTauLocal.numel() > 0,
@@ -400,7 +413,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Geometry_Interpolator::dNdXi()
+        const Matrix< DDRMat >&
+        Geometry_Interpolator::dNdXi()
         {
             // return member value
             return mSpaceInterpolator->dNdXi();
@@ -408,10 +422,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Geometry_Interpolator::dNdTau()
+        const Matrix< DDRMat >&
+        Geometry_Interpolator::dNdTau()
         {
             // if shape functions need to be evaluated
-            if( mdNdTauEval )
+            if ( mdNdTauEval )
             {
                 // evaluate the shape functions 1st derivative
                 this->eval_dNdTau();
@@ -426,7 +441,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::eval_dNdTau()
+        void
+        Geometry_Interpolator::eval_dNdTau()
         {
             // check that mXiLocal is set
             MORIS_ASSERT( mTauLocal.numel() > 0,
@@ -438,7 +454,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Geometry_Interpolator::d2NdXi2()
+        const Matrix< DDRMat >&
+        Geometry_Interpolator::d2NdXi2()
         {
             // return member value
             return mSpaceInterpolator->d2NdXi2();
@@ -446,19 +463,20 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Geometry_Interpolator::d3NdXi3()
+        const Matrix< DDRMat >&
+        Geometry_Interpolator::d3NdXi3()
         {
-
             // return member value
             return mSpaceInterpolator->d3NdXi3();
         }
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Geometry_Interpolator::d2NdTau2()
+        const Matrix< DDRMat >&
+        Geometry_Interpolator::d2NdTau2()
         {
             // if shape functions need to be evaluated
-            if( md2NdTau2Eval )
+            if ( md2NdTau2Eval )
             {
                 // evaluate the shape functions 2nd derivative
                 this->eval_d2NdTau2();
@@ -473,7 +491,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::eval_d2NdTau2()
+        void
+        Geometry_Interpolator::eval_d2NdTau2()
         {
             // check that mXiLocal is set
             MORIS_ASSERT( mTauLocal.numel() > 0,
@@ -485,7 +504,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Geometry_Interpolator::space_jacobian()
+        const Matrix< DDRMat >&
+        Geometry_Interpolator::space_jacobian()
         {
             // return member value
             return mSpaceInterpolator->space_jacobian();
@@ -493,7 +513,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Geometry_Interpolator::inverse_space_jacobian()
+        const Matrix< DDRMat >&
+        Geometry_Interpolator::inverse_space_jacobian()
         {
             // return member value
             return mSpaceInterpolator->inverse_space_jacobian();
@@ -501,7 +522,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::second_space_jacobian( Matrix< DDRMat > & aJ2bt )
+        void
+        Geometry_Interpolator::second_space_jacobian( Matrix< DDRMat >& aJ2bt )
         {
             // compute the second order Jacobian
             mSpaceInterpolator->second_space_jacobian( aJ2bt );
@@ -509,7 +531,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::third_space_jacobian( Matrix< DDRMat > & aJ3ct )
+        void
+        Geometry_Interpolator::third_space_jacobian( Matrix< DDRMat >& aJ3ct )
         {
             // compute the third order Jacobian
             mSpaceInterpolator->third_space_jacobian( aJ3ct );
@@ -517,10 +540,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Geometry_Interpolator::time_jacobian()
+        const Matrix< DDRMat >&
+        Geometry_Interpolator::time_jacobian()
         {
             // if space Jacobian needs to be evaluated
-            if( mTimeJacEval )
+            if ( mTimeJacEval )
             {
                 // evaluate the space Jacobian
                 this->eval_time_jacobian();
@@ -535,10 +559,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::eval_time_jacobian()
+        void
+        Geometry_Interpolator::eval_time_jacobian()
         {
             // check that mTHat is set
-            MORIS_ASSERT( mTHat.numel()>0,
+            MORIS_ASSERT( mTHat.numel() > 0,
                     "Geometry_Interpolator::time_jacobian - mTHat is not set." );
 
             // compute the Jacobian
@@ -547,10 +572,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Geometry_Interpolator::inverse_time_jacobian()
+        const Matrix< DDRMat >&
+        Geometry_Interpolator::inverse_time_jacobian()
         {
             // if inverse of the time Jacobian needs to be evaluated
-            if( mInvTimeJacEval )
+            if ( mInvTimeJacEval )
             {
                 // evaluate the inverse of the time Jacobian
                 this->eval_inverse_time_jacobian();
@@ -563,89 +589,101 @@ namespace moris
             return mInvTimeJac;
         }
 
-        void Geometry_Interpolator::eval_inverse_time_jacobian()
+        //------------------------------------------------------------------------------
+
+        void
+        Geometry_Interpolator::eval_inverse_time_jacobian()
         {
             // compute inverse the time Jacobian
-            (this->*mInvTimeJacFunc)();
-        }
-
-        void Geometry_Interpolator::eval_inverse_time_jacobian_1d()
-        {
-            // get the space Jacobian
-            const Matrix< DDRMat > & tTimeJac = this->time_jacobian();
-
-            MORIS_ASSERT(tTimeJac(0,0) > sDetJInvJacLowerLimit,
-                    "Time determinate (1D) close to zero or negative: %e\n", tTimeJac(0,0));
-
-            mInvTimeJac.set_size(1,1);
-
-            mInvTimeJac = 1.0/tTimeJac(0,0);
-
-            // check results against generic inverse operator
-            MORIS_ASSERT( norm( mInvTimeJac-inv( tTimeJac ) ) < 1e-8*norm(mInvTimeJac ),
-                    "Inconsistent time Jacobian (1D)");
+            ( this->*mInvTimeJacFunc )();
         }
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::eval_inverse_time_jacobian_2d()
+        void
+        Geometry_Interpolator::eval_inverse_time_jacobian_1d()
         {
             // get the space Jacobian
-            const Matrix< DDRMat > & tTimeJac = this->time_jacobian();
+            const Matrix< DDRMat >& tTimeJac = this->time_jacobian();
 
-            MORIS_ASSERT(this->time_det_J() > sDetJInvJacLowerLimit,
-                    "Time determinate (2D) close to zero or negative: %e\n", this->time_det_J());
+            MORIS_ASSERT( tTimeJac( 0, 0 ) > sDetJInvJacLowerLimit,
+                    "Time determinate (1D) close to zero or negative: %e\n",
+                    tTimeJac( 0, 0 ) );
+
+            mInvTimeJac.set_size( 1, 1 );
+
+            mInvTimeJac = 1.0 / tTimeJac( 0, 0 );
+
+            // check results against generic inverse operator
+            MORIS_ASSERT( norm( mInvTimeJac - inv( tTimeJac ) ) < 1e-8 * norm( mInvTimeJac ),
+                    "Inconsistent time Jacobian (1D)" );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        Geometry_Interpolator::eval_inverse_time_jacobian_2d()
+        {
+            // get the space Jacobian
+            const Matrix< DDRMat >& tTimeJac = this->time_jacobian();
+
+            MORIS_ASSERT( this->time_det_J() > sDetJInvJacLowerLimit,
+                    "Time determinate (2D) close to zero or negative: %e\n",
+                    this->time_det_J() );
 
             // compute inverse of 2x2 matrix
-            real tInvDet = 1.0/(this->time_det_J());
+            real tInvDet = 1.0 / ( this->time_det_J() );
 
             // compute inverse
-            mInvTimeJac.set_size(2,2);
+            mInvTimeJac.set_size( 2, 2 );
 
-            mInvTimeJac(0, 0) =  tTimeJac(1, 1) * tInvDet;
-            mInvTimeJac(0, 1) = -tTimeJac(0, 1) * tInvDet;
-            mInvTimeJac(1, 0) = -tTimeJac(1, 0) * tInvDet;
-            mInvTimeJac(1, 1) =  tTimeJac(0, 0) * tInvDet;
+            mInvTimeJac( 0, 0 ) = tTimeJac( 1, 1 ) * tInvDet;
+            mInvTimeJac( 0, 1 ) = -tTimeJac( 0, 1 ) * tInvDet;
+            mInvTimeJac( 1, 0 ) = -tTimeJac( 1, 0 ) * tInvDet;
+            mInvTimeJac( 1, 1 ) = tTimeJac( 0, 0 ) * tInvDet;
 
             // check results against generic inverse operator
-            MORIS_ASSERT( norm( mInvTimeJac-inv( tTimeJac ) ) < 1e-8*norm(mInvTimeJac ),
-                    "Inconsistent time Jacobian (2D)");
+            MORIS_ASSERT( norm( mInvTimeJac - inv( tTimeJac ) ) < 1e-8 * norm( mInvTimeJac ),
+                    "Inconsistent time Jacobian (2D)" );
         }
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::eval_inverse_time_jacobian_3d()
+        void
+        Geometry_Interpolator::eval_inverse_time_jacobian_3d()
         {
             // get the space Jacobian
-            const Matrix< DDRMat > & tTimeJac = this->time_jacobian();
+            const Matrix< DDRMat >& tTimeJac = this->time_jacobian();
 
-            MORIS_ASSERT(this->time_det_J() > sDetJInvJacLowerLimit,
-                    "Time determinate (3D) close to zero or negative: %e\n", this->time_det_J());
+            MORIS_ASSERT( this->time_det_J() > sDetJInvJacLowerLimit,
+                    "Time determinate (3D) close to zero or negative: %e\n",
+                    this->time_det_J() );
 
             // compute inverse of 3x3 matrix
-            real tInvDet = 1.0/(this->time_det_J());
+            real tInvDet = 1.0 / ( this->time_det_J() );
 
             // compute inverse
-            mInvTimeJac.set_size(3,3);
+            mInvTimeJac.set_size( 3, 3 );
 
-            mInvTimeJac(0, 0) = (tTimeJac(1, 1) * tTimeJac(2, 2) - tTimeJac(2, 1) * tTimeJac(1, 2)) * tInvDet;
-            mInvTimeJac(0, 1) = (tTimeJac(0, 2) * tTimeJac(2, 1) - tTimeJac(0, 1) * tTimeJac(2, 2)) * tInvDet;
-            mInvTimeJac(0, 2) = (tTimeJac(0, 1) * tTimeJac(1, 2) - tTimeJac(0, 2) * tTimeJac(1, 1)) * tInvDet;
-            mInvTimeJac(1, 0) = (tTimeJac(1, 2) * tTimeJac(2, 0) - tTimeJac(1, 0) * tTimeJac(2, 2)) * tInvDet;
-            mInvTimeJac(1, 1) = (tTimeJac(0, 0) * tTimeJac(2, 2) - tTimeJac(0, 2) * tTimeJac(2, 0)) * tInvDet;
-            mInvTimeJac(1, 2) = (tTimeJac(1, 0) * tTimeJac(0, 2) - tTimeJac(0, 0) * tTimeJac(1, 2)) * tInvDet;
-            mInvTimeJac(2, 0) = (tTimeJac(1, 0) * tTimeJac(2, 1) - tTimeJac(2, 0) * tTimeJac(1, 1)) * tInvDet;
-            mInvTimeJac(2, 1) = (tTimeJac(2, 0) * tTimeJac(0, 1) - tTimeJac(0, 0) * tTimeJac(2, 1)) * tInvDet;
-            mInvTimeJac(2, 2) = (tTimeJac(0, 0) * tTimeJac(1, 1) - tTimeJac(1, 0) * tTimeJac(0, 1)) * tInvDet;
+            mInvTimeJac( 0, 0 ) = ( tTimeJac( 1, 1 ) * tTimeJac( 2, 2 ) - tTimeJac( 2, 1 ) * tTimeJac( 1, 2 ) ) * tInvDet;
+            mInvTimeJac( 0, 1 ) = ( tTimeJac( 0, 2 ) * tTimeJac( 2, 1 ) - tTimeJac( 0, 1 ) * tTimeJac( 2, 2 ) ) * tInvDet;
+            mInvTimeJac( 0, 2 ) = ( tTimeJac( 0, 1 ) * tTimeJac( 1, 2 ) - tTimeJac( 0, 2 ) * tTimeJac( 1, 1 ) ) * tInvDet;
+            mInvTimeJac( 1, 0 ) = ( tTimeJac( 1, 2 ) * tTimeJac( 2, 0 ) - tTimeJac( 1, 0 ) * tTimeJac( 2, 2 ) ) * tInvDet;
+            mInvTimeJac( 1, 1 ) = ( tTimeJac( 0, 0 ) * tTimeJac( 2, 2 ) - tTimeJac( 0, 2 ) * tTimeJac( 2, 0 ) ) * tInvDet;
+            mInvTimeJac( 1, 2 ) = ( tTimeJac( 1, 0 ) * tTimeJac( 0, 2 ) - tTimeJac( 0, 0 ) * tTimeJac( 1, 2 ) ) * tInvDet;
+            mInvTimeJac( 2, 0 ) = ( tTimeJac( 1, 0 ) * tTimeJac( 2, 1 ) - tTimeJac( 2, 0 ) * tTimeJac( 1, 1 ) ) * tInvDet;
+            mInvTimeJac( 2, 1 ) = ( tTimeJac( 2, 0 ) * tTimeJac( 0, 1 ) - tTimeJac( 0, 0 ) * tTimeJac( 2, 1 ) ) * tInvDet;
+            mInvTimeJac( 2, 2 ) = ( tTimeJac( 0, 0 ) * tTimeJac( 1, 1 ) - tTimeJac( 1, 0 ) * tTimeJac( 0, 1 ) ) * tInvDet;
 
             // check results against generic inverse operator
-            MORIS_ASSERT( norm( mInvTimeJac-inv( tTimeJac ) ) < 1e-8*norm(mInvTimeJac ),
-                    "Inconsistent time Jacobian (3D)");
+            MORIS_ASSERT( norm( mInvTimeJac - inv( tTimeJac ) ) < 1e-8 * norm( mInvTimeJac ),
+                    "Inconsistent time Jacobian (3D)" );
         }
 
         //------------------------------------------------------------------------------
 
-        real Geometry_Interpolator::det_J()
+        real
+        Geometry_Interpolator::det_J()
         {
             // compute the determinant of the space time Jacobian
             return this->space_det_J() * this->time_det_J();
@@ -653,7 +691,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const real & Geometry_Interpolator::space_det_J()
+        const real&
+        Geometry_Interpolator::space_det_J()
         {
             // return member value
             return mSpaceInterpolator->space_det_J();
@@ -661,13 +700,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const real & Geometry_Interpolator::time_det_J()
+        const real&
+        Geometry_Interpolator::time_det_J()
         {
             // if determinant of time Jacobian needs to be evaluated
-            if( mTimeDetJEval )
+            if ( mTimeDetJEval )
             {
                 // get the space Jacobian
-                const Matrix< DDRMat > & tTimeJt = this->time_jacobian();
+                const Matrix< DDRMat >& tTimeJt = this->time_jacobian();
 
                 // compute detJ for space
                 mTimeDetJ = ( this->*mTimeDetJFunc )( tTimeJt );
@@ -682,37 +722,42 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        real Geometry_Interpolator::eval_time_detJ_side(
-                const Matrix< DDRMat > & aTimeJt )
+        real
+        Geometry_Interpolator::eval_time_detJ_side(
+                const Matrix< DDRMat >& aTimeJt )
         {
             return 1.0;
         }
 
         //------------------------------------------------------------------------------
 
-        real Geometry_Interpolator::eval_time_detJ_bulk(
-                const Matrix< DDRMat > & aTimeJt )
+        real
+        Geometry_Interpolator::eval_time_detJ_bulk(
+                const Matrix< DDRMat >& aTimeJt )
         {
-            //FIXME: Needs to be specialized
-            real tDetJ = det(aTimeJt);
+            // FIXME: Needs to be specialized
+            real tDetJ = det( aTimeJt );
 
             MORIS_ASSERT( tDetJ > sDetJLowerLimit,
-                    "Time determinant (bulk) close to zero or negative: %e\n", tDetJ);
+                    "Time determinant (bulk) close to zero or negative: %e\n",
+                    tDetJ );
 
             return tDetJ;
         }
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::get_normal( Matrix< DDRMat > & aNormal )
+        void
+        Geometry_Interpolator::get_normal( Matrix< DDRMat >& aNormal )
         {
             // call space interpolator
-            mSpaceInterpolator->get_normal(aNormal);
+            mSpaceInterpolator->get_normal( aNormal );
         }
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Geometry_Interpolator::valx()
+        const Matrix< DDRMat >&
+        Geometry_Interpolator::valx()
         {
             // call space interpolator
             return mSpaceInterpolator->valx();
@@ -720,15 +765,16 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Geometry_Interpolator::valt()
+        const Matrix< DDRMat >&
+        Geometry_Interpolator::valt()
         {
-            if ( mValtEval)
+            if ( mValtEval )
             {
                 // check that mTHat is set
-                MORIS_ASSERT( mTHat.numel()>0,
+                MORIS_ASSERT( mTHat.numel() > 0,
                         "Geometry_Interpolator::valt - mTHat is not set." );
 
-                //evaluate the field
+                // evaluate the field
                 mValt = this->NTau() * mTHat;
             }
 
@@ -737,10 +783,11 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const Matrix< DDRMat > & Geometry_Interpolator::map_integration_point()
+        const Matrix< DDRMat >&
+        Geometry_Interpolator::map_integration_point()
         {
             // if eval mapping
-            if( mMapFlag )
+            if ( mMapFlag )
             {
                 MORIS_ASSERT( mTauHat.numel() > 0,
                         "Geometry_Interpolator::eval_mapping - mTauHat is not set." );
@@ -759,22 +806,24 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::update_local_coordinates(
-                Matrix< DDRMat > & aPhysCoordinates,
-                Matrix< DDRMat > & aParamCoordinates )
+        void
+        Geometry_Interpolator::update_local_coordinates(
+                Matrix< DDRMat >& aPhysCoordinates,
+                Matrix< DDRMat >& aParamCoordinates )
         {
             // call space interpolator
-            mSpaceInterpolator->update_local_coordinates(aPhysCoordinates, aParamCoordinates);
+            mSpaceInterpolator->update_local_coordinates( aPhysCoordinates, aParamCoordinates );
         }
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::space_jacobian_and_matrices_for_second_derivatives(
-                Matrix< DDRMat >       & aJt,
-                Matrix< DDRMat >       & aKt,
-                Matrix< DDRMat >       & aLt,
-                const Matrix< DDRMat > & adNdXi,
-                const Matrix< DDRMat > & ad2NdXi2 )
+        void
+        Geometry_Interpolator::space_jacobian_and_matrices_for_second_derivatives(
+                Matrix< DDRMat >&       aJt,
+                Matrix< DDRMat >&       aKt,
+                Matrix< DDRMat >&       aLt,
+                const Matrix< DDRMat >& adNdXi,
+                const Matrix< DDRMat >& ad2NdXi2 )
         {
             // call space interpolator
             mSpaceInterpolator->space_jacobian_and_matrices_for_second_derivatives(
@@ -787,15 +836,16 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::space_jacobian_and_matrices_for_third_derivatives(
-                Matrix< DDRMat >       & aJt,   // contains first geometric derivs
-                Matrix< DDRMat >       & aJ2bt, // contains second geometric derivs = second help matrix for 2nd field derivs
-                Matrix< DDRMat >       & aJ3at, // first help matrix for 3rd field derivs
-                Matrix< DDRMat >       & aJ3bt, // second help matrix for 3rd field derivs
-                Matrix< DDRMat >       & aJ3ct, // third help matrix for 3rd field derivs
-                const Matrix< DDRMat > & adNdXi,
-                const Matrix< DDRMat > & ad2NdXi2,
-                const Matrix< DDRMat > & ad3NdXi3 )
+        void
+        Geometry_Interpolator::space_jacobian_and_matrices_for_third_derivatives(
+                Matrix< DDRMat >&       aJt,      // contains first geometric derivs
+                Matrix< DDRMat >&       aJ2bt,    // contains second geometric derivs = second help matrix for 2nd field derivs
+                Matrix< DDRMat >&       aJ3at,    // first help matrix for 3rd field derivs
+                Matrix< DDRMat >&       aJ3bt,    // second help matrix for 3rd field derivs
+                Matrix< DDRMat >&       aJ3ct,    // third help matrix for 3rd field derivs
+                const Matrix< DDRMat >& adNdXi,
+                const Matrix< DDRMat >& ad2NdXi2,
+                const Matrix< DDRMat >& ad3NdXi3 )
         {
             // call space interpolator
             mSpaceInterpolator->space_jacobian_and_matrices_for_third_derivatives(
@@ -811,12 +861,13 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::time_jacobian_and_matrices_for_second_derivatives(
-                Matrix< DDRMat >       & aJt,
-                Matrix< DDRMat >       & aKt,
-                Matrix< DDRMat >       & aLt,
-                const Matrix< DDRMat > & adNdTau,
-                const Matrix< DDRMat > & ad2NdTau2 )
+        void
+        Geometry_Interpolator::time_jacobian_and_matrices_for_second_derivatives(
+                Matrix< DDRMat >&       aJt,
+                Matrix< DDRMat >&       aKt,
+                Matrix< DDRMat >&       aLt,
+                const Matrix< DDRMat >& adNdTau,
+                const Matrix< DDRMat >& ad2NdTau2 )
         {
             // check that mTHat is set
             MORIS_ASSERT( mTHat.numel() > 0,
@@ -836,31 +887,32 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Geometry_Interpolator::set_function_pointers()
+        void
+        Geometry_Interpolator::set_function_pointers()
         {
             // get number of dimensions and set pointer to function
             // for second time derivative
             switch ( mNumTimeDim )
             {
-                case 1 :
+                case 1:
                 {
                     mInvTimeJacFunc               = &Geometry_Interpolator::eval_inverse_time_jacobian_1d;
                     mSecondDerivativeMatricesTime = mSpaceInterpolator->eval_matrices_for_second_derivative_1d;
                     break;
                 }
-                case 2 :
+                case 2:
                 {
                     mInvTimeJacFunc               = &Geometry_Interpolator::eval_inverse_time_jacobian_2d;
                     mSecondDerivativeMatricesTime = mSpaceInterpolator->eval_matrices_for_second_derivative_2d;
                     break;
                 }
-                case 3 :
+                case 3:
                 {
                     mInvTimeJacFunc               = &Geometry_Interpolator::eval_inverse_time_jacobian_3d;
                     mSecondDerivativeMatricesTime = mSpaceInterpolator->eval_matrices_for_second_derivative_3d;
                     break;
                 }
-                default :
+                default:
                 {
                     MORIS_ERROR( false, " Geometry_Interpolator::set_function_pointers - unknown number of dimensions. " );
                 }
@@ -869,20 +921,20 @@ namespace moris
             // switch Geometry_Type
             switch ( mTimeGeometryType )
             {
-                case mtk::Geometry_Type::POINT :
+                case mtk::Geometry_Type::POINT:
                 {
                     mMapFlag      = true;
                     mTimeDetJFunc = &Geometry_Interpolator::eval_time_detJ_side;
                     break;
                 }
-                case mtk::Geometry_Type::LINE :
+                case mtk::Geometry_Type::LINE:
                 {
                     mTimeDetJFunc = &Geometry_Interpolator::eval_time_detJ_bulk;
                     break;
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "Geometry_Interpolator::set_function_pointers - unknown or not implemented time geometry type ");
+                    MORIS_ERROR( false, "Geometry_Interpolator::set_function_pointers - unknown or not implemented time geometry type " );
                 }
             }
         }
@@ -890,4 +942,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-

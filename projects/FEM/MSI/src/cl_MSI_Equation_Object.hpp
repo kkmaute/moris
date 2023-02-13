@@ -119,15 +119,14 @@ namespace moris
             /**
              * trivial destructor
              */
-            virtual 
-            ~Equation_Object(){};
+            virtual ~Equation_Object(){};
 
             //------------------------------------------------------------------------------
             /**
              * set time for equation object
              * @param[ in ] aTime matrix with time values to set
              */
-            void 
+            void
             set_time( Matrix< DDRMat >& aTime );
 
             //------------------------------------------------------------------------------
@@ -150,7 +149,8 @@ namespace moris
              * This function is only for unit test purposes.
              */
             // Number of potential pdof hosts based on the number of nodes // Fixme add elements and ghosts
-            uint get_num_pdof_hosts()
+            uint
+            get_num_pdof_hosts()
             {
                 uint tNumPdofHosts = 0;
                 for ( uint Ik = 0; Ik < mNodeObj.size(); Ik++ )
@@ -237,6 +237,12 @@ namespace moris
              * @brief compute function for the previous pdof values of this particular equation object
              */
             void compute_previous_pdof_values();
+
+            //------------------------------------------------------------------------------
+            /**
+             * @brief compute function for the eigen vector pdof values of this particular equation object
+             */
+            void compute_my_eigen_vector_values();
 
             //------------------------------------------------------------------------------
             /**

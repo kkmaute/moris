@@ -149,8 +149,11 @@ namespace moris
             //! adjoint pdof values
             moris::Cell< Matrix< DDRMat > > mAdjointPdofValues;
 
-            //! adjoint pdof values
+            //! previous adjoint pdof values
             moris::Cell< Matrix< DDRMat > > mPreviousAdjointPdofValues;
+
+            //! previous adjoint pdof values
+            moris::Cell< Matrix< DDRMat > > mEigenVectorPdofValues;
 
             friend class MSI::Equation_Object;
             friend class Element_Bulk;

@@ -26,13 +26,13 @@
 #include "cl_MTK_Field.hpp"
 #include "cl_MTK_Field_Discrete.hpp"
 
-#include "cl_HMR_Database.hpp"     //HMR/src
+#include "cl_HMR_Database.hpp"    //HMR/src
 #include "cl_HMR_Background_Element_Base.hpp"
 #include "cl_HMR_Mesh.hpp"
 #include "cl_HMR_Mesh_Interpolation.hpp"
 #include "cl_HMR_Mesh_Integration.hpp"
-#include "cl_HMR_Mesh.hpp" //HMR/src
-#include "cl_HMR_T_Matrix.hpp" //HMR/src
+#include "cl_HMR_Mesh.hpp"        //HMR/src
+#include "cl_HMR_T_Matrix.hpp"    //HMR/src
 
 #include "cl_MSI_Solver_Interface.hpp"
 
@@ -83,7 +83,7 @@ namespace moris
         Mapper::~Mapper()
         {
             // test if model and IWG have been created
-            if( mHaveIwgAndModel )
+            if ( mHaveIwgAndModel )
             {
                 // delete the fem model
                 delete mModel;
@@ -92,23 +92,24 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Mapper::map_input_field_to_output_field(
-                mtk::Field * aFieldSource,
-                mtk::Field * aFieldTarget )
+        void
+        Mapper::map_input_field_to_output_field(
+                mtk::Field* aFieldSource,
+                mtk::Field* aFieldTarget )
         {
-            Tracer tTracer("MTK", "Mapper", "Map input field to output field");
+            Tracer tTracer( "MTK", "Mapper", "Map input field to output field" );
             // cast output field to discrete field
-            mtk::Field_Discrete * tDiscreteFieldTarget = dynamic_cast<mtk::Field_Discrete*> (aFieldTarget);
+            mtk::Field_Discrete* tDiscreteFieldTarget = dynamic_cast< mtk::Field_Discrete* >( aFieldTarget );
 
             // check that dynamic cast was successful
             MORIS_ERROR( tDiscreteFieldTarget != nullptr,
-                    "Mapper::map_input_field_to_output_field - target field need to be discrete field.\n");
+                    "Mapper::map_input_field_to_output_field - target field need to be discrete field.\n" );
 
             mtk::Mesh_Pair tMeshPairIn  = aFieldSource->get_mesh_pair();
             mtk::Mesh_Pair tMeshPairOut = tDiscreteFieldTarget->get_mesh_pair();
 
-            moris::mtk::Mesh * tSourceMesh = tMeshPairIn.get_interpolation_mesh();
-            moris::mtk::Mesh * tTargetMesh = tMeshPairOut.get_interpolation_mesh();
+            moris::mtk::Mesh* tSourceMesh = tMeshPairIn.get_interpolation_mesh();
+            moris::mtk::Mesh* tTargetMesh = tMeshPairOut.get_interpolation_mesh();
 
             MORIS_ERROR( tSourceMesh->get_mesh_type() == MeshType::HMR,
                     "Mapper::map_input_field_to_output_field() Source mesh is not and HMR mesh" );
@@ -142,31 +143,31 @@ namespace moris
 
             uint tNumAdditionalMeshes = tHMRDatabase->get_number_of_additional_lagrange_meshes( tSourcePattern );
 
-            for( uint Ik = 0; Ik < tNumAdditionalMeshes; Ik++ )
+            for ( uint Ik = 0; Ik < tNumAdditionalMeshes; Ik++ )
             {
                 tHMRDatabase->get_additional_lagrange_mesh_by_index( Ik, tSourcePattern )->update_mesh();
             }
 
             // create union mesh
-            hmr::Interpolation_Mesh_HMR * tUnionInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+            hmr::Interpolation_Mesh_HMR* tUnionInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
                     tHMRDatabase,
                     tLagrangeOrder,
                     tUnionPattern,
                     tUnionDescritizationOrder,
-                    tTargetPattern); // order, Lagrange pattern, bspline pattern
+                    tTargetPattern );    // order, Lagrange pattern, bspline pattern
 
-            //construct union integration mesh (note: this is not ever used but is needed for mesh manager)
+            // construct union integration mesh (note: this is not ever used but is needed for mesh manager)
             hmr::Integration_Mesh_HMR* tIntegrationUnionMesh = new hmr::Integration_Mesh_HMR(
                     tLagrangeOrder,
                     tUnionPattern,
-                    tUnionInterpolationMesh);
+                    tUnionInterpolationMesh );
 
-            mtk::Mesh_Pair tMeshPairUnion(tUnionInterpolationMesh, tIntegrationUnionMesh, true);
+            mtk::Mesh_Pair tMeshPairUnion( tUnionInterpolationMesh, tIntegrationUnionMesh, true );
 
             mtk::Field_Discrete tFieldUnion( tMeshPairUnion, 0 );
 
             // map source Lagrange field to target Lagrange field
-            if( tSourceLagrangeOrder >= tLagrangeOrder )
+            if ( tSourceLagrangeOrder >= tLagrangeOrder )
             {
                 // interpolate field onto union mesh
                 this->interpolate_field(
@@ -176,20 +177,20 @@ namespace moris
             else
             {
                 // create union mesh. Bspline order will not be used
-                hmr::Interpolation_Mesh_HMR * tHigherOrderInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                hmr::Interpolation_Mesh_HMR* tHigherOrderInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
                         tHMRDatabase,
                         tLagrangeOrder,
                         tSourcePattern,
                         tLagrangeOrder,
-                        tSourcePattern); // order, Lagrange pattern, bspline order, bspline pattern
+                        tSourcePattern );    // order, Lagrange pattern, bspline order, bspline pattern
 
-                //construct union integration mesh (note: this is not ever used but is needed for mesh manager)
+                // construct union integration mesh (note: this is not ever used but is needed for mesh manager)
                 hmr::Integration_Mesh_HMR* tHigherOrderIntegrationMesh = new hmr::Integration_Mesh_HMR(
                         tLagrangeOrder,
                         tSourcePattern,
-                        tHigherOrderInterpolationMesh);
+                        tHigherOrderInterpolationMesh );
 
-                mtk::Mesh_Pair tMeshPairHigherOrder(tHigherOrderInterpolationMesh, tHigherOrderIntegrationMesh, true);
+                mtk::Mesh_Pair tMeshPairHigherOrder( tHigherOrderInterpolationMesh, tHigherOrderIntegrationMesh, true );
 
                 mtk::Field_Discrete tFieldHigerOrder( tMeshPairHigherOrder, 0 );
 
@@ -205,34 +206,35 @@ namespace moris
             this->perform_mapping(
                     &tFieldUnion,
                     EntityRank::NODE,
-                    EntityRank::BSPLINE);
+                    EntityRank::BSPLINE );
 
             // move coefficients to output field
             tDiscreteFieldTarget->unlock_field();
             tDiscreteFieldTarget->set_coefficients( tFieldUnion.get_coefficients() );
 
-//            this->perform_mapping(
-//                    tDiscreteFieldTarget,
-//                    EntityRank::BSPLINE,
-//                    EntityRank::NODE);
+            //            this->perform_mapping(
+            //                    tDiscreteFieldTarget,
+            //                    EntityRank::BSPLINE,
+            //                    EntityRank::NODE);
         }
 
         //------------------------------------------------------------------------------
 
-        void Mapper::map_input_field_to_output_field_2( mtk::Field * aFieldSource )
+        void
+        Mapper::map_input_field_to_output_field_2( mtk::Field* aFieldSource )
         {
-            Tracer tTracer("MTK", "Mapper", "Map input field to output field");
+            Tracer tTracer( "MTK", "Mapper", "Map input field to output field" );
 
             // cast aFieldSource field to discrete field
-            mtk::Field_Discrete * tDiscreteFieldSource = dynamic_cast<mtk::Field_Discrete*> (aFieldSource);
+            mtk::Field_Discrete* tDiscreteFieldSource = dynamic_cast< mtk::Field_Discrete* >( aFieldSource );
 
             // check that dynamic cast was successful
             MORIS_ERROR( tDiscreteFieldSource != nullptr,
-                    "Mapper::map_input_field_to_output_field_2 - source field need to be discrete field.\n");
+                    "Mapper::map_input_field_to_output_field_2 - source field need to be discrete field.\n" );
 
             mtk::Mesh_Pair tMeshPairIn = tDiscreteFieldSource->get_mesh_pair();
 
-            moris::mtk::Mesh * tSourceMesh = tMeshPairIn.get_interpolation_mesh();
+            moris::mtk::Mesh* tSourceMesh = tMeshPairIn.get_interpolation_mesh();
 
             MORIS_ERROR( tSourceMesh->get_mesh_type() == MeshType::HMR,
                     "Mapper::map_input_field_to_output_field() Source mesh is not and HMR mesh" );
@@ -241,7 +243,7 @@ namespace moris
 
             // grab orders of meshes
             uint tSourceLagrangeOrder = tSourceMesh->get_order();
-            uint tTargetOrder = tDiscreteFieldSource->get_discretization_order();
+            uint tTargetOrder         = tDiscreteFieldSource->get_discretization_order();
 
             // get order of Union Mesh
             uint tLagrangeOrder = std::max( tSourceLagrangeOrder, tTargetOrder );
@@ -250,9 +252,9 @@ namespace moris
             uint tTargetPattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
             uint tUnionPattern  = tHMRDatabase->get_parameters()->get_union_pattern();
 
-            uint tTargetBSPattern = tSourceMesh->
-                    get_HMR_lagrange_mesh()->
-                    get_bspline_pattern( tDiscreteFieldSource->get_discretization_mesh_index() );
+            uint tTargetBSPattern = tSourceMesh->get_HMR_lagrange_mesh()->    //
+                                    get_bspline_pattern(                      //
+                                            tDiscreteFieldSource->get_discretization_mesh_index() );
 
             // create union pattern
             tHMRDatabase->create_union_pattern(
@@ -261,25 +263,25 @@ namespace moris
                     tUnionPattern );
 
             // create union mesh
-            hmr::Interpolation_Mesh_HMR * tUnionInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+            hmr::Interpolation_Mesh_HMR* tUnionInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
                     tHMRDatabase,
                     tLagrangeOrder,
                     tUnionPattern,
                     tTargetOrder,
-                    tTargetBSPattern); // order, Lagrange pattern, bspline pattern
+                    tTargetBSPattern );    // order, Lagrange pattern, bspline pattern
 
-            //construct union integration mesh (note: this is not ever used but is needed for mesh manager)
+            // construct union integration mesh (note: this is not ever used but is needed for mesh manager)
             hmr::Integration_Mesh_HMR* tIntegrationUnionMesh = new hmr::Integration_Mesh_HMR(
                     tLagrangeOrder,
                     tUnionPattern,
-                    tUnionInterpolationMesh);
+                    tUnionInterpolationMesh );
 
-            mtk::Mesh_Pair tMeshPairUnion(tUnionInterpolationMesh, tIntegrationUnionMesh, true);
+            mtk::Mesh_Pair tMeshPairUnion( tUnionInterpolationMesh, tIntegrationUnionMesh, true );
 
             mtk::Field_Discrete tFieldUnion( tMeshPairUnion, 0 );
 
             // map source Lagrange field to target Lagrange field
-            if( tSourceLagrangeOrder >= tTargetOrder )
+            if ( tSourceLagrangeOrder >= tTargetOrder )
             {
                 // interpolate field onto union mesh
                 this->interpolate_field(
@@ -289,14 +291,14 @@ namespace moris
             else
             {
                 // create union mesh. Bspline order will not be used
-                hmr::Interpolation_Mesh_HMR * tHigherOrderInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                hmr::Interpolation_Mesh_HMR* tHigherOrderInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
                         tHMRDatabase,
                         tLagrangeOrder,
                         tSourcePattern,
                         tLagrangeOrder,
-                        tSourcePattern); // order, Lagrange pattern, bspline order, bspline pattern
+                        tSourcePattern );    // order, Lagrange pattern, bspline order, bspline pattern
 
-                mtk::Mesh_Pair tMeshPairHigherOrder(tHigherOrderInterpolationMesh, nullptr, false);
+                mtk::Mesh_Pair tMeshPairHigherOrder( tHigherOrderInterpolationMesh, nullptr, false );
 
                 mtk::Field_Discrete tFieldHigerOrder( tMeshPairHigherOrder, 0 );
 
@@ -312,7 +314,7 @@ namespace moris
             this->perform_mapping(
                     &tFieldUnion,
                     EntityRank::NODE,
-                    EntityRank::BSPLINE);
+                    EntityRank::BSPLINE );
 
             // move coefficients to output field
             tDiscreteFieldSource->unlock_field();
@@ -322,16 +324,17 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         // interpolate field values from source Lagrange to target Lagrange mesh
-        void Mapper::interpolate_field(
-                mtk::Field * aFieldSource,
-                mtk::Field * aFieldTarget )
+        void
+        Mapper::interpolate_field(
+                mtk::Field* aFieldSource,
+                mtk::Field* aFieldTarget )
         {
-            Tracer tTracer("MTK", "Mapper", "Interpolate Field");
+            Tracer         tTracer( "MTK", "Mapper", "Interpolate Field" );
             mtk::Mesh_Pair tMeshPairIn  = aFieldSource->get_mesh_pair();
             mtk::Mesh_Pair tMeshPairOut = aFieldTarget->get_mesh_pair();
 
-            moris::mtk::Mesh * tSourceMesh = tMeshPairIn.get_interpolation_mesh();
-            moris::mtk::Mesh * tTargetMesh = tMeshPairOut.get_interpolation_mesh();
+            moris::mtk::Mesh* tSourceMesh = tMeshPairIn.get_interpolation_mesh();
+            moris::mtk::Mesh* tTargetMesh = tMeshPairOut.get_interpolation_mesh();
 
             MORIS_ERROR( tSourceMesh->get_mesh_type() == MeshType::HMR,
                     "Mapper::interpolate_field() Source mesh is not and HMR mesh" );
@@ -351,11 +354,11 @@ namespace moris
                     "Mapper::interpolate_field() - Number of fields differ in ource and target field.\n" );
 
             // pointer to mesh that is linked to input field
-            hmr::Lagrange_Mesh_Base * tSourceLagrangeMesh = tSourceMesh->get_HMR_lagrange_mesh();
-            hmr::Lagrange_Mesh_Base * tTargetLagrangeMesh = tTargetMesh->get_HMR_lagrange_mesh();
+            hmr::Lagrange_Mesh_Base* tSourceLagrangeMesh = tSourceMesh->get_HMR_lagrange_mesh();
+            hmr::Lagrange_Mesh_Base* tTargetLagrangeMesh = tTargetMesh->get_HMR_lagrange_mesh();
 
             uint tSourcePattern = tSourceLagrangeMesh->get_activation_pattern();
-            //uint tTargetPattern = tTargetLagrangeMesh->get_activation_pattern();
+            // uint tTargetPattern = tTargetLagrangeMesh->get_activation_pattern();
 
             tTargetLagrangeMesh->select_activation_pattern();
 
@@ -373,24 +376,24 @@ namespace moris
             eye( tNumberOfNodesPerElement, tNumberOfNodesPerElement, tEye );
 
             // get values of source field
-            const Matrix< DDRMat > & tSourceData = aFieldSource->get_values();
+            const Matrix< DDRMat >& tSourceData = aFieldSource->get_values();
 
             // get target data; note: the size of this vector is number of nodes times number of fields;
             // the number of nodes and number of basis differ as the number of basis includes the aura
             Matrix< DDRMat > tTargetData(
                     tTargetLagrangeMesh->get_number_of_nodes_on_proc(),
                     aFieldTarget->get_number_of_fields(),
-                    MORIS_REAL_MAX);
+                    MORIS_REAL_MAX );
 
             // containers for source and target data
             Matrix< DDRMat > tElementSourceData( tNumberOfNodesPerElement, aFieldSource->get_number_of_fields() );
 
-            hmr::T_Matrix * tTMatrix = new hmr::T_Matrix(
+            hmr::T_Matrix* tTMatrix = new hmr::T_Matrix(
                     tSourceMesh->get_HMR_database()->get_parameters(),
                     tTargetLagrangeMesh );
 
             // loop over all elements
-            for( luint Ie = 0; Ie < tNumberOfElements; ++Ie )
+            for ( luint Ie = 0; Ie < tNumberOfElements; ++Ie )
             {
                 // get pointer to target element
                 auto tTargetElement = tTargetLagrangeMesh->get_element( Ie );
@@ -401,7 +404,7 @@ namespace moris
                 // initialize refinement Matrix
                 Matrix< DDRMat > tR( tEye );
 
-                while( ! tBackgroundElement->is_active( tSourcePattern ) )
+                while ( !tBackgroundElement->is_active( tSourcePattern ) )
                 {
                     // right multiply refinement matrix
                     tR = tR * tTMatrix->get_refinement_matrix( tBackgroundElement->get_child_index() );
@@ -414,7 +417,7 @@ namespace moris
                 auto tSourceElement = tSourceLagrangeMesh->get_element_by_memory_index( tBackgroundElement->get_memory_index() );
 
                 // fill source data vector
-                for( uint Ik = 0; Ik < tNumberOfNodesPerElement; ++Ik )
+                for ( uint Ik = 0; Ik < tNumberOfNodesPerElement; ++Ik )
                 {
                     // get pointer to source node
                     auto tNode  = tSourceElement->get_basis( Ik );
@@ -425,13 +428,13 @@ namespace moris
                 }
 
                 // copy target data to target mesh
-                for( uint Ik = 0; Ik < tNumberOfNodesPerElement; ++Ik )
+                for ( uint Ik = 0; Ik < tNumberOfNodesPerElement; ++Ik )
                 {
                     // get pointer to target node
                     auto tNode = tTargetElement->get_basis( Ik );
 
                     // test if data has already been written to target
-                    if ( ! tNode->is_flagged() )
+                    if ( !tNode->is_flagged() )
                     {
                         // get node index
                         auto tIndex = tNode->get_index();
@@ -446,31 +449,32 @@ namespace moris
 
             // check that target data is valid
             MORIS_ERROR( tTargetData.max() < MORIS_REAL_MAX,
-                    "Mapper::interpolate_field - target data not valid.\n");
+                    "Mapper::interpolate_field - target data not valid.\n" );
 
             // copy target data onto target field
             aFieldTarget->unlock_field();
             aFieldTarget->set_values( tTargetData );
 
-            delete( tTMatrix );
+            delete ( tTMatrix );
         }
 
         // -----------------------------------------------------------------------------
 
-        void Mapper::change_field_order(
-                mtk::Field * aFieldSource,
-                mtk::Field * aFieldTarget )
+        void
+        Mapper::change_field_order(
+                mtk::Field* aFieldSource,
+                mtk::Field* aFieldTarget )
         {
-            Tracer tTracer("MTK", "Mapper", "Change field order");
-            mtk::Mesh_Pair tMeshPairIn = aFieldSource->get_mesh_pair();
+            Tracer         tTracer( "MTK", "Mapper", "Change field order" );
+            mtk::Mesh_Pair tMeshPairIn  = aFieldSource->get_mesh_pair();
             mtk::Mesh_Pair tMeshPairOut = aFieldTarget->get_mesh_pair();
 
-            moris::mtk::Mesh * tSourceMesh = tMeshPairIn.get_interpolation_mesh();
-            moris::mtk::Mesh * tTargetMesh = tMeshPairOut.get_interpolation_mesh();
+            moris::mtk::Mesh* tSourceMesh = tMeshPairIn.get_interpolation_mesh();
+            moris::mtk::Mesh* tTargetMesh = tMeshPairOut.get_interpolation_mesh();
 
             // pointer to mesh that is linked to input field
-            hmr::Lagrange_Mesh_Base * tSourceLagrangeMesh = tSourceMesh->get_HMR_lagrange_mesh();
-            hmr::Lagrange_Mesh_Base * tTargetLagrangeMesh = tTargetMesh->get_HMR_lagrange_mesh();
+            hmr::Lagrange_Mesh_Base* tSourceLagrangeMesh = tSourceMesh->get_HMR_lagrange_mesh();
+            hmr::Lagrange_Mesh_Base* tTargetLagrangeMesh = tTargetMesh->get_HMR_lagrange_mesh();
 
             // make sure that meshes are compatible
             MORIS_ASSERT( tSourceLagrangeMesh->get_activation_pattern() == tTargetLagrangeMesh->get_activation_pattern(),
@@ -482,7 +486,7 @@ namespace moris
             tTargetLagrangeMesh->unflag_all_basis();
 
             // source values
-            const Matrix< DDRMat > & tSourceValues = aFieldSource->get_values();
+            const Matrix< DDRMat >& tSourceValues = aFieldSource->get_values();
 
             // target values
             Matrix< DDRMat > tTargetValues( tTargetLagrangeMesh->get_number_of_nodes_on_proc(), 1 );
@@ -490,12 +494,12 @@ namespace moris
             // get number of elements
             uint tNumberOfElements = tSourceLagrangeMesh->get_number_of_elements();
 
-            hmr::T_Matrix * tTMatrix = new hmr::T_Matrix(
+            hmr::T_Matrix* tTMatrix = new hmr::T_Matrix(
                     tSourceMesh->get_HMR_database()->get_parameters(),
                     tSourceLagrangeMesh );
 
-            uint tTargetMeshOrder = tTargetMesh->get_order();
-            Matrix< DDRMat > tT = tTMatrix->get_change_order_matrix( tTargetMeshOrder );
+            uint             tTargetMeshOrder = tTargetMesh->get_order();
+            Matrix< DDRMat > tT               = tTMatrix->get_change_order_matrix( tTargetMeshOrder );
 
             // delete t-Matrix object
             delete tTMatrix;
@@ -507,26 +511,26 @@ namespace moris
             Matrix< DDRMat > tN( 1, tNumberOfNodesPerSourceElement );
 
             // loop over all elements
-            for( uint Ie = 0; Ie < tNumberOfElements; ++Ie )
+            for ( uint Ie = 0; Ie < tNumberOfElements; ++Ie )
             {
                 // get pointer to source element
-                const hmr::Element * tSourceElement = tSourceLagrangeMesh->get_element( Ie );
+                const hmr::Element* tSourceElement = tSourceLagrangeMesh->get_element( Ie );
 
-                for( uint Ii = 0; Ii < tNumberOfNodesPerSourceElement; ++Ii )
+                for ( uint Ii = 0; Ii < tNumberOfNodesPerSourceElement; ++Ii )
                 {
                     tLocalSourceValues( Ii ) = tSourceValues( tSourceElement->get_basis( Ii )->get_index() );
                 }
 
                 // get pointer to target element
-                hmr::Element * tTargetElement = tTargetLagrangeMesh->get_element( Ie );
+                hmr::Element* tTargetElement = tTargetLagrangeMesh->get_element( Ie );
 
                 // loop over all nodes on target
-                for( uint Ik = 0; Ik < tNumberOfNodesPerTargetElement; ++Ik )
+                for ( uint Ik = 0; Ik < tNumberOfNodesPerTargetElement; ++Ik )
                 {
                     // get basis
-                    hmr::Basis * tNode = tTargetElement->get_basis( Ik );
+                    hmr::Basis* tNode = tTargetElement->get_basis( Ik );
 
-                    if( ! tNode->is_flagged() )
+                    if ( !tNode->is_flagged() )
                     {
                         // copy row from T-Matrix
                         tT.get_row( Ik, tN );
@@ -545,16 +549,17 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
-        void Mapper::create_iwg_and_model(
-                mtk::Field * aField,
-                const real aAlpha )
+        void
+        Mapper::create_iwg_and_model(
+                mtk::Field* aField,
+                const real  aAlpha )
         {
             // cast aFieldSource field to discrete field
-             mtk::Field_Discrete * tDiscreteField = dynamic_cast<mtk::Field_Discrete*> (aField);
+            mtk::Field_Discrete* tDiscreteField = dynamic_cast< mtk::Field_Discrete* >( aField );
 
-             // check that dynamic cast was successful
-             MORIS_ERROR( tDiscreteField != nullptr,
-                     "Mapper::map_input_field_to_output_field_2 - source field need to be discrete field.\n");
+            // check that dynamic cast was successful
+            MORIS_ERROR( tDiscreteField != nullptr,
+                    "Mapper::map_input_field_to_output_field_2 - source field need to be discrete field.\n" );
 
             mtk::Mesh_Pair tMeshPair = tDiscreteField->get_mesh_pair();
 
@@ -562,17 +567,17 @@ namespace moris
 
             uint MeshPairIndex = tMeshManager->register_mesh_pair( tMeshPair );
 
-            if( ! mHaveIwgAndModel )
+            if ( !mHaveIwgAndModel )
             {
                 // create a L2 IWG
-                //FIXME should be provided to the function
-                fem::IWG_Factory tIWGFactory;
+                // FIXME should be provided to the function
+                fem::IWG_Factory            tIWGFactory;
                 std::shared_ptr< fem::IWG > tIWGL2 = tIWGFactory.create_IWG( fem::IWG_Type::L2 );
                 tIWGL2->set_residual_dof_type( { { MSI::Dof_Type::L2 } } );
-                tIWGL2->set_dof_type_list( {{ MSI::Dof_Type::L2 }}, mtk::Master_Slave::MASTER );
+                tIWGL2->set_dof_type_list( { { MSI::Dof_Type::L2 } }, mtk::Master_Slave::MASTER );
 
                 // define set info
-                //FIXME should be provided to the function
+                // FIXME should be provided to the function
                 moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
                 tSetInfo( 0 ).set_mesh_index( 0 );
                 tSetInfo( 0 ).set_IWGs( { tIWGL2 } );
@@ -595,29 +600,30 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Mapper::perform_mapping(
-                mtk::Field * aField,
+        void
+        Mapper::perform_mapping(
+                mtk::Field*           aField,
                 const enum EntityRank aSourceEntityRank,
                 const enum EntityRank aTargetEntityRank )
         {
             // Tracer
-            Tracer tTracer("MTK", "Mapper", "Map");
+            Tracer tTracer( "MTK", "Mapper", "Map" );
 
-            switch( aSourceEntityRank )
+            switch ( aSourceEntityRank )
             {
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                case EntityRank::NODE :
+                case EntityRank::NODE:
                 {
-                    switch( aTargetEntityRank )
+                    switch ( aTargetEntityRank )
                     {
                         case EntityRank::BSPLINE:
                         {
                             this->map_node_to_bspline_from_field( aField );
                             break;
                         }
-                        default :
+                        default:
                         {
-                            MORIS_ERROR( false, "perform_mapping(): aTargetEntityRank not supported.");
+                            MORIS_ERROR( false, "perform_mapping(): aTargetEntityRank not supported." );
                             break;
                         }
                     }
@@ -625,25 +631,25 @@ namespace moris
                 }
                 case EntityRank::BSPLINE:
                 {
-                    switch( aTargetEntityRank )
+                    switch ( aTargetEntityRank )
                     {
                         case EntityRank::NODE:
                         {
                             this->map_bspline_to_node_same_mesh( aField );
                             break;
                         }
-                        default :
+                        default:
                         {
-                            MORIS_ERROR( false, "perform_mapping(): aTargetEntityRank not supported.");
+                            MORIS_ERROR( false, "perform_mapping(): aTargetEntityRank not supported." );
                             break;
                         }
                     }
                     break;
                 }
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-                default :
+                default:
                 {
-                    MORIS_ERROR( false, "perform_mapping(): aSourceEntityRank not supported.");
+                    MORIS_ERROR( false, "perform_mapping(): aSourceEntityRank not supported." );
                     break;
                 }
             }
@@ -651,54 +657,60 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Mapper::map_node_to_bspline(  mtk::Field * aField )
+        void
+        Mapper::map_node_to_bspline( mtk::Field* aField )
         {
             // Tracer
-            Tracer tTracer("MTK", "Mapper", "Map Node-to-Bspline");
+            Tracer tTracer( "MTK", "Mapper", "Map Node-to-Bspline" );
 
             // define time, nonlinear and linear solver
             sol::SOL_Warehouse tSolverWarehouse( mModel->get_solver_interface() );
 
             moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
-            for( uint Ik = 0; Ik < 7; Ik ++)
+            for ( uint Ik = 0; Ik < 7; Ik++ )
             {
-                tParameterlist( Ik ).resize(1);
+                tParameterlist( Ik ).resize( 1 );
             }
 
             // choose solver type based on problem size
             // FIXME: solver should be received from solver warehouse
             uint tNumberOfCoefficients = aField->get_number_of_coefficients();
 
-            if ( sum_all(tNumberOfCoefficients) < 25000 && par_size() < 25 )
+            if ( sum_all( tNumberOfCoefficients ) < 25000 && par_size() < 25 )
             {
-                tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+                tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+
                 if ( par_size() > 0 )
                 {
-                    tParameterlist( 0 )( 0 ).set( "Solver_Type" , "Amesos_Mumps" );
+#ifdef MORIS_USE_MUMPS
+                    tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Mumps" );
+#else
+                    tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Superludist" );
+#endif
                 }
             }
             else
             {
-                tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL );
-                tParameterlist( 0 )( 0 ).set( "ifpack_prec_type", "ILU");
-                tParameterlist( 0 )( 0 ).set( "fact: level-of-fill", 1);
+                tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::BELOS_IMPL );
+                tParameterlist( 0 )( 0 ).set( "ifpack_prec_type", "ILU" );
+                tParameterlist( 0 )( 0 ).set( "fact: level-of-fill", 1 );
             }
 
-            tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
-            tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
-            tParameterlist( 2 )(0).set( "NLA_max_iter", 1 );
+            tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
+            tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
+            tParameterlist( 2 )( 0 ).set( "NLA_max_iter", 1 );
 
-            tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
-            tParameterlist( 3 )(0).set("NLA_DofTypes"      , "L2" );
+            tParameterlist( 3 )( 0 ) = moris::prm::create_nonlinear_solver_parameter_list();
+            tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "L2" );
 
-            tParameterlist( 4 )(0) = moris::prm::create_time_solver_algorithm_parameter_list();
-            tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
-            tParameterlist( 5 )(0).set("TSA_DofTypes"      , "L2" );
-            tParameterlist( 5 )(0).set("TSA_Output_Crteria", "" );
-            tParameterlist( 5 )(0).set("TSA_Output_Indices", "" );
+            tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
+            tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
+            tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "L2" );
+            tParameterlist( 5 )( 0 ).set( "TSA_Output_Crteria", "" );
+            tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "" );
 
-            tParameterlist( 6 )(0) = moris::prm::create_solver_warehouse_parameterlist();
-            tParameterlist( 6 )(0).set("SOL_TPL_Type"               , static_cast< uint >( sol::MapType::Epetra ) );
+            tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+            tParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", static_cast< uint >( sol::MapType::Epetra ) );
 
             tSolverWarehouse.set_parameterlist( tParameterlist );
 
@@ -708,11 +720,11 @@ namespace moris
             // STEP 4: Solve and check
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-            tsa::Time_Solver * tTimeSolver = tSolverWarehouse.get_main_time_solver();
+            tsa::Time_Solver* tTimeSolver = tSolverWarehouse.get_main_time_solver();
 
             tTimeSolver->solve();
 
-            Matrix<DDRMat> tSolution;
+            Matrix< DDRMat > tSolution;
             tTimeSolver->get_full_solution( tSolution );
 
             aField->unlock_field();
@@ -721,10 +733,11 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Mapper::map_node_to_bspline_from_field( mtk::Field * aField )
+        void
+        Mapper::map_node_to_bspline_from_field( mtk::Field* aField )
         {
             // Tracer
-            Tracer tTracer("MTK", "Mapper", "Map Node-to-Bspline");
+            Tracer tTracer( "MTK", "Mapper", "Map Node-to-Bspline" );
 
             // create the model if it has not been created yet
             this->create_iwg_and_model( aField );
@@ -733,30 +746,30 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        Mapper::map_bspline_to_node_same_mesh( mtk::Field * aField )
+        Mapper::map_bspline_to_node_same_mesh( mtk::Field* aField )
         {
             // Tracer
-            Tracer tTracer("MTK", "Mapper", "Map Bspline-to-Node");
+            Tracer tTracer( "MTK", "Mapper", "Map Bspline-to-Node" );
 
             // cast aFieldSource field to discrete field
-             mtk::Field_Discrete * tDiscreteField = dynamic_cast<mtk::Field_Discrete*> (aField);
+            mtk::Field_Discrete* tDiscreteField = dynamic_cast< mtk::Field_Discrete* >( aField );
 
-             // check that dynamic cast was successful
-             MORIS_ERROR( tDiscreteField != nullptr,
-                     "Mapper::map_input_field_to_output_field_2 - source field need to be discrete field.\n");
+            // check that dynamic cast was successful
+            MORIS_ERROR( tDiscreteField != nullptr,
+                    "Mapper::map_input_field_to_output_field_2 - source field need to be discrete field.\n" );
 
             mtk::Mesh_Pair tMeshPair = tDiscreteField->get_mesh_pair();
 
-            moris::mtk::Mesh * tInterpolationMesh = tMeshPair.get_interpolation_mesh();
+            moris::mtk::Mesh* tInterpolationMesh = tMeshPair.get_interpolation_mesh();
 
-            moris_index tDescritizationIndex= tDiscreteField->get_discretization_mesh_index();
+            moris_index tDescritizationIndex = tDiscreteField->get_discretization_mesh_index();
 
             // get number of nodes on block
-            uint tNumberOfNodes= tInterpolationMesh->get_num_nodes();
+            uint tNumberOfNodes = tInterpolationMesh->get_num_nodes();
 
             Matrix< DDRMat > tNodalValues( tNumberOfNodes, 1, MORIS_REAL_MAX );
 
-            const Matrix< DDRMat > & tCoefficients = tDiscreteField->get_coefficients();
+            const Matrix< DDRMat >& tCoefficients = tDiscreteField->get_coefficients();
 
             //-------------------------------------
 
@@ -766,117 +779,114 @@ namespace moris
             std::shared_ptr< hmr::Database > tHMRDatabase = tInterpolationMesh->get_HMR_database();
 
             // grab orders of meshes
-/*            uint tSourceLagrangeOrder = tInterpolationMesh->get_order();
-            uint tOrder = tDiscreteField->get_discretization_order();
+            /*            uint tSourceLagrangeOrder = tInterpolationMesh->get_order();
+                        uint tOrder = tDiscreteField->get_discretization_order();
 
-            // get order of Union Mesh
-            //uint tLagrangeOrder = std::max( tSourceLagrangeOrder, tOrder );
+                        // get order of Union Mesh
+                        //uint tLagrangeOrder = std::max( tSourceLagrangeOrder, tOrder );
 
-            //uint tSourcePattern = tInterpolationMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
-            //uint tTargetPattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
-            //uint tPattern = 0;
+                        //uint tSourcePattern = tInterpolationMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
+                        //uint tTargetPattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
+                        //uint tPattern = 0;
 
-            // map source Lagrange field to target Lagrange field
-            if( tSourceLagrangeOrder >= tOrder )
-            {
+                        // map source Lagrange field to target Lagrange field
+                        if( tSourceLagrangeOrder >= tOrder )
+                        {
 
-            }
-            else
-            {
-                // create union mesh. Bspline order will not be used
-                hmr::Interpolation_Mesh_HMR * tHigherOrderInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
-                        tHMRDatabase,
-                        tOrder,
-                        tSourcePattern,
-                        tOrder,
-                        tPattern); // order, Lagrange pattern, bspline order, bspline pattern
+                        }
+                        else
+                        {
+                            // create union mesh. Bspline order will not be used
+                            hmr::Interpolation_Mesh_HMR * tHigherOrderInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                                    tHMRDatabase,
+                                    tOrder,
+                                    tSourcePattern,
+                                    tOrder,
+                                    tPattern); // order, Lagrange pattern, bspline order, bspline pattern
 
-                mtk::Mesh_Pair tMeshPairHigherOrder(tHigherOrderInterpolationMesh, nullptr, true);
+                            mtk::Mesh_Pair tMeshPairHigherOrder(tHigherOrderInterpolationMesh, nullptr, true);
 
-                mtk::Field_Discrete tFieldHigerOrder( tMeshPairHigherOrder, 0 );
+                            mtk::Field_Discrete tFieldHigerOrder( tMeshPairHigherOrder, 0 );
 
-                //--------------------------------------------------
+                            //--------------------------------------------------
 
-                uint tUnionPattern  = tHMRDatabase->get_parameters()->get_union_pattern();
+                            uint tUnionPattern  = tHMRDatabase->get_parameters()->get_union_pattern();
 
-                // create union pattern
-                tHMRDatabase->create_union_pattern(
-                        tSourcePattern,
-                        tSourcePattern,
-                        tUnionPattern );
+                            // create union pattern
+                            tHMRDatabase->create_union_pattern(
+                                    tSourcePattern,
+                                    tSourcePattern,
+                                    tUnionPattern );
 
-                // create union mesh
-                hmr::Interpolation_Mesh_HMR * tUnionInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
-                        tHMRDatabase,
-                        tOrder,
-                        tUnionPattern,
-                        tOrder,
-                        tPattern); // order, Lagrange pattern, bspline pattern
+                            // create union mesh
+                            hmr::Interpolation_Mesh_HMR * tUnionInterpolationMesh = new hmr::Interpolation_Mesh_HMR(
+                                    tHMRDatabase,
+                                    tOrder,
+                                    tUnionPattern,
+                                    tOrder,
+                                    tPattern); // order, Lagrange pattern, bspline pattern
 
-                //construct union integration mesh (note: this is not ever used but is needed for mesh manager)
-                hmr::Integration_Mesh_HMR* tIntegrationUnionMesh = new hmr::Integration_Mesh_HMR(
-                        tOrder,
-                        tUnionPattern,
-                        tUnionInterpolationMesh);
+                            //construct union integration mesh (note: this is not ever used but is needed for mesh manager)
+                            hmr::Integration_Mesh_HMR* tIntegrationUnionMesh = new hmr::Integration_Mesh_HMR(
+                                    tOrder,
+                                    tUnionPattern,
+                                    tUnionInterpolationMesh);
 
-                mtk::Mesh_Pair tMeshPairUnion(tUnionInterpolationMesh, tIntegrationUnionMesh, true);
+                            mtk::Mesh_Pair tMeshPairUnion(tUnionInterpolationMesh, tIntegrationUnionMesh, true);
 
-                mtk::Field_Discrete tFieldUnion( tMeshPairUnion, 0 );
+                            mtk::Field_Discrete tFieldUnion( tMeshPairUnion, 0 );
 
-                tFieldUnion.unlock_field();
-                tFieldUnion.set_coefficients( tDiscreteField->get_coefficients() );
+                            tFieldUnion.unlock_field();
+                            tFieldUnion.set_coefficients( tDiscreteField->get_coefficients() );
 
-                // project field to union
-                this->perform_mapping(
-                        &tFieldUnion,
-                        EntityRank::BSPLINE,
-                        EntityRank::NODE);
+                            // project field to union
+                            this->perform_mapping(
+                                    &tFieldUnion,
+                                    EntityRank::BSPLINE,
+                                    EntityRank::NODE);
 
-                //tFieldUnion.save_field_to_exodus( "Field_after1.exo");
+                            //tFieldUnion.save_field_to_exodus( "Field_after1.exo");
 
-                tFieldHigerOrder.unlock_field();
-                tFieldHigerOrder.set_values( tFieldUnion.get_values() );
+                            tFieldHigerOrder.unlock_field();
+                            tFieldHigerOrder.set_values( tFieldUnion.get_values() );
 
-                this->change_field_order( &tFieldHigerOrder, tDiscreteField );
+                            this->change_field_order( &tFieldHigerOrder, tDiscreteField );
 
-                return;
-            }
-*/
+                            return;
+                        }
+            */
 
             //---------------------------------------------------------
 
-            for( uint Ik = 0; Ik < tNumberOfNodes; ++Ik )
+            for ( uint Ik = 0; Ik < tNumberOfNodes; ++Ik )
             {
                 // get pointer to node
                 auto tNode = &tInterpolationMesh->get_mtk_vertex( Ik );
 
-                if ((uint) par_rank() == tInterpolationMesh->get_entity_owner(Ik, EntityRank::NODE ) )
+                if ( (uint)par_rank() == tInterpolationMesh->get_entity_owner( Ik, EntityRank::NODE ) )
                 {
                     // get PDOFs from node
-                    auto tBSplines = tNode->
-                            get_interpolation( tDescritizationIndex )->
-                            get_coefficients();
+                    auto tBSplines =
+                            tNode->get_interpolation( tDescritizationIndex )->get_coefficients();
 
                     // get T-Matrix
-                    const Matrix< DDRMat > & tTMatrix = *tNode->
-                            get_interpolation( tDescritizationIndex )->
-                            get_weights();
+                    const Matrix< DDRMat >& tTMatrix =
+                            *tNode->get_interpolation( tDescritizationIndex )->get_weights();
 
                     // get number of coefficients
                     uint tNumberOfCoeffs = tTMatrix.length();
 
-                    MORIS_ASSERT( tNumberOfCoeffs > 0, "No coefficients defined for node" ) ;
+                    MORIS_ASSERT( tNumberOfCoeffs > 0, "No coefficients defined for node" );
 
                     // fill coeffs vector
                     Matrix< DDRMat > tCoeffs( tNumberOfCoeffs, 1 );
-                    for( uint Ii = 0; Ii < tNumberOfCoeffs; ++Ii )
+                    for ( uint Ii = 0; Ii < tNumberOfCoeffs; ++Ii )
                     {
                         tCoeffs( Ii ) = tCoefficients( tBSplines( Ii )->get_index() );
                     }
 
                     // write value into solution
                     tNodalValues( Ik ) = moris::dot( tTMatrix, tCoeffs );
-
                 }
             }
 
@@ -1066,4 +1076,3 @@ namespace moris
         //        }
     } /* namespace mtk */
 } /* namespace moris */
-

@@ -106,7 +106,7 @@ namespace moris
             Field_Interpolator* tFI =
                     mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
-            // check that field interpolater exists
+            // check that field interpolator exists
             MORIS_ASSERT( tFI != nullptr,
                     "IQI_Dof::evaluate_QI - field interpolator does not exist." );
 
@@ -230,6 +230,7 @@ namespace moris
                 }
             }
         }
+
         //------------------------------------------------------------------------------
 
         void
@@ -305,4 +306,3 @@ namespace moris
         //------------------------------------------------------------------------------
     }    // namespace fem
 }    // namespace moris
-

@@ -22,7 +22,7 @@ namespace moris
     {
         class Dist_Vector;
         class SOL_Warehouse;
-    }
+    }    // namespace sol
 
     namespace mtk
     {
@@ -48,9 +48,10 @@ namespace moris
             sol::Dist_Vector* mPrevSolutionVector            = nullptr;
             sol::Dist_Vector* mAdjointSolutionVector         = nullptr;
             sol::Dist_Vector* mPreviousAdjointSolutionVector = nullptr;
-            sol::Dist_Vector* mExactSolFromFile              = nullptr;
-            Matrix< DDRMat >  mTime;
-            Matrix< DDRMat >  mPrevTime;
+            sol::Dist_Vector* mEigenSolutionVector           = nullptr;
+
+            Matrix< DDRMat > mTime;
+            Matrix< DDRMat > mPrevTime;
 
             moris::Cell< enum MSI::Dof_Type > mListOfDofTypes;
             moris::Cell< enum MSI::Dof_Type > mListOfSecondaryDofTypes;
@@ -76,6 +77,7 @@ namespace moris
             };
 
             //------------------------------------------------------------------------------
+
             ~MSI_Solver_Interface(){};
 
             //------------------------------------------------------------------------------
@@ -88,8 +90,15 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            sol::Dist_Vector*
-            get_solution_vector_prev_time_step();
+            void set_eigen_solution_vector( sol::Dist_Vector* aSolutionVector );
+
+            //------------------------------------------------------------------------------
+
+            void set_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector );
+
+            //------------------------------------------------------------------------------
+
+            void set_previous_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector );
 
             //------------------------------------------------------------------------------
 
@@ -101,16 +110,14 @@ namespace moris
              */
 
             sol::Dist_Vector*
-            get_solution_vector( const moris::Cell< enum MSI::Dof_Type >& aListOfDofTypes,
-                    moris::Cell< moris_index > const &                    aLocalCoefficientsIndices );
+            get_solution_vector(
+                    const moris::Cell< enum MSI::Dof_Type >& aListOfDofTypes,
+                    moris::Cell< moris_index > const &       aLocalCoefficientsIndices );
 
             //------------------------------------------------------------------------------
 
-            void set_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector );
-
-            //------------------------------------------------------------------------------
-
-            void set_previous_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector );
+            sol::Dist_Vector*
+            get_solution_vector_prev_time_step();
 
             //------------------------------------------------------------------------------
 
@@ -266,6 +273,14 @@ namespace moris
             //------------------------------------------------------------------------------
 
             moris::uint get_num_rhs();
+
+            //------------------------------------------------------------------------------
+
+            moris::uint
+            get_num_eigen_vectors()
+            {
+                return mMSI->get_num_eigen_vectors();
+            }
 
             //------------------------------------------------------------------------------
 
@@ -513,17 +528,17 @@ namespace moris
 
             void set_requested_IQI_names( const moris::Cell< std::string >& aIQINames );
 
-             //------------------------------------------------------------------------------
-            
+            //------------------------------------------------------------------------------
+
             /**
              * @brief Set the solver warehouse object store a pointer of the warehouse
-             * 
-             * @param aSolverWarehouse 
+             *
+             * @param aSolverWarehouse
              */
             void
-            set_solver_warehouse( std::shared_ptr< sol::SOL_Warehouse >  aSolverWarehouse );
+            set_solver_warehouse( std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse );
 
-             //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
         };
     }    // namespace MSI
 }    // namespace moris

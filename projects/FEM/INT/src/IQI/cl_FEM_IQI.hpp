@@ -84,9 +84,9 @@ namespace moris
             bool mGlobalDofBuild = true;
 
             // field interpolator manager pointer
-            Field_Interpolator_Manager* mMasterFIManager         = nullptr;
-            Field_Interpolator_Manager* mSlaveFIManager          = nullptr;
-            Field_Interpolator_Manager* mMasterPreviousFIManager = nullptr;
+            Field_Interpolator_Manager* mMasterFIManager      = nullptr;
+            Field_Interpolator_Manager* mSlaveFIManager       = nullptr;
+            Field_Interpolator_Manager* mMasterEigenFIManager = nullptr;
 
             // master and slave dv type lists
             moris::Cell< moris::Cell< PDV_Type > > mMasterDvTypes;
@@ -416,7 +416,7 @@ namespace moris
              * set parameters
              * @param[ in ] aParameters a list of parameters
              */
-            void
+            virtual void
             set_parameters( const moris::Cell< Matrix< DDRMat > >& aParameters )
             {
                 // set a cluster
@@ -439,6 +439,16 @@ namespace moris
              * @param[ in ] aIsMaster                 an enum for master or slave
              */
             void set_field_interpolator_manager_previous_time(
+                    Field_Interpolator_Manager* aFieldInterpolatorManager,
+                    mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
+
+            //------------------------------------------------------------------------------
+            /*
+             * set field interpolator manager for eigen vector
+             * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
+             * @param[ in ] aIsMaster                 an enum for master or slave
+             */
+            void set_field_interpolator_manager_eigen_vector(
                     Field_Interpolator_Manager* aFieldInterpolatorManager,
                     mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
 

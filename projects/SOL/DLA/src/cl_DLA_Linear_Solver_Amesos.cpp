@@ -232,8 +232,13 @@ Linear_Solver_Amesos::set_solver_internal_parameters()
     // Create a parameter sub list for MUMPS solver
     if ( tSolverType == "Amesos_Mumps" )
     {
+#ifdef MORIS_USE_MUMPS
         // Increase memory allocation to 200% at a time (default = 20%)
         params.sublist( "mumps" ).set( "ICNTL(14)", static_cast< int >( 200 ) );
+#else
+        MORIS_ERROR( false,
+                "Linear_Solver_Amesos::set_solver_internal_parameters - MORIS installed without support for MUMPS" );
+#endif
     }
 
     // Create a parameter sublist for PARDISO solver

@@ -84,6 +84,7 @@ namespace moris
     using namespace dla;
     using namespace NLA;
 
+#ifdef MORIS_HAVE_PETSC
     TEST_CASE( "DLA_Multigrid", "[DLA],[DLA_multigrid]" )
     {
         if ( moris::par_size() == 1 )
@@ -315,7 +316,7 @@ namespace moris
             delete tInterpolationMesh;
         }
     }
-
+#endif
     /*
     TEST_CASE("DLA_Multigrid_Sphere","[DLA],[DLA_multigrid_circle]")
     {
@@ -500,6 +501,8 @@ namespace moris
         }
     }
     */
+
+#ifdef MORIS_HAVE_PETSC
     TEST_CASE( "DLA_Multigrid_Circle", "[DLA],[DLA_multigrid_sphere]" )
     {
         if ( moris::par_size() == 1 )
@@ -699,6 +702,7 @@ namespace moris
             //         }
         }
     }
+#endif
     /*
 
     TEST_CASE("DLA_Multigrid_SDF","[DLA],[DLA_multigrid_sdf]")

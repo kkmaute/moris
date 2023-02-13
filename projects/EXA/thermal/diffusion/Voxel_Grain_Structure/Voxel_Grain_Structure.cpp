@@ -63,6 +63,8 @@ namespace moris
     std::string tInterface_22 = "";
     std::string tInterface_21 = "";
     std::string tInterface_12 = "";
+    std::string tGhost_1      = "";
+    std::string tGhost_2      = "";
 
     void
     Name_func()
@@ -72,14 +74,21 @@ namespace moris
 
         for ( uint Ik = 1; Ik < tNumBulkPhasesHalf + 1; Ik++ )
         {
-            tBulk_1 = tBulk_1 + "HMR_dummy_n_p" + std::to_string( Ik ) + "," + "HMR_dummy_c_p" + std::to_string( Ik ) + ",";
+            tBulk_1  = tBulk_1 + "HMR_dummy_n_p" + std::to_string( Ik ) + "," + "HMR_dummy_c_p" + std::to_string( Ik ) + ",";
+            tGhost_1 = tGhost_1 + "ghost_p" + std::to_string( Ik ) + ",";
         }
+
         for ( uint Ik = tNumBulkPhasesHalf + 1; Ik < tNumBulkPhases + 1; Ik++ )
         {
-            tBulk_2 = tBulk_2 + "HMR_dummy_n_p" + std::to_string( Ik ) + "," + "HMR_dummy_c_p" + std::to_string( Ik ) + ",";
+            tBulk_2  = tBulk_2 + "HMR_dummy_n_p" + std::to_string( Ik ) + "," + "HMR_dummy_c_p" + std::to_string( Ik ) + ",";
+            tGhost_2 = tGhost_2 + "ghost_p" + std::to_string( Ik ) + ",";
         }
+
         tBulk_1.pop_back();
         tBulk_2.pop_back();
+
+        tGhost_1.pop_back();
+        tGhost_2.pop_back();
 
         tBulk = tBulk_1 + "," + tBulk_2;
 
@@ -150,7 +159,6 @@ namespace moris
         }
         tInterface_11.pop_back();
         tInterface_22.pop_back();
-        // tInterface_21.pop_back();
         tInterface_12.pop_back();
     }
 
@@ -273,8 +281,6 @@ namespace moris
 
         tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
         tParameterlist( 0 )( 0 ).set( "intersection_mode", "LEVEL_SET" );
-        // tParameterlist( 0 )( 0 ).set( "isocontour_tolerance", 1E-10);
-        tParameterlist( 0 )( 0 ).set( "isocontour_tolerance", 1e-12 );
         tParameterlist( 0 )( 0 ).set( "number_of_phases", (sint)( tNumBulkPhases + 1 ) );
         tParameterlist( 0 )( 0 ).set( "phase_function_name", "get_phase_index" );
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", "Voxel_Grain_Structure_Gen.exo" );
@@ -422,10 +428,17 @@ namespace moris
 
         // create parameter list for stabilization parameter 8
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPGPTemp" );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPGPTemp_1" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "0.005" );
         tParameterList( 2 )( tSPCounter ).set( "master_properties", "PropConductivity_1,Material" );
+        tSPCounter++;
+
+        tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPGPTemp_2" );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
+        tParameterList( 2 )( tSPCounter ).set( "function_parameters", "0.005" );
+        tParameterList( 2 )( tSPCounter ).set( "master_properties", "PropConductivity_2,Material" );
         tSPCounter++;
 
         // Temperature - Shell - PCM
@@ -577,13 +590,23 @@ namespace moris
         {
             // create parameter list for IWG 16
             tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
-            tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGGPTemp" );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "GPenTemp_1" );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "TEMP" );
             tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "TEMP" );
             tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies", "TEMP" );
-            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPGPTemp,GhostSP" );
-            tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", "ghost_p160" );
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPGPTemp_1,GhostSP" );
+            tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tGhost_1 );
+            tIWGCounter++;
+
+            tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "GPenTemp_2" );
+            tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
+            tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "TEMP" );
+            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "TEMP" );
+            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies", "TEMP" );
+            tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPGPTemp_2,GhostSP" );
+            tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tGhost_2 );
             tIWGCounter++;
         }
 
@@ -599,7 +622,6 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "TEMP" );
         tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "TEMP" );
-        // tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tBulk );
         tIQICounter++;
 
@@ -619,6 +641,7 @@ namespace moris
         }
 
         tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+        tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Superludist" );
 
         // tParameterlist( 0 )( 0 ).set("Solver Type", "MINRES" );
         // tParameterlist( 0 )( 0 ).set("Maximum Restarts",    1e-04 );
@@ -716,4 +739,3 @@ tParameterlist( 5 )(0).set("TSA_Output_Crteria" , std::string("Output_Criterion"
 #ifdef __cplusplus
 }
 #endif
-

@@ -185,7 +185,10 @@ option(MORIS_USE_MKL
     "Use the Inel Math kernel library as the linear algebra package." OFF )
 
 option(MORIS_USE_PARDISO
-    "Build MORIS with PARDISO used in Trilinos." ON )
+    "Build MORIS with PARDISO used in Trilinos and Petsc." ON )
+
+option(MORIS_USE_MUMPS
+    "Build MORIS with MUMPS used in Trilinos and Petsc." ON )
 
 option(MORIS_HAVE_TRILINOS_OLD
     "Build MORIS with support for old Trilinos version." OFF )
@@ -577,9 +580,13 @@ if (HAVE_PEDANTIC)
 endif()
 
 # Define exceptions to strict error checking
-check_cxx_compiler_flag("-Wno-unused-parameter" HAVE_PEDANTIC )
-if (HAVE_PEDANTIC)
+check_cxx_compiler_flag("-Wno-unused-parameter" HAVE_EXCEPTION )
+if (HAVE_EXCEPTION)
     set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-unused-parameter" )
+endif()
+check_cxx_compiler_flag("-Wno-format-security" HAVE_EXCEPTION )
+if (HAVE_EXCEPTION)
+    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-format-security" )
 endif()
 
 # Check for C++17 and lower version support.
@@ -769,6 +776,22 @@ endif()
 if (MORIS_USE_EIGEN)
     list(APPEND ARMADILLO_EIGEN "eigen")
     list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_EIGEN")
+endif()
+
+# -------------------------------------------------------------------------
+# PARDISO -----------------------------------------------------------------
+# -------------------------------------------------------------------------
+
+if (MORIS_USE_PARDISO)
+    list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_PARDISO")
+endif()
+
+# -------------------------------------------------------------------------
+# MUMPS -------------------------------------------------------------------
+# -------------------------------------------------------------------------
+
+if (MORIS_USE_MUMPS)
+    list(APPEND MORIS_DEFINITIONS "-DMORIS_USE_MUMPS")
 endif()
 
 # -------------------------------------------------------------------------

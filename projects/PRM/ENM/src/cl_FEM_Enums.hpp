@@ -154,6 +154,7 @@ namespace moris
             STRAIN_ENERGY,
             VOLUME_FRACTION,
             DOF,
+            EIGEN_VECTOR,
             ALM_DOF,
             MAX_DOF,
             PROPERTY,

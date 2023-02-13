@@ -125,6 +125,14 @@ namespace moris
         //------------------------------------------------------------------------------
 
         virtual void
+        set_eigen_solution_vector( sol::Dist_Vector* aSolutionVector )
+        {
+            MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set." );
+        };
+
+        //------------------------------------------------------------------------------
+
+        virtual void
         set_adjoint_solution_vector( sol::Dist_Vector* aSolutionVector )
         {
             MORIS_ERROR( false, "Solver_Interface::set_adjoint_solution_vector: not set." );
@@ -272,6 +280,10 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        virtual moris::uint get_num_eigen_vectors() = 0;
+
+        //------------------------------------------------------------------------------
+
         virtual uint get_max_num_global_dofs() = 0;
 
         //------------------------------------------------------------------------------
@@ -326,13 +338,13 @@ namespace moris
 
         /**
          * @brief Get the my local global overlapping map of the adofs
-         * 
-         * @param aListOfDofTypes 
-         * @return moris::Matrix< DDSMat > 
+         *
+         * @param aListOfDofTypes
+         * @return moris::Matrix< DDSMat >
          */
 
         virtual moris::Matrix< DDSMat >
-        get_my_local_global_overlapping_map(const moris::Cell< enum MSI::Dof_Type >& aListOfDofTypes )
+        get_my_local_global_overlapping_map( const moris::Cell< enum MSI::Dof_Type >& aListOfDofTypes )
         {
             MORIS_ERROR( false, "Solver_Interface::get_my_local_global_overlapping_map(): Virtual class not overwritten" );
             return Matrix< DDSMat >( 0, 0 );
@@ -610,12 +622,12 @@ namespace moris
 
         /**
          * @brief Set the solver warehouse object
-         * 
-         * @param aSolverWarehouse 
+         *
+         * @param aSolverWarehouse
          */
-        
-        virtual void 
-        set_solver_warehouse(std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse);
+
+        virtual void
+        set_solver_warehouse( std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse );
     };
 }    // namespace moris
 
