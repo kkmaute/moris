@@ -67,7 +67,7 @@ set(TEST_SOURCES
     UT_FEM_IWG_Diffusion_Interface.cpp
     UT_FEM_IWG_Diffusion_Ghost.cpp
     UT_FEM_IWG_Diffusion_Virtual_Work_Ghost.cpp
-    
+    UT_FEM_IWG_Ghost_Analytic.cpp
     UT_FEM_IWG_Struc_Linear_Bulk.cpp
     UT_FEM_IWG_Struc_Linear_Pressure_Bulk.cpp
     UT_FEM_IWG_Struc_Linear_Dirichlet.cpp
@@ -139,6 +139,7 @@ set(TEST_SOURCES
     FEM_Test_Proxy/cl_FEM_Flux_Matrix_Reference_Values.cpp
     FEM_Test_Proxy/cl_FEM_Inputs_for_Diffusion_UT.cpp
     FEM_Test_Proxy/cl_FEM_Inputs_for_Elasticity_UT.cpp
+    FEM_Test_Proxy/cl_FEM_Inputs_for_Ghost_UT.cpp
     FEM_Test_Proxy/fn_FEM_Convert_Dimensions.cpp
     )
 
