@@ -301,6 +301,9 @@ TEST_CASE( "IWG_Diff_Ghost", "[moris],[fem],[IWG_Diff_Ghost]" )
             tIWG->set_field_interpolator_manager( &tMasterFIManager, mtk::Master_Slave::MASTER );
             tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
 
+            // set the interpolation order for the ghost sum
+            tIWG->set_interpolation_order( iInterpOrder );
+
             // loop over inetgration points
             uint tNumGPs = tIntegPoints.n_cols();
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
