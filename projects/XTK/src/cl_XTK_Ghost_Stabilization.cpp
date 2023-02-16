@@ -1100,7 +1100,7 @@ namespace xtk
             aExtractedTMatrixIndices( iV ).resize( tNumBasis, 1 );
             aExtractedBasisOwners( iV ).resize( 1, tNumBasis );
 
-            // itere and grab  data
+            // iterate and grab data
             for ( moris::moris_index iIp = 0; iIp < tNumBasis; iIp++ )
             {
                 aExtractedTMatrixWeights( iV )( iIp ) = aTMatrixWeights( tStart + iIp );

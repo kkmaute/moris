@@ -643,7 +643,7 @@ namespace xtk
     Matrix< IndexMat >
     Enriched_Integration_Mesh::get_block_entity_loc_inds( std::string aSetName ) const
     {
-        // ge tindex
+        // get index
         moris_index tBlockIndex = this->get_block_set_index( aSetName );
 
         // get clusters in block
@@ -2539,7 +2539,7 @@ namespace xtk
                 {
                     mCellClusters( tEnrIpCellIndex )->mVoid = false;
 
-                    // material cluster is only trivial if it is the only suphase on base IP cell, i.e. there are no triangulated child cells
+                    // material cluster is only trivial if it is the only subphase on base IP cell, i.e. there are no triangulated child cells
                     mCellClusters( tEnrIpCellIndex )->mTrivial = tAllClustersOnCellTrivial;
                 }
                 else    // void clusters
@@ -2574,7 +2574,7 @@ namespace xtk
                     {
                         mCellClusters( tEnrIpCellIndex )->mPrimaryIntegrationCells.push_back( tBaseCell );
 
-                        // sanitiy check for this case
+                        // sanity check for this case
                         MORIS_ASSERT( mCellClusters( tEnrIpCellIndex )->is_full(),
                                 "Enriched_Integration_Mesh::setup_cell_clusters_new() - cluster is trivial and non-void, but not recognized as full" );
                     }
@@ -2681,7 +2681,7 @@ namespace xtk
                     // get the index for the current blockset (depends on bulk-phase index and cut or non-cut)
                     moris_index tSetOrd = MORIS_INDEX_MAX;
 
-                    // only register non-void clusters, i.e. clusters that thave a primary bulk-phase
+                    // only register non-void clusters, i.e. clusters that have a primary bulk-phase
                     if ( tBulkPhaseIndex > -1 )
                     {
                         if ( tCluster.is_trivial() )
@@ -2786,7 +2786,7 @@ namespace xtk
                     for ( moris::uint iSP = 0; iSP < tSubphasesWrtParentCell.size(); iSP++ )
                     {
                         MORIS_ASSERT( tSubphasesWrtParentCell( iSP ) == tEnrichedCellsOfBaseCell( iSP )->get_subphase_index(),
-                                "Discrepency in subphase index." );
+                                "Discrepancy in subphase index." );
                     }
 
                     // if this is a null ptr, the bg facet does not have any child facets associated with it,
@@ -2855,10 +2855,9 @@ namespace xtk
                         // side set ordinal in mesh
                         moris_index tSideSetOrd = tNoChildSideSetOrds( tBulkPhase );
 
-                        // create a new side cluster in the side set assoicate with this bulk phase
-                        moris_index tIndex = mSideSets( tSideSetOrd ).size();
-                        mSideSets( tSideSetOrd ).push_back( std::make_shared< Side_Cluster >() );
-                        std::shared_ptr< Side_Cluster > tSideCluster = mSideSets( tSideSetOrd )( tIndex );
+                        // create a new side cluster in the side set associated with this bulk phase
+                        std::shared_ptr< Side_Cluster > tSideCluster = std::make_shared< Side_Cluster >();
+                        mSideSets( tSideSetOrd ).push_back( tSideCluster );
 
                         // set trivial flag
                         tSideCluster->mTrivial = true;
@@ -2938,10 +2937,10 @@ namespace xtk
         // get the SPG to Cluster Index map from the enrichment
         Cell< Cell< Cell< moris_index > > > const &tSpgToClusterIndex = mModel->mEnrichment->get_SPG_to_UIPC_map();
 
-        // estabilish cluster groups for every B-spline mesh
+        // establish cluster groups for every B-spline mesh
         for ( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
         {
-            // get the discretization mesh index
+            // get the discretization mesh index (DMI)
             moris_index tDMI = mBsplineMeshIndices( iBspMesh );
 
             // get the number of SPGs on the current B-spline mesh
@@ -2977,6 +2976,9 @@ namespace xtk
                 }
             }
         }    // end for: each B-spline mesh
+
+        // free unused memory
+        mCellClusterGroups.shrink_to_fit();
     }
 
     //------------------------------------------------------------------------------
@@ -2994,7 +2996,7 @@ namespace xtk
         // get the SPG to Cluster Index map from the enrichment
         Cell< Cell< Cell< moris_index > > > const &tSpgToClusterIndex = mModel->mEnrichment->get_SPG_to_UIPC_map();
 
-        // estabilish cluster group measures for every B-spline mesh
+        // establish cluster group measures for every B-spline mesh
         for ( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
         {
             // get the discretization mesh index
@@ -3073,7 +3075,7 @@ namespace xtk
             // free unused memory
             mSideClusterGroups( tDMI ).shrink_to_fit();
 
-            // log how good the memory reservervation works
+            // log how good the memory reservation works
             MORIS_LOG_INFO(
                     "B-spline Mesh %i: Number of side cluster groups: Estimated: %i | Actual: %i",
                     tDMI,
@@ -3081,6 +3083,9 @@ namespace xtk
                     mSideClusterGroups( tDMI ).size() );
 
         }    // end for: each B-spline mesh
+
+        // free unused memory
+        mCellClusterGroups.shrink_to_fit();
     }
 
     //------------------------------------------------------------------------------
@@ -3098,7 +3103,7 @@ namespace xtk
         // get the SPG to Cluster Index map from the enrichment
         Cell< Cell< Cell< moris_index > > > const &tSpgToClusterIndex = mModel->mEnrichment->get_SPG_to_UIPC_map();
 
-        // estabilish cluster group measures for every B-spline mesh
+        // establish cluster group measures for every B-spline mesh
         for ( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
         {
             // get the discretization mesh index
@@ -3255,7 +3260,7 @@ namespace xtk
             // free unused memory
             mDblSideClusterGroups( tDMI ).shrink_to_fit();
 
-            // log how good the memory reservervation works
+            // log how good the memory reservation works
             MORIS_LOG_INFO(
                     "B-spline Mesh %i: Number of dbl-side cluster groups: Estimated: %i | Actual: %i",
                     tDMI,
@@ -3263,6 +3268,9 @@ namespace xtk
                     mDblSideClusterGroups( tDMI ).size() );
 
         }    // end for: each B-spline mesh
+
+        // free unused memory
+        mDblSideClusterGroups.shrink_to_fit();
     }
 
     //------------------------------------------------------------------------------
@@ -3341,7 +3349,7 @@ namespace xtk
         //
         //     // initialize arrays to store fields
         //     Matrix< DDRMat > tDummy( 1, this->get_num_faces(), -1.0 );
-        //     Cell< Matrix< DDRMat > > tSideClusterGroupSurfacess( tNumBspMeshes, tDummy );
+        //     Cell< Matrix< DDRMat > > tSideClusterGroupSurfaces( tNumBspMeshes, tDummy );
         //
         //     // compute and output cluster group measures for every B-spline mesh
         //     for( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
@@ -3373,7 +3381,7 @@ namespace xtk
             tSpgIdFieldIndices( iBspMesh )    = this->create_field( tSpgIdFieldNames( iBspMesh ), EntityRank::ELEMENT, 0 );
         }
 
-        // initialize list that holds the SPG indices for every IG cell for everry B-spline mesh
+        // initialize list that holds the SPG indices for every IG cell for every B-spline mesh
         Cell< moris::Matrix< moris::DDRMat > > tSpgIndices( tNumBspMeshes, tDummy );
         Cell< moris::Matrix< moris::DDRMat > > tSpgIds( tNumBspMeshes, tDummy );
 
@@ -3511,7 +3519,7 @@ namespace xtk
 
                     std::unordered_map< moris_index, moris_index > tSubphaseIndexToClusterInterfaceOrd;
 
-                    // acess pointer
+                    // access pointer
                     std::shared_ptr< IG_Cell_Double_Side_Group > tDblSideGroup = tDoubleSidedInterface( iBP0 )( iBP1 );
 
                     // iterate through the facet pairs
@@ -3586,7 +3594,7 @@ namespace xtk
                                 tSideClusters( tNewClusterIndex )->set_ig_vertex_group( tFollowerVertexGroup );
 
                                 MORIS_ASSERT( tSubphaseToSubphaseSideClusterIndex( tFollowerSubphaseIndex ).find( tLeaderSubphaseIndex ) == tSubphaseToSubphaseSideClusterIndex( tFollowerSubphaseIndex ).end(),
-                                        "Enriched_Integration_Mesh::create_interface_double_side_sets_and_clusters() - Nonconcurrent leader follower interface construction occured." );
+                                        "Enriched_Integration_Mesh::create_interface_double_side_sets_and_clusters() - Nonconcurrent leader follower interface construction occurred." );
 
                                 // add to the map
                                 tSubphaseToSubphaseSideClusterIndex( tFollowerSubphaseIndex )[ tLeaderSubphaseIndex ] = tNewClusterIndex;
@@ -3625,7 +3633,7 @@ namespace xtk
             }
         }
 
-        // convert the cells of side ords to matrix and add to clusters
+        // convert the cells of side ordinals to matrix and add to clusters
         for ( moris::uint iSC = 0; iSC < tSideClusterSideOrdinals.size(); iSC++ )
         {
             Matrix< IndexMat > tSideOrds( 1, tSideClusterSideOrdinals( iSC ).size() );
@@ -3701,7 +3709,7 @@ namespace xtk
     {
         uint tNumSetsToRegister = aVertexSetNames.size();
 
-        // block set ords
+        // block set ordinals
         Cell< moris_index > tVertexSetOrds( tNumSetsToRegister );
 
         // iterate and add sets
@@ -3731,7 +3739,7 @@ namespace xtk
     {
         uint tNumSetsToRegister = aBlockSetNames.size();
 
-        // block set ords
+        // block set ordinals
         Cell< moris_index > tBlockSetOrds( tNumSetsToRegister );
 
         // iterate and add sets
@@ -3769,7 +3777,7 @@ namespace xtk
     {
         uint tNumSetsToRegister = aSideSetNames.size();
 
-        // block set ords
+        // block set ordinals
         Cell< moris_index > tSideSetOrds( tNumSetsToRegister );
 
         // iterate and add sets
@@ -3811,7 +3819,7 @@ namespace xtk
     {
         uint tNumSetsToRegister = aDblSideSetNames.size();
 
-        // block set ords
+        // block set ordinals
         Cell< moris_index > tDblSideSetOrds( tNumSetsToRegister );
 
         // get number of already existing double sided side sets (i.e. interface side sets)
@@ -4018,7 +4026,7 @@ namespace xtk
         // make the geometric index the color
         for ( moris::uint i = 0; i < tNumGeometries; i++ )
         {
-            // the color of the interface ndoe sets is the geometric index
+            // the color of the interface node sets is the geometric index
             this->set_vertex_set_color( tVertexSetOrds( i ), Matrix< IndexMat >( { { (moris_index)i } } ) );
         }
 

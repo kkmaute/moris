@@ -32,19 +32,19 @@ namespace moris
         class Mesh_Manager : public std::enable_shared_from_this< Mesh_Manager >
         {
         private:
-            //! list of mesh pairs
+            // list of mesh pairs
             moris::Cell<Mesh_Pair>                     mMeshPairs;
 
-            //! mesh pair to index map
+            // mesh pair to index map
             moris::map< std::string, moris_index >     mMeshPairNameToIndexMap;
 
-            //! pointer to HMR performer
+            // pointer to HMR performer
             std::weak_ptr<hmr::HMR>                    mHMRPerformer ;
 
-            //! list of registered fields
+            // list of registered fields
             moris::Cell< std::weak_ptr< mtk::Field > > mFields;
 
-            //! mesh pair to index map
+            // mesh pair to index map
             moris::map< std::string, moris_index >     mFieldLabelToIndexMap;
 
             moris::Cell< moris::Cell< moris_index > >  mMeshPairToFieldIndexMap;
