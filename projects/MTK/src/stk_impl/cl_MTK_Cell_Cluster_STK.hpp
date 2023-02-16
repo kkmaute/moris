@@ -43,6 +43,10 @@ public:
     {};
 
     //----------------------------------------------------------------
+
+    ~Cell_Cluster_STK(){};
+
+    //----------------------------------------------------------------
     bool
     is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
 

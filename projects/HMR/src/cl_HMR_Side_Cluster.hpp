@@ -36,9 +36,14 @@ namespace moris
                 std::unordered_map<moris_index,moris_index> mVertexIdToLocalIndex;
 
             public:
+
                 //----------------------------------------------------------------
 
                 Side_Cluster_HMR();
+
+                //----------------------------------------------------------------
+                
+                ~Side_Cluster_HMR(){};
 
                 //----------------------------------------------------------------
 

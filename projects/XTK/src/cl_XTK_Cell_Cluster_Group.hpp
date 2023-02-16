@@ -70,8 +70,7 @@ namespace xtk
          * @brief Default Destructor
          * 
          */
-        virtual
-        ~Cell_Cluster_Group() = default;
+        ~Cell_Cluster_Group(){};
 
 
     }; // class xtk::Cell_Cluster_Group

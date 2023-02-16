@@ -77,7 +77,7 @@ namespace moris
              * 
              */
             virtual
-            ~Cell_Cluster_Group_DataBase() = default;
+            ~Cell_Cluster_Group_DataBase(){};
 
             //------------------------------------------------------------------------------
 

@@ -45,6 +45,10 @@ public:
     {};
 
     //----------------------------------------------------------------
+
+    ~Cluster_Proxy(){};
+
+    //----------------------------------------------------------------
     bool
     is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
     { return false; }

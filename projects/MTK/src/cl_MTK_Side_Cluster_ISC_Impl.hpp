@@ -42,6 +42,12 @@ namespace moris
                 Side_Cluster_ISC();
 
                 //----------------------------------------------------------------
+                /*
+                 * Default destructor
+                 */
+                ~Side_Cluster_ISC(){};
+
+                //----------------------------------------------------------------
                 /**
                  * Trivial constructor
                  * When Integration cell and interpolation cell are the same

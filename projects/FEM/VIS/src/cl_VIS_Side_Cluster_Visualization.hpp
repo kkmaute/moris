@@ -49,9 +49,11 @@ namespace moris
                 mVerticesInCluster( 0, nullptr ),
                 mVertexParamCoords( 0, 0 )
                 {};
+
                 //----------------------------------------------------------------
 
-                ~Side_Cluster_Visualization(){}
+                ~Side_Cluster_Visualization(){};
+
                 //----------------------------------------------------------------
 
                 bool

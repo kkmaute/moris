@@ -121,6 +121,9 @@ namespace xtk
       public:
         IG_Vertex_Group( moris_index aNumVerticesInGroup );
 
+        // destructor explicitly
+        ~IG_Vertex_Group(){}
+
         std::size_t
         size();
 

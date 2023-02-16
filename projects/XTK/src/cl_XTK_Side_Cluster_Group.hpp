@@ -86,7 +86,7 @@ namespace xtk
          * 
          */
         virtual
-        ~Side_Cluster_Group() = default;
+        ~Side_Cluster_Group(){};
 
         //------------------------------------------------------------------------------
 
