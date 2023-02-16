@@ -220,10 +220,6 @@ namespace moris
                 MORIS_ERROR( false, "mtk::Cluster::set_cluster_group() - not implemented for this class" );
             }
 
-            // virtual
-            // std::shared_ptr< Cluster_Group >
-            // get_cluster_group() const = 0;
-
             //##############################################
             // Local Coordinate Access
             // (Pure Virtual)

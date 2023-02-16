@@ -26,7 +26,7 @@ namespace xtk
             , mIntegrationCellSideOrdinals( 0, 0 )
             , mVerticesInCluster( 0, nullptr )
             , mVertexLocalCoords( 0 )
-            , mClusterGroups( 0, nullptr )
+            , mClusterGroups( 0 )
     {}
     
     //----------------------------------------------------------------
@@ -209,7 +209,8 @@ namespace xtk
             const mtk::Primary_Void aPrimaryOrVoid,
             const mtk::Master_Slave aIsMaster ) const
     {
-        return mClusterGroups( aDiscretizationMeshIndex )->compute_cluster_group_cell_measure( aPrimaryOrVoid, aIsMaster );
+        MORIS_ERROR( !mClusterGroups( aDiscretizationMeshIndex ).expired(), "Side_Cluster::compute_cluster_group_cell_measure() - Pointer to the cluster group has expired." );
+        return mClusterGroups( aDiscretizationMeshIndex ).lock()->compute_cluster_group_cell_measure( aPrimaryOrVoid, aIsMaster );
     }
 
     //----------------------------------------------------------------
@@ -269,7 +270,8 @@ namespace xtk
             const mtk::Primary_Void aPrimaryOrVoid,
             const mtk::Master_Slave aIsMaster ) const
     {
-        return mClusterGroups( aDiscretizationMeshIndex )->compute_cluster_group_cell_measure_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsMaster );
+        MORIS_ERROR( !mClusterGroups( aDiscretizationMeshIndex ).expired(), "Side_Cluster::compute_cluster_group_cell_measure_derivative() - Pointer to the cluster group has expired." );
+        return mClusterGroups( aDiscretizationMeshIndex ).lock()->compute_cluster_group_cell_measure_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsMaster );
     }
 
     //------------------------------------------------------------------------------
@@ -297,7 +299,8 @@ namespace xtk
             const mtk::Primary_Void aPrimaryOrVoid,
             const mtk::Master_Slave aIsMaster ) const
     {
-        return mClusterGroups( aDiscretizationMeshIndex )->compute_cluster_group_side_measure( aPrimaryOrVoid, aIsMaster );
+        MORIS_ERROR( !mClusterGroups( aDiscretizationMeshIndex ).expired(), "Side_Cluster::compute_cluster_group_cell_side_measure() - Pointer to the cluster group has expired." );
+        return mClusterGroups( aDiscretizationMeshIndex ).lock()->compute_cluster_group_side_measure( aPrimaryOrVoid, aIsMaster );
     }
 
     //------------------------------------------------------------------------------
@@ -313,7 +316,7 @@ namespace xtk
         }
 
         // if the entry exists but is empty
-        else if( mClusterGroups( aDiscretizationMeshIndex ).get() == nullptr )
+        else if( mClusterGroups( aDiscretizationMeshIndex ).expired() )
         {
             return false;
         }
@@ -335,7 +338,7 @@ namespace xtk
             "xtk::Cell_Cluster::get_cluster_group() - Cluster group is not set or does not exist." );
 
         // return the pointer to the cluster group
-        return mClusterGroups( aDiscretizationMeshIndex );
+        return mClusterGroups( aDiscretizationMeshIndex ).lock();
     }
 
     //------------------------------------------------------------------------------
@@ -370,7 +373,8 @@ namespace xtk
             const mtk::Primary_Void aPrimaryOrVoid,
             const mtk::Master_Slave aIsMaster ) const
     {
-        return mClusterGroups( aDiscretizationMeshIndex )->compute_cluster_group_side_measure_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsMaster );
+        MORIS_ERROR( !mClusterGroups( aDiscretizationMeshIndex ).expired(), "Side_Cluster::compute_cluster_group_cell_side_measure_derivative() - Pointer to the cluster group has expired." );
+        return mClusterGroups( aDiscretizationMeshIndex ).lock()->compute_cluster_group_side_measure_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsMaster );
     }
 
     //------------------------------------------------------------------------------

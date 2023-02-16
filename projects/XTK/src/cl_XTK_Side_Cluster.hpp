@@ -45,8 +45,8 @@ namespace xtk
         std::shared_ptr< IG_Vertex_Group >            mVertexGroup;
         moris::Cell< moris::Matrix< moris::DDRMat > > mVertexLocalCoords;
         moris::Matrix< moris::DDRMat >                mVertexLocalCoordsMat;  /*FIXME: get rid of mVertexLocalCoords*/
-        xtk::Cell_Cluster const                      *mAssociatedCellCluster; /* Associated cell cluster (needed for volume computations in nitsche).*/
-        moris::Cell< std::shared_ptr< mtk::Cluster_Group > > mClusterGroups;
+        xtk::Cell_Cluster const                      *mAssociatedCellCluster; /* Associated cell cluster (needed for volume computations in Nitsche).*/
+        moris::Cell< std::weak_ptr< mtk::Cluster_Group > > mClusterGroups;
 
         //---------------------------------------------------------------------------------------
 
@@ -55,6 +55,10 @@ namespace xtk
         //---------------------------------------------------------------------------------------
 
         Side_Cluster();
+
+        //---------------------------------------------------------------------------------------
+
+        ~Side_Cluster(){};
 
         //---------------------------------------------------------------------------------------
 

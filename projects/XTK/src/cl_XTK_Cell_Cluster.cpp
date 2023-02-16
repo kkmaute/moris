@@ -29,7 +29,7 @@ namespace xtk
             , mPrimaryIntegrationCells( 0, nullptr )
             , mVoidIntegrationCells( 0, nullptr )
             , mVerticesInCluster( 0, nullptr )
-            , mClusterGroups( 0, nullptr )
+            , mClusterGroups( 0 )
     {
     }
 
@@ -42,7 +42,7 @@ namespace xtk
             , mPrimaryIntegrationCells( 0, nullptr )
             , mVoidIntegrationCells( 0, nullptr )
             , mVerticesInCluster( 0, nullptr )
-            , mClusterGroups( 0, nullptr )
+            , mClusterGroups( 0 )
     {
         mOnlyForVis = aOnlyForVisualization;
     }
@@ -325,7 +325,7 @@ namespace xtk
         }
 
         // if the entry exists but is empty
-        else if( mClusterGroups( aDiscretizationMeshIndex ).get() == nullptr )
+        else if( mClusterGroups( aDiscretizationMeshIndex ).expired() )
         {
             return false;
         }
@@ -347,7 +347,7 @@ namespace xtk
             "xtk::Cell_Cluster::get_cluster_group() - Cluster group is not set or does not exist." );
 
         // return the pointer to the cluster group
-        return mClusterGroups( aDiscretizationMeshIndex );
+        return mClusterGroups( aDiscretizationMeshIndex ).lock();
     }
 
     //------------------------------------------------------------------------------
@@ -390,7 +390,7 @@ namespace xtk
     {
         if( !mOnlyForVis ) 
         {
-            return mClusterGroups( aDiscretizationMeshIndex )->compute_cluster_group_cell_measure( aPrimaryOrVoid, aIsMaster );
+            return mClusterGroups( aDiscretizationMeshIndex ).lock()->compute_cluster_group_cell_measure( aPrimaryOrVoid, aIsMaster );
         }
         else // cluster groups are not defined on clusters that are only for visualization purposes (e.g. for ghost visualization)
         {        
@@ -408,7 +408,7 @@ namespace xtk
             const mtk::Primary_Void aPrimaryOrVoid,
             const mtk::Master_Slave aIsMaster ) const
     {
-        return mClusterGroups( aDiscretizationMeshIndex )->compute_cluster_group_cell_measure_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsMaster );
+        return mClusterGroups( aDiscretizationMeshIndex ).lock()->compute_cluster_group_cell_measure_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsMaster );
     }
 
     //------------------------------------------------------------------------------

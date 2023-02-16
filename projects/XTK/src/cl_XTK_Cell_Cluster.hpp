@@ -50,7 +50,7 @@ namespace xtk
         std::shared_ptr< IG_Vertex_Group >              mVertexGroup;
         moris::Cell< std::shared_ptr< IG_Cell_Group > > mPrimaryIgCellGroup;
         moris::Cell< std::shared_ptr< IG_Cell_Group > > mVoidIgCellGroup;
-        moris::Cell< std::shared_ptr< mtk::Cluster_Group > > mClusterGroups;
+        moris::Cell< std::weak_ptr< mtk::Cluster_Group > > mClusterGroups;
 
         //------------------------------------------------------------------------------
 
