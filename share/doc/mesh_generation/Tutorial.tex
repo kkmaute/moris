@@ -3,8 +3,8 @@
 \chapter{User Guide}
 \label{sec:tutorial}
 
-This chapter will provide instructions on how to use MORIS' mesh generation with a simplified XML input file and list all available options and parameters.
-Below a quick overview on how to run the mesh generation is given. As discussed in \Cref{sec:overview}, conceptually the code requires definitions for the geometry, background, and foreground meshes the parameters for which are explained in \Cref{sec:tutorial_geometry}, \Cref{sec:tutorial_background}, and \Cref{sec:tutorial_foreground} respectively. Lastly, an explanation of the extraction operator output is provided in \Cref{sec:tutorial_extraction_ops}.
+This chapter will provide instructions on how to use MORIS' mesh generation workflow with a simplified XML input file and list all available options and parameters.
+Below a quick overview on how to run the mesh generation is given. As discussed in \Cref{sec:overview}, conceptually the code requires definitions for the geometry, background, and foreground meshes, the parameters for which are explained in \Cref{sec:tutorial_geometry}, \Cref{sec:tutorial_background}, and \Cref{sec:tutorial_foreground} respectively. Lastly, an explanation of the extraction operator output is provided in \Cref{sec:tutorial_extraction_ops}.
 
 \begin{minipage}{\linewidth}
 \vspace{0.5cm}
@@ -59,7 +59,8 @@ As discussed in \Cref{sec:overview_geometry}, geometry is defined using multiple
 \end{enumerate}
 Each new LSF (and hence geometry) is defined using a \tag{Geometry} tag and nested under the \tag{Geometries} tag (see \Cref{lst:input_structure}). The \att{type} attribute is used to indicate how the LSF is defined. The parameters defining the particular geometry are then nested within. Examples are provided below with each of the respective geometry types.
 
-\refpar{pre_defined}{Currently} the signed distance fields for five basic geometries are built-in. An additional \att{geom} tag is used to initialize each basic geometry.
+\refpar{pre_defined}{Currently} the signed distance fields for five basic geometries are built-in. An additional \att{geom} attribute is used to initialize each basic geometry.
+\begin{multicols}{3}
 \begin{itemize}
     \item \hyperlink{circle}{circle}
     \item \hyperlink{sphere}{sphere}
@@ -67,6 +68,7 @@ Each new LSF (and hence geometry) is defined using a \tag{Geometry} tag and nest
     \item \hyperlink{ellipsoid}{ellipsoid}
     \item \hyperlink{plane}{line/plane}
 \end{itemize}
+\end{multicols}
 
 \newpage
 
@@ -94,7 +96,7 @@ Each new LSF (and hence geometry) is defined using a \tag{Geometry} tag and nest
 \end{lstlisting}
 \end{minipage}
 
-\refpar{ellipse}{An Ellipse} is defined by a center point in the $xy$-plane and its semi-diameters using the tags \tag{Point} and \tag{SemiDiameters} respectively. Both need to be defined by a comma-separated arrays of length two defining the center point's $(x,y)$-position and semi-diameters in the $x$- and $y$- directions respectively. Additionally, an exponent may be defined by the user to construct a \href{https://en.wikipedia.org/wiki/Superellipse}{super-ellipse} using the tag \tag{Exponent}. This value is set to $2$ by default, which resembles a standard ellipse, but can be changed to make the ellipse more convex or concave.
+\refpar{ellipse}{An Ellipse} is defined by a center point in the $xy$-plane and its semi-diameters using the tags \tag{Point} and \tag{SemiDiameters} respectively. Both need to be defined by a comma-separated arrays of length two defining the center point's $(x,y)$-position and semi-diameters in the $x$- and $y$- directions respectively. Additionally, an exponent may be defined by the user to construct a \href{https://en.wikipedia.org/wiki/Superellipse}{super-ellipse (\ExternalLink)} using the tag \tag{Exponent}. This value is set to $2$ by default, which resembles a standard ellipse, but can be changed to make the ellipse more convex or concave.
 Example parameters are shown in \Cref{lst:ellipse}. The level-set function is defined to be positive inside the ellipse, and negative outside.
 
 \begin{minipage}{\linewidth}
@@ -109,7 +111,7 @@ Example parameters are shown in \Cref{lst:ellipse}. The level-set function is de
 \end{lstlisting}
 \end{minipage}
 
-\refpar{ellipse}{The Ellipsoid} is defined analogous to the \hyperlink{ellipse}{ellipse} using the tags \tag{Point}, \tag{SemiDiameters}, and, if needed, \tag{Exponent}. The former two each need an additional third value specified for the $z$-position of the center point and the semi-diameter in $z$-direction respectively.
+\refpar{ellipsoid}{The Ellipsoid} is defined analogous to the \hyperlink{ellipse}{ellipse} using the tags \tag{Point}, \tag{SemiDiameters}, and, if needed, \tag{Exponent}. The former two each need an additional third value specified for the $z$-position of the center point and the semi-diameter in $z$-direction respectively.
 
 \begin{minipage}{\linewidth}
 \vspace{0.5cm}
@@ -138,7 +140,7 @@ Example parameters are shown in \Cref{lst:ellipse}. The level-set function is de
 \refpar{image_file}{Image Files} can be converted to a signed distance field (SDF) using the MatLab scripts provided in the GitHub repository under \href{https://github.com/kkmaute/moris/tree/main/share/matlab}{share/matlab/}. For three-dimensional image information, a stack of images needs to be parsed with the image index before the file ending, e.g. a stack of images called \texttt{Cube.000.png}, \texttt{Cube.001.png}, ..., \texttt{Cube.127.png} could be used.
 The generated SDF by each script is stored in .hdf5 format. 
 
-The generated SDF is assumed to occupy a rectangular or cuboidal domain depending on the number of spatial dimensions. The SDF needs to be positioned relative to the ambient domain by defining its side lengths and origin using the \tag{ImageDimensions} and \tag{ImageOrigin} tags respectively. The origin of the SDF domain is assumed to be the vertex the the minimum $x$-, $y$-, and, if applicable, $z$-values. An example for defining a geometry based off an image file is provided in \Cref{lst:image} as well as in the \href{https://github.com/kkmaute/moris/blob/main/share/doc/mesh_generation/examples/Bear_Example.xml}{"Bear" example input file}.
+The generated SDF is assumed to occupy a rectangular or cuboidal domain depending on the number of spatial dimensions. The SDF needs to be positioned relative to the ambient domain by defining its side lengths and origin using the \tag{ImageDimensions} and \tag{ImageOrigin} tags respectively. The origin of the SDF domain is assumed to be the vertex the the minimum $x$-, $y$-, and, if applicable, $z$-values. An example for defining a geometry based off an image file is provided in \Cref{lst:image} as well as in the \href{https://github.com/kkmaute/moris/blob/main/share/doc/mesh_generation/examples/Bear_Example.xml}{"Bear" example input file (\ExternalLink)}.
 
 \begin{minipage}{\linewidth}
 \vspace{0.5cm}
@@ -151,9 +153,9 @@ The generated SDF is assumed to occupy a rectangular or cuboidal domain dependin
 \end{lstlisting}
 \end{minipage}
 
-\refpar{future}{Future Extensions} to the geometry capabilities are more options for pre-defined geometries and patterns thereof, as well as enabling closed surface STL files to be converted to SDFs. Further, symbolic expressions for level-set functions will be enabled. Please reach out with any other feature suggestions and requests.
+\refpar{future}{Future Extensions} to the geometry capabilities are more options for pre-defined geometries and patterns thereof, as well as enabling closed surface STL files to be converted to SDFs. Further, symbolic expressions for level-set functions will be enabled. Please reach out with any feature suggestions and requests.
 
-\refpar{phase_map}{A Phase Map} can be used to re-assign materials to the phases. As mentioned in \Cref{sec:overview_geometry}, up to $n_M = 2^{n_{LSF}}$ phases and therefore material sub-domains arise from $n_{LSF}$ level-set functions, assuming that each sign combination from the LSFs corresponds to one phase. For the default material assignment the index of a phase is simply assumed to be the value of a bitset where each digit corresponds to the sign of one of the level-set function. Negative values of the LSFs correspond to zeros, positive values to ones. An example for the default phase assignment is provided in \Cref{tab:default_phase_assignment}.
+\refpar{phase_map}{A Phase Map} is used to assign materials to the phases. As mentioned in \Cref{sec:overview_geometry}, up to $n_M = 2^{n_{LSF}}$ phases and therefore material sub-domains arise from $n_{LSF}$ level-set functions, assuming that each sign combination from the LSFs corresponds to one phase. For the default material assignment each phase, i.e. regions with a certain sign combination, correspond to a material. The index of a phase is assumed to be the value of a bitset where each digit corresponds to the sign of one of the level-set function. Negative values of the LSFs correspond to zeros, positive values to ones. The phase assignment is provided in \Cref{tab:default_phase_assignment}.
 
 \begin{table}[H]
 \begin{center}
@@ -174,7 +176,7 @@ The generated SDF is assumed to occupy a rectangular or cuboidal domain dependin
 \end{center}
 \end{table}
 
-The default phase assignment for the \href{https://github.com/kkmaute/moris/blob/main/share/doc/mesh_generation/examples/Rotated_Square_Example.xml}{rotated square example} using four planes to define the geometry is shown on the right of \Cref{fig:phase_assignment}. 
+The default material assignment for the \href{https://github.com/kkmaute/moris/blob/main/share/doc/mesh_generation/examples/Rotated_Square_Example.xml}{rotated square example (\ExternalLink)} using four planes to define the geometry is shown on the right of \Cref{fig:phase_assignment}. 
 
 \begin{figure}[t]
     \begin{center}
@@ -184,7 +186,7 @@ The default phase assignment for the \href{https://github.com/kkmaute/moris/blob
     \end{center}
 \end{figure}
 
-Using the tag \tag{PhaseMap} each phase can be mapped to a material index. The syntax consists of comma-separated pairs of indices, the first indicating the index of the phase to map from, and the second the the index of the material to map to. The pairs are separated by semicolon. The example input is shown in \Cref{lst:phase_map}
+Using the tag \tag{PhaseMap} each phase index can be mapped to a material index. The syntax consists of comma-separated pairs of indices, the first indicating the index of the phase to map from, and the second the the index of the material to map to. The pairs are separated by semicolon. The example input is shown in \Cref{lst:phase_map}. If the phase assignment for one's problem is not clear, it is advised to first generate a foreground mesh without a phase map specified and visualize the phase assignment before applying a phase map. To speed up this process, the extraction operator output can be suppressed by specifying the tag \tag{OutputExtractionOperators} in the \texttt{ForegroundMesh} parameter list and setting it to \texttt{false}.
 
 \begin{minipage}{\linewidth}
 \vspace{0.5cm}
@@ -228,7 +230,7 @@ From the base grid, multiple refined mesh grids can be defined under the tag \ta
 \end{minipage}
 
 \hypertarget{bspline_mesh_definition}{}
-Finally, the B-spline background meshes are defined under the tag \tag{BsplineMeshes} by combining the mesh grid,identified by its index using the \tag{MeshGridIndex} tag, and a polynomial order which is set using the \tag{MeshGridIndex}. An index, starting with $0$, must be assigned to each B-spline mesh using the attribute \att{ind}. This index will be used for indexing the extraction operators to be outputted.
+Finally, the B-spline background meshes are defined under the tag \tag{BsplineMeshes} by combining the mesh grid, identified by its index using the \tag{MeshGridIndex} tag, and a polynomial order which is set using the \tag{PolynomialOrder}. An index, starting with $0$, must be assigned to each B-spline mesh using the attribute \att{ind}. This index will be used for indexing the extraction operators to be outputted.
 
 \begin{minipage}{\linewidth}
 \vspace{0.5cm}
@@ -246,7 +248,7 @@ Finally, the B-spline background meshes are defined under the tag \tag{BsplineMe
 \end{lstlisting}
 \end{minipage}
 
-\refpar{future}{Future Developments} to the background mesh capabilities are to enable hierarchical refinements around the boundary even in the B-spline background mesh. Other refinement criteria for the background meshes can be enabled upon request.
+\refpar{future}{Future Developments} to the background mesh capabilities are to enable hierarchical refinements around interfaces in the B-spline background mesh. Other refinement criteria for the background meshes can be enabled upon request.
 
 % ------------------------------------------------------------------- %
 \section{Foreground Mesh}
@@ -268,17 +270,18 @@ As \hyperlink{foreground_mesh_properties}{mentioned in the overview}, the foregr
 \end{lstlisting}
 \end{minipage}
 
-The generated foreground mesh is outputted in the EXODUS file format with the filename \texttt{foreground\_mesh.exo}. More details on the file format in general can be found at \href{https://sandialabs.github.io/seacas-docs/html/index.html}{sandialabs.github.io/seacas-docs}.
+The generated foreground mesh is outputted in the EXODUS file format with the filename \texttt{foreground\_mesh.exo}. More details on the file format in general can be found at \href{https://sandialabs.github.io/seacas-docs/html/index.html}{sandialabs.github.io/seacas-docs (\ExternalLink)}.
 
 \vspace{0.2cm}
 
-A noteworthy feature of EXODUS is its organization of elements into \emph{blocks} and \emph{sets}. Volume elements in the output mesh are sorted into blocks based on their assigned material. Blocks are however limited to elements of the same type which is why elements composing one material may be split up into a block of triangular elements stemming from intersected background elements and non-intersected rectangular background elements. Blocks composed of the former are marked by a "\textbf{c}" for cut, e.g. the block of triangular elements for material $0$ is called \texttt{HMR\_dummy\_c\_p0}; the latter are marked by an "\textbf{n}" for non-cut, e.g. \texttt{HMR\_dummy\_n\_p0}.
-An example for the blocks found in the \href{https://github.com/kkmaute/moris/blob/main/share/doc/mesh_generation/examples/Rotated_Square_Example.xml}{rotated square example} are shown in \Cref{fig:meshsets_paraview}.
+A noteworthy feature of EXODUS is its organization of elements into \emph{blocks} and \emph{sets}. Volume elements in the output mesh are sorted into blocks based on their assigned material. Blocks are however limited to elements of the same type which is why elements composing one material may be split up into a block of triangular elements stemming from intersected background elements and non-intersected rectangular background elements. Blocks composed of the former are marked by a "\textbf{c}" for cut, e.g. the block of triangular elements for material $0$ is called \texttt{HMR\_dummy\_c\_p0}; the latter are marked by an "\textbf{n}" for non-cut, e.g. \texttt{HMR\_dummy\_n\_p0}. An example for the blocks found in the \href{https://github.com/kkmaute/moris/blob/main/share/doc/mesh_generation/examples/Rotated_Square_Example.xml}{rotated square example (\ExternalLink)} are shown in \Cref{fig:meshsets_paraview}.
+
+\vspace{1.2cm}
 
 Further, interface elements are sorted into sets. There are two types of interface sets.
 \begin{itemize}
-    \item Sets of elements that interface between a given material pair. For example, all interface elements connecting the materials $0$ and $1$ can be found in the set \texttt{iside\_b0\_0\_b1\_1}; "\texttt{b0\_0}" and "\texttt{b1\_1}" indicate that material 0 is considered the primary, and material 1 the secondary material. Sets with flipped primary and secondary materials, but equal interface elements, are available. For the example the name is \texttt{iside\_b0\_1\_b1\_0}. 
-    This grouping of interface elements means that how many geometries are defined and how materials are defined has an impact on how easy it is to grab sets of interface elements to apply boundary conditions. For example, a square block can be defined using a single geometry or using four planes. The former results necessarily in only one interface set, the latter allows each side to be sorted into an individual interface set allowing different boundary conditions to be imposed on each side of the square.
+    \item \textbf{Sets of elements that interface between a given material pair.} For example, all interface elements connecting the materials $0$ and $1$ can be found in the set \texttt{iside\_b0\_0\_b1\_1}; "\texttt{b0\_0}" and "\texttt{b1\_1}" indicate that material 0 is considered the primary, and material 1 the secondary material. Sets with flipped primary and secondary materials, but equal interface elements, are available. For this example the name would be \texttt{iside\_b0\_1\_b1\_0}. 
+    This grouping of interface elements means that the number of geometries and materials defined has an impact on how easy it is to grab sets of interface elements to apply boundary conditions. For example, a square block can be defined using a single geometry or using four planes. The former results necessarily in only one interface set, the latter allows each side to be sorted into an individual interface set allowing different boundary conditions to be imposed on each side of the square.
 \end{itemize}
 
 \begin{figure}[h]
@@ -290,7 +293,7 @@ Further, interface elements are sorted into sets. There are two types of interfa
 \end{figure}
 
 \begin{itemize}
-    \item Sets of facets of elements of a given Block that make up the boundary of the domain. Each side of a domain is denoted using a \emph{side ordinal}. The convention for naming side ordinals, alongside other numbering conventions used in the EXODUS file format, can be found \href{https://sandialabs.github.io/seacas-docs/html/md_include_exodus_element_types.html}{here (\ExternalLink)}.
+    \item \textbf{Sets of facets of elements of a given Block that make up the boundary of the domain.} Each side of a domain is denoted using a \emph{side ordinal}. The convention for naming side ordinals, alongside other numbering conventions used in the EXODUS file format, can be found \href{https://sandialabs.github.io/seacas-docs/html/md_include_exodus_element_types.html}{here (\ExternalLink)}.
     The facets of the elements inside the block \texttt{HMR\_dummy\_c\_p0} that are part of the bottom, i.e. side ordinal $1$, of the domain are collected in the set \texttt{SideSet\_1\_c\_p0}. This allows boundary conditions to easily be imposed onto a given material along the various sides of the domain.
 \end{itemize}
 
@@ -304,22 +307,20 @@ The \hyperref[eq:extraction_operator]{extraction operators} are computed per for
 \newline e.g. the files \texttt{Elemental\_Extraction\_Operators\_B0.hdf5} and
 \newline \texttt{Elemental\_Extraction\_Operators\_B1.hdf5} contain the extraction operators with respect to B-spline mesh indices $0$ and $1$ respectively.
 
-\vspace{0.2cm}
-
-Each of the first contains an array called \texttt{Cell\_IDs} that is an element index to ID array. An example is shown in \Cref{fig:extraction_operator_output}, bottom left. The index of an array entry represents the index of a foreground cell, the value of the entry is the ID. Note, the array may contain IDs whose value is $-1$ which indicates the corresponding element is not part of the foreground mesh outputted to the EXODUS file and can be ignored.
+% \vspace{0.2cm}
 
 \begin{figure}[h]
     \vspace{0.5cm}
     \begin{center}
-    \includegraphics[width=13cm]{Figures/extraction_operator_output.png}
-    \caption{Output of the extraction operators in HDF5 format for a foreground mesh consisting of only four TRI3 elements. The file contains a list of element IDs (bottom left), and for each element the extraction operator (bottom right) and an assembly map (top right).} 
+    \includegraphics[width=12cm]{Figures/extraction_operator_output.png}
+    \caption{Output of the extraction operators in HDF5 format for a foreground mesh consisting of four elements. The file contains a list of element IDs (bottom left), and for each element the extraction operator (bottom right) and an assembly map (top right).} 
     \label{fig:extraction_operator_output}
     \end{center}
 \end{figure}
 
-\newpage
+Each contains an array called \texttt{Cell\_IDs} that is an element index to ID array. An example is shown in \Cref{fig:extraction_operator_output}, bottom left. The index of an array entry represents the index of a foreground cell, the value of the entry is the ID. Note, the array may contain IDs whose value is $-1$ which indicates the corresponding element is not part of the foreground mesh outputted to the EXODUS file and can be ignored.
 
-For each foreground element ID the extraction operator named \texttt{Weights\_<ID>} and a list ob background basis function IDs named \texttt{IDs\_<ID>} are written to the HDF5 files. Examples are shown on the right in \Cref{fig:extraction_operator_output}. The weights are the extraction operators that are supposed to be applied to the elemental Jacobians, residuals, stiffness matrices, etc. as stated in equation \eqref{eq:transform_elemental} and demonstrated in \Cref{fig:assembly}. Once this operation is completed the ID vector is used to assemble the elemental matrix, or vector into the global system. In the elemental stiffness matrix example in \Cref{fig:assembly}, the entry in the second row and column, i.e. position $(2,3)$ would be assembled into position $(2,4)$ of the global stiffness matrix.
+For each foreground element ID the extraction operator named \texttt{Weights\_<ID>} and a list of background basis function IDs named \texttt{IDs\_<ID>} are written to the HDF5 files. Examples are shown on the right in \Cref{fig:extraction_operator_output}. The weights are the extraction operators that are supposed to be applied to the elemental Jacobians, residuals, stiffness matrices, etc. as stated in equation \eqref{eq:transform_elemental} and demonstrated in \Cref{fig:assembly}. Once this operation is completed the ID vector is used to assemble the elemental matrix, or vector into the global system. In the elemental stiffness matrix example in \Cref{fig:assembly}, the entry in the second row and column, i.e. position $(2,3)$ would be assembled into position $(2,4)$ of the global stiffness matrix.
 
 \begin{figure}[h]
     \begin{center}
