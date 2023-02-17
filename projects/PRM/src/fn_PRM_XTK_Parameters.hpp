@@ -85,6 +85,9 @@ namespace moris
             // NOTE: this option is only intended for mesh output, the produced mesh may miss some domain boundary side sets
             tParameterList.insert( "triangulate_all_in_post", false );
 
+            // kill workflow after outputting XTK mesh, used for quickly testing the geometry and assign material phases
+            tParameterList.insert( "only_generate_xtk_temp", false );
+
             // path to folder for XTK output
             tParameterList.insert( "output_path", "./" );
             tParameterList.insert( "output_file", "xtk_temp.exo" );

@@ -334,6 +334,16 @@ namespace moris
             // set the mtk performer
             mPerformerManager->mMTKPerformer( 1 ) = tMTKDataBasePerformer;
 
+            // stop workflow if T-Matrices have been outputted
+            if ( tXTKPerformer->only_generate_xtk_temp() )
+            {
+                MORIS_LOG( "------------------------------------------------------------------------------" );
+                MORIS_LOG( "Only output of the foreground mesh requested. Stopping workflow after XTK/MTK." );
+                MORIS_LOG( "------------------------------------------------------------------------------" );
+                moris::Matrix< DDRMat > tMat( 1, 1, std::numeric_limits< real >::quiet_NaN() );
+                return tMat;
+            }
+
             // output T-matrices and/or MPCs if requested
             this->output_T_matrices( tMTKPerformer, tXTKPerformer );
 

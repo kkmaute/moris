@@ -219,6 +219,7 @@ namespace xtk
             // get parameters specifying the integration mesh from the parameterlist
             mTriangulateAll       = mParameterList.get< bool >( "triangulate_all" );
             mTriangulateAllInPost = mParameterList.get< bool >( "triangulate_all_in_post" );
+            mOnlyGenerateXtkTemp  = mParameterList.get< bool >( "only_generate_xtk_temp" );
             mIgElementOrder       = mParameterList.get< moris::uint >( "ig_element_order" );
 
             // get and store indices of B-spline meshes wrt. which information needs to be constructed
@@ -1664,6 +1665,22 @@ namespace xtk
     {
         // get value from parameterlist
         return mParameterList.get< std::string >( "MPC_output_file" );
+    }
+
+    // -----------------------------------------------------------------------------
+
+    bool
+    Model::only_generate_xtk_temp()
+    {
+        // indicate to kill workflow after XTK mesh output if requested by user
+        if ( mOnlyGenerateXtkTemp )
+        {
+            return true;
+        }
+        else    // otherwise don't kill the workflow
+        {
+            return false;
+        }
     }
 
     // -----------------------------------------------------------------------------

@@ -41,11 +41,10 @@ namespace moris
     void
     Library_IO_Meshgen::finalize()
     {
-        // FIXME: uncomment once complete
         // check that an .xml input file has been specified
-        // MORIS_ERROR( mXmlParserIsInitialized,
-        //         "Library_IO_Meshgen::finalize() - No .xml input file has been specified. "
-        //         "This is required for the mesh generation workflow." );
+        MORIS_ERROR( mXmlParserIsInitialized,
+                "Library_IO_Meshgen::finalize() - No .xml input file has been specified. "
+                "This is required for the mesh generation workflow." );
 
         // load the standard parameters into the member variables
         this->load_all_standard_parameters();
@@ -406,6 +405,11 @@ namespace moris
         MORIS_ERROR( tFgElemPolyOrder == 1 || tFgElemPolyOrder == 2,
                 "Library_IO_Meshgen::load_parameters_from_xml() - Currently only supporting foreground polynomial orders 1 and 2." );
         tXtkParamList.set( "ig_element_order", tFgElemPolyOrder );
+
+        // check whether T-matrix output has been requested/suppressed 
+        bool tOutputTmats = "";
+        mXmlReader->get( tXtkPath + ".OutputExtractionOperators", tOutputTmats, bool( true ) );
+        tXtkParamList.set( "only_generate_xtk_temp", !tOutputTmats );
 
         // check which T-matrix outputs have been requested
         std::string tTmatOutputFormats = "";

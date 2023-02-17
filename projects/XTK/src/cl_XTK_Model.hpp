@@ -114,6 +114,7 @@ namespace xtk
         // Flag to cleanup mesh at end of decomposition
         bool mTriangulateAll       = false;    // Triangulate all background cells
         bool mTriangulateAllInPost = false;    // Triangulate all background cells in post-processing of cut integration mesh (only for exo-mesh output)
+        bool mOnlyGenerateXtkTemp  = false;    // Flag to kill the workflow right after generating the xtk_temp file. Good for phase assignment.
         bool mCleanupMesh          = false;    // Cleanup the mesh
 
         // polynomial order of IG elements, 1 is default, 2 or higher will invoke order elevation in decomposition
@@ -521,6 +522,9 @@ namespace xtk
         get_MPC_output_file_name();
 
         //-----------------------------------------------------------------------------------
+
+        bool
+        only_generate_xtk_temp();
 
         bool
         kill_workflow_flag();
