@@ -614,6 +614,13 @@ namespace xtk
         uses_SPG_based_enrichment();
 
         //------------------------------------------------------------------------------
+        
+        /**
+         * @brief function to activate deletion of the xtk and activate database in mtk
+         * 
+         */
+        bool
+        delete_xtk_after_generation(); 
 
         // Private Functions
 

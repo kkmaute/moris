@@ -44,10 +44,11 @@ namespace moris
             // Performer set for this workflow
             mPerformerManager->mHMRPerformer.resize( 1 );
             mPerformerManager->mGENPerformer.resize( 1 );
-            // mPerformerManager->mXTKPerformer.resize( 1 );
+            mPerformerManager->mXTKPerformer.resize( 1 );
             mPerformerManager->mMTKPerformer.resize( 2 );
             mPerformerManager->mMDLPerformer.resize( 1 );
             mPerformerManager->mRemeshingMiniPerformer.resize( 1 );
+            mPerformerManager->mDataBasePerformer.resize( 1 );
 
             // load parameter lists
             ModuleParameterList tHMRParameterList   = aPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::HMR );
@@ -293,6 +294,7 @@ namespace moris
             //             tMeshCheckerHMR.perform();
             //             tMeshCheckerHMR.print_diagnostics();
 
+            bool tDeleteXTK = tXTKPerformer->delete_xtk_after_generation();
             // XTK perform - decompose - enrich - ghost - multigrid
             bool tFlag = tXTKPerformer->perform_decomposition();
 
@@ -306,8 +308,11 @@ namespace moris
 
                 moris::Matrix< DDRMat > tMat( mNumCriterias, 1, std::numeric_limits< real >::quiet_NaN() );
 
-                // delete the xtk
-                delete tXTKPerformer;
+                if ( tDeleteXTK )
+                {
+                    // delete the xtk
+                    delete tXTKPerformer;
+                }
 
                 return tMat;
             }
@@ -318,21 +323,24 @@ namespace moris
             // XTK perform - enrich - ghost - multigrid
             tXTKPerformer->perform_enrichment();
 
-            // constrcut the data base with the mtk performer from xtk
-            DataBase_Performer tDataBasePerformer = DataBase_Performer( tMTKPerformer );
+            if ( tDeleteXTK )
+            {
+                // constrcut the data base with the mtk performer from xtk
+                mPerformerManager->mDataBasePerformer( 0 ) = std::make_shared< DataBase_Performer >( tMTKPerformer );
 
-            // create the mtk performer that will hold the data base mesh pair and set it
-            std::shared_ptr< mtk::Mesh_Manager > tMTKDataBasePerformer = std::make_shared< mtk::Mesh_Manager >();
-            tDataBasePerformer.set_output_performer( tMTKDataBasePerformer );
+                // create the mtk performer that will hold the data base mesh pair and set it
+                std::shared_ptr< mtk::Mesh_Manager > tMTKDataBasePerformer = std::make_shared< mtk::Mesh_Manager >();
+                mPerformerManager->mDataBasePerformer( 0 )->set_output_performer( tMTKDataBasePerformer );
 
-            // turn off the mesh check if no FEM-model will be constructed on the mesh
-            tDataBasePerformer.set_mesh_check( !tXTKPerformer->kill_workflow_flag() );
+                // turn off the mesh check if no FEM-model will be constructed on the mesh
+                mPerformerManager->mDataBasePerformer( 0 )->set_mesh_check( !tXTKPerformer->kill_workflow_flag() );
 
-            // perform the mtk data base
-            tDataBasePerformer.perform();
+                // perform the mtk data base
+                mPerformerManager->mDataBasePerformer( 0 )->perform();
 
-            // set the mtk performer
-            mPerformerManager->mMTKPerformer( 1 ) = tMTKDataBasePerformer;
+                // set the mtk performer
+                mPerformerManager->mMTKPerformer( 1 ) = tMTKDataBasePerformer;
+            }
 
             // stop workflow if T-Matrices have been outputted
             if ( tXTKPerformer->only_generate_xtk_temp() )
@@ -357,13 +365,18 @@ namespace moris
                 return tMat;
             }
 
-            // delete the xtk-performer
-            delete tXTKPerformer;
-
-            // IMPORTANT!!! do not overwrite previous XTK  and MTK performer before we know if this XTK performer triggers a restart.
-            // otherwise the fem::field meshes are deleted and cannot be used anymore.
-            // mPerformerManager->mXTKPerformer( 0 ) = std::shared_ptr<xtk::Model> (tXTKPerformer);
-            // mPerformerManager->mMTKPerformer( 1 ) = tMTKPerformer;
+            if ( tDeleteXTK )
+            {
+                // delete the xtk-performer
+                delete tXTKPerformer;
+            }
+            else
+            {
+                // IMPORTANT!!! do not overwrite previous XTK  and MTK performer before we know if this XTK performer triggers a restart.
+                // otherwise the fem::field meshes are deleted and cannot be used anymore.
+                mPerformerManager->mXTKPerformer( 0 ) = std::shared_ptr< xtk::Model >( tXTKPerformer );
+                mPerformerManager->mMTKPerformer( 1 ) = tMTKPerformer;
+            }
 
             //            mtk::Mesh_Checker tMeshCheckerXTK(
             //                    0,
@@ -390,8 +403,11 @@ namespace moris
                 tMIGPerformer.perform();
             }
 
-            // free the memory and delete the unused data
-            tDataBasePerformer.free_memory();
+            if ( tDeleteXTK )
+            {
+                // free the memory and delete the unused data
+                mPerformerManager->mDataBasePerformer( 0 )->free_memory();
+            }
 
             mPerformerManager->mMDLPerformer( 0 )->set_performer( mPerformerManager->mMTKPerformer( 1 ) );
 
