@@ -1790,7 +1790,6 @@ namespace xtk
     bool
     Model::delete_xtk_after_generation()
     {
-        std::cout<<"xxx:"<<mParameterList.get< bool >( "delete_xtk_after_generation" )<<std::endl;
         // get the ouput from paramter
         return mParameterList.get< bool >( "delete_xtk_after_generation" );
     }
