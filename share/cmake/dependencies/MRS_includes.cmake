@@ -27,7 +27,7 @@ list(APPEND MORIS_SOURCE_DIRS
 	${MRS}/${IOS} )
 
 set(ASR_TPL_DEPENDENCIES
-    "" )
+    "boost" )
 
 set(CHR_TPL_DEPENDENCIES
     "boost" )
