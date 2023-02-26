@@ -17,7 +17,6 @@
 #include <stdexcept>
 #include <cstdio>
 #include <string>
-#include <boost/stacktrace.hpp>
 
 // MORIS header files.
 #include "core.hpp"
@@ -145,9 +144,6 @@ namespace moris
                 const char*          format,
                 const Args... aArgs )
         {
-            //print the call stack 
-            std::cout << boost::stacktrace::stacktrace();
-
             // Determine size of string
             auto tSize = snprintf( nullptr, 0, format, aArgs... );
 
