@@ -218,7 +218,7 @@ namespace xtk
         moris::Cell< moris_index > mOwnedSubphaseGroupIndices; // list of SPG indices owned by the current proc
         moris::Cell< moris_index > mNotOwnedSubphaseGroupIndices; // list of SPG indices NOT owned by the current proc
         moris_id mAllocatedSpgIds = 1; // tracker for which IDs have already been taken (NOTE: this information only gets updated on proc 0)
-        std::unordered_map< moris::moris_id, moris::moris_index > mSpgIdtoIndexMap; // to get the SPG index for a given SPG ID
+        std::unordered_map< moris::moris_id, moris::moris_index > mSpgIdToIndexMap; // to get the SPG index for a given SPG ID
 
         // SP to SPG map
         // input: SP index || output: index of SPG the SP belongs to
@@ -320,10 +320,10 @@ namespace xtk
         get_index_for_spg_id( moris_id aSubphaseGroupId ) const
         {
             // find ID in map
-            auto tIter = mSpgIdtoIndexMap.find( aSubphaseGroupId );
+            auto tIter = mSpgIdToIndexMap.find( aSubphaseGroupId );
 
             // make sure the map entry makes sense
-            MORIS_ASSERT( tIter != mSpgIdtoIndexMap.end(), 
+            MORIS_ASSERT( tIter != mSpgIdToIndexMap.end(), 
                     "Bspline_Mesh_Info::get_index_for_spg_id() - Subphase Group ID not in map: %i.", aSubphaseGroupId );
 
             // return index associated with SPG ID
@@ -522,7 +522,7 @@ namespace xtk
             // initialize list of side ordinals with correct size
             moris::Cell< moris_index > tLigamentSideOrdinals( 6 );
 
-            // intialize counter for number of side ordinals
+            // initialize counter for number of side ordinals
             uint tNumSideOrds = 0;
 
             // go through side ordinals, see whats active and add to list of ordinals
@@ -596,7 +596,7 @@ namespace xtk
         // ----------------------------------------------------------------------------------
 
         moris_id
-        allocate_subphase_group_ids( moris::size_t aNumIdstoAllocate )
+        allocate_subphase_group_ids( moris::size_t aNumIdsToAllocate )
         {
             // get rank of current proc and how big the MPI communicator is
             int tProcRank = moris::par_rank();
@@ -609,7 +609,7 @@ namespace xtk
             moris::Cell< moris::moris_id > tNumIdsRequested( 1 );
 
             // put current processors ID request size into the Cell that will be shared across procs
-            tNumIdsRequested( 0 ) = (moris::moris_id) aNumIdstoAllocate;
+            tNumIdsRequested( 0 ) = (moris::moris_id) aNumIdsToAllocate;
 
             // hand ID range size request to root processor
             moris::gather( tNumIdsRequested, aGatheredInfo );

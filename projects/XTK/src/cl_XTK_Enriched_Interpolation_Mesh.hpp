@@ -77,7 +77,7 @@ namespace xtk
 
             // local to global enriched basis vector
             Cell< moris::Matrix< moris::IdMat > >               mEnrichCoeffLocToGlob; // input: DMI, enriched BF index || output: global ID of that enriched BF
-            Cell< std::unordered_map< moris_id, moris_index > > mGlobaltoLocalBasisMaps; // input: DMI || output: map ordered by global BF IDs with corresponding local BF index
+            Cell< std::unordered_map< moris_id, moris_index > > mGlobalToLocalBasisMaps; // input: DMI || output: map ordered by global BF IDs with corresponding local BF index
 
             // basis ownership
             Cell< moris::Matrix< moris::IdMat > > mEnrichCoeffOwnership; // input: DMI, enriched BF index || output: ?
@@ -87,12 +87,12 @@ namespace xtk
 
             // Entity maps
             Cell< Matrix< IdMat > >                             mLocalToGlobalMaps; // TODO input: DMI || output:
-            Cell< std::unordered_map< moris_id, moris_index > > mGlobaltoLobalMaps; // TODO input: DMI || output:
+            Cell< std::unordered_map< moris_id, moris_index > > mGlobalToLocalMaps; // TODO input: DMI || output:
 
             // base interpolation cells to their enriched interpolation cells
-            moris::Cell< moris::Cell< Interpolation_Cell_Unzipped* > > mBaseCelltoEnrichedCell; // TODO input: DMI || output:
+            moris::Cell< moris::Cell< Interpolation_Cell_Unzipped* > > mBaseCellToEnrichedCell; // TODO input: DMI || output:
 
-            // a connecitivty pointer that all the enriched interpolation cells use
+            // a connectivity pointer that all the enriched interpolation cells use
             std::shared_ptr< moris::mtk::Cell_Info > mCellInfo;
 
             // Not owned vertex list
@@ -145,7 +145,7 @@ namespace xtk
             //------------------------------------------------------------------------------
 
             //------------------------------------------------------------------------------
-            // multigrid accessor functions
+            // multi-grid accessor functions
             //------------------------------------------------------------------------------
 
             uint                    get_num_interpolations();

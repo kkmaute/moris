@@ -56,7 +56,7 @@ namespace xtk
         // log/trace this operation
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "perform", mXTKModel->mVerboseLevel, 0 );
 
-        // data structure containing which BG cells are intersected to later trigger decomp of those elements
+        // data structure containing which BG cells are intersected to later trigger decomposition of those elements
         Integration_Mesh_Generation_Data tGenerationData;
 
         // pointer to the background mesh
@@ -87,13 +87,13 @@ namespace xtk
         for ( moris::uint iSubMethod = 0; iSubMethod < mSubdivisionMethods.size(); iSubMethod++ )
         {
             // create the subdivision routine with a factory
-            std::shared_ptr< Decomposition_Algorithm > tDecompAlg =
+            std::shared_ptr< Decomposition_Algorithm > tDecompositionAlgorithm =
                     create_decomposition_algorithm( mSubdivisionMethods( iSubMethod ), mXTKModel->get_parameter_list() );
 
             // perform the decomposition
             Decomposition_Data tDecompositionData;
 
-            tDecompAlg->perform( &tGenerationData, &tDecompositionData, tCutIntegrationMesh.get(), tBackgroundMesh, this );
+            tDecompositionAlgorithm->perform( &tGenerationData, &tDecompositionData, tCutIntegrationMesh.get(), tBackgroundMesh, this );
         }
 
         tCutIntegrationMesh->finalize_cut_mesh_construction();
@@ -108,18 +108,18 @@ namespace xtk
         std::shared_ptr< Facet_Based_Connectivity > tFaceConnectivity = std::make_shared< Facet_Based_Connectivity >();
         this->create_facet_from_element_to_node( tActiveIgCells, tFaceConnectivity );
 
-        // TODO: MESHCLEANUP
+        // TODO: MESH-CLEANUP
         // this->create_vertex_facet_connectivity(tFaceConnectivity, tCutIntegrationMesh.get() );
 
         tCutIntegrationMesh->set_face_connectivity( tFaceConnectivity );
 
-        // TODO: MESHCLEANUP
+        // TODO: MESH-CLEANUP
         // initialize MESH-GEN map
         // moris::Cell<moris_index> tGenMeshMap( tCutIntegrationMesh->get_num_nodes() );
         // std::iota(tGenMeshMap.begin(), tGenMeshMap.end(), 0);
         // mGeometryEngine->get_pdv_host_manager()->set_GenMeshMap(tGenMeshMap);
 
-        // TODO: MESHCLEANUP
+        // TODO: MESH-CLEANUP
         // perform mesh cleanup
         // Integration_Mesh_Cleanup* MeshCleanup = new Integration_Mesh_Cleanup( tCutIntegrationMesh.get(), tFaceConnectivity.get() );
         // MeshCleanup->perform( tActiveIgCells, mGeometryEngine );
@@ -202,7 +202,7 @@ namespace xtk
                     create_decomposition_algorithm( this->determine_reg_subdivision_template(), mXTKModel->get_parameter_list() );
 
             // swap the list of intersected cells out with list of non-intersected cells to trigger regular subdivision on the non-intersected cells
-            Cell< moris_index > tAllIntersecedBgCells = tGenerationData.mAllIntersectedBgCellInds;
+            Cell< moris_index > tAllIntersectedBgCells = tGenerationData.mAllIntersectedBgCellInds;
             tGenerationData.mAllIntersectedBgCellInds = tGenerationData.mAllNonIntersectedBgCellInds;
 
             // perform the regular subdivision on the non-intersected cells
@@ -210,7 +210,7 @@ namespace xtk
             tRegSubAlg->perform( &tGenerationData, &tDecompositionData, tCutIntegrationMesh.get(), tBackgroundMesh, this );
 
             // assign list of intersected BG cells back to Mesh Generation Data
-            tGenerationData.mAllIntersectedBgCellInds = tAllIntersecedBgCells;
+            tGenerationData.mAllIntersectedBgCellInds = tAllIntersectedBgCells;
 
             // re-finalize mesh
             tCutIntegrationMesh->finalize_cut_mesh_construction();
@@ -249,10 +249,10 @@ namespace xtk
             // reserve memory in cell of b-spline mesh infos with correct number of meshes
             tCutIntegrationMesh->mBsplineMeshInfos.resize( tNumBspMeshes, nullptr );
 
-            // initialize the size of the SPG connectivities
+            // initialize the size of the SPG connectivity
             tCutIntegrationMesh->mSubphaseGroupNeighborhood.resize( tNumBspMeshes );
 
-            // estabilish B-spline mesh information for every mesh index
+            // establish B-spline mesh information for every mesh index
             for ( moris::size_t iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
             {
                 // get B-spline mesh index currently treated
@@ -282,7 +282,7 @@ namespace xtk
                 tCutIntegrationMesh->mSubphaseGroupNeighborhood( iBspMesh ) = tSpgNeighborhoodConnectivity;
             }
 
-            // costruct information about which SPGs are present on which base IP cells and their material connectivity wrt. to the various B-spline meshes
+            // construct information about which SPGs are present on which base IP cells and their material connectivity wrt. to the various B-spline meshes
             // Note: this information is needed later in the enrichment
             this->construct_SPG_material_connectivity_information( tCutIntegrationMesh.get() );
 
@@ -704,11 +704,11 @@ namespace xtk
         // get an estimate how many IG cells will have issues with vertex-based phase assignment
         uint tNumGeometries                  = mGeometryEngine->get_num_geometries();
         uint tNumIgCells                     = aCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 );
-        uint tExpectedNumUnassignableIgCells = tNumGeometries * ( tNumIgCells / 1000 ) + 1;
+        uint tExpectedNumNotAssignableIgCells = tNumGeometries * ( tNumIgCells / 1000 ) + 1;
 
         // initialize list of IG cells whose bulk-phase cannot be determined solely by the nodal Level-Set values
         moris::Cell< moris_index > tIgCellsWithoutBulkPhase( 0 );
-        tIgCellsWithoutBulkPhase.reserve( tExpectedNumUnassignableIgCells );
+        tIgCellsWithoutBulkPhase.reserve( tExpectedNumNotAssignableIgCells );
 
         // go over all IG cells in the mesh and try to establish the bulk-phase index based on nodal level-set values
         for ( moris::size_t iCell = 0; iCell < tNumIgCells; iCell++ )
@@ -766,7 +766,7 @@ namespace xtk
                 }
             }    // end: loop over unassigned IG cells
 
-            // update the number of unassinged IG cells
+            // update the number of un-assigned IG cells
             uint tNumIgCellsAssignedInLoop = tNumIgCellsWithoutBulkPhase - tIgCellsStillWithoutBulkPhase.size();
             tNumIgCellsWithoutBulkPhase    = tNumIgCellsWithoutBulkPhase - tNumIgCellsAssignedInLoop;
 
@@ -1175,7 +1175,7 @@ namespace xtk
             moris::mtk::Cell* tParentCell = aCutIntegrationMesh->get_ig_cell_group_parent_cell( iCell );
 
             // make sure assumption that intersected Bg-Cell index is equal to child mesh index holds true
-            MORIS_ASSERT( tParentCell->get_index() == iCell, "Index mismatch parent index should allign with parent cell index" );
+            MORIS_ASSERT( tParentCell->get_index() == iCell, "Index mismatch parent index should align with parent cell index" );
 
             // flood fill this group using the bulk phases
             moris::Matrix< moris::IndexMat > tLocalFloodFill =
@@ -1260,7 +1260,7 @@ namespace xtk
         aCutIntegrationMesh->mSubPhaseIds.shrink_to_fit();
 
         // --- PARALLEL-CONSIDERATIONS ---
-        // intialize list of owned and non-owned indices
+        // initialize list of owned and non-owned indices
         aCutIntegrationMesh->mOwnedSubphaseGroupsInds.reserve( aCutIntegrationMesh->mSubPhaseCellGroups.size() );
         aCutIntegrationMesh->mNotOwnedSubphaseGroupsInds.reserve( aCutIntegrationMesh->mSubPhaseCellGroups.size() );
 
@@ -1373,7 +1373,7 @@ namespace xtk
         /* Note:
          * I loop through cells then side ordinals to capture the transition between adaptively refined meshes.
          * alternatively you could try looping through aBgFacetToChildFacet and then handle the subphase
-         * neigborhood for the transition locations seperately
+         * neighborhood for the transition locations separately
          */
 
         // get number of Bg-cells
@@ -1604,7 +1604,7 @@ namespace xtk
                     moris_index tSubphaseIndex   = aCutIntegrationMesh->get_ig_cell_subphase_index( tCellIndex );
                     moris_index tParentCellIndex = aCutIntegrationMesh->get_subphase_parent_cell( tSubphaseIndex )->get_index();
 
-                    // make sure current Ig-cell's parent and the treated Bg-cell are the same cell (otherwise different Ig-cell must be represenative for current Bg-cell)
+                    // make sure current Ig-cell's parent and the treated Bg-cell are the same cell (otherwise different Ig-cell must be representative for current Bg-cell)
                     if ( tParentCellIndex == aBGCell->get_index() )
                     {
                         // if this sub-phase has not been registered in the sub-phase map yet, then ...
@@ -1814,7 +1814,7 @@ namespace xtk
             aNotOwnedSubphasesToProcs( tProcDataIndex ).push_back( tNotOwnedSubphases( i ) );
         }
 
-        // intialize the remaining arrays ...
+        // initialize the remaining arrays ...
         aParentCellIds.resize( aNotOwnedSubphasesToProcs.size() );
         aChildCellIds.resize( aNotOwnedSubphasesToProcs.size() );
         aNumChildCellsInSubphase.resize( aNotOwnedSubphasesToProcs.size() );
@@ -1854,7 +1854,7 @@ namespace xtk
                 // get the subphase's parent IP cell
                 moris::mtk::Cell* tParentCell = aCutIntegrationMesh->get_subphase_parent_cell( tSubphaseIndex );
 
-                // store the parent cell and IG cell group IDs, and the number of IG cells corresponding to the SPs to be requestedd in the remaining arrays
+                // store the parent cell and IG cell group IDs, and the number of IG cells corresponding to the SPs to be requested in the remaining arrays
                 aParentCellIds( i )( j )           = tParentCell->get_id();
                 aChildCellIds( i )( j )            = tSubphase->mIgCellGroup( 0 )->get_id();
                 aNumChildCellsInSubphase( i )( j ) = tSubphase->mIgCellGroup.size();
@@ -1909,11 +1909,11 @@ namespace xtk
 
                     // check that the SP found on this proc has the same parent IP cell as the one from the requesting proc
                     MORIS_ERROR( aCutIntegrationMesh->get_subphase_parent_cell( tSubphaseIndex )->get_id() == aReceivedParentCellIds( iProc )( 0, jSP ),
-                            "Integration_Mesh_Generator::prepare_subphase_id_answers() - Subphase parent cell id discrepency" );
+                            "Integration_Mesh_Generator::prepare_subphase_id_answers() - Subphase parent cell id discrepancy" );
 
                     // check that the SP found on this proc has the same number of IG cells in it as the one from the requesting proc
                     MORIS_ERROR( (moris_index)aCutIntegrationMesh->get_subphase_ig_cells( tSubphaseIndex )->mIgCellGroup.size() == aReceivedNumChildCellsInSubphase( iProc )( jSP ),
-                            "Integration_Mesh_Generator::prepare_subphase_id_answers() - Number of cells in subphase discrepency" );
+                            "Integration_Mesh_Generator::prepare_subphase_id_answers() - Number of cells in subphase discrepancy" );
 
                     // check that a valid Subphase ID has already been assigned
                     MORIS_ERROR( tSubphaseId != MORIS_ID_MAX, "Integration_Mesh_Generator::prepare_subphase_id_answers() - Subphase ID not found in child mesh" );
@@ -2077,7 +2077,7 @@ namespace xtk
             aNotOwnedSpgsToProcs( tProcDataIndex ).push_back( tNotOwnedSPGs( iNotOwnedSPG ) );
         }
 
-        // intialize the remaining arrays ...
+        // initialize the remaining arrays ...
         tSubphaseIds.resize( tNumProcs );
         aChildCellIds.resize( tNumProcs );
         tNumSpsInSpg.resize( tNumProcs );
@@ -2182,11 +2182,11 @@ namespace xtk
                     // check validity of subphase group's ID
                     MORIS_ASSERT( tSubphaseGroupId != MORIS_ID_MAX,
                             "Integration_Mesh_Generator::prepare_subphase_group_id_answers() - "
-                            "Trying to request index from a suphase group whose ID has not been assigned." );
+                            "Trying to request index from a subphase group whose ID has not been assigned." );
 
                     // check that the SP found on this proc has the same number of IG cells in it as the one from the requesting proc
                     MORIS_ERROR( (moris_index)tSubphaseGroup->get_num_SPs_in_group() == aReceivedNumSpsInSpg( iProc )( jSPG ),
-                            "Integration_Mesh_Generator::prepare_subphase_id_answers() - Number of cells in subphase discrepency" );
+                            "Integration_Mesh_Generator::prepare_subphase_id_answers() - Number of cells in subphase discrepancy" );
 
                     // TODO: the Subphase IDs are not assigned to the SPGs yet
                     // // check that the SPG found on this proc has the same SP in it as the one reported by the requesting proc
@@ -2576,7 +2576,7 @@ namespace xtk
 
         Cell< moris_index > tSideSetOrds = aCutIntegrationMesh->register_side_set_names( tInterfaceSideNames );
 
-        // iterate and add the side set groups to cut mehs
+        // iterate and add the side set groups to cut mesh
         for ( moris::uint iSet = 0; iSet < tSideSetOrds.size(); iSet++ )
         {
             aCutIntegrationMesh->mSideSetCellSides( tSideSetOrds( iSet ) ) = tCellSideGroups( iSet );
@@ -2657,7 +2657,7 @@ namespace xtk
 
         Cell< moris_index > tBlockSetOrds = aCutIntegrationMesh->register_block_set_names( tBlockSetNames, tCellTopo );
 
-        // iterate and add the side set groups to cut mehs
+        // iterate and add the side set groups to cut mesh
         for ( moris::uint iSet = 0; iSet < tBlockSetOrds.size(); iSet++ )
         {
             aCutIntegrationMesh->mBlockSetCellGroup( tBlockSetOrds( iSet ) ) = aBulkPhaseCellGroups( iSet );
@@ -2971,7 +2971,7 @@ namespace xtk
             MORIS_ASSERT( aFaceConnectivity->mFacetToCell( iF ).size() == 1 || aFaceConnectivity->mFacetToCell( iF ).size() == 2,
                     "Facet should either connect to no cell or one other cell" );
 
-            // only do something if facet connnects two mtk::Cells
+            // only do something if facet connects two mtk::Cells
             if ( aFaceConnectivity->mFacetToCell( iF ).size() == 2 )
             {
                 // get the pair of indices of mtk::Cells connected through facet with index iF
@@ -3209,7 +3209,7 @@ namespace xtk
             tFacetVertexParentRanks.resize( tFacetVertices.size() );
             tFacetVertexParentOrds.resize( tFacetVertices.size() );
 
-            // all we need to figure out is if the facet is a subfacet or a interior to the cell in this case.
+            // all we need to figure out is if the facet is a sub-facet or a interior to the cell in this case.
 
             // iterate through vertices
             for ( moris::uint iV = 0; iV < tFacetVertices.size(); iV++ )
@@ -3217,7 +3217,7 @@ namespace xtk
                 tFacetVertexParentInds( iV )  = aCutIntegrationMesh->mIgVertexParentEntityIndex( tFacetVertices( iV )->get_index() );
                 tFacetVertexParentRanks( iV ) = aCutIntegrationMesh->mIgVertexParentEntityRank( tFacetVertices( iV )->get_index() );
 
-                // iterior background cell is the parent
+                // interior background cell is the parent
                 if ( tFacetVertexParentRanks( iV ) == 3 )
                 {
                     // mark the entity parent as the deduction cell
@@ -3330,7 +3330,7 @@ namespace xtk
                     aBgFacetToIgFacet( tParentIndex ) = std::make_shared< moris::Cell< moris::moris_index > >();
                 }
 
-                // std::cout<<" tParentFacet = "<<tParentIndex<<" | Igfacet = "<<iFacet<<std::endl;
+                // std::cout<<" tParentFacet = "<<tParentIndex<<" | IgFacet = "<<iFacet<<std::endl;
                 aBgFacetToIgFacet( tParentIndex )->push_back( iFacet );
             }
         }
@@ -3650,7 +3650,7 @@ namespace xtk
             }
         }
 
-        // construct a relationship for the geometry engine to have geomtric information for this vertex
+        // construct a relationship for the geometry engine to have geometric information for this vertex
         this->link_new_vertices_to_geometry_engine( aDecompositionData, aDecompAlg );
     }
 
@@ -3772,7 +3772,7 @@ namespace xtk
         // create the child meshes
         for ( moris::uint iCell = 0; iCell < aBackgroundMesh->get_num_elems(); iCell++ )
         {
-            // initialize the Childmesh with its group of IG cells and populate their information
+            // initialize the Child Mesh with its group of IG cells and populate their information
             moris_index       tCMIndex                                        = (moris_index)iCell;
             moris::mtk::Cell* tParentCell                                     = &aBackgroundMesh->get_mtk_cell( iCell );
             aCutIntegrationMesh->mChildMeshes( tCMIndex )                     = std::make_shared< Child_Mesh_Experimental >();
@@ -3800,7 +3800,7 @@ namespace xtk
             // initialize and create a vertex group from the currently still un-cut background element
             aCutIntegrationMesh->mIntegrationVertexGroups( tCMIndex ) = std::make_shared< IG_Vertex_Group >( tNumGeometricVertices );
             aCutIntegrationMesh->mChildMeshes( tCMIndex )->mIgVerts   = aCutIntegrationMesh->mIntegrationVertexGroups( tCMIndex );
-            // FIXME: GET GEOMETRIC VERTICES FROM MTK CELL HARDCODED TO HEXFAMILY
+            // FIXME: GET GEOMETRIC VERTICES FROM MTK CELL HARDCODED TO HEX-FAMILY
             for ( moris::moris_index i = 0; i < tNumGeometricVertices; i++ )
             {
                 aCutIntegrationMesh->mIntegrationVertexGroups( tCMIndex )->add_vertex( tParentCellVerts( i ), std::make_shared< Matrix< DDRMat > >( tParamCoords.get_row( i ) ) );
@@ -3875,11 +3875,11 @@ namespace xtk
         mXTKModel->inward_receive_requests( aMPITag, 3, tReceivedRequests, tProcsReceivedFrom );
 
         // Prepare request answers
-        Cell< Matrix< IndexMat > > tRequestAnwers;
-        this->prepare_request_answers( aDecompData, aBackgroundMesh, tReceivedRequests, tRequestAnwers );
+        Cell< Matrix< IndexMat > > tRequestAnswers;
+        this->prepare_request_answers( aDecompData, aBackgroundMesh, tReceivedRequests, tRequestAnswers );
 
         // send the answers back
-        mXTKModel->return_request_answers( aMPITag + 1, tRequestAnwers, tProcsReceivedFrom );
+        mXTKModel->return_request_answers( aMPITag + 1, tRequestAnswers, tProcsReceivedFrom );
 
         barrier();
 
@@ -3891,7 +3891,7 @@ namespace xtk
         this->handle_received_request_answers( aDecompData, aBackgroundMesh, tOutwardRequests, tReceivedRequestsAnswers, tNodeId );
 
         MORIS_ERROR( mXTKModel->verify_successful_node_assignment( aDecompData ),
-                "Unsuccesssful node assignment detected." );
+                "Unsuccessful node assignment detected." );
 
         barrier();
     }
@@ -4249,11 +4249,11 @@ namespace xtk
     bool
     Integration_Mesh_Generator::check_construct_subphase_groups()
     {
-        // intialize output
+        // initialize output
         bool tConstructSPGs = false;
 
         // only construct Subphase-Groups and their Neighborhood if SPG based enrichment has been requested
-        // first check if XTK-Model has parameterlist (i.e. skip this in Unit tests that don't require it)
+        // first check if XTK-Model has parameter-list (i.e. skip this in Unit tests that don't require it)
         if ( mXTKModel->mParameterList.get< bool >( "has_parameter_list" ) )
         {
             if ( mXTKModel->mParameterList.get< bool >( "use_SPG_based_enrichment" ) )
@@ -4312,10 +4312,10 @@ namespace xtk
         // initialize SPG in B-spline element map with correct size
         aBsplineMeshInfo->mSpgIndicesInBsplineCells.resize( tNumBspElems );
 
-        // estabilish SPGs on every B-spline element
+        // establish SPGs on every B-spline element
         for ( uint iBspElem = 0; iBspElem < tNumBspElems; iBspElem++ )
         {
-            // intialize and get list of subphase indices present on current B-spline element
+            // initialize and get list of subphase indices present on current B-spline element
             Matrix< IndexMat > tSubphaseIndicesInBsplineCell;
             this->get_subphase_indices_in_bspline_cell( aCutIntegrationMesh, aMeshListIndex, iBspElem, tSubphaseIndicesInBsplineCell );
 
@@ -4510,13 +4510,13 @@ namespace xtk
         uint tNumSpsInBspCell = aSubphasesInBsplineCell.numel();
 
         // get subphase neighborhood information form Subphase_Neighborhood_Connectivity and store in variable for easy handling
-        moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const & tSubphasetoSubphase = tSubphaseNeighborhood->mSubphaseToSubPhase;
+        moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const & tSubphaseToSubphase = tSubphaseNeighborhood->mSubphaseToSubPhase;
 
         // determine the maximum number of neighbors needed in graph
         uint tMaxNumNeighbors = 0;
         for ( moris::size_t iSP = 0; iSP < tNumSpsInBspCell; iSP++ )
         {
-            moris::Cell< moris_index > const & tSingleSubphaseNeighbors = *tSubphasetoSubphase( aSubphasesInBsplineCell( iSP ) );
+            moris::Cell< moris_index > const & tSingleSubphaseNeighbors = *tSubphaseToSubphase( aSubphasesInBsplineCell( iSP ) );
             uint                               tNumNeighbors            = tSingleSubphaseNeighbors.size();
             tMaxNumNeighbors                                            = std::max( tMaxNumNeighbors, tNumNeighbors );
         }
@@ -4529,7 +4529,7 @@ namespace xtk
         for ( moris::size_t iSP = 0; iSP < tNumSpsInBspCell; iSP++ )
         {
             // get list of current subphase's neighbors
-            moris::Cell< moris_index > const & tSingleSubphaseNeighbors = *tSubphasetoSubphase( aSubphasesInBsplineCell( iSP ) );
+            moris::Cell< moris_index > const & tSingleSubphaseNeighbors = *tSubphaseToSubphase( aSubphasesInBsplineCell( iSP ) );
 
             // iterate through neighbors and check if neighbors and prune if not in B-spline cell
             moris::uint tCount = 0;
@@ -4560,8 +4560,8 @@ namespace xtk
             moris::Matrix< moris::IndexMat >&        aSubPhaseBinEnrichmentVals,
             moris_index&                             aMaxEnrichmentLevel )
     {
-        // Variables needed for floodfill, consider removing these.
-        // Active bins to include in floodfill (We include all bins)
+        // Variables needed for flood-fill, consider removing these.
+        // Active bins to include in flood-fill (We include all bins)
         moris::Matrix< moris::IndexMat > tActiveBins( 1, aPrunedSubPhaseToSubphase.n_rows() );
 
         for ( moris::size_t i = 0; i < aPrunedSubPhaseToSubphase.n_rows(); i++ )
@@ -4594,7 +4594,7 @@ namespace xtk
             moris::Matrix< moris::IndexMat >& aSubphaseIndicesInBsplineCell,
             uint                              aNumSPGs )
     {
-        // get number of subphass
+        // get number of subphases
         moris::size_t tNumSubphases = aSubphaseIndicesInBsplineCell.length();
 
         // initialize array of counters tracking how many subphases are in each group
@@ -4682,7 +4682,7 @@ namespace xtk
             moris::Cell< moris_index >& aSPsInGroup,
             IndexMap&                   aSubphaseIndicesToBspline )
     {
-        // initialize punchcard for which side ordinals are used
+        // initialize punch-card for which side ordinals are used
         moris::Cell< bool > tUsedSideOrdinals;
         if ( mXTKModel->get_spatial_dim() == 2 )
         {
@@ -4701,7 +4701,7 @@ namespace xtk
         const std::shared_ptr< Subphase_Neighborhood_Connectivity > tSubphaseNeighborhood = aCutIntegrationMesh->get_subphase_neighborhood();
 
         // get subphase neighborhood information form Subphase_Neighborhood_Connectivity and store in variable for easy handling
-        moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const & tSubphasetoSubphase   = tSubphaseNeighborhood->mSubphaseToSubPhase;
+        moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const & tSubphaseToSubphase   = tSubphaseNeighborhood->mSubphaseToSubPhase;
         moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const & tSubphaseSideOrdinals = tSubphaseNeighborhood->mSubphaseToSubPhaseMySideOrds;
 
         // go over subphases in subphase group
@@ -4710,7 +4710,7 @@ namespace xtk
             moris_index tCurrentSubphaseIndex = aSPsInGroup( iSP );
 
             // get list of current subphase's neighbors
-            moris::Cell< moris_index > const & tSingleSubphaseNeighbors            = *tSubphasetoSubphase( tCurrentSubphaseIndex );
+            moris::Cell< moris_index > const & tSingleSubphaseNeighbors            = *tSubphaseToSubphase( tCurrentSubphaseIndex );
             moris::Cell< moris_index > const & tSingleSubphaseNeighborSideOrdinals = *tSubphaseSideOrdinals( tCurrentSubphaseIndex );
 
             // iterate through neighbors and check if neighbors outside of B-spline cell
@@ -4731,7 +4731,7 @@ namespace xtk
             }
         }
 
-        // return punchcard of used side ordinals
+        // return punch-card of used side ordinals
         return tUsedSideOrdinals;
     }
 
@@ -4749,10 +4749,10 @@ namespace xtk
         // get the number of SPGs on current mesh index
         uint tNumSPGs = aBsplineMeshInfo->get_num_SPGs();
 
-        // intialize SPG neighborhood
+        // initialize SPG neighborhood
         std::shared_ptr< Subphase_Neighborhood_Connectivity > tSpgNeighborhood = std::make_shared< Subphase_Neighborhood_Connectivity >();
 
-        // intialize size of SPG connectivity graph
+        // initialize size of SPG connectivity graph
         tSpgNeighborhood->mSubphaseToSubPhase.resize( tNumSPGs );
         tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds.resize( tNumSPGs );
         tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds.resize( tNumSPGs );
@@ -4764,7 +4764,7 @@ namespace xtk
         // loop over subphase groups on current mesh index
         for ( moris::size_t iSPG = 0; iSPG < tNumSPGs; iSPG++ )
         {
-            // intialize sub-lists in SPG neighborhood ( for each SPG index there's a list )
+            // initialize sub-lists in SPG neighborhood ( for each SPG index there's a list )
             tSpgNeighborhood->mSubphaseToSubPhase( iSPG )                 = std::make_shared< moris::Cell< moris_index > >();
             tSpgNeighborhood->mSubphaseToSubPhaseMySideOrds( iSPG )       = std::make_shared< moris::Cell< moris_index > >();
             tSpgNeighborhood->mSubphaseToSubPhaseNeighborSideOrds( iSPG ) = std::make_shared< moris::Cell< moris_index > >();
@@ -4804,7 +4804,7 @@ namespace xtk
                     // get current neighbor SP's SPG index
                     const moris_index tNeighborSpSpgIndex = aBsplineMeshInfo->mSpToSpgMap( tNeighborSpIndex );
 
-                    // check whether the two SPs are in the same SPG; if not, estabilish connection in SPG connectivity
+                    // check whether the two SPs are in the same SPG; if not, establish connection in SPG connectivity
                     if ( tNeighborSpSpgIndex != tSpgIndex )
                     {
                         // check whether the connection to the neighboring SPG has already been found
@@ -4851,7 +4851,8 @@ namespace xtk
                 "Number of Lagrange elements reported by the xtk background mesh and the B-spline mesh info do not match" );
 
         // initialize list needed later
-        aCutIntegrationMesh->mUnionMsdInidices.resize( tNumBaseIpCells );
+        aCutIntegrationMesh->mUnionVoidMsdIndices.resize( tNumBaseIpCells );
+        aCutIntegrationMesh->mUnionVoidMsdIndexBulkPhases.resize( tNumBaseIpCells );
 
         // number of B-spline meshes
         Matrix< IndexMat > tBspMeshIndices = mXTKModel->get_Bspline_mesh_indices();
@@ -4916,7 +4917,7 @@ namespace xtk
             // --------------------------------
             // STEP 2: relate the SPs on every Lagrange element to a material sub-domain (MSD) index relative to the coarsest mesh
             // Note: The below procedures are only valid as HMR imposes so-called "strong conditions"
-            // Note: on the nested hierarchical domain bounaries, i.e. refined domain boundaries
+            // Note: on the nested hierarchical domain boundaries, i.e. refined domain boundaries
             // Note: run along mesh lines that already exist on coarser levels
 
             // this step is done in batches of Lagrange elements belonging to the same coarsest B-spline element to save on re-computation of things
@@ -5082,14 +5083,14 @@ namespace xtk
                     }    // end: loop over B-spline meshes for the current Lagrange element
 
                     // --------------------------------
-                    // STEP 5: form a non-unique universal set of void void MSD indices across all B-spline meshes
+                    // STEP 5: form a non-unique universal set of void MSD indices across all B-spline meshes
 
                     // initialize union set
-                    aCutIntegrationMesh->mUnionMsdInidices( tLagElemIndex ) =
+                    aCutIntegrationMesh->mUnionVoidMsdIndices( tLagElemIndex ) =
                             aCutIntegrationMesh->mBsplineMeshInfos( 0 )->mExtractionCellVoidMsdIndices( tLagElemIndex );
 
                     // get the address to where the union multiset of MSD indices will be stored
-                    moris::Cell< moris_index >* tUnionVoidMsdIndices = &( aCutIntegrationMesh->mUnionMsdInidices( tLagElemIndex ) );
+                    moris::Cell< moris_index >* tUnionVoidMsdIndices = &( aCutIntegrationMesh->mUnionVoidMsdIndices( tLagElemIndex ) );
 
                     // form the union multiset of the void MSD indices across all B-spline meshes
                     for ( uint iBspMesh = 1; iBspMesh < tNumBspMeshes; iBspMesh++ )
@@ -5122,13 +5123,43 @@ namespace xtk
                         // get access to the list of free void MSD indices
                         moris::Cell< moris_index >& tFreeVoidMsdIndices = tBsplineMeshInfo->mExtractionCellFreeVoidMsdIndices( tLagElemIndex );
 
-                        // get the differnce between the union and the void MSD indices to form the free void MSD indices
+                        // get the difference between the union and the void MSD indices to form the free void MSD indices
                         xtk::multiset_difference( *tUnionVoidMsdIndices, tVoidMsdIndices, tFreeVoidMsdIndices );
+                    }
+
+                    // --------------------------------
+                    // STEP 7: find the bulk phases for union void MSDIs
+
+                    // get the list of union void MSDIs for the current Lagrange element
+                    moris::Cell< moris_index > const& tUnionVoidMsdIndicesFinal = aCutIntegrationMesh->mUnionVoidMsdIndices( tLagElemIndex );
+                    uint tNumUnionVoidMSDIs = tUnionVoidMsdIndicesFinal.size();
+
+                    // initialize the list bulk-phase indices associated with the union void MSDIs
+                    aCutIntegrationMesh->mUnionVoidMsdIndexBulkPhases( tLagElemIndex ).resize( tNumUnionVoidMSDIs );
+
+                    // access the list of sub-phase groups associated with this Lagrange element on the coarsest B-spline mesh
+                    moris::Cell< moris_index > const& tCoarsestSpgsAssociatedWithLagrangeCell = 
+                            tCoarsestBsplineMeshInfo->get_SPG_indices_associated_with_extraction_cell( tLagElemIndex );
+
+                    // get the bulk-phases associated with each of the MSDIs
+                    for( uint iMSDI = 0; iMSDI < tNumUnionVoidMSDIs; iMSDI++ )
+                    {
+                        // get the MSD index
+                        moris_index tMSDIndex= tUnionVoidMsdIndicesFinal( iMSDI );
+
+                        // get the SPG associated with the current MSDI on the coarsest B-spline mesh
+                        moris_index tAssociatedCoarsestSpg = tCoarsestSpgsAssociatedWithLagrangeCell( tMSDIndex );
+
+                        // get the bulk-phase associated with this SPG
+                        moris_index tMsdBulkPhase = tCoarsestBsplineMeshInfo->get_bulk_phase_for_subphase_group( tAssociatedCoarsestSpg );
+
+                        // save this bulk phase as being associated with this union void MSDI
+                        aCutIntegrationMesh->mUnionVoidMsdIndexBulkPhases( tLagElemIndex )( iMSDI ) = tMsdBulkPhase;
                     }
 
                 }    // end for: loop over the Lagrange elements inside the current coarsest B-spline element
 
-            }    // end if: only treat elements whose void MSD Inidices have not been found yet
+            }    // end if: only treat elements whose void MSD Indices have not been found yet
 
         }    // end for: loop over all lagrange elements
 
@@ -5159,7 +5190,7 @@ namespace xtk
                 tBsplineMeshInfo->get_SPG_indices_associated_with_extraction_cell( aLagrangeElementIndex );
         uint tNumSPGsOnCell = tSPGsOnCell.size();
 
-        // initialize punchcard logging which SPGs have material on the current IP cell
+        // initialize punch-card logging which SPGs have material on the current IP cell
         moris::Cell< bool > tVoidSPGs( tNumSPGsOnCell, true );
 
         // over the subphases on the current IP cell and mark the corresponding SPGs to have material
