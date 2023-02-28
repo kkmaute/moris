@@ -34,7 +34,7 @@ namespace moris
                      char ***argv);
 
         /**
-        * Constructor which sets the communictor to the provided aComm. aComm in this case
+        * Constructor which sets the communicator to the provided aComm. aComm in this case
         * should be the broadest communicator for MORIS.
         *
         * @param[in] aComm - broadest communicator for MORIS
@@ -85,7 +85,7 @@ namespace moris
         void remove_communicator(size_t aCommIndex);
 
         /**
-         * Add a communictor with its name to the moris communicator pool
+         * Add a communicator with its name to the moris communicator pool
          * @param[in]  aNewComm - New Communicator to add
          * @param[in]  aCommName - Name of this communicator
          * @param[out] Communicator index in mComm

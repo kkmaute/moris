@@ -106,7 +106,7 @@ namespace xtk
             Matrix< IdMat > mBulkPhaseInEnrichedBasis; // input: enriched BF index || output: list of SPG indices in which enriched BF is active
 
             // Basis enrichment level indices
-            moris::Cell< moris::Matrix< moris::IndexMat > > mBasisEnrichmentIndices; // input1: non-enriched BF index, input2: enrichement level || output: enriched BF index
+            moris::Cell< moris::Matrix< moris::IndexMat > > mBasisEnrichmentIndices; // input1: non-enriched BF index, input2: enrichment level || output: enriched BF index
             moris::Matrix< moris::IndexMat >                mEnrichedBasisIndexToId; // input: enriched BF index || output: global ID of that enriched BF 
 
             // Unintersected Parent Cell, BackBasis interpolating in them and corresponding enrichment level
@@ -199,7 +199,6 @@ namespace xtk
             // input: B-spline mesh list index, Cluster/UIPC index || output: SPG index this Cluster/UIPC is in
             Cell< Cell< moris_index > > mUipcToSpgIndex;
 
-            // TODO: this can go, information is redundant to the map above
             // input: B-spline mesh index, base IP cell index, index of unzipping || output: SPG index the UIPC belongs to
             Cell< Cell< Cell< moris_index > > > mUnzippingToSpgIndex;
 
