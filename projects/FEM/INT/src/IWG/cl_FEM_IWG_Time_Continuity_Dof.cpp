@@ -38,6 +38,7 @@ namespace moris
             mPropertyMap[ "WeightPrevious" ]   = static_cast< uint >( IWG_Property_Type::WEIGHT_PREVIOUS );
             mPropertyMap[ "InitialCondition" ] = static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION );
             mPropertyMap[ "WeightResidual" ]   = static_cast< uint >( IWG_Property_Type::WEIGHT_RESIDUAL );
+            mPropertyMap[ "Thickness" ]        = static_cast< uint >( IWG_Property_Type::THICKNESS );
         }
 
         //------------------------------------------------------------------------------
@@ -49,7 +50,6 @@ namespace moris
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
-
             // get master index for residual dof type, indices for assembly
             uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
@@ -77,6 +77,13 @@ namespace moris
             // get residual weight property
             const std::shared_ptr< Property >& tPropWeightResidual =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::WEIGHT_RESIDUAL ) );
+
+            // get thickness property
+            const std::shared_ptr< Property >& tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             real tResWeight = 1.0;
             if ( tPropWeightResidual != nullptr )
@@ -126,7 +133,6 @@ namespace moris
             // check master field interpolators
             this->check_field_interpolators();
 #endif
-
             // get master index for residual dof type, indices for assembly
             uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
             uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
@@ -154,6 +160,14 @@ namespace moris
             // get initial condition property
             const std::shared_ptr< Property >& tPropInitialCondition =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::INITIAL_CONDITION ) );
+
+            // get thickness property
+            const std::shared_ptr< Property >& tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
+
 
             // get the number of master dof type dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
@@ -304,4 +318,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-

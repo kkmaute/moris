@@ -34,6 +34,7 @@ namespace moris
             // populate the property map
             mPropertyMap[ "Dirichlet" ] = static_cast< uint >( IWG_Property_Type::DIRICHLET );
             mPropertyMap[ "Select" ]    = static_cast< uint >( IWG_Property_Type::SELECT );
+            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
 
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
@@ -100,12 +101,19 @@ namespace moris
             MORIS_ASSERT( tCMDiffusion != nullptr,
                     "IWG_Diffusion_Dirichlet_Nitsche::compute_residual - Constitutive model missing." );
 
-            // get the elasticity CM
+            // get the stabilization parameter
             const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
 
             MORIS_ASSERT( tSPNitsche != nullptr,
                     "IWG_Diffusion_Dirichlet_Nitsche::compute_residual - Nitsche stabilization parameter missing." );
+
+            // get thickness property
+            const std::shared_ptr< Property >& tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // compute jump
             Matrix< DDRMat > tJump = tFI->val() - tPropDirichlet->val();
@@ -165,9 +173,16 @@ namespace moris
             const std::shared_ptr< Constitutive_Model >& tCMDiffusion =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
 
-            // get the elasticity CM
+            // get the stabilization parameter
             const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIRICHLET_NITSCHE ) );
+
+            // get thickness property
+            const std::shared_ptr< Property >& tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // compute jump
             Matrix< DDRMat > tJump = tFI->val() - tPropDirichlet->val();
@@ -242,4 +257,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
