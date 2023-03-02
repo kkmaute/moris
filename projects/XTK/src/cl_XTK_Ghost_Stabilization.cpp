@@ -45,6 +45,7 @@ namespace xtk
         // get access to the B-spline mesh information
         mMeshIndices = mXTKModel->mEnrichment->get_mesh_indices();
 
+        // initialize object carrying generated data for ghost facets
         Ghost_Setup_Data tGhostSetupData;
 
         // construct trivial subphase interpolation cells
@@ -72,7 +73,7 @@ namespace xtk
         mMeshIndices      = mXTKModel->mEnrichment->get_mesh_indices();
         mBsplineMeshInfos = mXTKModel->mCutIntegrationMesh->get_bspline_mesh_info();
 
-        // initialize object carrying generateddata for ghost facets
+        // initialize object carrying generated data for ghost facets
         Ghost_Setup_Data tGhostSetupData;
 
         // check whether a linear Lagrange mesh is used
@@ -330,7 +331,8 @@ namespace xtk
     void
     Ghost_Stabilization::identify_and_setup_aura_vertices_in_ghost( Ghost_Setup_Data& aGhostSetupData )
     {
-        Tracer tTracer( "XTK", "Ghost", "identify_and_setup_aura_vertices_in_ghost" );
+        Tracer tTracer( "XTK", "Ghost", "identify and setup aura vertices in ghost" );
+
         // access enriched ip mesh
         Enriched_Interpolation_Mesh& tEnrInterpMesh = mXTKModel->get_enriched_interp_mesh();
 
@@ -357,7 +359,7 @@ namespace xtk
 
             // sort the ghost vertices without interpolation by proc
             Cell< Matrix< IndexMat > >               tNotOwnedIPVertIndsToProcs;
-            Cell< Matrix< IndexMat > >               tNotOwnedBGIPVertsIdsToProcs;
+            Cell< Matrix< IndexMat > >               tNotOwnedBgIpVertsIdsToProcs;
             Cell< Matrix< IndexMat > >               tNotOwnedEnrichedCellIdToProcs;
             Cell< Matrix< IndexMat > >               tNotOwnedEnrichedCellBulkPhaseToProcs;    // for checking against
             Cell< uint >                             tProcRanks;
@@ -366,7 +368,7 @@ namespace xtk
                     tGhostVerticesWithoutInterpolation,
                     tGhostIpCellConnectedToVertex,
                     tNotOwnedIPVertIndsToProcs,
-                    tNotOwnedBGIPVertsIdsToProcs,
+                    tNotOwnedBgIpVertsIdsToProcs,
                     tNotOwnedEnrichedCellIdToProcs,
                     tNotOwnedEnrichedCellBulkPhaseToProcs,
                     tProcRanks,
@@ -376,7 +378,7 @@ namespace xtk
             uint tMPITag = 3001;
 
             // send the background vertex id
-            mXTKModel->send_outward_requests( tMPITag, tProcRanks, tNotOwnedBGIPVertsIdsToProcs );
+            mXTKModel->send_outward_requests( tMPITag, tProcRanks, tNotOwnedBgIpVertsIdsToProcs );
 
             // send the enriched interpolation cell id
             mXTKModel->send_outward_requests( tMPITag + 1, tProcRanks, tNotOwnedEnrichedCellIdToProcs );
@@ -394,8 +396,8 @@ namespace xtk
             Cell< uint >               tProcsReceivedFrom2;
             Cell< uint >               tProcsReceivedFrom3;
             mXTKModel->inward_receive_requests( tMPITag, 1, tReceivedVertexIds, tProcsReceivedFrom1 );                    // receive the requests ofr BG VertexIds
-            mXTKModel->inward_receive_requests( tMPITag + 1, 1, tReceivedEnrichedCellId, tProcsReceivedFrom2 );           // recieve the requests for Enriched IP Cell Id
-            mXTKModel->inward_receive_requests( tMPITag + 2, 1, tReceivedEnrichedCellBulkPhase, tProcsReceivedFrom3 );    // recieve the requests for Enriched IP Cell Bulk phases
+            mXTKModel->inward_receive_requests( tMPITag + 1, 1, tReceivedEnrichedCellId, tProcsReceivedFrom2 );           // receive the requests for Enriched IP Cell Id
+            mXTKModel->inward_receive_requests( tMPITag + 2, 1, tReceivedEnrichedCellBulkPhase, tProcsReceivedFrom3 );    // receive the requests for Enriched IP Cell Bulk phases
 
             // prepare the t-matrices for sending
             Cell< Matrix< DDRMat > >   tTMatrixWeights;
@@ -565,7 +567,7 @@ namespace xtk
             moris::Cell< mtk::Vertex* >&              aGhostVerticesWithoutInterpolation,
             moris::Cell< mtk::Cell const * >&         aGhostIpCellConnectedToVertex,
             Cell< Matrix< IndexMat > >&               aNotOwnedIPVertIndsToProcs,
-            Cell< Matrix< IndexMat > >&               aNotOwnedBGIPVertsIdsToProcs,
+            Cell< Matrix< IndexMat > >&               aNotOwnedBgIpVertsIdsToProcs,
             Cell< Matrix< IndexMat > >&               aNotOwnedIpCellIdToProcs,
             Cell< Matrix< IndexMat > >&               aNotOwnedEnrichedCellBulkPhaseToProcs,
             Cell< uint >&                             aProcRanks,
@@ -581,7 +583,7 @@ namespace xtk
 
         // temporary cell of cells which will be converted to matrices later
         Cell< Cell< moris_id > > tNotOwnedIPVertIndsToProcs;
-        Cell< Cell< moris_id > > tNotOwnedBGIPVertsIdsToProcs;
+        Cell< Cell< moris_id > > tNotOwnedBgIpVertsIdsToProcs;
         Cell< Cell< moris_id > > tNotOwnedIpCellIdToProcs;
         Cell< Cell< moris_id > > tNotOwnedIpCellBulkPhase;
 
@@ -598,7 +600,7 @@ namespace xtk
 
             // add cell for verts
             tNotOwnedIPVertIndsToProcs.push_back( Cell< moris_id >( 0 ) );
-            tNotOwnedBGIPVertsIdsToProcs.push_back( Cell< moris_id >( 0 ) );
+            tNotOwnedBgIpVertsIdsToProcs.push_back( Cell< moris_id >( 0 ) );
             tNotOwnedIpCellIdToProcs.push_back( Cell< moris_id >( 0 ) );
             tNotOwnedIpCellBulkPhase.push_back( Cell< moris_id >( 0 ) );
         }
@@ -634,7 +636,7 @@ namespace xtk
 #endif
 
             tNotOwnedIPVertIndsToProcs( tProcIndexInData->second ).push_back( tXTKIpVert->get_index() );
-            tNotOwnedBGIPVertsIdsToProcs( tProcIndexInData->second ).push_back( tXTKIpVert->get_base_vertex()->get_id() );
+            tNotOwnedBgIpVertsIdsToProcs( tProcIndexInData->second ).push_back( tXTKIpVert->get_base_vertex()->get_id() );
 
             tNotOwnedIpCellIdToProcs( tProcIndexInData->second ).push_back( tEnrIpCell->get_id() );
             tNotOwnedIpCellBulkPhase( tProcIndexInData->second ).push_back( tEnrIpCell->get_bulkphase_index() );
@@ -643,21 +645,21 @@ namespace xtk
         // populate matrix in input data
         aNotOwnedIPVertIndsToProcs.clear();
         aNotOwnedIPVertIndsToProcs.resize( tNotOwnedIPVertIndsToProcs.size() );
-        aNotOwnedBGIPVertsIdsToProcs.resize( tNotOwnedBGIPVertsIdsToProcs.size() );
+        aNotOwnedBgIpVertsIdsToProcs.resize( tNotOwnedBgIpVertsIdsToProcs.size() );
         aNotOwnedIpCellIdToProcs.resize( tNotOwnedIpCellIdToProcs.size() );
         aNotOwnedEnrichedCellBulkPhaseToProcs.resize( tNotOwnedIpCellBulkPhase.size() );
 
         for ( uint iD = 0; iD < tNotOwnedIPVertIndsToProcs.size(); iD++ )
         {
             aNotOwnedIPVertIndsToProcs( iD ).resize( 1, tNotOwnedIPVertIndsToProcs( iD ).size() );
-            aNotOwnedBGIPVertsIdsToProcs( iD ).resize( 1, tNotOwnedBGIPVertsIdsToProcs( iD ).size() );
+            aNotOwnedBgIpVertsIdsToProcs( iD ).resize( 1, tNotOwnedBgIpVertsIdsToProcs( iD ).size() );
             aNotOwnedIpCellIdToProcs( iD ).resize( 1, tNotOwnedIpCellIdToProcs( iD ).size() );
             aNotOwnedEnrichedCellBulkPhaseToProcs( iD ).resize( 1, tNotOwnedIpCellBulkPhase( iD ).size() );
 
             for ( uint jD = 0; jD < tNotOwnedIPVertIndsToProcs( iD ).size(); jD++ )
             {
                 aNotOwnedIPVertIndsToProcs( iD )( jD )            = tNotOwnedIPVertIndsToProcs( iD )( jD );
-                aNotOwnedBGIPVertsIdsToProcs( iD )( jD )          = tNotOwnedBGIPVertsIdsToProcs( iD )( jD );
+                aNotOwnedBgIpVertsIdsToProcs( iD )( jD )          = tNotOwnedBgIpVertsIdsToProcs( iD )( jD );
                 aNotOwnedIpCellIdToProcs( iD )( jD )              = tNotOwnedIpCellIdToProcs( iD )( jD );
                 aNotOwnedEnrichedCellBulkPhaseToProcs( iD )( jD ) = tNotOwnedIpCellBulkPhase( iD )( jD );
             }
@@ -665,11 +667,11 @@ namespace xtk
             if ( tNotOwnedIPVertIndsToProcs( iD ).size() == 0 )
             {
                 aNotOwnedIPVertIndsToProcs( iD ).resize( 1, 1 );
-                aNotOwnedBGIPVertsIdsToProcs( iD ).resize( 1, 1 );
+                aNotOwnedBgIpVertsIdsToProcs( iD ).resize( 1, 1 );
                 aNotOwnedIpCellIdToProcs( iD ).resize( 1, 1 );
                 aNotOwnedEnrichedCellBulkPhaseToProcs( iD ).resize( 1, 1 );
                 aNotOwnedIPVertIndsToProcs( iD )( 0 )            = MORIS_INDEX_MAX;
-                aNotOwnedBGIPVertsIdsToProcs( iD )( 0 )          = MORIS_INDEX_MAX;
+                aNotOwnedBgIpVertsIdsToProcs( iD )( 0 )          = MORIS_INDEX_MAX;
                 aNotOwnedIpCellIdToProcs( iD )( 0 )              = MORIS_INDEX_MAX;
                 aNotOwnedEnrichedCellBulkPhaseToProcs( iD )( 0 ) = MORIS_INDEX_MAX;
             }
@@ -742,7 +744,7 @@ namespace xtk
                 // get the cell
                 Interpolation_Cell_Unzipped* tEnrIpCell = tEnrInterpMesh.get_enriched_interpolation_cells()( tCellIndex );
 
-                // verifythat the bulk phases are consistent across procs
+                // verify that the bulk phases are consistent across procs
                 MORIS_ERROR( tEnrIpCell->get_bulkphase_index() == aIpCellBulkPhases( iP )( iV ), "Parallel bulkphase mismatch." );
 
                 // get the vertex
@@ -888,7 +890,7 @@ namespace xtk
                         // basis id
                         moris_id tId = tExtractedTMatrixIds( iV )( iBs );
 
-                        // add this basis to the mesh if it doesnt exists on the current partition
+                        // add this basis to the mesh if it does not exists on the current partition
                         if ( !tEnrInterpMesh.basis_exists_on_partition( aMeshIndex, tId ) )
                         {
                             MORIS_ASSERT( tExtractedTBasisOwners( iV )( iBs ) != par_rank(), "Owned basis should already exist on partition." );
@@ -900,10 +902,7 @@ namespace xtk
 
                         moris_id tBasisOwner = tExtractedTBasisOwners( iV )( iBs );
 
-                        MORIS_ASSERT( tEnrInterpMesh.get_basis_owner( tBasisIndices( iBs ), aMeshIndex ) == tBasisOwner, "Ownership discrepency." );
-
-                        // TODO: this check is non-sense in the case of SPG based enrichment
-                        // MORIS_ASSERT( tEnrInterpMesh.get_basis_bulk_phase( tBasisIndices( iBs ), aMeshIndex ) == aNotOwnedEnrichedCellBulkPhaseToProcs( iP )( iV ), "Bulkphase discrepency." );
+                        MORIS_ASSERT( tEnrInterpMesh.get_basis_owner( tBasisIndices( iBs ), aMeshIndex ) == tBasisOwner, "Ownership discrepancy." );
 
                         // if the basis has an owning proc that is not in the comm table, add it to the comm table
                         if ( tProcRankToIndexInData.find( tBasisOwner ) == tProcRankToIndexInData.end() && tBasisOwner != par_rank() )
@@ -983,7 +982,7 @@ namespace xtk
         // get number of Bulk phases on mesh
         uint tNumBulkPhases = mXTKModel->get_geom_engine()->get_num_bulk_phase();
 
-        // inialize container with Ghost Set Names
+        // initialize container with Ghost Set Names
         Cell< std::string > tGhostDoubleSideNames( tNumBulkPhases );
 
         // for every bulk phase ...
@@ -1012,7 +1011,7 @@ namespace xtk
         // get number of B-spline meshes
         uint tNumBspMeshes = mMeshIndices.numel();
 
-        // inialize container with Ghost Set Names
+        // initialize container with Ghost Set Names
         Cell< std::string > tGhostDoubleSideNames( tNumBulkPhases * tNumBspMeshes );
 
         // initialize counter for Ghost side sets
@@ -1451,7 +1450,7 @@ namespace xtk
                     // get the side ordinal of the leader cell for the transition
                     moris_index tMySideOrdinal = tMySideOrds( iNeighborSPG );
 
-                    // sanity check that both SPGs have the same bulk-phase indes
+                    // sanity check that both SPGs have the same bulk-phase indices
                     MORIS_ASSERT( tBulkPhaseIndex == tSubphaseGroups( tNeighborSpgIndex )->get_bulk_phase(),
                             "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh_new() - "
                             "Bulk phase between neighboring subphase groups does not match" );
@@ -2150,7 +2149,7 @@ namespace xtk
             tMasterSideCluster->set_ig_vertex_group( tVertexGroup );
         }
 
-        // return the shared pointer to the master side cluster contstructed
+        // return the shared pointer to the master side cluster constructed
         return tMasterSideCluster;
     }
 
@@ -2284,7 +2283,7 @@ namespace xtk
             tMasterSideCluster->set_ig_vertex_group( tVertexGroup );
         }
 
-        // return side cluster contstructed
+        // return side cluster constructed
         return tMasterSideCluster;
     }
 

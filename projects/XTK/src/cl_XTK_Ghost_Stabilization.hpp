@@ -208,7 +208,7 @@ namespace xtk
                     moris::Cell<mtk::Vertex*>             & aGhostVerticesWithoutInterpolation,
                     moris::Cell<mtk::Cell  const *>       & aGhostIpCellConnectedToVertex,
                     Cell<Matrix<IndexMat>>                & aNotOwnedIPVertIndsToProcs,
-                    Cell<Matrix<IndexMat>>                & aNotOwnedBGIPVertsIdsToProcs,
+                    Cell<Matrix<IndexMat>>                & aNotOwnedBgIpVertsIdsToProcs,
                     Cell<Matrix<IndexMat>>                & aNotOwnedIpCellIdToProcs,
                     Cell<Matrix<IndexMat>>                & aNotOwnedEnrichedCellBulkPhaseToProcs,
                     Cell<uint>                            & aProcRanks,

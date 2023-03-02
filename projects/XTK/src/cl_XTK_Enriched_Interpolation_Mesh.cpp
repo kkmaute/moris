@@ -168,7 +168,7 @@ namespace xtk
                 "XTK ENRICHED MESH ERROR: Only support glb to loc conversion for vertices and cells" );
 
         MORIS_ASSERT( aEntityIndex < (moris_index)mLocalToGlobalMaps( tMapIndex ).numel(),
-                "Entityindex out of bounds" );
+                "Entity index out of bounds" );
 
         return mLocalToGlobalMaps( tMapIndex )( aEntityIndex );
     }
@@ -183,17 +183,17 @@ namespace xtk
     {
         uint tMapIndex = (uint)aEntityRank;
 
-        auto tIter = mGlobaltoLobalMaps( tMapIndex ).find( aEntityId );
+        auto tIter = mGlobalToLocalMaps( tMapIndex ).find( aEntityId );
 
         MORIS_ASSERT( aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT,
                 "XTK ENRICHED MESH ERROR: Only support glb to loc conversion for vertices and cells" );
 
-        if ( tIter == mGlobaltoLobalMaps( tMapIndex ).end() )
+        if ( tIter == mGlobalToLocalMaps( tMapIndex ).end() )
         {
             std::cout << "Not Found  Entity Id = " << aEntityId << " | par_rank = " << par_rank() << std::endl;
         }
 
-        MORIS_ASSERT( tIter != mGlobaltoLobalMaps( tMapIndex ).end(), "Id does not appear in map" );
+        MORIS_ASSERT( tIter != mGlobalToLocalMaps( tMapIndex ).end(), "Id does not appear in map" );
 
         return tIter->second;
     }
@@ -205,7 +205,7 @@ namespace xtk
     {
         uint tMapIndex = (uint)EntityRank::NODE;
 
-        return mGlobaltoLobalMaps( tMapIndex );
+        return mGlobalToLocalMaps( tMapIndex );
     }
 
     // ----------------------------------------------------------------------------
@@ -856,12 +856,12 @@ namespace xtk
                 moris_index tOldIndex = tBaseVertexToEnrichedVertex( iBV )( iMerge )->get_index();
                 if ( tMergeWithVertex( iMerge ) == MORIS_INDEX_MAX )
                 {
-                    MORIS_ASSERT( tNewIndex( tOldIndex ) == MORIS_INDEX_MAX, "OVERWRITTING A NEW NODE INDEX" );
+                    MORIS_ASSERT( tNewIndex( tOldIndex ) == MORIS_INDEX_MAX, "OVERWRITING A NEW NODE INDEX" );
                     tNewIndex( tOldIndex ) = tOldIndex;
                 }
                 else
                 {
-                    MORIS_ASSERT( tNewIndex( tOldIndex ) == MORIS_INDEX_MAX, "OVERWRITTING A NEW NODE INDEX" );
+                    MORIS_ASSERT( tNewIndex( tOldIndex ) == MORIS_INDEX_MAX, "OVERWRITING A NEW NODE INDEX" );
                     tNewIndex( tOldIndex ) = tBaseVertexToEnrichedVertex( iBV )( tMergeWithVertex( iMerge ) )->get_index();
                     tNodesToDelete.push_back( tOldIndex );
                 }
@@ -976,7 +976,7 @@ namespace xtk
     {
         moris_index tMeshIndex = this->get_local_mesh_index( aMeshIndex );
 
-        if ( mGlobaltoLocalBasisMaps( tMeshIndex ).find( aBasisId ) == mGlobaltoLocalBasisMaps( tMeshIndex ).end() )
+        if ( mGlobalToLocalBasisMaps( tMeshIndex ).find( aBasisId ) == mGlobalToLocalBasisMaps( tMeshIndex ).end() )
         {
             return false;
         }
@@ -1010,7 +1010,7 @@ namespace xtk
         mEnrichCoeffBulkPhase( tLocMesh )( tNewIndex ) = aBasisBulkPhase;
 
         // add to glb to local map
-        mGlobaltoLocalBasisMaps( tLocMesh )[ aBasisIdToAdd ] = tNewIndex;
+        mGlobalToLocalBasisMaps( tLocMesh )[ aBasisIdToAdd ] = tNewIndex;
 
         return tNewIndex;
     }
@@ -1179,9 +1179,9 @@ namespace xtk
     {
         moris_index tLocalMeshIndex = this->get_local_mesh_index( aMeshIndex );
 
-        auto tIter = mGlobaltoLocalBasisMaps( tLocalMeshIndex ).find( aBasisId );
+        auto tIter = mGlobalToLocalBasisMaps( tLocalMeshIndex ).find( aBasisId );
 
-        MORIS_ASSERT( tIter != mGlobaltoLocalBasisMaps( tLocalMeshIndex ).end(),
+        MORIS_ASSERT( tIter != mGlobalToLocalBasisMaps( tLocalMeshIndex ).end(),
                 "Basis id not in map" );
 
         return tIter->second;
@@ -1194,16 +1194,16 @@ namespace xtk
     {
         moris_index tBaseIndex = aBaseCells->get_index();
 
-        MORIS_ASSERT( tBaseIndex < (moris_index)mBaseCelltoEnrichedCell.size(),
+        MORIS_ASSERT( tBaseIndex < (moris_index)mBaseCellToEnrichedCell.size(),
                 "Base Cell index is out of bounds. This index is related to the non-enriched interpolation mesh. Make sure enriched cell is not passed into this function" );
 
-        uint tNumEnrichedCells = mBaseCelltoEnrichedCell( tBaseIndex ).size();
+        uint tNumEnrichedCells = mBaseCellToEnrichedCell( tBaseIndex ).size();
 
         moris::Cell< Interpolation_Cell_Unzipped const * > tEnrichedCellPtrs( tNumEnrichedCells );
 
         for ( uint i = 0; i < tNumEnrichedCells; i++ )
         {
-            tEnrichedCellPtrs( i ) = ( mBaseCelltoEnrichedCell( tBaseIndex )( i ) );
+            tEnrichedCellPtrs( i ) = ( mBaseCellToEnrichedCell( tBaseIndex )( i ) );
         }
 
         return tEnrichedCellPtrs;
@@ -1314,11 +1314,11 @@ namespace xtk
         tMM.mMemoryMapData[ "mVertexBulkPhase" ]                     = mVertexBulkPhase.capacity();
         tMM.mMemoryMapData[ "mCoeffToEnrichCoeffs" ]                 = moris::internal_capacity_nested( mCoeffToEnrichCoeffs );
         tMM.mMemoryMapData[ "mEnrichCoeffLocToGlob" ]                = moris::internal_capacity( mEnrichCoeffLocToGlob );
-        // fixme: add me mGlobaltoLocalBasisMaps
+        // fixme: add me mGlobalToLocalBasisMaps
         tMM.mMemoryMapData[ "mEnrichCoeffOwnership" ] = moris::internal_capacity( mEnrichCoeffOwnership );
         tMM.mMemoryMapData[ "mLocalToGlobalMaps" ]    = moris::internal_capacity( mLocalToGlobalMaps );
-        // fixme: add mGlobaltoLobalMaps
-        tMM.mMemoryMapData[ "mBaseCelltoEnrichedCell" ] = moris::internal_capacity( mBaseCelltoEnrichedCell );
+        // fixme: add mGlobalToLocalMaps
+        tMM.mMemoryMapData[ "mBaseCellToEnrichedCell" ] = moris::internal_capacity( mBaseCellToEnrichedCell );
         tMM.mMemoryMapData[ "mCellInfo" ]               = sizeof( mCellInfo );
         tMM.mMemoryMapData[ "mNotOwnedVerts" ]          = mNotOwnedVerts.capacity();
         tMM.mMemoryMapData[ "mNotOwnedBasis" ]          = mNotOwnedBasis.capacity();
@@ -1859,7 +1859,7 @@ namespace xtk
             mEnrichCoeffBulkPhase( tMeshIndex ).fill( MORIS_INDEX_MAX );
 
             // set error flag
-            bool tIsConsisent = true;
+            bool tIsConsistent = true;
 
             // iterate through enriched basis functions
             for ( moris::size_t iBF = 0; iBF < tNumEnrBasis; iBF++ )
@@ -1875,7 +1875,7 @@ namespace xtk
 
                     MORIS_ASSERT( tBulkPhase != MORIS_INDEX_MAX, "Bulk phase index not set." );
 
-                    // check that all subphases in basis support have same bluk phase as first subphase
+                    // check that all subphases in basis support have same bulk phase as first subphase
                     if ( iSP == 0 )
                     {
                         mEnrichCoeffBulkPhase( tMeshIndex )( iBF ) = tBulkPhase;
@@ -1883,7 +1883,7 @@ namespace xtk
 
                     if ( tBulkPhase != mEnrichCoeffBulkPhase( tMeshIndex )( iBF ) )
                     {
-                        tIsConsisent = false;
+                        tIsConsistent = false;
 
                         std::cout << "enriched basis = " << iBF                                                //
                                   << "  subphase = " << iSP                                                    //
@@ -1896,7 +1896,7 @@ namespace xtk
                     }
                 }
             }
-            MORIS_ERROR( tIsConsisent,
+            MORIS_ERROR( tIsConsistent,
                     "Subphase in enriched basis function support not consistent bulk phase" );
         }
     }
@@ -2062,7 +2062,7 @@ namespace xtk
     {
         // initialize local to global maps
         mLocalToGlobalMaps = Cell< Matrix< IdMat > >( 4 );
-        mGlobaltoLobalMaps = Cell< std::unordered_map< moris_id, moris_index > >( 4 );
+        mGlobalToLocalMaps = Cell< std::unordered_map< moris_id, moris_index > >( 4 );
 
         this->setup_cell_maps();
 
@@ -2078,7 +2078,7 @@ namespace xtk
     void
     Enriched_Interpolation_Mesh::assign_ip_vertex_ids()
     {
-        // mpitag
+        // MPI-tag
         moris_index tTag = 600001;
 
         // owned requests and shared requests sorted by owning proc
@@ -2684,7 +2684,7 @@ namespace xtk
             aExtractedTMatrixIndices( iV ).resize( tNumBasis, 1 );
             aExtractedBasisOwners( iV ).resize( 1, tNumBasis );
 
-            // itere and grab  data
+            // iterate and grab data
             for ( moris::moris_index iIp = 0; iIp < tNumBasis; iIp++ )
             {
                 aExtractedTMatrixWeights( iV )( iIp ) = aTMatrixWeights( tStart + iIp );
@@ -2814,7 +2814,7 @@ namespace xtk
                         // basis id
                         moris_id tId = tExtractedTMatrixIds( iV )( iBs );
 
-                        // add this basis to the mesh if it doesnt exists on the current partition
+                        // add this basis to the mesh if it does not exist on the current partition
                         if ( !this->basis_exists_on_partition( aMeshIndex, tId ) )
                         {
                             MORIS_ASSERT( tExtractedTBasisOwners( iV )( iBs ) != par_rank(), "Owned basis should already exist on partition." );
@@ -2875,10 +2875,10 @@ namespace xtk
 
             MORIS_ASSERT( mEnrichedInterpVerts( i )->get_index() == (moris_index)i, "Index alignment issue in vertices" );
 
-            MORIS_ASSERT( mGlobaltoLobalMaps( 0 ).find( mEnrichedInterpVerts( i )->get_id() ) == mGlobaltoLobalMaps( 0 ).end(),
+            MORIS_ASSERT( mGlobalToLocalMaps( 0 ).find( mEnrichedInterpVerts( i )->get_id() ) == mGlobalToLocalMaps( 0 ).end(),
                     "Duplicate id in the vertex map detected" );
 
-            mGlobaltoLobalMaps( 0 )[ mEnrichedInterpVerts( i )->get_id() ] = mEnrichedInterpVerts( i )->get_index();
+            mGlobalToLocalMaps( 0 )[ mEnrichedInterpVerts( i )->get_id() ] = mEnrichedInterpVerts( i )->get_index();
         }
     }
 
@@ -2887,7 +2887,7 @@ namespace xtk
     void
     Enriched_Interpolation_Mesh::setup_basis_maps()
     {
-        mGlobaltoLocalBasisMaps.resize( mMeshIndices.max() + 1 );
+        mGlobalToLocalBasisMaps.resize( mMeshIndices.max() + 1 );
 
         // iterate through meshes
         for ( uint iM = 0; iM < mEnrichCoeffLocToGlob.size(); iM++ )
@@ -2895,12 +2895,12 @@ namespace xtk
             for ( uint iB = 0; iB < mEnrichCoeffLocToGlob( iM ).numel(); iB++ )
             {
                 // MORIS_LOG_SPEC("mEnrichCoeffLocToGlob(iM)(iB)",mEnrichCoeffLocToGlob(iM)(iB));
-                // MORIS_ASSERT(mGlobaltoLocalBasisMaps(iM).find(mEnrichCoeffLocToGlob(iM)(iB)) == mGlobaltoLocalBasisMaps(iM).end(),
+                // MORIS_ASSERT(mGlobalToLocalBasisMaps(iM).find(mEnrichCoeffLocToGlob(iM)(iB)) == mGlobalToLocalBasisMaps(iM).end(),
                 //         "Duplicate id in the basis map detected");
 
-                if ( mGlobaltoLocalBasisMaps( iM ).find( mEnrichCoeffLocToGlob( iM )( iB ) ) == mGlobaltoLocalBasisMaps( iM ).end() )
+                if ( mGlobalToLocalBasisMaps( iM ).find( mEnrichCoeffLocToGlob( iM )( iB ) ) == mGlobalToLocalBasisMaps( iM ).end() )
                 {
-                    mGlobaltoLocalBasisMaps( iM )[ mEnrichCoeffLocToGlob( iM )( iB ) ] = (moris_index)iB;
+                    mGlobalToLocalBasisMaps( iM )[ mEnrichCoeffLocToGlob( iM )( iB ) ] = (moris_index)iB;
                     MORIS_ASSERT( this->get_enr_basis_index_from_enr_basis_id( iM, mEnrichCoeffLocToGlob( iM )( iB ) ) == (moris_index)iB,
                             "Issue setting up the basis map" );
                 }
@@ -2921,7 +2921,7 @@ namespace xtk
 
         mLocalToGlobalMaps( 3 ) = Matrix< IdMat >( tNumCells, 1 );
 
-        //        mGlobaltoLobalMaps(3).clear();
+        //        mGlobalToLocalMaps(3).clear();
 
         for ( uint iCell = 0; iCell < tNumCells; iCell++ )
         {
@@ -2930,10 +2930,10 @@ namespace xtk
             MORIS_ASSERT( mEnrichedInterpCells( iCell )->get_index() == (moris_index)iCell,
                     "Enriched_Interpolation_Mesh::setup_cell_maps() - Index alignment issue in cells" );
 
-            MORIS_ASSERT( mGlobaltoLobalMaps( 3 ).find( mEnrichedInterpCells( iCell )->get_id() ) == mGlobaltoLobalMaps( 3 ).end(),
+            MORIS_ASSERT( mGlobalToLocalMaps( 3 ).find( mEnrichedInterpCells( iCell )->get_id() ) == mGlobalToLocalMaps( 3 ).end(),
                     "Enriched_Interpolation_Mesh::setup_cell_maps() - Duplicate id in the cell map detected" );
 
-            mGlobaltoLobalMaps( 3 )[ mEnrichedInterpCells( iCell )->get_id() ] = mEnrichedInterpCells( iCell )->get_index();
+            mGlobalToLocalMaps( 3 )[ mEnrichedInterpCells( iCell )->get_id() ] = mEnrichedInterpCells( iCell )->get_index();
         }
     }
 
@@ -2997,7 +2997,7 @@ namespace xtk
     }
 
     // ----------------------------------------------------------------------------
-    // multigrid accessor functions
+    // multi-grid accessor functions
     // ----------------------------------------------------------------------------
 
     uint
@@ -3113,19 +3113,19 @@ namespace xtk
             moris::moris_index tLocalMeshIndex = this->get_local_mesh_index( iMeshIndex );
 
             // get the global to local basis map from HMR that corresponds to the unenriched version
-            map< moris_id, moris_index > tGlobalToLocalHMRBaisMap;
-            mXTKModel->mBackgroundMesh->get_adof_map( iMeshIndex, tGlobalToLocalHMRBaisMap );
+            map< moris_id, moris_index > tGlobalToLocalHMRBasisMap;
+            mXTKModel->mBackgroundMesh->get_adof_map( iMeshIndex, tGlobalToLocalHMRBasisMap );
 
             // clear the maps and cells that need to be overwritten
-            mGlobaltoLocalBasisMaps( tLocalMeshIndex ).clear();
-            mEnrichCoeffLocToGlob( tLocalMeshIndex ).set_size( 1, tGlobalToLocalHMRBaisMap.size(), MORIS_INDEX_MAX );
-            mEnrichCoeffOwnership( tLocalMeshIndex ).set_size( 1, tGlobalToLocalHMRBaisMap.size(), MORIS_INDEX_MAX );
+            mGlobalToLocalBasisMaps( tLocalMeshIndex ).clear();
+            mEnrichCoeffLocToGlob( tLocalMeshIndex ).set_size( 1, tGlobalToLocalHMRBasisMap.size(), MORIS_INDEX_MAX );
+            mEnrichCoeffOwnership( tLocalMeshIndex ).set_size( 1, tGlobalToLocalHMRBasisMap.size(), MORIS_INDEX_MAX );
 
             // loop over the global to local hmr map and fill out the xtk maps
-            for ( auto const & iGlobalToLocal : tGlobalToLocalHMRBaisMap )
+            for ( auto const & iGlobalToLocal : tGlobalToLocalHMRBasisMap )
             {
                 // set the local to global and global to local maps
-                mGlobaltoLocalBasisMaps( tLocalMeshIndex )[ iGlobalToLocal.first ] = iGlobalToLocal.second;
+                mGlobalToLocalBasisMaps( tLocalMeshIndex )[ iGlobalToLocal.first ] = iGlobalToLocal.second;
                 mEnrichCoeffLocToGlob( tLocalMeshIndex )( iGlobalToLocal.second )  = iGlobalToLocal.first;
 
                 // get the owner of the non-enriched basis owner and store it
@@ -3142,7 +3142,7 @@ namespace xtk
     {
         mUnenrichedMeshIndices = aMeshIndices;
 
-        // check if the mesh index is compatibale
+        // check if the mesh index is compatible
         this->determine_unenriched_meshes_are_enriched_beforehand();
     }
 

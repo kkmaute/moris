@@ -2512,7 +2512,7 @@ namespace xtk
             // convert to index
             moris_index tIpCellIndex = (moris_index)iIpCell;
 
-            // get the number of SPGs associated with the current IP cell
+            // get the number of SPs associated with the current IP cell
             moris::Cell< moris_index > const &tSPsOnCell    = mCutIgMesh->get_parent_cell_subphases( tIpCellIndex );
             uint                              tNumSPsOnCell = tSPsOnCell.size();
 
@@ -2645,7 +2645,7 @@ namespace xtk
             moris::Cell< std::string > tPhaseChildBlockSetNames   = this->split_set_name_by_bulk_phase( tChildNoChildSetNames( 0 ) );
             moris::Cell< std::string > tPhaseNoChildBlockSetNames = this->split_set_name_by_bulk_phase( tChildNoChildSetNames( 1 ) );
 
-            // topology enums
+            // topology enums // TODO: move outside the loop
             enum CellTopology tChildTopo  = mModel->get_cut_integration_mesh()->get_child_element_topology();
             enum CellTopology tParentTopo = mModel->get_parent_cell_topology();
 
@@ -2654,10 +2654,10 @@ namespace xtk
             Cell< moris_index > tNoChildBlockSetOrds = this->register_block_set_names_with_cell_topo( tPhaseNoChildBlockSetNames, tParentTopo );
 
             // set block set colors
-            for ( moris_index i = 0; i < (moris_index)tChildBlockSetOrds.size(); i++ )
+            for ( moris_index iSet = 0; iSet < (moris_index)tChildBlockSetOrds.size(); iSet++ )
             {
-                this->set_block_set_colors( tChildBlockSetOrds( i ), { { i } } );
-                this->set_block_set_colors( tNoChildBlockSetOrds( i ), { { i } } );
+                this->set_block_set_colors( tChildBlockSetOrds( iSet ), { { iSet } } );
+                this->set_block_set_colors( tNoChildBlockSetOrds( iSet ), { { iSet } } );
             }
 
             // get the IP cells in this block
@@ -2670,25 +2670,33 @@ namespace xtk
             // iterate through and add cluster associated with enriched cell to block set
             for ( moris::uint iEnrIpCell = 0; iEnrIpCell < tEnrichedCellsInBlock.size(); iEnrIpCell++ )
             {
+                // get access to the current UIPC
+                xtk::Interpolation_Cell_Unzipped const * tEnrIpCell = tEnrichedCellsInBlock( iEnrIpCell );
+
                 // get the bulk phase
-                moris_index tBulkPhaseIndex = tEnrichedCellsInBlock( iEnrIpCell )->get_bulkphase_index();
+                moris_index tBulkPhaseIndex = tEnrIpCell->get_bulkphase_index();
+
+                // check the primary sub-phase to check whether this is a void UIPC
+                moris_index tPrimarySubPhase = tEnrIpCell->get_subphase_index();
 
                 // get cluster associated with enriched cell
-                xtk::Cell_Cluster const & tCluster = this->get_xtk_cell_cluster( tEnrichedCellsInBlock( iEnrIpCell )->get_index() );
+                xtk::Cell_Cluster const & tCluster = this->get_xtk_cell_cluster( tEnrIpCell->get_index() );
 
-                if ( tEnrichedCellsInBlock( iEnrIpCell )->get_owner() == tProcRank )
+                if ( tEnrIpCell->get_owner() == tProcRank )
                 {
                     // get the index for the current blockset (depends on bulk-phase index and cut or non-cut)
                     moris_index tSetOrd = MORIS_INDEX_MAX;
 
-                    // only register non-void clusters, i.e. clusters that have a primary bulk-phase
-                    if ( tBulkPhaseIndex > -1 )
+                    // only register non-void clusters, i.e. clusters that have a primary sub-phase
+                    if ( tPrimarySubPhase > -1 )
                     {
+                        // sort into block with non-cut clusters
                         if ( tCluster.is_trivial() )
                         {
                             tSetOrd = tNoChildBlockSetOrds( tBulkPhaseIndex );
                         }
 
+                        // sort into block with cut clusters
                         else
                         {
                             tSetOrd = tChildBlockSetOrds( tBulkPhaseIndex );

@@ -98,7 +98,7 @@ namespace xtk
             std::cout << "Follow Cell Id | ";
             std::cout << "Side Ord       " << std::endl;
             // iterate through pairs
-            for ( moris::uint i = 0; i < mLeaderIgCells.size(); i++ )
+            for ( uint i = 0; i < mLeaderIgCells.size(); i++ )
             {
                 std::cout << std::setw( tStrLen ) << mLeaderIgCells( i )->get_id();
                 std::cout << std::setw( tStrLen ) << mLeaderIgCellSideOrdinals( i );
@@ -122,7 +122,7 @@ namespace xtk
         IG_Vertex_Group( moris_index aNumVerticesInGroup );
 
         // destructor explicitly
-        ~IG_Vertex_Group(){}
+        ~IG_Vertex_Group() {}
 
         std::size_t
         size();
@@ -147,7 +147,7 @@ namespace xtk
         std::shared_ptr< Matrix< DDRMat > >
         get_vertex_local_coords( moris_index aVertex );
 
-        moris::uint
+        uint
         get_vertex_local_coords_dim() const;
 
         bool
@@ -170,7 +170,7 @@ namespace xtk
     {
         moris::Cell< moris::Cell< moris::mtk::Vertex* > > mEdgeVertices;             // input: edge || output: list of vertices on edge
         moris::Cell< moris::Cell< moris::mtk::Cell* > >   mEdgeToCell;               // input: edge || output: list of cells attached to edge
-        moris::Cell< moris::Cell< moris::moris_index > >  mEdgeToCellEdgeOrdinal;    // input: edge || output: ?
+        moris::Cell< moris::Cell< moris_index > >         mEdgeToCellEdgeOrdinal;    // input: edge || output: ?
         moris::Cell< moris::Cell< moris_index > >         mCellToEdge;               // input: cell || output: list of edge indices on cell
     };
 
@@ -178,9 +178,9 @@ namespace xtk
 
     struct Edge_Based_Ancestry
     {
-        moris::Cell< moris::moris_index > mEdgeParentEntityIndex;
-        moris::Cell< moris::moris_index > mEdgeParentEntityRank;
-        moris::Cell< moris::moris_index > mEdgeParentEntityOrdinalWrtBackgroundCell;
+        moris::Cell< moris_index > mEdgeParentEntityIndex;
+        moris::Cell< moris_index > mEdgeParentEntityRank;
+        moris::Cell< moris_index > mEdgeParentEntityOrdinalWrtBackgroundCell;
     };
 
     // ----------------------------------------------------------------------------------
@@ -189,15 +189,15 @@ namespace xtk
     {
         Vertex_Ancestry() = default;
         Vertex_Ancestry(
-                moris::Cell< moris::moris_index > const & aVertexParentEntityIndices,
-                moris::Cell< enum EntityRank > const &    aVertexParentEntityRank )
+                moris::Cell< moris_index > const &     aVertexParentEntityIndices,
+                moris::Cell< enum EntityRank > const & aVertexParentEntityRank )
                 : mVertexParentEntityIndex( aVertexParentEntityIndices )
                 , mVertexParentEntityRank( aVertexParentEntityRank )
         {
         }
 
-        moris::Cell< moris::moris_index > mVertexParentEntityIndex;
-        moris::Cell< enum EntityRank >    mVertexParentEntityRank;
+        moris::Cell< moris_index >     mVertexParentEntityIndex;
+        moris::Cell< enum EntityRank > mVertexParentEntityRank;
 
         moris_index
         get_vertex_parent_index( moris_index aVertexIndex ) const
@@ -223,7 +223,7 @@ namespace xtk
         moris::Cell< moris::Cell< moris::mtk::Cell* > > mFacetToCell;    // over allocated
 
         // in(1): index of facet; in(2): how many-eth mtk::Cell attached to facet || out: side ordinal (index) of this facet relative to this mtk::Cell
-        moris::Cell< moris::Cell< moris::moris_index > > mFacetToCellEdgeOrdinal;    // over allocated
+        moris::Cell< moris::Cell< moris_index > > mFacetToCellEdgeOrdinal;    // over allocated
 
         // in: index of mtk::Cell in List || out: list of facet-indices attached to it (facet indices as defined within this Facet_Based_Connectivity-object)
         moris::Cell< moris::Cell< moris_index > > mCellToFacet;    // over allocated
@@ -275,12 +275,12 @@ namespace xtk
 
             // mVertexFacets
             // remove FacetInd1 from all mVertexFacets lists
-            for ( moris::uint iVert = 0; iVert < aOldFacetConnectivity->mFacetVertices( FacetInd1 ).size(); iVert++ )
+            for ( uint iVert = 0; iVert < aOldFacetConnectivity->mFacetVertices( FacetInd1 ).size(); iVert++ )
             {
                 moris_index tVertInd = aOldFacetConnectivity->mFacetVertices( FacetInd1 )( iVert )->get_index();
                 if ( tVertInd != MORIS_INDEX_MAX )
                 {
-                    for ( moris::uint iFacet = 0; iFacet < mVertexFacets( tVertInd ).size(); iFacet++ )
+                    for ( uint iFacet = 0; iFacet < mVertexFacets( tVertInd ).size(); iFacet++ )
                     {
                         if ( mVertexFacets( tVertInd )( iFacet ) == FacetInd1 )
                         {
@@ -413,7 +413,7 @@ namespace xtk
             // fix mVertexFacets ----------------
 
             // add facets from aVert1 to aVert2
-            for ( moris::uint iFacet = 0; iFacet < mVertexFacets( aVInd1 ).size(); iFacet++ )
+            for ( uint iFacet = 0; iFacet < mVertexFacets( aVInd1 ).size(); iFacet++ )
             {
                 if ( std::find( aFacetIndices.begin(), aFacetIndices.end(), mVertexFacets( aVInd1 )( iFacet ) ) == aFacetIndices.end() )
                 {
@@ -422,18 +422,18 @@ namespace xtk
             }
 
             // set merged facets to -1
-            for ( moris::uint idelFacets = 0; idelFacets < aFacetIndices.size(); idelFacets++ )
+            for ( uint iDelFacets = 0; iDelFacets < aFacetIndices.size(); iDelFacets++ )
             {
-                for ( moris::uint iVert = 0; iVert < mFacetVertices( idelFacets ).size(); iVert++ )
+                for ( uint iVert = 0; iVert < mFacetVertices( iDelFacets ).size(); iVert++ )
                 {
-                    if ( mFacetVertices( idelFacets )( iVert ) != NULL )
+                    if ( mFacetVertices( iDelFacets )( iVert ) != NULL )
                     {
-                        moris_index tVertInd = mFacetVertices( idelFacets )( iVert )->get_index();
+                        moris_index tVertInd = mFacetVertices( iDelFacets )( iVert )->get_index();
                         if ( tVertInd != MORIS_INDEX_MAX )
                         {
-                            for ( moris::uint iFacet = 0; iFacet < mVertexFacets( tVertInd ).size(); iFacet++ )
+                            for ( uint iFacet = 0; iFacet < mVertexFacets( tVertInd ).size(); iFacet++ )
                             {
-                                if ( mVertexFacets( tVertInd )( iFacet ) == aFacetIndices( idelFacets ) )
+                                if ( mVertexFacets( tVertInd )( iFacet ) == aFacetIndices( iDelFacets ) )
                                 {
                                     // mVertexFacets(tVertInd)(iFacet) = -1;
                                     mVertexFacets( tVertInd ).erase( iFacet );
@@ -449,10 +449,10 @@ namespace xtk
 
 
             // replace pointer to aVInd1 with pointer to aVInd2 in mFacetVertices
-            for ( moris::uint iFacet = 0; iFacet < aOldFacetConnectivity->mVertexFacets( aVInd1 ).size(); iFacet++ )
+            for ( uint iFacet = 0; iFacet < aOldFacetConnectivity->mVertexFacets( aVInd1 ).size(); iFacet++ )
             {
                 moris_index tFacetInd = aOldFacetConnectivity->mVertexFacets( aVInd1 )( iFacet );
-                for ( moris::uint iVert = 0; iVert < mFacetVertices( tFacetInd ).size(); iVert++ )
+                for ( uint iVert = 0; iVert < mFacetVertices( tFacetInd ).size(); iVert++ )
                 {
                     if ( mFacetVertices( tFacetInd )( 0 ) != NULL )    // todo: check mFacetVertices(iF) != {NULL, NULL}
                     {
@@ -468,12 +468,12 @@ namespace xtk
 
             // remove facets ------------------------------------------------------------
 
-            for ( moris::uint iFacet = 0; iFacet < aFacetIndices.size(); iFacet++ )    // go through facets to delete
+            for ( uint iFacet = 0; iFacet < aFacetIndices.size(); iFacet++ )    // go through facets to delete
             {
                 aFacetMergeInds.push_back( aFacetIndices( iFacet ) );
 
                 // go through cells attached to facet
-                for ( moris::uint iCell = 0; iCell < aOldFacetConnectivity->mFacetToCell( aFacetIndices( iFacet ) ).size(); iCell++ )
+                for ( uint iCell = 0; iCell < aOldFacetConnectivity->mFacetToCell( aFacetIndices( iFacet ) ).size(); iCell++ )
                 {
                     if ( aOldFacetConnectivity->mFacetToCell( aFacetIndices( iFacet ) )( iCell ) != NULL )
                     {
@@ -482,7 +482,7 @@ namespace xtk
                         if ( tCellInd != MORIS_INDEX_MAX )
                         {
                             moris_index tCellOrd = this->get_cell_ordinal( tCellInd );
-                            for ( moris::uint iCellFacet = 0; iCellFacet < mCellToFacet( tCellOrd ).size(); iCellFacet++ )
+                            for ( uint iCellFacet = 0; iCellFacet < mCellToFacet( tCellOrd ).size(); iCellFacet++ )
                             {
                                 if ( mCellToFacet( tCellOrd )( iCellFacet ) == aFacetIndices( iFacet ) )
                                 {
@@ -517,9 +517,9 @@ namespace xtk
 
     struct Facet_Based_Ancestry
     {
-        moris::Cell< moris::moris_index > mFacetParentEntityIndex;
-        moris::Cell< moris::moris_index > mFacetParentEntityRank;
-        moris::Cell< moris::moris_index > mFacetParentEntityOrdinalWrtBackgroundCell;
+        moris::Cell< moris_index > mFacetParentEntityIndex;
+        moris::Cell< moris_index > mFacetParentEntityRank;
+        moris::Cell< moris_index > mFacetParentEntityOrdinalWrtBackgroundCell;
     };
 
     // ----------------------------------------------------------------------------------
@@ -587,7 +587,7 @@ namespace xtk
             switch ( aEntityRank )
             {
                 case EntityRank::FACE:
-                    for ( moris::uint iEnt = 0; iEnt < mCellFacesInds.numel(); iEnt++ )
+                    for ( uint iEnt = 0; iEnt < mCellFacesInds.numel(); iEnt++ )
                     {
                         if ( mCellFacesInds( iEnt ) == aEntityIndex )
                         {
@@ -598,7 +598,7 @@ namespace xtk
                     return MORIS_INDEX_MAX;
                     break;
                 case EntityRank::EDGE:
-                    for ( moris::uint iEnt = 0; iEnt < mCellEdgesInds.numel(); iEnt++ )
+                    for ( uint iEnt = 0; iEnt < mCellEdgesInds.numel(); iEnt++ )
                     {
                         if ( mCellEdgesInds( iEnt ) == aEntityIndex )
                         {
@@ -609,7 +609,7 @@ namespace xtk
                     return MORIS_INDEX_MAX;
                     break;
                 case EntityRank::NODE:
-                    for ( moris::uint iEnt = 0; iEnt < mCellVertexInds.numel(); iEnt++ )
+                    for ( uint iEnt = 0; iEnt < mCellVertexInds.numel(); iEnt++ )
                     {
                         if ( mCellVertexInds( iEnt ) == aEntityIndex )
                         {
@@ -652,11 +652,11 @@ namespace xtk
         {
 
             std::cout << "Subphases" << std::endl;
-            for ( moris::uint iC = 0; iC < mSubphaseToSubPhase.size(); iC++ )
+            for ( uint iC = 0; iC < mSubphaseToSubPhase.size(); iC++ )
             {
                 std::cout << std::setw( 6 ) << iC << " | ";
 
-                for ( moris::uint iN = 0; iN < mSubphaseToSubPhase( iC )->size(); iN++ )
+                for ( uint iN = 0; iN < mSubphaseToSubPhase( iC )->size(); iN++ )
                 {
                     std::cout << std::setw( 6 ) << ( *mSubphaseToSubPhase( iC ) )( iN );
                 }
@@ -664,11 +664,11 @@ namespace xtk
             }
 
             std::cout << "Subphases My Side Ordinals" << std::endl;
-            for ( moris::uint iC = 0; iC < mSubphaseToSubPhaseMySideOrds.size(); iC++ )
+            for ( uint iC = 0; iC < mSubphaseToSubPhaseMySideOrds.size(); iC++ )
             {
                 std::cout << std::setw( 6 ) << iC << " | ";
 
-                for ( moris::uint iN = 0; iN < mSubphaseToSubPhaseMySideOrds( iC )->size(); iN++ )
+                for ( uint iN = 0; iN < mSubphaseToSubPhaseMySideOrds( iC )->size(); iN++ )
                 {
                     std::cout << std::setw( 6 ) << ( *mSubphaseToSubPhaseMySideOrds( iC ) )( iN );
                 }
@@ -676,11 +676,11 @@ namespace xtk
             }
 
             std::cout << "Subphases Neighbor Side Ordinals" << std::endl;
-            for ( moris::uint iC = 0; iC < mSubphaseToSubPhaseNeighborSideOrds.size(); iC++ )
+            for ( uint iC = 0; iC < mSubphaseToSubPhaseNeighborSideOrds.size(); iC++ )
             {
                 std::cout << std::setw( 6 ) << iC << " | ";
 
-                for ( moris::uint iN = 0; iN < mSubphaseToSubPhaseNeighborSideOrds( iC )->size(); iN++ )
+                for ( uint iN = 0; iN < mSubphaseToSubPhaseNeighborSideOrds( iC )->size(); iN++ )
                 {
                     std::cout << std::setw( 6 ) << ( *mSubphaseToSubPhaseNeighborSideOrds( iC ) )( iN );
                 }
@@ -688,11 +688,11 @@ namespace xtk
             }
 
             std::cout << "Transition Neighbor Locations" << std::endl;
-            for ( moris::uint iC = 0; iC < mTransitionNeighborCellLocation.size(); iC++ )
+            for ( uint iC = 0; iC < mTransitionNeighborCellLocation.size(); iC++ )
             {
                 std::cout << std::setw( 6 ) << iC << " | ";
 
-                for ( moris::uint iN = 0; iN < mTransitionNeighborCellLocation( iC )->size(); iN++ )
+                for ( uint iN = 0; iN < mTransitionNeighborCellLocation( iC )->size(); iN++ )
                 {
                     std::cout << std::setw( 12 ) << ( *mTransitionNeighborCellLocation( iC ) )( iN );
                 }
@@ -713,7 +713,7 @@ namespace xtk
         friend class Model;
 
       protected:
-        moris::uint mSpatialDimension;
+        uint mSpatialDimension;
 
         bool mSameLevelChildMeshes = true;
 
@@ -725,7 +725,7 @@ namespace xtk
         // quantities related to integration cells
         moris::Cell< moris::Cell< moris_index > > mIntegrationCellToCellGroupIndex;
         moris::Cell< moris_index >                mIntegrationCellToSubphaseIndex;
-        moris::Cell< moris::moris_index >         mIntegrationCellBulkPhase;
+        moris::Cell< moris_index >                mIntegrationCellBulkPhase;
 
         // integration vertices
         moris_index                                              mFirstControlledVertexIndex;
@@ -733,9 +733,9 @@ namespace xtk
         moris::Cell< std::shared_ptr< moris::mtk::Vertex_XTK > > mControlledIgVerts;
 
         // vertex ancestry
-        moris::Cell< moris::moris_index > mIgVertexParentEntityIndex;
-        moris::Cell< moris::moris_index > mIgVertexParentEntityRank;
-        moris::Cell< moris::moris_index > mIgVertexConnectedCell;
+        moris::Cell< moris_index > mIgVertexParentEntityIndex;
+        moris::Cell< moris_index > mIgVertexParentEntityRank;
+        moris::Cell< moris_index > mIgVertexConnectedCell;
 
         // vertex quantities
         moris::Cell< std::shared_ptr< Matrix< DDRMat > > > mVertexCoordinates;
@@ -766,20 +766,24 @@ namespace xtk
         moris::Cell< moris_index > mCoarsestBsplineMesh;    // input: base IP cell index || output: coarsest B-spline mesh
 
         // union multisets of void MSD indices for each Lagrange element
-        // input: Lagrange/ base IP cell index || ouptput: Union multiset of MSD indices for that base IP cell
-        moris::Cell< moris::Cell< moris_index > > mUnionMsdInidices;
+        // input: Lagrange/ base IP cell index || output: Union multiset of MSD indices for that base IP cell
+        moris::Cell< moris::Cell< moris_index > > mUnionVoidMsdIndices;
+
+        // bulk-phases the void material sub-domains belong to
+        // input: Lagrange/ base IP cell index || output: bulk phase indices corresponding to union void MSD indices
+        moris::Cell< moris::Cell< moris_index > > mUnionVoidMsdIndexBulkPhases;
 
         // subphase groupings
         moris::Cell< moris_index >                      mSubPhaseIds;              // input: sub-phase index || output: global sub-phase ID
         moris::Cell< std::shared_ptr< IG_Cell_Group > > mSubPhaseCellGroups;       // input: sub-phase index || output: pointer to IG-Cell group on which subphase lives
-        moris::Cell< moris::moris_index >               mSubPhaseBulkPhase;        // input: sub-phase index || output: index of bulk-phase (i.e. material phase)
+        moris::Cell< moris_index >                      mSubPhaseBulkPhase;        // input: sub-phase index || output: index of bulk-phase (i.e. material phase)
         moris::Cell< moris::mtk::Cell* >                mSubPhaseParentCell;       // input: sub-phase index || output: index of Bg-cell sub-phase lives on
         moris::Cell< moris::Cell< moris_index > >       mParentCellToSubphase;     // input: Bg-cell index   || output: list of sub-phase indices present in Bg-cell
         moris::Cell< moris_index >                      mParentCellHasChildren;    // input: Bg-cell index   || output: bool, whether Bg-cell has Ig-cells living on it
 
-        moris::Cell< moris_index >                                mOwnedSubphaseGroupsInds;
-        moris::Cell< moris_index >                                mNotOwnedSubphaseGroupsInds;
-        std::unordered_map< moris::moris_id, moris::moris_index > mGlobalToLocalSubphaseMap;
+        moris::Cell< moris_index >                  mOwnedSubphaseGroupsInds;
+        moris::Cell< moris_index >                  mNotOwnedSubphaseGroupsInds;
+        std::unordered_map< moris_id, moris_index > mGlobalToLocalSubphaseMap;
 
         // subphase connectivity
         std::shared_ptr< Subphase_Neighborhood_Connectivity > mSubphaseNeighborhood;
@@ -800,10 +804,10 @@ namespace xtk
         // outer cell - bulk phase 0
         // inner cell - bulk phase 1
         // IG_Cell_Double_Side_Group pairings between integration cells
-        moris::Cell< moris::Cell< std::shared_ptr< IG_Cell_Double_Side_Group > > > mBptoBpDblSideInterfaces;
+        moris::Cell< moris::Cell< std::shared_ptr< IG_Cell_Double_Side_Group > > > mBpToBpDblSideInterfaces;
 
         // background facet to child facet connectivity
-        moris::Cell< std::shared_ptr< moris::Cell< moris::moris_index > > > mBGFacetToChildFacet;
+        moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mBGFacetToChildFacet;
 
         // block set data
         std::unordered_map< std::string, moris_index >  mBlockSetLabelToOrd;
@@ -826,18 +830,18 @@ namespace xtk
         // inner cell child meshes associated with the integration cell
         moris::Cell< moris::Cell< moris_index > > mCellToChildMeshIndex;
 
-        // outer cell geomtry index
+        // outer cell geometry index
         // if vertex index is in the map then it is a member of the geometric interface
         moris::Cell< std::unordered_map< moris_index, moris_index > > mGeometryInterfaceVertexIndices;
 
-        moris::moris_index mGlobalMaxVertexId;
-        moris::moris_index mGlobalMaxCellId;
+        moris_index mGlobalMaxVertexId;
+        moris_index mGlobalMaxCellId;
 
         std::unordered_map< moris_id, moris_index > mIntegrationCellIdToIndexMap;
         std::unordered_map< moris_id, moris_index > mIntegrationVertexIdToIndexMap;
 
-        moris::Cell< moris::moris_index > mIntegrationCellIndexToId;
-        moris::Cell< moris::moris_index > mIntegrationVertexIndexToId;
+        moris::Cell< moris_index > mIntegrationCellIndexToId;
+        moris::Cell< moris_index > mIntegrationVertexIndexToId;
 
         moris::mtk::Mesh* mBackgroundMesh;
         Model*            mXTKModel;
@@ -882,7 +886,7 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
-        moris::uint get_num_sets() const;
+        uint get_num_sets() const;
 
         // ----------------------------------------------------------------------------------
 
@@ -1097,7 +1101,7 @@ namespace xtk
         // ----------------------------------------------------------------------------------
 
         moris_id
-        allocate_entity_ids( moris::size_t aNumIdstoAllocate,
+        allocate_entity_ids( moris::size_t aNumIdsToAllocate,
                 enum EntityRank            aEntityRank );
 
         // ----------------------------------------------------------------------------------
@@ -1105,20 +1109,20 @@ namespace xtk
         /**
          * @brief allocate new IDs for Subphases globally across all procs
          *
-         * @param aNumIdstoAllocate number of Subphase IDs the current processor would like to allocate
+         * @param aNumIdsToAllocate number of Subphase IDs the current processor would like to allocate
          * @return moris_id first ID of the range of IDs that gets assigned to the current processor's Subphases
          */
         moris_id
-        allocate_subphase_ids( moris::size_t aNumIdstoAllocate );
+        allocate_subphase_ids( moris::size_t aNumIdsToAllocate );
 
         // ----------------------------------------------------------------------------------
 
-        moris::moris_index
+        moris_index
         get_first_available_index( enum EntityRank aEntityRank ) const;
 
         // ----------------------------------------------------------------------------------
 
-        moris::uint
+        uint
         get_num_ig_cell_groups();
 
         // ----------------------------------------------------------------------------------
@@ -1150,12 +1154,12 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
-        moris::uint
+        uint
         get_num_subphases();
 
         // ----------------------------------------------------------------------------------
 
-        moris::uint
+        uint
         get_num_subphase_groups( moris_index aMeshListIndex );
 
         // ----------------------------------------------------------------------------------
@@ -1266,6 +1270,9 @@ namespace xtk
         void
         assign_controlled_ig_cell_ids();
 
+        void
+        assign_controlled_ig_cell_ids_old();
+
         // ----------------------------------------------------------------------------------
 
         void
@@ -1299,7 +1306,7 @@ namespace xtk
         // ----------------------------------------------------------------------------------
 
         void
-        set_bulk_phase_to_bulk_phase_dbl_side_interface( moris::Cell< moris::Cell< std::shared_ptr< IG_Cell_Double_Side_Group > > >& aBptoBpDblSideInterfaces );
+        set_bulk_phase_to_bulk_phase_dbl_side_interface( moris::Cell< moris::Cell< std::shared_ptr< IG_Cell_Double_Side_Group > > >& aBpToBpDblSideInterfaces );
 
         // ----------------------------------------------------------------------------------
 
@@ -1309,11 +1316,11 @@ namespace xtk
         // ----------------------------------------------------------------------------------
 
         void
-        set_background_facet_to_child_facet_connectivity( moris::Cell< std::shared_ptr< moris::Cell< moris::moris_index > > > const & aBgtoChildFacet );
+        set_background_facet_to_child_facet_connectivity( moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const & aBgToChildFacet );
 
         // ----------------------------------------------------------------------------------
 
-        moris::Cell< std::shared_ptr< moris::Cell< moris::moris_index > > > const &
+        moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const &
         get_background_facet_to_child_facet_connectivity();
 
         // ----------------------------------------------------------------------------------
@@ -1394,6 +1401,17 @@ namespace xtk
          */
         moris::Cell< moris_index > const &
         get_union_MSD_indices_for_base_IP_cell( const moris_index aBaseIpCellIndex ) const;
+
+        // ----------------------------------------------------------------------------------
+
+        /**
+         * @brief Get the bulk-phases associated with the union MSDs for a given base IP cell
+         *
+         * @param aBaseIpCellIndex index of the base IP cell / Lagrange element
+         * @return moris::Cell< moris_index > const& list of bulk phases corresponding to the union MSDs on this IP cell
+         */
+        moris::Cell< moris_index > const &
+        get_bulk_phases_for_union_MSD_indices_for_base_IP_cell( const moris_index aBaseIpCellIndex ) const;
 
         // ----------------------------------------------------------------------------------
 
@@ -1515,7 +1533,7 @@ namespace xtk
                 std::cout << std::left << std::setw( nameWidth ) << std::setfill( separator ) << mBlockSetCellGroup( iBS )->mIgCellGroup.size();
 
                 //
-                for ( moris::uint iIgCell = 0; iIgCell < mBlockSetCellGroup( iBS )->mIgCellGroup.size(); iIgCell++ )
+                for ( uint iIgCell = 0; iIgCell < mBlockSetCellGroup( iBS )->mIgCellGroup.size(); iIgCell++ )
                 {
                     std::cout << std::left << std::setw( nameWidth ) << std::setfill( separator ) << mBlockSetCellGroup( iBS )->mIgCellGroup( iIgCell )->get_id();
                 }
@@ -1537,8 +1555,8 @@ namespace xtk
             moris::print( mIgVertexParentEntityIndex, "Vertex Parent Entity Index" );
             moris::print( mIgVertexParentEntityRank, "Vertex Parent Entity Rank" );
 
-            // moris::Cell< moris::moris_index > mIgVertexParentEntityIndex;
-            // moris::Cell< moris::moris_index > mIgVertexParentEntityRank;
+            // moris::Cell< moris_index > mIgVertexParentEntityIndex;
+            // moris::Cell< moris_index > mIgVertexParentEntityRank;
         }
 
         // ----------------------------------------------------------------------------------
@@ -1586,7 +1604,7 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
-    }; // class Cut_Integration_Mesh
+    };    // class Cut_Integration_Mesh
 
     // ----------------------------------------------------------------------------------
 
@@ -1597,7 +1615,7 @@ namespace xtk
 
       public:
         moris::mtk::Cell*                  mParentCell;
-        moris::moris_index                 mChildMeshIndex;
+        moris_index                        mChildMeshIndex;
         std::shared_ptr< IG_Cell_Group >   mIgCells;
         std::shared_ptr< IG_Vertex_Group > mIgVerts;
 
@@ -1621,7 +1639,7 @@ namespace xtk
             return mParentCell;
         }
 
-        moris::moris_index
+        moris_index
         get_child_mesh_index()
         {
             return mChildMeshIndex;
@@ -1645,7 +1663,7 @@ namespace xtk
             return mSubphaseCellGroups( aLocalSpIndex );
         }
 
-    }; // class Child_Mesh_Experimental
+    };    // class Child_Mesh_Experimental
 
     // ----------------------------------------------------------------------------------
 
