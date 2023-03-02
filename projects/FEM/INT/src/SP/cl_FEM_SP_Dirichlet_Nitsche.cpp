@@ -45,13 +45,13 @@ namespace moris
             uint tParamSize = aParameters.size();
 
             // check for proper size of constant function parameters
-            MORIS_ERROR( tParamSize >= 1 && tParamSize < 3,
+            MORIS_ERROR( tParamSize <= 2,
                     "SP_Dirichlet_Nitsche::set_parameters - either no or 1 constant parameter need to be set." );
 
             // if geometry measure type is defined
-            if ( tParamSize == 1 )
+            if ( tParamSize == 2 )
             {
-                mGeometryFormulation = mParameters( 0 )( 0 );
+                mGeometryFormulation = mParameters( 1 )( 0 );
             }
         }
 
