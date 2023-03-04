@@ -38,11 +38,11 @@ namespace moris
       protected:
 
       public:
-        /** Default contructor */
+        /** Default constructor */
         Vector_PETSc(
                 moris::Solver_Interface* aInput,
                 sol::Dist_Map*           aMap,
-                const sint               aNumVectores,
+                const sint               aNumVectors,
                 bool                     aManageMap = false );
 
         /** Destructor */

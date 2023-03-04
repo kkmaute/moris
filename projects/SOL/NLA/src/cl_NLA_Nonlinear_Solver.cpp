@@ -68,12 +68,12 @@ Nonlinear_Solver::Nonlinear_Solver(
 //--------------------------------------------------------------------------------------------------
 
 Nonlinear_Solver::Nonlinear_Solver(
-        moris::Cell< std::shared_ptr< Nonlinear_Algorithm > >& aNonlinerSolverList,
+        moris::Cell< std::shared_ptr< Nonlinear_Algorithm > >& aNonlinearSolverList,
         const enum NonlinearSolverType                         aNonLinSolverType )
         : mSecondaryDofTypeList( Cell< Cell< enum MSI::Dof_Type > >( 0 ) )
         , mNonLinSolverType( aNonLinSolverType )
 {
-    mNonlinearSolverAlgorithmList = aNonlinerSolverList;
+    mNonlinearSolverAlgorithmList = aNonlinearSolverList;
 
     this->set_nonlinear_solver_manager_parameters();
 }
@@ -266,7 +266,7 @@ Nonlinear_Solver::get_sec_dof_type_union()
 //--------------------------------------------------------------------------------------------------
 
 void
-Nonlinear_Solver::set_sonlinear_solver_manager_index( const moris::sint aNonlinearSolverManagerIndex )
+Nonlinear_Solver::set_nonlinear_solver_manager_index( const moris::sint aNonlinearSolverManagerIndex )
 {
     mNonlinearSolverManagerIndex = aNonlinearSolverManagerIndex;
 }
@@ -274,10 +274,10 @@ Nonlinear_Solver::set_sonlinear_solver_manager_index( const moris::sint aNonline
 //--------------------------------------------------------------------------------------------------
 
 moris::sint
-Nonlinear_Solver::get_sonlinear_solver_manager_index()
+Nonlinear_Solver::get_nonlinear_solver_manager_index()
 {
     MORIS_ERROR( mNonlinearSolverManagerIndex != -1,
-            "Nonlinear_Solver_Manager::get_sonlinear_solver_manager_index(): mNonlinearSolverManagerIndex = -1. Solver manager index not set." );
+            "Nonlinear_Solver_Manager::get_nonlinear_solver_manager_index(): mNonlinearSolverManagerIndex = -1. Solver manager index not set." );
 
     return mNonlinearSolverManagerIndex;
 }
@@ -362,7 +362,7 @@ Nonlinear_Solver::solve( Nonlinear_Problem* aNonlinearProblem )
     moris::sint tMaxNumLinRestarts  = mParameterListNonLinearSolver.get< moris::sint >( "NLA_max_non_lin_solver_restarts" );
     moris::sint tTryRestartOnFailIt = 1;
 
-    MORIS_ERROR( mNonLinSolverType != NonlinearSolverType::NLBGS_SOLVER, "Nonlinear_Solver::solve(); Nonliner Solver is NLBGS" );
+    MORIS_ERROR( mNonLinSolverType != NonlinearSolverType::NLBGS_SOLVER, "Nonlinear_Solver::solve(); Nonlinear Solver is NLBGS" );
 
     mNonlinearSolverAlgorithmList( 0 )->set_nonlinear_solver_manager( this );
 

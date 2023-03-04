@@ -68,7 +68,7 @@ namespace dla
                 // Get this dof type
                 moris::sint tDofType = mSolverInterface->get_type_time_identifier_to_type_map()( mListAdofTypeTimeIdentifier( Ik )( Ii ) );
 
-                // Get order of this dof typegit a
+                // Get order of this dof type
                 moris::sint tMeshIndex = mSolverInterface->get_adof_index_for_type( tDofType );
 
                 // Get external dof id and identifier of this dof
@@ -91,7 +91,7 @@ namespace dla
 
                    mProlongationList( Ik-1 )->insert_values( tRowMat, tColMat, tIdentityMat );
                 }
-                // If coarse dof on this level is interpolated through fine dofs on thislevel + 1
+                // If coarse dof on this level is interpolated through fine dofs on this level + 1
                 else if ( ( tDofLevel == tMaxMeshLevel - Ik ) && ( Ii >= tRemainingOldDofsOnLevel( Ik-1, 0 ) ) )
                 {
                     // Create vector for row index

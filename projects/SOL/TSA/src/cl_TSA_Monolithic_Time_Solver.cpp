@@ -28,10 +28,10 @@ using namespace tsa;
 //-------------------------------------------------------------------------------
 
 void
-Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist_Vector* >& aFullVector )
+Monolithic_Time_Solver::solve_monolithic_time_system( moris::Cell< sol::Dist_Vector* >& aFullVector )
 {
     // trace this solve
-    Tracer tTracer( "TimeSolverAlgorithm", "Monolythic", "Solve" );
+    Tracer tTracer( "Time Solver Algorithm", "Monolithic", "Solve" );
 
     this->finalize();
 
@@ -50,7 +50,7 @@ Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist_Vect
 
     for ( sint Ik = 0; Ik < tTimeSteps; Ik++ )
     {
-        // get solvec and prev solvec indec
+        // get solvec and prev solvec index
         uint tSolVecIndex     = Ik + 1;
         uint tPrevSolVecIndex = Ik;
 
@@ -141,7 +141,7 @@ Monolithic_Time_Solver::solve_monolytic_time_system( moris::Cell< sol::Dist_Vect
             MORIS_LOG_INFO( "Saving solution vector to file: ", tStrOutputFile.c_str() );
 
             // FIXME: this option doesn't work in parallel, only for serial debugging purposes
-            // MORIS_ERROR( par_size() == 1, "Monolithic_Time_Solver::solve_monolytic_time_system() - "
+            // MORIS_ERROR( par_size() == 1, "Monolithic_Time_Solver::solve_monolithic_time_system() - "
             //         "Writing solutions to hdf5 file only possible in serial." );
 
             // convert distributed vector to moris mat
@@ -167,7 +167,7 @@ void
 Monolithic_Time_Solver::solve_implicit_DqDs( moris::Cell< sol::Dist_Vector* >& aFullAdjointVector )
 {
     // trace this solve
-    Tracer tTracer( "TimeSolver", "Monolythic", "Solve" );
+    Tracer tTracer( "TimeSolver", "Monolithic", "Solve" );
 
     sint tTimeSteps = mParameterListTimeSolver.get< moris::sint >( "TSA_Num_Time_Steps" );
 
@@ -181,7 +181,7 @@ Monolithic_Time_Solver::solve_implicit_DqDs( moris::Cell< sol::Dist_Vector* >& a
     // Loop over all time iterations backwards
     for ( sint Ik = tTimeSteps; Ik > tStopTimeStepIndex; --Ik )
     {
-        // get solvec and prev solvec indec
+        // get solvec and prev solvec index
         uint tSolVecIndex     = Ik;
         uint tPrevSolVecIndex = Ik - 1;
 
@@ -224,7 +224,7 @@ Monolithic_Time_Solver::solve( moris::Cell< sol::Dist_Vector* >& aFullVector )
 {
     if ( mMyTimeSolver->get_is_forward_analysis() )
     {
-        this->solve_monolytic_time_system( aFullVector );
+        this->solve_monolithic_time_system( aFullVector );
     }
     else
     {
@@ -248,4 +248,3 @@ Monolithic_Time_Solver::get_new_lambda()
 {
     return mLambdaInc;
 }
-

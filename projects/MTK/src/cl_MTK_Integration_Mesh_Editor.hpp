@@ -31,18 +31,18 @@ namespace moris::mtk
         moris::Cell< moris_index > mCellToVertexIndicies;
 
         // cell cluster to primary ig cell connectivity
-        moris::Cell< moris_index > mCellClusterToPrimaryIGCellIndecies;
+        moris::Cell< moris_index > mCellClusterToPrimaryIGCellIndices;
 
         // cell cluster to void ig cell connectivity
-        moris::Cell< moris_index > mCellClusterToVoidIGCellIndecies;
+        moris::Cell< moris_index > mCellClusterToVoidIGCellIndices;
 
         // cell cluster to vertices connectivity
         moris::Cell< moris_index > mCellClusterToVertexIndices;
 
         // side cluster to the ig cells and ordinal connectivity
-        moris::Cell< moris_index > mSideClusterToPrimaryIGCellIndecies;
+        moris::Cell< moris_index > mSideClusterToPrimaryIGCellIndices;
 
-        moris::Cell< moris_index > mSideClusterToVoidIGCellIndecies;
+        moris::Cell< moris_index > mSideClusterToVoidIGCellIndices;
 
         moris::Cell< moris_index > mSideClusterToVertexOffSet;
 
@@ -433,16 +433,16 @@ namespace moris::mtk
         // ----------------------------------------------------------------------------
 
         /**
-         * @brief populate the map for the blockset name-cell toplogy
+         * @brief populate the map for the blockset name-cell topology
          *
          */
 
-        void set_blockset_toplogy();
+        void set_blockset_topology();
 
         // ----------------------------------------------------------------------------
 
         /**
-         * @brief populate the map for the blockset name-cell toplogy
+         * @brief populate the map for the blockset name-cell topology
          *
          */
 
@@ -452,7 +452,7 @@ namespace moris::mtk
         // ----------------------------------------------------------------------------
 
         /**
-         * @brief populate the map for the blockset name-cell toplogy
+         * @brief populate the map for the blockset name-cell topology
          *
          */
 
@@ -464,7 +464,7 @@ namespace moris::mtk
         // ----------------------------------------------------------------------------
 
         /**
-         * @brief populate the map for the blockset name-cell toplogy
+         * @brief populate the map for the blockset name-cell topology
          *
          */
 
@@ -489,7 +489,7 @@ namespace moris::mtk
         // ----------------------------------------------------------------------------
 
         void
-        create_parallel_consistnet_new_vertex_ids( moris_index tNumPreviousVertices );
+        create_parallel_consistent_new_vertex_ids( moris_index tNumPreviousVertices );
 
         // ----------------------------------------------------------------------------
 
@@ -517,7 +517,7 @@ namespace moris::mtk
         // ----------------------------------------------------------------------------
 
         void
-        reconstrcut_connectivity();
+        reconstruct_connectivity();
 
         // ----------------------------------------------------------------------------
 

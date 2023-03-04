@@ -67,9 +67,9 @@ namespace moris
             virtual ~Dist_Matrix(){};
 
             virtual void fill_matrix(
-                    const moris::uint&             anumDofs,
+                    const moris::uint&             aNumDofs,
                     const moris::Matrix< DDRMat >& aA_val,
-                    const moris::Matrix< DDSMat >& aEleDofConectivity ) = 0;
+                    const moris::Matrix< DDSMat >& aEleDofConnectivity ) = 0;
 
             /**
              * Inserts values into the matrix at locations corresponding to the given row and column IDs.
@@ -112,8 +112,8 @@ namespace moris
                     const moris::Matrix< DDUMat >& aMyConstraintDofs ) = 0;
 
             virtual void build_graph(
-                    const moris::uint&             anumDofs,
-                    const moris::Matrix< DDSMat >& aEleDofConectivity ) = 0;
+                    const moris::uint&             aNumDofs,
+                    const moris::Matrix< DDSMat >& aEleDofConnectivity ) = 0;
 
             virtual void get_diagonal( moris::sol::Dist_Vector& aDiagVec ) const = 0;
 

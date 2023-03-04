@@ -76,7 +76,7 @@ namespace moris
                  * @brief child class implementation: updates internal data associated with coefficients
                  */
 
-                void update_coefficent_data();
+                void update_coefficient_data();
 
                 // ----------------------------------------------------------------------------------------------
 

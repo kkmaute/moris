@@ -77,7 +77,7 @@ namespace moris
              * @brief Constructor. Creates nonlinear system
              *
              * @param[in] aSolverInterface             Pointer to the solver interface
-             * @param[in] aNonlinearSolverManagerIndex Nonlinera solver manager index. Default = 0
+             * @param[in] aNonlinearSolverManagerIndex Nonlinear solver manager index. Default = 0
              * @param[in] aBuildLinerSystemFlag        Flag if linear system shall be build or not. Default = true
              * @param[in] aMapType                     Map type. Epetra or Petsc. Default MapType::Epetra
              */
@@ -93,7 +93,7 @@ namespace moris
              *
              * @param[in] aNonlinDatabase             Pointer to database
              * @param[in] aSolverInterface             Pointer to the solver interface
-             * @param[in] aNonlinearSolverManagerIndex Nonlinera solver manager index. Default = 0
+             * @param[in] aNonlinearSolverManagerIndex Nonlinear solver manager index. Default = 0
              * @param[in] aBuildLinerSystemFlag        Flag if linear system shall be build or not. Default = true
              * @param[in] aMapType                     Map type. Epetra or Petsc. Default MapType::Epetra
              */
@@ -125,7 +125,7 @@ namespace moris
 
             void build_linearized_problem(
                     const bool& aRebuildJacobian,
-                    const bool& aCombinedResJacAssebly,
+                    const bool& aCombinedResJacAssembly,
                     sint        aNonLinearIt );
 
             //--------------------------------------------------------------------------------------------------

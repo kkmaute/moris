@@ -53,7 +53,7 @@ Nonlinear_Problem::Nonlinear_Problem(
     //        PetscInitializeNoArguments();
     //    }
 
-    const moris::Cell< enum MSI::Dof_Type >& tRequesedDofTypes = mSolverInterface->get_requested_dof_types();
+    const moris::Cell< enum MSI::Dof_Type >& tRequestedDofTypes = mSolverInterface->get_requested_dof_types();
 
     // delete pointers if they already exist
     this->delete_pointers();
@@ -62,10 +62,10 @@ Nonlinear_Problem::Nonlinear_Problem(
     sol::Matrix_Vector_Factory tMatFactory( mMapType );
 
     MORIS_LOG_SPEC( "Total number of DOFs for non-linear system",
-            sum_all( aSolverInterface->get_my_local_global_map( tRequesedDofTypes ).numel() ) );
+            sum_all( aSolverInterface->get_my_local_global_map( tRequestedDofTypes ).numel() ) );
 
     // create map object FIXME ask linear problem for map
-    mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_map( tRequesedDofTypes ) );
+    mMap = tMatFactory.create_map( aSolverInterface->get_my_local_global_map( tRequestedDofTypes ) );
 
     // create map object FIXME ask linear problem for map
     mMapFull = tMatFactory.create_full_map(
@@ -199,12 +199,12 @@ Nonlinear_Problem::delete_pointers()
 void
 Nonlinear_Problem::build_linearized_problem(
         const bool& aRebuildJacobian,
-        const bool& aCombinedResJacAssebly,
+        const bool& aCombinedResJacAssembly,
         const sint  aNonLinearIt )
 {
     Tracer tTracer( "NonLinearProblem", "Build" );
 
-    if ( aCombinedResJacAssebly )
+    if ( aCombinedResJacAssembly )
     {
         // build residual and jacobian
         mLinearProblem->assemble_residual_and_jacobian();

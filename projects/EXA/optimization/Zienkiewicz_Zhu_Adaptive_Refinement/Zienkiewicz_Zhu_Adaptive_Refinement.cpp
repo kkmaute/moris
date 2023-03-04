@@ -1837,25 +1837,25 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterlist( 3 )( 0 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
         tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0" );    // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "THETA" );
-        tParameterlist( 3 )( 0 ).set( "NLA_Secundary_DofTypes", "" );
+        tParameterlist( 3 )( 0 ).set( "NLA_Secondary_DofTypes", "" );
 
         tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 1
         tParameterlist( 3 )( 1 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
         tParameterlist( 3 )( 1 ).set( "NLA_Nonlinear_solver_algorithms", "1" );    // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 1 ).set( "NLA_DofTypes", "PHID" );
-        tParameterlist( 3 )( 1 ).set( "NLA_Secundary_DofTypes", "" );
+        tParameterlist( 3 )( 1 ).set( "NLA_Secondary_DofTypes", "" );
 
         tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();
         tParameterlist( 3 )( 2 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
         tParameterlist( 3 )( 2 ).set( "NLA_Nonlinear_solver_algorithms", "3" );    // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 2 ).set( "NLA_DofTypes", "UX,UY" );
-        tParameterlist( 3 )( 2 ).set( "NLA_Secundary_DofTypes", "STRESS_DOF" );
+        tParameterlist( 3 )( 2 ).set( "NLA_Secondary_DofTypes", "STRESS_DOF" );
 
         tParameterlist( 3 )( 3 ) = moris::prm::create_nonlinear_solver_parameter_list();
         tParameterlist( 3 )( 3 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
         tParameterlist( 3 )( 3 ).set( "NLA_Nonlinear_solver_algorithms", "4" );    // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 3 ).set( "NLA_DofTypes", "STRESS_DOF" );
-        tParameterlist( 3 )( 3 ).set( "NLA_Secundary_DofTypes", "" );
+        tParameterlist( 3 )( 3 ).set( "NLA_Secondary_DofTypes", "" );
 
         tParameterlist( 3 )( 4 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 2
         tParameterlist( 3 )( 4 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
@@ -1876,7 +1876,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
         tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "THETA;PHID;UX,UY;STRESS_DOF" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
-        tParameterlist( 5 )( 0 ).set( "TSA_Output_Crteria", "Output_Criterion" );
+        tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
     }

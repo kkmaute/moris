@@ -71,8 +71,6 @@ namespace moris
             aParameterlist.insert( "minimum_refinement_level", "" );
 
             aParameterlist.insert( "output_meshes", false );
-
-            // modde "previous"
         }
 
         //------------------------------------------------------------------------------

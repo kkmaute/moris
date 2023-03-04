@@ -723,7 +723,7 @@ namespace moris
         tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
         tParameterlist( 5 )( 0 ).set("TSA_DofTypes"           , "P;VX,VY;TEMP" );
         tParameterlist( 5 )( 0 ).set("TSA_Output_Indices"     , "0" );
-        tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria"     , "Output_Criterion" );
+        tParameterlist( 5 )( 0 ).set("TSA_Output_Criteria"     , "Output_Criterion" );
 
         // for pseudo-transient case, have a time step
         if ( tIsPseudoTransient )

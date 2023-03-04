@@ -50,7 +50,7 @@ namespace moris
         void translator(
                 const moris::uint&             aNumMaxDofs,
                 const moris::uint&             aNumMyDofs,
-                const moris::Matrix< DDSMat >& aMyLocaltoGlobalMap,
+                const moris::Matrix< DDSMat >& aMyLocalToGlobalMap,
                 moris::Matrix< DDSMat >&       aMyGlobalConstraintDofs,
                 const moris::Matrix< DDUMat >& aMyConstraintDofs );
 
@@ -80,7 +80,7 @@ namespace moris
 
         // ---------------------------------------------------------------------------------------------------------------
 
-        // check whehter map is constructed for full vector
+        // check whether map is constructed for full vector
         bool
         is_full_map()
         {

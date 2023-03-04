@@ -158,7 +158,7 @@ namespace moris::mig
                 moris::Cell< moris_index > const &tSideClustersIndices1 = tIter.second;
                 moris::Cell< moris_index > const &tSideClustersIndices2 = mBackgroundCellToSideClusterMap2( tPairCount )[tIter.first];
 
-                // Consider different cases to minmize the effort of polygon clipping
+                // Consider different cases to minimize the effort of polygon clipping
                 // case 1 where both sides just have one cluster ( they can be trivial or non trivial)
                 if ( tSideClustersIndices1.size() == 1 and tSideClustersIndices2.size() == 1 )
                 {
@@ -186,7 +186,7 @@ namespace moris::mig
                     // iterate through the clusters on the right in order to create dbl sided cluster separately
                     for ( uint iCluster = 0; iCluster < tSideClustersIndices2.size(); iCluster++ )
                     {
-                        // obtain numbder of surfaces present in each side cluster
+                        // obtain number of surfaces present in each side cluster
                         uint tPrimaryCellInClusterNum = tSideClusters2( tSideClustersIndices2( iCluster ) )->get_num_primary_cells();
 
                         // Initialize the cell containing coordinates of the cut surfaces
@@ -198,7 +198,7 @@ namespace moris::mig
                             // get the coordinates on the side ordinal and transpose
                             moris::Matrix< DDRMat > t3DcoordMatrix = trans( tSideClusters2( tSideClustersIndices2( iCluster ) )->get_cell_local_coords_on_side_wrt_interp_cell( iCell ) );
 
-                            // convert 3D coordinates to suraface coordinates
+                            // convert 3D coordinates to surface coordinates
                             moris::Matrix< DDRMat > tSurfaceCoordMatrix( 1, 2 );
                             tSurfaceCoordMatrix.get_row( 0 ) = t3DcoordMatrix.get_row( tPermutationOrder );
 
@@ -239,7 +239,7 @@ namespace moris::mig
                     // iterate through the clusters on the right in order to create dbl sided cluster separately
                     for ( uint iCluster = 0; iCluster < tSideClustersIndices1.size(); iCluster++ )
                     {
-                        // obtain numbder of surfaces present in each side cluster
+                        // obtain number of surfaces present in each side cluster
                         uint tPrimaryCellInClusterNum = tSideClusters1( tSideClustersIndices1( iCluster ) )->get_num_primary_cells();
 
                         // Initialize the cell containing coordinates of the cut surfaces
@@ -251,7 +251,7 @@ namespace moris::mig
                             // get the coordinates on the side ordinal and transpose
                             moris::Matrix< DDRMat > t3DcoordMatrix = trans( tSideClusters1( tSideClustersIndices1( iCluster ) )->get_cell_local_coords_on_side_wrt_interp_cell( iCell ) );
 
-                            // convert 3D coordinates to suraface coordinates
+                            // convert 3D coordinates to surface coordinates
                             moris::Matrix< DDRMat > tSurfaceCoordMatrix( 1, 2 );
                             tSurfaceCoordMatrix.get_row( 0 ) = t3DcoordMatrix.get_row( tPermutationOrder );
 
@@ -261,7 +261,7 @@ namespace moris::mig
                                 tSurfaceCoordMatrix = { { tSurfaceCoordMatrix( 1 ), tSurfaceCoordMatrix( 0 ) } };
                             }
 
-                            // add the surface trinagle to the list of coordinates
+                            // add the surface triangle to the list of coordinates
                             tParamCoordsCell( iCell ) = tSurfaceCoordMatrix;
                         }
 
@@ -317,7 +317,7 @@ namespace moris::mig
                             // get the coordinates on the side ordinal and transpose
                             moris::Matrix< DDRMat > t3DcoordMatrix = trans( tSideClusters1( tSideClustersIndices1( iCluster ) )->get_cell_local_coords_on_side_wrt_interp_cell( iCell ) );
 
-                            // convert 3D coordinates to suraface coordinates
+                            // convert 3D coordinates to surface coordinates
                             moris::Matrix< DDRMat > tSurfaceCoordMatrix( 1, 2 );
                             tSurfaceCoordMatrix.get_row( 0 ) = t3DcoordMatrix.get_row( tPermutationOrder );
 
@@ -327,7 +327,7 @@ namespace moris::mig
                                 tSurfaceCoordMatrix = { { tSurfaceCoordMatrix( 1 ), tSurfaceCoordMatrix( 0 ) } };
                             }
 
-                            // add the surface trinagle to the list of coordinates
+                            // add the surface triangle to the list of coordinates
                             tParamCoordsCell1( iCounter ) = tSurfaceCoordMatrix;
 
                             // add the local side cluster index of the IG cell which it belongs to
@@ -368,7 +368,7 @@ namespace moris::mig
                             // get the coordinates on the side ordinal and transpose
                             moris::Matrix< DDRMat > t3DcoordMatrix = trans( tSideClusters2( tSideClustersIndices2( iCluster ) )->get_cell_local_coords_on_side_wrt_interp_cell( iCell ) );
 
-                            // convert 3D coordinates to suraface coordinates
+                            // convert 3D coordinates to surface coordinates
                             moris::Matrix< DDRMat > tSurfaceCoordMatrix( 1, 2 );
                             tSurfaceCoordMatrix.get_row( 0 ) = t3DcoordMatrix.get_row( tPermutationOrder );
 
@@ -378,7 +378,7 @@ namespace moris::mig
                                 tSurfaceCoordMatrix = { { tSurfaceCoordMatrix( 1 ), tSurfaceCoordMatrix( 0 ) } };
                             }
 
-                            // add the surface trinagle to the list of coordinates
+                            // add the surface triangle to the list of coordinates
                             tParamCoordsCell2( iCounter ) = tSurfaceCoordMatrix;
 
                             // add the local side cluster index of the IG cell which it belongs to
@@ -393,7 +393,7 @@ namespace moris::mig
                     moris::Cell< moris::Matrix< DDRMat > > tCutPolygons;
                     moris::Matrix< moris::IndexMat >       tCutPolygonIdentifier;
 
-                    // Polygon clipping algorthim
+                    // Polygon clipping algorithm
                     this->elementwise_bruteforce_search(
                         tParamCoordsCell1, tIGCellToSideClusterMap1, tParamCoordsCell2, tIGCellToSideClusterMap2, tCutPolygons, tCutPolygonIdentifier );
 
@@ -403,15 +403,15 @@ namespace moris::mig
                     // populate the map
                     this->group_cut_cells( tCutPolygonIdentifier, tCutCellIdentifierToCutCell );
 
-                    // unique multiplier to distingush between sub clusters
+                    // unique multiplier to distinguish between sub clusters
                     uint tMultiplier = std::max( tParamCoordsCell1.size(), tParamCoordsCell2.size() );
 
-                    // iterate through grouped cut cell in order to create dbl sideded cluster with the correct
+                    // iterate through grouped cut cell in order to create dbl sided cluster with the correct
                     // IP cell and phase information
                     for ( auto &iCutCellGroup : tCutCellIdentifierToCutCell )
                     {
                         // indices of the cut polygon that exist in the particular dbl sided cluster
-                        moris::Cell< moris_index > &tIndicesinCutCell = iCutCellGroup.second;
+                        moris::Cell< moris_index > &tIndicesInCutCell = iCutCellGroup.second;
 
                         // local index of the side cluster on the right
                         uint j = ( iCutCellGroup.first ) % tMultiplier;
@@ -427,7 +427,7 @@ namespace moris::mig
                         moris_index tPhaseToPhaseIndex = tPhaseInteractionTable( tPhase1, tPhase2 );
 
                         // create the dbl sided cluster
-                        this->create_dbl_sided_cluster( tCutPolygons, tIndicesinCutCell, tSideClusters1( tSideClustersIndices1( i ) )->get_interpolation_cell(), tSideClusters2( tSideClustersIndices2( j ) )->get_interpolation_cell(), tPairCount, tPhaseToPhaseIndex );
+                        this->create_dbl_sided_cluster( tCutPolygons, tIndicesInCutCell, tSideClusters1( tSideClustersIndices1( i ) )->get_interpolation_cell(), tSideClusters2( tSideClustersIndices2( j ) )->get_interpolation_cell(), tPairCount, tPhaseToPhaseIndex );
                     }
                     // Find the intersection of two surfaces along with the relative IP cells
                 }
@@ -442,7 +442,7 @@ namespace moris::mig
 
     void
     Periodic_2D::create_dbl_sided_cluster( moris::Cell< Matrix< DDRMat > > tP,
-        moris::Cell< moris_index >                                        &aIndicesinCutCell,
+        moris::Cell< moris_index >                                        &aIndicesInCutCell,
         moris::mtk::Cell const                                            &aInterpCell1,
         moris::mtk::Cell const                                            &aInterpCell2,
         uint                                                               aPairCount,
@@ -457,9 +457,9 @@ namespace moris::mig
         Matrix< DDRMat > tUniqueIntersectedPoints;
 
         // populate the matrix
-        for ( size_t i = 0; i < aIndicesinCutCell.size(); i++ )
+        for ( size_t i = 0; i < aIndicesInCutCell.size(); i++ )
         {
-            tUniqueIntersectedPoints = join_horiz( tUniqueIntersectedPoints, tP( aIndicesinCutCell( i ) ) );
+            tUniqueIntersectedPoints = join_horiz( tUniqueIntersectedPoints, tP( aIndicesInCutCell( i ) ) );
         }
 
         // create master and slave side vertices
@@ -839,17 +839,17 @@ namespace moris::mig
     uint
     Periodic_2D::permutation_order( uint const &aPairCount ) const
     {
-        uint tPermuationOrder = 0;
+        uint tPermutationOrder = 0;
 
         if ( mMeshSideSetPairs( aPairCount )( 0 ) == "4" )
         {
-            tPermuationOrder = 1;
+            tPermutationOrder = 1;
         }
         else if ( mMeshSideSetPairs( aPairCount )( 0 ) == "1" )
         {
-            tPermuationOrder = 0;
+            tPermutationOrder = 0;
         }
-        return tPermuationOrder;
+        return tPermutationOrder;
     }
 
     // ----------------------------------------------------------------------------
@@ -981,7 +981,7 @@ namespace moris::mig
         uint tNumVertices            = 0;
         uint tNumDoubleSidedClusters = 0;
 
-        // loop over the pairs to detmine the sizes
+        // loop over the pairs to determine the sizes
         for ( uint tPairCount = 0; tPairCount < mMeshSideSetPairs.size(); tPairCount++ )
         {
             // obtain the integration mesh

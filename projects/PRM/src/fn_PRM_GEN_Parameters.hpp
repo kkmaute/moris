@@ -137,7 +137,7 @@ namespace moris
         /**
          * Same as a geometry parameter list, but forces the user to specify the path to the voxel file
          *
-         * @return Voxel geometrie parameterlist
+         * @return Voxel geometry parameterlist
          */
         inline ParameterList
         create_voxel_field_parameter_list()
@@ -158,7 +158,7 @@ namespace moris
         /**
          * Same as a geometry parameter list, but forces the user to specify the path to the sdf file
          *
-         * @return sdf geometrie parameterlist
+         * @return sdf geometry parameterlist
          */
         inline ParameterList
         create_sdf_field_parameter_list()
@@ -178,7 +178,7 @@ namespace moris
         /**
          * Same as a geometry parameter list, but forces the user to specify the path to the image-based sdf file
          *
-         * @return sdf geometrie parameterlist
+         * @return sdf geometry parameterlist
          */
         inline ParameterList
         create_image_sdf_field_parameter_list()
@@ -202,7 +202,7 @@ namespace moris
         /**
          * Same as a geometry parameter list, but forces the user to specify the path to the level set file
          *
-         * @return sdf geometrie parameterlist
+         * @return sdf geometry parameterlist
          */
         inline ParameterList
         create_nodal_field_from_file_parameter_list()

@@ -106,7 +106,7 @@ namespace moris
                 //-------------------------------------------------------------------------------
 
                 /*
-                 * accessor to underling Eptra operator
+                 * accessor to underling Epetra operator
                  */
                 Teuchos::RCP< Epetra_Operator > get_operator();
 

@@ -134,13 +134,13 @@ namespace moris
                     mPerformerManager->mHMRPerformer( 0 )->perform_initial_refinement();
 
                     // HMR refined by GE
-                    Refinement_Mini_Performer tRefinementPerfomer;
+                    Refinement_Mini_Performer tRefinementPerformer;
 
                     // GEN interface performer
                     std::shared_ptr< Performer > tGenPerformer =
                             std::make_shared< wrk::Gen_Performer >( mPerformerManager->mGENPerformer( 0 ) );
 
-                    tRefinementPerfomer.perform_refinement_old( mPerformerManager->mHMRPerformer( 0 ), { tGenPerformer } );
+                    tRefinementPerformer.perform_refinement_old( mPerformerManager->mHMRPerformer( 0 ), { tGenPerformer } );
                 }
 
                 // HMR finalize
@@ -203,19 +203,19 @@ namespace moris
             tOptIter = tOptIter + mIter;
 
             // return vector of design criteria with NANs causing the optimization algorithm to restart
-            if ( mIter >= mReinitializeIterIntervall or ( uint ) tOptIter == mReinitializeIterFirst )
+            if ( mIter >= mReinitializeIterInterval or ( uint ) tOptIter == mReinitializeIterFirst )
             {
                 mInitializeOptimizationRestart = true;
 
-                moris::Matrix< DDRMat > tMat( mNumCriterias, 1, std::numeric_limits< real >::quiet_NaN() );
+                moris::Matrix< DDRMat > tMat( mNumCriteria, 1, std::numeric_limits< real >::quiet_NaN() );
 
                 return tMat;
             }
 
-            // Stage *: Reinitialization of the adv field
+            // Stage *: Re-initialization of the adv field
             if ( mPerformerManager->mReinitializePerformer.size() > 0 )
             {
-                // decide if the reinitialization would be required
+                // decide if the re-initialization would be required
                 sint tReinitFreq = mPerformerManager->mReinitializePerformer( 0 )->get_reinitialization_frequency();
 
                 if ( tOptIter > 0 and tOptIter % tReinitFreq == 0 )
@@ -302,11 +302,11 @@ namespace moris
             {
                 mInitializeOptimizationRestart = true;
 
-                MORIS_ERROR( mNumCriterias != MORIS_UINT_MAX,
-                        "Workflow_HMR_XTK::perform() problem with mNumCriterias. "
+                MORIS_ERROR( mNumCriteria != MORIS_UINT_MAX,
+                        "Workflow_HMR_XTK::perform() problem with mNumCriteria. "
                         "This can happen if the xtk interface interfaces different refinement level in the first optimization iteration" );
 
-                moris::Matrix< DDRMat > tMat( mNumCriterias, 1, std::numeric_limits< real >::quiet_NaN() );
+                moris::Matrix< DDRMat > tMat( mNumCriteria, 1, std::numeric_limits< real >::quiet_NaN() );
 
                 if ( tDeleteXTK )
                 {
@@ -325,7 +325,7 @@ namespace moris
 
             if ( tDeleteXTK )
             {
-                // constrcut the data base with the mtk performer from xtk
+                // construct the data base with the mtk performer from xtk
                 mPerformerManager->mDataBasePerformer( 0 ) = std::make_shared< DataBase_Performer >( tMTKPerformer );
 
                 // create the mtk performer that will hold the data base mesh pair and set it
@@ -448,18 +448,18 @@ namespace moris
             moris::Cell< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
 
             // get number of design criteria
-            mNumCriterias = tVal.size();
+            mNumCriteria = tVal.size();
 
             // Communicate IQIs
-            for ( uint iIQIIndex = 0; iIQIIndex < mNumCriterias; iIQIIndex++ )
+            for ( uint iIQIIndex = 0; iIQIIndex < mNumCriteria; iIQIIndex++ )
             {
                 tVal( iIQIIndex )( 0 ) = sum_all( tVal( iIQIIndex )( 0 ) );
             }
 
             // build vector of design criteria
-            moris::Matrix< DDRMat > tMat( mNumCriterias, 1, 0.0 );
+            moris::Matrix< DDRMat > tMat( mNumCriteria, 1, 0.0 );
 
-            for ( uint Ik = 0; Ik < mNumCriterias; Ik++ )
+            for ( uint Ik = 0; Ik < mNumCriteria; Ik++ )
             {
                 tMat( Ik ) = tVal( Ik )( 0 );
             }
@@ -489,20 +489,20 @@ namespace moris
 
                 for ( uint i = 0; i < tDCriteriaDAdv.n_rows(); ++i )
                 {
-                    Matrix< DDRMat > tDIQIDAdv = tDCriteriaDAdv.get_row( i );
+                    Matrix< DDRMat > tdIQIdAdv = tDCriteriaDAdv.get_row( i );
 
-                    auto tItrMin = std::min_element( tDIQIDAdv.data(), tDIQIDAdv.data() + tDIQIDAdv.numel() );
-                    auto tIndMin = std::distance( tDIQIDAdv.data(), tItrMin );
+                    auto tItrMin = std::min_element( tdIQIdAdv.data(), tdIQIdAdv.data() + tdIQIdAdv.numel() );
+                    auto tIndMin = std::distance( tdIQIdAdv.data(), tItrMin );
 
-                    auto tItrMax = std::max_element( tDIQIDAdv.data(), tDIQIDAdv.data() + tDIQIDAdv.numel() );
-                    auto tIndMax = std::distance( tDIQIDAdv.data(), tItrMax );
+                    auto tItrMax = std::max_element( tdIQIdAdv.data(), tdIQIdAdv.data() + tdIQIdAdv.numel() );
+                    auto tIndMax = std::distance( tdIQIdAdv.data(), tItrMax );
 
                     MORIS_LOG_INFO( "Criteria(%i): norm = %e   min = %e  (index = %i)   max = %e  (index = %i)",
                             i,
-                            norm( tDIQIDAdv ),
-                            tDIQIDAdv.min(),
+                            norm( tdIQIdAdv ),
+                            tdIQIdAdv.min(),
                             tIndMin,
-                            tDIQIDAdv.max(),
+                            tdIQIdAdv.max(),
                             tIndMax );
                 }
 

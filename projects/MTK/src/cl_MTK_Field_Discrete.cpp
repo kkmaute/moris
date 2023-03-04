@@ -26,7 +26,7 @@ namespace moris
           mDiscretizationMeshIndex(aDiscretizationMeshIndex)
         {
             // update coefficient data
-            this->update_coefficent_data();
+            this->update_coefficient_data();
 
             mFieldIsDiscrete = true;
         }
@@ -42,7 +42,7 @@ namespace moris
 
         // ----------------------------------------------------------------------------------------------
 
-        void Field_Discrete::update_coefficent_data()
+        void Field_Discrete::update_coefficient_data()
         {
             // get interpolation mesh
             mtk::Mesh * tIPmesh = mMeshPair.get_interpolation_mesh();
@@ -52,7 +52,7 @@ namespace moris
 
             // check for correct number of nodes
             MORIS_ASSERT( tNumberOfNodes == tIPmesh->get_num_nodes(),
-                    "Field_Discrete::update_coefficent_data - incorrect number of nodes.\n");
+                    "Field_Discrete::update_coefficient_data - incorrect number of nodes.\n");
 
             // get maximum number of coefficients used by mesh
             mMaxNumberOfCoefficients = tIPmesh->get_max_num_coeffs_on_proc(mDiscretizationMeshIndex);
@@ -114,7 +114,7 @@ namespace moris
 
                     // check that number of indices and ids are the same
                     MORIS_ASSERT( tCoefIds.numel() == tCoefIndices.numel(),
-                            "Field_Discrete::update_coefficent_data - numbers of coefficients and ids do not match.\n");
+                            "Field_Discrete::update_coefficient_data - numbers of coefficients and ids do not match.\n");
 
                     // get number of coefficients for current node
                     uint tNumCoefOfNode=tCoefIds.numel();
@@ -139,7 +139,7 @@ namespace moris
                         {
                             // check for consistency
                             MORIS_ASSERT( tAllCoefIds(tCurrentIndex) == tCoefIds(tCoefIndex),
-                                    "Field_Discrete::update_coefficent_data - inconsistent index and ids.\n");
+                                    "Field_Discrete::update_coefficient_data - inconsistent index and ids.\n");
                         }
                     }
                 }
@@ -187,7 +187,7 @@ namespace moris
 
             // check that maps for all used coefficients have been populated
             MORIS_ASSERT ( mNumberOfCoefficients == (sint)tCounter,
-                    "Field_Discrete::update_coefficent_data - inconsistent map counter.\n");
+                    "Field_Discrete::update_coefficient_data - inconsistent map counter.\n");
 
             // create distributed vectors for node value computation
             sol::Matrix_Vector_Factory tDistributedFactory;

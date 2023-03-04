@@ -8,8 +8,8 @@
  *
  */
 
-#ifndef SRC_DISTLINALG_CL_DLA_LINEAR_SYSTEM_TRILISOS_HPP_
-#define SRC_DISTLINALG_CL_DLA_LINEAR_SYSTEM_TRILISOS_HPP_
+#ifndef SRC_DISTLINALG_CL_DLA_LINEAR_SYSTEM_TRILINOS_HPP_
+#define SRC_DISTLINALG_CL_DLA_LINEAR_SYSTEM_TRILINOS_HPP_
 
 #include <map>
 #include <vector>
@@ -66,4 +66,4 @@ namespace moris
         };
     }    // namespace dla
 }    // namespace moris
-#endif /* SRC_DISTLINALG_CL_DLA_LINEAR_SYSTEM_TRILISOS_HPP_ */
+#endif /* SRC_DISTLINALG_CL_DLA_LINEAR_SYSTEM_TRILINOS_HPP_ */

@@ -31,11 +31,11 @@ namespace moris::mig
         // mesh manager containing ip and ig meshes
         std::shared_ptr< moris::mtk::Mesh_Manager > mMeshManager;
 
-        //parameter list
-        moris::ParameterList                       mParameterList;
+        // parameter list
+        moris::ParameterList                        mParameterList;
 
-        //geomtry engine in order to link newly created nodes
-        moris::ge::Geometry_Engine*                  mGeometryEngine;
+        // geometry engine in order to link newly created nodes
+        moris::ge::Geometry_Engine*                 mGeometryEngine;
 
       public:
 

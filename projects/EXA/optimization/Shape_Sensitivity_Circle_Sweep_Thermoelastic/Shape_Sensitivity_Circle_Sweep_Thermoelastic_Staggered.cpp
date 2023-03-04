@@ -646,7 +646,7 @@ namespace moris
         tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();
         tParameterlist( 3 )( 1 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
         tParameterlist( 3 )( 1 ).set( "NLA_DofTypes", "TEMP" );
-        tParameterlist( 3 )( 1 ).set( "NLA_Secundary_DofTypes", "UX,UY" );
+        tParameterlist( 3 )( 1 ).set( "NLA_Secondary_DofTypes", "UX,UY" );
 
         tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();
         tParameterlist( 3 )( 2 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
@@ -663,7 +663,7 @@ namespace moris
         tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY;TEMP" );
         tParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "UX,0.0;UY,0.0;TEMP,0.0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
-        tParameterlist( 5 )( 0 ).set( "TSA_Output_Crteria", "Output_Criterion" );
+        tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
     }

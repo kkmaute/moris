@@ -178,8 +178,8 @@ namespace moris::mtk
 
         // Resize the connectivity info for the cluster based on the right size
         // need to call resize since we will be using transform on these cells
-        mIGMeshInfo->mCellClusterToPrimaryIGCellIndecies.resize( tPrimaryCellOffset );
-        mIGMeshInfo->mCellClusterToVoidIGCellIndecies.resize( tVoidCellOffset );
+        mIGMeshInfo->mCellClusterToPrimaryIGCellIndices.resize( tPrimaryCellOffset );
+        mIGMeshInfo->mCellClusterToVoidIGCellIndices.resize( tVoidCellOffset );
         mIGMeshInfo->mCellClusterToVertexIndices.resize( tVertexOffset );
 
         // set the size of the matrix pointer
@@ -219,7 +219,7 @@ namespace moris::mtk
             std::transform( 
                 tPrimaryCells.cbegin(),
                 tPrimaryCells.cend(),
-                mIGMeshInfo->mCellClusterToPrimaryIGCellIndecies.begin() + mOutputMesh->mCellClusterToPrimaryIGCellOffSet( iCluster ),
+                mIGMeshInfo->mCellClusterToPrimaryIGCellIndices.begin() + mOutputMesh->mCellClusterToPrimaryIGCellOffSet( iCluster ),
                 []( moris::mtk::Cell const *aCell ) 
                 {
                     return aCell->get_index(); 
@@ -228,7 +228,7 @@ namespace moris::mtk
             std::transform( 
                 tVoidCells.cbegin(),
                 tVoidCells.cend(),
-                mIGMeshInfo->mCellClusterToVoidIGCellIndecies.begin() + mOutputMesh->mCellClusterToVoidIGCellOffset( iCluster ),
+                mIGMeshInfo->mCellClusterToVoidIGCellIndices.begin() + mOutputMesh->mCellClusterToVoidIGCellOffset( iCluster ),
                 []( moris::mtk::Cell const *aCell ) 
                 {
                     return aCell->get_index();
@@ -327,8 +327,8 @@ namespace moris::mtk
         }
 
         // use resize instead of reserve because we will use transfrom function
-        mIGMeshInfo->mSideClusterToPrimaryIGCellIndecies.resize( tPrimaryCellOffset );
-        mIGMeshInfo->mSideClusterToVoidIGCellIndecies.resize( tVoidCellOffset );
+        mIGMeshInfo->mSideClusterToPrimaryIGCellIndices.resize( tPrimaryCellOffset );
+        mIGMeshInfo->mSideClusterToVoidIGCellIndices.resize( tVoidCellOffset );
         mIGMeshInfo->mSideClusterToVertexIndices.resize( tVertexOffSet );
 
         // we will use .insert on this so reserve is enough
@@ -375,7 +375,7 @@ namespace moris::mtk
                 std::transform( 
                     tPrimaryCells.cbegin(),
                     tPrimaryCells.cend(),
-                    mIGMeshInfo->mSideClusterToPrimaryIGCellIndecies.begin() + mOutputMesh->mSideClusterToPrimaryIGCellOffset( iCounter ),
+                    mIGMeshInfo->mSideClusterToPrimaryIGCellIndices.begin() + mOutputMesh->mSideClusterToPrimaryIGCellOffset( iCounter ),
                     []( moris::mtk::Cell const* aCell ) 
                     { 
                         return aCell->get_index(); 
@@ -972,7 +972,7 @@ namespace moris::mtk
         this->create_ghost_sets();
 
         // set up cell toplogy map that will be used in the collect set function
-        this->set_blockset_toplogy();
+        this->set_blockset_topology();
 
         // collect all sets to clean up the lists
         mOutputMesh->collect_all_sets();
@@ -1076,18 +1076,18 @@ namespace moris::mtk
     Integration_Mesh_Editor::create_cell_clusters()
     {
         // create pointers with the parent class for the connectivity of the cell cluster
-        mOutputMesh->mCellClusterToPrimaryIGCell.reserve( mIGMeshInfo->mCellClusterToPrimaryIGCellIndecies.size() );
-        mOutputMesh->mCellClusterToVoidIGCell.reserve( mIGMeshInfo->mCellClusterToVoidIGCellIndecies.size() );
+        mOutputMesh->mCellClusterToPrimaryIGCell.reserve( mIGMeshInfo->mCellClusterToPrimaryIGCellIndices.size() );
+        mOutputMesh->mCellClusterToVoidIGCell.reserve( mIGMeshInfo->mCellClusterToVoidIGCellIndices.size() );
         mOutputMesh->mCellClusterToVeretx.reserve( mIGMeshInfo->mCellClusterToVertexIndices.size() );
 
         // populate the cell cluster to primary cell connectivity list
-        for ( const int &iPrimaryCell : mIGMeshInfo->mCellClusterToPrimaryIGCellIndecies )
+        for ( const int &iPrimaryCell : mIGMeshInfo->mCellClusterToPrimaryIGCellIndices )
         {
             mOutputMesh->mCellClusterToPrimaryIGCell.push_back( &mOutputMesh->mCells( iPrimaryCell ) );
         }
 
         // populate the cell cluster to void cell connectivity list
-        for ( const int &iVoidCell : mIGMeshInfo->mCellClusterToVoidIGCellIndecies )
+        for ( const int &iVoidCell : mIGMeshInfo->mCellClusterToVoidIGCellIndices )
         {
             mOutputMesh->mCellClusterToVoidIGCell.push_back( &mOutputMesh->mCells( iVoidCell ) );
         }
@@ -1124,19 +1124,19 @@ namespace moris::mtk
     Integration_Mesh_Editor::create_side_clusters()
     {
         // create pointers with the parent class for the connectivity of the cell cluster
-        mOutputMesh->mSideClusterToPrimaryIGCell.reserve( mIGMeshInfo->mSideClusterToPrimaryIGCellIndecies.size() );
+        mOutputMesh->mSideClusterToPrimaryIGCell.reserve( mIGMeshInfo->mSideClusterToPrimaryIGCellIndices.size() );
         // mSideClusterToVoidIGCell.reserve();
         mOutputMesh->mSideClusterToVeretx.reserve( mIGMeshInfo->mSideClusterToVertexIndices.size() );
 
 
         // populate the cell cluster to primary cell connectivity list
-        for ( const int &iPrimaryCell : mIGMeshInfo->mSideClusterToPrimaryIGCellIndecies )
+        for ( const int &iPrimaryCell : mIGMeshInfo->mSideClusterToPrimaryIGCellIndices )
         {
             mOutputMesh->mSideClusterToPrimaryIGCell.push_back( &mOutputMesh->mCells( iPrimaryCell ) );
         }
 
         // populate the cell cluster to void cell connectivity list
-        // for ( const int& iVoidCell : mIGDataBase->mCellClusterToVoidIGCellIndecies )
+        // for ( const int& iVoidCell : mIGDataBase->mCellClusterToVoidIGCellIndices )
         // {
         //     mCellClusterToVoidIGCell.push_back( &mCells( iVoidCell ) );
         // }
@@ -1491,7 +1491,7 @@ namespace moris::mtk
     //-----------------------------------------------------------------------------
 
     void
-    Integration_Mesh_Editor::set_blockset_toplogy()
+    Integration_Mesh_Editor::set_blockset_topology()
     {
         // loop over the block sets to constrcut a map between names and set toplogy
         for ( const auto &tSet : mOutputMesh->mListofBlocks )
@@ -1559,13 +1559,13 @@ namespace moris::mtk
         }
 
         // create ids, this is created for parallel representation only now
-        this->create_parallel_consistnet_new_vertex_ids( tNumPreviousVertices );
+        this->create_parallel_consistent_new_vertex_ids( tNumPreviousVertices );
     }
 
     // ----------------------------------------------------------------------------
 
     void
-    Integration_Mesh_Editor::create_parallel_consistnet_new_vertex_ids( moris_index aNumPreviousVertices )
+    Integration_Mesh_Editor::create_parallel_consistent_new_vertex_ids( moris_index aNumPreviousVertices )
     {
         // resize the vertex id list
         mOutputMesh->mVertexIdList.resize( mOutputMesh->mVertices.size() );
@@ -1737,7 +1737,7 @@ namespace moris::mtk
         this->add_double_sided_set( aDoubleSidedClustersIndex, aNumGeometry );
         
         //reconstruct connectivity that is based in pointers
-        this->reconstrcut_connectivity();
+        this->reconstruct_connectivity();
 
         //reconstrcut double sided sets
         this->merge_meshes();
@@ -2020,7 +2020,7 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------------------------------------
     void
-    Integration_Mesh_Editor::reconstrcut_connectivity()
+    Integration_Mesh_Editor::reconstruct_connectivity()
     {
         uint iCounter = 0;
         // populate the cell to vertex connectivity list
@@ -2032,7 +2032,7 @@ namespace moris::mtk
 
         iCounter = 0;
         // populate the cell cluster to primary cell connectivity list
-        for ( const int &iPrimaryCell : mIGMeshInfo->mCellClusterToPrimaryIGCellIndecies )
+        for ( const int &iPrimaryCell : mIGMeshInfo->mCellClusterToPrimaryIGCellIndices )
         {
             mOutputMesh->mCellClusterToPrimaryIGCell( iCounter ) = &mOutputMesh->mCells( iPrimaryCell );
             iCounter++;
@@ -2040,7 +2040,7 @@ namespace moris::mtk
 
         iCounter = 0;
         // populate the cell cluster to void cell connectivity list
-        for ( const int &iVoidCell : mIGMeshInfo->mCellClusterToVoidIGCellIndecies )
+        for ( const int &iVoidCell : mIGMeshInfo->mCellClusterToVoidIGCellIndices )
         {
             mOutputMesh->mCellClusterToVoidIGCell( iCounter ) = &mOutputMesh->mCells( iVoidCell );
             iCounter++;
@@ -2056,7 +2056,7 @@ namespace moris::mtk
 
         iCounter = 0;
         // populate the cell cluster to vertices connectivity list
-        for ( const int &iPrimaryCell : mIGMeshInfo->mSideClusterToPrimaryIGCellIndecies )
+        for ( const int &iPrimaryCell : mIGMeshInfo->mSideClusterToPrimaryIGCellIndices )
         {
             mOutputMesh->mSideClusterToPrimaryIGCell( iCounter ) = &mOutputMesh->mCells( iPrimaryCell );
             iCounter++;

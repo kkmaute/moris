@@ -94,7 +94,7 @@ namespace moris::mig
          */
         void create_dbl_sided_cluster(
             moris::Cell< Matrix< DDRMat > > tP,
-            moris::Cell< moris_index >     &aIndicesinCutCell,
+            moris::Cell< moris_index >     &aIndicesInCutCell,
             moris::mtk::Cell const         &aRightInterpCell,
             moris::mtk::Cell const         &aLeftInterpCell,
             uint                            aPairCount,
@@ -126,7 +126,7 @@ namespace moris::mig
 
         // ----------------------------------------------------------------------------
         /*
-         * constrcuts and add all the double sided sets to the mesh
+         * constructs and add all the double sided sets to the mesh
          * @param[ in ] tPhaseInteractionTable a matrix specifying an index to each phase to phase interaction
          */
         void construct_add_dbl_sided_set( moris::Matrix< IndexMat > tPhaseInteractionTable );
@@ -171,7 +171,7 @@ namespace moris::mig
 
         // ----------------------------------------------------------------------------
         /*
-         * Gives the rotation matrix and inverse roation matrix
+         * Gives the rotation matrix and inverse rotation matrix
          * InverseRotation matrix converts 3d coordinates to sudo-2d
          * Rotation matrix converts sudo-2d coordinates 3d
          * @param[ in ] aPairCount Number of the pair in the periodic side set pair
@@ -240,7 +240,7 @@ namespace moris::mig
          * @param[ out ] indices which we should use
          */
         void
-        group_cut_cells( moris::Matrix< IndexMat > const                  &aCutCellIndetiferMatrix,
+        group_cut_cells( moris::Matrix< IndexMat > const                  &aCutCellIdentifierMatrix,
             std::unordered_map< moris_index, moris::Cell< moris_index > > &aCutCellIdentifierToCutCellIndex ) const;
 
         // ----------------------------------------------------------------------------

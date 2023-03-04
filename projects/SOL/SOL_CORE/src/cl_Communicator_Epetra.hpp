@@ -40,5 +40,5 @@ public:
     Epetra_Comm* get_epetra_comm() { return mEpetraComm; }
 };
 }
-#endif /* SRC_DISTLINALG_CL_COMMUNUCATOR_EPETRA_HPP_ */
+#endif /* SRC_DISTLINALG_CL_COMMUNICATOR_EPETRA_HPP_ */
 

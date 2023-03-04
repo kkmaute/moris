@@ -56,7 +56,7 @@ namespace moris
         // P R E C O N I T I O N E R   P A R A M E T E R L I S T //
 
         inline void
-        create_ifpack_precondtitioner_parameterlist( ParameterList& aParameterlist )
+        create_ifpack_preconditioner_parameterlist( ParameterList& aParameterlist )
         {
             // ASSIGN DEFAULT PARAMETER VALUES
             // Robust Algebraic Preconditioners using IFPACK 3.0, SAND REPORT, SAND2005-0662,
@@ -173,7 +173,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         inline void
-        create_ml_precondtitioner_parameterlist( ParameterList& aParameterlist )
+        create_ml_preconditioner_parameterlist( ParameterList& aParameterlist )
         {
             // General Parameters
 
@@ -288,7 +288,7 @@ namespace moris
             // options are AZ_all, AZ_none, AZ_warnings, AZ_last, AZ_summary
             tLinAlgorithmParameterList.insert( "AZ_output", INT_MAX );
 
-            // Determines the submatrices factored with the domain decomposition algorithms
+            // Determines the sub-matrices factored with the domain decomposition algorithms
             // Option to specify with how many rows from other processors each processor's local submatrix is augmented.
             tLinAlgorithmParameterList.insert( "AZ_overlap", INT_MAX );
 
@@ -329,7 +329,7 @@ namespace moris
             // matrix that is used to compute any of the incomplete factorization preconditioners
             tLinAlgorithmParameterList.insert( "AZ_athresh", -1.0 );
 
-            //--------------------------Preconsitioner specific parameters--------------------------
+            //--------------------------Preconditioner specific parameters--------------------------
             // Determine which preconditioner is used
             // Options are AZ_none, AZ_Jacobi, AZ_sym_GS, AZ_Neumann, AZ_ls, AZ_dom_decomp,
             tLinAlgorithmParameterList.insert( "AZ_precond", INT_MAX );
@@ -354,10 +354,10 @@ namespace moris
             tLinAlgorithmParameterList.insert( "AZ_omega", -1.0 );
 
             // add parameters from ifpack preconditioner
-            create_ifpack_precondtitioner_parameterlist( tLinAlgorithmParameterList );
+            create_ifpack_preconditioner_parameterlist( tLinAlgorithmParameterList );
 
             // add parameters from ml preconditioner
-            create_ml_precondtitioner_parameterlist( tLinAlgorithmParameterList );
+            create_ml_preconditioner_parameterlist( tLinAlgorithmParameterList );
 
             return tLinAlgorithmParameterList;
         }
@@ -455,10 +455,10 @@ namespace moris
             tLinAlgorithmParameterList.insert( "Output Frequency", -1 );
 
             // add parameters from ifpack preconditioner
-            create_ifpack_precondtitioner_parameterlist( tLinAlgorithmParameterList );
+            create_ifpack_preconditioner_parameterlist( tLinAlgorithmParameterList );
 
             // add parameters from ml preconditioner
-            create_ml_precondtitioner_parameterlist( tLinAlgorithmParameterList );
+            create_ml_preconditioner_parameterlist( tLinAlgorithmParameterList );
 
             return tLinAlgorithmParameterList;
         }
@@ -581,7 +581,7 @@ namespace moris
             tNonLinAlgorithmParameterList.insert( "NLA_relaxation_damping", 0.5 );
 
             // Load control strategy
-            tNonLinAlgorithmParameterList.insert( "NLA_laod_control_strategy", (uint)( sol::SolverLoadControlType::Constant ) );
+            tNonLinAlgorithmParameterList.insert( "NLA_load_control_strategy", (uint)( sol::SolverLoadControlType::Constant ) );
 
             // Initial load factor
             tNonLinAlgorithmParameterList.insert( "NLA_load_control_factor", 1.0 );
@@ -680,7 +680,7 @@ namespace moris
 
             tNonLinSolverParameterList.insert( "NLA_DofTypes", "UNDEFINED" );
 
-            tNonLinSolverParameterList.insert( "NLA_Secundary_DofTypes", "UNDEFINED" );
+            tNonLinSolverParameterList.insert( "NLA_Secondary_DofTypes", "UNDEFINED" );
 
             tNonLinSolverParameterList.insert( "NLA_Sub_Nonlinear_Solver", "" );
 
@@ -734,7 +734,7 @@ namespace moris
 
             tTimeParameterList.insert( "TSA_Output_Indices", "0" );
 
-            tTimeParameterList.insert( "TSA_Output_Crteria", "Default_Output_Criterion" );
+            tTimeParameterList.insert( "TSA_Output_Criteria", "Default_Output_Criterion" );
 
             tTimeParameterList.insert( "TSA_Initialize_Sol_Vec", "" );    // initial GUESS
 

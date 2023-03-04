@@ -303,10 +303,78 @@ namespace moris
     void
     Library_IO::load_parameters_from_xml()
     {
-        // check that an XML file has been initialized
-        MORIS_ERROR( mXmlParserIsInitialized, "Library_IO::load_parameters_from_xml() - No XML file has been loaded." );
-
-        // TODO
+// TODO ...
+//         // check that an XML file has been initialized
+//         MORIS_ERROR( mXmlParserIsInitialized, "Library_IO::load_parameters_from_xml() - No XML file has been loaded." );
+// 
+//         // go through the various parameter list names and see if they exist in the provided xml file
+//         for( uint iParamListType = 0; iParamListType < (uint)( Parameter_List_Type::END_ENUM ); iParamListType++ )
+//         {
+//             // get the current enum
+//             Parameter_List_Type tParamListType = (Parameter_List_Type)( iParamListType );
+//             
+//             // get the name of the module, e.g. "HMR"
+//             std::string tModuleName = convert_parameter_list_enum_to_string( tParamListType );
+// 
+//             // find this module name in the XML-tree
+//             size_t tCount = mXmlReader->count_keys_in_subtree( XML_PARAMETER_FILE_ROOT, tModuleName );
+// 
+//             // Make sure that a module is not listed twice 
+//             MORIS_ERROR( tCount < 2, "Library_IO::load_parameters_from_xml() - "
+//                     "Module '%s' has been specified %i times in XML input file. Only one definition allowed.",
+//                     tModuleName,
+//                     tCount );
+// 
+//             // check if an entry for this Module exists in the XML file, if not, skip to next module
+//             if( tCount == 0 )
+//             {
+//                 continue;
+//             }
+// 
+//             // get the number of sub-parameter lists that could be specified
+//             uint tMaxNumSubParamLists = get_number_of_sub_parameter_lists_in_module( tParamListType );
+// 
+//             // get the root of the current Module parameter list
+//             std::string tModuleRoot = XML_PARAMETER_FILE_ROOT + "." + tModuleName;
+// 
+//             // go over each of the sub-parameter lists
+//             for( uint iSubParamList = 0; iSubParamList < tMaxNumSubParamLists; iSubParamList++ )
+//             {
+//                 // get the name for this sub-parameter list
+//                 std::string tOuterSubParamListName = get_outer_sub_parameter_list_name( tParamListType, iSubParamList );
+// 
+//                 // check if the sub-parameter list is found
+//                 size_t tSubParamListCount = mXmlReader->count_keys_in_subtree( tModuleRoot, tOuterSubParamListName );
+//                 MORIS_ERROR( tSubParamListCount < 2, "Library_IO::load_parameters_from_xml() - "
+//                         "Sub-parameter list '%s' in module '%s' has been specified %i times in XML input file. Only one definition allowed.",
+//                         tOuterSubParamListName,
+//                         tModuleName,
+//                         tSubParamListCount );
+// 
+//                 // if the sub-parameter list is missing skip everything here after
+//                 if ( tSubParamListCount == 0 )
+//                 {
+//                     continue;
+//                 }
+// 
+//                 // get the names of the inner parameter lists for this sub-parameter list
+//                 std::string tInnerSubParamListName = get_inner_sub_parameter_list_name( tParamListType, iSubParamList );
+// 
+//                 // if there is no name for the inner parameter list, this is just a general parameter list without inner children                
+//                 
+//                 std::string tInnerSubParamListRoot = tModuleRoot + "." + tOuterSubParamListName;
+//                 if( tInnerSubParamListName != "" )
+//                 {
+//                     tInnerSubParamListRoot = tInnerSubParamListRoot + "." + tInnerSubParamListName;
+//                 }
+// 
+//                 // get the name of the 
+// 
+//                 // count the inner sub-parameter lists if there are any
+// 
+//             }
+// 
+//         }
     }
 
     //------------------------------------------------------------------------------------------------------------------

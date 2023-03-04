@@ -114,7 +114,7 @@ namespace moris
             mUpdateNodalValues = true;
 
             // update coefficient data as underlying discretization may have changed
-            this->update_coefficent_data();
+            this->update_coefficient_data();
 
             // lock mesh
             mFieldIsLocked = true;
@@ -129,7 +129,7 @@ namespace moris
             mUpdateNodalValues = true;
 
             // update coefficient data as underlying discretization may have changed
-            this->update_coefficent_data();
+            this->update_coefficient_data();
 
             // lock mesh
             mFieldIsLocked = true;

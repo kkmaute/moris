@@ -40,7 +40,7 @@ namespace moris
 
             Epetra_Map * mEpetraMap             = nullptr;
             Epetra_Map * mEpetraPointMap        = nullptr;
-            Epetra_Map * mFullOverlappigMap     = nullptr;   //FIXME move this map to the solver warehouse
+            Epetra_Map * mFullOverlappingMap     = nullptr;   //FIXME move this map to the solver warehouse
 
             Epetra_MultiVector *mFullToFreePoint = nullptr;
 

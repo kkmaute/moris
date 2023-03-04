@@ -624,7 +624,7 @@ Matrix<DDRMat> compute_dconstraint_dcriteria(Matrix<DDRMat> aADVs, Matrix<DDRMat
         tParameterlist( 5 )( 0 ).set("TSA_DofTypes",           "UX,UY,TEMP");
         tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec", "UX,0.0;UY,0.0;TEMP,0.0");
         tParameterlist( 5 )( 0 ).set("TSA_Output_Indices",     "0");
-        tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria",     "Output_Criterion");
+        tParameterlist( 5 )( 0 ).set("TSA_Output_Criteria",     "Output_Criterion");
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
     }

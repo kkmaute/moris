@@ -97,7 +97,7 @@ namespace moris
     // maximum number of Newton steps
     int tNLA_max_iter = 20;
 
-    // required drop of resdiual
+    // required drop of residual
     moris::real tNLA_rel_res_norm_drop = 1e-3;
 
     // relaxation parameter
@@ -181,7 +181,7 @@ namespace moris
     }
 
     /* ------------------------------------------------------------------------ */
-    // function to dtermine when to oupt results
+    // function to determine when to output results
 
     bool
     Output_Criterion( moris::tsa::Time_Solver* aTimeSolver )
@@ -250,7 +250,7 @@ namespace moris
         // init property counter
         uint tPropCounter = 0;
 
-        // soild properties ------------------------------------------------------------
+        // solid properties ------------------------------------------------------------
 
         tParameterList( tPropIndex ).push_back( prm::create_property_parameter_list() );
         tParameterList( tPropIndex )( tPropCounter ).set( "property_name", "PropDensity" );
@@ -543,7 +543,7 @@ namespace moris
         //        tParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "VX,0.0;VY,0.0;P,0.0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "VX," + moris_to_string( tVelIn ) + ";VY,0.0;P,0.0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
-        tParameterlist( 5 )( 0 ).set( "TSA_Output_Crteria", "Output_Criterion" );
+        tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
         if ( tUseTimeContinuity )
         {

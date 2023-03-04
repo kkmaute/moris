@@ -100,7 +100,7 @@ namespace moris
              * Add global valued to the distributed vector.
              *
              * @param[in] aNumMyDof            Number of entries which will be inserted.
-             * @param[in] aEleDofConectivity   Position where to place the entriess.
+             * @param[in] aEleDofConnectivity   Position where to place the entries.
              * @param[in] aRHSVal              Array with values.
              *
              */
@@ -150,7 +150,7 @@ namespace moris
             virtual void vec_put_scalar( const moris::real& aValue ) = 0;
 
             /**
-             * Inserts random values into vactor.
+             * Inserts random values into vector.
              *
              */
             virtual void random() = 0;

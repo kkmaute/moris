@@ -25,7 +25,7 @@ using namespace moris;
 using namespace dla;
 
 Preconditioner_PETSc::Preconditioner_PETSc( Linear_Solver_PETSc *aLinearSolverAlgoritm )
-        : mLinearSolverAlgoritm( aLinearSolverAlgoritm )
+        : mLinearSolverAlgorithm( aLinearSolverAlgoritm )
 {
 }
 
@@ -40,34 +40,34 @@ Preconditioner_PETSc::build_ilu_preconditioner( Linear_Problem *aLinearSystem )
 
     // write preconditioner to log file
     MORIS_LOG_INFO( "KSP Preconditioner: ilu(%d)",
-            mLinearSolverAlgoritm->mParameterList.get< moris::sint >( "ILUFill" ) );
+            mLinearSolverAlgorithm->mParameterList.get< moris::sint >( "ILUFill" ) );
 
     // Set PC type
-    PCSetType( mLinearSolverAlgoritm->mpc, "ilu" );
+    PCSetType( mLinearSolverAlgorithm->mpc, "ilu" );
 
     // Set operators
     PCSetOperators(
-            mLinearSolverAlgoritm->mpc,
+            mLinearSolverAlgorithm->mpc,
             aLinearSystem->get_matrix()->get_petsc_matrix(),
             aLinearSystem->get_matrix()->get_petsc_matrix() );
 
     // Set levels of fill for ILU
     PCFactorSetLevels(
-            mLinearSolverAlgoritm->mpc,
-            mLinearSolverAlgoritm->mParameterList.get< moris::sint >( "ILUFill" ) );
+            mLinearSolverAlgorithm->mpc,
+            mLinearSolverAlgorithm->mParameterList.get< moris::sint >( "ILUFill" ) );
 
     // Set drop tolerance for Ilu
     PCFactorSetDropTolerance(
-            mLinearSolverAlgoritm->mpc,
-            mLinearSolverAlgoritm->mParameterList.get< moris::real >( "ILUTol" ),
+            mLinearSolverAlgorithm->mpc,
+            mLinearSolverAlgorithm->mParameterList.get< moris::real >( "ILUTol" ),
             PETSC_DEFAULT,
             PETSC_DEFAULT );
 
     // Set preconditioner options from the options database
-    PCSetFromOptions( mLinearSolverAlgoritm->mpc );
+    PCSetFromOptions( mLinearSolverAlgorithm->mpc );
 
     // Finalize setup of preconditioner
-    PCSetUp( mLinearSolverAlgoritm->mpc );
+    PCSetUp( mLinearSolverAlgorithm->mpc );
 }
 
 //----------------------------------------------------------------------------------------
@@ -76,32 +76,32 @@ void
 Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLinearSystem )
 {
     // get number of mg levels
-    sint tLevels = mLinearSolverAlgoritm->mParameterList.get< moris::sint >( "MultigridLevels" );
+    sint tLevels = mLinearSolverAlgorithm->mParameterList.get< moris::sint >( "MultigridLevels" );
 
     // write preconditioner to log file
     MORIS_LOG_INFO( "KSP Preconditioner: mg(%d)", tLevels );
 
     // Set PC type
-    PCSetType( mLinearSolverAlgoritm->mpc, "mg" );
+    PCSetType( mLinearSolverAlgorithm->mpc, "mg" );
 
     //----------------------------------------------------------------
     //                 Set general multigrid stuff
     //----------------------------------------------------------------
 
     // Build multigrid operators
-    mLinearSolverAlgoritm->mSolverInterface->build_multigrid_operators();
+    mLinearSolverAlgorithm->mSolverInterface->build_multigrid_operators();
 
     // get multigrid operators
     moris::Cell< sol::Dist_Matrix * > tProlongationList =
-            mLinearSolverAlgoritm->mSolverInterface
+            mLinearSolverAlgorithm->mSolverInterface
                     ->get_multigrid_operator_pointer()
                     ->get_prolongation_list();
 
     // set multigrid levels and type
-    PCMGSetLevels( mLinearSolverAlgoritm->mpc, tLevels, NULL );
+    PCMGSetLevels( mLinearSolverAlgorithm->mpc, tLevels, NULL );
 
-    PCMGSetType( mLinearSolverAlgoritm->mpc, PC_MG_MULTIPLICATIVE );
-    PCMGSetGalerkin( mLinearSolverAlgoritm->mpc, PC_MG_GALERKIN_BOTH );
+    PCMGSetType( mLinearSolverAlgorithm->mpc, PC_MG_MULTIPLICATIVE );
+    PCMGSetGalerkin( mLinearSolverAlgorithm->mpc, PC_MG_GALERKIN_BOTH );
 
     // get restriction operators
     moris::Cell< Mat > tTransposeOperators( tProlongationList.size() );
@@ -122,8 +122,8 @@ Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLinearSys
     moris::sint tCounter = 0;
     for ( moris::sint Ik = tLevels - 1; Ik > 0; Ik-- )
     {
-        PCMGSetInterpolation( mLinearSolverAlgoritm->mpc, Ik, tTransposeOperators( tCounter ) );
-        //         PCMGSetRestriction( mLinearSolverAlgoritm->mpc, Ik, tTransposeOperators( tCounter ) );
+        PCMGSetInterpolation( mLinearSolverAlgorithm->mpc, Ik, tTransposeOperators( tCounter ) );
+        //         PCMGSetRestriction( mLinearSolverAlgorithm->mpc, Ik, tTransposeOperators( tCounter ) );
 
         tCounter++;
     }
@@ -138,7 +138,7 @@ Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLinearSys
     //                 Set coarsest level settings
     //----------------------------------------------------------------
     KSP tPetscKSPCoarseSolve;
-    PCMGGetCoarseSolve( mLinearSolverAlgoritm->mpc, &tPetscKSPCoarseSolve );
+    PCMGGetCoarseSolve( mLinearSolverAlgorithm->mpc, &tPetscKSPCoarseSolve );
     KSPSetType( tPetscKSPCoarseSolve, KSPRICHARDSON );
     PetscInt maxitss = 1000;
     KSPSetTolerances( tPetscKSPCoarseSolve, 1.e-10, PETSC_DEFAULT, PETSC_DEFAULT, maxitss );
@@ -150,21 +150,21 @@ Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLinearSys
     //                 Set schwarz preconditioner for finest level
     //----------------------------------------------------------------
 
-    if ( mLinearSolverAlgoritm->mParameterList.get< bool >( "MG_use_schwarz_smoother" ) )
+    if ( mLinearSolverAlgorithm->mParameterList.get< bool >( "MG_use_schwarz_smoother" ) )
     {
         // set schwarz preconditiiner domains based on criteria
         moris::real tVolumeFractionThreshold =    //
-                mLinearSolverAlgoritm->mParameterList.get< moris::real >( "ASM_volume_fraction_threshold" );
+                mLinearSolverAlgorithm->mParameterList.get< moris::real >( "ASM_volume_fraction_threshold" );
         moris::sint tSchwarzSmoothingIters =    //
-                mLinearSolverAlgoritm->mParameterList.get< moris::sint >( "MG_schwarz_smoothing_iters" );
+                mLinearSolverAlgorithm->mParameterList.get< moris::sint >( "MG_schwarz_smoothing_iters" );
 
         moris::Cell< moris::Matrix< IdMat > > tCriteriaIds;
-        mLinearSolverAlgoritm->mSolverInterface->get_adof_ids_based_on_criteria( tCriteriaIds,
+        mLinearSolverAlgorithm->mSolverInterface->get_adof_ids_based_on_criteria( tCriteriaIds,
                 tVolumeFractionThreshold );
 
         //---------------------------------------------------------------
 
-        uint tNumSerialDofs = mLinearSolverAlgoritm->mSolverInterface->get_num_my_dofs();
+        uint tNumSerialDofs = mLinearSolverAlgorithm->mSolverInterface->get_num_my_dofs();
 
         moris::Matrix< DDSMat > tMat( tNumSerialDofs, 1, 0 );
 
@@ -204,8 +204,8 @@ Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLinearSys
         //---------------------------------------------------------------
 
         KSP dKSPFirstDown;
-        PCMGGetSmootherDown( mLinearSolverAlgoritm->mpc, tLevels - 1, &dKSPFirstDown );
-        PCMGGetSmootherUp( mLinearSolverAlgoritm->mpc, tLevels - 1, &dKSPFirstDown );
+        PCMGGetSmootherDown( mLinearSolverAlgorithm->mpc, tLevels - 1, &dKSPFirstDown );
+        PCMGGetSmootherUp( mLinearSolverAlgorithm->mpc, tLevels - 1, &dKSPFirstDown );
         PC dPCFirstDown;
         KSPGetPC( dKSPFirstDown, &dPCFirstDown );
         KSPSetType( dKSPFirstDown, KSPRICHARDSON );
@@ -263,7 +263,7 @@ Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLinearSys
     else
     {
         KSP dkspDown1;
-        PCMGGetSmootherDown( mLinearSolverAlgoritm->mpc, tLevels - 1, &dkspDown1 );
+        PCMGGetSmootherDown( mLinearSolverAlgorithm->mpc, tLevels - 1, &dkspDown1 );
         PC dpcDown;
         KSPGetPC( dkspDown1, &dpcDown );
         KSPSetType( dkspDown1, KSPRICHARDSON );    // KSPCG, KSPGMRES, KSPCHEBYSHEV (VERY GOOD FOR SPD)
@@ -276,7 +276,7 @@ Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLinearSys
         PCSORSetIterations( dpcDown, 1, 1 );
 
         KSP dkspUp1;
-        PCMGGetSmootherUp( mLinearSolverAlgoritm->mpc, tLevels - 1, &dkspUp1 );
+        PCMGGetSmootherUp( mLinearSolverAlgorithm->mpc, tLevels - 1, &dkspUp1 );
         PC dpcUp;
         KSPGetPC( dkspUp1, &dpcUp );
         KSPSetType( dkspUp1, KSPRICHARDSON );    // KSPCG, KSPGMRES, KSPCHEBYSHEV (VERY GOOD FOR SPD)
@@ -293,7 +293,7 @@ Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLinearSys
     for ( PetscInt Ik = 1; Ik < tLevels - 1; Ik++ )
     {
         KSP dkspDown;
-        PCMGGetSmootherDown( mLinearSolverAlgoritm->mpc, Ik, &dkspDown );
+        PCMGGetSmootherDown( mLinearSolverAlgorithm->mpc, Ik, &dkspDown );
         PC dpcDown;
         KSPGetPC( dkspDown, &dpcDown );
         KSPSetType( dkspDown, KSPRICHARDSON );    // KSPCG, KSPGMRES, KSPCHEBYSHEV (VERY GOOD FOR SPD)
@@ -307,7 +307,7 @@ Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLinearSys
     {
         KSP dkspUp;
 
-        PCMGGetSmootherUp( mLinearSolverAlgoritm->mpc, k, &dkspUp );
+        PCMGGetSmootherUp( mLinearSolverAlgorithm->mpc, k, &dkspUp );
         PC dpcUp;
         KSPGetPC( dkspUp, &dpcUp );
         KSPSetType( dkspUp, KSPRICHARDSON );
@@ -329,16 +329,16 @@ Preconditioner_PETSc::build_schwarz_preconditioner_petsc()
     MORIS_LOG_INFO( "KSP Preconditioner: asm" );
 
     // Set PC type
-    PCSetType( mLinearSolverAlgoritm->mpc, "asm" );
+    PCSetType( mLinearSolverAlgorithm->mpc, "asm" );
 
-    // set schwarz preconditiiner domains based on criteria
-    moris::real tVolumeFractionThreshold = mLinearSolverAlgoritm->mParameterList.get< moris::real >( "ASM_volume_fraction_threshold" );
+    // set schwarz preconditioner domains based on criteria
+    moris::real tVolumeFractionThreshold = mLinearSolverAlgorithm->mParameterList.get< moris::real >( "ASM_volume_fraction_threshold" );
 
     moris::Cell< moris::Matrix< IdMat > > tCriteriaIds;
-    mLinearSolverAlgoritm->mSolverInterface->get_adof_ids_based_on_criteria( tCriteriaIds,
+    mLinearSolverAlgorithm->mSolverInterface->get_adof_ids_based_on_criteria( tCriteriaIds,
             tVolumeFractionThreshold );
 
-    uint tNumSerialDofs = mLinearSolverAlgoritm->mSolverInterface->get_num_my_dofs();
+    uint tNumSerialDofs = mLinearSolverAlgorithm->mSolverInterface->get_num_my_dofs();
 
     moris::Matrix< DDSMat > tMat( tNumSerialDofs, 1, 0 );
 
@@ -379,11 +379,11 @@ Preconditioner_PETSc::build_schwarz_preconditioner_petsc()
 
     sint tNumBlocks = tCriteriaIds.size();
 
-    PCSetType( mLinearSolverAlgoritm->mpc, PCASM );
+    PCSetType( mLinearSolverAlgorithm->mpc, PCASM );
 
-    PCASMSetLocalType( mLinearSolverAlgoritm->mpc, PC_COMPOSITE_ADDITIVE );
-    PCASMSetType( mLinearSolverAlgoritm->mpc, PC_ASM_BASIC );
-    PCASMSetOverlap( mLinearSolverAlgoritm->mpc, 0 );
+    PCASMSetLocalType( mLinearSolverAlgorithm->mpc, PC_COMPOSITE_ADDITIVE );
+    PCASMSetType( mLinearSolverAlgorithm->mpc, PC_ASM_BASIC );
+    PCASMSetOverlap( mLinearSolverAlgorithm->mpc, 0 );
 
     moris::Cell< IS > tIs( tNumBlocks );
 
@@ -393,13 +393,13 @@ Preconditioner_PETSc::build_schwarz_preconditioner_petsc()
         //         ISView( tIs( Ik ) , PETSC_VIEWER_STDOUT_SELF );
     }
 
-    PCASMSetLocalSubdomains( mLinearSolverAlgoritm->mpc, tNumBlocks, NULL, tIs.data().data() );
+    PCASMSetLocalSubdomains( mLinearSolverAlgorithm->mpc, tNumBlocks, NULL, tIs.data().data() );
 
-    KSPSetUp( mLinearSolverAlgoritm->mPetscKSPProblem );
+    KSPSetUp( mLinearSolverAlgorithm->mPetscKSPProblem );
 
     KSP *tSubksp;
 
-    PCASMGetSubKSP( mLinearSolverAlgoritm->mpc, NULL, NULL, &tSubksp );
+    PCASMGetSubKSP( mLinearSolverAlgorithm->mpc, NULL, NULL, &tSubksp );
 
     Cell< PC > tPCBlock( tNumBlocks );
     for ( sint Ik = 0; Ik < tNumBlocks; Ik++ )
@@ -425,16 +425,16 @@ Preconditioner_PETSc::build_schwarz_preconditioner( Linear_Problem *aLinearSyste
     MORIS_LOG_INFO( "KSP Preconditioner: asm - mat" );
 
     // Set PC type
-    PCSetType( mLinearSolverAlgoritm->mpc, "mat" );
+    PCSetType( mLinearSolverAlgorithm->mpc, "mat" );
 
     // set schwarz preconditiiner domains based on criteria
-    moris::real tVolumeFractionThreshold = mLinearSolverAlgoritm->mParameterList.get< moris::real >( "ASM_volume_fraction_threshold" );
+    moris::real tVolumeFractionThreshold = mLinearSolverAlgorithm->mParameterList.get< moris::real >( "ASM_volume_fraction_threshold" );
 
     moris::Cell< moris::Matrix< IdMat > > tCriteriaIds;
-    mLinearSolverAlgoritm->mSolverInterface->get_adof_ids_based_on_criteria( tCriteriaIds,
+    mLinearSolverAlgorithm->mSolverInterface->get_adof_ids_based_on_criteria( tCriteriaIds,
             tVolumeFractionThreshold );
 
-    uint tNumSerialDofs = mLinearSolverAlgoritm->mSolverInterface->get_num_my_dofs();
+    uint tNumSerialDofs = mLinearSolverAlgorithm->mSolverInterface->get_num_my_dofs();
 
     moris::Matrix< DDSMat > tMat( tNumSerialDofs, 1, 0 );
 

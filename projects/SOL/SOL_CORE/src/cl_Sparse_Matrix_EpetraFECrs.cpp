@@ -102,15 +102,15 @@ void Sparse_Matrix_EpetraFECrs::dirichlet_BC_vector(
 void Sparse_Matrix_EpetraFECrs::fill_matrix(
         const moris::uint             & aNumMyDofs,
         const moris::Matrix< DDRMat > & aA_val,
-        const moris::Matrix< DDSMat > & aEleDofConectivity )
+        const moris::Matrix< DDSMat > & aEleDofConnectivity )
 {
     if( mMatBuildWithPointMap )
     {
         Matrix< IdMat > tPointFreeIds;
-        mMap->translate_ids_to_free_point_ids( aEleDofConectivity, tPointFreeIds, false );
+        mMap->translate_ids_to_free_point_ids( aEleDofConnectivity, tPointFreeIds, false );
 
         // insert values to matrix
-        //mEpetraMat->SumIntoGlobalValues(aNumMyDofs, mem_pointer( aEleDofConectivity ), mem_pointer( aA_val ), Epetra_FECrsMatrix::ROW_MAJOR);
+        //mEpetraMat->SumIntoGlobalValues(aNumMyDofs, mem_pointer( aEleDofConnectivity ), mem_pointer( aA_val ), Epetra_FECrsMatrix::ROW_MAJOR);
         mEpetraMat->SumIntoGlobalValues(
                 aNumMyDofs,
                 tPointFreeIds.data(),
@@ -120,10 +120,10 @@ void Sparse_Matrix_EpetraFECrs::fill_matrix(
     else
     {
         // insert values to matrix
-        //mEpetraMat->SumIntoGlobalValues(aNumMyDofs, mem_pointer( aEleDofConectivity ), mem_pointer( aA_val ), Epetra_FECrsMatrix::ROW_MAJOR);
+        //mEpetraMat->SumIntoGlobalValues(aNumMyDofs, mem_pointer( aEleDofConnectivity ), mem_pointer( aA_val ), Epetra_FECrsMatrix::ROW_MAJOR);
         mEpetraMat->SumIntoGlobalValues(
                 aNumMyDofs,
-                aEleDofConectivity.data(),
+                aEleDofConnectivity.data(),
                 aA_val.data(),
                 Epetra_FECrsMatrix::COLUMN_MAJOR);
     }

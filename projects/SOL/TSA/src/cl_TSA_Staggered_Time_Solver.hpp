@@ -41,7 +41,7 @@ namespace tsa
         /**
          * @brief Constructor using a given parameter list
          *
-         * @param[in] rSolverDatabase Poiner to the solver database
+         * @param[in] rSolverDatabase Pointer to the solver database
          */
         Staggered_Time_Solver( const ParameterList aParameterlist ) : Time_Solver_Algorithm( aParameterlist )
         {};
@@ -52,7 +52,7 @@ namespace tsa
 
         //-------------------------------------------------------------------------------
         /**
-         * @brief Solve call using a given soltion vector
+         * @brief Solve call using a given solution vector
          *
          * @param[in] aFullVector     Solution Vector
          */

@@ -93,7 +93,7 @@ namespace moris
         {
             Tracer tTracer( "LinearProblem", "AssembleStaggeredResidualContribution" );
 
-            mSolverInterface->assemble_staggerd_RHS_contribution( mPointVectorRHS );
+            mSolverInterface->assemble_staggered_RHS_contribution( mPointVectorRHS );
         }
 
         //----------------------------------------------------------------------------------------

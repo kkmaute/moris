@@ -279,17 +279,17 @@ Time_Solver::check_for_outputs(
         uint tCounter = 0;
 
         // loop over all outputs and check if it is triggered
-        for ( Output_Criteria tOutputCriterias : mOutputCriteriaPointer )
+        for ( Output_Criteria tOutputCriteria : mOutputCriteriaPointer )
         {
             bool tIsOutput = false;
 
-            if ( tOutputCriterias == nullptr )
+            if ( tOutputCriteria == nullptr )
             {
                 tIsOutput = true;
             }
             else
             {
-                tIsOutput = tOutputCriterias( this );
+                tIsOutput = tOutputCriteria( this );
             }
 
             if ( tIsOutput )
@@ -350,7 +350,7 @@ Time_Solver::solve()
     // get number of RHS
     uint tNumRHMS = mSolverInterface->get_num_rhs();
 
-    // set size for full solution vector on time step 0 and previous solution vector on timestep -1.
+    // set size for full solution vector on time step 0 and previous solution vector on time step -1.
     mFullVector.resize( 2, nullptr );
 
     // full vector and prev full vector

@@ -578,7 +578,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void assemble_staggerd_RHS_contribution( moris::sol::Dist_Vector* aVectorRHS );
+        void assemble_staggered_RHS_contribution( moris::sol::Dist_Vector* aVectorRHS );
 
         //------------------------------------------------------------------------------
 

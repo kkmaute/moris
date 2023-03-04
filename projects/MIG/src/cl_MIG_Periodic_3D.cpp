@@ -191,7 +191,7 @@ namespace moris::mig
                     // iterate through the clusters on the right in order to create dbl sided cluster separately
                     for ( uint iCluster = 0; iCluster < tSideClustersIndices2.size(); iCluster++ )
                     {
-                        // obtain numbder of surfaces present in each side cluster
+                        // obtain number of surfaces present in each side cluster
                         uint tPrimaryCellInClusterNum = tSideClusters2( tSideClustersIndices2( iCluster ) )->get_num_primary_cells();
 
                         // Initialize the cell containing coordinates of the cut surfaces
@@ -203,14 +203,14 @@ namespace moris::mig
                             // get the coordinates on the side ordinal and transpose
                             moris::Matrix< DDRMat > t3DcoordMatrix = trans( tSideClusters2( tSideClustersIndices2( iCluster ) )->get_cell_local_coords_on_side_wrt_interp_cell( iCell ) );
 
-                            // convert 3D coordinates to suraface coordinates
+                            // convert 3D coordinates to surface coordinates
                             moris::Matrix< DDRMat > tSurfaceCoordMatrix( 2, 3 );
 
                             tSurfaceCoordMatrix.get_row( 0 ) = t3DcoordMatrix.get_row( tPermutationOrder.first );
                             tSurfaceCoordMatrix.get_row( 1 ) = t3DcoordMatrix.get_row( tPermutationOrder.second );
 
                             // sort them counter clock wise in order to be treated the same as other coordinates
-                            this->SortandRemove( tSurfaceCoordMatrix );
+                            this->SortAndRemove( tSurfaceCoordMatrix );
 
                             // add the facet to the list of coordinates
                             tParamCoordsCell( iCell ) = tSurfaceCoordMatrix;
@@ -243,7 +243,7 @@ namespace moris::mig
                     // iterate through the clusters on the right in order to create dbl sided cluster separately
                     for ( uint iCluster = 0; iCluster < tSideClustersIndices1.size(); iCluster++ )
                     {
-                        // obtain numbder of surfaces present in each side cluster
+                        // obtain number of surfaces present in each side cluster
                         uint tPrimaryCellInClusterNum = tSideClusters1( tSideClustersIndices1( iCluster ) )->get_num_primary_cells();
 
                         // Initialize the cell containing coordinates of the cut surfaces
@@ -255,15 +255,15 @@ namespace moris::mig
                             // get the coordinates on the side ordinal and transpose
                             moris::Matrix< DDRMat > t3DcoordMatrix = trans( tSideClusters1( tSideClustersIndices1( iCluster ) )->get_cell_local_coords_on_side_wrt_interp_cell( iCell ) );
 
-                            // convert 3D coordinates to suraface coordinates
+                            // convert 3D coordinates to surface coordinates
                             moris::Matrix< DDRMat > tSurfaceCoordMatrix( 2, 3 );
                             tSurfaceCoordMatrix.get_row( 0 ) = t3DcoordMatrix.get_row( tPermutationOrder.first );
                             tSurfaceCoordMatrix.get_row( 1 ) = t3DcoordMatrix.get_row( tPermutationOrder.second );
 
                             // sort them counter clock wise in order to be treated the same as other coordinates
-                            this->SortandRemove( tSurfaceCoordMatrix );
+                            this->SortAndRemove( tSurfaceCoordMatrix );
 
-                            // add the surface trinagle to the list of coordinates
+                            // add the surface triangle to the list of coordinates
                             tParamCoordsCell( iCell ) = tSurfaceCoordMatrix;
                         }
 
@@ -324,12 +324,12 @@ namespace moris::mig
                             // get the coordinates on the side ordinal and transpose
                             moris::Matrix< DDRMat > t3DcoordMatrix = trans( tSideClusters1( tSideClustersIndices1( iCluster ) )->get_cell_local_coords_on_side_wrt_interp_cell( iCell ) );
 
-                            // convert 3D coordinates to suraface coordinates
+                            // convert 3D coordinates to surface coordinates
                             moris::Matrix< DDRMat > tSurfaceCoordMatrix( 2, 3 );
                             tSurfaceCoordMatrix.get_row( 0 ) = t3DcoordMatrix.get_row( tPermutationOrder.first );
                             tSurfaceCoordMatrix.get_row( 1 ) = t3DcoordMatrix.get_row( tPermutationOrder.second );
 
-                            // add the surface trinagle to the list of coordinates
+                            // add the surface triangle to the list of coordinates
                             tParamCoordsCell1( iCounter ) = tSurfaceCoordMatrix;
 
                             // add the local side cluster index of the IG cell which it belongs to
@@ -370,12 +370,12 @@ namespace moris::mig
                             // get the coordinates on the side ordinal and transpose
                             moris::Matrix< DDRMat > t3DcoordMatrix = trans( tSideClusters2( tSideClustersIndices2( iCluster ) )->get_cell_local_coords_on_side_wrt_interp_cell( iCell ) );
 
-                            // convert 3D coordinates to suraface coordinates
+                            // convert 3D coordinates to surface coordinates
                             moris::Matrix< DDRMat > tSurfaceCoordMatrix( 2, 3 );
                             tSurfaceCoordMatrix.get_row( 0 ) = t3DcoordMatrix.get_row( tPermutationOrder.first );
                             tSurfaceCoordMatrix.get_row( 1 ) = t3DcoordMatrix.get_row( tPermutationOrder.second );
 
-                            // add the surface trinagle to the list of coordinates
+                            // add the surface triangle to the list of coordinates
                             tParamCoordsCell2( iCounter ) = tSurfaceCoordMatrix;
 
                             // add the local side cluster index of the IG cell which it belongs to
@@ -390,7 +390,7 @@ namespace moris::mig
                     moris::Cell< moris::Matrix< DDRMat > > tCutPolygons;
                     moris::Matrix< moris::IndexMat >       tCutPolygonIdentifier;
 
-                    // Polygon clipping algorthim
+                    // Polygon clipping algorithm
                     this->elementwise_bruteforce_search(
                         tParamCoordsCell1, tIGCellToSideClusterMap1, tParamCoordsCell2, tIGCellToSideClusterMap2, tCutPolygons, tCutPolygonIdentifier );
 
@@ -400,7 +400,7 @@ namespace moris::mig
                     // populate the map
                     this->group_cut_cells( tCutPolygonIdentifier, tCutCellIdentifierToCutCell );
 
-                    // unique multiplier to distingush between sub clusters
+                    // unique multiplier to distinguish between sub clusters
                     uint tMultiplier = std::max( tParamCoordsCell1.size(), tParamCoordsCell2.size() );
 
                     // iterate through grouped cut cell in order to create dbl sideded cluster with the correct
@@ -508,7 +508,7 @@ namespace moris::mig
 
         moris::Matrix< moris::DDRMat > tIPCellCoordinates = aInterpCell1.get_vertex_coords();
 
-        // numbder of nodes at the surface
+        // number of nodes at the surface
         uint tNumSurfaceNodes = tUniqueIntersectedPoints.n_cols();
 
         // paramteric coordinates master side 3D
@@ -1288,7 +1288,7 @@ namespace moris::mig
     //------------------------------------------------------------------------
 
     void
-    Periodic_3D::SortandRemove( moris::Matrix< moris::DDRMat > &aIntersectedPoints ) const
+    Periodic_3D::SortAndRemove( moris::Matrix< moris::DDRMat > &aIntersectedPoints ) const
     {
         real eps = 0.0001;
 
@@ -1390,7 +1390,7 @@ namespace moris::mig
 
         aIntersectedPoints = join_horiz( aIntersectedPoints, P1 );
 
-        this->SortandRemove( aIntersectedPoints );
+        this->SortAndRemove( aIntersectedPoints );
     }
 
 }// namespace moris::mig

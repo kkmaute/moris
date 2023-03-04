@@ -656,7 +656,7 @@ namespace moris
         tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY,TEMP" );
         tParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "UX,0.0;UY,0.0;TEMP,0.0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
-        tParameterlist( 5 )( 0 ).set( "TSA_Output_Crteria", "Output_Criterion" );
+        tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
         tParameterlist( 5 )( 0 ).set( "TSA_time_level_per_type", "UX,2;UY,2;TEMP,2" );
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();

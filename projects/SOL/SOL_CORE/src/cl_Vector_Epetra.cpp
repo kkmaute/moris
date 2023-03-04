@@ -267,7 +267,7 @@ Vector_Epetra::scale_vector(
 void
 Vector_Epetra::import_local_to_global( sol::Dist_Vector& aSourceVec )
 {
-    // check if both vectores have the same map
+    // check if both vectors have the same map
     const Epetra_BlockMap* tMap = aSourceVec.get_map()->get_epetra_map();
 
     if ( mMap->get_epetra_map()->PointSameAs( *tMap ) )
@@ -329,7 +329,7 @@ Vector_Epetra::vec_local_length() const
 moris::sint
 Vector_Epetra::vec_global_length() const
 {
-    // get global lengt of this vector
+    // get global length of this vector
     return (moris::sint)mEpetraVector->GlobalLength();
 }
 
@@ -353,12 +353,12 @@ Vector_Epetra::extract_copy( moris::Matrix< DDRMat >& LHSValues )
 {
     // std::cout<<*mEpetraVector<<std::endl;
 
-    moris::sint tVectorLenght = this->vec_local_length();
+    moris::sint tVectorLength = this->vec_local_length();
 
-    LHSValues.set_size( tVectorLenght, mNumVectors );
+    LHSValues.set_size( tVectorLength, mNumVectors );
 
-    // needed as offset parameter for Epetra. =tVectorLenght
-    sint tMyLDA = tVectorLenght;
+    // needed as offset parameter for Epetra. =tVectorLength
+    sint tMyLDA = tVectorLength;
 
     // Get solution and output it in moris::Mat LHSValues
     mEpetraVector->ExtractCopy( LHSValues.data(), tMyLDA );

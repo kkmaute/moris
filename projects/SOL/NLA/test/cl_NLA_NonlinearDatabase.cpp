@@ -164,11 +164,11 @@ TEST_CASE("NonlinearDatabase3","[NLA],[NLA_Database3]")
 //
 //        SOL_Warehouse tSolverWarehouse( tSolverInput );
 //
-//        tSolverWarehouse.set_nonliner_solver_managers( & tNonlinearSolverManager1 );
-//        tSolverWarehouse.set_nonliner_solver_managers( & tNonlinearSolverManager2 );
-//        tSolverWarehouse.set_nonliner_solver_managers( & tNonlinearSolverManager3 );
-//        tSolverWarehouse.set_nonliner_solver_managers( & tNonlinearSolverManager4 );
-//        tSolverWarehouse.set_nonliner_solver_managers( & tNonlinearSolverManager5 );
+//        tSolverWarehouse.set_nonlinear_solver_managers( & tNonlinearSolverManager1 );
+//        tSolverWarehouse.set_nonlinear_solver_managers( & tNonlinearSolverManager2 );
+//        tSolverWarehouse.set_nonlinear_solver_managers( & tNonlinearSolverManager3 );
+//        tSolverWarehouse.set_nonlinear_solver_managers( & tNonlinearSolverManager4 );
+//        tSolverWarehouse.set_nonlinear_solver_managers( & tNonlinearSolverManager5 );
 //
 //        tSolverWarehouse.create_solver_manager_dependencies();
 //

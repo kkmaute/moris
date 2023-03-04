@@ -96,7 +96,7 @@ namespace moris
             //--------------------------------------------------------------------------------------------------------------
 
             /**
-             * @brief specific solve implemenattion for this algorthim
+             * @brief specific solve implemenattion for this algorithm
              *
              */
             void lbfgs_solve();

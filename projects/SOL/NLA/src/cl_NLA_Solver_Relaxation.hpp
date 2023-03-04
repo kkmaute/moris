@@ -24,7 +24,7 @@ namespace moris
         {
           private:
             /// relaxation strategy
-            sol::SolverRelaxationType mRelaxationStratey;
+            sol::SolverRelaxationType mRelaxationStrategy;
 
             /// basic relaxation parameter; use depends on strategy
             real mRelaxation = MORIS_REAL_MAX;

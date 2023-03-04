@@ -74,7 +74,7 @@ namespace moris
             Cell< dla::Linear_Solver* >                             mLinearSolvers;
 
             // List of nonlinear solver algorithms and solvers
-            Cell< std::shared_ptr< NLA::Nonlinear_Algorithm > > mNonlinearSolverAlgoriths;
+            Cell< std::shared_ptr< NLA::Nonlinear_Algorithm > > mNonlinearSolverAlgorithms;
             Cell< NLA::Nonlinear_Solver* >                      mNonlinearSolvers;
 
             // List of time solver algorithms and solvers
@@ -132,7 +132,7 @@ namespace moris
 
             //--------------------------------------------------------------------------------------------------------
 
-            void get_default_secundary_dof_types(
+            void get_default_secondary_dof_types(
                     Cell< Cell< MSI::Dof_Type > >&        aCellOfCellsSecDofTypes,
                     Cell< Cell< MSI::Dof_Type > > const & aCellOfCellDofTypes );
 
@@ -188,7 +188,7 @@ namespace moris
             /**
              * @brief Returns a pointer to the solver interface.
              */
-            // void set_nonliner_solver_managers( Nonlinear_Solver * aNonlinerSolverManager );
+            // void set_nonlinear_solver_managers( Nonlinear_Solver * aNonlinearSolverManager );
 
             //--------------------------------------------------------------------------------------------------------
 
@@ -290,10 +290,10 @@ namespace moris
 
             //--------------------------------------------------------------------------------------------------------
             /**
-             * @brief Returns the index of a certain nonliner solver manager
+             * @brief Returns the index of a certain nonlinear solver manager
              *
              * @param[in] aSolverManagerIndex The index of the asking nonlinear solver manager
-             * @param[in] aDofTypeListIndex The index of dof type list on the asking nonliner solver manager
+             * @param[in] aDofTypeListIndex The index of dof type list on the asking nonlinear solver manager
              */
             // moris::sint get_nonlinear_solver_manager_index( const moris::sint aSolverManagerIndex,
             //                                                 const moris::sint aDofTypeListIndex );
@@ -317,7 +317,7 @@ namespace moris
             /**
              * @brief Returns the nonlinear solver manager list.
              */
-            // moris::Cell< Nonlinear_Solver * > & get_nonliner_solver_manager_list(){ return mListNonlinerSolverManagers; };
+            // moris::Cell< Nonlinear_Solver * > & get_nonlinear_solver_manager_list(){ return mListNonlinearSolverManagers; };
 
             //--------------------------------------------------------------------------------------------------------
             /**

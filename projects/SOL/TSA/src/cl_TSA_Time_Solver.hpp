@@ -116,7 +116,7 @@ namespace moris
             /**
              * @brief Constructor. Sets given List of time solvers algorithm to this time solver
              *
-             * @param[in] aNonlinerSolverList List of nonlinear solvers.
+             * @param[in] aNonlinearSolverList List of nonlinear solvers.
              * @param[in] aNonLinSolverType Nonlinear solver type. Default is Newton
              */
             Time_Solver(

@@ -45,7 +45,7 @@ namespace moris
         class Linear_System_PETSc : public Linear_Problem
         {
           private:
-            // Flag for deconstructor. If PetscFinalaize should be called in linear solver or in nonliear
+            // Flag for deconstructor. If PetscFinalize should be called in linear solver or in nonlinear
             bool mNotCreatedByNonLinearSolver = false;
 
           protected:

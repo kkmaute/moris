@@ -85,7 +85,7 @@ namespace moris
                 /**
                  * @brief default constructor
                  *
-                 * @param[in] rSolverDatabase Poiner to the solver database
+                 * @param[in] rSolverDatabase Pointer to the solver database
                  */
                 Time_Solver_Algorithm( const enum sol::MapType aMapType = sol::MapType::Epetra );
 
@@ -111,7 +111,7 @@ namespace moris
 
                 //-------------------------------------------------------------------------------
                 /**
-                 * @brief Solve call using a given soltion vector
+                 * @brief Solve call using a given solution vector
                  *
                  * @param[in] aFullVector     Solution Vector
                  */

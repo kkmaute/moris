@@ -56,7 +56,7 @@ namespace moris::mtk
         // get number of vertices to obtain how much need to be marched in the coordinate list
         uint tNumVertices = this->get_number_of_vertices();
 
-        //  initailzie the vertices cell
+        // initialize the vertices cell
         moris::Cell< mtk::Vertex* > tVertexPtrs;
 
         Vertex** tVertices = mMesh->get_cell_vertices( mCellIndex2 );
@@ -69,7 +69,7 @@ namespace moris::mtk
 
     //------------------------------------------------------------------------------
 
-    // TODO MESHCLEANUP
+    // TODO MESH-CLEANUP
     void
     Cell_DataBase::remove_vertex_pointer( moris_index aIndex )
     {

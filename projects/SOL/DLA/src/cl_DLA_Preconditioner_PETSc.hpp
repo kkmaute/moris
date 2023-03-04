@@ -37,7 +37,7 @@ namespace moris
         class Preconditioner_PETSc
         {
           private:
-            Linear_Solver_PETSc* mLinearSolverAlgoritm;
+            Linear_Solver_PETSc* mLinearSolverAlgorithm;
 
             sol::Dist_Matrix* mPreconMat = nullptr;
             sol::Dist_Map*    mMapFree   = nullptr;

@@ -249,12 +249,12 @@ namespace moris::mig
         // ----------------------------------------------------------------------------
         /*
          * sort points and remove duplicates
-         * orders polygon corners in counterclock wise and removes duplicates
+         * orders polygon corners in counter clock wise and removes duplicates
          * @param[ in ] aIntersectedPoints polygon points, not ordered
          * @param[ out ] aIntersectedPoints polygon points, ordered
          */
         void
-        SortandRemove( moris::Matrix< moris::DDRMat > &aIntersectedPoints ) const;
+        SortAndRemove( moris::Matrix< moris::DDRMat > &aIntersectedPoints ) const;
 
         // ----------------------------------------------------------------------------
         /*

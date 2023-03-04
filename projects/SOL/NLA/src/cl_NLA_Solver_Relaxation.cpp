@@ -27,7 +27,7 @@ namespace moris
         Solver_Relaxation::Solver_Relaxation( ParameterList& aParameterListNonlinearSolver )
         {
             // get relaxation strategy
-            mRelaxationStratey = static_cast< sol::SolverRelaxationType >(
+            mRelaxationStrategy = static_cast< sol::SolverRelaxationType >(
                     aParameterListNonlinearSolver.get< uint >( "NLA_relaxation_strategy" ) );
 
             // get initial relaxation parameter
@@ -49,7 +49,7 @@ namespace moris
             bool tComputeSearchDirection = true;
 
             // compute relaxation value depending on strategy
-            switch ( mRelaxationStratey )
+            switch ( mRelaxationStrategy )
             {
                 // constant relaxation parameter
                 case sol::SolverRelaxationType::Constant:

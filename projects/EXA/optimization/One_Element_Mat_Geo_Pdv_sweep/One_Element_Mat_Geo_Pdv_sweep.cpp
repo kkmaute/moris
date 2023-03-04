@@ -655,7 +655,7 @@ void tYoungsFunc
         tParameterlist( 3 )( 0 ).set("NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ));
         tParameterlist( 3 )( 0 ).set("NLA_Nonlinear_solver_algorithms", "0");                                                          // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 0 ).set("NLA_DofTypes"                   , "UX,UY" );
-        tParameterlist( 3 )( 0 ).set("NLA_Secundary_DofTypes",          "");
+        tParameterlist( 3 )( 0 ).set("NLA_Secondary_DofTypes",          "");
 
         tParameterlist( 4 )( 0 ) = moris::prm::create_time_solver_algorithm_parameter_list();
         tParameterlist( 4 )( 0 ).set("TSA_Nonlinear_solver",                   0 );
@@ -663,7 +663,7 @@ void tYoungsFunc
         tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
         tParameterlist( 5 )( 0 ).set("TSA_DofTypes",           "UX,UY");
         tParameterlist( 5 )( 0 ).set("TSA_Output_Indices",     "0");
-        tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria",     "Output_Criterion");
+        tParameterlist( 5 )( 0 ).set("TSA_Output_Criteria",     "Output_Criterion");
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
         tParameterlist( 6 )( 0 ).set("SOL_save_operator_to_matlab",     "Mat.dat");
