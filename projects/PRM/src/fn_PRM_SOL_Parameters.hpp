@@ -403,6 +403,8 @@ namespace moris
 
             tLinAlgorithmParameterList.insert( "DebugLevel", INT_MAX );
 
+            tLinAlgorithmParameterList.insert( "ComputeConditionNumber", false );
+
             return tLinAlgorithmParameterList;
         }
 

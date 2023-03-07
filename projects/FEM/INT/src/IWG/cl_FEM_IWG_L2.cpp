@@ -31,6 +31,7 @@ namespace moris
             mPropertyMap[ "H1coefficient" ] = static_cast< uint >( IWG_Property_Type::H1COEFFICIENT );
             mPropertyMap[ "Diffusion" ]     = static_cast< uint >( IWG_Property_Type::DIFFUSION );
             mPropertyMap[ "Source" ]        = static_cast< uint >( IWG_Property_Type::SOURCE );
+            mPropertyMap[ "Thickness" ]     = static_cast< uint >( IWG_Property_Type::THICKNESS );
         }
         //------------------------------------------------------------------------------
 
@@ -72,6 +73,13 @@ namespace moris
             // get source property
             const std::shared_ptr< Property >& tPropSource =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::SOURCE ) );
+
+            // get thickness property
+            const std::shared_ptr< Property >& tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // extract residual sub-vector
             auto tRes = mSet->get_residual()( 0 )( { tResStartIndex, tResStopIndex } );
@@ -146,6 +154,13 @@ namespace moris
             // get source property
             const std::shared_ptr< Property >& tPropSource =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::SOURCE ) );
+
+            // get thickness property
+            const std::shared_ptr< Property >& tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // get the number of master dof type dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();

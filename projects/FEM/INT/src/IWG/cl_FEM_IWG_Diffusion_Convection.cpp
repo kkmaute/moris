@@ -1,11 +1,11 @@
 /*
  * Copyright (c) 2022 University of Colorado
- *Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
- * 
+ *Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
  *------------------------------------------------------------------------------------
- * 
- * cl_FEM_IWG_Diffusion_Convection.cpp  
- * 
+ *
+ * cl_FEM_IWG_Diffusion_Convection.cpp
+ *
  */
 
 #include "cl_FEM_IWG_Diffusion_Convection.hpp"
@@ -30,24 +30,33 @@ namespace moris
 
             // populate the property map
             mPropertyMap[ "HeatTransferCoefficient" ] = static_cast< uint >( IWG_Property_Type::HEAT_TRANSFER_COEFFICIENT );
-            mPropertyMap[ "AmbientTemperature" ] = static_cast< uint >( IWG_Property_Type::AMBIENT_TEMP );
+            mPropertyMap[ "AmbientTemperature" ]      = static_cast< uint >( IWG_Property_Type::AMBIENT_TEMP );
+            mPropertyMap[ "Thickness" ]               = static_cast< uint >( IWG_Property_Type::THICKNESS );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Diffusion_Convection::compute_residual( real aWStar )
+        void
+        IWG_Diffusion_Convection::compute_residual( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
             // check master field interpolators, properties, constitutive models
             this->check_field_interpolators();
 #endif
             // get heat transfer property
-            const std::shared_ptr< Property > & tPropHeatTransfer =
-                     mMasterProp(static_cast< uint >( IWG_Property_Type::HEAT_TRANSFER_COEFFICIENT ));
+            const std::shared_ptr< Property >& tPropHeatTransfer =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::HEAT_TRANSFER_COEFFICIENT ) );
 
             // get ambient temperature property
-            const std::shared_ptr< Property > & tPropAmbientTemp =
-                      mMasterProp(static_cast< uint >( IWG_Property_Type::AMBIENT_TEMP ));
+            const std::shared_ptr< Property >& tPropAmbientTemp =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::AMBIENT_TEMP ) );
+
+            // get thickness property
+            const std::shared_ptr< Property >& tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // get index for residual dof type, indices for assembly
             uint tDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
@@ -55,35 +64,42 @@ namespace moris
             uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // get filed interpolator for residual dof type
-            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator* tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // compute the residual
             // N * a * (T - T_ref)
-            mSet->get_residual()( 0 )(
-                    { tResStartIndex, tResStopIndex }) += aWStar * (
-                            tPropHeatTransfer->val() *
-                            ( tFI->val() - tPropAmbientTemp->val() ) * tFI->N_trans() );
+            mSet->get_residual()( 0 )( { tResStartIndex, tResStopIndex } ) +=    //
+                    aWStar * ( tPropHeatTransfer->val() *                        //
+                               ( tFI->val() - tPropAmbientTemp->val() ) * tFI->N_trans() );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
-                    "IWG_Diffusion_Convection::compute_residual - Residual contains NAN or INF, exiting!");
+                    "IWG_Diffusion_Convection::compute_residual - Residual contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Diffusion_Convection::compute_jacobian( real aWStar )
+        void
+        IWG_Diffusion_Convection::compute_jacobian( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
             // check master field interpolators, properties, constitutive models
             this->check_field_interpolators();
 #endif
             // get heat transfer property
-            const std::shared_ptr< Property > & tPropHeatTransfer =
-                     mMasterProp(static_cast< uint >( IWG_Property_Type::HEAT_TRANSFER_COEFFICIENT ));
+            const std::shared_ptr< Property >& tPropHeatTransfer =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::HEAT_TRANSFER_COEFFICIENT ) );
 
             // get ambient temperature property
-            const std::shared_ptr< Property > & tPropAmbientTemp =
-                      mMasterProp(static_cast< uint >( IWG_Property_Type::AMBIENT_TEMP ));
+            const std::shared_ptr< Property >& tPropAmbientTemp =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::AMBIENT_TEMP ) );
+
+            // get thickness property
+            const std::shared_ptr< Property >& tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // get index for residual dof type, indices for assembly
             uint tDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
@@ -91,13 +107,13 @@ namespace moris
             uint tResStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type
-            Field_Interpolator * tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator* tFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // compute the Jacobian for dof dependencies
-            for( uint iDOF = 0; iDOF < mRequestedMasterGlobalDofTypes.size(); iDOF++ )
+            for ( uint iDOF = 0; iDOF < mRequestedMasterGlobalDofTypes.size(); iDOF++ )
             {
                 // get dof type
-                const Cell< MSI::Dof_Type > & tDepDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type >& tDepDofType = mRequestedMasterGlobalDofTypes( iDOF );
 
                 // get the dof type indices for assembly
                 uint tDepDofIndex   = mSet->get_dof_index_for_type( tDepDofType( 0 ), mtk::Master_Slave::MASTER );
@@ -110,38 +126,39 @@ namespace moris
                         { tDepStartIndex, tDepStopIndex } );
 
                 // if dof type is residual dof type
-                if( tDepDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
+                if ( tDepDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
-                    tJac += aWStar *
-                            tPropHeatTransfer->val() * tFI->N_trans() *  tFI->N();
+                    tJac += aWStar * tPropHeatTransfer->val() * tFI->N_trans() * tFI->N();
                 }
 
                 // if dependency of heat transfer coefficient on dof type
                 if ( tPropHeatTransfer->check_dof_dependency( tDepDofType ) )
                 {
                     // add contribution to Jacobian
-                    tJac += aWStar * (tFI->val() - tPropAmbientTemp->val() ) *
-                                    tFI->N_trans() * tPropHeatTransfer->dPropdDOF( tDepDofType );
+                    tJac += aWStar * ( tFI->val() - tPropAmbientTemp->val() ) *    //
+                            tFI->N_trans() * tPropHeatTransfer->dPropdDOF( tDepDofType );
                 }
             }
 
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mSet->get_jacobian() ) ,
-                    "IWG_Diffusion_Convection::compute_jacobian - Jacobian contains NAN or INF, exiting!");
+            MORIS_ASSERT( isfinite( mSet->get_jacobian() ),
+                    "IWG_Diffusion_Convection::compute_jacobian - Jacobian contains NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Diffusion_Convection::compute_jacobian_and_residual( real aWStar )
+        void
+        IWG_Diffusion_Convection::compute_jacobian_and_residual( real aWStar )
         {
             MORIS_ERROR( false, " IWG_Diffusion_Convection::compute_jacobian_and_residual - Not implemented." );
         }
 
         //------------------------------------------------------------------------------
 
-        void IWG_Diffusion_Convection::compute_dRdp( real aWStar )
+        void
+        IWG_Diffusion_Convection::compute_dRdp( real aWStar )
         {
-            MORIS_ERROR( false, "IWG_Diffusion_Convection::compute_dRdp - Not implemented.");
+            MORIS_ERROR( false, "IWG_Diffusion_Convection::compute_dRdp - Not implemented." );
         }
 
         //------------------------------------------------------------------------------

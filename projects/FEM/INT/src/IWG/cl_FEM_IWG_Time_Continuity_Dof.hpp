@@ -38,6 +38,7 @@ namespace moris
                 WEIGHT_PREVIOUS,
                 WEIGHT_RESIDUAL,
                 INITIAL_CONDITION,
+                THICKNESS,
                 MAX_ENUM
             };
 
@@ -95,4 +96,3 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_IWG_TIME_CONTINUITY_DOF_HPP_ */
-

@@ -35,6 +35,7 @@ namespace moris
                 H1COEFFICIENT,    // coefficient for H1 semi-norm term
                 DIFFUSION,        // diffusion coefficient
                 SOURCE,           // source term
+                THICKNESS,        // thickness
                 MAX_ENUM
             };
 
@@ -80,4 +81,3 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_IWG_L2_HPP_ */
-
