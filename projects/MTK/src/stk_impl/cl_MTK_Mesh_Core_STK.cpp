@@ -39,9 +39,9 @@ namespace moris
 {
     namespace mtk
     {
-        //##############################################
-        // Build mesh functionality
-        //##############################################
+        // ##############################################
+        //  Build mesh functionality
+        // ##############################################
 
         // ----------------------------------------------------------------------------
 
@@ -192,7 +192,7 @@ namespace moris
 
             MORIS_LOG( "Create global to local maps" );
             // Initialize global to local map
-            mSTKMeshData->mEntityGlobaltoLocalMap = moris::Cell< std::unordered_map< moris_id, moris_index > >( 4 );
+            mSTKMeshData->mEntityGlobalToLocalMap = moris::Cell< std::unordered_map< moris_id, moris_index > >( 4 );
             setup_entity_global_to_local_map( EntityRank::NODE );
             setup_entity_global_to_local_map( EntityRank::EDGE );
             setup_entity_global_to_local_map( EntityRank::FACE );
@@ -222,7 +222,7 @@ namespace moris
             // allocate stk mesh data
             mSTKMeshData                          = std::make_shared< Mesh_Data_STK >();
             mSTKMeshData->mEntityLocaltoGlobalMap = moris::Cell< moris::Matrix< IdMat > >( 4 );
-            mSTKMeshData->mEntityGlobaltoLocalMap = moris::Cell< std::unordered_map< moris_id, moris_index > >( 4 );
+            mSTKMeshData->mEntityGlobalToLocalMap = moris::Cell< std::unordered_map< moris_id, moris_index > >( 4 );
             mSTKMeshData->mSetRankFlags           = std::vector< bool >( { false, false, false } );
 
             // Set verbose flag
@@ -248,9 +248,9 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        //##############################################
-        // General mesh information access
-        //##############################################
+        // ##############################################
+        //  General mesh information access
+        // ##############################################
         uint
         Mesh_Core_STK::get_num_entities(
                 enum EntityRank   aEntityRank,
@@ -269,9 +269,9 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        //##############################################
-        // Access Mesh Data by index Functions
-        //##############################################
+        // ##############################################
+        //  Access Mesh Data by index Functions
+        // ##############################################
         Matrix< IndexMat >
         Mesh_Core_STK::get_entity_connected_to_entity_loc_inds(
                 moris_index       aEntityIndex,
@@ -494,9 +494,9 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        //##############################################
-        // Local to global functions
-        //##############################################
+        // ##############################################
+        //  Local to global functions
+        // ##############################################
 
         moris_id
         Mesh_Core_STK::get_glb_entity_id_from_entity_loc_index(
@@ -515,9 +515,10 @@ namespace moris
                 enum EntityRank   aEntityRank,
                 const moris_index aIndex ) const
         {
-            auto tIter = mSTKMeshData->mEntityGlobaltoLocalMap( (uint)aEntityRank ).find( aEntityId );
+            auto tIter = mSTKMeshData->mEntityGlobalToLocalMap( (uint)aEntityRank ).find( aEntityId );
 
-            MORIS_ERROR( tIter != mSTKMeshData->mEntityGlobaltoLocalMap( (uint)aEntityRank ).end(),
+            MORIS_ERROR( tIter != mSTKMeshData->mEntityGlobalToLocalMap( (uint)aEntityRank ).end(),
+                    "Mesh_Core_STK::get_loc_entity_ind_from_entity_glb_id() - "
                     "Provided Entity Id is not in the map, Has the map been initialized?: aEntityId =%u EntityRank = %u on process %u",
                     aEntityId,
                     (uint)aEntityRank,
@@ -701,9 +702,9 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        //##############################################
-        // Coordinate Field Functions
-        //##############################################
+        // ##############################################
+        //  Coordinate Field Functions
+        // ##############################################
 
         Matrix< DDRMat >
         Mesh_Core_STK::get_node_coordinate( moris_index aNodeIndex ) const
@@ -732,9 +733,9 @@ namespace moris
             return tNodeCoord;
         }
 
-        //##############################################
-        // Entity Ownership Functions
-        //##############################################
+        // ##############################################
+        //  Entity Ownership Functions
+        // ##############################################
 
         uint
         Mesh_Core_STK::get_node_owner( moris_index aNodeIndex ) const
@@ -1267,9 +1268,9 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        //##############################################
-        // moris::Cell and Vertex Pointer Functions
-        //##############################################
+        // ##############################################
+        //  moris::Cell and Vertex Pointer Functions
+        // ##############################################
 
         mtk::Cell&
         Mesh_Core_STK::get_mtk_cell( moris_index aCellIndex )
@@ -1474,9 +1475,9 @@ namespace moris
                     tSideSharedProc );
         }
 
-        //##############################################
-        // Private functions to build mesh
-        //##############################################
+        // ##############################################
+        //  Private functions to build mesh
+        // ##############################################
         void
         Mesh_Core_STK::create_communication_lists_and_local_to_global_map( enum EntityRank aEntityRank )
         {
@@ -2017,9 +2018,9 @@ namespace moris
         }
         // ----------------------------------------------------------------------------
 
-        //##############################################
-        // Private functions to access mesh information
-        //##############################################
+        // ##############################################
+        //  Private functions to access mesh information
+        // ##############################################
         stk::mesh::EntityRank
         Mesh_Core_STK::get_stk_entity_rank( enum EntityRank aMRSEntityRank ) const
         {
@@ -2303,9 +2304,9 @@ namespace moris
         }
 
         // ----------------------------------------------------------------------------
-        //##############################################
+        // ##############################################
         // Build mesh from data functions internal
-        //##############################################
+        // ##############################################
         // Verifications of mesh essential information provided for meshes generated from data.
         void
         Mesh_Core_STK::check_and_update_input_data(
@@ -2638,7 +2639,7 @@ namespace moris
             create_communication_lists_and_local_to_global_map( EntityRank::ELEMENT );
 
             // Initialize global to local map
-            mSTKMeshData->mEntityGlobaltoLocalMap = moris::Cell< std::unordered_map< moris_id, moris_index > >( 4 );
+            mSTKMeshData->mEntityGlobalToLocalMap = moris::Cell< std::unordered_map< moris_id, moris_index > >( 4 );
             setup_entity_global_to_local_map( EntityRank::NODE );
             setup_entity_global_to_local_map( EntityRank::ELEMENT );
 
@@ -3091,9 +3092,9 @@ namespace moris
                 for ( uint iElem = 0; iElem < tNumElements; iElem++ )
                 {
                     uint tElemId = ( *aMeshData.LocaltoGlobalElemMap( iET ) )( iElem );
-                    if ( mSTKMeshData->mEntityGlobaltoLocalMap( 3 ).find( tElemId ) == mSTKMeshData->mEntityGlobaltoLocalMap( 3 ).end() )
+                    if ( mSTKMeshData->mEntityGlobalToLocalMap( 3 ).find( tElemId ) == mSTKMeshData->mEntityGlobalToLocalMap( 3 ).end() )
                     {
-                        mSTKMeshData->mEntityGlobaltoLocalMap( 3 )[ tElemId ] = tCount;
+                        mSTKMeshData->mEntityGlobalToLocalMap( 3 )[ tElemId ] = tCount;
                         tCount++;
                     }
                     else
@@ -3118,9 +3119,9 @@ namespace moris
             {
                 uint tNodeId = ( *aMeshData.LocaltoGlobalNodeMap )( iNode );
 
-                if ( mSTKMeshData->mEntityGlobaltoLocalMap( 0 ).find( tNodeId ) == mSTKMeshData->mEntityGlobaltoLocalMap( 0 ).end() )
+                if ( mSTKMeshData->mEntityGlobalToLocalMap( 0 ).find( tNodeId ) == mSTKMeshData->mEntityGlobalToLocalMap( 0 ).end() )
                 {
-                    mSTKMeshData->mEntityGlobaltoLocalMap( 0 )[ tNodeId ] = tCount;
+                    mSTKMeshData->mEntityGlobalToLocalMap( 0 )[ tNodeId ] = tCount;
                     tCount++;
                 }
                 else
@@ -3141,9 +3142,9 @@ namespace moris
             moris_id tCount       = 0;
             for ( uint i = 0; i < tNumEntities; i++ )
             {
-                if ( mSTKMeshData->mEntityGlobaltoLocalMap( (uint)aEntityRank ).find( tEntityIds( i ) ) == mSTKMeshData->mEntityGlobaltoLocalMap( (uint)aEntityRank ).end() )
+                if ( mSTKMeshData->mEntityGlobalToLocalMap( (uint)aEntityRank ).find( tEntityIds( i ) ) == mSTKMeshData->mEntityGlobalToLocalMap( (uint)aEntityRank ).end() )
                 {
-                    mSTKMeshData->mEntityGlobaltoLocalMap( (uint)aEntityRank )[ tEntityIds( i ) ] = tCount;
+                    mSTKMeshData->mEntityGlobalToLocalMap( (uint)aEntityRank )[ tEntityIds( i ) ] = tCount;
                     tCount++;
                 }
                 else
@@ -3903,9 +3904,9 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        //##############################################
-        // internal id functions
-        //##############################################
+        // ##############################################
+        //  internal id functions
+        // ##############################################
         std::vector< stk::mesh::Entity >
         Mesh_Core_STK::entities_connected_to_entity_stk(
                 stk::mesh::Entity* const    aInputEntity,
