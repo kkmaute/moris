@@ -107,7 +107,7 @@ namespace xtk
             , mEnrichedIntegMesh( 0, nullptr )
             , mConvertedToTet10s( false )
     {
-        // flag this as a paramter list based run
+        // flag this as a parameter list based run
         mParameterList.insert( "has_parameter_list", true );
 
         this->setup_diagnostics(
@@ -213,10 +213,10 @@ namespace xtk
             this->probe_bg_cell( tBgCellIds );
         }
 
-        // perform decomposition if requested in parameterlist
+        // perform decomposition if requested in parameter list
         if ( mParameterList.get< bool >( "decompose" ) )
         {
-            // get parameters specifying the integration mesh from the parameterlist
+            // get parameters specifying the integration mesh from the parameter list
             mTriangulateAll       = mParameterList.get< bool >( "triangulate_all" );
             mTriangulateAllInPost = mParameterList.get< bool >( "triangulate_all_in_post" );
             mOnlyGenerateXtkTemp  = mParameterList.get< bool >( "only_generate_xtk_temp" );
@@ -252,7 +252,7 @@ namespace xtk
             }
         }
 
-        // perform mesh cleanup if requested through parameterlist
+        // perform mesh cleanup if requested through parameter list
         if ( mParameterList.get< bool >( "cleanup_cut_mesh" ) )
         {
             // set flag as member variable
@@ -302,7 +302,7 @@ namespace xtk
                 }
             }
 
-            // get index of B-spline meshes indecies that will be unenriched later
+            // get index of B-spline meshes indices that will be unenriched later
             Matrix< IndexMat > tUnenrichedBsplineMeshIndices;
             moris::string_to_mat( mParameterList.get< std::string >( "unenriched_mesh_indices" ), tUnenrichedBsplineMeshIndices );
 
@@ -405,28 +405,28 @@ namespace xtk
             }
         }
 
-        std::string tDeactiveBlockstr = mParameterList.get< std::string >( "deactivate_all_but_blocks" );
-        if ( !tDeactiveBlockstr.empty() )
+        std::string tDeactivatedBlockStr = mParameterList.get< std::string >( "deactivate_all_but_blocks" );
+        if ( !tDeactivatedBlockStr.empty() )
         {
             // get the blocks to unionize
             moris::Cell< moris::Cell< std::string > > tBlocksToKeepStr;
-            moris::string_to_cell_of_cell( tDeactiveBlockstr, tBlocksToKeepStr );
+            moris::string_to_cell_of_cell( tDeactivatedBlockStr, tBlocksToKeepStr );
 
             MORIS_ERROR( tBlocksToKeepStr.size() == 1, "deactivate_all_but_block issue: This operation can only be performed on time" );
 
-            this->get_enriched_integ_mesh( 0 ).deactive_all_blocks_but_selected( tBlocksToKeepStr( 0 ) );
+            this->get_enriched_integ_mesh( 0 ).deactivate_all_blocks_except_selected( tBlocksToKeepStr( 0 ) );
         }
 
-        std::string tDeactiveSideSetstr = mParameterList.get< std::string >( "deactivate_all_but_side_sets" );
-        if ( !tDeactiveSideSetstr.empty() )
+        std::string tDeactivatedSideSetStr = mParameterList.get< std::string >( "deactivate_all_but_side_sets" );
+        if ( !tDeactivatedSideSetStr.empty() )
         {
             // get the blocks to unionize
             moris::Cell< moris::Cell< std::string > > tSideSetsToKeepStr;
-            moris::string_to_cell_of_cell( tDeactiveSideSetstr, tSideSetsToKeepStr );
+            moris::string_to_cell_of_cell( tDeactivatedSideSetStr, tSideSetsToKeepStr );
 
-            MORIS_ERROR( tSideSetsToKeepStr.size() == 1, "deactive_all_side_sets_but_selected issue: This operation can only be performed on time" );
+            MORIS_ERROR( tSideSetsToKeepStr.size() == 1, "deactivate_all_side_sets_except_selected issue: This operation can only be performed on time" );
 
-            this->get_enriched_integ_mesh( 0 ).deactive_all_side_sets_but_selected( tSideSetsToKeepStr( 0 ) );
+            this->get_enriched_integ_mesh( 0 ).deactivate_all_side_sets_except_selected( tSideSetsToKeepStr( 0 ) );
         }
 
         if ( mParameterList.get< bool >( "multigrid" ) )
@@ -526,8 +526,8 @@ namespace xtk
             // print the memory usage of XTK
             if ( mParameterList.get< bool >( "print_memory" ) )
             {
-                moris::Memory_Map tXTKMM = this->get_memory_usage();
-                tXTKMM.par_print( "XTK Model" );
+                moris::Memory_Map tXtkMM = this->get_memory_usage();
+                tXtkMM.par_print( "XTK Model" );
             }
 
             if ( mParameterList.get< bool >( "low_memory" ) )
@@ -618,7 +618,7 @@ namespace xtk
         }
         else
         {
-            MORIS_ERROR( 0, "Invalid decomposition_type provided. Recognized Options: Conformal and Nonconformal" );
+            MORIS_ERROR( 0, "Invalid decomposition_type provided. Recognized Options: Conformal and Non-conformal" );
         }
 
         if ( tSpatialDimension == 2 )
@@ -703,7 +703,7 @@ namespace xtk
             }
         }
 
-        // return successfull decomposition
+        // return successful decomposition
         return mDecomposed;
     }
 
@@ -898,7 +898,7 @@ namespace xtk
             }
         }
 
-        // handle the unhandled requests wiht current proc being the owner
+        // handle the unhandled requests with current proc being the owner
         moris::moris_id tNodeId = mCutIntegrationMesh->allocate_entity_ids( tUnhandledRequestIndices.size(), EntityRank::NODE );
 
         for ( moris::uint i = 0; i < tUnhandledRequestIndices.size(); i++ )
@@ -1219,16 +1219,16 @@ namespace xtk
         //     Child_Mesh &tChildMesh = mCutMesh.get_child_mesh( iCM );
 
         //     // get the neighbors
-        //     Matrix< IndexMat > tElementNeighors = mBackgroundMesh->get_elements_connected_to_element_and_face_ind_loc_inds( tChildMesh.get_parent_element_index() );
+        //     Matrix< IndexMat > tElementNeighbors = mBackgroundMesh->get_elements_connected_to_element_and_face_ind_loc_inds( tChildMesh.get_parent_element_index() );
 
         //     moris::Cell< moris_index > tTransitionFacets;
 
         //     // iterate through neighbor
-        //     for ( moris::uint iN = 0; iN < tElementNeighors.n_cols(); iN++ )
+        //     for ( moris::uint iN = 0; iN < tElementNeighbors.n_cols(); iN++ )
         //     {
-        //         moris_index tNeighborCellIndex = tElementNeighors( 0, iN );
+        //         moris_index tNeighborCellIndex = tElementNeighbors( 0, iN );
 
-        //         moris_index tSharedFaceIndex = tElementNeighors( 1, iN );
+        //         moris_index tSharedFaceIndex = tElementNeighbors( 1, iN );
 
         //         if ( !mBackgroundMesh.entity_has_children( tNeighborCellIndex, EntityRank::ELEMENT ) )
         //         {
@@ -1468,7 +1468,7 @@ namespace xtk
     bool
     Model::subphase_is_in_child_mesh( moris_index aSubphaseIndex )
     {
-        MORIS_ERROR( 0, "TOREMOVE" );
+        MORIS_ERROR( 0, "TO REMOVE" );
         return false;
     }
 
@@ -1649,21 +1649,21 @@ namespace xtk
     std::string
     Model::get_global_T_matrix_output_file_name()
     {
-        // get value from parameterlist
+        // get value from parameter list
         return mParameterList.get< std::string >( "global_T_matrix_output_file" );
     }
 
     std::string
     Model::get_elemental_T_matrix_output_file_name()
     {
-        // get value from parameterlist
+        // get value from parameter list
         return mParameterList.get< std::string >( "elemental_T_matrix_output_file" );
     }
 
     std::string
     Model::get_MPC_output_file_name()
     {
-        // get value from parameterlist
+        // get value from parameter list
         return mParameterList.get< std::string >( "MPC_output_file" );
     }
 
@@ -1790,7 +1790,7 @@ namespace xtk
     bool
     Model::delete_xtk_after_generation()
     {
-        // get the ouput from paramter
+        // get the ouput from parameter
         return mParameterList.get< bool >( "delete_xtk_after_generation" );
     }
 

@@ -1346,7 +1346,7 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     void
-    Enriched_Integration_Mesh::deactive_all_blocks_but_selected( Cell< std::string > const &aBlockSetsToKeep )
+    Enriched_Integration_Mesh::deactivate_all_blocks_except_selected( Cell< std::string > const &aBlockSetsToKeep )
     {
         std::unordered_map< std::string, moris_index > tBlocksToKeepMap;
         for ( moris::uint i = 0; i < aBlockSetsToKeep.size(); i++ )
@@ -1396,7 +1396,7 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     void
-    Enriched_Integration_Mesh::deactive_all_side_sets_but_selected( Cell< std::string > const &aSideSetsToKeep )
+    Enriched_Integration_Mesh::deactivate_all_side_sets_except_selected( Cell< std::string > const &aSideSetsToKeep )
     {
         std::unordered_map< std::string, moris_index > tSideSetsToKeepMap;
 

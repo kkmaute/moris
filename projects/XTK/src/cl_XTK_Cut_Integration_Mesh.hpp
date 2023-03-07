@@ -748,6 +748,8 @@ namespace xtk
 
         // communication map
         moris::Matrix< IdMat > mCommunicationMap;
+        std::map< moris_id, moris_index > mCommunicationIndexMap;
+        bool mCommMapHasBeenConstructed = false;
 
         // Integration - Lagrange Mesh relation
         // group of all integration cells in a single parent cell
@@ -907,6 +909,11 @@ namespace xtk
 
         Matrix< IdMat >
         get_communication_table() const;
+
+        // ----------------------------------------------------------------------------------
+        
+        std::map< moris_id, moris_index >      
+        get_communication_map();
 
         // ----------------------------------------------------------------------------------
 

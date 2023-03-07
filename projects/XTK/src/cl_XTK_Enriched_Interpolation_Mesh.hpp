@@ -48,6 +48,8 @@ namespace xtk
             // enriched interpolation vertices
             moris::uint                            mNumVerts;
             Cell< Interpolation_Vertex_Unzipped* > mEnrichedInterpVerts;    // over allocated
+            Cell< moris_index > mOwnedUnzippedVertices;
+            Cell< moris_index > mNotOwnedUnzippedVertices;
 
             // enriched interpolation cells
             moris::uint                          mNumVertsPerInterpCell;
@@ -94,9 +96,6 @@ namespace xtk
 
             // a connectivity pointer that all the enriched interpolation cells use
             std::shared_ptr< moris::mtk::Cell_Info > mCellInfo;
-
-            // Not owned vertex list
-            Cell< moris_index > mNotOwnedVerts; // TODO input:  || output:
 
             // not owned basis functions
             Cell< moris_index > mNotOwnedBasis; // TODO input:  || output:
@@ -573,6 +572,9 @@ namespace xtk
 
             void
             assign_ip_vertex_ids();
+
+            void
+            assign_ip_vertex_ids_old();
 
             //------------------------------------------------------------------------------
 

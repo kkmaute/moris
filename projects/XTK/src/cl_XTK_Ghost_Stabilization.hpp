@@ -192,6 +192,9 @@ namespace xtk
             void
             identify_and_setup_aura_vertices_in_ghost(Ghost_Setup_Data &  aGhostSetupData);
 
+            void
+            identify_and_setup_aura_vertices_in_ghost_old(Ghost_Setup_Data &  aGhostSetupData);
+
             // ----------------------------------------------------------------------------------
 
             void

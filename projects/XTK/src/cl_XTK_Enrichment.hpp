@@ -11,7 +11,7 @@
 #ifndef XTK_SRC_XTK_CL_XTK_ENRICHMENT_HPP_
 #define XTK_SRC_XTK_CL_XTK_ENRICHMENT_HPP_
 
-// XTKL: Linalg Includes
+// Linalg Includes
 #include "cl_Matrix.hpp"
 #include "cl_XTK_Matrix_Base_Utilities.hpp"
 
@@ -19,7 +19,7 @@
 #include <limits>
 #include <unordered_set>
 
-// XTKL: XTK Includes
+// XTK: XTK Includes
 #include "cl_Cell.hpp"
 #include "cl_XTK_Model.hpp"
 #include "cl_XTK_Child_Mesh.hpp"
@@ -46,9 +46,13 @@
 #include "cl_XTK_Subphase_Group.hpp"
 
 #include "cl_TOL_Memory_Map.hpp"
+
+using namespace moris;
+
 /*
  * This class provides all the functions to perform the enrichment strategy on a child mesh
  */
+
 namespace xtk
 {
     // ----------------------------------------------------------------------------------
@@ -94,22 +98,28 @@ namespace xtk
 
             // Enrichment Data ordered by basis function indices
             // For each basis function, the element indices and elemental enrichment levels //?
-            Cell< moris::Matrix< moris::IndexMat > > mElementIndsInBasis; // input: non-enriched BF index || output: list of IG cells within the basis support
-            Cell< moris::Matrix< moris::IndexMat > > mElementEnrichmentLevel; // input: non-enriched BF index || output: which enrichment level of current basis is active on the IG cell
+            Cell< Matrix< IndexMat > > mElementIndsInBasis; // input: non-enriched BF index || output: list of IG cells within the basis support
+            Cell< Matrix< IndexMat > > mElementEnrichmentLevel; // input: non-enriched BF index || output: which enrichment level of current basis is active on the IG cell
 
             // For each enriched basis function, the subphase indices in support
             // input: enriched BF index || output: list of subphase indices in which enriched BF is active
-            Cell< moris::Matrix< moris::IndexMat > > mSubphaseIndsInEnrichedBasis;
+            Cell< moris::Matrix< IndexMat > > mSubphaseIndsInEnrichedBasis;
             
             // FIXME: for SPG based enrichment, the above needs to go eventually
-            Cell< moris::Matrix< moris::IndexMat > > mSubphaseGroupIndsInEnrichedBasis; // input: enriched BF index || output: list of SPG indices in which enriched BF is active
+            Cell< moris::Matrix< IndexMat > > mSubphaseGroupIndsInEnrichedBasis; // input: enriched BF index || output: list of SPG indices in which enriched BF is active
             Matrix< IdMat > mBulkPhaseInEnrichedBasis; // input: enriched BF index || output: list of SPG indices in which enriched BF is active
 
             // Basis enrichment level indices
-            moris::Cell< moris::Matrix< moris::IndexMat > > mBasisEnrichmentIndices; // input1: non-enriched BF index, input2: enrichment level || output: enriched BF index
-            moris::Matrix< moris::IndexMat >                mEnrichedBasisIndexToId; // input: enriched BF index || output: global ID of that enriched BF 
+            moris::Cell< Matrix< IndexMat > > mBasisEnrichmentIndices;  // input1: non-enriched BF index, input2: enrichment level || output: enriched BF index
+            moris::Matrix< IdMat >            mEnrichedBasisIndexToId;  // input: enriched BF index || output: global ID of that enriched BF 
+            moris::Cell< moris_index >        mNonEnrBfIndForEnrBfInd;  // input: enriched BF index || output: non-enriched BF index which the enr. BF is enriched from
+            moris::Cell< moris_index >        mEnrLvlOfEnrBf;           // input: enriched BF index || output: enrichment level of this enr. BF wrt. the underlying non-enriched BF
 
-            // Unintersected Parent Cell, BackBasis interpolating in them and corresponding enrichment level
+            // list of owned and non-owned enriched basis functions
+            moris::Cell< moris_index > mOwnedEnrBasisIndices;
+            moris::Cell< moris_index > mNotOwnedEnrBasisIndices;
+
+            // non-intersected Parent Cell, BackBasis interpolating in them and corresponding enrichment level
             // outer cell corresponds to interp cell index
             // inner cell corresponds to basis/enr-lev in interp cell
             moris::Cell< moris::Cell< moris_index > > mSubphaseBGBasisIndices; // input: subphase index || output: list of non-enriched BF indices active on given subphase
@@ -120,7 +130,7 @@ namespace xtk
             moris::Cell< moris::Cell< moris_index > > mSubphaseGroupBGBasisEnrLev; // input: SPG index || output: list of enrichment levels for the respective BFs active on the given subphase group
 
             // total number of basis enrichment levels (i.e. number of enriched Basis functions)
-            moris::uint mNumEnrichmentLevels;
+            uint mNumEnrichmentLevels;
 
             // Vertex interpolations for this enrichment ordered by background vertex index
             Cell< mtk::Vertex_Interpolation* > mBGVertexInterpolations;
@@ -640,6 +650,11 @@ namespace xtk
              */
             void
             assign_enriched_coefficients_identifiers_new(
+                    moris_index const&                aEnrichmentDataIndex,
+                    moris::Cell< moris_index > const& aMaxEnrichmentLevel );
+
+            void
+            assign_enriched_coefficients_identifiers_new_old(
                     moris_index const&                aEnrichmentDataIndex,
                     moris::Cell< moris_index > const& aMaxEnrichmentLevel );
 

@@ -198,7 +198,7 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     moris::Cell< xtk::Cell_Cluster const * > const &
     get_xtk_cell_clusters_in_block_set( moris_index aBlockSetOrdinal ) const;
 
-    /*!
+    /**
      * @return Interface side set name
      */
     std::string
@@ -207,7 +207,7 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
         moris_index                          aBulkPhaseIndex1 );
 
     //------------------------------------------------------------------------------
-    /*!
+    /**
      * @return Double sided interface side set name
      */
     std::string
@@ -217,7 +217,7 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 
     //------------------------------------------------------------------------------
 
-    /*!
+    /**
      * @return Primary cell local indices in a block set
      */
     Matrix< IndexMat >
@@ -226,10 +226,10 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 
     //------------------------------------------------------------------------------
 
-    /*!
+    /**
      * @brief Creates a double sided interface between the two bulk phases.
      * This function creates additional dbl sided interfaces. By default,
-     * the enriched integrztion mesh creates only the low-master high-slave
+     * the enriched integration mesh creates only the low-master high-slave
      * dbl sided interfaces. This functions allows creation of  low-slave high-master
      * interfaces.
      * @param[in] aMasterBulkPhaseIndex Master bulk phase index
@@ -244,7 +244,7 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     //------------------------------------------------------------------------------
     // Output/ Viz Functions
     //------------------------------------------------------------------------------
-    /*!
+    /**
      * @brief For cleanup when writing to an exodus file (note: in general this should not be used because
      * sets may not be always empty through an optimization run)
      */
@@ -253,8 +253,8 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 
     //------------------------------------------------------------------------------
 
-    /*!
-     * @brief Deactive empty side sets in mesh. 
+    /**
+     * @brief Deactivate empty side sets in mesh. 
      */
     void
     deactivate_empty_side_sets();
@@ -262,14 +262,14 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 
     //------------------------------------------------------------------------------
 
-    /*!
-     * @brief Deactive empty block sets in mesh. 
+    /**
+     * @brief Deactivate empty block sets in mesh. 
      */
     void
     deactivate_empty_block_sets();
 
     //------------------------------------------------------------------------------
-    /*!
+    /**
      * @brief Create basis support fields
      * @return Cell of field names for basis support (1xNumBasisFunc)
      */
@@ -294,7 +294,7 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
         Matrix< DDRMat > const &                                 aFieldData );
     //------------------------------------------------------------------------------
 
-    /*!
+    /**
      * @brief Write mesh
      */
     void
@@ -316,18 +316,18 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 
 
     void
-    deactive_all_blocks_but_selected(
+    deactivate_all_blocks_except_selected(
         Cell< std::string > const &aBlockSetsToKeep );
 
     void
-    deactive_all_side_sets_but_selected(
+    deactivate_all_side_sets_except_selected(
         Cell< std::string > const &aSideSetsToKeep );
 
 
     //------------------------------------------------------------------------------
     // Memory Map
     //------------------------------------------------------------------------------
-    /*!
+    /**
      * @brief Memory map of the enriched integration mesh
      * @return Memory map
      */
@@ -342,7 +342,7 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     moris::Cell< std::string >
     get_field_names( enum moris::EntityRank aEntityRank );
 
-    /*!
+    /**
      * @brief Create a field
      * @param[in] aLabel Field label
      * @param[in] aEntityRank Field entity rank
@@ -356,7 +356,7 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 
     //------------------------------------------------------------------------------
 
-    /*!
+    /**
      * @brief Given a field name and rank, gets the field index(ordinal)
      * @return Field index
      */
@@ -366,7 +366,7 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 
     //------------------------------------------------------------------------------
 
-    /*!
+    /**
      * @brief Add field data to created field
      * @param[in] aFieldIndex Field index (use fn:get_field_index(...) to get)
      * @param[in] aEntityRank Field entity rank
@@ -377,7 +377,7 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
         enum moris::EntityRank         aEntityRank,
         Matrix< DDRMat > const &       aFieldData );
 
-    /*!
+    /**
      * @brief Given a field index and field entity rank, get the field data
      * @param[in] aFieldIndex Field index (use fn:get_field_index(...) to get)
      * @param[in] aEntityRank Field entity rank
@@ -387,18 +387,18 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     get_field_data( moris::moris_index aFieldIndex,
         enum moris::EntityRank         aEntityRank ) const;
     //------------------------------------------------------------------------------
-    /*!
+    /**
      * @brief Convert entity indices to entity ids
-     * @param[in] aIndices Enitity indices
+     * @param[in] aIndices Entity indices
      * @param[in] aEntityRank Entity rank
      * @return Entity ids
      */
     Matrix< IdMat > convert_indices_to_ids( Matrix< IndexMat > const &aIndices,
         enum EntityRank                                               aEntityRank ) const;
     //------------------------------------------------------------------------------
-    /*!
+    /**
      * @brief Convert entity ids to entity indices
-     * @param[in] aIds Enitity ids
+     * @param[in] aIds Entity ids
      * @param[in] aEntityRank Entity rank
      * @return Entity indices
      */
@@ -406,7 +406,7 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
         enum EntityRank                                               aEntityRank ) const;
     //------------------------------------------------------------------------------
 
-    /*!
+    /**
      * @brief Get MTK cells from their indices
      * @param[in] aCellIndices Cell indices
      * @return MTK cells
@@ -416,7 +416,7 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
 
     //------------------------------------------------------------------------------
 
-    /*!
+    /**
      * @brief Get MTK vertices from their indices
      * @param[in] aVertexIndices Vertex indices
      * @return MTK vertices
@@ -428,7 +428,7 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     //------------------------------------------------------------------------------
     // Accessor functions of XTK specific data structures
     //------------------------------------------------------------------------------
-    /*!
+    /**
      * @brief Get the XTK cell cluster implementation
      * @param[in] aInterpCell Interpolation MTK cell
      * @return XTK cell cluster
@@ -438,7 +438,7 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     get_xtk_cell_cluster( mtk::Cell const &aInterpCell ) const;
 
     //------------------------------------------------------------------------------
-    /*!
+    /**
      * @brief Get the XTK cell cluster implementation
      * @param[in] aInterpCell Interpolation MTK cell
      * @return XTK cell cluster
@@ -461,7 +461,7 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     //--------------------------------------------------------------------------------
     // Utilities for manipulating sets
     //--------------------------------------------------------------------------------
-    /*!
+    /**
      * @brief Create a single side set from a double sided side set
      * @param[in] aDblSideSetIndex Double side set index
      * @param[in] aSideSetName New side set name
@@ -473,7 +473,7 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
         std::string const &                               aSideSetName,
         bool                                              aCollectSets = true );
 
-    /*!
+    /**
      * @brief Create a block set from a single sided side set
      * @param[in] aDblSideSetIndex Double side set index
      * @param[in] aBlockSetName New block set name
@@ -720,7 +720,7 @@ class Enriched_Integration_Mesh : public mtk::Integration_Mesh
     moris_index
     get_entity_rank_field_index( enum moris::EntityRank aEntityRank );
     //------------------------------------------------------------------------------
-    /*!
+    /**
      * @return  whether a field exists or not
      */
     bool

@@ -630,6 +630,11 @@ namespace xtk
                 Cut_Integration_Mesh* aCutIntegrationMesh,
                 moris::mtk::Mesh*     aBackgroundMesh );
 
+        void
+        assign_subphase_glob_ids_old(
+                Cut_Integration_Mesh* aCutIntegrationMesh,
+                moris::mtk::Mesh*     aBackgroundMesh );
+
         // ----------------------------------------------------------------------------------
 
         /**
@@ -702,6 +707,12 @@ namespace xtk
          */
         void
         assign_subphase_group_glob_ids(
+                Cut_Integration_Mesh* aCutIntegrationMesh,
+                moris::mtk::Mesh*     aBackgroundMesh,
+                Bspline_Mesh_Info*    aBsplineMeshInfo );
+
+        void
+        assign_subphase_group_glob_ids_old(
                 Cut_Integration_Mesh* aCutIntegrationMesh,
                 moris::mtk::Mesh*     aBackgroundMesh,
                 Bspline_Mesh_Info*    aBsplineMeshInfo );

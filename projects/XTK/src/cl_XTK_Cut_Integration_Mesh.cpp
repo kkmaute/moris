@@ -501,6 +501,28 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
+    std::map< moris_id, moris_index >
+    Cut_Integration_Mesh::get_communication_map()
+    {
+        // construct the index map if it hasn't already, or the communication table was updated
+        if( !mCommMapHasBeenConstructed )
+        {
+            mCommunicationIndexMap.clear();
+            for ( uint iProc = 0; iProc < mCommunicationMap.numel(); iProc++ )
+            {
+                mCommunicationIndexMap[ mCommunicationMap( iProc ) ] = (moris_index)iProc;
+            }
+        }
+
+        // mark the index map as constructed
+        mCommMapHasBeenConstructed = true;
+
+        // return the index map
+        return mCommunicationIndexMap;
+    }
+
+    // ----------------------------------------------------------------------------------
+
     void
     Cut_Integration_Mesh::add_proc_to_comm_table( moris_index aProcRank )
     {
@@ -513,6 +535,9 @@ namespace xtk
 
         mCommunicationMap.resize( 1, mCommunicationMap.numel() + 1 );
         mCommunicationMap( tIndex ) = aProcRank;
+
+        // mark the index map as needing to be re-constructed
+        mCommMapHasBeenConstructed = false;
     }
 
     // ----------------------------------------------------------------------------------
@@ -604,6 +629,7 @@ namespace xtk
             auto tIter = mIntegrationVertexIdToIndexMap.find( aEntityId );
 
             MORIS_ERROR( tIter != mIntegrationVertexIdToIndexMap.end(),
+                    "Cut_Integration_Mesh::get_loc_entity_ind_from_entity_glb_id() - "
                     "Provided Entity Id is not in the map, Has the map been initialized?: aEntityId =%u EntityRank = %u on process %u",
                     aEntityId,
                     (uint)aEntityRank,
@@ -615,6 +641,7 @@ namespace xtk
             auto tIter = mIntegrationCellIdToIndexMap.find( aEntityId );
 
             MORIS_ERROR( tIter != mIntegrationCellIdToIndexMap.end(),
+                    "Cut_Integration_Mesh::get_loc_entity_ind_from_entity_glb_id() - "
                     "Provided Entity Id is not in the map, Has the map been initialized?: aEntityId =%u EntityRank = %u on process %u",
                     aEntityId,
                     (uint)aEntityRank,
@@ -1991,7 +2018,7 @@ namespace xtk
         if ( par_size() > 1 )
         {
             // Build list of processors with whom current processor shares nodes
-            std::unordered_map< moris_id, moris_id > tCommunicationMap;
+            std::unordered_map< moris_id, moris_id > tProcList;
             Cell< moris_index >                      tCellOfProcs;
 
             // Loop over all nodes in background mesh and get node's owner
@@ -1999,10 +2026,10 @@ namespace xtk
             {
                 moris_index tOwner = mBackgroundMesh->get_entity_owner( (moris_index)i, EntityRank::NODE );
 
-                if ( tCommunicationMap.find( tOwner ) == tCommunicationMap.end() && tOwner != par_rank() )
+                if ( tProcList.find( tOwner ) == tProcList.end() && tOwner != par_rank() )
                 {
                     tCellOfProcs.push_back( tOwner );
-                    tCommunicationMap[ tOwner ] = 1;
+                    tProcList[ tOwner ] = 1;
                 }
             }
 
@@ -2085,14 +2112,14 @@ namespace xtk
                 if ( tTempCommMap( i ) != MORIS_INDEX_MAX )
                 {
                     // Check if processor is already in communication table
-                    if ( tCommunicationMap.find( tTempCommMap( i ) ) == tCommunicationMap.end()
+                    if ( tProcList.find( tTempCommMap( i ) ) == tProcList.end()
                             && tTempCommMap( i ) != par_rank() )
                     {
                         moris_index tIndex = mCommunicationMap.numel();
 
                         mCommunicationMap.resize( 1, mCommunicationMap.numel() + 1 );
 
-                        tCommunicationMap[ tTempCommMap( i ) ] = 1;
+                        tProcList[ tTempCommMap( i ) ] = 1;
 
                         mCommunicationMap( tIndex ) = tTempCommMap( i );
                     }
@@ -2100,6 +2127,9 @@ namespace xtk
             }
             barrier();
         }
+
+        // mark the index map as needing to be re-constructed
+        mCommMapHasBeenConstructed = false;
     }
 
     // ----------------------------------------------------------------------------------
@@ -2246,22 +2276,22 @@ namespace xtk
             tNumIgCellsInParentCell.resize( tCommTableSize );
 
             // get the number of IG cell group for which IG cells need to be communicated
-            uint tNumNonOwnedCMs = mNotOwnedIntegrationCellGroups.size();
+            uint tNumNonOwnedIgCellGroup = mNotOwnedIntegrationCellGroups.size();
 
             // sort non-owned parent cells (corresponding to IG cell groups) into lists associated with each of the processors communicated with
-            for ( uint iNonOwnedCM = 0; iNonOwnedCM < tNumNonOwnedCMs; iNonOwnedCM++ )
+            for ( uint iNonOwnedCM = 0; iNonOwnedCM < tNumNonOwnedIgCellGroup; iNonOwnedCM++ )
             {
                 // get the index of the current non-owned IG cell group
                 moris_index tNonOwnedCellGroupIndex = mNotOwnedIntegrationCellGroups( iNonOwnedCM );
 
                 // find the position of the current proc in the communication table
-                moris_index tCmOwnerProc = mIntegrationCellGroupsParentCell( tNonOwnedCellGroupIndex )->get_owner();
-                auto        tIter        = tProcIdToCommTableIndex.find( tCmOwnerProc );
+                moris_index tOwnerProc = mIntegrationCellGroupsParentCell( tNonOwnedCellGroupIndex )->get_owner();
+                auto        tIter        = tProcIdToCommTableIndex.find( tOwnerProc );
                 MORIS_ASSERT(
                         tIter != tProcIdToCommTableIndex.end(),
                         "Cut_Integration_Mesh::assign_controlled_ig_cell_ids() - "
                         "IG cell group owner (Proc #%i) not found in communication table of current proc #%i which is: %s",
-                        tCmOwnerProc,
+                        tOwnerProc,
                         par_rank(),
                         ios::stringify_log( tCommTable ).c_str() );
                 moris_index tProcDataIndex = tIter->second;
@@ -2270,7 +2300,7 @@ namespace xtk
                 tNotOwnedIgCellGroups( tProcDataIndex ).push_back( tNonOwnedCellGroupIndex );
             }
 
-            // populate the identifying information for each non-owned CM (for each processor to communicate with)
+            // populate the identifying information for each non-owned IG cell group (for each processor to communicate with)
             for ( uint iProc = 0; iProc < tCommTableSize; iProc++ )
             {
                 // number of IG cell group shared with this processor
@@ -2280,7 +2310,7 @@ namespace xtk
                 tParentCellIds( iProc ).resize( tNumIgCellGroupsOnProc, 1 );
                 tNumIgCellsInParentCell( iProc ).resize( tNumIgCellGroupsOnProc, 1 );
 
-                // populate the identifying information for each non-owned CM (for each CM on each proc)
+                // populate the identifying information for each non-owned IG cell group (for each IG cell group on each proc)
                 for ( uint iIgCellGroup = 0; iIgCellGroup < tNumIgCellGroupsOnProc; iIgCellGroup++ )
                 {
                     // get the index of the IG cell group treated
