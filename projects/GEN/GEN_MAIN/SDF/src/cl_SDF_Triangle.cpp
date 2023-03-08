@@ -15,6 +15,7 @@
 #include "fn_norm.hpp"
 #include "op_times.hpp"
 #include "SDF_Tools.hpp"
+#include "fn_stringify_matrix.hpp"
 
 namespace moris
 {
@@ -55,7 +56,7 @@ namespace moris
             this->calculate_hesse_normal_form( tDirectionOfEdge );
 
             // step 3: calculate barycentric data
-            this->calculate_barycectric_data( tDirectionOfEdge );
+            this->calculate_barycentric_data( tDirectionOfEdge );
 
             // step 4: calculate helpers for cross prediction
             this->calculate_prediction_helpers();
@@ -145,7 +146,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Triangle::calculate_barycectric_data( const Matrix< F31RMat >& aDirectionOfEdge )
+        Triangle::calculate_barycentric_data( const Matrix< F31RMat >& aDirectionOfEdge )
         {
 
             // calculate direction orthogonal to plane and edge
@@ -197,9 +198,26 @@ namespace moris
                                               * ( mBarycentric.mLocalNodeCoordsInPlane( 0, 1 )
                                                       - mBarycentric.mLocalNodeCoordsInPlane( 0, 2 ) );
 
-            MORIS_ASSERT( mBarycentric.mTwiceArea > 2 * gSDFepsilon,
-                    "A degenerated triangle was found." );
+            
+            // warn if the the triangle has a volume close to zero
+            if( mBarycentric.mTwiceArea <= 2 * gSDFepsilon )
+            {
+                MORIS_LOG_WARNING( 
+                        "TRI/TET with ID %i is potentially degenerate and has a volume of V = %e. ",
+                        this->get_id(), 
+                        mBarycentric.mTwiceArea );
+                MORIS_LOG_WARNING( "Nodal coordinates = %s", ios::stringify_log( this->get_vertex_coords() ).c_str() );
+            }
 
+            // throw an error if an inverted triangle has been produced
+            MORIS_ERROR( mBarycentric.mTwiceArea > -1.0 * MORIS_REAL_EPS,
+                    "TRI/TET with ID %i is inverted and has a volume of V = %e. "
+                    "Nodal coordinates of the element are: %s", 
+                    this->get_id(), 
+                    mBarycentric.mTwiceArea,
+                    ios::stringify_log( this->get_vertex_coords() ).c_str() );
+
+            // store the inverse of the jacobian
             mBarycentric.mInvTwiceArea = 1.0 / mBarycentric.mTwiceArea;
 
             // Edge directions
@@ -277,7 +295,7 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        // TODO MESHCLEANUP
+        // TODO MESH-CLEANUP
         void
         Triangle::remove_vertex_pointer( moris_index aIndex )
         {
