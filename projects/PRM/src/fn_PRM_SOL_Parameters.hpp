@@ -40,6 +40,12 @@ namespace moris
             // load final solution vector from file. using this option will skip the assembly and solve
             tSolverWarehouseList.insert( "SOL_load_sol_vec_from_file", std::string( "" ) );
 
+            // HDF5 data group from which final solution vectors are loaded
+            tSolverWarehouseList.insert( "SOL_load_sol_vec_data_group", std::string( "LHS" ) );
+
+            // HDF5 data group from which final solution vectors are loaded
+            tSolverWarehouseList.insert( "SOL_load_sol_vec_num_vec", (sint)1 );
+
             // save final adjoint vector to file
             tSolverWarehouseList.insert( "SOL_save_final_adjoint_vec_to_file", std::string( "" ) );
 

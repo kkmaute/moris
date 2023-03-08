@@ -125,7 +125,12 @@ namespace moris
 
         void save_vector_to_HDF5( const char* aFilename );
 
-        void read_vector_from_HDF5( const char* aFilename );
+        void read_vector_from_HDF5(
+                const char* aFilename,
+                std::string aGroupName   = "LHS",
+                sint        aVectorindex = 0 );
+
+        //----------------------------------------------------------------------------------------------
 
         moris::real*
         get_values_pointer()

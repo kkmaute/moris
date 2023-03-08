@@ -207,7 +207,10 @@ namespace moris
              *
              * @param aFilename File name to read from
              */
-            virtual void read_vector_from_HDF5( const char* aFilename ) = 0;
+            virtual void read_vector_from_HDF5(
+                    const char* aFilename,
+                    std::string aGroupName   = "LHS",
+                    sint        aVectorindex = 0 ) = 0;
 
             /**
              * Extracts a full copy of this vector into a DDRMat format.

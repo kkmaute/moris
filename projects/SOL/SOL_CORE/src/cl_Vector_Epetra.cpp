@@ -438,20 +438,14 @@ Vector_Epetra::save_vector_to_HDF5( const char* aFilename )
 //-----------------------------------------------------------------------------
 
 void
-Vector_Epetra::read_vector_from_HDF5( const char* aFilename )
+Vector_Epetra::read_vector_from_HDF5(
+        const char* aFilename,
+        std::string aGroupName,
+        sint        aVectorindex )
 {
-    Communicator_Epetra mEpetraComm;
-
-    EpetraExt::HDF5 HDF5( *mEpetraComm.get_epetra_comm() );
-    HDF5.Open( aFilename );
-
-    Epetra_Map* NewMap;
-    HDF5.Read( "map-" + std::to_string( ( mEpetraComm.get_epetra_comm() )->NumProc() ), NewMap );
-
-    Epetra_MultiVector* NewVector = NULL;
-
-    HDF5.Read( "LHS", *NewMap, NewVector );
-    HDF5.Close();
+    // Note: the following function uses the existing map of the vector;
+    //       thus the map of the vector read from hdf5 file needs to be consistent
+    //       wit the map of the current vector
 
     // delete old Epetra Vector
     if ( mEpetraVector )
@@ -459,14 +453,57 @@ Vector_Epetra::read_vector_from_HDF5( const char* aFilename )
         delete mEpetraVector;
     }
 
-    mEpetraVector = NewVector;
+    // open hdf5 file
+    Communicator_Epetra mEpetraComm;
 
-    mValuesPtr = mEpetraVector->Values();
+    EpetraExt::HDF5 HDF5( *mEpetraComm.get_epetra_comm() );
+    HDF5.Open( aFilename );
 
-    // FIXME
-    delete NewMap;
-    //     mMap->get_epetra_map() = NewMap;
-    // mMap->get_epetra_full_overlapping_map() = NewMap;
+    // read new map
+    Epetra_Map* tNewMap;
+
+    HDF5.Read( "map-" + std::to_string( ( mEpetraComm.get_epetra_comm() )->NumProc() ), tNewMap );
+
+    // read new multi-vector
+    Epetra_MultiVector* tNewVector = NULL;
+
+    HDF5.Read( aGroupName, *tNewMap, tNewVector );
+
+    // close hdf5 file
+    HDF5.Close();
+
+    // extract single vector from multi-vector
+    if ( aVectorindex > 0 )
+    {
+        // get number of read vectors
+        MORIS_ERROR( aVectorindex < tNewVector->NumVectors(),
+                "Vector_Epetra::read_vector_from_HDF5 - requested vector does not exist" );
+
+        // get length of vector
+        moris::sint tVecLength = tNewVector->MyLength();
+
+        // create new vector
+        mEpetraVector = new Epetra_FEVector( *tNewMap, 1 );
+
+        // start address in multi-vector
+        real* tStart = tNewVector->Values() + tVecLength * aVectorindex;
+        real* tEnd   = tStart + tVecLength - 1;
+
+        // copy vector of requested index onto member vector
+        std::copy( tStart, tEnd, mEpetraVector->Values() );
+    }
+    else
+    {
+        // set vector to vector read from file
+        mEpetraVector = tNewVector;
+    }
+
+    // set member variables
+    mNumVectors = mEpetraVector->NumVectors();
+    mValuesPtr  = mEpetraVector->Values();
+
+    // delete map read from hdf5 file
+    delete tNewMap;
 }
 
 //----------------------------------------------------------------------------------------------

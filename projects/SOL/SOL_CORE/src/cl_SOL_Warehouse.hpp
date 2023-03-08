@@ -100,6 +100,12 @@ namespace moris
             // load final solution vector from file. This option will skip assembly and solve
             std::string mLoadSolVecFromFile = std::string( "" );
 
+            // hdf5 data group from which solution is load
+            std::string mSolVecDataGroup = std::string( "" );
+
+            // number of solution vector to be processed
+            sint mSolVecNumberOfVectors = 0;
+
             // save final adjoint vector to file string
             std::string mSaveFinalAdjointVecToFile = std::string( "" );
 
@@ -256,6 +262,25 @@ namespace moris
             get_load_sol_vec_from_file()
             {
                 return mLoadSolVecFromFile;
+            }
+
+            //--------------------------------------------------------------------------------------------------------
+
+            // return number of vectors to be processed from solution file
+            sint
+            get_load_sol_vec_num_vec()
+            {
+                // number of solution vector to be processed
+                return mSolVecNumberOfVectors;
+            }
+
+            //--------------------------------------------------------------------------------------------------------
+
+            // return data group used in hdf5 solution file
+            const std::string&
+            get_load_sol_vec_data_group()
+            {
+                return mSolVecDataGroup;
             }
 
             //-------------------------------------------------------------------------------

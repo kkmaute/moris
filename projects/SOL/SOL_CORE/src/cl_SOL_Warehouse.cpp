@@ -86,7 +86,10 @@ SOL_Warehouse::initialize()
 
     mOperatorToMatlab      = mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_operator_to_matlab" );
     mSaveFinalSolVecToFile = mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_final_sol_vec_to_file" );
+
     mLoadSolVecFromFile    = mParameterlist( 6 )( 0 ).get< std::string >( "SOL_load_sol_vec_from_file" );
+    mSolVecDataGroup       = mParameterlist( 6 )( 0 ).get< std::string >( "SOL_load_sol_vec_data_group" );
+    mSolVecNumberOfVectors = mParameterlist( 6 )( 0 ).get< sint >( "SOL_load_sol_vec_num_vec" );
 
     mFilenameInitialGuess = mParameterlist( 6 )( 0 ).get< std::string >( "TSA_Initial_Sol_Vec" );
 
@@ -369,7 +372,7 @@ SOL_Warehouse::create_time_solvers()
 
         if ( tStringOutputInd.size() > 0 )
         {
-            moris::Matrix< DDSMat >    tOutputIndices;
+            moris::Matrix< DDSMat > tOutputIndices;
             string_to_mat( tStringOutputInd, tOutputIndices );
 
             moris::Cell< std::string > tOutputCriteria;
