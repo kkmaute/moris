@@ -382,7 +382,7 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             void
-            calculate_barycectric_data( const Matrix< F31RMat >& aDirectionOfEdge );
+            calculate_barycentric_data( const Matrix< F31RMat >& aDirectionOfEdge );
 
             //-------------------------------------------------------------------------------
 

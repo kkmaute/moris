@@ -45,6 +45,12 @@ namespace moris
          */
         int mOutputRank = 0;
 
+        /*
+         * Severity Levels:
+         * 1 - everything gets written
+         * 2 - print general logs and output values but suppress verbose info logs
+         * 3 - suppress everything except errors and sign-in/sign-out
+         */
         // decide which outputs get written
         sint mSeverityLevel = LOGGER_DEFAULT_SEVERITY_LEVEL;
 
@@ -54,7 +60,7 @@ namespace moris
         sint mMemoryOutput = 1;
 
         /**
-         * Output formating mode for console output:
+         * Output formatting mode for console output:
          * 1 - legacy mode, everything is written to screen as handed to log macros/functions
          * 2 - output is written in a clean tree structure, general MORIS_LOG and MORIS_LOG_INFO is suppressed. Good for live tracing.
          * 3 - all output is written in a tree structure, no filtering
@@ -190,11 +196,11 @@ namespace moris
         void
         initialize(
                 const std::string aPath,
-                const moris::sint aSverityLevel       = LOGGER_DEFAULT_SEVERITY_LEVEL,
+                const moris::sint aSeverityLevel      = LOGGER_DEFAULT_SEVERITY_LEVEL,
                 const moris::uint aDirectOutputFormat = LOGGER_DEFAULT_DIRECT_OUTPUT )
         {
             mDirectOutputFormat = aDirectOutputFormat;
-            mSeverityLevel      = aSverityLevel;
+            mSeverityLevel      = aSeverityLevel;
 
             mStream.open( aPath + "." + std::to_string( logger_par_rank() ), std::ofstream::out );
 
@@ -206,7 +212,7 @@ namespace moris
             // log start of Global Clock to file
             if ( mWriteToAscii )
             {
-                // formated output to log file
+                // formatted output to log file
                 this->log_to_file( "SignIn", 1.0 );
             }
 
@@ -230,9 +236,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        set_severity_level( const moris::sint aSverityLevel )
+        set_severity_level( const moris::sint aSeverityLevel )
         {
-            mSeverityLevel = aSverityLevel;
+            mSeverityLevel = aSeverityLevel;
         };
 
         //------------------------------------------------------------------------------
@@ -405,12 +411,14 @@ namespace moris
                 // switch based on OutputFormat provided
                 if ( ( mDirectOutputFormat == 3 ) || ( mDirectOutputFormat == 2 ) )
                 {
-                    std::cout << "Processor = " << logger_par_rank() << " : " << tString << "\n"
+                    std::cout << print_empty_line( mGlobalClock.mIndentationLevel ) << "_"
+                              << mGlobalClock.mCurrentEntity[ mGlobalClock.mIndentationLevel ] << " - "
+                              << "Proc #" << logger_par_rank() << " - WARNING: " << tString << " \n"
                               << std::flush;
                 }
                 else
                 {
-                    std::cout << "Processor = " << logger_par_rank() << " : " << tString << "\n"
+                    std::cout << "Proc #" << logger_par_rank() << " - WARNING: " << tString << "\n"
                               << std::flush;
                 }
             }
@@ -585,7 +593,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        // write logged info to formated file
+        // write logged info to formatted file
         template< class T >
         void
         log_to_file( std::string aOutputSpecifier, T aOutputValue )
@@ -690,7 +698,7 @@ extern moris::Logger gLogger;
 #define MORIS_LOG_INFO( ... )                   \
     do                                          \
     {                                           \
-        if ( gLogger.get_severity_level() < 1 ) \
+        if ( gLogger.get_severity_level() < 2 ) \
         {                                       \
             gLogger.log_info( __VA_ARGS__ );    \
         }                                       \
@@ -706,7 +714,7 @@ extern moris::Logger gLogger;
 #define MORIS_LOG_SPEC( ... )                    \
     do                                           \
     {                                            \
-        if ( gLogger.get_severity_level() < 1 )  \
+        if ( gLogger.get_severity_level() < 3 )  \
         {                                        \
             gLogger.log_specific( __VA_ARGS__ ); \
         }                                        \
@@ -752,7 +760,7 @@ extern moris::Logger gLogger;
 #define MORIS_LOG_WARNING( ... )                \
     do                                          \
     {                                           \
-        if ( gLogger.get_severity_level() < 2 ) \
+        if ( gLogger.get_severity_level() < 3 ) \
         {                                       \
             gLogger.log_warning( __VA_ARGS__ ); \
         }                                       \
@@ -768,7 +776,7 @@ extern moris::Logger gLogger;
 #define MORIS_LOG_ERROR( ... )                  \
     do                                          \
     {                                           \
-        if ( gLogger.get_severity_level() < 2 ) \
+        if ( gLogger.get_severity_level() < 4 ) \
         {                                       \
             gLogger.log_error( __VA_ARGS__ );   \
         }                                       \
