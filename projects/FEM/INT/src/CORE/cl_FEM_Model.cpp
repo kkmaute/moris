@@ -3541,8 +3541,15 @@ namespace moris
         {
             Tracer tTracer( "FEM", "Model", "Populate fields" );
 
+            // check if fields exists
+            if ( mFields.size() == 0 )
+            {
+                return;
+            }
+
             Cell< std::shared_ptr< fem::Field > > tFieldToPopulate;
             Cell< std::string >                   tFieldIQINames;
+
             tFieldToPopulate.reserve( mFields.size() );
             tFieldIQINames.reserve( mFields.size() );
 
