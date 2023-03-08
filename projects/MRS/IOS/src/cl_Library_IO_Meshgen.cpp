@@ -463,10 +463,6 @@ namespace moris
             MORIS_ERROR( tGeomType != "",
                     "Library_IO_Meshgen::load_parameters_from_xml() - "
                     "No type defined for this geometry. For all geometries an attribute 'type' needs to be defined." );
-            MORIS_ERROR( tGeomType == "pre_defined" || tGeomType == "image_file",
-                    "Library_IO_Meshgen::load_parameters_from_xml() - "
-                    "Geometry type '%s' unknown. Currently supported options are: 'pre_defined' and 'image_file'.",
-                    tGeomType );
 
             // create parameter lists according to geometry type
             if ( tGeomType == "pre_defined" )
@@ -669,7 +665,7 @@ namespace moris
                 }
             }    // end if: pre-defined geometry
 
-            if ( tGeomType == "image_file" )
+            else if ( tGeomType == "image_file" )
             {
                 // initialize with the image sdf default parameter list
                 tGenParamList( 1 )( iGeom ) = prm::create_image_sdf_field_parameter_list();
@@ -715,6 +711,55 @@ namespace moris
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "Number of entries in 'ImageOrigin' vector does not match number of spatial dimensions" );
                 tGenParamList( 1 )( iGeom ).set( "image_offset", tImageOffsetStr );
+
+            }    // end if: geometry from image file
+
+            else if ( tGeomType == "object_file" )
+            {
+                // initialize with the sdf field default parameter list
+                tGenParamList( 1 )( iGeom ) = prm::create_sdf_field_parameter_list();
+
+                // get the file name and check it for validity
+                std::string tFileName = "";
+                mXmlReader->get_from_buffer( "FileName", tFileName, std::string( "" ) );
+                MORIS_ERROR( tFileName != "",
+                        "Library_IO_Meshgen::load_parameters_from_xml() - "
+                        "No object file name provided for geometry #%i. Please provide an .obj file using the tag 'FileName' ",
+                        iGeom );
+                MORIS_ERROR( this->string_ends_with( tFileName, ".obj" ),
+                        "Library_IO_Meshgen::load_parameters_from_xml() - "
+                        "File provided is not an .obj file. STL data needs to be provided in this format." );
+                tGenParamList( 1 )( iGeom ).set( "sdf_object_path", tFileName );
+
+                // get the object offset
+                std::string tObjectOffsetStr = "";
+                mXmlReader->get_from_buffer( "ObjectOrigin", tObjectOffsetStr, std::string( "" ) );
+                MORIS_ERROR( tFileName != "",
+                        "Library_IO_Meshgen::load_parameters_from_xml() - "
+                        "No object origin provided for geometry #%i. "
+                        "Please provide an origin/offset using the tag 'ObjectOrigin' in the the format e.g. '1.2,3.3' ",
+                        iGeom );
+                Matrix< DDRMat > tObjectOffsetVec;
+                moris::string_to_mat( tObjectOffsetStr, tObjectOffsetVec );
+                MORIS_ERROR( tObjectOffsetVec.numel() == tNumDims || tObjectOffsetVec.n_cols() == tNumDims,
+                        "Library_IO_Meshgen::load_parameters_from_xml() - "
+                        "Number of entries in 'ObjectOrigin' vector for geometry %i does not match number of spatial dimensions.",
+                        iGeom );
+                tGenParamList( 1 )( iGeom ).set( "sdf_object_offset", tObjectOffsetStr );
+
+                // get an offset in the sign distance value if input is provided
+                double tSdfShift = 0.0;
+                mXmlReader->get_from_buffer( "SdfShift", tSdfShift, double( 0.0 ) );
+                tGenParamList( 1 )( iGeom ).set( "sdf_shift", tSdfShift );
+                
+            }    // end if: geometry from image file
+
+            else
+            {
+                MORIS_ERROR( false,
+                        "Library_IO_Meshgen::load_parameters_from_xml() - "
+                        "Geometry type '%s' unknown. Currently supported options are: 'pre_defined', 'image_file' and 'object_file'.",
+                        tGeomType );
             }
 
         }    // end for: loop over geometries in input file

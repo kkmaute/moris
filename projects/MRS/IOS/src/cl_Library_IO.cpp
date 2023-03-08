@@ -68,7 +68,7 @@ namespace moris
             // get the current absolute working directory path
             std::string tCurrentDir = std::string( std::getenv( "PWD" ) );
 
-            // add the direchtory to the file path
+            // add the directory to the file path
             return tCurrentDir + "/" + aFilePath;
         }
     }
@@ -186,7 +186,7 @@ namespace moris
     void
     Library_IO::load_parameter_list( std::string aFileName, File_Type aFileType )
     {
-        // check that this library has not been fully initialized yet and isn't lockec
+        // check that this library has not been fully initialized yet and isn't locked
         MORIS_ERROR( !mLibraryIsFinalized, "Library_IO::load_parameter_list() - "
                 "This Library has already been finalized and cannot load any additional parameters." );
 
@@ -198,7 +198,7 @@ namespace moris
 
                 // check that no shared object library has been initialized yet
                 MORIS_ASSERT( !mSoLibIsInitialized, "Library_IO::load_parameter_list() - "
-                        "Trying to intialize a shared object library, but one has already been initialized." );
+                        "Trying to initialize a shared object library, but one has already been initialized." );
 
                 // get and store the absolute file path to the .so input file
                 mSoFilePath = this->convert_to_absolute_file_path( aFileName );
@@ -216,7 +216,7 @@ namespace moris
                     MORIS_ERROR( mLibraryHandle, tError.c_str() );
                 }
                 
-                // if loading succeded set the shared object library to initialized
+                // if loading succeeded set the shared object library to initialized
                 mSoLibIsInitialized = true;
 
                 // stop switch case here
@@ -225,9 +225,9 @@ namespace moris
             /* -------------------------- */
             case File_Type::XML_FILE :
 
-                // check that no shared object library has been initialized yet
-                MORIS_ASSERT( !mSoLibIsInitialized, "Library_IO::load_parameter_list() - "
-                        "Trying to intialize a shared object library, but one has already been initialized." );
+                // check that no other xml file has been initialized yet
+                MORIS_ASSERT( !mXmlParserIsInitialized, "Library_IO::load_parameter_list() - "
+                        "An XML file has already been initialized. Only one xml file accepted as an input argument." );
 
                 // get and store the absolute file path to the .xml input file
                 mXmlFilePath = this->convert_to_absolute_file_path( aFileName );
@@ -290,7 +290,7 @@ namespace moris
                     // get the parameter list to the currently 
                     ModuleParameterList& tCurrentModuleStandardParamList = mParameterLists( iParamListType );
 
-                    // superseed standard parameters with user-defined parameters
+                    // supersede standard parameters with user-defined parameters
                     this->overwrite_and_add_parameters( tCurrentModuleStandardParamList, tUserDefinedParamList );
                 }
             } 
