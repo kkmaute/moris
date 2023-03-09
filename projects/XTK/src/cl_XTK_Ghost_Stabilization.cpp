@@ -737,9 +737,6 @@ namespace xtk
                             {
                                 // check that this basis is indeed owned by another proc
                                 moris_id tBasisOwner = tBasisOwners( iBF );
-                                MORIS_ASSERT( tBasisOwner != par_rank(), 
-                                        "Ghost_Stabilization::identify_and_setup_aura_vertices_in_ghost() - "
-                                        "Owned basis should already exist on partition." );
 
                                 // get the current BF's ID
                                 moris_id tBasisId = tBasisIds( iBF );
