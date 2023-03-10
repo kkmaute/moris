@@ -184,13 +184,107 @@ namespace xtk
             construct_ip_ig_cells_for_ghost_side_clusters(Ghost_Setup_Data & aGhostSetupData);
 
             // ----------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------
+
             /**
              * @brief identifies the vertices in the aura that will interpolate into a ghost facet.
              * In general, these vertices do not have a vertex interpolation so the vertex
-             * interpolation information needs to be communicated. This function handles that.
+             * interpolation information needs to be communicated. This function handles that. 
+             * 
+             * @param aGhostSetupData 
              */
             void
             identify_and_setup_aura_vertices_in_ghost(Ghost_Setup_Data &  aGhostSetupData);
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief Find for which unzipped IP vertices the executing processor doesn't have a T-matrix for a given B-spline mesh
+             * This happens as basis information is only known up to the processor boundaries, but not into the aura
+             * 
+             * @param aGhostSetupData data which is used to construct ghost facets
+             * @param aGhostVerticesWithoutInterpolation output: list of unzipped IP vertices for which a T-matrix is missing
+             * @param aGhostIpCellConnectedToVertex output: unzipped IP cells that these IP vertices belong to
+             * @param aMeshIndex input: B-spline mesh index for which the UIPVs with missing T-matrices are to be collected
+             */
+            void
+            collect_unzipped_IP_vertices_without_interpolation(
+                    Ghost_Setup_Data&          aGhostSetupData,
+                    Cell< mtk::Vertex* >&      aGhostVerticesWithoutInterpolation,
+                    Cell< mtk::Cell const * >& aGhostIpCellConnectedToVertex,
+                    const moris_index          aMeshIndex );
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief Prepare information by which a UIPV can be identified by another processor
+             * 
+             * @param aGhostVerticesWithoutInterpolation input: list of unzipped IP vertices for which the T-matrix is known to be missing
+             * @param aGhostIpCellConnectedToVertex input: unzipped IP cells that these IP vertices are attached to
+             * @param aNotOwnedIPVertIndsInNotOwnedList output: outer cell: owner proc index in XTK comm-table || inner cell: position of the IP vertex (for which T-matrix information should be communicated) in the list of all UIPVs with missing T-matrices
+             * @param aIPVertIndsToProcs output: outer cell: owner proc index in XTK comm-table || inner cell: index of the UIPV with a missing T-matrix
+             * @param aBaseVertexIds output: outer cell: owner proc index in XTK comm-table || inner cell: ID of the base vertex underlying the UIPV
+             * @param aUnzippedIpCellIds output: outer cell: owner proc index in XTK comm-table || inner cell: ID of the UIPC the UIPV is attached to
+             */
+            void
+            prepare_requests_for_T_matrices_without_interpolation(
+                    Cell< mtk::Vertex* > const &      aGhostVerticesWithoutInterpolation,
+                    Cell< mtk::Cell const * > const & aGhostIpCellConnectedToVertex,
+                    Cell< Cell< moris_index > > &     aNotOwnedIPVertIndsInNotOwnedList,
+                    Cell< Cell< moris_index > >&      aIPVertIndsToProcs,
+                    Cell< Matrix< IdMat > >&          aBaseVertexIds,
+                    Cell< Matrix< IdMat > >&          aUnzippedIpCellIds );
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief Find UIPVs based on received information and send T-matrices for this vertices wrt to a given B-spline mesh
+             * 
+             * @param aReceivedBaseVertexIds input: outer cell: owner proc index in XTK comm-table || inner cell: ID of the base vertex underlying the UIPV
+             * @param aReceivedUnzippedIpCellIds input: outer cell: owner proc index in XTK comm-table || inner cell: ID of the UIPC the UIPV is attached to
+             * @param aTMatrixWeights output: outer cell: owner proc index in XTK comm-table || inner cell: linear array of all T-matrix weights for all UIPVs received
+             * @param aTMatrixIds output: outer cell: owner proc index in XTK comm-table || inner cell: linear array of all T-matrix basis IDs for all UIPVs received
+             * @param aTMatrixOwners output: outer cell: owner proc index in XTK comm-table || inner cell: linear array of all T-matrix basis owners for all UIPVs received
+             * @param aTMatrixOffsets output: outer cell: owner proc index in XTK comm-table || inner cell: start index of the T-matrix info for a given UIPV in the linear arrays above
+             * @param aMeshIndex input: B-spline mesh index for which the requested UIPVs need the T-matrix
+             */
+            void
+            prepare_answers_for_T_matrices(
+                    Cell< Matrix< IdMat > > const & aReceivedBaseVertexIds,
+                    Cell< Matrix< IdMat > > const & aReceivedUnzippedIpCellIds,
+                    Cell< Matrix< DDRMat > >&       aTMatrixWeights,
+                    Cell< Matrix< IdMat > >&        aTMatrixIds,
+                    Cell< Matrix< IdMat > >&        aTMatrixOwners,
+                    Cell< Matrix< IndexMat > >&     aTMatrixOffsets,
+                    const moris_index               aMeshIndex );
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief Reconstruct T-matrices from the linear T-matrix arrays received and assign them to the UIPVs with missing T-matrices
+             * 
+             * @param aGhostIpCellConnectedToVertex  unzipped IP cells that the unzipped IP vertices are attached to
+             * @param aNotOwnedIPVertIndsInNotOwnedList outer cell: owner proc index in XTK comm-table || inner cell: position of the IP vertex (for which T-matrix information is received) in the list of all UIPVs with missing T-matrices
+             * @param aIPVertIndsToProcs outer cell: owner proc index in XTK comm-table || inner cell: index of the UIPV with a missing T-matrix
+             * @param aReceivedTMatrixWeights outer cell: owner proc index in XTK comm-table || inner cell: linear array of all T-matrix weights for all UIPVs requested
+             * @param aReceivedTMatrixIds outer cell: owner proc index in XTK comm-table || inner cell: linear array of all T-matrix basis IDs for all UIPVs requested
+             * @param aReceivedTMatrixOwners outer cell: owner proc index in XTK comm-table || inner cell: linear array of all T-matrix basis owners for all UIPVs requested
+             * @param aReceivedTMatrixOffsets outer cell: owner proc index in XTK comm-table || inner cell: start index of the T-matrix info for a given UIPV in the linear arrays above
+             * @param aMeshIndex B-spline mesh index for which the T-matrix is received
+             */
+            void
+            handle_requested_T_matrix_answers(
+                    Cell< mtk::Cell const * > const &   aGhostIpCellConnectedToVertex,
+                    Cell< Cell< moris_index > > const & aNotOwnedIPVertIndsInNotOwnedList,
+                    Cell< Cell< moris_index > > const & aIPVertIndsToProcs,
+                    Cell< Matrix< DDRMat > > const &    aReceivedTMatrixWeights,
+                    Cell< Matrix< IdMat > > const &     aReceivedTMatrixIds,
+                    Cell< Matrix< IdMat > > const &     aReceivedTMatrixOwners,
+                    Cell< Matrix< IndexMat > > const &  aReceivedTMatrixOffsets,
+                    const moris_index                   aMeshIndex  );
+
+            // ----------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------
 
             void
             identify_and_setup_aura_vertices_in_ghost_old(Ghost_Setup_Data &  aGhostSetupData);
@@ -205,18 +299,6 @@ namespace xtk
                     moris::Cell<mtk::Cell  const *> & aGhostIpCellConnectedToVertex);
 
             // ----------------------------------------------------------------------------------
-
-            void
-            prepare_interpolation_vertex_t_matrix_requests(
-                    moris::Cell<mtk::Vertex*>             & aGhostVerticesWithoutInterpolation,
-                    moris::Cell<mtk::Cell  const *>       & aGhostIpCellConnectedToVertex,
-                    Cell<Matrix<IndexMat>>                & aNotOwnedIPVertIndsToProcs,
-                    Cell<Matrix<IndexMat>>                & aNotOwnedBgIpVertsIdsToProcs,
-                    Cell<Matrix<IndexMat>>                & aNotOwnedIpCellIdToProcs,
-                    Cell<Matrix<IndexMat>>                & aNotOwnedEnrichedCellBulkPhaseToProcs,
-                    Cell<uint>                            & aProcRanks,
-                    std::unordered_map<moris_id,moris_id> & aProcRankToDataIndex);
-            // ----------------------------------------------------------------------------------
             /**
              * @brief Using a background vertex id, and a enriched interpolation cell id
              * find the corresponding enriched interpolation vertex
@@ -226,51 +308,7 @@ namespace xtk
                                               moris_index const & aEnrichedIpCellIndex);
 
             // ----------------------------------------------------------------------------------
-            /**
-             * @brief Packages t-matrix  request into mpi ready data structure (i.e. sparse 
-             * matrix for returning back to requesting processor.
-             */
-            void
-            prepare_t_matrix_request_answers(
-                    moris_index            const & aMeshIndex,
-                    Cell<Matrix<IndexMat>> const & aRequestedBgVertexIds,
-                    Cell<Matrix<IndexMat>> const & aRequestedIpCellIds,
-                    Cell<Matrix<IndexMat>> const & aIpCellBulkPhases,
-                    Cell<Matrix<DDRMat>>         & aTMatrixWeights,
-                    Cell<Matrix<IndexMat>>       & aTMatrixIndices,
-                    Cell<Matrix<IndexMat>>       & aBasisOwners,
-                    Cell<Matrix<IndexMat>>       & aTMatrixOffsets);
 
-            void
-            add_vertex_interpolation_to_communication_data(moris::uint      & aCount,
-                                                           Vertex_Enrichment* aInterpolation,
-                                                           Matrix<DDRMat>   & aTMatrixWeights,
-                                                           Matrix<IndexMat> & aTMatrixIndices,
-                                                           Matrix<IndexMat> & aTMatrixOwners,
-                                                           Matrix<IndexMat> & aTMatrixOffsets);
-
-            void
-            extract_vertex_interpolation_from_communication_data(
-                    moris::uint      const & aNumVerts,
-                    Matrix<DDRMat>   const & aTMatrixWeights,
-                    Matrix<IndexMat> const & aTMatrixIndices,
-                    Matrix<IndexMat> const & aTMatrixOwners,
-                    Matrix<IndexMat> const & aTMatrixOffsets,
-                    Cell<Matrix<DDRMat>>   & aExtractedTMatrixWeights,
-                    Cell<Matrix<IndexMat>> & aExtractedTMatrixIndices,
-                    Cell<Matrix<IndexMat>> & aExtractedBasisOwners);
-
-            void
-            handle_received_interpolation_data(
-                    moris_index            const & aMeshIndex,
-                    Cell<Matrix<IndexMat>> const & aNotOwnedIPVertIndsToProcs,
-                    Cell<Matrix<IndexMat>> const & aNotOwnedEnrichedCellBulkPhaseToProcs,
-                    Cell<Matrix<DDRMat>>   const & aRequestedTMatrixWeights,
-                    Cell<Matrix<IndexMat>> const & aRequestedTMatrixIndices,
-                    Cell<Matrix<IndexMat>> const & aRequestedBasisOwners,
-                    Cell<Matrix<IndexMat>> const & aRequestedTMatrixOffsets);
-
-            // ----------------------------------------------------------------------------------
             void
             prepare_ip_cell_id_answers(
                     Cell<Matrix<IndexMat>>                 & aReceivedEnrCellIds,

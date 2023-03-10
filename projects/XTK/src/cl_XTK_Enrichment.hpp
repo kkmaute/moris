@@ -636,15 +636,7 @@ namespace xtk
                     moris::Cell< moris_index > const &                      aMaxEnrichmentLevel );
 
             // ----------------------------------------------------------------------------------
-
-            /**
-             * @brief Assign the enrichment level local identifiers (legacy enrichment procedure)
-             */
-            void
-            assign_enriched_coefficients_identifiers(
-                    moris_index const&                aEnrichmentDataIndex,
-                    moris::Cell< moris_index > const& aMaxEnrichmentLevel );
-
+            
             /**
              * @brief Assign the enrichment level local identifiers (in SPG based enrichment)
              */
@@ -653,8 +645,14 @@ namespace xtk
                     moris_index const&                aEnrichmentDataIndex,
                     moris::Cell< moris_index > const& aMaxEnrichmentLevel );
 
+            // ----------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief Assign the enrichment level local identifiers (legacy enrichment procedure)
+             */
             void
-            assign_enriched_coefficients_identifiers_new_old(
+            assign_enriched_coefficients_identifiers(
                     moris_index const&                aEnrichmentDataIndex,
                     moris::Cell< moris_index > const& aMaxEnrichmentLevel );
 
@@ -669,28 +667,6 @@ namespace xtk
                     std::unordered_map< moris_id, moris_id >& aProcRankToIndexInData,
                     Cell< moris::Matrix< moris::IndexMat > >& aEnrichedBasisId );
 
-
-            // ----------------------------------------------------------------------------------
-
-            /**
-             * @brief 
-             * 
-             * @param aEnrichmentDataIndex B-spline mesh index
-             * @param aBasisIdToBasisOwner request lists: outer cell: proc index in comm table to request from, inner cell: list of non-enriched Basis IDs to request
-             * @param aSubphaseGroupIdInSupport inner cell: list of SPG IDs for unique identification purposes
-             * @param aProcRanks comm table: proc IDs associated with outer cell indices in above lists
-             * @param aProcRankToIndexInData map corresponding to comm table
-             * @param aEnrichedBasisId output: list of Basis IDs as requested above
-             */
-            void
-            communicate_basis_information_with_owner_new(
-                    moris_index const &                       aEnrichmentDataIndex,         
-                    Cell< Cell< moris_index > > const &       aBasisIdToBasisOwner,         
-                    Cell< Cell< moris_index > > const &       aSubphaseGroupIdInSupport,    
-                    Cell< moris_index > const &               aProcRanks,                   
-                    std::unordered_map< moris_id, moris_id >& aProcRankToIndexInData,       
-                    Cell< moris::Matrix< moris::IndexMat > >& aEnrichedBasisId );
-
             // ----------------------------------------------------------------------------------
 
             void
@@ -699,6 +675,7 @@ namespace xtk
                     Cell< moris::Matrix< moris::IndexMat > > const& aReceivedEnrichedIds,
                     Cell< Cell< moris_index > > const&              aBasisIndexToBasisOwner );
 
+            // ----------------------------------------------------------------------------------
             // ----------------------------------------------------------------------------------
 
             moris::size_t

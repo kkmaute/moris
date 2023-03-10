@@ -288,10 +288,10 @@ namespace moris
                     tSharedCoeffsPosGlobal,
                     tMatsToReceive );
 
-            map< moris_id, moris_index > tCoeffGlobaltoLocalMap;
+            map< moris_id, moris_index > tCoeffGlobalToLocalMap;
             mMeshPair.get_interpolation_mesh()->get_adof_map(
                     mDiscretizationMeshIndex,
-                    tCoeffGlobaltoLocalMap );
+                    tCoeffGlobalToLocalMap );
 
             // Loop over all Mats set dummy owned coeffs
             for ( moris::uint Ik = 0; Ik < tMatsToReceive.size(); Ik++ )
@@ -300,7 +300,7 @@ namespace moris
                 {
                     // Get owned coeff Index
                     moris_id tID = tMatsToReceive( Ik )( Ii );
-                    moris_index tLocalCoeffInd = tCoeffGlobaltoLocalMap.find( tID );
+                    moris_index tLocalCoeffInd = tCoeffGlobalToLocalMap.find( tID );
 
                     if ( aAllCoefIds( tLocalCoeffInd ) == gNoID )
                     {

@@ -112,7 +112,7 @@ namespace moris
                     mLibrary,
                     aMesh );
 
-            // iterate through geometrys if any are multilinear, we turn the linear flag on
+            // iterate through geometries if any are multilinear, we turn the linear flag on
             for ( moris::uint iGeom = 0; iGeom < mGeometries.size(); iGeom++ )
             {
                 if ( mGeometries( iGeom )->get_intersection_interpolation() == Intersection_Interpolation::MULTILINEAR )
@@ -336,14 +336,14 @@ namespace moris
         {
             if ( aGeometricQuery->get_query_type() == Query_Type::INTERSECTION_NO_LOCATION )
             {
-                mActiveGeometryIndex = aGeometricQuery->get_geomtric_index();
+                mActiveGeometryIndex = aGeometricQuery->get_geometric_index();
                 return is_intersected( aGeometricQuery->get_query_entity_to_vertex_connectivity(),
                         aGeometricQuery->get_query_indexed_coordinates() );
             }
             else if ( aGeometricQuery->get_query_type() == Query_Type::INTERSECTION_LOCATION )
             {
                 // this preprocessing can be streamlined a lot
-                mActiveGeometryIndex = aGeometricQuery->get_geomtric_index();
+                mActiveGeometryIndex = aGeometricQuery->get_geometric_index();
 
                 Matrix< IndexMat > const & tEdgeToVertex = aGeometricQuery->get_query_entity_to_vertex_connectivity();
 
@@ -1941,10 +1941,10 @@ namespace moris
                 MORIS_ASSERT( tMatsToReceiveijklID.size() == tMatsToReceive.size(), "size must be the same" );
             }
 
-            map< moris_id, moris_index > tCoeffGlobaltoLocalMap;
+            map< moris_id, moris_index > tCoeffGlobalToLocalMap;
             aMeshPair.get_interpolation_mesh()->get_adof_map(
                     aDiscretizationMeshIndex,
-                    tCoeffGlobaltoLocalMap );
+                    tCoeffGlobalToLocalMap );
 
             // Loop over all Mats set dummy owned coeffs
             for ( moris::uint Ik = 0; Ik < tMatsToReceive.size(); Ik++ )
@@ -1953,7 +1953,7 @@ namespace moris
                 {
                     // Get owned coeff Index
                     moris_id    tID            = tMatsToReceive( Ik )( Ii );
-                    moris_index tLocalCoeffInd = tCoeffGlobaltoLocalMap.find( tID );
+                    moris_index tLocalCoeffInd = tCoeffGlobalToLocalMap.find( tID );
 
                     if ( aAllCoefIds( tLocalCoeffInd ) == gNoID )
                     {
@@ -2384,10 +2384,10 @@ namespace moris
                 uint tNumClusters = tClusterPointers.size();
 
                 // loop over the clusters on mesh set
-                for ( uint iClust = 0; iClust < tNumClusters; iClust++ )
+                for ( uint iCluster = 0; iCluster < tNumClusters; iCluster++ )
                 {
                     // get the IP cell from cluster
-                    mtk::Cell const & tIPCell = tClusterPointers( iClust )->get_interpolation_cell( mtk::Master_Slave::MASTER );
+                    mtk::Cell const & tIPCell = tClusterPointers( iCluster )->get_interpolation_cell( mtk::Master_Slave::MASTER );
 
                     // get the vertices from IP cell
                     Cell< mtk::Vertex* > tVertices = tIPCell.get_base_cell()->get_vertex_pointers();
@@ -2410,10 +2410,10 @@ namespace moris
                 if ( tSetPointer->get_set_type() == moris::SetType::DOUBLE_SIDED_SIDESET )
                 {
                     // loop over the clusters on mesh set
-                    for ( uint iClust = 0; iClust < tNumClusters; iClust++ )
+                    for ( uint iCluster = 0; iCluster < tNumClusters; iCluster++ )
                     {
                         // get the IP cell from cluster
-                        mtk::Cell const & tIPCell = tClusterPointers( iClust )->get_interpolation_cell( mtk::Master_Slave::SLAVE );
+                        mtk::Cell const & tIPCell = tClusterPointers( iCluster )->get_interpolation_cell( mtk::Master_Slave::SLAVE );
 
                         // get the vertices from IP cell
                         Cell< mtk::Vertex* > tVertices = tIPCell.get_base_cell()->get_vertex_pointers();

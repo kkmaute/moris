@@ -1262,10 +1262,8 @@ namespace xtk
         moris::moris_index tIndOffset     = 0;
         moris::moris_id    tBasisIdOffset = this->allocate_basis_ids( aEnrichmentDataIndex, mEnrichmentData( aEnrichmentDataIndex ).mNumEnrichmentLevels );
 
-        // TODO: once the SPGs have IDs and parallel consistent, this here needs to be changed to use SPG IDs
         Cell< Cell< moris_index > > tBasisIdToBasisOwner( tCommTable.numel() );
         Cell< Cell< moris_index > > tSubphaseIdInSupport( tCommTable.numel() );
-        // Cell< Cell< moris_index > > tSubphaseGroupIdInSupport( tCommTable.numel() );
         Cell< Cell< moris_index > > tBasisIndexToBasisOwner( tCommTable.numel() );
 
         // for each non-enriched BF ...
@@ -1553,17 +1551,12 @@ namespace xtk
 
                     // assign this ID
                     mEnrichmentData( aEnrichmentDataIndex ).mEnrichedBasisIndexToId( tEnrBfIndex ) = tBaseBfId;
-
-std::cout << "Proc #" << par_rank() << ": Assigning ID " << tBaseBfId << " to Enr. BF #" << tEnrBfIndex << std::endl;
-
                 }
                 // otherwise, count up the enr. BF IDs
                 else
                 {
                     // assign its ID
                     mEnrichmentData( aEnrichmentDataIndex ).mEnrichedBasisIndexToId( tEnrBfIndex ) = tEnrBasisID;
-
-std::cout << "Proc #" << par_rank() << ": Assigning ID " << tEnrBasisID << " to Enr. BF #" << tEnrBfIndex << std::endl;
 
                     // count number of assigned Basis IDs
                     tEnrBasisID++;
@@ -1837,156 +1830,6 @@ std::cout << "Proc #" << par_rank() << ": Assigning ID " << tEnrBasisID << " to 
     //-------------------------------------------------------------------------------------
 
     void
-    Enrichment::assign_enriched_coefficients_identifiers_new_old(
-            moris_index const &                aEnrichmentDataIndex,
-            moris::Cell< moris_index > const & aMaxEnrichmentLevel )
-    {
-        // get number of non-enriched BFs
-        uint tNumNonEnrichedBFs = mEnrichmentData( aEnrichmentDataIndex ).mElementIndsInBasis.size();
-
-        // initialize array holding the enriched basis function indices living on any given non-enriched BF
-        mEnrichmentData( aEnrichmentDataIndex ).mBasisEnrichmentIndices.resize( tNumNonEnrichedBFs );
-
-        // initialize counter for number of enriched BFs
-        mEnrichmentData( aEnrichmentDataIndex ).mNumEnrichmentLevels = 0;
-
-        // continue to initialize array holding the enriched basis function indices living on any given non-enriched BF
-        for ( uint iBF = 0; iBF < tNumNonEnrichedBFs; iBF++ )
-        {
-            moris::moris_index tMaxEnrLev = aMaxEnrichmentLevel( iBF ) + 1;
-
-            mEnrichmentData( aEnrichmentDataIndex ).mNumEnrichmentLevels           = mEnrichmentData( aEnrichmentDataIndex ).mNumEnrichmentLevels + tMaxEnrLev;
-            mEnrichmentData( aEnrichmentDataIndex ).mBasisEnrichmentIndices( iBF ) = Matrix< IndexMat >( tMaxEnrLev, 1 );
-        }
-
-        // allocate enriched basis index to id data
-        mEnrichmentData( aEnrichmentDataIndex ).mEnrichedBasisIndexToId.resize( mEnrichmentData( aEnrichmentDataIndex ).mNumEnrichmentLevels, 1 );
-        mEnrichmentData( aEnrichmentDataIndex ).mEnrichedBasisIndexToId.fill( MORIS_INDEX_MAX );
-
-        // get current processor's ID
-        moris_index tParRank = par_rank();
-
-        // get the XTK comm table
-        Matrix< IndexMat > tCommTable = mXTKModelPtr->get_communication_table();
-
-        // Initialize map relating the global MPI proc rank to its position in the XTK Comm Table
-        Cell< moris_index > tProcRanks( tCommTable.numel() );
-
-        std::unordered_map< moris_id, moris_id > tProcRankToIndexInData;
-
-        // relate the global MPI proc rank to its position in the XTK Comm Table
-        for ( uint iProc = 0; iProc < tCommTable.numel(); iProc++ )
-        {
-            tProcRankToIndexInData[ tCommTable( iProc ) ] = iProc;
-
-            tProcRanks( iProc ) = ( tCommTable( iProc ) );
-        }
-
-        // get the first first free global ID (not first gets background basis information)
-        moris::moris_index tIndOffset     = 0;
-        moris::moris_id    tBasisIdOffset = this->allocate_basis_ids( aEnrichmentDataIndex, mEnrichmentData( aEnrichmentDataIndex ).mNumEnrichmentLevels );
-
-        // initialize lists of identifying information for Basis ID communication
-        Cell< Cell< moris_index > > tBasisIdToBasisOwner( tCommTable.numel() );          // ?
-        Cell< Cell< moris_index > > tSubphaseGroupIdInSupport( tCommTable.numel() );     // ?
-        Cell< Cell< moris_index > > tEnrBasisIndexToBasisOwner( tCommTable.numel() );    // ?
-
-        // for each non-enriched BF ...
-        for ( uint iNonEnrichedBF = 0; iNonEnrichedBF < tNumNonEnrichedBFs; iNonEnrichedBF++ )
-        {
-            // ... get their basis owner and ...
-            moris_index tOwner = mBackgroundMeshPtr->get_entity_owner(
-                    iNonEnrichedBF,
-                    mBasisRank,
-                    aEnrichmentDataIndex );
-
-            // .. get their basis ID
-            moris_id tBackBasisId = mBackgroundMeshPtr->get_glb_entity_id_from_entity_loc_index(
-                    iNonEnrichedBF,
-                    mBasisRank,
-                    aEnrichmentDataIndex );
-
-            // get the owning processor's position in the communication arrays
-            moris_index tProcDataIndex = tProcRankToIndexInData[ tOwner ];
-
-            // get access to the list of enriched BF indices living on the current non-enriched BF
-            Matrix< IndexMat >& tBasisEnrichmentInds =    //
-                    mEnrichmentData( aEnrichmentDataIndex ).mBasisEnrichmentIndices( iNonEnrichedBF );
-
-            uint tNumEnrichedBFsOnBasis = tBasisEnrichmentInds.numel();
-
-            // assign indices to each enriched Basis function by counting up the enriched bases living on each non-enriched Basis
-            for ( uint jEnrBF = 0; jEnrBF < tNumEnrichedBFsOnBasis; jEnrBF++ )
-            {
-                tBasisEnrichmentInds( jEnrBF ) = tIndOffset;
-                tIndOffset++;
-            }
-
-            // only set id if we own it and package data for communication if shared
-            if ( tOwner == tParRank )
-            {
-                // get access to the non-enriched basis' ID
-                mEnrichmentData( aEnrichmentDataIndex ).mEnrichedBasisIndexToId( tBasisEnrichmentInds( 0 ) ) = tBackBasisId;
-
-                // give all enr. BFs their IDs
-                for ( uint jEnrBF = 1; jEnrBF < tNumEnrichedBFsOnBasis; jEnrBF++ )
-                {
-                    // get the current enriched basis' index
-                    moris_index tEnrBfInd = tBasisEnrichmentInds( jEnrBF );
-
-                    // check that the basis doesn't already have an ID attached to it
-                    MORIS_ASSERT( mEnrichmentData( aEnrichmentDataIndex ).mEnrichedBasisIndexToId( tEnrBfInd ) == MORIS_INDEX_MAX,
-                            "Enrichment::assign_enriched_coefficients_identifiers() - Already set enriched basis id" );
-
-                    // assign ID to enriched BF
-                    mEnrichmentData( aEnrichmentDataIndex ).mEnrichedBasisIndexToId( tEnrBfInd ) = tBasisIdOffset;
-
-                    // increment ID for next enr. BF
-                    tBasisIdOffset++;
-                }
-            }
-
-            // if we don't own the basis setup the communication to get the basis
-            else
-            {
-                // prepare ID requests for all enr. BFs
-                for ( uint jEnrBF = 0; jEnrBF < tNumEnrichedBFsOnBasis; jEnrBF++ )
-                {
-                    // get the current enriched basis' index
-                    moris_index tEnrichedBasisIndex = tBasisEnrichmentInds( jEnrBF );
-
-                    moris_index tFirstSpgInSupportIndex = mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupIndsInEnrichedBasis( tEnrichedBasisIndex )( 0 );
-
-                    moris_index tFirstSubphaseGroupInSupportId = mXTKModelPtr->get_subphase_group_id( tFirstSpgInSupportIndex, aEnrichmentDataIndex );
-
-                    tBasisIdToBasisOwner( tProcDataIndex ).push_back( tBackBasisId );
-                    tSubphaseGroupIdInSupport( tProcDataIndex ).push_back( tFirstSubphaseGroupInSupportId );
-                    tEnrBasisIndexToBasisOwner( tProcDataIndex ).push_back( tEnrichedBasisIndex );
-                }
-            }
-        }
-
-        // send information about not owned enriched basis to owner processor
-        Cell< moris::Matrix< moris::IndexMat > > tNotOwnedEnrichedBasisId;
-
-        this->communicate_basis_information_with_owner_new(
-                aEnrichmentDataIndex,
-                tBasisIdToBasisOwner,
-                tSubphaseGroupIdInSupport,
-                tProcRanks,
-                tProcRankToIndexInData,
-                tNotOwnedEnrichedBasisId );
-
-        // set the received information in my data
-        this->set_received_enriched_basis_ids(
-                aEnrichmentDataIndex,
-                tNotOwnedEnrichedBasisId,
-                tEnrBasisIndexToBasisOwner );
-    }
-
-    //-------------------------------------------------------------------------------------
-
-    void
     Enrichment::communicate_basis_information_with_owner(
             moris_index const &                       aEnrichmentDataIndex,      // B-spline mesh index
             Cell< Cell< moris_index > > const &       aBasisIdToBasisOwner,      // request lists: outer cell: proc index in comm table to request from, inner cell: list of non-enriched Basis IDs to request
@@ -1996,14 +1839,14 @@ std::cout << "Proc #" << par_rank() << ": Assigning ID " << tEnrBasisID << " to 
             Cell< moris::Matrix< moris::IndexMat > >& aEnrichedBasisId )         // output: list of Basis IDs as requested above
     {
         // STEP 0: prepare send information // copy into a matrix
-        Cell< moris::Matrix< moris::IndexMat > > tBasisIdToBasisOwnerMat( aProcRanks.size() );
-        Cell< moris::Matrix< moris::IndexMat > > tSubphaseIdInSupport( aProcRanks.size() );
+        Cell< moris::Matrix< moris::IdMat > > tBasisIdToBasisOwnerMat( aProcRanks.size() );
+        Cell< moris::Matrix< moris::IdMat > > tSubphaseIdInSupport( aProcRanks.size() );
 
         // copy all information for each processor into matrices, instead of cells (for easier communication later)
         for ( uint iProc = 0; iProc < aBasisIdToBasisOwner.size(); iProc++ )
         {
-            tBasisIdToBasisOwnerMat( iProc ) = Matrix< IndexMat >( 1, aBasisIdToBasisOwner( iProc ).size() );
-            tSubphaseIdInSupport( iProc )    = Matrix< IndexMat >( 1, aBasisIdToBasisOwner( iProc ).size() );
+            tBasisIdToBasisOwnerMat( iProc ) = Matrix< IdMat >( 1, aBasisIdToBasisOwner( iProc ).size() );
+            tSubphaseIdInSupport( iProc )    = Matrix< IdMat >( 1, aBasisIdToBasisOwner( iProc ).size() );
 
             for ( uint jBF = 0; jBF < aBasisIdToBasisOwner( iProc ).size(); jBF++ )
             {
@@ -2020,60 +1863,35 @@ std::cout << "Proc #" << par_rank() << ": Assigning ID " << tEnrBasisID << " to 
                 tSubphaseIdInSupport( iProc )( 0 ) = MORIS_INDEX_MAX;
             }
         }
-
-        // STEP 1: send request information to respective processors (no particular reason for these tag number choices)
-        moris_index tBasisIdsTag    = 1119;
-        moris_index tMaxSubphaseTag = 1120;
-        moris_index tReturnIdTag    = 1121;
-
-        for ( uint iProc = 0; iProc < tBasisIdToBasisOwnerMat.size(); iProc++ )
+        
+        // convert proc ranks from cell to matrix
+        Matrix< IdMat > tCommTable( 1, aProcRanks.size() );
+        for( uint iProc = 0; iProc < aProcRanks.size(); iProc++ )
         {
-            // send child element ids
-            nonblocking_send(
-                    tBasisIdToBasisOwnerMat( iProc ),
-                    tBasisIdToBasisOwnerMat( iProc ).n_rows(),
-                    tBasisIdToBasisOwnerMat( iProc ).n_cols(),
-                    aProcRanks( iProc ),
-                    tBasisIdsTag );
-
-            // send element parent ids
-            nonblocking_send(
-                    tSubphaseIdInSupport( iProc ),
-                    tSubphaseIdInSupport( iProc ).n_rows(),
-                    tSubphaseIdInSupport( iProc ).n_cols(),
-                    aProcRanks( iProc ),
-                    tMaxSubphaseTag );
+            tCommTable( iProc ) = aProcRanks( iProc );
         }
 
-        // make sure that all sends have been completed
-        barrier();
+        // initialize arrays in which to receive information
+        Cell< Matrix< IdMat > > tReceiveInfoBasisId;
+        Cell< Matrix< IdMat > > tReceivedSubphaseId;
 
-        // STEP 2: receive information
-        moris::moris_index tNumRow = 1;
+        // send and receive basis information
+        moris::communicate_mats( tCommTable, tBasisIdToBasisOwnerMat, tReceiveInfoBasisId );
+        moris::communicate_mats( tCommTable, tSubphaseIdInSupport, tReceivedSubphaseId );
 
-        Cell< moris::Matrix< IdMat > > tReceiveInfoBasisId( aProcRanks.size() );
-        Cell< moris::Matrix< IdMat > > tReceivedSubphaseId( aProcRanks.size() );
-        Cell< moris::Matrix< IdMat > > tEnrichedBasisIds( aProcRanks.size() );
-        aEnrichedBasisId.resize( aProcRanks.size() );
-
-        for ( uint iProc = 0; iProc < aProcRanks.size(); iProc++ )
-        {
-            tReceiveInfoBasisId( iProc ).resize( 1, 1 );
-            tReceivedSubphaseId( iProc ).resize( 1, 1 );
-
-            receive( tReceiveInfoBasisId( iProc ), tNumRow, aProcRanks( iProc ), tBasisIdsTag );
-            receive( tReceivedSubphaseId( iProc ), tNumRow, aProcRanks( iProc ), tMaxSubphaseTag );
-
-            tEnrichedBasisIds( iProc ).resize( tReceiveInfoBasisId( iProc ).n_rows(), tReceiveInfoBasisId( iProc ).n_cols() );
-        }
+        // initialize answer array
+        Cell< moris::Matrix< IndexMat > > tEnrichedBasisIds( aProcRanks.size() );
 
         // iterate through received information and setup response information
         for ( uint iProc = 0; iProc < aProcRanks.size(); iProc++ )
         {
+            // initialize answer array
+            tEnrichedBasisIds( iProc ).resize( tReceiveInfoBasisId( iProc ).n_rows(), tReceiveInfoBasisId( iProc ).n_cols() );
+
+            // initialize counters
             moris_id tBasisId    = 0;
             moris_id tBasisIndex = 0;
             uint     tCount      = 0;
-            aEnrichedBasisId( iProc ).resize( tReceiveInfoBasisId( iProc ).n_rows(), tReceiveInfoBasisId( iProc ).n_cols() );
 
             // check that this isn't just an empty dummy request
             if ( tReceiveInfoBasisId( iProc )( 0 ) != MORIS_INDEX_MAX )
@@ -2128,7 +1946,8 @@ std::cout << "Proc #" << par_rank() << ": Assigning ID " << tEnrBasisID << " to 
                             "Enrichment::communicate_basis_information_with_owner() - Basis %i not found on proc %i",
                             tReceiveInfoBasisId( iProc )( jBF ),
                             aProcRanks( iProc ) );
-                }
+
+                }   // end for: each request for the current processor
 
                 // check that the number of found Basis IDs matches the number of requested Basis IDs and nothing was left out or answered twice
                 MORIS_ASSERT( tReceiveInfoBasisId( iProc ).numel() == tCount,
@@ -2143,209 +1962,10 @@ std::cout << "Proc #" << par_rank() << ": Assigning ID " << tEnrBasisID << " to 
                 tEnrichedBasisIds( iProc )( 0 ) = MORIS_INDEX_MAX;
             }
 
-            // send enriched ids back to corresponding processors
-            nonblocking_send(
-                    tEnrichedBasisIds( iProc ),
-                    tEnrichedBasisIds( iProc ).n_rows(),
-                    tEnrichedBasisIds( iProc ).n_cols(),
-                    aProcRanks( iProc ),
-                    tReturnIdTag );
-        }
+        } // end for: each proc communicated with
 
-        // wait for other procs to finish sending answers
-        barrier();
-
-        // receive information from other procs
-        for ( uint iProc = 0; iProc < aProcRanks.size(); iProc++ )
-        {
-            aEnrichedBasisId( iProc ).resize( 1, 1 );
-            receive( aEnrichedBasisId( iProc ), tNumRow, aProcRanks( iProc ), tReturnIdTag );
-        }
-
-        // wait
-        barrier();
-    }
-
-    //-------------------------------------------------------------------------------------
-
-    void
-    Enrichment::communicate_basis_information_with_owner_new(
-            moris_index const &                       aEnrichmentDataIndex,         // B-spline mesh index
-            Cell< Cell< moris_index > > const &       aBasisIdToBasisOwner,         // request lists: outer cell: proc index in comm table to request from, inner cell: list of non-enriched Basis IDs to request
-            Cell< Cell< moris_index > > const &       aSubphaseGroupIdInSupport,    // inner cell: list of SPG IDs for unique identification purposes
-            Cell< moris_index > const &               aProcRanks,                   // comm table: proc IDs associated with outer cell indices in above lists
-            std::unordered_map< moris_id, moris_id >& aProcRankToIndexInData,       // map corresponding to comm table
-            Cell< moris::Matrix< moris::IndexMat > >& aEnrichedBasisId )            // output: list of Basis IDs as requested above
-    {
-        // STEP 0: prepare send information // copy into a matrix
-        Cell< moris::Matrix< moris::IndexMat > > tBasisIdToBasisOwnerMat( aProcRanks.size() );
-        Cell< moris::Matrix< moris::IndexMat > > tSubphaseGroupIdInSupport( aProcRanks.size() );
-
-        // copy all information for each processor into matrices, instead of cells (for easier communication later)
-        for ( uint iProc = 0; iProc < aBasisIdToBasisOwner.size(); iProc++ )
-        {
-            tBasisIdToBasisOwnerMat( iProc )   = Matrix< IndexMat >( 1, aBasisIdToBasisOwner( iProc ).size() );
-            tSubphaseGroupIdInSupport( iProc ) = Matrix< IndexMat >( 1, aBasisIdToBasisOwner( iProc ).size() );
-
-            for ( uint jBF = 0; jBF < aBasisIdToBasisOwner( iProc ).size(); jBF++ )
-            {
-                tBasisIdToBasisOwnerMat( iProc )( jBF )   = aBasisIdToBasisOwner( iProc )( jBF );
-                tSubphaseGroupIdInSupport( iProc )( jBF ) = aSubphaseGroupIdInSupport( iProc )( jBF );
-            }
-
-            if ( aBasisIdToBasisOwner( iProc ).size() == 0 )
-            {
-                tBasisIdToBasisOwnerMat( iProc ).resize( 1, 1 );
-                tBasisIdToBasisOwnerMat( iProc )( 0 ) = MORIS_INDEX_MAX;
-
-                tSubphaseGroupIdInSupport( iProc ).resize( 1, 1 );
-                tSubphaseGroupIdInSupport( iProc )( 0 ) = MORIS_INDEX_MAX;
-            }
-        }
-
-        // STEP 1: send request information to respective processors (no particular reason for these tag number choices)
-        moris_index tBasisIdsTag         = 1219;
-        moris_index tMaxSubphaseGroupTag = 1220;
-        moris_index tReturnIdTag         = 1221;
-
-        for ( uint iProc = 0; iProc < tBasisIdToBasisOwnerMat.size(); iProc++ )
-        {
-            // send child element ids
-            nonblocking_send(
-                    tBasisIdToBasisOwnerMat( iProc ),
-                    tBasisIdToBasisOwnerMat( iProc ).n_rows(),
-                    tBasisIdToBasisOwnerMat( iProc ).n_cols(),
-                    aProcRanks( iProc ),
-                    tBasisIdsTag );
-
-            // send element parent ids
-            nonblocking_send(
-                    tSubphaseGroupIdInSupport( iProc ),
-                    tSubphaseGroupIdInSupport( iProc ).n_rows(),
-                    tSubphaseGroupIdInSupport( iProc ).n_cols(),
-                    aProcRanks( iProc ),
-                    tMaxSubphaseGroupTag );
-        }
-
-        // make sure that all sends have been completed
-        barrier();
-
-        // STEP 2: receive information
-        moris::moris_index tNumRow = 1;
-
-        Cell< moris::Matrix< IdMat > > tReceiveInfoBasisId( aProcRanks.size() );
-        Cell< moris::Matrix< IdMat > > tReceivedSubphaseGroupId( aProcRanks.size() );
-        Cell< moris::Matrix< IdMat > > tEnrichedBasisIds( aProcRanks.size() );
-        aEnrichedBasisId.resize( aProcRanks.size() );
-
-        for ( uint iProc = 0; iProc < aProcRanks.size(); iProc++ )
-        {
-            tReceiveInfoBasisId( iProc ).resize( 1, 1 );
-            tReceivedSubphaseGroupId( iProc ).resize( 1, 1 );
-
-            receive( tReceiveInfoBasisId( iProc ), tNumRow, aProcRanks( iProc ), tBasisIdsTag );
-            receive( tReceivedSubphaseGroupId( iProc ), tNumRow, aProcRanks( iProc ), tMaxSubphaseGroupTag );
-
-            tEnrichedBasisIds( iProc ).resize( tReceiveInfoBasisId( iProc ).n_rows(), tReceiveInfoBasisId( iProc ).n_cols() );
-        }
-
-        // iterate through received information and setup response information
-        for ( uint iProc = 0; iProc < aProcRanks.size(); iProc++ )
-        {
-            moris_id tBasisId    = 0;
-            moris_id tBasisIndex = 0;
-            uint     tCount      = 0;
-            aEnrichedBasisId( iProc ).resize( tReceiveInfoBasisId( iProc ).n_rows(), tReceiveInfoBasisId( iProc ).n_cols() );
-
-            // check that this isn't just an empty dummy request
-            if ( tReceiveInfoBasisId( iProc )( 0 ) != MORIS_INDEX_MAX )
-            {
-                // loop through the bases whose IDs are to be assigned
-                for ( uint jBF = 0; jBF < tReceiveInfoBasisId( iProc ).n_cols(); jBF++ )
-                {
-                    // get the index of the requested non-enriched BF wrt. to the current (i.e. owning) processor
-                    // if the received non-enriched basis ID is not the same as the previous, then ...
-                    if ( tBasisId != tReceiveInfoBasisId( iProc )( jBF ) )
-                    {
-                        // ... set current requested non-enriched basis ID
-                        tBasisId = tReceiveInfoBasisId( iProc )( jBF );
-
-                        // ... and get the index on the requested non-enriched basis index on the current proc
-                        tBasisIndex = mBackgroundMeshPtr->get_loc_entity_ind_from_entity_glb_id(
-                                tBasisId,
-                                mBasisRank,
-                                aEnrichmentDataIndex );
-                    }
-
-                    // get the subphase index of the currently requested Subphase
-                    moris_id    tSubphaseGroupId    = tReceivedSubphaseGroupId( iProc )( jBF );
-                    moris_index tSubphaseGroupIndex = mXTKModelPtr->get_subphase_group_index( tSubphaseGroupId, aEnrichmentDataIndex );
-
-                    // iterate through the max integer ids and match
-                    bool tFound = false;
-
-                    // go through enriched BFs associated with current non-enriched BF
-                    for ( uint k = 0; k < mEnrichmentData( aEnrichmentDataIndex ).mBasisEnrichmentIndices( tBasisIndex ).numel(); k++ )
-                    {
-                        // check if the SP checked for is associated with the current enriched BF ...
-                        bool tSpgIsInSupport = this->subphase_group_is_in_support(
-                                aEnrichmentDataIndex,
-                                tSubphaseGroupIndex,
-                                mEnrichmentData( aEnrichmentDataIndex ).mBasisEnrichmentIndices( tBasisIndex )( k ) );
-
-                        // ... if so, the ID for the enr. BF is known
-                        if ( tSpgIsInSupport )
-                        {
-                            moris_index tEnrichedBasisIndex = mEnrichmentData( aEnrichmentDataIndex ).mBasisEnrichmentIndices( tBasisIndex )( k );
-                            moris_index tEnrichedBasisId    = mEnrichmentData( aEnrichmentDataIndex ).mEnrichedBasisIndexToId( tEnrichedBasisIndex );
-
-                            tEnrichedBasisIds( iProc )( tCount ) = tEnrichedBasisId;
-                            tCount++;
-                            tFound = true;
-                        }
-                    }
-
-                    // check that the enr. BF ID has actually been found
-                    MORIS_ERROR( tFound,
-                            "Enrichment::communicate_basis_information_with_owner_new() - Basis %i not found on proc %i",
-                            tReceiveInfoBasisId( iProc )( jBF ),
-                            aProcRanks( iProc ) );
-                }
-
-                // check that the number of found Basis IDs matches the number of requested Basis IDs and nothing was left out or answered twice
-                MORIS_ASSERT( tReceiveInfoBasisId( iProc ).numel() == tCount,
-                        "Enrichment::communicate_basis_information_with_owner_new() - "
-                        "Number of enriched basis ID requests answered by proc %i not equal to number of basis IDs requested.",
-                        aProcRanks( iProc ) );
-            }
-
-            // otherwise, answer dummy request with dummy info
-            else
-            {
-                tEnrichedBasisIds( iProc )( 0 ) = MORIS_INDEX_MAX;
-            }
-
-            // send enriched ids back to corresponding processors
-            nonblocking_send(
-                    tEnrichedBasisIds( iProc ),
-                    tEnrichedBasisIds( iProc ).n_rows(),
-                    tEnrichedBasisIds( iProc ).n_cols(),
-                    aProcRanks( iProc ),
-                    tReturnIdTag );
-        }
-
-        // wait for other procs to finish sending answers
-        barrier();
-
-        // receive information from other procs
-        for ( uint iProc = 0; iProc < aProcRanks.size(); iProc++ )
-        {
-            aEnrichedBasisId( iProc ).resize( 1, 1 );
-            receive( aEnrichedBasisId( iProc ), tNumRow, aProcRanks( iProc ), tReturnIdTag );
-        }
-
-        // wait
-        barrier();
+        // send and receive enr. basis IDs
+        moris::communicate_mats( tCommTable, tEnrichedBasisIds, aEnrichedBasisId );
     }
 
     //-------------------------------------------------------------------------------------
@@ -2575,17 +2195,6 @@ std::cout << "Proc #" << par_rank() << ": Assigning ID " << tEnrBasisID << " to 
         // tell the enriched IP mesh to finish setting itself up
         mXTKModelPtr->mEnrichedInterpMesh( 0 )->finalize_setup();
 
-        // moris::Cell< mtk::Vertex* > tVerticesToCommunicate;
-        // for(auto & iVert: mXTKModelPtr->mEnrichedInterpMesh(0)->mEnrichedInterpVerts)
-        // {
-        //     if(iVert->get_owner() != moris::par_rank() )
-        //     {
-        //         tVerticesToCommunicate.push_back(iVert);
-        //     }
-        // }
-        //
-        // mXTKModelPtr->mEnrichedInterpMesh(0)->communicate_select_vertex_interpolation(tVerticesToCommunicate);
-
         // in most cases all the interpolation vertices are the same. We merge them back together with this call
         // post-processing to construct_enriched_interpolation_vertices_and_cells in an effort to not add complexity to the function
         // (as that function is already too complex/loaded)
@@ -2650,17 +2259,6 @@ std::cout << "Proc #" << par_rank() << ": Assigning ID " << tEnrBasisID << " to 
 
         // tell the enriched IP mesh to finish setting itself up
         mXTKModelPtr->mEnrichedInterpMesh( 0 )->finalize_setup_new();
-
-        // moris::Cell< mtk::Vertex* > tVerticesToCommunicate;
-        // for(auto & iVert: mXTKModelPtr->mEnrichedInterpMesh(0)->mEnrichedInterpVerts)
-        // {
-        //     if(iVert->get_owner() != moris::par_rank() )
-        //     {
-        //         tVerticesToCommunicate.push_back(iVert);
-        //     }
-        // }
-        //
-        // mXTKModelPtr->mEnrichedInterpMesh(0)->communicate_select_vertex_interpolation(tVerticesToCommunicate);
 
         // in most cases all the interpolation vertices are the same. We merge them back together with this call
         // post-processing to construct_enriched_interpolation_vertices_and_cells in an effort to not add complexity to the function
@@ -4449,22 +4047,17 @@ std::cout << "Proc #" << par_rank() << ": Assigning ID " << tEnrBasisID << " to 
         // get proc ID of the current process
         moris_id tMyRank = par_rank();
 
-        // assemble the communication table and equivalent map
-        // Matrix< IdMat > tCommTable = mBackgroundMeshPtr->get_communication_table();
-        Matrix< IdMat >                   tCommTable     = mXTKModelPtr->get_communication_table();
-        moris_index                       tCommTableSize = tCommTable.numel();
-        std::map< moris_id, moris_index > tProcIdToCommTableIndex;
-        for ( moris_index iProc = 0; iProc < tCommTableSize; iProc++ )
-        {
-            tProcIdToCommTableIndex[ tCommTable( iProc ) ] = iProc;
-        }
+        // get the communication table and equivalent map
+        Matrix< IdMat >                   tCommTable              = mXTKModelPtr->get_communication_table();
+        moris_index                       tCommTableSize          = tCommTable.numel();
+        std::map< moris_id, moris_index > tProcIdToCommTableIndex = mXTKModelPtr->get_communication_map();
 
         /* ---------------------------------------------------------------------------------------- */
         /* Step 1: Let each proc decide how many UIPC-IDs it needs & communicate ID ranges */
         moris_id tMyFirstUipcId = (moris_id)get_processor_offset( mNumEnrIpCells );
 
         /* ---------------------------------------------------------------------------------------- */
-        /* Step 2: Sort entities into owned and non-owned */
+        /* Step 2: Sort entities into owned and non-owned and assign IDs to owned entities*/
 
         // get the enriched interpolation mesh pointer, this one is constructed here
         Enriched_Interpolation_Mesh* tEnrInterpMesh = mXTKModelPtr->mEnrichedInterpMesh( 0 );

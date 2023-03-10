@@ -118,7 +118,7 @@ Node_Hierarchy_Interface::perform(
             tIntersectedEdgeLocCoords );
 
         // give all these nodes ids
-        aMeshGenerator->assign_node_requests_identifiers( *aDecompositionData, aCutIntegrationMesh, aBackgroundMesh, this->get_signature() );
+        aMeshGenerator->assign_node_requests_identifiers( *aDecompositionData, aCutIntegrationMesh, aBackgroundMesh );
 
         // create associations between child meshes and the vertices we need this to commit the data to the integration mesh
         this->associate_new_vertices_with_cell_groups(

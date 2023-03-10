@@ -1273,13 +1273,68 @@ namespace xtk
         deduce_ig_cell_group_ownership();
 
         // ----------------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------------
 
+        /**
+         * @brief Assigns IDs to all IG cells (owned and not-owned). The IDs from not owned entities are obtained from other processors.
+         */
         void
         assign_controlled_ig_cell_ids();
 
+        // ----------------------------------------------------------------------------------
+        
+        /**
+         * @brief assigns IDs to the IG cells owned by the executing processor
+         * 
+         * @param aFirstFreeId first free IG cell ID to be used by the executing processor
+         */
         void
-        assign_controlled_ig_cell_ids_old();
+        assign_IDs_to_owned_IG_cells( moris_id aFirstFreeId );
 
+        // ----------------------------------------------------------------------------------
+        
+        /**
+         * @brief Prepares lists of IG cells the executing proc has access to but doesn't own for each processor that actually owns these subphases.
+         * 
+         * @param aNotOwnedIgCellGroups outer cell: owner proc index in XTK comm-table || inner cell: list of non-owned IG cell groups whose IG cell's IDs need to be requested from that owning proc
+         * @param aParentCellIds outer cell: owner proc index in XTK comm-table || inner cell: parent Cell IDs corresponding to the IG cell groups in the lists above
+         * @param aNumIgCellsInParentCell outer cell: owner proc index in XTK comm-table || inner cell: number of IG cells in each of the IG cell groups in the lists above
+         */
+        void
+        prepare_requests_for_not_owned_IG_cell_IDs(
+                Cell< Cell< moris_index > >& aNotOwnedIgCellGroups,
+                Cell< Matrix< IdMat > >&     aParentCellIds,
+                Cell< Matrix< IndexMat > >&  aNumIgCellsInParentCell );
+
+        // ----------------------------------------------------------------------------------
+        
+        /**
+         * @brief find and answer with the IDs of the IG cells owned by the executing processor and requested from other processors
+         * 
+         * @param aFirstIgCellIdsInCellGroups output: outer cell: owner proc index in XTK comm-table || inner cell: IDs of the first IG cell in the respective IG cell groups specified below
+         * @param aReceivedParentCellIds input: outer cell: owner proc index in XTK comm-table || inner cell: parent Cell IDs corresponding to the IG cell groups whose IDs are requested
+         * @param aReceivedNumIgCellsInParentCell input: outer cell: owner proc index in XTK comm-table || inner cell: number of IG cells in each of the IG cell groups whose IG cell's IDs are requested
+         */
+        void
+        prepare_answers_for_owned_IG_cell_IDs(
+                Cell< Matrix< IdMat > >&           aFirstIgCellIdsInCellGroups,
+                Cell< Matrix< IdMat > > const &    aReceivedParentCellIds,
+                Cell< Matrix< IndexMat > > const & aReceivedNumIgCellsInParentCell );
+
+        // ----------------------------------------------------------------------------------
+
+        /**
+         * @brief Assign the received IG cell IDs to on the executing processor
+         * 
+         * @param aNotOwnedIgCellGroups // outer cell: owner proc index in XTK comm-table || inner cell: list of not owned IG cell groups whose IG cell's IDs was requested from that owning proc
+         * @param aReceivedFirstIgCellIdsInCellGroups // outer cell: owner proc index in XTK comm-table || inner cell: IDs of the not owned first IG cell within the group specified
+         */
+        void
+        handle_requested_IG_cell_ID_answers(
+                Cell< Cell< moris_index > > const & aNotOwnedIgCellGroups, 
+                Cell< Matrix< IdMat > > const &     aReceivedFirstIgCellIdsInCellGroups );
+
+        // ----------------------------------------------------------------------------------
         // ----------------------------------------------------------------------------------
 
         void
@@ -1583,31 +1638,6 @@ namespace xtk
 
         void
         setup_comm_map();
-
-        // ----------------------------------------------------------------------------------
-
-        void
-        prepare_child_element_identifier_requests(
-                moris::Cell< moris::Cell< moris_id > >&   aNotOwnedChildMeshesToProcs,
-                moris::Cell< moris::Matrix< IdMat > >&    aOwnedParentCellId,
-                moris::Cell< moris::Matrix< IdMat > >&    aNumOwnedCellIdsOffsets,
-                moris::Cell< uint >&                      aProcRanks,
-                std::unordered_map< moris_id, moris_id >& aProcRankToDataIndex );
-
-        // ----------------------------------------------------------------------------------
-
-        void
-        prepare_child_cell_id_answers(
-                Cell< Matrix< IndexMat > >& aReceivedParentCellIds,
-                Cell< Matrix< IndexMat > >& aReceivedParentCellNumChildren,
-                Cell< Matrix< IndexMat > >& aChildCellIdOffset );
-
-        // ----------------------------------------------------------------------------------
-
-        void
-        handle_received_child_cell_id_request_answers(
-                Cell< Cell< moris_index > > const & aChildMeshesInInNotOwned,
-                Cell< Matrix< IndexMat > > const &  aReceivedChildCellIdOffset );
 
         // ----------------------------------------------------------------------------------
 

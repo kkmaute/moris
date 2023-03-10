@@ -40,7 +40,7 @@ namespace moris
 
             virtual enum Query_Type get_query_type() const = 0;
 
-            virtual moris_index get_geomtric_index() const = 0;
+            virtual moris_index get_geometric_index() const = 0;
 
             virtual enum EntityRank get_query_entity_rank() const = 0;
 
