@@ -636,14 +636,90 @@ namespace xtk
                     moris::Cell< moris_index > const &                      aMaxEnrichmentLevel );
 
             // ----------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------
             
             /**
-             * @brief Assign the enrichment level local identifiers (in SPG based enrichment)
+             * @brief Assign the enr. BF IDs for both owned and not owned basis functions (in SPG based enrichment)
              */
             void
             assign_enriched_coefficients_identifiers_new(
                     moris_index const&                aEnrichmentDataIndex,
                     moris::Cell< moris_index > const& aMaxEnrichmentLevel );
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief Find which enriched BFs are owned and not owned by executing processor and store this information
+             * 
+             * @param aEnrichmentDataIndex B-spline mesh wrt which the mesh is currently enriched
+             * @param aMaxEnrichmentLevel list of how many enrichment levels exist on each background BF (from flood-fill)
+             */
+            void
+            sort_enriched_coefficients_into_owned_and_not_owned(
+                    moris_index const &         aEnrichmentDataIndex,
+                    Cell< moris_index > const & aMaxEnrichmentLevel );
+            
+            // ----------------------------------------------------------------------------------
+            
+            /**
+             * @brief Assign IDs to all owned enriched BFs
+             * 
+             * @param aEnrichmentDataIndex B-spline mesh wrt which the mesh is currently enriched
+             * @param aFirstEnrBasisId first free enr. BF ID which can be assigned
+             */
+            void
+            assign_IDs_to_owned_enriched_coefficients( 
+                moris_index const & aEnrichmentDataIndex,
+                moris_id &          aFirstEnrBasisId );
+            
+            // ----------------------------------------------------------------------------------
+            
+            /**
+             * @brief Prepare communication information by which the other owning proc can identify enr. BFs to find their IDs 
+             * 
+             * @param aEnrichmentDataIndex input: B-spline mesh wrt which the mesh is currently enriched
+             * @param aNotOwnedEnrBfsToProcs output: outer cell: position of proc request will be send to in comm table || outer cell: indices of the enr. BFs whose IDs are to be requested
+             * @param aNonEnrBasisIDs output: outer cell: position of proc request will be send to in comm table || outer cell: ID of the underlying background (non-enr.) BF
+             * @param aSubphaseGroupIdInSupport output: outer cell: position of proc request will be send to in comm table || outer cell: ID of one SPG the enr. BF interpolates into
+             */
+            void
+            prepare_requests_for_not_owned_enriched_coefficient_IDs(
+                    moris_index const &           aEnrichmentDataIndex,
+                    Cell< Cell< moris_index > > & aNotOwnedEnrBfsToProcs,
+                    Cell< Matrix< IdMat > > &     aNonEnrBasisIDs,
+                    Cell< Matrix< IdMat > > &     aSubphaseGroupIdInSupport );
+
+            // ----------------------------------------------------------------------------------
+
+            /**
+             * @brief Find enr. BFs specified by other procs and prepare answers with their IDs
+             * 
+             * @param aEnrichmentDataIndex B-spline mesh wrt which the mesh is currently enriched
+             * @param aReceivedNonEnrBasisIDs input: outer cell: position of proc request was received from in comm table || outer cell: ID of the underlying background (non-enr.) BF
+             * @param aReceivedSubphaseGroupIdInSupport input: outer cell: position of proc request was received from in comm table || outer cell: ID of one SPG the enr. BF interpolates into
+             * @param aEnrBfIds output: outer cell: position of proc request was received from in comm table || outer cell: IDs of the enr. BFs requested
+             */
+            void
+            prepare_answers_for_owned_enriched_coefficient_IDs(
+                    moris_index const &             aEnrichmentDataIndex,
+                    Cell< Matrix< IdMat > > const & aReceivedNonEnrBasisIDs,
+                    Cell< Matrix< IdMat > > const & aReceivedSubphaseGroupIdInSupport,
+                    Cell< Matrix< IdMat > > &       aEnrBfIds );
+
+            // ----------------------------------------------------------------------------------
+            
+            /**
+             * @brief Assign IDs received during communication to the not owned enr. BFs
+             * 
+             * @param aEnrichmentDataIndex B-spline mesh wrt which the mesh is currently enriched
+             * @param aNotOwnedEnrBfsToProcs input: Indices of the not owned enr. BFs requested from each of the procs communicated with
+             * @param aReceivedEnrBfIds input: IDs of the not owned enr. BFs received from each of the procs communicated with
+             */
+            void
+            handle_requested_unzipped_enriched_coefficient_answers(
+                    moris_index const &                 aEnrichmentDataIndex,
+                    Cell< Cell< moris_index > > const & aNotOwnedEnrBfsToProcs,
+                    Cell< Matrix< IdMat > > const &     aReceivedEnrBfIds );
 
             // ----------------------------------------------------------------------------------
             // ----------------------------------------------------------------------------------
@@ -832,10 +908,70 @@ namespace xtk
             construct_enriched_interpolation_vertices_and_cells_based_on_SPGs_new();
 
             // ----------------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------------
 
+            /**
+             * @brief Assign the IDs for both owned and not owned unzipped IP cells (UIPCs)
+             */
             void
             communicate_unzipped_ip_cells();
 
+            // ----------------------------------------------------------------------------------
+            
+            /**
+             * @brief Find which UIPCs are owned and not owned by executing processor and store this information
+             */
+            void
+            sort_unzipped_IP_cells_into_owned_and_not_owned();
+
+            // ----------------------------------------------------------------------------------
+            
+            /**
+             * @brief Prepare communication information by which the other owning proc can identify UIPCs to find their IDs 
+             * 
+             * @param aUnzippedCellIndices output: outer cell: position of proc request will be send to in comm table || outer cell: indices of the UIPCs whose IDs are to be requested
+             * @param aRequestBaseCellIds output: outer cell: position of proc request will be send to in comm table || outer cell: ID of the underlying background (non-enr.) IP cells
+             * @param aUnzippingOnCells output: outer cell: position of proc request will be send to in comm table || outer cell: enrichment level of the the UIPC wrt. the underlying BG IP cell
+             * @param aRequestBulkPhaseIndices output: outer cell: position of proc request will be send to in comm table || outer cell: material bulk phase the UIPC belongs to
+             */
+            void
+            prepare_requests_for_not_owned_unzipped_IP_cell_IDs(
+                    Cell< Cell< moris_index > > & aUnzippedCellIndices,
+                    Cell< Matrix< IdMat > > &     aRequestBaseCellIds,
+                    Cell< Matrix< IndexMat > > &  aUnzippingOnCells,
+                    Cell< Matrix< IndexMat > > &  aRequestBulkPhaseIndices );
+
+            // ----------------------------------------------------------------------------------
+            
+            /**
+             * @brief Find UIPCs specified by other procs and prepare answers with their IDs
+             * 
+             * @param aAnswerUipcIds output: outer cell: position of proc request was received from in comm table || outer cell: IDs of the UIPCs requested
+             * @param aReceivedBaseCellIds input: outer cell: position of proc request was received from in comm table || outer cell: Base Cell IDs the requested UIPCs are constructed from
+             * @param aReceivedUnzippingOnCells input: outer cell: position of proc request was received from in comm table || outer cell: enrichment level of the UIPCs wrt. to the base cell
+             * @param aReceivedBulkPhaseIndices input: outer cell: position of proc request was received from in comm table || outer cell: bulk phase the requested UIPCs interpolate into
+             */
+            void
+            prepare_answers_for_owned_unzipped_IP_cell_IDs(
+                    Cell< Matrix< IdMat > > &          aAnswerUipcIds,
+                    Cell< Matrix< IdMat > > const &    aReceivedBaseCellIds,
+                    Cell< Matrix< IndexMat > > const & aReceivedUnzippingOnCells,
+                    Cell< Matrix< IndexMat > > const & aReceivedBulkPhaseIndices );
+
+            // ----------------------------------------------------------------------------------
+            
+            /**
+             * @brief Assign IDs received during communication to the not owned UIPCs
+             * 
+             * @param aUnzippedCellIndices input: outer cell: position of the proc the request was sent to in comm table || outer cell: indices of the UIPCs whose IDs are were requested
+             * @param aReceivedBaseCellIds input: outer cell: position of the proc the answer is receive from in comm table || outer cell: IDs of the UIPCs requested
+             */
+            void
+            handle_requested_unzipped_unzipped_IP_cell_answers(
+                    Cell< Cell< moris_index > > const & aUnzippedCellIndices,
+                    Cell< Matrix< IdMat > > const &     aReceivedBaseCellIds );
+
+            // ----------------------------------------------------------------------------------
             // ----------------------------------------------------------------------------------
 
             /**

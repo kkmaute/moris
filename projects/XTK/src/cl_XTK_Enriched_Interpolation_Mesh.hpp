@@ -568,14 +568,7 @@ namespace xtk
             // not owned vertex functions
             void setup_not_owned_vertices();
 
-            //------------------------------------------------------------------------------
-            //------------------------------------------------------------------------------
 
-            /**
-             * @brief Assign IDs for all owned unzipped IP vertices and 
-             */
-            void
-            assign_ip_vertex_ids();
 
             //------------------------------------------------------------------------------
             // Parallel functions
@@ -586,6 +579,74 @@ namespace xtk
                     enum EntityRank aEntityRank,
                     bool            aStartFresh );
 
+            //------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief Assign IDs for all owned unzipped IP vertices and 
+             */
+            void
+            assign_ip_vertex_ids();
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief Determine which UIPVs are owned by the executing processor and store them. 
+             * Also determine which UIPCs the not owned UIPVs are attached to.
+             * 
+             * @param aUipcsAssociatedWithNotOwnedUipvs List of UIPCs the not owned UIPVs (as stored in mNotOwnedUnzippedVertices) are attached to.
+             */
+            void 
+            sort_unzipped_vertices_into_owned_and_not_owned( 
+                    Cell< moris_index > & aUipcsAssociatedWithNotOwnedUipvs );
+
+            //------------------------------------------------------------------------------
+            
+            /**
+             * @brief Compile information by which not owned UIPVs can be identified by the owning processors
+             * 
+             * @param aUipcsAssociatedWithNotOwnedUipvs List of UIPCs the not owned UIPVs (as stored in mNotOwnedUnzippedVertices) are attached to.
+             * @param aNotOwnedUIPVsToProcs output: outer cell: index of the owning processor in comm-table || inner cell: index of the UIPV to be communicated
+             * @param aBaseVertexIds output: outer cell: index of the owning processor in comm-table || inner cell: ID of the base vertex of the UIPV communicated
+             * @param aUnzippedIpCellIds output: outer cell: index of the owning processor in comm-table || inner cell: ID of the IP cell the communicated UIPV is attached to
+             */
+            void 
+            prepare_requests_for_not_owned_unzipped_vertex_IDs(
+                    Cell< moris_index > const &   aUipcsAssociatedWithNotOwnedUipvs,
+                    Cell< Cell< moris_index > > & aNotOwnedUIPVsToProcs,
+                    Cell< Matrix< IdMat > > &     aBaseVertexIds,
+                    Cell< Matrix< IdMat > > &     aUnzippedIpCellIds );
+
+
+            //------------------------------------------------------------------------------
+            
+            /**
+             * @brief Find the IDs for UIPVs requested by other processors
+             * 
+             * @param aVertIds output: outer cell: index of the processor received from in comm-table || inner cell: IDs of the UIPVs requested
+             * @param aReceivedBaseVertexIds input: outer cell: index of the processor received from in comm-table || inner cell: ID of the base vertex of the UIPV communicated
+             * @param aReceivedUnzippedIpCellIds input: outer cell: index of the processor received from in comm-table || inner cell: ID of the IP cell the communicated UIPV is attached to
+             */
+            void 
+            prepare_answers_for_owned_unzipped_vertex_IDs(
+                    Cell< Matrix< IdMat > > &       aVertIds,
+                    Cell< Matrix< IdMat > > const & aReceivedBaseVertexIds,
+                    Cell< Matrix< IdMat > > const & aReceivedUnzippedIpCellIds );
+
+            //------------------------------------------------------------------------------
+            
+            /**
+             * @brief Store the IDs received for not owned UIPVs
+             * 
+             * @param aNotOwnedUIPVsToProcs input: outer cell: index of the owning processor in comm-table || inner cell: index of the UIPV communicated
+             * @param aReceivedVertIds input: outer cell: index of the owning processor in comm-table || inner cell: IDs of the UIPVs communicated
+             */
+            void 
+            handle_requested_unzipped_vertex_ID_answers(
+                    Cell< Cell< moris_index > > const & aNotOwnedUIPVsToProcs,
+                    Cell< Matrix< IdMat > > const &     aReceivedVertIds );
+
+            //------------------------------------------------------------------------------
             //------------------------------------------------------------------------------
 
           public:
