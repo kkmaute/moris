@@ -822,8 +822,7 @@ namespace xtk
         assign_node_requests_identifiers(
                 Decomposition_Data&   aDecompData,
                 Cut_Integration_Mesh* aCutIntegrationMesh,
-                moris::mtk::Mesh*     aBackgroundMesh,
-                moris::moris_index    aMPITag );
+                moris::mtk::Mesh*     aBackgroundMesh );
 
         // ----------------------------------------------------------------------------------
 

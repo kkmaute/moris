@@ -28,7 +28,7 @@ Decomposition_Algorithm::perform(
     this->perform_impl_vertex_requests( aMeshGenerationData, aDecompositionData, aCutIntegrationMesh, aBackgroundMesh, aMeshGenerator );
 
     // in parallel give all these nodes ids
-    aMeshGenerator->assign_node_requests_identifiers( *aDecompositionData, aCutIntegrationMesh, aBackgroundMesh, this->get_signature() );
+    aMeshGenerator->assign_node_requests_identifiers( *aDecompositionData, aCutIntegrationMesh, aBackgroundMesh );
 
     // commit vertices to the mesh
     aMeshGenerator->commit_new_ig_vertices_to_cut_mesh( aMeshGenerationData, aDecompositionData, aCutIntegrationMesh, aBackgroundMesh, this );

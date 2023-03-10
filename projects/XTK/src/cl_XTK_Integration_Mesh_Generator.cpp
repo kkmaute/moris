@@ -3895,10 +3895,12 @@ namespace xtk
     Integration_Mesh_Generator::assign_node_requests_identifiers(
             Decomposition_Data&   aDecompData,
             Cut_Integration_Mesh* aCutIntegrationMesh,
-            moris::mtk::Mesh*     aBackgroundMesh,
-            moris::moris_index    aMPITag )
+            moris::mtk::Mesh*     aBackgroundMesh )
     {
-        Tracer      tTracer( "XTK", "Decomposition_Algorithm", "Assign node ids", mXTKModel->mVerboseLevel, 1 );
+        // TODO: This function should get a more thorough cleanup (readability, consistency of data formats)
+        
+        Tracer tTracer( "XTK", "Decomposition_Algorithm", "Assign node IDs" );
+
         moris_index tNodeIndex = aCutIntegrationMesh->get_first_available_index( EntityRank::NODE );
 
         for ( moris::uint i = 0; i < aDecompData.tNewNodeIndex.size(); i++ )
@@ -3908,13 +3910,15 @@ namespace xtk
             tNodeIndex++;
         }
 
-        barrier();
-        // asserts
+        // perform sizing checks
         MORIS_ERROR( aDecompData.tNewNodeId.size() == aDecompData.tNewNodeIndex.size(),
+                "Integration_Mesh_Generator::assign_node_requests_identifiers() - "
                 "Dimension mismatch in assign_node_requests_identifiers" );
         MORIS_ERROR( aDecompData.tNewNodeId.size() == aDecompData.tNewNodeParentRank.size(),
+                "Integration_Mesh_Generator::assign_node_requests_identifiers() - "
                 "Dimension mismatch in assign_node_requests_identifiers" );
         MORIS_ERROR( aDecompData.tNewNodeId.size() == aDecompData.tNewNodeParentIndex.size(),
+                "Integration_Mesh_Generator::assign_node_requests_identifiers() - "
                 "Dimension mismatch in assign_node_requests_identifiers" );
 
         // owned requests and shared requests sorted by owning proc
@@ -3931,8 +3935,15 @@ namespace xtk
                 tProcRanks,
                 tProcRankToDataIndex );
 
+        // convert the comm table from cell of procs to matrix format
+        Matrix< IdMat > tCommTable( 1, tProcRanks.size() );
+        for( uint iProc = 0; iProc < tProcRanks.size(); iProc++ )
+        {
+            tCommTable( iProc ) = (moris_id)tProcRanks( iProc );
+        }
+
         // allocate ids for nodes I own
-        moris::moris_id tNodeId = aCutIntegrationMesh->allocate_entity_ids( aDecompData.tNewNodeId.size(), EntityRank::NODE );
+        moris_id tNodeId = aCutIntegrationMesh->allocate_entity_ids( aDecompData.tNewNodeId.size(), EntityRank::NODE );
 
         // Assign owned request identifiers
         this->assign_owned_request_id( aDecompData, tOwnedRequest, tNodeId );
@@ -3941,37 +3952,25 @@ namespace xtk
         Cell< Matrix< IndexMat > > tOutwardRequests;
         this->setup_outward_requests( aDecompData, aBackgroundMesh, tNotOwnedRequests, tProcRanks, tProcRankToDataIndex, tOutwardRequests );
 
-        // send requests to owning processor
-        mXTKModel->send_outward_requests( aMPITag, tProcRanks, tOutwardRequests );
-
-        // hold on to make sure everyone has sent all their information
-        barrier();
-
-        // receive the requests
+        // send and receive the requests
         Cell< Matrix< IndexMat > > tReceivedRequests;
-        Cell< uint >               tProcsReceivedFrom;
-        mXTKModel->inward_receive_requests( aMPITag, 3, tReceivedRequests, tProcsReceivedFrom );
+        moris::communicate_mats( tCommTable, tOutwardRequests, tReceivedRequests );
 
         // Prepare request answers
         Cell< Matrix< IndexMat > > tRequestAnswers;
         this->prepare_request_answers( aDecompData, aBackgroundMesh, tReceivedRequests, tRequestAnswers );
 
-        // send the answers back
-        mXTKModel->return_request_answers( aMPITag + 1, tRequestAnswers, tProcsReceivedFrom );
-
-        barrier();
-
-        // receive the answers
+        // send and receive the answers
         Cell< Matrix< IndexMat > > tReceivedRequestsAnswers;
-        mXTKModel->inward_receive_request_answers( aMPITag + 1, 1, tProcRanks, tReceivedRequestsAnswers );
+        moris::communicate_mats( tCommTable, tRequestAnswers, tReceivedRequestsAnswers );
 
         // handle received information
         this->handle_received_request_answers( aDecompData, aBackgroundMesh, tOutwardRequests, tReceivedRequestsAnswers, tNodeId );
 
+        // check that all nodes have been assigned an ID
         MORIS_ERROR( mXTKModel->verify_successful_node_assignment( aDecompData ),
+                "Integration_Mesh_Generator::assign_node_requests_identifiers() - "
                 "Unsuccessful node assignment detected." );
-
-        barrier();
     }
 
     // ----------------------------------------------------------------------------------
