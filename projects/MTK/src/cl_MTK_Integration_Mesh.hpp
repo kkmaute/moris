@@ -30,9 +30,9 @@ namespace moris
             // class Cluster_Group;
 
           protected:
-            moris::Cell< moris::mtk::Set * > mListofBlocks;
-            moris::Cell< moris::mtk::Set * > mListofSideSets;
-            moris::Cell< moris::mtk::Set * > mListofDoubleSideSets;
+            moris::Cell< moris::mtk::Set * > mListOfBlocks;
+            moris::Cell< moris::mtk::Set * > mListOfSideSets;
+            moris::Cell< moris::mtk::Set * > mListOfDoubleSideSets;
             moris::Cell< moris::mtk::Set * > mListOfAllSets;
 
             moris::Cell< mtk::Double_Side_Cluster * > mDoubleSideClusters;

@@ -62,7 +62,7 @@ namespace moris
             this->create_visualization_blocks();
 
             // Create vis mesh
-            return new Visualization_Mesh( mListofBlocks,mClustersOnBlock, mCellsOnSet, mVerticesOnSet, mOnlyPrimaryCells );
+            return new Visualization_Mesh( mListOfBlocks,mClustersOnBlock, mCellsOnSet, mVerticesOnSet, mOnlyPrimaryCells );
         }
 
         //-----------------------------------------------------------------------------------------------------------
@@ -400,7 +400,7 @@ namespace moris
         {
             Tracer tTracer( "VisFactory", "VisMesh", "CreateBlocks" );
 
-            mListofBlocks.resize( mNumRequestedSets );
+            mListOfBlocks.resize( mNumRequestedSets );
 
             mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
             mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
@@ -413,13 +413,13 @@ namespace moris
 
                 moris::mtk::Set * tMeshSet = tIntegrationMesh->get_set_by_index( tSetIndex );
 
-                mListofBlocks( Ij ) = new moris::mtk::Block( tMeshSet->get_set_name(),
+                mListOfBlocks( Ij ) = new moris::mtk::Block( tMeshSet->get_set_name(),
                         mClustersOnBlock( Ij ),
                         tMeshSet->get_set_colors(),
                         tMeshSet->get_spatial_dim() );
 
-                mListofBlocks( Ij )->set_cell_topology( tMeshSet->get_cell_topology() );
-                mListofBlocks( Ij )->set_IG_cell_shape( tMeshSet->get_IG_cell_shape() );
+                mListOfBlocks( Ij )->set_cell_topology( tMeshSet->get_cell_topology() );
+                mListOfBlocks( Ij )->set_IG_cell_shape( tMeshSet->get_IG_cell_shape() );
             }
         }
 

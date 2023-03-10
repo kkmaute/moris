@@ -55,7 +55,7 @@ namespace xtk
         // // this maps from the background cell index to the child mesh index
         // std::unordered_map< moris_index, moris_index > mIntersectedBackgroundCellIndexToChildMeshIndex;
 
-    }; // struct Integration_Mesh_Generation_Data
+    };    // struct Integration_Mesh_Generation_Data
 
     // ----------------------------------------------------------------------------------
 
@@ -248,8 +248,8 @@ namespace xtk
         {
             return 1;
         }
-        
-    }; // struct Geometric_Query_XTK
+
+    };    // struct Geometric_Query_XTK
 
     // ----------------------------------------------------------------------------------
 
@@ -634,12 +634,12 @@ namespace xtk
 
         /**
          * @brief assign IDs to the subphases owned by the executing processor
-         * 
+         *
          * @param aCutIntegrationMesh pointer to the Cut_Integration_Mesh
          * @param tFirstID first subphase ID to be used by the executing processor
          */
         void
-        assign_IDs_to_owned_subphases( 
+        assign_IDs_to_owned_subphases(
                 Cut_Integration_Mesh* aCutIntegrationMesh,
                 moris_id              aFirstID );
 
@@ -657,17 +657,17 @@ namespace xtk
          */
         void
         prepare_requests_for_not_owned_subphase_IDs(
-                Cut_Integration_Mesh*         aCutIntegrationMesh,
-                Cell< Cell< moris_index > >&  aNotOwnedSubphasesToProcs,
-                Cell< Matrix< IdMat > >&      aParentCellIds,
-                Cell< Matrix< IdMat > >&      aFirstChildIgCellIds,
-                Cell< Matrix< IdMat > >&      aNumChildCellsInSubphases );
+                Cut_Integration_Mesh*        aCutIntegrationMesh,
+                Cell< Cell< moris_index > >& aNotOwnedSubphasesToProcs,
+                Cell< Matrix< IdMat > >&     aParentCellIds,
+                Cell< Matrix< IdMat > >&     aFirstChildIgCellIds,
+                Cell< Matrix< IdMat > >&     aNumChildCellsInSubphases );
 
         // ----------------------------------------------------------------------------------
 
         /**
          * @brief find and answer with the IDs of the subphases owned by the executing processor and requested from other processors
-         * 
+         *
          * @param aCutIntegrationMesh pointer to the Cut_Integration_Mesh
          * @param aSubphaseIds outer cell: owner proc index in XTK comm-table || inner cell: IDs of the Subphase corresponding to the SPs specified by the above lists
          * @param aReceivedParentCellIds outer cell: owner proc index in XTK comm-table || inner cell: parent Cell IDs corresponding to the SPs whose IDs are requested
@@ -676,26 +676,26 @@ namespace xtk
          */
         void
         prepare_answers_for_owned_subphase_IDs(
-                Cut_Integration_Mesh*    aCutIntegrationMesh,
-                Cell< Matrix< IdMat > >& aSubphaseIds,
-                Cell< Matrix< IdMat > > const& aReceivedParentCellIds,
-                Cell< Matrix< IdMat > > const& aReceivedFirstChildIgCellIds,
-                Cell< Matrix< IdMat > > const& aReceivedNumChildCellsInSubphases );
+                Cut_Integration_Mesh*           aCutIntegrationMesh,
+                Cell< Matrix< IdMat > >&        aSubphaseIds,
+                Cell< Matrix< IdMat > > const & aReceivedParentCellIds,
+                Cell< Matrix< IdMat > > const & aReceivedFirstChildIgCellIds,
+                Cell< Matrix< IdMat > > const & aReceivedNumChildCellsInSubphases );
 
         // ----------------------------------------------------------------------------------
 
         /**
          * @brief Assign the received subphase IDs to on the executing processor
-         * 
+         *
          * @param aCutIntegrationMesh pointer to the Cut_Integration_Mesh
          * @param tNotOwnedSubphasesToProcs outer cell: owner proc index in XTK comm-table || inner cell: list of non-owned SPs whose IDs need to be requested from that owning proc
          * @param tReceivedSubphaseIds outer cell: owner proc index in XTK comm-table || inner cell: IDs of the Subphase corresponding to the SPs specified by the above lists
          */
         void
         handle_requested_subphase_ID_answers(
-                Cut_Integration_Mesh*         aCutIntegrationMesh,
-                Cell< Cell< moris_index > > const&  tNotOwnedSubphasesToProcs,
-                Cell< Matrix< IdMat > > const&      tReceivedSubphaseIds );
+                Cut_Integration_Mesh*               aCutIntegrationMesh,
+                Cell< Cell< moris_index > > const & tNotOwnedSubphasesToProcs,
+                Cell< Matrix< IdMat > > const &     tReceivedSubphaseIds );
 
         // ----------------------------------------------------------------------------------
         // ----------------------------------------------------------------------------------
@@ -713,10 +713,10 @@ namespace xtk
                 Bspline_Mesh_Info*    aBsplineMeshInfo );
 
         // ----------------------------------------------------------------------------------
-        
+
         /**
          * @brief Prepares lists of subphase groups the executing proc has access to but doesn't own for each processor that actually owns these SPGs.
-         * 
+         *
          * @param aCutIntegrationMesh pointer to the Cut_Integration_Mesh
          * @param aBsplineMeshInfo pointer to the B-spline mesh info to be treated
          * @param aNotOwnedSpgsToProcs outer cell: owner proc index in XTK comm-table || inner cell: list of non-owned SPGs whose IDs need to be requested from that owning proc
@@ -725,17 +725,17 @@ namespace xtk
          */
         void
         prepare_requests_for_not_owned_subphase_group_IDs(
-                Cut_Integration_Mesh*         aCutIntegrationMesh,
-                Bspline_Mesh_Info*            aBsplineMeshInfo,
-                Cell< Cell< moris_index > >&  aNotOwnedSpgsToProcs,
-                Cell< Matrix< IdMat > >&      aSubphaseIds,
-                Cell< Matrix< IdMat > >&      aNumSpsInSpg );
+                Cut_Integration_Mesh*        aCutIntegrationMesh,
+                Bspline_Mesh_Info*           aBsplineMeshInfo,
+                Cell< Cell< moris_index > >& aNotOwnedSpgsToProcs,
+                Cell< Matrix< IdMat > >&     aSubphaseIds,
+                Cell< Matrix< IdMat > >&     aNumSpsInSpg );
 
         // ----------------------------------------------------------------------------------
 
         /**
          * @brief Find and answer with the IDs of the subphase groups owned by the executing processor and requested from other processors
-         * 
+         *
          * @param aCutIntegrationMesh pointer to the Cut_Integration_Mesh
          * @param aBsplineMeshInfo pointer to the B-spline mesh info to be treated
          * @param aSubphaseGroupIds output; outer cell: owner proc index in XTK comm-table || inner cell: list of SPG ID answers found to the requests below
@@ -744,17 +744,17 @@ namespace xtk
          */
         void
         prepare_answers_for_owned_subphase_group_IDs(
-                Cut_Integration_Mesh*    aCutIntegrationMesh,
-                Bspline_Mesh_Info*       aBsplineMeshInfo,
-                Cell< Matrix< IdMat > > & aSubphaseGroupIds,
-                Cell< Matrix< IdMat > > const& aReceivedSubphaseIds,
-                Cell< Matrix< IdMat > > const& aReceivedNumSpsInSpg );
+                Cut_Integration_Mesh*           aCutIntegrationMesh,
+                Bspline_Mesh_Info*              aBsplineMeshInfo,
+                Cell< Matrix< IdMat > >&        aSubphaseGroupIds,
+                Cell< Matrix< IdMat > > const & aReceivedSubphaseIds,
+                Cell< Matrix< IdMat > > const & aReceivedNumSpsInSpg );
 
         // ----------------------------------------------------------------------------------
-        
+
         /**
          * @brief Assign the received subphase group IDs on the executing processor
-         * 
+         *
          * @param aCutIntegrationMesh pointer to the Cut_Integration_Mesh
          * @param aBsplineMeshInfo pointer to the B-spline mesh info to be treated
          * @param aNotOwnedSpgsToProcs outer cell: owner proc index in XTK comm-table || inner cell: list of non-owned SPGs whose IDs need to be requested from that owning proc
@@ -762,10 +762,10 @@ namespace xtk
          */
         void
         handle_requested_subphase_group_ID_answers(
-                Cut_Integration_Mesh*         aCutIntegrationMesh,
-                Bspline_Mesh_Info*            aBsplineMeshInfo,
-                Cell< Cell< moris_index > > const&  aNotOwnedSpgsToProcs,
-                Cell< Matrix< IdMat > > const&      aReceivedSubphaseGroupIds );
+                Cut_Integration_Mesh*               aCutIntegrationMesh,
+                Bspline_Mesh_Info*                  aBsplineMeshInfo,
+                Cell< Cell< moris_index > > const & aNotOwnedSpgsToProcs,
+                Cell< Matrix< IdMat > > const &     aReceivedSubphaseGroupIds );
 
         // ----------------------------------------------------------------------------------
         // ----------------------------------------------------------------------------------

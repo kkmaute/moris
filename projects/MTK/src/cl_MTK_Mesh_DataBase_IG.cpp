@@ -902,9 +902,9 @@ namespace moris::mtk
         //                                              + mCellClusterIsTrivial.capacity() * ( 1 + sizeof( bool ) );
 
         // tMemoryMap.mMemoryMapData["Sets"] = moris::internal_capacity_ptr( mListOfAllSets )
-        //                                     + mListofBlocks.capacity() * ( 1 + sizeof( void* ) )
-        //                                     + mListofSideSets.capacity() * ( 1 + sizeof( void* ) )
-        //                                     + mListofDoubleSideSets.capacity() * ( 1 + sizeof( void* ) );
+        //                                     + mListOfBlocks.capacity() * ( 1 + sizeof( void* ) )
+        //                                     + mListOfSideSets.capacity() * ( 1 + sizeof( void* ) )
+        //                                     + mListOfDoubleSideSets.capacity() * ( 1 + sizeof( void* ) );
 
         // // vertex global to local map size
         // size_t tVertexGlbToLocalMapSize = 0;

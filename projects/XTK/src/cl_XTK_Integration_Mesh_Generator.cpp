@@ -22,7 +22,7 @@ using namespace moris;
 namespace xtk
 {
     // ----------------------------------------------------------------------------------
-    
+
     Integration_Mesh_Generator::Integration_Mesh_Generator()
     {
     }
@@ -204,7 +204,7 @@ namespace xtk
 
             // swap the list of intersected cells out with list of non-intersected cells to trigger regular subdivision on the non-intersected cells
             Cell< moris_index > tAllIntersectedBgCells = tGenerationData.mAllIntersectedBgCellInds;
-            tGenerationData.mAllIntersectedBgCellInds = tGenerationData.mAllNonIntersectedBgCellInds;
+            tGenerationData.mAllIntersectedBgCellInds  = tGenerationData.mAllNonIntersectedBgCellInds;
 
             // perform the regular subdivision on the non-intersected cells
             Decomposition_Data tDecompositionData;
@@ -703,8 +703,8 @@ namespace xtk
         Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Compute IG cell bulk phases", mXTKModel->mVerboseLevel, 1 );
 
         // get an estimate how many IG cells will have issues with vertex-based phase assignment
-        uint tNumGeometries                  = mGeometryEngine->get_num_geometries();
-        uint tNumIgCells                     = aCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 );
+        uint tNumGeometries                   = mGeometryEngine->get_num_geometries();
+        uint tNumIgCells                      = aCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 );
         uint tExpectedNumNotAssignableIgCells = tNumGeometries * ( tNumIgCells / 1000 ) + 1;
 
         // initialize list of IG cells whose bulk-phase cannot be determined solely by the nodal Level-Set values
@@ -1730,10 +1730,10 @@ namespace xtk
             /* Step 3: Prepare requests for non-owned entities */
 
             // initialize lists of information that identifies sub-phases (on other procs)
-            Cell< Cell< moris_index > > tNotOwnedSubphasesToProcs;   // sub-phase index (local to current proc, just used for construction of arrays)
-            Cell< Matrix< IdMat > > tParentCellIds;                  // IDs of the sub-phases' parent cells
-            Cell< Matrix< IdMat > > tFirstChildIgCellIds;            // IDs of the first IG cell in the IG cell groups corresponding to the SPs
-            Cell< Matrix< IdMat > > tNumChildCellsInSubphases;       // Number of IG cells in each of the sub-phases
+            Cell< Cell< moris_index > > tNotOwnedSubphasesToProcs;    // sub-phase index (local to current proc, just used for construction of arrays)
+            Cell< Matrix< IdMat > >     tParentCellIds;               // IDs of the sub-phases' parent cells
+            Cell< Matrix< IdMat > >     tFirstChildIgCellIds;         // IDs of the first IG cell in the IG cell groups corresponding to the SPs
+            Cell< Matrix< IdMat > >     tNumChildCellsInSubphases;    // Number of IG cells in each of the sub-phases
 
             // fill information
             this->prepare_requests_for_not_owned_subphase_IDs(
@@ -1752,8 +1752,8 @@ namespace xtk
             Cell< Matrix< IdMat > > tReceivedNumChildCellsInSubphases;
 
             // communicate information
-            moris::communicate_mats( tCommTable, tParentCellIds,            tReceivedParentCellIds );
-            moris::communicate_mats( tCommTable, tFirstChildIgCellIds,      tReceivedFirstChildIgCellIds );
+            moris::communicate_mats( tCommTable, tParentCellIds, tReceivedParentCellIds );
+            moris::communicate_mats( tCommTable, tFirstChildIgCellIds, tReceivedFirstChildIgCellIds );
             moris::communicate_mats( tCommTable, tNumChildCellsInSubphases, tReceivedNumChildCellsInSubphases );
 
             // clear memory not needed anymore
@@ -1795,7 +1795,7 @@ namespace xtk
             /* ---------------------------------------------------------------------------------------- */
             /* Step 7: Use answers to assign IDs to non-owned entities */
 
-            this->handle_requested_subphase_ID_answers( 
+            this->handle_requested_subphase_ID_answers(
                     aCutIntegrationMesh,
                     tNotOwnedSubphasesToProcs,
                     tReceivedSubphaseIds );
@@ -1810,7 +1810,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Integration_Mesh_Generator::assign_IDs_to_owned_subphases( 
+    Integration_Mesh_Generator::assign_IDs_to_owned_subphases(
             Cut_Integration_Mesh* aCutIntegrationMesh,
             moris_id              aFirstID )
     {
@@ -1835,15 +1835,15 @@ namespace xtk
 
     void
     Integration_Mesh_Generator::prepare_requests_for_not_owned_subphase_IDs(
-            Cut_Integration_Mesh*         aCutIntegrationMesh,
-            Cell< Cell< moris_index > >&  aNotOwnedSubphasesToProcs,
-            Cell< Matrix< IdMat > >&      aParentCellIds,
-            Cell< Matrix< IdMat > >&      aFirstChildIgCellIds,
-            Cell< Matrix< IdMat > >&      aNumChildCellsInSubphases )
+            Cut_Integration_Mesh*        aCutIntegrationMesh,
+            Cell< Cell< moris_index > >& aNotOwnedSubphasesToProcs,
+            Cell< Matrix< IdMat > >&     aParentCellIds,
+            Cell< Matrix< IdMat > >&     aFirstChildIgCellIds,
+            Cell< Matrix< IdMat > >&     aNumChildCellsInSubphases )
     {
         // get the communication table and map
-        Matrix< IdMat > tCommTable     = aCutIntegrationMesh->get_communication_table();
-        uint            tCommTableSize = tCommTable.numel();
+        Matrix< IdMat >                   tCommTable              = aCutIntegrationMesh->get_communication_table();
+        uint                              tCommTableSize          = tCommTable.numel();
         std::map< moris_id, moris_index > tProcIdToCommTableIndex = aCutIntegrationMesh->get_communication_map();
 
         // initialize lists of identifying information
@@ -1898,8 +1898,8 @@ namespace xtk
                 mtk::Cell* tParentCell = aCutIntegrationMesh->get_subphase_parent_cell( tSubphaseIndex );
 
                 // store the parent cell and IG cell group IDs, and the number of IG cells corresponding to the SPs to be requested in the remaining arrays
-                aParentCellIds( iProc )( iSP )           = tParentCell->get_id();
-                aFirstChildIgCellIds( iProc )( iSP )            = tIgCellGroup->mIgCellGroup( 0 )->get_id();
+                aParentCellIds( iProc )( iSP )            = tParentCell->get_id();
+                aFirstChildIgCellIds( iProc )( iSP )      = tIgCellGroup->mIgCellGroup( 0 )->get_id();
                 aNumChildCellsInSubphases( iProc )( iSP ) = tIgCellGroup->mIgCellGroup.size();
             }
         }
@@ -1915,25 +1915,23 @@ namespace xtk
 
     void
     Integration_Mesh_Generator::prepare_answers_for_owned_subphase_IDs(
-            Cut_Integration_Mesh*         aCutIntegrationMesh,
-            Cell< Matrix< IdMat > >&      aSubphaseIds,
-            Cell< Matrix< IdMat > > const&      aReceivedParentCellIds,
-            Cell< Matrix< IdMat > > const&      aReceivedFirstChildIgCellIds,
-            Cell< Matrix< IdMat > > const&      aReceivedNumChildCellsInSubphases )
+            Cut_Integration_Mesh*           aCutIntegrationMesh,
+            Cell< Matrix< IdMat > >&        aSubphaseIds,
+            Cell< Matrix< IdMat > > const & aReceivedParentCellIds,
+            Cell< Matrix< IdMat > > const & aReceivedFirstChildIgCellIds,
+            Cell< Matrix< IdMat > > const & aReceivedNumChildCellsInSubphases )
     {
         // get the communication table and map
-        Matrix< IdMat > tCommTable     = aCutIntegrationMesh->get_communication_table();
-        uint            tCommTableSize = tCommTable.numel();
+        Matrix< IdMat >                   tCommTable              = aCutIntegrationMesh->get_communication_table();
+        uint                              tCommTableSize          = tCommTable.numel();
         std::map< moris_id, moris_index > tProcIdToCommTableIndex = aCutIntegrationMesh->get_communication_map();
 
         // initialize lists of ID answers to other procs
         aSubphaseIds.resize( tCommTableSize );
 
         // check that the received data is complete
-        MORIS_ASSERT( 
-                aReceivedParentCellIds.size() == tCommTableSize && 
-                aReceivedFirstChildIgCellIds.size() == tCommTableSize && 
-                aReceivedNumChildCellsInSubphases.size() == tCommTableSize,
+        MORIS_ASSERT(
+                aReceivedParentCellIds.size() == tCommTableSize && aReceivedFirstChildIgCellIds.size() == tCommTableSize && aReceivedNumChildCellsInSubphases.size() == tCommTableSize,
                 "Integration_Mesh_Generator::prepare_answers_for_owned_subphase_IDs() - Received information incomplete." );
 
         // go through the list of processors in the array of ID requests
@@ -1974,19 +1972,18 @@ namespace xtk
                 // place Subphase ID in return data
                 aSubphaseIds( iProc )( iSP ) = tSubphaseId;
 
-            } // end for: communicated sub-phases from current proc
+            }    // end for: communicated sub-phases from current proc
 
-        } // end for: communication list for each processor
-
+        }    // end for: communication list for each processor
     }
 
     // ----------------------------------------------------------------------------------
 
     void
     Integration_Mesh_Generator::handle_requested_subphase_ID_answers(
-            Cut_Integration_Mesh*         aCutIntegrationMesh,
-            Cell< Cell< moris_index > > const&  aNotOwnedSubphasesToProcs,
-            Cell< Matrix< IdMat > > const&      aReceivedSubphaseIds )
+            Cut_Integration_Mesh*               aCutIntegrationMesh,
+            Cell< Cell< moris_index > > const & aNotOwnedSubphasesToProcs,
+            Cell< Matrix< IdMat > > const &     aReceivedSubphaseIds )
     {
         // process answers from each proc communicated with
         for ( uint iProc = 0; iProc < aReceivedSubphaseIds.size(); iProc++ )
@@ -1994,7 +1991,7 @@ namespace xtk
             // get the number of requests and answers from the current proc
             uint tNumReceivedReqs = aReceivedSubphaseIds( iProc ).numel();
 
-            MORIS_ERROR( tNumReceivedReqs == aNotOwnedSubphasesToProcs( iProc ).size(), 
+            MORIS_ERROR( tNumReceivedReqs == aNotOwnedSubphasesToProcs( iProc ).size(),
                     "Integration_Mesh_Generator::handle_requested_subphase_ID_answers() - Number of received and requested subphase IDs don't match." );
 
             // assign IDs to each communicated Sub-Phase
@@ -2018,7 +2015,7 @@ namespace xtk
         Tracer tTracer( "XTK", "Integration Mesh Generator", "assign subphase group IDs", mXTKModel->mVerboseLevel, 1 );
 
         // get the communication table and map
-        Matrix< IdMat > tCommTable = aCutIntegrationMesh->get_communication_table();
+        Matrix< IdMat >                   tCommTable              = aCutIntegrationMesh->get_communication_table();
         std::map< moris_id, moris_index > tProcIdToCommTableIndex = aCutIntegrationMesh->get_communication_map();
 
         /* ---------------------------------------------------------------------------------------- */
@@ -2119,10 +2116,10 @@ namespace xtk
             /* ---------------------------------------------------------------------------------------- */
             /* Step 7: Use answers to assign IDs to non-owned entities */
 
-            this->handle_requested_subphase_group_ID_answers( 
-                    aCutIntegrationMesh, 
-                    aBsplineMeshInfo, 
-                    tNotOwnedSpgsToProcs, 
+            this->handle_requested_subphase_group_ID_answers(
+                    aCutIntegrationMesh,
+                    aBsplineMeshInfo,
+                    tNotOwnedSpgsToProcs,
                     tReceivedSubphaseGroupIds );
 
         }    // end if: parallel
@@ -2133,15 +2130,15 @@ namespace xtk
 
     void
     Integration_Mesh_Generator::prepare_requests_for_not_owned_subphase_group_IDs(
-            Cut_Integration_Mesh*         aCutIntegrationMesh,
-            Bspline_Mesh_Info*            aBsplineMeshInfo,
-            Cell< Cell< moris_index > >&  aNotOwnedSpgsToProcs,
-            Cell< Matrix< IdMat > >&      aSubphaseIds,
-            Cell< Matrix< IdMat > >&      aNumSpsInSpg )
+            Cut_Integration_Mesh*        aCutIntegrationMesh,
+            Bspline_Mesh_Info*           aBsplineMeshInfo,
+            Cell< Cell< moris_index > >& aNotOwnedSpgsToProcs,
+            Cell< Matrix< IdMat > >&     aSubphaseIds,
+            Cell< Matrix< IdMat > >&     aNumSpsInSpg )
     {
         // get the communication table and map
-        Matrix< IdMat > tCommTable = aCutIntegrationMesh->get_communication_table();
-        uint tCommTableSize = tCommTable.numel();
+        Matrix< IdMat >                   tCommTable              = aCutIntegrationMesh->get_communication_table();
+        uint                              tCommTableSize          = tCommTable.numel();
         std::map< moris_id, moris_index > tProcIdToCommTableIndex = aCutIntegrationMesh->get_communication_map();
 
         // initialize lists of identifying information
@@ -2211,29 +2208,28 @@ namespace xtk
 
     void
     Integration_Mesh_Generator::prepare_answers_for_owned_subphase_group_IDs(
-            Cut_Integration_Mesh*    aCutIntegrationMesh,
-            Bspline_Mesh_Info*       aBsplineMeshInfo,
-            Cell< Matrix< IdMat > >& aSubphaseGroupIds,
-            Cell< Matrix< IdMat > > const& aReceivedSubphaseIds,
-            Cell< Matrix< IdMat > > const& aReceivedNumSpsInSpg )
+            Cut_Integration_Mesh*           aCutIntegrationMesh,
+            Bspline_Mesh_Info*              aBsplineMeshInfo,
+            Cell< Matrix< IdMat > >&        aSubphaseGroupIds,
+            Cell< Matrix< IdMat > > const & aReceivedSubphaseIds,
+            Cell< Matrix< IdMat > > const & aReceivedNumSpsInSpg )
     {
         // get the communication table and map
-        Matrix< IdMat > tCommTable = aCutIntegrationMesh->get_communication_table();
-        uint tCommTableSize = tCommTable.numel();
+        Matrix< IdMat >                   tCommTable              = aCutIntegrationMesh->get_communication_table();
+        uint                              tCommTableSize          = tCommTable.numel();
         std::map< moris_id, moris_index > tProcIdToCommTableIndex = aCutIntegrationMesh->get_communication_map();
 
         // initialize array of answers
         aSubphaseGroupIds.resize( tCommTableSize );
 
         // check that the received data is complete
-        MORIS_ASSERT( 
-                aReceivedSubphaseIds.size() == tCommTableSize && 
-                aReceivedNumSpsInSpg.size() == tCommTableSize,
+        MORIS_ASSERT(
+                aReceivedSubphaseIds.size() == tCommTableSize && aReceivedNumSpsInSpg.size() == tCommTableSize,
                 "Integration_Mesh_Generator::prepare_answers_for_owned_subphase_group_IDs() - Received information incomplete." );
 
         // go through the list of processors in the array of ID requests
         for ( uint iProc = 0; iProc < tCommTableSize; iProc++ )
-                {
+        {
             // get the number of entity IDs requested from the current proc position
             uint tNumReceivedReqs = aReceivedSubphaseIds( iProc ).numel();
 
@@ -2243,8 +2239,8 @@ namespace xtk
             // iterate through SPs for which the IDs are requested
             for ( uint iSPG = 0; iSPG < tNumReceivedReqs; iSPG++ )
             {
-                // get the ID and index of the received SP 
-                moris_id tSubphaseId       = aReceivedSubphaseIds( iProc )( iSPG );
+                // get the ID and index of the received SP
+                moris_id    tSubphaseId    = aReceivedSubphaseIds( iProc )( iSPG );
                 moris_index tSubphaseIndex = aCutIntegrationMesh->get_subphase_index( tSubphaseId );
 
                 // get the subphase group's index that the subphase belongs to
@@ -2268,19 +2264,19 @@ namespace xtk
                 // place Subphase ID in return data
                 aSubphaseGroupIds( iProc )( iSPG ) = tSubphaseGroupId;
 
-            } // end for: communication for each entity with current processor
+            }    // end for: communication for each entity with current processor
 
-        } // end for: communication list for each processor
+        }    // end for: communication list for each processor
     }
 
     // ----------------------------------------------------------------------------------
 
     void
     Integration_Mesh_Generator::handle_requested_subphase_group_ID_answers(
-            Cut_Integration_Mesh*         aCutIntegrationMesh,
-            Bspline_Mesh_Info*            aBsplineMeshInfo,
-            Cell< Cell< moris_index > > const&  aNotOwnedSpgsToProcs,
-            Cell< Matrix< IdMat > > const&      aReceivedSubphaseGroupIds )
+            Cut_Integration_Mesh*               aCutIntegrationMesh,
+            Bspline_Mesh_Info*                  aBsplineMeshInfo,
+            Cell< Cell< moris_index > > const & aNotOwnedSpgsToProcs,
+            Cell< Matrix< IdMat > > const &     aReceivedSubphaseGroupIds )
     {
         // process answers from each proc communicated with
         for ( uint iProc = 0; iProc < aReceivedSubphaseGroupIds.size(); iProc++ )
@@ -2288,7 +2284,7 @@ namespace xtk
             // get the number of requests and answers from the current proc
             uint tNumReceivedSpgIds = aReceivedSubphaseGroupIds( iProc ).numel();
 
-            // check that the 
+            // check that the
             MORIS_ASSERT( tNumReceivedSpgIds = aNotOwnedSpgsToProcs( iProc ).size(),
                     "Integration_Mesh_Generator::handle_requested_subphase_group_ID_answers() - "
                     "Number of SPG ID requests and answers are not the same." );
@@ -3898,7 +3894,7 @@ namespace xtk
             moris::mtk::Mesh*     aBackgroundMesh )
     {
         // TODO: This function should get a more thorough cleanup (readability, consistency of data formats)
-        
+
         Tracer tTracer( "XTK", "Decomposition_Algorithm", "Assign node IDs" );
 
         moris_index tNodeIndex = aCutIntegrationMesh->get_first_available_index( EntityRank::NODE );
@@ -3937,7 +3933,7 @@ namespace xtk
 
         // convert the comm table from cell of procs to matrix format
         Matrix< IdMat > tCommTable( 1, tProcRanks.size() );
-        for( uint iProc = 0; iProc < tProcRanks.size(); iProc++ )
+        for ( uint iProc = 0; iProc < tProcRanks.size(); iProc++ )
         {
             tCommTable( iProc ) = (moris_id)tProcRanks( iProc );
         }
@@ -5207,21 +5203,21 @@ namespace xtk
                     // STEP 7: find the bulk phases for union void MSDIs
 
                     // get the list of union void MSDIs for the current Lagrange element
-                    moris::Cell< moris_index > const& tUnionVoidMsdIndicesFinal = aCutIntegrationMesh->mUnionVoidMsdIndices( tLagElemIndex );
-                    uint tNumUnionVoidMSDIs = tUnionVoidMsdIndicesFinal.size();
+                    moris::Cell< moris_index > const & tUnionVoidMsdIndicesFinal = aCutIntegrationMesh->mUnionVoidMsdIndices( tLagElemIndex );
+                    uint                               tNumUnionVoidMSDIs        = tUnionVoidMsdIndicesFinal.size();
 
                     // initialize the list bulk-phase indices associated with the union void MSDIs
                     aCutIntegrationMesh->mUnionVoidMsdIndexBulkPhases( tLagElemIndex ).resize( tNumUnionVoidMSDIs );
 
                     // access the list of sub-phase groups associated with this Lagrange element on the coarsest B-spline mesh
-                    moris::Cell< moris_index > const& tCoarsestSpgsAssociatedWithLagrangeCell = 
+                    moris::Cell< moris_index > const & tCoarsestSpgsAssociatedWithLagrangeCell =
                             tCoarsestBsplineMeshInfo->get_SPG_indices_associated_with_extraction_cell( tLagElemIndex );
 
                     // get the bulk-phases associated with each of the MSDIs
-                    for( uint iMSDI = 0; iMSDI < tNumUnionVoidMSDIs; iMSDI++ )
+                    for ( uint iMSDI = 0; iMSDI < tNumUnionVoidMSDIs; iMSDI++ )
                     {
                         // get the MSD index
-                        moris_index tMSDIndex= tUnionVoidMsdIndicesFinal( iMSDI );
+                        moris_index tMSDIndex = tUnionVoidMsdIndicesFinal( iMSDI );
 
                         // get the SPG associated with the current MSDI on the coarsest B-spline mesh
                         moris_index tAssociatedCoarsestSpg = tCoarsestSpgsAssociatedWithLagrangeCell( tMSDIndex );

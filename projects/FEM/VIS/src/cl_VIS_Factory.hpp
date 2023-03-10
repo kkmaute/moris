@@ -40,7 +40,7 @@ namespace moris
         class VIS_Factory
         {
         private:
-            moris::Cell< moris::mtk::Set * > mListofBlocks;
+            moris::Cell< moris::mtk::Set * > mListOfBlocks;
 
             moris::Cell< moris::Cell< const mtk::Cluster * > >        mClustersOnBlock;   //FIXME delete can be used temporary
             moris::Cell< moris::Cell< mtk::Cell * > >   mCellsOnSet;
