@@ -186,8 +186,6 @@ namespace xtk
             // ----------------------------------------------------------------------------------
             // ----------------------------------------------------------------------------------
 
-            // TODO: add comments to function headers below
-
             /**
              * @brief identifies the vertices in the aura that will interpolate into a ghost facet.
              * In general, these vertices do not have a vertex interpolation so the vertex
@@ -301,18 +299,6 @@ namespace xtk
                     moris::Cell<mtk::Cell  const *> & aGhostIpCellConnectedToVertex);
 
             // ----------------------------------------------------------------------------------
-
-            void
-            prepare_interpolation_vertex_t_matrix_requests(
-                    moris::Cell<mtk::Vertex*>             & aGhostVerticesWithoutInterpolation,
-                    moris::Cell<mtk::Cell  const *>       & aGhostIpCellConnectedToVertex,
-                    Cell<Matrix<IndexMat>>                & aNotOwnedIPVertIndsToProcs,
-                    Cell<Matrix<IndexMat>>                & aNotOwnedBgIpVertsIdsToProcs,
-                    Cell<Matrix<IndexMat>>                & aNotOwnedIpCellIdToProcs,
-                    Cell<Matrix<IndexMat>>                & aNotOwnedEnrichedCellBulkPhaseToProcs,
-                    Cell<uint>                            & aProcRanks,
-                    std::unordered_map<moris_id,moris_id> & aProcRankToDataIndex);
-            // ----------------------------------------------------------------------------------
             /**
              * @brief Using a background vertex id, and a enriched interpolation cell id
              * find the corresponding enriched interpolation vertex
@@ -322,51 +308,7 @@ namespace xtk
                                               moris_index const & aEnrichedIpCellIndex);
 
             // ----------------------------------------------------------------------------------
-            /**
-             * @brief Packages t-matrix  request into mpi ready data structure (i.e. sparse 
-             * matrix for returning back to requesting processor.
-             */
-            void
-            prepare_t_matrix_request_answers(
-                    moris_index            const & aMeshIndex,
-                    Cell<Matrix<IndexMat>> const & aRequestedBgVertexIds,
-                    Cell<Matrix<IndexMat>> const & aRequestedIpCellIds,
-                    Cell<Matrix<IndexMat>> const & aIpCellBulkPhases,
-                    Cell<Matrix<DDRMat>>         & aTMatrixWeights,
-                    Cell<Matrix<IndexMat>>       & aTMatrixIndices,
-                    Cell<Matrix<IndexMat>>       & aBasisOwners,
-                    Cell<Matrix<IndexMat>>       & aTMatrixOffsets);
 
-            void
-            add_vertex_interpolation_to_communication_data(moris::uint      & aCount,
-                                                           Vertex_Enrichment* aInterpolation,
-                                                           Matrix<DDRMat>   & aTMatrixWeights,
-                                                           Matrix<IndexMat> & aTMatrixIndices,
-                                                           Matrix<IndexMat> & aTMatrixOwners,
-                                                           Matrix<IndexMat> & aTMatrixOffsets);
-
-            void
-            extract_vertex_interpolation_from_communication_data(
-                    moris::uint      const & aNumVerts,
-                    Matrix<DDRMat>   const & aTMatrixWeights,
-                    Matrix<IndexMat> const & aTMatrixIndices,
-                    Matrix<IndexMat> const & aTMatrixOwners,
-                    Matrix<IndexMat> const & aTMatrixOffsets,
-                    Cell<Matrix<DDRMat>>   & aExtractedTMatrixWeights,
-                    Cell<Matrix<IndexMat>> & aExtractedTMatrixIndices,
-                    Cell<Matrix<IndexMat>> & aExtractedBasisOwners);
-
-            void
-            handle_received_interpolation_data(
-                    moris_index            const & aMeshIndex,
-                    Cell<Matrix<IndexMat>> const & aNotOwnedIPVertIndsToProcs,
-                    Cell<Matrix<IndexMat>> const & aNotOwnedEnrichedCellBulkPhaseToProcs,
-                    Cell<Matrix<DDRMat>>   const & aRequestedTMatrixWeights,
-                    Cell<Matrix<IndexMat>> const & aRequestedTMatrixIndices,
-                    Cell<Matrix<IndexMat>> const & aRequestedBasisOwners,
-                    Cell<Matrix<IndexMat>> const & aRequestedTMatrixOffsets);
-
-            // ----------------------------------------------------------------------------------
             void
             prepare_ip_cell_id_answers(
                     Cell<Matrix<IndexMat>>                 & aReceivedEnrCellIds,

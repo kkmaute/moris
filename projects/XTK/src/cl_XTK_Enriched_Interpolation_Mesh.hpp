@@ -569,116 +569,18 @@ namespace xtk
             void setup_not_owned_vertices();
 
             //------------------------------------------------------------------------------
-
-            void
-            assign_ip_vertex_ids();
-
-            void
-            assign_ip_vertex_ids_old();
-
-            //------------------------------------------------------------------------------
-
-            void
-            sort_ip_vertices_by_owned_and_not_owned(
-                    Cell< uint >&                             aOwnedVertices,
-                    Cell< Cell< uint > >&                     aNotOwnedVertices,
-                    Cell< Cell< uint > >&                     aNotOwnedIPCells,
-                    Cell< uint >&                             aProcRanks,
-                    std::unordered_map< moris_id, moris_id >& aProcRankToIndexInData );
-
-            //------------------------------------------------------------------------------
-
-            void
-            assign_owned_ip_vertex_ids(
-                    Cell< uint > const& aOwnedIpVerts,
-                    moris::moris_id&    aNodeId );
-
-            //------------------------------------------------------------------------------
-
-            void
-            setup_outward_ip_vertex_requests(
-                    Cell< Cell< uint > > const&               aNotOwnedIpVerts,
-                    Cell< Cell< uint > > const&               aNotOwnedIpCells,
-                    Cell< uint > const&                       aProcRanks,
-                    std::unordered_map< moris_id, moris_id >& aProcRankToIndexInData,
-                    Cell< Matrix< IndexMat > >&               aOutwardBaseVertexIds,
-                    Cell< Matrix< IndexMat > >&               aOutwardIpCellIds );
-
-            //------------------------------------------------------------------------------
-
-            void
-            prepare_ip_vertex_id_answers(
-                    Cell< Matrix< IndexMat > >& aReceivedBaseVertexIds,
-                    Cell< Matrix< IndexMat > >& aReceivedIpCellIds,
-                    Cell< Matrix< IndexMat > >& aVertexIdAnswer );
-
-            //------------------------------------------------------------------------------
-
-            void
-            handle_received_ip_vertex_ids(
-                    Cell< Cell< uint > > const&       aNotOwnedVertices,
-                    Cell< Matrix< IndexMat > > const& aReceivedVertexIds );
-
             //------------------------------------------------------------------------------
 
             /**
-             * @brief This function communicates select vertex t-matrices
-             *
-             * @param aVerticesToCommunicate
+             * @brief Assign IDs for all owned unzipped IP vertices and 
              */
             void
-            communicate_select_vertex_interpolation(
-                    moris::Cell< mtk::Vertex* >  & aVerticesToCommunicate);
-
-            //------------------------------------------------------------------------------
-
-            void
-            prepare_t_matrix_request_answers(
-                    moris_index const&                aMeshIndex,
-                    Cell< Matrix< IndexMat > > const& aRequestedEnrIPVertexIds,
-                    Cell< Matrix< DDRMat > >&         aTMatrixWeights,
-                    Cell< Matrix< IndexMat > >&       aTMatrixIndices,
-                    Cell< Matrix< IndexMat > >&       aBasisOwners,
-                    Cell< Matrix< IndexMat > >&       aTMatrixOffsets );
-
-            //------------------------------------------------------------------------------
-
-            void
-            add_vertex_interpolation_to_communication_data(
-                    moris::uint&        aCount,
-                    Vertex_Enrichment*  aInterpolation,
-                    Matrix< DDRMat >&   aTMatrixWeights,
-                    Matrix< IndexMat >& aTMatrixIndices,
-                    Matrix< IndexMat >& aTMatrixOwners,
-                    Matrix< IndexMat >& aTMatrixOffsets );
-
-            //------------------------------------------------------------------------------
-
-            void
-            handle_received_interpolation_data(
-                    moris_index const&                aMeshIndex,
-                    Cell< Matrix< IndexMat > > const& aVertexIdsToProc,
-                    Cell< Matrix< DDRMat > > const&   aRequestedTMatrixWeights,
-                    Cell< Matrix< IndexMat > > const& aRequestedTMatrixIndices,
-                    Cell< Matrix< IndexMat > > const& aRequestedBasisOwners,
-                    Cell< Matrix< IndexMat > > const& aRequestedTMatrixOffsets );
-
-            //------------------------------------------------------------------------------
-
-            void
-            extract_vertex_interpolation_from_communication_data(
-                    moris::uint const&          aNumVerts,
-                    Matrix< DDRMat > const&     aTMatrixWeights,
-                    Matrix< IndexMat > const&   aTMatrixIndices,
-                    Matrix< IndexMat > const&   aTMatrixOwners,
-                    Matrix< IndexMat > const&   aTMatrixOffsets,
-                    Cell< Matrix< DDRMat > >&   aExtractedTMatrixWeights,
-                    Cell< Matrix< IndexMat > >& aExtractedTMatrixIndices,
-                    Cell< Matrix< IndexMat > >& aExtractedBasisOwners );
+            assign_ip_vertex_ids();
 
             //------------------------------------------------------------------------------
             // Parallel functions
             //------------------------------------------------------------------------------
+
             moris_id allocate_entity_ids(
                     moris::size_t aNumReqs,
                     enum EntityRank aEntityRank,

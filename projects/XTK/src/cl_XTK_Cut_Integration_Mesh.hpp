@@ -1338,11 +1338,6 @@ namespace xtk
         // ----------------------------------------------------------------------------------
 
         void
-        assign_controlled_ig_cell_ids_old();
-
-        // ----------------------------------------------------------------------------------
-
-        void
         set_face_connectivity( std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity );
 
         // ----------------------------------------------------------------------------------
@@ -1643,31 +1638,6 @@ namespace xtk
 
         void
         setup_comm_map();
-
-        // ----------------------------------------------------------------------------------
-
-        void
-        prepare_child_element_identifier_requests(
-                moris::Cell< moris::Cell< moris_id > >&   aNotOwnedChildMeshesToProcs,
-                moris::Cell< moris::Matrix< IdMat > >&    aOwnedParentCellId,
-                moris::Cell< moris::Matrix< IdMat > >&    aNumOwnedCellIdsOffsets,
-                moris::Cell< uint >&                      aProcRanks,
-                std::unordered_map< moris_id, moris_id >& aProcRankToDataIndex );
-
-        // ----------------------------------------------------------------------------------
-
-        void
-        prepare_child_cell_id_answers(
-                Cell< Matrix< IndexMat > >& aReceivedParentCellIds,
-                Cell< Matrix< IndexMat > >& aReceivedParentCellNumChildren,
-                Cell< Matrix< IndexMat > >& aChildCellIdOffset );
-
-        // ----------------------------------------------------------------------------------
-
-        void
-        handle_received_child_cell_id_request_answers(
-                Cell< Cell< moris_index > > const & aChildMeshesInInNotOwned,
-                Cell< Matrix< IndexMat > > const &  aReceivedChildCellIdOffset );
 
         // ----------------------------------------------------------------------------------
 
