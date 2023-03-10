@@ -112,23 +112,23 @@ namespace moris
         Integration_Mesh_STK::~Integration_Mesh_STK()
         {
 
-            for ( auto p : mListofBlocks )
+            for ( auto p : mListOfBlocks )
             {
                 delete p;
             }
-            mListofBlocks.clear();
+            mListOfBlocks.clear();
 
-            for ( auto p : mListofSideSets )
+            for ( auto p : mListOfSideSets )
             {
                 delete p;
             }
-            mListofSideSets.clear();
+            mListOfSideSets.clear();
 
-            for ( auto p : mListofDoubleSideSets )
+            for ( auto p : mListOfDoubleSideSets )
             {
                 delete p;
             }
-            mListofDoubleSideSets.clear();
+            mListOfDoubleSideSets.clear();
         }
 
         // ----------------------------------------------------------------------------
@@ -182,7 +182,7 @@ namespace moris
         std::string
         Integration_Mesh_STK::get_block_set_label( moris_index aBlockSetOrdinal ) const
         {
-            MORIS_ASSERT( aBlockSetOrdinal < (moris_index)mListofBlocks.size(),
+            MORIS_ASSERT( aBlockSetOrdinal < (moris_index)mListOfBlocks.size(),
                     "Block set ordinal out of bounds" );
 
             return mPrimaryBlockSetNames( aBlockSetOrdinal );
@@ -323,7 +323,7 @@ namespace moris
             moris::Cell< std::string > mPrimaryBlockSetNames = this->get_set_names( EntityRank::ELEMENT );
 
             // iterate and create map
-            mListofBlocks.resize( mPrimaryBlockSetNames.size(), nullptr );
+            mListOfBlocks.resize( mPrimaryBlockSetNames.size(), nullptr );
 
             for ( moris::uint Ik = 0; Ik < mPrimaryBlockSetNames.size(); Ik++ )
             {
@@ -337,7 +337,7 @@ namespace moris
                     tCellClusters( Ii ) = &mCellClusters( tCellIndices( Ii ) );
                 }
 
-                mListofBlocks( Ik ) = new moris::mtk::Block(
+                mListOfBlocks( Ik ) = new moris::mtk::Block(
                         mPrimaryBlockSetNames( Ik ),
                         tCellClusters,
                         { { 0 } },
@@ -393,11 +393,11 @@ namespace moris
                 }
             }
 
-            mListofSideSets.resize( mSideSets.size(), nullptr );
+            mListOfSideSets.resize( mSideSets.size(), nullptr );
 
-            for ( moris::uint Ik = 0; Ik < mListofSideSets.size(); Ik++ )
+            for ( moris::uint Ik = 0; Ik < mListOfSideSets.size(); Ik++ )
             {
-                mListofSideSets( Ik ) = new moris::mtk::Side_Set(
+                mListOfSideSets( Ik ) = new moris::mtk::Side_Set(
                         aSideSetNames( Ik ),
                         this->get_side_set_cluster( Ik ),
                         { { 0 } },
@@ -610,15 +610,15 @@ namespace moris
             }
 
             // iterate and create map
-            mListofBlocks.resize( mPrimaryBlockSetClusters.size(), nullptr );
+            mListOfBlocks.resize( mPrimaryBlockSetClusters.size(), nullptr );
 
             moris::Cell< std::string > tBSNames = this->get_block_set_names();
 
             moris::moris_index tMaxIpCellIndex = 0;
 
-            for ( moris::uint Ik = 0; Ik < mListofBlocks.size(); Ik++ )
+            for ( moris::uint Ik = 0; Ik < mListOfBlocks.size(); Ik++ )
             {
-                mListofBlocks( Ik ) = new moris::mtk::Block(
+                mListOfBlocks( Ik ) = new moris::mtk::Block(
                         tBSNames( Ik ),
                         this->get_cell_clusters_in_set( Ik ),
                         { { 0 } },
@@ -644,7 +644,7 @@ namespace moris
             // build Ip Cell to block relationship
             mIpCellToBlockSetOrd.resize( tMaxIpCellIndex + 1 );
 
-            for ( moris::uint Ik = 0; Ik < mListofBlocks.size(); Ik++ )
+            for ( moris::uint Ik = 0; Ik < mListOfBlocks.size(); Ik++ )
             {
                 moris::Cell< moris::mtk::Cluster const * > tClusterList = this->get_cell_clusters_in_set( Ik );
 
@@ -839,11 +839,11 @@ namespace moris
                 }
             }
 
-            mListofSideSets.resize( mSideSets.size(), nullptr );
+            mListOfSideSets.resize( mSideSets.size(), nullptr );
 
-            for ( moris::uint Ik = 0; Ik < mListofSideSets.size(); Ik++ )
+            for ( moris::uint Ik = 0; Ik < mListOfSideSets.size(); Ik++ )
             {
-                mListofSideSets( Ik ) = new moris::mtk::Side_Set(
+                mListOfSideSets( Ik ) = new moris::mtk::Side_Set(
                         aSideSetNames( Ik ),
                         this->get_side_set_cluster( Ik ),
                         { { 0 } },
@@ -1017,11 +1017,11 @@ namespace moris
                 }
             }
 
-            mListofDoubleSideSets.resize( mDoubleSideSets.size(), nullptr );
+            mListOfDoubleSideSets.resize( mDoubleSideSets.size(), nullptr );
 
-            for ( moris::uint Ik = 0; Ik < mListofDoubleSideSets.size(); Ik++ )
+            for ( moris::uint Ik = 0; Ik < mListOfDoubleSideSets.size(); Ik++ )
             {
-                mListofDoubleSideSets( Ik ) = new moris::mtk::Double_Side_Set(
+                mListOfDoubleSideSets( Ik ) = new moris::mtk::Double_Side_Set(
                         mDoubleSideSetLabels( Ik ),
                         this->get_double_side_set_cluster( Ik ),
                         { { 0 } },
@@ -1042,10 +1042,10 @@ namespace moris
             uint tNumDoubleSideSets = mDoubleSideSets.size();
 
             // convert single into double sided side sets
-            for ( moris::uint Ik = 0; Ik < mListofSideSets.size(); Ik++ )
+            for ( moris::uint Ik = 0; Ik < mListOfSideSets.size(); Ik++ )
             {
                 // get number of clusters in set
-                uint tNumClusterInSet = mListofSideSets( Ik )->get_num_clusters_on_set();
+                uint tNumClusterInSet = mListOfSideSets( Ik )->get_num_clusters_on_set();
 
                 // initialize array of paired clusters
                 Matrix< DDSMat > tSideIsPaired( tNumClusterInSet, 1, -1 );
@@ -1063,7 +1063,7 @@ namespace moris
                 for ( uint Ic = 0; Ic < tNumClusterInSet; Ic++ )
                 {
                     const Side_Cluster_STK *tSideClusters =
-                            dynamic_cast< const Side_Cluster_STK * >( mListofSideSets( Ik )->get_clusters_by_index( Ic ) );
+                            dynamic_cast< const Side_Cluster_STK * >( mListOfSideSets( Ik )->get_clusters_by_index( Ic ) );
 
                     // get block oridnal of IP cell
                     moris_index tIpCellIndex = tSideClusters->get_interpolation_cell().get_index();
@@ -1085,7 +1085,7 @@ namespace moris
                             if ( tSlaveBlkIndex != tBlkIndex )
                             {
                                 MORIS_LOG_INFO( "Integration_Mesh_STK::setup_double_side_set_clusters_all_trivial - side set  %s is connected to more than two block sets",
-                                        mListofSideSets( Ik )->get_set_name().c_str() );
+                                        mListOfSideSets( Ik )->get_set_name().c_str() );
 
                                 tInconsistentFlag = true;
                                 break;
@@ -1111,7 +1111,7 @@ namespace moris
 
                     // get left side cluster
                     const Side_Cluster_STK *tLeftSideClusters =
-                            dynamic_cast< const Side_Cluster_STK * >( mListofSideSets( Ik )->get_clusters_by_index( Ic ) );
+                            dynamic_cast< const Side_Cluster_STK * >( mListOfSideSets( Ik )->get_clusters_by_index( Ic ) );
 
                     // get block index of IP cell of cluster
                     moris_index tIpCellIndex      = tLeftSideClusters->get_interpolation_cell().get_index();
@@ -1141,7 +1141,7 @@ namespace moris
 
                         // get right side cluster
                         const Side_Cluster_STK *tRightSideClusters =
-                                dynamic_cast< const Side_Cluster_STK * >( mListofSideSets( Ik )->get_clusters_by_index( Jc ) );
+                                dynamic_cast< const Side_Cluster_STK * >( mListOfSideSets( Ik )->get_clusters_by_index( Jc ) );
 
                         // get block index of IP cell of cluster
                         moris_index tIpCellIndex       = tRightSideClusters->get_interpolation_cell().get_index();
@@ -1202,10 +1202,10 @@ namespace moris
                             std::string tMasterBlkLabel = this->get_block_set_label( tMasterBlkIndex );
                             std::string tSlaveBlkLabel  = this->get_block_set_label( tSlaveBlkIndex );
 
-                            std::string tMasterLabel = mListofSideSets( Ik )->get_set_name()    //
+                            std::string tMasterLabel = mListOfSideSets( Ik )->get_set_name()    //
                                                      + "_" + tMasterBlkLabel + "_" + tSlaveBlkLabel;
 
-                            std::string tSlaveLabel = mListofSideSets( Ik )->get_set_name()    //
+                            std::string tSlaveLabel = mListOfSideSets( Ik )->get_set_name()    //
                                                     + "_" + tSlaveBlkLabel + "_" + tMasterBlkLabel;
                             ;
 
@@ -1277,11 +1277,11 @@ namespace moris
                 }
             }
 
-            mListofDoubleSideSets.resize( mDoubleSideSets.size(), nullptr );
+            mListOfDoubleSideSets.resize( mDoubleSideSets.size(), nullptr );
 
-            for ( moris::uint Ik = 0; Ik < mListofDoubleSideSets.size(); Ik++ )
+            for ( moris::uint Ik = 0; Ik < mListOfDoubleSideSets.size(); Ik++ )
             {
-                mListofDoubleSideSets( Ik ) = new moris::mtk::Double_Side_Set(
+                mListOfDoubleSideSets( Ik ) = new moris::mtk::Double_Side_Set(
                         mDoubleSideSetLabels( Ik ),
                         this->get_double_side_set_cluster( Ik ),
                         { { 0 } },

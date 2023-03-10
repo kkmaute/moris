@@ -33,8 +33,8 @@ namespace moris
         class Visualization_Mesh : public mtk::Mesh
         {
             protected:
-                moris::Cell< moris::mtk::Set * > mListofBlocks;
-                moris::Cell< moris::mtk::Set * > mListofSideSets;
+                moris::Cell< moris::mtk::Set * > mListOfBlocks;
+                moris::Cell< moris::mtk::Set * > mListOfSideSets;
 
                 moris::Cell< moris::mtk::Vertex const * >          mAllVertices;
                 moris::Cell< mtk::Cell const * >                   mAllCells;
@@ -51,12 +51,12 @@ namespace moris
             public:
 
                 Visualization_Mesh(
-                        moris::Cell< moris::mtk::Set * >                   aListofBlocks,
+                        moris::Cell< moris::mtk::Set * >                   aListOfBlocks,
                         moris::Cell< moris::Cell< const mtk::Cluster * > > aClustersOnBlock,
                         moris::Cell< moris::Cell< mtk::Cell * > >          aCellsOnBlock,
                         moris::Cell< moris::Cell< mtk::Vertex * > >        aVerticesOnBlock,
                         const bool                                         aOnlyPrimary )
-                : mListofBlocks( aListofBlocks ),
+                : mListOfBlocks( aListOfBlocks ),
                   mCellsOnSet( aCellsOnBlock ),
                   mVerticesOnSet( aVerticesOnBlock ),
                   mClustersOnBlock( aClustersOnBlock ),
@@ -216,7 +216,7 @@ namespace moris
                  */
                 moris::uint get_num_blocks() const
                 {
-                    return mListofBlocks.size();
+                    return mListOfBlocks.size();
                 }
 
                 // ----------------------------------------------------------------------------
@@ -262,7 +262,7 @@ namespace moris
                  */
                 moris::uint get_num_side_set() const
                 {
-                    return mListofSideSets.size();
+                    return mListOfSideSets.size();
                 }
 
                 // ----------------------------------------------------------------------------
@@ -275,7 +275,7 @@ namespace moris
                  */
                 Matrix<IndexMat> get_element_indices_in_block_set(uint aSetIndex)
                 {
-                    return mListofBlocks(aSetIndex)->get_cell_inds_on_block(false);
+                    return mListOfBlocks(aSetIndex)->get_cell_inds_on_block(false);
                 }
 
                 // ----------------------------------------------------------------------------
@@ -416,7 +416,7 @@ namespace moris
                 enum CellTopology
                 get_blockset_topology(const std::string & aSetName)
                 {
-                    return mListofBlocks(mSetNameToIndexMap[aSetName])->get_cell_topology();
+                    return mListOfBlocks(mSetNameToIndexMap[aSetName])->get_cell_topology();
                 }
 
                 // ----------------------------------------------------------------------------
@@ -424,7 +424,7 @@ namespace moris
                 enum CellShape
                 get_IG_blockset_shape(const std::string & aSetName)
                 {
-                    return mListofBlocks(mSetNameToIndexMap[aSetName])->get_IG_cell_shape();
+                    return mListOfBlocks(mSetNameToIndexMap[aSetName])->get_IG_cell_shape();
                 }
 
                 // ----------------------------------------------------------------------------
@@ -432,7 +432,7 @@ namespace moris
                 enum CellShape
                 get_IP_blockset_shape(const std::string & aSetName)
                 {
-                    return mListofBlocks(mSetNameToIndexMap[aSetName])->get_IP_cell_shape();
+                    return mListOfBlocks(mSetNameToIndexMap[aSetName])->get_IP_cell_shape();
                 }
 
                 // ----------------------------------------------------------------------------
@@ -441,9 +441,9 @@ namespace moris
 
                 void collect_all_sets()
                 {
-                    mListOfAllSets.append( mListofBlocks );
-                    mListOfAllSets.append( mListofSideSets );
-                    //        mListOfAllSets.append( mListofDoubleSideSets );
+                    mListOfAllSets.append( mListOfBlocks );
+                    mListOfAllSets.append( mListOfSideSets );
+                    //        mListOfAllSets.append( mListOfDoubleSideSets );
 
                     for( uint Ik = 0; Ik < mListOfAllSets.size(); Ik++ )
                     {

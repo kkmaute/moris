@@ -117,7 +117,7 @@ namespace moris
                 std::shared_ptr< Database > aDatabase,
                 const uint&                 aOrder,
                 const uint&                 aLagrangePattern,
-                const uint&                 aBpslinePattern )
+                const uint&                 aBsplinePattern )
         {
             // copy database pointer
             mDatabase = aDatabase;
@@ -130,7 +130,7 @@ namespace moris
                 mDummyBSplineMeshes( Ik ) = tFactory.create_bspline_mesh(
                         mDatabase->get_parameters(),    // FIXME only one mesh
                         mDatabase->get_background_mesh(),
-                        aBpslinePattern,
+                        aBsplinePattern,
                         aOrder );
             }
 
@@ -333,7 +333,7 @@ namespace moris
         //-----------------------------------------------------------------------------
 
         uint
-        Mesh::get_num_elemens_including_aura() const
+        Mesh::get_num_elements_including_aura() const
         {
             if ( mMesh->get_activation_pattern() != mDatabase->get_background_mesh()->get_activation_pattern() )
             {
@@ -386,7 +386,7 @@ namespace moris
             if ( mDatabase->get_parameters()->use_number_aura() and    //
                     mDatabase->get_parameters()->is_output_mesh( mMesh->get_index() ) )
             {
-                return this->get_num_elemens_including_aura();
+                return this->get_num_elements_including_aura();
             }
             else
             {

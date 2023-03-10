@@ -505,7 +505,7 @@ namespace xtk
     Cut_Integration_Mesh::get_communication_map()
     {
         // construct the index map if it hasn't already, or the communication table was updated
-        if( !mCommMapHasBeenConstructed )
+        if ( !mCommMapHasBeenConstructed )
         {
             mCommunicationIndexMap.clear();
             for ( uint iProc = 0; iProc < mCommunicationMap.numel(); iProc++ )
@@ -2176,7 +2176,7 @@ namespace xtk
         Tracer tTracer( "XTK", "Cut Integration Mesh", "assign IG cell IDs", mXTKModel->mVerboseLevel, 1 );
 
         // get the communication table
-        Matrix< IdMat > tCommTable     = this->get_communication_table();
+        Matrix< IdMat > tCommTable = this->get_communication_table();
 
         /* ---------------------------------------------------------------------------------------- */
         /* Step 1: Let each proc decide how many entity IDs it needs & communicate ID ranges */
@@ -2243,7 +2243,7 @@ namespace xtk
             Cell< Matrix< IdMat > > tFirstIgCellIdsInCellGroups;
 
             // find the IG cell IDs requested by the other procs
-            this->prepare_answers_for_owned_IG_cell_IDs( 
+            this->prepare_answers_for_owned_IG_cell_IDs(
                     tFirstIgCellIdsInCellGroups,
                     tReceivedParentCellIds,
                     tReceivedNumIgCellsInParentCell );
@@ -2279,7 +2279,7 @@ namespace xtk
     Cut_Integration_Mesh::assign_IDs_to_owned_IG_cells( moris_id aFirstFreeId )
     {
         // make sure this function is not called before the owned IG cells have been determined
-        MORIS_ASSERT( mOwnedIntegrationCellGroupsInds.size() > 0 ,
+        MORIS_ASSERT( mOwnedIntegrationCellGroupsInds.size() > 0,
                 "Cut_Integration_Mesh::assign_IDs_to_owned_IG_cells() - "
                 "No IG cells are owned. This is likely because the owned IG cells have not been determined yet. " );
 
@@ -2324,14 +2324,14 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Cut_Integration_Mesh::prepare_requests_for_not_owned_IG_cell_IDs( 
-            Cell< Cell< moris_index > >& aNotOwnedIgCellGroups,  
+    Cut_Integration_Mesh::prepare_requests_for_not_owned_IG_cell_IDs(
+            Cell< Cell< moris_index > >& aNotOwnedIgCellGroups,
             Cell< Matrix< IdMat > >&     aParentCellIds,
             Cell< Matrix< IndexMat > >&  aNumIgCellsInParentCell )
     {
         // get the communication table and map
-        Matrix< IdMat > tCommTable     = this->get_communication_table();
-        uint            tCommTableSize = tCommTable.numel();
+        Matrix< IdMat >                   tCommTable              = this->get_communication_table();
+        uint                              tCommTableSize          = tCommTable.numel();
         std::map< moris_id, moris_index > tProcIdToCommTableIndex = this->get_communication_map();
 
         // initialize lists of identifying information
@@ -2343,7 +2343,7 @@ namespace xtk
         uint tNumNotOwnedIgCellGroup = mNotOwnedIntegrationCellGroups.size();
 
         // make sure this function is run in parallel only
-        MORIS_ASSERT( tNumNotOwnedIgCellGroup > 0, 
+        MORIS_ASSERT( tNumNotOwnedIgCellGroup > 0,
                 "Cut_Integration_Mesh::prepare_requests_for_not_owned_IG_cell_IDs() - "
                 "No not owned IG cells assigned. Either the owned and not owned IG cells have not been established yet; "
                 "or this function is called in serial (it should only be called in parallel)." );
@@ -2356,7 +2356,7 @@ namespace xtk
 
             // find the position of the current proc in the communication table
             moris_index tOwnerProc = mIntegrationCellGroupsParentCell( tNonOwnedCellGroupIndex )->get_owner();
-            auto        tIter        = tProcIdToCommTableIndex.find( tOwnerProc );
+            auto        tIter      = tProcIdToCommTableIndex.find( tOwnerProc );
             MORIS_ASSERT(
                     tIter != tProcIdToCommTableIndex.end(),
                     "Cut_Integration_Mesh::assign_controlled_ig_cell_ids() - "
@@ -2401,10 +2401,10 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Cut_Integration_Mesh::prepare_answers_for_owned_IG_cell_IDs( 
-            Cell< Matrix< IdMat > >&     aFirstIgCellIdsInCellGroups,
-            Cell< Matrix< IdMat > > const&     aReceivedParentCellIds,
-            Cell< Matrix< IndexMat > > const&  aReceivedNumIgCellsInParentCell )
+    Cut_Integration_Mesh::prepare_answers_for_owned_IG_cell_IDs(
+            Cell< Matrix< IdMat > >&           aFirstIgCellIdsInCellGroups,
+            Cell< Matrix< IdMat > > const &    aReceivedParentCellIds,
+            Cell< Matrix< IndexMat > > const & aReceivedNumIgCellsInParentCell )
     {
         // initialize array of ID answers to other procs with correct size
         aFirstIgCellIdsInCellGroups.resize( aReceivedParentCellIds.size() );
@@ -2431,15 +2431,15 @@ namespace xtk
                 moris_index tIgCellGroupIndex = mParentCellCellGroupIndex( tParentCellIndex );
 
                 // check the request
-                MORIS_ASSERT( 
+                MORIS_ASSERT(
                         tIgCellGroupIndex != MORIS_INDEX_MAX,
                         "Cut_Integration_Mesh::prepare_answers_for_owned_IG_cell_IDs() - "
                         "Request is made for child element IDs on a parent cell not intersected" );
-                MORIS_ASSERT( 
+                MORIS_ASSERT(
                         par_rank() == mIntegrationCellGroupsParentCell( tIgCellGroupIndex )->get_owner(),
                         "Cut_Integration_Mesh::prepare_answers_for_owned_IG_cell_IDs() - "
                         "Current proc does not own this entity that had info requested." );
-                MORIS_ASSERT( 
+                MORIS_ASSERT(
                         mIntegrationCellGroups( tIgCellGroupIndex )->mIgCellGroup.size() == (uint)aReceivedNumIgCellsInParentCell( iProcInCommTable )( iIgCellGroup ),
                         "Cut_Integration_Mesh::prepare_answers_for_owned_IG_cell_IDs() - "
                         "Proc #%i: %i IG cells are in integration cell group %i, but the parent cell is marked to have %i IG cells (for communication).",
@@ -2459,16 +2459,16 @@ namespace xtk
                     // return a default for non-decomposed background cells (as there are no 'controlled' IG cells that need an ID)
                     aFirstIgCellIdsInCellGroups( iProcInCommTable )( iIgCellGroup ) = MORIS_ID_MAX;
                 }
-            } // end for: each IG cell group communicated with the current processor
-        } // end for: each proc communicated with
+            }    // end for: each IG cell group communicated with the current processor
+        }        // end for: each proc communicated with
     }
 
     // ----------------------------------------------------------------------------------
 
     void
-    Cut_Integration_Mesh::handle_requested_IG_cell_ID_answers( 
-            Cell< Cell< moris_index > > const& aNotOwnedIgCellGroups, 
-            Cell< Matrix< IdMat > > const&     aReceivedFirstIgCellIdsInCellGroups )
+    Cut_Integration_Mesh::handle_requested_IG_cell_ID_answers(
+            Cell< Cell< moris_index > > const & aNotOwnedIgCellGroups,
+            Cell< Matrix< IdMat > > const &     aReceivedFirstIgCellIdsInCellGroups )
     {
         // get the communication table and map
         Matrix< IdMat > tCommTable     = this->get_communication_table();
@@ -2544,7 +2544,7 @@ namespace xtk
 
         }    // end for: loop over procs ID answers are received from
 
-    } // end function: Cut_Integration_Mesh::handle_requested_IG_cell_ID_answers()
+    }    // end function: Cut_Integration_Mesh::handle_requested_IG_cell_ID_answers()
 
     // ----------------------------------------------------------------------------------
     // ----------------------------------------------------------------------------------

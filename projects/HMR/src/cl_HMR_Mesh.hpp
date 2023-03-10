@@ -174,7 +174,7 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            uint get_num_elemens_including_aura() const;
+            uint get_num_elements_including_aura() const;
 
             //-------------------------------------------------------------------------------
 

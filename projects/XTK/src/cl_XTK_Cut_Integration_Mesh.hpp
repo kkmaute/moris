@@ -747,9 +747,9 @@ namespace xtk
         moris::Cell< std::shared_ptr< Child_Mesh_Experimental > > mNotOwnedChildMeshes;
 
         // communication map
-        moris::Matrix< IdMat > mCommunicationMap;
+        moris::Matrix< IdMat >            mCommunicationMap;
         std::map< moris_id, moris_index > mCommunicationIndexMap;
-        bool mCommMapHasBeenConstructed = false;
+        bool                              mCommMapHasBeenConstructed = false;
 
         // Integration - Lagrange Mesh relation
         // group of all integration cells in a single parent cell
@@ -911,8 +911,8 @@ namespace xtk
         get_communication_table() const;
 
         // ----------------------------------------------------------------------------------
-        
-        std::map< moris_id, moris_index >      
+
+        std::map< moris_id, moris_index >
         get_communication_map();
 
         // ----------------------------------------------------------------------------------
@@ -1282,20 +1282,20 @@ namespace xtk
         assign_controlled_ig_cell_ids();
 
         // ----------------------------------------------------------------------------------
-        
+
         /**
          * @brief assigns IDs to the IG cells owned by the executing processor
-         * 
+         *
          * @param aFirstFreeId first free IG cell ID to be used by the executing processor
          */
         void
         assign_IDs_to_owned_IG_cells( moris_id aFirstFreeId );
 
         // ----------------------------------------------------------------------------------
-        
+
         /**
          * @brief Prepares lists of IG cells the executing proc has access to but doesn't own for each processor that actually owns these subphases.
-         * 
+         *
          * @param aNotOwnedIgCellGroups outer cell: owner proc index in XTK comm-table || inner cell: list of non-owned IG cell groups whose IG cell's IDs need to be requested from that owning proc
          * @param aParentCellIds outer cell: owner proc index in XTK comm-table || inner cell: parent Cell IDs corresponding to the IG cell groups in the lists above
          * @param aNumIgCellsInParentCell outer cell: owner proc index in XTK comm-table || inner cell: number of IG cells in each of the IG cell groups in the lists above
@@ -1307,10 +1307,10 @@ namespace xtk
                 Cell< Matrix< IndexMat > >&  aNumIgCellsInParentCell );
 
         // ----------------------------------------------------------------------------------
-        
+
         /**
          * @brief find and answer with the IDs of the IG cells owned by the executing processor and requested from other processors
-         * 
+         *
          * @param aFirstIgCellIdsInCellGroups output: outer cell: owner proc index in XTK comm-table || inner cell: IDs of the first IG cell in the respective IG cell groups specified below
          * @param aReceivedParentCellIds input: outer cell: owner proc index in XTK comm-table || inner cell: parent Cell IDs corresponding to the IG cell groups whose IDs are requested
          * @param aReceivedNumIgCellsInParentCell input: outer cell: owner proc index in XTK comm-table || inner cell: number of IG cells in each of the IG cell groups whose IG cell's IDs are requested
@@ -1325,13 +1325,13 @@ namespace xtk
 
         /**
          * @brief Assign the received IG cell IDs to on the executing processor
-         * 
+         *
          * @param aNotOwnedIgCellGroups // outer cell: owner proc index in XTK comm-table || inner cell: list of not owned IG cell groups whose IG cell's IDs was requested from that owning proc
          * @param aReceivedFirstIgCellIdsInCellGroups // outer cell: owner proc index in XTK comm-table || inner cell: IDs of the not owned first IG cell within the group specified
          */
         void
         handle_requested_IG_cell_ID_answers(
-                Cell< Cell< moris_index > > const & aNotOwnedIgCellGroups, 
+                Cell< Cell< moris_index > > const & aNotOwnedIgCellGroups,
                 Cell< Matrix< IdMat > > const &     aReceivedFirstIgCellIdsInCellGroups );
 
         // ----------------------------------------------------------------------------------

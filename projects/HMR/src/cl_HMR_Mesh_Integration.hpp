@@ -210,7 +210,7 @@ namespace moris
                             this->get_num_nodes(),
                             aInterpolationMesh->get_num_nodes());
 
-                    MORIS_ASSERT(this->get_num_elemens_including_aura() == aInterpolationMesh->get_num_elemens_including_aura(),
+                    MORIS_ASSERT(this->get_num_elements_including_aura() == aInterpolationMesh->get_num_elements_including_aura(),
                             "Mismatch elements between integration and interpolation mesh");
 
                     // get the cell rank
@@ -218,7 +218,7 @@ namespace moris
 
                     // number of interpolation cells
                     moris::uint tNumInterpCells = aInterpolationMesh->get_num_entities(tCellRank);
-                    //        moris::uint tNumInterpCells = aInterpolationMesh.get_num_elemens_including_aura();
+                    //        moris::uint tNumInterpCells = aInterpolationMesh.get_num_elements_including_aura();
 
                     // size member data
                     mCellClusters.resize( tNumInterpCells );
@@ -346,11 +346,11 @@ namespace moris
                     // trim outer and inner cells
                     shrink_to_fit_all( mPrimaryBlockSetClusters );
 
-                    mListofBlocks.resize( mPrimaryBlockSetClusters.size(), nullptr );
+                    mListOfBlocks.resize( mPrimaryBlockSetClusters.size(), nullptr );
 
-                    for(moris::uint Ik = 0; Ik<mListofBlocks.size(); Ik++)
+                    for(moris::uint Ik = 0; Ik<mListOfBlocks.size(); Ik++)
                     {
-                        mListofBlocks( Ik ) = new moris::mtk::Block(
+                        mListOfBlocks( Ik ) = new moris::mtk::Block(
                                 tBlockSetNames(Ik),
                                 this->get_cell_clusters_in_set( Ik ),{{0}}, this->get_spatial_dim());
                     }
@@ -423,11 +423,11 @@ namespace moris
                         }
                     }
 
-                    mListofSideSets.resize( mSideSets.size(), nullptr );
+                    mListOfSideSets.resize( mSideSets.size(), nullptr );
 
-                    for(moris::uint Ik = 0; Ik<mListofSideSets.size(); Ik++)
+                    for(moris::uint Ik = 0; Ik<mListOfSideSets.size(); Ik++)
                     {
-                        mListofSideSets( Ik ) = new moris::mtk::Side_Set(aSideSetNames(Ik), this->get_side_set_cluster( Ik ),{{0}}, this->get_spatial_dim());
+                        mListOfSideSets( Ik ) = new moris::mtk::Side_Set(aSideSetNames(Ik), this->get_side_set_cluster( Ik ),{{0}}, this->get_spatial_dim());
                     }
                 }
 
