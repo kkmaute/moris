@@ -607,6 +607,14 @@ namespace xtk
 
         //------------------------------------------------------------------------------
 
+        std::map< moris_id, moris_index >
+        get_communication_map() const
+        {
+            return mCutIntegrationMesh->get_communication_map();
+        }
+
+        //------------------------------------------------------------------------------
+
         /**
          * @brief returns whether SPG based enrichment is used or not
          */
