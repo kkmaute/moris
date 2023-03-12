@@ -73,18 +73,13 @@ namespace moris
                     mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
-            Matrix< DDRMat > tM;
-            if ( tPropSelect == nullptr )
+            real tM = 1.0;
+            if ( tPropSelect != nullptr )
             {
-                // get number of fields
-                const uint tNumFields = tFI->get_number_of_fields();
+                tM = tPropSelect->val()( 0 );
 
-                // set selection matrix as identity
-                eye( tNumFields, tNumFields, tM );
-            }
-            else
-            {
-                tM = tPropSelect->val();
+                // skip computing residual if projection matrix is zero
+                if ( std::abs( tM ) < MORIS_REAL_EPS ) return;
             }
 
             // get imposed temperature property
@@ -116,11 +111,13 @@ namespace moris
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // compute jump
-            Matrix< DDRMat > tJump = tFI->val() - tPropDirichlet->val();
+            real tJump = tFI->val()( 0 ) - tPropDirichlet->val()( 0 );
 
             // compute the residual
             mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex } ) +=
-                    aWStar * ( -tFI->N_trans() * tM * tCMDiffusion->traction( mNormal ) + mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tJump + tSPNitsche->val()( 0 ) * tFI->N_trans() * tM * tJump );
+                    aWStar * ( -tFI->N_trans() * tM * tCMDiffusion->traction( mNormal )                               //
+                               + mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tJump    //
+                               + tSPNitsche->val()( 0 ) * tFI->N_trans() * tM * tJump );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -151,18 +148,13 @@ namespace moris
                     mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
-            Matrix< DDRMat > tM;
-            if ( tPropSelect == nullptr )
+            real tM = 1.0;
+            if ( tPropSelect != nullptr )
             {
-                // get number of fields
-                const uint tNumFields = tFI->get_number_of_fields();
+                tM = tPropSelect->val()( 0 );
 
-                // set selection matrix as identity
-                eye( tNumFields, tNumFields, tM );
-            }
-            else
-            {
-                tM = tPropSelect->val();
+                // skip computing residual if projection matrix is zero
+                if ( std::abs( tM ) < MORIS_REAL_EPS ) return;
             }
 
             // get imposed temperature property
@@ -185,7 +177,7 @@ namespace moris
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // compute jump
-            Matrix< DDRMat > tJump = tFI->val() - tPropDirichlet->val();
+            real tJump = tFI->val()( 0 ) - tPropDirichlet->val()( 0 );
 
             // compute the Jacobian for indirect dof dependencies through properties
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
@@ -208,28 +200,31 @@ namespace moris
                 // if dof type is residual dof type
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
-                    tJac += aWStar * ( mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tFI->N() + tSPNitsche->val()( 0 ) * tFI->N_trans() * tM * tFI->N() );
+                    tJac += aWStar * ( mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tFI->N() +    //
+                                       tSPNitsche->val()( 0 ) * tFI->N_trans() * tM * tFI->N() );
                 }
 
                 // if dependency on the dof type
                 if ( tPropDirichlet->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to Jacobian
-                    tJac += aWStar * ( -mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tPropDirichlet->dPropdDOF( tDofType ) - tSPNitsche->val()( 0 ) * tFI->N_trans() * tM * tPropDirichlet->dPropdDOF( tDofType ) );
+                    tJac += aWStar * ( -mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tPropDirichlet->dPropdDOF( tDofType )    //
+                                       - tSPNitsche->val()( 0 ) * tFI->N_trans() * tM * tPropDirichlet->dPropdDOF( tDofType ) );
                 }
 
                 // if dependency on the dof type
                 if ( tCMDiffusion->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to Jacobian
-                    tJac += aWStar * ( -tFI->N_trans() * tM * tCMDiffusion->dTractiondDOF( tDofType, mNormal ) + mBeta * tCMDiffusion->dTestTractiondDOF( tDofType, mNormal, mResidualDofType( 0 ) ) * tM( 0 ) * tJump( 0 ) );
+                    tJac += aWStar * ( -tFI->N_trans() * tM * tCMDiffusion->dTractiondDOF( tDofType, mNormal )    //
+                                       + mBeta * tCMDiffusion->dTestTractiondDOF( tDofType, mNormal, mResidualDofType( 0 ) ) * tM * tJump );
                 }
 
                 // if dependency on the dof type
                 if ( tSPNitsche->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to Jacobian
-                    tJac += aWStar * ( tFI->N_trans() * tM * tJump( 0 ) * tSPNitsche->dSPdMasterDOF( tDofType ) );
+                    tJac += aWStar * ( tFI->N_trans() * tM * tJump * tSPNitsche->dSPdMasterDOF( tDofType ) );
                 }
             }
 
