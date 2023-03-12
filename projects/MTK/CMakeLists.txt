@@ -8,12 +8,6 @@
 # MTK ---------------------------------------------------------------------
 # -------------------------------------------------------------------------
 
-# Third party library dependencies
-#list(REMOVE_DUPLICATES MTK_TPL_DEPENDENCIES)
-#foreach(MTK_TPL ${MTK_TPL_DEPENDENCIES})
-#    include(${MORIS_TPL_DIR}/${MTK_TPL}.cmake)
-#endforeach()
-
 # Add source directory
 add_subdirectory(src)
 

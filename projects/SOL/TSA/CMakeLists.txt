@@ -8,14 +8,6 @@
 # Time Solver Algebra ----------------------------------------------
 # -------------------------------------------------------------------------
 
-# Third party library dependencies
-#include(${MORIS_TPL_DIR}/PETSc.cmake)
-#include(${MORIS_TPL_DIR}/viennacl.cmake)
-#list(REMOVE_DUPLICATES TSA_TPL_DEPENDENCIES)
-#foreach(TSA_TPL ${TSA_TPL_DEPENDENCIES})
-#    include(${MORIS_TPL_DIR}/${TSA_TPL}.cmake)
-#endforeach()
-
 # Add source directory
 add_subdirectory(src)
 
