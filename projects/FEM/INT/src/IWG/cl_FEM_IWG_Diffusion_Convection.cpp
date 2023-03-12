@@ -68,9 +68,9 @@ namespace moris
 
             // compute the residual
             // N * a * (T - T_ref)
-            mSet->get_residual()( 0 )( { tResStartIndex, tResStopIndex } ) +=    //
-                    aWStar * ( tPropHeatTransfer->val() *                        //
-                               ( tFI->val() - tPropAmbientTemp->val() ) * tFI->N_trans() );
+            mSet->get_residual()( 0 )( { tResStartIndex, tResStopIndex } ) +=      //
+                    aWStar * ( tFI->N_trans() * tPropHeatTransfer->val()( 0 ) *    //
+                               ( tFI->val() - tPropAmbientTemp->val() ) );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -128,15 +128,15 @@ namespace moris
                 // if dof type is residual dof type
                 if ( tDepDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
-                    tJac += aWStar * tPropHeatTransfer->val() * tFI->N_trans() * tFI->N();
+                    tJac += aWStar * tPropHeatTransfer->val()( 0 ) * tFI->N_trans() * tFI->N();
                 }
 
                 // if dependency of heat transfer coefficient on dof type
                 if ( tPropHeatTransfer->check_dof_dependency( tDepDofType ) )
                 {
                     // add contribution to Jacobian
-                    tJac += aWStar * ( tFI->val() - tPropAmbientTemp->val() ) *    //
-                            tFI->N_trans() * tPropHeatTransfer->dPropdDOF( tDepDofType );
+                    tJac += aWStar * tFI->N_trans() * ( tFI->val() - tPropAmbientTemp->val() ) *    //
+                            tPropHeatTransfer->dPropdDOF( tDepDofType );
                 }
             }
 
