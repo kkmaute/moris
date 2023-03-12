@@ -33,10 +33,10 @@ namespace moris
     class XML_Parser
     {
         // flag whether this has been initialized
-        XML_Mode mMode;
+        XML_Mode mMode = XML_Mode::UNINITIALIZED;
 
         // path to the xml file
-        std::string mFilePath;
+        std::string mFilePath = "";
 
         // tree object containing the xml information
         boost::property_tree::ptree mTree;
@@ -53,9 +53,7 @@ namespace moris
          * opens a path and writes the content into mTree
          */
         XML_Parser()
-                : mMode( XML_Mode::UNINITIALIZED )
-                , mFilePath( "" )
-                , mTree()
+                : mTree()
                 , mBuffer()
         {
             // nothing else
