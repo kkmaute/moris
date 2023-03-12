@@ -48,11 +48,9 @@ set(LIB_DEPENDENCIES
     ${LINALG}-lib
     ${COM}-lib
     ${CON}-lib
-    ${INT}-lib
     ${DLA}-lib
     ${PRM}-lib
     ${ENM}-lib
-    #${MDL}-lib
    )
 
 # Set the output path for library

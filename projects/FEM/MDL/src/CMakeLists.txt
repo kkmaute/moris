@@ -35,6 +35,7 @@ set(LIB_DEPENDENCIES
     ${SDF}-lib
     ${DLA}-lib
     ${PRM}-lib
+    ${VIS}-lib
     )
 
 # Set the output path for library
