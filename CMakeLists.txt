@@ -152,6 +152,9 @@ option(MORIS_USE_EIGEN
 option(MORIS_USE_32BIT
     "Use 32bit numbers for identifiers and sizes." ON )
 
+option(MORIS_USE_LTO
+    "Use LTO optimization." ON )
+
 option(MORIS_HAVE_DEBUG
     "Use the debug version of the code." OFF )
 
@@ -191,6 +194,9 @@ option(MORIS_USE_MUMPS
     "Build MORIS with MUMPS used in Trilinos and Petsc." ON )
 
 option(MORIS_HAVE_TRILINOS_OLD
+    "Build MORIS with support for old Trilinos version." OFF )
+
+option(MORIS_HAVE_TRILINOS_NEW_CMAKE
     "Build MORIS with support for old Trilinos version." OFF )
     
 option(MORIS_HAVE_PETSC
@@ -516,7 +522,7 @@ else()
 #    endif()
     
     check_cxx_compiler_flag(-flto HAVE_LTO_OPTIMISATION)
-    if (HAVE_LTO_OPTIMISATION)
+    if (HAVE_LTO_OPTIMISATION AND MORIS_USE_LTO)
         set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -flto=auto")
         # -ffat-lto-objects
     endif()
