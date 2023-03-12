@@ -38,6 +38,7 @@ namespace moris
             enum class IWG_Property_Type
             {
                 THICKNESS,
+                SELECT,
                 MAX_ENUM
             };
 
