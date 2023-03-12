@@ -79,6 +79,9 @@ namespace moris
             else
             {
                 tM = tPropSelect->val();
+
+                // skip computing residual if projection matrix is zero
+                if ( norm( tM ) < MORIS_REAL_EPS ) return;
             }
 
             // get the imposed velocity property
@@ -139,6 +142,9 @@ namespace moris
             else
             {
                 tM = tPropSelect->val();
+
+                // skip computing residual if projection matrix is zero
+                if ( norm( tM ) < MORIS_REAL_EPS ) return;
             }
 
             // get the imposed velocity property
@@ -232,4 +238,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-
