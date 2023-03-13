@@ -634,7 +634,7 @@ namespace moris
                 sint                         aMeshIndex )
         {
             uint tNumElements = 0;
-            
+
             // Loop over fields
             for ( uint Ik = 0; Ik < aPerformer->get_num_refinement_fields(); Ik++ )
             {

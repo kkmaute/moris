@@ -56,14 +56,13 @@ namespace moris
     class Param_List
     {
         //------------------------------------------------------------------------------
-      private:
 
+      private:
         std::map< std::string, Variant, moris::containers::strcmp > mParamMap;
 
         //------------------------------------------------------------------------------
 
       public:
-
         //------------------------------------------------------------------------------
 
         /**
@@ -408,10 +407,10 @@ namespace moris
 
         /**
          * @brief check if parameter list is empty
-         * 
+         *
          * @return true if parameter list doesn't have any entries
          */
-        bool 
+        bool
         isempty()
         {
             return mParamMap.empty();
@@ -421,18 +420,15 @@ namespace moris
 
         /**
          * @brief get the size of the parameter list
-         * 
+         *
          * @return size_t number of entries in the parameter list
          */
-        size_t 
+        size_t
         size()
         {
             return mParamMap.size();
         }
-
-        //------------------------------------------------------------------------------
-
-    }; // class ParameterList
+    };    // class ParameterList
 
     //------------------------------------------------------------------------------
 
@@ -442,37 +438,37 @@ namespace moris
     {
         std::stringstream tStringStream;
 
-        if ( boost::get< bool >( & aParameterValue ) != nullptr )
+        if ( boost::get< bool >( &aParameterValue ) != nullptr )
         {
             tStringStream << boost::get< bool >( aParameterValue );
         }
 
-        else if ( boost::get< sint >( & aParameterValue ) != nullptr )
+        else if ( boost::get< sint >( &aParameterValue ) != nullptr )
         {
             tStringStream << boost::get< sint >( aParameterValue );
         }
 
-        else if ( boost::get< real >( & aParameterValue ) != nullptr )
+        else if ( boost::get< real >( &aParameterValue ) != nullptr )
         {
             tStringStream << boost::get< real >( aParameterValue );
         }
 
-        else if ( boost::get< std::string >( & aParameterValue ) != nullptr )
+        else if ( boost::get< std::string >( &aParameterValue ) != nullptr )
         {
             tStringStream << boost::get< std::string >( aParameterValue );
         }
 
-        else if ( boost::get< const char* >( & aParameterValue ) != nullptr )
+        else if ( boost::get< const char* >( &aParameterValue ) != nullptr )
         {
             tStringStream << boost::get< const char* >( aParameterValue );
         }
 
-        else if ( boost::get< uint >( & aParameterValue ) != nullptr )
+        else if ( boost::get< uint >( &aParameterValue ) != nullptr )
         {
             tStringStream << boost::get< uint >( aParameterValue );
         }
 
-        else if ( boost::get< std::pair< std::string, std::string > >( & aParameterValue ) != nullptr )
+        else if ( boost::get< std::pair< std::string, std::string > >( &aParameterValue ) != nullptr )
         {
             std::pair< std::string, std::string > tPair = boost::get< std::pair< std::string, std::string > >( aParameterValue );
             tStringStream << tPair.first << "," << tPair.second;
@@ -490,7 +486,7 @@ namespace moris
 
     // datatype for parameter lists
     typedef boost::variant< bool, sint, real, const char*, std::string, uint, std::pair< std::string, std::string > > ParameterListTypes;
-    typedef Param_List< ParameterListTypes > ParameterList;
+    typedef Param_List< ParameterListTypes >                                                                          ParameterList;
 
     //------------------------------------------------------------------------------
 

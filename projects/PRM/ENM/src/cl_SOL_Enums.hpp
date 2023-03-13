@@ -21,7 +21,21 @@ namespace moris
             AMESOS_IMPL,     //< Wrapper around Amesos Solver
             AMESOS2_IMPL,    //< Wrapper around Amesos2 Solver
             BELOS_IMPL,      //< Wrapper around Belos Solver
-            PETSC            //< Wrapper around Petsc Solver
+            PETSC,           //< Wrapper around Petsc Solver
+            EIGEN_SOLVER,
+            END_ENUM
+        };
+
+        enum class EigSolMethod
+        {
+            LINSOL_AMESOS_KLU,
+            LINSOL_AMESOS_UMFPACK,
+            LINSOL_AMESOS_DSCPACK,
+            LINSOL_AMESOS_MUMPS,
+            LINSOL_AMESOS_LAPACK,
+            LINSOL_AMESOS_SCALAPACK,
+            LINSOL_AMESOS_PARDISO,
+            END_ENUM
         };
 
         enum class MapType

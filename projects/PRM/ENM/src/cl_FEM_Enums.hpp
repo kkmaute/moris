@@ -387,6 +387,16 @@ namespace moris
         };
 
         //------------------------------------------------------------------------------
+
+        enum class Time_Continuity_Flag
+        {
+            DEFAULT,
+            TIME_CONTINUITY_ONLY,
+            NO_TIME_CONTINUITY,
+            END_TIME_CONTINUITY_FLAG,
+        };
+
+        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 
