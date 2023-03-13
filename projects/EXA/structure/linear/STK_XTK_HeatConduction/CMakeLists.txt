@@ -6,7 +6,7 @@
 #
 
 set(EXAMPLE_MAIN Main_STK_XTK_HeatConduction)
-set(EXAMPLE_FILES STK_XTK_HeatConduction )
+set(EXAMPLE_FILE STK_XTK_HeatConduction )
 set(EXAMPLE_PROCS 1)
 
 # List source files
@@ -101,7 +101,7 @@ endforeach()
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
     foreach(PROCS ${EXAMPLE_PROCS})
-        add_test(NAME Axisymmetric_Problem-${PROCS}-procs
+        add_test(NAME ${EXAMPLE_FILE}-${PROCS}-procs
         COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS_EXA} $<TARGET_FILE:${EXAMPLE_MAIN}>
         WORKING_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY})
     endforeach()
