@@ -1213,6 +1213,12 @@ namespace moris
                     // set vertex coordinates for field interpolator
                     mSet->get_field_interpolator_manager()->set_space_time( tGlobalIntegPoint );
 
+                    // set vertex coordinates for field interpolator of eigen vectors
+                    if ( mSet->mNumEigenVectors )
+                    {
+                        mSet->get_field_interpolator_manager_eigen_vectors()->set_space_time( tGlobalIntegPoint );
+                    }
+
                     // get number of active local IQIs
                     uint tNumLocalIQIs = mSet->get_number_of_requested_nodal_IQIs_for_visualization();
 

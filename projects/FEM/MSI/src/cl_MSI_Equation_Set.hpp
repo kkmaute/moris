@@ -316,8 +316,8 @@ namespace moris
              */
             virtual void
             initialize_set(
-                    const bool aIsStaggered,
-                    const bool aTimeContinuityOnlyFlag )
+                    const bool                      aIsStaggered            = false,
+                    const fem::Time_Continuity_Flag aTimeContinuityOnlyFlag = fem::Time_Continuity_Flag::DEFAULT )
             {
                 MORIS_ERROR( false, "Equation_Set::initialize_set - not implemented for virtual member function" );
             }

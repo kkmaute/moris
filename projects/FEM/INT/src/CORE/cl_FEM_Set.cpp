@@ -182,8 +182,8 @@ namespace moris
 
         void
         Set::initialize_set(
-                const bool aIsStaggered,
-                const bool aTimeContinuityOnlyFlag )
+                const bool                 aIsStaggered,
+                const Time_Continuity_Flag aTimeContinuityOnlyFlag )
         {
             if ( !mIsEmptySet )    // FIXME this flag is a hack. find better solution
             {
@@ -2185,7 +2185,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        Set::create_requested_IWG_list( const bool aTimeContinuityOnlyFlag )
+        Set::create_requested_IWG_list( const Time_Continuity_Flag aTimeContinuityOnlyFlag )
         {
             // get list of requested dof types from solver
             moris::Cell< enum MSI::Dof_Type > tRequestedDofTypes =
@@ -2222,14 +2222,21 @@ namespace moris
                             if ( ( tResDofType( iType )( 0 ) == tDofType ) and ( !tActiveIWGs( iIWG ) ) )
                             {
                                 // check whether only time continuity IWG should be considered
-                                if ( aTimeContinuityOnlyFlag )
+                                if ( aTimeContinuityOnlyFlag == Time_Continuity_Flag::TIME_CONTINUITY_ONLY )
                                 {
-                                    if ( mIWGs( iIWG )->get_IWG_type() == moris::fem::IWG_Type::TIME_CONTINUITY_DOF )
+                                    if ( mIWGs( iIWG )->get_IWG_type() == IWG_Type::TIME_CONTINUITY_DOF )
                                     {
                                         mRequestedIWGs.push_back( mIWGs( iIWG ) );
                                     }
                                 }
-                                else
+                                else if ( aTimeContinuityOnlyFlag == Time_Continuity_Flag::NO_TIME_CONTINUITY )
+                                {
+                                    if ( mIWGs( iIWG )->get_IWG_type() != IWG_Type::TIME_CONTINUITY_DOF )
+                                    {
+                                        mRequestedIWGs.push_back( mIWGs( iIWG ) );
+                                    }
+                                }
+                                else if ( aTimeContinuityOnlyFlag == Time_Continuity_Flag::DEFAULT )
                                 {
                                     // add the IWG to the requested IWG list
                                     mRequestedIWGs.push_back( mIWGs( iIWG ) );

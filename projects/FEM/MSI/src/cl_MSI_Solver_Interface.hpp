@@ -120,6 +120,17 @@ namespace moris
             get_solution_vector_prev_time_step();
 
             //------------------------------------------------------------------------------
+            /**
+             * get previous solution vector
+             * @param[ out ] aSolutionVector previous distributed solution vector
+             */
+            sol::Dist_Vector*
+            get_eigen_solution_vector()
+            {
+                return mEigenSolutionVector;
+            }
+
+            //------------------------------------------------------------------------------
 
             void
             set_model( mdl::Model* aModel )
@@ -166,10 +177,10 @@ namespace moris
             //------------------------------------------------------------------------------
 
             void initialize_set(
-                    const uint aMyEquSetInd,
-                    const bool aIsStaggered,
-                    const bool aTimeContinuityOnlyFlag               = false,
-                    const bool aIsAdjointOffDiagonalTimeContribution = false );
+                    const uint                             aMyEquSetInd,
+                    const bool                             aIsStaggered,
+                    const moris::fem::Time_Continuity_Flag aTimeContinuityOnlyFlag               = moris::fem::Time_Continuity_Flag::DEFAULT,
+                    const bool                             aIsAdjointOffDiagonalTimeContribution = false );
 
             //------------------------------------------------------------------------------
 

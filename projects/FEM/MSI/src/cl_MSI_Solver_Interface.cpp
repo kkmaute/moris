@@ -228,10 +228,10 @@ namespace moris
 
         void
         MSI_Solver_Interface::initialize_set(
-                const uint aMyEquSetInd,
-                const bool aIsStaggered,
-                const bool aTimeContinuityOnlyFlag,
-                const bool aIsAdjointOffDiagonalTimeContribution )
+                const uint                      aMyEquSetInd,
+                const bool                      aIsStaggered,
+                const fem::Time_Continuity_Flag aTimeContinuityOnlyFlag,
+                const bool                      aIsAdjointOffDiagonalTimeContribution )
         {
             mMSI->get_equation_model()->set_is_adjoint_off_diagonal_time_contribution( aIsAdjointOffDiagonalTimeContribution );
 
