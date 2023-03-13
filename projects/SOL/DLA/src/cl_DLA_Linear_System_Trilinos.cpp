@@ -111,13 +111,17 @@ Linear_System_Trilinos::Linear_System_Trilinos(
 {
     mTplType         = sol::MapType::Epetra;
     mSolverWarehouse = aSolverWarehouse;
-
     sol::Matrix_Vector_Factory tMatFactory( mTplType );
 
     aFreeMap->build_dof_translator( aInput->get_my_local_global_overlapping_map(), false );
 
     // Build matrix
     mMat = tMatFactory.create_matrix( aInput, aFreeMap, true, true );
+
+    if ( !mSolverWarehouse->get_output_to_matlab_string().empty() || !mSolverWarehouse->get_RHS_mat_type().empty() )
+    {
+        mMassMat = tMatFactory.create_matrix( aInput, aFreeMap, true, true );
+    }
 
     uint tNumRHS = aInput->get_num_rhs();
 
@@ -134,10 +138,13 @@ Linear_System_Trilinos::Linear_System_Trilinos(
 
     mSolverInterface->build_graph( mMat );
 
+    if ( !mSolverWarehouse->get_output_to_matlab_string().empty() || !mSolverWarehouse->get_RHS_mat_type().empty() )
+    {
+        mSolverInterface->build_graph( mMassMat );
+    }
+
     real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-    MORIS_LOG_INFO( "Building matrix graph on processor %u took %5.3f seconds.",
-            (uint)par_rank(),
-            (double)tElapsedTime / 1000 );
+    MORIS_LOG_INFO( "Building matrix graph on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
 }
 
 //----------------------------------------------------------------------------------------
@@ -146,6 +153,9 @@ Linear_System_Trilinos::~Linear_System_Trilinos()
 {
     delete mMat;
     mMat = nullptr;
+
+    delete mMassMat;
+    mMassMat = nullptr;
 
     delete mFreeVectorLHS;
     mFreeVectorLHS = nullptr;
@@ -172,7 +182,6 @@ Linear_System_Trilinos::solve_linear_system()
 
     Epetra_LinearProblem tEpetraProblem;
     tEpetraProblem.SetOperator( mMat->get_matrix() );
-
     tEpetraProblem.SetRHS( static_cast< Vector_Epetra* >( mPointVectorRHS )->get_epetra_vector() );
     tEpetraProblem.SetLHS( static_cast< Vector_Epetra* >( mPointVectorLHS )->get_epetra_vector() );
 

@@ -98,8 +98,8 @@ Solver_Interface::fill_matrix_and_RHS(
 
 void
 Solver_Interface::assemble_RHS(
-        moris::sol::Dist_Vector* aVectorRHS,
-        const bool               aTimeContinuityOnlyFlag )
+        moris::sol::Dist_Vector*        aVectorRHS,
+        const fem::Time_Continuity_Flag aTimeContinuityOnlyFlag )
 {
     // Get local number of elements
     moris::uint tNumBlocks = this->get_num_my_blocks();
@@ -223,7 +223,7 @@ Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Dist_Ve
         {
             moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
 
-            this->initialize_set( Ii, false, false, true );
+            this->initialize_set( Ii, false, fem::Time_Continuity_Flag::DEFAULT, true );
 
             for ( moris::uint Ik = 0; Ik < tNumEquationObjectOnSet; Ik++ )
             {
@@ -261,7 +261,9 @@ Solver_Interface::assemble_additional_DqDs_RHS_contribution( moris::sol::Dist_Ve
 //---------------------------------------------------------------------------------------------------------
 
 void
-Solver_Interface::assemble_jacobian( moris::sol::Dist_Matrix* aMat )
+Solver_Interface::assemble_jacobian(
+        moris::sol::Dist_Matrix*        aMat,
+        const fem::Time_Continuity_Flag aTimeContinuityOnlyFlag )
 {
     // Get local number of elements
     moris::uint numBlocks = this->get_num_my_blocks();
@@ -276,7 +278,7 @@ Solver_Interface::assemble_jacobian( moris::sol::Dist_Matrix* aMat )
     {
         moris::uint tNumEquationObjectOnSet = this->get_num_equation_objects_on_set( Ii );
 
-        this->initialize_set( Ii );
+        this->initialize_set( Ii, false, aTimeContinuityOnlyFlag );
 
         for ( moris::uint Ik = 0; Ik < tNumEquationObjectOnSet; Ik++ )
         {

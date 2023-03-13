@@ -68,6 +68,9 @@ Solver_Factory::create_solver( const enum sol::SolverType aSolverType )
             MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
 #endif
             break;
+        case ( sol::SolverType::EIGEN_SOLVER ):
+            tLinSol = std::make_shared< Eigen_Solver >();
+            break;
         default:
             MORIS_ERROR( false, "No solver type specified" );
             break;
@@ -104,6 +107,9 @@ Solver_Factory::create_solver(
 #else
             MORIS_ERROR( false, "MORIS is configured with out PETSC support." );
 #endif
+            break;
+        case ( sol::SolverType::EIGEN_SOLVER ):
+            tLinSol = std::make_shared< Eigen_Solver >( &aParameterlist );
             break;
         default:
             MORIS_ERROR( false, "No solver type specified" );

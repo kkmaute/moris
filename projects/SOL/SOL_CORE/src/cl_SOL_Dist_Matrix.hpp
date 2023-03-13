@@ -66,6 +66,17 @@ namespace moris
 
             virtual ~Dist_Matrix(){};
 
+            /**
+             * Get distributed matrix map
+             *
+             * @return Map
+             */
+            sol::Dist_Map*
+            get_map()
+            {
+                return mMap;
+            }
+
             virtual void fill_matrix(
                     const moris::uint&             aNumDofs,
                     const moris::Matrix< DDRMat >& aA_val,

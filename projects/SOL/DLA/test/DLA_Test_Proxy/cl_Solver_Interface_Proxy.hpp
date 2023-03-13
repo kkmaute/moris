@@ -24,18 +24,24 @@ namespace moris
     class Solver_Interface_Proxy : public Solver_Interface
     {
       private:
-        moris::uint                     mNumMyDofs;                      // local dimension of the problem
-        moris::Matrix< DDSMat >         mMyGlobalElements;               // local-to-global map
-        moris::Matrix< DDSMat >         mMyGlobalElementsOverlapping;    // local-to-global map
-        moris::uint                     mNumElements;                    // number local elements
-        moris::Matrix< DDSMat >         mEleDofConectivity;              // element - dof connectivities
-        moris::Matrix< DDRMat >         mElementMatrixValues;            // dense element matrix entries
-        moris::uint                     mNumDofsPerElement;              // dofs per element
-        moris::Matrix< DDUMat >         mMyConstraintDofs;               // constraint dofs
-        Cell< moris::Matrix< DDRMat > > mMyRHSValues;                    // Vector with RHS values
-        uint                            mNumRHS = 1;
+        moris::uint                       mNumMyDofs;                      // local dimension of the problem
+        moris::Matrix< DDSMat >           mMyGlobalElements;               // local-to-global map
+        moris::Matrix< DDSMat >           mMyGlobalElementsOverlapping;    // local-to-global map
+        moris::uint                       mNumElements;                    // number local elements
+        moris::Matrix< DDSMat >           mEleDofConectivity;              // element - dof connectivities
+        moris::Matrix< DDRMat >           mElementMatrixValues;            // dense element matrix entries
+        moris::uint                       mNumDofsPerElement;              // dofs per element
+        moris::Matrix< DDUMat >           mMyConstraintDofs;               // constraint dofs
+        Cell< moris::Matrix< DDRMat > >   mMyRHSValues;                    // Vector with RHS values
+        uint                              mNumRHS = 1;
+        moris::Cell< enum MSI::Dof_Type > mDummyDofs;
+        moris::Matrix< DDRMat >           mElementMassMatrixValues;    // RHS Matrix for Eigen Problem
 
         bool mUseMatrixMarketFiles;    // determines is matrix and RHS comes from MatrixMarket files
+
+        uint mSwitchToEigenProblem = 0;
+
+        sol::Dist_Vector* mEigVector;
 
       public:
         // ----------------------------------------------------------------------------------------------
@@ -45,6 +51,10 @@ namespace moris
         // ----------------------------------------------------------------------------------------------
 
         Solver_Interface_Proxy( uint aNumRHS );
+
+        // ----------------------------------------------------------------------------------------------
+
+        Solver_Interface_Proxy( std::string aProblem );
 
         // ----------------------------------------------------------------------------------------------
 
@@ -158,7 +168,16 @@ namespace moris
                 const uint&       aMyElementInd,
                 Matrix< DDRMat >& aElementMatrix )
         {
-            aElementMatrix = mElementMatrixValues;
+            if ( mSwitchToEigenProblem < mNumElements * 1 )    // 1 refers to number of blocks
+            {
+                aElementMatrix = mElementMatrixValues;
+                mSwitchToEigenProblem++;
+            }
+
+            else
+            {
+                aElementMatrix = mElementMassMatrixValues;
+            }
         }
 
         // ----------------------------------------------------------------------------------------------
@@ -281,6 +300,22 @@ namespace moris
             {
                 return NULL;
             }
+        }
+
+        // ----------------------------------------------------------------------------------------------
+
+        virtual const moris::Cell< enum MSI::Dof_Type >&
+        get_requested_dof_types()
+        {
+            return mDummyDofs;
+        };
+
+        // ---------------------------------------------------------------------------------------------
+
+        sol::Dist_Vector*
+        get_eigen_solution_vector()
+        {
+            return mEigVector;
         }
     };
 }    // namespace moris

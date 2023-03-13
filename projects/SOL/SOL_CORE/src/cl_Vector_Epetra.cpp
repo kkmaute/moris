@@ -179,7 +179,10 @@ Vector_Epetra::vec_plus_vec(
     if ( mMap->get_epetra_map()->PointSameAs( *tMap ) )
     {
         // currently guessing Epetra update is smart enough to switch to replace if aScaleThis is 0.0
-        mEpetraVector->Update( aScaleA, *dynamic_cast< Vector_Epetra& >( aVecA ).get_epetra_vector(), aScaleThis );
+        int tError = mEpetraVector->Update( aScaleA, *dynamic_cast< Vector_Epetra& >( aVecA ).get_epetra_vector(), aScaleThis );
+
+        MORIS_ERROR( tError == 0,
+                "Vector_Epetra::vec_plus_vec - update of vector failed" );
         return;
     }
     else

@@ -41,6 +41,7 @@ namespace moris
 
           protected:
             sol::Dist_Matrix* mMat            = nullptr;
+            sol::Dist_Matrix* mMassMat        = nullptr;
             sol::Dist_Vector* mFreeVectorLHS  = nullptr;
             sol::Dist_Vector* mPointVectorRHS = nullptr;
             sol::Dist_Vector* mPointVectorLHS = nullptr;
@@ -60,11 +61,15 @@ namespace moris
             //! Distributed vector map type
             enum sol::MapType mTplType = sol::MapType::Epetra;
 
+            //! Pointer to RHS Matrix Type
+            std::string mRHSMatType;
+
             //------------------------------------------------------------------
 
           public:
             Linear_Problem( Solver_Interface* aInput )
                     : mMat( NULL )
+                    , mMassMat( NULL )
                     , mFreeVectorLHS( nullptr )
                     , mMap( NULL )
                     , mSolverInterface( aInput ){};
@@ -134,6 +139,14 @@ namespace moris
             get_matrix()
             {
                 return mMat;
+            };
+
+            //------------------------------------------------------------------
+
+            sol::Dist_Matrix*
+            get_mass_matrix()
+            {
+                return mMassMat;
             };
 
             //------------------------------------------------------------------
