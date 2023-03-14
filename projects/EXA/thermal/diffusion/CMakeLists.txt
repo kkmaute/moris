@@ -15,4 +15,5 @@ add_subdirectory(Stefans_Problem_cut)
 add_subdirectory(Grain_Structure)
 add_subdirectory(Voxel_Grain_Structure)
 add_subdirectory(Field_Example)
-
+add_subdirectory(HeatConduction_2D)
+add_subdirectory(STK_XTK_HeatConduction)
