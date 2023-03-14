@@ -94,9 +94,7 @@ foreach(TPL ${SO_TPLS})
 endforeach()
 
 # create dynamically linked .so files
-foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
-    dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
-endforeach()
+dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
