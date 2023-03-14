@@ -29,7 +29,7 @@ bool gPrintReferenceValues = false;
 
 //---------------------------------------------------------------
 
-int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] );
+int fn_WRK_Workflow_Main_Interface( int argc, char* argv[] );
 
 //---------------------------------------------------------------
 
@@ -83,7 +83,6 @@ check_results(
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
     uint tNumNodes = tExoIO.get_number_of_nodes();
-    std::cout << tNumNodes << std::endl;
     uint tNumElems = tExoIO.get_number_of_elements();
 
     MORIS_LOG_INFO( "Check number of dimensions: reference %12d, actual %12d, percent error %12.5e.",
@@ -106,8 +105,8 @@ check_results(
     // define reference coordinates for node aNodeId
     Cell< Matrix< DDRMat > > tReferenceCoordinate;
 
-    tReferenceCoordinate.push_back( { { -0.349981904029846 } , { -0.0500085018575191 } } );
-    tReferenceCoordinate.push_back( { { -0.299975246191025 } , { -0.0617695115506649 } } );
+    tReferenceCoordinate.push_back( { { -0.349981904029846 }, { -0.0500085018575191 } } );
+    tReferenceCoordinate.push_back( { { -0.299975246191025 }, { -0.0617695115506649 } } );
 
     // check nodal coordinates
     Matrix< DDRMat > tActualCoordinate = tExoIO.get_nodal_coordinate( tReferenceNodeId( aTestCaseIndex ) );
@@ -163,11 +162,10 @@ check_results(
             tRelTempDifference * 100.0 );
 
     REQUIRE( tRelTempDifference < 1.0e-5 );
-
 }
 
-TEST_CASE("STK_XTK_HeatConduction",
-        "[moris],[example],[structure],[STK_XTK_HeatConduction]")
+TEST_CASE( "STK_XTK_HeatConduction",
+        "[moris],[example],[structure],[STK_XTK_HeatConduction]" )
 {
     // define command line call
     int argc = 2;
@@ -175,15 +173,15 @@ TEST_CASE("STK_XTK_HeatConduction",
     char tString1[] = "";
     char tString2[] = "./STK_XTK_HeatConduction.so";
 
-    char * argv[2] = {tString1,tString2};
+    char* argv[ 2 ] = { tString1, tString2 };
 
     // call to performance manager main interface
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // check
-    REQUIRE( tRet ==  0 );
+    REQUIRE( tRet == 0 );
 
-     // set interpolation order
+    // set interpolation order
     gInterpolationOrder = 1;
 
     MORIS_LOG_INFO( "" );
@@ -225,4 +223,3 @@ TEST_CASE("STK_XTK_HeatConduction",
         }
     }
 }
-

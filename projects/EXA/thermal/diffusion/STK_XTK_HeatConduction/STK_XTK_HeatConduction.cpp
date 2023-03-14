@@ -731,7 +731,6 @@ namespace moris
         tParameterList( tIWGIndex )( tIWGCounter ).set( "mesh_set_names", tInterface );
         tIWGCounter++;
 
-
         // Inlet BC IWG ----------------------------------------------------------------
 
         // inlet temperature
