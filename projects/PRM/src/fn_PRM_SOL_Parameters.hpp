@@ -257,6 +257,71 @@ namespace moris
             aParameterlist.insert( "prec_reuse", false );
         }
 
+        // //------------------------------------------------------------------------------
+
+        inline ParameterList
+        create_eigen_algorithm_parameter_list()
+        {
+            ParameterList mEigAlgoParameterList;
+
+            enum moris::sol::SolverType tType = moris::sol::SolverType::EIGEN_SOLVER;
+
+            mEigAlgoParameterList.insert( "Solver_Implementation", static_cast< uint >( tType ) );
+
+            // ASSIGN DEFAULT PARAMETER VALUES
+            // Anasazi User Manual: Chapter 13, SAND2004-2189, https://trilinos.github.io/pdfs/Trilinos10.12Tutorial.pdf
+
+            // Determine which solver algorithm is used
+            // options are: EIGALG_BLOCK_DAVIDSON, EIGALG_GENERALIZED_DAVIDSON, EIGALG_BLOCK_KRYLOV_SCHUR, EIGALG_BLOCK_KRYLOV_SCHUR_AMESOS
+            mEigAlgoParameterList.insert( "Eigen_Algorithm", std::string( "" ) );
+
+            // Verbosite flag, true or false
+            mEigAlgoParameterList.insert( "Verbosity", false );
+
+            // Which parameter sorts eigenvalues in increasing or decreasing order of magnitudes
+            // options are: SM: Increasing Order ; SR: Increasing order of real part ; SI: Increasing order of imaginary part
+            //              LM: Decreasing Order ; LR: Decreasing order of real part ; LI: Decreasing order of imaginary part
+            mEigAlgoParameterList.insert( "Which", "SM" );
+
+            // Sets Block size of integer type
+            mEigAlgoParameterList.insert( "Block_Size", INT_MAX );
+
+            // Sets Total DOFs of system of integer type
+            mEigAlgoParameterList.insert( "NumFreeDofs", INT_MAX );
+
+            // Request number of eigenvalues as integer type; Num_Eig_Vals = Block_Size
+            mEigAlgoParameterList.insert( "Num_Eig_Vals", INT_MAX );
+
+            // Number of blocks as integer type
+            mEigAlgoParameterList.insert( "Num_Blocks", INT_MAX );
+
+            // Maximum subspace dimensions; 3*Block_Size*Num_Eig_Vals
+            mEigAlgoParameterList.insert( "MaxSubSpaceDims", INT_MAX );
+
+            // Initial Guess required only for Block Krylov Schur Algorithm; integer type
+            mEigAlgoParameterList.insert( "Initial_Guess", INT_MAX );
+
+            // Sets maximum restart level as integer type
+            mEigAlgoParameterList.insert( "MaxRestarts", INT_MAX );
+
+            // sets convergence tolerance for given algorithm
+            mEigAlgoParameterList.insert( "Convergence_Tolerance", 1e-013 );
+
+            // sets relative convergence tolerance as bool type
+            mEigAlgoParameterList.insert( "Relative_Convergence_Tolerance", true );
+
+            // Update flag for vismesh
+            mEigAlgoParameterList.insert( "Update_Flag", true );
+
+            // add parameters from ifpack preconditioner
+            create_ifpack_preconditioner_parameterlist( mEigAlgoParameterList );
+
+            // add parameters from ml preconditioner
+            create_ml_preconditioner_parameterlist( mEigAlgoParameterList );
+
+            return mEigAlgoParameterList;
+        }
+
         //------------------------------------------------------------------------------
 
         // creates a parameter list with default inputs
@@ -543,6 +608,9 @@ namespace moris
             // output left hand side in linear solver, if specified by user
             tLinSolverParameterList.insert( "DLA_LHS_output_filename", "" );
 
+            // Flag for RHS Matrix Type if Eigen Solver is set to true
+            tLinSolverParameterList.insert( "RHS_Matrix_Type", std::string( "" ) );
+
             return tLinSolverParameterList;
         }
 
@@ -774,6 +842,9 @@ namespace moris
                     break;
                 case sol::SolverType::PETSC:
                     return create_linear_algorithm_parameter_list_petsc();
+                    break;
+                case sol::SolverType::EIGEN_SOLVER:
+                    return create_eigen_algorithm_parameter_list();
                     break;
                 default:
                     MORIS_ERROR( false, "Parameter list for this solver not implemented yet" );

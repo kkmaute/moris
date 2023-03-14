@@ -5,8 +5,8 @@
 #------------------------------------------------------------------------------------
 #
 
-set(EXAMPLE_MAIN Main_STK_XTK_HeatConduction)
-set(EXAMPLE_FILE STK_XTK_HeatConduction )
+set(EXAMPLE_MAIN Main_Cantilever_Eigen)
+set(EXAMPLE_FILE Cantilever_Eigen )
 set(EXAMPLE_PROCS 1)
 
 # List source files
@@ -79,13 +79,12 @@ SET(SO_INCLUDES
     ${MORIS_PACKAGE_DIR}/SOL/SOL_CORE/src 
     ${MORIS_PACKAGE_DIR}/LINALG/src
     ${MORIS_PACKAGE_DIR}/LINALG/src/${LINALG_IMPLEMENTATION_INCLUDES}
-    ${MORIS_PACKAGE_DIR}/COM/src 
-    ${MORIS_PACKAGE_DIR}/PRM/ENM/src
+    ${MORIS_PACKAGE_DIR}/COM/src
+    ${MORIS_PACKAGE_DIR}/PRM/ENM/src 
     ${MORIS_PACKAGE_DIR}/MTK/src
     ${MORIS_PACKAGE_DIR}/HMR/src
     ${MORIS_PACKAGE_DIR}/XTK/src    
     ${MORIS_PACKAGE_DIR}/PRM/src 
-
     ${MORIS_PACKAGE_DIR}/MRS/COR/src)
     
 foreach(TPL ${SO_TPLS})
@@ -94,9 +93,8 @@ foreach(TPL ${SO_TPLS})
 endforeach()
 
 # create dynamically linked .so files
-foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
-    dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
-endforeach()
+dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
+
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)

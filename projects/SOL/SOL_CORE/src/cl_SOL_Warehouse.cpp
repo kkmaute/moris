@@ -18,6 +18,8 @@
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
 
+#include "cl_DLA_Eigen_Solver.hpp"
+
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 #include "cl_NLA_Nonlinear_Algorithm.hpp"
 #include "cl_NLA_Nonlinear_Solver.hpp"
@@ -143,6 +145,9 @@ SOL_Warehouse::create_linear_solvers()
     uint tNumLinSolvers = mParameterlist( 1 ).size();
 
     mLinearSolvers.resize( tNumLinSolvers );
+
+    // get RHS Matrix type from parameter list
+    mRHSMatType = mParameterlist( 1 )( 0 ).get< std::string >( "RHS_Matrix_Type" );
 
     for ( uint Ik = 0; Ik < tNumLinSolvers; Ik++ )
     {

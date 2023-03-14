@@ -5,8 +5,8 @@
 #------------------------------------------------------------------------------------
 #
 
-set(EXAMPLE_MAIN Main_STK_XTK_HeatConduction)
-set(EXAMPLE_FILE STK_XTK_HeatConduction )
+set(EXAMPLE_MAIN Main_HeatConduction)
+set(EXAMPLE_FILE HeatConduction )
 set(EXAMPLE_PROCS 1)
 
 # List source files
@@ -85,7 +85,6 @@ SET(SO_INCLUDES
     ${MORIS_PACKAGE_DIR}/HMR/src
     ${MORIS_PACKAGE_DIR}/XTK/src    
     ${MORIS_PACKAGE_DIR}/PRM/src 
-
     ${MORIS_PACKAGE_DIR}/MRS/COR/src)
     
 foreach(TPL ${SO_TPLS})

@@ -32,6 +32,7 @@ namespace moris
     {
         class Linear_Solver_Algorithm;
         class Linear_Solver;
+        class Eigen_Solver;
 
     }    // namespace dla
     namespace NLA
@@ -81,8 +82,8 @@ namespace moris
             Cell< std::shared_ptr< tsa::Time_Solver_Algorithm > > mTimeSolverAlgorithms;
             Cell< tsa::Time_Solver* >                             mTimeSolvers;
 
-            // Parameter list for (0) Linear Algorithm (1) Linear Solver (2) nonlinear Algorithm (3)
-            // Nonlinear Solver (4) TimeSolver Algorithm (5) Time Solver (6) Warehouse
+            //! Parameterlist for (0) Linear Algorithm (1) Linear Solver (2) nonlinear Algorithm (3)
+            //! Nonlinear Solver (4) TimeSolver Algorithm (5) Time Solver (6) Warehouse
             moris::Cell< moris::Cell< moris::ParameterList > > mParameterlist;
 
             // pointer to dynamically linked library
@@ -111,6 +112,9 @@ namespace moris
 
             // load initial guess solution vector from file
             std::string mFilenameInitialGuess = std::string( "" );
+
+            // RHS Matrix Type
+            std::string mRHSMatType = std::string( "" );
 
             //--------------------------------------------------------------------------------------------------------
 
@@ -297,6 +301,22 @@ namespace moris
             set_tpl_type( enum sol::MapType aTPLType )
             {
                 mTPLType = aTPLType;
+            }
+
+            //-------------------------------------------------------------------------------
+
+            const std::string&
+            get_RHS_mat_type()
+            {
+                return mRHSMatType;
+            }
+
+            //-------------------------------------------------------------------------------
+
+            void
+            set_RHS_mat_type( std::string aRHSMatType )
+            {
+                mRHSMatType = aRHSMatType;
             }
 
             //--------------------------------------------------------------------------------------------------------

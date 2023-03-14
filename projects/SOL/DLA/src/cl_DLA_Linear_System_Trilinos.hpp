@@ -16,7 +16,7 @@
 
 #include "AztecOO.h"
 
-//#include "Ifpack.h"
+// #include "Ifpack.h"
 #include "Teuchos_SerialDenseMatrix.hpp"
 
 #include "Epetra_Operator.h"
@@ -29,11 +29,14 @@
 #include "Epetra_Import.h"
 #include "Epetra_Export.h"
 
+#include "cl_DLA_Eigen_Solver.hpp"
+
 #include "cl_Vector_Epetra.hpp"
 #include "cl_Sparse_Matrix_EpetraFECrs.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_DLA_Linear_Problem.hpp"
 #include "cl_SOL_Dist_Map.hpp"
+#include "cl_SOL_Warehouse.hpp"
 
 #include "cl_Param_List.hpp"    // CON/src
 

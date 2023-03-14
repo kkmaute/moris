@@ -277,3 +277,36 @@ Solver_Interface_Proxy::Solver_Interface_Proxy( uint aNumRHS )
         mElementMatrixValues( 63, 0 ) = 12;
     }
 }
+
+// ---------------------------------------------------------------------------------------------
+
+Solver_Interface_Proxy::Solver_Interface_Proxy( std::string aProblem )
+{
+    std::cout << "Problem is:" << aProblem << std::endl;
+
+    // Determine process rank
+    size_t size = par_size();
+
+    std::cout << size << std::endl;
+
+    mUseMatrixMarketFiles = false;
+
+    if ( size == 1 )
+    {
+        mElementMatrixValues.resize( 64, 1 );
+        mElementMatrixValues.fill( 1.0 );
+
+        mElementMassMatrixValues.resize( 64, 1 );
+        mElementMassMatrixValues.fill( 2.0 );
+
+        mNumMyDofs = 8;
+
+        mMyGlobalElements            = { { 0 }, { 1 }, { 8 }, { 9 }, { 16 }, { 17 }, { 14 }, { 15 } };
+        mMyGlobalElementsOverlapping = { { 0 }, { 1 }, { 8 }, { 9 }, { 16 }, { 17 }, { 14 }, { 15 } };
+
+        mNumElements      = 1;
+        mMyConstraintDofs = { { 0 }, { 1 } };
+
+        mEleDofConectivity = { { 0 }, { 1 }, { 8 }, { 9 }, { 16 }, { 17 }, { 14 }, { 15 } };
+    }
+}

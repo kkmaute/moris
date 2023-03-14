@@ -171,4 +171,3 @@ namespace moris
     }    // namespace NLA
 }    // namespace moris
 #endif /* MORIS_DISTLINALG_CL_NLA_NONLINEAR_ALGORITHM_HPP_ */
-

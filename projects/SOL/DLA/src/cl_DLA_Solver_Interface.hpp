@@ -127,7 +127,7 @@ namespace moris
         virtual void
         set_eigen_solution_vector( sol::Dist_Vector* aSolutionVector )
         {
-            MORIS_ERROR( false, "Solver_Interface::set_solution_vector: not set." );
+            MORIS_ERROR( false, "Solver_Interface::set_eigen_solution_vector: not set." );
         };
 
         //------------------------------------------------------------------------------
@@ -170,6 +170,15 @@ namespace moris
         get_solution_vector_prev_time_step()
         {
             MORIS_ERROR( false, "Solver_Interface::get_solution_vector_prev_time_step: not set." );
+            return nullptr;
+        }
+
+        //------------------------------------------------------------------------------
+
+        virtual sol::Dist_Vector*
+        get_eigen_solution_vector()
+        {
+            MORIS_ERROR( false, "Solver_Interface::get_eigen_solution_vector: not set." );
             return nullptr;
         }
 
@@ -220,10 +229,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         virtual void initialize_set(
-                const uint aBlockInd,
-                const bool aIsStaggered                          = false,
-                const bool aTimeContinuityOnlyFlag               = false,
-                const bool aIsAdjointOffDiagonalTimeContribution = false ){};
+                const uint                             aBlockInd,
+                const bool                             aIsStaggered                          = false,
+                const moris::fem::Time_Continuity_Flag aTimeContinuityOnlyFlag               = moris::fem::Time_Continuity_Flag::DEFAULT,
+                const bool                             aIsAdjointOffDiagonalTimeContribution = false ){};
 
         //------------------------------------------------------------------------------
 
@@ -568,13 +577,15 @@ namespace moris
 
         //---------------------------------------------------------------------------------------------------------
 
-        void assemble_jacobian( moris::sol::Dist_Matrix* aMat );
+        void assemble_jacobian(
+                moris::sol::Dist_Matrix* aMat,
+                const fem::Time_Continuity_Flag = fem::Time_Continuity_Flag::DEFAULT );
 
         //---------------------------------------------------------------------------------------------------------
 
         void assemble_RHS(
                 moris::sol::Dist_Vector* aVectorRHS,
-                const bool               aTimeContinuityOnlyFlag = false );
+                const fem::Time_Continuity_Flag = fem::Time_Continuity_Flag::DEFAULT );
 
         //------------------------------------------------------------------------------
 
