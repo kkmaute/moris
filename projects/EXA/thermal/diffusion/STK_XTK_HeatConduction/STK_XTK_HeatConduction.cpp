@@ -272,7 +272,7 @@ namespace moris
 
         const Matrix< DDRMat > tCoord = aFIManager->get_IP_geometry_interpolator()->valx();
 
-        aPropMatrix( 0, 0 ) = tHeatFlx;    // std::max(0.0,std::min(1.0,tTime/tRampTime)) * std::exp(-20*dist*dist) * tHeatFlx;
+        aPropMatrix( 0, 0 ) = tHeatFlx;
     }
 
     /* ------------------------------------------------------------------------ */
@@ -460,7 +460,7 @@ namespace moris
         tParameterlist( 0 ).resize( 1 );
 
         std::string tPrefix       = moris::get_base_moris_dir();
-        std::string tMeshFileName = tPrefix + "/projects/EXA/structure/linear/STK_XTK_HeatConduction/STK_XTK_HeatConduction.g";
+        std::string tMeshFileName = tPrefix + "/projects/EXA/thermal/diffusion/STK_XTK_HeatConduction/STK_XTK_HeatConduction.g";
 
         tParameterlist( 0 )( 0 ) = prm::create_stk_parameter_list();
         tParameterlist( 0 )( 0 ).set( "input_file", tMeshFileName );
