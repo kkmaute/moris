@@ -11,6 +11,8 @@
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
 #include "typedefs.hpp"
 
+#include <set>
+
 #include "fn_stringify_matrix.hpp"
 
 #include "cl_Cell.hpp"
@@ -496,7 +498,7 @@ namespace xtk
     Matrix< IdMat >
     Cut_Integration_Mesh::get_communication_table() const
     {
-        return mCommunicationMap;
+        return mCommunicationTable;
     }
 
     // ----------------------------------------------------------------------------------
@@ -507,10 +509,10 @@ namespace xtk
         // construct the index map if it hasn't already, or the communication table was updated
         if ( !mCommMapHasBeenConstructed )
         {
-            mCommunicationIndexMap.clear();
-            for ( uint iProc = 0; iProc < mCommunicationMap.numel(); iProc++ )
+            mCommunicationMap.clear();
+            for ( uint iProc = 0; iProc < mCommunicationTable.numel(); iProc++ )
             {
-                mCommunicationIndexMap[ mCommunicationMap( iProc ) ] = (moris_index)iProc;
+                mCommunicationMap[ mCommunicationTable( iProc ) ] = (moris_index)iProc;
             }
         }
 
@@ -518,7 +520,7 @@ namespace xtk
         mCommMapHasBeenConstructed = true;
 
         // return the index map
-        return mCommunicationIndexMap;
+        return mCommunicationMap;
     }
 
     // ----------------------------------------------------------------------------------
@@ -526,15 +528,15 @@ namespace xtk
     void
     Cut_Integration_Mesh::add_proc_to_comm_table( moris_index aProcRank )
     {
-        moris_index tIndex = mCommunicationMap.numel();
+        moris_index tIndex = mCommunicationTable.numel();
 
-        for ( uint i = 0; i < mCommunicationMap.numel(); i++ )
+        for ( uint i = 0; i < mCommunicationTable.numel(); i++ )
         {
-            MORIS_ERROR( mCommunicationMap( i ) != aProcRank, "Processor rank already in communication table" );
+            MORIS_ERROR( mCommunicationTable( i ) != aProcRank, "Processor rank already in communication table" );
         }
 
-        mCommunicationMap.resize( 1, mCommunicationMap.numel() + 1 );
-        mCommunicationMap( tIndex ) = aProcRank;
+        mCommunicationTable.resize( 1, mCommunicationTable.numel() + 1 );
+        mCommunicationTable( tIndex ) = aProcRank;
 
         // mark the index map as needing to be re-constructed
         mCommMapHasBeenConstructed = false;
@@ -2034,99 +2036,151 @@ namespace xtk
             }
 
             // Initialize communication map
-            mCommunicationMap.resize( 1, tCellOfProcs.size() );
+            mCommunicationTable.resize( 1, tCellOfProcs.size() );
 
             for ( uint i = 0; i < tCellOfProcs.size(); i++ )
             {
-                mCommunicationMap( i ) = tCellOfProcs( i );
+                mCommunicationTable( i ) = tCellOfProcs( i );
             }
 
-            // Send communication maps to root processor (here 0)
-            Cell< Matrix< IndexMat > > tGatheredMats;
-            moris_index                tTag = 10009;
-            if ( tCellOfProcs.size() == 0 )
+            // create a communication list including all processors
+            Matrix< IdMat > tAllProcCommTable( 1, par_size() );
+            for ( moris_id iProc = 0; iProc < par_size(); iProc++ )
             {
-                Matrix< IndexMat > tDummy( 1, 1, MORIS_INDEX_MAX );
-                all_gather_vector( tDummy, tGatheredMats, tTag, 0, 0 );
+                tAllProcCommTable( iProc ) = iProc;
+            }
+
+            // queue the executing proc's request as a request to the base proc (proc #0)
+            Cell< Matrix< IdMat > > tSendRequestCommTables( par_size() );
+            tSendRequestCommTables( 0 ) = mCommunicationTable;
+
+            // Send communication maps to root processor (here 0)
+            Cell< Matrix< IdMat > > tReceivedRequestCommTables;
+            moris::communicate_mats( tAllProcCommTable, tSendRequestCommTables, tReceivedRequestCommTables );
+
+            // Initialize processor-to-processor communication table (this will stay empty except on the base proc)
+            Cell< Matrix< IdMat > > tFinalCommTables( par_size() );
+
+            // Root processor (here 0) builds processor-to-processor communication tables
+            if ( par_rank() == 0 )
+            {
+                // current proc doesn't receive its own request to itself, so add it
+                tReceivedRequestCommTables( 0 ) = mCommunicationTable;
+
+                // initialize sets collecting:
+                // a) which procs a given proc wants to communicate to
+                // b) which procs want to communicate to a given proc
+                // c) the union of the two for each given proc (these sets are the final comm-tables)
+                Cell< std::set< moris_id > > tCommRequestedTo( par_size() );
+                Cell< std::set< moris_id > > tCommRequestedFrom( par_size() );
+                Cell< Cell< moris_id > >     tCommTables( par_size() );
+
+                // loop over the processors that request the following procs to communicate to
+                for ( moris_id iProcToCommFrom = 0; iProcToCommFrom < par_size(); iProcToCommFrom++ )
+                {
+                    // get the size of the comm table requests
+                    uint tSizeReqCommTable = tReceivedRequestCommTables( iProcToCommFrom ).numel();
+
+                    // loop over the procs they request to communicate to
+                    for ( moris_id iProcToCommTo = 0; iProcToCommTo < (moris_id)tSizeReqCommTable; iProcToCommTo++ )
+                    {
+                        // get the ID of the proc the processor (the request is received from) likes to talk to
+                        moris_id tProcToCommTo = tReceivedRequestCommTables( iProcToCommFrom )( iProcToCommTo );
+
+                        // add to sets
+                        tCommRequestedTo( iProcToCommFrom ).insert( tProcToCommTo );
+                        tCommRequestedFrom( tProcToCommTo ).insert( iProcToCommFrom );
+                    }
+                }
+
+                // form the union of the two sets to obtain each proc's comm table
+                for ( uint iProc = 0; iProc < (uint)par_size(); iProc++ )
+                {
+                    // check whether some tables are empty
+                    bool tCommRequestedToIsEmpty   = ( tCommRequestedTo( iProc ).size() == 0 );
+                    bool tCommRequestedFromIsEmpty = ( tCommRequestedFrom( iProc ).size() == 0 );
+
+                    // if both are empty, the comm tables are empty
+                    if ( tCommRequestedToIsEmpty && tCommRequestedFromIsEmpty )
+                    {
+                        tCommTables( iProc ).resize( 0 );
+                    }
+
+                    // if both contain something, form the union
+                    else if ( !tCommRequestedToIsEmpty && !tCommRequestedFromIsEmpty )
+                    {
+                        // get access to the data of the underlying vector
+                        std::vector< moris_id >&          tVector = tCommTables( iProc ).data();
+
+                        // perform union operation
+                        std::set_union(
+                                tCommRequestedTo( iProc ).begin(),
+                                tCommRequestedTo( iProc ).end(),
+                                tCommRequestedFrom( iProc ).begin(),
+                                tCommRequestedFrom( iProc ).end(),
+                                std::back_inserter( tVector ) );
+                    }
+
+                    // if one is empty but not the other, the other is the union
+                    else
+                    {
+                        if ( tCommRequestedToIsEmpty )
+                        {
+                            // copy non-empty set into the comm-table
+                            tCommTables( iProc ).resize( tCommRequestedFrom( iProc ).size() );
+                            for ( auto iEntry : tCommRequestedFrom( iProc ) )
+                            {
+                                tCommTables( iProc )( iEntry ) = iEntry;
+                            }
+                        }
+                        else    // if( tCommRequestedFromIsEmpty )
+                        {
+                            // copy non-empty set into the comm-table
+                            tCommTables( iProc ).resize( tCommRequestedTo( iProc ).size() );
+                            for ( auto iEntry : tCommRequestedTo( iProc ) )
+                            {
+                                tCommTables( iProc )( iEntry ) = iEntry;
+                            }
+                        }
+                    }
+
+                }    // end for: each proc in the global comm
+
+                // convert to matrix
+                for ( uint iProc = 0; iProc < (uint)par_size(); iProc++ )
+                {
+                    // get the size of this proc's comm-table
+                    uint tCommTableSize = tCommTables( iProc ).size();
+
+                    // resize the matrix to the correct dimensions
+                    tFinalCommTables( iProc ).resize( 1, tCommTableSize );
+
+                    // loop over the procs they request to communicate to
+                    for ( uint iCommTableEntry = 0; iCommTableEntry < tCommTableSize; iCommTableEntry++ )
+                    {
+                        // fill the comm tables
+                        tFinalCommTables( iProc )( iCommTableEntry ) = tCommTables( iProc )( iCommTableEntry );
+                    }
+                }
+
+            }    // end if: this is the root proc
+
+            // send out the finalized comm-tables
+            Cell< Matrix< IdMat > > tReceivedFinalCommTables;
+            moris::communicate_mats( tAllProcCommTable, tFinalCommTables, tReceivedFinalCommTables );
+
+            // the final communication map for each proc is the one assembled by proc 0, which is the base proc
+            // but proc 0 doesn't communicate with itself
+            if ( par_rank() == 0 )
+            {
+                mCommunicationTable = tFinalCommTables( 0 );
             }
             else
             {
-                all_gather_vector( mCommunicationMap, tGatheredMats, tTag, 0, 0 );
+                mCommunicationTable = tReceivedFinalCommTables( 0 );
             }
 
-            // Initialize processor-to-processor communication table
-            Cell< Matrix< IndexMat > > tReturnMats( par_size() );
-
-            // Root processor (here 0) builds processor-to-processor communication table
-            if ( par_rank() == 0 )
-            {
-                Cell< Cell< uint > > tProcToProc( par_size() );
-
-                for ( uint i = 0; i < tGatheredMats.size(); i++ )
-                {
-                    for ( uint j = 0; j < tGatheredMats( i ).numel(); j++ )
-                    {
-                        if ( tGatheredMats( i )( j ) != MORIS_INDEX_MAX )
-                        {
-                            tProcToProc( tGatheredMats( i )( j ) ).push_back( (moris_index)i );
-                        }
-                    }
-                }
-
-                // convert to a matrix
-                for ( uint i = 0; i < (uint)par_size(); i++ )
-                {
-                    tReturnMats( i ).resize( 1, tProcToProc( i ).size() );
-
-                    for ( uint j = 0; j < tProcToProc( i ).size(); j++ )
-                    {
-                        tReturnMats( i )( j ) = tProcToProc( i )( j );
-                    }
-                    if ( tProcToProc( i ).size() == 0 )
-                    {
-                        tReturnMats( i ) = Matrix< IndexMat >( 1, 1, MORIS_INDEX_MAX );
-                    }
-                }
-
-                // send processor-to-processor communication table back individual processors
-                for ( uint i = 0; i < (uint)par_size(); i++ )
-                {
-                    nonblocking_send(
-                            tReturnMats( i ),
-                            tReturnMats( i ).n_rows(),
-                            tReturnMats( i ).n_cols(),
-                            i,
-                            tTag );
-                }
-            }
-
-            // receive processor-to-processor communication tables
-            barrier();
-            Matrix< IndexMat > tTempCommMap( 1, 1, 0 );
-            receive( tTempCommMap, 1, 0, tTag );
-
-            // add new processors to existing communication table
-            for ( uint i = 0; i < tTempCommMap.numel(); i++ )
-            {
-                // Skip processors that do not share nodes
-                if ( tTempCommMap( i ) != MORIS_INDEX_MAX )
-                {
-                    // Check if processor is already in communication table
-                    if ( tProcList.find( tTempCommMap( i ) ) == tProcList.end()
-                            && tTempCommMap( i ) != par_rank() )
-                    {
-                        moris_index tIndex = mCommunicationMap.numel();
-
-                        mCommunicationMap.resize( 1, mCommunicationMap.numel() + 1 );
-
-                        tProcList[ tTempCommMap( i ) ] = 1;
-
-                        mCommunicationMap( tIndex ) = tTempCommMap( i );
-                    }
-                }
-            }
-            barrier();
-        }
+        }    // end if: only assemble comm table for parallel
 
         // mark the index map as needing to be re-constructed
         mCommMapHasBeenConstructed = false;

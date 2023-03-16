@@ -747,8 +747,8 @@ namespace xtk
         moris::Cell< std::shared_ptr< Child_Mesh_Experimental > > mNotOwnedChildMeshes;
 
         // communication map
-        moris::Matrix< IdMat >            mCommunicationMap;
-        std::map< moris_id, moris_index > mCommunicationIndexMap;
+        moris::Matrix< IdMat >            mCommunicationTable;
+        std::map< moris_id, moris_index > mCommunicationMap;
         bool                              mCommMapHasBeenConstructed = false;
 
         // Integration - Lagrange Mesh relation
