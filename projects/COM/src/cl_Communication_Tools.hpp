@@ -468,7 +468,7 @@ namespace moris
                             gMorisComm.get_global_comm(),
                             &tRecvRequest[ k ] );
 
-                    // non-bloking request to send values
+                    // non-blocking request to send values
                     MPI_Isend(
                             &aScalarsToSend( k ),
                             1,
@@ -528,10 +528,10 @@ namespace moris
             MPI_Request* tSendRequest = (MPI_Request*)alloca( 2 * sizeof( MPI_Request ) * tNumberOfProcs );
             MPI_Request* tRecvRequest = (MPI_Request*)alloca( 2 * sizeof( MPI_Request ) * tNumberOfProcs );
 
-            // ncows and ncols of mats to be sent
+            // nrows and ncols of mats to be sent
             Matrix< DDUMat > tSendRowCols( 2 * tNumberOfProcs, 1, MORIS_UINT_MAX );
 
-            // ncows and ncols of mats to be received
+            // nrows and ncols of mats to be received
             Matrix< DDUMat > tRecvRowCols( 2 * tNumberOfProcs, 1, MORIS_UINT_MAX );
 
             // loop over all procs
@@ -794,10 +794,17 @@ namespace moris
     }
 
     //------------------------------------------------------------------------------
-
-    /*!
-     * Gathers matrix from all processors on base processor
+    
+    /**
+     * @brief Gathers matrix from all processors on base processor
      * Only aGatheredMats is populated on base processor
+     * 
+     * @param aMatToGather 
+     * @param aGatheredMats 
+     * @param aTag 
+     * @param aFixedDim 
+     * @param aBaseProc 
+     * @return * template< typename MatrixType > 
      */
     template< typename MatrixType >
     void
@@ -812,7 +819,7 @@ namespace moris
         moris_index tNumRow = 0;
         moris_index tNumCol = 0;
 
-        typename Matrix< MatrixType >::Data_Type tTyper = 1;
+        typename Matrix< MatrixType >::Data_Type tType = 1;
 
         if ( aFixedDim == 0 )
         {
@@ -830,7 +837,7 @@ namespace moris
         MPI_Isend(
                 aMatToGather.data(),
                 aMatToGather.numel(),
-                moris::get_comm_datatype( tTyper ),
+                moris::get_comm_datatype( tType ),
                 aBaseProc,
                 aTag,
                 moris::get_comm(),
@@ -854,7 +861,7 @@ namespace moris
                 int tLength = 0;
                 MPI_Get_count(
                         &tStatus,
-                        moris::get_comm_datatype( tTyper ),
+                        moris::get_comm_datatype( tType ),
                         &tLength );
 
                 // compute number of rows or columns
@@ -881,7 +888,7 @@ namespace moris
                 MPI_Recv(
                         aGatheredMats( i ).data(),
                         tLength,
-                        moris::get_comm_datatype( tTyper ),
+                        moris::get_comm_datatype( tType ),
                         i,
                         aTag,
                         moris::get_comm(),
