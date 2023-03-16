@@ -43,6 +43,7 @@ CMakeCache.txt
 *.toc
 *.bbl
 *.blg
+*.gz
 !share/doc/**/*.hdf5
 
 # Used by individual developers
