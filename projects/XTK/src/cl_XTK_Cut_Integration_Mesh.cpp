@@ -2124,13 +2124,17 @@ namespace xtk
                     // if one is empty but not the other, the other is the union
                     else
                     {
+                        // counter for the below for loops
+                        uint tIterIndex = 0;
+
                         if ( tCommRequestedToIsEmpty )
                         {
                             // copy non-empty set into the comm-table
                             tCommTables( iProc ).resize( tCommRequestedFrom( iProc ).size() );
                             for ( auto iEntry : tCommRequestedFrom( iProc ) )
                             {
-                                tCommTables( iProc )( iEntry ) = iEntry;
+                                tCommTables( iProc )( tIterIndex ) = iEntry;
+                                tIterIndex++;
                             }
                         }
                         else    // if( tCommRequestedFromIsEmpty )
@@ -2139,7 +2143,8 @@ namespace xtk
                             tCommTables( iProc ).resize( tCommRequestedTo( iProc ).size() );
                             for ( auto iEntry : tCommRequestedTo( iProc ) )
                             {
-                                tCommTables( iProc )( iEntry ) = iEntry;
+                                tCommTables( iProc )( tIterIndex ) = iEntry;
+                                tIterIndex++;
                             }
                         }
                     }
