@@ -129,7 +129,7 @@ namespace moris
         /**
          * @brief get a value in the buffer
          *
-         * @tparam T type of variable to get from the buffer
+         * @param T type of variable to get from the buffer
          * @param aKey key to find in the buffer
          * @param aValue value for that key
          */
@@ -145,7 +145,7 @@ namespace moris
         /**
          * @brief get a value in the buffer
          *
-         * @tparam T type of variable to get from the buffer
+         * @param T type of variable to get from the buffer
          * @param aKey key to find in the buffer
          * @param aValue value for that key
          * @param aDefault default to be returned when the key is not found
