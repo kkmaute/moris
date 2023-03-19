@@ -108,19 +108,19 @@ Eigen_Solver::Eigen_Solver( const ParameterList* aParameterList )
 
     if ( mParameterList.get< std::string >( "Eigen_Algorithm" ) == "EIGALG_BLOCK_DAVIDSON" )
     {
-        std::cout << "Eigen Algorithm is Block Davidson" << std::endl;
+        MORIS_LOG_INFO( "Eigen Algorithm is Block Davidson" );
     }
     else if ( mParameterList.get< std::string >( "Eigen_Algorithm" ) == "EIGALG_GENERALIZED_DAVIDSON" )
     {
-        std::cout << "Eigen Algorithm is Generalized Davidson" << std::endl;
+        MORIS_LOG_INFO( "Eigen Algorithm is Generalized Davidson" );
     }
     else if ( mParameterList.get< std::string >( "Eigen_Algorithm" ) == "EIGALG_BLOCK_KRYLOV_SCHUR" )
     {
-        std::cout << "Eigen Algorithm is Block Krylov Schur" << std::endl;
+        MORIS_LOG_INFO( "Eigen Algorithm is Block Krylov Schur" );
     }
     else if ( mParameterList.get< std::string >( "Eigen_Algorithm" ) == "EIGALG_BLOCK_KRYLOV_SCHUR_AMESOS" )
     {
-        std::cout << "Eigen Algorithm is Block Krylov Schur Amesos " << std::endl;
+        MORIS_LOG_INFO( "Eigen Algorithm is Block Krylov Schur Amesos " );
     }
     else
     {
