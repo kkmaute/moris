@@ -41,8 +41,12 @@ namespace moris
             HJ,           // Hamilton-Jacobi
             HJTEST,       // Space time IWG for test only
             HELMHOLTZ,    // Helmholtz
-            LSNORMAL,     // LS normal
-            OLSSON,       // Olsson et al. (2007) reinitialization
+            HELMHOLTZ_INTERFACE_SYMMETRIC_NITSCHE,
+            HELMHOLTZ_INTERFACE_UNSYMMETRIC_NITSCHE,
+            LSNORMAL,         // LS normal
+            OLSSON,           // Olsson et al. (2007) reinitialization
+            NONLOCAL_BULK,    // Nonlocal
+            HISTORY_BULK,     // History
 
             SPATIALDIFF_BULK,                             // spatial diffusion bulk
             SPATIALDIFF_PC_BULK,                          // spatial diffusion bulk with phase change
@@ -204,8 +208,11 @@ namespace moris
 
             HOMOGENIZED_CONSTITUTIVE,
             HEAT_METHOD_PENALTY,
+            MIN_FEATURE_SIZE,
 
             ZIENKIEWICZ_ZHU_VON_MISES_STRESS,
+
+            LINEAR_ELASTICITY_DAMAGE,
 
             END_IQI_TYPE
         };
@@ -220,6 +227,7 @@ namespace moris
             STRUC_LIN_ISO,
             STRUC_LIN_MT,
             STRUC_LIN_ISO_PRESSURE,
+            STRUC_LIN_ISO_DAMAGE,
             STRUC_NON_LIN_ISO,
             STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF,
             STRUC_NON_LIN_ISO_NEO_HOOKEAN,
@@ -384,6 +392,22 @@ namespace moris
             LAGRANGIAN,
             EULERIAN,
             END_CM_FUNCTION_TYPE
+        };
+
+        //------------------------------------------------------------------------------
+
+        enum class CM_Request_Type
+        {
+            UNDEFINED,
+            STRAIN,
+            FLUX,
+            TRACTION,
+            TEST_TRACTION,
+            DAMAGE,
+            SMOOTH_DAMAGE,
+            EQSTRAIN,
+            HISTORY,
+            END_CM_REQUEST_TYPE
         };
 
         //------------------------------------------------------------------------------
