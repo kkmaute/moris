@@ -111,7 +111,7 @@ namespace moris
             mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) +=    //
                     aWStar * (                                                      //
-                            mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tJump );
+                            mBeta * tCMElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tM * tJump );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -195,7 +195,7 @@ namespace moris
                             { tMasterResStartIndex, tMasterResStopIndex },
                             { tMasterDepStartIndex, tMasterDepStopIndex } ) +=    //
                             aWStar * (                                            //
-                                    mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tFIDispl->N() );
+                                    mBeta * tCMElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tM * tFIDispl->N() );
                 }
 
                 // if imposed displacement property depends on dof type
@@ -203,9 +203,9 @@ namespace moris
                 {
                     mSet->get_jacobian()(
                             { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=                                          //
-                            aWStar * (                                                                                  //
-                                    mBeta * trans( tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) ) *    //
+                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=                                       //
+                            aWStar * (                                                                               //
+                                    mBeta * tCMElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) *    //
                                     tM * tPropDirichlet->dPropdDOF( tDofType ) );
                 }
 

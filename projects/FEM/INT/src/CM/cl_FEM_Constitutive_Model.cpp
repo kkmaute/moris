@@ -72,6 +72,7 @@ namespace moris
 
             // reset the test traction value and derivative flags
             mTestTractionEval.fill( true );
+            mTestTractionTransEval.fill( true );
             mdTestTractiondDofEval.fill( true );
 
             // reset the stress value and derivative flags
@@ -314,6 +315,7 @@ namespace moris
             mGradEnergyDofEval.set_size( tNumGlobalDofTypes, 1, true );
             mGradDivFluxDofEval.set_size( tNumGlobalDofTypes, 1, true );
             mTestTractionEval.set_size( tNumDirectDofTypes, 1, true );
+            mTestTractionTransEval.set_size( tNumDirectDofTypes, 1, true );
             mdFluxdDofEval.set_size( tNumGlobalDofTypes, 1, true );
             mddivfluxduEval.set_size( tNumGlobalDofTypes, 1, true );
             mdTractiondDofEval.set_size( tNumGlobalDofTypes, 1, true );
@@ -331,6 +333,7 @@ namespace moris
             mGradEnergyDof.resize( tNumGlobalDofTypes );
             mGradDivFluxDof.resize( tNumGlobalDofTypes );
             mTestTraction.resize( tNumDirectDofTypes );
+            mTestTractionTrans.resize( tNumDirectDofTypes );
             mdFluxdDof.resize( tNumGlobalDofTypes );
             mddivfluxdu.resize( tNumGlobalDofTypes );
             mdTractiondDof.resize( tNumGlobalDofTypes );
@@ -1096,6 +1099,215 @@ namespace moris
                     // populate the dof type lists
                     aDofTypes.append( tActiveDofTypes );
                 }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        Constitutive_Model::eval_derivative_FD(
+                enum CM_Request_Type                aCMRequestType,
+                Matrix< DDRMat >&                   aDerivativeFD,
+                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                real                                aPerturbation,
+                const moris::Cell< MSI::Dof_Type >& aTestDofTypes,
+                const Matrix< DDRMat >&             aNormal,
+                const Matrix< DDRMat >&             aJump,
+                fem::FDScheme_Type                  aFDSchemeType,
+                enum CM_Function_Type               aCMFunctionType )
+        {
+            // check requested derivative
+            MORIS_ASSERT( aCMRequestType == CM_Request_Type::UNDEFINED,
+                    "Constitutive_Model::eval_derivative_FD - aCMRequestType needs to be defined." );
+            
+            // get the FD scheme info
+            moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( aFDSchemeType, tFDScheme );
+            uint tNumPoints = tFDScheme( 0 ).size();
+
+            // get the field interpolator for type
+            Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // get number of coefficients, fields and bases for the considered FI
+            uint tDerNumDof    = tFI->get_number_of_space_time_coefficients();
+            uint tDerNumBases  = tFI->get_number_of_space_time_bases();
+            uint tDerNumFields = tFI->get_number_of_fields();
+
+            // reset properties
+            this->reset_eval_flags();
+
+            // evaluate unperturbed value
+            const Matrix< DDRMat >& tUnperturbed = this->select_derivative_FD(
+                    aCMRequestType,
+                    aTestDofTypes,
+                    aNormal,
+                    aJump,
+                    aCMFunctionType );
+
+            // set size for derivative
+            aDerivativeFD.set_size( tUnperturbed.n_rows(), tDerNumDof, 0.0 );
+
+            // coefficients for dof type wrt which derivative is computed
+            Matrix< DDRMat > tCoeff = tFI->get_coeff();
+
+            // initialize dof counter
+            uint tDofCounter = 0;
+
+            // loop over coefficients columns
+            for ( uint iCoeffCol = 0; iCoeffCol < tDerNumFields; iCoeffCol++ )
+            {
+                // loop over coefficients rows
+                for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
+                {
+                    // compute the perturbation absolute value
+                    real tDeltaH = aPerturbation * tCoeff( iCoeffRow, iCoeffCol );
+
+                    // check that perturbation is not zero
+                    if ( std::abs( tDeltaH ) < 1e-12 )
+                    {
+                        tDeltaH = aPerturbation;
+                    }
+
+                    // set starting point for FD
+                    uint tStartPoint = 0;
+
+                    // if backward or forward add unperturbed contribution
+                    if ( ( aFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) || ( aFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                    {
+                        // add unperturbed contribution to derivative
+                        aDerivativeFD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( 0 ) * tUnperturbed / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+
+                        // skip first point in FD
+                        tStartPoint = 1;
+                    }
+
+                    // loop over the points for FD
+                    for ( uint iPoint = tStartPoint; iPoint < tNumPoints; iPoint++ )
+                    {
+                        // reset the perturbed coefficients
+                        Matrix< DDRMat > tCoeffPert = tCoeff;
+
+                        // perturb the coefficient
+                        tCoeffPert( iCoeffRow, iCoeffCol ) += tFDScheme( 0 )( iPoint ) * tDeltaH;
+
+                        // set the perturbed coefficients to FI
+                        tFI->set_coeff( tCoeffPert );
+
+                        // reset properties
+                        this->reset_eval_flags();
+
+                        // assemble the jacobian
+                        aDerivativeFD.get_column( tDofCounter ) +=
+                                tFDScheme( 1 )( iPoint ) * this->select_derivative_FD( aCMRequestType, aTestDofTypes, aNormal, aJump, aCMFunctionType ) / ( tFDScheme( 2 )( 0 ) * tDeltaH );
+                    }
+                    // update dof counter
+                    tDofCounter++;
+                }
+            }
+            // reset the coefficients values
+            tFI->set_coeff( tCoeff );
+
+            // set value to storage
+            this->set_derivative_FD(
+                    aCMRequestType,
+                    aDerivativeFD,
+                    aDofTypes,
+                    aTestDofTypes,
+                    aCMFunctionType );
+        }
+
+        /**
+         * select derivative wrt to a dof type
+         * @param[ out ] aCMRequestType
+         */
+        const Matrix< DDRMat >&
+        Constitutive_Model::select_derivative_FD(
+                enum CM_Request_Type                aCMRequestType,
+                const moris::Cell< MSI::Dof_Type >& aTestDofTypes,
+                const Matrix< DDRMat >&             aNormal,
+                const Matrix< DDRMat >&             aJump,
+                enum CM_Function_Type               aCMFunctionType )
+        {
+            // check requested derivative
+            MORIS_ASSERT( aCMRequestType == CM_Request_Type::UNDEFINED,
+                    "Constitutive_Model::eval_derivative_FD - aCMRequestType needs to be defined." );
+
+            switch ( aCMRequestType )
+            {
+                case CM_Request_Type::STRAIN:
+                {
+                    return this->strain( aCMFunctionType );
+                    break;
+                }
+                case CM_Request_Type::FLUX:
+                {
+                    return this->flux( aCMFunctionType );
+                    break;
+                }
+                case CM_Request_Type::TRACTION:
+                {
+                    return this->traction( aNormal, aCMFunctionType );
+                    break;
+                }
+                case CM_Request_Type::TEST_TRACTION:
+                {
+                    mTraction = this->testTraction_trans( aNormal, aTestDofTypes, aCMFunctionType ) * aJump;
+                    return mTraction;
+                    break;
+                }
+                default:
+                    MORIS_ASSERT( false, "Constitutive_Model::select_derivative_FD: aCMRequestType undefined" );
+                    return this->strain( aCMFunctionType );
+            }
+        }
+
+        void
+        Constitutive_Model::set_derivative_FD(
+                enum CM_Request_Type                aCMRequestType,
+                Matrix< DDRMat >&                   aDerivativeFD,
+                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                const moris::Cell< MSI::Dof_Type >& aTestDofTypes,
+                enum CM_Function_Type               aCMFunctionType )
+        {
+            // check requested derivative
+            MORIS_ASSERT( aCMRequestType == CM_Request_Type::UNDEFINED,
+                    "Constitutive_Model::eval_derivative_FD - aCMRequestType needs to be defined." );
+
+            // get the dof index
+            uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+
+            switch ( aCMRequestType )
+            {
+                case CM_Request_Type::STRAIN:
+                {
+                    // set value to storage
+                    mdStraindDof( tDofIndex ) = aDerivativeFD;
+                    break;
+                }
+                case CM_Request_Type::FLUX:
+                {
+                    // set value to storage
+                    mdFluxdDof( tDofIndex ) = aDerivativeFD;
+                    break;
+                }
+                case CM_Request_Type::TRACTION:
+                {
+                    // set value to storage
+                    mdTractiondDof( tDofIndex ) = aDerivativeFD;
+                    break;
+                }
+                case CM_Request_Type::TEST_TRACTION:
+                {
+                    // get the test dof index
+                    uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
+
+                    // set value to storage
+                    mdTestTractiondDof( tTestDofIndex )( tDofIndex ) = aDerivativeFD;
+                    break;
+                }
+                default:
+                    MORIS_ASSERT( false, "Constitutive_Model::set_derivative_FD: aCMRequestType undefined" );
             }
         }
 
@@ -2736,6 +2948,36 @@ namespace moris
 
             // return the test traction value
             return mTestTraction( tTestDofIndex );
+        }
+
+        //------------------------------------------------------------------------------
+
+        const Matrix< DDRMat >&
+        Constitutive_Model::testTraction_trans(
+                const Matrix< DDRMat >&             aNormal,
+                const moris::Cell< MSI::Dof_Type >& aTestDofTypes,
+                enum CM_Function_Type               aCMFunctionType )
+
+        {
+            // check CM function type, base class only supports "DEFAULT"
+            MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
+                    "Constitutive_Model::testTraction_trans - Only DEFAULT CM function type known in base class." );
+
+            // get test dof type index
+            uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
+
+            // if the transpose of the test traction was not evaluated
+            if ( mTestTractionTransEval( tTestDofIndex ) )
+            {
+                // evaluate the transpose of the test traction
+                mTestTractionTrans( tTestDofIndex ) = trans( this->testTraction( aNormal, aTestDofTypes, aCMFunctionType ) );
+
+                // set bool for evaluation
+                mTestTractionTransEval( tTestDofIndex ) = false;
+            }
+
+            // return the transpose of the test traction value
+            return mTestTractionTrans( tTestDofIndex );
         }
 
         //------------------------------------------------------------------------------

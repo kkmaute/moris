@@ -124,14 +124,12 @@ namespace moris
                 // compute contact residual on slave side
                 mSet->get_residual()( 0 )(
                         { tSlaveResStartIndex, tSlaveResStopIndex },
-                        { 0, 0 } ) += aWStar * (
-                                tSPStabPen->val()( 0 ) * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) )* mNormal * tJumpPressure );
+                        { 0, 0 } ) += aWStar * ( tSPStabPen->val()( 0 ) * tCMSlaveElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * mNormal * tJumpPressure );
 
                 // compute contact residual on master side
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex },
-                        { 0, 0 } ) += aWStar * (
-                                tSPStabPen->val()( 0 ) * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * mNormal * tJumpPressure );
+                        { 0, 0 } ) += aWStar * ( tSPStabPen->val()( 0 ) * tCMMasterElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * mNormal * tJumpPressure );
             }
 
             // check for nan, infinity
@@ -317,14 +315,12 @@ namespace moris
                     {
                         // add contribution to jacobian
                         mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                += tSPStabPen->val()( 0 ) * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) )
-                                * tNormQ * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal ) * aWStar;
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += tSPStabPen->val()( 0 ) * tCMMasterElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) )
+                                                                                 * tNormQ * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal ) * aWStar;
 
-                        mSet->get_jacobian()( { tSlaveResStartIndex,  tSlaveResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } )
-                                += tSPStabPen->val()( 0 ) * tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ) )
-                                * tNormQ * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal ) * aWStar;
+                        mSet->get_jacobian()( { tSlaveResStartIndex, tSlaveResStopIndex },
+                                { tMasterDepStartIndex, tMasterDepStopIndex } ) += tSPStabPen->val()( 0 ) * tCMMasterElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) )
+                                                                                 * tNormQ * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal ) * aWStar;
                     }
                 }
 
@@ -345,14 +341,12 @@ namespace moris
                     {
                         // add contribution to jacobian
                         mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },
-                                { tSlaveDepStartIndex,  tSlaveDepStopIndex  } )
-                                -= tSPStabPen->val()( 0 ) * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) )
-                                * tNormQ * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal ) * aWStar;
+                                { tSlaveDepStartIndex, tSlaveDepStopIndex } ) -= tSPStabPen->val()( 0 ) * tCMSlaveElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) )
+                                                                               * tNormQ * tCMMasterElasticity->dTractiondDOF( tDofType, mNormal ) * aWStar;
 
                         mSet->get_jacobian()( { tSlaveResStartIndex, tSlaveResStopIndex },
-                                { tSlaveDepStartIndex, tSlaveDepStopIndex } )
-                                -= tSPStabPen->val()( 0 ) * tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ) )
-                                * tNormQ * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal ) * aWStar;
+                                { tSlaveDepStartIndex, tSlaveDepStopIndex } ) -= tSPStabPen->val()( 0 ) * tCMSlaveElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) )
+                                                                               * tNormQ * tCMSlaveElasticity->dTractiondDOF( tDofType, mNormal ) * aWStar;
                     }
 
                 }

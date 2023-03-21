@@ -113,8 +113,8 @@ namespace moris
             // compute the residual
             mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex } ) +=
-                    aWStar * ( -tFIDispl->N_trans() * tM * tCMElasticity->traction( mNormal )                          //
-                               + mBeta * tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tJump    //
+                    aWStar * ( -tFIDispl->N_trans() * tM * tCMElasticity->traction( mNormal )                                //
+                               + mBeta * tCMElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tM * tJump    //
                                + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tJump );
 
             // check for nan, infinity
@@ -205,8 +205,8 @@ namespace moris
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // compute the jacobian for direct dof dependencies
-                    tJac += aWStar * (                                                                                            //
-                                    mBeta * tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tFIDispl->N()    //
+                    tJac += aWStar * (                                                                                                  //
+                                    mBeta * tCMElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tM * tFIDispl->N()    //
                                     + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tFIDispl->N() );
                 }
 
@@ -214,8 +214,8 @@ namespace moris
                 if ( tPropDirichlet->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    tJac -= aWStar * (                                                                                                                    //
-                                    mBeta * tCMElasticity->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tPropDirichlet->dPropdDOF( tDofType )    //
+                    tJac -= aWStar * (                                                                                                                          //
+                                    mBeta * tCMElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ) ) * tM * tPropDirichlet->dPropdDOF( tDofType )    //
                                     + tSPNitsche->val()( 0 ) * tFIDispl->N_trans() * tM * tPropDirichlet->dPropdDOF( tDofType ) );
                 }
 

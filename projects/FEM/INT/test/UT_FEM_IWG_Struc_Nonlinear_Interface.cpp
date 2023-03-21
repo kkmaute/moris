@@ -36,7 +36,8 @@
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "IWG_Struc_Nonlinear_Interface_Unsymmetric_Saint_Venant_Kirchhoff", "[moris],[fem],[IWG_Struc_Nonlinear_Interface_Unsymmetric_Saint_Venant_Kirchhoff]" )
+TEST_CASE( "IWG_Struc_Nonlinear_Interface_Unsymmetric_Saint_Venant_Kirchhoff",
+        "[moris],[fem],[IWG_Struc_Nonlinear_Interface_Unsymmetric_Saint_Venant_Kirchhoff]" )
 {
     // define an epsilon environment
     // FIXME

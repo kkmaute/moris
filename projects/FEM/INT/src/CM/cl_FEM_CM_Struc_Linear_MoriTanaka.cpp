@@ -516,7 +516,7 @@ namespace moris
                 // update constitutive matrix and rotation tensor
                 this->eval_const();
 
-                // evalute the derivative of the rotation tensor
+                // evaluate the derivative of the rotation tensor
                 this->eval_inplane_rotation_derivative();
 
                 // compute derivative with indirect dependency through properties
@@ -532,7 +532,7 @@ namespace moris
                 // update constitutive matrix and rotation tensor
                 this->eval_const();
 
-                // evalute the derivative of the rotation tensor
+                // evaluate the derivative of the rotation tensor
                 this->eval_outplane_rotation_derivative();
 
                 // compute derivative with indirect dependency through properties
@@ -584,7 +584,7 @@ namespace moris
                 }
 
                 // if elastic modulus depends on dof type
-                if ( mPropThetaOp->check_dof_dependency( aDofTypes ) )
+                if ( mPropThetaOp->check_dof_dependency( aDofTypes ) && mSpaceDim == 3 )
                 {
                     // update consitutive matrix and rotation tensor
                     this->eval_const();
@@ -721,7 +721,7 @@ namespace moris
             const real& thetai = mPropThetaIp->val()( 0 );
             const real& thetao = mPropThetaOp->val()( 0 );
 
-            // name cos and sin for convience
+            // name cos and sin for convenience
             real ci  = std::cos( thetai );
             real si  = std::sin( thetai );
             real co  = std::cos( thetao );

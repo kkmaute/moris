@@ -119,14 +119,14 @@ namespace moris
                     aWStar
                     * ( -tFIMaster->N_trans() * tTraction
                             + mBeta * tMasterWeight
-                                      * trans( tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ), mStressType ) ) * tJump
+                                      * tCMMasterElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ), mStressType ) * tJump
                             + tNitsche * tFIMaster->N_trans() * tJump );
 
             // compute slave residual
             mSet->get_residual()( 0 )( { tSlaveResStartIndex, tSlaveResStopIndex } ) +=
                     aWStar
                     * ( +tFISlave->N_trans() * tTraction
-                            + mBeta * tSlaveWeight * trans( tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ), mStressType ) )
+                            + mBeta * tSlaveWeight * tCMSlaveElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ), mStressType )
                                       * tJump
                             - tNitsche * tFISlave->N_trans() * tJump );
 
@@ -214,13 +214,13 @@ namespace moris
                 {
                     tJacMM += aWStar
                             * ( +mBeta * tMasterWeight
-                                            * trans( tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ), mStressType ) )
+                                            * tCMMasterElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ), mStressType )
                                             * tFIMaster->N()
                                     + tNitsche * tFIMaster->N_trans() * tFIMaster->N() );
 
                     tJacSM += aWStar
                             * ( +mBeta * tSlaveWeight
-                                            * trans( tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ), mStressType ) )
+                                            * tCMSlaveElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ), mStressType )
                                             * tFIMaster->N()
                                     - tNitsche * tFISlave->N_trans() * tFIMaster->N() );
                 }
@@ -257,13 +257,13 @@ namespace moris
                     // add contribution to jacobian
                     tJacMM += aWStar
                             * ( -tFIMaster->N_trans() * tTractionDer
-                                    + mBeta * trans( tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ), mStressType ) )
+                                    + mBeta * tCMMasterElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ), mStressType )
                                               * tJump * tMasterWeightDer
                                     + tFIMaster->N_trans() * tJump * tNitscheDer );
 
                     tJacSM += aWStar
                             * ( +tFISlave->N_trans() * tTractionDer
-                                    + mBeta * trans( tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ), mStressType ) ) * tJump
+                                    + mBeta * tCMSlaveElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ), mStressType ) * tJump
                                               * tSlaveWeightDer
                                     - tFISlave->N_trans() * tJump * tNitscheDer );
                 }
@@ -293,13 +293,13 @@ namespace moris
                 {
                     tJacMS += aWStar
                             * ( -mBeta * tMasterWeight
-                                            * trans( tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ), mStressType ) )
+                                            * tCMMasterElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ), mStressType )
                                             * tFISlave->N()
                                     - tNitsche * tFIMaster->N_trans() * tFISlave->N() );
 
                     tJacSS += aWStar
                             * ( -mBeta * tSlaveWeight
-                                            * trans( tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ), mStressType ) )
+                                            * tCMSlaveElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ), mStressType )
                                             * tFISlave->N()
                                     + tNitsche * tFISlave->N_trans() * tFISlave->N() );
                 }
@@ -336,13 +336,13 @@ namespace moris
                     // add contribution to jacobian
                     tJacMS += aWStar
                             * ( -tFIMaster->N_trans() * tTractionDer
-                                    + mBeta * trans( tCMMasterElasticity->testTraction( mNormal, mResidualDofType( 0 ), mStressType ) )
+                                    + mBeta * tCMMasterElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ), mStressType )
                                               * tJump * tMasterWeightDer
                                     + tFIMaster->N_trans() * tJump * tNitscheDer );
 
                     tJacSS += aWStar
                             * ( +tFISlave->N_trans() * tTractionDer
-                                    + mBeta * trans( tCMSlaveElasticity->testTraction( mNormal, mResidualDofType( 0 ), mStressType ) ) * tJump
+                                    + mBeta * tCMSlaveElasticity->testTraction_trans( mNormal, mResidualDofType( 0 ), mStressType ) * tJump
                                               * tSlaveWeightDer
                                     - tFISlave->N_trans() * tJump * tNitscheDer );
                 }

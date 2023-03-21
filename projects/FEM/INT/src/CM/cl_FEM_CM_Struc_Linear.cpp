@@ -319,7 +319,7 @@ namespace moris
             if ( aTestDofTypes( 0 ) == mDofDispl )
             {
                 // compute test traction wrt displacement
-                mTestTraction( tTestDofIndex ) = trans( this->testStrain() ) * this->constitutive() * trans( tFlatNormal );
+                mTestTraction( tTestDofIndex ) = tFlatNormal * this->constitutive() * this->testStrain();
             }
 
             // if test traction wrt pressure

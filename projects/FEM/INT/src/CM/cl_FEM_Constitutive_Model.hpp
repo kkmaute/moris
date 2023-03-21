@@ -145,6 +145,7 @@ namespace moris
 
             // storage for test traction evaluation
             moris::Cell< Matrix< DDRMat > >                mTestTraction;
+            moris::Cell< Matrix< DDRMat > >                mTestTractionTrans;
             moris::Cell< moris::Cell< Matrix< DDRMat > > > mdTestTractiondDof;
             moris::Cell< moris::Cell< Matrix< DDRMat > > > mdTestTractiondDv;
 
@@ -205,6 +206,7 @@ namespace moris
 
             // flag for test traction related evaluation
             moris::Matrix< DDBMat > mTestTractionEval;
+            moris::Matrix< DDBMat > mTestTractionTransEval;
             moris::Matrix< DDBMat > mdTestTractiondDofEval;
             moris::Matrix< DDBMat > mdTestTractiondDvEval;
 
@@ -775,7 +777,8 @@ namespace moris
              * get the divergence of the flux
              * @param[ out ] mDivFlux divergence of the flux
              */
-            virtual const Matrix< DDRMat >& divflux( enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
+            virtual const Matrix< DDRMat >&
+            divflux( enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**
@@ -832,9 +835,21 @@ namespace moris
             /**
              * get the constitutive model test traction
              * @param[ in ]  aNormal       normal
-             * @param[ out ] mTestTraction constitutive model test traction
+             * @param[ out ] mTestTraction test traction
+             *                             size nSpaceDim x nTestDof
              */
             virtual const Matrix< DDRMat >& testTraction(
+                    const Matrix< DDRMat >&             aNormal,
+                    const moris::Cell< MSI::Dof_Type >& aTestDofTypes,
+                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+
+            /**
+             * get the transpose of the constitutive model test traction
+             * @param[ in ]  aNormal            normal
+             * @param[ out ] mTestTractionTrans transpose of test traction
+             *                                  size nSpaceDim x nTestDof
+             */
+            virtual const Matrix< DDRMat >& testTraction_trans(
                     const Matrix< DDRMat >&             aNormal,
                     const moris::Cell< MSI::Dof_Type >& aTestDofTypes,
                     enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
@@ -1418,6 +1433,60 @@ namespace moris
             const Matrix< DDRMat >& dConstdDV(
                     const moris::Cell< PDV_Type >& aDvType,
                     enum CM_Function_Type          aCMFunctionType = CM_Function_Type::DEFAULT );
+
+            //------------------------------------------------------------------------------
+            /**
+             * evaluate derivative wrt to a dof type
+             * @param[ in ] aDerivativeFD   a matrix to fill with derivative evaluation
+             * @param[ in ] aDofTypes       a dof type wrt which the derivative is evaluated
+             * @param[ in ] aTestDofTypes   a test dof type wrt which the test traction is evaluated
+             * @param[ in ] aNormal         a normal
+             * @param[ in ] aJump           a jump
+             * @param[ in ] aPerturbation   a real to perturb for FD
+             * @param[ in ] aFDSchemeType   enum for FD scheme
+             * @param[ in ] aCMFunctionType
+             */
+            void eval_derivative_FD(
+                    enum CM_Request_Type                aCMRequestType,
+                    Matrix< DDRMat >&                   aDerivativeFD,
+                    const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                    real                                aPerturbation,
+                    const moris::Cell< MSI::Dof_Type >& aTestDofTypes,
+                    const Matrix< DDRMat >&             aNormal,
+                    const Matrix< DDRMat >&             aJump,
+                    fem::FDScheme_Type                  aFDSchemeType   = fem::FDScheme_Type::POINT_5,
+                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+
+            /**
+             * select derivative wrt to a dof type
+             * @param[ in ] aCMRequestType  a type for required derivative
+             * @param[ in ] aTestDofTypes   a test dof type wrt which the test traction is evaluated
+             * @param[ in ] aNormal         a normal
+             * @param[ in ] aJump           a jump
+             * @param[ in ] aCMFunctionType
+             * Rem: implement specific version for child CM
+             */
+            virtual const Matrix< DDRMat >& select_derivative_FD(
+                    enum CM_Request_Type                aCMRequestType,
+                    const moris::Cell< MSI::Dof_Type >& aTestDofTypes,
+                    const Matrix< DDRMat >&             aNormal,
+                    const Matrix< DDRMat >&             aJump,
+                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
+
+            /**
+             * select derivative wrt to a dof type
+             * @param[ in ] aCMRequestType  a type for required derivative
+             * @param[ in ] aDerivativeFD   a derivative value to set to storage
+             * @param[ in ] aTestDofTypes   a test dof type wrt which the test traction is evaluated
+             * @param[ in ] aCMFunctionType
+             * Rem: implement specific version for child CM
+             */
+            virtual void set_derivative_FD(
+                    enum CM_Request_Type                aCMRequestType,
+                    Matrix< DDRMat >&                   aDerivativeFD,
+                    const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                    const moris::Cell< MSI::Dof_Type >& aTestDofTypes,
+                    enum CM_Function_Type               aCMFunctionType = CM_Function_Type::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**

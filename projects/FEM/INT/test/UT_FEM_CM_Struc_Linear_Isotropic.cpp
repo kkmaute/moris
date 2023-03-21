@@ -70,11 +70,9 @@ TEST_CASE( "CM_Struc_Linear_Isotropic", "[CM_Struc_Lin_Iso]" )
     // create the properties
     std::shared_ptr< fem::Property > tPropEMod = std::make_shared< fem::Property >();
     tPropEMod->set_parameters( { {{ 1.0 }} } );
-    tPropEMod->set_val_function( tConstValFunc_Elast );
 
     std::shared_ptr< fem::Property > tPropNu = std::make_shared< fem::Property >();
     tPropNu->set_parameters( { {{ 0.3 }} } );
-    tPropNu->set_val_function( tConstValFunc_Elast );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
@@ -273,19 +271,6 @@ TEST_CASE( "CM_Struc_Linear_Isotropic", "[CM_Struc_Lin_Iso]" )
                     // derivative dof type
                     Cell< MSI::Dof_Type > tDofDerivative = tRequestedMasterGlobalDofTypes( iRequestedDof );
 
-                    // flux
-                    //------------------------------------------------------------------------------
-                    // evaluate dfluxdu
-                    Matrix< DDRMat > tdfluxdu = tCMMasterStrucLinIso->dFluxdDOF( tDofDerivative );
-
-                    // evaluate dfluxdu by FD
-                    Matrix< DDRMat > tdfluxduFD;
-                    tCMMasterStrucLinIso->eval_dFluxdDOF_FD( tDofDerivative, tdfluxduFD, tPerturbation );
-
-                    // check that analytical and FD match
-                    bool tCheckFluxStruc = fem::check( tdfluxdu, tdfluxduFD, tEpsilon );
-                    REQUIRE( tCheckFluxStruc );
-
                     // strain
                     //------------------------------------------------------------------------------
                     // evaluate dstraindu
@@ -293,11 +278,44 @@ TEST_CASE( "CM_Struc_Linear_Isotropic", "[CM_Struc_Lin_Iso]" )
 
                     // evaluate dstraindu by FD
                     Matrix< DDRMat > tdstrainduFD;
-                    tCMMasterStrucLinIso->eval_dStraindDOF_FD( tDofDerivative, tdstrainduFD, tPerturbation );
+                    tCMMasterStrucLinIso->eval_derivative_FD(
+                            CM_Request_Type::STRAIN,
+                            tdstrainduFD,
+                            tDofDerivative,
+                            tPerturbation,
+                            tDofDerivative,    // dummy
+                            tNormal,           // dummy
+                            tJump );           // dummy
 
                     // check that analytical and FD match
-                    bool tCheckStrainStruc = fem::check( tdstraindu, tdstrainduFD, tEpsilon );
-                    REQUIRE( tCheckStrainStruc );
+                    // std::cout << "check tdstraindu analytical and FD match " << std::endl;
+                    // print( tdstraindu, "tdstraindu" );
+                    // print( tdstrainduFD, "tdstrainduFD" );
+                    bool tCheckdStraindu = fem::check( tdstraindu, tdstrainduFD, tEpsilon );
+                    REQUIRE( tCheckdStraindu );
+
+                    // flux
+                    //------------------------------------------------------------------------------
+                    // evaluate dfluxdu
+                    Matrix< DDRMat > tdfluxdu = tCMMasterStrucLinIso->dFluxdDOF( tDofDerivative );
+
+                    // evaluate dfluxdu by FD
+                    Matrix< DDRMat > tdfluxduFD;
+                    tCMMasterStrucLinIso->eval_derivative_FD(
+                            CM_Request_Type::FLUX,
+                            tdfluxduFD,
+                            tDofDerivative,
+                            tPerturbation,
+                            tDofDerivative,    // dummy
+                            tNormal,           // dummy
+                            tJump );           // dummy
+
+                    // check that analytical and FD match
+                    // std::cout << "check tdfluxdu analytical and FD match " << std::endl;
+                    // print( tdfluxdu, "tdfluxdu" );
+                    // print( tdfluxduFD, "tdfluxduFD" );
+                    bool tCheckdFluxdu = fem::check( tdfluxdu, tdfluxduFD, tEpsilon );
+                    REQUIRE( tCheckdFluxdu );
 
                     // traction
                     //------------------------------------------------------------------------------
@@ -306,44 +324,55 @@ TEST_CASE( "CM_Struc_Linear_Isotropic", "[CM_Struc_Lin_Iso]" )
 
                     // evaluate dtractiondu by FD
                     Matrix< DDRMat > tdtractionduFD;
-                    tCMMasterStrucLinIso->eval_dtractiondu_FD( tDofDerivative, tdtractionduFD, tPerturbation, tNormal );
+                    tCMMasterStrucLinIso->eval_derivative_FD(
+                            CM_Request_Type::TRACTION,
+                            tdtractionduFD,
+                            tDofDerivative,
+                            tPerturbation,
+                            tDofDerivative,    // dummy
+                            tNormal,
+                            tJump );
 
                     // check that analytical and FD match
-                    bool tCheckTractionStruc = fem::check( tdtractiondu, tdtractionduFD, tEpsilon );
-                    REQUIRE( tCheckTractionStruc );
+                    // std::cout << "check tdtractiondu analytical and FD match " << std::endl;
+                    // print( tdtractiondu, "tdtractiondu" );
+                    // print( tdtractionduFD, "tdtractionduFD" );
+                    bool tCheckdTractiondu = fem::check( tdtractiondu, tdtractionduFD, tEpsilon );
+                    REQUIRE( tCheckdTractiondu );
 
                     // test traction
-                    // fixme: CM_Struc_Linear_Isotropic produces a testTraction matrix with dimensions (NumBases*2, NumSpaceDimensions),
-                    //        which is incompatible with eval_dtesttractiondu_FD
                     //------------------------------------------------------------------------------
                     // loop over test dof type
-//                    for( uint iTestDof = 0; iTestDof < tMasterDofTypes.size(); iTestDof++ )
-//                    {
-//                        // get the test dof type
-//                        Cell< MSI::Dof_Type > tDofTest = tMasterDofTypes( iTestDof );
-//
-//                        // evaluate dtesttractiondu
-//                        Matrix< DDRMat > tdtesttractiondu = tCMMasterStrucLinIso->dTestTractiondDOF(
-//                                tDofDerivative,
-//                                tNormal,
-//                                tJump,
-//                                tDofTest );
-//
-//                        // evaluate dtractiondu by FD
-//                        Matrix< DDRMat > tdtesttractionduFD;
-//                        tCMMasterStrucLinIso->eval_dtesttractiondu_FD(
-//                                tDofDerivative,
-//                                tDofTest,
-//                                tdtesttractionduFD,
-//                                tPerturbation,
-//                                tNormal,
-//                                tJump );
-//
-//                        // check that analytical and FD match
-//                        bool tCheckTestTractionFluid = fem::check( tdtesttractiondu, tdtesttractionduFD, tEpsilon );
-//                        REQUIRE( tCheckTestTractionFluid );
-//                    }
+                    for ( uint iTestDof = 0; iTestDof < tMasterDofTypes.size(); iTestDof++ )
+                    {
+                        // get the test dof type
+                        Cell< MSI::Dof_Type > tDofTest = tMasterDofTypes( iTestDof );
 
+                        // evaluate derivative test traction
+                        Matrix< DDRMat > tdtesttractiondu = tCMMasterStrucLinIso->dTestTractiondDOF(
+                                tDofDerivative,
+                                tNormal,
+                                tJump,
+                                tDispDofTypes( 0 ) );
+
+                        // evaluate dtesttractiondu by FD
+                        Matrix< DDRMat > tdtesttractionduFD;
+                        tCMMasterStrucLinIso->eval_derivative_FD(
+                                CM_Request_Type::TEST_TRACTION,
+                                tdtesttractionduFD,
+                                tDofDerivative,
+                                tPerturbation,
+                                tDispDofTypes( 0 ),
+                                tNormal,
+                                tJump );
+
+                        // check that analytical and FD match
+                        // std::cout << "check tdtesttractiondu analytical and FD match " << std::endl;
+                        // print( tdtesttractiondu, "tdtesttractiondu" );
+                        // print( tdtesttractionduFD, "tdtesttractionduFD" );
+                        bool tCheckTestTraction = fem::check( tdtesttractiondu, tdtesttractionduFD, tEpsilon );
+                        REQUIRE( tCheckTestTraction );
+                    }
                 }
             }
             // clean up

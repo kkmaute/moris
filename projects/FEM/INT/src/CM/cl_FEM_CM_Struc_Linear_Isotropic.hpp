@@ -97,6 +97,14 @@ namespace moris
                 return Constitutive_Type::STRUC_LIN_ISO;
             }
 
+          protected:
+            //--------------------------------------------------------------------------------------------------------------
+            /**
+             * evaluate the constitutive model flux derivative wrt to a dof type
+             * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+             */
+            virtual void eval_dFluxdDOF( const Cell< MSI::Dof_Type >& aDofTypes );
+
           private:
             //--------------------------------------------------------------------------------------------------------------
             /**
@@ -114,13 +122,6 @@ namespace moris
                     const real& aNu,
                     const real& aEMod,
                     real&       aInvBulkModulus );
-
-            //--------------------------------------------------------------------------------------------------------------
-            /**
-             * evaluate the constitutive model flux derivative wrt to a dof type
-             * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-             */
-            virtual void eval_dFluxdDOF( const Cell< MSI::Dof_Type >& aDofTypes );
 
             //--------------------------------------------------------------------------------------------------------------
             /**
