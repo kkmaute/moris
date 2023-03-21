@@ -1579,11 +1579,17 @@ namespace moris
                         tResDofTypes,
                         aMSIDofTypeMap );
 
+                // get function parameters
+                moris::Cell< moris::Matrix< DDRMat > > tFuncParameters;
+                string_to_cell_mat_2(
+                        tIWGParameter.get< std::string >( "function_parameters" ),
+                        tFuncParameters );
+
                 // get the treated IWG bulk type
                 fem::Element_Type tIWGBulkType =
                         static_cast< fem::Element_Type >( tIWGParameter.get< uint >( "IWG_bulk_type" ) );
 
-                //
+                // set flag for master/slave
                 bool tMasterSlave = ( tIWGBulkType == fem::Element_Type::DOUBLE_SIDESET );
 
                 // create an IWG pointer
@@ -1600,6 +1606,9 @@ namespace moris
 
                 // set bulk type
                 mIWGs( iIWG )->set_bulk_type( tIWGBulkType );
+
+                // set constant parameters
+                mIWGs( iIWG )->set_parameters( tFuncParameters );
 
                 // initialize string for master or slave
                 std::string       tIsMasterString = "master";
@@ -2936,6 +2945,13 @@ namespace moris
 
                 // fill IWG map
                 aIWGMap[ tIWGName ] = iIWG;
+
+                // get function parameters
+                moris::Cell< moris::Matrix< DDRMat > > tFuncParameters;
+                string_to_cell_mat_2(
+                        tIWGParameter.get< std::string >( "function_parameters" ),
+                        tFuncParameters );
+                mIWGs( iIWG )->set_parameters( tFuncParameters );
 
                 // get the ghost order from parameter list
                 uint tGhostOrder = tIWGParameter.get< uint >( "ghost_order" );
