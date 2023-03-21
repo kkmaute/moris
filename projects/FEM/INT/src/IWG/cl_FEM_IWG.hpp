@@ -56,6 +56,9 @@ namespace moris
             // nodal weak BCs
             Matrix< DDRMat > mNodalWeakBCs;
 
+            // list of parameters
+            moris::Cell< Matrix< DDRMat > > mParameters;
+
             // normal
             Matrix< DDRMat > mNormal;
 
@@ -399,6 +402,18 @@ namespace moris
             void
             free_memory()
             {
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * set parameters
+             * @param[ in ] aParameters a list of parameters
+             */
+            virtual void
+            set_parameters( const moris::Cell< Matrix< DDRMat > >& aParameters )
+            {
+                // set a cluster
+                mParameters = aParameters;
             }
 
             //------------------------------------------------------------------------------

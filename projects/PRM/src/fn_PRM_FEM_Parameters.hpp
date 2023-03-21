@@ -168,6 +168,8 @@ namespace moris
             tParameterList.insert( "master_field_types", "" );
             tParameterList.insert( "slave_field_types", "" );
 
+            tParameterList.insert( "function_parameters", "" );
+
             tParameterList.insert( "master_properties", "" );
             tParameterList.insert( "slave_properties", "" );
             tParameterList.insert( "master_material_model", "" );
