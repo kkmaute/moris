@@ -302,6 +302,13 @@ tcsh $WORKSPACE/moris/share/spack/make_moris_cshrc.sh
 
 *------------------------------------------------------------
 
+* if you have installed a trilinos version that uses modern cmake use the following option when
+* configuring moris
+
+* -DMORIS_HAVE_TRILINOS_NEW_CMAKE=ON
+
+*------------------------------------------------------------
+
 source $HOME/.cshrc_moris
 
 cd $MORISROOT

@@ -39,6 +39,7 @@ namespace moris
                 TOTAL_PRESSURE,
                 DENSITY,
                 BACKFLOW_PREVENTION,
+                SELECT,
                 MAX_ENUM
             };
 
@@ -89,4 +90,3 @@ namespace moris
 } /* namespace moris */
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IWG_INCOMPRESSIBLE_NS_PRESSURE_BULK_HPP_ */
-

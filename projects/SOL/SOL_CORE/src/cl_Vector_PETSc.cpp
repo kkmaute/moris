@@ -422,7 +422,10 @@ Vector_PETSc::save_vector_to_HDF5( const char* aFilename )
 //-----------------------------------------------------------------------------
 
 void
-Vector_PETSc::read_vector_from_HDF5( const char* aFilename )
+Vector_PETSc::read_vector_from_HDF5(
+        const char* aFilename,
+        std::string aGroupName,
+        sint        aVectorindex )
 {
     PetscViewer tViewer;
 

@@ -163,7 +163,7 @@ namespace moris
              * @brief Get the dim of param coord object
              *
              * @param aIsMaster master or slave side , typically not used in cell cluster
-             * @return moris_index spatial dimension of the probelm
+             * @return moris_index spatial dimension of the problem
              */
 
             virtual 
@@ -242,7 +242,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
-             * @brief populate the data that is returned by refernce
+             * @brief populate the data that is returned by reference
              *
              */
 

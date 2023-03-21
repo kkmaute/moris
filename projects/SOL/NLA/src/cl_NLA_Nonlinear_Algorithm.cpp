@@ -30,7 +30,8 @@ using namespace dla;
 
 // ----------------------------------------------------------------------------
 
-void Nonlinear_Algorithm::set_linear_solver( dla::Linear_Solver * aLinSolver  )
+void
+Nonlinear_Algorithm::set_linear_solver( dla::Linear_Solver* aLinSolver )
 {
     // Delete liner solver manager
     delete mLinSolverManager;
@@ -41,7 +42,8 @@ void Nonlinear_Algorithm::set_linear_solver( dla::Linear_Solver * aLinSolver  )
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void Nonlinear_Algorithm::set_linear_solver_for_adjoint_solve( dla::Linear_Solver * aLinSolver  )
+void
+Nonlinear_Algorithm::set_linear_solver_for_adjoint_solve( dla::Linear_Solver* aLinSolver )
 {
     // Delete liner solver manager
     delete mLinSolverManagerForAdjoint;
@@ -52,9 +54,10 @@ void Nonlinear_Algorithm::set_linear_solver_for_adjoint_solve( dla::Linear_Solve
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-moris::real Nonlinear_Algorithm::calculate_time_needed( const clock_t aTime )
+moris::real
+Nonlinear_Algorithm::calculate_time_needed( const clock_t aTime )
 {
-    moris::real tDeltaTime = (moris::real) ( clock() - aTime ) / CLOCKS_PER_SEC;
+    moris::real tDeltaTime = ( moris::real )( clock() - aTime ) / CLOCKS_PER_SEC;
 
     moris::real tDeltaTimeMax = max_all( tDeltaTime );
 
@@ -63,7 +66,8 @@ moris::real Nonlinear_Algorithm::calculate_time_needed( const clock_t aTime )
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void Nonlinear_Algorithm::set_nonlinear_solver_manager( Nonlinear_Solver* aNonlinSolverManager )
+void
+Nonlinear_Algorithm::set_nonlinear_solver_manager( Nonlinear_Solver* aNonlinSolverManager )
 {
     mLinSolverOwned = false;
 
@@ -72,7 +76,8 @@ void Nonlinear_Algorithm::set_nonlinear_solver_manager( Nonlinear_Solver* aNonli
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-void Nonlinear_Algorithm::set_nonlinear_solver_parameters()
+void
+Nonlinear_Algorithm::set_nonlinear_solver_parameters()
 {
     // Allowable Newton solver iterations
     mParameterListNonlinearSolver = prm::create_nonlinear_algorithm_parameter_list();
@@ -80,11 +85,11 @@ void Nonlinear_Algorithm::set_nonlinear_solver_parameters()
 
 //--------------------------------------------------------------------------------------------------------------------------
 
-Nonlinear_Solver* Nonlinear_Algorithm::get_my_nonlin_solver()
+Nonlinear_Solver*
+Nonlinear_Algorithm::get_my_nonlin_solver()
 {
-    MORIS_ASSERT(mMyNonLinSolverManager != nullptr,
-            "Nonlinear_Algorithm::get_my_nonlin_solver(): nonlinear solver manager not set");
+    MORIS_ASSERT( mMyNonLinSolverManager != nullptr,
+            "Nonlinear_Algorithm::get_my_nonlin_solver(): nonlinear solver manager not set" );
 
     return mMyNonLinSolverManager;
 }
-

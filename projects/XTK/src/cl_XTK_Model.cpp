@@ -107,7 +107,7 @@ namespace xtk
             , mEnrichedIntegMesh( 0, nullptr )
             , mConvertedToTet10s( false )
     {
-        // flag this as a paramter list based run
+        // flag this as a parameter list based run
         mParameterList.insert( "has_parameter_list", true );
 
         this->setup_diagnostics(
@@ -213,10 +213,10 @@ namespace xtk
             this->probe_bg_cell( tBgCellIds );
         }
 
-        // perform decomposition if requested in parameterlist
+        // perform decomposition if requested in parameter list
         if ( mParameterList.get< bool >( "decompose" ) )
         {
-            // get parameters specifying the integration mesh from the parameterlist
+            // get parameters specifying the integration mesh from the parameter list
             mTriangulateAll       = mParameterList.get< bool >( "triangulate_all" );
             mTriangulateAllInPost = mParameterList.get< bool >( "triangulate_all_in_post" );
             mOnlyGenerateXtkTemp  = mParameterList.get< bool >( "only_generate_xtk_temp" );
@@ -252,7 +252,7 @@ namespace xtk
             }
         }
 
-        // perform mesh cleanup if requested through parameterlist
+        // perform mesh cleanup if requested through parameter list
         if ( mParameterList.get< bool >( "cleanup_cut_mesh" ) )
         {
             // set flag as member variable
@@ -302,7 +302,7 @@ namespace xtk
                 }
             }
 
-            // get index of B-spline meshes indecies that will be unenriched later
+            // get index of B-spline meshes indices that will be unenriched later
             Matrix< IndexMat > tUnenrichedBsplineMeshIndices;
             moris::string_to_mat( mParameterList.get< std::string >( "unenriched_mesh_indices" ), tUnenrichedBsplineMeshIndices );
 
@@ -405,28 +405,28 @@ namespace xtk
             }
         }
 
-        std::string tDeactiveBlockstr = mParameterList.get< std::string >( "deactivate_all_but_blocks" );
-        if ( !tDeactiveBlockstr.empty() )
+        std::string tDeactivatedBlockStr = mParameterList.get< std::string >( "deactivate_all_but_blocks" );
+        if ( !tDeactivatedBlockStr.empty() )
         {
             // get the blocks to unionize
             moris::Cell< moris::Cell< std::string > > tBlocksToKeepStr;
-            moris::string_to_cell_of_cell( tDeactiveBlockstr, tBlocksToKeepStr );
+            moris::string_to_cell_of_cell( tDeactivatedBlockStr, tBlocksToKeepStr );
 
             MORIS_ERROR( tBlocksToKeepStr.size() == 1, "deactivate_all_but_block issue: This operation can only be performed on time" );
 
-            this->get_enriched_integ_mesh( 0 ).deactive_all_blocks_but_selected( tBlocksToKeepStr( 0 ) );
+            this->get_enriched_integ_mesh( 0 ).deactivate_all_blocks_except_selected( tBlocksToKeepStr( 0 ) );
         }
 
-        std::string tDeactiveSideSetstr = mParameterList.get< std::string >( "deactivate_all_but_side_sets" );
-        if ( !tDeactiveSideSetstr.empty() )
+        std::string tDeactivatedSideSetStr = mParameterList.get< std::string >( "deactivate_all_but_side_sets" );
+        if ( !tDeactivatedSideSetStr.empty() )
         {
             // get the blocks to unionize
             moris::Cell< moris::Cell< std::string > > tSideSetsToKeepStr;
-            moris::string_to_cell_of_cell( tDeactiveSideSetstr, tSideSetsToKeepStr );
+            moris::string_to_cell_of_cell( tDeactivatedSideSetStr, tSideSetsToKeepStr );
 
-            MORIS_ERROR( tSideSetsToKeepStr.size() == 1, "deactive_all_side_sets_but_selected issue: This operation can only be performed on time" );
+            MORIS_ERROR( tSideSetsToKeepStr.size() == 1, "deactivate_all_side_sets_except_selected issue: This operation can only be performed on time" );
 
-            this->get_enriched_integ_mesh( 0 ).deactive_all_side_sets_but_selected( tSideSetsToKeepStr( 0 ) );
+            this->get_enriched_integ_mesh( 0 ).deactivate_all_side_sets_except_selected( tSideSetsToKeepStr( 0 ) );
         }
 
         if ( mParameterList.get< bool >( "multigrid" ) )
@@ -526,8 +526,8 @@ namespace xtk
             // print the memory usage of XTK
             if ( mParameterList.get< bool >( "print_memory" ) )
             {
-                moris::Memory_Map tXTKMM = this->get_memory_usage();
-                tXTKMM.par_print( "XTK Model" );
+                moris::Memory_Map tXtkMM = this->get_memory_usage();
+                tXtkMM.par_print( "XTK Model" );
             }
 
             if ( mParameterList.get< bool >( "low_memory" ) )
@@ -618,7 +618,7 @@ namespace xtk
         }
         else
         {
-            MORIS_ERROR( 0, "Invalid decomposition_type provided. Recognized Options: Conformal and Nonconformal" );
+            MORIS_ERROR( 0, "Invalid decomposition_type provided. Recognized Options: Conformal and Non-conformal" );
         }
 
         if ( tSpatialDimension == 2 )
@@ -703,7 +703,7 @@ namespace xtk
             }
         }
 
-        // return successfull decomposition
+        // return successful decomposition
         return mDecomposed;
     }
 
@@ -745,339 +745,6 @@ namespace xtk
         }
 
         return true;
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::send_outward_requests(
-            moris_index const          &aMPITag,
-            Cell< uint > const         &aProcRanks,
-            Cell< Matrix< IndexMat > > &aOutwardRequests )
-    {
-        // Cell of requests
-        Cell< MPI_Request > tRequests( aProcRanks.size() );
-
-        // iterate through owned requests and send
-        for ( moris::uint i = 0; i < aProcRanks.size(); i++ )
-        {
-            tRequests( i ) = nonblocking_send(
-                    aOutwardRequests( i ),
-                    aOutwardRequests( i ).n_rows(),
-                    aOutwardRequests( i ).n_cols(),
-                    aProcRanks( i ),
-                    aMPITag );
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::inward_receive_requests(
-            moris_index const          &aMPITag,
-            moris::uint                 aNumRows,
-            Cell< Matrix< IndexMat > > &aReceivedData,
-            Cell< uint >               &aProcRanksReceivedFrom )
-    {
-        // ensure the sizes are correct.
-        aReceivedData.resize( 0 );
-        aProcRanksReceivedFrom.resize( 0 );
-
-        // access the communication table
-        Matrix< IdMat > tCommTable = mCutIntegrationMesh->get_communication_table();
-        moris::uint     tCount     = 0;
-        for ( moris::uint i = 0; i < tCommTable.numel(); i++ )
-        {
-            aReceivedData.push_back( Matrix< IndexMat >( 1, 1 ) );
-            aProcRanksReceivedFrom.push_back( tCommTable( i ) );
-            receive( aReceivedData( tCount ), aNumRows, tCommTable( i ), aMPITag );
-            tCount++;
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::inward_receive_request_answers(
-            moris_index const          &aMPITag,
-            moris::uint const          &aNumRows,
-            Cell< uint > const         &aProcRanks,
-            Cell< Matrix< IndexMat > > &aReceivedRequestAnswers )
-    {
-        MPI_Status tStatus;
-
-        for ( moris::uint i = 0; i < aProcRanks.size(); i++ )
-        {
-            bool tFlag = sent_message_exists( aProcRanks( i ), aMPITag, tStatus );
-            while ( tFlag == false )
-            {
-                tFlag = sent_message_exists( aProcRanks( i ), aMPITag, tStatus );
-            }
-
-            aReceivedRequestAnswers.push_back( Matrix< IndexMat >( 1, 1 ) );
-            receive( aReceivedRequestAnswers( i ), aNumRows, aProcRanks( i ), aMPITag );
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::handle_received_request_answers(
-            Decomposition_Data               &aDecompData,
-            Cell< Matrix< IndexMat > > const &aRequests,
-            Cell< Matrix< IndexMat > > const &aRequestAnswers,
-            moris::moris_id                  &aNodeId )
-    {
-        Cell< moris_index > tUnhandledRequestIndices;
-
-        // iterate through received data
-        for ( moris::uint i = 0; i < aRequests.size(); i++ )
-        {
-            uint tNumReceivedReqs = aRequests( i ).n_cols();
-
-            // avoid the dummy message
-            if ( aRequests( i )( 0, 0 ) != MORIS_INDEX_MAX )
-            {
-                // iterate through received requests
-                for ( moris::uint j = 0; j < tNumReceivedReqs; j++ )
-                {
-                    moris_id        tParentId      = aRequests( i )( 0, j );
-                    enum EntityRank tParentRank    = (enum EntityRank)aRequests( i )( 1, j );
-                    moris_id        tSecondaryId   = aRequests( i )( 2, j );
-                    moris_index     tParentInd     = mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tParentId, tParentRank );
-                    bool            tRequestExists = false;
-                    moris_index     tRequestIndex  = MORIS_INDEX_MAX;
-
-                    if ( aDecompData.mHasSecondaryIdentifier )
-                    {
-                        tRequestExists = aDecompData.request_exists( tParentInd, tSecondaryId, (EntityRank)tParentRank, tRequestIndex );
-                    }
-                    else
-                    {
-                        tRequestExists = aDecompData.request_exists( tParentInd, (EntityRank)tParentRank, tRequestIndex );
-                    }
-
-                    if ( tRequestExists && aRequestAnswers( i )( j ) )
-                    {
-                        moris_id tNodeId = aRequestAnswers( i )( j );
-
-                        // meaning the owning processor expected this and gave an answer
-                        if ( tNodeId < MORIS_ID_MAX && aDecompData.tNewNodeId( tRequestIndex ) == MORIS_INDEX_MAX )
-                        {
-                            // set the new node id
-                            aDecompData.tNewNodeId( tRequestIndex ) = tNodeId;
-
-                            aDecompData.mNumNewNodesWithIds++;
-                        }
-                        // The owner did not expect and did not return an answer
-                        else
-                        {
-                            // keep track of unhandled
-                            tUnhandledRequestIndices.push_back( tRequestIndex );
-                            // moris_index tNodeIndex = mBackgroundMesh.get_first_available_index(EntityRank::NODE);
-
-                            // aDecompData.tNewNodeOwner(tRequestIndex) = par_rank();
-
-                            // aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
-                            // aDecompData.tNewNodeIndex(tRequestIndex) = tNodeIndex;
-                            // tNodeIndex++;
-
-                            // // set the new node id
-                            // aDecompData.tNewNodeId(tRequestIndex) = tNodeId;
-
-                            // aDecompData.mNumNewNodesWithIds++;
-
-                            // mBackgroundMesh.update_first_available_index(tNodeIndex, EntityRank::NODE);
-                        }
-                    }
-                    else
-                    {
-                        MORIS_ASSERT( 0, "Request does not exist." );
-                    }
-                }
-            }
-        }
-
-        // handle the unhandled requests wiht current proc being the owner
-        moris::moris_id tNodeId = mCutIntegrationMesh->allocate_entity_ids( tUnhandledRequestIndices.size(), EntityRank::NODE );
-
-        for ( moris::uint i = 0; i < tUnhandledRequestIndices.size(); i++ )
-        {
-            moris_index tRequestIndex                  = tUnhandledRequestIndices( i );
-            aDecompData.tNewNodeOwner( tRequestIndex ) = par_rank();
-            aDecompData.tNewNodeId( tRequestIndex )    = tNodeId;
-            tNodeId++;
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::send_outward_requests_reals(
-            moris_index const        &aMPITag,
-            Cell< uint > const       &aProcRanks,
-            Cell< Matrix< DDRMat > > &aOutwardRequests )
-    {
-        // iterate through owned requests and send
-        for ( moris::uint i = 0; i < aProcRanks.size(); i++ )
-        {
-            nonblocking_send(
-                    aOutwardRequests( i ),
-                    aOutwardRequests( i ).n_rows(),
-                    aOutwardRequests( i ).n_cols(),
-                    aProcRanks( i ),
-                    aMPITag );
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::inward_receive_requests_reals(
-            moris_index const        &aMPITag,
-            moris::uint               aNumRows,
-            Cell< Matrix< DDRMat > > &aReceivedData,
-            Cell< uint >             &aProcRanksReceivedFrom )
-    {
-        moris::moris_index tParRank = par_rank();
-        moris::uint        tCount   = 0;
-        MPI_Status         tStatus;
-        for ( moris::uint i = 0; i < (moris::uint)par_size(); i++ )
-        {
-            if ( (moris_index)i != tParRank )
-            {
-                // if there is a sent message from a processor go receive it
-                if ( sent_message_exists( i, aMPITag, tStatus ) )
-                {
-                    aReceivedData.push_back( Matrix< DDRMat >( 1, 1 ) );
-
-                    aProcRanksReceivedFrom.push_back( i );
-
-                    receive( aReceivedData( tCount ), aNumRows, i, aMPITag );
-
-                    tCount++;
-                }
-            }
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::return_request_answers_reals(
-            moris_index const              &aMPITag,
-            Cell< Matrix< DDRMat > > const &aRequestAnswers,
-            Cell< uint > const             &aProcRanks )
-    {
-        // iterate through owned requests and send
-        for ( moris::uint i = 0; i < aProcRanks.size(); i++ )
-        {
-            nonblocking_send( aRequestAnswers( i ), aRequestAnswers( i ).n_rows(), aRequestAnswers( i ).n_cols(), aProcRanks( i ), aMPITag );
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::inward_receive_request_answers_reals(
-            moris_index const        &aMPITag,
-            moris::uint const        &aNumRows,
-            Cell< uint > const       &aProcRanks,
-            Cell< Matrix< DDRMat > > &aReceivedData )
-    {
-        for ( moris::uint i = 0; i < aProcRanks.size(); i++ )
-        {
-            aReceivedData.push_back( Matrix< DDRMat >( 1, 1 ) );
-
-            receive( aReceivedData( i ), aNumRows, aProcRanks( i ), aMPITag );
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Model::prepare_request_answers(
-            Decomposition_Data               &aDecompData,
-            Cell< Matrix< IndexMat > > const &aReceiveData,
-            Cell< Matrix< IndexMat > >       &aRequestAnswers )
-    {
-        // allocate answer size
-        aRequestAnswers.resize( aReceiveData.size() );
-
-        // iterate through received data
-        for ( moris::uint i = 0; i < aReceiveData.size(); i++ )
-        {
-            uint tNumReceivedReqs = aReceiveData( i ).n_cols();
-
-            aRequestAnswers( i ).resize( 1, tNumReceivedReqs );
-
-            aRequestAnswers( i )( 0 ) = MORIS_INDEX_MAX;
-
-            // avoid the dummy message
-            if ( aReceiveData( i )( 0, 0 ) != MORIS_INDEX_MAX )
-            {
-                // iterate through received requests
-                for ( moris::uint j = 0; j < tNumReceivedReqs; j++ )
-                {
-                    moris_id        tParentId      = aReceiveData( i )( 0, j );
-                    enum EntityRank tParentRank    = (enum EntityRank)aReceiveData( i )( 1, j );
-                    moris_id        tSecondaryId   = aReceiveData( i )( 2, j );
-                    moris_index     tParentInd     = mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tParentId, tParentRank );
-                    bool            tRequestExists = false;
-                    moris_index     tRequestIndex  = MORIS_INDEX_MAX;
-
-                    if ( aDecompData.mHasSecondaryIdentifier )
-                    {
-                        tRequestExists = aDecompData.request_exists(
-                                tParentInd,
-                                tSecondaryId,
-                                (EntityRank)tParentRank,
-                                tRequestIndex );
-                    }
-                    else
-                    {
-                        tRequestExists = aDecompData.request_exists(
-                                tParentInd,
-                                (EntityRank)tParentRank,
-                                tRequestIndex );
-                    }
-
-                    if ( tRequestExists )
-                    {
-                        moris_id tNodeId = aDecompData.tNewNodeId( tRequestIndex );
-
-                        aRequestAnswers( i )( j ) = tNodeId;
-
-                        if ( tNodeId == MORIS_ID_MAX )
-                        {
-                            std::cout << "tParentId = " << tParentId << " | Rank " << (uint)tParentRank << std::endl;
-                            //                    MORIS_ERROR(0,"Max node");
-                        }
-                    }
-                    else
-                    {
-                        aRequestAnswers( i )( j ) = MORIS_ID_MAX;
-                    }
-                }
-            }
-        }
-    }
-
-    // ----------------------------------------------------------------------------------
-    void
-    Model::return_request_answers(
-            moris_index const                &aMPITag,
-            Cell< Matrix< IndexMat > > const &aRequestAnswers,
-            Cell< uint > const               &aProcRanks )
-    {
-        // access the communication table
-        Matrix< IdMat > tCommTable = mCutIntegrationMesh->get_communication_table();
-
-        // iterate through owned requests and send
-        for ( moris::uint i = 0; i < tCommTable.numel(); i++ )
-        {
-            nonblocking_send( aRequestAnswers( i ), aRequestAnswers( i ).n_rows(), aRequestAnswers( i ).n_cols(), tCommTable( i ), aMPITag );
-        }
     }
 
     // ----------------------------------------------------------------------------------
@@ -1219,16 +886,16 @@ namespace xtk
         //     Child_Mesh &tChildMesh = mCutMesh.get_child_mesh( iCM );
 
         //     // get the neighbors
-        //     Matrix< IndexMat > tElementNeighors = mBackgroundMesh->get_elements_connected_to_element_and_face_ind_loc_inds( tChildMesh.get_parent_element_index() );
+        //     Matrix< IndexMat > tElementNeighbors = mBackgroundMesh->get_elements_connected_to_element_and_face_ind_loc_inds( tChildMesh.get_parent_element_index() );
 
         //     moris::Cell< moris_index > tTransitionFacets;
 
         //     // iterate through neighbor
-        //     for ( moris::uint iN = 0; iN < tElementNeighors.n_cols(); iN++ )
+        //     for ( moris::uint iN = 0; iN < tElementNeighbors.n_cols(); iN++ )
         //     {
-        //         moris_index tNeighborCellIndex = tElementNeighors( 0, iN );
+        //         moris_index tNeighborCellIndex = tElementNeighbors( 0, iN );
 
-        //         moris_index tSharedFaceIndex = tElementNeighors( 1, iN );
+        //         moris_index tSharedFaceIndex = tElementNeighbors( 1, iN );
 
         //         if ( !mBackgroundMesh.entity_has_children( tNeighborCellIndex, EntityRank::ELEMENT ) )
         //         {
@@ -1468,7 +1135,7 @@ namespace xtk
     bool
     Model::subphase_is_in_child_mesh( moris_index aSubphaseIndex )
     {
-        MORIS_ERROR( 0, "TOREMOVE" );
+        MORIS_ERROR( 0, "TO REMOVE" );
         return false;
     }
 
@@ -1649,21 +1316,21 @@ namespace xtk
     std::string
     Model::get_global_T_matrix_output_file_name()
     {
-        // get value from parameterlist
+        // get value from parameter list
         return mParameterList.get< std::string >( "global_T_matrix_output_file" );
     }
 
     std::string
     Model::get_elemental_T_matrix_output_file_name()
     {
-        // get value from parameterlist
+        // get value from parameter list
         return mParameterList.get< std::string >( "elemental_T_matrix_output_file" );
     }
 
     std::string
     Model::get_MPC_output_file_name()
     {
-        // get value from parameterlist
+        // get value from parameter list
         return mParameterList.get< std::string >( "MPC_output_file" );
     }
 
@@ -1790,7 +1457,7 @@ namespace xtk
     bool
     Model::delete_xtk_after_generation()
     {
-        // get the ouput from paramter
+        // get the ouput from parameter
         return mParameterList.get< bool >( "delete_xtk_after_generation" );
     }
 

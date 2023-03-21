@@ -150,34 +150,6 @@ namespace moris
         return tRequest;
     }
 
-//------------------------------------------------------------------------------
-
-    inline
-    bool
-    sent_message_exists(
-            int          aOtherProc,
-            int          aTag,
-            MPI_Status & aStatus)
-    {
-        // check if message exists
-        int flag = 1000;
-        MPI_Iprobe(
-                aOtherProc,
-                aTag,
-                moris::get_comm(),
-                &flag,
-                &aStatus);
-
-        if(flag)
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
     //------------------------------------------------------------------------------
 
     template <typename Size_T_Matrix>
@@ -230,53 +202,6 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
-    template <typename Size_T_Matrix>
-    inline
-    void receive_col_known(
-            moris::Matrix<Size_T_Matrix> & aReceivingMatrix,
-            size_t aNumCols,
-            int aSendingProc,
-            int aTag)
-    {
-        // Check that number of rows is not zero
-        MORIS_ERROR( aNumCols > 0,
-               "receive_col_known(moris::Matrix<T>) - number of columns cannot be zero." );
-
-        MPI_Status tStatus;
-        bool tExists = sent_message_exists(aSendingProc,aTag,tStatus);
-
-        MORIS_ERROR(tExists,
-                "receive_col_known(moris::Matrix<T>) - trying to receive a message that does not exists");
-
-        int tNumSent = 0;
-        MPI_Get_count(
-                &tStatus,
-                moris::get_comm_datatype(aReceivingMatrix(0,0)),
-                &tNumSent);
-
-        // Check that size of matrix is larger zero
-        MORIS_ERROR( tNumSent > 0,
-                "receive_col_known(moris::Matrix<T>) - size of matrix to be received is zero." );
-
-        // Compute number of rows
-       size_t tNumRows = tNumSent / aNumCols;
-
-       // Check for proper number of columns
-       MORIS_ERROR( (int)(aNumCols*tNumRows) == tNumSent,
-              "receive_col_known(moris::Matrix<T>) - inconsistent matrix sizes." );
-
-        // Resize the matrix
-        aReceivingMatrix.resize(tNumRows, aNumCols);
-
-        MPI_Recv(
-                aReceivingMatrix.data(),
-                tNumSent,
-                moris::get_comm_datatype(aReceivingMatrix(0,0)),
-                aSendingProc,
-                aTag,
-                moris::get_comm(),
-                &tStatus);
-    }
 }
 
 #endif /* SRC_TOOLS_CL_MPI_TOOLS_HPP_ */

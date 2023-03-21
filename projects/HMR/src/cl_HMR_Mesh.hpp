@@ -50,7 +50,7 @@ namespace moris
             // moris::Cell(3) - Cell Global to Local
             // Keep in mind not all of these are created
 
-            moris::Cell< std::unordered_map< moris_id, moris_index > > mEntityGlobaltoLocalMap;
+            moris::Cell< std::unordered_map< moris_id, moris_index > > mEntityGlobalToLocalMap;
 
             //-------------------------------------------------------------------------------
 
@@ -174,7 +174,7 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            uint get_num_elemens_including_aura() const;
+            uint get_num_elements_including_aura() const;
 
             //-------------------------------------------------------------------------------
 
@@ -662,9 +662,9 @@ namespace moris
                     const moris_index aIndex = 0 );
 
             //------------------------------------------------------------------------------
-            //##############################################
-            // Multigrid acessor functions
-            //##############################################
+            // ##############################################
+            // Multi-grid accessor functions
+            // ##############################################
             //-------------------------------------------------------------------------------
 
             uint

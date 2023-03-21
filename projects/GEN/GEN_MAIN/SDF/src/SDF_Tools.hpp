@@ -30,7 +30,7 @@ namespace moris
 {
     namespace sdf
     {
-        const real gSDFepsilon = 1e-7;
+        const real gSDFepsilon = 1e-8;
         //-------------------------------------------------------------------------------
 
         inline void
@@ -160,13 +160,13 @@ namespace moris
             uint          tSeed;
             if ( file.is_open() )
             {
-                char* memblock;
+                char* tMemBlock;
                 int   size = sizeof( moris::uint );
-                memblock   = new char[ size ];
-                file.read( memblock, size );
+                tMemBlock   = new char[ size ];
+                file.read( tMemBlock, size );
                 file.close();
-                tSeed = *reinterpret_cast< int* >( memblock );
-                delete[] memblock;
+                tSeed = *reinterpret_cast< int* >( tMemBlock );
+                delete[] tMemBlock;
             }
             else
             {
@@ -226,7 +226,7 @@ namespace moris
         // =============================================================================
 
         /**
-         * this funcitons removes leading and double spaces and tabs from a string
+         * this function removes leading and double spaces and tabs from a string
          */
         inline std::string
         clean( const std::string& aString )

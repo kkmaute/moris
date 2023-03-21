@@ -75,7 +75,7 @@ namespace moris
             for ( moris::uint tSetIndex = 0; tSetIndex < tNumSets; tSetIndex++ )
             {
                 // initialize treated equation set // FIXME????
-                mFemSets( tSetIndex )->initialize_set( false, false );
+                mFemSets( tSetIndex )->initialize_set();
 
                 // get number of IQIs on treated equation set
                 moris::uint tNumIQIsOnSet = mFemSets( tSetIndex )->get_number_of_requested_IQIs();
@@ -159,7 +159,7 @@ namespace moris
                         mFemSets( tSetIndex )->get_num_equation_objects();
 
                 // initialize treated equation set //FIXME????
-                mFemSets( tSetIndex )->initialize_set( false, false );
+                mFemSets( tSetIndex )->initialize_set();
 
                 // loop over equation objects on treated equation set
                 for ( moris::uint tEqObjIndex = 0; tEqObjIndex < tNumEqObjOnSet; tEqObjIndex++ )
@@ -198,7 +198,7 @@ namespace moris
                         mFemSets( tSetIndex )->get_num_equation_objects();
 
                 // initialize treated equation set //FIXME????
-                mFemSets( tSetIndex )->initialize_set( false, false );
+                mFemSets( tSetIndex )->initialize_set();
 
                 // loop over equation objects on treated equation set
                 for ( moris::uint tEquationObjectIndex = 0; tEquationObjectIndex < tNumEquationObjectOnSet; tEquationObjectIndex++ )
@@ -233,7 +233,7 @@ namespace moris
                         mFemSets( iSet )->get_num_equation_objects();
 
                 // initialize treated equation set //FIXME????
-                mFemSets( iSet )->initialize_set( false, false );
+                mFemSets( iSet )->initialize_set();
 
                 // if some IQI are requested on treated equation set
                 if ( mFemSets( iSet )->get_number_of_requested_IQIs() > 0 )

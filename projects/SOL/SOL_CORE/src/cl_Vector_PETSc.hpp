@@ -38,11 +38,11 @@ namespace moris
       protected:
 
       public:
-        /** Default contructor */
+        /** Default constructor */
         Vector_PETSc(
                 moris::Solver_Interface* aInput,
                 sol::Dist_Map*           aMap,
-                const sint               aNumVectores,
+                const sint               aNumVectors,
                 bool                     aManageMap = false );
 
         /** Destructor */
@@ -117,7 +117,10 @@ namespace moris
 
         void save_vector_to_HDF5( const char* aFilename );
 
-        void read_vector_from_HDF5( const char* aFilename );
+        void read_vector_from_HDF5(
+                const char* aFilename,
+                std::string aGroupName   = "LHS",
+                sint        aVectorindex = 0 );
 
         void check_vector();
 

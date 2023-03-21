@@ -42,7 +42,7 @@ namespace moris
       protected:
 
       public:
-        /** Default contructor */
+        /** Default constructor */
         Matrix_PETSc(
                 moris::Solver_Interface* aInput,
                 sol::Dist_Map*           aMap );
@@ -56,7 +56,7 @@ namespace moris
         void fill_matrix(
                 const moris::uint&             aNumMyDofs,
                 const moris::Matrix< DDRMat >& aA_val,
-                const moris::Matrix< DDSMat >& aEleDofConectivity );
+                const moris::Matrix< DDSMat >& aEleDofConnectivity );
 
         /**
          * Inserts values into the matrix at locations corresponding to the given row and column IDs.

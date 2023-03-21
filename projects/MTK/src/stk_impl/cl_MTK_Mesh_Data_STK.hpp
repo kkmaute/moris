@@ -83,7 +83,7 @@ namespace moris
             // moris::Cell(2) - Face Global to Local
             // moris::Cell(3) - Elem Global to Local
             // Keep in mind not all of these are created
-            moris::Cell< std::unordered_map< moris_id, moris_index > > mEntityGlobaltoLocalMap;
+            moris::Cell< std::unordered_map< moris_id, moris_index > > mEntityGlobalToLocalMap;
 
             // Exterior moris::Cell Entity Rank (Same structure as local to global
             //  Interior moris::Cell (processor rank)

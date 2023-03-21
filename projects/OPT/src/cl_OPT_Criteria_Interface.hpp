@@ -27,8 +27,8 @@ namespace moris
           protected:
             bool mInitializeOptimizationRestart = false;
 
-            uint mReinitializeIterIntervall = MORIS_UINT_MAX;
-            uint mReinitializeIterFirst     = MORIS_UINT_MAX;
+            uint mReinitializeIterInterval = MORIS_UINT_MAX;
+            uint mReinitializeIterFirst    = MORIS_UINT_MAX;
 
             uint mIter = 0;
 
@@ -87,7 +87,7 @@ namespace moris
             void
             set_reinitialize_iter( uint aReinitializeIter )
             {
-                mReinitializeIterIntervall = aReinitializeIter;
+                mReinitializeIterInterval = aReinitializeIter;
             }
 
             void

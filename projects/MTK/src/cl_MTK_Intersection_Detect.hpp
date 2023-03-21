@@ -142,7 +142,7 @@ namespace moris
                  * @param[ out ] aIntersectedPoints polygon points, ordered
                  */
                 void
-                SortandRemove ( moris::Matrix < moris::DDRMat  > & aIntersectedPoints ) const;
+                SortAndRemove ( moris::Matrix < moris::DDRMat  > & aIntersectedPoints ) const;
 
                 // ----------------------------------------------------------------------------
                 /*

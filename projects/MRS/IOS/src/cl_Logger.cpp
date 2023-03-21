@@ -75,7 +75,7 @@ namespace moris
 
     // -----------------------------------------------------------------------------
 
-    // initialize Logger based arguments inputed by user
+    // initialize Logger based arguments inputted by user
     void
     Logger::initialize( int& argc, char* argv[] )
     {
@@ -106,6 +106,12 @@ namespace moris
             {
                 mSeverityLevel = std::stoi( std::string( argv[ k + 1 ] ) );
                 // std::cout << "\n Logger: setting severity level to: " << std::stoi( std::string( argv[ k+1 ] ) ) << "\n";
+            }
+
+            // user requests all output
+            if ( std::string( argv[ k ] ) == "--verbose" || std::string( argv[ k ] ) == "-v" )
+            {
+                mSeverityLevel = 0;
             }
 
             // user sets format for output to console
@@ -163,7 +169,7 @@ namespace moris
         // log to file
         if ( mWriteToAscii )
         {
-            // formated output to log file
+            // formatted output to log file
             this->log_to_file( "SignIn", 1.0 );
         }
 
@@ -382,7 +388,7 @@ namespace moris
                     this->log_to_file( "IterationTime", tIndividualIterationTime );
                 }
 
-                // formated output to log file
+                // formatted output to log file
                 this->log_to_file(
                         "Iteration",
                         mGlobalClock.mCurrentIteration[ mGlobalClock.mIndentationLevel ] + 1 );
@@ -798,7 +804,7 @@ namespace moris
         struct rusage r_usage;
         getrusage( RUSAGE_SELF, &r_usage );
 
-        // get statistics on memory usage across allprocs
+        // get statistics on memory usage across all processors
         real tLocalUsage = r_usage.ru_maxrss / 1024.0;
         uint tTotalUsage = std::round( this->logger_sum_all( tLocalUsage ) );
         uint tMaxUsage   = std::round( this->logger_max_all( tLocalUsage ) );

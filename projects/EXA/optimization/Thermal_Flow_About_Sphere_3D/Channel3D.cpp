@@ -1442,7 +1442,7 @@ namespace moris
         tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "VX,VY,VZ;P;TEMP" );
         tParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "VX,0.01;VY,0.0;VZ,0.0;P,0.0;TEMP,0.0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
-        tParameterlist( 5 )( 0 ).set( "TSA_Output_Crteria", "Output_Criterion" );
+        tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
         //------------------------------------------------------------------------------
 

@@ -206,9 +206,9 @@ namespace moris
             {
                 for ( uint Ik = 0; Ik < OutputMeshIndex( 1 ).numel(); Ik++ )
                 {
-                    uint tLagrangeMeshIndexSecundary = OutputMeshIndex( 1 )( Ik );
+                    uint tLagrangeMeshIndexSecondary = OutputMeshIndex( 1 )( Ik );
 
-                    MORIS_ERROR( tLagrangeMeshIndex != tLagrangeMeshIndexSecundary,
+                    MORIS_ERROR( tLagrangeMeshIndex != tLagrangeMeshIndexSecondary,
                             "it is not recommended to base a secondary output mesh on the same mesh index than the main output mesh. This might cause weird behaviors in parallel because of a numbered aura" );
 
                     moris::hmr::Interpolation_Mesh_HMR* tInterpolationMeshSecondary =

@@ -120,7 +120,7 @@ namespace moris
                 // if they are parallel edges check if it is rectangular and aligned
                 else
                 {
-                    // if the first two edges aren't perpindicular or if it isn't aligned
+                    // if the first two edges aren't perpendicular or if it isn't aligned
                     if( std::abs(dot( tEdgeVectors(0), tEdgeVectors(1) ) ) > tEpsilon ||
                         std::abs( tEdgeVectors(0)(1) )                     > tEpsilon ||
                         tEdgeVectors(0)(0)                                 < 0.0 )

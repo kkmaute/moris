@@ -40,6 +40,12 @@ namespace moris
             // load final solution vector from file. using this option will skip the assembly and solve
             tSolverWarehouseList.insert( "SOL_load_sol_vec_from_file", std::string( "" ) );
 
+            // HDF5 data group from which final solution vectors are loaded
+            tSolverWarehouseList.insert( "SOL_load_sol_vec_data_group", std::string( "LHS" ) );
+
+            // HDF5 data group from which final solution vectors are loaded
+            tSolverWarehouseList.insert( "SOL_load_sol_vec_num_vec", (sint)1 );
+
             // save final adjoint vector to file
             tSolverWarehouseList.insert( "SOL_save_final_adjoint_vec_to_file", std::string( "" ) );
 
@@ -56,7 +62,7 @@ namespace moris
         // P R E C O N I T I O N E R   P A R A M E T E R L I S T //
 
         inline void
-        create_ifpack_precondtitioner_parameterlist( ParameterList& aParameterlist )
+        create_ifpack_preconditioner_parameterlist( ParameterList& aParameterlist )
         {
             // ASSIGN DEFAULT PARAMETER VALUES
             // Robust Algebraic Preconditioners using IFPACK 3.0, SAND REPORT, SAND2005-0662,
@@ -173,7 +179,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         inline void
-        create_ml_precondtitioner_parameterlist( ParameterList& aParameterlist )
+        create_ml_preconditioner_parameterlist( ParameterList& aParameterlist )
         {
             // General Parameters
 
@@ -251,6 +257,71 @@ namespace moris
             aParameterlist.insert( "prec_reuse", false );
         }
 
+        // //------------------------------------------------------------------------------
+
+        inline ParameterList
+        create_eigen_algorithm_parameter_list()
+        {
+            ParameterList mEigAlgoParameterList;
+
+            enum moris::sol::SolverType tType = moris::sol::SolverType::EIGEN_SOLVER;
+
+            mEigAlgoParameterList.insert( "Solver_Implementation", static_cast< uint >( tType ) );
+
+            // ASSIGN DEFAULT PARAMETER VALUES
+            // Anasazi User Manual: Chapter 13, SAND2004-2189, https://trilinos.github.io/pdfs/Trilinos10.12Tutorial.pdf
+
+            // Determine which solver algorithm is used
+            // options are: EIGALG_BLOCK_DAVIDSON, EIGALG_GENERALIZED_DAVIDSON, EIGALG_BLOCK_KRYLOV_SCHUR, EIGALG_BLOCK_KRYLOV_SCHUR_AMESOS
+            mEigAlgoParameterList.insert( "Eigen_Algorithm", std::string( "" ) );
+
+            // Verbosite flag, true or false
+            mEigAlgoParameterList.insert( "Verbosity", false );
+
+            // Which parameter sorts eigenvalues in increasing or decreasing order of magnitudes
+            // options are: SM: Increasing Order ; SR: Increasing order of real part ; SI: Increasing order of imaginary part
+            //              LM: Decreasing Order ; LR: Decreasing order of real part ; LI: Decreasing order of imaginary part
+            mEigAlgoParameterList.insert( "Which", "SM" );
+
+            // Sets Block size of integer type
+            mEigAlgoParameterList.insert( "Block_Size", INT_MAX );
+
+            // Sets Total DOFs of system of integer type
+            mEigAlgoParameterList.insert( "NumFreeDofs", INT_MAX );
+
+            // Request number of eigenvalues as integer type; Num_Eig_Vals = Block_Size
+            mEigAlgoParameterList.insert( "Num_Eig_Vals", INT_MAX );
+
+            // Number of blocks as integer type
+            mEigAlgoParameterList.insert( "Num_Blocks", INT_MAX );
+
+            // Maximum subspace dimensions; 3*Block_Size*Num_Eig_Vals
+            mEigAlgoParameterList.insert( "MaxSubSpaceDims", INT_MAX );
+
+            // Initial Guess required only for Block Krylov Schur Algorithm; integer type
+            mEigAlgoParameterList.insert( "Initial_Guess", INT_MAX );
+
+            // Sets maximum restart level as integer type
+            mEigAlgoParameterList.insert( "MaxRestarts", INT_MAX );
+
+            // sets convergence tolerance for given algorithm
+            mEigAlgoParameterList.insert( "Convergence_Tolerance", 1e-013 );
+
+            // sets relative convergence tolerance as bool type
+            mEigAlgoParameterList.insert( "Relative_Convergence_Tolerance", true );
+
+            // Update flag for vismesh
+            mEigAlgoParameterList.insert( "Update_Flag", true );
+
+            // add parameters from ifpack preconditioner
+            create_ifpack_preconditioner_parameterlist( mEigAlgoParameterList );
+
+            // add parameters from ml preconditioner
+            create_ml_preconditioner_parameterlist( mEigAlgoParameterList );
+
+            return mEigAlgoParameterList;
+        }
+
         //------------------------------------------------------------------------------
 
         // creates a parameter list with default inputs
@@ -288,7 +359,7 @@ namespace moris
             // options are AZ_all, AZ_none, AZ_warnings, AZ_last, AZ_summary
             tLinAlgorithmParameterList.insert( "AZ_output", INT_MAX );
 
-            // Determines the submatrices factored with the domain decomposition algorithms
+            // Determines the sub-matrices factored with the domain decomposition algorithms
             // Option to specify with how many rows from other processors each processor's local submatrix is augmented.
             tLinAlgorithmParameterList.insert( "AZ_overlap", INT_MAX );
 
@@ -329,7 +400,7 @@ namespace moris
             // matrix that is used to compute any of the incomplete factorization preconditioners
             tLinAlgorithmParameterList.insert( "AZ_athresh", -1.0 );
 
-            //--------------------------Preconsitioner specific parameters--------------------------
+            //--------------------------Preconditioner specific parameters--------------------------
             // Determine which preconditioner is used
             // Options are AZ_none, AZ_Jacobi, AZ_sym_GS, AZ_Neumann, AZ_ls, AZ_dom_decomp,
             tLinAlgorithmParameterList.insert( "AZ_precond", INT_MAX );
@@ -354,10 +425,10 @@ namespace moris
             tLinAlgorithmParameterList.insert( "AZ_omega", -1.0 );
 
             // add parameters from ifpack preconditioner
-            create_ifpack_precondtitioner_parameterlist( tLinAlgorithmParameterList );
+            create_ifpack_preconditioner_parameterlist( tLinAlgorithmParameterList );
 
             // add parameters from ml preconditioner
-            create_ml_precondtitioner_parameterlist( tLinAlgorithmParameterList );
+            create_ml_preconditioner_parameterlist( tLinAlgorithmParameterList );
 
             return tLinAlgorithmParameterList;
         }
@@ -402,6 +473,8 @@ namespace moris
             tLinAlgorithmParameterList.insert( "OutputLevel", INT_MAX );
 
             tLinAlgorithmParameterList.insert( "DebugLevel", INT_MAX );
+
+            tLinAlgorithmParameterList.insert( "ComputeConditionNumber", false );
 
             return tLinAlgorithmParameterList;
         }
@@ -455,10 +528,10 @@ namespace moris
             tLinAlgorithmParameterList.insert( "Output Frequency", -1 );
 
             // add parameters from ifpack preconditioner
-            create_ifpack_precondtitioner_parameterlist( tLinAlgorithmParameterList );
+            create_ifpack_preconditioner_parameterlist( tLinAlgorithmParameterList );
 
             // add parameters from ml preconditioner
-            create_ml_precondtitioner_parameterlist( tLinAlgorithmParameterList );
+            create_ml_preconditioner_parameterlist( tLinAlgorithmParameterList );
 
             return tLinAlgorithmParameterList;
         }
@@ -535,6 +608,9 @@ namespace moris
             // output left hand side in linear solver, if specified by user
             tLinSolverParameterList.insert( "DLA_LHS_output_filename", "" );
 
+            // Flag for RHS Matrix Type if Eigen Solver is set to true
+            tLinSolverParameterList.insert( "RHS_Matrix_Type", std::string( "" ) );
+
             return tLinSolverParameterList;
         }
 
@@ -581,7 +657,7 @@ namespace moris
             tNonLinAlgorithmParameterList.insert( "NLA_relaxation_damping", 0.5 );
 
             // Load control strategy
-            tNonLinAlgorithmParameterList.insert( "NLA_laod_control_strategy", (uint)( sol::SolverLoadControlType::Constant ) );
+            tNonLinAlgorithmParameterList.insert( "NLA_load_control_strategy", (uint)( sol::SolverLoadControlType::Constant ) );
 
             // Initial load factor
             tNonLinAlgorithmParameterList.insert( "NLA_load_control_factor", 1.0 );
@@ -680,7 +756,7 @@ namespace moris
 
             tNonLinSolverParameterList.insert( "NLA_DofTypes", "UNDEFINED" );
 
-            tNonLinSolverParameterList.insert( "NLA_Secundary_DofTypes", "UNDEFINED" );
+            tNonLinSolverParameterList.insert( "NLA_Secondary_DofTypes", "UNDEFINED" );
 
             tNonLinSolverParameterList.insert( "NLA_Sub_Nonlinear_Solver", "" );
 
@@ -734,7 +810,7 @@ namespace moris
 
             tTimeParameterList.insert( "TSA_Output_Indices", "0" );
 
-            tTimeParameterList.insert( "TSA_Output_Crteria", "Default_Output_Criterion" );
+            tTimeParameterList.insert( "TSA_Output_Criteria", "Default_Output_Criterion" );
 
             tTimeParameterList.insert( "TSA_Initialize_Sol_Vec", "" );    // initial GUESS
 
@@ -766,6 +842,9 @@ namespace moris
                     break;
                 case sol::SolverType::PETSC:
                     return create_linear_algorithm_parameter_list_petsc();
+                    break;
+                case sol::SolverType::EIGEN_SOLVER:
+                    return create_eigen_algorithm_parameter_list();
                     break;
                 default:
                     MORIS_ERROR( false, "Parameter list for this solver not implemented yet" );

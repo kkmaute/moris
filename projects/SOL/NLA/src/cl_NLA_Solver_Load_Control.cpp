@@ -28,7 +28,7 @@ namespace moris
         {
             // get relaxation strategy
             mLoadControlStrategy = static_cast< sol::SolverLoadControlType >(
-                    aParameterListNonlinearSolver.get< uint >( "NLA_laod_control_strategy" ) );
+                    aParameterListNonlinearSolver.get< uint >( "NLA_load_control_strategy" ) );
 
             // get initial relaxation parameter
             mInitialLoadFactor = aParameterListNonlinearSolver.get< real >( "NLA_load_control_factor" );
@@ -107,7 +107,7 @@ namespace moris
                     // compute relative residual
                     real tRelResNorm = tResNorm / tRefNorm;
 
-                    // update laod factor if requirement on relative residual is satisfied
+                    // update load factor if requirement on relative residual is satisfied
                     if ( tRelResNorm < mRelativeResidualDropThreshold )
                     {
                         mLoadStepCounter++;

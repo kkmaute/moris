@@ -117,7 +117,7 @@ namespace moris
                 std::shared_ptr< Database > aDatabase,
                 const uint&                 aOrder,
                 const uint&                 aLagrangePattern,
-                const uint&                 aBpslinePattern )
+                const uint&                 aBsplinePattern )
         {
             // copy database pointer
             mDatabase = aDatabase;
@@ -130,7 +130,7 @@ namespace moris
                 mDummyBSplineMeshes( Ik ) = tFactory.create_bspline_mesh(
                         mDatabase->get_parameters(),    // FIXME only one mesh
                         mDatabase->get_background_mesh(),
-                        aBpslinePattern,
+                        aBsplinePattern,
                         aOrder );
             }
 
@@ -333,7 +333,7 @@ namespace moris
         //-----------------------------------------------------------------------------
 
         uint
-        Mesh::get_num_elemens_including_aura() const
+        Mesh::get_num_elements_including_aura() const
         {
             if ( mMesh->get_activation_pattern() != mDatabase->get_background_mesh()->get_activation_pattern() )
             {
@@ -386,7 +386,7 @@ namespace moris
             if ( mDatabase->get_parameters()->use_number_aura() and    //
                     mDatabase->get_parameters()->is_output_mesh( mMesh->get_index() ) )
             {
-                return this->get_num_elemens_including_aura();
+                return this->get_num_elements_including_aura();
             }
             else
             {
@@ -712,7 +712,7 @@ namespace moris
 
             Matrix< IndexMat > tEntityToEntity = this->get_entity_connected_to_entity_loc_inds( tEntityIndex, aInputEntityRank, aOutputEntityRank, aIndex );
 
-            for ( moris::uint i = 0; i < tEntityToEntity.numel(); i++ )
+            for ( uint i = 0; i < tEntityToEntity.numel(); i++ )
             {
                 tEntityToEntity( i ) = this->get_glb_entity_id_from_entity_loc_index( tEntityToEntity( i ), aOutputEntityRank, aIndex );
             }
@@ -1024,9 +1024,9 @@ namespace moris
 
         void
         Mesh::get_nodes_indices_in_bounding_box(
-                const moris::Matrix< DDRMat >& aPoint,
-                const moris::Matrix< DDRMat >& aBoundingBoxSize,
-                moris::Matrix< IndexMat >&     aNodeIndices )
+                const Matrix< DDRMat >& aPoint,
+                const Matrix< DDRMat >& aBoundingBoxSize,
+                Matrix< IndexMat >&     aNodeIndices )
         {
             mMesh->calculate_nodes_indices_in_bounding_box( aPoint, aBoundingBoxSize, aNodeIndices );
         }
@@ -1410,9 +1410,9 @@ namespace moris
             // reset counter
             aCounter = 0;
 
-            // number of desecendents
-            moris::uint tStart = 0;
-            moris::uint tEnd   = 0;
+            // number of descendance
+            uint tStart = 0;
+            uint tEnd   = 0;
 
             // loop over all neighbors
             for ( uint k = 0; k < tNumberOfFacets; ++k )
@@ -1448,8 +1448,8 @@ namespace moris
                             // mark facets that we share with other element
                             tEnd = aCounter;
 
-                            moris::uint tZeroStart = 0;
-                            for ( moris::uint i = tStart; i < tEnd; i++ )
+                            uint tZeroStart = 0;
+                            for ( uint i = tStart; i < tEnd; i++ )
                             {
                                 aThisCellFacetOrds( i )              = k;
                                 aNeighborCellFacetOrds( i )          = tNeighborSideOrd;
@@ -1609,13 +1609,15 @@ namespace moris
                 enum EntityRank   aEntityRank,
                 const moris_index aIndex ) const
         {
-            auto tIter = mEntityGlobaltoLocalMap( (uint)aEntityRank + aIndex ).find( aEntityId );
+            auto tIter = mEntityGlobalToLocalMap( (uint)aEntityRank + aIndex ).find( aEntityId );
 
-            MORIS_ERROR( tIter != mEntityGlobaltoLocalMap( (uint)aEntityRank + aIndex ).end(),
-                    "Provided Entity Id is not in the map, Has the map been initialized?: aEntityId =%u EntityRank = %u on process %u",
+            MORIS_ERROR( tIter != mEntityGlobalToLocalMap( (uint)aEntityRank + aIndex ).end(),
+                    "HMR::Mesh::get_loc_entity_ind_from_entity_glb_id() - "
+                    "Provided Entity Id is not in the map. aEntityId = %u EntityRank = %u on process %u. Has the map been initialized?; Size of map: %i",
                     aEntityId,
                     (uint)aEntityRank,
-                    par_rank() );
+                    par_rank(),
+                    mEntityGlobalToLocalMap.size() );
 
             return tIter->second;
         }
@@ -1650,11 +1652,11 @@ namespace moris
                 }
                 case EntityRank::BSPLINE:
                 {
-                    moris::uint tNumEntities = this->get_num_entities( aEntityRank, aIndex );
+                    uint tNumEntities = this->get_num_entities( aEntityRank, aIndex );
 
                     moris_id tLocalMaxId = 0;
 
-                    for ( moris::uint i = 0; i < tNumEntities; i++ )
+                    for ( uint i = 0; i < tNumEntities; i++ )
                     {
                         moris_id tId = this->get_glb_entity_id_from_entity_loc_index( i, aEntityRank, aIndex );
 
@@ -1788,14 +1790,14 @@ namespace moris
 
         //-----------------------------------------------------------------------------
 
-        moris::Cell< moris::mtk::Vertex const * >
+        moris::Cell< mtk::Vertex const * >
         Mesh::get_all_vertices() const
         {
             uint tNumVertices = this->get_num_entities( EntityRank::NODE );
 
-            moris::Cell< moris::mtk::Vertex const * > tVertices( tNumVertices );
+            moris::Cell< mtk::Vertex const * > tVertices( tNumVertices );
 
-            for ( moris::uint i = 0; i < tNumVertices; i++ )
+            for ( uint i = 0; i < tNumVertices; i++ )
             {
                 tVertices( i ) = &get_mtk_vertex( (moris_index)i );
             }
@@ -1805,14 +1807,14 @@ namespace moris
 
         ////-----------------------------------------------------------------------------
         //
-        //        moris::Cell<moris::mtk::Vertex const *>
+        //        moris::Cell<mtk::Vertex const *>
         //        Mesh::get_all_vertices_including_aura() const
         //        {
         //            uint tNumVertices = this->get_num_nodes_including_aura();
         //
-        //            moris::Cell<moris::mtk::Vertex const *> tVertices (tNumVertices);
+        //            moris::Cell<mtk::Vertex const *> tVertices (tNumVertices);
         //
-        //            for(moris::uint  i = 0; i < tNumVertices; i++)
+        //            for(uint  i = 0; i < tNumVertices; i++)
         //            {
         //                tVertices(i) = &get_mtk_vertex_including_aura( ( moris_index ) i );
         //            }
@@ -2041,7 +2043,7 @@ namespace moris
 
                 if ( mMesh->get_activation_pattern() == tPatternList( 0 ) )
                 {
-                    moris::uint tNumSideSets = mDatabase->get_side_sets().size();
+                    uint tNumSideSets = mDatabase->get_side_sets().size();
 
                     moris::Cell< std::string > tSetNames( tNumSideSets );
 
@@ -2078,7 +2080,7 @@ namespace moris
         {
             if ( aSetEntityRank == EntityRank::ELEMENT )
             {
-                moris::uint tNumEntities = mMesh->get_number_of_elements();
+                uint tNumEntities = mMesh->get_number_of_elements();
 
                 Matrix< IndexMat > tOutputEntityInds( tNumEntities, 1 );
 
@@ -2258,7 +2260,7 @@ namespace moris
             tic tTimer;
 
             // Initialize global to local map
-            mEntityGlobaltoLocalMap = moris::Cell< std::unordered_map< moris_id, moris_index > >( 4 + mMesh->get_number_of_bspline_meshes() );
+            mEntityGlobalToLocalMap = moris::Cell< std::unordered_map< moris_id, moris_index > >( 4 + mMesh->get_number_of_bspline_meshes() );
 
             uint tCounter = 0;
 
@@ -2309,11 +2311,11 @@ namespace moris
                         aEntityRank,
                         aIndex );
 
-                // MORIS_ASSERT(mEntityGlobaltoLocalMap(aCounter).find(tEntityId) == mEntityGlobaltoLocalMap(aCounter).end(),"ID already exists.");
+                // MORIS_ASSERT(mEntityGlobalToLocalMap(aCounter).find(tEntityId) == mEntityGlobalToLocalMap(aCounter).end(),"ID already exists.");
 
                 MORIS_ASSERT( tEntityId >= 0, "EntityID received is smaller than 0." );
 
-                mEntityGlobaltoLocalMap( aCounter )[ tEntityId ] = tCount;
+                mEntityGlobalToLocalMap( aCounter )[ tEntityId ] = tCount;
 
                 tCount++;
             }

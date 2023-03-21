@@ -98,12 +98,12 @@ namespace moris
             tParameterList.insert( "algorithm", "lbfgs" );    // Algorithm name, don't change
             tParameterList.insert( "restart_index", 0 );      // Restart iteration index
             tParameterList.insert( "max_its", 10 );           // maximum optimization iterations allowed
-            tParameterList.insert( "num_corr", 5 );           // number of limited memory corrections used in the BFGS update
+            tParameterList.insert( "num_corr", 5 );           // number of limited memory corrections used in the LBFGS update
 
             tParameterList.insert( "num_function_evaluations", 1000 );       // maximum number of function calls in inner iteration
             tParameterList.insert( "norm_drop", 1.0e-8 );                    // convergence criterion (converted internally to criterion used by LBFGS algorithm)
             tParameterList.insert( "grad_tol", 0.0 );                        // convergence criterion based on projected gradients
-            tParameterList.insert( "internal_lbfgs_print_severity", -1 );    // -1 supresses all printing
+            tParameterList.insert( "internal_lbfgs_print_severity", -1 );    // -1 suppresses all printing
 
             tParameterList.insert( "step_size", "1.0" );                 // default step size, 1.0 is for no modification
             tParameterList.insert( "outer_iteration_index", "0" );       // iterations to start the lbfgs
@@ -137,23 +137,23 @@ namespace moris
             tParameterList.insert( "Major iterations limit", 1000 );                // number of allowed major iterations
             tParameterList.insert( "Minor iterations limit", 500 );                 // number of allowed minor iterations
             tParameterList.insert( "Iterations limit", 10000 );                     // number of total minor iterations allowed over all major iterations
-            tParameterList.insert( "Major step limit", 2.0 );                       // limits the change in variable during linesearch
-            tParameterList.insert( "Superbasics limit", 500 );                      // places a limit on the storage of superbasic variables
+            tParameterList.insert( "Major step limit", 2.0 );                       // limits the change in variable during line search
+            tParameterList.insert( "Superbasics limit", 500 );                      // places a limit on the storage of super basic variables
             tParameterList.insert( "New superbasics limit", 99 );                   // controls early termination of QPs
             tParameterList.insert( "linesearch_type", "Derivative linesearch" );    // other options are:
-                                                                                    // "Nonderivative linesearch"
-            tParameterList.insert( "Linesearch tolerance", 0.9 );                   // controls accuracy of linesearch
+                                                                                    // "Non-derivative line-search"
+            tParameterList.insert( "Linesearch tolerance", 0.9 );                   // controls accuracy of line search
             tParameterList.insert( "Function precision", 3e-13 );                   // relative accuracy with which nonlinear functions are computed
             tParameterList.insert( "Difference interval", 5.5e-7 );                 // sets the interval for forward differencing
             tParameterList.insert( "Central difference interval", 6.7e-5 );         // sets the interval for central differencing
             tParameterList.insert( "Proximal point method", 1 );                    // satisfies linear constraints near initial guess
-            tParameterList.insert( "Violation limit", 10.0 );                       // limit on maximum constraint violation after linesearch
-            tParameterList.insert( "Unbounded step size", 1.0e18 );                 // determines unboundedness of linesearch step size
+            tParameterList.insert( "Violation limit", 10.0 );                       // limit on maximum constraint violation after line search
+            tParameterList.insert( "Unbounded step size", 1.0e18 );                 // determines unboundedness of line search step size
             tParameterList.insert( "Unbounded objective value", 1.0e15 );           // determines unboundedness of objective
             tParameterList.insert( "Infinite bound size", 1.0e+20 );                // any upper bound greater than this value is regarded as infinity
 
             // QP subproblems
-            tParameterList.insert( "Elastic weight", 2.0e+4 );      // weighting of infeasibilities in the objective of the QP subproblem
+            tParameterList.insert( "Elastic weight", 2.0e+4 );      // weighting of infeasibility in the objective of the QP subproblem
             tParameterList.insert( "Partial price", 1 );            // reduces the work required for each "pricing" operation
             tParameterList.insert( "Pivot tolerance", 3.7e-11 );    // guards the basis matrix from becoming singular
 

@@ -7,7 +7,7 @@ The goal of this chapter is to give an overview of the theoretical and algorithm
 %This chapter will lay out the some pieces of theory that are beneficial to understanding the mesh generation and its output. 
 As mentioned in the foreword, the output data is intended to perform interpolation-based immersed finite element analysis, the theory for which, with the exception of a brief introduction to \hyperref[sec:overview_extraction]{Lagrange extraction}, will not be discussed in this document. Instead the reader is advised to consult the publication by Fromm et al. \cite{Fromm2022}
 
-\refpar{moris_overview}{MORIS} ("Multi-physics Optimization Research and Innovation System") is a standalone finite element and topology optimization software framework. The analysis method utilized inside of MORIS itself is a quadrature-based immersed isogeometric method. The interpolation function basis is provided by a rectangular \hyperref[sec:overview_background]{tensor-product B-spline mesh}, the \textbf{background mesh}, that can be \hyperlink{hierarchical_refinement}{hierarchically refined}. Next, geometries are immersed into said mesh. The geometry is described implicitly by \hyperref[sec:overview_geometry]{level-set fields} $\Phi(\bm{x})$ and their iso-contours  $\Phi(\bm{x}) = c$. A quadrature rule for evaluating the discretized weak form is found by tessellating, or \hyperlink{decomposition}{"\emph{decomposing}"}, the background mesh's elements intersected by the iso-contours into triangles or tetrahedrons whose Gauss points and weights provide the integration rule. Additionally, the background basis is \hyperlink{enrichment}{Heaviside enriched} to solve problems involving multiple materials. For the interested reader, the isogeometric analysis framework inside of MORIS is explained in more detail by No\"el et al. \cite{Noel2022} and Schmidt et al. \cite{Schmidt2022}.
+\refpar{moris_overview}{MORIS} ("Multi-physics Optimization Research and Innovation System") is a standalone finite element and topology optimization software framework. The analysis method utilized inside MORIS itself is a quadrature-based immersed isogeometric method. The interpolation function basis is provided by a rectangular \hyperref[sec:overview_background]{tensor-product B-spline mesh}, the \textbf{background mesh}, that can be \hyperlink{hierarchical_refinement}{hierarchically refined}. Next, geometries are immersed into said mesh. The geometry is described implicitly by \hyperref[sec:overview_geometry]{level-set fields} $\Phi(\bm{x})$ and their iso-contours  $\Phi(\bm{x}) = c$. A quadrature rule for evaluating the discretized weak form is found by tessellating, or \hyperlink{decomposition}{"\emph{decomposing}"}, the background mesh's elements intersected by the iso-contours into triangles or tetrahedrons whose Gauss points and weights provide the integration rule. Additionally, the background basis is \hyperlink{enrichment}{Heaviside enriched} to solve problems involving multiple materials. For the interested reader, the isogeometric analysis framework inside MORIS is explained in more detail by No\"el et al. \cite{Noel2022} and Schmidt et al. \cite{Schmidt2022}.
 
 The set of non-intersected background elements and triangular elements within intersected elements together form a body-fitted mesh which from here on will be referred to as the \textbf{foreground mesh}. This body-fitted foreground mesh and its known relation to the background mesh together form the mesh information needed for interpolation-based immersed analysis. Hence, the mesh generation abilities of MORIS can directly be exploited to provide all mesh information needed to perform interpolation-based immersed finite element analysis.
 
@@ -37,7 +37,7 @@ The remainder of this chapter is structured as follows. First, a short introduct
 \label{sec:overview_geometry}
 
 As mentioned above, geometry in MORIS is described implicitly by a level-set field $\Phi_i(\bm{x})$ and a threshold $c$, which is assumed to be $c=0$ from here on, determining the locations of interfaces. 
-This leads to a natural definition of what is \emph{inside} and \emph{outside} of a given geometry. 
+This leads to a natural definition of what is \emph{inside} and \emph{outside} a given geometry. 
 
 \begin{equation}
 \label{eq:level_set_field}
@@ -69,7 +69,7 @@ Any geometry definition that has a notion of "inside" and "outside" can be conve
 
 \paragraph{Tensor-Product B-spline Basis}
 B-spline basis functions are used to define the function basis of the background mesh. 
-The B-spline basis functions $N_{i,p}$ of polynomial order $p$ are defined by a knot vector $\left\{\xi_i\right\}_{i = 1}^{n}$ containing a set of control points, and the Cox-de Boor recursive formula.  The definition of the $i$-th basis function starts with piecewise constant parts for zeroth order $p=0$ B-spline basis function.
+The B-spline basis functions $N_{i,p}$ of polynomial order $p$ are defined by a knot vector $\left\{\xi_i\right\}_{i = 1}^{n}$ containing a set of control points, and the Cox-de Boor recursive formula.  The definition of the $i$-th basis function starts with piece-wise constant parts for zeroth order $p=0$ B-spline basis function.
 
 \vspace*{0.3cm}
 
@@ -111,7 +111,7 @@ The definition of the basis is extended into multiple ($d$) spatial dimensions b
     N_{i_1, \cdots, i_d}(\bm{\xi}) = \prod_{d}^{n_d}N_{i_d}(\xi_d)
 \end{equation}
 
-The basic tensor-product B-spline basis used inside of MORIS is constructed from an equispaced grid whose lines represent the unique control points used to define the B-spline basis functions in each spatial dimension.
+The basic tensor-product B-spline basis used inside MORIS is constructed from an equispaced grid whose mesh lines represent the unique control points used to define the B-spline basis functions in each spatial dimension.
 
 \paragraph{Hierarchical Refinement}
 \hypertarget{hierarchical_refinement}{}
@@ -137,7 +137,7 @@ Instead, a hierarchical basis definition is employed to perform local refinement
 
 Each B-spline basis function can be represented as a sum of translated, scaled and weighted versions of itself, like shown in \Cref{fig:truncation}. These \emph{finer} versions of a \emph{coarse} basis function are constructed from the coarse knot vectors that have additional knots inserted at the midpoints of their knot intervals.
 
-This allows a coarse basis function at a refinement level $l$ to be replaced by a weighted set of basis functions of refinement level $l+1$. The underlying tensor-product elements can be understood to undergo \textbf{quadtree or octtree refinement} due to the introduction of additional mesh lines splitting them into four or eight elements in 2D and 3D respectively.
+This allows a coarse basis function at a refinement level $l$ to be replaced by a weighted set of basis functions of refinement level $l+1$. The underlying tensor-product elements can be understood to undergo \textbf{quadtree or octree refinement} due to the introduction of additional mesh lines splitting them into four or eight elements in 2D and 3D respectively.
 
 The domain of the elements on a given \emph{level} $l$ marked for refinement is denoted as $\Omega^{l+1}$. On this domain $\Omega^{l+1}$, e.g. the single element domain $\Omega^{1} = [2,3]$ shown in \Cref{fig:thb_basis}, a set of finer basis functions interpolating into it is constructed on the refined level $l+1$. Assuming that all coarse basis functions $N^l$ are represented by a weighted sum of finer basis functions $N^{l+1}$, the contribution of the finer basis functions actually constructed can be subtracted from them. This leads to either \textbf{truncation} or removal of the coarse basis functions as shown in the top row of \Cref{fig:thb_basis}. The definition of the resulting truncated coarse basis functions can be stated as:
 \begin{equation}

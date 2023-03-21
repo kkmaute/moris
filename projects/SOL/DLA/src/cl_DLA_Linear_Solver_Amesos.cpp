@@ -168,17 +168,29 @@ Linear_Solver_Amesos::solve_linear_system(
     error = mAmesosSolver->Solve();
     MORIS_ERROR( error == 0, "Error in solving linear system with Amesos" );
 
+    // compute exact residuals
+    if ( mParameterList.get< bool >( "ComputeTrueResidual" ) )
+    {
+        Matrix< DDRMat > tRelativeResidualNorm = aLinearSystem->compute_residual_of_linear_system();
+
+        for ( uint i = 0; i < tRelativeResidualNorm.numel(); i++ )
+        {
+            MORIS_LOG_SPEC( "LinearResidualNorm_RHS_" + std::to_string( i ), tRelativeResidualNorm( i ) );
+        }
+    }
+
+    // Set flag
     mIsPastFirstSolve = true;
 
     // Get chosen times from solver
     mAmesosSolver->GetTiming( timingsList );
 
-    // FIXME: should be only on demand - not by default
-    if ( tSolverType == "Amesos_Umfpack" )
+    // Compute condition number
+    if ( tSolverType == "Amesos_Umfpack" && mParameterList.get< bool >( "ComputeConditionNumber" ) )
     {
         real tConditionNumber = reinterpret_cast< Amesos_Umfpack* >( mAmesosSolver )->GetRcond();
 
-        MORIS_LOG_SPEC( "Condition Number of Operator: ", tConditionNumber );
+        MORIS_LOG_SPEC( "Condition Number of Operator: ", 1.0 / tConditionNumber );
     }
 
     const moris::real endSolTime = Teuchos::getParameter< moris::real >( timingsList, "Total solve time" );

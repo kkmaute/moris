@@ -45,8 +45,9 @@ namespace moris
 
             // Lagrange Meshes that are used as output meshes
             tParameterList.insert( "lagrange_output_meshes", "" );
-            // Lagrange Meshe Names of output meshes
-            tParameterList.insert( "lagrange_output_meshe_names", "" );
+
+            // Lagrange Mesh Names of output meshes
+            tParameterList.insert( "lagrange_output_mesh_names", "" );
             // Lagrange Meshes that are used as input meshes
             tParameterList.insert( "lagrange_input_meshes", "" );
 

@@ -199,7 +199,7 @@ void
 Map_PETSc::translator(
         const moris::uint&      aMaxDofsId,
         const moris::uint&      aNumMyDofs,
-        const Matrix< DDSMat >& aMyLocaltoGlobalMap,
+        const Matrix< DDSMat >& aMyLocalToGlobalMap,
         Matrix< DDSMat >&       aMyFreeDofs,
         const Matrix< DDUMat >& aMyConstraintDofs )
 {
@@ -219,9 +219,9 @@ Map_PETSc::translator(
     moris::uint tCount = 0;
     for ( moris::uint k = 0; k < aNumMyDofs; ++k )
     {
-        if ( !tBitset.test( aMyLocaltoGlobalMap( k, 0 ) ) )
+        if ( !tBitset.test( aMyLocalToGlobalMap( k, 0 ) ) )
         {
-            aMyFreeDofs( tCount++, 0 ) = aMyLocaltoGlobalMap( k, 0 );
+            aMyFreeDofs( tCount++, 0 ) = aMyLocalToGlobalMap( k, 0 );
         }
     }
 

@@ -51,7 +51,7 @@ namespace moris
                 // set reference norm
                 tRefNorm = tResNorm;
 
-                // store reference with solver mangager of solver algorithm
+                // store reference with solver manager of solver algorithm
                 tNonLinSolver->mMyNonLinSolverManager->set_ref_norm( tRefNorm );
 
                 // compute static residual norm
@@ -60,7 +60,7 @@ namespace moris
                     // compute and store static residual
                     real tStaticResNorm = tNonLinSolver->mNonlinearProblem->get_static_residual_norm();
 
-                    // store reference with solver mangager of solver algorithm
+                    // store reference with solver manager of solver algorithm
                     tNonLinSolver->mMyNonLinSolverManager->set_static_ref_norm( tStaticResNorm );
 
                     // log reference norm for static residual
@@ -80,7 +80,7 @@ namespace moris
             MORIS_LOG_SPEC( "ResidualNorm", tResNorm );
             MORIS_LOG_SPEC( "SolutionNorm", solNorm( 0 ) );
 
-            // store current residual with solver mangager of solver algorithm
+            // store current residual with solver manager of solver algorithm
             tNonLinSolver->mMyNonLinSolverManager->set_residual_norm( tResNorm );
 
             // log relative drop of residual
@@ -134,7 +134,7 @@ namespace moris
                     // compute and store static residual
                     real tStaticResNorm = tNonLinSolver->mNonlinearProblem->get_static_residual_norm();
 
-                    // store reference with solver mangager of solver algorithm
+                    // store reference with solver manager of solver algorithm
                     tNonLinSolver->mMyNonLinSolverManager->set_static_residual_norm( tStaticResNorm );
 
                     // log norm pf static residual

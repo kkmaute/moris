@@ -10,6 +10,11 @@
 
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
 #include "typedefs.hpp"
+
+#include <set>
+
+#include "fn_stringify_matrix.hpp"
+
 #include "cl_Cell.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Vertex.hpp"
@@ -78,9 +83,9 @@ namespace xtk
         mIgCellIndexToCellOrdinal.erase( aCell );
 
         // rewrite index to ordinal map
-        std::unordered_map< moris::moris_index, moris::moris_index > tTempMap;
+        std::unordered_map< moris_index, moris_index > tTempMap;
 
-        for ( std::pair< moris::moris_index, moris::moris_index > el : mIgCellIndexToCellOrdinal )
+        for ( std::pair< moris_index, moris_index > el : mIgCellIndexToCellOrdinal )
         {
             moris_index key = el.first;
             moris_index val = el.second;
@@ -111,9 +116,9 @@ namespace xtk
     void
     IG_Cell_Group::shift_indices( moris_index aCell )
     {
-        std::unordered_map< moris::moris_index, moris::moris_index > tTempMap;
+        std::unordered_map< moris_index, moris_index > tTempMap;
 
-        for ( std::pair< moris::moris_index, moris::moris_index > el : mIgCellIndexToCellOrdinal )
+        for ( std::pair< moris_index, moris_index > el : mIgCellIndexToCellOrdinal )
         {
             moris_index key = el.first;
             moris_index val = el.second;
@@ -235,7 +240,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::uint
+    uint
     IG_Vertex_Group::get_vertex_local_coords_dim() const
     {
         if ( mIgVertexLocalCoords.size() > 0 )
@@ -254,7 +259,7 @@ namespace xtk
     IG_Vertex_Group::print()
     {
         // iterate through vertices
-        for ( moris::uint iV = 0; iV < this->size(); iV++ )
+        for ( uint iV = 0; iV < this->size(); iV++ )
         {
             std::cout << std::setw( 8 ) << iV << " : ";
             std::cout << "Vertex Id: " << std::setw( 8 ) << mIgVertexGroup( iV )->get_id();
@@ -263,7 +268,7 @@ namespace xtk
             Matrix< DDRMat > tVertexCoords = mIgVertexGroup( iV )->get_coords();
 
             std::cout << " | Coords:";
-            for ( moris::uint iSpatial = 0; iSpatial < tVertexCoords.numel(); iSpatial++ )
+            for ( uint iSpatial = 0; iSpatial < tVertexCoords.numel(); iSpatial++ )
             {
                 std::cout << " " << std::setw( 16 ) << std::scientific << tVertexCoords( iSpatial );
             }
@@ -283,9 +288,9 @@ namespace xtk
         mIgVertexIndexToVertexOrdinal.erase( aVertex );
 
         // rewrite index to ordinal map
-        std::unordered_map< moris::moris_index, moris::moris_index > tTempMap;
+        std::unordered_map< moris_index, moris_index > tTempMap;
 
-        for ( std::pair< moris::moris_index, moris::moris_index > el : mIgVertexIndexToVertexOrdinal )
+        for ( std::pair< moris_index, moris_index > el : mIgVertexIndexToVertexOrdinal )
         {
             moris_index key = el.first;
             moris_index val = el.second;
@@ -309,9 +314,9 @@ namespace xtk
     void
     IG_Vertex_Group::shift_indices( moris_index aVertex )
     {
-        std::unordered_map< moris::moris_index, moris::moris_index > tTempMap;
+        std::unordered_map< moris_index, moris_index > tTempMap;
 
-        for ( std::pair< moris::moris_index, moris::moris_index > el : mIgVertexIndexToVertexOrdinal )
+        for ( std::pair< moris_index, moris_index > el : mIgVertexIndexToVertexOrdinal )
         {
             moris_index key = el.first;
             moris_index val = el.second;
@@ -338,8 +343,8 @@ namespace xtk
         mSpatialDimension = aBackgroundMesh->get_spatial_dim();
 
         // setup the integration cells
-        moris::uint tNumBackgroundCells    = mBackgroundMesh->get_num_elems();
-        moris::uint tNumBackgroundVertices = mBackgroundMesh->get_num_nodes();
+        uint tNumBackgroundCells    = mBackgroundMesh->get_num_elems();
+        uint tNumBackgroundVertices = mBackgroundMesh->get_num_nodes();
 
         // cell setup
         mIntegrationCells.resize( tNumBackgroundCells, nullptr );
@@ -349,7 +354,7 @@ namespace xtk
 
         mIntegrationCellBulkPhase.resize( tNumBackgroundCells, MORIS_INDEX_MAX );
 
-        for ( moris::uint iCell = 0; iCell < tNumBackgroundCells; iCell++ )
+        for ( uint iCell = 0; iCell < tNumBackgroundCells; iCell++ )
         {
             mIntegrationCells( iCell ) = &mBackgroundMesh->get_mtk_cell( (moris_index)iCell );
 
@@ -369,7 +374,7 @@ namespace xtk
         mIgVertexParentEntityIndex.resize( tNumBackgroundVertices );
         mIgVertexParentEntityRank.resize( tNumBackgroundVertices, 0 );
 
-        for ( moris::uint iV = 0; iV < tNumBackgroundVertices; iV++ )
+        for ( uint iV = 0; iV < tNumBackgroundVertices; iV++ )
         {
             // get a vertex pointer into our data
             mIntegrationVertices( iV ) = &mBackgroundMesh->get_mtk_vertex( (moris_index)iV );
@@ -458,7 +463,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::uint
+    uint
     Cut_Integration_Mesh::get_num_sets() const
     {
         return 0;
@@ -493,6 +498,28 @@ namespace xtk
     Matrix< IdMat >
     Cut_Integration_Mesh::get_communication_table() const
     {
+        return mCommunicationTable;
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    std::map< moris_id, moris_index >
+    Cut_Integration_Mesh::get_communication_map()
+    {
+        // construct the index map if it hasn't already, or the communication table was updated
+        if ( !mCommMapHasBeenConstructed )
+        {
+            mCommunicationMap.clear();
+            for ( uint iProc = 0; iProc < mCommunicationTable.numel(); iProc++ )
+            {
+                mCommunicationMap[ mCommunicationTable( iProc ) ] = (moris_index)iProc;
+            }
+        }
+
+        // mark the index map as constructed
+        mCommMapHasBeenConstructed = true;
+
+        // return the index map
         return mCommunicationMap;
     }
 
@@ -501,15 +528,18 @@ namespace xtk
     void
     Cut_Integration_Mesh::add_proc_to_comm_table( moris_index aProcRank )
     {
-        moris_index tIndex = mCommunicationMap.numel();
+        moris_index tIndex = mCommunicationTable.numel();
 
-        for ( moris::uint i = 0; i < mCommunicationMap.numel(); i++ )
+        for ( uint i = 0; i < mCommunicationTable.numel(); i++ )
         {
-            MORIS_ERROR( mCommunicationMap( i ) != aProcRank, "Processor rank already in communication table" );
+            MORIS_ERROR( mCommunicationTable( i ) != aProcRank, "Processor rank already in communication table" );
         }
 
-        mCommunicationMap.resize( 1, mCommunicationMap.numel() + 1 );
-        mCommunicationMap( tIndex ) = aProcRank;
+        mCommunicationTable.resize( 1, mCommunicationTable.numel() + 1 );
+        mCommunicationTable( tIndex ) = aProcRank;
+
+        // mark the index map as needing to be re-constructed
+        mCommMapHasBeenConstructed = false;
     }
 
     // ----------------------------------------------------------------------------------
@@ -524,7 +554,7 @@ namespace xtk
         {
             Matrix< IndexMat > tCellIndices( 1, tCellsInBlock->mIgCellGroup.size() );
 
-            for ( moris::uint iCell = 0; iCell < tCellsInBlock->mIgCellGroup.size(); iCell++ )
+            for ( uint iCell = 0; iCell < tCellsInBlock->mIgCellGroup.size(); iCell++ )
             {
                 tCellIndices( iCell ) = tCellsInBlock->mIgCellGroup( iCell )->get_index();
             }
@@ -540,7 +570,7 @@ namespace xtk
     enum CellTopology
     Cut_Integration_Mesh::get_blockset_topology( const std::string& aSetName )
     {
-        // getindex
+        // get index
         moris_index tBlockIndex = this->get_block_set_index( aSetName );
 
         return mBlockCellTopo( tBlockIndex );
@@ -601,6 +631,7 @@ namespace xtk
             auto tIter = mIntegrationVertexIdToIndexMap.find( aEntityId );
 
             MORIS_ERROR( tIter != mIntegrationVertexIdToIndexMap.end(),
+                    "Cut_Integration_Mesh::get_loc_entity_ind_from_entity_glb_id() - "
                     "Provided Entity Id is not in the map, Has the map been initialized?: aEntityId =%u EntityRank = %u on process %u",
                     aEntityId,
                     (uint)aEntityRank,
@@ -612,6 +643,7 @@ namespace xtk
             auto tIter = mIntegrationCellIdToIndexMap.find( aEntityId );
 
             MORIS_ERROR( tIter != mIntegrationCellIdToIndexMap.end(),
+                    "Cut_Integration_Mesh::get_loc_entity_ind_from_entity_glb_id() - "
                     "Provided Entity Id is not in the map, Has the map been initialized?: aEntityId =%u EntityRank = %u on process %u",
                     aEntityId,
                     (uint)aEntityRank,
@@ -695,7 +727,7 @@ namespace xtk
     Matrix< IndexMat >
     Cut_Integration_Mesh::get_block_entity_loc_inds( std::string aSetName ) const
     {
-        // ge tindex
+        // get index
         moris_index tBlockIndex = this->get_block_set_index( aSetName );
 
         // get cells in set
@@ -703,7 +735,7 @@ namespace xtk
 
         Matrix< IndexMat > tCellIndices( 1, tCellsInBlock->mIgCellGroup.size() );
 
-        for ( moris::uint iCell = 0; iCell < tCellsInBlock->mIgCellGroup.size(); iCell++ )
+        for ( uint iCell = 0; iCell < tCellsInBlock->mIgCellGroup.size(); iCell++ )
         {
             tCellIndices( iCell ) = tCellsInBlock->mIgCellGroup( iCell )->get_index();
         }
@@ -740,13 +772,13 @@ namespace xtk
 
         if ( tCellSidesInSet != nullptr )
         {
-            moris::uint tNumSides = tCellSidesInSet->mIgCells.size();
+            uint tNumSides = tCellSidesInSet->mIgCells.size();
 
             // size outputs
             aElemIndices.resize( 1, tNumSides );
             aSidesetOrdinals.resize( 1, tNumSides );
 
-            for ( moris::uint iSide = 0; iSide < tNumSides; iSide++ )
+            for ( uint iSide = 0; iSide < tNumSides; iSide++ )
             {
                 aElemIndices( iSide )     = tCellSidesInSet->mIgCells( iSide )->get_index();
                 aSidesetOrdinals( iSide ) = tCellSidesInSet->mIgCellSideOrdinals( iSide );
@@ -943,7 +975,7 @@ namespace xtk
             moris_index                            aCellIndex,
             std::shared_ptr< xtk::Cell_XTK_No_CM > aNewCell )
     {
-        MORIS_ERROR( (moris::uint)aCellIndex >= mIntegrationCells.size(), "Index mismatch between adding cell and current data." );
+        MORIS_ERROR( (uint)aCellIndex >= mIntegrationCells.size(), "Index mismatch between adding cell and current data." );
 
         mControlledIgCells.push_back( aNewCell );
         mIntegrationCells.push_back( aNewCell.get() );
@@ -991,8 +1023,8 @@ namespace xtk
         MORIS_ERROR( aCellIndex < (moris_index)mIntegrationCells.size(),
                 "Cut_Integration_Mesh::add_cell_to_cell_group() - Cell Index out of bounds." );
 
-        //mIntegrationCellGroups( aCellGroupIndex )->mIgCellGroup.push_back( mIntegrationCells( aCellIndex ) );
-        mIntegrationCellGroups(aCellGroupIndex)->add_Cell( mIntegrationCells( aCellIndex ) );
+        // mIntegrationCellGroups( aCellGroupIndex )->mIgCellGroup.push_back( mIntegrationCells( aCellIndex ) );
+        mIntegrationCellGroups( aCellGroupIndex )->add_Cell( mIntegrationCells( aCellIndex ) );
         mIntegrationCellToCellGroupIndex( aCellIndex ).push_back( aCellGroupIndex );
     }
 
@@ -1000,7 +1032,7 @@ namespace xtk
 
     moris_id
     Cut_Integration_Mesh::allocate_entity_ids(
-            moris::size_t   aNumIdstoAllocate,
+            moris::size_t   aNumIdsToAllocate,
             enum EntityRank aEntityRank )
     {
         MORIS_ERROR( aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT, "Only node and element ids can be allocated with xtk." );
@@ -1009,15 +1041,15 @@ namespace xtk
 
         // size_t is defined as uint here because of aNumRequested
         // Initialize gathered information outputs (information which will be scattered across processors)
-        moris::Cell< moris::moris_id > aGatheredInfo;
-        moris::Cell< moris::moris_id > tFirstId( 1 );
-        moris::Cell< moris::moris_id > tNumIdsRequested( 1 );
+        moris::Cell< moris_id > aGatheredInfo;
+        moris::Cell< moris_id > tFirstId( 1 );
+        moris::Cell< moris_id > tNumIdsRequested( 1 );
 
-        tNumIdsRequested( 0 ) = (moris::moris_id)aNumIdstoAllocate;
+        tNumIdsRequested( 0 ) = (moris_id)aNumIdsToAllocate;
 
         moris::gather( tNumIdsRequested, aGatheredInfo );
 
-        moris::Cell< moris::moris_id > tProcFirstID( tProcSize );
+        moris::Cell< moris_id > tProcFirstID( tProcSize );
 
         if ( tProcRank == 0 )
         {
@@ -1052,25 +1084,25 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     moris_id
-    Cut_Integration_Mesh::allocate_subphase_ids( moris::size_t aNumIdstoAllocate )
+    Cut_Integration_Mesh::allocate_subphase_ids( moris::size_t aNumIdsToAllocate )
     {
         int tProcRank = moris::par_rank();
         int tProcSize = moris::par_size();
 
         // size_t is defined as uint here because of aNumRequested
         // Initialize gathered information outputs (information which will be scattered across processors)
-        moris::Cell< moris::moris_id > aGatheredInfo;
-        moris::Cell< moris::moris_id > tFirstId( 1 );
-        moris::Cell< moris::moris_id > tNumIdsRequested( 1 );
+        moris::Cell< moris_id > aGatheredInfo;
+        moris::Cell< moris_id > tFirstId( 1 );
+        moris::Cell< moris_id > tNumIdsRequested( 1 );
 
         // put current processors ID request size into the Cell that will be shared across procs
-        tNumIdsRequested( 0 ) = (moris::moris_id)aNumIdstoAllocate;
+        tNumIdsRequested( 0 ) = (moris_id)aNumIdsToAllocate;
 
         // hand ID range size request to root processor
         moris::gather( tNumIdsRequested, aGatheredInfo );
 
         // initialize list holding the first ID in range for each processor
-        moris::Cell< moris::moris_id > tProcFirstID( tProcSize );
+        moris::Cell< moris_id > tProcFirstID( tProcSize );
 
         // Subphase IDs up to the number of IP cells have already been used. Hence, the first free ID is:
         moris_index tFirstSubphaseId = mBackgroundMesh->get_max_entity_id( EntityRank::ELEMENT ) + 1;
@@ -1099,7 +1131,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::moris_index
+    moris_index
     Cut_Integration_Mesh::get_first_available_index( enum EntityRank aEntityRank ) const
     {
         MORIS_ERROR( aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT, "Only can handle this question for nodes and elements" );
@@ -1119,7 +1151,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::uint
+    uint
     Cut_Integration_Mesh::get_num_ig_cell_groups()
     {
         return mIntegrationCellGroups.size();
@@ -1166,7 +1198,7 @@ namespace xtk
     {
         moris::Cell< std::shared_ptr< IG_Cell_Group > > tIgCellSubphases( aSubphasesGroups.size() );
 
-        for ( moris::uint i = 0; i < aSubphasesGroups.size(); i++ )
+        for ( uint i = 0; i < aSubphasesGroups.size(); i++ )
         {
             tIgCellSubphases( i ) = mSubPhaseCellGroups( aSubphasesGroups( i ) );
         }
@@ -1176,7 +1208,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::uint
+    uint
     Cut_Integration_Mesh::get_num_subphases()
     {
         return mSubPhaseCellGroups.size();
@@ -1184,7 +1216,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    moris::uint
+    uint
     Cut_Integration_Mesh::get_num_subphase_groups( moris_index aMeshIndexInList )
     {
         return mBsplineMeshInfos( aMeshIndexInList )->get_num_SPGs();
@@ -1442,9 +1474,9 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Cut_Integration_Mesh::set_bulk_phase_to_bulk_phase_dbl_side_interface( moris::Cell< moris::Cell< std::shared_ptr< IG_Cell_Double_Side_Group > > >& aBptoBpDblSideInterfaces )
+    Cut_Integration_Mesh::set_bulk_phase_to_bulk_phase_dbl_side_interface( moris::Cell< moris::Cell< std::shared_ptr< IG_Cell_Double_Side_Group > > >& aBpToBpDblSideInterfaces )
     {
-        mBptoBpDblSideInterfaces = aBptoBpDblSideInterfaces;
+        mBpToBpDblSideInterfaces = aBpToBpDblSideInterfaces;
     }
 
     // ----------------------------------------------------------------------------------
@@ -1452,20 +1484,20 @@ namespace xtk
     moris::Cell< moris::Cell< std::shared_ptr< IG_Cell_Double_Side_Group > > > const &
     Cut_Integration_Mesh::get_bulk_phase_to_bulk_phase_dbl_side_interface()
     {
-        return mBptoBpDblSideInterfaces;
+        return mBpToBpDblSideInterfaces;
     }
 
     // ----------------------------------------------------------------------------------
 
     void
-    Cut_Integration_Mesh::set_background_facet_to_child_facet_connectivity( moris::Cell< std::shared_ptr< moris::Cell< moris::moris_index > > > const & aBgtoChildFacet )
+    Cut_Integration_Mesh::set_background_facet_to_child_facet_connectivity( moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const & aBgToChildFacet )
     {
-        mBGFacetToChildFacet = aBgtoChildFacet;
+        mBGFacetToChildFacet = aBgToChildFacet;
     }
 
     // ----------------------------------------------------------------------------------
 
-    moris::Cell< std::shared_ptr< moris::Cell< moris::moris_index > > > const &
+    moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > const &
     Cut_Integration_Mesh::get_background_facet_to_child_facet_connectivity()
     {
         return mBGFacetToChildFacet;
@@ -1509,7 +1541,7 @@ namespace xtk
     Cut_Integration_Mesh::setup_glob_to_loc_subphase_map()
     {
         mGlobalToLocalSubphaseMap.clear();
-        for ( moris::uint i = 0; i < this->get_num_subphases(); i++ )
+        for ( uint i = 0; i < this->get_num_subphases(); i++ )
         {
             moris_id tSubphaseId = this->get_subphase_id( (moris_id)i );
             if ( tSubphaseId == MORIS_INDEX_MAX )
@@ -1531,16 +1563,16 @@ namespace xtk
         Bspline_Mesh_Info* tBsplineMeshInfo = mBsplineMeshInfos( aBsplineMeshListIndex );
 
         // get access to the map stored in the B-spline mesh info
-        std::unordered_map< moris::moris_id, moris::moris_index >& tSpgIdtoIndexMap = tBsplineMeshInfo->mSpgIdtoIndexMap;
+        std::unordered_map< moris_id, moris_index >& tSpgIdToIndexMap = tBsplineMeshInfo->mSpgIdToIndexMap;
 
         // clear any information that may already be in it
-        tSpgIdtoIndexMap.clear();
+        tSpgIdToIndexMap.clear();
 
         // get the number of SPGs on the current B-spline mesh and processor
         uint tNumSpgs = tBsplineMeshInfo->get_num_SPGs();
 
         // loop over all SPGs and put their IDs in the map
-        for ( moris::uint iSPG = 0; iSPG < tNumSpgs; iSPG++ )
+        for ( uint iSPG = 0; iSPG < tNumSpgs; iSPG++ )
         {
             // get the ID of the currently treated SPG
             moris_id tSpgId = tBsplineMeshInfo->get_id_for_spg_index( iSPG );
@@ -1550,12 +1582,12 @@ namespace xtk
                     "Cut_Integration_Mesh::construct_spg_id_to_index_map() - "
                     "Subphase Group ID not set. Should be set when this function is called." );
 
-            MORIS_ASSERT( tSpgIdtoIndexMap.find( tSpgId ) == tSpgIdtoIndexMap.end(),
+            MORIS_ASSERT( tSpgIdToIndexMap.find( tSpgId ) == tSpgIdToIndexMap.end(),
                     "Cut_Integration_Mesh::construct_spg_id_to_index_map() - "
                     "Subphase id already in map" );
 
             // fill map
-            tSpgIdtoIndexMap[ tSpgId ] = iSPG;
+            tSpgIdToIndexMap[ tSpgId ] = iSPG;
         }
     }
 
@@ -1578,7 +1610,7 @@ namespace xtk
         Cell< moris_index > tSideSetOrds( tNumSetsToRegister );
 
         // iterate and add sets
-        for ( moris::uint i = 0; i < tNumSetsToRegister; i++ )
+        for ( uint i = 0; i < tNumSetsToRegister; i++ )
         {
             tSideSetOrds( i ) = mSideSetLabels.size();
 
@@ -1606,7 +1638,7 @@ namespace xtk
         Cell< moris_index > tBlockOrds( tNumSetsToRegister );
 
         // iterate and add sets
-        for ( moris::uint i = 0; i < tNumSetsToRegister; i++ )
+        for ( uint i = 0; i < tNumSetsToRegister; i++ )
         {
             tBlockOrds( i ) = mBlockSetNames.size();
 
@@ -1694,11 +1726,23 @@ namespace xtk
     moris::Cell< moris_index > const &
     Cut_Integration_Mesh::get_union_MSD_indices_for_base_IP_cell( const moris_index aBaseIpCellIndex ) const
     {
-        MORIS_ASSERT( mUnionMsdInidices.size() > 0,
+        MORIS_ASSERT( mUnionVoidMsdIndices.size() > 0,
                 "Cut_Integration_Mesh::get_union_MSD_indices_for_base_IP_cell() - information not constructed yet" );
-        MORIS_ASSERT( mUnionMsdInidices.size() > (uint)aBaseIpCellIndex,
+        MORIS_ASSERT( mUnionVoidMsdIndices.size() > (uint)aBaseIpCellIndex,
                 "Cut_Integration_Mesh::get_union_MSD_indices_for_base_IP_cell() - IP cell index out of bounds" );
-        return mUnionMsdInidices( aBaseIpCellIndex );
+        return mUnionVoidMsdIndices( aBaseIpCellIndex );
+    }
+
+    // ----------------------------------------------------------------------------------
+
+    moris::Cell< moris_index > const &
+    Cut_Integration_Mesh::get_bulk_phases_for_union_MSD_indices_for_base_IP_cell( const moris_index aBaseIpCellIndex ) const
+    {
+        MORIS_ASSERT( mUnionVoidMsdIndexBulkPhases.size() > 0,
+                "Cut_Integration_Mesh::get_bulk_phases_for_union_MSD_indices_for_base_IP_cell() - information not constructed yet" );
+        MORIS_ASSERT( mUnionVoidMsdIndexBulkPhases.size() > (uint)aBaseIpCellIndex,
+                "Cut_Integration_Mesh::get_bulk_phases_for_union_MSD_indices_for_base_IP_cell() - IP cell index out of bounds" );
+        return mUnionVoidMsdIndexBulkPhases( aBaseIpCellIndex );
     }
 
     // ----------------------------------------------------------------------------------
@@ -1778,7 +1822,7 @@ namespace xtk
         }
         // max num verts to cells
         uint tMaxVertsToCell = 0;
-        for ( moris::uint i = 0; i < this->get_num_entities( EntityRank::ELEMENT, 0 ); i++ )
+        for ( uint i = 0; i < this->get_num_entities( EntityRank::ELEMENT, 0 ); i++ )
         {
             mtk::Cell& tCell = this->get_mtk_cell( (moris_index)i );
             if ( tCell.get_number_of_vertices() > tMaxVertsToCell )
@@ -1793,7 +1837,7 @@ namespace xtk
         tStringStream << "PRank,";
         tStringStream << "Phase,";
         tStringStream << "Measure,";
-        for ( moris::uint iVH = 0; iVH < tMaxVertsToCell; iVH++ )
+        for ( uint iVH = 0; iVH < tMaxVertsToCell; iVH++ )
         {
             tStringStream << "Vert_" + std::to_string( iVH );
 
@@ -1804,7 +1848,7 @@ namespace xtk
         }
         tStringStream << "\n";
 
-        for ( moris::uint i = 0; i < this->get_num_entities( EntityRank::ELEMENT, 0 ); i++ )
+        for ( uint i = 0; i < this->get_num_entities( EntityRank::ELEMENT, 0 ); i++ )
         {
             mtk::Cell&                         tCell     = this->get_mtk_cell( (moris_index)i );
             moris::Cell< moris::mtk::Vertex* > tVertices = tCell.get_vertex_pointers();
@@ -1816,7 +1860,7 @@ namespace xtk
             tStringStream << std::to_string( this->get_cell_bulk_phase( i ) ) + ",";
             tStringStream << std::scientific << tCell.compute_cell_measure() << ",";
 
-            for ( moris::uint j = 0; j < tMaxVertsToCell; j++ )
+            for ( uint j = 0; j < tMaxVertsToCell; j++ )
             {
                 if ( j < tVertices.size() )
                 {
@@ -1859,7 +1903,7 @@ namespace xtk
         tStringStream << "Owner,";
         tStringStream << "Prank,";
 
-        for ( moris::uint iVH = 0; iVH < this->get_spatial_dim(); iVH++ )
+        for ( uint iVH = 0; iVH < this->get_spatial_dim(); iVH++ )
         {
             tStringStream << "Coords_" + std::to_string( iVH );
 
@@ -1871,7 +1915,7 @@ namespace xtk
 
         tStringStream << std::endl;
 
-        for ( moris::uint i = 0; i < this->get_num_entities( EntityRank::NODE, 0 ); i++ )
+        for ( uint i = 0; i < this->get_num_entities( EntityRank::NODE, 0 ); i++ )
         {
             mtk::Vertex& tVertex = this->get_mtk_vertex( (moris_index)i );
             tStringStream.precision( 16 );
@@ -1883,7 +1927,7 @@ namespace xtk
 
             moris::Matrix< moris::DDRMat > tCoords = tVertex.get_coords();
 
-            for ( moris::uint iSp = 0; iSp < this->get_spatial_dim(); iSp++ )
+            for ( uint iSp = 0; iSp < this->get_spatial_dim(); iSp++ )
             {
                 tStringStream << std::scientific << tCoords( iSp );
 
@@ -1918,7 +1962,7 @@ namespace xtk
 
         // global max size of
         moris_index tLocalMaxIGCellGroupSize = 0;
-        for ( moris::uint iGroups = 0; iGroups < mIntegrationCellGroups.size(); iGroups++ )
+        for ( uint iGroups = 0; iGroups < mIntegrationCellGroups.size(); iGroups++ )
         {
             if ( (moris_index)mIntegrationCellGroups( iGroups )->mIgCellGroup.size() > tLocalMaxIGCellGroupSize )
             {
@@ -1941,7 +1985,7 @@ namespace xtk
         tStringStream << "\n";
 
         // iterate through the groups
-        for ( moris::uint iGroup = 0; iGroup < mIntegrationCellGroups.size(); iGroup++ )
+        for ( uint iGroup = 0; iGroup < mIntegrationCellGroups.size(); iGroup++ )
         {
             tStringStream << mIntegrationCellGroupsParentCell( iGroup )->get_id() << ",";
             tStringStream << moris::par_rank() << ",";
@@ -1976,115 +2020,175 @@ namespace xtk
         if ( par_size() > 1 )
         {
             // Build list of processors with whom current processor shares nodes
-            std::unordered_map< moris_id, moris_id > tCommunicationMap;
+            std::unordered_map< moris_id, moris_id > tProcList;
             Cell< moris_index >                      tCellOfProcs;
 
             // Loop over all nodes in background mesh and get node's owner
-            for ( moris::uint i = 0; i < mBackgroundMesh->get_num_entities( EntityRank::NODE ); i++ )
+            for ( uint i = 0; i < mBackgroundMesh->get_num_entities( EntityRank::NODE ); i++ )
             {
                 moris_index tOwner = mBackgroundMesh->get_entity_owner( (moris_index)i, EntityRank::NODE );
 
-                if ( tCommunicationMap.find( tOwner ) == tCommunicationMap.end() && tOwner != par_rank() )
+                if ( tProcList.find( tOwner ) == tProcList.end() && tOwner != par_rank() )
                 {
                     tCellOfProcs.push_back( tOwner );
-                    tCommunicationMap[ tOwner ] = 1;
+                    tProcList[ tOwner ] = 1;
                 }
             }
 
             // Initialize communication map
-            mCommunicationMap.resize( 1, tCellOfProcs.size() );
+            mCommunicationTable.resize( 1, tCellOfProcs.size() );
 
-            for ( moris::uint i = 0; i < tCellOfProcs.size(); i++ )
+            for ( uint i = 0; i < tCellOfProcs.size(); i++ )
             {
-                mCommunicationMap( i ) = tCellOfProcs( i );
+                mCommunicationTable( i ) = tCellOfProcs( i );
             }
 
-            // Send communication maps to root processor (here 0)
-            Cell< Matrix< IndexMat > > tGatheredMats;
-            moris_index                tTag = 10009;
-            if ( tCellOfProcs.size() == 0 )
+            // create a communication list including all processors
+            Matrix< IdMat > tAllProcCommTable( 1, par_size() );
+            for ( moris_id iProc = 0; iProc < par_size(); iProc++ )
             {
-                Matrix< IndexMat > tDummy( 1, 1, MORIS_INDEX_MAX );
-                all_gather_vector( tDummy, tGatheredMats, tTag, 0, 0 );
+                tAllProcCommTable( iProc ) = iProc;
+            }
+
+            // queue the executing proc's request as a request to the base proc (proc #0)
+            Cell< Matrix< IdMat > > tSendRequestCommTables( par_size() );
+            tSendRequestCommTables( 0 ) = mCommunicationTable;
+
+            // Send communication maps to root processor (here 0)
+            Cell< Matrix< IdMat > > tReceivedRequestCommTables;
+            moris::communicate_mats( tAllProcCommTable, tSendRequestCommTables, tReceivedRequestCommTables );
+
+            // Initialize processor-to-processor communication table (this will stay empty except on the base proc)
+            Cell< Matrix< IdMat > > tFinalCommTables( par_size() );
+
+            // Root processor (here 0) builds processor-to-processor communication tables
+            if ( par_rank() == 0 )
+            {
+                // current proc doesn't receive its own request to itself, so add it
+                tReceivedRequestCommTables( 0 ) = mCommunicationTable;
+
+                // initialize sets collecting:
+                // a) which procs a given proc wants to communicate to
+                // b) which procs want to communicate to a given proc
+                // c) the union of the two for each given proc (these sets are the final comm-tables)
+                Cell< std::set< moris_id > > tCommRequestedTo( par_size() );
+                Cell< std::set< moris_id > > tCommRequestedFrom( par_size() );
+                Cell< Cell< moris_id > >     tCommTables( par_size() );
+
+                // loop over the processors that request the following procs to communicate to
+                for ( moris_id iProcToCommFrom = 0; iProcToCommFrom < par_size(); iProcToCommFrom++ )
+                {
+                    // get the size of the comm table requests
+                    uint tSizeReqCommTable = tReceivedRequestCommTables( iProcToCommFrom ).numel();
+
+                    // loop over the procs they request to communicate to
+                    for ( moris_id iProcToCommTo = 0; iProcToCommTo < (moris_id)tSizeReqCommTable; iProcToCommTo++ )
+                    {
+                        // get the ID of the proc the processor (the request is received from) likes to talk to
+                        moris_id tProcToCommTo = tReceivedRequestCommTables( iProcToCommFrom )( iProcToCommTo );
+
+                        // add to sets
+                        tCommRequestedTo( iProcToCommFrom ).insert( tProcToCommTo );
+                        tCommRequestedFrom( tProcToCommTo ).insert( iProcToCommFrom );
+                    }
+                }
+
+                // form the union of the two sets to obtain each proc's comm table
+                for ( uint iProc = 0; iProc < (uint)par_size(); iProc++ )
+                {
+                    // check whether some tables are empty
+                    bool tCommRequestedToIsEmpty   = ( tCommRequestedTo( iProc ).size() == 0 );
+                    bool tCommRequestedFromIsEmpty = ( tCommRequestedFrom( iProc ).size() == 0 );
+
+                    // if both are empty, the comm tables are empty
+                    if ( tCommRequestedToIsEmpty && tCommRequestedFromIsEmpty )
+                    {
+                        tCommTables( iProc ).resize( 0 );
+                    }
+
+                    // if both contain something, form the union
+                    else if ( !tCommRequestedToIsEmpty && !tCommRequestedFromIsEmpty )
+                    {
+                        // get access to the data of the underlying vector
+                        std::vector< moris_id >&          tVector = tCommTables( iProc ).data();
+
+                        // perform union operation
+                        std::set_union(
+                                tCommRequestedTo( iProc ).begin(),
+                                tCommRequestedTo( iProc ).end(),
+                                tCommRequestedFrom( iProc ).begin(),
+                                tCommRequestedFrom( iProc ).end(),
+                                std::back_inserter( tVector ) );
+                    }
+
+                    // if one is empty but not the other, the other is the union
+                    else
+                    {
+                        // counter for the below for loops
+                        uint tIterIndex = 0;
+
+                        if ( tCommRequestedToIsEmpty )
+                        {
+                            // copy non-empty set into the comm-table
+                            tCommTables( iProc ).resize( tCommRequestedFrom( iProc ).size() );
+                            for ( auto iEntry : tCommRequestedFrom( iProc ) )
+                            {
+                                tCommTables( iProc )( tIterIndex ) = iEntry;
+                                tIterIndex++;
+                            }
+                        }
+                        else    // if( tCommRequestedFromIsEmpty )
+                        {
+                            // copy non-empty set into the comm-table
+                            tCommTables( iProc ).resize( tCommRequestedTo( iProc ).size() );
+                            for ( auto iEntry : tCommRequestedTo( iProc ) )
+                            {
+                                tCommTables( iProc )( tIterIndex ) = iEntry;
+                                tIterIndex++;
+                            }
+                        }
+                    }
+
+                }    // end for: each proc in the global comm
+
+                // convert to matrix
+                for ( uint iProc = 0; iProc < (uint)par_size(); iProc++ )
+                {
+                    // get the size of this proc's comm-table
+                    uint tCommTableSize = tCommTables( iProc ).size();
+
+                    // resize the matrix to the correct dimensions
+                    tFinalCommTables( iProc ).resize( 1, tCommTableSize );
+
+                    // loop over the procs they request to communicate to
+                    for ( uint iCommTableEntry = 0; iCommTableEntry < tCommTableSize; iCommTableEntry++ )
+                    {
+                        // fill the comm tables
+                        tFinalCommTables( iProc )( iCommTableEntry ) = tCommTables( iProc )( iCommTableEntry );
+                    }
+                }
+
+            }    // end if: this is the root proc
+
+            // send out the finalized comm-tables
+            Cell< Matrix< IdMat > > tReceivedFinalCommTables;
+            moris::communicate_mats( tAllProcCommTable, tFinalCommTables, tReceivedFinalCommTables );
+
+            // the final communication map for each proc is the one assembled by proc 0, which is the base proc
+            // but proc 0 doesn't communicate with itself
+            if ( par_rank() == 0 )
+            {
+                mCommunicationTable = tFinalCommTables( 0 );
             }
             else
             {
-                all_gather_vector( mCommunicationMap, tGatheredMats, tTag, 0, 0 );
+                mCommunicationTable = tReceivedFinalCommTables( 0 );
             }
 
-            // Initialize processor-to-processor communication table
-            Cell< Matrix< IndexMat > > tReturnMats( par_size() );
+        }    // end if: only assemble comm table for parallel
 
-            // Root processor (here 0) builds processor-to-processor communication table
-            if ( par_rank() == 0 )
-            {
-                Cell< Cell< uint > > tProcToProc( par_size() );
-
-                for ( moris::uint i = 0; i < tGatheredMats.size(); i++ )
-                {
-                    for ( moris::uint j = 0; j < tGatheredMats( i ).numel(); j++ )
-                    {
-                        if ( tGatheredMats( i )( j ) != MORIS_INDEX_MAX )
-                        {
-                            tProcToProc( tGatheredMats( i )( j ) ).push_back( (moris_index)i );
-                        }
-                    }
-                }
-
-                // convert to a matrix
-                for ( moris::uint i = 0; i < (uint)par_size(); i++ )
-                {
-                    tReturnMats( i ).resize( 1, tProcToProc( i ).size() );
-
-                    for ( moris::uint j = 0; j < tProcToProc( i ).size(); j++ )
-                    {
-                        tReturnMats( i )( j ) = tProcToProc( i )( j );
-                    }
-                    if ( tProcToProc( i ).size() == 0 )
-                    {
-                        tReturnMats( i ) = Matrix< IndexMat >( 1, 1, MORIS_INDEX_MAX );
-                    }
-                }
-
-                // send processor-to-processor communication table back individual processors
-                for ( moris::uint i = 0; i < (uint)par_size(); i++ )
-                {
-                    nonblocking_send(
-                            tReturnMats( i ),
-                            tReturnMats( i ).n_rows(),
-                            tReturnMats( i ).n_cols(),
-                            i,
-                            tTag );
-                }
-            }
-
-            // receive processor-to-processor communication tables
-            barrier();
-            Matrix< IndexMat > tTempCommMap( 1, 1, 0 );
-            receive( tTempCommMap, 1, 0, tTag );
-
-            // add new processors to existing communication table
-            for ( moris::uint i = 0; i < tTempCommMap.numel(); i++ )
-            {
-                // Skip processors that do not share nodes
-                if ( tTempCommMap( i ) != MORIS_INDEX_MAX )
-                {
-                    // Check if processor is already in communication table
-                    if ( tCommunicationMap.find( tTempCommMap( i ) ) == tCommunicationMap.end()
-                            && tTempCommMap( i ) != par_rank() )
-                    {
-                        moris_index tIndex = mCommunicationMap.numel();
-
-                        mCommunicationMap.resize( 1, mCommunicationMap.numel() + 1 );
-
-                        tCommunicationMap[ tTempCommMap( i ) ] = 1;
-
-                        mCommunicationMap( tIndex ) = tTempCommMap( i );
-                    }
-                }
-            }
-            barrier();
-        }
+        // mark the index map as needing to be re-constructed
+        mCommMapHasBeenConstructed = false;
     }
 
     // ----------------------------------------------------------------------------------
@@ -2100,12 +2204,20 @@ namespace xtk
         mNotOwnedChildMeshes.reserve( mChildMeshes.size() );
 
         moris_index tParRank = moris::par_rank();
-        // iterate through groups
-        for ( moris::uint i = 0; i < mIntegrationCellGroupsParentCell.size(); i++ )
-        {
-            mIntegrationCellGroupsParentCell( i )->get_owner() == tParRank ? mOwnedIntegrationCellGroupsInds.push_back( (moris_index)i ) : mNotOwnedIntegrationCellGroups.push_back( (moris_index)i );
 
-            mIntegrationCellGroupsParentCell( i )->get_owner() == tParRank ? mOwnedChildMeshes.push_back( mChildMeshes( i ) ) : mNotOwnedChildMeshes.push_back( mChildMeshes( i ) );
+        // iterate through groups
+        for ( uint iParentCell = 0; iParentCell < mIntegrationCellGroupsParentCell.size(); iParentCell++ )
+        {
+            if ( mIntegrationCellGroupsParentCell( iParentCell )->get_owner() == tParRank )
+            {
+                mOwnedIntegrationCellGroupsInds.push_back( (moris_index)iParentCell );
+                mOwnedChildMeshes.push_back( mChildMeshes( iParentCell ) );
+            }
+            else
+            {
+                mNotOwnedIntegrationCellGroups.push_back( (moris_index)iParentCell );
+                mNotOwnedChildMeshes.push_back( mChildMeshes( iParentCell ) );
+            }
         }
 
         mOwnedIntegrationCellGroupsInds.shrink_to_fit();
@@ -2119,142 +2231,151 @@ namespace xtk
     void
     Cut_Integration_Mesh::assign_controlled_ig_cell_ids()
     {
-        Tracer tTracer( "XTK", "Cut_Integration_Mesh", "assign_controlled_ig_cell_ids", mXTKModel->mVerboseLevel, 1 );
-        // Set child element ids and indices
-        moris::uint tNumControlledCellsInCutMesh = mControlledIgCells.size();
+        // log this function when verbose output is requested
+        Tracer tTracer( "XTK", "Cut Integration Mesh", "assign IG cell IDs", mXTKModel->mVerboseLevel, 1 );
 
-        // Allocate global element ids (these need to be give to the children meshes)
-        moris_id tElementIdOffset = this->allocate_entity_ids( tNumControlledCellsInCutMesh, moris::EntityRank::ELEMENT );
-
-        // set child elements ids in the children meshes which I own and dont share
-        for ( moris::size_t i = 0; i < mOwnedIntegrationCellGroupsInds.size(); i++ )
-        {
-            // tOwnedChildMeshes(i)->set_child_element_ids(tElementIdOffset);
-
-            std::shared_ptr< IG_Cell_Group > tCellGroup = this->get_ig_cell_group( mOwnedIntegrationCellGroupsInds( i ) );
-
-            // iterate through the child cell elements in the group
-            for ( moris::uint iCell = 0; iCell < tCellGroup->mIgCellGroup.size(); iCell++ )
-            {
-                // get the controlled cell index
-                moris_index tControlledIndex = this->get_integration_cell_controlled_index( tCellGroup->mIgCellGroup( iCell )->get_index() );
-
-                mControlledIgCells( tControlledIndex )->set_id( tElementIdOffset++ );
-
-                MORIS_ASSERT( mIntegrationCellIdToIndexMap.find( tCellGroup->mIgCellGroup( iCell )->get_id() ) == mIntegrationCellIdToIndexMap.end(), "Id already in the map" );
-
-                mIntegrationCellIdToIndexMap[ tCellGroup->mIgCellGroup( iCell )->get_id() ] = tCellGroup->mIgCellGroup( iCell )->get_index();
-            }
-        }
-
-        // prepare outward requests
-        Cell< Cell< moris_id > >                 tNotOwnedChildMeshesToProcs;
-        Cell< moris::Matrix< IdMat > >           tOwnedParentCellId;
-        Cell< moris::Matrix< IdMat > >           tNumOwnedCellIdsOffsets;
-        Cell< uint >                             tProcRanks;
-        std::unordered_map< moris_id, moris_id > tProcRankToDataIndex;
-
-        this->prepare_child_element_identifier_requests( tNotOwnedChildMeshesToProcs, tOwnedParentCellId, tNumOwnedCellIdsOffsets, tProcRanks, tProcRankToDataIndex );
-
-        // send requests
-        moris::uint tMPITag = 141;
-        mXTKModel->send_outward_requests( tMPITag, tProcRanks, tOwnedParentCellId );
-        mXTKModel->send_outward_requests( tMPITag + 1, tProcRanks, tNumOwnedCellIdsOffsets );
-
-        barrier();
-
-        // receive requests
-        Cell< Matrix< IndexMat > > tReceivedParentCellIds;
-        Cell< Matrix< IndexMat > > tReceivedParentCellNumChildren;
-        Cell< uint >               tProcsReceivedFrom1;
-        Cell< uint >               tProcsReceivedFrom2;
-        mXTKModel->inward_receive_requests( tMPITag, 1, tReceivedParentCellIds, tProcsReceivedFrom1 );
-        mXTKModel->inward_receive_requests( tMPITag + 1, 1, tReceivedParentCellNumChildren, tProcsReceivedFrom2 );
-
-        MORIS_ASSERT( tProcsReceivedFrom1.size() == tProcsReceivedFrom2.size(),
-                "Size mismatch between procs received from child cell ids and number of child cells" );
-
-        Cell< Matrix< IndexMat > > tChildIdOffsets;
-        this->prepare_child_cell_id_answers( tReceivedParentCellIds, tReceivedParentCellNumChildren, tChildIdOffsets );
-
-        // return information
-        mXTKModel->return_request_answers( tMPITag + 2, tChildIdOffsets, tProcsReceivedFrom1 );
-
-        // receive the information
-        barrier();
-
-        // receive the answers
-        Cell< Matrix< IndexMat > > tReceivedChildIdOffsets;
-        mXTKModel->inward_receive_request_answers( tMPITag + 2, 1, tProcRanks, tReceivedChildIdOffsets );
-
-        // add child cell ids to not owned child meshes
-        this->handle_received_child_cell_id_request_answers( tNotOwnedChildMeshesToProcs, tReceivedChildIdOffsets );
-
-        barrier();
-    }
-
-    // ----------------------------------------------------------------------------------
-
-    void
-    Cut_Integration_Mesh::prepare_child_element_identifier_requests(
-            Cell< Cell< moris_id > >&                 aNotOwnedChildMeshesToProcs,
-            Cell< moris::Matrix< IdMat > >&           aOwnedParentCellId,
-            Cell< moris::Matrix< IdMat > >&           aNumOwnedCellIdsOffsets,
-            Cell< uint >&                             aProcRanks,
-            std::unordered_map< moris_id, moris_id >& aProcRankToDataIndex )
-    {
-
-        Cell< moris_id > tCounts( 0 );
-        moris_index      tCurrentIndex = 0;
-
-        // access the communication table
+        // get the communication table
         Matrix< IdMat > tCommTable = this->get_communication_table();
 
-        for ( moris::size_t i = 0; i < tCommTable.numel(); i++ )
+        /* ---------------------------------------------------------------------------------------- */
+        /* Step 1: Let each proc decide how many entity IDs it needs & communicate ID ranges */
+
+        // get the number of owned IG cells
+        uint tNumControlledCellsInCutMesh = mControlledIgCells.size();
+
+        // reserve IDs for his proc
+        moris_id tMyFirstId = (moris_id)get_processor_offset( tNumControlledCellsInCutMesh ) + mGlobalMaxCellId;
+
+        // update the maximum ID allocated
+        moris_id tMyMaxID = tMyFirstId + (moris_id)tNumControlledCellsInCutMesh;
+        mGlobalMaxCellId  = moris::max_all( tMyMaxID );
+
+        /* ---------------------------------------------------------------------------------------- */
+        /* Step 2: Assign IDs to owned entities */
+
+        // assign IDs to owned IG cells
+        this->assign_IDs_to_owned_IG_cells( tMyFirstId );
+
+        /* ---------------------------------------------------------------------------------------- */
+        /* The following steps are only necessary if code runs in parallel */
+
+        if ( par_size() == 1 )    // serial
         {
-            aProcRankToDataIndex[ tCommTable( i ) ] = tCurrentIndex;
-            aProcRanks.push_back( tCommTable( i ) );
-            aNotOwnedChildMeshesToProcs.push_back( Cell< moris_id >( 0 ) );
-            tCounts.push_back( 0 );
-            tCurrentIndex++;
+            // check that all IG cells are owned in serial
+            MORIS_ASSERT( mNotOwnedIntegrationCellGroups.size() == 0,
+                    "Cut_Integration_Mesh::assign_controlled_ig_cell_ids() - "
+                    "Code running in serial, but not all IG cell groups are owned by proc 0." );
         }
-
-        for ( moris::size_t i = 0; i < mNotOwnedIntegrationCellGroups.size(); i++ )
+        else    // parallel
         {
-            moris_index tOwnerProc     = mIntegrationCellGroupsParentCell( mNotOwnedIntegrationCellGroups( i ) )->get_owner();
-            moris_index tProcDataIndex = aProcRankToDataIndex[ tOwnerProc ];
-            aNotOwnedChildMeshesToProcs( tProcDataIndex ).push_back( mNotOwnedIntegrationCellGroups( i ) );
-        }
 
-        aOwnedParentCellId.resize( aNotOwnedChildMeshesToProcs.size() );
-        aNumOwnedCellIdsOffsets.resize( aNotOwnedChildMeshesToProcs.size() );
+            /* ---------------------------------------------------------------------------------------- */
+            /* Step 3: Prepare requests for non-owned entities */
 
-        // iterate through procs and child meshes shared with that processor
-        for ( moris::size_t i = 0; i < aNotOwnedChildMeshesToProcs.size(); i++ )
+            // initialize lists of information that identifies IG cells (on other procs)
+            Cell< Cell< moris_index > > tNotOwnedIgCellGroups;      // IG cell group index (local to current proc, just used for construction of arrays)
+            Cell< Matrix< IdMat > >     tParentCellIds;             // IDs of the IG cells' parent cells
+            Cell< Matrix< IndexMat > >  tNumIgCellsInParentCell;    // Number of IG cells in parent cell
+
+            // fill the identifying information
+            this->prepare_requests_for_not_owned_IG_cell_IDs( tNotOwnedIgCellGroups, tParentCellIds, tNumIgCellsInParentCell );
+
+            /* ---------------------------------------------------------------------------------------- */
+            /* Step 4: Send and Receive requests about non-owned entities to and from other procs */
+
+            // initialize arrays for receiving
+            Cell< Matrix< IdMat > >    tReceivedParentCellIds;
+            Cell< Matrix< IndexMat > > tReceivedNumIgCellsInParentCell;
+
+            // communicate information
+            moris::communicate_mats( tCommTable, tParentCellIds, tReceivedParentCellIds );
+            moris::communicate_mats( tCommTable, tNumIgCellsInParentCell, tReceivedNumIgCellsInParentCell );
+
+            // clear memory not needed anymore
+            tParentCellIds.clear();
+            tNumIgCellsInParentCell.clear();
+
+            /* ---------------------------------------------------------------------------------------- */
+            /* Step 5: Find answers to the requests */
+
+            // initialize lists of ID answers to other procs
+            Cell< Matrix< IdMat > > tFirstIgCellIdsInCellGroups;
+
+            // find the IG cell IDs requested by the other procs
+            this->prepare_answers_for_owned_IG_cell_IDs(
+                    tFirstIgCellIdsInCellGroups,
+                    tReceivedParentCellIds,
+                    tReceivedNumIgCellsInParentCell );
+
+            // clear memory from requests (the answers to which have been found)
+            tReceivedParentCellIds.clear();
+            tReceivedNumIgCellsInParentCell.clear();
+
+            /* ---------------------------------------------------------------------------------------- */
+            /* Step 6: Send and receive answers to and from other procs */
+
+            // initialize arrays for receiving
+            Cell< Matrix< IdMat > > tReceivedFirstIgCellIdsInCellGroups;
+
+            // communicate answers
+            moris::communicate_mats( tCommTable, tFirstIgCellIdsInCellGroups, tReceivedFirstIgCellIdsInCellGroups );
+
+            // clear unused memory
+            tFirstIgCellIdsInCellGroups.clear();
+
+            /* ---------------------------------------------------------------------------------------- */
+            /* Step 7: Use answers to assign IDs to non-owned entities */
+
+            this->handle_requested_IG_cell_ID_answers( tNotOwnedIgCellGroups, tReceivedFirstIgCellIdsInCellGroups );
+
+        }    // end if: parallel
+
+    }    // end function: Cut_Integration_Mesh::assign_controlled_ig_cell_ids()
+
+    // ----------------------------------------------------------------------------------
+
+    void
+    Cut_Integration_Mesh::assign_IDs_to_owned_IG_cells( moris_id aFirstFreeId )
+    {
+        // make sure this function is not called before the owned IG cells have been determined
+        MORIS_ASSERT( mOwnedIntegrationCellGroupsInds.size() > 0,
+                "Cut_Integration_Mesh::assign_IDs_to_owned_IG_cells() - "
+                "No IG cells are owned. This is likely because the owned IG cells have not been determined yet. " );
+
+        // set child elements ids in the children meshes which the current proc owns and does not share
+        for ( moris::size_t iCellGroup = 0; iCellGroup < mOwnedIntegrationCellGroupsInds.size(); iCellGroup++ )
         {
-            // number of child meshes shared with this processor
-            moris::uint tNumCM = aNotOwnedChildMeshesToProcs( i ).size();
+            // get the pointer to the current cell-group
+            std::shared_ptr< IG_Cell_Group > tCellGroup = this->get_ig_cell_group( mOwnedIntegrationCellGroupsInds( iCellGroup ) );
 
-            // allocate matrix
-            aOwnedParentCellId( i ).resize( 1, tNumCM );
-            aNumOwnedCellIdsOffsets( i ).resize( 1, tNumCM );
-
-            for ( moris::uint j = 0; j < tNumCM; j++ )
+            // iterate through the child cell elements in the group
+            for ( uint iCellInGroup = 0; iCellInGroup < tCellGroup->mIgCellGroup.size(); iCellInGroup++ )
             {
-                moris_index tIGCellGroupIndex     = aNotOwnedChildMeshesToProcs( i )( j );
-                aOwnedParentCellId( i )( j )      = mIntegrationCellGroupsParentCell( tIGCellGroupIndex )->get_id();
-                aNumOwnedCellIdsOffsets( i )( j ) = mIntegrationCellGroups( tIGCellGroupIndex )->mIgCellGroup.size();
-            }
-        }
+                // get access to the current IG cell
+                mtk::Cell const * tIgCell      = tCellGroup->mIgCellGroup( iCellInGroup );
+                moris_index       tIgCellIndex = tIgCell->get_index();
 
-        for ( moris::size_t i = 0; i < tCommTable.numel(); i++ )
-        {
-            if ( aNotOwnedChildMeshesToProcs( i ).size() == 0 )
-            {
-                aOwnedParentCellId( i ).resize( 1, 1 );
-                aNumOwnedCellIdsOffsets( i ).resize( 1, 1 );
-                aOwnedParentCellId( i )( 0, 0 )      = MORIS_INDEX_MAX;
-                aNumOwnedCellIdsOffsets( i )( 0, 0 ) = MORIS_INDEX_MAX;
+                // get the current IG cell's index
+                moris_index tIgCellControlledIndex = this->get_integration_cell_controlled_index( tIgCellIndex );
+
+                // get the IG cell
+                mControlledIgCells( tIgCellControlledIndex )->set_id( aFirstFreeId );
+
+                // check that the ID
+                MORIS_ASSERT(
+                        aFirstFreeId == tIgCell->get_id(),
+                        "Cut_Integration_Mesh::assign_controlled_ig_cell_ids() - "
+                        "ID reported by IG cell different from ID just assigned to corresponding controlled IG cell." );
+                MORIS_ASSERT(
+                        mIntegrationCellIdToIndexMap.find( tIgCell->get_id() ) == mIntegrationCellIdToIndexMap.end(),
+                        "Cut_Integration_Mesh::assign_controlled_ig_cell_ids() - "
+                        "IG cell's ID already in the map, i.e. it has already been assigned before." );
+
+                // populate ID to index map for IG cells
+                mIntegrationCellIdToIndexMap[ aFirstFreeId ] = tIgCellIndex;
+
+                // increment ID counter
+                aFirstFreeId++;
             }
         }
     }
@@ -2262,96 +2383,229 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Cut_Integration_Mesh::prepare_child_cell_id_answers(
-            Cell< Matrix< IndexMat > >& aReceivedParentCellIds,
-            Cell< Matrix< IndexMat > >& aReceivedParentCellNumChildren,
-            Cell< Matrix< IndexMat > >& aChildCellIdOffset )
+    Cut_Integration_Mesh::prepare_requests_for_not_owned_IG_cell_IDs(
+            Cell< Cell< moris_index > >& aNotOwnedIgCellGroups,
+            Cell< Matrix< IdMat > >&     aParentCellIds,
+            Cell< Matrix< IndexMat > >&  aNumIgCellsInParentCell )
     {
-        MORIS_ASSERT( aReceivedParentCellIds.size() == aReceivedParentCellNumChildren.size(),
-                "Mismatch in received parent cell ids and received parent cell number of children" );
+        // get the communication table and map
+        Matrix< IdMat >                   tCommTable              = this->get_communication_table();
+        uint                              tCommTableSize          = tCommTable.numel();
+        std::map< moris_id, moris_index > tProcIdToCommTableIndex = this->get_communication_map();
 
-        // allocate answer size
-        aChildCellIdOffset.resize( aReceivedParentCellIds.size() );
+        // initialize lists of identifying information
+        aNotOwnedIgCellGroups.resize( tCommTableSize );
+        aParentCellIds.resize( tCommTableSize );
+        aNumIgCellsInParentCell.resize( tCommTableSize );
 
-        // iterate through received data
-        for ( moris::uint i = 0; i < aReceivedParentCellIds.size(); i++ )
+        // get the number of IG cell group for which IG cells need to be communicated
+        uint tNumNotOwnedIgCellGroup = mNotOwnedIntegrationCellGroups.size();
+
+        // make sure this function is run in parallel only
+        MORIS_ASSERT( tNumNotOwnedIgCellGroup > 0,
+                "Cut_Integration_Mesh::prepare_requests_for_not_owned_IG_cell_IDs() - "
+                "No not owned IG cells assigned. Either the owned and not owned IG cells have not been established yet; "
+                "or this function is called in serial (it should only be called in parallel)." );
+
+        // sort non-owned parent cells (corresponding to IG cell groups) into lists associated with each of the processors communicated with
+        for ( uint iNonOwnedCM = 0; iNonOwnedCM < tNumNotOwnedIgCellGroup; iNonOwnedCM++ )
         {
-            uint tNumReceivedReqs = aReceivedParentCellIds( i ).n_cols();
+            // get the index of the current non-owned IG cell group
+            moris_index tNonOwnedCellGroupIndex = mNotOwnedIntegrationCellGroups( iNonOwnedCM );
 
-            aChildCellIdOffset( i ).resize( 1, tNumReceivedReqs );
+            // find the position of the current proc in the communication table
+            moris_index tOwnerProc = mIntegrationCellGroupsParentCell( tNonOwnedCellGroupIndex )->get_owner();
+            auto        tIter      = tProcIdToCommTableIndex.find( tOwnerProc );
+            MORIS_ASSERT(
+                    tIter != tProcIdToCommTableIndex.end(),
+                    "Cut_Integration_Mesh::assign_controlled_ig_cell_ids() - "
+                    "IG cell group owner (Proc #%i) not found in communication table of current proc #%i which is: %s",
+                    tOwnerProc,
+                    par_rank(),
+                    ios::stringify_log( tCommTable ).c_str() );
+            moris_index tProcDataIndex = tIter->second;
 
-            if ( aReceivedParentCellIds( i )( 0 ) != MORIS_INDEX_MAX )
+            // add the IG cell group to the list of child-meshes needing to be exchanged with this processor
+            aNotOwnedIgCellGroups( tProcDataIndex ).push_back( tNonOwnedCellGroupIndex );
+        }
+
+        // populate the identifying information for each non-owned IG cell group (for each processor to communicate with)
+        for ( uint iProc = 0; iProc < tCommTableSize; iProc++ )
+        {
+            // number of IG cell group shared with this processor
+            uint tNumIgCellGroupsOnProc = aNotOwnedIgCellGroups( iProc ).size();
+
+            // resize matrix to accommodate all information
+            aParentCellIds( iProc ).resize( tNumIgCellGroupsOnProc, 1 );
+            aNumIgCellsInParentCell( iProc ).resize( tNumIgCellGroupsOnProc, 1 );
+
+            // populate the identifying information for each non-owned IG cell group (for each IG cell group on each proc)
+            for ( uint iIgCellGroup = 0; iIgCellGroup < tNumIgCellGroupsOnProc; iIgCellGroup++ )
             {
-                // iterate through received requests
-                for ( moris::uint j = 0; j < tNumReceivedReqs; j++ )
-                {
-                    // parent cell information
-                    moris_id    tParentId        = aReceivedParentCellIds( i )( j );
-                    moris_index tParentCellIndex = mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tParentId, EntityRank::ELEMENT );
+                // get the index of the IG cell group treated
+                moris_index tIGCellGroupIndex = aNotOwnedIgCellGroups( iProc )( iIgCellGroup );
 
-                    moris_index tCMIndex = mParentCellCellGroupIndex( tParentCellIndex );
-
-                    // get child mesh
-                    MORIS_ASSERT( tCMIndex != MORIS_INDEX_MAX, "Request is made for child element ids on a parent cell not intersected" );
-
-                    MORIS_ASSERT( par_rank() == mIntegrationCellGroupsParentCell( tCMIndex )->get_owner(), "I dont own this entity that had info requested." );
-
-                    // place in return data
-                    MORIS_ASSERT( mIntegrationCellGroups( tCMIndex )->mIgCellGroup.size() == (uint)aReceivedParentCellNumChildren( i )( j ),
-                            "Number of child cells in child meshes do not match number on other processor" );
-
-                    if ( mIntegrationCellGroups( tCMIndex )->mIgCellGroup.size() > 0 )
-                    {
-                        aChildCellIdOffset( i )( j ) = mIntegrationCellGroups( tCMIndex )->mIgCellGroup( 0 )->get_id();
-                    }
-                    else
-                    {
-                        aChildCellIdOffset( i )( j ) = MORIS_INDEX_MAX;
-                    }
-                }
-            }
-            else
-            {
-                aChildCellIdOffset( i )( 0 ) = MORIS_INDEX_MAX;
+                // find and store the information for communication
+                aParentCellIds( iProc )( iIgCellGroup )          = mIntegrationCellGroupsParentCell( tIGCellGroupIndex )->get_id();
+                aNumIgCellsInParentCell( iProc )( iIgCellGroup ) = mIntegrationCellGroups( tIGCellGroupIndex )->mIgCellGroup.size();
             }
         }
+
+        // size out unused memory
+        aNotOwnedIgCellGroups.shrink_to_fit();
+        aParentCellIds.shrink_to_fit();
+        aNumIgCellsInParentCell.shrink_to_fit();
     }
 
     // ----------------------------------------------------------------------------------
 
     void
-    Cut_Integration_Mesh::handle_received_child_cell_id_request_answers(
-            Cell< Cell< moris_index > > const & aChildMeshesInInNotOwned,
-            Cell< Matrix< IndexMat > > const &  aReceivedChildCellIdOffset )
+    Cut_Integration_Mesh::prepare_answers_for_owned_IG_cell_IDs(
+            Cell< Matrix< IdMat > >&           aFirstIgCellIdsInCellGroups,
+            Cell< Matrix< IdMat > > const &    aReceivedParentCellIds,
+            Cell< Matrix< IndexMat > > const & aReceivedNumIgCellsInParentCell )
     {
-        // iterate through received data
-        for ( moris::uint i = 0; i < aChildMeshesInInNotOwned.size(); i++ )
+        // initialize array of ID answers to other procs with correct size
+        aFirstIgCellIdsInCellGroups.resize( aReceivedParentCellIds.size() );
+
+        // answer requests from each proc
+        for ( uint iProcInCommTable = 0; iProcInCommTable < aReceivedParentCellIds.size(); iProcInCommTable++ )
         {
-            uint tNumReceivedReqs = aChildMeshesInInNotOwned( i ).size();
+            // get the number of CMs for which IG cell IDs need to be communicated for the current proc
+            uint tNumIgCellGroupsCommunicatedWithProc = aReceivedParentCellIds( iProcInCommTable ).numel();
 
-            // iterate through received requests
-            for ( moris::uint j = 0; j < tNumReceivedReqs; j++ )
+            // resize answer arrays
+            aFirstIgCellIdsInCellGroups( iProcInCommTable ).set_size( tNumIgCellGroupsCommunicatedWithProc, 1 );
+
+            // go through and answer for all CMs requested by the current proc
+            for ( uint iIgCellGroup = 0; iIgCellGroup < tNumIgCellGroupsCommunicatedWithProc; iIgCellGroup++ )
             {
-                moris_id tChildMeshInNotOwned = aChildMeshesInInNotOwned( i )( j );
-                moris_id tChildCellFirstId    = aReceivedChildCellIdOffset( i )( j );
+                // get the parent Cell ID for the current request
+                moris_id tParentId = aReceivedParentCellIds( iProcInCommTable )( iIgCellGroup );
 
-                std::shared_ptr< IG_Cell_Group > tCellGroup = this->get_ig_cell_group( tChildMeshInNotOwned );
+                // get this parent Cells index wrt to the executing proc
+                moris_index tParentCellIndex = mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tParentId, EntityRank::ELEMENT );
 
-                for ( moris::uint iCell = 0; iCell < tCellGroup->mIgCellGroup.size(); iCell++ )
+                // get the index of the attached IG cell group/Child mesh
+                moris_index tIgCellGroupIndex = mParentCellCellGroupIndex( tParentCellIndex );
+
+                // check the request
+                MORIS_ASSERT(
+                        tIgCellGroupIndex != MORIS_INDEX_MAX,
+                        "Cut_Integration_Mesh::prepare_answers_for_owned_IG_cell_IDs() - "
+                        "Request is made for child element IDs on a parent cell not intersected" );
+                MORIS_ASSERT(
+                        par_rank() == mIntegrationCellGroupsParentCell( tIgCellGroupIndex )->get_owner(),
+                        "Cut_Integration_Mesh::prepare_answers_for_owned_IG_cell_IDs() - "
+                        "Current proc does not own this entity that had info requested." );
+                MORIS_ASSERT(
+                        mIntegrationCellGroups( tIgCellGroupIndex )->mIgCellGroup.size() == (uint)aReceivedNumIgCellsInParentCell( iProcInCommTable )( iIgCellGroup ),
+                        "Cut_Integration_Mesh::prepare_answers_for_owned_IG_cell_IDs() - "
+                        "Proc #%i: %i IG cells are in integration cell group %i, but the parent cell is marked to have %i IG cells (for communication).",
+                        par_rank(),
+                        mIntegrationCellGroups( tIgCellGroupIndex )->mIgCellGroup.size(),
+                        tIgCellGroupIndex,
+                        aReceivedNumIgCellsInParentCell( iProcInCommTable )( iIgCellGroup ) );
+
+                // answer the request
+                if ( mIntegrationCellGroups( tIgCellGroupIndex )->mIgCellGroup.size() > 0 )
                 {
-                    // get the controlled cell index
-                    moris_index tControlledIndex = this->get_integration_cell_controlled_index( tCellGroup->mIgCellGroup( iCell )->get_index() );
-
-                    mControlledIgCells( tControlledIndex )->set_id( tChildCellFirstId++ );
-
-                    MORIS_ASSERT( mIntegrationCellIdToIndexMap.find( tCellGroup->mIgCellGroup( iCell )->get_id() ) == mIntegrationCellIdToIndexMap.end(), "Id already in the map" );
-
-                    mIntegrationCellIdToIndexMap[ tCellGroup->mIgCellGroup( iCell )->get_id() ] = tCellGroup->mIgCellGroup( iCell )->get_index();
+                    // get the first index in the child group
+                    aFirstIgCellIdsInCellGroups( iProcInCommTable )( iIgCellGroup ) = mIntegrationCellGroups( tIgCellGroupIndex )->mIgCellGroup( 0 )->get_id();
                 }
-            }
-        }
+                else
+                {
+                    // return a default for non-decomposed background cells (as there are no 'controlled' IG cells that need an ID)
+                    aFirstIgCellIdsInCellGroups( iProcInCommTable )( iIgCellGroup ) = MORIS_ID_MAX;
+                }
+            }    // end for: each IG cell group communicated with the current processor
+        }        // end for: each proc communicated with
     }
 
+    // ----------------------------------------------------------------------------------
+
+    void
+    Cut_Integration_Mesh::handle_requested_IG_cell_ID_answers(
+            Cell< Cell< moris_index > > const & aNotOwnedIgCellGroups,
+            Cell< Matrix< IdMat > > const &     aReceivedFirstIgCellIdsInCellGroups )
+    {
+        // get the communication table and map
+        Matrix< IdMat > tCommTable     = this->get_communication_table();
+        uint            tCommTableSize = tCommTable.numel();
+
+        // answers received from each proc
+        for ( uint iProcInCommTable = 0; iProcInCommTable < tCommTableSize; iProcInCommTable++ )
+        {
+            // get the number of CMs for which answers were communicated for the current proc
+            uint tNumIgCellGroupsCommunicatedWithProc = aReceivedFirstIgCellIdsInCellGroups( iProcInCommTable ).numel();
+
+            // check that all requests have been answered
+            MORIS_ASSERT( tNumIgCellGroupsCommunicatedWithProc == aNotOwnedIgCellGroups( iProcInCommTable ).size(),
+                    "Cut_Integration_Mesh::handle_requested_IG_cell_ID_answers() - "
+                    "Proc #%i: Number of IG cell groups reportedly owned by proc %i is %i, but only answers for %i IG cell groups were received.",
+                    par_rank(),
+                    tCommTable( iProcInCommTable ),
+                    aNotOwnedIgCellGroups( iProcInCommTable ).size(),
+                    tNumIgCellGroupsCommunicatedWithProc );
+
+            // go through and answers for all CMs requested by the current proc
+            for ( uint iIgCellGroup = 0; iIgCellGroup < tNumIgCellGroupsCommunicatedWithProc; iIgCellGroup++ )
+            {
+                // get the ID that should be assigned to the first IG cell within this IG cell group
+                moris_id tIgCellId = aReceivedFirstIgCellIdsInCellGroups( iProcInCommTable )( iIgCellGroup );
+
+                // get the index of the current not-owned IG cell group
+                moris_index tIgCellGroupIndexNotOwned = aNotOwnedIgCellGroups( iProcInCommTable )( iIgCellGroup );
+
+                // if this is an empty cell group just skip it
+                if ( tIgCellId == MORIS_ID_MAX )
+                {
+                    // check that this is indeed an empty IG cell group
+                    MORIS_ASSERT(
+                            mIntegrationCellGroups( tIgCellGroupIndexNotOwned )->mIgCellGroup.size() == 0,
+                            "Cut_Integration_Mesh::handle_requested_IG_cell_ID_answers() - "
+                            "MORIS_ID_MAX returned as ID for a IG cell group that is not empty." );
+
+                    // skip to next IG cell group
+                    continue;
+                }
+
+                // get access to the IG cell group
+                std::shared_ptr< IG_Cell_Group > tCellGroup = this->get_ig_cell_group( tIgCellGroupIndexNotOwned );
+
+                // subsequently assign indices to all
+                for ( uint iCell = 0; iCell < tCellGroup->mIgCellGroup.size(); iCell++ )
+                {
+                    // get the index of the current IG cell in the group
+                    moris_index tIgCellIndex = tCellGroup->mIgCellGroup( iCell )->get_index();
+
+                    // get the controlled index of that IG cell
+                    moris_index tControlledIndex = this->get_integration_cell_controlled_index( tIgCellIndex );
+
+                    // access this IG cell and set its ID
+                    mControlledIgCells( tControlledIndex )->set_id( tIgCellId );
+
+                    // check that this ID has not already been assigned to another IG cell
+                    MORIS_ASSERT( mIntegrationCellIdToIndexMap.find( tIgCellId ) == mIntegrationCellIdToIndexMap.end(),
+                            "Cut_Integration_Mesh::handle_requested_IG_cell_ID_answers() - "
+                            "Proc #%i: IG cell ID %i has already been assigned to another IG cell on this processor.",
+                            par_rank(),
+                            tIgCellId );
+
+                    // populate the map relating the Proc-global IDs to the proc-local indices
+                    mIntegrationCellIdToIndexMap[ tIgCellId ] = tIgCellIndex;
+
+                    // increment the IG cell ID to get the ID for the next IG cell in the IG cell group
+                    tIgCellId++;
+                }
+
+            }    // end for: loop over IG cell groups for each proc that were communicated
+
+        }    // end for: loop over procs ID answers are received from
+
+    }    // end function: Cut_Integration_Mesh::handle_requested_IG_cell_ID_answers()
+
+    // ----------------------------------------------------------------------------------
     // ----------------------------------------------------------------------------------
 
     void

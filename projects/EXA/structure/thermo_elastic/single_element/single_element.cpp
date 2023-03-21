@@ -823,7 +823,7 @@ namespace moris
             tParameterlist( 5 )( 0 ).set("TSA_DofTypes",           "TEMP"  );
             tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec", "TEMP,1.0" );
             tParameterlist( 5 )( 0 ).set("TSA_Output_Indices",     "0" );
-            tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria",     "Output_Criterion" );
+            tParameterlist( 5 )( 0 ).set("TSA_Output_Criteria",     "Output_Criterion" );
             tParameterlist( 5 )( 0 ).set("TSA_time_level_per_type","TEMP,2" );
         } // end: thermo only
 
@@ -863,7 +863,7 @@ namespace moris
             tParameterlist( 5 )( 0 ).set("TSA_DofTypes",           "UX,UY"  );
             tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec", "UX,0.0;UY,0.0" );
             tParameterlist( 5 )( 0 ).set("TSA_Output_Indices",     "0" );
-            tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria",     "Output_Criterion" );
+            tParameterlist( 5 )( 0 ).set("TSA_Output_Criteria",     "Output_Criterion" );
             tParameterlist( 5 )( 0 ).set("TSA_time_level_per_type","UX,2;UY,2" );
         } // end: struct only
 
@@ -903,7 +903,7 @@ namespace moris
             tParameterlist( 5 )( 0 ).set("TSA_DofTypes",           "UX,UY;TEMP"  );
             tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec", "UX,0.0;UY,0.0;TEMP,1.0" );
             tParameterlist( 5 )( 0 ).set("TSA_Output_Indices",     "0" );
-            tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria",     "Output_Criterion" );
+            tParameterlist( 5 )( 0 ).set("TSA_Output_Criteria",     "Output_Criterion" );
             if ( tHaveMixedSolverConfig)
                 tParameterlist( 5 )( 0 ).set("TSA_time_level_per_type","UX,1;UY,1;TEMP,2" );
             else
@@ -967,7 +967,7 @@ namespace moris
             tParameterlist( 5 )( 0 ).set("TSA_DofTypes",           "UX,UY;TEMP"  );
             tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec", "UX,0.0;UY,0.0;TEMP,1.0" );
             tParameterlist( 5 )( 0 ).set("TSA_Output_Indices",     "0" );
-            tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria",     "Output_Criterion" );
+            tParameterlist( 5 )( 0 ).set("TSA_Output_Criteria",     "Output_Criterion" );
             if ( tHaveMixedSolverConfig)
                 tParameterlist( 5 )( 0 ).set("TSA_time_level_per_type","UX,1;UY,1;TEMP,2" );
             else

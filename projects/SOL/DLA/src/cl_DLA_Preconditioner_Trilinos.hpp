@@ -31,89 +31,106 @@ namespace moris
     {
         class Preconditioner_Trilinos
         {
-            private:
+          private:
+            bool mIsInitialized = false;
 
-                bool mIsInitialized = false;
+            Linear_Problem* mLinearSystem = nullptr;
 
-                Linear_Problem   * mLinearSystem =  nullptr;
+            moris::ParameterList mParameterList;
 
-                moris::ParameterList mParameterList;
+            Teuchos::RCP< Ifpack_Preconditioner > mIfPackPrec;
 
-                Teuchos::RCP< Ifpack_Preconditioner >  mIfPackPrec;
+            Teuchos::RCP< ML_Epetra::MultiLevelPreconditioner > mMlPrec;
 
-                Teuchos::RCP< ML_Epetra::MultiLevelPreconditioner > mMlPrec;
+            //-------------------------------------------------------------------------------
 
-                //-------------------------------------------------------------------------------
+            moris::sint build_ifpack_preconditioner();
 
-                moris::sint build_ifpack_preconditioner();
+            //-------------------------------------------------------------------------------
 
-                //-------------------------------------------------------------------------------
+            moris::sint build_ml_preconditioner();
 
-                moris::sint build_ml_preconditioner();
+            //-------------------------------------------------------------------------------
 
-                //-------------------------------------------------------------------------------
+            moris::sint compute_ifpack_preconditioner( bool tRecompute = false );
 
-                moris::sint compute_ifpack_preconditioner( bool tRecompute = false );
+            //-------------------------------------------------------------------------------
 
-                //-------------------------------------------------------------------------------
+            moris::sint compute_ml_preconditioner( bool tRecompute = false );
 
-                moris::sint compute_ml_preconditioner( bool tRecompute = false );
+            //-------------------------------------------------------------------------------
 
-                //-------------------------------------------------------------------------------
+          public:
+            //-------------------------------------------------------------------------------
 
-            public:
+            Preconditioner_Trilinos();
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                Preconditioner_Trilinos();
+            Preconditioner_Trilinos(
+                    const moris::ParameterList aParameterlist,
+                    Linear_Problem*            aLinearSystem );
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                Preconditioner_Trilinos(
-                        const moris::ParameterList   aParameterlist,
-                        Linear_Problem             * aLinearSystem  );
+            ~Preconditioner_Trilinos();
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                ~Preconditioner_Trilinos();
+            /*
+             * initialize preconditioner by setting parameter list and linear system
+             */
+            void initialize(
+                    const moris::ParameterList aParameterlist,
+                    Linear_Problem*            aLinearSystem );
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                /*
-                 * initialize preconditioner by setting parameter list and linear system
-                 */
-                void initialize(
-                        const moris::ParameterList   aParameterlist,
-                        Linear_Problem             * aLinearSystem);
+            /*
+             * build and compute preconditioner
+             *
+             *  @param[in] iteration index - used to decided whether preconditioner needs to
+             *                               be build and computed or just recomputed
+             */
+            void build( const sint& aIter = 1 );
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                /*
-                 * build and compute preconditioner
-                 *
-                 *  @param[in] iteration index - used to decided whether preconditioner needs to
-                 *                               be build and computed or just recomputed
-                 */
-                void build( const sint & aIter = 1 );
+            /*
+             * returns true if a preconditioner has been built
+             */
+            bool exists();
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                /*
-                 * returns true if a preconditioner has been built
-                 */
-                bool exists();
+            /*
+             * accessor to underling Epetra operator
+             */
+            Teuchos::RCP< Epetra_Operator > get_operator();
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
-                /*
-                 * accessor to underling Eptra operator
-                 */
-                Teuchos::RCP< Epetra_Operator > get_operator();
+            /*
+             * returns Ifpack Preconditioner
+             */
+            Teuchos::RCP< Ifpack_Preconditioner >&
+            get_ifpack_prec()
+            {
+                return mIfPackPrec;
+            };
 
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
+
+            /*
+             * returns Multilevel preconditioner
+             */
+            Teuchos::RCP< ML_Epetra::MultiLevelPreconditioner >&
+            get_ml_prec()
+            {
+                return mMlPrec;
+            };
         };
-    }
-}
+    }    // namespace dla
+}    // namespace moris
 
 #endif /* SRC_DISTLINALG_CL_PRECONDITIONER_TRILINOS_HPP_ */
-

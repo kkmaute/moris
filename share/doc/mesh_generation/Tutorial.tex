@@ -52,10 +52,11 @@ Finally, to generate the desired mesh and extraction operators, run the MORIS ex
 \section{Geometry}
 \label{sec:tutorial_geometry}
 
-As discussed in \Cref{sec:overview_geometry}, geometry is defined using multiple Level-Set Functions (LSFs). The different regions defined by the zero level-set iso-contours can be merged using a \hyperlink{phase_map}{phase map}. Currently there are two ways LSFs can be defined:
+As discussed in \Cref{sec:overview_geometry}, geometry is defined using multiple Level-Set Functions (LSFs). The different regions defined by the zero level-set iso-contours can be merged using a \hyperlink{phase_map}{phase map}. Currently, there are two ways LSFs can be defined:
 \begin{enumerate}
     \item \hyperlink{pre_defined}{Pre-defined geometries}
     \item \hyperlink{image_file}{Image files}
+    \item \hyperlink{object_file}{WaveFront .obj files}
 \end{enumerate}
 Each new LSF (and hence geometry) is defined using a \tag{Geometry} tag and nested under the \tag{Geometries} tag (see \Cref{lst:input_structure}). The \att{type} attribute is used to indicate how the LSF is defined. The parameters defining the particular geometry are then nested within. Examples are provided below with each of the respective geometry types.
 
@@ -153,7 +154,26 @@ The generated SDF is assumed to occupy a rectangular or cuboidal domain dependin
 \end{lstlisting}
 \end{minipage}
 
-\refpar{future}{Future Extensions} to the geometry capabilities are more options for pre-defined geometries and patterns thereof, as well as enabling closed surface STL files to be converted to SDFs. Further, symbolic expressions for level-set functions will be enabled. Please reach out with any feature suggestions and requests.
+\refpar{object_file}{Wavefront OBJ Files} are used to store the geometry of 3D objects.
+More details how the file format stores geometry data can be found \href{https://en.wikipedia.org/wiki/Wavefront_.obj_file}{here (\ExternalLink)}. They can easily be generated from more common STL files, e.g. in ParaView, as long as the geometry used has a closed surface.
+
+The OBJ file the geometry is to be loaded from is specified using the tag \tag{FileName}. The position of the coordinate system which the geometry is defined in within the OBJ file is set using the tag \tag{ObjectOrigin}. Additionally, the signed distance field generated from the OBJ data can be offset by a constant using the tag \tag{SdfShift}. This can be used in, e.g., situations where small scale features merge on a coarse mesh.
+An example for defining a geometry based off an OBJ file is provided in \Cref{lst:object} as well as in the \href{https://github.com/kkmaute/moris/blob/main/share/doc/mesh_generation/examples/Dragon_Example.xml}{"Dragon" example input file (\ExternalLink)}.
+
+\begin{minipage}{\linewidth}
+\vspace{0.5cm}
+\begin{lstlisting}[caption={Example parameters for an OBJ file as provided in one of the examples.},captionpos=b, label={lst:object}]
+<Geometry type="object_file">
+    <FileName>Dragon.obj</FileName>
+    <ObjectOrigin>0.0,0.0,0.0</ObjectOrigin>
+    <SdfShift>0.00</SdfShift>
+</Geometry>
+\end{lstlisting}
+\end{minipage}
+
+\refpar{future}{Future Extensions} to the geometry capabilities are more options for pre-defined geometries and patterns thereof. Further, symbolic expressions for level-set functions will be enabled. Please reach out with any feature suggestions and requests.
+
+\newpage
 
 \refpar{phase_map}{A Phase Map} is used to assign materials to the phases. As mentioned in \Cref{sec:overview_geometry}, up to $n_M = 2^{n_{LSF}}$ phases and therefore material sub-domains arise from $n_{LSF}$ level-set functions, assuming that each sign combination from the LSFs corresponds to one phase. For the default material assignment each phase, i.e. regions with a certain sign combination, correspond to a material. The index of a phase is assumed to be the value of a bitset where each digit corresponds to the sign of one of the level-set function. Negative values of the LSFs correspond to zeros, positive values to ones. The phase assignment is provided in \Cref{tab:default_phase_assignment}.
 

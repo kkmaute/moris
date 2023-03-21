@@ -56,10 +56,10 @@ Matrix_PETSc::Matrix_PETSc(
     MatSetFromOptions( mPETScMat );
 
     // Fixme Implement sparsity algorithm
-    PetscInt tNonzeros = 16;
+    PetscInt tNonZeros = 16;
 
     // Define sparsity structure
-    MatMPIAIJSetPreallocation( mPETScMat, tNonzeros, NULL, tNonzeros, NULL );
+    MatMPIAIJSetPreallocation( mPETScMat, tNonZeros, NULL, tNonZeros, NULL );
 
     // Finalize setup of matrix
     MatSetUp( mPETScMat );
@@ -90,10 +90,10 @@ Matrix_PETSc::Matrix_PETSc(
     MatSetOption( mPETScMat, MAT_ROW_ORIENTED, PETSC_FALSE );
 
     // Fixme Implement sparsity algorithm
-    PetscInt tNonzeros = 16;
+    PetscInt tNonZeros = 16;
 
     // Define sparsity structure
-    MatMPIAIJSetPreallocation( mPETScMat, tNonzeros, NULL, tNonzeros, NULL );
+    MatMPIAIJSetPreallocation( mPETScMat, tNonZeros, NULL, tNonZeros, NULL );
 
     // Finalize setup of matrix
     MatSetUp( mPETScMat );
@@ -150,20 +150,20 @@ void
 Matrix_PETSc::fill_matrix(
         const moris::uint&             aNumMyDof,
         const moris::Matrix< DDRMat >& aA_val,
-        const moris::Matrix< DDSMat >& aEleDofConectivity )
+        const moris::Matrix< DDSMat >& aEleDofConnectivity )
 {
     // check for consistent sizes of vectors of IDs and values
-    MORIS_ASSERT( aEleDofConectivity.numel() == aNumMyDof,
+    MORIS_ASSERT( aEleDofConnectivity.numel() == aNumMyDof,
             "Matrix_PETSc::fill_matrix - inconsistent sizes of ID and value vectors" );
 
     // create copy of vector with moris IDs; will be overwritten in AOApplicationToPetsc
-    Matrix< DDSMat > tTempElemDofs = aEleDofConectivity;
+    Matrix< DDSMat > tTempElemDofs = aEleDofConnectivity;
 
     // loop over elemental dofs
     for ( moris::uint Ij = 0; Ij < aNumMyDof; Ij++ )
     {
         // set constrDof to neg value
-        if ( mDirichletBCVec( aEleDofConectivity( Ij ), 0 ) == 1 )
+        if ( mDirichletBCVec( aEleDofConnectivity( Ij ), 0 ) == 1 )
         {
             tTempElemDofs( Ij, 0 ) = -1;
         }

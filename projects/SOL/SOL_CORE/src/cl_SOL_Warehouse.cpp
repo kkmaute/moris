@@ -18,6 +18,8 @@
 #include "cl_DLA_Solver_Factory.hpp"
 #include "cl_DLA_Linear_Solver.hpp"
 
+#include "cl_DLA_Eigen_Solver.hpp"
+
 #include "cl_NLA_Nonlinear_Solver_Factory.hpp"
 #include "cl_NLA_Nonlinear_Algorithm.hpp"
 #include "cl_NLA_Nonlinear_Solver.hpp"
@@ -59,9 +61,9 @@ SOL_Warehouse::~SOL_Warehouse()
     {
         mLinearSolverAlgorithms( Ik ).reset();
     }
-    for ( uint Ik = 0; Ik < mNonlinearSolverAlgoriths.size(); Ik++ )
+    for ( uint Ik = 0; Ik < mNonlinearSolverAlgorithms.size(); Ik++ )
     {
-        mNonlinearSolverAlgoriths( Ik ).reset();
+        mNonlinearSolverAlgorithms( Ik ).reset();
     }
     for ( uint Ik = 0; Ik < mTimeSolverAlgorithms.size(); Ik++ )
     {
@@ -86,7 +88,10 @@ SOL_Warehouse::initialize()
 
     mOperatorToMatlab      = mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_operator_to_matlab" );
     mSaveFinalSolVecToFile = mParameterlist( 6 )( 0 ).get< std::string >( "SOL_save_final_sol_vec_to_file" );
+
     mLoadSolVecFromFile    = mParameterlist( 6 )( 0 ).get< std::string >( "SOL_load_sol_vec_from_file" );
+    mSolVecDataGroup       = mParameterlist( 6 )( 0 ).get< std::string >( "SOL_load_sol_vec_data_group" );
+    mSolVecNumberOfVectors = mParameterlist( 6 )( 0 ).get< sint >( "SOL_load_sol_vec_num_vec" );
 
     mFilenameInitialGuess = mParameterlist( 6 )( 0 ).get< std::string >( "TSA_Initial_Sol_Vec" );
 
@@ -141,6 +146,9 @@ SOL_Warehouse::create_linear_solvers()
 
     mLinearSolvers.resize( tNumLinSolvers );
 
+    // get RHS Matrix type from parameter list
+    mRHSMatType = mParameterlist( 1 )( 0 ).get< std::string >( "RHS_Matrix_Type" );
+
     for ( uint Ik = 0; Ik < tNumLinSolvers; Ik++ )
     {
         mLinearSolvers( Ik ) = new dla::Linear_Solver( mParameterlist( 1 )( Ik ) );
@@ -166,27 +174,27 @@ SOL_Warehouse::create_nonlinear_solver_algorithms()
 {
     uint tNumNonLinAlgorithms = mParameterlist( 2 ).size();
 
-    mNonlinearSolverAlgoriths.resize( tNumNonLinAlgorithms );
+    mNonlinearSolverAlgorithms.resize( tNumNonLinAlgorithms );
 
     NLA::Nonlinear_Solver_Factory tNonlinFactory;
 
     for ( uint Ik = 0; Ik < tNumNonLinAlgorithms; Ik++ )
     {
-        mNonlinearSolverAlgoriths( Ik ) =
+        mNonlinearSolverAlgorithms( Ik ) =
                 tNonlinFactory.create_nonlinear_solver(    //
                         static_cast< moris::NLA::NonlinearSolverType >( mParameterlist( 2 )( Ik ).get< moris::uint >( "NLA_Solver_Implementation" ) ),
                         mParameterlist( 2 )( Ik ) );
 
-        mNonlinearSolverAlgoriths( Ik )->set_linear_solver( mLinearSolvers( mParameterlist( 2 )( Ik ).get< moris::sint >( "NLA_Linear_solver" ) ) );
+        mNonlinearSolverAlgorithms( Ik )->set_linear_solver( mLinearSolvers( mParameterlist( 2 )( Ik ).get< moris::sint >( "NLA_Linear_solver" ) ) );
 
         if ( mParameterlist( 2 )( Ik ).get< moris::sint >( "NLA_linear_solver_for_adjoint_solve" ) == -1 )
         {
-            mNonlinearSolverAlgoriths( Ik )    //
+            mNonlinearSolverAlgorithms( Ik )    //
                     ->set_linear_solver_for_adjoint_solve( mLinearSolvers( mParameterlist( 2 )( Ik ).get< moris::sint >( "NLA_Linear_solver" ) ) );
         }
         else
         {
-            mNonlinearSolverAlgoriths( Ik )    //
+            mNonlinearSolverAlgorithms( Ik )    //
                     ->set_linear_solver_for_adjoint_solve( mLinearSolvers( mParameterlist( 2 )( Ik ).get< moris::sint >( "NLA_linear_solver_for_adjoint_solve" ) ) );
         }
     }
@@ -219,15 +227,15 @@ SOL_Warehouse::create_nonlinear_solvers()
         for ( uint Ii = 0; Ii < tMat.numel(); Ii++ )
         {
             // check that algorithm exists
-            MORIS_ERROR( mNonlinearSolverAlgoriths.size() > (uint)tMat( Ii ),
+            MORIS_ERROR( mNonlinearSolverAlgorithms.size() > (uint)tMat( Ii ),
                     "SOL_Warehouse::create_nonlinear_solvers - NLA_Nonlinear_solver_algorithm %d does not exist",
                     tMat( Ii ) );
 
-            MORIS_ERROR( mNonlinearSolverAlgoriths( tMat( Ii ) ),
+            MORIS_ERROR( mNonlinearSolverAlgorithms( tMat( Ii ) ),
                     "SOL_Warehouse::create_nonlinear_solvers - NLA_Nonlinear_solver_algorithms %d has not been created",
                     tMat( Ii ) );
 
-            mNonlinearSolvers( Ik )->set_nonlinear_algorithm( mNonlinearSolverAlgoriths( tMat( Ii ) ), Ii );
+            mNonlinearSolvers( Ik )->set_nonlinear_algorithm( mNonlinearSolverAlgorithms( tMat( Ii ) ), Ii );
         }
 
         // get and set list of dof types
@@ -251,7 +259,7 @@ SOL_Warehouse::create_nonlinear_solvers()
         Cell< Cell< MSI::Dof_Type > > tCellOfCellsSecDofTypes;
 
         string_to_cell_of_cell(
-                mParameterlist( 3 )( Ik ).get< std::string >( "NLA_Secundary_DofTypes" ),
+                mParameterlist( 3 )( Ik ).get< std::string >( "NLA_Secondary_DofTypes" ),
                 tCellOfCellsSecDofTypes,
                 tMap );
 
@@ -260,7 +268,7 @@ SOL_Warehouse::create_nonlinear_solvers()
         {
             if ( tCellOfCellsSecDofTypes( 0 )( 0 ) == MSI::Dof_Type::UNDEFINED )
             {
-                this->get_default_secundary_dof_types( tCellOfCellsSecDofTypes, tCellOfCells );
+                this->get_default_secondary_dof_types( tCellOfCellsSecDofTypes, tCellOfCells );
             }
         }
 
@@ -365,17 +373,14 @@ SOL_Warehouse::create_time_solvers()
 
         // get strings of output indices and criteria
         std::string tStringOutputInd      = mParameterlist( 5 )( Ik ).get< std::string >( "TSA_Output_Indices" );
-        std::string tStringOutputCriteria = mParameterlist( 5 )( Ik ).get< std::string >( "TSA_Output_Crteria" );
+        std::string tStringOutputCriteria = mParameterlist( 5 )( Ik ).get< std::string >( "TSA_Output_Criteria" );
 
         if ( tStringOutputInd.size() > 0 )
         {
-            moris::Matrix< DDSMat >    tOutputIndices;
+            moris::Matrix< DDSMat > tOutputIndices;
+            string_to_mat( tStringOutputInd, tOutputIndices );
+
             moris::Cell< std::string > tOutputCriteria;
-
-            string_to_mat( tStringOutputInd,
-                    tOutputIndices );
-
-            moris::Cell< std::string > tOutputCriterias;
             string_to_cell( tStringOutputCriteria, tOutputCriteria );
 
             MORIS_ERROR( tOutputIndices.numel() == tOutputCriteria.size(),
@@ -406,11 +411,11 @@ SOL_Warehouse::create_time_solvers()
 //---------------------------------------------------------------------------------------------------------------------
 
 void
-SOL_Warehouse::get_default_secundary_dof_types(
+SOL_Warehouse::get_default_secondary_dof_types(
         Cell< Cell< MSI::Dof_Type > >&        aCellOfCellsSecDofTypes,
         Cell< Cell< MSI::Dof_Type > > const & aCellOfCellDofTypes )
 {
-    // reset list of secundary dof types
+    // reset list of secondary dof types
     for ( auto& tCell : aCellOfCellsSecDofTypes )
     {
         tCell.clear();
@@ -469,7 +474,7 @@ SOL_Warehouse::get_default_secundary_dof_types(
             }
         }
 
-        // if dof type is not residual dof type, add to secundary dif types
+        // if dof type is not residual dof type, add to secondary dif types
         if ( not tIsResDofType )
         {
             aCellOfCellsSecDofTypes( 0 ).push_back( tListOfAllPossibleDofTypes( Ik ) );
@@ -482,38 +487,38 @@ SOL_Warehouse::get_default_secundary_dof_types(
 // void SOL_Warehouse::create_solver_manager_dependencies()
 //{
 //     // Set size of nonlinear solver manager list to number of nonlinear solver managers
-//     mListSolverManagerDepenencies.resize( mListNonlinerSolverManagers.size() );
+//     mListSolverManagerDependencies.resize( mListNonlinearSolverManagers.size() );
 //
 //     // Loop over all nonlinear solver manager
-//     for ( uint Ik = 0 ; Ik < mListNonlinerSolverManagers.size(); Ik++ )
+//     for ( uint Ik = 0 ; Ik < mListNonlinearSolverManagers.size(); Ik++ )
 //     {
 //         // Get the list of list of dof types in which this particular nonlinear solver manager is operating on
-//         moris::Cell< moris::Cell< enum MSI::Dof_Type > > tNonlinerSolverManagerDofTypeList = mListNonlinerSolverManagers( Ik )->get_dof_type_list();
+//         moris::Cell< moris::Cell< enum MSI::Dof_Type > > tNonlinearSolverManagerDofTypeList = mListNonlinearSolverManagers( Ik )->get_dof_type_list();
 //
 //         // Set the size of the dependency list for this nonlinear solver manager == number sub-solvers
-//         mListSolverManagerDepenencies( Ik ).set_size( tNonlinerSolverManagerDofTypeList.size(), 1, -1 );
+//         mListSolverManagerDependencies( Ik ).set_size( tNonlinearSolverManagerDofTypeList.size(), 1, -1 );
 //
 //         // Loop over all sub system dof type lists
-//         for ( uint Ii = 0 ; Ii < tNonlinerSolverManagerDofTypeList.size(); Ii++ )
+//         for ( uint Ii = 0 ; Ii < tNonlinearSolverManagerDofTypeList.size(); Ii++ )
 //         {
 //             // Loop over all nonlinear solver managers
-//             for ( uint Ij = 0 ; Ij < mListNonlinerSolverManagers.size(); Ij++ )
+//             for ( uint Ij = 0 ; Ij < mListNonlinearSolverManagers.size(); Ij++ )
 //             {
 //                 // Check that the to be compared nonlinear solver manager indices are not equal
 //                 if( Ij != Ik )
 //                 {
 //                     // Get dof type union of the downward nonlinear solver manager
-//                     moris::Cell< enum MSI::Dof_Type > tUnionDofTypeList = mListNonlinerSolverManagers( Ij )->get_dof_type_union();
+//                     moris::Cell< enum MSI::Dof_Type > tUnionDofTypeList = mListNonlinearSolverManagers( Ij )->get_dof_type_union();
 //
 //                     // Check if the subsystem doftype list and the downward solver union list are the same
-//                     if( tNonlinerSolverManagerDofTypeList( Ii ).data() == tUnionDofTypeList.data() )
+//                     if( tNonlinearSolverManagerDofTypeList( Ii ).data() == tUnionDofTypeList.data() )
 //                     {
 //                         // Check that a possible downward solver is only found once
-//                         MORIS_ERROR( mListSolverManagerDepenencies( Ik )( Ii, 0 ) == -1,
+//                         MORIS_ERROR( mListSolverManagerDependencies( Ik )( Ii, 0 ) == -1,
 //                                 "SOL_Warehouse::create_solver_manager_dependencies(): Two solvers are operating on the same dof types" );
 //
 //                         // Add downward solver nonlinear solver manager index to list
-//                         mListSolverManagerDepenencies( Ik )( Ii, 0 ) = Ij;
+//                         mListSolverManagerDependencies( Ik )( Ii, 0 ) = Ij;
 //                     }
 //                 }
 //             }
@@ -527,10 +532,10 @@ SOL_Warehouse::get_default_secundary_dof_types(
 //                                                                     const moris::sint aDofTypeListIndex )
 //{
 //     // check if index was set.
-//     MORIS_ERROR( mListSolverManagerDepenencies( aSolverManagerIndex )( aDofTypeListIndex, 0 ) != -1,
-//             "SOL_Warehouse::get_nonliner_solver_manager_index(): Return nonlinear solver manager -1. Check create_solver_manager_dependencies()" );
+//     MORIS_ERROR( mListSolverManagerDependencies( aSolverManagerIndex )( aDofTypeListIndex, 0 ) != -1,
+//             "SOL_Warehouse::get_nonlinear_solver_manager_index(): Return nonlinear solver manager -1. Check create_solver_manager_dependencies()" );
 //
-//     return mListSolverManagerDepenencies( aSolverManagerIndex )( aDofTypeListIndex , 0 );
+//     return mListSolverManagerDependencies( aSolverManagerIndex )( aDofTypeListIndex , 0 );
 // }
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -540,8 +545,8 @@ SOL_Warehouse::get_default_secundary_dof_types(
 //     // Create matrix vector factory
 //     sol::Matrix_Vector_Factory tMatFactory( MapType::Epetra );
 //
-//     // Get number nonliner solver managers
-//     moris::uint tNumberNonlinSolverManager = mListNonlinerSolverManagers.size();
+//     // Get number nonlinear solver managers
+//     moris::uint tNumberNonlinSolverManager = mListNonlinearSolverManagers.size();
 //
 //     // Set size of list of maps
 //     mListOfFreeMaps.resize( tNumberNonlinSolverManager + 1, nullptr );
@@ -553,9 +558,9 @@ SOL_Warehouse::get_default_secundary_dof_types(
 //     for ( uint Ik = 0 ; Ik < tNumberNonlinSolverManager; Ik++ )
 //     {
 //         // Get dof type union of the downward nonlinear solver manager
-//         moris::Cell< enum MSI::Dof_Type > tUnionDofTypeList = mListNonlinerSolverManagers( Ik )->get_dof_type_union();
+//         moris::Cell< enum MSI::Dof_Type > tUnionDofTypeList = mListNonlinearSolverManagers( Ik )->get_dof_type_union();
 //
-//         // FIXME Set dof type on solver inerface
+//         // FIXME Set dof type on solver interface
 //         mSolverInterface->set_requested_dof_types( tUnionDofTypeList );
 //
 //         // Create free map for this dof type list
@@ -584,7 +589,7 @@ SOL_Warehouse::get_default_secundary_dof_types(
 
 // void SOL_Warehouse::finalize()
 //{
-//     // Call to calculate nonliner solver manager dependencies
+//     // Call to calculate nonlinear solver manager dependencies
 //     this->create_solver_manager_dependencies();
 //
 //     // Build matrix vector factory
@@ -595,33 +600,33 @@ SOL_Warehouse::get_default_secundary_dof_types(
 //     // Create Full Vector
 //     mFullVector = tMatFactory.create_vector( mSolverInterface, mMap, VectorType::FREE );
 //
-//     // Initilaze full vector with zeros
+//     // Initialize full vector with zeros
 //     mFullVector->vec_put_scalar( 0.0 );
 //
 //     // Loop over all nonlinear solver managers and set pointer to the database
-//     for ( uint Ik = 0; Ik < mListNonlinerSolverManagers.size(); Ik++ )
+//     for ( uint Ik = 0; Ik < mListNonlinearSolverManagers.size(); Ik++ )
 //     {
-//         mListNonlinerSolverManagers( Ik )->set_solver_warehouse( this );
+//         mListNonlinearSolverManagers( Ik )->set_solver_warehouse( this );
 //     }
 // }
 
 //---------------------------------------------------------------------------------------------------------------------
 
-// void SOL_Warehouse::set_nonliner_solver_managers( Nonlinear_Solver * aNonlinerSolverManager )
+// void SOL_Warehouse::set_nonlinear_solver_managers( Nonlinear_Solver * aNonlinearSolverManager )
 //{
 //     if( mCallCounter == 0 )
 //     {
-//         mListNonlinerSolverManagers.clear();
+//         mListNonlinearSolverManagers.clear();
 //
-//         mListNonlinerSolverManagers.push_back( aNonlinerSolverManager );
+//         mListNonlinearSolverManagers.push_back( aNonlinearSolverManager );
 //
-//         mListNonlinerSolverManagers( mCallCounter )->set_sonlinear_solver_manager_index( mCallCounter );
+//         mListNonlinearSolverManagers( mCallCounter )->set_nonlinear_solver_manager_index( mCallCounter );
 //     }
 //     else
 //     {
-//         mListNonlinerSolverManagers.push_back( aNonlinerSolverManager );
+//         mListNonlinearSolverManagers.push_back( aNonlinearSolverManager );
 //
-//         mListNonlinerSolverManagers( mCallCounter )->set_sonlinear_solver_manager_index( mCallCounter );
+//         mListNonlinearSolverManagers( mCallCounter )->set_nonlinear_solver_manager_index( mCallCounter );
 //     }
 //
 //     mCallCounter = mCallCounter + 1;
@@ -631,7 +636,7 @@ SOL_Warehouse::get_default_secundary_dof_types(
 
 // void SOL_Warehouse::solve()
 //{
-//     mListNonlinerSolverManagers( 0 )->solve( );
+//     mListNonlinearSolverManagers( 0 )->solve( );
 // }
 
 //---------------------------------------------------------------------------------------------------------------------

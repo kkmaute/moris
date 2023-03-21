@@ -607,6 +607,14 @@ namespace xtk
 
         //------------------------------------------------------------------------------
 
+        std::map< moris_id, moris_index >
+        get_communication_map() const
+        {
+            return mCutIntegrationMesh->get_communication_map();
+        }
+
+        //------------------------------------------------------------------------------
+
         /**
          * @brief returns whether SPG based enrichment is used or not
          */
@@ -663,81 +671,9 @@ namespace xtk
         //------------------------------------------------------------------------------
 
       protected:
-        void
-        send_outward_requests(
-                moris_index const &         aMPITag,
-                Cell< uint > const &        aProcRanks,
-                Cell< Matrix< IndexMat > >& aOutwardRequests );
 
         //------------------------------------------------------------------------------
-
-        void
-        inward_receive_requests(
-                moris_index const &         aMPITag,
-                moris::uint                 aNumRows,
-                Cell< Matrix< IndexMat > >& aReceivedData,
-                Cell< uint >&               aProcRanksReceivedFrom );
-
-        //------------------------------------------------------------------------------
-
-        void
-        prepare_request_answers(
-                Decomposition_Data&                aDecompData,
-                Cell< Matrix< IndexMat > > const & aReceiveData,
-                Cell< Matrix< IndexMat > >&        aReceivedRequestAnswers );
-
-        //------------------------------------------------------------------------------
-
-        void
-        return_request_answers(
-                moris_index const &                aMPITag,
-                Cell< Matrix< IndexMat > > const & aRequestAnswers,
-                Cell< uint > const &               aProcRanks );
-
-        //------------------------------------------------------------------------------
-
-        void
-        inward_receive_request_answers(
-                moris_index const &         aMPITag,
-                moris::uint const &         aNumRows,
-                Cell< uint > const &        aProcRanks,
-                Cell< Matrix< IndexMat > >& aReceivedData );
-
-        //------------------------------------------------------------------------------
-
-        void
-        handle_received_request_answers(
-                Decomposition_Data&                aDecompData,
-                Cell< Matrix< IndexMat > > const & aRequests,
-                Cell< Matrix< IndexMat > > const & aRequestAnswers,
-                moris::moris_id&                   aNodeId );
-
-        //------------------------------------------------------------------------------
-        // moris real versions of above
-        void
-        send_outward_requests_reals(
-                moris_index const &       aMPITag,
-                Cell< uint > const &      aProcRanks,
-                Cell< Matrix< DDRMat > >& aOutwardRequests );
-
-        //------------------------------------------------------------------------------
-
-        void
-        inward_receive_requests_reals(
-                moris_index const &       aMPITag,
-                moris::uint               aNumRows,
-                Cell< Matrix< DDRMat > >& aReceivedData,
-                Cell< uint >&             aProcRanksReceivedFrom );
-
-        //------------------------------------------------------------------------------
-
-        void
-        return_request_answers_reals(
-                moris_index const &              aMPITag,
-                Cell< Matrix< DDRMat > > const & aRequestAnswers,
-                Cell< uint > const &             aProcRanks );
-        //------------------------------------------------------------------------------
-
+        
         /*
          * For nodes that are created during the decomposition process, tell
          * the XTK mesh about where they live in child meshes.
@@ -919,15 +855,6 @@ namespace xtk
                 Cell< moris::moris_index >& aCellSubphaseBulkIndices,
                 Cell< moris::moris_index >& aRepresentativeCellInd,
                 Cell< moris::moris_index >& aRepresentativeCellSideOrdinal );
-
-        //------------------------------------------------------------------------------
-
-        void
-        inward_receive_request_answers_reals(
-                moris_index const &       aMPITag,
-                moris::uint const &       aNumRows,
-                Cell< uint > const &      aProcRanks,
-                Cell< Matrix< DDRMat > >& aReceivedData );
 
         //------------------------------------------------------------------------------
 

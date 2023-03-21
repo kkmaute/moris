@@ -100,7 +100,7 @@ namespace moris
              * Add global valued to the distributed vector.
              *
              * @param[in] aNumMyDof            Number of entries which will be inserted.
-             * @param[in] aEleDofConectivity   Position where to place the entriess.
+             * @param[in] aEleDofConnectivity   Position where to place the entries.
              * @param[in] aRHSVal              Array with values.
              *
              */
@@ -150,7 +150,7 @@ namespace moris
             virtual void vec_put_scalar( const moris::real& aValue ) = 0;
 
             /**
-             * Inserts random values into vactor.
+             * Inserts random values into vector.
              *
              */
             virtual void random() = 0;
@@ -207,7 +207,10 @@ namespace moris
              *
              * @param aFilename File name to read from
              */
-            virtual void read_vector_from_HDF5( const char* aFilename ) = 0;
+            virtual void read_vector_from_HDF5(
+                    const char* aFilename,
+                    std::string aGroupName   = "LHS",
+                    sint        aVectorindex = 0 ) = 0;
 
             /**
              * Extracts a full copy of this vector into a DDRMat format.

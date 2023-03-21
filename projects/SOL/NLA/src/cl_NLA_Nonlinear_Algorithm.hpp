@@ -56,7 +56,7 @@ namespace moris
             //! Pointer to the linear solver manager for adjoint solve. Can be the same than mLinSolverManager
             dla::Linear_Solver* mLinSolverManagerForAdjoint = nullptr;
 
-            //! pointer to the nonliner problem
+            //! pointer to the nonlinear problem
             Nonlinear_Problem* mNonlinearProblem = nullptr;
 
             //! Parameterlist for this nonlinear solver
@@ -171,4 +171,3 @@ namespace moris
     }    // namespace NLA
 }    // namespace moris
 #endif /* MORIS_DISTLINALG_CL_NLA_NONLINEAR_ALGORITHM_HPP_ */
-

@@ -111,11 +111,11 @@ namespace moris
             /**
              * @brief Constructor. Sets given List of nonlinear solvers to this nonlinear solver manager
              *
-             * @param[in] aNonlinerSolverList List of nonlinear solvers.
+             * @param[in] aNonlinearSolverList List of nonlinear solvers.
              * @param[in] aNonLinSolverType Nonlinear solver type. Default is Newton
              */
             Nonlinear_Solver(
-                    Cell< std::shared_ptr< Nonlinear_Algorithm > >& aNonlinerSolverList,
+                    Cell< std::shared_ptr< Nonlinear_Algorithm > >& aNonlinearSolverList,
                     const enum NonlinearSolverType                  aNonLinSolverType = NonlinearSolverType::NEWTON_SOLVER );
 
             //--------------------------------------------------------------------------------------------------
@@ -242,19 +242,19 @@ namespace moris
             /**
              * @brief Get the union of this nonlinear solver managers dof types
              *
-             * @param[out] rUnionListOfDofTypes Returns the union list of this nonliner solver managers dof types
+             * @param[out] rUnionListOfDofTypes Returns the union list of this nonlinear solver managers dof types
              */
             Cell< enum MSI::Dof_Type > get_dof_type_union();
 
             //--------------------------------------------------------------------------------------------------
 
             /**
-             * @brief Get secundary dof type list
+             * @brief Get secondary dof type list
              *
-             * @param[out] rUnionListOfDofTypes Returns the union list of this nonliner solver managers dof types
+             * @param[out] rUnionListOfDofTypes Returns the union list of this nonlinear solver managers dof types
              */
             Cell< Cell< enum MSI::Dof_Type > >
-            get_secundary_dof_type_list()
+            get_secondary_dof_type_list()
             {
                 return mSecondaryDofTypeList;
             };
@@ -270,21 +270,21 @@ namespace moris
              *
              * @param[in] aNonlinearSolverManagerIndex Nonlinear solver manager index
              */
-            void set_sonlinear_solver_manager_index( const sint aNonlinearSolverManagerIndex );
+            void set_nonlinear_solver_manager_index( const sint aNonlinearSolverManagerIndex );
 
             //--------------------------------------------------------------------------------------------------
 
             /**
              * @brief Get the nonlinear solver manager index
              *
-             * @param[out] rNonlinerSolverManagerIndex Returns the nonlinear solver manager index
+             * @param[out] rNonlinearSolverManagerIndex Returns the nonlinear solver manager index
              */
-            sint get_sonlinear_solver_manager_index();
+            sint get_nonlinear_solver_manager_index();
 
             //--------------------------------------------------------------------------------------------------
 
             /**
-             * @brief Retruns pointer to the solver database
+             * @brief Returns pointer to the solver database
              *
              * @param[out] rSolverDatabase Returns the pointer to the solver database
              */
@@ -299,7 +299,7 @@ namespace moris
             /**
              * @brief Set pointer to the solver database
              *
-             * @param[in] rSolverDatabase Poiner to the solver database
+             * @param[in] rSolverDatabase Pointer to the solver database
              */
             void set_solver_warehouse( sol::SOL_Warehouse* aSolverWarehouse );
 

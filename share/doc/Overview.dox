@@ -9,35 +9,39 @@ namespace moris {
 
 /** @mainpage notitle
 
-This is the API documentation for MORIS, a C++ code developed at the Center for 
-Aerospace Structures at the University of Colorado Boulder.
-
-If this is your first time working with MORIS, check out the @ref GettingStarted
-page, which includes instructions on how to get a copy of the code and how to compile it.
-
-For an introduction on the dense and sparse linear algebra packages, the optimization
-module, visit their respective chapters:
-
-  - \link LinAlg Introduction to Linear Algebra and the Matrix class \endlink
-  - \link SpAlg Sparse linear algebra \endlink
-  - \subpage opt_module
-  - \link CommModule Introduction to the Communication Module \endlink
-
-The \b main \b documentation is organized into chapters covering different 
-domains of features. For a complete list of chapters, click
-<a href="modules.html"><b>here</b></a>. To jump straight to MORIS' API documentation, 
-click @link moris here@endlink.
-
-Under the @ref MiscTopics section, you will find documentation 
-on more general topics not related to coding with MORIS such as discussions on 
-the Makefile wrapper or SVN features.
-
-MORIS developers can check out the @link DevGroup Developer @endlink 
-modules for a complete set of coding guidelines.
-
-Use the search engine to quickly get to the 
-documentation of a given class or function. 
+<span style="color:red;font-size:250%;line-height:40pt;background-color:black"> THIS DOCUMENTATION IS OUTDATED AND CURRENTLY BEING REVISED. 
+<br> PLEASE DO NOT CONSULT THIS DOCUMENATION UNTIL THIS BANNER HAS BEEN REMOVED. </span>.
 
 */
+
+# This is the API documentation for MORIS, a C++ code developed at the Center for 
+# Aerospace Structures at the University of Colorado Boulder.
+# 
+# If this is your first time working with MORIS, check out the @ref GettingStarted
+# page, which includes instructions on how to get a copy of the code and how to compile it.
+# 
+# For an introduction on the dense and sparse linear algebra packages, the optimization
+# module, visit their respective chapters:
+# 
+#   - \link LinAlg Introduction to Linear Algebra and the Matrix class \endlink
+#   - \link SpAlg Sparse linear algebra \endlink
+#   - \subpage opt_module
+#   - \link CommModule Introduction to the Communication Module \endlink
+# 
+# The \b main \b documentation is organized into chapters covering different 
+# domains of features. For a complete list of chapters, click
+# <a href="modules.html"><b>here</b></a>. To jump straight to MORIS' API documentation, 
+# click @link moris here@endlink.
+# 
+# Under the @ref MiscTopics section, you will find documentation 
+# on more general topics not related to coding with MORIS such as discussions on 
+# the Makefile wrapper or SVN features.
+# 
+# MORIS developers can check out the @link DevGroup Developer @endlink 
+# modules for a complete set of coding guidelines.
+# 
+# Use the search engine to quickly get to the 
+# documentation of a given class or function. 
+
 }
 

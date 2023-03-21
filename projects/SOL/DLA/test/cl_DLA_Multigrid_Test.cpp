@@ -260,7 +260,7 @@ namespace moris
             tParameterlist( 5 )( 0 ) = moris::prm::create_time_solver_parameter_list();
             tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "L2" );
             tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "" );
-            tParameterlist( 5 )( 0 ).set( "TSA_Output_Crteria", "" );
+            tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "" );
 
             tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
             tParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", static_cast< uint >( sol::MapType::Petsc ) );
@@ -415,7 +415,7 @@ namespace moris
 
              Matrix< DDUMat > tAdofMap = tMSI->get_dof_manager()->get_adof_ind_map();
 
-             NLA::Nonlinear_Problem * tNonlinerarProblem =  new NLA::Nonlinear_Problem( tSolverInterface, true, sol::MapType::Petsc );
+             NLA::Nonlinear_Problem * tNonlinearProblem =  new NLA::Nonlinear_Problem( tSolverInterface, true, sol::MapType::Petsc );
 
              // create factory for nonlinear solver
              NLA::Nonlinear_Solver_Factory tNonlinFactory;
@@ -458,7 +458,7 @@ namespace moris
                  }
              }
 
-             tNonlinearSolver->solver_nonlinear_system( tNonlinerarProblem );
+             tNonlinearSolver->solver_nonlinear_system( tNonlinearProblem );
 
              moris::Matrix< DDSMat > tExternalIndices( 9, 1 );
              tExternalIndices( 0, 0 ) = 17;
@@ -617,7 +617,7 @@ namespace moris
             //
             //         Matrix< DDUMat > tAdofMap = tMSI->get_dof_manager()->get_adof_ind_map();
             //
-            //         NLA::Nonlinear_Problem * tNonlinerarProblem =  new NLA::Nonlinear_Problem( tSolverInterface, true, sol::MapType::Petsc );
+            //         NLA::Nonlinear_Problem * tNonlinearProblem =  new NLA::Nonlinear_Problem( tSolverInterface, true, sol::MapType::Petsc );
             //
             //         // create factory for nonlinear solver
             //         NLA::Nonlinear_Solver_Factory tNonlinFactory;
@@ -660,7 +660,7 @@ namespace moris
             //             }
             //         }
             //
-            //         tNonlinearSolver->solver_nonlinear_system( tNonlinerarProblem );
+            //         tNonlinearSolver->solver_nonlinear_system( tNonlinearProblem );
             //
             //         moris::Matrix< DDSMat > tExternalIndices( 9, 1 );
             //         tExternalIndices( 0, 0 ) = 17;
@@ -825,7 +825,7 @@ namespace moris
 
              Matrix< DDUMat > tAdofMap = tMSI->get_dof_manager()->get_adof_ind_map();
 
-             NLA::Nonlinear_Problem * tNonlinerarProblem =  new NLA::Nonlinear_Problem( tSolverInterface, true, sol::MapType::Petsc );
+             NLA::Nonlinear_Problem * tNonlinearProblem =  new NLA::Nonlinear_Problem( tSolverInterface, true, sol::MapType::Petsc );
 
              // create factory for nonlinear solver
              NLA::Nonlinear_Solver_Factory tNonlinFactory;
@@ -868,7 +868,7 @@ namespace moris
                  }
              }
 
-             tNonlinearSolver->solver_nonlinear_system( tNonlinerarProblem );
+             tNonlinearSolver->solver_nonlinear_system( tNonlinearProblem );
 
              moris::Matrix< DDSMat > tExternalIndices( 9, 1 );
              tExternalIndices( 0, 0 ) = 17;

@@ -239,8 +239,8 @@ namespace moris
              * @param[ in ] aTimeContinuityOnlyFlag bool true if only time continuity IWGs should be considered
              */
             void initialize_set(
-                    const bool aIsStaggered,
-                    const bool aTimeContinuityOnlyFlag );
+                    const bool                 aIsStaggered            = false,
+                    const Time_Continuity_Flag aTimeContinuityOnlyFlag = Time_Continuity_Flag::DEFAULT );
 
             //------------------------------------------------------------------------------
 
@@ -690,7 +690,7 @@ namespace moris
             /**
              * create a list of IWGs requested by the solver
              */
-            void create_requested_IWG_list( const bool aTimeContinuityOnlyFlag = false );
+            void create_requested_IWG_list( const fem::Time_Continuity_Flag aTimeContinuityOnlyFlag = moris::fem::Time_Continuity_Flag::DEFAULT );
 
             //------------------------------------------------------------------------------
             /**

@@ -600,7 +600,7 @@ namespace moris
         tParameterlist( 5 ).push_back( moris::prm::create_time_solver_parameter_list() );
         tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY,UZ" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
-        tParameterlist( 5 )( 0 ).set( "TSA_Output_Crteria", "Output_Criterion" );
+        tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
         tParameterlist( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
         tParameterlist( 6 )( 0 ).set( "SOL_save_operator_to_matlab", "jp2.dat" );

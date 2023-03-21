@@ -267,7 +267,7 @@ namespace tsa
 //        tTimeSolver_3.set_dof_type_list( tDofTypes2 );
 //
 //        /*!
-//         * Set warehouse to all time and nonliner solvers
+//         * Set warehouse to all time and nonlinear solvers
 //         *
 //         * \code{.cpp}
 //         * tNonlinearSolver1.set_solver_warehouse( &tSolverWarehouse );

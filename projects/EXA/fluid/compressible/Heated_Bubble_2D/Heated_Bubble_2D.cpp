@@ -814,7 +814,7 @@ namespace moris
         tParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "P," + ios::stringify( tInitialPressure ) + ";VX,0.0;VY,0.0;TEMP," + ios::stringify( tInitialTemperature ) );
         // tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , "P,1.0;VX,1.0;VY,0.0;TEMP,1.0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
-        tParameterlist( 5 )( 0 ).set( "TSA_Output_Crteria", "Output_Criterion" );
+        tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
         tParameterlist( 5 )( 0 ).set( "TSA_time_level_per_type", "P,2;VX,2;VY,2;TEMP,2" );
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();

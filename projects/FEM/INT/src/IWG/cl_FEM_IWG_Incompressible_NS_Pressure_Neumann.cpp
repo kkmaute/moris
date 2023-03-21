@@ -32,6 +32,7 @@ namespace moris
             mPropertyMap[ "TotalPressure" ]      = static_cast< uint >( IWG_Property_Type::TOTAL_PRESSURE );
             mPropertyMap[ "Density" ]            = static_cast< uint >( IWG_Property_Type::DENSITY );
             mPropertyMap[ "BackFlowPrevention" ] = static_cast< uint >( IWG_Property_Type::BACKFLOW_PREVENTION );
+            mPropertyMap[ "Select" ]             = static_cast< uint >( IWG_Property_Type::SELECT );
         }
 
         //------------------------------------------------------------------------------
@@ -69,8 +70,22 @@ namespace moris
             const std::shared_ptr< Property >& tPropBackflowPrevention =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::BACKFLOW_PREVENTION ) );
 
+            // get the selection matrix property
+            const std::shared_ptr< Property >& tPropSelect =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+
+            // set a default selection matrix if needed
+            real tM = 1.0;
+            if ( tPropSelect != nullptr )
+            {
+                tM = tPropSelect->val()( 0 );
+
+                // skip computing residual if projection matrix is zero
+                if ( std::abs( tM ) < MORIS_REAL_EPS ) return;
+            }
+
             // check that either pressure or total pressure property is set
-            // Fixme: this check should moved in to checking function and not executed when computing residual
+            // FIXME: this check should moved in to checking function and not executed when computing residual
             MORIS_ERROR( tPropPressure != nullptr || tPropTotalPressure != nullptr || tPropBackflowPrevention != nullptr,
                     "IWG_Incompressible_NS_Pressure_Neumann::compute_residual - Either Pressure or TotalPressure or BackflowPrevention needs to be set." );
 
@@ -87,7 +102,7 @@ namespace moris
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex },
                         { 0, 0 } ) +=
-                        aWStar * ( tVelocityFI->N_trans() * tPropPressure->val()( 0 ) * mNormal );
+                        aWStar * ( tVelocityFI->N_trans() * tM * tPropPressure->val()( 0 ) * mNormal );
             }
 
             // when total pressure is imposed
@@ -105,7 +120,7 @@ namespace moris
                 mSet->get_residual()( 0 )(
                         { tMasterResStartIndex, tMasterResStopIndex },
                         { 0, 0 } ) +=
-                        aWStar * ( tImposedPressure * tVelocityFI->N_trans() * mNormal );
+                        aWStar * ( tM * tImposedPressure * tVelocityFI->N_trans() * mNormal );
             }
 
             if ( tPropBackflowPrevention != nullptr )
@@ -125,9 +140,9 @@ namespace moris
                     const real tDensity = tPropDensity->val()( 0 );
 
                     mSet->get_residual()( 0 )(
-                            { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) -=                  //
-                            aWStar * (                                                                    //
-                                    tPropBackflowPrevention->val()( 0 ) * tDensity * tNormalVelocity *    //
+                            { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) -=                       //
+                            aWStar * (                                                                         //
+                                    tM * tPropBackflowPrevention->val()( 0 ) * tDensity * tNormalVelocity *    //
                                     tVelocityFI->N_trans() * tVelocityFI->val() );
                 }
             }
@@ -171,7 +186,21 @@ namespace moris
             const std::shared_ptr< Property >& tPropDensity =
                     mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
 
-            // compute the jacobian for dof dependencies
+            // get the selection matrix property
+            const std::shared_ptr< Property >& tPropSelect =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+
+            // set a default selection matrix if needed
+            real tM = 1.0;
+            if ( tPropSelect != nullptr )
+            {
+                tM = tPropSelect->val()( 0 );
+
+                // skip computing residual if projection matrix is zero
+                if ( std::abs( tM ) < MORIS_REAL_EPS ) return;
+            }
+
+            // compute the Jacobian for dof dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
 
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
@@ -195,8 +224,8 @@ namespace moris
                     // if imposed pressure property depends on the dof type
                     if ( tPropPressure->check_dof_dependency( tDofType ) )
                     {
-                        // compute the jacobian
-                        tJac += aWStar * ( tVelocityFI->N_trans() * mNormal * tPropPressure->dPropdDOF( tDofType ) );
+                        // compute the Jacobian
+                        tJac += aWStar * ( tM * tVelocityFI->N_trans() * mNormal * tPropPressure->dPropdDOF( tDofType ) );
                     }
                 }
 
@@ -210,14 +239,14 @@ namespace moris
                                 -1.0 * tPropDensity->val()( 0 ) * tVelocityFI->val_trans() * tVelocityFI->N();
 
                         // compute the jacobian/
-                        tJac += aWStar * ( tVelocityFI->N_trans() * mNormal * tdpredvel );
+                        tJac += aWStar * ( tM * tVelocityFI->N_trans() * mNormal * tdpredvel );
                     }
 
                     // if imposed total pressure property depends on the dof type
                     if ( tPropTotalPressure->check_dof_dependency( tDofType ) )
                     {
-                        // compute the jacobian
-                        tJac += aWStar * ( tVelocityFI->N_trans() * mNormal * tPropTotalPressure->dPropdDOF( tDofType ) );
+                        // compute the Jacobian
+                        tJac += aWStar * ( tM * tVelocityFI->N_trans() * mNormal * tPropTotalPressure->dPropdDOF( tDofType ) );
                     }
 
                     // if density property depends on the dof type
@@ -226,8 +255,8 @@ namespace moris
                         // compute derivative of imposed pressure with respect to density
                         const real tdpreddens = -0.5 * std::pow( norm( tVelocityFI->val() ), 2.0 );
 
-                        // compute the jacobian
-                        tJac += aWStar * ( tdpreddens * tVelocityFI->N_trans() * mNormal * tPropDensity->dPropdDOF( tDofType ) );
+                        // compute the Jacobian
+                        tJac += aWStar * ( tM * tdpreddens * tVelocityFI->N_trans() * mNormal * tPropDensity->dPropdDOF( tDofType ) );
                     }
                 }
 
@@ -247,7 +276,7 @@ namespace moris
                         {
                             tJac -= aWStar * (                                                  //
                                             tPropBackflowPrevention->val()( 0 ) * tDensity *    //
-                                            tVelocityFI->N_trans() * (                          //
+                                            tVelocityFI->N_trans() * tM * (                     //
                                                     tNormalVelocity * tVelocityFI->N()          //
                                                     + tVelocityFI->val() * trans( mNormal ) * tVelocityFI->N() ) );
                         }
@@ -255,16 +284,16 @@ namespace moris
                         // if back flow prevention property depends on the dof type
                         if ( tPropBackflowPrevention->check_dof_dependency( tDofType ) )
                         {
-                            tJac -= aWStar * (                              //
-                                            tDensity * tNormalVelocity *    //
+                            tJac -= aWStar * (                                   //
+                                            tDensity * tNormalVelocity * tM *    //
                                             tVelocityFI->N_trans() * tVelocityFI->val() * tPropBackflowPrevention->dPropdDOF( tDofType ) );
                         }
 
                         // if density property depends on the dof type
                         if ( tPropDensity->check_dof_dependency( tDofType ) )
                         {
-                            tJac -= aWStar * (                                                         //
-                                            tPropBackflowPrevention->val()( 0 ) * tNormalVelocity *    //
+                            tJac -= aWStar * (                                                              //
+                                            tPropBackflowPrevention->val()( 0 ) * tNormalVelocity * tM *    //
                                             tVelocityFI->N_trans() * tVelocityFI->val() * tPropDensity->dPropdDOF( tDofType ) );
                         }
                     }
@@ -305,4 +334,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-

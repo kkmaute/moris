@@ -729,7 +729,7 @@ extern "C"
             tParameterlist( 5 )( 0 ).set("TSA_DofTypes"       , "VX,VY;P;TEMP") ;
             tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec" , "VX,1E-4;VY,1E-4;P,0.0;TEMP,0.0") ;
             tParameterlist( 5 )( 0 ).set("TSA_Output_Indices" , "0") ;
-            tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria" , "Output_Criterion") ;
+            tParameterlist( 5 )( 0 ).set("TSA_Output_Criteria" , "Output_Criterion") ;
             tParameterlist( 5 )( 0 ).set("TSA_time_level_per_type", "VX,2;VY,2;P,2;TEMP,2") ;
 
             tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();

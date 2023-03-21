@@ -29,7 +29,7 @@ namespace moris::mtk
         //------------------------------------------------------------------------------
 
         /**
-         * @brief Construct a new Cell_DataBase object defualt constrcutor
+         * @brief Construct a new Cell_DataBase object default constructor
          *
          */
 
@@ -38,11 +38,11 @@ namespace moris::mtk
         //------------------------------------------------------------------------------
 
         /**
-         * @brief Construct the main constrcuctor for the class // used for the IP cells
+         * @brief Construct the main constructor for the class // used for the IP cells
          *
          * @param aCell an mtk cell which we use for id/index/owner
          * @param aCellInfo a cell info
-         * @param aVerteices begining of list of vertices
+         * @param aVertices beginning of list of vertices
          */
         Cell_DataBase( mtk::Cell&                        aCell,
                 std::shared_ptr< moris::mtk::Cell_Info > aCellInfo,
@@ -55,7 +55,7 @@ namespace moris::mtk
          * @brief Construct the main constructor for the class // used for the IG cells
          *
          * @param aCell an mtk cell which we use for id/index/owner
-         * @param aVerteices begining of list of vertices
+         * @param aVertices beginning of list of vertices
          */
         Cell_DataBase( mtk::Cell& aCell,
                 moris_index       aCellIndex2,
@@ -67,7 +67,7 @@ namespace moris::mtk
          * @brief Construct the main constructor for the class // used for the IG cells
          *
          * @param aCell an mtk cell which we use for id/index/owner
-         * @param aVerteices begining of list of vertices
+         * @param aVertices beginning of list of vertices
          */
         Cell_DataBase( moris_index aCellIndex2,
                 mtk::Mesh*         aMesh );

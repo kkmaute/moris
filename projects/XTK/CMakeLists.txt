@@ -21,12 +21,6 @@ SET(XTK_DEFINITIONS)
 
 ADD_DEFINITIONS(${XTK_DEFINITIONS})
 
-# Third party library dependencies
-#list(REMOVE_DUPLICATES XTK_TPL_DEPENDENCIES)
-#foreach(XTK_TPL ${XTK_TPL_DEPENDENCIES})
-#    include(${MORIS_TPL_DIR}/${XTK_TPL}.cmake)
-#endforeach()
-
 # Add source directory
 add_subdirectory(src)
 

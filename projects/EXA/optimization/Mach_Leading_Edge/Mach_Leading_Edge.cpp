@@ -122,7 +122,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // geometry parameters
 
-    // all messurements in millimeters
+    // all measurements in millimeters
     moris::real mm = 1.0e-03;
 
     // Shell
@@ -142,10 +142,10 @@ namespace moris
     moris::real tHoleHeight    = ( 2.0 * tApproxHeight ) / ( tHoleSeedDensityY * tNumSeedFinsY);
     moris::real tFinExponent  = 6.0;
 
-    moris::real tXcenterMin = ( tLength *        1.0           ) / ( (real) tNumSeedFinsX ) - 3.0 * mm; // + 1.0 );
-    moris::real tXcenterMax = ( tLength * (real) tNumSeedFinsX ) / ( (real) tNumSeedFinsX ); // + 1.0 );
-    moris::real tYcenterMax =  0.9 * tApproxHeight;
-    moris::real tYcenterMin = -1.0 * tYcenterMax;
+    moris::real tXCenterMin = ( tLength *        1.0           ) / ( (real) tNumSeedFinsX ) - 3.0 * mm; // + 1.0 );
+    moris::real tXCenterMax = ( tLength * (real) tNumSeedFinsX ) / ( (real) tNumSeedFinsX ); // + 1.0 );
+    moris::real tYCenterMax =  0.9 * tApproxHeight;
+    moris::real tYCenterMin = -1.0 * tYCenterMax;
 
     /* ------------------------------------------------------------------------ */
     // material parameters, kg is scaled with a factor 1e-6
@@ -176,11 +176,11 @@ namespace moris
     bool tHaveRadiation = true;
 
     // Pressure
-    moris::real tAppliedPressure = 200.0; // in atms, modify to match objective gradients
+    moris::real tAppliedPressure = 200.0; // in ATMs, modify to match objective gradients
     std::string tPressureDelta = std::to_string( tAppliedPressure * 1.01325e5 * 1.0e-6 );
 				// N/m^2; positive as pulling in direction of normal
 
-    // bedding to supress RBM
+    // bedding to suppress RBM
     std::string tBedding = std::to_string( 2.1e5 * 1.0e-5 );
 
     // Initial Temperature
@@ -251,7 +251,7 @@ namespace moris
         // translate coordinate system
         moris::real tXi = aCoordinates(0) - tCenterX;
         moris::real tEta = aCoordinates(1) - tCenterY;
-        moris::real tXiInsct = tRadius / std::sin(tAlpha);
+        moris::real tXiIntersection = tRadius / std::sin(tAlpha);
 
         // check which sector the point lies in
         bool tLeft = false;
@@ -279,14 +279,14 @@ namespace moris
         // top right sector - straight section
         else if (tTop && tRight)
         {
-            moris::real tDeltaEta = std::tan(tAlpha) * (tXi+tXiInsct) - tEta;
+            moris::real tDeltaEta = std::tan(tAlpha) * (tXi+tXiIntersection) - tEta;
             tVal = std::cos(tAlpha) * tDeltaEta;
         }
 
         // bottom right sector - straight section
         else if (tBottom && tRight)
         {
-            moris::real tDeltaEta = std::tan(tAlpha) * (tXi+tXiInsct) + tEta;
+            moris::real tDeltaEta = std::tan(tAlpha) * (tXi+tXiIntersection) + tEta;
             tVal = std::cos(tAlpha) * tDeltaEta;
         }
 
@@ -310,7 +310,7 @@ namespace moris
         // translate coordinate system
         moris::real tXi = aCoordinates(0) - tCenterX;
         moris::real tEta = aCoordinates(1) - tCenterY;
-        moris::real tXiInsct = tRadius / std::sin(tAlpha);
+        moris::real tXiIntersection = tRadius / std::sin(tAlpha);
 
         // check which sector the point lies in
         bool tLeft = false;
@@ -338,14 +338,14 @@ namespace moris
         // top right sector - straight section
         else if (tTop && tRight)
         {
-            moris::real tDeltaEta = std::tan(tAlpha) * (tXi+tXiInsct) - tEta;
+            moris::real tDeltaEta = std::tan(tAlpha) * (tXi+tXiIntersection) - tEta;
             tVal = std::cos(tAlpha) * tDeltaEta;
         }
 
         // bottom right sector - straight section
         else if (tBottom && tRight)
         {
-            moris::real tDeltaEta = std::tan(tAlpha) * (tXi+tXiInsct) + tEta;
+            moris::real tDeltaEta = std::tan(tAlpha) * (tXi+tXiIntersection) + tEta;
             tVal = std::cos(tAlpha) * tDeltaEta;
         }
 
@@ -678,10 +678,10 @@ namespace moris
         // initialize fins as swiss cheese geometry
         tParameterlist( 1 ).push_back( prm::create_swiss_cheese_slice_parameter_list() );
 
-        tParameterlist( 1 )( tGeoCounter ).set( "left_bound",            tXcenterMin );          // Left-most hole center
-        tParameterlist( 1 )( tGeoCounter ).set( "right_bound",           tXcenterMax );          // Right-most hole center
-        tParameterlist( 1 )( tGeoCounter ).set( "bottom_bound",          tYcenterMin );          // Bottom-most hole center
-        tParameterlist( 1 )( tGeoCounter ).set( "top_bound",             tYcenterMax );          // Top-most hole center
+        tParameterlist( 1 )( tGeoCounter ).set( "left_bound",            tXCenterMin );          // Left-most hole center
+        tParameterlist( 1 )( tGeoCounter ).set( "right_bound",           tXCenterMax );          // Right-most hole center
+        tParameterlist( 1 )( tGeoCounter ).set( "bottom_bound",          tYCenterMin );          // Bottom-most hole center
+        tParameterlist( 1 )( tGeoCounter ).set( "top_bound",             tYCenterMax );          // Top-most hole center
         tParameterlist( 1 )( tGeoCounter ).set( "hole_x_semidiameter",   0.5 * tHoleWidth  );     // Superellipse semi-diameter in the x direction
         tParameterlist( 1 )( tGeoCounter ).set( "hole_y_semidiameter",   0.5 * tHoleHeight );     // Superellipse semi-diameter in the y direction
         tParameterlist( 1 )( tGeoCounter ).set( "superellipse_exponent", tFinExponent );         // Superellipse exponent
@@ -833,7 +833,7 @@ namespace moris
         // OTHER MATERIAL PARAMETERS
         //------------------------------------------------------------------------------
 
-        // properties for bedding (supression for RBMs, both Shell and PCM)
+        // properties for bedding (suppression for RBMs, both Shell and PCM)
         tParameterList( 0 ).push_back( prm::create_property_parameter_list() );
         tParameterList( 0 )( tPropCounter ).set( "property_name",            "PropBedding");
         tParameterList( 0 )( tPropCounter ).set( "function_parameters",      tBedding);
@@ -1557,7 +1557,7 @@ namespace moris
         tParameterlist( 5 )( 0 ).set("TSA_DofTypes",           "UX,UY;TEMP"  );
         tParameterlist( 5 )( 0 ).set("TSA_Initialize_Sol_Vec", "UX,0.0;UY,0.0;TEMP,1.0" );
         tParameterlist( 5 )( 0 ).set("TSA_Output_Indices",     "0" );
-        tParameterlist( 5 )( 0 ).set("TSA_Output_Crteria",     "Output_Criterion" );
+        tParameterlist( 5 )( 0 ).set("TSA_Output_Criteria",     "Output_Criterion" );
         tParameterlist( 5 )( 0 ).set("TSA_time_level_per_type","UX,2;UY,2;TEMP,2" );
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();

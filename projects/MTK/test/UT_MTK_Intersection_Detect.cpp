@@ -122,10 +122,10 @@ namespace moris
                 // Check if the expected result is the same as the output
                 REQUIRE( norm( tPointsYInX - tExpectedTriCoords ) < 0.00000001 );
 
-                // Test "SortandRemove"
+                // Test "SortAndRemove"
 
                 // Apply the method
-                tIsDetetc.SortandRemove( tIntersectedPoints );
+                tIsDetetc.SortAndRemove( tIntersectedPoints );
 
                 // Expected results
                 tExpectedTriCoords = { { 0.25, 0.5, 1.0, 0.5 }, { 0.25, 0.0, 0.5, 0.5 } };

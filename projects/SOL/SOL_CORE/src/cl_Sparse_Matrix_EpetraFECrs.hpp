@@ -60,7 +60,7 @@ public:
 
     void fill_matrix( const moris::uint             & aNumMyDofs,
                       const moris::Matrix< DDRMat > & aA_val,
-                      const moris::Matrix< DDSMat > & aEleDofConectivity );
+                      const moris::Matrix< DDSMat > & aEleDofConnectivity );
 
     /**
      * Inserts values into the matrix at locations corresponding to the given row and column IDs.

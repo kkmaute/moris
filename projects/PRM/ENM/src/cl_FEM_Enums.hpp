@@ -396,6 +396,15 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        enum class Time_Continuity_Flag
+        {
+            DEFAULT,
+            TIME_CONTINUITY_ONLY,
+            NO_TIME_CONTINUITY,
+            END_TIME_CONTINUITY_FLAG,
+        };
+
+        //------------------------------------------------------------------------------
         enum class CM_Request_Type
         {
             UNDEFINED,
@@ -409,8 +418,6 @@ namespace moris
             HISTORY,
             END_CM_REQUEST_TYPE
         };
-
-        //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
 

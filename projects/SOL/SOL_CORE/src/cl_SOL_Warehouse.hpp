@@ -32,6 +32,7 @@ namespace moris
     {
         class Linear_Solver_Algorithm;
         class Linear_Solver;
+        class Eigen_Solver;
 
     }    // namespace dla
     namespace NLA
@@ -74,15 +75,15 @@ namespace moris
             Cell< dla::Linear_Solver* >                             mLinearSolvers;
 
             // List of nonlinear solver algorithms and solvers
-            Cell< std::shared_ptr< NLA::Nonlinear_Algorithm > > mNonlinearSolverAlgoriths;
+            Cell< std::shared_ptr< NLA::Nonlinear_Algorithm > > mNonlinearSolverAlgorithms;
             Cell< NLA::Nonlinear_Solver* >                      mNonlinearSolvers;
 
             // List of time solver algorithms and solvers
             Cell< std::shared_ptr< tsa::Time_Solver_Algorithm > > mTimeSolverAlgorithms;
             Cell< tsa::Time_Solver* >                             mTimeSolvers;
 
-            // Parameter list for (0) Linear Algorithm (1) Linear Solver (2) nonlinear Algorithm (3)
-            // Nonlinear Solver (4) TimeSolver Algorithm (5) Time Solver (6) Warehouse
+            //! Parameterlist for (0) Linear Algorithm (1) Linear Solver (2) nonlinear Algorithm (3)
+            //! Nonlinear Solver (4) TimeSolver Algorithm (5) Time Solver (6) Warehouse
             moris::Cell< moris::Cell< moris::ParameterList > > mParameterlist;
 
             // pointer to dynamically linked library
@@ -100,11 +101,20 @@ namespace moris
             // load final solution vector from file. This option will skip assembly and solve
             std::string mLoadSolVecFromFile = std::string( "" );
 
+            // hdf5 data group from which solution is load
+            std::string mSolVecDataGroup = std::string( "" );
+
+            // number of solution vector to be processed
+            sint mSolVecNumberOfVectors = 0;
+
             // save final adjoint vector to file string
             std::string mSaveFinalAdjointVecToFile = std::string( "" );
 
             // load initial guess solution vector from file
             std::string mFilenameInitialGuess = std::string( "" );
+
+            // RHS Matrix Type
+            std::string mRHSMatType = std::string( "" );
 
             //--------------------------------------------------------------------------------------------------------
 
@@ -132,7 +142,7 @@ namespace moris
 
             //--------------------------------------------------------------------------------------------------------
 
-            void get_default_secundary_dof_types(
+            void get_default_secondary_dof_types(
                     Cell< Cell< MSI::Dof_Type > >&        aCellOfCellsSecDofTypes,
                     Cell< Cell< MSI::Dof_Type > > const & aCellOfCellDofTypes );
 
@@ -188,7 +198,7 @@ namespace moris
             /**
              * @brief Returns a pointer to the solver interface.
              */
-            // void set_nonliner_solver_managers( Nonlinear_Solver * aNonlinerSolverManager );
+            // void set_nonlinear_solver_managers( Nonlinear_Solver * aNonlinearSolverManager );
 
             //--------------------------------------------------------------------------------------------------------
 
@@ -258,6 +268,25 @@ namespace moris
                 return mLoadSolVecFromFile;
             }
 
+            //--------------------------------------------------------------------------------------------------------
+
+            // return number of vectors to be processed from solution file
+            sint
+            get_load_sol_vec_num_vec()
+            {
+                // number of solution vector to be processed
+                return mSolVecNumberOfVectors;
+            }
+
+            //--------------------------------------------------------------------------------------------------------
+
+            // return data group used in hdf5 solution file
+            const std::string&
+            get_load_sol_vec_data_group()
+            {
+                return mSolVecDataGroup;
+            }
+
             //-------------------------------------------------------------------------------
 
             const std::string&
@@ -272,6 +301,22 @@ namespace moris
             set_tpl_type( enum sol::MapType aTPLType )
             {
                 mTPLType = aTPLType;
+            }
+
+            //-------------------------------------------------------------------------------
+
+            const std::string&
+            get_RHS_mat_type()
+            {
+                return mRHSMatType;
+            }
+
+            //-------------------------------------------------------------------------------
+
+            void
+            set_RHS_mat_type( std::string aRHSMatType )
+            {
+                mRHSMatType = aRHSMatType;
             }
 
             //--------------------------------------------------------------------------------------------------------
@@ -290,10 +335,10 @@ namespace moris
 
             //--------------------------------------------------------------------------------------------------------
             /**
-             * @brief Returns the index of a certain nonliner solver manager
+             * @brief Returns the index of a certain nonlinear solver manager
              *
              * @param[in] aSolverManagerIndex The index of the asking nonlinear solver manager
-             * @param[in] aDofTypeListIndex The index of dof type list on the asking nonliner solver manager
+             * @param[in] aDofTypeListIndex The index of dof type list on the asking nonlinear solver manager
              */
             // moris::sint get_nonlinear_solver_manager_index( const moris::sint aSolverManagerIndex,
             //                                                 const moris::sint aDofTypeListIndex );
@@ -317,7 +362,7 @@ namespace moris
             /**
              * @brief Returns the nonlinear solver manager list.
              */
-            // moris::Cell< Nonlinear_Solver * > & get_nonliner_solver_manager_list(){ return mListNonlinerSolverManagers; };
+            // moris::Cell< Nonlinear_Solver * > & get_nonlinear_solver_manager_list(){ return mListNonlinearSolverManagers; };
 
             //--------------------------------------------------------------------------------------------------------
             /**

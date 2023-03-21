@@ -13,6 +13,7 @@
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Enums.hpp"
 #include "cl_SOL_Warehouse.hpp"
+#include "cl_DLA_Linear_Solver.hpp"
 
 #include "cl_Stopwatch.hpp"    //CHR/src
 
@@ -93,7 +94,7 @@ namespace moris
         {
             Tracer tTracer( "LinearProblem", "AssembleStaggeredResidualContribution" );
 
-            mSolverInterface->assemble_staggerd_RHS_contribution( mPointVectorRHS );
+            mSolverInterface->assemble_staggered_RHS_contribution( mPointVectorRHS );
         }
 
         //----------------------------------------------------------------------------------------
@@ -108,6 +109,36 @@ namespace moris
             // assemble Jacobian
             mSolverInterface->assemble_jacobian( mMat );
 
+            // get RHS Matrix Type from solver warehouse
+            if ( mSolverWarehouse )
+            {
+                mRHSMatType = mSolverWarehouse->get_RHS_mat_type();
+
+                if ( mRHSMatType != "" )
+                {
+                    if ( mRHSMatType == "MassMat" )
+                    {
+                        mMassMat->mat_put_scalar( 0.0 );
+
+                        // assemble jacobian
+                        mSolverInterface->assemble_jacobian( mMassMat, moris::fem::Time_Continuity_Flag::TIME_CONTINUITY_ONLY );
+                    }
+                    else if ( mRHSMatType == "IdentityMat" )
+                    {
+                        mMassMat->mat_put_scalar( 0.0 );
+
+                        mPointVectorRHS->vec_put_scalar( 1.0 );
+
+                        // create identity matrix by replacing diagonal values to 1.0
+                        mMassMat->replace_diagonal_values( *mPointVectorRHS );
+                    }
+                    else
+                    {
+                        MORIS_ERROR( false, "RHS Matrix Type not correct" );
+                    }
+                }
+            }
+
             if ( mSolverWarehouse )
             {
                 if ( !mSolverWarehouse->get_output_to_matlab_string().empty() )
@@ -120,6 +151,10 @@ namespace moris
 
                     // save to file
                     mMat->save_matrix_to_matlab_file( tJacFileName.c_str() );
+
+                    std::string tMassFileName = "Mass_" + tJacFileName;
+
+                    mMassMat->save_matrix_to_matlab_file( tMassFileName.c_str() );
 
                     // log that output was successful
                     MORIS_LOG_INFO( "Saved Jacobian to Matlab File: ", tJacFileName.c_str() );
@@ -190,7 +225,7 @@ namespace moris
             tDynRes->vec_put_scalar( 0.0 );
 
             // assemble dynamic residual
-            mSolverInterface->assemble_RHS( tDynRes, true );
+            mSolverInterface->assemble_RHS( tDynRes, fem::Time_Continuity_Flag::DEFAULT );
 
             MORIS_LOG_INFO( "Norm of dynamic residual: %e", tDynRes->vec_norm2()( 0 ) );
             MORIS_LOG_INFO( "Norm of total residual  : %e", mPointVectorRHS->vec_norm2()( 0 ) );

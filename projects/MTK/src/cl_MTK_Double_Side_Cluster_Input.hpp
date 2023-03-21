@@ -46,7 +46,7 @@ namespace moris
             }
 
             /*!
-             * Returns the side label ordinal in this input data for a given side label. Retunrs MORIS_INDEX_MAX if not in list
+             * Returns the side label ordinal in this input data for a given side label. Returns MORIS_INDEX_MAX if not in list
              */
             moris_index
             get_double_side_label_ordinal( std::string aSideLabel )

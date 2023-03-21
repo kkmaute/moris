@@ -26,38 +26,37 @@ namespace moris
     {
         class Linear_Solver_Amesos : public Linear_Solver_Algorithm
         {
-            private:
+          private:
+            Amesos_BaseSolver* mAmesosSolver = nullptr;
 
-                Amesos_BaseSolver * mAmesosSolver = nullptr;
+            Linear_Problem* mLinearSystem = nullptr;
 
-                Linear_Problem   * mLinearSystem =  nullptr;
+            Epetra_LinearProblem mEpetraProblem;
 
-                Epetra_LinearProblem      mEpetraProblem;
+            bool mIsPastFirstSolve;
 
-                bool              mIsPastFirstSolve;
+          protected:
 
-            protected:
-            public:
-                Linear_Solver_Amesos();
+          public:
+            Linear_Solver_Amesos();
 
-                Linear_Solver_Amesos( const moris::ParameterList aParameterlist );
+            Linear_Solver_Amesos( const moris::ParameterList aParameterlist );
 
-                Linear_Solver_Amesos( Linear_Problem * aLinearSystem  );
+            Linear_Solver_Amesos( Linear_Problem* aLinearSystem );
 
-                ~Linear_Solver_Amesos();
+            ~Linear_Solver_Amesos();
 
-                void set_solver_parameters();
+            void set_solver_parameters();
 
-                //int SetSystemMatrix ( bool aUseTranspose );
+            // int SetSystemMatrix ( bool aUseTranspose );
 
-                moris::sint solve_linear_system();
+            moris::sint solve_linear_system();
 
-                moris::sint solve_linear_system( Linear_Problem * aLinearSystem, const moris::sint aIter );
+            moris::sint solve_linear_system( Linear_Problem* aLinearSystem, const moris::sint aIter );
 
-                void set_solver_internal_parameters();
+            void set_solver_internal_parameters();
         };
-    }
-}
+    }    // namespace dla
+}    // namespace moris
 
 #endif /* SRC_DISTLINALG_CL_LINEAR_SOLVER_AMESOS_HPP_ */
-

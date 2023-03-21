@@ -13,6 +13,7 @@ set(${SOL_CORE}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
+    cl_SOL_Amesos_GenOp.hpp
     cl_SOL_Warehouse.hpp
 	cl_SOL_Matrix_Vector_Factory.hpp
     cl_SOL_Dist_Vector.hpp
@@ -36,6 +37,7 @@ endif()
 
 # List library source files
 set(LIB_SOURCES
+    cl_SOL_Amesos_GenOp.cpp
     cl_SOL_Warehouse.cpp
 	cl_SOL_Matrix_Vector_Factory.cpp
 	cl_SOL_Dist_Vector.cpp

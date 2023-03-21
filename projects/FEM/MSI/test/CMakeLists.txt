@@ -31,8 +31,8 @@ set(TEST_DEPENDENCIES
     ${ALG}-lib
     ${NLA}-lib
     ${MSI}-lib
-    #${MDL}-lib
     ${PRM}-lib
+    ${INT}-lib
     ${MORIS_BASE_LIBS}
     )
     

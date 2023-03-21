@@ -164,7 +164,7 @@ namespace moris
             MORIS_ERROR( mOutputMeshes.size() <= 2,
                     "Output mesh list can only have one list of main output meshes and one list of secondary output meshes" );
 
-            if ( aParameterList.get< std::string >( "lagrange_output_meshe_names" ).empty() )
+            if ( aParameterList.get< std::string >( "lagrange_output_mesh_names" ).empty() )
             {
                 uint tOutputMeshSize = mOutputMeshes.size();
 
@@ -190,7 +190,7 @@ namespace moris
             }
             else
             {
-                string_to_cell( aParameterList.get< std::string >( "lagrange_output_meshe_names" ), mOutputMesheNames );
+                string_to_cell( aParameterList.get< std::string >( "lagrange_output_mesh_names" ), mOutputMesheNames );
 
                 uint tOutputMeshSize = mOutputMeshes.size();
 

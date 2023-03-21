@@ -88,7 +88,7 @@ namespace moris
                 //------------------------------------------------------------------------------
 public:
                 /**
-                 *  @brief required implemenation for computing and storing nodal values
+                 *  @brief required implementation for computing and storing nodal values
                  *         for current coefficients
                  */
                 virtual void compute_nodal_values()
@@ -161,7 +161,7 @@ protected:
                  * @brief updates internal data associated with coefficients
                  */
 
-                virtual void update_coefficent_data()
+                virtual void update_coefficient_data()
                 {
                 }
 
@@ -325,7 +325,7 @@ protected:
                  *        Note: function will be removed soon as not consistent with child implementation
                  *
                  * @param[in]  aIndices - vector of indices
-                 * @param[in]  aFieldIndices - field indces
+                 * @param[in]  aFieldIndices - field indices
                  *
                  * @param[out] aValues - values
                  */
@@ -425,7 +425,7 @@ protected:
                 //------------------------------------------------------------------------------
 
                 /**
-                 * @brief indicates if this is a discrete field. This can be used to dermine if a field has to be mapped
+                 * @brief indicates if this is a discrete field. This can be used to determine if a field has to be mapped
                  *
                  */
                 bool get_field_is_discrete()
@@ -460,7 +460,7 @@ protected:
 
                 /**
                  * @brief returns order of underlying discretization; unless child class implementation is provided
-                 *        interpolation order of the Lagrange mesh, it is assumed that discretiztion oder is equal to
+                 *        interpolation order of the Lagrange mesh, it is assumed that discretization oder is equal to
                  *        order of Lagrange mesh
                  */
                 virtual uint get_discretization_order() const
@@ -472,7 +472,7 @@ protected:
 
                 /**
                  * @brief returns discretization mesh index of underlying discretization; unless child class implementation
-                 *        is provided, it is assumed that discretiztion mesh index is 0
+                 *        is provided, it is assumed that discretization mesh index is 0
                  */
                 virtual moris_index get_discretization_mesh_index() const
                 {
@@ -482,7 +482,7 @@ protected:
                 //------------------------------------------------------------------------------
 
                 /**
-                 * Expert user function. Allows for the unerlying mesh as well as the nodal and coefficients values to be changed.
+                 * Expert user function. Allows for the underlying mesh as well as the nodal and coefficients values to be changed.
                  * Such a change can result in an unwanted behavior.
                  */
                 void unlock_field()
@@ -493,7 +493,7 @@ protected:
                 //------------------------------------------------------------------------------
 
                 /**
-                 * @brief check whehter field is locked and if yes, throw error
+                 * @brief check whether field is locked and if yes, throw error
                  */
                 void error_if_locked() const;
 
@@ -522,7 +522,7 @@ protected:
                 //------------------------------------------------------------------------------
 
                 /**
-                 *  @brief save coeffcients to hdf5 file
+                 *  @brief save coefficients to hdf5 file
                  *
                 * @param[in]  aFilePath - name of hdf5 file
                 * @param[in]  aCreateNewFile - flag for removing old (if exists) and creating new file

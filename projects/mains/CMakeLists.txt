@@ -11,7 +11,7 @@
 # Third party libraries
 list(REMOVE_DUPLICATES MAIN_TPL_DEPENDENCIES)
 foreach(MAIN_TPL ${MAIN_TPL_DEPENDENCIES})
-    include(${MORIS_TPL_DIR}/${MAIN_TPL}.cmake)
+    include(${MORIS_TPL_DIR}/${MAIN_TPL}_new.cmake)
 endforeach()
 
 # Set executable output location

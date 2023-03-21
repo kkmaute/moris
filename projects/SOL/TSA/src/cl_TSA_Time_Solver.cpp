@@ -279,17 +279,17 @@ Time_Solver::check_for_outputs(
         uint tCounter = 0;
 
         // loop over all outputs and check if it is triggered
-        for ( Output_Criteria tOutputCriterias : mOutputCriteriaPointer )
+        for ( Output_Criteria tOutputCriteria : mOutputCriteriaPointer )
         {
             bool tIsOutput = false;
 
-            if ( tOutputCriterias == nullptr )
+            if ( tOutputCriteria == nullptr )
             {
                 tIsOutput = true;
             }
             else
             {
-                tIsOutput = tOutputCriterias( this );
+                tIsOutput = tOutputCriteria( this );
             }
 
             if ( tIsOutput )
@@ -350,7 +350,7 @@ Time_Solver::solve()
     // get number of RHS
     uint tNumRHMS = mSolverInterface->get_num_rhs();
 
-    // set size for full solution vector on time step 0 and previous solution vector on timestep -1.
+    // set size for full solution vector on time step 0 and previous solution vector on time step -1.
     mFullVector.resize( 2, nullptr );
 
     // full vector and prev full vector
@@ -384,33 +384,51 @@ Time_Solver::solve()
 
     mTimeSolverAlgorithmList( 0 )->set_time_solver( this );
 
+    // only post processing results with dof solution read from file
     if ( not mSolverWarehouse->get_load_sol_vec_from_file().empty() )
     {
-        std::string tSolVecPath = mSolverWarehouse->get_load_sol_vec_from_file();
+        // get path to solution file
+        const std::string& tSolVecPath = mSolverWarehouse->get_load_sol_vec_from_file();
 
         // detect file type
-        std::string tType = tSolVecPath.substr( tSolVecPath.find_last_of( "." ) + 1, tSolVecPath.length() );
+        const std::string tType = tSolVecPath.substr( tSolVecPath.find_last_of( "." ) + 1, tSolVecPath.length() );
 
-        if ( tType == "hdf5" || tType == "h5" )
+        // get number of vectors to be processed as time steps
+        sint tTimeSteps = mSolverWarehouse->get_load_sol_vec_num_vec();
+
+        // get data group
+        const std::string& tSolVecDataGroup = mSolverWarehouse->get_load_sol_vec_data_group();
+
+        // loop over all time steps
+        for ( sint Ik = 0; Ik < tTimeSteps; Ik++ )
         {
-            // read solution vector from file
-            mFullVector( 1 )->read_vector_from_HDF5( tSolVecPath.c_str() );
+            // print time step information
+            MORIS_LOG_INFO( "Processing solution vector %d", Ik );
+
+            // read solution from hdf5 file
+            if ( tType == "hdf5" || tType == "h5" )
+            {
+                // read solution vector from file
+                mFullVector( 1 )->read_vector_from_HDF5( tSolVecPath.c_str(), tSolVecDataGroup, Ik );
+            }
+            else
+            {
+                MORIS_ERROR( false, "Time_Solver::solve() -  Solution vector input type unknown." );
+            }
+
+            // set pseudo time information
+            Matrix< DDRMat > tTime_0 = { { (real)( Ik - 1 ) }, { (real)Ik } };
+            Matrix< DDRMat > tTime_1 = { { (real)Ik }, { (real)( Ik + 1 ) } };
+
+            mSolverInterface->set_previous_time( tTime_0 );
+            mSolverInterface->set_time( tTime_1 );
+
+            // compute quantities of interest using states loaded from solution file
+            mSolverInterface->compute_IQI();
+
+            // write IQIs to file
+            this->check_for_outputs( (real)Ik, Ik == tTimeSteps - 1 );
         }
-        else
-        {
-            MORIS_ERROR( false, "Time_Solver::solve(), Solution vector input type unknown. New types can be implemented here." );
-        }
-
-        Matrix< DDRMat > tTime_0 = { { 0.0 }, { 0.0 } };
-        Matrix< DDRMat > tTime_1 = { { 0.0 }, { 1.0 } };
-
-        mSolverInterface->set_previous_time( tTime_0 );
-        mSolverInterface->set_time( tTime_1 );
-
-        mSolverInterface->compute_IQI();
-
-        // input second time slap value for output
-        this->check_for_outputs( 1.0, true );
     }
     else
     {
@@ -420,6 +438,7 @@ Time_Solver::solve()
         // output solution vector to file
         if ( not mSolverWarehouse->get_save_final_sol_vec_to_file().empty() )
         {
+            // get path to solution file
             std::string tSolVecPath = mSolverWarehouse->get_save_final_sol_vec_to_file();
 
             // detect file type

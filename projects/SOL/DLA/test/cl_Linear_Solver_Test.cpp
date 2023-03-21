@@ -29,6 +29,7 @@
 #include "cl_SOL_Matrix_Vector_Factory.hpp"    // DLA/src/
 #include "cl_Solver_Interface_Proxy.hpp"       // DLA/src/
 #include "cl_DLA_Solver_Factory.hpp"           // DLA/src/
+#include "cl_SOL_Warehouse.hpp"
 
 #include "cl_DLA_Linear_System_Trilinos.hpp"    // DLA/src/
 
@@ -291,6 +292,98 @@ namespace moris
             }
         }
 #endif
+
+        TEST_CASE( "Eigen Solver Block Davidson", "[Eigen Solver Block Davidson],[Eigen Solver], [EigSolve]" )
+        {
+            if ( par_size() == 1 )
+            {
+                std::string tProblem = "Block_Davidson_Eigen";
+                /*!
+                 * Create solver interface with Solver_Interface_Proxy
+                 *
+                 * \code{.cpp}
+                 * Solver_Interface * tSolverInterface = new Solver_Interface_Proxy( );
+                 * \endcode
+                 */
+                Solver_Interface_Proxy* tSolverInterface = new Solver_Interface_Proxy( tProblem );
+
+                /*!
+                 * Create solver factory
+                 *
+                 * \code{.cpp}
+                 * Solver_Factory tSolFactory;
+                 * \endcode
+                 */
+                Solver_Factory tSolFactory;
+
+                sol::SOL_Warehouse tSolverWarehouse( tSolverInterface );
+
+                // set RHS matrix type
+                std::string tRHSMatType = std::string( "MassMat" );
+                ( &tSolverWarehouse )->set_RHS_mat_type( tRHSMatType );
+
+                const enum sol::MapType tMapType = sol::MapType::Epetra;
+
+                // Build Matrix vector factory
+                sol::Matrix_Vector_Factory tMatFactory( tMapType );
+
+                // create map object FIXME ask linear problem for map
+                sol::Dist_Map* tMap = tMatFactory.create_map( tSolverInterface->get_my_local_global_map() );
+
+                // create map object FIXME ask linear problem for map
+                sol::Dist_Map* tMapFull = tMatFactory.create_full_map(
+                        tSolverInterface->get_my_local_global_map(),
+                        tSolverInterface->get_my_local_global_overlapping_map() );
+
+                // create solver object
+                Linear_Problem* tEigProblem = tSolFactory.create_linear_system( tSolverInterface, &tSolverWarehouse, tMap, tMapFull, tMapType );
+
+                // create eigen solver
+                std::shared_ptr< Linear_Solver_Algorithm > tEigSolver = tSolFactory.create_solver( sol::SolverType::EIGEN_SOLVER );
+
+                // set eigen algorithm parameters
+                tEigSolver->set_param( "Eigen_Algorithm" )                = std::string( "EIGALG_BLOCK_DAVIDSON" );
+                tEigSolver->set_param( "Which" )                          = std::string( "SM" );
+                tEigSolver->set_param( "Verbosity" )                      = false;
+                tEigSolver->set_param( "Block_Size" )                     = 1;    // 1
+                tEigSolver->set_param( "Num_Blocks" )                     = 2;
+                tEigSolver->set_param( "NumFreeDofs" )                    = 8;
+                tEigSolver->set_param( "Num_Eig_Vals" )                   = 1;     // 2; 1
+                tEigSolver->set_param( "MaxSubSpaceDims" )                = 6;     // 10
+                tEigSolver->set_param( "MaxRestarts" )                    = 20;    // 20
+                tEigSolver->set_param( "Initial_Guess" )                  = 0;
+                tEigSolver->set_param( "Convergence_Tolerance" )          = 1e-05;
+                tEigSolver->set_param( "Relative_Convergence_Tolerance" ) = true;
+                tEigSolver->set_param( "ifpack_prec_type" )               = std::string( "Amesos" );
+                tEigSolver->set_param( "amesos: solver type" )            = std::string( "Amesos_Pardiso" );
+                tEigSolver->set_param( "overlap-level" )                  = 0;
+                tEigSolver->set_param( "schwarz: combine mode" )          = std::string( "add" );
+                tEigSolver->set_param( "Update_Flag" )                    = false;    // false flag is set only for unit test. Default: True
+
+                // assemble jacobian
+                tEigProblem->assemble_jacobian();
+
+                moris::sint aIter = 0;
+
+                // call solve
+                tEigSolver->solve_linear_system( tEigProblem, aIter );
+
+                // set eigenvalue solution
+                std::vector< Anasazi::Value< double > > tSol;
+                tSol        = dynamic_cast< Eigen_Solver* >( tEigSolver.get() )->get_eigen_values();
+                double tVal = tSol[ 0 ].realpart;
+
+                // Check if solution corresponds to given solution
+                if ( par_rank() == 0 )
+                {
+                    CHECK( equal_to( tVal, 0.5, 1.0e+08 ) );
+                }
+
+                // delete tEpetraComm;
+                delete ( tSolverInterface );
+                delete ( tEigProblem );
+            }
+        }
 
     }    // namespace dla
 }    // namespace moris

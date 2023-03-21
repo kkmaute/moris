@@ -668,7 +668,7 @@ namespace moris
         tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "TEMP" );
         tParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "TEMP,0.0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
-        tParameterlist( 5 )( 0 ).set( "TSA_Output_Crteria", "Output_Criterion" );
+        tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
         /*
         tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
@@ -692,7 +692,7 @@ tParameterlist( 4 )(0) = moris::prm::create_time_solver_algorithm_parameter_list
 tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
 tParameterlist( 5 )(0).set("TSA_DofTypes"       , std::string("TEMP") );
 tParameterlist( 5 )(0).set("TSA_Output_Indices" , std::string("0") );
-tParameterlist( 5 )(0).set("TSA_Output_Crteria" , std::string("Output_Criterion") );
+tParameterlist( 5 )(0).set("TSA_Output_Criteria" , std::string("Output_Criterion") );
          */
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();

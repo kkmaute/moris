@@ -982,13 +982,13 @@ namespace moris
         tParameterlist( 3 )( 0 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
         tParameterlist( 3 )( 0 ).set( "NLA_Nonlinear_solver_algorithms", "0" );    // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 0 ).set( "NLA_DofTypes", "THETA" );
-        tParameterlist( 3 )( 0 ).set( "NLA_Secundary_DofTypes", "PHID" );
+        tParameterlist( 3 )( 0 ).set( "NLA_Secondary_DofTypes", "PHID" );
 
         tParameterlist( 3 )( 1 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 1
         tParameterlist( 3 )( 1 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NEWTON_SOLVER ) );
         tParameterlist( 3 )( 1 ).set( "NLA_Nonlinear_solver_algorithms", "0" );    // set nonlinear algorithm with index 0
         tParameterlist( 3 )( 1 ).set( "NLA_DofTypes", "PHID" );
-        tParameterlist( 3 )( 1 ).set( "NLA_Secundary_DofTypes", "THETA" );
+        tParameterlist( 3 )( 1 ).set( "NLA_Secondary_DofTypes", "THETA" );
 
         tParameterlist( 3 )( 2 ) = moris::prm::create_nonlinear_solver_parameter_list();    // nonlinear solver index 2
         tParameterlist( 3 )( 2 ).set( "NLA_Solver_Implementation", static_cast< uint >( moris::NLA::NonlinearSolverType::NLBGS_SOLVER ) );
@@ -1013,7 +1013,7 @@ namespace moris
         tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "THETA;PHID" );
         tParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "THETA,0.0;PHID,0.0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
-        tParameterlist( 5 )( 0 ).set( "TSA_Output_Crteria", "Output_Criterion" );
+        tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
         tParameterlist( 5 )( 0 ).set( "TSA_time_level_per_type", "THETA,1;PHID,1" );
 
         // ----------------------------------------------------------

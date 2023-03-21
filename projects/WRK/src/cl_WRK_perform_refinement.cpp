@@ -534,9 +534,9 @@ namespace moris
             {
                 sint tMeshIndex = tMeshIndices( Ii );
 
-                // bool tRefinedAllLowLevelElements = false;
+                bool tRefinedAllLowLevelElements = false;
 
-                const uint tMaxLowLevelRefinementSteps = 1;
+                const uint tMaxLowLevelRefinementSteps = 20;
 
                 // set to true for using low level element refinement
                 for ( uint iI = 0; iI < tMaxLowLevelRefinementSteps; ++iI )
@@ -565,7 +565,7 @@ namespace moris
 
                     if ( tNumQueuedElements == 0 )
                     {
-                        // tRefinedAllLowLevelElements = true;
+                        tRefinedAllLowLevelElements = true;
                         break;
                     }
 
@@ -576,9 +576,11 @@ namespace moris
 
                     // FIXME should be removed such that loop is continued until all elements are refined
                 }
+
                 // check that all low level elements were refined
-                // MORIS_ERROR( tRefinedAllLowLevelElements,
-                //        "Refinement_Mini_Performer::perform_refinement_old - could not refine all low level elements." );
+                MORIS_ERROR( tRefinedAllLowLevelElements,
+                        "Refinement_Mini_Performer::perform_refinement_old - could not refine all low level elements in %d steps.",
+                        tMaxLowLevelRefinementSteps );
             }
 
             aHMR->get_database()->update_bspline_meshes();
@@ -634,7 +636,7 @@ namespace moris
                 sint                         aMeshIndex )
         {
             uint tNumElements = 0;
-            
+
             // Loop over fields
             for ( uint Ik = 0; Ik < aPerformer->get_num_refinement_fields(); Ik++ )
             {

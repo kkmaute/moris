@@ -32,6 +32,9 @@ namespace moris
             // set size for the constitutive model pointer cell
             mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
+            // populate the property map
+            mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
+
             // populate the constitutive map
             mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
 
@@ -56,6 +59,13 @@ namespace moris
 
             // get residual dof type field interpolator
             Field_Interpolator* tFISig = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+
+            // get thickness property
+            const std::shared_ptr< Property >& tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // get stress vector from Constitutive model
             const Matrix< DDRMat >& tStressTensor =
@@ -106,6 +116,13 @@ namespace moris
             // get elasticity CM
             std::shared_ptr< Constitutive_Model >& tCMElasticity =
                     mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+
+            // get thickness property
+            const std::shared_ptr< Property >& tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // get the number of master dof type dependencies
             uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
@@ -353,4 +370,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-

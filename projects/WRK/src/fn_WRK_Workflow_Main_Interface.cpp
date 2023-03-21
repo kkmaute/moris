@@ -75,6 +75,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
     {
         // get the current argument
         std::string tArgString = std::string( argv[ k ] );
+        size_t tArgStrLength = tArgString.length();
 
         // check if user requests to just generate foreground and background meshes (for EXHUME project)
         if ( tArgString == "--meshgen" || tArgString == "-mg" )
@@ -84,24 +85,28 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
             continue;
         }
 
-        // check if an .so file is provided
-        if ( tArgString.substr( tArgString.length() - 3 ) == ".so" )
+        // if an argument long enough to be a filename is provided
+        if ( tArgStrLength > 4 )
         {
-            MORIS_ERROR( !tSoFileSpecified, "Multiple .so files specified. Specify no more than one!" );
-            tSoFileSpecified = true;
-            tSoFileName = tArgString;
-            MORIS_LOG( "Reading dynamically linked input file: %s", tArgString.c_str() );
-            continue;
-        }
+            // check if an .so file is provided
+            if ( tArgString.substr( tArgStrLength - 3 ) == ".so" )
+            {
+                MORIS_ERROR( !tSoFileSpecified, "Multiple .so files specified. Specify no more than one!" );
+                tSoFileSpecified = true;
+                tSoFileName = tArgString;
+                MORIS_LOG( "Reading dynamically linked input file: %s", tArgString.c_str() );
+                continue;
+            }
 
-        // check if an .xml file is provided
-        if ( tArgString.substr( tArgString.length() -4 ) == ".xml" || tArgString.substr( tArgString.length() -4 ) == ".XML" )
-        {
-            MORIS_ERROR( !tXmlFileSpecified, "Multiple .xml files specified. Specify no more than one!" );
-            tXmlFileSpecified = true;
-            tXmlFileName = tArgString;
-            MORIS_LOG( "Reading parameters from static input file: %s", tArgString.c_str() );
-            continue;
+            // check if an .xml file is provided
+            if ( tArgString.substr( tArgStrLength -4 ) == ".xml" || tArgString.substr( tArgStrLength -4 ) == ".XML" )
+            {
+                MORIS_ERROR( !tXmlFileSpecified, "Multiple .xml files specified. Specify no more than one!" );
+                tXmlFileSpecified = true;
+                tXmlFileName = tArgString;
+                MORIS_LOG( "Reading parameters from static input file: %s", tArgString.c_str() );
+                continue;
+            }
         }
 
         // check whether the input argument is a flag
@@ -111,8 +116,9 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
             continue;
         }
 
+        // TODO: exclude values that are provided after another flag and related to it, Should the Logger configuration be moved here?
         // if the argument is neither a known file type nor a flag, throw an error
-        MORIS_ERROR( false, "Argument provided is neither a known file-type nor a flag: %s", tArgString.c_str() );
+        // MORIS_ERROR( false, "Argument provided is neither a known file-type nor a flag: %s", tArgString.c_str() );
     }
 
     // check that the arguments provided by user are complete and make sense

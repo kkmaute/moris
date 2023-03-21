@@ -32,23 +32,23 @@ namespace moris
 
         Integration_Mesh::~Integration_Mesh()
         {
-            for( auto tListofBlocks : mListofBlocks )
+            for( auto tListofBlocks : mListOfBlocks )
             {
                 delete tListofBlocks;
             }
-            mListofBlocks.clear();
+            mListOfBlocks.clear();
 
-            for( auto tListofSideSets : mListofSideSets )
+            for( auto tListofSideSets : mListOfSideSets )
             {
                 delete tListofSideSets;
             }
-            mListofSideSets.clear();
+            mListOfSideSets.clear();
 
-            for( auto tListofDoubleSideSets : mListofDoubleSideSets )
+            for( auto tListofDoubleSideSets : mListOfDoubleSideSets )
             {
                 delete tListofDoubleSideSets;
             }
-            mListofDoubleSideSets.clear();
+            mListOfDoubleSideSets.clear();
 
             for(auto p:mDoubleSideClusters)
             {
@@ -205,7 +205,7 @@ namespace moris
         moris::uint
         Integration_Mesh::get_num_blocks() const
         {
-            return mListofBlocks.size();
+            return mListOfBlocks.size();
         }
 
         // ----------------------------------------------------------------------------
@@ -213,7 +213,7 @@ namespace moris
         moris::uint
         Integration_Mesh::get_num_side_set() const
         {
-            return mListofSideSets.size();
+            return mListOfSideSets.size();
         }
 
         // ----------------------------------------------------------------------------
@@ -221,7 +221,7 @@ namespace moris
         moris::uint
         Integration_Mesh::get_num_double_side_set() const
         {
-            return mListofDoubleSideSets.size();
+            return mListOfDoubleSideSets.size();
         }
 
         // ----------------------------------------------------------------------------
@@ -240,7 +240,7 @@ namespace moris
         Integration_Mesh::add_double_side_set(mtk::Set* aDblSideSet)
         {
             //add double sided set to the list
-            mListofDoubleSideSets.push_back(aDblSideSet); 
+            mListOfDoubleSideSets.push_back(aDblSideSet); 
 
             //reconstruct list of all sets by adding double sided set and a corresponding index
             this->collect_all_sets();  
@@ -256,20 +256,20 @@ namespace moris
             mSetNameToIndexMap.clear();
 
             // reserve enough space 
-            mListOfAllSets.reserve( mListofBlocks.size() + mListofSideSets.size() + mListofDoubleSideSets.size() );
+            mListOfAllSets.reserve( mListOfBlocks.size() + mListOfSideSets.size() + mListOfDoubleSideSets.size() );
 
             uint tCounter = 0;
 
             // Append block sets to list of all sets
-            mListOfAllSets.append( mListofBlocks );
+            mListOfAllSets.append( mListOfBlocks );
 
             // Append side sets to list of all sets
-            mListOfAllSets.append( mListofSideSets );
+            mListOfAllSets.append( mListOfSideSets );
 
             //FIXME implement cell topology for side set
 
             // Append double side sets to list of all sets
-            mListOfAllSets.append( mListofDoubleSideSets );
+            mListOfAllSets.append( mListOfDoubleSideSets );
 
             // iterate through all sets and register their index in the map
             for( uint Ik = 0; Ik < mListOfAllSets.size(); Ik++ )
@@ -280,7 +280,7 @@ namespace moris
             }
 
             // add the cell topology to the set
-            for( uint Ik = 0; Ik < mListofBlocks.size(); Ik++ )
+            for( uint Ik = 0; Ik < mListOfBlocks.size(); Ik++ )
             {
                 std::string tSetName = mListOfAllSets( tCounter )->get_set_name();
 
@@ -297,7 +297,7 @@ namespace moris
             if ( aSetShape == true )
             {
                 // add the cell topology to the set
-                for( uint Ik = 0; Ik < mListofSideSets.size(); Ik++ )
+                for( uint Ik = 0; Ik < mListOfSideSets.size(); Ik++ )
                 {
                     std::string tSetName = mListOfAllSets( tCounter )->get_set_name();
 
@@ -307,7 +307,7 @@ namespace moris
                 }
 
                 // add the cell topology to the set
-                for( uint Ik = 0; Ik < mListofDoubleSideSets.size(); Ik++ )
+                for( uint Ik = 0; Ik < mListOfDoubleSideSets.size(); Ik++ )
                 {
                     std::string tSetName = mListOfAllSets( tCounter )->get_set_name();
 
@@ -356,41 +356,41 @@ namespace moris
             mAllSetToColor.resize(mMaxColor + 1);
 
             // iterate through block sets 
-            for(moris::uint i = 0; i < mListofBlocks.size(); i++)
+            for(moris::uint i = 0; i < mListOfBlocks.size(); i++)
             {
-                Matrix<IndexMat> const & tSetColors = mListofBlocks(i)->get_set_colors();
+                Matrix<IndexMat> const & tSetColors = mListOfBlocks(i)->get_set_colors();
 
                 // iterate through the colors and add to related color grouping
                 for(moris::uint j = 0; j < tSetColors.numel(); j++)
                 {
-                    mBlockSetToColor(tSetColors(j)).push_back(mListofBlocks(i));
-                    mAllSetToColor(tSetColors(j)).push_back(mListofBlocks(i));
+                    mBlockSetToColor(tSetColors(j)).push_back(mListOfBlocks(i));
+                    mAllSetToColor(tSetColors(j)).push_back(mListOfBlocks(i));
                 }
             }
 
             // iterate through side sets 
-            for(moris::uint i = 0; i < mListofSideSets.size(); i++)
+            for(moris::uint i = 0; i < mListOfSideSets.size(); i++)
             {
-                Matrix<IndexMat> const & tSetColors = mListofSideSets(i)->get_set_colors();
+                Matrix<IndexMat> const & tSetColors = mListOfSideSets(i)->get_set_colors();
 
                 // iterate through the colors and add to related color grouping
                 for(moris::uint j = 0; j < tSetColors.numel(); j++)
                 {
-                    mSideSetToColor(tSetColors(j)).push_back(mListofSideSets(i));
-                    mAllSetToColor(tSetColors(j)).push_back(mListofSideSets(i));
+                    mSideSetToColor(tSetColors(j)).push_back(mListOfSideSets(i));
+                    mAllSetToColor(tSetColors(j)).push_back(mListOfSideSets(i));
                 }
             }
 
             // iterate through double side sets 
-            for(moris::uint i = 0; i < mListofDoubleSideSets.size(); i++)
+            for(moris::uint i = 0; i < mListOfDoubleSideSets.size(); i++)
             {
-                Matrix<IndexMat> const & tSetColors = mListofDoubleSideSets(i)->get_set_colors();
+                Matrix<IndexMat> const & tSetColors = mListOfDoubleSideSets(i)->get_set_colors();
 
                 // iterate through the colors and add to related color grouping
                 for(moris::uint j = 0; j < tSetColors.numel(); j++)
                 {
-                    mDoubleSideSetToColor(tSetColors(j)).push_back(mListofDoubleSideSets(i));
-                    mAllSetToColor(tSetColors(j)).push_back(mListofDoubleSideSets(i));
+                    mDoubleSideSetToColor(tSetColors(j)).push_back(mListOfDoubleSideSets(i));
+                    mAllSetToColor(tSetColors(j)).push_back(mListOfDoubleSideSets(i));
                 }
             }
         }
@@ -753,19 +753,19 @@ namespace moris
                 //Bulk sets
                 case SetType::BULK :
                 {
-                    return mListofBlocks;
+                    return mListOfBlocks;
                 }
 
                 //Side Sets
                 case SetType::SIDESET :
                 {
-                    return mListofSideSets;
+                    return mListOfSideSets;
                 }
 
                 //Double Sided Sets
                 case SetType::DOUBLE_SIDED_SIDESET :
                 {
-                    return mListofDoubleSideSets;
+                    return mListOfDoubleSideSets;
                 }
 
                 //All sets
@@ -853,9 +853,9 @@ namespace moris
 
             //use erase remove idiom to remove sets that have the name as the ghost
             //FIXME : a proper insert function needs to be implemented that we don't use data
-            mListofBlocks.data().erase(std::remove_if(mListofBlocks.begin(), mListofBlocks.end(), tIsGhostVisualization),mListofBlocks.end()) ;
+            mListOfBlocks.data().erase(std::remove_if(mListOfBlocks.begin(), mListOfBlocks.end(), tIsGhostVisualization),mListOfBlocks.end()) ;
 
-            mListofSideSets.data().erase(std::remove_if(mListofSideSets.begin(), mListofSideSets.end(), tIsGhostVisualization),mListofSideSets.end()) ;
+            mListOfSideSets.data().erase(std::remove_if(mListOfSideSets.begin(), mListOfSideSets.end(), tIsGhostVisualization),mListOfSideSets.end()) ;
 
             mListOfAllSets.data().erase(std::remove_if(mListOfAllSets.begin(), mListOfAllSets.end(), tIsGhostVisualization),mListOfAllSets.end()) ;
         }

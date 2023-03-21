@@ -30,7 +30,7 @@ namespace moris
             tParameterList.insert( "decompose", true );
             tParameterList.insert( "decomposition_type", "conformal" );
             tParameterList.insert( "octree_refinement_level", "-1" );
-            tParameterList.insert( "triangulate_all", false );    // NOTE: this option does fail if the Lagrange mesh is not uniformely refined
+            tParameterList.insert( "triangulate_all", false );    // NOTE: this option does fail if the Lagrange mesh is not uniformly refined
             tParameterList.insert( "ig_element_order", moris::uint( 1 ) );
 
             // cleanup
@@ -70,7 +70,7 @@ namespace moris
             tParameterList.insert( "deactivate_all_but_blocks", "" );
             tParameterList.insert( "deactivate_all_but_side_sets", "" );
 
-            // Write enrichement fields on mesh (only recommended on very small meshes)
+            // Write enrichment fields on mesh (only recommended on very small meshes)
             tParameterList.insert( "write_enrichment_fields", false );
 
             // a sphere where I write enrichment fields locations (r,xc,yv,zc)
