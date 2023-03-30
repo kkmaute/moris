@@ -73,6 +73,13 @@ namespace moris
             const std::shared_ptr< Stabilization_Parameter >& tGGLSParam =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GGLS_DIFFUSION ) );
 
+            // get thickness property
+            const std::shared_ptr< Property >& tPropThickness =
+                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+
+            // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
+            aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
+
             // get sub-matrix
             auto tRes = mSet->get_residual()( 0 )(
                     { tMasterResStartIndex, tMasterResStopIndex } );
