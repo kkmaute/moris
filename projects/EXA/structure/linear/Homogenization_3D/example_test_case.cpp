@@ -106,7 +106,7 @@ check_linear_results_serial()
 
 //---------------------------------------------------------------
 
-TEST_CASE( "Axisymmetric_Problem_Linear",
+TEST_CASE( "Homogenization_3D",
         "[moris],[example],[structure],[homogenization]" )
 {
     // temporary
