@@ -20,8 +20,6 @@
 # You do _not_ need to edit this line.
 
 if(NOT TRILINOS_FOUND_ONCE) 
-    include(${MORIS_CMAKE_DIR}/utilities/moris_macros.cmake)
-# - - v - - - v - - - v - - - v - - - v - - - v - - - v - - - v - - - v - -
     set(TRILINOS_FILE "TrilinosConfig.cmake")
 
     set(TRILINOS_ENV_VARS
@@ -215,8 +213,6 @@ if(NOT TRILINOS_FOUND_ONCE)
             MORIS_T_LIBS
             "${MORIS_T_LIBS}" )
     endif()
-
-# - - ^ - - - ^ - - - ^ - - - ^ - - - ^ - - - ^ - - - ^ - - - ^ - - - ^ - -
     
     set(MORIS_TRI_LIBS ${MORIS_T_LIBS}
         CACHE STRING "Trilinos libraries used by moris." )
