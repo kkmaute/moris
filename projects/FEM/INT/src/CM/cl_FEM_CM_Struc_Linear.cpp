@@ -353,6 +353,10 @@ namespace moris
                 const Matrix< DDRMat > &tDispl      = mFIManager->get_field_interpolators_for_type( mDofDispl )->val();
                 const Matrix< DDRMat > &tOtbdRadVec = mPropRotAxis->val();
 
+                // check that radius is larger than MORIS_REAL_MIN
+                MORIS_ASSERT( tOtbdRadVec( 1 ) > MORIS_REAL_MIN,
+                        "CM_Struc_Linear::eval_strain_2d - radius in axisymmetric model needs be larger than zero." );
+
                 // normal strain in azimuthal direction u_r / r
                 // here {u}.*{n_r} / (r) where {n_r} = unit outward radial vector from line to point
                 mStrain( 2 ) = dot( tDispl, tOtbdRadVec( { 2, 3 } ) ) / ( tOtbdRadVec( 1 ) );
