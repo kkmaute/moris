@@ -49,3 +49,5 @@ dirichlet
 totalpressure
 backflowprevention
 axisymmetric
+azimuthal
+eigen
