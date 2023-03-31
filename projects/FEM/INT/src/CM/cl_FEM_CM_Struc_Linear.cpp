@@ -353,13 +353,12 @@ namespace moris
                 const Matrix< DDRMat > &tDispl      = mFIManager->get_field_interpolators_for_type( mDofDispl )->val();
                 const Matrix< DDRMat > &tOtbdRadVec = mPropRotAxis->val();
 
-                // check that radius is larger than MORIS_REAL_MIN
-                MORIS_ASSERT( tOtbdRadVec( 1 ) > MORIS_REAL_MIN,
-                        "CM_Struc_Linear::eval_strain_2d - radius in axisymmetric model needs be larger than zero." );
+                // adjust radius to be larger than MORIS_REAL_EPS
+                const real tRadius = std::max( tOtbdRadVec( 1 ), MORIS_REAL_EPS );
 
                 // normal strain in azimuthal direction u_r / r
                 // here {u}.*{n_r} / (r) where {n_r} = unit outward radial vector from line to point
-                mStrain( 2 ) = dot( tDispl, tOtbdRadVec( { 2, 3 } ) ) / ( tOtbdRadVec( 1 ) );
+                mStrain( 2 ) = dot( tDispl, tOtbdRadVec( { 2, 3 } ) ) / tRadius;
 
                 // 12 shear stress
                 mStrain( 3 ) = tDisplGradx( 1, 0 ) + tDisplGradx( 0, 1 );
@@ -418,6 +417,10 @@ namespace moris
                 // add eigen strain contribution; note the sign
                 mStrain += mPropEigenStrain->val();
             }
+
+            // check for nan, infinity
+            MORIS_ASSERT( isfinite( mStrain ),
+                    "CM_Struc_Linear::eval_strain_2d - Strain contains NAN or INF, exiting!" );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -477,6 +480,10 @@ namespace moris
                 // add eigen strain contribution; note the sign
                 mStrain += mPropEigenStrain->val();
             }
+
+            // check for nan, infinity
+            MORIS_ASSERT( isfinite( mStrain ),
+                    "CM_Struc_Linear::eval_strain_3d - Strain contains NAN or INF, exiting!" );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -636,7 +643,7 @@ namespace moris
             Field_Interpolator *tFI =
                     mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
-            // init mdFluxdDof
+            // initialize mdFluxdDof
             mdFluxdDof( tDofIndex ).set_size( mConst.n_rows(), tFI->get_number_of_space_time_coefficients() );
 
             // if displacements or temperature
@@ -702,7 +709,7 @@ namespace moris
             // get the dof type index
             const uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
-            // init the dTestTractiondDof
+            // initialize the dTestTractiondDof
             mdTestTractiondDof( tTestDofIndex )( tDofIndex ).set_size( mFIManager->get_field_interpolators_for_type( aTestDofTypes( 0 ) )->get_number_of_space_time_coefficients(), mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) )->get_number_of_space_time_coefficients() );
 
             mdTestTractiondDof( tTestDofIndex )( tDofIndex ).fill( 0.0 );
@@ -719,7 +726,7 @@ namespace moris
             // get the dof FI
             Field_Interpolator *tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
-            // init mdStraindDof
+            // initialize mdStraindDof
             mdStraindDof( tDofIndex ).set_size( mStrain.numel(), tFI->get_number_of_space_time_coefficients() );
 
             // if displacement dof
