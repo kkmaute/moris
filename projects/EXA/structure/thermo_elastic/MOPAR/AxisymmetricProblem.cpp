@@ -251,23 +251,30 @@ namespace moris
                 "Axisymmetric rotation axis incorrectly defined. use {{x1,y1},{x2,y2}}." );
 
         // vector from point 1 to point 2
-        moris::Matrix< moris::DDRMat > tRotVec = { { aParameters( 0 )( 1, 0 ) - aParameters( 0 )( 0, 0 ) },
-            { aParameters( 0 )( 1, 1 ) - aParameters( 0 )( 0, 1 ) } };
+        moris::Matrix< moris::DDRMat > tRotVec = { //
+            { aParameters( 0 )( 1, 0 ) - aParameters( 0 )( 0, 0 ) },
+            { aParameters( 0 )( 1, 1 ) - aParameters( 0 )( 0, 1 ) }
+        };
 
         // spatial location of interest
         moris::Matrix< moris::DDRMat > tX = aFIManager->get_IP_geometry_interpolator()->valx();
 
         // vector from point 1 to location of interest
-        moris::Matrix< moris::DDRMat > tPntVec = { { tX( 0 ) - aParameters( 0 )( 0, 0 ) }, { tX( 1 ) - aParameters( 0 )( 0, 1 ) } };
+        moris::Matrix< moris::DDRMat > tPntVec = { //
+            { tX( 0 ) - aParameters( 0 )( 0, 0 ) },
+            { tX( 1 ) - aParameters( 0 )( 0, 1 ) }
+        };
 
         // minimum distance vector from line to point of interest
-        moris::Matrix< moris::DDRMat > tRadVec = tPntVec - dot( tPntVec, tRotVec ) * tRotVec / ( tRotVec( 0 ) * tRotVec( 0 ) + tRotVec( 1 ) * tRotVec( 1 ) );
+        moris::Matrix< moris::DDRMat > tRadVec =                 //
+                tPntVec - dot( tPntVec, tRotVec ) * tRotVec /    //
+                                  ( tRotVec( 0 ) * tRotVec( 0 ) + tRotVec( 1 ) * tRotVec( 1 ) );
 
         // init aPropMatrixSize
         aPropMatrix.set_size( 4, 1, 0.0 );
 
         // radius
-        aPropMatrix( 1 ) = norm( tRadVec );
+        aPropMatrix( 1 ) = std::max( norm( tRadVec ), MORIS_REAL_EPS );
 
         // 2*pi*r for IWG
         aPropMatrix( 0 ) = aPropMatrix( 1 ) * 4.0 * std::acos( 0 );
