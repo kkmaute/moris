@@ -1117,9 +1117,9 @@ namespace moris
                 enum CM_Function_Type               aCMFunctionType )
         {
             // check requested derivative
-            MORIS_ASSERT( aCMRequestType == CM_Request_Type::UNDEFINED,
+            MORIS_ERROR( aCMRequestType != CM_Request_Type::UNDEFINED,
                     "Constitutive_Model::eval_derivative_FD - aCMRequestType needs to be defined." );
-            
+
             // get the FD scheme info
             moris::Cell< moris::Cell< real > > tFDScheme;
             fd_scheme( aFDSchemeType, tFDScheme );
@@ -1229,10 +1229,6 @@ namespace moris
                 const Matrix< DDRMat >&             aJump,
                 enum CM_Function_Type               aCMFunctionType )
         {
-            // check requested derivative
-            MORIS_ASSERT( aCMRequestType == CM_Request_Type::UNDEFINED,
-                    "Constitutive_Model::eval_derivative_FD - aCMRequestType needs to be defined." );
-
             switch ( aCMRequestType )
             {
                 case CM_Request_Type::STRAIN:
@@ -1257,7 +1253,7 @@ namespace moris
                     break;
                 }
                 default:
-                    MORIS_ASSERT( false, "Constitutive_Model::select_derivative_FD: aCMRequestType undefined" );
+                    MORIS_ERROR( false, "Constitutive_Model::select_derivative_FD: aCMRequestType undefined" );
                     return this->strain( aCMFunctionType );
             }
         }
@@ -1270,10 +1266,6 @@ namespace moris
                 const moris::Cell< MSI::Dof_Type >& aTestDofTypes,
                 enum CM_Function_Type               aCMFunctionType )
         {
-            // check requested derivative
-            MORIS_ASSERT( aCMRequestType == CM_Request_Type::UNDEFINED,
-                    "Constitutive_Model::eval_derivative_FD - aCMRequestType needs to be defined." );
-
             // get the dof index
             uint tDofIndex = mGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
@@ -1307,7 +1299,7 @@ namespace moris
                     break;
                 }
                 default:
-                    MORIS_ASSERT( false, "Constitutive_Model::set_derivative_FD: aCMRequestType undefined" );
+                    MORIS_ERROR( false, "Constitutive_Model::set_derivative_FD: aCMRequestType undefined" );
             }
         }
 
@@ -2959,10 +2951,6 @@ namespace moris
                 enum CM_Function_Type               aCMFunctionType )
 
         {
-            // check CM function type, base class only supports "DEFAULT"
-            MORIS_ASSERT( aCMFunctionType == CM_Function_Type::DEFAULT,
-                    "Constitutive_Model::testTraction_trans - Only DEFAULT CM function type known in base class." );
-
             // get test dof type index
             uint tTestDofIndex = mDofTypeMap( static_cast< uint >( aTestDofTypes( 0 ) ) );
 
