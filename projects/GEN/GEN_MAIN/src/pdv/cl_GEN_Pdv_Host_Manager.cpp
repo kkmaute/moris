@@ -672,7 +672,9 @@ namespace moris
 
             // check for consistent lengths of ID vector and matrix of sensitivities
             MORIS_ERROR( aADVIds.n_cols() == tNumAdvs,
-                    "Pdv_Host_Manager::compute_diqi_dadv - inconsistent number of ADVs vs. sensitivity values for interpolation PDVs" );
+                    "Pdv_Host_Manager::compute_diqi_dadv - inconsistent number of ADVs (%d) vs. sensitivity values for interpolation PDVs (%d)",
+                    tNumAdvs,
+                    aADVIds.n_cols() );
 
             // skip of ADV vector is empty
             if ( tNumAdvs == 0 ) return;
