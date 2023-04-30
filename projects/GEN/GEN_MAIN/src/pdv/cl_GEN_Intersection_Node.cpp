@@ -16,6 +16,7 @@
 #include "cl_MTK_Enums.hpp"                             //MTK/src
 
 #include "fn_norm.hpp"
+#include "fn_eye.hpp"
 
 namespace moris
 {
@@ -201,7 +202,8 @@ namespace moris
             // Add first parent sensitivities, if needed
             if ( mFirstParentNode )
             {
-                Matrix< DDRMat > tLocCoord = { { 1.0 - mLocalCoordinate, 0.0 }, { 0.0, 1.0 - mLocalCoordinate } };
+                Matrix< DDRMat > tLocCoord = ( 1.0 - mLocalCoordinate ) *    //
+                                             eye( mParentVector.n_rows(), mParentVector.n_rows() );
 
                 tSensitivitiesToAdd = 0.5 * ( tLocCoord + mParentVector * this->get_dxi_dcoordinate_first_parent() ) * mFirstParentNode->get_dcoordinate_dadv();
 
@@ -211,7 +213,8 @@ namespace moris
             // Add second parent sensitivities, if needed
             if ( mSecondParentNode )
             {
-                Matrix< DDRMat > tLocCoord = { { 1.0 + mLocalCoordinate, 0.0 }, { 0.0, 1.0 + mLocalCoordinate } };
+                Matrix< DDRMat > tLocCoord = ( 1.0 + mLocalCoordinate ) *    //
+                                             eye( mParentVector.n_rows(), mParentVector.n_rows() );
 
                 tSensitivitiesToAdd = 0.5 * ( tLocCoord + mParentVector * this->get_dxi_dcoordinate_second_parent() ) * mSecondParentNode->get_dcoordinate_dadv();
 
