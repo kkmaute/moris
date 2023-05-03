@@ -57,6 +57,10 @@ namespace moris
 
         bool mIsForwardAnalysis = true;
 
+      protected:
+        moris::Cell< moris_id > mNonZeroDigonal;
+        moris::Cell< moris_id > mNonZeroOffDigonal;
+
       public:
         /** Destructor */
         virtual ~Solver_Interface(){};
@@ -560,7 +564,14 @@ namespace moris
 
         //---------------------------------------------------------------------------------------------------------
 
-        void build_graph( moris::sol::Dist_Matrix* aMat );
+        /**
+         * @brief builds thr graph based on the precomputed sparsity pattern
+         * This is for Petsc right now
+         * 
+         * @param aMat 
+         * @param aUseSparsityPattern 
+         */
+        void build_graph( moris::sol::Dist_Matrix* aMat, bool aUseSparsityPattern = false);
 
         //---------------------------------------------------------------------------------------------------------
 
@@ -639,6 +650,19 @@ namespace moris
 
         virtual void
         set_solver_warehouse( std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse );
+
+        //------------------------------------------------------------------------------
+        
+        /**
+         * @brief virtual method to be overloaded by MSI child class
+         *
+         */
+        virtual void compute_sparsity_pattern() 
+        {
+            MORIS_ERROR( false, "Solver_Interface::compute_sparsity_pattern(), not implemented for base class" );
+        };
+
+        
     };
 }    // namespace moris
 

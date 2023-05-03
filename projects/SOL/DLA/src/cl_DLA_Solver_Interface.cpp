@@ -18,8 +18,19 @@ using namespace moris;
 //---------------------------------------------------------------------------------------------------------
 
 void
-Solver_Interface::build_graph( moris::sol::Dist_Matrix* aMat )
+Solver_Interface::build_graph( moris::sol::Dist_Matrix* aMat, bool aUseSparsityPattern )
 {
+    if ( aUseSparsityPattern )
+    {
+        // compute the sparsity pattern
+        this->compute_sparsity_pattern();
+
+        // build the sparsity pattern based on the
+        aMat->build_graph( mNonZeroDigonal, mNonZeroOffDigonal );
+
+        return;
+    }
+
     // Get local number of elements
     moris::uint numBlocks = this->get_num_my_blocks();
 

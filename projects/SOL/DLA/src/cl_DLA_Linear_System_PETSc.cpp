@@ -27,6 +27,8 @@
 #include <petscviewer.h>
 #include <petsclog.h>
 
+#include "cl_Stopwatch.hpp"    //CHR/src
+
 using namespace moris;
 using namespace dla;
 
@@ -111,7 +113,13 @@ Linear_System_PETSc::Linear_System_PETSc(
 
     mFullVectorLHS = tMatFactory.create_vector( aInput, aFullMap );
 
-    mSolverInterface->build_graph( mMat );
+    // start timer
+    tic tTimer;
+
+    mSolverInterface->build_graph( mMat, true );
+
+    real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
+    MORIS_LOG_INFO( "Building matrix graph on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
 }
 
 //------------------------------------------------------------------------------
