@@ -584,6 +584,12 @@ namespace moris
             // Schwarz preconditioner volume fraction threshold
             tLinAlgorithmParameterList.insert( "ASM_volume_fraction_threshold", 0.1 );
 
+            // number of eigen values to be outputted
+            tLinAlgorithmParameterList.insert( "ouput_eigenspectrum", (uint)0 );
+
+            // blocks in addtive Schwartz algorthim
+            tLinAlgorithmParameterList.insert( "ASM_blocks_output_filename", "" );
+
             return tLinAlgorithmParameterList;
         }
 

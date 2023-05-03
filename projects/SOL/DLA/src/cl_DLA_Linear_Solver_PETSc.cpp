@@ -11,6 +11,7 @@
 #include "cl_DLA_Linear_Solver_PETSc.hpp"
 #include "cl_DLA_Preconditioner_PETSc.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
+#include "fn_PRM_SOL_Parameters.hpp"
 
 #include <petscksp.h>
 #include <petscdm.h>
@@ -20,6 +21,10 @@
 #include <string>
 
 #include "cl_Tracer.hpp"
+
+#ifdef MORIS_HAVE_SLEPC
+#include "slepceps.h"
+#endif
 
 using namespace moris;
 using namespace dla;
@@ -95,6 +100,9 @@ Linear_Solver_PETSc::set_solver_parameters()
 
     // Set multigrid levels
     mParameterList.insert( "MultigridLevels", 3 );
+
+    // Set multigrid levels
+    mParameterList.insert( "ouput_eigenspectrum", (uint)0 );
 }
 
 //----------------------------------------------------------------------------------------
@@ -132,6 +140,8 @@ Linear_Solver_PETSc::solve_linear_system(
     // MatView( aLinearSystem->get_matrix()->get_petsc_matrix(), PETSC_VIEWER_STDOUT_WORLD );
     // VecView( static_cast< Vector_PETSc * >( aLinearSystem->get_solver_RHS() )->get_petsc_vector(), PETSC_VIEWER_STDOUT_WORLD );
     // VecView( static_cast< Vector_PETSc * >( aLinearSystem->get_free_solver_LHS() )->get_petsc_vector(), PETSC_VIEWER_STDOUT_WORLD );
+
+    this->compute_eigenspectrum(aLinearSystem);
 
     // Solve System
     KSPSolve(
@@ -327,6 +337,46 @@ Linear_Solver_PETSc::construct_solver_and_preconditioner( Linear_Problem *aLinea
     // finalize solver setup
     KSPSetUp( mPetscKSPProblem );
 
+    // KSPSetComputeEigenvalues(mPetscKSPProblem,PETSC_TRUE);
+
     // for debugging: print solver setup
-    // KSPView( mPetscKSPProblem, PETSC_VIEWER_STDOUT_WORLD );
+    KSPView( mPetscKSPProblem, PETSC_VIEWER_STDOUT_WORLD );
+}
+
+void
+Linear_Solver_PETSc::compute_eigenspectrum(Linear_Problem* aLinearSystem)
+{
+    uint tNumEigenValues = mParameterList.get< uint >( "ouput_eigenspectrum" );
+    if ( tNumEigenValues == 0 )
+    {
+        return;
+    }
+#ifdef MORIS_HAVE_SLEPC
+
+
+    // declare the explict precondioied matrix
+    ::Mat tBA;
+
+    // get the matrix type fo A
+    Mat tMat = aLinearSystem->get_matrix()->get_petsc_matrix();
+
+    // get the matrix type
+    MatType tMatType;
+    MatGetType( tMat, &tMatType );
+
+    // compute the explicit operator
+    KSPComputeOperator( mPetscKSPProblem, tMatType, &tBA );
+
+    // set up the eigen problem
+    EPS eps;
+    moris::real tTolerance; 
+    moris::sint   tMaxIter; 
+    SlepcInitializeNoArguments();
+    EPSCreate( PETSC_COMM_WORLD, &eps );
+    EPSSetOperators( eps, tBA, NULL );
+    EPSSetProblemType( eps, EPS_HEP );
+    EPSSetDimensions( eps, (PetscInt)tNumEigenValues, PETSC_DEFAULT, PETSC_DEFAULT );
+    EPSSolve( eps );
+    EPSGetTolerances( eps, &tTolerance, &tMaxIter );
+#endif
 }
