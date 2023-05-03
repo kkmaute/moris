@@ -386,7 +386,7 @@ Vector_PETSc::extract_my_values(
     MORIS_ASSERT( aNumIndices == tIndices.numel(),
             "Vector_PETSc::replace_global_values - number of indices does not match size of tIndices" );
 
-    barrier();
+
     // allocate memory for extracted values
     ExtractedValues.resize( 1 );
     ExtractedValues( 0 ).set_size( aNumIndices, 1 );
