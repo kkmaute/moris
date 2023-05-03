@@ -55,17 +55,8 @@ Matrix_PETSc::Matrix_PETSc(
     // Set options
     MatSetFromOptions( mPETScMat );
 
-    // Fixme Implement sparsity algorithm
-    PetscInt tNonZeros = 16;
-
-    // Define sparsity structure
-    MatMPIAIJSetPreallocation( mPETScMat, tNonZeros, NULL, tNonZeros, NULL );
-
-    // Finalize setup of matrix
+       // Finalize setup of matrix
     MatSetUp( mPETScMat );
-
-    // allow for column based inputs
-    MatSetOption( mPETScMat, MAT_ROW_ORIENTED, PETSC_FALSE );
 }
 
 // ----------------------------------------------------------------------------
@@ -335,4 +326,27 @@ Matrix_PETSc::save_matrix_to_matlab_file( const char* aFilename )
     MatView( mPETScMat, tViewer );
 
     PetscViewerDestroy( &tViewer );
+}
+
+// ----------------------------------------------------------------------------
+
+void
+Matrix_PETSc::build_graph(
+        Cell< moris_id >& aNonZeroDiagonal,
+        Cell< moris_id >& aNonZeroOffDiagonal )
+{
+    // Define sparsity structure
+    MatMPIAIJSetPreallocation( mPETScMat, 0, aNonZeroDiagonal.memptr(), 0, aNonZeroOffDiagonal.memptr() );
+
+    // ask the matrix to keep the sparsity pattern
+    MatSetOption( mPETScMat, MAT_KEEP_NONZERO_PATTERN, PETSC_TRUE );
+
+    // Allow colum wise element insertion
+    MatSetOption( mPETScMat, MAT_ROW_ORIENTED, PETSC_FALSE );
+
+    // Finalize setup of matrix
+    MatSetUp( mPETScMat );
+
+    // note: if there is a problem with this routine turn this option off at the cost of performance
+    // MatSetOption(mPETScMat,  MAT_NEW_NONZERO_ALLOCATION_ERR, PETSC_FALSE);
 }

@@ -139,6 +139,19 @@ namespace moris
 
         void save_matrix_map_to_matrix_market_file( const char* aFilename ){};
 
+        // ----------------------------------------------------------------------------
+
+        /**
+         * @brief build the graph of matrix, allocate enough space in CSR format
+         *
+         * @param aNumMyDof
+         * @param aElementTopology
+         */
+
+        virtual void build_graph(
+                Cell< moris_id >& aNonZeroDiagonal,
+                Cell< moris_id >& aNonZeroOffDiagonal ) override;
+
         // void BuildSparseGraph(int numElements = 5);
 
         // Mat get_petsc_matrix()       { return mPETScMat; }

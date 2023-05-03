@@ -164,6 +164,22 @@ namespace moris
                 return mPETScMat;
             }
 #endif
+
+            //---------------------------------------------------------------------------------
+
+            /**
+             * @brief build graph based on the sparsity pattern computed in MSI ( mostly intended for petsc )
+             *
+             * @param aNonZeroDiagonal
+             * @param aNonZeroOffDiagonal
+             */
+            virtual void
+            build_graph(
+                    Cell< moris_id >& aNonZeroDiagonal,
+                    Cell< moris_id >& aNonZeroOffDiagonal )
+            {
+                MORIS_ERROR( false, "build_graph does not have an implementation in the base class" );
+            }
         };
     }    // namespace sol
 }    // namespace moris
