@@ -78,7 +78,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            ~MSI_Solver_Interface(){};
+            virtual ~MSI_Solver_Interface(){};
 
             //------------------------------------------------------------------------------
 
@@ -549,7 +549,42 @@ namespace moris
             void
             set_solver_warehouse( std::shared_ptr< sol::SOL_Warehouse > aSolverWarehouse );
 
+
             //------------------------------------------------------------------------------
+
+            /**
+             * @brief compute number of zeros id diogonal and off disgonal part
+             * of the matrix based on adof ids
+             *
+             */
+
+            virtual void compute_sparsity_pattern() override;
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief initial estimate size of the stencil based on the spatial dimension and
+             *
+             * @return uint
+             */
+
+            virtual uint estimate_number_of_nonzero_columns();
+
+            //-------------------------------------------------------------------------------
+
+            /**
+             * @brief This function receives the shared adof connectivity
+             *
+             * @param [in] aSharedAdofConn outer cell: neighbour processor index, inner cell: shared aof index , most inner cell: list of adofs connected to the adof
+             * @param [out] aAdofConnectivityReceive outer cell: received from neighbour processor index, inner cells: list of all adofs that are connoted to shared adofs consecutively
+             * @param [out] aAdofConnectivityOffsetReceive outer cell: received from neighbour processor index, inner cells: offset indicating position of the connected adofs
+             */
+
+            void communicate_shared_adof_connectivity(
+                    moris::Cell< moris::Cell< moris::Cell< uint > > > const & aSharedAdofConn,
+                    moris::Cell< moris::Cell< uint > >&                       aAdofConnectivityReceive,
+                    moris::Cell< moris::Cell< uint > >&                       aAdofConnectivityOffsetReceive,
+                    moris::Cell< moris_index > const &                        aCommCell );
         };
     }    // namespace MSI
 }    // namespace moris
