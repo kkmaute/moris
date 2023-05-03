@@ -30,7 +30,10 @@ namespace moris
           private:
             moris::Cell< Pdof_Host* >           mPdofHostList;              // List of all pdof hosts
             moris::Cell< Adof* >                mAdofList;                  // List of all adofs
-            moris::Cell< moris::Cell< Adof* > > mAdofListOwned;             // List of all owned adofs
+
+            // outer cell : type-time identifier of adof, inner cell: local index of the adof
+            moris::Cell< moris::Cell< Adof* > > mAdofListOwned;    // List of all owned adofs
+            // outer cell : type-time identifier of adof, inner cell: local index of the adof
             moris::Cell< moris::Cell< Adof* > > mAdofListOwnedAndShared;    // List of all owned and shared adofs
 
             moris::Cell< enum Dof_Type > mPdofTypeList;    // List containing all used unique dof types.
@@ -41,7 +44,10 @@ namespace moris
             Matrix< IdMat >  mCommTable;                // Communication table. As and input from the model.
 
             Model_Solver_Interface* mModelSolverInterface = nullptr;    // Model solver interface pointer
-
+            
+            // outer cell : discretization mesh index
+            // inner map: key[first] : adof external id,  value[second] adof id 
+            // note: adof external id is "one-based" index system while adof id is zero-based
             Cell< moris::map< moris::moris_id, moris::moris_index > > mAdofGlobaltoLocalMap;
 
             moris::sint mNumMaxAdofs   = -1;
@@ -343,6 +349,20 @@ namespace moris
             };
 
             //-----------------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief Get list of owned and shared adofs
+             *
+             * @return moris::Cell< Adof* >&
+             */
+
+            moris::Cell< Adof* >&
+            get_adofs()
+            {
+                return mAdofList;
+            };
+
+            //-----------------------------------------------------------------------------------------------------------
             Matrix< DDSMat > get_local_adof_ids();
 
             //-----------------------------------------------------------------------------------------------------------
@@ -379,6 +399,14 @@ namespace moris
 
                 return mPdofTypeList.size();
             };
+
+            //-----------------------------------------------------------------------------------------------------------
+
+            Matrix< IdMat > const &
+            get_comm_table()
+            {
+                return mCommTable;
+            }
         };
     } /* namespace MSI */
 } /* namespace moris */
