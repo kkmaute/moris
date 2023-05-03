@@ -586,5 +586,13 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        uint
+        Model::get_spatial_dim()
+        {
+            mtk::Interpolation_Mesh* tInterpolationMesh = mMeshManager->get_interpolation_mesh( mMeshPairIndex );
+
+            return tInterpolationMesh->get_spatial_dim();
+        }
+
     } /* namespace mdl */
 } /* namespace moris */
