@@ -8,7 +8,7 @@
 # Model Solver Interface Tests --------------------------------------------
 # -------------------------------------------------------------------------
 
-    include_directories(MSI_Test_Proxy)
+include_directories(MSI_Test_Proxy)
     
 # List source files
 set(TEST_SOURCES
@@ -21,8 +21,9 @@ set(TEST_SOURCES
     UT_Equation_Object_Pdv.cpp
     #UT_MSI_Element_Time_Sideset.cpp
     MSI_Test_Proxy/cl_MSI_Design_Variable_Interface_Proxy.cpp
+    MSI_Test_Proxy/cl_MSI_Solver_Interface_Proxy.cpp
     cl_MSI_SpaceTime_Test.cpp
-
+    UT_Sparsity_Pattern.cpp
     )
 
 # List test dependencies
