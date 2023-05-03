@@ -495,8 +495,11 @@ namespace moris
             }
 
             //------------------------------------------------------------------------------
+
             /**
-             * compute QI
+             * @brief computes the "requested" IQIs which are set in GEN parameter list
+             *
+             *
              */
             void compute_IQIs();
 
