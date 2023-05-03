@@ -26,6 +26,7 @@ set(DLA_TPL_DEPENDENCIES
 # Include petsc if used
 if(${MORIS_HAVE_PETSC})
     list(APPEND DLA_TPL_DEPENDENCIES "PETSc")
+    list(APPEND DLA_TPL_DEPENDENCIES "SLEPc")
 endif()
 
 # Make sure needed moris libraries are built

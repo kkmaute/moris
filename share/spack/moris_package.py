@@ -76,6 +76,7 @@ class Moris(CMakePackage):
     depends_on('petsc+mpi+metis+hypre+suite-sparse', when="+petsc")
     depends_on('petsc+mkl-pardiso',                  when="+petsc +pardiso")
     depends_on('petsc+mumps',                        when="+petsc +mumps")
+    depends_on('slepc',                              when="+slepc")
  
     conflicts('+openblas', when='+pardiso')
  
@@ -88,6 +89,10 @@ class Moris(CMakePackage):
 
         if '-petsc' in spec:
             options.extend([ '-DMORIS_HAVE_PETSC=OFF' ])
+            options.extend([ '-DMORIS_HAVE_SLEPC=OFF' ])
+        
+        if '-slepc' in spec:
+            options.extend([ '-DMORIS_HAVE_SLEPC=OFF' ])
 
         if '-gcmma' in spec:
             options.extend([ '-DMORIS_HAVE_GCMMA=OFF' ])

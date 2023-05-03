@@ -27,6 +27,7 @@ set(MORIS_FIND_WRAPPERS
 	#mpi.cmake
     openblas_new.cmake
 	petsc_new.cmake
+	slepc_new.cmake
 	#PETSc.cmake
 	snopt_new.cmake
 	#snopt.cmake

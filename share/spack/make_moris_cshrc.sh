@@ -22,6 +22,7 @@ setenv LBFGS_INSTALLED `spack find lbfgs     | awk 'BEGIN{n=0}{ n=n+1; if ($2 ==
 setenv PETSC_INSTALLED `spack find petsc     | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 setenv   MKL_INSTALLED `spack find intel-mkl | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 setenv OBLAS_INSTALLED `spack find openblas  | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
+setenv SLEPC_INSTALLED `spack find slepc     | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 
 setenv Trilinos_DIR `spack location --install-dir trilinos`
 
@@ -66,6 +67,10 @@ if ( $PETSC_INSTALLED == "1" ) then
 setenv PETSC_DIR    `spack location --install-dir petsc`
 echo "setenv PETSC_DIR"        $PETSC_DIR                                      >> $HOME/.cshrc_moris
 endif
+if ( $SLEPC_INSTALLED == "1" ) then
+setenv SLEPC_DIR    `spack location --install-dir slepc`
+echo "setenv SLEPC_DIR"        $SLEPC_DIR                                      >> $HOME/.cshrc_moris
+endif
 if ( $MKL_INSTALLED == "1" ) then
 echo "setenv MKL_DIR"          `spack location --install-dir intel-mkl`"/mkl"  >> $HOME/.cshrc_moris
 endif
@@ -104,6 +109,9 @@ echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$LBFGSB_DIR/lib'                >
 endif
 if ( $PETSC_INSTALLED == "1" ) then
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$PETSC_DIR/lib'                 >> $HOME/.cshrc_moris 
+endif
+if ( $SLEPC_INSTALLED == "1" ) then
+echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$SLEPC_DIR/lib'                 >> $HOME/.cshrc_moris 
 endif
 if ( $MKL_INSTALLED == "1" ) then
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$MKL_DIR/lib'                   >> $HOME/.cshrc_moris 

@@ -202,6 +202,9 @@ option(MORIS_HAVE_TRILINOS_NEW_CMAKE
 option(MORIS_HAVE_PETSC
     "Build MORIS with support for PETSC." ON )
 
+option(MORIS_HAVE_SLEPC
+    "Build MORIS with support for SLEPC." ON )
+
 option(MORIS_HAVE_GCMMA
     "Build MORIS with support for GCMMA." ON )
 
@@ -746,6 +749,10 @@ endif()
 
 if (MORIS_HAVE_PETSC)
     list(APPEND MORIS_DEFINITIONS "-DMORIS_HAVE_PETSC")
+endif()
+
+if (MORIS_HAVE_SLEPC)
+    list(APPEND MORIS_DEFINITIONS "-DMORIS_HAVE_SLEPC")
 endif()
 
 # -------------------------------------------------------------------------
