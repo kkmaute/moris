@@ -14,6 +14,7 @@
 #include <vector>
 #include <algorithm>    // for unique
 #include <iostream>
+#include <iterator>
 
 // MORIS library header files.
 #include "typedefs.hpp"    // COR/src
@@ -38,6 +39,9 @@ namespace moris
 #endif
 
       public:
+
+        using value_type = T; 
+        
         /**
          * moris::Cell constructor
          */
@@ -870,6 +874,25 @@ namespace moris
     }
 
     //------------------------------------------------------------------
+
+    template< typename T >
+    void
+    write_to_txt_file(
+            Cell< T > const & aCell,
+            std::string       aFileName )
+    {
+        // Open a file stream for writing
+        std::ofstream tOutFile( aFileName );
+
+        // Check if the file was opened successfully
+        MORIS_ASSERT( tOutFile.is_open(), "Failed to open output file" );
+
+        // Write the vector's elements to the file in a vertical format
+        std::copy( aCell.begin(), aCell.end(), std::ostream_iterator< T >( tOutFile, "\n" ) );
+
+        // Close the file stream
+        tOutFile.close();
+    }
 
 }    // namespace moris
 

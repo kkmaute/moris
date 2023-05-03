@@ -147,7 +147,7 @@ namespace xtk
                             tPotentialEdges1.end(),
                             tPotentialEdges2.begin(),
                             tPotentialEdges2.end(),
-                            std::back_inserter(tPotentialEdges.data()));
+                            std::back_inserter(tPotentialEdges));
 
                     tPotentialEdges1 = std::move(tPotentialEdges.data());
                     tPotentialEdges.clear();

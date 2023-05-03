@@ -2109,16 +2109,13 @@ namespace xtk
                     // if both contain something, form the union
                     else if ( !tCommRequestedToIsEmpty && !tCommRequestedFromIsEmpty )
                     {
-                        // get access to the data of the underlying vector
-                        std::vector< moris_id >&          tVector = tCommTables( iProc ).data();
-
                         // perform union operation
                         std::set_union(
                                 tCommRequestedTo( iProc ).begin(),
                                 tCommRequestedTo( iProc ).end(),
                                 tCommRequestedFrom( iProc ).begin(),
                                 tCommRequestedFrom( iProc ).end(),
-                                std::back_inserter( tVector ) );
+                                std::back_inserter( tCommTables( iProc ) ) );
                     }
 
                     // if one is empty but not the other, the other is the union

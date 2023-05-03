@@ -112,7 +112,7 @@ namespace xtk
                             tPotentialFaces1.end(),
                             tPotentialFaces2.begin(),
                             tPotentialFaces2.end(),
-                            std::back_inserter(tPotentialFaces.data()));
+                            std::back_inserter(tPotentialFaces));
 
                     tPotentialFaces1 = std::move(tPotentialFaces.data());
                     tPotentialFaces.clear();
