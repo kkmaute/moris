@@ -20,6 +20,7 @@
 #include "petscmat.h"
 
 #include <string>
+#include "HDF5_Tools.hpp"
 
 using namespace moris;
 using namespace dla;
@@ -199,6 +200,28 @@ Preconditioner_PETSc::build_multigrid_preconditioner( Linear_Problem *aLinearSys
         for ( uint Ik = 0; Ik < tNotInBlock.numel(); Ik++ )
         {
             tCriteriaIds( Ik + tNumBlocksInitialBlocks ).set_size( 1, 1, tNotInBlock( Ik ) );
+        }
+
+
+        // construct string from output file name
+        std::string tStrOutputFile = mLinearSolverAlgorithm->mParameterList.get< std::string >( "ASM_blocks_output_filename" );
+
+        // if not empty
+        if ( tStrOutputFile != "" )
+        {
+            // initialize hdf5 file
+            hid_t  tFileID = create_hdf5_file( tStrOutputFile );
+            herr_t tStatus = 0;
+
+            for ( uint I = 0; I < tCriteriaIds.size(); I++ )
+            {
+                std::string str = ios::stringify( I );
+                // write to file
+                save_matrix_to_hdf5_file( tFileID, str, tCriteriaIds( I ), tStatus );
+            }
+
+            // close file
+            close_hdf5_file( tFileID );
         }
 
         //---------------------------------------------------------------
