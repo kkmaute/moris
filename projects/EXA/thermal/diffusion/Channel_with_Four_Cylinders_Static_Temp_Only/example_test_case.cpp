@@ -27,6 +27,9 @@ uint gInterpolationOrder;
 // flag to print reference values
 bool gPrintReferenceValues = false;
 
+//global variable for test case index ( in this case either petsc/ amesos solver)
+uint gTestCaseIndex; 
+
 //---------------------------------------------------------------
 
 int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] );
@@ -362,6 +365,46 @@ TEST_CASE("Channel_with_Four_Cylinders_Static_Linear",
     MORIS_LOG_INFO("");
     MORIS_LOG_INFO("Executing Channel_with_Four_Cylinders_Static_Temp_Only: Interpolation order 1 - %i Processors.",par_size());
     MORIS_LOG_INFO("");
+
+#ifdef MORIS_HAVE_PETSC
+    //solve the system with petsc
+    gTestCaseIndex = 0 ;
+
+    // call to performance manager main interface
+    fn_WRK_Workflow_Main_Interface( argc, argv );
+
+    // check results
+    switch ( par_size() )
+    {
+        case 1:
+        {
+            check_linear_results_serial();
+            break;
+        }
+        case 2:
+        {
+            if (par_rank() == 1)
+            {
+                // set screen output processor
+                gLogger.set_screen_output_rank(1);
+
+                // perform check
+                check_linear_results_parallel();
+
+                // reset screen output processor
+                gLogger.set_screen_output_rank(0);
+            }
+            break;
+        }
+        default:
+        {
+            MORIS_ERROR(false,"Example problem not configured for %d processors.",par_size());
+        }
+    }
+
+#endif
+    //solve the system with amesos
+    gTestCaseIndex = 1;
 
     // call to performance manager main interface
     fn_WRK_Workflow_Main_Interface( argc, argv );

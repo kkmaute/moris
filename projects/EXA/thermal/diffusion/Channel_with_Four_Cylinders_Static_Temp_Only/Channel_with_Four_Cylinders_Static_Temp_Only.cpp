@@ -32,6 +32,8 @@
 
 extern uint gInterpolationOrder;
 
+extern uint gTestCaseIndex; 
+
 #ifdef  __cplusplus
 extern "C"
 {
@@ -443,7 +445,16 @@ namespace moris
             tParameterlist( Ik ).resize( 1 );
         }
 
-        tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+        if ( gTestCaseIndex == 0 )
+        {
+            tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
+            tParameterlist( 0 )( 0 ).set( "PCType", std::string( "none" ) );
+        }
+        else
+        {
+            tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+        }
+       
 
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
 
@@ -464,6 +475,10 @@ namespace moris
         tParameterlist( 5 )( 0 ).set("TSA_Output_Criteria" , "Output_Criterion") ;
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+        if ( gTestCaseIndex == 0 )
+        {
+            tParameterlist( 6 )(0).set("SOL_TPL_Type"       , static_cast< uint >( sol::MapType::Petsc ) );
+        }
     }
 
     void MSIParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
