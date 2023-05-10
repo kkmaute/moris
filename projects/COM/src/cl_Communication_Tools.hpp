@@ -1124,8 +1124,8 @@ namespace moris
 
             // Allocate memory for status/request vector
             // These vectors will be used to determine if the exchange has been completed across all processors
-            MPI_Request* tSendRequest = (MPI_Request*)alloca( sizeof( MPI_Request ) * tNumberOfProcs );
-            MPI_Request* tRecvRequest = (MPI_Request*)alloca( sizeof( MPI_Request ) * tNumberOfProcs );
+            MPI_Request* tSendRequest = (MPI_Request*)alloca( 2*sizeof( MPI_Request ) * tNumberOfProcs );
+            MPI_Request* tRecvRequest = (MPI_Request*)alloca( 2*sizeof( MPI_Request ) * tNumberOfProcs );
 
             // nrows and ncols of mats to be sent
             Matrix< DDUMat > tSendRowCols( tNumberOfProcs, 1, MORIS_UINT_MAX );
