@@ -94,6 +94,11 @@ _import_libraries(MKL_LIBRARY_TARGETS "${MKL_LIBRARIES}")
 #target_link_libraries(subtarget_libmkl_intel_lp64 INTERFACE subtarget_libmkl_core)
 #target_link_libraries(subtarget_libmkl_sequential INTERFACE subtarget_libmkl_core)
 
-add_library(MKL::mkl INTERFACE IMPORTED GLOBAL)
-target_link_libraries(MKL::mkl INTERFACE ${MKL_LIBRARY_TARGETS})
 
+if(NOT TARGET MKL::mkl)
+    add_library(MKL::mkl INTERFACE IMPORTED GLOBAL)
+    target_link_libraries(MKL::mkl INTERFACE ${MKL_LIBRARY_TARGETS})
+endif()
+
+add_library(MKL::all_libs INTERFACE IMPORTED)
+target_link_libraries(MKL::all_libs INTERFACE ${MKL_LIBRARY_TARGETS})

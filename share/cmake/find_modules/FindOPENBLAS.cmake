@@ -74,4 +74,5 @@ _import_libraries(OPENBLAS_LIBRARY_TARGETS ${OPENBLAS_LIBRARIES})
 add_library(OPENBLAS::openblas INTERFACE IMPORTED GLOBAL)
 target_link_libraries(OPENBLAS::openblas INTERFACE ${OPENBLAS_LIBRARY_TARGETS})
 
-
+add_library(OPENBLAS::all_libs INTERFACE IMPORTED)
+target_link_libraries(OPENBLAS::all_libs INTERFACE ${OPENBLAS_LIBRARY_TARGETS})
