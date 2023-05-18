@@ -122,33 +122,44 @@ if(NOT TRILINOS_FOUND_ONCE)
         # MESSAGE("   Trilinos_Fortran_COMPILER_FLAGS = ${Trilinos_Fortran_COMPILER_FLAGS}")
         # MESSAGE("   Trilinos_LINKER = ${Trilinos_LINKER}")
         # MESSAGE("   Trilinos_EXTRA_LD_FLAGS = ${Trilinos_EXTRA_LD_FLAGS}")
+        # MESSAGE("   Trilinos_ALL_PACKAGES_TARGETS          = ${Trilinos_ALL_PACKAGES_TARGETS}")
+        # MESSAGE("   Trilinos_ALL_SELECTED_PACKAGES_TARGETS = ${Trilinos_ALL_SELECTED_PACKAGES_TARGETS}")
         # MESSAGE("   Trilinos_AR = ${Trilinos_AR}")
         # MESSAGE("End of Trilinos details\n")
         
     ELSE()
-    MESSAGE(FATAL_ERROR "Could not find Trilinos!")
+        MESSAGE(FATAL_ERROR "Could not find Trilinos!")
     ENDIF()
 
     mark_as_advanced(TRILINOS_DIR Trilinos_DIR TRILINOS_DEBUG_DIR)
 
-    set(TRILINOS_FOUND_ONCE TRUE CACHE INTERNAL "Trilinos was found.")
+    MESSAGE("Trilinos was found.")
 
     if (Trilinos_BUILD_SHARED_LIBS)
-       foreach( lib ${Trilinos_LIBRARIES})
-          if (${MORIS_HAVE_TRILINOS_NEW_CMAKE})
-              list(APPEND MORIS_T_LIBS "${lib}")
-          else()
-              list(APPEND MORIS_T_LIBS "${TRILINOS_PATH}/lib/lib${lib}.so")
-          endif()
-       endforeach(lib)
+        MESSAGE("MORIS_HAVE_TRILINOS_NEW_CMAKE = ${MORIS_HAVE_TRILINOS_NEW_CMAKE}")
+    
+        if (${MORIS_HAVE_TRILINOS_NEW_CMAKE})
+            foreach( lib ${})
+                list(APPEND MORIS_T_LIBS "${TRILINOS_PATH}/lib/lib${lib}.so")
+            endforeach(lib)
+        else()
+            foreach( lib ${Trilinos_LIBRARIES})
+                list(APPEND MORIS_T_LIBS "${TRILINOS_PATH}/lib/lib${lib}.so")
+            endforeach(lib)
+        endif()
     else()
-       foreach( lib ${Trilinos_LIBRARIES})
-          if (${MORIS_HAVE_TRILINOS_NEW_CMAKE})
-              list(APPEND MORIS_T_LIBS "${lib}")
-          else()
-              list(APPEND MORIS_T_LIBS "${TRILINOS_PATH}/lib/lib${lib}.a")
-          endif()
-       endforeach(lib)
+    
+        MESSAGE("Trilinos_BUILD_STATIC_LIBS")
+
+        if (${MORIS_HAVE_TRILINOS_NEW_CMAKE})
+            foreach( lib ${Trilinos_ALL_PACKAGES_TARGETS})
+                list(APPEND MORIS_T_LIBS "${TRILINOS_PATH}/lib/lib${lib}.a")
+            endforeach(lib)
+        else()
+            foreach( lib ${Trilinos_LIBRARIES})
+                list(APPEND MORIS_T_LIBS "${TRILINOS_PATH}/lib/lib${lib}.a")
+            endforeach(lib)
+        endif()
     endif()
     
     list(APPEND MORIS_T_LIBS  ${Trilinos_TPL_LIBRARIES})
@@ -213,20 +224,20 @@ if(NOT TRILINOS_FOUND_ONCE)
             MORIS_T_LIBS
             "${MORIS_T_LIBS}" )
     endif()
-    
-    set(MORIS_TRI_LIBS ${MORIS_T_LIBS}
-        CACHE STRING "Trilinos libraries used by moris." )
-    
+
+    set(MORIS_TRI_LIBS ${MORIS_T_LIBS})
+
     set(MORIS_TRILINOS_INCLUDE_DIRS
         ${Trilinos_INCLUDE_DIRS}
         ${Trilinos_TPL_INCLUDE_DIRS}
         ${PARDISO_INCLUDE_DIRS}
         CACHE INTERNAL "Directories included by Trilinos. Very long." )
-    
+
     mark_as_advanced(MORIS_TRI_LIBS
         MORIS_TRILINOS_INCLUDE_DIRS )
     
     set(MORIS_TRILINOS_LIBS ${MORIS_T_LIBS} ${PARDISO_LIBS})
+    
     list(REVERSE MORIS_TRILINOS_LIBS)
     list(REMOVE_DUPLICATES MORIS_TRILINOS_LIBS)
     list(REVERSE MORIS_TRILINOS_LIBS)
@@ -240,20 +251,25 @@ if(NOT TRILINOS_FOUND_ONCE)
 endif()
 
 if(NOT TARGET ${MORIS}::trilinos)
-	set(MORIS_TRILINOS_TPLS
-		"arpack"
-		)
-	
-	foreach(TPL ${MORIS_TRILINOS_TPLS})
-		include(${TPL}_new)
-		list(APPEND MORIS_TRILINOS_TPLS_TARGETS ${MORIS}::${TPL})
-	endforeach()
+    set(MORIS_TRILINOS_TPLS
+        "arpack"
+        )
+    
+    foreach(TPL ${MORIS_TRILINOS_TPLS})
+        include(${TPL}_new)
+        list(APPEND MORIS_TRILINOS_TPLS_TARGETS ${MORIS}::${TPL})
+    endforeach()
 
-	_import_libraries(TRILINOS_LIBRARY_TARGETS "${MORIS_TRILINOS_LIBRARIES}")
-	
-	_link_each_target("${TRILINOS_LIBRARY_TARGETS}" "${MORIS_TRILINOS_TPLS_TARGETS}")
+    _import_libraries(TRILINOS_LIBRARY_TARGETS "${MORIS_TRILINOS_LIBRARIES}")
+    
+    _link_each_target("${TRILINOS_LIBRARY_TARGETS}" "${MORIS_TRILINOS_TPLS_TARGETS}")
 
-	add_library(${MORIS}::trilinos INTERFACE IMPORTED GLOBAL)
-	target_link_libraries(${MORIS}::trilinos INTERFACE ${TRILINOS_LIBRARY_TARGETS})
+    add_library(${MORIS}::trilinos INTERFACE IMPORTED GLOBAL)
+    target_link_libraries(${MORIS}::trilinos INTERFACE ${TRILINOS_LIBRARY_TARGETS})
+
+    MESSAGE("   Trilinos_ALL_SELECTED_PACKAGES_TARGETS = ${Trilinos_ALL_SELECTED_PACKAGES_TARGETS}")
+
+    target_link_libraries(${MORIS}::trilinos INTERFACE  ${MORIS_TRILINOS_TPLS_TARGETS})
+    target_link_libraries(${MORIS}::trilinos INTERFACE  ${Trilinos_ALL_SELECTED_PACKAGES_TARGETS})
 endif()
 
