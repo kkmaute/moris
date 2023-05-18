@@ -82,23 +82,23 @@ if(NOT BOOST_FOUND_ONCE)
 	    #    CACHE INTERNAL "Boost link directories." )
 	    #set(MORIS_BOOST_LIBRARIES ${Boost_LIBRARIES} ${MORIS_BOOST_LDLIBS}
 	    #    CACHE INTERNAL "Boost libraries." )
-	    set(MORIS_BOOST_INCLUDE_DIRS ${Boost_INCLUDE_DIRS})
-	    set(MORIS_BOOST_LIBRARY_DIRS ${Boost_LIBRARY_DIRS})
+	    set(MORIS_BOOST_INCLUDE_DIRS ${Boost_INCLUDE_DIRS} CACHE INTERNAL "Boost include directories." )
+	    set(MORIS_BOOST_LIBRARY_DIRS ${Boost_LIBRARY_DIRS} CACHE INTERNAL "Boost include directories." )
 	    set(MORIS_BOOST_LIBRARIES 
 	    	Boost::system 
 	    	Boost::log 
 	    	Boost::log_setup 
 	    	Boost::thread 
 	    	Boost::serialization 
-	    	Boost::timer )
+	    	Boost::timer CACHE INTERNAL "Boost include directories." )
 	    
 	    #set(BOOST_FOUND_ONCE TRUE CACHE INTERNAL "Boost was found.")
 	    set(BOOST_FOUND_ONCE TRUE)
 	endif()
 	
-	message(STATUS "Boost_INCLUDE_DIRS: ${Boost_INCLUDE_DIRS}")
-	message(STATUS "Boost_LIBRARY_DIRS: ${Boost_LIBRARY_DIRS}")
-	message(STATUS "Boost_LIBRARIES: ${Boost_LIBRARIES}")
+	message(STATUS "Boost_INCLUDE_DIRS: ${MORIS_BOOST_INCLUDE_DIRS}")
+	message(STATUS "Boost_LIBRARY_DIRS: ${MORIS_BOOST_LIBRARY_DIRS}")
+	message(STATUS "Boost_LIBRARIES: ${MORIS_BOOST_LIBRARIES}")
 endif()
 
 if(NOT TARGET ${MORIS}::boost)
