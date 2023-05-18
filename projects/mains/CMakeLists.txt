@@ -49,7 +49,6 @@ set(MAIN_DEPENDENCIES
     ${MORIS_ARMADILLO_EIGEN_LIBS}
     ${MORIS_SUPERLU_LIBS}
     ${MORIS_LDLIBS}
-    ${MORIS_TRILINOS_LIBS}
     ${MORIS_BASE_LIBS}
     )
 
@@ -59,8 +58,8 @@ set(MAIN_DEPENDENCIES
 string(REPLACE ".cpp" "-${EXECUTABLE}" EXE_NAME ${MAIN})
 add_executable(moris ${MAIN})
 target_link_libraries(moris ${MAIN_DEPENDENCIES})
+target_link_libraries(moris ${MORIS}::trilinos)
 list(APPEND MAIN_EXECUTABLES moris)
-
 
 # Install executables
 install(TARGETS ${MAIN_EXECUTABLES}
@@ -109,8 +108,8 @@ foreach(MTK_INCLUDES ${MTK_INCLUDES})
 endforeach()
 
 SET(SO_INCLUDES
-    ${Boost_INCLUDE_DIRS}
-    ${Trilinos_INCLUDE_DIRS}
+    ${MORIS_BOOST_INCLUDE_DIRS}
+    ${MORIS_TRILINOS_INCLUDE_DIRS}
     ${MORIS_PACKAGE_DIR}/ALG/src
     ${INT_INTERNAL_INCLUDES}
     ${MTK_INTERNAL_INCLUDES} 
