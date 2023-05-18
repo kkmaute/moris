@@ -160,7 +160,7 @@ spack create --name snopt --skip-editor
 
 *------------------------------------------------------------
 
-* add package files; overwrite trilinos package file to enable mkl and pardiso
+* add package files; overwrite trilinos package file to enable mkl and pardiso; might need edting depending on trilinos version
 
 * important: you need to copy the spack package files for the optimization
 * libraries even if you do not want to install them
@@ -194,9 +194,14 @@ spack add moris+pardiso
 
 spack develop --path $WORKSPACE/moris moris@main
 
-* add openblas
+* add openblas (only needed if not defined explicilty above)
 
 spack add openblas
+
+* add latest version of cmake (needed by recent trilinos versions)
+
+spack add cmake@master
+
 
 *------------------------------------------------------------
 
@@ -334,7 +339,7 @@ cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_MKL=ON -DMORIS_USE_OPEN
 cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_OPENBLAS=OFF -DMORIS_USE_LAPACK=ON ..
 cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_OPENBLAS=OFF -DMORIS_USE_LAPACK=ON ..
 
-* if you do not have installed petsc,slepc, pardiso, and the optimization libraries:
+* if you do not have installed petsc, slepc, pardiso, and the optimization libraries:
 
 cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_HAVE_PETSC=OFF -DMORIS_HAVE_SLEPC=OFF -DMORIS_USE_PARDISO=OFF -DMORIS_USE_MUMPS=OFF -DMORIS_HAVE_GCMMA=OFF -DMORIS_HAVE_LBFGS=OFF -DMORIS_HAVE_SNOPT=OFF ..
 cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_HAVE_PETSC=OFF -DMORIS_HAVE_SLEPC=OFF -DMORIS_USE_PARDISO=OFF -DMORIS_USE_MUMPS=OFF -DMORIS_HAVE_GCMMA=OFF -DMORIS_HAVE_LBFGS=OFF -DMORIS_HAVE_SNOPT=OFF ..
