@@ -402,9 +402,9 @@ if (MORIS_USE_INTEL)
    #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_Crypto})
    
 else(MORIS_USE_INTEL)
-      
+
    if ( DEFINED ENV{GFORTLIB} )
-       find_library(MORIS_LIB_GFortran NAMES $ENV{GFORTLIB} HINTS ${LIB_SEARCH_PATH} $ENV{GFORTLIB_PATH})
+       find_library(MORIS_LIB_GFortran NAMES $ENV{GFORTLIB} HINTS $ENV{GFORTLIB_PATH} ${LIB_SEARCH_PATH} )
        message(STATUS "MORIS_LIB_GFortran = ${MORIS_LIB_GFortran}")
        link_libraries(${MORIS_LIB_GFortran})
    else()
