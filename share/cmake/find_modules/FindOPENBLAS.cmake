@@ -71,8 +71,12 @@ mark_as_advanced(OPENBLAS_LIBRARIES)
 
 _import_libraries(OPENBLAS_LIBRARY_TARGETS ${OPENBLAS_LIBRARIES})
 
-add_library(OPENBLAS::openblas INTERFACE IMPORTED GLOBAL)
-target_link_libraries(OPENBLAS::openblas INTERFACE ${OPENBLAS_LIBRARY_TARGETS})
+if (NOT TARGET OPENBLAS::openblas )
+    add_library(OPENBLAS::openblas INTERFACE IMPORTED GLOBAL)
+    target_link_libraries(OPENBLAS::openblas INTERFACE ${OPENBLAS_LIBRARY_TARGETS})
+endif()
 
-add_library(OPENBLAS::all_libs INTERFACE IMPORTED)
-target_link_libraries(OPENBLAS::all_libs INTERFACE ${OPENBLAS_LIBRARY_TARGETS})
+if (NOT TARGET OPENBLAS::all_libs )
+    add_library(OPENBLAS::all_libs INTERFACE IMPORTED)
+    target_link_libraries(OPENBLAS::all_libs INTERFACE ${OPENBLAS_LIBRARY_TARGETS})
+endif()
