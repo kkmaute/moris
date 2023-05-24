@@ -68,6 +68,7 @@ namespace moris
             {
                 L2_REFERENCE_VALUE,
                 H1S_REFERENCE_VALUE,
+                SELECT,
 
                 MAX_ENUM
             };
@@ -139,4 +140,3 @@ namespace moris
 } /* end namespace moris */
 
 #endif /* PROJECTS_FEM_INT_SRC_CL_FEM_IQI_HEAT_METHOD_PENALTY__HPP_ */
-

@@ -32,6 +32,7 @@ namespace moris
             // populate the property map
             mPropertyMap[ "L2_Reference" ]  = static_cast< uint >( IQI_Property_Type::L2_REFERENCE_VALUE );
             mPropertyMap[ "H1S_Reference" ] = static_cast< uint >( IQI_Property_Type::H1S_REFERENCE_VALUE );
+            mPropertyMap[ "Select" ]        = static_cast< uint >( IQI_Property_Type::SELECT );
         }
 
         //------------------------------------------------------------------------------
@@ -73,15 +74,25 @@ namespace moris
         void
         IQI_Heat_Method_Penalty::compute_QI( Matrix< DDRMat >& aQI )
         {
+            // initialize QI
+            aQI.fill( 0.0 );
+
+            // get select property
+            const std::shared_ptr< Property >& tPropSelect =
+                    mMasterProp( static_cast< uint >( IQI_Property_Type::SELECT ) );
+
+            // check if Heat Penalty is used
+            if ( tPropSelect != nullptr && tPropSelect->val()( 0 ) < MORIS_REAL_EPS )
+            {
+                return;
+            }
+
             // initialize if needed
             this->initialize();
 
             // get field interpolator
             Field_Interpolator* tFI =
                     mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
-
-            // initialize QI
-            aQI.fill( 0.0 );
 
             // project level set field
             real tVal = std::exp( -2.0 * mPhiGradient * mLevelSetSign * tFI->val()( 0 ) / mPhiBound );
@@ -226,4 +237,3 @@ namespace moris
 
     }    // namespace fem
 }    // namespace moris
-
