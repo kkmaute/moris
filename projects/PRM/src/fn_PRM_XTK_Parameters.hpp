@@ -73,6 +73,9 @@ namespace moris
             // Write enrichment fields on mesh (only recommended on very small meshes)
             tParameterList.insert( "write_enrichment_fields", false );
 
+            // request B-spline cluster information (SPG IDs, indices, etc.) to be written to the xtk_temp.exo
+            tParameterList.insert( "write_bspline_cluster_info", false );
+
             // a sphere where I write enrichment fields locations (r,xc,yv,zc)
             tParameterList.insert( "write_enrichment_fields_probe_spheres", "" );
 
