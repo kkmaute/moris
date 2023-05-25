@@ -69,7 +69,7 @@ Any geometry definition that has a notion of "inside" and "outside" can be conve
 
 \paragraph{Tensor-Product B-spline Basis}
 B-spline basis functions are used to define the function basis of the background mesh. 
-The B-spline basis functions $N_{i,p}$ of polynomial order $p$ are defined by a knot vector $\left\{\xi_i\right\}_{i = 1}^{n}$ containing a set of control points, and the Cox-de Boor recursive formula.  The definition of the $i$-th basis function starts with piece-wise constant parts for zeroth order $p=0$ B-spline basis function.
+The B-spline basis functions $N_{i,p}$ of polynomial order $p$ are defined by a knot vector $\left\{\xi_i\right\}_{i = 1}^{n}$ containing a set of knots, and the Cox-de Boor recursive formula.  The definition of the $i$-th basis function starts with piece-wise constant parts for zeroth order $p=0$ B-spline basis function.
 
 \vspace*{0.3cm}
 
@@ -102,7 +102,7 @@ This recursive definition leads to a piece-wise polynomial definition of the bas
     \end{center}
 \end{figure}
 
-Using a knot vector of unique and equispaced control points $\xi_i$ results in \textbf{$C^{p-1}$ continuous} basis functions that are translated and repeated. The intervals between the control points can be considered elements (i.e. \textbf{the control points act as mesh lines}), as in each of these regions a unique set of $p+1$ basis functions interpolate into. With exception of the first and last $p$ knot intervals, called the \emph{padding}, each of these sets of basis functions form a complete polynomial basis and a partition of unity. Hence, the padding is not part of the ambient domain $\mathcal{A}$ on which a complete interpolation basis is defined. The polynomial basis and the domain they cover is shown in \Cref{fig:Bsp_basis}. A notable feature of basis functions defined this way is their \textbf{increasing support size for increasing polynomial orders} $p$.
+Using a knot vector of unique and equispaced knots $\xi_i$ results in \textbf{$C^{p-1}$ continuous} basis functions that are translated and repeated. The intervals between the knots can be considered elements (i.e. \textbf{the knots act as mesh lines}), as in each of these regions a unique set of $p+1$ basis functions interpolate into. With exception of the first and last $p$ knot intervals, called the \emph{padding}, each of these sets of basis functions form a complete polynomial basis and a partition of unity. Hence, the padding is not part of the ambient domain $\mathcal{A}$ on which a complete interpolation basis is defined. The polynomial basis and the domain they cover is shown in \Cref{fig:Bsp_basis}. A notable feature of basis functions defined this way is their \textbf{increasing support size for increasing polynomial orders} $p$.
 
 The definition of the basis is extended into multiple ($d$) spatial dimensions by forming tensor products from these basis functions.
 
@@ -111,12 +111,12 @@ The definition of the basis is extended into multiple ($d$) spatial dimensions b
     N_{i_1, \cdots, i_d}(\bm{\xi}) = \prod_{d}^{n_d}N_{i_d}(\xi_d)
 \end{equation}
 
-The basic tensor-product B-spline basis used inside MORIS is constructed from an equispaced grid whose mesh lines represent the unique control points used to define the B-spline basis functions in each spatial dimension.
+The basic tensor-product B-spline basis used inside MORIS is constructed from an equispaced grid whose mesh lines represent the unique knot points used to define the B-spline basis functions in each spatial dimension.
 
 \paragraph{Hierarchical Refinement}
 \hypertarget{hierarchical_refinement}{}
 
-H-refinement could be performed by inserting additional knot points and therefore mesh lines. However, this would the additional mesh lines created would propagate throughout the whole domain.
+H-refinement could be performed by inserting additional knot points and therefore mesh lines. However, the additional mesh lines created would propagate throughout the whole domain.
 Instead, a hierarchical basis definition is employed to perform local refinement of the tensor-product B-spline background mesh.
 
 \begin{figure}[H]
@@ -154,7 +154,7 @@ The new, locally refined basis is the sum of the constructed fine basis and trun
 \begin{split}
     %\mathcal{T}^0 \ \ &= \ \mathcal{B}^0 \\
     &\mathcal{V}^{h} = \bigcup_{l=0}^{L} \mathcal{V}^{l} \\
-    where ~~~\mathcal{V}^{l+1} &= \left\{ trunc^{l+1}(N) \ | \ B \in \mathcal{V}^l \land supp(N) \nsubseteq \Omega^{l+1}  \right\} \\
+    where ~~~\mathcal{V}^{l+1} &= \left\{ trunc^{l+1}(N) \ | \ N \in \mathcal{V}^l \land supp(N) \nsubseteq \Omega^{l+1}  \right\} \\
     & \ \ \ \ \cup \left\{ N \in \mathcal{V}^{l+1} \ | \ supp(N) \subseteq \Omega^{l+1}  \right\}
 \end{split}{}
 \end{equation}{}
@@ -254,7 +254,7 @@ The key to performing interpolation-based analysis is the fact that Lagrange bas
 
 \begin{equation}
 \label{eq:interpolatory}
-    \phi_i(\hat{\bm{x}}_i) =
+    \phi_j(\hat{\bm{x}}_i) =
     \left\{
     \begin{array}{@{}c@{}}
         1 ~~~ j=i \\
@@ -269,7 +269,7 @@ The key to performing interpolation-based analysis is the fact that Lagrange bas
     \begin{center}
     %\def\svgwidth{15.0cm}
     \input{Figures/Lagrange_basis_functions.pdf_tex}
-    \caption{Lagrange extraction.} 
+    \caption{Left: placement of a linear triangular Lagrange element inside a background mesh. Right: interpolatory basis functions of that same element.} 
     \label{fig:lagrange_extraction}
     \end{center}
 \end{figure}

@@ -296,26 +296,37 @@ The generated foreground mesh is outputted in the EXODUS file format with the fi
 
 A noteworthy feature of EXODUS is its organization of elements into \emph{blocks} and \emph{sets}. Volume elements in the output mesh are sorted into blocks based on their assigned material. Blocks are however limited to elements of the same type which is why elements composing one material may be split up into a block of triangular elements stemming from intersected background elements and non-intersected rectangular background elements. Blocks composed of the former are marked by a "\textbf{c}" for cut, e.g. the block of triangular elements for material $0$ is called \texttt{HMR\_dummy\_c\_p0}; the latter are marked by an "\textbf{n}" for non-cut, e.g. \texttt{HMR\_dummy\_n\_p0}. An example for the blocks found in the \href{https://github.com/kkmaute/moris/blob/main/share/doc/mesh_generation/examples/Rotated_Square_Example.xml}{rotated square example (\ExternalLink)} are shown in \Cref{fig:meshsets_paraview}.
 
-\vspace{1.2cm}
-
 Further, interface elements are sorted into sets. There are two types of interface sets.
 \begin{itemize}
     \item \textbf{Sets of elements that interface between a given material pair.} For example, all interface elements connecting the materials $0$ and $1$ can be found in the set \texttt{iside\_b0\_0\_b1\_1}; "\texttt{b0\_0}" and "\texttt{b1\_1}" indicate that material 0 is considered the primary, and material 1 the secondary material. Sets with flipped primary and secondary materials, but equal interface elements, are available. For this example the name would be \texttt{iside\_b0\_1\_b1\_0}. 
     This grouping of interface elements means that the number of geometries and materials defined has an impact on how easy it is to grab sets of interface elements to apply boundary conditions. For example, a square block can be defined using a single geometry or using four planes. The former results necessarily in only one interface set, the latter allows each side to be sorted into an individual interface set allowing different boundary conditions to be imposed on each side of the square.
+
+    \item \textbf{Sets of facets of elements of a given Block that make up the boundary of the domain.} Each side of a domain is denoted using a \emph{side ordinal}. The convention for naming side ordinals, alongside other numbering conventions used in the EXODUS file format, can be found \href{https://sandialabs.github.io/seacas-docs/html/md_include_exodus_element_types.html}{here (\ExternalLink)}.
+    The facets of the elements inside the block \texttt{HMR\_dummy\_c\_p0} that are part of the bottom, i.e. side ordinal $1$, of the domain are collected in the set \texttt{SideSet\_1\_c\_p0}. This allows boundary conditions to easily be imposed onto a given material along the various sides of the domain.
 \end{itemize}
 
 \begin{figure}[h]
     \begin{center}
-    \includegraphics[width=12cm]{Figures/paraview_mesh_sets.png}
+    \includegraphics[width=11cm]{Figures/paraview_mesh_sets.png}
     \caption{Mesh blocks and sets written to the foreground mesh output for the \href{https://github.com/kkmaute/moris/blob/main/share/doc/mesh_generation/examples/Rotated_Square_Example.xml}{rotated square example} and how they are listed in ParaView.} 
     \label{fig:meshsets_paraview}
     \end{center}
 \end{figure}
 
+\refpar{cluster_measures}{Background element size measures} are additionally outputted to the exodus mesh. These can be used, e.g., for scaling the penalty term for Nitsche's method. Two types of element measures are outputted to the exodus mesh. An example of this output is shown in \Cref{fig:cluster_measure_output}.
 \begin{itemize}
-    \item \textbf{Sets of facets of elements of a given Block that make up the boundary of the domain.} Each side of a domain is denoted using a \emph{side ordinal}. The convention for naming side ordinals, alongside other numbering conventions used in the EXODUS file format, can be found \href{https://sandialabs.github.io/seacas-docs/html/md_include_exodus_element_types.html}{here (\ExternalLink)}.
-    The facets of the elements inside the block \texttt{HMR\_dummy\_c\_p0} that are part of the bottom, i.e. side ordinal $1$, of the domain are collected in the set \texttt{SideSet\_1\_c\_p0}. This allows boundary conditions to easily be imposed onto a given material along the various sides of the domain.
+    \item \textbf{Material volume within a given B-spline background element.} Any foreground element belongs to a certain material phase and is located within a B-spline background element. The material volume of that material within the B-spline background element is stored as an elemental property \texttt{BSplineClusterVolume}. The suffix, e.g. \texttt{\_B0}, indicates with respect to which B-spline mesh the background element measure is computed.
+    \item \textbf{Interface length for a given interface on a B-spline background element.} Each interface element belongs to a certain interface set and is located within a B-spline background element. The length of that interface within the B-spline background element is stored as a facet property \texttt{SideClusterSize}. The suffix, e.g. \texttt{\_B0}, indicates with respect to which B-spline mesh the background element measure is computed.
 \end{itemize}
+
+\begin{figure}[h]
+    \vspace{0.5cm}
+    \begin{center}
+    \includegraphics[width=12cm]{Figures/cluster_measure_output.png}
+    \caption{Output of background element measures to the EXODUS foreground mesh.} 
+    \label{fig:cluster_measure_output}
+    \end{center}
+\end{figure}
 
 \refpar{future}{Future Developments} to the foreground mesh generation capabilities are to enable the triangulation of all elements even for locally refined foreground meshes. Further, enabling cubic foreground elements is possible.
 
@@ -338,14 +349,15 @@ The \hyperref[eq:extraction_operator]{extraction operators} are computed per for
     \end{center}
 \end{figure}
 
-Each contains an array called \texttt{Cell\_IDs} that is an element index to ID array. An example is shown in \Cref{fig:extraction_operator_output}, bottom left. The index of an array entry represents the index of a foreground cell, the value of the entry is the ID. Note, the array may contain IDs whose value is $-1$ which indicates the corresponding element is not part of the foreground mesh outputted to the EXODUS file and can be ignored.
+Each contains an array called \texttt{Cell\_IDs} which is a list of IDs of all elements in the mesh. An example is shown in \Cref{fig:extraction_operator_output}, bottom left. 
+%The index of an array entry represents the index of a foreground cell, the value of the entry is the ID. Note, the array may contain IDs whose value is $-1$ which indicates the corresponding element is not part of the foreground mesh outputted to the EXODUS file and can be ignored.
 
 For each foreground element ID the extraction operator named \texttt{Weights\_<ID>} and a list of background basis function IDs named \texttt{IDs\_<ID>} are written to the HDF5 files. Examples are shown on the right in \Cref{fig:extraction_operator_output}. The weights are the extraction operators that are supposed to be applied to the elemental Jacobians, residuals, stiffness matrices, etc. as stated in equation \eqref{eq:transform_elemental} and demonstrated in \Cref{fig:assembly}. Once this operation is completed the ID vector is used to assemble the elemental matrix, or vector into the global system. In the elemental stiffness matrix example in \Cref{fig:assembly}, the entry in the second row and column, i.e. position $(2,3)$ would be assembled into position $(2,4)$ of the global stiffness matrix.
 
 \begin{figure}[h]
     \begin{center}
     \includegraphics[width=12cm]{Figures/assembly.png}
-    \caption{Projection of the elemental stiffness matrix $\bm{A}^{(e)}$ assembled on the Lagrange element into the background basis using the example extraction operators showm in in \Cref{fig:extraction_operator_output}. The blue arrays are the \texttt{IDs\_2} vector and serve as an assembly map.} 
+    \caption{Projection of the elemental stiffness matrix $\bm{A}^{(e)}$ assembled on the Lagrange element into the background basis using the example extraction operators shown in \Cref{fig:extraction_operator_output}. The blue arrays are the \texttt{IDs\_2} vector and serve as an assembly map.} 
     \label{fig:assembly}
     \end{center}
 \end{figure}
