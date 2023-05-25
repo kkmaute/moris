@@ -68,24 +68,23 @@ namespace moris
                 this->get_elemental_IG_to_BS_T_matrices( tIgToIpIndices, tIgToIpTmatrices, tIPtoBSIds, tIPtoBSWeights, tIGtoBSIds, tIGtoBSWeights );
                 
                 // count all used cell IDs in the output mesh
-                uint tNumCellIdsInOutputMesh = 0;
                 for( const moris_id iIgCellId : tIgCellIdList )
                 {
                     // do not count unused indices
                     if ( iIgCellId > -1 )
                     {
-                        tNumCellIdsInOutputMesh++;
+                        tNumIgCells++;
                     }
                 }
 
                 // convert the index to ID map to a matrix list of all used IDs
-                tIgCellIds.set_size( tNumCellIdsInOutputMesh, 1 );
+                tIgCellIds.set_size( tNumIgCells, 1, MORIS_ID_MAX );
                 uint tIdCounter = 0;
-                for( uint iID = 0; iID < tNumIgCells; iID++ )
+                for( const moris_id iIgCellId : tIgCellIdList )
                 {
-                    if ( tIgCellIdList( iID ) > -1 )
+                    if ( iIgCellId > -1 )
                     {
-                        tIgCellIds( tIdCounter ) = tIgCellIdList( iID );
+                        tIgCellIds( tIdCounter ) = iIgCellId;
                         tIdCounter++;
                     }
                 }
@@ -123,23 +122,19 @@ namespace moris
                     // get the current IG cell's ID
                     moris_id tID = tIgCellIds( iIgCell );
 
-                    // skip if this is an unused cell
-                    if( tID > -1 )
-                    {
-                        // assemble names
-                        std::string tIDsName = "IDs_" + std::to_string( tID );
-                        std::string tWeightsName = "Weights_" + std::to_string( tID );
+                    // assemble names
+                    std::string tIDsName = "IDs_" + std::to_string( tID );
+                    std::string tWeightsName = "Weights_" + std::to_string( tID );
 
-                        // write the IDs
-                        save_matrix_to_hdf5_file( tFileID, tIDsName, tIGtoBSIds( iBspMesh )( iIgCell ), tStatus );
-                        MORIS_ERROR( tStatus == 0, "Integration_Mesh::save_elemental_T_matrices_to_file() - "
-                                "HDF5 writer returned status %i writing the basis IDs for IG cell %i.", tStatus, tID );
+                    // write the IDs
+                    save_matrix_to_hdf5_file( tFileID, tIDsName, tIGtoBSIds( iBspMesh )( iIgCell ), tStatus );
+                    MORIS_ERROR( tStatus == 0, "Integration_Mesh::save_elemental_T_matrices_to_file() - "
+                            "HDF5 writer returned status %i writing the basis IDs for IG cell %i.", tStatus, tID );
 
-                        // write the IDs
-                        save_matrix_to_hdf5_file( tFileID, tWeightsName, tIGtoBSWeights( iBspMesh )( iIgCell ), tStatus );
-                        MORIS_ERROR( tStatus == 0, "Integration_Mesh::save_elemental_T_matrices_to_file() - "
-                                "HDF5 writer returned status %i writing the weights for IG cell %i.", tStatus, tID );
-                    }
+                    // write the IDs
+                    save_matrix_to_hdf5_file( tFileID, tWeightsName, tIGtoBSWeights( iBspMesh )( iIgCell ), tStatus );
+                    MORIS_ERROR( tStatus == 0, "Integration_Mesh::save_elemental_T_matrices_to_file() - "
+                            "HDF5 writer returned status %i writing the weights for IG cell %i.", tStatus, tID );
                 }
 
                 // close the hdf5 file
