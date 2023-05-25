@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<!-- Note: this example has a large mesh. Memory consumption ~10GB -->
+
 <!-- All parameters are nested under this root -->
 <MeshGenerationParameterList>
 
@@ -23,7 +25,7 @@
 
         <!-- Define a uniform grid all grids and meshes will be derived from -->
         <BaseGrid>
-            <Size>120,120,105</Size>
+            <Size>80,80,70</Size>
             <Dimensions>80,80,70</Dimensions>
             <Origin>70,70,-3</Origin>
         </BaseGrid>
