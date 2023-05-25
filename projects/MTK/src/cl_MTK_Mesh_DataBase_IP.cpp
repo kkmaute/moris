@@ -396,7 +396,7 @@ namespace moris::mtk
         // tMemoryMap.mMemoryMapData["misc"] = sizeof( mSpatilDim ) + sizeof( mIPDataBase ) + sizeof( mCellInfo );
 
         // tMemoryMap.mMemoryMapData["vertices"] = moris::internal_capacity( mVertices )
-        //                                         + moris::internal_capacity( mVertexInterpoltions )
+        //                                         + moris::internal_capacity( mVertexInterpolations )
         //                                         + mVertexInterpoltionsPtrs.capacity() * ( 1 + sizeof( void* ) );
 
         // tMemoryMap.mMemoryMapData["cells"] = mCellToVertices.capacity() * ( 1 + sizeof( moris_index ) )

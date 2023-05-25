@@ -67,7 +67,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
-             * @brief Get the Bspline mesh list index wich the cluster group lives on
+             * @brief Get the Bspline mesh list index which the cluster group lives on
              * 
              * @return moris_index Bspline mesh list index
              */
@@ -77,7 +77,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
-             * @brief Get the Bspline mesh list index wich the cluster group lives on
+             * @brief Get the Bspline mesh list index which the cluster group lives on
              * 
              * @return moris_index Bspline mesh list index
              */
@@ -85,7 +85,7 @@ namespace moris
             get_cluster_type_in_group() const;
 
             //------------------------------------------------------------------------------
-            // Pure Virtual Functions Handled by this Class' Children
+            // Pure Virtual Functions Handled by this Class's Children
             //------------------------------------------------------------------------------
 
             /**
@@ -96,7 +96,7 @@ namespace moris
              * @return moris::real volume of all clusters 
              */
             virtual
-            moris::real
+            real
             compute_cluster_group_cell_measure(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const = 0;
@@ -113,7 +113,7 @@ namespace moris
              * @return moris::real 
              */            
             virtual
-            moris::real
+            real
             compute_cluster_group_cell_measure_derivative(
                     const Matrix< DDRMat > & aPerturbedVertexCoords,
                     uint aDirection,
@@ -130,7 +130,7 @@ namespace moris
              * @return moris::real 
              */
             virtual
-            moris::real
+            real
             compute_cluster_group_side_measure(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const = 0;
@@ -147,7 +147,7 @@ namespace moris
              * @return moris::real 
              */
             virtual
-            moris::real
+            real
             compute_cluster_group_side_measure_derivative(
                     const Matrix< DDRMat > & aPerturbedVertexCoords,
                     uint aDirection,

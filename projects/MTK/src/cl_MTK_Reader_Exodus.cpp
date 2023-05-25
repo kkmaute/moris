@@ -31,7 +31,7 @@
 
 Reader_Exodus::Reader_Exodus()
 {
-    mExoid = 0;
+    mExoID = 0;
 }
 
 Reader_Exodus::~Reader_Exodus()
@@ -45,12 +45,12 @@ void Reader_Exodus::set_error_options(bool abort, bool debug, bool verbose)
 void Reader_Exodus::open_file(std::string aExodusFileName, float aVersion)
 {
     int tCPUWordSize = 8, tIOWordSize = 8; // TODO
-    mExoid = ex_open(aExodusFileName.c_str(), EX_READ, &tCPUWordSize, &tIOWordSize, &aVersion);
+    mExoID = ex_open(aExodusFileName.c_str(), EX_READ, &tCPUWordSize, &tIOWordSize, &aVersion);
 }
 
 void Reader_Exodus::close_file()
 {
-    ex_close(mExoid);
+    ex_close(mExoID);
 }
 
 void Reader_Exodus::read_file(std::string aFileName)
@@ -62,7 +62,7 @@ void Reader_Exodus::read_file(std::string aFileName)
     // Get init from Exodus
     char tDatabaseName[100] = ""; // FIXME
     moris::uint tNumNodes, tNumElements, tNumBlocks, tNumNodeSets, tNumSideSets;
-    ex_get_init(mExoid, tDatabaseName, &mNumSpatialDimensions, &tNumNodes, &tNumElements, &tNumBlocks, &tNumNodeSets,
+    ex_get_init(mExoID, tDatabaseName, &mNumSpatialDimensions, &tNumNodes, &tNumElements, &tNumBlocks, &tNumNodeSets,
                 &tNumSideSets);
 
     // Create and population mesh data input
@@ -78,7 +78,7 @@ void Reader_Exodus::read_file(std::string aFileName)
     moris::Matrix<moris::DDRMat> tXCoordinates(tNumNodes, 1, 0.0);
     moris::Matrix<moris::DDRMat> tYCoordinates(tNumNodes, 1, 0.0);
     moris::Matrix<moris::DDRMat> tZCoordinates(tNumNodes, 1, 0.0);
-    ex_get_coord(mExoid, tXCoordinates.data(), tYCoordinates.data(), tZCoordinates.data());
+    ex_get_coord(mExoID, tXCoordinates.data(), tYCoordinates.data(), tZCoordinates.data());
 
     // Combine the coordinates into one matrix for input
     mNumSpatialDimensions = 3; // FIXME
@@ -90,7 +90,7 @@ void Reader_Exodus::read_file(std::string aFileName)
 
     // Get the node map
     mNodeMap.resize(tNumNodes, 1);
-    ex_get_id_map(mExoid, EX_NODE_MAP, mNodeMap.data());
+    ex_get_id_map(mExoID, EX_NODE_MAP, mNodeMap.data());
     mMeshDataInput.LocaltoGlobalNodeMap = &mNodeMap;
 
     // Node ownership
@@ -112,7 +112,7 @@ void Reader_Exodus::read_file(std::string aFileName)
     {
         // Get the block parameters
         std::cout << "Reading Block..." << std::endl;
-        ex_get_block(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tReadName, &tNumElementsInBlock,
+        ex_get_block(mExoID, EX_ELEM_BLOCK, tBlockIndex + 1, tReadName, &tNumElementsInBlock,
                      &tNumNodesPerElement, &tNumEdgesPerElement, &tNumFacesPerElement, &tNumAttributesPerElement);
 
         // Cell topology
@@ -120,13 +120,13 @@ void Reader_Exodus::read_file(std::string aFileName)
         std::cout << static_cast<int>(this->get_cell_topology(tReadName)) << std::endl;
 
         // Block Name
-        ex_get_name(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tReadName);
+        ex_get_name(mExoID, EX_ELEM_BLOCK, tBlockIndex + 1, tReadName);
         mBlockDescription(tBlockIndex).assign(tReadName, 100);
         mBlockSetInfo(tBlockIndex).mBlockSetName = mBlockDescription(tBlockIndex);
 
         // Get connectivity
         moris::Matrix<moris::IndexMat> tBlockNodesVector(tNumElementsInBlock * tNumNodesPerElement, 1, 0);
-        ex_get_conn(mExoid, EX_ELEM_BLOCK, tBlockIndex + 1, tBlockNodesVector.data(), nullptr, nullptr);
+        ex_get_conn(mExoID, EX_ELEM_BLOCK, tBlockIndex + 1, tBlockNodesVector.data(), nullptr, nullptr);
 
         // Reorganize connectivity
         mElemConn(tBlockIndex).resize(tNumElementsInBlock, tNumNodesPerElement);
@@ -143,7 +143,7 @@ void Reader_Exodus::read_file(std::string aFileName)
 
         // Element map
         mLocaltoGlobalElemMap(tBlockIndex).set_size(tNumElementsInBlock, 1);
-        ex_get_id_map(mExoid, EX_ELEM_MAP, mLocaltoGlobalElemMap(tBlockIndex).data()); //FIXME
+        ex_get_id_map(mExoID, EX_ELEM_MAP, mLocaltoGlobalElemMap(tBlockIndex).data()); //FIXME
         mMeshDataInput.LocaltoGlobalElemMap(tBlockIndex) = &mLocaltoGlobalElemMap(tBlockIndex);
 
         // Cell ids
@@ -174,14 +174,14 @@ void Reader_Exodus::read_file(std::string aFileName)
     for (moris::uint tSideSetIndex = 0; tSideSetIndex < tNumSideSets; tSideSetIndex++)
     {
         // Get number of entries in this side set and resize matrices
-        ex_get_set_param(mExoid, EX_SIDE_SET, tSideSetIndex + 1, &tNumElementsInSideSet, nullptr);
+        ex_get_set_param(mExoID, EX_SIDE_SET, tSideSetIndex + 1, &tNumElementsInSideSet, nullptr);
         mSideSetElements(tSideSetIndex).set_size(tNumElementsInSideSet, 2);
         tSideSetOrdinals.set_size(tNumElementsInSideSet, 1);
         std::cout << "Entries" << std::endl;
 
         // Get data
-        ex_get_set(mExoid, EX_SIDE_SET, tSideSetIndex + 1, mSideSetElements(tSideSetIndex).data(), tSideSetOrdinals.data());
-        ex_get_name(mExoid, EX_SIDE_SET, tSideSetIndex + 1, tReadName);
+        ex_get_set(mExoID, EX_SIDE_SET, tSideSetIndex + 1, mSideSetElements(tSideSetIndex).data(), tSideSetOrdinals.data());
+        ex_get_name(mExoID, EX_SIDE_SET, tSideSetIndex + 1, tReadName);
         std::cout << "Get data" << std::endl;
 
         // Adjust for moris

@@ -26,8 +26,8 @@ namespace moris::mtk
         // mMTK mesh vertices which is being copied here for convience
         moris::Cell< mtk::Vertex const* > mVertices;
 
-        // they are stored consectively for each vertex
-        moris::Cell< mtk::Vertex_Interpolation const* > mVertexInterpoltions;
+        // they are stored consecutively for each vertex
+        moris::Cell< mtk::Vertex_Interpolation const* > mVertexInterpolations;
 
         // cell to vertex connectivity for lagrange cells
         moris::Cell< moris_index > mCellToVertexIndicies;

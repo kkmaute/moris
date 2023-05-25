@@ -17,18 +17,18 @@
 using namespace moris;
 namespace xtk
 {
-class Field
-{
-public:
-    Field(){};
-    Field(std::string aFieldLabel,
-          moris::moris_index aFieldPhase);
+    class Field
+    {
+      public:
+        Field(){};
+        Field( 
+                std::string        aFieldLabel,
+                moris::moris_index aFieldPhase );
 
-    std::string                  mFieldLabel;
-    moris::moris_index           mFieldPhase;
-    moris::Matrix<moris::DDRMat> mFieldData;   /*Structure Node (0), Cell(1)*/
-};
-}
+        std::string                    mFieldLabel;
+        moris::moris_index             mFieldPhase;
+        moris::Matrix< moris::DDRMat > mFieldData; /*Structure Node (0), Cell(1)*/
+    }; // end: class xtk::Field
+}    // namespace xtk
 
 #endif /* PROJECTS_XTK_SRC_XTK_CL_XTK_FIELD_HPP_ */
-

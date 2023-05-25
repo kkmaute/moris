@@ -536,6 +536,7 @@ namespace moris
 
                 bool tRefinedAllLowLevelElements = false;
 
+                // FIXME: ...
                 const uint tMaxLowLevelRefinementSteps = 20;
 
                 // set to true for using low level element refinement
@@ -647,10 +648,13 @@ namespace moris
                 {
                     if ( tLagrangeMeshIndices( Ii ) == aMeshIndex )
                     {
-                        // Loop over nodes and get field values
-                        Matrix< DDRMat > tFieldValues( aMesh->get_num_nodes(), 1 );
+                        // get the number of nodes on the mesh
+                        uint tNumNodes = aMesh->get_num_nodes();
 
-                        for ( uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++ )
+                        // Loop over nodes and get field values
+                        Matrix< DDRMat > tFieldValues( tNumNodes, 1 );
+
+                        for ( uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++ )
                         {
                             tFieldValues( tNodeIndex ) =
                                     aPerformer->get_field_value(

@@ -1095,7 +1095,7 @@ namespace moris
         Cluster::compute_relative_volume()
         {
             // number of elements in cluster
-            uint tNumberofElements = mElements.size();
+            uint tNumberOfElements = mElements.size();
 
             // initialize cluster volume
             real tClusterVolume = 0.0;
@@ -1104,11 +1104,11 @@ namespace moris
             Matrix< DDRMat > tRelativeVolume = this->compute_element_volumes();
 
             // check for correct number of IG cells
-            MORIS_ERROR( tRelativeVolume.numel() == tNumberofElements,
+            MORIS_ERROR( tRelativeVolume.numel() == tNumberOfElements,
                     "Cluster::compute_relative_volume - inconsistent number of IG cells.\n" );
 
             // loop over the IG elements and drop zero elements
-            for ( uint iElem = 0; iElem < tNumberofElements; iElem++ )
+            for ( uint iElem = 0; iElem < tNumberOfElements; iElem++ )
             {
                 // if it smaller than zero; set it to zero
                 tRelativeVolume( iElem ) = std::max( tRelativeVolume( iElem ), 0.0 );
@@ -1149,13 +1149,13 @@ namespace moris
         Cluster::determine_elements_for_residual_and_iqi_computation()
         {
             // number of elements in cluster
-            uint tNumberofElements = mElements.size();
+            uint tNumberOfElements = mElements.size();
 
             // initialize flags for computing residuals and IQIs (default: on)
-            mComputeResidualAndIQI.set_size( tNumberofElements, 1, 1 );
+            mComputeResidualAndIQI.set_size( tNumberOfElements, 1, 1 );
 
             // skip remainder if there is only one element
-            if ( tNumberofElements == 1 )
+            if ( tNumberOfElements == 1 )
             {
                 return;
             }
@@ -1181,7 +1181,7 @@ namespace moris
                     "drop tolerance is negative.\n" );
 
             // loop over the IG elements
-            for ( uint iElem = 0; iElem < tNumberofElements; iElem++ )
+            for ( uint iElem = 0; iElem < tNumberOfElements; iElem++ )
             {
                 // set flag to false (0) if element volume is smaller than threshold
                 if ( tRelativeElementVolume( iElem ) < tElementDropTolerance )

@@ -1002,10 +1002,10 @@ namespace moris
                     for ( moris::uint iV = 0; iV < tNumVertPairs; iV++ )
                     {
                         // get left vertex index
-                        moris_index tLeftClustIndex =
+                        moris_index tLeftClusterIndex =
                                 mDoubleSideSetSideClusters( tLeftIndex ).get_vertex_cluster_index( tLeftVertPtrs( iV ) );
 
-                        tVertexLeftToRightPair( tLeftClustIndex ) = tRightVertPtrs( iV );
+                        tVertexLeftToRightPair( tLeftClusterIndex ) = tRightVertPtrs( iV );
                     }
 
                     // construct the double side cluster
@@ -1065,7 +1065,7 @@ namespace moris
                     const Side_Cluster_STK *tSideClusters =
                             dynamic_cast< const Side_Cluster_STK * >( mListOfSideSets( Ik )->get_clusters_by_index( Ic ) );
 
-                    // get block oridnal of IP cell
+                    // get block ordinal of IP cell
                     moris_index tIpCellIndex = tSideClusters->get_interpolation_cell().get_index();
                     uint        tBlkIndex    = mIpCellToBlockSetOrd( tIpCellIndex );
 
@@ -1265,14 +1265,14 @@ namespace moris
                             tNumClusterInSet,
                             tNumMatchingClusters );
 
-                    // Check that all clusters have been mathed
+                    // Check that all clusters have been mapped
                     if ( tSideIsPaired.min() == -1 )
                     {
                         MORIS_LOG_INFO( "Warning: Not all clusters on side set have been paired" );
                     }
                     else
                     {
-                        MORIS_LOG_INFO( "sAll clusters on side set have been paired" );
+                        MORIS_LOG_INFO( "All clusters on side set have been paired" );
                     }
                 }
             }

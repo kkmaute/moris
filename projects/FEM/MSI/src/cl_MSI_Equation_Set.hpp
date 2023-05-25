@@ -698,13 +698,13 @@ namespace moris
              * set visualization set
              * @param[ in ] aMeshIndex
              * @param[ in ] aVisMeshSet
-             * @param[ in ] aOnlyPrimayCells
+             * @param[ in ] aOnlyPrimaryCells
              */
             virtual void
             set_visualization_set(
                     const uint       aMeshIndex,
                     moris::mtk::Set* aVisMeshSet,
-                    const bool       aOnlyPrimayCells )
+                    const bool       aOnlyPrimaryCells )
             {
                 MORIS_ASSERT( false, "Equation_Set::set_visualization_set(), not implemented for base class" );
             }

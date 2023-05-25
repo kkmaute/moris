@@ -110,14 +110,14 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            std::string get_set_name()
+            std::string get_set_name() const
             {
                 return mSetName;
             }
 
             //------------------------------------------------------------------------------
 
-            enum moris::SetType get_set_type()
+            enum moris::SetType get_set_type() const
             {
                 return mSetType;
             }

@@ -501,6 +501,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void
         Model::set_dof_order( const uint aBSplineIndex )
         {
@@ -508,6 +509,7 @@ namespace moris
         }
 
         //------------------------------------------------------------------------------
+
         void
         Model::output_solution(
                 const uint aVisMeshIndex,

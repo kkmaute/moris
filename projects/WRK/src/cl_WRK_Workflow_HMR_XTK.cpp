@@ -287,12 +287,12 @@ namespace moris
             mPerformerManager->mGENPerformer( 0 )->output_fields(
                     mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ) );
 
-            //             mtk::Mesh_Checker tMeshCheckerHMR(
-            //                     0,
-            //                     mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0),
-            //                     mPerformerManager->mMTKPerformer( 0 )->get_integration_mesh(0));
-            //             tMeshCheckerHMR.perform();
-            //             tMeshCheckerHMR.print_diagnostics();
+            // mtk::Mesh_Checker tMeshCheckerHMR(
+            //         0,
+            //         mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0),
+            //         mPerformerManager->mMTKPerformer( 0 )->get_integration_mesh(0));
+            // tMeshCheckerHMR.perform();
+            // tMeshCheckerHMR.print_diagnostics();
 
             bool tDeleteXTK = tXTKPerformer->delete_xtk_after_generation();
             // XTK perform - decompose - enrich - ghost - multigrid

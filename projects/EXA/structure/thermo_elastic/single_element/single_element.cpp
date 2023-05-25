@@ -109,7 +109,7 @@ namespace moris
     /* ------------------------------------------------------------------------ */
     // boundary conditions
 
-    // bedding to supress RBM
+    // bedding to suppress RBM
     std::string tBedding = std::to_string( 1.0 * 1.0e-5 );
 
     // Initial Temperature
