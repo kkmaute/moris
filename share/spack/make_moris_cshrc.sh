@@ -132,9 +132,12 @@ echo "setenv F77 $F77"                                                         >
 echo ""                                                                        >> $HOME/.cshrc_moris
 
 if ( $PETSC_INSTALLED == "1" ) then
-setenv GFORTLIB `ldd $PETSC_DIR/lib/libpetsc.so | grep gfortran | awk '{print $1}'`
+setenv GFORTLIB      `ldd $PETSC_DIR/lib/libpetsc.so | grep gfortran | awk '{print $1}'`
+setenv GFORTLIB_PATH `ldd $PETSC_DIR/lib/libpetsc.so | grep gfortran | awk '{print $3}' | xargs dirname`
 else
-setenv GFORTLIB `ldd $Trilinos_DIR/lib/libexodus.so | grep gfortran | awk '{print $1}'`
+setenv GFORTLIB      `ldd $Trilinos_DIR/lib/libexodus.so | grep gfortran | awk '{print $1}'`
+setenv GFORTLIB_PATH `ldd $Trilinos_DIR/lib/libexodus.so | grep gfortran | awk '{print $3}' | xargs dirname`
 endif
 
 echo "setenv GFORTLIB $GFORTLIB"                                               >> $HOME/.cshrc_moris
+echo "setenv GFORTLIB_PATH $GFORTLIB_PATH"                                     >> $HOME/.cshrc_moris

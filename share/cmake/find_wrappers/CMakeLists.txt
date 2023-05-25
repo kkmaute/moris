@@ -35,11 +35,15 @@ set(MORIS_FIND_WRAPPERS
 	#suitesparse.cmake
 	superlu_new.cmake
 	#superlu.cmake
-	trilinos_new.cmake
-	#trilinos.cmake
 	viennacl_new.cmake
 	#viennacl.cmake
 	)
 
 install(FILES ${MORIS_FIND_WRAPPERS}
 	DESTINATION ${CONFIG_INSTALL_DIR}/find_wrappers )
+
+set(MORIS_TRILINOS_WRAPPER trilinos_new_install.cmake)
+
+install(FILES ${MORIS_TRILINOS_WRAPPER}
+	DESTINATION ${CONFIG_INSTALL_DIR}/find_wrappers 
+	RENAME trilinos_new.cmake )

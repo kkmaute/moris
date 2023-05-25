@@ -35,7 +35,7 @@ Map_PETSc::Map_PETSc(
             PETSC_COMM_WORLD,
             tNumMyOwnedDofs,
             aMyGlobalOwnedIds.data(),
-            PETSC_NULL,
+            PETSC_NULLPTR,
             &mPETScMap );
 
     // build map between moris IDs and indices of owned (free and constraint) vector
@@ -89,7 +89,7 @@ Map_PETSc::Map_PETSc( const Matrix< DDSMat >& aMyGlobalOwnedIds )
             PETSC_COMM_WORLD,
             tNumMyOwnedDofs,
             aMyGlobalOwnedIds.data(),
-            PETSC_NULL,
+            PETSC_NULLPTR,
             &mPETScMap );
 
     // build map between moris IDs and indices of owned vector
@@ -149,7 +149,7 @@ Map_PETSc::Map_PETSc(
             PETSC_COMM_WORLD,
             tNumMyOwnedDofs,
             aMyGlobalOwnedIds.data(),
-            PETSC_NULL,
+            PETSC_NULLPTR,
             &mPETScMap );
 
     // Get number of owned and shared DOFs

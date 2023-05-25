@@ -28,6 +28,7 @@
 *    mpi+metis+hypre+suite-sparse
 *    optional: mkl-pardiso
 *    optional: mumps 
+* slepc (optional)
 * superlu (required)
 * trilinos (required) with the following package
 *    boost+hdf5+mpi+suite-sparse+superlu-dist+amesos+anasazi+aztec+belos+chaco+epetra+exodus+ifpack+ifpack2+ml+rol+stk+zoltan2
@@ -159,7 +160,7 @@ spack create --name snopt --skip-editor
 
 *------------------------------------------------------------
 
-* add package files; overwrite trilinos package file to enable mkl and pardiso
+* add package files; overwrite trilinos package file to enable mkl and pardiso; might need edting depending on trilinos version
 
 * important: you need to copy the spack package files for the optimization
 * libraries even if you do not want to install them
@@ -180,22 +181,27 @@ spack env activate .
 
 *------------------------------------------------------------
 
-* By default MORIS is installed with support for petsc, pardiso, and mumps, as well as the optimization libraries; 
+* By default MORIS is installed with support for petsc,slepc, pardiso, and mumps, as well as the optimization libraries; 
 * to turn off one or all of these options, use for example:
 
-spack add moris+openblas~petsc~pardiso~mumps~gcmma~lbfgs~snopt
+spack add moris+openblas~petsc~slepc~pardiso~mumps~gcmma~lbfgs~snopt
 
 * otherwise use the following spack command to install default configuration
 
-spack add moris+pardiso
+spack add moris+pardiso+mumps
 
 * set local moris directory as source for spack install
 
 spack develop --path $WORKSPACE/moris moris@main
 
-* add openblas
+* add openblas (only needed if not defined explicilty above)
 
 spack add openblas
+
+* add latest version of cmake (needed by recent trilinos versions)
+
+spack add cmake@master
+
 
 *------------------------------------------------------------
 
@@ -292,6 +298,7 @@ tcsh $WORKSPACE/moris/share/spack/make_moris_cshrc.sh
 * of the following directives:
 
 * without petsc:   -DMORIS_HAVE_PETSC=OFF
+* without slepc:   -DMORIS_HAVE_SLEPC=OFF
 * without pardiso: -DMORIS_USE_PARDISO=OFF 
 * without mumps:   -DMORIS_USE_MUMPS=OFF 
 * without gcmma:   -DMORIS_HAVE_GCMMA=OFF
@@ -332,10 +339,10 @@ cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_MKL=ON -DMORIS_USE_OPEN
 cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_OPENBLAS=OFF -DMORIS_USE_LAPACK=ON ..
 cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_OPENBLAS=OFF -DMORIS_USE_LAPACK=ON ..
 
-* if you do not have installed petsc, pardiso, and the optimization libraries:
+* if you do not have installed petsc, slepc, pardiso, and the optimization libraries:
 
-cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_HAVE_PETSC=OFF -DMORIS_USE_PARDISO=OFF -DMORIS_USE_MUMPS=OFF -DMORIS_HAVE_GCMMA=OFF -DMORIS_HAVE_LBFGS=OFF -DMORIS_HAVE_SNOPT=OFF ..
-cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_HAVE_PETSC=OFF -DMORIS_USE_PARDISO=OFF -DMORIS_USE_MUMPS=OFF -DMORIS_HAVE_GCMMA=OFF -DMORIS_HAVE_LBFGS=OFF -DMORIS_HAVE_SNOPT=OFF ..
+cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_HAVE_PETSC=OFF -DMORIS_HAVE_SLEPC=OFF -DMORIS_USE_PARDISO=OFF -DMORIS_USE_MUMPS=OFF -DMORIS_HAVE_GCMMA=OFF -DMORIS_HAVE_LBFGS=OFF -DMORIS_HAVE_SNOPT=OFF ..
+cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_HAVE_PETSC=OFF -DMORIS_HAVE_SLEPC=OFF -DMORIS_USE_PARDISO=OFF -DMORIS_USE_MUMPS=OFF -DMORIS_HAVE_GCMMA=OFF -DMORIS_HAVE_LBFGS=OFF -DMORIS_HAVE_SNOPT=OFF ..
 
 * compile moris
 
@@ -370,10 +377,10 @@ cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE
 cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_OPENBLAS=OFF -DMORIS_USE_LAPACK=ON ..
 cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_OPENBLAS=OFF -DMORIS_USE_LAPACK=ON ..
 
-* if you do not have installed petsc, pardiso, and the optimization libraries:
+* if you do not have installed petsc,slepc, pardiso, and the optimization libraries:
 
-cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_HAVE_PETSC=OFF -DMORIS_USE_PARDISO=OFF -DMORIS_USE_MUMPS=OFF -DMORIS_HAVE_GCMMA=OFF -DMORIS_HAVE_LBFGS=OFF -DMORIS_HAVE_SNOPT=OFF ..
-cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_HAVE_PETSC=OFF -DMORIS_USE_PARDISO=OFF -DMORIS_USE_MUMPS=OFF -DMORIS_HAVE_GCMMA=OFF -DMORIS_HAVE_LBFGS=OFF -DMORIS_HAVE_SNOPT=OFF ..
+cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_HAVE_PETSC=OFF -DMORIS_HAVE_SLEPC=OFF -DMORIS_USE_PARDISO=OFF -DMORIS_USE_MUMPS=OFF -DMORIS_HAVE_GCMMA=OFF -DMORIS_HAVE_LBFGS=OFF -DMORIS_HAVE_SNOPT=OFF ..
+cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_HAVE_PETSC=OFF -DMORIS_HAVE_SLEPC=OFF -DMORIS_USE_PARDISO=OFF -DMORIS_USE_MUMPS=OFF -DMORIS_HAVE_GCMMA=OFF -DMORIS_HAVE_LBFGS=OFF -DMORIS_HAVE_SNOPT=OFF ..
 
 * compile moris
 

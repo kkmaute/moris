@@ -14,14 +14,6 @@ set(TEST_SOURCES
     UT_WRK_Workflow.cpp
     UT_WRK_Remeshing_Mini_Performer.cpp )
 
-# List snippet includes
-set(SNIPPET_INCLUDES
-    )
-
-foreach(SNIPPET_INCLUDE ${SNIPPET_INCLUDES})
-    include_directories(${MORIS_DIR}/snippets/${SNIPPET_INCLUDE})
-endforeach()
-
 # List test dependencies
 set(TEST_DEPENDENCIES
     test-libs
@@ -29,7 +21,6 @@ set(TEST_DEPENDENCIES
     ${XTK}-lib
     ${HMR}-lib
     )
-
 
 set(GEN_INCLUDES
 	"field"
@@ -54,19 +45,8 @@ add_executable(${WRK_TEST} ${TEST_SOURCES})
 target_link_libraries(${WRK_TEST} ${TEST_DEPENDENCIES})
 set_target_properties(${WRK_TEST} PROPERTIES OUTPUT_NAME ${WRK_TEST}${EXE_EXT})
 
-# Add parallel tests
-if(MORIS_HAVE_PARALLEL_TESTS)
-    set(WRK_TEST_PROCS ${MORIS_TEST_PROCS})
-    foreach(PROCS ${WRK_TEST_PROCS})
-        set(WRK_PARALLEL_TEST ${WRK_TEST}-${PROCS}-procs)
-        add_test(NAME ${WRK_PARALLEL_TEST} 
-            COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${WRK_TEST}>)
-    endforeach()
-endif()
-
-
 ## create dynamically linked .so files
-set(GEN_TEST_INPUT_FILE_BASE WRK_Input_1)
+set(WRK_TEST_INPUT_FILE_BASE WRK_Input_1)
 
 set(SO_TPLS
 "trilinos"
@@ -78,8 +58,8 @@ get_property(INT_SRC_LIST GLOBAL PROPERTY INT_SRC_LIST)
 get_property(MTK_SRC_LIST GLOBAL PROPERTY MTK_SRC_LIST)
 
 SET(SO_INCLUDES
-	${Boost_INCLUDE_DIRS}
-	${Trilinos_INCLUDE_DIRS}
+	${MORIS_BOOST_INCLUDE_DIRS}
+	${MORIS_TRILINOS_INCLUDE_DIRS}
 	${MORIS_PACKAGE_DIR}/ALG/src
     ${INT_SRC_LIST}
     ${MTK_SRC_LIST}
@@ -104,7 +84,17 @@ foreach(TPL ${SO_TPLS})
     list(APPEND SO_INCLUDES ${MORIS_${TPL}_INCLUDE_DIRS})
 endforeach()
 
-foreach(base_name ${GEN_TEST_INPUT_FILE_BASE})
+foreach(base_name ${WRK_TEST_INPUT_FILE_BASE})
     dynamic_link_input(${base_name} ${base_name} ${base_name}.cpp ${SO_INCLUDES})
 endforeach()
+
+# Add parallel tests
+if(MORIS_HAVE_PARALLEL_TESTS)
+    set(WRK_TEST_PROCS ${MORIS_TEST_PROCS})
+    foreach(PROCS ${WRK_TEST_PROCS})
+        set(WRK_PARALLEL_TEST ${WRK_TEST}-${PROCS}-procs)
+        add_test(NAME ${WRK_PARALLEL_TEST} 
+            COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${WRK_TEST}>)
+    endforeach()
+endif()
 

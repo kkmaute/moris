@@ -49,7 +49,7 @@ check_results(
     MORIS_LOG_INFO( "" );
 
     // open and query exodus output file (set verbose to true to get basic mesh information)
-    moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, true, true );
+    moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, true, false );
 
     // define reference node IDs
     Cell< uint > tReferenceNodeId = { 14, 43 };
@@ -133,18 +133,24 @@ check_results(
     if ( aTestCaseIndex == 0 )
     {
         tReferenceDisplacement.push_back( { { -1.42942084733364e-06 }, { 6.46851986039073e-08 } } );
-        tReferenceDisplacement.push_back( { { 0.000993543881481338 }, { -0.000532691066062199} } );
+        tReferenceDisplacement.push_back( { { 0.000993543881481338 }, { -0.000532691066062199 } } );
     }
     else if ( aTestCaseIndex == 1 )
     {
         tReferenceDisplacement.push_back( { { -1.42942084733364e-06 }, { 6.46851986039073e-08 } } );
-        tReferenceDisplacement.push_back( { { 0.000993543881481338 }, { -0.000532691066062199} } );
+        tReferenceDisplacement.push_back( { { 0.000993543881481338 }, { -0.000532691066062199 } } );
     }
 
     Matrix< DDRMat > tActualDisplacement = {
         { tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 2, 0 ) },
         { tExoIO.get_nodal_field_value( tReferenceNodeId( aTestCaseIndex ), 3, 0 ) }
     };
+
+    // adjust sign as computed eigen vector might be pointing in opposite direction than reference vector
+    if ( tActualDisplacement( 0 ) * tReferenceDisplacement( aTestCaseIndex )( 0 ) < 0 )
+    {
+        tActualDisplacement = -1.0 * tActualDisplacement;
+    }
 
     real tRelDispDifference = norm( tActualDisplacement - tReferenceDisplacement( aTestCaseIndex ) ) / norm( tReferenceDisplacement( aTestCaseIndex ) );
 

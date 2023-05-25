@@ -60,9 +60,10 @@ ${ARMADILLO_EIGEN}
 get_property(INT_SRC_LIST GLOBAL PROPERTY INT_SRC_LIST)
 get_property(MTK_SRC_LIST GLOBAL PROPERTY MTK_SRC_LIST)
 
+# does not work anymore as variable is no longer chached (see find wrapper)  ${MORIS_BOOST_INCLUDE_DIRS}
+# does nto work anymore as variable is no longer chached (see find wrapper)  ${MORIS_TRILINOS_INCLUDE_DIRS}  using SO_TPLS list for includes see below
+
 SET(SO_INCLUDES
-	${Boost_INCLUDE_DIRS}
-	${Trilinos_INCLUDE_DIRS}
 	${MORIS_PACKAGE_DIR}/ALG/src
     ${INT_SRC_LIST}
     ${MTK_SRC_LIST}
@@ -85,6 +86,8 @@ SET(SO_INCLUDES
     ${MORIS_PACKAGE_DIR}/MRS/COR/src)
     
 foreach(TPL ${SO_TPLS})
+    string(TOLOWER ${TPL} tpl)
+    include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
     string(TOUPPER ${TPL} TPL)
     list(APPEND SO_INCLUDES ${MORIS_${TPL}_INCLUDE_DIRS})
 endforeach()

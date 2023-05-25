@@ -48,3 +48,5 @@ _import_libraries(LAPACK_LIBRARY_TARGETS ${LAPACK_LIBRARIES})
 add_library(LAPACK::lapack INTERFACE IMPORTED GLOBAL)
 target_link_libraries(LAPACK::lapack INTERFACE ${LAPACK_LIBRARY_TARGETS})
 
+add_library(LAPACK::all_libs INTERFACE IMPORTED)
+target_link_libraries(LAPACK::all_libs INTERFACE ${LAPACK_LIBRARY_TARGETS})

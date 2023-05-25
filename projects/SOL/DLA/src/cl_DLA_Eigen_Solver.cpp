@@ -473,11 +473,6 @@ Eigen_Solver::solve_block_davidson_system( Linear_Problem* aLinearSystem )
         this->get_solution( m, mFreeSolVec, aMasterSolVec, evals[ m ].realpart, evals[ m ].imagpart );
     }
 
-    if ( MyPID == 0 )
-    {
-        fprintf( stdout, "\n ... Finished EigenValue Solve using a Block Davidson Solver\n" );
-    }
-
     return 0;
 }
 
@@ -1355,7 +1350,7 @@ Eigen_Solver::get_solution(
     mFreeSolVec->get_epetra_vector()->Update( NormFactor, *CurrentEigenVector, 0.0 );
 
     // Add index of eigen vector
-    char tIndex[ 3 ];
+    char tIndex[ 12 ];
     std::sprintf( tIndex, "_%01u", aEigValIndex + 1 );
 
     // Assemble name of the normalized eigen vector
