@@ -66,15 +66,31 @@ namespace moris
 
                 // combine the above information to obtain the T-matrices from the IG mesh to the B-spline meshes
                 this->get_elemental_IG_to_BS_T_matrices( tIgToIpIndices, tIgToIpTmatrices, tIPtoBSIds, tIPtoBSWeights, tIGtoBSIds, tIGtoBSWeights );
+                
+                // count all used cell IDs in the output mesh
+                uint tNumCellIdsInOutputMesh = 0;
+                for( const moris_id iIgCellId : tIgCellIdList )
+                {
+                    // do not count unused indices
+                    if ( iIgCellId > -1 )
+                    {
+                        tNumCellIdsInOutputMesh++;
+                    }
+                }
 
-                // convert the index to ID map to a matrix
-                tNumIgCells = tIgCellIdList.size();
-                tIgCellIds.set_size( tNumIgCells, 1 );
+                // convert the index to ID map to a matrix list of all used IDs
+                tIgCellIds.set_size( tNumCellIdsInOutputMesh, 1 );
+                uint tIdCounter = 0;
                 for( uint iID = 0; iID < tNumIgCells; iID++ )
                 {
-                    tIgCellIds( iID ) = tIgCellIdList( iID );
+                    if ( tIgCellIdList( iID ) > -1 )
+                    {
+                        tIgCellIds( tIdCounter ) = tIgCellIdList( iID );
+                        tIdCounter++;
+                    }
                 }
-            }
+
+            } // end: operations to get extraction operators (curly brackets to delete arrays which are no longer needed to free up memory)
 
             // -------------------------------------
             // write to file
