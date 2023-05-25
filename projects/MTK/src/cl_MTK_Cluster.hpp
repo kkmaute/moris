@@ -29,9 +29,9 @@ namespace moris
 
             virtual ~Cluster(){};
 
-            //##############################################
-            // Characteristic functions
-            //##############################################
+            // ##############################################
+            //  Characteristic functions
+            // ##############################################
 
             virtual bool
             is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
@@ -50,9 +50,9 @@ namespace moris
                 return false;
             }
 
-            //##############################################
-            // Cell/Vertex Access
-            //##############################################
+            // ##############################################
+            //  Cell/Vertex Access
+            // ##############################################
 
             virtual moris_index
             get_vertex_cluster_index(
@@ -220,10 +220,10 @@ namespace moris
                 MORIS_ERROR( false, "mtk::Cluster::set_cluster_group() - not implemented for this class" );
             }
 
-            //##############################################
-            // Local Coordinate Access
-            // (Pure Virtual)
-            //##############################################
+            // ##############################################
+            //  Local Coordinate Access
+            //  (Pure Virtual)
+            // ##############################################
             virtual moris::Matrix< moris::DDRMat >
             get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
 
@@ -244,10 +244,10 @@ namespace moris
                 return moris::Matrix< moris::DDRMat >( 0, 0 );
             }
 
-            //##############################################
-            // Size Access
-            // (Pure Virtual)
-            //##############################################
+            // ##############################################
+            //  Size Access
+            //  (Pure Virtual)
+            // ##############################################
             /*!
              * Size of the xsi vector in this side cluster
              */
@@ -364,15 +364,20 @@ namespace moris
             // IMPLEMENTATION
             // ---------------------------------------------
 
-            //##############################################
-            // Cell/Vertex Index Access
-            //##############################################
+            // ##############################################
+            //  Cell/Vertex Index Access
+            // ##############################################
+
+            //----------------------------------------------------------------
+
             virtual moris::Matrix< moris::IndexMat >
             get_primary_cell_indices_in_cluster() const
             {
                 MORIS_ERROR( false, "get_primary_cell_indices_in_cluster(): not implemented for this cluster type" );
                 return moris::Matrix< moris::IndexMat >( 0, 0 );
             }
+
+            //----------------------------------------------------------------
 
             virtual moris::Matrix< moris::IndexMat >
             get_void_cell_indices_in_cluster() const
@@ -381,12 +386,16 @@ namespace moris
                 return moris::Matrix< moris::IndexMat >( 0, 0 );
             }
 
+            //----------------------------------------------------------------
+
             virtual moris::moris_index
             get_interpolation_cell_index() const
             {
                 MORIS_ERROR( false, "get_interpolation_cell_index(): not implemented for this cluster type" );
                 return moris::moris_index( 0 );
             }
+
+            //----------------------------------------------------------------
 
             virtual moris::Matrix< moris::IndexMat >
             get_vertex_indices_in_cluster() const
@@ -395,15 +404,22 @@ namespace moris
                 return moris::Matrix< moris::IndexMat >( 0, 0 );
             }
 
-            //##############################################
-            // Cell/Vertex Id Access
-            //##############################################
+            //----------------------------------------------------------------
+
+            // ##############################################
+            //  Cell/Vertex Id Access
+            // ##############################################
+
+            //----------------------------------------------------------------
+
             virtual moris::Matrix< moris::IdMat >
             get_primary_cell_ids_in_cluster() const
             {
                 MORIS_ERROR( false, "get_primary_cell_ids_in_cluster(): not implemented for this cluster type" );
                 return moris::Matrix< moris::IndexMat >( 0, 0 );
             }
+
+            //----------------------------------------------------------------
 
             virtual moris::Matrix< moris::IdMat >
             get_void_cell_ids_in_cluster() const
@@ -412,12 +428,16 @@ namespace moris
                 return moris::Matrix< moris::IdMat >( 0, 0 );
             }
 
+            //----------------------------------------------------------------
+
             virtual moris::moris_id
             get_interpolation_cell_id() const
             {
                 MORIS_ERROR( false, "get_interpolation_cell_id(): not implemented for this cluster type" );
                 return 0;
             }
+
+            //----------------------------------------------------------------
 
             virtual moris::Matrix< moris::IdMat >
             get_vertex_ids_in_cluster() const
@@ -426,6 +446,8 @@ namespace moris
                 return moris::Matrix< moris::IdMat >( 0, 0 );
             }
 
+            //----------------------------------------------------------------
+
             virtual moris::Matrix< moris::DDRMat >
             get_vertex_coords_in_cluster() const
             {
@@ -433,9 +455,13 @@ namespace moris
                 return moris::Matrix< moris::DDRMat >( 0, 0 );
             }
 
-            //##############################################
-            // Local Coordinate access
-            //##############################################
+            //----------------------------------------------------------------
+
+            // ##############################################
+            //  Local Coordinate access
+            // ##############################################
+
+            //----------------------------------------------------------------
 
             /*!
              * Access a primary integration cells parametric coordinates relative to the interpolation cell
@@ -448,6 +474,8 @@ namespace moris
                 return moris::Matrix< moris::DDRMat >( 0, 0 );
             }
 
+            //----------------------------------------------------------------
+
             /*!
              * Access a void integration cells parametric coordinates relative to the interpolation cell
              * @param[in] - Local integration cell index with respect to the cluster (not proc local index)
@@ -459,15 +487,22 @@ namespace moris
                 return moris::Matrix< moris::DDRMat >( 0, 0 );
             }
 
-            //##############################################
-            // Size Access
-            //##############################################
+            //----------------------------------------------------------------
+
+            // ##############################################
+            //  Size Access
+            // ##############################################
+
+            //----------------------------------------------------------------
+
             virtual moris::uint
             get_num_primary_cells() const
             {
                 MORIS_ERROR( false, "get_num_primary_cells(): not implemented for this cluster type" );
                 return 0;
             }
+
+            //----------------------------------------------------------------
 
             virtual moris::uint
             get_num_void_cells() const
@@ -476,6 +511,8 @@ namespace moris
                 return 0;
             }
 
+            //----------------------------------------------------------------
+
             virtual moris::uint
             get_num_vertices_in_cluster() const
             {
@@ -483,19 +520,46 @@ namespace moris
                 return 0;
             }
 
+            //----------------------------------------------------------------
+
             moris::Cell< moris::mtk::Vertex * >
             get_primary_vertices_in_cluster() const
             {
+                // initialize output array
                 moris::Cell< moris::mtk::Vertex * > tPrimaryVertices;
 
+                // get the primary cell
                 moris::Cell< moris::mtk::Cell const * > const &tPrimaryCells = this->get_primary_cells_in_cluster();
 
-                for ( moris::uint i = 0; i < tPrimaryCells.size(); i++ )
+                // initialize map marking which vertices found to prevent listing them multiple times
+                map< moris_index, moris_index > tPrimaryVertexIndices;
+                moris_index                     tPrimaryVertexCounter = 0;
+
+                // collect the vertices from all primary cells
+                for ( uint iPrimaryCell = 0; iPrimaryCell < tPrimaryCells.size(); iPrimaryCell++ )
                 {
-                    tPrimaryVertices.append( tPrimaryCells( i )->get_vertex_pointers() );
+                    // get the vertices from the cells
+                    moris::Cell< mtk::Vertex * > tVerticesOnCell = tPrimaryCells( iPrimaryCell )->get_vertex_pointers();
+
+                    for ( uint iVertOnCell = 0; iVertOnCell < tVerticesOnCell.size(); iVertOnCell++ )
+                    {
+                        // get the index of the current vertex
+                        moris_index tVertIndex = tVerticesOnCell( iVertOnCell )->get_index();
+
+                        // check if this vertex has already been listed, if not add this vertex to the list
+                        if ( !tPrimaryVertexIndices.key_exists( tVertIndex ) )
+                        {
+                            tPrimaryVertices.push_back( tVerticesOnCell( iVertOnCell ) );
+                            tPrimaryVertexIndices[ tVertIndex ] = tPrimaryVertexCounter++;
+                        }
+                    }
                 }
+
+                // return list of primary vertices
                 return tPrimaryVertices;
             }
+
+            //----------------------------------------------------------------
 
             moris::Matrix< moris::IndexMat >
             get_primary_vertices_inds_in_cluster() const
@@ -513,12 +577,20 @@ namespace moris
                 return tPrimaryVertexInd;
             }
 
+            //----------------------------------------------------------------
+
             virtual Matrix< IndexMat >
             get_hanging_nodes() const
             {
                 return Matrix< IndexMat >( 0, 0 );
             };
-        };
+
+            //----------------------------------------------------------------
+
+        };    // class MTK_Cluster
+
+              //----------------------------------------------------------------
+
     }    // namespace mtk
 }    // namespace moris
 

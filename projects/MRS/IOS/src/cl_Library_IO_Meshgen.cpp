@@ -383,6 +383,9 @@ namespace moris
         // ------------------------------
         // XTK parameters
 
+        // turn on SPG based enrichment to make sure 
+        tXtkParamList.set( "use_SPG_based_enrichment", true );
+
         // enriched mesh indices
         tXtkParamList.set( "enrich_mesh_indices", tLagrangeToBspline );
 

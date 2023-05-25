@@ -12,14 +12,13 @@
 
 namespace xtk
 {
-Field::Field(std::string aFieldLabel,
-             moris::moris_index aFieldPhase):
-                     mFieldLabel(aFieldLabel),
-                     mFieldPhase(aFieldPhase),
-                     mFieldData(0,0)
-{
+    Field::Field( std::string  aFieldLabel,
+            moris::moris_index aFieldPhase )
+            : mFieldLabel( aFieldLabel )
+            , mFieldPhase( aFieldPhase )
+            , mFieldData( 0, 0 )
+    {
+        // do nothing besides initializing the member data
+    }
 
-}
-
-}
-
+}    // namespace xtk

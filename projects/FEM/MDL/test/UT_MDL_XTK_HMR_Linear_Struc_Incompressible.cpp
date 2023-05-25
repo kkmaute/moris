@@ -404,7 +404,7 @@ namespace moris
             // --------------------------------------------------------------------------------------
             vis::Output_Manager tOutputData;
             tOutputData.set_outputs( 0,
-                    vis::VIS_Mesh_Type::STANDARD,    // OVERLAPPING_INTERFACE
+                    vis::VIS_Mesh_Type::STANDARD,    // STANDARD_WITH_OVERLAP
                     "./",
                     "MDL_XTK_HMR_Linear_Struc_Incompressible_Test_2D_Output.exo",
                     "./",

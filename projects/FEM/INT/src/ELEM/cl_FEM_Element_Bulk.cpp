@@ -815,7 +815,7 @@ namespace moris
                 moris_index tGlobalIndex =
                         mSet->get_requested_elemental_IQIs_global_indices_for_visualization()( iIQI );
 
-                // devide by space-time volume
+                // divide by space-time volume
                 ( *mSet->mSetElementalValues )(
                         mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), tGlobalIndex ) /=
                         tSpaceTimeVolume;

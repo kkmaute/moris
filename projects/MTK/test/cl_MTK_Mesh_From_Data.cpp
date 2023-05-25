@@ -353,10 +353,10 @@ namespace moris
         {
             if ( par_size() == 4 )
             {
-                std::string tPrefix = std::getenv( "MORISOUTPUT" );
+                std::string tPrefix = std::getenv( "PWD" );
 
                 MORIS_ERROR( tPrefix.size() > 0,
-                        "Environment variable MORISOUTPUT not set." );
+                        "Environment variable 'PWD' not set." );
 
                 std::string tMeshOutputFile = tPrefix + "/mtk_par_mtk_from_data.e";
 

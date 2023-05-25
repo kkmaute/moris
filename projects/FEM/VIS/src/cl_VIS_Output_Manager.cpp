@@ -85,35 +85,38 @@ namespace moris
         //-----------------------------------------------------------------------------------------------------------
 
         void
-        Output_Manager::set_outputs( moris::ParameterList aParamterelist )
+        Output_Manager::set_outputs( moris::ParameterList aParameterlist )
         {
             // create output data object
             vis::Output_Data tOutputData;
 
             // fill output data object
-            tOutputData.mMeshIndex = aParamterelist.get< moris::sint >( "Output_Index" );
-            tOutputData.mMeshType  = static_cast< moris::vis::VIS_Mesh_Type >( aParamterelist.get< moris::uint >( "Mesh_Type" ) );
+            tOutputData.mMeshIndex = aParameterlist.get< moris::sint >( "Output_Index" );
+            tOutputData.mMeshType  = static_cast< moris::vis::VIS_Mesh_Type >( aParameterlist.get< moris::uint >( "Mesh_Type" ) );
 
-            tOutputData.mOutputPath = std::get< 0 >( aParamterelist.get< std::pair< std::string, std::string > >( "File_Name" ) );
-            tOutputData.mMeshName   = std::get< 1 >( aParamterelist.get< std::pair< std::string, std::string > >( "File_Name" ) );
+            tOutputData.mOutputPath = std::get< 0 >( aParameterlist.get< std::pair< std::string, std::string > >( "File_Name" ) );
+            tOutputData.mMeshName   = std::get< 1 >( aParameterlist.get< std::pair< std::string, std::string > >( "File_Name" ) );
 
             // note: file path for temp file currently ignored
-            tOutputData.mTempPath = std::get< 0 >( aParamterelist.get< std::pair< std::string, std::string > >( "Temp_Name" ) );
-            tOutputData.mTempName = std::get< 1 >( aParamterelist.get< std::pair< std::string, std::string > >( "Temp_Name" ) );
+            tOutputData.mTempPath = std::get< 0 >( aParameterlist.get< std::pair< std::string, std::string > >( "Temp_Name" ) );
+            tOutputData.mTempName = std::get< 1 >( aParameterlist.get< std::pair< std::string, std::string > >( "Temp_Name" ) );
 
-            tOutputData.mSaveFrequency = aParamterelist.get< moris::sint >( "Save_Frequency" );
-            tOutputData.mTimeOffset    = aParamterelist.get< moris::real >( "Time_Offset" );
+            tOutputData.mSaveFrequency = aParameterlist.get< moris::sint >( "Save_Frequency" );
+            tOutputData.mTimeOffset    = aParameterlist.get< moris::real >( "Time_Offset" );
 
             // read and check mesh set names
             moris::Cell< std::string > tSetNames;
             string_to_cell(
-                    aParamterelist.get< std::string >( "Set_Names" ),
+                    aParameterlist.get< std::string >( "Set_Names" ),
                     tSetNames );
 
-            MORIS_ERROR( tSetNames.size() > 0, "At least one mesh set name needs to be provided for Vis mesh\n" );
+            MORIS_ERROR( tSetNames.size() > 0,
+                    "Output_Manager::set_outputs() - At least one mesh set name needs to be provided for Vis mesh." );
+
             for ( auto tName : tSetNames )
             {
-                MORIS_ERROR( tName.length() > 0, "Empty strings for set names in Vis mesh are not allowed\n" );
+                MORIS_ERROR( tName.length() > 0,
+                        "Output_Manager::set_outputs() - Empty strings for set names in Vis mesh are not allowed." );
             }
 
             tOutputData.mSetNames = tSetNames;
@@ -121,13 +124,16 @@ namespace moris
             // read and check field names
             moris::Cell< std::string > tFieldNames;
             string_to_cell(
-                    aParamterelist.get< std::string >( "Field_Names" ),
+                    aParameterlist.get< std::string >( "Field_Names" ),
                     tFieldNames );
 
-            MORIS_ERROR( tFieldNames.size() > 0, "At least one field name needs to be provided for Vis mesh\n" );
+            MORIS_ERROR( tFieldNames.size() > 0,
+                    "Output_Manager::set_outputs() - At least one field name needs to be provided for Vis mesh." );
+
             for ( auto tName : tFieldNames )
             {
-                MORIS_ERROR( tName.length() > 0, "Empty strings for field names in Vis mesh are not allowed\n" );
+                MORIS_ERROR( tName.length() > 0,
+                        "Output_Manager::set_outputs() - Empty strings for field names in Vis mesh are not allowed." );
             }
 
             tOutputData.mFieldNames = tFieldNames;
@@ -136,37 +142,45 @@ namespace moris
             moris::Cell< enum vis::Field_Type >             tFieldTypes;
             moris::map< std::string, enum vis::Field_Type > tFieldTypeMap = get_vis_field_type_map();
             string_to_cell(
-                    aParamterelist.get< std::string >( "Field_Type" ),
+                    aParameterlist.get< std::string >( "Field_Type" ),
                     tFieldTypes,
                     tFieldTypeMap );
 
-            MORIS_ERROR( tFieldTypes.size() > 0, "At least one field type needs to be provided for Vis mesh\n" );
+            MORIS_ERROR( tFieldTypes.size() > 0,
+                    "Output_Manager::set_outputs() - At least one field type needs to be provided for Vis mesh." );
+
             for ( auto tName : tFieldNames )
             {
-                MORIS_ERROR( tName.length() > 0, "Empty strings for field types in Vis mesh are not allowed\n" );
+                MORIS_ERROR( tName.length() > 0,
+                        "Output_Manager::set_outputs() - Empty strings for field types in Vis mesh are not allowed." );
             }
 
             tOutputData.mFieldType = tFieldTypes;
 
             // check that length of Field_Names and Field_Type are consistent
-            MORIS_ERROR( tFieldNames.size() == tFieldTypes.size(), "Output_Manager::set_outputs - Number of Field Names and Field Types differ." );
+            MORIS_ERROR( tFieldNames.size() == tFieldTypes.size(),
+                    "Output_Manager::set_outputs() - Number of Field Names and Field Types differ." );
 
             // read and check IQI names
             moris::Cell< std::string > tQINames;
             string_to_cell(
-                    aParamterelist.get< std::string >( "IQI_Names" ),
+                    aParameterlist.get< std::string >( "IQI_Names" ),
                     tQINames );
 
-            MORIS_ERROR( tQINames.size() > 0, "At least one IQI name needs to be provided for Vis mesh\n" );
+            MORIS_ERROR( tQINames.size() > 0, 
+                    "Output_Manager::set_outputs() - At least one IQI name needs to be provided for Vis mesh\n" );
+
             for ( auto tName : tQINames )
             {
-                MORIS_ERROR( tName.length() > 0, "Empty strings for IQI name in Vis mesh are not allowed\n" );
+                MORIS_ERROR( tName.length() > 0, 
+                        "Output_Manager::set_outputs() - Empty strings for IQI name in Vis mesh are not allowed\n" );
             }
 
             tOutputData.mQINames = tQINames;
 
             // check that length of Field_Names and Field_Type are consistent
-            MORIS_ERROR( tFieldNames.size() == tQINames.size(), "Output_Manager::set_outputs - Number of Field Names and QI Names differ." );
+            MORIS_ERROR( tFieldNames.size() == tQINames.size(), 
+                    "Output_Manager::set_outputs() - Number of Field Names and QI Names differ." );
 
             // resize list of output data objects
             sint tSize          = mOutputData.size();
@@ -194,7 +208,7 @@ namespace moris
         {
             if ( mVisMeshCreatedAndOpen( aVisMeshIndex ) == false )
             {
-                Tracer tTracer( "Output_Manager", "VisMesh", "CreateAndWriteVisMesh" );
+                Tracer tTracer( "VIS", "Output_Manager", "Setup VIS mesh" );
 
                 this->create_visualization_mesh( aVisMeshIndex, aMesh, aMeshPairIndex );
 
@@ -214,7 +228,7 @@ namespace moris
                 std::shared_ptr< mtk::Mesh_Manager > aMesh,
                 const uint                           aMeshPairIndex )
         {
-            Tracer tTracer( "Output_Manager", "VisMesh", "CreateVisMesh" );
+            Tracer tTracer( "VIS", "Output_Manager", "Create VIS mesh" );
 
             MORIS_ERROR( mOutputData( aVisMeshIndex ).mMeshIndex == (sint)aVisMeshIndex,
                     "create_visualization_meshes(), Visualization mesh not set" );
@@ -243,9 +257,12 @@ namespace moris
                 std::shared_ptr< MSI::Equation_Model > aEquationModel )
         {
             Tracer tTracer( "Output_Manager", "VisMesh", "CreateVisSets" );
-
+ 
             // get number of requested sets
             uint tNumRequestedSets = mOutputData( aVisMeshIndex ).mSetNames.size();
+
+            // get the names of the requested sets
+            Cell< std::string > const & tMeshSetNames = mOutputData( aVisMeshIndex ).mSetNames;
 
             // get mtk set index to fem set index map
             map< std::tuple< moris_index, bool, bool >, moris_index >& tMeshSetToFemSetMap =
@@ -254,30 +271,41 @@ namespace moris
             // get equation sets
             moris::Cell< MSI::Equation_Set* > tEquationSets = aEquationModel->get_equation_sets();
 
-            // get integration mesh
+            // get the interpolation and integration meshes
             mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
             mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
-
             mMTKMesh->get_mesh_pair( mMTKMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
 
-            // loop over equation sets.
-            for ( uint Ii = 0; Ii < tNumRequestedSets; Ii++ )
+            // loop over requested equation sets // TODO: the loop
+            for ( uint iSet = 0; iSet < tNumRequestedSets; iSet++ )
             {
                 // get mtk set index
-                moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( mOutputData( aVisMeshIndex ).mSetNames( Ii ) );
+                moris_index tFemSetIndex = tIntegrationMesh->get_set_index_by_name( tMeshSetNames( iSet ) );
 
-                if ( tMeshSetToFemSetMap.key_exists( std::make_tuple( tSetIndex, false, false ) ) )
+                if ( tMeshSetToFemSetMap.key_exists( std::make_tuple( tFemSetIndex, false, false ) ) )
                 {
                     // find set index for this block index
-                    moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( std::make_tuple( tSetIndex, false, false ) );
+                    moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( std::make_tuple( tFemSetIndex, false, false ) );
 
+// TODO: why is the visualization set handed to the equation sets themselves?
+                    
                     // set vis set to fem set. +1 because 0 is reserved for fem
                     tEquationSets(
                             tEquationSetIndex )
                             ->set_visualization_set(
                                     aVisMeshIndex + 1,
-                                    mVisMesh( aVisMeshIndex )->get_set_by_index( Ii ),
+                                    mVisMesh( aVisMeshIndex )->get_set_by_index( iSet ), // FIXME: the set should be retrieved via name from the VIS mesh, as the indices in the Output_Data and the VIS_Mesh might not match up
                                     mOnlyPrimary );
+                }
+
+                // warn the user that the current set name (probably specified in the VIS parameter list) will be ignored as it does not exist
+                else
+                {
+                    MORIS_LOG_WARNING( 
+                            "Set with name '%s' has been requested for output on VIS-mesh #%i "
+                            "but does not exist in the list of FEM-sets. It will be ignored.",
+                            tMeshSetNames( iSet ).c_str(),
+                            aVisMeshIndex );
                 }
             }
         }
@@ -308,8 +336,8 @@ namespace moris
                 uint tOptIter = gLogger.get_opt_iteration();
 
                 // set name
-                std::string tOptIterStrg = std::to_string( tOptIter );
-                tMeshFileName += ".e-s." + std::string( 4 - tOptIterStrg.length(), '0' ) + tOptIterStrg;
+                std::string tOptIterStr = std::to_string( tOptIter );
+                tMeshFileName += ".e-s." + std::string( 4 - tOptIterStr.length(), '0' ) + tOptIterStr;
 
                 // determine time shift
                 mTimeShift = tOptIter * mOutputData( aVisMeshIndex ).mTimeOffset;
@@ -319,10 +347,10 @@ namespace moris
             std::string tMessage = "Writing " + tMeshFileName + " to " + tMeshFilePath + ".";
             MORIS_LOG( tMessage.c_str() );
 
-            // write mesh to file
+            // writes the exodus mesh to file (only the mesh as a geometric entity without any output data)
             mWriter( aVisMeshIndex )->write_mesh( tMeshFilePath, tMeshFileName, tMeshTempPath, tMeshTempName );
 
-            // add nodal elemental and global fields to mesh
+            // add nodal elemental and global fields to mesh (only tell the mesh they are there, it doesn't populate them yet)
             this->add_nodal_fields( aVisMeshIndex );
             this->add_elemental_fields( aVisMeshIndex );
             this->add_global_fields( aVisMeshIndex );
@@ -339,8 +367,11 @@ namespace moris
         void
         Output_Manager::add_nodal_fields( const uint aVisMeshIndex )
         {
+            // get the field names
+            moris::Cell< std::string > const & tFieldNames = mOutputData( aVisMeshIndex ).mFieldNames;
+
             // set list of nodal field names to input + 2
-            moris::Cell< std::string > tNodalFieldNames( 2 + mOutputData( aVisMeshIndex ).mFieldNames.size() );
+            moris::Cell< std::string > tNodalFieldNames( 2 + tFieldNames.size() );
 
             // set standard field names
             tNodalFieldNames( 0 ) = "Node_Id";
@@ -349,11 +380,11 @@ namespace moris
             uint tCounter = 2;
 
             // loop over field names and check if fields are nodal fields
-            for ( uint Ik = 0; Ik < mOutputData( aVisMeshIndex ).mFieldNames.size(); Ik++ )
+            for ( uint iField = 0; iField < tFieldNames.size(); iField++ )
             {
-                if ( mOutputData( aVisMeshIndex ).mFieldType( Ik ) == Field_Type::NODAL )
+                if ( mOutputData( aVisMeshIndex ).mFieldType( iField ) == Field_Type::NODAL )
                 {
-                    tNodalFieldNames( tCounter++ ) = mOutputData( aVisMeshIndex ).mFieldNames( Ik );
+                    tNodalFieldNames( tCounter++ ) = tFieldNames( iField );
                 }
             }
 
@@ -420,117 +451,10 @@ namespace moris
         //-----------------------------------------------------------------------------------------------------------
 
         void
-        Output_Manager::write_mesh_indices( const uint aVisMeshIndex )    // FIXME
+        Output_Manager::write_mesh_indices( const uint aVisMeshIndex )
         {
-            // get mesh set indices
-            uint tRequestedSets = mOutputData( aVisMeshIndex ).mSetNames.size();
-
-            // loop over mesh sets
-            for ( uint Ii = 0; Ii < tRequestedSets; Ii++ )
-            {
-                // get vis set by index
-                moris::mtk::Set* tSet = mVisMesh( aVisMeshIndex )->get_set_by_index( Ii );
-
-                bool tOnlyPrimaryCells = true;
-
-                switch ( mOutputData( aVisMeshIndex ).mMeshType )
-                {
-                    case vis::VIS_Mesh_Type::STANDARD:
-                        tOnlyPrimaryCells = true;
-                        break;
-
-                    case vis::VIS_Mesh_Type::OVERLAPPING_INTERFACE:
-                        tOnlyPrimaryCells = false;
-                        break;
-
-                    case vis::VIS_Mesh_Type::FULL_DISCONTINOUS:
-                        MORIS_ERROR( false, "create_visualization_mesh() - Mesh type FULL_DISCONTINOUS not implemented yet. " );
-                        break;
-
-                    default:
-                        MORIS_ERROR( false, "create_visualization_mesh() - Mesh type not specified. " );
-                        break;
-                }
-
-                // get number of cells on set
-                uint tNumCells = tSet->get_num_cells_on_set( tOnlyPrimaryCells );
-
-                // check whether number of cells > 0; otherwise skip remainder
-                if ( tNumCells == 0 )
-                {
-                    continue;
-                }
-
-                // get cell indices on set
-                moris::Matrix< DDSMat > tCellIndex = tSet->get_cell_inds_on_block( tOnlyPrimaryCells );
-
-                // find the maximal index for resizing purposes
-                sint tMaxIndex = tCellIndex.max();
-
-                // create cell assembly map( index to position )
-                Matrix< DDSMat > tCellAsseblyMap( tMaxIndex + 1, 1, -1 );
-
-                // loop over cells and put them in map
-                for ( uint Ik = 0; Ik < tNumCells; Ik++ )
-                {
-                    tCellAsseblyMap( tCellIndex( Ik ) ) = Ik;
-                }
-
-                // create cell of index, id field, and proc indices
-                moris::Cell< Matrix< DDRMat > > tIdIndex( 3 );
-                tIdIndex( 0 ).set_size( tCellIndex.numel(), 1 );
-                tIdIndex( 1 ).set_size( tCellIndex.numel(), 1 );
-                tIdIndex( 2 ).set_size( tCellIndex.numel(), 1 );
-
-                // get clusters from vis set
-                moris::Cell< mtk::Cluster const * > tMeshClusterList = tSet->get_clusters_on_set();
-
-                // loop over clusters and get ids and indices
-                for ( uint Ik = 0; Ik < tMeshClusterList.size(); Ik++ )
-                {
-                    // get primary cells
-                    const moris::Cell< moris::mtk::Cell const * >& tPrimaryCells =
-                            tMeshClusterList( Ik )->get_primary_cells_in_cluster();
-
-                    // loop over primary cells
-                    for ( uint Ia = 0; Ia < tPrimaryCells.size(); Ia++ )
-                    {
-                        // get index of vis cell
-                        moris_index tIndex = tPrimaryCells( Ia )->get_index();
-
-                        moris_id tMeshId =
-                                reinterpret_cast< const vis::Cell_Visualization* >( tPrimaryCells( Ia ) )->get_mesh_cell_id();
-
-                        moris_index tMeshIndex =
-                                reinterpret_cast< const vis::Cell_Visualization* >( tPrimaryCells( Ia ) )->get_mesh_cell_index();
-
-                        tIdIndex( 0 )( tCellAsseblyMap( tIndex ) ) = tMeshId;
-                        tIdIndex( 1 )( tCellAsseblyMap( tIndex ) ) = tMeshIndex;
-                        tIdIndex( 2 )( tCellAsseblyMap( tIndex ) ) = par_rank();
-                    }
-
-                    const moris::Cell< moris::mtk::Cell const * >& tVoidCells = tMeshClusterList( Ik )->get_void_cells_in_cluster();
-
-                    for ( uint Ia = 0; Ia < tVoidCells.size(); Ia++ )
-                    {
-                        moris_index tIndex = tVoidCells( Ia )->get_index();
-
-                        moris_id tMeshId =
-                                reinterpret_cast< const vis::Cell_Visualization* >( tVoidCells( Ia ) )->get_mesh_cell_id();
-
-                        moris_index tMeshIndex =
-                                reinterpret_cast< const vis::Cell_Visualization* >( tVoidCells( Ia ) )->get_mesh_cell_index();
-
-                        tIdIndex( 0 )( tCellAsseblyMap( tIndex ) ) = tMeshId;
-                        tIdIndex( 1 )( tCellAsseblyMap( tIndex ) ) = tMeshIndex;
-                        tIdIndex( 2 )( tCellAsseblyMap( tIndex ) ) = par_rank();
-                    }
-                }
-
-                mWriter( aVisMeshIndex )->write_elemental_field( tSet->get_set_name(), "Mesh_Id", tIdIndex( 0 ) );
-                mWriter( aVisMeshIndex )->write_elemental_field( tSet->get_set_name(), "Mesh_Index", tIdIndex( 1 ) );
-                mWriter( aVisMeshIndex )->write_elemental_field( tSet->get_set_name(), "Proc_Index", tIdIndex( 2 ) );
-            }
+            // ---------------------------------
+            // write nodal mesh info
 
             // getting the vertices on the vis mesh
             moris::Cell< moris::mtk::Vertex const * > tVertices = mVisMesh( aVisMeshIndex )->get_all_vertices();
@@ -564,6 +488,128 @@ namespace moris
             // write the moris vertex ids and indices
             mWriter( aVisMeshIndex )->write_nodal_field( "Node_Id", tVertIdIndex( 0 ) );
             mWriter( aVisMeshIndex )->write_nodal_field( "Node_Index", tVertIdIndex( 1 ) );
+
+            // ---------------------------------
+            // write elemental mesh info
+
+            // get mesh set indices
+            uint tRequestedSets = mOutputData( aVisMeshIndex ).mSetNames.size();
+
+            // loop over mesh sets
+            for ( uint iSet = 0; iSet < tRequestedSets; iSet++ )
+            {
+                // get vis set by index
+                moris::mtk::Set* tSet = mVisMesh( aVisMeshIndex )->get_set_by_index( iSet );
+
+                bool tOnlyPrimaryCells = true;
+
+                switch ( mOutputData( aVisMeshIndex ).mMeshType )
+                {
+                    case vis::VIS_Mesh_Type::STANDARD:
+                        tOnlyPrimaryCells = true;
+                        break;
+
+                    case vis::VIS_Mesh_Type::STANDARD_WITH_OVERLAP:
+                        tOnlyPrimaryCells = false;
+                        break;
+
+                    case vis::VIS_Mesh_Type::FULL_DISCONTINUOUS:
+                        MORIS_ERROR( false, "Output_Manager::create_visualization_mesh() - Mesh type FULL_DISCONTINUOUS not implemented yet. " );
+                        break;
+
+                    default:
+                        MORIS_ERROR( false, "Output_Manager::create_visualization_mesh() - Mesh type not specified. " );
+                        break;
+                }
+
+                // TODO: handle side sets below here skip for now
+                if ( tSet->get_set_type() != SetType::BULK )
+                {
+                    continue;
+                }
+
+                // get number of cells on set
+                uint tNumCells = tSet->get_num_cells_on_set( tOnlyPrimaryCells );
+
+                // check whether number of cells > 0; otherwise skip remainder
+                if ( tNumCells == 0 )
+                {
+                    continue;
+                }
+
+                // get cell indices on set
+                moris::Matrix< DDSMat > tCellIndex = tSet->get_cell_inds_on_block( tOnlyPrimaryCells );
+
+                // find the maximal index for resizing purposes
+                sint tMaxIndex = tCellIndex.max();
+
+                // create cell assembly map( index to position )
+                Matrix< DDSMat > tCellAssemblyMap( tMaxIndex + 1, 1, -1 );
+
+                // loop over cells and put them in map
+                for ( uint iCell = 0; iCell < tNumCells; iCell++ )
+                {
+                    tCellAssemblyMap( tCellIndex( iCell ) ) = iCell;
+                }
+
+                // create cell of index, id field, and proc indices
+                moris::Cell< Matrix< DDRMat > > tIdIndex( 3 );
+                tIdIndex( 0 ).set_size( tCellIndex.numel(), 1 );
+                tIdIndex( 1 ).set_size( tCellIndex.numel(), 1 );
+                tIdIndex( 2 ).set_size( tCellIndex.numel(), 1 );
+
+                // get clusters from vis set
+                moris::Cell< mtk::Cluster const * > tMeshClusterList = tSet->get_clusters_on_set();
+
+                // loop over clusters and get ids and indices
+                for ( uint iCluster = 0; iCluster < tMeshClusterList.size(); iCluster++ )
+                {
+                    // get primary cells
+                    const moris::Cell< moris::mtk::Cell const * >& tPrimaryCells =
+                            tMeshClusterList( iCluster )->get_primary_cells_in_cluster();
+
+                    // loop over primary cells
+                    for ( uint iPrimaryCell = 0; iPrimaryCell < tPrimaryCells.size(); iPrimaryCell++ )
+                    {
+                        // get index of vis cell
+                        moris_index tIndex = tPrimaryCells( iPrimaryCell )->get_index();
+
+                        moris_id tMeshId =
+                                reinterpret_cast< const vis::Cell_Visualization* >( tPrimaryCells( iPrimaryCell ) )->get_mesh_cell_id();
+
+                        moris_index tMeshIndex =
+                                reinterpret_cast< const vis::Cell_Visualization* >( tPrimaryCells( iPrimaryCell ) )->get_mesh_cell_index();
+
+                        tIdIndex( 0 )( tCellAssemblyMap( tIndex ) ) = tMeshId;
+                        tIdIndex( 1 )( tCellAssemblyMap( tIndex ) ) = tMeshIndex;
+                        tIdIndex( 2 )( tCellAssemblyMap( tIndex ) ) = par_rank();
+                    }
+
+                    const moris::Cell< moris::mtk::Cell const * >& tVoidCells = tMeshClusterList( iCluster )->get_void_cells_in_cluster();
+
+                    for ( uint iVoidCell = 0; iVoidCell < tVoidCells.size(); iVoidCell++ )
+                    {
+                        moris_index tIndex = tVoidCells( iVoidCell )->get_index();
+
+                        moris_id tMeshId =
+                                reinterpret_cast< const vis::Cell_Visualization* >( tVoidCells( iVoidCell ) )->get_mesh_cell_id();
+
+                        moris_index tMeshIndex =
+                                reinterpret_cast< const vis::Cell_Visualization* >( tVoidCells( iVoidCell ) )->get_mesh_cell_index();
+
+                        tIdIndex( 0 )( tCellAssemblyMap( tIndex ) ) = tMeshId;
+                        tIdIndex( 1 )( tCellAssemblyMap( tIndex ) ) = tMeshIndex;
+                        tIdIndex( 2 )( tCellAssemblyMap( tIndex ) ) = par_rank();
+                    }
+
+                } // end for: each cluster on set
+
+                mWriter( aVisMeshIndex )->write_elemental_field( tSet->get_set_name(), "Mesh_Id", tIdIndex( 0 ) );
+                mWriter( aVisMeshIndex )->write_elemental_field( tSet->get_set_name(), "Mesh_Index", tIdIndex( 1 ) );
+                mWriter( aVisMeshIndex )->write_elemental_field( tSet->get_set_name(), "Proc_Index", tIdIndex( 2 ) );
+
+            } // end for: each set
+
         }
 
         //-----------------------------------------------------------------------------------------------------------
@@ -582,7 +628,7 @@ namespace moris
             // number of set names
             uint tNumSetNames = mOutputData( aVisMeshIndex ).mSetNames.size();
 
-            // loop over field names and check if fields are global fields
+            // initialize lists of output fields for each type of fields (global, nodal, or elemental)
             moris::Cell< std::string > tGlobalIQINames;
             moris::Cell< std::string > tGlobalFieldNames;
             moris::Cell< std::string > tNodalIQINames;
@@ -590,12 +636,13 @@ namespace moris
             moris::Cell< std::string > tElementalIQINames;
             moris::Cell< std::string > tElementalFieldNames;
 
+            // loop over all output fields and sort them into lists by type (i.e. global, nodal, or elemental)
             for ( uint Ik = 0; Ik < tNumFields; Ik++ )
             {
                 // get the field type
                 Field_Type tFieldType = mOutputData( aVisMeshIndex ).mFieldType( Ik );
 
-                // get the iQI name
+                // get the IQI name
                 std::string tIQIName = mOutputData( aVisMeshIndex ).mQINames( Ik );
 
                 // get the field name
@@ -655,17 +702,18 @@ namespace moris
             Matrix< DDRMat > tGlobalValues( 1, tNumGlobalIQIs, 0.0 );
 
             // loop over all blocks on this output object
-            for ( uint Ii = 0; Ii < tNumSetNames; Ii++ )
+            for ( uint iSet = 0; iSet < tNumSetNames; iSet++ )
             {
                 // get mesh set index from name
-                moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name(
-                        mOutputData( aVisMeshIndex ).mSetNames( Ii ) );
+                moris_index tFemSetIndex = tIntegrationMesh->get_set_index_by_name(
+                        mOutputData( aVisMeshIndex ).mSetNames( iSet ) );
 
-                if ( tMeshSetToFemSetMap.key_exists( std::make_tuple( tSetIndex, false, false ) ) )
+                // only output sets that actually exist in equation model
+                if ( tMeshSetToFemSetMap.key_exists( std::make_tuple( tFemSetIndex, false, false ) ) )
                 {
                     // find set index for this block index
                     moris_index tEquationSetIndex =
-                            tMeshSetToFemSetMap.find( std::make_tuple( tSetIndex, false, false ) );
+                            tMeshSetToFemSetMap.find( std::make_tuple( tFemSetIndex, false, false ) );
 
                     // global values
                     if ( tNumGlobalIQIs > 0 )
@@ -705,11 +753,13 @@ namespace moris
                             Matrix< DDRMat > tFieldValues = tElementValues.get_column( iElemField );
 
                             // write elemental field
-                            mWriter( aVisMeshIndex )->write_elemental_field( mOutputData( aVisMeshIndex ).mSetNames( Ii ), tFieldName, tFieldValues );
+                            mWriter( aVisMeshIndex )->write_elemental_field( mOutputData( aVisMeshIndex ).mSetNames( iSet ), tFieldName, tFieldValues );
                         }
                     }
-                }
-            }
+
+                } // end if: set exists in equation model
+
+            } // end for: each set requested for output mesh
 
             for ( uint iNodalField = 0; iNodalField < tNumNodalIQIs; iNodalField++ )
             {

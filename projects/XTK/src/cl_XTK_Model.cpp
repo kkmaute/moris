@@ -436,7 +436,7 @@ namespace xtk
 
         if ( mEnriched )
         {
-            // if SPG based enrichment is used, construct the cluster groups here
+            // if SPG based enrichment is used, construct the cluster groups (i.e. B-spline mesh clusters) here
             if ( this->uses_SPG_based_enrichment() )
             {
                 mEnrichedIntegMesh( 0 )->setup_cluster_groups();
@@ -454,75 +454,32 @@ namespace xtk
             // place the pair in mesh manager
             mMTKOutputPerformer->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh, false, tXTKMeshName );
 
-            // if( mParameterList.get<bool>("contact_sandbox") )
-            // {
-            //     std::string tInterfaceSideSetName1 = tEnrIntegMesh.get_interface_side_set_name(0, 0, 2);
-            //     std::string tInterfaceSideSetName2 = tEnrIntegMesh.get_interface_side_set_name(0, 1, 0);
-
-            //     xtk::Contact_Sandbox tSandbox(&tEnrIntegMesh,
-            //                                   tInterfaceSideSetName1,
-            //                                   tInterfaceSideSetName2,
-            //                                   mParameterList.get<real>("bb_epsilon"));
-
-            //     // generate vertex displacement fields
-            //     moris::real tInitialDisp = 0.0;
-            //     moris::real tPredictedDisplX = 0.03;
-            //     moris::real tPredictedDisplY = -0.03;
-            //     moris::real tPredictedDisplZ = -0.01;
-            //     Matrix<DDRMat> tCurrentDispl(tEnrIntegMesh.get_num_nodes(),this->get_spatial_dim(),tInitialDisp);
-            //     Matrix<DDRMat> tPredictedDispl = tCurrentDispl;
-
-            //     // get the vertices in bulk phase 1 and displace them through the current time step
-            //     moris::mtk::Set * tSetC = tEnrIntegMesh.get_set_by_name( "HMR_dummy_c_p1");
-            //     moris::mtk::Set * tSetN = tEnrIntegMesh.get_set_by_name( "HMR_dummy_n_p1");
-
-            //     moris::Matrix< DDSMat > tVertsInChildBlock   = tSetC->get_ig_vertices_inds_on_block( true );
-            //     moris::Matrix< DDSMat > tVertsInNoChildBlock = tSetN->get_ig_vertices_inds_on_block( true );
-
-            //     // iterate through child verts block
-            //     for(moris::uint i = 0; i < tVertsInChildBlock.numel(); i++)
-            //     {
-            //         moris_index tIndex = (moris_index)tVertsInChildBlock(i);
-            //         tPredictedDispl(tIndex,0) = tInitialDisp + tPredictedDisplX;
-            //         tPredictedDispl(tIndex,1) = tInitialDisp + tPredictedDisplY;
-            //         if(this->get_spatial_dim() == 3)
-            //         {
-            //             tPredictedDispl(tIndex,2) = tInitialDisp + tPredictedDisplZ;
-            //         }
-            //     }
-
-            //     // iterate through child verts block
-            //     for(moris::uint i = 0; i < tVertsInNoChildBlock.numel(); i++)
-            //     {
-            //         moris_index tIndex = (moris_index)tVertsInNoChildBlock(i);
-            //         tPredictedDispl(tIndex,0) = tInitialDisp + tPredictedDisplX;
-            //         tPredictedDispl(tIndex,1) = tInitialDisp + tPredictedDisplY;
-            //         if(this->get_spatial_dim() == 3)
-            //         {
-            //             tPredictedDispl(tIndex,2) = tInitialDisp + tPredictedDisplZ;
-            //         }
-            //     }
-
-            //     tSandbox.perform_global_contact_search(tCurrentDispl,tPredictedDispl);
-            // }
-
+            // output (to console) a list of all blocks & sets in the XIGA model
             if ( mParameterList.get< bool >( "print_enriched_ig_mesh" ) )
             {
                 tEnrIntegMesh.print();
             }
 
+            // Visualize XTK (write xtk_temp.exo)
             if ( mParameterList.get< bool >( "exodus_output_XTK_ig_mesh" ) )
             {
+                // log the visualization step
                 Tracer tTracer( "XTK", "Overall", "Visualize" );
 
+                // pre-compute the cluster measures for writing to xtk_temp
+                mEnrichedIntegMesh( 0 )->visualize_cluster_measures();
+
+                // pre-compute cluster measures on B-spline meshes (only possible for SPG based enrichment)
                 if ( this->uses_SPG_based_enrichment() )
                 {
-                    mEnrichedIntegMesh( 0 )->visualize_cluster_measures();
-                    // mEnrichedIntegMesh( 0 )->visualize_cluster_group_measures();
+                    bool tWriteBsplineClusterInfo = mParameterList.get< bool >( "write_bspline_cluster_info" );
+                    mEnrichedIntegMesh( 0 )->visualize_cluster_group_measures( tWriteBsplineClusterInfo );
                 }
 
+                // write the xtk_temp.exo
                 tEnrIntegMesh.write_mesh( &mParameterList );
             }
+
             // print the memory usage of XTK
             if ( mParameterList.get< bool >( "print_memory" ) )
             {
@@ -530,11 +487,7 @@ namespace xtk
                 tXtkMM.par_print( "XTK Model" );
             }
 
-            if ( mParameterList.get< bool >( "low_memory" ) )
-            {
-            }
-
-            // print
+            // print summary of mesh size to console
             MORIS_LOG_SPEC( "All_IG_verts", sum_all( tEnrIntegMesh.get_num_entities( EntityRank::NODE ) ) );
             MORIS_LOG_SPEC( "All_IG_cells", sum_all( tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT ) ) );
             MORIS_LOG_SPEC( "All_IP_verts", sum_all( tEnrInterpMesh.get_num_entities( EntityRank::NODE ) ) );

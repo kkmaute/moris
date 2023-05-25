@@ -11,11 +11,13 @@
 #include "cl_VIS_Output_Manager.hpp"
 
 #include "cl_VIS_Factory.hpp"
+#include "cl_VIS_Side_Cluster_Visualization.hpp"
 
 #include "../../../MTK/src/cl_MTK_Cell.hpp"
 #include "../../../MTK/src/cl_MTK_Integration_Mesh.hpp"
-#include "../../../MTK/src/cl_MTK_Mesh_Manager.hpp"       //MTK/src
+#include "../../../MTK/src/cl_MTK_Mesh_Manager.hpp"    //MTK/src
 #include "../../../MTK/src/cl_MTK_Set.hpp"
+#include "../../../MTK/src/cl_MTK_Side_Set.hpp"
 #include "../../../MTK/src/cl_MTK_Vertex.hpp"
 
 extern moris::Comm_Manager gMorisComm;
@@ -24,406 +26,875 @@ namespace moris
 {
     namespace vis
     {
-        mtk::Mesh * VIS_Factory::create_visualization_mesh( moris::vis::Output_Data & aOutputData )
-        {
-            Tracer tTracer( "VisFactory", "VisMesh", "CreateVisMesh" );
+        //-----------------------------------------------------------------------------------------------------------
 
-            switch( aOutputData.mMeshType )
+        void
+        VIS_Factory::initialize( moris::vis::Output_Data const & aOutputData )
+        {
+            // determine the type of mesh to be written
+            switch ( aOutputData.mMeshType )
             {
                 case ( vis::VIS_Mesh_Type::STANDARD ):
-                                mOnlyPrimaryCells = true ;
-                break;
+                    mOnlyPrimaryCells           = true;
+                    mConstructDiscontinuousMesh = false;
+                    break;
 
-                case ( vis::VIS_Mesh_Type::OVERLAPPING_INTERFACE ):
-                                mOnlyPrimaryCells = false;
-                break;
+                case ( vis::VIS_Mesh_Type::STANDARD_WITH_OVERLAP ):
+                    mOnlyPrimaryCells           = false;
+                    mConstructDiscontinuousMesh = false;
+                    break;
 
-                case ( vis::VIS_Mesh_Type::FULL_DISCONTINOUS ):
-                                 MORIS_ERROR( false, "create_visualization_mesh() - Mesh type FULL_DISCONTINOUS not implemented yet. " );
-                break;
+                case ( vis::VIS_Mesh_Type::FULL_DISCONTINUOUS ):
+                    mOnlyPrimaryCells           = true;
+                    mConstructDiscontinuousMesh = true;
+                    break;
+
+                case ( vis::VIS_Mesh_Type::FULL_DISCONTINUOUS_WITH_OVERLAP ):
+                    mOnlyPrimaryCells           = false;
+                    mConstructDiscontinuousMesh = true;
+                    break;
 
                 default:
-                    MORIS_ERROR( false, "create_visualization_mesh() - Mesh type not specified. " );
+                    MORIS_ERROR( false, "VIS_Factory::initialize() - Mesh type not specified or unknown." );
                     break;
             }
 
+            // create a VIS mesh
+            mVisMesh = new vis::Visualization_Mesh( mOnlyPrimaryCells );
+
             // Get set names
-            tRequestedSetNames = aOutputData.mSetNames;
+            mAllRequestedSetNames = aOutputData.mSetNames;
 
-            // get num requested sets
-            mNumRequestedSets = tRequestedSetNames.size();
+            // get the total number of requested sets
+            uint tNumRequestedSets = mAllRequestedSetNames.size();
 
+            // reserve memory for cells
+            mRequestedBlockSetNames.reserve( tNumRequestedSets );
+            mRequestedSideSetNames.reserve( tNumRequestedSets );
+            mRequestedDoubleSideSetNames.reserve( tNumRequestedSets );
+            mFemBlockSets.reserve( tNumRequestedSets );
+            mFemSideSets.reserve( tNumRequestedSets );
+            mFemDoubleSideSets.reserve( tNumRequestedSets );
+
+            // figure out which sets are block, side, and dbl-side sets
+            uint tNumBlockSets   = 0;
+            uint tNumSideSets    = 0;
+            uint tNumDblSideSets = 0;
+
+            // count number of block sets
+            for ( uint iSet = 0; iSet < tNumRequestedSets; iSet++ )
+            {
+                // get the current set's name
+                std::string tSetName = mAllRequestedSetNames( iSet );
+
+                // get the MTK set that corresponds to the current set name
+                mtk::Set* tMtkMeshSet = mIntegrationMesh->get_set_by_name( tSetName );
+
+                // sort sets by type
+                switch ( tMtkMeshSet->get_set_type() )
+                {
+                    case moris::SetType::BULK:
+                    {
+                        // count number of block sets
+                        tNumBlockSets++;
+
+                        // list the block set in the set lists
+                        mRequestedBlockSetNames.push_back( tSetName );
+                        mFemBlockSets.push_back( tMtkMeshSet );
+
+                        break;
+                    }
+                    case moris::SetType::SIDESET:
+                    {
+                        tNumSideSets++;
+                        mRequestedSideSetNames.push_back( tSetName );
+                        mFemSideSets.push_back( tMtkMeshSet );
+                        break;
+                    }
+                    case moris::SetType::DOUBLE_SIDED_SIDESET:
+                    {
+                        tNumDblSideSets++;
+                        mRequestedDoubleSideSetNames.push_back( tSetName );
+                        mFemDoubleSideSets.push_back( tMtkMeshSet );
+                        break;
+                    }
+                    default:
+                    {
+                        MORIS_ERROR( false,
+                                "VIS_Factory::initialize() - "
+                                "Mesh set with name '%s' is neither a block, side, nor dbl. side set. Unable to handle case.",
+                                mAllRequestedSetNames( iSet ) );
+                    }
+                }    // end switch: type of mtk-mesh
+            }        // end for: each requested set
+
+            // copy set names into VIS mesh
+            mVisMesh->mBlockSetNames      = mRequestedBlockSetNames;
+            mVisMesh->mSideSetNames       = mRequestedSideSetNames;
+            mVisMesh->mDoubleSideSetNames = mRequestedDoubleSideSetNames;
+            mVisMesh->mAllSetNames.resize( tNumBlockSets + tNumSideSets + tNumDblSideSets );
+
+            // assemble list of all set names and corresponding map
+            moris_index tSetIndex = 0;
+            for ( const std::string iBlockSetName : mVisMesh->mBlockSetNames )
+            {
+                mVisMesh->mAllSetNames( tSetIndex )           = iBlockSetName;
+                mVisMesh->mSetNameToIndexMap[ iBlockSetName ] = tSetIndex;
+                tSetIndex++;
+            }
+            for ( const std::string iSideSetName : mVisMesh->mSideSetNames )
+            {
+                mVisMesh->mAllSetNames( tSetIndex )          = iSideSetName;
+                mVisMesh->mSetNameToIndexMap[ iSideSetName ] = tSetIndex;
+                tSetIndex++;
+            }
+            for ( const std::string iDblSideSetName : mVisMesh->mDoubleSideSetNames )
+            {
+                mVisMesh->mAllSetNames( tSetIndex )             = iDblSideSetName;
+                mVisMesh->mSetNameToIndexMap[ iDblSideSetName ] = tSetIndex;
+                tSetIndex++;
+            }
+
+            // initialize lists in the VIS mesh
+            mVisMesh->mListOfBlocks.resize( tNumBlockSets );
+            mVisMesh->mListOfSideSets.resize( tNumSideSets );
+            mVisMesh->mListOfDoubleSideSets.resize( tNumDblSideSets );
+            mVisMesh->mListOfAllSets.resize( 0 );    // this will be sized correctly in the finalize step of the VIS mesh
+
+            mVisMesh->mClustersOnBlockSets.resize( tNumBlockSets );
+            mVisMesh->mClustersOnSideSets.resize( tNumSideSets );
+            mVisMesh->mClustersOnDoubleSideSets.resize( tNumDblSideSets );
+            mVisMesh->mMasterSideClusters.resize( tNumDblSideSets );
+            mVisMesh->mSlaveSideClusters.resize( tNumDblSideSets );
+
+            // initialize  maps
+            uint tNumFemCells = mIntegrationMesh->get_num_entities( EntityRank::ELEMENT ) + 1;
+
+            mPrimaryFemCellIndexToVisCellIndex.resize( tNumFemCells, -1 );
+            mPrimaryFemCellIndexToBlockIndex.resize( tNumFemCells, -1 );
+
+            mBlockAndFemCellIndexToVisCellIndex.resize( tNumBlockSets );
+            mBlockAndFemCellIndexToVisVertexIndices.resize( tNumBlockSets );
+
+            for ( uint iBlockSet = 0; iBlockSet < tNumBlockSets; iBlockSet++ )
+            {
+                mBlockAndFemCellIndexToVisCellIndex( iBlockSet ).resize( tNumFemCells, -1 );
+                mBlockAndFemCellIndexToVisVertexIndices( iBlockSet ).resize( tNumFemCells );
+            }
+
+        }    // end function: VIS_Factory::initialize()
+
+        //-----------------------------------------------------------------------------------------------------------
+
+        mtk::Mesh*
+        VIS_Factory::create_visualization_mesh( moris::vis::Output_Data& aOutputData )
+        {
+            // time/log this operation
+            Tracer tTracer( "VIS", "Factory", "Create VIS Mesh" );
+
+            // initialize member data considering the requested output data
+            this->initialize( aOutputData );
+
+            // create the vertex objects
             this->create_visualization_vertices();
 
+            // create the cells
             this->create_visualization_cells();
 
-            this->create_visualization_clusters( aOutputData);
+            // group cells into clusters
+            this->create_visualization_clusters();
 
+            // create side clusters
+            this->create_visualization_side_clusters();
+
+            // TODO: create the double sided side clusters
+            // this->create_visualization_double_side_clusters();
+
+            // create block sets from the cell clusters
             this->create_visualization_blocks();
 
-            // Create vis mesh
-            return new Visualization_Mesh( mListOfBlocks,mClustersOnBlock, mCellsOnSet, mVerticesOnSet, mOnlyPrimaryCells );
+            // create side sets from the side clusters
+            this->create_visualization_side_sets();
+
+            // TODO: create the double sided side sets
+            // this->create_visualization_double_side_sets();
+
+            // finalize data in the VIS mesh before handing over ownership
+            mVisMesh->finalize();
+
+            // return pointer to VIS mesh to new owning entity
+            return this->hand_off_VIS_mesh();
         }
 
         //-----------------------------------------------------------------------------------------------------------
 
-        void VIS_Factory::create_visualization_vertices()
+        void
+        VIS_Factory::create_visualization_vertices()
         {
-            Tracer tTracer( "VisFactory", "VisMesh", "CreateVertices" );
+            // log/trace this operation
+            Tracer tTracer( "VIS", "Factory", "Create Vertices" );
 
-            // resize list of vertices on set
-            mVerticesOnSet.resize( mNumRequestedSets );
-            mVertexMapOnSet.resize( mNumRequestedSets );
+            // NOTE: The "FEM vertices" are not unzipped.
+            // NOTE: Each set needs to get its own vertices such that jumps along interfaces can be resolved in the output mesh.
+            // TODO: a separate implementation of this function is also needed for "FULL_DG" output meshes
 
-            // get integration mesh
-            mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
-            mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
-            mMesh->get_mesh_pair( mMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
+            // NOTE: this version of the function is specifically for the standard and standard with overlap versions of the mesh
+            // NOTE: a separate function will be used to construct the vertices for full DG
 
-            // define vertex id and index counter
+            // sum up number of vertices on all block sets
+            uint tNumVerticesInProcLocalVisMesh = 0;
+            for ( uint iBlockSet = 0; iBlockSet < mRequestedBlockSetNames.size(); iBlockSet++ )
+            {
+                // sum up number of vertices on all block sets
+                tNumVerticesInProcLocalVisMesh += mFemBlockSets( iBlockSet )->get_num_vertices_on_set( mOnlyPrimaryCells );
+            }
+
+            // reserve memory for this many vertices
+            mVisMesh->mVertices.resize( tNumVerticesInProcLocalVisMesh );
+
+            // reserve enough memory in map to accommodate entries for all vertices
+            mBlockAndFemCellIndexToVisVertexIndices.reserve( 2 * tNumVerticesInProcLocalVisMesh );
+
+            // update the id for each processor
+            moris_id tNextFreeVertexID = get_processor_offset( tNumVerticesInProcLocalVisMesh );
+
+            // initialize vertex index counter
             moris_index tVertexIndexCounter = 0;
-            moris_id tVertexIdCounter = 0;
 
-            // sum up number of  vertices on every processor
-            tVertexIdCounter = std::accumulate( tRequestedSetNames.begin(), tRequestedSetNames.end(), tVertexIdCounter,    //
-                    [ & ]( moris_id const & aVertexIdCounter, std::string const & aSetName ) -> moris_id {
-                        
-                        // add number of the vertices of the set to the current one
-                        return aVertexIdCounter
-                             + tIntegrationMesh->get_set_by_name( aSetName )->get_num_vertices_on_set( mOnlyPrimaryCells );
-                    } );
+            // get the max number of vertices that the VIS mesh could have
+            uint tNumVerticesInFemMesh = mIntegrationMesh->get_num_entities( EntityRank::NODE ) + 1;
 
-            // update the id for each processor
-            tVertexIdCounter = get_processor_offset( tVertexIdCounter );
-
-            // get the max number of vertices 
-            uint tMaxVertexInd = tIntegrationMesh->get_num_entities( EntityRank::NODE );
-
-            // loop over all requested sets
-            for( uint Ij = 0; Ij < mNumRequestedSets; Ij++ )
+            // loop over all requested block sets
+            for ( uint iBlockSet = 0; iBlockSet < mRequestedBlockSetNames.size(); iBlockSet++ )
             {
-                // get set index for label
-                moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( tRequestedSetNames( Ij ) );
+                // get the number of vertices on the set, ignore if not block
+                uint tNumMtkVerticesOnBlock = mFemBlockSets( iBlockSet )->get_num_vertices_on_set( mOnlyPrimaryCells );
 
-                // get set for index
-                moris::mtk::Set * tMeshSet = tIntegrationMesh->get_set_by_index( tSetIndex );
-
-                // get all vertices on set
-                uint tNumVerticesOnSet = tMeshSet->get_num_vertices_on_set( mOnlyPrimaryCells );
-
-                if( tNumVerticesOnSet > 0 )
+                // skip set if it is empty
+                if ( tNumMtkVerticesOnBlock == 0 )
                 {
-                    // get vertex indices on set
-                    moris::Matrix< DDSMat > tVertexIndOnBlock = tMeshSet->get_ig_vertices_inds_on_block( mOnlyPrimaryCells );
-
-                    // resize list of vertices for this set
-                    mVerticesOnSet( Ij ).resize( tNumVerticesOnSet, nullptr );
-                    mVertexMapOnSet( Ij ).set_size( tMaxVertexInd + 1, 1, -1 );
-
-                    // Loop over all vertices on this set and create new vis vertices
-                    for( uint Ik = 0; Ik < tNumVerticesOnSet; Ik++ )
-                    {
-                        // create old index to set local index map
-                        mVertexMapOnSet( Ij )( tVertexIndOnBlock( Ik ) ) = Ik;
-
-                        // create vis vertex and renumber id and index
-                        mVerticesOnSet( Ij )( Ik ) = new Vertex_Visualization( tVertexIdCounter++,
-                                tVertexIndexCounter++,
-                                &tIntegrationMesh->get_mtk_vertex( tVertexIndOnBlock( Ik ) ) );
-                    }
+                    continue;
                 }
-            }
-        }
+
+                // ------------------
+                // construct VIS vertex objects
+
+                // initialize map relating the FEM/MTK vertex index to the VIS vertex index for the current block set
+                Cell< moris_index > tFemVertexIndexToVisVertexIndex( tNumVerticesInFemMesh, -1 );
+
+                // get vertex indices on block set
+                moris::Matrix< DDSMat > tFemVertexIndicesInFemBlock = mFemBlockSets( iBlockSet )->get_ig_vertices_inds_on_block( mOnlyPrimaryCells );
+
+                // Loop over all vertices on this set and create new vis vertices
+                for ( uint iVertexOnSet = 0; iVertexOnSet < tNumMtkVerticesOnBlock; iVertexOnSet++ )
+                {
+                    // get the index of the current vertex on the current block
+                    moris_index tFemVertexIndex = tFemVertexIndicesInFemBlock( iVertexOnSet );
+
+                    // create vis vertex and with id and index
+                    mVisMesh->mVertices( tVertexIndexCounter ) = new Vertex_Visualization(
+                            tNextFreeVertexID,
+                            tVertexIndexCounter,
+                            &mIntegrationMesh->get_mtk_vertex( tFemVertexIndex ) );
+
+                    // relate the FEM/MTK vertex index to the VIS vertex index for the current block set
+                    tFemVertexIndexToVisVertexIndex( tFemVertexIndex ) = tVertexIndexCounter;
+
+                    // update the index and ID counters for the next vertex
+                    tNextFreeVertexID++;
+                    tVertexIndexCounter++;
+                }
+
+                // ------------------
+                // construct map relating the the VIS vertices with the FEM cells
+
+                // get IG cell indices on set
+                moris::Matrix< DDSMat > tFemCellIndicesInFemSet = mFemBlockSets( iBlockSet )->get_cell_inds_on_block( mOnlyPrimaryCells );
+
+                // Loop over all cells on this set and create new vis cells
+                for ( uint iCellOnBlockSet = 0; iCellOnBlockSet < tFemCellIndicesInFemSet.numel(); iCellOnBlockSet++ )
+                {
+                    // get the current cell's index in FEM/MTK
+                    moris_index tFemCellIndex = tFemCellIndicesInFemSet( iCellOnBlockSet );
+
+                    // get list of integration vertex indices for the current cell
+                    Matrix< IndexMat > tFemVertexIndicesOnCell = mIntegrationMesh->get_mtk_cell( tFemCellIndex ).get_vertex_inds();
+                    uint               tNumVertsOnCell         = tFemVertexIndicesOnCell.numel();
+
+                    // initialize map
+                    mBlockAndFemCellIndexToVisVertexIndices( iBlockSet )( tFemCellIndex ).resize( tNumVertsOnCell );
+
+                    // relate each VIS vertex with the FEM cells on the blocks they were constructed from
+                    for ( uint iVertexOnCell = 0; iVertexOnCell < tFemVertexIndicesOnCell.numel(); iVertexOnCell++ )
+                    {
+                        // get indices
+                        moris_index tFemVertexIndex = tFemVertexIndicesOnCell( iVertexOnCell );
+                        moris_index tVisVertexIndex = tFemVertexIndexToVisVertexIndex( tFemVertexIndex );
+
+                        // fill map
+                        mBlockAndFemCellIndexToVisVertexIndices( iBlockSet )( tFemCellIndex )( iVertexOnCell ) = tVisVertexIndex;
+                    }
+
+                }    // end for: each IG cell on current block set
+
+            }        // end for: each block set
+
+        }            // end function: VIS_Factory::create_visualization_vertices()
 
         //-----------------------------------------------------------------------------------------------------------
 
-        void VIS_Factory::create_visualization_cells()
+        void
+        VIS_Factory::create_visualization_cells()
         {
-            Tracer tTracer( "VisFactory", "VisMesh", "CreateCells" );
+            // time and log this function
+            Tracer tTracer( "VIS", "Factory", "Create IG Cells" );
 
-            // resize list of cells on set
-            mCellsOnSet  .resize( mNumRequestedSets );
-            mCellMapOnSet.resize( mNumRequestedSets );
+            // sum up number of cells on all sets
+            uint tNumCellsInProcLocalVisMesh = 0;
+            for ( uint iBlockSet = 0; iBlockSet < mRequestedBlockSetNames.size(); iBlockSet++ )
+            {
+                tNumCellsInProcLocalVisMesh += mFemBlockSets( iBlockSet )->get_num_cells_on_set( mOnlyPrimaryCells );
+            }
 
-            // get integration mesh
-            mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
-            mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
-            mMesh->get_mesh_pair( mMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
+            // reserve memory for this many cells
+            mVisMesh->mCells.resize( tNumCellsInProcLocalVisMesh );
 
-            // define cell id and index counter
+            // update the id for each processor
+            moris_id tNextFreeCellID = get_processor_offset( tNumCellsInProcLocalVisMesh );
+
+            // initialize cell index counter
             moris_index tCellIndexCounter = 0;
-            moris_id    tCellIdCounter    = 0;
 
-            // sum up number of  vertices on every processor
-            tCellIdCounter = std::accumulate( tRequestedSetNames.begin(), tRequestedSetNames.end(), tCellIdCounter,    //
-                    [ & ]( moris_id const & aCellIdCounter, std::string const & aSetName ) -> moris_id {
-                        
-                        // add number of the vertices of the set to the current one
-                        return aCellIdCounter
-                             + tIntegrationMesh->get_set_by_name( aSetName )->get_num_cells_on_set( mOnlyPrimaryCells );
-                    } );
-
-            // update the id for each processor
-            tCellIdCounter = get_processor_offset( tCellIdCounter );
-
-            // loop over all requested sets
-            for( uint Ij = 0; Ij <mNumRequestedSets; Ij++ )
+            // loop over all requested block sets
+            for ( uint iBlockSet = 0; iBlockSet < mRequestedBlockSetNames.size(); iBlockSet++ )
             {
-                // get set index for label
-                moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( tRequestedSetNames( Ij ) );
-
-                // get set for index
-                moris::mtk::Set * tMeshSet = tIntegrationMesh->get_set_by_index( tSetIndex );
-
                 // get number of cells on set
-                uint tNumCellsOnSet = tMeshSet->get_num_cells_on_set( mOnlyPrimaryCells );
+                uint tNumCellsOnSet = mFemBlockSets( iBlockSet )->get_num_cells_on_set( mOnlyPrimaryCells );
 
-                if( tNumCellsOnSet > 0 )
+                // ignore the subsequent steps for empty sets and jump to next set
+                if ( tNumCellsOnSet == 0 )
                 {
-                    // get cell indices on set
-                    moris::Matrix< DDSMat > tCellIndOnSet = tMeshSet->get_cell_inds_on_block( mOnlyPrimaryCells );
-
-                    // resize list of cells for this set
-                    mCellsOnSet( Ij ).resize( tNumCellsOnSet, nullptr );
-                    mCellMapOnSet( Ij ).set_size( tCellIndOnSet.max() + 1, 1, -1 );
-
-                    // Loop over all cells on this set and create new vis cells
-                    for( uint Ik = 0; Ik < tNumCellsOnSet; Ik++ )
-                    {
-                        // get list of integration vertex indices
-                        Matrix< IndexMat > tIntegrationVertexInd = tIntegrationMesh->get_mtk_cell( tCellIndOnSet( Ik ) ).get_vertex_inds();
-
-                        // Create List of vis vertex pointers for this cell
-                        moris::Cell< mtk::Vertex* > tCellVerices( tIntegrationVertexInd.numel(), nullptr );
-
-                        // loop over integration vertices and get the corresponding vis vertices for this set
-                        for( uint Ii = 0; Ii < tIntegrationVertexInd.numel(); Ii++ )
-                        {
-                            tCellVerices( Ii ) = mVerticesOnSet( Ij )( mVertexMapOnSet( Ij )( tIntegrationVertexInd( Ii ) ) );
-                        }
-
-                        // create old index to set local index map
-                        mCellMapOnSet( Ij )( tCellIndOnSet( Ik ) ) = Ik;
-
-                        // create vis cells and renumber id and index
-                        mCellsOnSet( Ij )( Ik ) = new Cell_Visualization( tCellIdCounter++,
-                                tCellIndexCounter++,
-                                tCellVerices,
-                                &tIntegrationMesh->get_mtk_cell( tCellIndOnSet( Ik ) ) );
-                    }
+                    continue;
                 }
-            }
-        }
+
+                // get cell indices on set
+                moris::Matrix< DDSMat > tCellIndicesInFemSet = mFemBlockSets( iBlockSet )->get_cell_inds_on_block( mOnlyPrimaryCells );
+
+                // Loop over all cells on this set and create new vis cells
+                for ( uint iCellOnBlockSet = 0; iCellOnBlockSet < tNumCellsOnSet; iCellOnBlockSet++ )
+                {
+                    // get the current cells index in MTK
+                    moris_index tFemCellIndex = tCellIndicesInFemSet( iCellOnBlockSet );
+
+                    // get list of VIS vertex indices for the current cell
+                    const Cell< moris_index > tVisVertexIndicesOnCell = mBlockAndFemCellIndexToVisVertexIndices( iBlockSet )( tFemCellIndex );
+                    uint                      tNumVertsOnCell         = tVisVertexIndicesOnCell.size();
+
+                    // Create List of VIS vertex pointers for this cell
+                    moris::Cell< mtk::Vertex* > tVisCellVertices( tNumVertsOnCell, nullptr );
+
+                    // loop over integration vertices and get the corresponding vis vertices for this set
+                    for ( uint iVertOnCell = 0; iVertOnCell < tNumVertsOnCell; iVertOnCell++ )
+                    {
+                        // get the index of the VIS vertex on the cell to be constructed
+                        moris_index tVisVertIndex = tVisVertexIndicesOnCell( iVertOnCell );
+
+                        // store pointer to the corresponding VIS vertices
+                        tVisCellVertices( iVertOnCell ) = mVisMesh->mVertices( tVisVertIndex );
+                    }
+
+                    // create vis cells and renumber id and index
+                    mVisMesh->mCells( tCellIndexCounter ) = new Cell_Visualization(
+                            tNextFreeCellID,
+                            tCellIndexCounter,
+                            tVisCellVertices,
+                            &mIntegrationMesh->get_mtk_cell( tFemCellIndex ) );
+
+                    // relate the index of the new VIS cell back to the FEM cell it was constructed from for the current block set
+                    mBlockAndFemCellIndexToVisCellIndex( iBlockSet )( tFemCellIndex ) = tCellIndexCounter;
+
+                    // update the index and ID counters for the next vertex
+                    tNextFreeCellID++;
+                    tCellIndexCounter++;
+
+                }    // end for: each cell on the current block set'
+
+
+                // ------------------
+                // fill the maps about the primary cells
+                // this needs to be done in a separate step as for the case of an overlapping mesh the primary cells first need to be sorted out
+
+                // get cell indices of primary cells on set
+                Matrix< DDSMat > tPrimaryCellIndicesInFemSet = mFemBlockSets( iBlockSet )->get_cell_inds_on_block( true );
+
+                // relate each primary cell in block back to the FEM/MTK cell it was constructed from
+                for ( uint iPrimaryCellInBlock = 0; iPrimaryCellInBlock < tPrimaryCellIndicesInFemSet.numel(); iPrimaryCellInBlock++ )
+                {
+                    // get the current FEM/MTK cell's index
+                    moris_index tFemCellIndex = tPrimaryCellIndicesInFemSet( iPrimaryCellInBlock );
+
+                    // get the corresponding
+                    moris_index tVisCellIndex = mBlockAndFemCellIndexToVisCellIndex( iBlockSet )( tFemCellIndex );
+
+                    // there should never be more than one primary VIS cell be associated with a given MTK/FEM cell
+                    MORIS_ASSERT(
+                            mPrimaryFemCellIndexToVisCellIndex( tFemCellIndex ) == -1,
+                            "VIS_Factory::create_visualization_cells() - "
+                            "Assigning VIS cell with FEM/MTK cell #%i, but it already has a primary VIS cell associated with it.",
+                            tFemCellIndex );
+
+                    // fill the maps
+                    mPrimaryFemCellIndexToVisCellIndex( tFemCellIndex ) = tVisCellIndex;
+                    mPrimaryFemCellIndexToBlockIndex( tFemCellIndex )   = iBlockSet;
+                }
+
+            }    // end for: each block set
+
+        }        // end function:
 
         //-----------------------------------------------------------------------------------------------------------
 
-        void VIS_Factory::create_visualization_clusters( moris::vis::Output_Data & aOutputData )
+        void
+        VIS_Factory::create_visualization_clusters()
         {
-            Tracer tTracer( "VisFactory", "VisMesh", "CreateClusters" );
+            // log and time this function
+            Tracer tTracer( "VIS", "Factory", "Create Cell Clusters" );
 
-            // resize list of cells on set
-            mClustersOnBlock.resize( mNumRequestedSets );
+            // loop over requested block sets
+            for ( uint iBlockSet = 0; iBlockSet < mRequestedBlockSetNames.size(); iBlockSet++ )
+            {
+                // get number of clusters on set
+                uint tNumClustersOnSet = mFemBlockSets( iBlockSet )->get_num_clusters_on_set();
 
-            // get integration mesh
-            mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
-            mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
-            mMesh->get_mesh_pair( mMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
+                // ignore the subsequent steps for empty sets, and jump to next set
+                if ( tNumClustersOnSet == 0 )
+                {
+                    continue;
+                }
+
+                // get list of old clusters on set
+                moris::Cell< mtk::Cluster const * > tClustersOnFemSet = mFemBlockSets( iBlockSet )->get_clusters_on_set();
+
+                // resize list of clusters for this set
+                mVisMesh->mClustersOnBlockSets( iBlockSet ).resize( tNumClustersOnSet, nullptr );
+
+                // loop over clusters on set
+                for ( uint iClusterOnSet = 0; iClusterOnSet < tNumClustersOnSet; iClusterOnSet++ )
+                {
+                    // create the VIS cluster object to feed the information to
+                    Cell_Cluster_Visualization* tVisCellCluster = new Cell_Cluster_Visualization;
+
+                    // mark as non-trivial if old cluster was not trivial
+                    if ( !tClustersOnFemSet( iClusterOnSet )->is_trivial() )
+                    {
+                        tVisCellCluster->mark_as_nontrivial();
+                    }
+
+                    // ------------------------
+                    // add cells to cluster
+
+                    // get primary/void cells on old cluster
+                    const moris::Cell< moris::mtk::Cell const * >& tPrimaryFemCells = tClustersOnFemSet( iClusterOnSet )->get_primary_cells_in_cluster();
+                    const moris::Cell< moris::mtk::Cell const * >& tVoidFemCells    = tClustersOnFemSet( iClusterOnSet )->get_void_cells_in_cluster();
+
+                    // resize primary/void cell list for VIS cluster
+                    // (these will be filled with VIS cells that have been constructed from the corresponding mtk/fem cells)
+                    moris::Cell< moris::mtk::Cell const * > tClusterPrimaryVisCells( tPrimaryFemCells.size(), nullptr );
+                    moris::Cell< moris::mtk::Cell const * > tClusterVoidVisCells( tVoidFemCells.size(), nullptr );
+
+                    // find VIS primary cells corresponding to mtk/fem cells
+                    for ( uint iPrimaryCell = 0; iPrimaryCell < tPrimaryFemCells.size(); iPrimaryCell++ )
+                    {
+                        moris_index tPrimaryFemCellIndex        = tPrimaryFemCells( iPrimaryCell )->get_index();
+                        moris_index tPrimaryVisCellIndex        = mBlockAndFemCellIndexToVisCellIndex( iBlockSet )( tPrimaryFemCellIndex );
+                        tClusterPrimaryVisCells( iPrimaryCell ) = mVisMesh->mCells( tPrimaryVisCellIndex );
+                    }
+
+                    // find VIS void cells corresponding to mtk/fem cells
+                    if ( !mOnlyPrimaryCells )
+                    {
+                        for ( uint iVoidCell = 0; iVoidCell < tVoidFemCells.size(); iVoidCell++ )
+                        {
+                            moris_index tVoidFemCellIndex     = tVoidFemCells( iVoidCell )->get_index();
+                            moris_index tVoidVisCellIndex     = mBlockAndFemCellIndexToVisCellIndex( iBlockSet )( tVoidFemCellIndex );
+                            tClusterVoidVisCells( iVoidCell ) = mVisMesh->mCells( tVoidVisCellIndex );
+                        }
+                    }
+
+                    // add vis primary cells to vis cluster
+                    tVisCellCluster->add_primary_integration_cell( tClusterPrimaryVisCells );
+
+                    // add interpolation cell to vis cluster
+                    tVisCellCluster->set_interpolation_cell( &tClustersOnFemSet( iClusterOnSet )->get_interpolation_cell() );
+
+                    // add void cells to cluster if requested by mesh type
+                    if ( tVoidFemCells.size() > 0 && !mOnlyPrimaryCells )
+                    {
+                        tVisCellCluster->add_void_integration_cell( tClusterVoidVisCells );
+                    }
+
+                    // ------------------------
+                    // add vertices to cluster
+
+                    // get vertices from the mtk/fem cluster
+                    moris::Cell< moris::mtk::Vertex const * > tFemVertices = tClustersOnFemSet( iClusterOnSet )->get_vertices_in_cluster();
+
+                    // construct map relating fem vertex indices to their respective position in the list of vertices on the cluster
+                    map< moris_index, moris_index > tFemVertexIndexToPosInFemClusterMap;
+                    for ( uint iVertInFemCluster = 0; iVertInFemCluster < tFemVertices.size(); iVertInFemCluster++ )
+                    {
+                        moris_index tFemVertexIndex                            = tFemVertices( iVertInFemCluster )->get_index();
+                        tFemVertexIndexToPosInFemClusterMap[ tFemVertexIndex ] = iVertInFemCluster;
+                    }
+
+                    // initialize map identifying which VIS vertices are in the VIS cluster to be constructed and at which position
+                    map< moris_index, moris_index > tVisVertexIndexToPosInVisClusterMap;
+                    uint                            tNextVertexInVisClusterPosition = 0;
+
+                    // initialize a list of all VIS vertices used by the cluster
+                    moris::Cell< mtk::Vertex const * > tClusterVisVertices;
+                    tClusterVisVertices.reserve( tFemVertices.size() );
+
+                    // compile a list of IG cells used by the newly constructed VIS cluster
+                    Cell< const moris::mtk::Cell * > tUsedClusterFemCells = tClustersOnFemSet( iClusterOnSet )->get_primary_cells_in_cluster();
+
+                    // for overlapping meshes consider the void as well
+                    if ( !mOnlyPrimaryCells )
+                    {
+                        tUsedClusterFemCells.append( tClustersOnFemSet( iClusterOnSet )->get_void_cells_in_cluster() );
+                    }
+
+                    // go over these cells and compile a list of vertices attached to them
+                    for( uint iCellInCluster = 0; iCellInCluster < tUsedClusterFemCells.size(); iCellInCluster++ )
+                    {
+                        // get the index of the currently considered FEM/MTK cell
+                        moris_index tFemCellIndex = tUsedClusterFemCells( iCellInCluster )->get_index();
+
+                        // access the list of VIS vertices attached to the cell
+                        Cell< moris_index > tVisVertexIndicesOnCell = mBlockAndFemCellIndexToVisVertexIndices( iBlockSet )( tFemCellIndex );
+
+                        MORIS_ASSERT( tVisVertexIndicesOnCell.size() > 0, 
+                                "VIS_Factory::create_visualization_clusters() - Map doesn't show any vertices connected to IG cell." );
+
+                        // go over the VIS vertices on the cell and add them to the list of cluster cells if they haven't been already
+                        for( uint iVertOnCell = 0; iVertOnCell < tVisVertexIndicesOnCell.size(); iVertOnCell++ )
+                        {
+                            // get the index of the current VIS vertex
+                            moris_index tVisVertexIndex = tVisVertexIndicesOnCell( iVertOnCell );
+
+                            // check if this VIS vertex has already been added to the cluster, if not add it to the cluster
+                            if ( !tVisVertexIndexToPosInVisClusterMap.key_exists( tVisVertexIndex ) )
+                            {
+                                // add VIS vertex to cluster
+                                tVisVertexIndexToPosInVisClusterMap[ tVisVertexIndex ] = tNextVertexInVisClusterPosition;
+                                tClusterVisVertices.push_back( mVisMesh->mVertices( tVisVertexIndex ) );
+                                tNextVertexInVisClusterPosition++;
+                            }
+                        }
+                    } // end for: each used IG cell in the current cluster
+
+                    // store pointer list of VIS vertices in the VIS cluster being constructed
+                    tVisCellCluster->add_vertex_to_cluster( tClusterVisVertices );
+
+                    // ------------------------
+                    // add vertex coordinates
+
+                    // get the coordinates for all vertices in the corresponding FEM cluster
+                    Matrix< DDRMat > tLocalCoordsOfAllFemVertsOnCluster =
+                            tClustersOnFemSet( iClusterOnSet )->get_vertices_local_coordinates_wrt_interp_cell();
+
+                    // get the number of dimensions in parametric space
+                    uint tNumParamDims = tLocalCoordsOfAllFemVertsOnCluster.n_cols();
+
+                    // initialize matrix containing all local coords for the vertices in the VIS cluster
+                    Matrix< DDRMat > tVisClusterVerticesLocalCoords( tNextVertexInVisClusterPosition, tNumParamDims, 0.0 );
+
+                    // go through the vertices in the VIS cluster, find the corresponding FEM vertices, and copy over the local coordinates
+                    for ( uint iVertInVisCluster = 0; iVertInVisCluster < tNextVertexInVisClusterPosition; iVertInVisCluster++ )
+                    {
+                        // get the corresponding FEM vertex's index
+                        moris_index tFemVertexIndex = tClusterVisVertices( iVertInVisCluster )->get_base_vertex()->get_index();
+
+                        // get the FEM vertex's position in the list of cluster vertices
+                        moris_index tVertPosInFemCluster = tFemVertexIndexToPosInFemClusterMap.find( tFemVertexIndex );
+
+                        // copy over coordinates
+                        tVisClusterVerticesLocalCoords.set_row(
+                                iVertInVisCluster,
+                                tLocalCoordsOfAllFemVertsOnCluster.get_row( tVertPosInFemCluster ) );
+                    }
+
+                    // add local coordinates to vis cluster
+                    tVisCellCluster->add_vertex_local_coordinates_wrt_interp_cell( tVisClusterVerticesLocalCoords );
+
+                    // ------------------------
+                    // store the constructed cluster in the VIS-mesh
+
+                    // store away constructed cluster
+                    mVisMesh->mClustersOnBlockSets( iBlockSet )( iClusterOnSet ) = tVisCellCluster;
+
+                }    // end for: clusters on set
+
+            }        // end for: each set
+
+        }            // end function: VIS_Factory::create_visualization_clusters()
+
+
+        //-----------------------------------------------------------------------------------------------------------
+
+        void
+        VIS_Factory::create_visualization_side_clusters()
+        {
+            // time and log this function
+            Tracer tTracer( "VIS", "Factory", "Create Side Clusters" );
 
             // loop over requested sets
-            for( uint Ij = 0; Ij <mNumRequestedSets; Ij++ )
+            for ( uint iSideSet = 0; iSideSet < mRequestedSideSetNames.size(); iSideSet++ )
             {
-                // get set index for label
-                moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( tRequestedSetNames( Ij ) );
+                // get access to the current set
+                mtk::Set* tFemSideSet = mFemSideSets( iSideSet );
 
-                // get set for index
-                moris::mtk::Set * tMeshSet = tIntegrationMesh->get_set_by_index( tSetIndex );
+                // get number of side clusters on set
+                uint tNumSideClustersOnSet = tFemSideSet->get_num_clusters_on_set();
 
-                // get number of clusters on set
-                uint tNumClustersOnSet = tMeshSet->get_num_clusters_on_set();
-
-                if( tNumClustersOnSet > 0 )
+                // ignore the subsequent steps for empty sets, and jump to next set
+                if ( tNumSideClustersOnSet == 0 )
                 {
-                    // get list of old clusters on set
-                    moris::Cell< mtk::Cluster const * > tClustersOnSet = tMeshSet->get_clusters_on_set();
-
-                    // resize list of clustersfor this set
-                    mClustersOnBlock  ( Ij ).resize( tNumClustersOnSet, nullptr );
-
-                    Matrix< DDSMat > tIdentifierMat( mVertexMapOnSet( Ij ).numel(), 1, -1);
-
-                    // loop over clusters on set
-                    for( uint Ik = 0; Ik < tNumClustersOnSet; Ik++ )
-                    {
-                        // get primary/void cells on old cluster
-                        const moris::Cell< moris::mtk::Cell const * > & tPrimaryCells = tClustersOnSet( Ik )->get_primary_cells_in_cluster();
-                        const moris::Cell< moris::mtk::Cell const * > & tVoidCells    = tClustersOnSet( Ik )->get_void_cells_in_cluster();
-
-                        // resize primary/void cell list for vis cluster
-                        moris::Cell< moris::mtk::Cell const * > tClusterPrimaryCells( tPrimaryCells.size(), nullptr );
-                        moris::Cell< moris::mtk::Cell const * > tClusterVoidCells   ( tVoidCells.size()   , nullptr );
-
-                        // find vis primary cells corresponding to integration primary cells
-                        for( uint Ii = 0; Ii < tPrimaryCells.size(); Ii++ )
-                        {
-                            tClusterPrimaryCells( Ii ) = mCellsOnSet( Ij )( mCellMapOnSet( Ij )( tPrimaryCells( Ii )->get_index() ) );
-                        }
-
-                        // find vis void cells corresponding to integration void cells
-                        if( !mOnlyPrimaryCells )
-                        {
-                            for( uint Ii = 0; Ii < tVoidCells.size(); Ii++ )
-                            {
-                                tClusterVoidCells( Ii ) = mCellsOnSet( Ij )( mCellMapOnSet( Ij )( tVoidCells( Ii )->get_index() ) );
-                            }
-                        }
-
-                        // create vis cluster
-                        Cell_Cluster_Visualization * tVisCellCluster = new Cell_Cluster_Visualization;
-
-                        // add vis primary cells to vis cluster
-                        tVisCellCluster->add_primary_integration_cell( tClusterPrimaryCells );
-
-                        // add interpolation cell to vis cluster
-                        tVisCellCluster->set_interpolation_cell( &tClustersOnSet( Ik )->get_interpolation_cell() );
-
-                        // mark as non trivial if old cluster was trivial
-                        if( !tClustersOnSet( Ik )->is_trivial() )
-                        {
-                            tVisCellCluster->mark_as_nontrivial();
-                        }
-
-                        // add void cells to cluster if requested by mesh type
-                        if( tVoidCells.size() > 0 && !mOnlyPrimaryCells )
-                        {
-                            tVisCellCluster->add_void_integration_cell( tClusterVoidCells );
-                        }
-
-                        // add vertices and local coordinates to vis cluster if non-trivial
-                        // if( !tVisCellCluster->is_trivial() )
-                        // {
-                        // get vertices from old cluster
-                        moris::Cell<moris::mtk::Vertex const *> tAllVertices = tClustersOnSet( Ik )->get_vertices_in_cluster();
-                        moris::Cell<moris::mtk::Vertex const *> tVertices;
-
-                        switch( aOutputData.mMeshType )
-                        {
-                            case ( vis::VIS_Mesh_Type::STANDARD ):
-                            {
-                                 moris::Cell<moris::mtk::Vertex *> tPrimVertices = tClustersOnSet( Ik )->get_primary_vertices_in_cluster();
-
-                                 tVertices.resize(tPrimVertices.size());
-
-                                 for( uint Ib = 0; Ib < tPrimVertices.size(); Ib ++ )
-                                 {
-                                      tVertices( Ib ) = tPrimVertices( Ib );
-                                 }
-                            }
-
-                            break;
-
-                            case ( vis::VIS_Mesh_Type::OVERLAPPING_INTERFACE ):
-                                tVertices = tClustersOnSet( Ik )->get_vertices_in_cluster();
-                            break;
-
-                            case ( vis::VIS_Mesh_Type::FULL_DISCONTINOUS ):
-                                  MORIS_ERROR( false, "create_visualization_mesh() - Mesh type FULL_DISCONTINOUS not implemented yet. " );
-                            break;
-
-                            default:
-                                MORIS_ERROR( false, "create_visualization_mesh() - Mesh type not specified. " );
-                                break;
-                        }
-
-                        moris::Cell< mtk::Vertex const * > tVisClusterVertices( tVertices.size() );
-
-                        // identifier and pos map
-                        tIdentifierMat.fill( -1 );
-
-                        uint tCounter = 0;
-
-                        for( uint Ii = 0; Ii < tVertices.size(); Ii++ )
-                        {
-                            // get old vertex index
-                            moris_index tIndex = tVertices( Ii )->get_index();
-
-                            if( tIdentifierMat(tIndex) == -1)
-                            {
-                                tIdentifierMat(tIndex) = tCounter;
-
-                                if( mVertexMapOnSet( Ij )( tIndex ) != -1 )
-                                {
-                                    tVisClusterVertices( tCounter++ ) = mVerticesOnSet( Ij )( mVertexMapOnSet( Ij )( tIndex ) );
-                                }
-                            }
-                        }
-
-                        tVisClusterVertices.resize( tCounter );
-
-                        tVisCellCluster->add_vertex_to_cluster( tVisClusterVertices );
-
-                        uint tNumCols = tClustersOnSet( Ik )->get_vertices_local_coordinates_wrt_interp_cell().n_cols();
-
-                        moris::Matrix< DDRMat > tVisClusterVerticesLocalCoords( tCounter, tNumCols, 0.0 );
-
-                        tCounter = 0;
-
-                        for( uint Ii = 0; Ii < tAllVertices.size(); Ii++ )
-                        {
-                            // get old vertex index
-                            moris_index tIndex = tAllVertices( Ii )->get_index();
-
-                            if( tIdentifierMat(tIndex) != -1)
-                            {
-                                sint tPos = tIdentifierMat(tIndex);
-                                tIdentifierMat(tIndex) = -1;
-
-                                if( mVertexMapOnSet( Ij )( tIndex ) != -1 )
-                                {
-                                    tVisClusterVerticesLocalCoords.set_row( tPos, tClustersOnSet( Ik )->get_vertices_local_coordinates_wrt_interp_cell().get_row( Ii ) );
-                                }
-                            }
-                        }
-
-                        // add local coordinates to vis cluster
-                        tVisCellCluster->add_vertex_local_coordinates_wrt_interp_cell( tVisClusterVerticesLocalCoords );
-                        // }
-
-                        mClustersOnBlock( Ij )( Ik ) = tVisCellCluster;
-                    }
+                    continue;
                 }
-            }
-        }
+
+                // get list of clusters on existing fem/mtk set
+                moris::Cell< mtk::Cluster const * > tSideClustersOnFemSet = tFemSideSet->get_clusters_on_set();
+
+                // resize list of clusters for this set
+                mVisMesh->mClustersOnSideSets( iSideSet ).resize( tNumSideClustersOnSet, nullptr );
+
+                // loop over clusters in existing fem/mtk set
+                for ( uint iSideClusterOnSet = 0; iSideClusterOnSet < tSideClustersOnFemSet.size(); iSideClusterOnSet++ )
+                {
+                    // create the VIS side cluster object. the below information will be feed into it
+                    vis::Side_Cluster_Visualization* tVisSideCluster = new vis::Side_Cluster_Visualization();
+
+                    // mark as non-trivial if old cluster was not trivial
+                    if ( !tSideClustersOnFemSet( iSideClusterOnSet )->is_trivial() )
+                    {
+                        tVisSideCluster->mark_as_nontrivial();
+                    }
+
+                    // ------------------------
+                    // IG cells that the side cluster is attached to
+
+                    // get the IG cells the side elements are attached to
+                    const moris::Cell< const moris::mtk::Cell* >& tFemCellsInCluster =
+                            tSideClustersOnFemSet( iSideClusterOnSet )->get_primary_cells_in_cluster();
+
+                    MORIS_ASSERT( tFemCellsInCluster.size() > 0,
+                            "VIS_Factory::create_visualization_side_clusters() - Empty side cluster in FEM mesh. This shouldn't happen." );
+
+                    // initialize list of VIS IG cells the side set elements are attached to
+                    moris::Cell< moris::mtk::Cell const * > tSideClusterVisIgCells( tFemCellsInCluster.size(), nullptr );
+
+                    // find the corresponding VIS cells constructed from the original mtk/fem cells and collect these in a list for constructing the VIS side cluster
+                    for ( uint iIgCellOnCluster = 0; iIgCellOnCluster < tFemCellsInCluster.size(); iIgCellOnCluster++ )
+                    {
+                        // get the current Fem cell's index
+                        moris_index tFemCellIndex = tFemCellsInCluster( iIgCellOnCluster )->get_index();
+
+                        // get the corresponding VIS cell's index
+                        moris_index tVisCellIndex = mPrimaryFemCellIndexToVisCellIndex( tFemCellIndex );
+
+                        // make sure the requested VIS cell actually exists
+                        MORIS_ASSERT( tVisCellIndex > -1 && tVisCellIndex != MORIS_INDEX_MAX,
+                                "VIS_Factory::create_visualization_side_clusters() - "
+                                "No VIS cell index for the given FEM cell. "
+                                "The current side cluster may be attached to a block set that is not part of the VIS mesh. "
+                                "Make sure to include it." );
+
+                        // store the corrsponding VIS cell
+                        tSideClusterVisIgCells( iIgCellOnCluster ) = mVisMesh->mCells( tVisCellIndex );
+                    }
+
+                    // store list of cells on VIS cluster
+                    tVisSideCluster->add_primary_integration_cell( tSideClusterVisIgCells );
+
+                    // add interpolation cell to vis cluster
+                    tVisSideCluster->set_interpolation_cell( &tSideClustersOnFemSet( iSideClusterOnSet )->get_interpolation_cell() );
+
+                    // ------------------------
+                    // side ordinals of the IG cells that the side cluster is attached to
+
+                    // get the side ordinals of each IG cell that make up the side cluster
+                    moris::Matrix< moris::IndexMat > tSideOrdinals = tSideClustersOnFemSet( iSideClusterOnSet )->get_cell_side_ordinals();
+
+                    // store information in side cluster
+                    tVisSideCluster->add_integration_cell_side_ordinals( tSideOrdinals );
+
+                    // ------------------------
+                    // add vertices to cluster
+
+                    // get vertices from the mtk/fem cluster
+                    moris::Cell< moris::mtk::Vertex const * > tFemVertices = tSideClustersOnFemSet( iSideClusterOnSet )->get_vertices_in_cluster();
+
+                    // get the number of vertices on the fem cluster for convenient access
+                    uint tNumUsedVerticesInFemCluster = tFemVertices.size();
+
+                    // construct map relating fem vertex indices to their respective position in the list of vertices on the cluster
+                    map< moris_index, moris_index > tFemVertexIndexToPosInFemClusterMap;
+                    for ( uint iVertInFemCluster = 0; iVertInFemCluster < tNumUsedVerticesInFemCluster; iVertInFemCluster++ )
+                    {
+                        moris_index tFemVertexIndex                            = tFemVertices( iVertInFemCluster )->get_index();
+                        tFemVertexIndexToPosInFemClusterMap[ tFemVertexIndex ] = iVertInFemCluster;
+                    }
+
+                    // initialize list of VIS vertices constructed from the corresponding mtk/fem vertices
+                    moris::Cell< mtk::Vertex const * > tClusterVisVertices;
+                    tClusterVisVertices.reserve( tNumUsedVerticesInFemCluster );
+
+                    // initialize map identifying which VIS vertices are in the newly constructed VIS cluster and at which position
+                    map< moris_index, moris_index > tVisVertexIndexToPosInVisClusterMap;
+                    uint                            tNextVertexInVisClusterPosition = 0;
+
+                    // go through IG cells the side cluster is attached to
+                    for ( uint iIgCellOnCluster = 0; iIgCellOnCluster < tFemCellsInCluster.size(); iIgCellOnCluster++ )
+                    {
+                        // get the current Fem cell's index
+                        moris_index tFemCellIndex = tFemCellsInCluster( iIgCellOnCluster )->get_index();
+
+                        // get the block set index the side cluster is attached to
+                        moris_index tPrimaryBlockSetIndex = mPrimaryFemCellIndexToBlockIndex( tFemCellIndex );
+
+                        // get the VIS vertex indices
+                        const Cell< moris_index > tVisVertexIndices = mBlockAndFemCellIndexToVisVertexIndices( tPrimaryBlockSetIndex )( tFemCellIndex );
+
+                        // go through the vertices listed in the FEM cluster, find the corresponding VIS vertices, and store them in the above list
+                        for ( uint iVertOnCell = 0; iVertOnCell < tVisVertexIndices.size(); iVertOnCell++ )
+                        {
+                            // get the VIS vertex's index
+                            moris_index tVisVertexIndex = tVisVertexIndices( iVertOnCell );
+
+                            // get the VIS vertex
+                            mtk::Vertex const* tVisVertex = mVisMesh->mVertices( tVisVertexIndex );
+
+                            // get the corresponding FEM/MTK vertex's index
+                            moris_index tFemVertexIndex = tVisVertex->get_base_vertex()->get_index();
+
+                            // don't add vis vertices to the cluster, if their corresponding FEM vertices are not in the cluster either
+                            if ( !tFemVertexIndexToPosInFemClusterMap.key_exists( tFemVertexIndex ) )
+                            {
+                                continue;
+                            }
+
+                            // check whether this VIS vertex has already been identified as being part of the VIS cluster (if so, skip, nothing needs to be done)
+                            if ( !tVisVertexIndexToPosInVisClusterMap.key_exists( tVisVertexIndex ) )
+                            {
+                                // list the vertex as being part of this cluster
+                                tVisVertexIndexToPosInVisClusterMap[ tVisVertexIndex ] = tNextVertexInVisClusterPosition;
+
+                                // list the vertex in the cluster
+                                tClusterVisVertices.push_back( tVisVertex );
+
+                                // update next available local vertex index in the cluster
+                                tNextVertexInVisClusterPosition++;
+                            }
+
+                        }    // end for: each vertex in the side cluster
+
+                    }        // end for: each IG cell the side cluster is attached to
+
+                    // store pointer list of VIS vertices in the VIS cluster being constructed
+                    tVisSideCluster->add_vertex_to_cluster( tClusterVisVertices );
+
+                    // ------------------------
+                    // add vertex coordinates
+
+                    // get the coordinates for all vertices in the corresponding FEM cluster
+                    Matrix< DDRMat > tLocalCoordsOfAllFemVertsOnCluster =
+                            tSideClustersOnFemSet( iSideClusterOnSet )->get_vertices_local_coordinates_wrt_interp_cell();
+
+                    // initialize matrix containing all local coords for the vertices in the VIS cluster
+                    Matrix< DDRMat > tVisClusterVerticesLocalCoords( tNextVertexInVisClusterPosition, tLocalCoordsOfAllFemVertsOnCluster.n_cols(), 0.0 );
+
+                    // go through the vertices in the VIS cluster, find the corresponding FEM vertices, and copy over the local coordinates
+                    for ( uint iVertInVisCluster = 0; iVertInVisCluster < tNextVertexInVisClusterPosition; iVertInVisCluster++ )
+                    {
+                        // get the corresponding FEM vertex's index
+                        moris_index tFemVertexIndex = tClusterVisVertices( iVertInVisCluster )->get_base_vertex()->get_index();
+
+                        // get the FEM vertex's position in the list of cluster vertices
+                        moris_index tVertInFemCluster = tFemVertexIndexToPosInFemClusterMap.find( tFemVertexIndex );
+
+                        // copy over coordinates
+                        tVisClusterVerticesLocalCoords.set_row(
+                                iVertInVisCluster,
+                                tLocalCoordsOfAllFemVertsOnCluster.get_row( tVertInFemCluster ) );
+                    }
+
+                    // add local coordinates to vis cluster
+                    tVisSideCluster->add_vertex_local_coordinates_wrt_interp_cell( tVisClusterVerticesLocalCoords );
+
+                    // store away constructed cluster
+                    mVisMesh->mClustersOnSideSets( iSideSet )( iSideClusterOnSet ) = tVisSideCluster;
+
+                }    // end for: each side cluster in fem/mtk set
+
+            }        // end for: each set in FEM mesh
+
+        }            // end function: VIS_Factory::create_visualization_side_clusters()
 
         //-----------------------------------------------------------------------------------------------------------
 
-        void VIS_Factory::create_visualization_blocks()
+        void
+        VIS_Factory::create_visualization_blocks()
         {
-            Tracer tTracer( "VisFactory", "VisMesh", "CreateBlocks" );
+            // log/trace this function
+            Tracer tTracer( "VIS", "Factory", "Create Block Sets" );
 
-            mListOfBlocks.resize( mNumRequestedSets );
-
-            mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
-            mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
-
-            mMesh->get_mesh_pair( mMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
-
-            for( uint Ij = 0; Ij <mNumRequestedSets; Ij++ )
+            // Go over the block sets in the integration mesh. Store the block meta information for later writing the mesh.
+            for ( uint iBlockSet = 0; iBlockSet < mVisMesh->mListOfBlocks.size(); iBlockSet++ )
             {
-                moris_index tSetIndex = tIntegrationMesh->get_set_index_by_name( tRequestedSetNames( Ij ) );
+                // get access to the FEM set corresponding to the current block set
+                mtk::Set* tFemBlockSet = mFemBlockSets( iBlockSet );
 
-                moris::mtk::Set * tMeshSet = tIntegrationMesh->get_set_by_index( tSetIndex );
+                // create block object to write mesh set information to
+                mVisMesh->mListOfBlocks( iBlockSet ) = new moris::mtk::Block(
+                        tFemBlockSet->get_set_name(),
+                        mVisMesh->mClustersOnBlockSets( iBlockSet ),
+                        tFemBlockSet->get_set_colors(),
+                        tFemBlockSet->get_spatial_dim() );
 
-                mListOfBlocks( Ij ) = new moris::mtk::Block( tMeshSet->get_set_name(),
-                        mClustersOnBlock( Ij ),
-                        tMeshSet->get_set_colors(),
-                        tMeshSet->get_spatial_dim() );
-
-                mListOfBlocks( Ij )->set_cell_topology( tMeshSet->get_cell_topology() );
-                mListOfBlocks( Ij )->set_IG_cell_shape( tMeshSet->get_IG_cell_shape() );
+                // populate the block with meta information
+                mVisMesh->mListOfBlocks( iBlockSet )->set_cell_topology( tFemBlockSet->get_cell_topology() );
+                mVisMesh->mListOfBlocks( iBlockSet )->set_IG_cell_shape( tFemBlockSet->get_IG_cell_shape() );
             }
-        }
+        }    // end function: VIS_Factory::create_visualization_blocks()
 
         //-----------------------------------------------------------------------------------------------------------
-    }
-}
 
+        void
+        VIS_Factory::create_visualization_side_sets()
+        {
+            // log/trace this function
+            Tracer tTracer( "VIS", "Factory", "Create Block Sets" );
+
+            // Go over the sets in the integration mesh. Store the set meta information for later writing the mesh.
+            for ( uint iSideSet = 0; iSideSet < mVisMesh->mListOfSideSets.size(); iSideSet++ )
+            {
+                // get access to the FEM set corresponding to the current block set
+                mtk::Set* tFemSideSet = mFemSideSets( iSideSet );
+
+                // create block object to write mesh set information to
+                mVisMesh->mListOfSideSets( iSideSet ) = new moris::mtk::Side_Set(
+                        tFemSideSet->get_set_name(),
+                        mVisMesh->mClustersOnSideSets( iSideSet ),
+                        tFemSideSet->get_set_colors(),
+                        tFemSideSet->get_spatial_dim() );
+
+                // populate the set with meta information
+                mVisMesh->mListOfSideSets( iSideSet )->set_IG_cell_shape( tFemSideSet->get_IG_cell_shape() );
+            }
+        }    // end function: VIS_Factory::create_visualization_side_sets()
+
+        //-----------------------------------------------------------------------------------------------------------
+
+    }    // namespace vis
+}    // namespace moris

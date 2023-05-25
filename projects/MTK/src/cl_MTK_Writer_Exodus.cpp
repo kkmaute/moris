@@ -48,9 +48,9 @@ namespace moris
 
         Writer_Exodus::~Writer_Exodus()
         {
-            if ( mExoid >= 0 )
+            if ( mExoID >= 0 )
             {
-                ex_close( mExoid );
+                ex_close( mExoID );
             }
         }
 
@@ -73,17 +73,17 @@ namespace moris
                 bool         aReadOnly,
                 float        aVersion )
         {
-            MORIS_ERROR( mExoid == -1, "Exodus file is currently open, call close_file() before opening a new one." );
+            MORIS_ERROR( mExoID == -1, "Exodus file is currently open, call close_file() before opening a new one." );
 
             int tCPUWordSize = sizeof( real ), tIOWordSize = 0;
 
             if ( aReadOnly )
             {
-                mExoid = ex_open( aExodusFileName.c_str(), EX_READ, &tCPUWordSize, &tIOWordSize, &aVersion );
+                mExoID = ex_open( aExodusFileName.c_str(), EX_READ, &tCPUWordSize, &tIOWordSize, &aVersion );
             }
             else
             {
-                mExoid = ex_open( aExodusFileName.c_str(), EX_WRITE, &tCPUWordSize, &tIOWordSize, &aVersion );
+                mExoID = ex_open( aExodusFileName.c_str(), EX_WRITE, &tCPUWordSize, &tIOWordSize, &aVersion );
             }
         }
 
@@ -93,10 +93,10 @@ namespace moris
         Writer_Exodus::close_file( bool aRename )
         {
             // check that mesh is open
-            MORIS_ERROR( mExoid > 0, "Exodus cannot be saved as it is not open\n." );
+            MORIS_ERROR( mExoID > 0, "Exodus cannot be saved as it is not open\n." );
 
-            ex_close( mExoid );
-            mExoid = -1;
+            ex_close( mExoID );
+            mExoID = -1;
 
             if ( aRename )
             {
@@ -151,7 +151,7 @@ namespace moris
             int tNumDimensions = aCoordinates.n_cols();
             int tNumPoints     = aCoordinates.n_rows();
 
-            ex_put_init( mExoid, "MTK", tNumDimensions, tNumPoints, int( 1 ), int( 1 ), int( 0 ), int( 0 ) );
+            ex_put_init( mExoID, "MTK", tNumDimensions, tNumPoints, int( 1 ), int( 1 ), int( 0 ), int( 0 ) );
 
             // Set the point coordinates
             int  tSpatialDim = aCoordinates.n_cols();
@@ -180,22 +180,22 @@ namespace moris
             }
 
             // Write coordinates
-            ex_put_coord( mExoid, tXCoordinates.data(), tYCoordinates.data(), tZCoordinates.data() );
+            ex_put_coord( mExoID, tXCoordinates.data(), tYCoordinates.data(), tZCoordinates.data() );
 
             // Write node id map
-            ex_put_id_map( mExoid, EX_NODE_MAP, tNodeMap.data() );
+            ex_put_id_map( mExoID, EX_NODE_MAP, tNodeMap.data() );
 
             // Create single block
             if ( tNumDimensions <= 2 )
             {
-                ex_put_block( mExoid, EX_ELEM_BLOCK, 1, "CIRCLE", tNumPoints, 1, 0, 0, 0 );
+                ex_put_block( mExoID, EX_ELEM_BLOCK, 1, "CIRCLE", tNumPoints, 1, 0, 0, 0 );
             }
             else
             {
-                ex_put_block( mExoid, EX_ELEM_BLOCK, 1, "SPHERE", tNumPoints, 1, 0, 0, 0 );
+                ex_put_block( mExoID, EX_ELEM_BLOCK, 1, "SPHERE", tNumPoints, 1, 0, 0, 0 );
             }
             std::string tBlockName( "Points" );
-            ex_put_name( mExoid, EX_ELEM_BLOCK, 1, tBlockName.c_str() );
+            ex_put_name( mExoID, EX_ELEM_BLOCK, 1, tBlockName.c_str() );
 
             // Create point elements
             Matrix< IndexMat > tConnectivityArray( tNumPoints, 1 );
@@ -206,10 +206,10 @@ namespace moris
                 tConnectivityArray( tNodeIndex ) = tNodeIndex + 1;
                 tElementIdMap( tNodeIndex )      = tNodeIndex + 1;
             }
-            ex_put_conn( mExoid, EX_ELEM_BLOCK, 1, tConnectivityArray.data(), nullptr, nullptr );
+            ex_put_conn( mExoID, EX_ELEM_BLOCK, 1, tConnectivityArray.data(), nullptr, nullptr );
 
             // Write the element map
-            ex_put_id_map( mExoid, EX_ELEM_MAP, tElementIdMap.data() );
+            ex_put_id_map( mExoID, EX_ELEM_MAP, tElementIdMap.data() );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -221,12 +221,12 @@ namespace moris
             if ( aFieldNames.size() > 0 )
             {
                 // Write the number of nodal fields
-                ex_put_variable_param( mExoid, EX_NODAL, aFieldNames.size() );
+                ex_put_variable_param( mExoID, EX_NODAL, aFieldNames.size() );
 
                 // Write the nodal field names and store as a map
                 for ( uint tFieldIndex = 0; tFieldIndex < aFieldNames.size(); tFieldIndex++ )
                 {
-                    ex_put_variable_name( mExoid, EX_NODAL, tFieldIndex + 1, aFieldNames( tFieldIndex ).c_str() );
+                    ex_put_variable_name( mExoID, EX_NODAL, tFieldIndex + 1, aFieldNames( tFieldIndex ).c_str() );
                     mNodalFieldNamesMap[ aFieldNames( tFieldIndex ) ] = tFieldIndex;
                 }
             }
@@ -240,12 +240,12 @@ namespace moris
             if ( aFieldNames.size() > 0 && mNumNodes > 0 )
             {
                 // Write the number of nodal fields
-                ex_put_variable_param( mExoid, EX_NODAL, aFieldNames.size() );
+                ex_put_variable_param( mExoID, EX_NODAL, aFieldNames.size() );
 
                 // Write the nodal field names and store as a map
                 for ( uint tFieldIndex = 0; tFieldIndex < aFieldNames.size(); tFieldIndex++ )
                 {
-                    ex_put_variable_name( mExoid, EX_NODAL, tFieldIndex + 1, aFieldNames( tFieldIndex ).c_str() );
+                    ex_put_variable_name( mExoID, EX_NODAL, tFieldIndex + 1, aFieldNames( tFieldIndex ).c_str() );
                     mNodalFieldNamesMap[ aFieldNames( tFieldIndex ) ] = tFieldIndex;
                 }
             }
@@ -259,13 +259,32 @@ namespace moris
             if ( aFieldNames.size() > 0 && mNumUniqueExodusElements > 0 )
             {
                 // Write the number of elemental fields
-                ex_put_variable_param( mExoid, EX_ELEM_BLOCK, aFieldNames.size() );
+                ex_put_variable_param( mExoID, EX_ELEM_BLOCK, aFieldNames.size() );
 
                 // Write the elemental field names and store as a map
                 for ( uint tFieldIndex = 0; tFieldIndex < aFieldNames.size(); tFieldIndex++ )
                 {
-                    ex_put_variable_name( mExoid, EX_ELEM_BLOCK, tFieldIndex + 1, aFieldNames( tFieldIndex ).c_str() );
+                    ex_put_variable_name( mExoID, EX_ELEM_BLOCK, tFieldIndex + 1, aFieldNames( tFieldIndex ).c_str() );
                     mElementalFieldNamesMap[ aFieldNames( tFieldIndex ) ] = tFieldIndex;
+                }
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
+        Writer_Exodus::set_side_set_fields( moris::Cell< std::string > aFieldNames )
+        {
+            if ( aFieldNames.size() > 0 && mNumUniqueExodusElements > 0 )
+            {
+                // Write the number of side set fields
+                ex_put_variable_param( mExoID, EX_SIDE_SET, aFieldNames.size() );
+
+                // Write the side set field names and store as a map
+                for ( uint tFieldIndex = 0; tFieldIndex < aFieldNames.size(); tFieldIndex++ )
+                {
+                    ex_put_variable_name( mExoID, EX_SIDE_SET, tFieldIndex + 1, aFieldNames( tFieldIndex ).c_str() );
+                    mSideSetFieldNamesMap[ aFieldNames( tFieldIndex ) ] = tFieldIndex;
                 }
             }
         }
@@ -278,12 +297,12 @@ namespace moris
             if ( aVariableNames.size() > 0 )
             {
                 // Write the number of global fields
-                ex_put_variable_param( mExoid, EX_GLOBAL, aVariableNames.size() );
+                ex_put_variable_param( mExoID, EX_GLOBAL, aVariableNames.size() );
 
                 // Write the global field names and store as a map
                 for ( uint tVariableIndex = 0; tVariableIndex < aVariableNames.size(); tVariableIndex++ )
                 {
-                    ex_put_variable_name( mExoid, EX_GLOBAL, tVariableIndex + 1, aVariableNames( tVariableIndex ).c_str() );
+                    ex_put_variable_name( mExoID, EX_GLOBAL, tVariableIndex + 1, aVariableNames( tVariableIndex ).c_str() );
                     mGlobalVariableNamesMap[ aVariableNames( tVariableIndex ) ] = tVariableIndex;
                 }
             }
@@ -295,10 +314,10 @@ namespace moris
         Writer_Exodus::save_mesh()
         {
             // check that mesh is open
-            MORIS_ERROR( mExoid > 0, "Exodus cannot be saved as it is not open\n." );
+            MORIS_ERROR( mExoID > 0, "Exodus cannot be saved as it is not open\n." );
 
             // close mesh
-            ex_close( mExoid );
+            ex_close( mExoID );
 
             // write log information
             std::string tMessage = "Copying " + mTempFileName + " to " + mPermFileName + ".";
@@ -313,7 +332,7 @@ namespace moris
             int   tCPUWordSize = sizeof( real ), tIOWordSize = 0;
             float tVersion;
 
-            mExoid = ex_open(
+            mExoID = ex_open(
                     mTempFileName.c_str(),
                     EX_WRITE,
                     &tCPUWordSize,
@@ -326,7 +345,7 @@ namespace moris
         void
         Writer_Exodus::set_time( real aTimeValue )
         {
-            ex_put_time( mExoid, ++mTimeStep, &aTimeValue );
+            ex_put_time( mExoID, ++mTimeStep, &aTimeValue );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -350,7 +369,7 @@ namespace moris
 
             // Write the field
             int tErrMsg = ex_put_var(
-                    mExoid,
+                    mExoID,
                     mTimeStep,
                     EX_NODAL,
                     tFieldIndex + 1,
@@ -400,7 +419,7 @@ namespace moris
 
             // Write the field
             int tErrMsg = ex_put_var(
-                    mExoid,
+                    mExoID,
                     tTimeStep,
                     EX_NODAL,
                     tFieldIndex + 1,
@@ -428,22 +447,18 @@ namespace moris
                 return;
             }
 
-            MORIS_ERROR( mBlockNamesMap.key_exists( aBlockName ),
-                    aBlockName.append( " is not a block name on this mesh!" ).c_str() );
+            MORIS_ERROR( mBlockNamesMap.key_exists( aBlockName ), aBlockName.append( " is not a block name on this mesh!" ).c_str() );
 
             // Block name to local index of non-empty blocks
             int tBlockIndex = mBlockNamesMap[ aBlockName ];
 
             // Check that block index is valid
-            int tNumBlocks = ex_inquire_int( mExoid, EX_INQ_ELEM_BLK );
-
-            MORIS_ERROR( tNumBlocks > tBlockIndex,
-                    "Index of block set is larger than number of blocks" );
+            int tNumBlocks = ex_inquire_int( mExoID, EX_INQ_ELEM_BLK );
+            MORIS_ERROR( tNumBlocks > tBlockIndex, "Index of block set is larger than number of blocks" );
 
             // Field name to index
             int tFieldIndex = mElementalFieldNamesMap[ aFieldName ];
-
-            MORIS_ERROR( mElementalFieldNamesMap.size() == mElementalFieldNamesMap.size(),
+            MORIS_ERROR( (uint) tFieldIndex < mElementalFieldNamesMap.size(),
                     aFieldName.append( " is not an elemental field name on this mesh!" ).c_str() );
 
             // Check number of field values = number of elements
@@ -461,9 +476,7 @@ namespace moris
             tBlockInfo.id   = tBlockIndex + 1;
             tBlockInfo.type = EX_ELEM_BLOCK;
 
-            ex_get_block_param(
-                    mExoid,
-                    &tBlockInfo );
+            ex_get_block_param( mExoID, &tBlockInfo );
 
             MORIS_ERROR( tBlockInfo.num_entry == (int)aFieldValues.numel(),
                     "Number of entries in field does not match number of elements stored in mesh for current block." );
@@ -473,7 +486,7 @@ namespace moris
 
             // Write the field
             int tErrMsg = ex_put_var(
-                    mExoid,
+                    mExoID,
                     tTimeStep,
                     EX_ELEM_BLOCK,
                     tFieldIndex + 1,
@@ -491,27 +504,79 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
+        Writer_Exodus::write_side_set_field(
+                std::string             aSideSetName,
+                std::string             aFieldName,
+                const Matrix< DDRMat >& aFieldValues )
+        {
+            // skip if no elemental values exist
+            uint tNumFieldEntries = aFieldValues.numel();
+            if ( tNumFieldEntries == 0 )
+            {
+                return;
+            }
+
+            // Check that side set is valid
+            MORIS_ERROR( mSideSetNamesMap.key_exists( aSideSetName ), 
+                    "Writer_Exodus::write_side_set_field() - "
+                    "The side set (%s) the data (size: %i) is supposed to be written to does not exist in exodus mesh.",
+                    aSideSetName.c_str(),
+                    tNumFieldEntries );
+
+            // Block name to local index of non-empty blocks
+            int tSideSetIndex = mSideSetNamesMap[ aSideSetName ];
+
+            // Field name to index
+            int tFieldIndex = mSideSetFieldNamesMap[ aFieldName ];
+            MORIS_ERROR( (uint) tFieldIndex < mSideSetFieldNamesMap.size(), 
+                    "Writer_Exodus::write_side_set_field() - %s is not an elemental field name on this mesh.",
+                    aFieldName.c_str() );
+
+            // Ensure that time step is larger than or equal 1
+            int tTimeStep = mTimeStep > 1 ? mTimeStep : 1;
+
+            // Write the field
+            int tErrMsg = ex_put_var(
+                    mExoID,
+                    tTimeStep,
+                    EX_SIDE_SET,
+                    tFieldIndex + 1,
+                    tSideSetIndex + 1,
+                    aFieldValues.numel(),
+                    aFieldValues.data() );
+
+            // Check for error
+            MORIS_ERROR( tErrMsg == 0,
+                    "Writer_Exodus::write_side_set_field() - "
+                    "Side set field %s could not be written for side set %s to exodus file.",
+                    aFieldName.c_str(),
+                    aSideSetName.c_str() );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
         Writer_Exodus::write_global_variables(
                 moris::Cell< std::string >& aVariableNames,
                 const Matrix< DDRMat >&     aVariableValues )
         {
             // number of global variables
-            uint tNumVarialbes = aVariableNames.size();
+            uint tNumVariables = aVariableNames.size();
 
             // check that number of variables names is not larger than number of values
-            MORIS_ASSERT( tNumVarialbes <= aVariableValues.numel(),
+            MORIS_ASSERT( tNumVariables <= aVariableValues.numel(),
                     "Number of global variables names larger than number of values." );
 
             // allocated vector of sorted global variables
-            Matrix< DDRMat > tSortedValues( tNumVarialbes, 1 );
+            Matrix< DDRMat > tSortedValues( tNumVariables, 1 );
 
-            for ( uint ig = 0; ig < tNumVarialbes; ++ig )
+            for ( uint ig = 0; ig < tNumVariables; ++ig )
             {
                 // Variable name to index
                 uint tVariableIndex = mGlobalVariableNamesMap[ aVariableNames( ig ) ];
 
                 // check that index is valid
-                MORIS_ASSERT( tVariableIndex < tNumVarialbes, "Global variable index too large." );
+                MORIS_ASSERT( tVariableIndex < tNumVariables, "Global variable index too large." );
 
                 // store global variable in sorted list
                 tSortedValues( tVariableIndex ) = aVariableValues( ig );
@@ -519,12 +584,12 @@ namespace moris
 
             // Write the variables
             int tErrMsg = ex_put_var(
-                    mExoid,
+                    mExoID,
                     mTimeStep,
                     EX_GLOBAL,
                     1,
                     0,
-                    tNumVarialbes,
+                    tNumVariables,
                     tSortedValues.data() );
 
             // check for error
@@ -542,7 +607,7 @@ namespace moris
                 std::string        aTempPath,
                 const std::string& aTempName )
         {
-            MORIS_ERROR( mExoid == -1,
+            MORIS_ERROR( mExoID == -1,
                     "Exodus file is currently open, call close_file() before creating a new one." );
 
             // Add temporary and permanent file names to file paths
@@ -579,9 +644,9 @@ namespace moris
             int cpu_ws = sizeof( real );    // word size in bytes of the floating point variables used in moris
             int io_ws  = sizeof( real );    // word size as stored in exodus
 
-            mExoid = ex_create( mTempFileName.c_str(), EX_CLOBBER, &cpu_ws, &io_ws );
+            mExoID = ex_create( mTempFileName.c_str(), EX_CLOBBER, &cpu_ws, &io_ws );
 
-            MORIS_ERROR( mExoid > -1, "Exodus file cannot be created: %s", mTempFileName.c_str() );
+            MORIS_ERROR( mExoID > -1, "Exodus file cannot be created: %s", mTempFileName.c_str() );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -616,7 +681,7 @@ namespace moris
 
             // Initialize database
             ex_put_init(
-                    mExoid,
+                    mExoID,
                     "MTK",
                     tNumDimensions,
                     mNumNodes,
@@ -825,19 +890,19 @@ namespace moris
             memcpy( coord_names, tmp, sizeof( coord_names ) );
 
             ex_put_coord_names(
-                    mExoid,
+                    mExoID,
                     coord_names );
 
             // Write coordinates
             ex_put_coord(
-                    mExoid,
+                    mExoID,
                     tXCoordinates.data(),
                     tYCoordinates.data(),
                     tZCoordinates.data() );
 
             // Write node id map
             ex_put_id_map(
-                    mExoid,
+                    mExoID,
                     EX_NODE_MAP,
                     tNodeMap.data() );
         }
@@ -863,21 +928,21 @@ namespace moris
                                 tNodeSetNames( tNodeSetIndex ) );
 
                 ex_put_set_param(
-                        mExoid,
+                        mExoID,
                         EX_NODE_SET,
                         tIndex + 1,
                         tNodeIndices.numel(),
                         0 );
 
                 ex_put_set(
-                        mExoid,
+                        mExoID,
                         EX_NODE_SET,
                         tIndex + 1,
                         tNodeIndices.data(),
                         nullptr );
 
                 ex_put_name(
-                        mExoid,
+                        mExoID,
                         EX_NODE_SET,
                         tIndex + 1,
                         tNodeSetNames( tNodeSetIndex ).c_str() );
@@ -921,14 +986,14 @@ namespace moris
             uint tElemCounter = 0;
 
             // Loop through all non-empty blocks
-            for ( uint tIndex = 0; tIndex < mElementBlockIndices.size(); tIndex++ )
+            for ( uint iBlockIndexInExoMesh = 0; iBlockIndexInExoMesh < mElementBlockIndices.size(); iBlockIndexInExoMesh++ )
             {
                 // Get global index
-                uint tBlockIndex = mElementBlockIndices( tIndex );
+                uint tBlockIndexInInputMesh = mElementBlockIndices( iBlockIndexInExoMesh );
 
                 // Get local indices and IDs of elements in current block
-                Matrix< IndexMat > tElementIndices = mMesh->get_element_indices_in_block_set( tBlockIndex );
-                Matrix< IdMat >    tElementIDs     = mMesh->get_element_ids_in_block_set( tBlockIndex );
+                Matrix< IndexMat > tElementIndices = mMesh->get_element_indices_in_block_set( tBlockIndexInInputMesh );
+                Matrix< IdMat >    tElementIDs     = mMesh->get_element_ids_in_block_set( tBlockIndexInInputMesh );
 
                 MORIS_ASSERT( tElementIndices.length() == tElementIDs.length(),
                         "Writer_Exodus::write_blocks - Vector of element IDs must match vector of element indices for Exodus file writing." );
@@ -937,10 +1002,10 @@ namespace moris
                 uint tNumElementsInBlock = tElementIndices.length();
 
                 // Add name to map
-                mBlockNamesMap[ tBlockNames( tBlockIndex ) ] = tIndex;
+                mBlockNamesMap[ tBlockNames( tBlockIndexInInputMesh ) ] = iBlockIndexInExoMesh;
 
                 // Get the CellTopology of this block
-                enum CellTopology tMorisBlockTopology = mMesh->get_blockset_topology( tBlockNames( tBlockIndex ) );
+                enum CellTopology tMorisBlockTopology = mMesh->get_blockset_topology( tBlockNames( tBlockIndexInInputMesh ) );
 
                 const char* tExodusBlockTopology = this->get_exodus_block_topology( tMorisBlockTopology );
 
@@ -952,9 +1017,9 @@ namespace moris
 
                 // Make a block and name it
                 ex_put_block(
-                        mExoid,
+                        mExoID,
                         EX_ELEM_BLOCK,
-                        tIndex + 1,
+                        iBlockIndexInExoMesh + 1,
                         tExodusBlockTopology,
                         tNumElementsInBlock,
                         tNumNodesPerElement,
@@ -963,10 +1028,10 @@ namespace moris
                         tNumAttributesPerElement );
 
                 ex_put_name(
-                        mExoid,
+                        mExoID,
                         EX_ELEM_BLOCK,
-                        tIndex + 1,
-                        tBlockNames( tBlockIndex ).c_str() );
+                        iBlockIndexInExoMesh + 1,
+                        tBlockNames( tBlockIndexInInputMesh ).c_str() );
 
                 // Construct matrix of node indices per element
                 Matrix< IndexMat > tConnectivityArray( tNumNodesPerElement * tNumElementsInBlock, 1, 0 );
@@ -1015,9 +1080,9 @@ namespace moris
 
                 // Write connectivity
                 ex_put_conn(
-                        mExoid,
+                        mExoID,
                         EX_ELEM_BLOCK,
-                        tIndex + 1,
+                        iBlockIndexInExoMesh + 1,
                         tConnectivityArray.data(),
                         nullptr,
                         nullptr );
@@ -1025,7 +1090,7 @@ namespace moris
 
             // Write the element map
             ex_put_id_map(
-                    mExoid,
+                    mExoID,
                     EX_ELEM_MAP,
                     tExodusTotalElementIds.data() );
         }
@@ -1039,69 +1104,75 @@ namespace moris
             moris::Cell< std::string > tSideSetNames = mMesh->get_set_names( mMesh->get_facet_rank() );
 
             // Loop through all non-empty side sets
-            for ( uint tIndex = 0; tIndex < mSideSetIndices.size(); tIndex++ )
+            for ( uint iSideSetInExoMesh = 0; iSideSetInExoMesh < mSideSetIndices.size(); iSideSetInExoMesh++ )
             {
-                // Get global index
-                uint tSideSetIndex = mSideSetIndices( tIndex );
+                // Get the index of the current set in the input mesh
+                uint tSideSetIndexInInputMesh = mSideSetIndices( iSideSetInExoMesh );
+
+                // get the name/label of the set
+                std::string tSetLabel = tSideSetNames( tSideSetIndexInInputMesh );
+
+                // Add name to map
+                mSideSetNamesMap[ tSetLabel ] = iSideSetInExoMesh;
 
                 // Get the side set element ids
-                Matrix< IndexMat > tSideSetElements;
-                Matrix< IndexMat > tSideSetOrdinals;
+                Matrix< IndexMat > tIgElemIndices;
+                Matrix< IndexMat > tIgElemSideOrdinals;
 
                 mMesh->get_sideset_elems_loc_inds_and_ords(
-                        tSideSetNames( tSideSetIndex ),
-                        tSideSetElements,
-                        tSideSetOrdinals );
+                        tSetLabel,
+                        tIgElemIndices,
+                        tIgElemSideOrdinals );
 
                 // Side counter
                 uint tSideCounter = 0;
 
                 // Loop over all sides in set
-                for ( uint tElementNum = 0; tElementNum < tSideSetOrdinals.numel(); tElementNum++ )
+                for ( uint iIgElemInSideSet = 0; iIgElemInSideSet < tIgElemSideOrdinals.numel(); iIgElemInSideSet++ )
                 {
                     // Get mesh-based index
-                    moris_index tElementIndex = tSideSetElements( tElementNum );
+                    moris_index tIgElemIndex = tIgElemIndices( iIgElemInSideSet );
 
-                    // Check that mesh-based index an exodus index has been assigned; if  not it is not part of a block
+                    // Check that mesh-based index an exodus index has been assigned; if not it is not part of a block
                     // on this processor and will be skipped
-                    if ( mMtkExodusElementIndexMap( tElementIndex ) != MORIS_INDEX_MAX )
+                    if ( mMtkExodusElementIndexMap( tIgElemIndex ) != MORIS_INDEX_MAX )
                     {
-                        // Get exodus index
-                        moris_index tExodusIndex = mMtkExodusElementIndexMap( tElementIndex );
+                        // Get index of IG elem in exodus mesh
+                        moris_index tIgElemIndexInExo = mMtkExodusElementIndexMap( tIgElemIndex );
 
                         // Check that position has been assigned
-                        MORIS_ASSERT( mExodusElementIndexOrderMap( tExodusIndex ) != MORIS_INDEX_MAX,
-                                "Writer_Exodus::write_side_sets - Exodus element index has not been assigned a position in exodus file.\n" );
+                        MORIS_ASSERT( mExodusElementIndexOrderMap( tIgElemIndexInExo ) != MORIS_INDEX_MAX,
+                                "Writer_Exodus::write_side_sets() - Exodus element index has not been assigned a position in exodus file.\n" );
 
-                        // Get position in exodus file this element has been written
-                        moris_index tExoPos = mExodusElementIndexOrderMap( tExodusIndex );
+                        // Get position in exodus file this element has been written to
+                        moris_index tExoPos = mExodusElementIndexOrderMap( tIgElemIndexInExo );
 
-                        tSideSetElements( tSideCounter ) = tExoPos + 1;    // add 1 to side ordinal to match exodus definition
-                        tSideSetOrdinals( tSideCounter )++;                // add 1 to side ordinal to match exodus definition
+                        tIgElemIndices( tSideCounter ) = tExoPos + 1;    // add 1 to side ordinal to match exodus definition
+                        tIgElemSideOrdinals( tSideCounter )++;           // add 1 to side ordinal to match exodus definition
                         tSideCounter++;
                     }
                 }
 
                 // Write the side set with actual number of sides in set
                 ex_put_set_param(
-                        mExoid,
+                        mExoID,
                         EX_SIDE_SET,
-                        tIndex + 1,
+                        iSideSetInExoMesh + 1,
                         tSideCounter,
                         0 );
 
                 ex_put_set(
-                        mExoid,
+                        mExoID,
                         EX_SIDE_SET,
-                        tIndex + 1,
-                        tSideSetElements.data(),
-                        tSideSetOrdinals.data() );
+                        iSideSetInExoMesh + 1,
+                        tIgElemIndices.data(),
+                        tIgElemSideOrdinals.data() );
 
                 ex_put_name(
-                        mExoid,
+                        mExoID,
                         EX_SIDE_SET,
-                        tIndex + 1,
-                        tSideSetNames( tSideSetIndex ).c_str() );
+                        iSideSetInExoMesh + 1,
+                        tSetLabel.c_str() );
             }
         }
 
@@ -1125,7 +1196,7 @@ namespace moris
                 case CellTopology::QUAD9:
                     return "QUAD9";
                 case CellTopology::QUAD16:
-                    return "QUAD4";    // use 4-node QUAD as paraview does not support 16-node QUAD
+                    return "QUAD4";    // use 4-node QUAD as ParaView does not support 16-node QUAD
                 case CellTopology::TET4:
                     return "TET4";
                 case CellTopology::TET10:
@@ -1137,7 +1208,7 @@ namespace moris
                 case CellTopology::HEX27:
                     return "HEX27";
                 case CellTopology::HEX64:
-                    return "HEX8";    // use 8-node HEX as paraview does not support 64-node HEX
+                    return "HEX8";    // use 8-node HEX as ParaView does not support 64-node HEX
                 case CellTopology::PRISM6:
                     return "PRISM6";
                 default:
@@ -1164,7 +1235,7 @@ namespace moris
                 case CellTopology::QUAD9:
                     return 9;
                 case CellTopology::QUAD16:
-                    return 4;    // use 4-node QUAD as paraview does not support 16-node QUAD
+                    return 4;    // use 4-node QUAD as ParaView does not support 16-node QUAD
                 case CellTopology::TET4:
                     return 4;
                 case CellTopology::TET10:
@@ -1176,7 +1247,7 @@ namespace moris
                 case CellTopology::HEX27:
                     return 27;
                 case CellTopology::HEX64:
-                    return 8;    // use 8-node HEX as paraview does not support 64-node HEX
+                    return 8;    // use 8-node HEX as ParaView does not support 64-node HEX
                 case CellTopology::PRISM6:
                     return 6;
                 default:

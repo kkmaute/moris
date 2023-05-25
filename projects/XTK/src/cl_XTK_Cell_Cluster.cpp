@@ -13,6 +13,7 @@
 #include "cl_XTK_Interpolation_Cell_Unzipped.hpp"
 #include "cl_XTK_Child_Mesh.hpp"
 #include "cl_XTK_Cut_Integration_Mesh.hpp"
+#include "fn_stringify_matrix.hpp"
 
 // namespace moris
 // {
@@ -176,7 +177,7 @@ namespace xtk
              // get the vertex pointers on the side - for the bulk this is all vertices on the integration cell
             moris::Cell<moris::mtk::Vertex *> tVerticesOnCell = tIntegrationCell->get_vertex_pointers();
 
-            // allocate output (nnode x dim_xsi)
+            // allocate output (n_node x dim_xsi)
             moris::Matrix<moris::DDRMat> tVertexParamCoords( tVerticesOnCell.size(), this->get_dim_of_param_coord());
 
             // iterate through vertices and collect local coordinates
@@ -388,6 +389,7 @@ namespace xtk
             const mtk::Primary_Void aPrimaryOrVoid,
             const mtk::Master_Slave aIsMaster ) const
     {
+        // only compute // FIXME: ghost clusters for visualization should also have their cluster volumes assigned
         if( !mOnlyForVis ) 
         {
             // check that the cluster group exists and is set

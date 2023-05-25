@@ -2095,7 +2095,7 @@ namespace moris
                     tComputationParameterList.get< uint >( "finite_difference_perturbation_strategy" ) );
 
             // create a map of the set
-            std::map< std::tuple< std::string, bool, bool >, uint > tMeshtoFemSet;
+            std::map< std::tuple< std::string, bool, bool >, uint > tMeshToFemSet;
 
             // loop over the IWGs
             for ( uint iIWG = 0; iIWG < tIWGParameterList.size(); iIWG++ )
@@ -2155,14 +2155,14 @@ namespace moris
                     this->check_and_set_ghost_set_names( tMeshSetName, tFirstResidualDofType );
 
                     // check if the mesh set name already in map
-                    if ( tMeshtoFemSet.find( std::make_tuple(
+                    if ( tMeshToFemSet.find( std::make_tuple(
                                  tMeshSetName,
                                  tTimeContinuity,
                                  tTimeBoundary ) )
-                            == tMeshtoFemSet.end() )
+                            == tMeshToFemSet.end() )
                     {
                         // add the mesh set name map
-                        tMeshtoFemSet[ std::make_tuple(
+                        tMeshToFemSet[ std::make_tuple(
                                 tMeshSetName,
                                 tTimeContinuity,
                                 tTimeBoundary ) ] = tNumFEMSets++;
@@ -2209,7 +2209,7 @@ namespace moris
                     else
                     {
                         // set the IWG
-                        mSetInfo( tMeshtoFemSet[ std::make_tuple(
+                        mSetInfo( tMeshToFemSet[ std::make_tuple(
                                           tMeshSetName,
                                           tTimeContinuity,
                                           tTimeBoundary ) ] )
@@ -2267,14 +2267,14 @@ namespace moris
                     std::string tMeshSetName = tMeshSetNames( iSetName );
 
                     // if the mesh set name not in map
-                    if ( tMeshtoFemSet.find( std::make_tuple(
+                    if ( tMeshToFemSet.find( std::make_tuple(
                                  tMeshSetName,
                                  tTimeContinuity,
                                  tTimeBoundary ) )
-                            == tMeshtoFemSet.end() )
+                            == tMeshToFemSet.end() )
                     {
                         // add the mesh set name map
-                        tMeshtoFemSet[ std::make_tuple(
+                        tMeshToFemSet[ std::make_tuple(
                                 tMeshSetName,
                                 tTimeContinuity,
                                 tTimeBoundary ) ] = tNumFEMSets++;
@@ -2321,7 +2321,7 @@ namespace moris
                     else
                     {
                         // set the IQI
-                        mSetInfo( tMeshtoFemSet[ std::make_tuple(
+                        mSetInfo( tMeshToFemSet[ std::make_tuple(
                                           tMeshSetName,
                                           tTimeContinuity,
                                           tTimeBoundary ) ] )
@@ -3123,8 +3123,8 @@ namespace moris
                     }
                 }
 
-                //                // debug
-                //                mIWGs( iIWG )->print_names();
+                // debug
+                // mIWGs( iIWG )->print_names();
             }
         }
 
@@ -3328,8 +3328,8 @@ namespace moris
                     }
                 }
 
-                //                // debug
-                //                mIQIs( iIQI )->print_names();
+                // debug - uncomment if needed to list IQIs the code actually sees
+                // mIQIs( iIQI )->print_names();
             }
         }
 
@@ -3352,7 +3352,7 @@ namespace moris
             bool tPrintPhysics =
                     tComputationParameterList.get< bool >( "print_physics_model" );
 
-            // get bool for analytical/finite differenec for SA
+            // get bool for analytical/finite difference for SA
             bool tIsAnalyticalSA =
                     tComputationParameterList.get< bool >( "is_analytical_sensitivity" );
 
@@ -3365,7 +3365,7 @@ namespace moris
                     "finite_difference_perturbation_size" );
 
             // create a map of the set
-            std::map< std::tuple< std::string, bool, bool >, uint > tMeshtoFemSet;
+            std::map< std::tuple< std::string, bool, bool >, uint > tMeshToFemSet;
 
             // loop over the IWGs
             for ( uint iIWG = 0; iIWG < tIWGParameterList.size(); iIWG++ )
@@ -3393,14 +3393,14 @@ namespace moris
                     this->check_and_set_ghost_set_names( tMeshSetName, tFirstResidualDofType );
 
                     // check if the mesh set name already in map
-                    if ( tMeshtoFemSet.find( std::make_tuple(
+                    if ( tMeshToFemSet.find( std::make_tuple(
                                  tMeshSetName,
                                  tTimeContinuity,
                                  tTimeBoundary ) )
-                            == tMeshtoFemSet.end() )
+                            == tMeshToFemSet.end() )
                     {
                         // add the mesh set name map
-                        tMeshtoFemSet[ std::make_tuple(
+                        tMeshToFemSet[ std::make_tuple(
                                 tMeshSetName,
                                 tTimeContinuity,
                                 tTimeBoundary ) ] = tNumFEMSets++;
@@ -3435,7 +3435,7 @@ namespace moris
                     else
                     {
                         // set the IWG
-                        mSetInfo( tMeshtoFemSet[ std::make_tuple(
+                        mSetInfo( tMeshToFemSet[ std::make_tuple(
                                           tMeshSetName,
                                           tTimeContinuity,
                                           tTimeBoundary ) ] )
@@ -3464,14 +3464,14 @@ namespace moris
                     std::string tMeshSetName = tMeshSetNames( iSetName );
 
                     // if the mesh set name not in map
-                    if ( tMeshtoFemSet.find( std::make_tuple(
+                    if ( tMeshToFemSet.find( std::make_tuple(
                                  tMeshSetName,
                                  tTimeContinuity,
                                  tTimeBoundary ) )
-                            == tMeshtoFemSet.end() )
+                            == tMeshToFemSet.end() )
                     {
                         // add the mesh set name map
-                        tMeshtoFemSet[ std::make_tuple(
+                        tMeshToFemSet[ std::make_tuple(
                                 tMeshSetName,
                                 tTimeContinuity,
                                 tTimeBoundary ) ] = tNumFEMSets++;
@@ -3506,7 +3506,7 @@ namespace moris
                     else
                     {
                         // set the IQI
-                        mSetInfo( tMeshtoFemSet[ std::make_tuple(
+                        mSetInfo( tMeshToFemSet[ std::make_tuple(
                                           tMeshSetName,
                                           tTimeContinuity,
                                           tTimeBoundary ) ] )
@@ -3569,29 +3569,29 @@ namespace moris
             tFieldToPopulate.reserve( mFields.size() );
             tFieldIQINames.reserve( mFields.size() );
 
-            for ( uint Ik = 0; Ik < mFields.size(); Ik++ )
+            for ( uint iField = 0; iField < mFields.size(); iField++ )
             {
-                if ( mFields( Ik )->get_populate_field_with_IQI() )
+                if ( mFields( iField )->get_populate_field_with_IQI() )
                 {
-                    tFieldToPopulate.push_back( mFields( Ik ) );
-                    tFieldIQINames.push_back( mFields( Ik )->get_IQI_name() );
+                    tFieldToPopulate.push_back( mFields( iField ) );
+                    tFieldIQINames.push_back( mFields( iField )->get_IQI_name() );
                 }
             }
 
-            for ( uint Ik = 0; Ik < mFemSets.size(); Ik++ )
+            for ( uint iSet = 0; iSet < mFemSets.size(); iSet++ )
             {
-                if ( mFemSets( Ik )->get_element_type() == Element_Type::BULK )
+                if ( mFemSets( iSet )->get_element_type() == Element_Type::BULK )
                 {
-                    mFemSets( Ik )->populate_fields( tFieldToPopulate, tFieldIQINames );
+                    mFemSets( iSet )->populate_fields( tFieldToPopulate, tFieldIQINames );
                 }
             }
 
-            // output fields to file. FIXME better should be done somewhere else.
-            for ( uint Ik = 0; Ik < mFields.size(); Ik++ )
+            // output fields to file. // FIXME: better should be done somewhere else.
+            for ( uint iSet = 0; iSet < mFields.size(); iSet++ )
             {
-                mFields( Ik )->output_field_to_file();
+                mFields( iSet )->output_field_to_file();
 
-                // mFields( Ik )->save_field_to_exodus( "FEM_Field.Exo" );
+                // mFields( iSet )->save_field_to_exodus( "FEM_Field.Exo" );
             }
         }
 

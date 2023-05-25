@@ -33,7 +33,7 @@ class Reader_Exodus
 {
 public:
     moris::mtk::Mesh*                           mMesh;
-    int                                         mExoid;
+    int                                         mExoID;
     moris::uint                                 mNumSpatialDimensions;
     moris::Matrix<moris::DDRMat>                mNodeCoordinates;
     moris::Matrix<moris::IdMat>                 mNodeMap;

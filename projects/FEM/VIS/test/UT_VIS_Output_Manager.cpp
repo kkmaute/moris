@@ -339,8 +339,8 @@ namespace moris
                 Output_Manager tOutputData;
 
                 tOutputData.set_outputs( 0,
-                        //                                         VIS_Mesh_Type::STANDARD,
-                        VIS_Mesh_Type::OVERLAPPING_INTERFACE,
+                        // VIS_Mesh_Type::STANDARD,
+                        VIS_Mesh_Type::STANDARD_WITH_OVERLAP,
                         "./",
                         "Output_Vis_Mesh_overlapping.exo",
                         "./",

@@ -790,6 +790,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        // TODO: this function does not work so far, as mCellAssemblyMap never gets constructed
         void Element_Sideset::compute_quantity_of_interest_elemental( const uint aMeshIndex )
         {
             // get number of active local IQIs
@@ -874,7 +875,7 @@ namespace moris
                 moris_index tGlobalIndex =
                         mSet->get_requested_elemental_IQIs_global_indices_for_visualization()( iIQI );
 
-                // devide by space-time volume
+                // divide by space-time volume
                 ( *mSet->mSetElementalValues )(
                         mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), tGlobalIndex ) /=
                                 tSpaceTimeVolume;

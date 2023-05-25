@@ -107,7 +107,7 @@ namespace xtk
 
         // FIXME: for SPG based enrichment, the above needs to go eventually
         Cell< moris::Matrix< IndexMat > > mSubphaseGroupIndsInEnrichedBasis;    // input: enriched BF index || output: list of SPG indices in which enriched BF is active
-        Matrix< IdMat >                   mBulkPhaseInEnrichedBasis;            // input: enriched BF index || output: list of SPG indices in which enriched BF is active
+        Matrix< IdMat >                   mBulkPhaseInEnrichedBasis;            // input: enriched BF index || output: // FIXME: ?
 
         // Basis enrichment level indices
         moris::Cell< Matrix< IndexMat > > mBasisEnrichmentIndices;    // input1: non-enriched BF index, input2: enrichment level || output: enriched BF index

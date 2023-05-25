@@ -12,16 +12,16 @@
 #include <typeinfo>
 #include "fn_TOL_Capacities.hpp"
 
-//#include "cl_MTK_Interpolation_Mesh_Analysis.hpp"
+// #include "cl_MTK_Interpolation_Mesh_Analysis.hpp"
 
 namespace moris::mtk
 {
     //------------------------------------------------------------------------------
 
     Vertex_DataBase::Vertex_DataBase( moris_index aVertexIndex,
-        mtk::Mesh* const&                         aMesh ) :
-        mVertexIndex( aVertexIndex ),
-        mMesh( aMesh )
+            mtk::Mesh* const &                    aMesh )
+            : mVertexIndex( aVertexIndex )
+            , mMesh( aMesh )
     {
     }
 
@@ -30,9 +30,9 @@ namespace moris::mtk
     Matrix< DDRMat >
     Vertex_DataBase::get_coords() const
     {
-        real* tCoordsPointer =  mMesh->get_vertex_coords_ptr( mVertexIndex );
+        real* tCoordsPointer = mMesh->get_vertex_coords_ptr( mVertexIndex );
         // use advanced constructor
-        Matrix< DDRMat > tCoordMatrix(tCoordsPointer, 1, mMesh->get_spatial_dim(), false, true );
+        Matrix< DDRMat > tCoordMatrix( tCoordsPointer, 1, mMesh->get_spatial_dim(), false, true );
 
         return tCoordMatrix;
     }
@@ -69,7 +69,7 @@ namespace moris::mtk
     {
         // get the first interpolation vertex
         Vertex_Interpolation** tFirstIPVertex = mMesh->get_vertex_interpolation( mVertexIndex );
-        uint tLocalOrder = mMesh->get_local_mesh_index( aBSplineMeshIndex );
+        uint                   tLocalOrder    = mMesh->get_local_mesh_index( aBSplineMeshIndex );
 
         return *( tFirstIPVertex + tLocalOrder );
     }
@@ -81,7 +81,7 @@ namespace moris::mtk
     {
         // get the first interpolation vertex
         Vertex_Interpolation** tFirstIPVertex = mMesh->get_vertex_interpolation( mVertexIndex );
-        uint tLocalOrder = mMesh->get_local_mesh_index( aBSplineMeshIndex );
+        uint                   tLocalOrder    = mMesh->get_local_mesh_index( aBSplineMeshIndex );
 
         return *( tFirstIPVertex + tLocalOrder );
     }
@@ -110,4 +110,4 @@ namespace moris::mtk
     }
 
     //------------------------------------------------------------------------------
-}// namespace moris::mtk
+}    // namespace moris::mtk

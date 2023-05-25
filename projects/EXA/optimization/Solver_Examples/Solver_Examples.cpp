@@ -1309,7 +1309,7 @@ namespace moris
         tParameterlist( 0 )( tVisCounter ).set( "Temp_Name"  , std::pair< std::string, std::string >( "./", "temp_material_1.exo" ) );
         tParameterlist( 0 )( tVisCounter ).set( "File_Name"  , std::pair< std::string, std::string >( "./", tOutputFileName + "_material_1" ) );
         tParameterlist( 0 )( tVisCounter ).set( "Time_Offset", 100.0 );
-        tParameterlist( 0 )( tVisCounter ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) ); //OVERLAPPING_INTERFACE
+        tParameterlist( 0 )( tVisCounter ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) ); //STANDARD_WITH_OVERLAP
         tParameterlist( 0 )( tVisCounter ).set( "Set_Names"  , tMat1Set );
         tParameterlist( 0 )( tVisCounter ).set( "Field_Names", "TEMP,UX,UY,"
                 "MAX_DOF,STRAIN_ENERGY,VOLUME"  );
@@ -1325,7 +1325,7 @@ namespace moris
         tParameterlist( 0 )( tVisCounter ).set( "Temp_Name"  , std::pair< std::string, std::string >( "./", "temp_material_2.exo" ) );
         tParameterlist( 0 )( tVisCounter ).set( "File_Name"  , std::pair< std::string, std::string >( "./", tOutputFileName + "_material_2" ) );
         tParameterlist( 0 )( tVisCounter ).set( "Time_Offset", 100.0 );
-        tParameterlist( 0 )( tVisCounter ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) ); //OVERLAPPING_INTERFACE
+        tParameterlist( 0 )( tVisCounter ).set( "Mesh_Type"  , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) ); //STANDARD_WITH_OVERLAP
         tParameterlist( 0 )( tVisCounter ).set( "Set_Names"  , tMat2Set );
         tParameterlist( 0 )( tVisCounter ).set( "Field_Names", "TEMP,UX,UY,"
                 "MAX_DOF,STRAIN_ENERGY,VOLUME"  );

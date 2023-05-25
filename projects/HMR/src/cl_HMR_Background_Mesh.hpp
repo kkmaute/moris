@@ -626,6 +626,7 @@ namespace moris
                 if ( gLogger.get_severity_level() < 1 )
                 {
                     // wait until all procs are here ( because of output )
+                    // FIXME: if another proc crashes while the current one is waiting, the whole code stuck forever without terminating
                     barrier();
                 }
 

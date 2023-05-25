@@ -65,7 +65,7 @@ namespace moris::mtk
                 uint tGlobalOrder = mOutputMesh->mMeshIndices( iOrder );
 
                 // put the interpolation vertex in the list
-                mIPMeshInfo->mVertexInterpoltions.push_back( mIPMeshInfo->mVertices( iVertex )->get_interpolation( tGlobalOrder ) );
+                mIPMeshInfo->mVertexInterpolations.push_back( mIPMeshInfo->mVertices( iVertex )->get_interpolation( tGlobalOrder ) );
 
                 // obtain t-matrix info
                 Matrix< DDRMat > const * tWeights = mIPMeshInfo->mVertices( iVertex )->get_interpolation( tGlobalOrder )->get_weights();
@@ -132,7 +132,7 @@ namespace moris::mtk
         mOutputMesh->mVertexCoordinates.set_size( mIPMeshInfo->mSpatialDim, mIPMeshInfo->mVertices.size() );
 
         // reserve space for ip vertices
-        mIPMeshInfo->mVertexInterpoltions.reserve( mIPMeshInfo->mNumLocalInterpolations * mIPMeshInfo->mVertices.size() );
+        mIPMeshInfo->mVertexInterpolations.reserve( mIPMeshInfo->mNumLocalInterpolations * mIPMeshInfo->mVertices.size() );
     }
 
     // ----------------------------------------------------------------------------
@@ -263,7 +263,7 @@ namespace moris::mtk
     Interpolation_Mesh_Editor::create_ip_vertices()
     {
         // create vertex interpolations
-        mOutputMesh->mVertexInterpoltions.resize( mIPMeshInfo->mVertexInterpoltions.size() );
+        mOutputMesh->mVertexInterpoltions.resize( mIPMeshInfo->mVertexInterpolations.size() );
 
         // loop over the order of interpolations
         for ( uint iOrder = 0; iOrder < mIPMeshInfo->mNumLocalInterpolations; iOrder++ )
@@ -280,7 +280,7 @@ namespace moris::mtk
         }
 
         // convert vertex interpolations to pointers
-        mOutputMesh->mVertexInterpoltionsPtrs.reserve( mIPMeshInfo->mVertexInterpoltions.size() );
+        mOutputMesh->mVertexInterpoltionsPtrs.reserve( mIPMeshInfo->mVertexInterpolations.size() );
 
         // fill in the vertex interpolation values
         for ( auto& iVertex : mOutputMesh->mVertexInterpoltions )

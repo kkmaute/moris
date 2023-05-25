@@ -350,19 +350,38 @@ namespace moris
             // get the vertex coordinates
             moris::Matrix< moris::DDRMat > tVertexCoords = this->get_vertex_coords();
 
-            // Get vector along these edges
-            moris::Matrix< moris::DDRMat > tEdge0Vector( tVertexCoords.numel(), 1 );
-            moris::Matrix< moris::DDRMat > tEdge1Vector( tVertexCoords.numel(), 1 );
-
             // Get the nodes which need to be used to compute normal
             moris::Matrix< moris::IndexMat > tEdgeNodesForNormal = this->get_cell_info()->get_node_map_outward_normal( aSideOrdinal );
 
-            // Get vector along these edges
-            tEdge0Vector = moris::linalg_internal::trans( tVertexCoords.get_row( tEdgeNodesForNormal( 1, 0 ) ) - tVertexCoords.get_row( tEdgeNodesForNormal( 0, 0 ) ) );
-            tEdge1Vector = moris::linalg_internal::trans( tVertexCoords.get_row( tEdgeNodesForNormal( 1, 1 ) ) - tVertexCoords.get_row( tEdgeNodesForNormal( 0, 1 ) ) );
+            // initialize the output normal
+            Matrix< DDRMat > tOutwardNormal;
 
-            // Take the cross product to get the normal
-            Matrix< DDRMat > tOutwardNormal = moris::cross( tEdge0Vector, tEdge1Vector );
+            // for 2D just get the normal for an edge
+            if( tVertexCoords.n_cols() == 2 )
+            {
+                moris_index tFirstNode = tEdgeNodesForNormal( 0 );
+                moris_index tSecondNode = tEdgeNodesForNormal( 1 );
+                real tX1 = tVertexCoords( tFirstNode, 0 );
+                real tX2 = tVertexCoords( tSecondNode, 0 ); 
+                real tY1 = tVertexCoords( tFirstNode, 1 );
+                real tY2 = tVertexCoords( tSecondNode, 1 ); 
+                tOutwardNormal = { { tY2 - tY1 }, { tX2 - tX1 } };
+            }
+            
+            // for 3D get the normal to the plane spanned by two edges
+            else
+            {
+                // Get vector along these edges
+                moris::Matrix< moris::DDRMat > tEdge0Vector( tVertexCoords.numel(), 1 );
+                moris::Matrix< moris::DDRMat > tEdge1Vector( tVertexCoords.numel(), 1 );
+
+                // Get vector along these edges
+                tEdge0Vector = moris::linalg_internal::trans( tVertexCoords.get_row( tEdgeNodesForNormal( 1, 0 ) ) - tVertexCoords.get_row( tEdgeNodesForNormal( 0, 0 ) ) );
+                tEdge1Vector = moris::linalg_internal::trans( tVertexCoords.get_row( tEdgeNodesForNormal( 1, 1 ) ) - tVertexCoords.get_row( tEdgeNodesForNormal( 0, 1 ) ) );
+
+                // Take the cross product to get the normal
+                tOutwardNormal = moris::cross( tEdge0Vector, tEdge1Vector );
+            }
 
             // Normalize
             Matrix< DDRMat > tUnitOutwardNormal = tOutwardNormal / moris::norm( tOutwardNormal );

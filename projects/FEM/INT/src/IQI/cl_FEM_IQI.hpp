@@ -125,7 +125,7 @@ namespace moris
             // stabilization parameters
             moris::Cell< std::shared_ptr< Stabilization_Parameter > > mStabilizationParam;
 
-            // local string to int map for stabilizations
+            // local string to int map for stabilization parameters
             std::map< std::string, uint > mStabilizationMap;
 
             // active cluster measure on IQI flag
@@ -143,6 +143,9 @@ namespace moris
 
             // bulk type
             fem::Element_Type mBulkType = fem::Element_Type::BULK;
+
+            // for VIS output: which side of the side set to output on (only relevant for double sided side sets)
+            mtk::Master_Slave mOutputSide = mtk::Master_Slave::MASTER;
 
             // strings for master and slave phase name
             std::string mMasterPhaseName;

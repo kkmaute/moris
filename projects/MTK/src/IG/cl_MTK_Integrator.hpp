@@ -11,25 +11,25 @@
 #ifndef SRC_MTK_CL_MTK_INTEGRATOR_HPP_
 #define SRC_MTK_CL_MTK_INTEGRATOR_HPP_
 
-#include "typedefs.hpp"                  //MRS/COR/src
-#include "cl_Matrix.hpp"                 //LNA/src
-#include "cl_MTK_Enums.hpp"              //MTK/src
-#include "cl_MTK_Integration_Rule.hpp"   //MTK/src
-#include "cl_MTK_Integration_Coeffs.hpp" //MTK/src
+#include "typedefs.hpp"                     //MRS/COR/src
+#include "cl_Matrix.hpp"                    //LNA/src
+#include "cl_MTK_Enums.hpp"                 //MTK/src
+#include "cl_MTK_Integration_Rule.hpp"      //MTK/src
+#include "cl_MTK_Integration_Coeffs.hpp"    //MTK/src
 
 namespace moris
 {
     namespace mtk
     {
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         class Integrator
         {
             // pointer to space rule, if specified
-            Integration_Coeffs_Base * mSpaceCoeffs      = nullptr;
+            Integration_Coeffs_Base *mSpaceCoeffs = nullptr;
 
             // pointer to time rule, if specified
-            Integration_Coeffs_Base * mTimeCoeffs       = nullptr;
+            Integration_Coeffs_Base *mTimeCoeffs = nullptr;
 
             // number of points in space
             uint mNumOfSpacePoints;
@@ -49,42 +49,52 @@ namespace moris
             // matrix with time weights
             Matrix< DDRMat > mTimeWeights;
 
-//------------------------------------------------------------------------------
-        public :
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
+
+          public:
+            //------------------------------------------------------------------------------
+
             /**
              * constructs an integrator from an integration rule
              **/
-            Integrator( const Integration_Rule & aIntegrationRule );
+            Integrator( const Integration_Rule &aIntegrationRule );
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
+
             /**
              * destructor
              **/
             ~Integrator();
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
+
             /**
              * get the number of integration points
              **/
             uint get_number_of_points();
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
+
             /**
              * get the integration points
              **/
-            void get_points( Matrix< DDRMat > & aIntegrationPoints );
+            void get_points( Matrix< DDRMat > &aIntegrationPoints );
 
-//------------------------------------------------------------------------------
+            //------------------------------------------------------------------------------
+
             /**
              * get the integration point weights
              **/
-            void get_weights( Matrix< DDRMat > & aIntegrationWeights );
+            void get_weights( Matrix< DDRMat > &aIntegrationWeights );
 
-//------------------------------------------------------------------------------
-        };
-//------------------------------------------------------------------------------
-    } /* namespace mtk */
-} /* namespace moris */
+            //------------------------------------------------------------------------------
+
+        };    // class Integrator
+
+        //------------------------------------------------------------------------------
+
+    }    // namespace mtk
+
+}    // namespace moris
 
 #endif /* SRC_MTK_CL_MTK_INTEGRATOR_HPP_ */

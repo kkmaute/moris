@@ -1158,6 +1158,12 @@ namespace moris
                 const uint           aMeshIndex,
                 enum vis::Field_Type aFieldType )
         {
+            // FIXME: skip side clusters for now
+            if( mFemCluster( aMeshIndex )->get_element_type() != fem::Element_Type::BULK )
+            {
+                return;
+            }
+
             // compute pdof values
             // FIXME do this only once
             this->compute_my_pdof_values();
@@ -1194,6 +1200,7 @@ namespace moris
                 moris::Matrix< moris::IndexMat > tVertexIndices;
                 mFemCluster( aMeshIndex )->get_vertex_indices_in_cluster_for_visualization( tVertexIndices );
 
+                // FIXME: this operation only works for BULK clusters
                 // get the master vertices local coordinates on the mesh cluster
                 moris::Matrix< moris::DDRMat > tVertexLocalCoords =
                         mFemCluster( aMeshIndex )->get_vertices_local_coordinates_wrt_interp_cell();
@@ -1243,9 +1250,9 @@ namespace moris
                         // assemble the nodal QI value on the set
                         ( *mSet->mSetNodalValues )( tVertexIndices( iVertex ), tGlobalIndex ) = tQINodal( 0 );
                     }
-                }
-            }
-            else
+                } // end for: vertices on cluster
+            } // end if: nodal field
+            else // other fields
             {
                 // ask cluster to compute quantity of interest
                 mFemCluster( aMeshIndex )->compute_quantity_of_interest( aMeshIndex, aFieldType );

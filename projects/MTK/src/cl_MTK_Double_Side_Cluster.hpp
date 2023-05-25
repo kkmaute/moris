@@ -42,7 +42,7 @@ namespace moris
                 // ----------------------------------------------------------------------------------
 
                 /**
-                 * Default constructor, both master and slave side clusters are intialized
+                 * Default constructor, both master and slave side clusters are initialized
                  * as nullptr.
                  */
                 Double_Side_Cluster();

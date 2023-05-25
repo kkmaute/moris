@@ -449,7 +449,7 @@ namespace moris
             // --------------------------------------------------------------------------------------
             vis::Output_Manager tOutputData;
             tOutputData.set_outputs( 0,
-                    vis::VIS_Mesh_Type::STANDARD,    // OVERLAPPING_INTERFACE
+                    vis::VIS_Mesh_Type::STANDARD,    // STANDARD_WITH_OVERLAP
                     "./",
                     "MDL_Fluid_Benchmark_Immersed_Inlet_Velocity_Output.exo",
                     "./",
@@ -804,7 +804,7 @@ namespace moris
             // --------------------------------------------------------------------------------------
             vis::Output_Manager tOutputData;
             tOutputData.set_outputs( 0,
-                    vis::VIS_Mesh_Type::STANDARD,    // OVERLAPPING_INTERFACE
+                    vis::VIS_Mesh_Type::STANDARD,    // STANDARD_WITH_OVERLAP
                     "./",
                     "MDL_Fluid_Benchmark_Immersed_Inlet_Pressure_Output.exo",
                     "./",
@@ -1235,7 +1235,7 @@ namespace moris
     //        // --------------------------------------------------------------------------------------
     //        vis::Output_Manager tOutputData;
     //        tOutputData.set_outputs( 0,
-    //                                 vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+    //                                 vis::VIS_Mesh_Type::STANDARD, //STANDARD_WITH_OVERLAP
     //                                 "./",
     //                                 "MDL_Fluid_Benchmark_Immersed_Inlet_Pressure_Output_3D.exo",
     //                                 { "HMR_dummy_c_p42", "HMR_dummy_n_p42" },
@@ -1509,7 +1509,7 @@ namespace moris
     //         // --------------------------------------------------------------------------------------
     //         vis::Output_Manager tOutputData;
     //         tOutputData.set_outputs( 0,
-    //                                  vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+    //                                  vis::VIS_Mesh_Type::STANDARD, //STANDARD_WITH_OVERLAP
     //                                  "./",
     //                                  "MDL_Fluid_Benchmark_Conform_Inlet_Velocity_Output.exo",
     //                                  { "HMR_dummy" },
@@ -1768,7 +1768,7 @@ namespace moris
     //         // --------------------------------------------------------------------------------------
     //         vis::Output_Manager tOutputData;
     //         tOutputData.set_outputs( 0,
-    //                                  vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+    //                                  vis::VIS_Mesh_Type::STANDARD, //STANDARD_WITH_OVERLAP
     //                                  "./",
     //                                  "MDL_Fluid_Benchmark_Conform_Inlet_Pressure_Output.exo",
     //                                  { "HMR_dummy" },
@@ -2050,7 +2050,7 @@ namespace moris
     //         // --------------------------------------------------------------------------------------
     //         vis::Output_Manager tOutputData;
     //         tOutputData.set_outputs( 0,
-    //                                  vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+    //                                  vis::VIS_Mesh_Type::STANDARD, //STANDARD_WITH_OVERLAP
     //                                  "./",
     //                                  "MDL_Fluid_Benchmark_Conform_Inlet_Pressure_3D_Output.exo",
     //                                  { "HMR_dummy" },
@@ -2493,7 +2493,7 @@ namespace moris
             // --------------------------------------------------------------------------------------
             vis::Output_Manager tOutputData;
             tOutputData.set_outputs( 0,
-                    vis::VIS_Mesh_Type::STANDARD,    // OVERLAPPING_INTERFACE
+                    vis::VIS_Mesh_Type::STANDARD,    // STANDARD_WITH_OVERLAP
                     "./",
                     "MDL_Fluid_Benchmark_Radial_Couette_Output.exo",
                     "./",

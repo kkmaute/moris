@@ -61,24 +61,24 @@ namespace xtk
         moris::Cell< moris::Cell< std::shared_ptr< xtk::Side_Cluster_Group > > > mDblSideClusterGroups;
 
         // Vertex Set
-        std::unordered_map< std::string, moris_index >     mVertexSetLabelToOrd;
-        moris::Cell< std::string >                         mVertexSetNames;
-        moris::Cell< moris::Cell< moris::mtk::Vertex * > > mVerticesInVertexSet;
-        moris::Cell< moris::Matrix< IndexMat > >           mVertexSetColors;
+        std::unordered_map< std::string, moris_index > mVertexSetLabelToOrd;
+        moris::Cell< std::string >                     mVertexSetNames;
+        moris::Cell< moris::Cell< mtk::Vertex * > >    mVerticesInVertexSet;
+        moris::Cell< Matrix< IndexMat > >              mVertexSetColors;
 
         // Block sets containing Cell Clusters
         std::unordered_map< std::string, moris_index >          mBlockSetLabelToOrd;
         moris::Cell< std::string >                              mBlockSetNames;
         moris::Cell< enum CellTopology >                        mBlockSetTopology;
         moris::Cell< moris::Cell< xtk::Cell_Cluster const * > > mPrimaryBlockSetClusters;
-        moris::Cell< moris::Matrix< IndexMat > >                mBlockSetColors;  /*Bulk phases*/
+        moris::Cell< Matrix< IndexMat > >                       mBlockSetColors;  /*Bulk phases*/
         moris::Cell< moris::Cell< moris_index > >               mColorsBlockSets; /*transpose of mBlockSetColors*/
 
         // side sets
         std::unordered_map< std::string, moris_index >                     mSideSideSetLabelToOrd;
         moris::Cell< std::string >                                         mSideSetLabels;
         moris::Cell< moris::Cell< std::shared_ptr< xtk::Side_Cluster > > > mSideSets;
-        moris::Cell< moris::Matrix< IndexMat > >                           mSideSetColors;  /*Bulk phases of cells attached to side*/
+        moris::Cell< Matrix< IndexMat > >                                  mSideSetColors;  /*Bulk phases of cells attached to side*/
         moris::Cell< moris::Cell< moris_index > >                          mColorsSideSets; /*transpose of mSideSetColors*/
 
         // double side sets
@@ -89,22 +89,24 @@ namespace xtk
         moris::Cell< moris::Cell< moris_index > >                                 mDoubleSideSetsSlaveIndex;
         moris::Cell< std::shared_ptr< mtk::Double_Side_Cluster > >                mDoubleSideClusters;
         moris::Cell< std::shared_ptr< xtk::Side_Cluster > >                       mDoubleSideSingleSideClusters; /*lefts and rights of the double side sets*/
-        moris::Matrix< moris::IndexMat >                                          mBulkPhaseToDblSideIndex;
-        moris::Cell< moris::Matrix< IndexMat > >                                  mMasterDoubleSideSetColor;
-        moris::Cell< moris::Matrix< IndexMat > >                                  mSlaveDoubleSideSetColor;
+        Matrix< IndexMat >                                                        mBulkPhaseToDblSideIndex;
+        moris::Cell< Matrix< IndexMat > >                                         mMasterDoubleSideSetColor;
+        moris::Cell< Matrix< IndexMat > >                                         mSlaveDoubleSideSetColor;
         moris::Cell< moris::Cell< moris_index > >                                 mColorMasterDoubleSideSet; /*transpose of mMasterDoubleSideSetColor*/
         moris::Cell< moris::Cell< moris_index > >                                 mColorSlaveDoubleSideSet;  /*transpose of mSlaveDoubleSideSetColor*/
 
         // Fields
-        moris::Cell< xtk::Field >                                     mFields; /*Structure Node (0), Cell(1)*/
-        moris::Cell< std::unordered_map< std::string, moris_index > > mFieldLabelToIndex;
+        moris::Cell< xtk::Field >                                                    mFields; // list of global fields
+        moris::Cell< moris::Cell< xtk::Field > >                                     mSideSetFields; // outer cell: set ordinal || inner cell: list of fields on that set
+        moris::Cell< std::unordered_map< std::string, moris_index > >                mGlobalSetFieldLabelToIndex;    // outer cell: index indicating set type
+        moris::Cell< moris::Cell< std::unordered_map< std::string, moris_index > > > mSetWiseFieldLabelToIndex;      // outer cell: set type || inner cell: set ordinal
 
         // Sub phase index to Cell Cluster Index (these only include the standard cluster i.e. non-ghost clusters.)
-        moris::Matrix< moris::IndexMat >          mSubphaseIndexToClusterIndex;      // input: enr IP cell (= cluster) index || output: subphase index
+        Matrix< IndexMat >                        mSubphaseIndexToClusterIndex;      // input: enr IP cell (= cluster) index || output: subphase index
         moris::Cell< moris::Cell< moris_index > > mClusterIndexToSubphaseIndices;    // input: enr IP cell (= cluster) index || output: List of subphase indices in cluster
 
         // a connectivity pointer used by all transition cells
-        moris::mtk::Cell_Info *mCellInfo;
+        mtk::Cell_Info *mCellInfo;
 
         //------------------------------------------------------------------------------
 
@@ -274,7 +276,7 @@ namespace xtk
          */
 
         moris::Cell< std::string >
-        create_basis_support_fields( moris::Matrix< moris::DDRMat > const &aProbeSpheres );
+        create_basis_support_fields( Matrix< DDRMat > const &aProbeSpheres );
 
         void
         create_bg_cell_id_field();
@@ -338,20 +340,32 @@ namespace xtk
         // Additional Field Functions
         //------------------------------------------------------------------------------
 
+        /**
+         * @brief Get the labels of the fields
+         *
+         * @param aEntityRank
+         * @param aSetOrdinal ordinal of the set or bulk-phase of the block for which the field names should be obtained (leave empty for global names)
+         * @return moris::Cell< std::string > list of labels of the fields
+         */
         moris::Cell< std::string >
-        get_field_names( enum moris::EntityRank aEntityRank );
+        get_field_names(
+                enum moris::EntityRank   aEntityRank,
+                const moris::moris_index aSetOrdinal = MORIS_INDEX_MAX );
+
+        //------------------------------------------------------------------------------
 
         /**
          * @brief Create a field
          * @param[in] aLabel Field label
          * @param[in] aEntityRank Field entity rank
-         * @param[in]aBulkPhaseIndex Bulk phase field defined over
+         * @param[in]aSetOrdinal Bulk phase field defined over
          * aBulkphaseIndex of MORIS_INDEX_MAX results in a field over all phases
          */
         moris::moris_index
-        create_field( std::string      aLabel,
+        create_field(
+                std::string            aLabel,
                 enum moris::EntityRank aEntityRank,
-                moris::moris_index     aBulkPhaseIndex = MORIS_INDEX_MAX );
+                moris::moris_index     aSetOrdinal = MORIS_INDEX_MAX );
 
         //------------------------------------------------------------------------------
 
@@ -360,8 +374,10 @@ namespace xtk
          * @return Field index
          */
         moris::moris_index
-        get_field_index( std::string   aLabel,
-                enum moris::EntityRank aEntityRank );
+        get_field_index(
+                const std::string            aLabel,
+                const enum moris::EntityRank aEntityRank,
+                const moris::moris_index     aSetOrdinal = MORIS_INDEX_MAX );
 
         //------------------------------------------------------------------------------
 
@@ -372,9 +388,13 @@ namespace xtk
          * @param[in] aFieldData Field data
          */
         void
-        add_field_data( moris::moris_index aFieldIndex,
-                enum moris::EntityRank     aEntityRank,
-                Matrix< DDRMat > const    &aFieldData );
+        add_field_data(
+                moris::moris_index      aFieldIndex,
+                enum moris::EntityRank  aEntityRank,
+                Matrix< DDRMat > const &aFieldData,
+                moris::moris_index      aSetOrdinal = MORIS_INDEX_MAX );
+
+        //------------------------------------------------------------------------------
 
         /**
          * @brief Given a field index and field entity rank, get the field data
@@ -383,26 +403,35 @@ namespace xtk
          * @return Field data
          */
         Matrix< DDRMat > const &
-        get_field_data( moris::moris_index aFieldIndex,
-                enum moris::EntityRank     aEntityRank ) const;
+        get_field_data(
+                moris::moris_index     aFieldIndex,
+                enum moris::EntityRank aEntityRank,
+                moris::moris_index     aSetOrdinal = MORIS_INDEX_MAX ) const;
+
         //------------------------------------------------------------------------------
+
         /**
          * @brief Convert entity indices to entity ids
          * @param[in] aIndices Entity indices
          * @param[in] aEntityRank Entity rank
          * @return Entity ids
          */
-        Matrix< IdMat > convert_indices_to_ids( Matrix< IndexMat > const &aIndices,
-                enum EntityRank                                           aEntityRank ) const;
+        Matrix< IdMat > convert_indices_to_ids(
+                Matrix< IndexMat > const &aIndices,
+                enum EntityRank           aEntityRank ) const;
+
         //------------------------------------------------------------------------------
+
         /**
          * @brief Convert entity ids to entity indices
          * @param[in] aIds Entity ids
          * @param[in] aEntityRank Entity rank
          * @return Entity indices
          */
-        Matrix< IndexMat > convert_ids_to_indices( Matrix< IdMat > const &aIds,
-                enum EntityRank                                           aEntityRank ) const;
+        Matrix< IndexMat > convert_ids_to_indices(
+                Matrix< IdMat > const &aIds,
+                enum EntityRank        aEntityRank ) const;
+
         //------------------------------------------------------------------------------
 
         /**
@@ -410,7 +439,7 @@ namespace xtk
          * @param[in] aCellIndices Cell indices
          * @return MTK cells
          */
-        moris::Cell< moris::mtk::Cell const * >
+        moris::Cell< mtk::Cell const * >
         get_mtk_cells_loc_inds( Matrix< IndexMat > const &aCellIndices );
 
         //------------------------------------------------------------------------------
@@ -420,7 +449,7 @@ namespace xtk
          * @param[in] aVertexIndices Vertex indices
          * @return MTK vertices
          */
-        moris::Cell< moris::mtk::Vertex const * >
+        moris::Cell< mtk::Vertex const * >
         get_mtk_vertices_loc_inds( Matrix< IndexMat > const &aVertexIndices );
         //------------------------------------------------------------------------------
 
@@ -501,7 +530,7 @@ namespace xtk
         //------------------------------------------------------------------------------
 
         void
-        visualize_cluster_group_measures();
+        visualize_cluster_group_measures( const bool aWriteBsplineClusterInfo );
 
         //------------------------------------------------------------------------------
 
@@ -584,6 +613,8 @@ namespace xtk
 
         //------------------------------------------------------------------------------
 
+        // TODO!
+
         void
         setup_cell_cluster_groups();
 
@@ -591,7 +622,13 @@ namespace xtk
         setup_side_cluster_groups();
 
         void
+        setup_side_cluster_groups_old();
+
+        void
         setup_dbl_side_cluster_groups();
+
+        void
+        setup_dbl_side_cluster_groups_old();
 
         //------------------------------------------------------------------------------
 
@@ -700,8 +737,8 @@ namespace xtk
         //------------------------------------------------------------------------------
 
         void
-        construct_color_to_set_relationship( moris::Cell< moris::Matrix< IndexMat > > const &aSetColors,
-                moris::Cell< moris::Cell< moris_index > >                                   &aColorToSetIndex );
+        construct_color_to_set_relationship( moris::Cell< Matrix< IndexMat > > const &aSetColors,
+                moris::Cell< moris::Cell< moris_index > >                            &aColorToSetIndex );
 
         //------------------------------------------------------------------------------
 
@@ -716,14 +753,16 @@ namespace xtk
          * Returns an index in the data structure for a given entity rank (i.e. NODE = 0)
          */
         moris_index
-        get_entity_rank_field_index( enum moris::EntityRank aEntityRank );
+        get_entity_rank_field_index( const enum moris::EntityRank aEntityRank );
         //------------------------------------------------------------------------------
         /**
          * @return  whether a field exists or not
          */
         bool
-        field_exists( std::string      aLabel,
-                enum moris::EntityRank aEntityRank );
+        field_exists(
+                const std::string            aLabel,
+                const enum moris::EntityRank aEntityRank,
+                const moris::moris_index     aSetOrdinal );
     };
 
 }    // namespace xtk

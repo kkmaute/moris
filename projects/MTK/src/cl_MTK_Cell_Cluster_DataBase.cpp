@@ -24,7 +24,7 @@ namespace moris::mtk
         mCellClusterIndex( aCellClusterIndex ),
         mMesh( aMesh )
     {
-        // populate the data that is returned by refernce
+        // populate the data that is returned by reference
         this->set_outward_data();
     }
 
@@ -93,7 +93,7 @@ namespace moris::mtk
 
         if ( !tTrivial )
         {
-            // extract the necessary information coordinate matrix pointer, begining of the numer, number of vertices  and spatial dim
+            // extract the necessary information coordinate matrix pointer, beginning of the numer, number of vertices  and spatial dim
             //  these data are to extract the right rows and columns of the coordinate matrix
             Matrix< DDRMat >* tVertexCoordsPtr = mMesh->get_local_coord_matrix_ptr( ClusterType::CELL_CLUSTER, mCellClusterIndex );
             uint              tRowNumber       = mMesh->get_row_number_local_coords_matrix( ClusterType::CELL_CLUSTER, mCellClusterIndex );
@@ -147,7 +147,7 @@ namespace moris::mtk
         Matrix< DDRMat >* tVertexCoordsPtr = mMesh->get_local_coord_matrix_ptr( ClusterType::CELL_CLUSTER, mCellClusterIndex );
         uint              tRowNumber       = mMesh->get_row_number_local_coords_matrix( ClusterType::CELL_CLUSTER, mCellClusterIndex );
 
-        // return the specfic row
+        // return the specific row
         return tVertexCoordsPtr->get_row( tRowNumber + tVertexOrdinal );
     }
 
@@ -183,7 +183,7 @@ namespace moris::mtk
             // get the vertex pointers on the side
             moris::Cell< moris::mtk::Vertex* > tVerticesOnCell = tIntegrationCell->get_vertex_pointers();
 
-            // allocate output (nnode x dim_xsi)
+            // allocate output (n_node x dim_xsi)
             moris::Matrix< moris::DDRMat > tVertexParamCoords( tVerticesOnCell.size(), this->get_dim_of_param_coord() );
 
             // iterate through vertices and collect local coordinates
