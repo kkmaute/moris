@@ -21,8 +21,9 @@ namespace vis
     {
         UNDEFINED,
         STANDARD,
-        OVERLAPPING_INTERFACE,
-        FULL_DISCONTINOUS,
+        STANDARD_WITH_OVERLAP,
+        FULL_DISCONTINUOUS,
+        FULL_DISCONTINUOUS_WITH_OVERLAP,
         END_ENUM//
     };
 
@@ -33,6 +34,7 @@ namespace vis
         NODAL_IP,
         ELEMENTAL,
         GLOBAL,
+        FACETED,
         END_ENUM//
     };
 
@@ -46,6 +48,7 @@ namespace vis
         tVisFieldTypeMap["NODAL_IP"]  = vis::Field_Type::NODAL_IP;
         tVisFieldTypeMap["ELEMENTAL"] = vis::Field_Type::ELEMENTAL;
         tVisFieldTypeMap["GLOBAL"]    = vis::Field_Type::GLOBAL;
+        tVisFieldTypeMap["FACETED"]   = vis::Field_Type::FACETED;
         tVisFieldTypeMap["END_ENUM"]  = vis::Field_Type::END_ENUM;
 
         return tVisFieldTypeMap;

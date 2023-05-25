@@ -617,7 +617,7 @@ namespace moris
 
             tOutputData.set_outputs( 0,
                     //                                         VIS_Mesh_Type::STANDARD,
-                    vis::VIS_Mesh_Type::OVERLAPPING_INTERFACE,
+                    vis::VIS_Mesh_Type::STANDARD_WITH_OVERLAP,
                     "./",
                     "XTK_HMR_DIFF.exo",
                     "./",

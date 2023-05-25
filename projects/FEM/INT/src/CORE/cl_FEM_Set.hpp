@@ -278,7 +278,7 @@ namespace moris
             void set_visualization_set(
                     const uint       aMeshIndex,
                     moris::mtk::Set* aVisMeshSet,
-                    const bool       aOnlyPrimayCells );
+                    const bool       aOnlyPrimaryCells );
 
             //------------------------------------------------------------------------------
             /**

@@ -29,7 +29,7 @@ namespace moris
             ParameterList mVISParameterList;
 
             mVISParameterList.insert( "Output_Index"   , 0 );
-            mVISParameterList.insert( "Mesh_Type"      , static_cast< uint >( vis::VIS_Mesh_Type::OVERLAPPING_INTERFACE ) );
+            mVISParameterList.insert( "Mesh_Type"      , static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
             mVISParameterList.insert( "File_Name"      , std::pair< std::string, std::string >( "", "" ) );
             mVISParameterList.insert( "Temp_Name"      , std::pair< std::string, std::string >( "./", "temp.exo" ) );
             mVISParameterList.insert( "Save_Frequency" , MORIS_SINT_MAX );

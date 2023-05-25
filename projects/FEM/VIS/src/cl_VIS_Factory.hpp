@@ -31,7 +31,7 @@ namespace moris
         class Cell;
         class Vertex;
         class Mesh_Manager;
-    }
+    }    // namespace mtk
 
     namespace vis
     {
@@ -39,60 +39,203 @@ namespace moris
 
         class VIS_Factory
         {
-        private:
-            moris::Cell< moris::mtk::Set * > mListOfBlocks;
+            //-----------------------------------------------------------------------------------------------------------
 
-            moris::Cell< moris::Cell< const mtk::Cluster * > >        mClustersOnBlock;   //FIXME delete can be used temporary
-            moris::Cell< moris::Cell< mtk::Cell * > >   mCellsOnSet;
-            moris::Cell< moris::Cell< mtk::Vertex * > > mVerticesOnSet;
+          private:
+            //-----------------------------------------------------------------------------------------------------------
 
-            moris::Cell< Matrix< DDSMat > >             mVertexMapOnSet;
-            moris::Cell< Matrix< DDSMat > >             mCellMapOnSet;
+            /// @brief VIS-mesh to be constructed by this factory
+            vis::Visualization_Mesh* mVisMesh = nullptr;
 
-            uint mNumRequestedSets;
+            /// @brief Names of sets requested for output
+            Cell< std::string > mAllRequestedSetNames;
+            Cell< std::string > mRequestedBlockSetNames;
+            Cell< std::string > mRequestedSideSetNames;
+            Cell< std::string > mRequestedDoubleSideSetNames;
+
+            /// @brief mtk/fem mesh sets corresponding to the sets listed above
+            Cell< moris::mtk::Set* > mFemBlockSets;
+            Cell< moris::mtk::Set* > mFemSideSets;
+            Cell< moris::mtk::Set* > mFemDoubleSideSets;
+
+            /// @brief map relating the FEM/MTK cells in each block to the VIS cells (to be) created
+            // || input: (1) index of blockset in vis mesh (2) index of cell in the FEM/MTK IG mesh 
+            // || output: index of VIS cell created from this FEM/MTK cell 
+            Cell< Cell< moris_index > > mBlockAndFemCellIndexToVisCellIndex;
+
+            /// @brief map relating the FEM/MTK cells in each block to the VIS vertices (to be) created
+            // || input: (1) index of blockset in vis mesh (2) index of cell in the FEM/MTK IG mesh 
+            // || output: list of indices of VIS vertices in element local order
+            Cell< Cell< Cell< moris_index > > > mBlockAndFemCellIndexToVisVertexIndices;
+
+            /// @brief map relating the fem cell index to the vis cell index
+            // || input: index of IG cell from FEM mesh 
+            // || output: index of the corresponding VIS cell which is primary material
+            // (Note: for overlapping meshes there may be multiple VIS cells created on the same FEM/MTK cell 
+            // but only one is primary wrt. to one of the material phases)
+            Cell< moris_index > mPrimaryFemCellIndexToVisCellIndex;
+
+            /// @brief map relating the fem cell index to the vis cell index
+            // || input: index of IG cell from FEM mesh 
+            // || output: index of the VIS block set in which this cell sits
+            // (Note: for overlapping meshes there may be multiple VIS cells created on the same FEM/MTK cell 
+            // but only one is primary wrt. to one of the material phases)
+            Cell< moris_index > mPrimaryFemCellIndexToBlockIndex;
+
+            /// @brief which cells to output depending on VIS mesh type used
             bool mOnlyPrimaryCells = false;
 
+            /// @brief flag indicating whether the the mesh is to be constructed using fully discontinuous elements (each element gets their own nodes)
+            bool mConstructDiscontinuousMesh = false;
+
+            /// @brief access to the mtk::mesh
             std::shared_ptr< mtk::Mesh_Manager > mMesh = nullptr;
-            const uint         mMeshPairIndex;
+            const uint                           mMeshPairIndex;
+            mtk::Interpolation_Mesh*             mInterpolationMesh = nullptr;
+            mtk::Integration_Mesh*               mIntegrationMesh   = nullptr;
 
-            moris::Cell< std::string > tRequestedSetNames;
+            //-----------------------------------------------------------------------------------------------------------
 
-        public:
+          public:
+            //-----------------------------------------------------------------------------------------------------------
+
             VIS_Factory(
                     std::shared_ptr< mtk::Mesh_Manager > aMesh,
-                    const uint         aMeshPairIndex ) : mMesh( aMesh ),
-                                                           mMeshPairIndex( aMeshPairIndex )
-            {};
+                    const uint                           aMeshPairIndex )
+                    : mMesh( aMesh )
+                    , mMeshPairIndex( aMeshPairIndex )
+            {
+                // get access to the integration and interpolation meshes
+                mMesh->get_mesh_pair( mMeshPairIndex, mInterpolationMesh, mIntegrationMesh );
+            };
 
-//-----------------------------------------------------------------------------------------------------------
+            //-----------------------------------------------------------------------------------------------------------
 
-            ~VIS_Factory(){};
+            ~VIS_Factory()
+            {
+                // make sure there is no memory leaking
+                MORIS_ERROR( mVisMesh == nullptr,
+                        "~VIS_Factory() - "
+                        "The constructed VIS mesh has not been handed off to a new owner. Destructing this factory will cause memory to leak." );
+            };
 
-//-----------------------------------------------------------------------------------------------------------
+            //-----------------------------------------------------------------------------------------------------------
 
-            mtk::Mesh * create_visualization_mesh( moris::vis::Output_Data & aOutputData );
+            /**
+             * @brief initialize member data and sort requested mesh sets by type
+             *
+             * @param aOutputData input parameters specifying output request
+             */
+            void
+            initialize( moris::vis::Output_Data const & aOutputData );
 
-//-----------------------------------------------------------------------------------------------------------
+            //-----------------------------------------------------------------------------------------------------------
 
-            void create_visualization_vertices();
+            vis::Visualization_Mesh*
+            hand_off_VIS_mesh()
+            {
+                MORIS_ERROR( mVisMesh != nullptr,
+                        "VIS_Factory::hand_off_VIS_mesh() - "
+                        "VIS mesh is nullptr. The mesh has either already been handed off to another owner, or not been constructed." );
 
-//-----------------------------------------------------------------------------------------------------------
+                MORIS_ERROR( mVisMesh->mMeshIsFinalized,
+                        "VIS_Factory::hand_off_VIS_mesh() - "
+                        "The VIS mesh has not been finalized yet and is not ready to be handed off." );
 
-            void create_visualization_cells();
+                // copy the pointer for passing off
+                vis::Visualization_Mesh* tVisMeshPtr = mVisMesh;
 
-//-----------------------------------------------------------------------------------------------------------
+                // delete pointer from member data
+                mVisMesh = nullptr;
 
-            void create_visualization_clusters( moris::vis::Output_Data & aOutputData );
+                // pass on pointer to VIS mesh
+                return tVisMeshPtr;
+            }
 
-//-----------------------------------------------------------------------------------------------------------
+            //-----------------------------------------------------------------------------------------------------------
 
-            void create_visualization_blocks();
+            mtk::Mesh*
+            create_visualization_mesh( moris::vis::Output_Data& aOutputData );
 
-//-----------------------------------------------------------------------------------------------------------
+            //-----------------------------------------------------------------------------------------------------------
 
+            /**
+             * @brief Generated the vertices on the VIS mesh
+             *
+             */
+            void
+            create_visualization_vertices();
+
+            //-----------------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief Generated the IG cells on the VIS mesh
+             *
+             */
+            void
+            create_visualization_cells();
+
+            //-----------------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief Generate the clusters in the VIS mesh to interface with FEM for evaluation
+             *
+             */
+            void
+            create_visualization_clusters();
+
+            //-----------------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief Generate the side clusters in the VIS mesh to interface with FEM for evaluation
+             *
+             */
+            void
+            create_visualization_side_clusters();
+
+            //-----------------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief Generate the double sided side clusters in the VIS mesh to interface with FEM for evaluation
+             *
+             */
+            void
+            create_visualization_double_side_clusters(){
+                // TODO!
+            };
+
+            //-----------------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief Generate the VIS block sets
+             *
+             */
+            void
+            create_visualization_blocks();
+
+            //-----------------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief generate the VIS side sets
+             *
+             */
+            void
+            create_visualization_side_sets();
+
+            //-----------------------------------------------------------------------------------------------------------
+
+            /**
+             * @brief generate the VIS double sided side sets
+             *
+             */
+            void
+            create_visualization_double_side_sets(){
+                // TODO!
+            };
+
+            //-----------------------------------------------------------------------------------------------------------
         };
-    } /* namespace VIS */
+    }    // namespace vis
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_VIS_FACTORY_HPP_ */
-

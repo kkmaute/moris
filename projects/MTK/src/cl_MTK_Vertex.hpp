@@ -82,9 +82,12 @@ namespace moris
                 return gNoIndex;
             }
 
+            //------------------------------------------------------------------------------
+
             /**
-             * returns the base vertex of an mtk vertex. For example,
-             * with XTK enriched meshes this returns the vertex index in the background
+             * @brief returns the base vertex of an mtk vertex. 
+             * Specifically, in XTK enriched meshes this returns the vertex index in the background;
+             * and in VIS it returns the MTK vertex a given VIS vertex was constructed from 
              */
             virtual mtk::Vertex const *
             get_base_vertex() const

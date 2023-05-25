@@ -85,7 +85,7 @@ namespace moris
 
                     unique( tVerticesOnBlock, mVerticesOnBlock);
 
-                    //FIXME delete this if statement the unique bud in aramdillo is fixed.
+                    //FIXME delete this if statement the unique bud in Armadillo is fixed.
                     if ( tVerticesOnBlock.n_rows() != mVerticesOnBlock.n_rows() )
                     {
                         tVerticesOnBlock = mVerticesOnBlock;
@@ -264,6 +264,7 @@ namespace moris
                     if ( mOnlyPrimaryCellCheck != aOnlyPrimary )
                     {
                         this->calculate_cells_on_blocks( aOnlyPrimary );
+                        mOnlyPrimaryCellCheck = aOnlyPrimary;
                     }
                     return mNumCellsOnBlock;
                 }
@@ -275,6 +276,7 @@ namespace moris
                     if ( mOnlyPrimaryCellCheck != aOnlyPrimary )
                     {
                         this->calculate_cells_on_blocks( aOnlyPrimary );
+                        mOnlyPrimaryCellCheck = aOnlyPrimary;
                     }
                     return mCellsOnBlock;
                 }

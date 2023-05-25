@@ -15,6 +15,7 @@
 #include "cl_Param_List.hpp"
 
 #include "cl_FEM_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_VIS_Output_Enums.hpp"
 
 namespace moris
@@ -242,6 +243,9 @@ namespace moris
 
             tParameterList.insert( "time_continuity", false );
             tParameterList.insert( "time_boundary", false );
+
+            // determines on which side of the double side set information gets written to the VIS mesh
+            tParameterList.insert( "output_side", (uint)( mtk::Master_Slave::MASTER ) );
 
             tParameterList.insert( "normalization", "none" );    // options: time, design, vector of reference values
 

@@ -1621,7 +1621,7 @@ namespace moris
                 // if the index was set (and is different from -1)
                 if ( tDofIndex != -1 )
                 {
-                    // get the number of coefficients re;ated to the master dof type
+                    // get the number of coefficients related to the master dof type
                     uint tNumCoeff = mMasterFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
 
                     // fill the residual assembly map with starting and ending indices for the master dof type
@@ -3179,49 +3179,60 @@ namespace moris
         Set::set_visualization_set(
                 const uint       aMeshIndex,
                 moris::mtk::Set* aVisMeshSet,
-                const bool       aOnlyPrimayCells )
+                const bool       aOnlyPrimaryCells )
         {
             uint tNumClustersOnSets = aVisMeshSet->get_num_clusters_on_set();
 
-            // set vis clusters to clusters
-            for ( uint Ik = 0; Ik < tNumClustersOnSets; Ik++ )
+            // set vis clusters to fem clusters
+            for ( uint iCluster = 0; iCluster < tNumClustersOnSets; iCluster++ )
             {
                 // create a fem cluster
                 std::shared_ptr< fem::Cluster > tCluster =
                         std::make_shared< fem::Cluster >(
                                 mElementType,
-                                aVisMeshSet->get_clusters_by_index( Ik ),
+                                aVisMeshSet->get_clusters_by_index( iCluster ),
                                 this,
-                                mEquationObjList( Ik ) );
+                                mEquationObjList( iCluster ) );
 
-                reinterpret_cast< fem::Interpolation_Element* >( mEquationObjList( Ik ) )->set_cluster( tCluster, aMeshIndex );
+                reinterpret_cast< fem::Interpolation_Element* >( mEquationObjList( iCluster ) )->set_cluster( tCluster, aMeshIndex );
             }
 
-            // build set element map
-            uint tNumCells = aVisMeshSet->get_num_cells_on_set( aOnlyPrimayCells );
-
-            moris::Matrix< DDSMat > tCellIndex = aVisMeshSet->get_cell_inds_on_block( aOnlyPrimayCells );
-
-            sint tSize = std::max( (sint)mCellAssemblyMap.size(), (sint)aMeshIndex + 1 );
-
-            mCellAssemblyMap.resize( tSize );
-            mMtkIgCellOnSet.resize( tSize );
-
-            mMtkIgCellOnSet( aMeshIndex ) = tNumCells;
-
-            if ( tNumCells > 0 )
+            // the below steps are only needed for block sets
+            // TODO: mCellAssemblyMap is also needed for side sets
+            if ( aVisMeshSet->get_set_type() == moris::SetType::BULK )
             {
-                sint tMaxIndex = tCellIndex.max();
-                //             sint tMinIndex = tCellIndex.min();
+                // get the cells that are on the VIS cluster the fem cluster is supposed to output to
+                moris::Matrix< DDSMat > tCellIndices = aVisMeshSet->get_cell_inds_on_block( aOnlyPrimaryCells );
+                uint tNumCells = aVisMeshSet->get_num_cells_on_set( aOnlyPrimaryCells );
 
+                // resize arrays for current VIS mesh information, if array is too small
+                if( mCellAssemblyMap.size() < aMeshIndex + 1 )
+                {
+                    mCellAssemblyMap.resize( aMeshIndex + 1 );
+                    mMtkIgCellOnSet.resize( aMeshIndex + 1 );
+                }
+
+                // store how many cells are in the current mesh set
+                mMtkIgCellOnSet( aMeshIndex ) = tNumCells;
+
+                // skip the rest for empty sets
+                if ( tNumCells == 0 )
+                {
+                    return;
+                }
+
+                // initialize the map relating mtk cell index in the mesh to the 
+                moris_index tMaxIndex = tCellIndices.max();
                 mCellAssemblyMap( aMeshIndex ).set_size( tMaxIndex + 1, 1, -1 );
 
-                for ( uint Ik = 0; Ik < tNumCells; Ik++ )
+                // relate the mtk cell index to the position of the cell in the list of cells on a given block
+                for ( uint iCell = 0; iCell < tNumCells; iCell++ )
                 {
-                    mCellAssemblyMap( aMeshIndex )( tCellIndex( Ik ) ) = Ik;
+                    moris_index tCellIndex = tCellIndices( iCell );
+                    mCellAssemblyMap( aMeshIndex )( tCellIndex ) = iCell;
                 }
-            }
-        }
+            } // end if: set is a bulk set
+        } // end function: Set::set_visualization_set()
 
         //------------------------------------------------------------------------------
 
@@ -3237,11 +3248,11 @@ namespace moris
             this->gather_requested_IQIs( aQINames, mRequestedNodalIQIs, mRequestedNodalIQIsGlobalIndices );
 
             // loop over equation objects
-            uint tNumEqObjs = mEquationObjList.size();
-            for ( uint Ik = 0; Ik < tNumEqObjs; Ik++ )
+            uint tNumElements = mEquationObjList.size();
+            for ( uint iElement = 0; iElement < tNumElements; iElement++ )
             {
                 // compute quantity of interest
-                mEquationObjList( Ik )->compute_quantity_of_interest(
+                mEquationObjList( iElement )->compute_quantity_of_interest(
                         aMeshIndex,
                         vis::Field_Type::NODAL );
             }
@@ -3286,10 +3297,10 @@ namespace moris
 
             // loop over equation objects
             uint tNumEqObjs = mEquationObjList.size();
-            for ( uint Ik = 0; Ik < tNumEqObjs; Ik++ )
+            for ( uint iElement = 0; iElement < tNumEqObjs; iElement++ )
             {
                 // compute quantity of interest
-                mEquationObjList( Ik )->compute_quantity_of_interest(
+                mEquationObjList( iElement )->compute_quantity_of_interest(
                         aMeshIndex,
                         vis::Field_Type::GLOBAL );
             }
@@ -3335,10 +3346,10 @@ namespace moris
 
             // loop over equation objects
             uint tNumEqObjs = mEquationObjList.size();
-            for ( uint Ik = 0; Ik < tNumEqObjs; Ik++ )
+            for ( uint iElement = 0; iElement < tNumEqObjs; iElement++ )
             {
                 // compute quantity of interest
-                mEquationObjList( Ik )->compute_quantity_of_interest(
+                mEquationObjList( iElement )->compute_quantity_of_interest(
                         aMeshIndex,
                         vis::Field_Type::ELEMENTAL );
             }

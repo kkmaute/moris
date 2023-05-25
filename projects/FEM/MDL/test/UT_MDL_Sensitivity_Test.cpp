@@ -410,7 +410,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         // output manager
         vis::Output_Manager tOutputData;
         tOutputData.set_outputs( 0,
-                                 vis::VIS_Mesh_Type::STANDARD, //OVERLAPPING_INTERFACE
+                                 vis::VIS_Mesh_Type::STANDARD, //STANDARD_WITH_OVERLAP
                                  "./",
                                  "MDL_Sensitivity_Test.exo",
                                  "./",
