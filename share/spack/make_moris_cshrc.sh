@@ -123,7 +123,7 @@ endif
 echo ""                                                                        >> $HOME/.cshrc_moris
 echo "setenv OMPI_MCA_rmaps_base_oversubscribe 1"                              >> $HOME/.cshrc_moris
 echo "setenv OMP_NUM_THREADS 1"                                                >> $HOME/.cshrc_moris
-echo "setenv OMPI_MCA_btl vader,self"                                          >> $HOME/.cshrc_moris
+# echo "setenv OMPI_MCA_btl vader,self"                                          >> $HOME/.cshrc_moris
 echo ""                                                                        >> $HOME/.cshrc_moris
 echo "setenv CC  $CC"                                                          >> $HOME/.cshrc_moris
 echo "setenv CXX $CXX"                                                         >> $HOME/.cshrc_moris
