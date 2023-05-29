@@ -197,7 +197,7 @@ namespace moris
             {
                 // compute derivative
                 mdTestTractiondDof( tTestDofIndex )( tDofIndex ) =
-                        this->testTraction( aNormal, aTestDofTypes ) * trans( aJump ) * mPropEMod->dPropdDOF( aDofTypes ) / mPropEMod->val()( 0 );
+                        trans( this->testTraction( aNormal, aTestDofTypes ) ) * aJump * mPropEMod->dPropdDOF( aDofTypes ) / mPropEMod->val()( 0 );
             }
 
             // if Poisson's ratio depends on dof type
@@ -423,4 +423,3 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
-
