@@ -99,7 +99,7 @@ class Moris(CMakePackage):
         options.extend(['-DMORIS_HAVE_DEBUG=ON'])
         options.extend(['-DMORIS_HAVE_SYMBOLIC=ON'])
         options.extend(['-DMORIS_HAVE_SYMBOLIC_STRONG=ON'])
-        options.extend(['-DMORIS_HAVE_TRILINOS_NEW_CMAKE=ON'])
+        options.extend(['-DMORIS_HAVE_TRILINOS_NEW_CMAKE=OFF'])
 
         if '+mkl' in spec:
             options.extend(['-DMORIS_USE_MKL=ON'])
