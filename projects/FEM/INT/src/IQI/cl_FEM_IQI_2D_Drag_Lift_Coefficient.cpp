@@ -21,7 +21,7 @@ namespace moris
         IQI_Drag_Lift_Coefficient::IQI_Drag_Lift_Coefficient( sint aBeta )
         {
             // set the property pointer cell size
-            mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
             // NOTE: the user can either directly give a reference pressure value,
@@ -32,7 +32,7 @@ namespace moris
             mPropertyMap[ "RefPressure" ]    = static_cast< uint >( Property_Type::REF_PRESSURE );
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "Fluid" ] =
@@ -47,7 +47,7 @@ namespace moris
         void IQI_Drag_Lift_Coefficient::compute_QI( Matrix< DDRMat > & aQI )
         {
             // get the reference pressure property
-            std::shared_ptr< fem::Property > tPropRefPressure = mMasterProp( static_cast< uint >( Property_Type::REF_PRESSURE ) );
+            std::shared_ptr< fem::Property > tPropRefPressure = mLeaderProp( static_cast< uint >( Property_Type::REF_PRESSURE ) );
 
             // initialize variable storing the reference pressure
             real tRefPressure = 0.0;
@@ -61,13 +61,13 @@ namespace moris
             else
             {
                 // get the density property value
-                std::shared_ptr< fem::Property > tPropRefDensity = mMasterProp( static_cast< uint >( Property_Type::REF_DENSITY ) );
+                std::shared_ptr< fem::Property > tPropRefDensity = mLeaderProp( static_cast< uint >( Property_Type::REF_DENSITY ) );
 
                 // get the maximum velocity property value
-                std::shared_ptr< fem::Property > tPropRefVelocity = mMasterProp( static_cast< uint >( Property_Type::REF_VELOCITY ) );
+                std::shared_ptr< fem::Property > tPropRefVelocity = mLeaderProp( static_cast< uint >( Property_Type::REF_VELOCITY ) );
 
                 // get the diameter property value
-                std::shared_ptr< fem::Property > tPropLengthScale = mMasterProp( static_cast< uint >( Property_Type::LENGTHSCALE ) );
+                std::shared_ptr< fem::Property > tPropLengthScale = mLeaderProp( static_cast< uint >( Property_Type::LENGTHSCALE ) );
 
                 // check that the properties are actually populated
                 MORIS_ASSERT( tPropRefDensity != nullptr && tPropRefVelocity != nullptr && tPropLengthScale != nullptr,
@@ -84,7 +84,7 @@ namespace moris
 
             // get the diffusion CM
             const std::shared_ptr< Constitutive_Model > & tFluidCM =
-                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::FLUID ) );
+                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::FLUID ) );
 
             // compute QI
             if( mBeta == 1 ) // drag coefficient
@@ -106,7 +106,7 @@ namespace moris
         void IQI_Drag_Lift_Coefficient::compute_QI( real aWStar )
         {
             // get the reference pressure property
-            std::shared_ptr< fem::Property > tPropRefPressure = mMasterProp( static_cast< uint >( Property_Type::REF_PRESSURE ) );
+            std::shared_ptr< fem::Property > tPropRefPressure = mLeaderProp( static_cast< uint >( Property_Type::REF_PRESSURE ) );
 
             // initialize variable storing the reference pressure
             real tRefPressure = 0.0;
@@ -120,13 +120,13 @@ namespace moris
             else
             {
                 // get the density property value
-                std::shared_ptr< fem::Property > tPropRefDensity = mMasterProp( static_cast< uint >( Property_Type::REF_DENSITY ) );
+                std::shared_ptr< fem::Property > tPropRefDensity = mLeaderProp( static_cast< uint >( Property_Type::REF_DENSITY ) );
 
                 // get the maximum velocity property value
-                std::shared_ptr< fem::Property > tPropRefVelocity = mMasterProp( static_cast< uint >( Property_Type::REF_VELOCITY ) );
+                std::shared_ptr< fem::Property > tPropRefVelocity = mLeaderProp( static_cast< uint >( Property_Type::REF_VELOCITY ) );
 
                 // get the diameter property value
-                std::shared_ptr< fem::Property > tPropLengthScale = mMasterProp( static_cast< uint >( Property_Type::LENGTHSCALE ) );
+                std::shared_ptr< fem::Property > tPropLengthScale = mLeaderProp( static_cast< uint >( Property_Type::LENGTHSCALE ) );
 
                 // check that the properties are actually populated
                 MORIS_ASSERT( tPropRefDensity != nullptr && tPropRefVelocity != nullptr && tPropLengthScale != nullptr,
@@ -143,7 +143,7 @@ namespace moris
 
             // get the diffusion CM
             const std::shared_ptr< Constitutive_Model > & tFluidCM =
-                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::FLUID ) );
+                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::FLUID ) );
 
             // get index for QI
             sint tQIIndex = mSet->get_QI_assembly_index( mName );

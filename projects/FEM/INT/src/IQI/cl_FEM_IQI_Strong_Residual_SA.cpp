@@ -26,7 +26,7 @@ namespace moris
             mFEMIQIType = fem::IQI_Type::STRONG_RESIDUAL_SA;
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "SpalartAllmarasTurbulence" ] =
@@ -40,16 +40,16 @@ namespace moris
             // get the viscosity FI
             // FIXME protect dof type
             Field_Interpolator* tFIViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VISCOSITY );
+                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VISCOSITY );
 
             // get the velocity FI
             // FIXME protect dof type
             Field_Interpolator* tFIVelocity =
-                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the SA turbulence CM
             const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
-                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::TURBULENCE ) );
+                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::TURBULENCE ) );
 
             // compute modified velocity
             Matrix< DDRMat > tModVelocity =

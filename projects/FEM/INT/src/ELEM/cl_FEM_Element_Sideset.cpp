@@ -44,13 +44,13 @@ namespace moris
             Geometry_Interpolator * tIGGI =
                     mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
 
-            // get master physical space and time coordinates for IG element
+            // get leader physical space and time coordinates for IG element
             Matrix< DDRMat > tIGPhysSpaceCoords =
-                    mMasterCell->get_cell_physical_coords_on_side_ordinal( aSideOrdinal );
+                    mLeaderCell->get_cell_physical_coords_on_side_ordinal( aSideOrdinal );
             Matrix< DDRMat > tIGPhysTimeCoords =
                     mCluster->mInterpolationElement->get_time();
 
-            // get master parametric space and time coordinates for IG element
+            // get leader parametric space and time coordinates for IG element
             Matrix< DDRMat > tIGParamSpaceCoords =
                     mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, aSideOrdinal );
 
@@ -76,13 +76,13 @@ namespace moris
             Geometry_Interpolator * tIGGI =
                     mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
 
-            // get master physical space and time coordinates for IG element
+            // get leader physical space and time coordinates for IG element
             Matrix< DDRMat > tIGPhysSpaceCoords =
-                    mMasterCell->get_cell_physical_coords_on_side_ordinal( aSideOrdinal );
+                    mLeaderCell->get_cell_physical_coords_on_side_ordinal( aSideOrdinal );
             Matrix< DDRMat > tIGPhysTimeCoords =
                     mCluster->mInterpolationElement->get_time();
 
-            // get master parametric space and time coordinates for IG element
+            // get leader parametric space and time coordinates for IG element
             Matrix< DDRMat > tIGParamSpaceCoords =
                     mCluster->get_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster, aSideOrdinal );
 
@@ -94,7 +94,7 @@ namespace moris
             {
                 // get the vertices indices for IG element
                 Matrix< IndexMat > tVertexIndices =
-                        mMasterCell->get_vertices_ind_on_side_ordinal( aSideOrdinal );
+                        mLeaderCell->get_vertices_ind_on_side_ordinal( aSideOrdinal );
 
                 // get the requested geo pdv types
                 moris::Cell < enum PDV_Type > tGeoPdvType;
@@ -130,7 +130,7 @@ namespace moris
             }
 
             // get treated side ordinal
-            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+            uint tSideOrd = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
 
             // set physical and parametric space and time coefficients for IG element
             this->init_ig_geometry_interpolator( tSideOrd );
@@ -160,7 +160,7 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // get the normal from mesh
-                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mLeaderCell, tSideOrd );
 
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
@@ -203,7 +203,7 @@ namespace moris
             }
 
             // get treated side ordinal
-            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+            uint tSideOrd = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
 
             // set physical and parametric space and time coefficients for IG element
             this->init_ig_geometry_interpolator( tSideOrd );
@@ -233,7 +233,7 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // get the normal from mesh
-                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mLeaderCell, tSideOrd );
 
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
@@ -274,7 +274,7 @@ namespace moris
             }
 
             // get treated side ordinal
-            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+            uint tSideOrd = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
 
             // set physical and parametric space and time coefficients for IG element
             this->init_ig_geometry_interpolator( tSideOrd );
@@ -303,7 +303,7 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // get the normal from mesh
-                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mLeaderCell, tSideOrd );
 
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
@@ -369,7 +369,7 @@ namespace moris
             }
 
             // get treated side ordinal
-            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+            uint tSideOrd = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
 
             // set physical and parametric space and time coefficients for IG element
             Matrix< DDSMat > tGeoLocalAssembly;
@@ -400,7 +400,7 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // get the normal from mesh
-                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mLeaderCell, tSideOrd );
 
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
@@ -440,7 +440,7 @@ namespace moris
             }
 
             // get treated side ordinal
-            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+            uint tSideOrd = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
 
             // set physical and parametric space and time coefficients for IG element
             this->init_ig_geometry_interpolator( tSideOrd );
@@ -470,7 +470,7 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // get the normal from mesh
-                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mLeaderCell, tSideOrd );
 
                 // loop over the IQIs
                 for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
@@ -505,7 +505,7 @@ namespace moris
             }
 
             // get treated side ordinal
-            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+            uint tSideOrd = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
 
             // set physical and parametric space and time coefficients for IG element
             this->init_ig_geometry_interpolator( tSideOrd );
@@ -535,7 +535,7 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // get the normal from mesh
-                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mLeaderCell, tSideOrd );
 
                 // loop over the IQIs
                 for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
@@ -570,7 +570,7 @@ namespace moris
             }
 
             // get treated side ordinal
-            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+            uint tSideOrd = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
 
             // set physical and parametric space and time coefficients for IG element
             Matrix< DDSMat > tGeoLocalAssembly;
@@ -601,7 +601,7 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // get the normal from mesh
-                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mLeaderCell, tSideOrd );
 
                 // loop over the IQIs
                 for( uint iIQI = 0; iIQI < tNumIQIs; iIQI++ )
@@ -640,7 +640,7 @@ namespace moris
             }
 
             // get treated side ordinal
-            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+            uint tSideOrd = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
 
             // set physical and parametric space and time coefficients for IG element
             Matrix< DDSMat > tGeoLocalAssembly;
@@ -671,7 +671,7 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // get the normal from mesh
-                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mLeaderCell, tSideOrd );
 
                 // loop over the IWGs
                 for( uint iIWG = 0; iIWG < tNumIWGs; iIWG++ )
@@ -729,7 +729,7 @@ namespace moris
             }
 
             // get treated side ordinal
-            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+            uint tSideOrd = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
 
             // set physical and parametric space and time coefficients for IG element
             this->init_ig_geometry_interpolator( tSideOrd );
@@ -759,7 +759,7 @@ namespace moris
                 real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
 
                 // get the normal from mesh
-                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mLeaderCell, tSideOrd );
 
                 // loop over IQI
                 for( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
@@ -803,7 +803,7 @@ namespace moris
             }
 
             // get treated side ordinal
-            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+            uint tSideOrd = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
 
             // set physical and parametric space and time coefficients for IG element
             this->init_ig_geometry_interpolator( tSideOrd );
@@ -838,7 +838,7 @@ namespace moris
                 tSpaceTimeVolume += tWStar;
 
                 // get the normal from mesh
-                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mMasterCell, tSideOrd );
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mLeaderCell, tSideOrd );
 
                 // loop over IQI
                 for( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
@@ -863,7 +863,7 @@ namespace moris
 
                     // assemble computed QI on the set
                     ( *mSet->mSetElementalValues )(
-                            mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), tGlobalIndex ) +=
+                            mSet->mCellAssemblyMap( aMeshIndex )( mLeaderCell->get_index() ), tGlobalIndex ) +=
                                     tWStar * tQIElemental( 0 );
                 }
             }
@@ -877,17 +877,17 @@ namespace moris
 
                 // divide by space-time volume
                 ( *mSet->mSetElementalValues )(
-                        mSet->mCellAssemblyMap( aMeshIndex )( mMasterCell->get_index() ), tGlobalIndex ) /=
+                        mSet->mCellAssemblyMap( aMeshIndex )( mLeaderCell->get_index() ), tGlobalIndex ) /=
                                 tSpaceTimeVolume;
             }
         }
 
         //------------------------------------------------------------------------------
 
-        real Element_Sideset::compute_volume( mtk::Master_Slave aIsMaster )
+        real Element_Sideset::compute_volume( mtk::Leader_Follower aIsLeader )
         {
             // get treated side ordinal
-            uint tSideOrd = mCluster->mMasterListOfSideOrdinals( mCellIndexInCluster );
+            uint tSideOrd = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
 
             // set physical and parametric space and time coefficients for IG element
             this->init_ig_geometry_interpolator( tSideOrd );
@@ -900,7 +900,7 @@ namespace moris
 
             // get IG geometry interpolator
             Geometry_Interpolator * tIGGI =
-                    mSet->get_field_interpolator_manager( aIsMaster )->get_IG_geometry_interpolator();
+                    mSet->get_field_interpolator_manager( aIsLeader )->get_IG_geometry_interpolator();
 
             // loop over integration points
             for( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )

@@ -2194,7 +2194,7 @@ namespace moris
 
                         // Indices, IDs, and ownership of base cell nodes in cluster
                         // FIXME this is really bad and slow. especially when building the pdvs; should return const &
-                        mtk::Cell const * tBaseCell = tCluster->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_base_cell();
+                        mtk::Cell const * tBaseCell = tCluster->get_interpolation_cell( mtk::Leader_Follower::LEADER ).get_base_cell();
 
                         Matrix< IndexMat > tNodeIndicesInCluster     = tBaseCell->get_vertex_inds();
                         Matrix< DDRMat >   tNodeCoordinatesInCluster = tBaseCell->get_vertex_coords();
@@ -2211,9 +2211,9 @@ namespace moris
                         // hack was implemented intentionally to get something running. Redo completely when rewriting GEN
                         if ( tSet->get_set_type() == moris::SetType::DOUBLE_SIDED_SIDESET )
                         {
-                            mtk::Cell const * tBaseCellSlave = tCluster->get_interpolation_cell( mtk::Master_Slave::SLAVE ).get_base_cell();
+                            mtk::Cell const * tBaseCellFollower = tCluster->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER ).get_base_cell();
 
-                            Matrix< IndexMat > tNodeIndicesInCluster = tBaseCellSlave->get_vertex_inds();
+                            Matrix< IndexMat > tNodeIndicesInCluster = tBaseCellFollower->get_vertex_inds();
 
                             // number of base nodes in cluster
                             tNumberOfBaseNodes = tNodeIndicesInCluster.length();
@@ -2248,7 +2248,7 @@ namespace moris
 
                         // Indices, IDs, and ownership of base cell nodes in cluster
                         // FIXME this is really bad and slow. especially when building the pdvs; should return const &
-                        mtk::Cell const * tBaseCell = tCluster->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_base_cell();
+                        mtk::Cell const * tBaseCell = tCluster->get_interpolation_cell( mtk::Leader_Follower::LEADER ).get_base_cell();
 
                         Matrix< IndexMat > tNodeIndicesInCluster     = tBaseCell->get_vertex_inds();
                         Matrix< IndexMat > tNodeIdsInCluster         = tBaseCell->get_vertex_ids();
@@ -2280,12 +2280,12 @@ namespace moris
                         if ( tSet->get_set_type() == moris::SetType::DOUBLE_SIDED_SIDESET )
                         {
 
-                            mtk::Cell const * tBaseCellSlave = tCluster->get_interpolation_cell( mtk::Master_Slave::SLAVE ).get_base_cell();
+                            mtk::Cell const * tBaseCellFollower = tCluster->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER ).get_base_cell();
 
-                            Matrix< IndexMat > tNodeIndicesInCluster     = tBaseCellSlave->get_vertex_inds();
-                            Matrix< IndexMat > tNodeIdsInCluster         = tBaseCellSlave->get_vertex_ids();
-                            Matrix< IndexMat > tNodeOwnersInCluster      = tBaseCellSlave->get_vertex_owners();
-                            Matrix< DDRMat >   tNodeCoordinatesInCluster = tBaseCellSlave->get_vertex_coords();
+                            Matrix< IndexMat > tNodeIndicesInCluster     = tBaseCellFollower->get_vertex_inds();
+                            Matrix< IndexMat > tNodeIdsInCluster         = tBaseCellFollower->get_vertex_ids();
+                            Matrix< IndexMat > tNodeOwnersInCluster      = tBaseCellFollower->get_vertex_owners();
+                            Matrix< DDRMat >   tNodeCoordinatesInCluster = tBaseCellFollower->get_vertex_coords();
 
                             // number of base nodes in cluster
                             tNumberOfBaseNodes = tNodeIndicesInCluster.length();
@@ -2387,7 +2387,7 @@ namespace moris
                 for ( uint iCluster = 0; iCluster < tNumClusters; iCluster++ )
                 {
                     // get the IP cell from cluster
-                    mtk::Cell const & tIPCell = tClusterPointers( iCluster )->get_interpolation_cell( mtk::Master_Slave::MASTER );
+                    mtk::Cell const & tIPCell = tClusterPointers( iCluster )->get_interpolation_cell( mtk::Leader_Follower::LEADER );
 
                     // get the vertices from IP cell
                     Cell< mtk::Vertex* > tVertices = tIPCell.get_base_cell()->get_vertex_pointers();
@@ -2413,7 +2413,7 @@ namespace moris
                     for ( uint iCluster = 0; iCluster < tNumClusters; iCluster++ )
                     {
                         // get the IP cell from cluster
-                        mtk::Cell const & tIPCell = tClusterPointers( iCluster )->get_interpolation_cell( mtk::Master_Slave::SLAVE );
+                        mtk::Cell const & tIPCell = tClusterPointers( iCluster )->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER );
 
                         // get the vertices from IP cell
                         Cell< mtk::Vertex* > tVertices = tIPCell.get_base_cell()->get_vertex_pointers();

@@ -82,32 +82,32 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Axi", "[CM_Struc_Lin_Iso_Axi]" )
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderStrucLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    tCMMasterStrucLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
-    tCMMasterStrucLinIso->set_dof_type_list( { tDispDofTypes } );
-    tCMMasterStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
-    tCMMasterStrucLinIso->set_property( tPropNu, "PoissonRatio" );
-    tCMMasterStrucLinIso->set_property( tRotAxisRadVec, "AxisymRotationAxis" );
-    tCMMasterStrucLinIso->set_local_properties();
+    tCMLeaderStrucLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
+    tCMLeaderStrucLinIso->set_dof_type_list( { tDispDofTypes } );
+    tCMLeaderStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
+    tCMLeaderStrucLinIso->set_property( tPropNu, "PoissonRatio" );
+    tCMLeaderStrucLinIso->set_property( tRotAxisRadVec, "AxisymRotationAxis" );
+    tCMLeaderStrucLinIso->set_local_properties();
 
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
-    tCMMasterStrucLinIso->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tCMLeaderStrucLinIso->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tCMMasterStrucLinIso->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
+    tCMLeaderStrucLinIso->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
-    tCMMasterStrucLinIso->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMMasterStrucLinIso->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
+    tCMLeaderStrucLinIso->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tCMLeaderStrucLinIso->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
 
-    // set size and populate the set master dof type map
-    tCMMasterStrucLinIso->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMMasterStrucLinIso->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
+    // set size and populate the set leader dof type map
+    tCMLeaderStrucLinIso->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tCMLeaderStrucLinIso->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
 
     // build global dof type list
-    tCMMasterStrucLinIso->get_global_dof_type_list();
+    tCMLeaderStrucLinIso->get_global_dof_type_list();
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 3; iSpaceDim++ )
@@ -165,7 +165,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Axi", "[CM_Struc_Lin_Iso_Axi]" )
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimensions for property, CM and SP
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
+        tCMLeaderStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -204,16 +204,16 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Axi", "[CM_Struc_Lin_Iso_Axi]" )
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_uhat_Elast( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_uhat_Elast( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -221,50 +221,50 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Axi", "[CM_Struc_Lin_Iso_Axi]" )
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tCMMasterStrucLinIso->mSet->mMasterFIManager = &tFIManager;
+            tCMLeaderStrucLinIso->mSet->mLeaderFIManager = &tFIManager;
 
             // set CM field interpolator manager
-            tCMMasterStrucLinIso->set_field_interpolator_manager( &tFIManager );
+            tCMLeaderStrucLinIso->set_field_interpolator_manager( &tFIManager );
 
             uint tNumGPs = tIntegPoints.n_cols();
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // reset CM evaluation flags
-                tCMMasterStrucLinIso->reset_eval_flags();
+                tCMLeaderStrucLinIso->reset_eval_flags();
 
                 // create evaluation point xi, tau
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tCMMasterStrucLinIso->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tCMLeaderStrucLinIso->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
-                // populate the requested master dof type for CM
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tRequestedMasterGlobalDofTypes =
-                        tCMMasterStrucLinIso->get_global_dof_type_list();
+                // populate the requested leader dof type for CM
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
+                        tCMLeaderStrucLinIso->get_global_dof_type_list();
 
-                // populate the test master dof type for CM
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tMasterDofTypes =
-                        tCMMasterStrucLinIso->get_dof_type_list();
+                // populate the test leader dof type for CM
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tLeaderDofTypes =
+                        tCMLeaderStrucLinIso->get_dof_type_list();
 
                 // loop over requested dof type
-                for( uint iRequestedDof = 0; iRequestedDof < tRequestedMasterGlobalDofTypes.size(); iRequestedDof++ )
+                for( uint iRequestedDof = 0; iRequestedDof < tRequestedLeaderGlobalDofTypes.size(); iRequestedDof++ )
                 {
                     // derivative dof type
-                    Cell< MSI::Dof_Type > tDofDerivative = tRequestedMasterGlobalDofTypes( iRequestedDof );
+                    Cell< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // strain
                     //------------------------------------------------------------------------------
                     // evaluate dstraindu
-                    Matrix< DDRMat > tdstraindu = tCMMasterStrucLinIso->dStraindDOF( tDofDerivative );
+                    Matrix< DDRMat > tdstraindu = tCMLeaderStrucLinIso->dStraindDOF( tDofDerivative );
 
                     // evaluate dstraindu by FD
                     Matrix< DDRMat > tdstrainduFD;
-                    tCMMasterStrucLinIso->eval_derivative_FD(
+                    tCMLeaderStrucLinIso->eval_derivative_FD(
                             CM_Request_Type::STRAIN,
                             tdstrainduFD,
                             tDofDerivative,
@@ -283,11 +283,11 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Axi", "[CM_Struc_Lin_Iso_Axi]" )
                     // flux
                     //------------------------------------------------------------------------------
                     // evaluate dfluxdu
-                    Matrix< DDRMat > tdfluxdu = tCMMasterStrucLinIso->dFluxdDOF( tDofDerivative );
+                    Matrix< DDRMat > tdfluxdu = tCMLeaderStrucLinIso->dFluxdDOF( tDofDerivative );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdfluxduFD;
-                    tCMMasterStrucLinIso->eval_derivative_FD(
+                    tCMLeaderStrucLinIso->eval_derivative_FD(
                             CM_Request_Type::FLUX,
                             tdfluxduFD,
                             tDofDerivative,
@@ -306,11 +306,11 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Axi", "[CM_Struc_Lin_Iso_Axi]" )
                     // traction
                     //------------------------------------------------------------------------------
                     // evaluate dtractiondu
-                    Matrix< DDRMat > tdtractiondu = tCMMasterStrucLinIso->dTractiondDOF( tDofDerivative, tNormal );
+                    Matrix< DDRMat > tdtractiondu = tCMLeaderStrucLinIso->dTractiondDOF( tDofDerivative, tNormal );
 
                     // evaluate dtractiondu by FD
                     Matrix< DDRMat > tdtractionduFD;
-                    tCMMasterStrucLinIso->eval_derivative_FD(
+                    tCMLeaderStrucLinIso->eval_derivative_FD(
                             CM_Request_Type::TRACTION,
                             tdtractionduFD,
                             tDofDerivative,
@@ -329,13 +329,13 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Axi", "[CM_Struc_Lin_Iso_Axi]" )
                     // test traction
                     //------------------------------------------------------------------------------
                     // loop over test dof type
-                    for ( uint iTestDof = 0; iTestDof < tMasterDofTypes.size(); iTestDof++ )
+                    for ( uint iTestDof = 0; iTestDof < tLeaderDofTypes.size(); iTestDof++ )
                     {
                         // get the test dof type
-                        Cell< MSI::Dof_Type > tDofTest = tMasterDofTypes( iTestDof );
+                        Cell< MSI::Dof_Type > tDofTest = tLeaderDofTypes( iTestDof );
 
                         // evaluate derivative test traction
-                        Matrix< DDRMat > tdtesttractiondu = tCMMasterStrucLinIso->dTestTractiondDOF(
+                        Matrix< DDRMat > tdtesttractiondu = tCMLeaderStrucLinIso->dTestTractiondDOF(
                                 tDofDerivative,
                                 tNormal,
                                 tJump,
@@ -343,7 +343,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Axi", "[CM_Struc_Lin_Iso_Axi]" )
 
                         // evaluate dtesttractiondu by FD
                         Matrix< DDRMat > tdtesttractionduFD;
-                        tCMMasterStrucLinIso->eval_derivative_FD(
+                        tCMLeaderStrucLinIso->eval_derivative_FD(
                                 CM_Request_Type::TEST_TRACTION,
                                 tdtesttractionduFD,
                                 tDofDerivative,
@@ -362,7 +362,7 @@ TEST_CASE( "CM_Struc_Linear_Isotropic_Axi", "[CM_Struc_Lin_Iso_Axi]" )
                 }
             }
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }/*END_TEST_CASE*/

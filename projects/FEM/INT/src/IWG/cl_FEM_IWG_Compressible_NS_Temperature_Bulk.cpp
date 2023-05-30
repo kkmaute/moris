@@ -27,14 +27,14 @@ namespace moris
         IWG_Compressible_NS_Temperature_Bulk::IWG_Compressible_NS_Temperature_Bulk()
         {
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "BodyForce" ]     = static_cast< uint >( IWG_Property_Type::BODY_FORCE );
             mPropertyMap[ "BodyHeatLoad" ]  = static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD );
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "Fluid" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID );
@@ -44,32 +44,32 @@ namespace moris
 
         void IWG_Compressible_NS_Temperature_Bulk::compute_residual( real aWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type (here velocity), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type (here velocity), indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the Temperature FI
-            Field_Interpolator * tFITemp =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tFITemp =  mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get Velocity FI
-            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
+            Field_Interpolator * tFIVelocity =  mLeaderFIManager->get_field_interpolators_for_type( mDofVelocity );
 
             // get properties
-            std::shared_ptr< Property > tPropBodyForce = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_FORCE ) );
-            std::shared_ptr< Property > tPropBodyHeatLoad = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD ) );
+            std::shared_ptr< Property > tPropBodyForce = mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_FORCE ) );
+            std::shared_ptr< Property > tPropBodyHeatLoad = mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD ) );
 
             // get the compressible fluid constitutive model
-            std::shared_ptr< Constitutive_Model > tCMFluid = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID ) );
+            std::shared_ptr< Constitutive_Model > tCMFluid = mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID ) );
 
             // compute the residual
             mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex },
+                    { tLeaderResStartIndex, tLeaderResStopIndex },
                     { 0, 0 } ) += aWStar * (
                             trans( tFITemp->N() ) * tCMFluid->EnergyDot() +
                             trans( tFITemp->dnNdxn( 1 ) ) *
@@ -81,11 +81,11 @@ namespace moris
             if ( tPropBodyForce != nullptr )
             {
                 // get Velocity FI
-                Field_Interpolator * tFIDensity =  mMasterFIManager->get_field_interpolators_for_type( mDofDensity );
+                Field_Interpolator * tFIDensity =  mLeaderFIManager->get_field_interpolators_for_type( mDofDensity );
 
                 // add contribution
                 mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { tLeaderResStartIndex, tLeaderResStopIndex },
                         { 0, 0 } ) -= aWStar * (
                                 tFIDensity->val()( 0 ) * trans( tFITemp->N() ) * dot( tPropBodyForce->val(), tFIVelocity->val() ) );
             }
@@ -95,7 +95,7 @@ namespace moris
             {
                 // add contribution
                 mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { tLeaderResStartIndex, tLeaderResStopIndex },
                         { 0, 0 } ) -= aWStar * (
                                 trans( tFITemp->N() ) * tPropBodyHeatLoad->val() );
             }
@@ -108,47 +108,47 @@ namespace moris
         //------------------------------------------------------------------------------
         void IWG_Compressible_NS_Temperature_Bulk::compute_jacobian( real aWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type (here pressure), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type (here pressure), indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the field interpolators
-            Field_Interpolator * tFITemp = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
-            Field_Interpolator * tFIVelocity = mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
-            Field_Interpolator * tFIDensity = mMasterFIManager->get_field_interpolators_for_type( mDofDensity );
+            Field_Interpolator * tFITemp = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tFIVelocity = mLeaderFIManager->get_field_interpolators_for_type( mDofVelocity );
+            Field_Interpolator * tFIDensity = mLeaderFIManager->get_field_interpolators_for_type( mDofDensity );
 
             // get the constitutive model
-            std::shared_ptr< Constitutive_Model > tCMFluid =  mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID ) );
+            std::shared_ptr< Constitutive_Model > tCMFluid =  mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID ) );
 
             // get the properties
-            std::shared_ptr< Property > tPropBodyForce = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_FORCE ) );
-            std::shared_ptr< Property > tPropBodyHeatLoad = mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD ) );
+            std::shared_ptr< Property > tPropBodyForce = mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_FORCE ) );
+            std::shared_ptr< Property > tPropBodyHeatLoad = mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD ) );
 
             // compute the jacobian for dof dependencies
-            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
-                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 0 );
+                uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
 
                 // if fluid CM depends on dof type
                 if ( tCMFluid->check_dof_dependency( tDofType ) )
                 {
                     // add contribution
                     mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                            { tLeaderResStartIndex, tLeaderResStopIndex },
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * (
                                     trans( tFITemp->N() ) * tCMFluid->dEnergyDotdDOF( tDofType ) +
                                     trans( tFITemp->dnNdxn( 1 ) ) *
                                     ( tCMFluid->dFluxdDOF( tDofType, CM_Function_Type::WORK ) -
@@ -164,8 +164,8 @@ namespace moris
                     {
                         // compute the jacobian contribution
                         mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                                { tLeaderResStartIndex, tLeaderResStopIndex },
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * (
                                         tFIDensity->val()( 0 ) * trans( tFITemp->N() ) * trans( tFIVelocity->val() ) *
                                         tPropBodyForce->dPropdDOF( tDofType ) );
                     }
@@ -175,8 +175,8 @@ namespace moris
                     {
                         // compute the jacobian contribution
                         mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                                { tLeaderResStartIndex, tLeaderResStopIndex },
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * (
                                         trans( tFITemp->N() ) * dot( tPropBodyForce->val(), tFIVelocity->val() ) * tFIDensity->N() );
                     }
 
@@ -185,8 +185,8 @@ namespace moris
                     {
                         // compute the jacobian contribution
                         mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                                { tLeaderResStartIndex, tLeaderResStopIndex },
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * (
                                         tFIDensity->val()( 0 ) * trans( tFITemp->N() ) * trans( tPropBodyForce->val() ) * tFIVelocity->N() );
                     }
                 }
@@ -199,8 +199,8 @@ namespace moris
                     {
                         // compute the jacobian contribution
                         mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                                { tLeaderResStartIndex, tLeaderResStopIndex },
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * (
                                         trans( tFITemp->N() ) * tPropBodyHeatLoad->dPropdDOF( tDofType ) );
                     }
                 }
@@ -216,7 +216,7 @@ namespace moris
         void IWG_Compressible_NS_Temperature_Bulk::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators
+            // check leader field interpolators
             this->check_field_interpolators();
 #endif
 
@@ -228,7 +228,7 @@ namespace moris
         void IWG_Compressible_NS_Temperature_Bulk::compute_dRdp( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators, properties and constitutive models
+            // check leader field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 

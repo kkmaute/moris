@@ -27,34 +27,34 @@ namespace moris
             std::cout << "SP: " << mName << std::endl;
 
             // properties
-            for ( uint iProp = 0; iProp < mMasterProp.size(); iProp++ )
+            for ( uint iProp = 0; iProp < mLeaderProp.size(); iProp++ )
             {
-                if ( mMasterProp( iProp ) != nullptr )
+                if ( mLeaderProp( iProp ) != nullptr )
                 {
-                    std::cout << "Master property: " << mMasterProp( iProp )->get_name() << std::endl;
+                    std::cout << "Leader property: " << mLeaderProp( iProp )->get_name() << std::endl;
                 }
             }
-            for ( uint iProp = 0; iProp < mSlaveProp.size(); iProp++ )
+            for ( uint iProp = 0; iProp < mFollowerProp.size(); iProp++ )
             {
-                if ( mSlaveProp( iProp ) != nullptr )
+                if ( mFollowerProp( iProp ) != nullptr )
                 {
-                    std::cout << "Slave property:  " << mSlaveProp( iProp )->get_name() << std::endl;
+                    std::cout << "Follower property:  " << mFollowerProp( iProp )->get_name() << std::endl;
                 }
             }
 
             // CM
-            for ( uint iCM = 0; iCM < mMasterCM.size(); iCM++ )
+            for ( uint iCM = 0; iCM < mLeaderCM.size(); iCM++ )
             {
-                if ( mMasterCM( iCM ) != nullptr )
+                if ( mLeaderCM( iCM ) != nullptr )
                 {
-                    std::cout << "Master CM: " << mMasterCM( iCM )->get_name() << std::endl;
+                    std::cout << "Leader CM: " << mLeaderCM( iCM )->get_name() << std::endl;
                 }
             }
-            for ( uint iCM = 0; iCM < mSlaveCM.size(); iCM++ )
+            for ( uint iCM = 0; iCM < mFollowerCM.size(); iCM++ )
             {
-                if ( mSlaveCM( iCM ) != nullptr )
+                if ( mFollowerCM( iCM ) != nullptr )
                 {
-                    std::cout << "Slave CM:  " << mSlaveCM( iCM )->get_name() << std::endl;
+                    std::cout << "Follower CM:  " << mFollowerCM( iCM )->get_name() << std::endl;
                 }
             }
             std::cout << "----------" << std::endl;
@@ -86,20 +86,20 @@ namespace moris
             // reset the value flag
             mPPEval = true;
 
-            // reset the master dof derivative flags
-            mdPPdMasterDofEval.fill( true );
+            // reset the leader dof derivative flags
+            mdPPdLeaderDofEval.fill( true );
 
-            // reset the slave dof derivative flags
-            mdPPdSlaveDofEval.fill( true );
+            // reset the follower dof derivative flags
+            mdPPdFollowerDofEval.fill( true );
 
-            // reset the master dv derivative flags
-            mdPPdMasterDvEval.fill( true );
+            // reset the leader dv derivative flags
+            mdPPdLeaderDvEval.fill( true );
 
-            // reset the slave dv derivative flags
-            mdPPdSlaveDvEval.fill( true );
+            // reset the follower dv derivative flags
+            mdPPdFollowerDvEval.fill( true );
 
-            // reset underlying master constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mMasterCM )
+            // reset underlying leader constitutive models
+            for ( const std::shared_ptr< Constitutive_Model >& tCM : mLeaderCM )
             {
                 if ( tCM != nullptr )
                 {
@@ -107,8 +107,8 @@ namespace moris
                 }
             }
 
-            // reset underlying slave constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mSlaveCM )
+            // reset underlying follower constitutive models
+            for ( const std::shared_ptr< Constitutive_Model >& tCM : mFollowerCM )
             {
                 if ( tCM != nullptr )
                 {
@@ -116,8 +116,8 @@ namespace moris
                 }
             }
 
-            // reset underlying master properties
-            for ( const std::shared_ptr< Property >& tProp : mMasterProp )
+            // reset underlying leader properties
+            for ( const std::shared_ptr< Property >& tProp : mLeaderProp )
             {
                 if ( tProp != nullptr )
                 {
@@ -125,8 +125,8 @@ namespace moris
                 }
             }
 
-            // reset underlying slave properties
-            for ( const std::shared_ptr< Property >& tProp : mSlaveProp )
+            // reset underlying follower properties
+            for ( const std::shared_ptr< Property >& tProp : mFollowerProp )
             {
                 if ( tProp != nullptr )
                 {
@@ -141,7 +141,7 @@ namespace moris
         Stabilization_Parameter::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
-                mtk::Master_Slave           aIsMaster )
+                mtk::Leader_Follower           aIsLeader )
         {
             // check that aPropertyString makes sense
             MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
@@ -150,7 +150,7 @@ namespace moris
                     aPropertyString.c_str() );
 
             // set the property in the property cell
-            this->get_properties( aIsMaster )( mPropertyMap[ aPropertyString ] ) = aProperty;
+            this->get_properties( aIsLeader )( mPropertyMap[ aPropertyString ] ) = aProperty;
         }
 
         //------------------------------------------------------------------------------
@@ -159,7 +159,7 @@ namespace moris
         Stabilization_Parameter::set_constitutive_model(
                 std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                 std::string                           aConstitutiveString,
-                mtk::Master_Slave                     aIsMaster )
+                mtk::Leader_Follower                     aIsLeader )
         {
             // check that aConstitutiveString makes sense
             MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
@@ -168,37 +168,37 @@ namespace moris
                     aConstitutiveString.c_str() );
 
             // set the constitutive model in the CM cell
-            this->get_constitutive_models( aIsMaster )( mConstitutiveMap[ aConstitutiveString ] ) = aConstitutiveModel;
+            this->get_constitutive_models( aIsLeader )( mConstitutiveMap[ aConstitutiveString ] ) = aConstitutiveModel;
         }
 
         //------------------------------------------------------------------------------
 
         moris::Cell< std::shared_ptr< Property > >&
         Stabilization_Parameter::get_properties(
-                mtk::Master_Slave aIsMaster )
+                mtk::Leader_Follower aIsLeader )
         {
-            // switch on master/slave
-            switch ( aIsMaster )
+            // switch on leader/follower
+            switch ( aIsLeader )
             {
-                // if master
-                case mtk::Master_Slave::MASTER:
+                // if leader
+                case mtk::Leader_Follower::LEADER:
                 {
-                    // return master property pointers
-                    return mMasterProp;
+                    // return leader property pointers
+                    return mLeaderProp;
                 }
 
-                // if slave
-                case mtk::Master_Slave::SLAVE:
+                // if follower
+                case mtk::Leader_Follower::FOLLOWER:
                 {
-                    // return slave property pointers
-                    return mSlaveProp;
+                    // return follower property pointers
+                    return mFollowerProp;
                 }
 
                 // if none
                 default:
                 {
-                    MORIS_ASSERT( false, "Stabilization_Parameter::get_properties - can only be master or slave." );
-                    return mMasterProp;
+                    MORIS_ASSERT( false, "Stabilization_Parameter::get_properties - can only be leader or follower." );
+                    return mLeaderProp;
                 }
             }
         }
@@ -207,30 +207,30 @@ namespace moris
 
         moris::Cell< std::shared_ptr< Constitutive_Model > >&
         Stabilization_Parameter::get_constitutive_models(
-                mtk::Master_Slave aIsMaster )
+                mtk::Leader_Follower aIsLeader )
         {
-            // switch on master/slave
-            switch ( aIsMaster )
+            // switch on leader/follower
+            switch ( aIsLeader )
             {
-                // if master
-                case mtk::Master_Slave::MASTER:
+                // if leader
+                case mtk::Leader_Follower::LEADER:
                 {
-                    // return master CM pointers
-                    return mMasterCM;
+                    // return leader CM pointers
+                    return mLeaderCM;
                 }
 
-                // if slave
-                case mtk::Master_Slave::SLAVE:
+                // if follower
+                case mtk::Leader_Follower::FOLLOWER:
                 {
-                    // return slave CM pointers
-                    return mSlaveCM;
+                    // return follower CM pointers
+                    return mFollowerCM;
                 }
 
                 // if none
                 default:
                 {
-                    MORIS_ASSERT( false, "Stabilization_Parameter::get_constitutive_models - can only be master or slave." );
-                    return mMasterCM;
+                    MORIS_ASSERT( false, "Stabilization_Parameter::get_constitutive_models - can only be leader or follower." );
+                    return mLeaderCM;
                 }
             }
         }
@@ -240,23 +240,23 @@ namespace moris
         void
         Stabilization_Parameter::set_dof_type_list(
                 const moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
-                mtk::Master_Slave                                  aIsMaster )
+                mtk::Leader_Follower                                  aIsLeader )
         {
-            switch ( aIsMaster )
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
+                case mtk::Leader_Follower::LEADER:
                 {
-                    mMasterDofTypes = aDofTypes;
+                    mLeaderDofTypes = aDofTypes;
                     break;
                 }
-                case mtk::Master_Slave::SLAVE:
+                case mtk::Leader_Follower::FOLLOWER:
                 {
-                    mSlaveDofTypes = aDofTypes;
+                    mFollowerDofTypes = aDofTypes;
                     break;
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "Stabilization_Parameter::set_dof_type_list - can only be MASTER or SLAVE." );
+                    MORIS_ERROR( false, "Stabilization_Parameter::set_dof_type_list - can only be LEADER or FOLLOWER." );
                 }
             }
         }
@@ -265,28 +265,28 @@ namespace moris
 
         const moris::Cell< moris::Cell< MSI::Dof_Type > >&
         Stabilization_Parameter::get_dof_type_list(
-                mtk::Master_Slave aIsMaster ) const
+                mtk::Leader_Follower aIsLeader ) const
         {
-            // switch on master/slave
-            switch ( aIsMaster )
+            // switch on leader/follower
+            switch ( aIsLeader )
             {
-                // if master
-                case mtk::Master_Slave::MASTER:
+                // if leader
+                case mtk::Leader_Follower::LEADER:
                 {
-                    // return master global dof type list
-                    return mMasterDofTypes;
+                    // return leader global dof type list
+                    return mLeaderDofTypes;
                 }
-                // if slave
-                case mtk::Master_Slave::SLAVE:
+                // if follower
+                case mtk::Leader_Follower::FOLLOWER:
                 {
-                    // return slave global dof type list
-                    return mSlaveDofTypes;
+                    // return follower global dof type list
+                    return mFollowerDofTypes;
                 }
                 // if none
                 default:
                 {
-                    MORIS_ASSERT( false, "Stabilization_Parameter::get_dof_type_list - can only be master or slave." );
-                    return mMasterDofTypes;
+                    MORIS_ASSERT( false, "Stabilization_Parameter::get_dof_type_list - can only be leader or follower." );
+                    return mLeaderDofTypes;
                 }
             }
         }
@@ -296,23 +296,23 @@ namespace moris
         void
         Stabilization_Parameter::set_dv_type_list(
                 moris::Cell< moris::Cell< PDV_Type > >& aDvTypes,
-                mtk::Master_Slave                       aIsMaster )
+                mtk::Leader_Follower                       aIsLeader )
         {
-            switch ( aIsMaster )
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
+                case mtk::Leader_Follower::LEADER:
                 {
-                    mMasterDvTypes = aDvTypes;
+                    mLeaderDvTypes = aDvTypes;
                     break;
                 }
-                case mtk::Master_Slave::SLAVE:
+                case mtk::Leader_Follower::FOLLOWER:
                 {
-                    mSlaveDvTypes = aDvTypes;
+                    mFollowerDvTypes = aDvTypes;
                     break;
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "Stabilization_Parameter::set_dv_type_list - can only be MASTER or SLAVE." );
+                    MORIS_ERROR( false, "Stabilization_Parameter::set_dv_type_list - can only be LEADER or FOLLOWER." );
                 }
             }
         }
@@ -321,28 +321,28 @@ namespace moris
 
         const moris::Cell< moris::Cell< PDV_Type > >&
         Stabilization_Parameter::get_dv_type_list(
-                mtk::Master_Slave aIsMaster ) const
+                mtk::Leader_Follower aIsLeader ) const
         {
-            // switch on master/slave
-            switch ( aIsMaster )
+            // switch on leader/follower
+            switch ( aIsLeader )
             {
-                // if master
-                case mtk::Master_Slave::MASTER:
+                // if leader
+                case mtk::Leader_Follower::LEADER:
                 {
-                    // return master global dof type list
-                    return mMasterDvTypes;
+                    // return leader global dof type list
+                    return mLeaderDvTypes;
                 }
-                // if slave
-                case mtk::Master_Slave::SLAVE:
+                // if follower
+                case mtk::Leader_Follower::FOLLOWER:
                 {
-                    // return slave global dof type list
-                    return mSlaveDvTypes;
+                    // return follower global dof type list
+                    return mFollowerDvTypes;
                 }
                 // if none
                 default:
                 {
-                    MORIS_ASSERT( false, "Stabilization_Parameter::get_dv_type_list - can only be master or slave." );
-                    return mMasterDvTypes;
+                    MORIS_ASSERT( false, "Stabilization_Parameter::get_dv_type_list - can only be leader or follower." );
+                    return mLeaderDvTypes;
                 }
             }
         }
@@ -352,46 +352,46 @@ namespace moris
         void
         Stabilization_Parameter::set_field_interpolator_manager(
                 Field_Interpolator_Manager* aFieldInterpolatorManager,
-                mtk::Master_Slave           aIsMaster )
+                mtk::Leader_Follower           aIsLeader )
         {
-            // switch on master or slave
-            switch ( aIsMaster )
+            // switch on leader or follower
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
+                case mtk::Leader_Follower::LEADER:
                 {
-                    mMasterFIManager = aFieldInterpolatorManager;
+                    mLeaderFIManager = aFieldInterpolatorManager;
                     break;
                 }
 
-                case mtk::Master_Slave::SLAVE:
+                case mtk::Leader_Follower::FOLLOWER:
                 {
-                    mSlaveFIManager = aFieldInterpolatorManager;
+                    mFollowerFIManager = aFieldInterpolatorManager;
                     break;
                 }
 
                 default:
                 {
-                    MORIS_ERROR( false, "Stabilization_Parameter::set_field_interpolator_manager - can only be master or slave" );
+                    MORIS_ERROR( false, "Stabilization_Parameter::set_field_interpolator_manager - can only be leader or follower" );
                 }
             }
 
             // loop over the underlying constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : this->get_constitutive_models( aIsMaster ) )
+            for ( const std::shared_ptr< Constitutive_Model >& tCM : this->get_constitutive_models( aIsLeader ) )
             {
                 if ( tCM != nullptr )
                 {
                     // set the field interpolator manager for the property
-                    tCM->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+                    tCM->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsLeader ) );
                 }
             }
 
             // loop over the underlying properties
-            for ( const std::shared_ptr< Property >& tProp : this->get_properties( aIsMaster ) )
+            for ( const std::shared_ptr< Property >& tProp : this->get_properties( aIsLeader ) )
             {
                 if ( tProp != nullptr )
                 {
                     // set the field interpolator manager for the property
-                    tProp->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsMaster ) );
+                    tProp->set_field_interpolator_manager( this->get_field_interpolator_manager( aIsLeader ) );
                 }
             }
         }
@@ -400,24 +400,24 @@ namespace moris
 
         Field_Interpolator_Manager*
         Stabilization_Parameter::get_field_interpolator_manager(
-                mtk::Master_Slave aIsMaster )
+                mtk::Leader_Follower aIsLeader )
         {
-            switch ( aIsMaster )
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
+                case mtk::Leader_Follower::LEADER:
                 {
-                    return mMasterFIManager;
+                    return mLeaderFIManager;
                 }
 
-                case mtk::Master_Slave::SLAVE:
+                case mtk::Leader_Follower::FOLLOWER:
                 {
-                    return mSlaveFIManager;
+                    return mFollowerFIManager;
                 }
 
                 default:
                 {
-                    MORIS_ERROR( false, "Stabilization_Parameter::get_field_interpolator_manager - can only be master or slave" );
-                    return mMasterFIManager;
+                    MORIS_ERROR( false, "Stabilization_Parameter::get_field_interpolator_manager - can only be leader or follower" );
+                    return mLeaderFIManager;
                 }
             }
         }
@@ -426,7 +426,7 @@ namespace moris
 
         const moris::Cell< moris::Cell< MSI::Dof_Type > >&
         Stabilization_Parameter::get_global_dof_type_list(
-                mtk::Master_Slave aIsMaster )
+                mtk::Leader_Follower aIsLeader )
         {
             if ( mGlobalDofBuild )
             {
@@ -440,26 +440,26 @@ namespace moris
                 mGlobalDofBuild = false;
             }
 
-            // switch on master/slave
-            switch ( aIsMaster )
+            // switch on leader/follower
+            switch ( aIsLeader )
             {
-                // if master
-                case mtk::Master_Slave::MASTER:
+                // if leader
+                case mtk::Leader_Follower::LEADER:
                 {
-                    // return master global dof type list
-                    return mMasterGlobalDofTypes;
+                    // return leader global dof type list
+                    return mLeaderGlobalDofTypes;
                 }
-                // if slave
-                case mtk::Master_Slave::SLAVE:
+                // if follower
+                case mtk::Leader_Follower::FOLLOWER:
                 {
-                    // return slave global dof type list
-                    return mSlaveGlobalDofTypes;
+                    // return follower global dof type list
+                    return mFollowerGlobalDofTypes;
                 }
                 // if none
                 default:
                 {
-                    MORIS_ASSERT( false, "Stabilization_Parameter::get_global_dof_type_list - can only be master or slave." );
-                    return mMasterGlobalDofTypes;
+                    MORIS_ASSERT( false, "Stabilization_Parameter::get_global_dof_type_list - can only be leader or follower." );
+                    return mLeaderGlobalDofTypes;
                 }
             }
         }
@@ -473,22 +473,22 @@ namespace moris
             // set the size of the dof type list for the set
             uint tCounter = 0;
 
-            // loop over direct master dof dependencies
-            for ( uint iDOF = 0; iDOF < mMasterDofTypes.size(); iDOF++ )
+            // loop over direct leader dof dependencies
+            for ( uint iDOF = 0; iDOF < mLeaderDofTypes.size(); iDOF++ )
             {
                 // update counter
-                tCounter += mMasterDofTypes( iDOF ).size();
+                tCounter += mLeaderDofTypes( iDOF ).size();
             }
 
-            // get number of direct slave dof dependencies
-            for ( uint iDOF = 0; iDOF < mSlaveDofTypes.size(); iDOF++ )
+            // get number of direct follower dof dependencies
+            for ( uint iDOF = 0; iDOF < mFollowerDofTypes.size(); iDOF++ )
             {
                 // update counter
-                tCounter += mSlaveDofTypes( iDOF ).size();
+                tCounter += mFollowerDofTypes( iDOF ).size();
             }
 
-            // loop over the master properties
-            for ( const std::shared_ptr< Property >& tProperty : mMasterProp )
+            // loop over the leader properties
+            for ( const std::shared_ptr< Property >& tProperty : mLeaderProp )
             {
                 if ( tProperty != nullptr )
                 {
@@ -501,8 +501,8 @@ namespace moris
                 }
             }
 
-            // loop over slave properties
-            for ( const std::shared_ptr< Property >& tProperty : mSlaveProp )
+            // loop over follower properties
+            for ( const std::shared_ptr< Property >& tProperty : mFollowerProp )
             {
                 if ( tProperty != nullptr )
                 {
@@ -515,8 +515,8 @@ namespace moris
                 }
             }
 
-            // loop over master constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mMasterCM )
+            // loop over leader constitutive models
+            for ( const std::shared_ptr< Constitutive_Model >& tCM : mLeaderCM )
             {
                 if ( tCM != nullptr )
                 {
@@ -529,8 +529,8 @@ namespace moris
                 }
             }
 
-            // loop over slave constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mSlaveCM )
+            // loop over follower constitutive models
+            for ( const std::shared_ptr< Constitutive_Model >& tCM : mFollowerCM )
             {
                 if ( tCM != nullptr )
                 {
@@ -546,22 +546,22 @@ namespace moris
             // reserve memory for dof type list
             aDofTypes.reserve( tCounter );
 
-            // loop over master dof direct dependencies
-            for ( uint iDOF = 0; iDOF < mMasterDofTypes.size(); iDOF++ )
+            // loop over leader dof direct dependencies
+            for ( uint iDOF = 0; iDOF < mLeaderDofTypes.size(); iDOF++ )
             {
                 // populate the dof list
-                aDofTypes.append( mMasterDofTypes( iDOF ) );
+                aDofTypes.append( mLeaderDofTypes( iDOF ) );
             }
 
-            // loop over slave dof direct dependencies
-            for ( uint iDOF = 0; iDOF < mSlaveDofTypes.size(); iDOF++ )
+            // loop over follower dof direct dependencies
+            for ( uint iDOF = 0; iDOF < mFollowerDofTypes.size(); iDOF++ )
             {
                 // populate the dof list
-                aDofTypes.append( mSlaveDofTypes( iDOF ) );
+                aDofTypes.append( mFollowerDofTypes( iDOF ) );
             }
 
-            // loop over master properties
-            for ( const std::shared_ptr< Property >& tProperty : mMasterProp )
+            // loop over leader properties
+            for ( const std::shared_ptr< Property >& tProperty : mLeaderProp )
             {
                 if ( tProperty != nullptr )
                 {
@@ -574,8 +574,8 @@ namespace moris
                 }
             }
 
-            // loop over slave properties
-            for ( const std::shared_ptr< Property >& tProperty : mSlaveProp )
+            // loop over follower properties
+            for ( const std::shared_ptr< Property >& tProperty : mFollowerProp )
             {
                 if ( tProperty != nullptr )
                 {
@@ -588,8 +588,8 @@ namespace moris
                 }
             }
 
-            // loop over the master constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mMasterCM )
+            // loop over the leader constitutive models
+            for ( const std::shared_ptr< Constitutive_Model >& tCM : mLeaderCM )
             {
                 if ( tCM != nullptr )
                 {
@@ -602,8 +602,8 @@ namespace moris
                 }
             }
 
-            // loop over the slave constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mSlaveCM )
+            // loop over the follower constitutive models
+            for ( const std::shared_ptr< Constitutive_Model >& tCM : mFollowerCM )
             {
                 if ( tCM != nullptr )
                 {
@@ -628,36 +628,36 @@ namespace moris
             uint tDofCounter = 0;
             uint tDvCounter  = 0;
 
-            // loop over direct master dof dependencies
-            for ( uint iDof = 0; iDof < mMasterDofTypes.size(); iDof++ )
+            // loop over direct leader dof dependencies
+            for ( uint iDof = 0; iDof < mLeaderDofTypes.size(); iDof++ )
             {
                 // update counter
-                tDofCounter += mMasterDofTypes( iDof ).size();
+                tDofCounter += mLeaderDofTypes( iDof ).size();
             }
 
-            // loop over direct master dv dependencies
-            for ( uint iDv = 0; iDv < mMasterDvTypes.size(); iDv++ )
+            // loop over direct leader dv dependencies
+            for ( uint iDv = 0; iDv < mLeaderDvTypes.size(); iDv++ )
             {
                 // update counter
-                tDvCounter += mMasterDvTypes( iDv ).size();
+                tDvCounter += mLeaderDvTypes( iDv ).size();
             }
 
-            // get number of direct slave dof dependencies
-            for ( uint iDof = 0; iDof < mSlaveDofTypes.size(); iDof++ )
+            // get number of direct follower dof dependencies
+            for ( uint iDof = 0; iDof < mFollowerDofTypes.size(); iDof++ )
             {
                 // update counter
-                tDofCounter += mSlaveDofTypes( iDof ).size();
+                tDofCounter += mFollowerDofTypes( iDof ).size();
             }
 
-            // get number of direct slave dv dependencies
-            for ( uint iDv = 0; iDv < mSlaveDvTypes.size(); iDv++ )
+            // get number of direct follower dv dependencies
+            for ( uint iDv = 0; iDv < mFollowerDvTypes.size(); iDv++ )
             {
                 // update counter
-                tDvCounter += mSlaveDvTypes( iDv ).size();
+                tDvCounter += mFollowerDvTypes( iDv ).size();
             }
 
-            // loop over the master properties
-            for ( const std::shared_ptr< Property >& tProperty : mMasterProp )
+            // loop over the leader properties
+            for ( const std::shared_ptr< Property >& tProperty : mLeaderProp )
             {
                 if ( tProperty != nullptr )
                 {
@@ -677,8 +677,8 @@ namespace moris
                 }
             }
 
-            // loop over slave properties
-            for ( const std::shared_ptr< Property >& tProperty : mSlaveProp )
+            // loop over follower properties
+            for ( const std::shared_ptr< Property >& tProperty : mFollowerProp )
             {
                 if ( tProperty != nullptr )
                 {
@@ -698,8 +698,8 @@ namespace moris
                 }
             }
 
-            // loop over master constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mMasterCM )
+            // loop over leader constitutive models
+            for ( const std::shared_ptr< Constitutive_Model >& tCM : mLeaderCM )
             {
                 if ( tCM != nullptr )
                 {
@@ -719,8 +719,8 @@ namespace moris
                 }
             }
 
-            // loop over slave constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mSlaveCM )
+            // loop over follower constitutive models
+            for ( const std::shared_ptr< Constitutive_Model >& tCM : mFollowerCM )
             {
                 if ( tCM != nullptr )
                 {
@@ -744,36 +744,36 @@ namespace moris
             aDofTypes.reserve( tDofCounter );
             aDvTypes.reserve( tDvCounter );
 
-            // loop over master dof direct dependencies
-            for ( uint iDof = 0; iDof < mMasterDofTypes.size(); iDof++ )
+            // loop over leader dof direct dependencies
+            for ( uint iDof = 0; iDof < mLeaderDofTypes.size(); iDof++ )
             {
                 // populate the dof list
-                aDofTypes.append( mMasterDofTypes( iDof ) );
+                aDofTypes.append( mLeaderDofTypes( iDof ) );
             }
 
-            // loop over master dv direct dependencies
-            for ( uint iDv = 0; iDv < mMasterDvTypes.size(); iDv++ )
+            // loop over leader dv direct dependencies
+            for ( uint iDv = 0; iDv < mLeaderDvTypes.size(); iDv++ )
             {
                 // populate the dv list
-                aDvTypes.append( mMasterDvTypes( iDv ) );
+                aDvTypes.append( mLeaderDvTypes( iDv ) );
             }
 
-            // loop over slave dof direct dependencies
-            for ( uint iDof = 0; iDof < mSlaveDofTypes.size(); iDof++ )
+            // loop over follower dof direct dependencies
+            for ( uint iDof = 0; iDof < mFollowerDofTypes.size(); iDof++ )
             {
                 // populate the dof list
-                aDofTypes.append( mSlaveDofTypes( iDof ) );
+                aDofTypes.append( mFollowerDofTypes( iDof ) );
             }
 
-            // loop over slave dv direct dependencies
-            for ( uint iDv = 0; iDv < mSlaveDvTypes.size(); iDv++ )
+            // loop over follower dv direct dependencies
+            for ( uint iDv = 0; iDv < mFollowerDvTypes.size(); iDv++ )
             {
                 // populate the dv list
-                aDvTypes.append( mSlaveDvTypes( iDv ) );
+                aDvTypes.append( mFollowerDvTypes( iDv ) );
             }
 
-            // loop over master properties
-            for ( const std::shared_ptr< Property >& tProperty : mMasterProp )
+            // loop over leader properties
+            for ( const std::shared_ptr< Property >& tProperty : mLeaderProp )
             {
                 if ( tProperty != nullptr )
                 {
@@ -793,8 +793,8 @@ namespace moris
                 }
             }
 
-            // loop over slave properties
-            for ( const std::shared_ptr< Property >& tProperty : mSlaveProp )
+            // loop over follower properties
+            for ( const std::shared_ptr< Property >& tProperty : mFollowerProp )
             {
                 if ( tProperty != nullptr )
                 {
@@ -814,8 +814,8 @@ namespace moris
                 }
             }
 
-            // loop over the master constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mMasterCM )
+            // loop over the leader constitutive models
+            for ( const std::shared_ptr< Constitutive_Model >& tCM : mLeaderCM )
             {
                 if ( tCM != nullptr )
                 {
@@ -835,8 +835,8 @@ namespace moris
                 }
             }
 
-            // loop over the slave constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mSlaveCM )
+            // loop over the follower constitutive models
+            for ( const std::shared_ptr< Constitutive_Model >& tCM : mFollowerCM )
             {
                 if ( tCM != nullptr )
                 {
@@ -862,15 +862,15 @@ namespace moris
         void
         Stabilization_Parameter::build_global_dof_type_list()
         {
-            // MASTER-------------------------------------------------------
+            // LEADER-------------------------------------------------------
             // get the size of the dof type list
             uint tCounterMax = 0;
 
             // get number of dof types from penalty parameter
-            tCounterMax += mMasterDofTypes.size();
+            tCounterMax += mLeaderDofTypes.size();
 
             // get number of dof types from properties
-            for ( const std::shared_ptr< Property >& tProperty : mMasterProp )
+            for ( const std::shared_ptr< Property >& tProperty : mLeaderProp )
             {
                 if ( tProperty != nullptr )
                 {
@@ -879,7 +879,7 @@ namespace moris
             }
 
             // get number of dof types from constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mMasterCM )
+            for ( const std::shared_ptr< Constitutive_Model >& tCM : mLeaderCM )
             {
                 if ( tCM != nullptr )
                 {
@@ -888,7 +888,7 @@ namespace moris
             }
 
             // set size for the global dof type list
-            mMasterGlobalDofTypes.resize( tCounterMax );
+            mLeaderGlobalDofTypes.resize( tCounterMax );
 
             // set a size for the checkList (used to avoid repeating a dof type)
             moris::Cell< sint > tCheckList( tCounterMax, -1 );
@@ -897,20 +897,20 @@ namespace moris
             uint tCounter = 0;
 
             // get dof type from penalty parameter
-            for ( uint iDOF = 0; iDOF < mMasterDofTypes.size(); iDOF++ )
+            for ( uint iDOF = 0; iDOF < mLeaderDofTypes.size(); iDOF++ )
             {
                 // put the dof type in the checklist
-                tCheckList( tCounter ) = static_cast< uint >( mMasterDofTypes( iDOF )( 0 ) );
+                tCheckList( tCounter ) = static_cast< uint >( mLeaderDofTypes( iDOF )( 0 ) );
 
                 // put the dof type in the global type list
-                mMasterGlobalDofTypes( tCounter ) = mMasterDofTypes( iDOF );
+                mLeaderGlobalDofTypes( tCounter ) = mLeaderDofTypes( iDOF );
 
                 // update the dof counter
                 tCounter++;
             }
 
             // get dof type from properties
-            for ( const std::shared_ptr< Property >& tProperty : mMasterProp )
+            for ( const std::shared_ptr< Property >& tProperty : mLeaderProp )
             {
                 if ( tProperty != nullptr )
                 {
@@ -935,7 +935,7 @@ namespace moris
                             tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
 
                             // put the dof type in the global type list
-                            mMasterGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
+                            mLeaderGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
 
                             // update dof counter
                             tCounter++;
@@ -945,7 +945,7 @@ namespace moris
             }
 
             // get dof type from constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mMasterCM )
+            for ( const std::shared_ptr< Constitutive_Model >& tCM : mLeaderCM )
             {
                 if ( tCM != nullptr )
                 {
@@ -970,7 +970,7 @@ namespace moris
                             tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
 
                             // put the dof type in the global type list
-                            mMasterGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
+                            mLeaderGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
 
                             // update dof counter
                             tCounter++;
@@ -980,17 +980,17 @@ namespace moris
             }
 
             // get the number of unique dof type groups for the penalty parameter
-            mMasterGlobalDofTypes.resize( tCounter );
+            mLeaderGlobalDofTypes.resize( tCounter );
 
-            // SLAVE--------------------------------------------------------
+            // FOLLOWER--------------------------------------------------------
             // get the size of the dof type list
             tCounterMax = 0;
 
             // get number of dof types from penalty parameter
-            tCounterMax += mSlaveDofTypes.size();
+            tCounterMax += mFollowerDofTypes.size();
 
             // get number of dof types from properties
-            for ( const std::shared_ptr< Property >& tProperty : mSlaveProp )
+            for ( const std::shared_ptr< Property >& tProperty : mFollowerProp )
             {
                 if ( tProperty != nullptr )
                 {
@@ -999,7 +999,7 @@ namespace moris
             }
 
             // get number of dof types from constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mSlaveCM )
+            for ( const std::shared_ptr< Constitutive_Model >& tCM : mFollowerCM )
             {
                 if ( tCM != nullptr )
                 {
@@ -1008,7 +1008,7 @@ namespace moris
             }
 
             // set size for the global dof type list
-            mSlaveGlobalDofTypes.resize( tCounterMax );
+            mFollowerGlobalDofTypes.resize( tCounterMax );
 
             // set a size for the checkList (used to avoid repeating a dof type)
             tCheckList.resize( tCounterMax, -1 );
@@ -1017,20 +1017,20 @@ namespace moris
             tCounter = 0;
 
             // get dof type from penalty parameter
-            for ( uint iDOF = 0; iDOF < mSlaveDofTypes.size(); iDOF++ )
+            for ( uint iDOF = 0; iDOF < mFollowerDofTypes.size(); iDOF++ )
             {
                 // put the dof type in the checklist
-                tCheckList( tCounter ) = static_cast< uint >( mSlaveDofTypes( iDOF )( 0 ) );
+                tCheckList( tCounter ) = static_cast< uint >( mFollowerDofTypes( iDOF )( 0 ) );
 
                 // put the dof type in the global type list
-                mSlaveGlobalDofTypes( tCounter ) = mSlaveDofTypes( iDOF );
+                mFollowerGlobalDofTypes( tCounter ) = mFollowerDofTypes( iDOF );
 
                 // update the dof counter
                 tCounter++;
             }
 
             // get dof type from properties
-            for ( const std::shared_ptr< Property >& tProperty : mSlaveProp )
+            for ( const std::shared_ptr< Property >& tProperty : mFollowerProp )
             {
                 if ( tProperty != nullptr )
                 {
@@ -1055,7 +1055,7 @@ namespace moris
                             tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
 
                             // put the dof type in the global type list
-                            mSlaveGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
+                            mFollowerGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
 
                             // update dof counter
                             tCounter++;
@@ -1065,7 +1065,7 @@ namespace moris
             }
 
             // get dof type from constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mSlaveCM )
+            for ( const std::shared_ptr< Constitutive_Model >& tCM : mFollowerCM )
             {
                 if ( tCM != nullptr )
                 {
@@ -1090,7 +1090,7 @@ namespace moris
                             tCheckList( tCounter ) = static_cast< uint >( tActiveDofType( iDOF )( 0 ) );
 
                             // put the dof type in the global type list
-                            mSlaveGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
+                            mFollowerGlobalDofTypes( tCounter ) = tActiveDofType( iDOF );
 
                             // update dof counter
                             tCounter++;
@@ -1100,19 +1100,19 @@ namespace moris
             }
 
             // get the number of unique dof type groups for the penalty parameter
-            mSlaveGlobalDofTypes.resize( tCounter );
+            mFollowerGlobalDofTypes.resize( tCounter );
 
-            // number of global master and slave dof types
-            uint tNumMasterGlobalDofTypes = mMasterGlobalDofTypes.size();
-            uint tNumSlaveGlobalDofTypes  = mSlaveGlobalDofTypes.size();
+            // number of global leader and follower dof types
+            uint tNumLeaderGlobalDofTypes = mLeaderGlobalDofTypes.size();
+            uint tNumFollowerGlobalDofTypes  = mFollowerGlobalDofTypes.size();
 
             // set flag for evaluation
-            mdPPdMasterDofEval.set_size( tNumMasterGlobalDofTypes, 1, true );
-            mdPPdSlaveDofEval.set_size( tNumSlaveGlobalDofTypes, 1, true );
+            mdPPdLeaderDofEval.set_size( tNumLeaderGlobalDofTypes, 1, true );
+            mdPPdFollowerDofEval.set_size( tNumFollowerGlobalDofTypes, 1, true );
 
             // set storage for evaluation
-            mdPPdMasterDof.resize( tNumMasterGlobalDofTypes );
-            mdPPdSlaveDof.resize( tNumSlaveGlobalDofTypes );
+            mdPPdLeaderDof.resize( tNumLeaderGlobalDofTypes );
+            mdPPdFollowerDof.resize( tNumFollowerGlobalDofTypes );
         }
 
         //------------------------------------------------------------------------------
@@ -1120,48 +1120,48 @@ namespace moris
         void
         Stabilization_Parameter::build_global_dof_type_map()
         {
-            // MASTER-------------------------------------------------------
+            // LEADER-------------------------------------------------------
             // get number of global dof types
-            uint tNumDofTypes = mMasterGlobalDofTypes.size();
+            uint tNumDofTypes = mLeaderGlobalDofTypes.size();
 
             // determine the max Dof_Type enum
             sint tMaxEnum = 0;
             for ( uint iDOF = 0; iDOF < tNumDofTypes; iDOF++ )
             {
-                tMaxEnum = std::max( tMaxEnum, static_cast< int >( mMasterGlobalDofTypes( iDOF )( 0 ) ) );
+                tMaxEnum = std::max( tMaxEnum, static_cast< int >( mLeaderGlobalDofTypes( iDOF )( 0 ) ) );
             }
             tMaxEnum++;
 
             // set the Dof_Type map size
-            mMasterGlobalDofTypeMap.set_size( tMaxEnum, 1, -1 );
+            mLeaderGlobalDofTypeMap.set_size( tMaxEnum, 1, -1 );
 
             // fill the Dof_Type map
             for ( uint iDOF = 0; iDOF < tNumDofTypes; iDOF++ )
             {
                 // fill the property map
-                mMasterGlobalDofTypeMap( static_cast< int >( mMasterGlobalDofTypes( iDOF )( 0 ) ), 0 ) = iDOF;
+                mLeaderGlobalDofTypeMap( static_cast< int >( mLeaderGlobalDofTypes( iDOF )( 0 ) ), 0 ) = iDOF;
             }
 
-            // SLAVE-------------------------------------------------------
+            // FOLLOWER-------------------------------------------------------
             // get number of global dof types
-            tNumDofTypes = mSlaveGlobalDofTypes.size();
+            tNumDofTypes = mFollowerGlobalDofTypes.size();
 
             // determine the max Dof_Type enum
             tMaxEnum = 0;
             for ( uint iDOF = 0; iDOF < tNumDofTypes; iDOF++ )
             {
-                tMaxEnum = std::max( tMaxEnum, static_cast< int >( mSlaveGlobalDofTypes( iDOF )( 0 ) ) );
+                tMaxEnum = std::max( tMaxEnum, static_cast< int >( mFollowerGlobalDofTypes( iDOF )( 0 ) ) );
             }
             tMaxEnum++;
 
             // set the dof type map size
-            mSlaveGlobalDofTypeMap.set_size( tMaxEnum, 1, -1 );
+            mFollowerGlobalDofTypeMap.set_size( tMaxEnum, 1, -1 );
 
             // fill the dof type map
             for ( uint iDOF = 0; iDOF < tNumDofTypes; iDOF++ )
             {
                 // fill the property map
-                mSlaveGlobalDofTypeMap( static_cast< int >( mSlaveGlobalDofTypes( iDOF )( 0 ) ), 0 ) = iDOF;
+                mFollowerGlobalDofTypeMap( static_cast< int >( mFollowerGlobalDofTypes( iDOF )( 0 ) ), 0 ) = iDOF;
             }
         }
 
@@ -1169,28 +1169,28 @@ namespace moris
 
         const Matrix< DDSMat >&
         Stabilization_Parameter::get_global_dof_type_map(
-                mtk::Master_Slave aIsMaster )
+                mtk::Leader_Follower aIsLeader )
         {
-            // switch on master/slave
-            switch ( aIsMaster )
+            // switch on leader/follower
+            switch ( aIsLeader )
             {
-                // if master
-                case mtk::Master_Slave::MASTER:
+                // if leader
+                case mtk::Leader_Follower::LEADER:
                 {
-                    // return master global dof type map
-                    return mMasterGlobalDofTypeMap;
+                    // return leader global dof type map
+                    return mLeaderGlobalDofTypeMap;
                 }
-                // if slave
-                case mtk::Master_Slave::SLAVE:
+                // if follower
+                case mtk::Leader_Follower::FOLLOWER:
                 {
-                    // return slave global dof type map
-                    return mSlaveGlobalDofTypeMap;
+                    // return follower global dof type map
+                    return mFollowerGlobalDofTypeMap;
                 }
                 // if none
                 default:
                 {
-                    MORIS_ASSERT( false, "Stabilization_Parameter::get_global_dof_type_map - can only be master or slave." );
-                    return mMasterGlobalDofTypeMap;
+                    MORIS_ASSERT( false, "Stabilization_Parameter::get_global_dof_type_map - can only be leader or follower." );
+                    return mLeaderGlobalDofTypeMap;
                 }
             }
         }
@@ -1200,7 +1200,7 @@ namespace moris
         bool
         Stabilization_Parameter::check_dof_dependency(
                 const moris::Cell< MSI::Dof_Type >& aDofType,
-                mtk::Master_Slave                   aIsMaster )
+                mtk::Leader_Follower                   aIsLeader )
         {
             // set bool for dependency
             bool tDofDependency = false;
@@ -1209,8 +1209,8 @@ namespace moris
             uint tDofIndex = static_cast< uint >( aDofType( 0 ) );
 
             // if aDofType is an active dof type for the stabilization parameter
-            if ( tDofIndex < this->get_global_dof_type_map( aIsMaster ).numel()
-                    && this->get_global_dof_type_map( aIsMaster )( tDofIndex ) != -1 )
+            if ( tDofIndex < this->get_global_dof_type_map( aIsLeader ).numel()
+                    && this->get_global_dof_type_map( aIsLeader )( tDofIndex ) != -1 )
             {
                 // bool is set to true
                 tDofDependency = true;
@@ -1223,7 +1223,7 @@ namespace moris
 
         const moris::Cell< moris::Cell< PDV_Type > >&
         Stabilization_Parameter::get_global_dv_type_list(
-                mtk::Master_Slave aIsMaster )
+                mtk::Leader_Follower aIsLeader )
         {
             if ( mGlobalDvBuild )
             {
@@ -1237,26 +1237,26 @@ namespace moris
                 mGlobalDvBuild = false;
             }
 
-            // switch on master/slave
-            switch ( aIsMaster )
+            // switch on leader/follower
+            switch ( aIsLeader )
             {
-                // if master
-                case mtk::Master_Slave::MASTER:
+                // if leader
+                case mtk::Leader_Follower::LEADER:
                 {
-                    // return master global dv type list
-                    return mMasterGlobalDvTypes;
+                    // return leader global dv type list
+                    return mLeaderGlobalDvTypes;
                 }
-                // if slave
-                case mtk::Master_Slave::SLAVE:
+                // if follower
+                case mtk::Leader_Follower::FOLLOWER:
                 {
-                    // return slave global dv type list
-                    return mSlaveGlobalDvTypes;
+                    // return follower global dv type list
+                    return mFollowerGlobalDvTypes;
                 }
                 // if none
                 default:
                 {
-                    MORIS_ASSERT( false, "Stabilization_Parameter::get_global_dv_type_list - can only be master or slave." );
-                    return mMasterGlobalDvTypes;
+                    MORIS_ASSERT( false, "Stabilization_Parameter::get_global_dv_type_list - can only be leader or follower." );
+                    return mLeaderGlobalDvTypes;
                 }
             }
         }
@@ -1266,15 +1266,15 @@ namespace moris
         void
         Stabilization_Parameter::build_global_dv_type_list()
         {
-            // MASTER-------------------------------------------------------
+            // LEADER-------------------------------------------------------
             // get the size of the dv type list
             uint tCounterMax = 0;
 
             // get number of dv types from penalty parameter
-            tCounterMax += mMasterDvTypes.size();
+            tCounterMax += mLeaderDvTypes.size();
 
             // get number of dv types from properties
-            for ( const std::shared_ptr< Property >& tProperty : mMasterProp )
+            for ( const std::shared_ptr< Property >& tProperty : mLeaderProp )
             {
                 if ( tProperty != nullptr )
                 {
@@ -1283,7 +1283,7 @@ namespace moris
             }
 
             // get number of dof types from constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mMasterCM )
+            for ( const std::shared_ptr< Constitutive_Model >& tCM : mLeaderCM )
             {
                 if ( tCM != nullptr )
                 {
@@ -1292,7 +1292,7 @@ namespace moris
             }
 
             // set size for the global dv type list
-            mMasterGlobalDvTypes.resize( tCounterMax );
+            mLeaderGlobalDvTypes.resize( tCounterMax );
 
             // set a size for the checkList (used to avoid repeating a dv type)
             moris::Cell< sint > tCheckList( tCounterMax, -1 );
@@ -1301,20 +1301,20 @@ namespace moris
             uint tCounter = 0;
 
             // get dv type from penalty parameter
-            for ( uint iDv = 0; iDv < mMasterDvTypes.size(); iDv++ )
+            for ( uint iDv = 0; iDv < mLeaderDvTypes.size(); iDv++ )
             {
                 // put the dv type in the checklist
-                tCheckList( tCounter ) = static_cast< uint >( mMasterDvTypes( iDv )( 0 ) );
+                tCheckList( tCounter ) = static_cast< uint >( mLeaderDvTypes( iDv )( 0 ) );
 
                 // put the dv type in the global type list
-                mMasterGlobalDvTypes( tCounter ) = mMasterDvTypes( iDv );
+                mLeaderGlobalDvTypes( tCounter ) = mLeaderDvTypes( iDv );
 
                 // update the dv counter
                 tCounter++;
             }
 
             // get dv type from properties
-            for ( const std::shared_ptr< Property >& tProperty : mMasterProp )
+            for ( const std::shared_ptr< Property >& tProperty : mLeaderProp )
             {
                 if ( tProperty != nullptr )
                 {
@@ -1339,7 +1339,7 @@ namespace moris
                             tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
 
                             // put the dv type in the global type list
-                            mMasterGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
+                            mLeaderGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
 
                             // update dof counter
                             tCounter++;
@@ -1349,7 +1349,7 @@ namespace moris
             }
 
             // get dof type from constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mMasterCM )
+            for ( const std::shared_ptr< Constitutive_Model >& tCM : mLeaderCM )
             {
                 if ( tCM != nullptr )
                 {
@@ -1374,7 +1374,7 @@ namespace moris
                             tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
 
                             // put the dv type in the global type list
-                            mMasterGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
+                            mLeaderGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
 
                             // update dv counter
                             tCounter++;
@@ -1384,17 +1384,17 @@ namespace moris
             }
 
             // get the number of unique dv type groups for the penalty parameter
-            mMasterGlobalDvTypes.resize( tCounter );
+            mLeaderGlobalDvTypes.resize( tCounter );
 
-            // SLAVE--------------------------------------------------------
+            // FOLLOWER--------------------------------------------------------
             // get the size of the dv type list
             tCounterMax = 0;
 
             // get number of dv types from penalty parameter
-            tCounterMax += mSlaveDvTypes.size();
+            tCounterMax += mFollowerDvTypes.size();
 
             // get number of dv types from properties
-            for ( const std::shared_ptr< Property >& tProperty : mSlaveProp )
+            for ( const std::shared_ptr< Property >& tProperty : mFollowerProp )
             {
                 if ( tProperty != nullptr )
                 {
@@ -1403,7 +1403,7 @@ namespace moris
             }
 
             // get number of dv types from constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mSlaveCM )
+            for ( const std::shared_ptr< Constitutive_Model >& tCM : mFollowerCM )
             {
                 if ( tCM != nullptr )
                 {
@@ -1412,7 +1412,7 @@ namespace moris
             }
 
             // set size for the global dv type list
-            mSlaveGlobalDvTypes.resize( tCounterMax );
+            mFollowerGlobalDvTypes.resize( tCounterMax );
 
             // set a size for the checkList (used to avoid repeating a dv type)
             tCheckList.resize( tCounterMax, -1 );
@@ -1421,20 +1421,20 @@ namespace moris
             tCounter = 0;
 
             // get dv type from penalty parameter
-            for ( uint iDv = 0; iDv < mSlaveDvTypes.size(); iDv++ )
+            for ( uint iDv = 0; iDv < mFollowerDvTypes.size(); iDv++ )
             {
                 // put the dv type in the checklist
-                tCheckList( tCounter ) = static_cast< uint >( mSlaveDvTypes( iDv )( 0 ) );
+                tCheckList( tCounter ) = static_cast< uint >( mFollowerDvTypes( iDv )( 0 ) );
 
                 // put the dv type in the global type list
-                mSlaveGlobalDvTypes( tCounter ) = mSlaveDvTypes( iDv );
+                mFollowerGlobalDvTypes( tCounter ) = mFollowerDvTypes( iDv );
 
                 // update the dv counter
                 tCounter++;
             }
 
             // get dv type from properties
-            for ( const std::shared_ptr< Property >& tProperty : mSlaveProp )
+            for ( const std::shared_ptr< Property >& tProperty : mFollowerProp )
             {
                 if ( tProperty != nullptr )
                 {
@@ -1459,7 +1459,7 @@ namespace moris
                             tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
 
                             // put the dv type in the global type list
-                            mSlaveGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
+                            mFollowerGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
 
                             // update dv counter
                             tCounter++;
@@ -1469,7 +1469,7 @@ namespace moris
             }
 
             // get dv type from constitutive models
-            for ( const std::shared_ptr< Constitutive_Model >& tCM : mMasterCM )
+            for ( const std::shared_ptr< Constitutive_Model >& tCM : mLeaderCM )
             {
                 if ( tCM != nullptr )
                 {
@@ -1494,7 +1494,7 @@ namespace moris
                             tCheckList( tCounter ) = static_cast< uint >( tActiveDvType( iDv )( 0 ) );
 
                             // put the dv type in the global type list
-                            mSlaveGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
+                            mFollowerGlobalDvTypes( tCounter ) = tActiveDvType( iDv );
 
                             // update dv counter
                             tCounter++;
@@ -1504,22 +1504,22 @@ namespace moris
             }
 
             // get the number of unique dv type groups for the penalty parameter
-            mSlaveGlobalDvTypes.resize( tCounter );
+            mFollowerGlobalDvTypes.resize( tCounter );
 
             // build global dv type map
             this->build_global_dv_type_map();
 
-            // number of global master and slave dv types
-            uint tNumMasterGlobalDvTypes = mMasterGlobalDvTypes.size();
-            uint tNumSlaveGlobalDvTypes  = mSlaveGlobalDvTypes.size();
+            // number of global leader and follower dv types
+            uint tNumLeaderGlobalDvTypes = mLeaderGlobalDvTypes.size();
+            uint tNumFollowerGlobalDvTypes  = mFollowerGlobalDvTypes.size();
 
             // set flag for evaluation
-            mdPPdMasterDvEval.set_size( tNumMasterGlobalDvTypes, 1, true );
-            mdPPdSlaveDvEval.set_size( tNumSlaveGlobalDvTypes, 1, true );
+            mdPPdLeaderDvEval.set_size( tNumLeaderGlobalDvTypes, 1, true );
+            mdPPdFollowerDvEval.set_size( tNumFollowerGlobalDvTypes, 1, true );
 
             // set storage for evaluation
-            mdPPdMasterDv.resize( tNumMasterGlobalDvTypes );
-            mdPPdSlaveDv.resize( tNumSlaveGlobalDvTypes );
+            mdPPdLeaderDv.resize( tNumLeaderGlobalDvTypes );
+            mdPPdFollowerDv.resize( tNumFollowerGlobalDvTypes );
         }
 
         //------------------------------------------------------------------------------
@@ -1527,55 +1527,55 @@ namespace moris
         void
         Stabilization_Parameter::build_global_dv_type_map()
         {
-            // MASTER-------------------------------------------------------
+            // LEADER-------------------------------------------------------
             // get number of global dof types
-            uint tNumDvTypes = mMasterGlobalDvTypes.size();
+            uint tNumDvTypes = mLeaderGlobalDvTypes.size();
 
             // determine the max Dv_Type enum
             sint tMaxEnum = 0;
             for ( uint iDv = 0; iDv < tNumDvTypes; iDv++ )
             {
-                tMaxEnum = std::max( tMaxEnum, static_cast< int >( mMasterGlobalDvTypes( iDv )( 0 ) ) );
+                tMaxEnum = std::max( tMaxEnum, static_cast< int >( mLeaderGlobalDvTypes( iDv )( 0 ) ) );
             }
             tMaxEnum++;
 
             // set the Dv_Type map size
-            mMasterGlobalDvTypeMap.set_size( tMaxEnum, 1, -1 );
+            mLeaderGlobalDvTypeMap.set_size( tMaxEnum, 1, -1 );
 
             // fill the Dv_Type map
             for ( uint iDv = 0; iDv < tNumDvTypes; iDv++ )
             {
                 // fill the property map
-                mMasterGlobalDvTypeMap( static_cast< int >( mMasterGlobalDvTypes( iDv )( 0 ) ), 0 ) = iDv;
+                mLeaderGlobalDvTypeMap( static_cast< int >( mLeaderGlobalDvTypes( iDv )( 0 ) ), 0 ) = iDv;
             }
 
-            // SLAVE-------------------------------------------------------
+            // FOLLOWER-------------------------------------------------------
             // get number of global dv types
-            tNumDvTypes = mSlaveGlobalDvTypes.size();
+            tNumDvTypes = mFollowerGlobalDvTypes.size();
 
             // determine the max Dv_Type enum
             tMaxEnum = 0;
             for ( uint iDv = 0; iDv < tNumDvTypes; iDv++ )
             {
-                tMaxEnum = std::max( tMaxEnum, static_cast< int >( mSlaveGlobalDvTypes( iDv )( 0 ) ) );
+                tMaxEnum = std::max( tMaxEnum, static_cast< int >( mFollowerGlobalDvTypes( iDv )( 0 ) ) );
             }
             tMaxEnum++;
 
             // set the dv type map size
-            mSlaveGlobalDvTypeMap.set_size( tMaxEnum, 1, -1 );
+            mFollowerGlobalDvTypeMap.set_size( tMaxEnum, 1, -1 );
 
             // fill the dv type map
             for ( uint iDv = 0; iDv < tNumDvTypes; iDv++ )
             {
                 // fill the property map
-                mSlaveGlobalDvTypeMap( static_cast< int >( mSlaveGlobalDvTypes( iDv )( 0 ) ), 0 ) = iDv;
+                mFollowerGlobalDvTypeMap( static_cast< int >( mFollowerGlobalDvTypes( iDv )( 0 ) ), 0 ) = iDv;
             }
         }
 
         //------------------------------------------------------------------------------
 
         bool
-        Stabilization_Parameter::check_master_dv_dependency(
+        Stabilization_Parameter::check_leader_dv_dependency(
                 const moris::Cell< PDV_Type >& aDvType )
         {
             // set bool for dependency
@@ -1585,7 +1585,7 @@ namespace moris
             uint tDvIndex = static_cast< uint >( aDvType( 0 ) );
 
             // if aDvType is an active dv type for the constitutive model
-            if ( tDvIndex < mMasterGlobalDvTypeMap.numel() && mMasterGlobalDvTypeMap( tDvIndex ) != -1 )
+            if ( tDvIndex < mLeaderGlobalDvTypeMap.numel() && mLeaderGlobalDvTypeMap( tDvIndex ) != -1 )
             {
                 // bool is set to true
                 tDvDependency = true;
@@ -1597,7 +1597,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         bool
-        Stabilization_Parameter::check_slave_dv_dependency(
+        Stabilization_Parameter::check_follower_dv_dependency(
                 const moris::Cell< PDV_Type >& aDvType )
         {
             // set bool for dependency
@@ -1607,7 +1607,7 @@ namespace moris
             uint tDvIndex = static_cast< uint >( aDvType( 0 ) );
 
             // if aDvType is an active dv type for the constitutive model
-            if ( tDvIndex < mSlaveGlobalDvTypeMap.numel() && mSlaveGlobalDvTypeMap( tDvIndex ) != -1 )
+            if ( tDvIndex < mFollowerGlobalDvTypeMap.numel() && mFollowerGlobalDvTypeMap( tDvIndex ) != -1 )
             {
                 // bool is set to true
                 tDvDependency = true;
@@ -1637,63 +1637,63 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
-        Stabilization_Parameter::dSPdMasterDOF(
+        Stabilization_Parameter::dSPdLeaderDOF(
                 const moris::Cell< MSI::Dof_Type >& aDofType )
         {
             // if aDofType is not an active dof type for the property
             MORIS_ERROR(
-                    this->check_dof_dependency( aDofType, mtk::Master_Slave::MASTER ),
-                    "Stabilization_Parameter::dSPdMasterDOF - no dependency on this dof type." );
+                    this->check_dof_dependency( aDofType, mtk::Leader_Follower::LEADER ),
+                    "Stabilization_Parameter::dSPdLeaderDOF - no dependency on this dof type." );
 
             // get the dof index
-            uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+            uint tDofIndex = mLeaderGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
             // if the derivative has not been evaluated yet
-            if ( mdPPdMasterDofEval( tDofIndex ) )
+            if ( mdPPdLeaderDofEval( tDofIndex ) )
             {
                 // evaluate the derivative
-                this->eval_dSPdMasterDOF( aDofType );
+                this->eval_dSPdLeaderDOF( aDofType );
 
                 // set bool for evaluation
-                mdPPdMasterDofEval( tDofIndex ) = false;
+                mdPPdLeaderDofEval( tDofIndex ) = false;
             }
 
             // return the derivative
-            return mdPPdMasterDof( tDofIndex );
+            return mdPPdLeaderDof( tDofIndex );
         }
 
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
-        Stabilization_Parameter::dSPdSlaveDOF(
+        Stabilization_Parameter::dSPdFollowerDOF(
                 const moris::Cell< MSI::Dof_Type >& aDofType )
         {
             // if aDofType is not an active dof type for the property
             MORIS_ERROR(
-                    this->check_dof_dependency( aDofType, mtk::Master_Slave::SLAVE ),
-                    "Stabilization_Parameter::dSPdSlaveDOF - no dependency on this dof type." );
+                    this->check_dof_dependency( aDofType, mtk::Leader_Follower::FOLLOWER ),
+                    "Stabilization_Parameter::dSPdFollowerDOF - no dependency on this dof type." );
 
             // get the dof index
-            uint tDofIndex = mSlaveGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
+            uint tDofIndex = mFollowerGlobalDofTypeMap( static_cast< uint >( aDofType( 0 ) ) );
 
             // if the derivative has not been evaluated yet
-            if ( mdPPdSlaveDofEval( tDofIndex ) )
+            if ( mdPPdFollowerDofEval( tDofIndex ) )
             {
                 // evaluate the derivative
-                this->eval_dSPdSlaveDOF( aDofType );
+                this->eval_dSPdFollowerDOF( aDofType );
 
                 // set bool for evaluation
-                mdPPdSlaveDofEval( tDofIndex ) = false;
+                mdPPdFollowerDofEval( tDofIndex ) = false;
             }
 
             // return the derivative
-            return mdPPdSlaveDof( tDofIndex );
+            return mdPPdFollowerDof( tDofIndex );
         }
 
         //------------------------------------------------------------------------------
 
         void
-        Stabilization_Parameter::eval_dSPdMasterDOF_FD(
+        Stabilization_Parameter::eval_dSPdLeaderDOF_FD(
                 const moris::Cell< MSI::Dof_Type >& aDofTypes,
                 Matrix< DDRMat >&                   adSPdDOF_FD,
                 real                                aPerturbation,
@@ -1705,13 +1705,13 @@ namespace moris
             uint tNumPoints = tFDScheme( 0 ).size();
 
             // get the dof index
-            uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+            uint tDofIndex = mLeaderGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // get the field interpolator for type
             Field_Interpolator* tFI =
-                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
-            // get number of master dofs wrt which derivative is computed
+            // get number of leader dofs wrt which derivative is computed
             uint tDerNumDof    = tFI->get_number_of_space_time_coefficients();
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
@@ -1772,7 +1772,7 @@ namespace moris
                         // reset properties
                         this->reset_eval_flags();
 
-                        // assemble derivatiev of SP wrt master dof type
+                        // assemble derivatiev of SP wrt leader dof type
                         adSPdDOF_FD.get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->val() / ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
@@ -1784,13 +1784,13 @@ namespace moris
             tFI->set_coeff( tCoeff );
 
             // set value to storage
-            mdPPdMasterDof( tDofIndex ) = adSPdDOF_FD;
+            mdPPdLeaderDof( tDofIndex ) = adSPdDOF_FD;
         }
 
         //------------------------------------------------------------------------------
 
         void
-        Stabilization_Parameter::eval_dSPdSlaveDOF_FD(
+        Stabilization_Parameter::eval_dSPdFollowerDOF_FD(
                 const moris::Cell< MSI::Dof_Type >& aDofTypes,
                 Matrix< DDRMat >&                   adSPdDOF_FD,
                 real                                aPerturbation,
@@ -1802,13 +1802,13 @@ namespace moris
             uint tNumPoints = tFDScheme( 0 ).size();
 
             // get the dof index
-            uint tDofIndex = mSlaveGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+            uint tDofIndex = mFollowerGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // get the field interpolator for type
             Field_Interpolator* tFI =
-                    mSlaveFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+                    mFollowerFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
-            // get number of master dofs wrt which derivative is computed
+            // get number of leader dofs wrt which derivative is computed
             uint tDerNumDof    = tFI->get_number_of_space_time_coefficients();
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();
@@ -1870,7 +1870,7 @@ namespace moris
                         this->reset_eval_flags();
 
                         // assemble the jacobian
-                        mdPPdSlaveDof( tDofIndex ).get_column( tDofCounter ) +=
+                        mdPPdFollowerDof( tDofIndex ).get_column( tDofCounter ) +=
                                 tFDScheme( 1 )( iPoint ) * this->val() / ( tFDScheme( 2 )( 0 ) * tDeltaH );
                     }
                     // update dof counter
@@ -1881,63 +1881,63 @@ namespace moris
             tFI->set_coeff( tCoeff );
 
             // set value to storage
-            mdPPdSlaveDof( tDofIndex ) = adSPdDOF_FD;
+            mdPPdFollowerDof( tDofIndex ) = adSPdDOF_FD;
         }
 
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
-        Stabilization_Parameter::dSPdMasterDV(
+        Stabilization_Parameter::dSPdLeaderDV(
                 const moris::Cell< PDV_Type >& aDvTypes )
         {
             // if aDofType is not an active dv type for the property
             MORIS_ERROR(
-                    this->check_master_dv_dependency( aDvTypes ),
-                    "Penalty_Parameter::dSPdMasterDV - no dependency on this dv type." );
+                    this->check_leader_dv_dependency( aDvTypes ),
+                    "Penalty_Parameter::dSPdLeaderDV - no dependency on this dv type." );
 
             // get the dv index
-            uint tDvIndex = mMasterGlobalDvTypeMap( static_cast< uint >( aDvTypes( 0 ) ) );
+            uint tDvIndex = mLeaderGlobalDvTypeMap( static_cast< uint >( aDvTypes( 0 ) ) );
 
             // if the derivative has not been evaluated yet
-            if ( mdPPdMasterDofEval( tDvIndex ) )
+            if ( mdPPdLeaderDofEval( tDvIndex ) )
             {
                 // evaluate the derivative
-                this->eval_dSPdMasterDV( aDvTypes );
+                this->eval_dSPdLeaderDV( aDvTypes );
 
                 // set bool for evaluation
-                mdPPdMasterDofEval( tDvIndex ) = false;
+                mdPPdLeaderDofEval( tDvIndex ) = false;
             }
 
             // return the derivative
-            return mdPPdMasterDof( tDvIndex );
+            return mdPPdLeaderDof( tDvIndex );
         }
 
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat >&
-        Stabilization_Parameter::dSPdSlaveDV(
+        Stabilization_Parameter::dSPdFollowerDV(
                 const moris::Cell< PDV_Type >& aDvTypes )
         {
             // if aDofType is not an active dv type for the property
             MORIS_ERROR(
-                    this->check_slave_dv_dependency( aDvTypes ),
-                    "Stabilization_Parameter::dSPdSlaveDV - no dependency on this dv type." );
+                    this->check_follower_dv_dependency( aDvTypes ),
+                    "Stabilization_Parameter::dSPdFollowerDV - no dependency on this dv type." );
 
             // get the dv index
-            uint tDvIndex = mSlaveGlobalDvTypeMap( static_cast< uint >( aDvTypes( 0 ) ) );
+            uint tDvIndex = mFollowerGlobalDvTypeMap( static_cast< uint >( aDvTypes( 0 ) ) );
 
             // if the derivative has not been evaluated yet
-            if ( mdPPdSlaveDvEval( tDvIndex ) )
+            if ( mdPPdFollowerDvEval( tDvIndex ) )
             {
                 // evaluate the derivative
-                this->eval_dSPdSlaveDV( aDvTypes );
+                this->eval_dSPdFollowerDV( aDvTypes );
 
                 // set bool for evaluation
-                mdPPdSlaveDvEval( tDvIndex ) = false;
+                mdPPdFollowerDvEval( tDvIndex ) = false;
             }
 
             // return the derivative
-            return mdPPdSlaveDv( tDvIndex );
+            return mdPPdFollowerDv( tDvIndex );
         }
 
         //------------------------------------------------------------------------------

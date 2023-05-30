@@ -33,22 +33,22 @@ namespace moris
             mResidualDofType = { MSI::Dof_Type::LS2 };
 
             // set the active dof type
-            mMasterDofTypes = {{ MSI::Dof_Type::LS2 },
+            mLeaderDofTypes = {{ MSI::Dof_Type::LS2 },
                                { MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY } };
         }
 
 //------------------------------------------------------------------------------
         void IWG_Olsson_CLS_Bulk::compute_residual( real tWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
 
             // set field interpolators
-            Field_Interpolator* phi  = mMasterFI( 0 );
-            Field_Interpolator* nPhi = mMasterFI( 1 );
+            Field_Interpolator* phi  = mLeaderFI( 0 );
+            Field_Interpolator* nPhi = mLeaderFI( 1 );
 
-            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
+            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
 
             // compute residual
             mSet->get_residual()( 0 )( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
@@ -61,15 +61,15 @@ namespace moris
 
         void IWG_Olsson_CLS_Bulk::compute_jacobian( real tWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
 
             // set field interpolators
-            Field_Interpolator* phi  = mMasterFI( 0 );
-            Field_Interpolator* nPhi = mMasterFI( 1 );
+            Field_Interpolator* phi  = mLeaderFI( 0 );
+            Field_Interpolator* nPhi = mLeaderFI( 1 );
 
-            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
+            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
 
             //compute the jacobians
             mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },

@@ -83,14 +83,14 @@ create_neumann_properties(fem::Property_User_Defined_Info & aNeumannFlux)
 }
 
 Cell< Cell< fem::Property_User_Defined_Info > >
-create_interface_properties(fem::Property_User_Defined_Info & aMasterCond,
-                            fem::Property_User_Defined_Info & aSlaveCond)
+create_interface_properties(fem::Property_User_Defined_Info & aLeaderCond,
+                            fem::Property_User_Defined_Info & aFollowerCond)
 {
     Cell< Cell< fem::Property_User_Defined_Info > > tProps(2);
     tProps( 0 ).resize( 1 );
-    tProps( 0 )( 0 ) = aMasterCond;
+    tProps( 0 )( 0 ) = aLeaderCond;
     tProps( 1 ).resize( 1 );
-    tProps( 1 )( 0 ) = aSlaveCond;
+    tProps( 1 )( 0 ) = aFollowerCond;
 
     return tProps;
 }
@@ -122,15 +122,15 @@ create_dbc_diff_lin_constitutive( fem::Constitutive_User_Defined_Info & aDiffLin
 }
 
 Cell< Cell< fem::Constitutive_User_Defined_Info > >
-create_interface_diff_lin_constitutive( fem::Constitutive_User_Defined_Info & aMasterDiffLinConst,
-                                        fem::Constitutive_User_Defined_Info & aSlaveDiffLinConst)
+create_interface_diff_lin_constitutive( fem::Constitutive_User_Defined_Info & aLeaderDiffLinConst,
+                                        fem::Constitutive_User_Defined_Info & aFollowerDiffLinConst)
 {
     Cell< Cell< fem::Constitutive_User_Defined_Info > > tConstitutiveUserDefInfo(2);
     tConstitutiveUserDefInfo(0).resize(1);
-    tConstitutiveUserDefInfo(0)(0) = aMasterDiffLinConst;
+    tConstitutiveUserDefInfo(0)(0) = aLeaderDiffLinConst;
 
     tConstitutiveUserDefInfo(1).resize(1);
-    tConstitutiveUserDefInfo(1)(0) = aSlaveDiffLinConst;
+    tConstitutiveUserDefInfo(1)(0) = aFollowerDiffLinConst;
 
     return tConstitutiveUserDefInfo;
 }

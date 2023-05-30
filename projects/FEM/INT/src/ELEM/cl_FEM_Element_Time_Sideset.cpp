@@ -47,13 +47,13 @@ namespace moris
                     mSet->get_field_interpolator_manager_previous_time()->get_IG_geometry_interpolator();
 
             // get physical space and current and previous time coordinates for IG element
-            Matrix< DDRMat > tIGPhysSpaceCoords = mMasterCell->get_vertex_coords();
+            Matrix< DDRMat > tIGPhysSpaceCoords = mLeaderCell->get_vertex_coords();
             Matrix< DDRMat > tIGPhysTimeCoords( 1, 1,
                     mCluster->mInterpolationElement->get_time()( 0 ) );
             Matrix< DDRMat > tIGPhysPreviousTimeCoords( 1, 1,
                     mCluster->mInterpolationElement->get_previous_time()( 1 ) );
 
-            // get master parametric space and current and previous time coordinates for IG element
+            // get leader parametric space and current and previous time coordinates for IG element
             Matrix< DDRMat > tIGParamSpaceCoords =
                     mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster );
             Matrix< DDRMat > tIGParamTimeCoords( 1, 1, -1.0 );
@@ -88,13 +88,13 @@ namespace moris
                     mSet->get_field_interpolator_manager_previous_time()->get_IG_geometry_interpolator();
 
             // get physical space and current and previous time coordinates for IG element
-            Matrix< DDRMat > tIGPhysSpaceCoords = mMasterCell->get_vertex_coords();
+            Matrix< DDRMat > tIGPhysSpaceCoords = mLeaderCell->get_vertex_coords();
             Matrix< DDRMat > tIGPhysTimeCoords( 1, 1,
                     mCluster->mInterpolationElement->get_time()( 0 ) );
             Matrix< DDRMat > tIGPhysPreviousTimeCoords( 1, 1,
                     mCluster->mInterpolationElement->get_previous_time()( 1 ) );
 
-            // get master parametric space and current and previous time coordinates for IG element
+            // get leader parametric space and current and previous time coordinates for IG element
             Matrix< DDRMat > tIGParamSpaceCoords =
                     mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster );
             Matrix< DDRMat > tIGParamTimeCoords( 1, 1, -1.0 );
@@ -104,7 +104,7 @@ namespace moris
             if( mSet->get_geo_pdv_assembly_flag() )
             {
                 // get the vertices indices for IG element
-                Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
+                Matrix< IndexMat > tVertexIndices = mLeaderCell->get_vertex_inds();
 
                 // get the requested geo pdv types
                 moris::Cell < enum PDV_Type > tGeoPdvType;
@@ -651,7 +651,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        real Element_Time_Sideset::compute_volume( mtk::Master_Slave aIsMaster )
+        real Element_Time_Sideset::compute_volume( mtk::Leader_Follower aIsLeader )
         {
             // set physical and parametric space and time coefficients for IG element
             this->init_ig_geometry_interpolator();

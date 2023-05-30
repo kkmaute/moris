@@ -124,10 +124,10 @@ TEST_CASE( "IWG_Advection_Bulk", "[IWG_Advection_Bulk]" )
     std::shared_ptr< fem::Stabilization_Parameter > tSPSUPG =
             tSPFactory.create_SP( fem::Stabilization_Type::SUPG_ADVECTION );
     tSPSUPG->set_dof_type_list( { tVelDofTypes } );
-    tSPSUPG->set_property( tPropConductivity,    "Conductivity", mtk::Master_Slave::MASTER );
-    tSPSUPG->set_property( tPropDensity,         "Density",      mtk::Master_Slave::MASTER );
-    tSPSUPG->set_property( tPropHeatCapacity,    "HeatCapacity", mtk::Master_Slave::MASTER );
-    tSPSUPG->set_property( tPropAdvectionSource, "Source",       mtk::Master_Slave::MASTER );
+    tSPSUPG->set_property( tPropConductivity,    "Conductivity", mtk::Leader_Follower::LEADER );
+    tSPSUPG->set_property( tPropDensity,         "Density",      mtk::Leader_Follower::LEADER );
+    tSPSUPG->set_property( tPropHeatCapacity,    "HeatCapacity", mtk::Leader_Follower::LEADER );
+    tSPSUPG->set_property( tPropAdvectionSource, "Source",       mtk::Leader_Follower::LEADER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -138,10 +138,10 @@ TEST_CASE( "IWG_Advection_Bulk", "[IWG_Advection_Bulk]" )
 
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::ADVECTION_BULK );
     tIWG->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
     tIWG->set_constitutive_model( tCMDiffusion, "Diffusion" );
     tIWG->set_stabilization_parameter( tSPSUPG, "SUPG" );
-    tIWG->set_property(tPropLoad, "Load", mtk::Master_Slave::MASTER);
+    tIWG->set_property(tPropLoad, "Load", mtk::Leader_Follower::LEADER);
 
     // init set info
     //------------------------------------------------------------------------------
@@ -158,10 +158,10 @@ TEST_CASE( "IWG_Advection_Bulk", "[IWG_Advection_Bulk]" )
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -277,22 +277,22 @@ TEST_CASE( "IWG_Advection_Bulk", "[IWG_Advection_Bulk]" )
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatTEMP;
-            fill_phat( tMasterDOFHatTEMP, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatTEMP;
+            fill_phat( tLeaderDOFHatTEMP, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator temperature
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatTEMP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatTEMP );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -321,8 +321,8 @@ TEST_CASE( "IWG_Advection_Bulk", "[IWG_Advection_Bulk]" )
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -330,12 +330,12 @@ TEST_CASE( "IWG_Advection_Bulk", "[IWG_Advection_Bulk]" )
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv,tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tFIManager;
+            tIWG->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tFIManager );
@@ -351,7 +351,7 @@ TEST_CASE( "IWG_Advection_Bulk", "[IWG_Advection_Bulk]" )
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -390,7 +390,7 @@ TEST_CASE( "IWG_Advection_Bulk", "[IWG_Advection_Bulk]" )
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }
@@ -501,14 +501,14 @@ TEST_CASE( "IWG_Advection_PhaseChange_Bulk", "[IWG_Advection_PhaseChange_Bulk]" 
     std::shared_ptr< fem::Stabilization_Parameter > tSPSUPG =
             tSPFactory.create_SP( fem::Stabilization_Type::SUPG_ADVECTION );
     tSPSUPG->set_dof_type_list( tDofTypes );
-    tSPSUPG->set_property( tPropConductivity,    "Conductivity",       mtk::Master_Slave::MASTER );
-    tSPSUPG->set_property( tPropDensity,         "Density",            mtk::Master_Slave::MASTER );
-    tSPSUPG->set_property( tPropHeatCapacity,    "HeatCapacity",       mtk::Master_Slave::MASTER );
-    tSPSUPG->set_property( tPropLatentHeat,      "LatentHeat",         mtk::Master_Slave::MASTER );
-    tSPSUPG->set_property( tPropPCTemp,          "PCTemp",             mtk::Master_Slave::MASTER );
-    tSPSUPG->set_property( tPropPhaseState,      "PhaseStateFunction", mtk::Master_Slave::MASTER );
-    tSPSUPG->set_property( tPropPCconst,         "PhaseChangeConst",   mtk::Master_Slave::MASTER );
-    tSPSUPG->set_property( tPropAdvectionSource, "Source",             mtk::Master_Slave::MASTER );
+    tSPSUPG->set_property( tPropConductivity,    "Conductivity",       mtk::Leader_Follower::LEADER );
+    tSPSUPG->set_property( tPropDensity,         "Density",            mtk::Leader_Follower::LEADER );
+    tSPSUPG->set_property( tPropHeatCapacity,    "HeatCapacity",       mtk::Leader_Follower::LEADER );
+    tSPSUPG->set_property( tPropLatentHeat,      "LatentHeat",         mtk::Leader_Follower::LEADER );
+    tSPSUPG->set_property( tPropPCTemp,          "PCTemp",             mtk::Leader_Follower::LEADER );
+    tSPSUPG->set_property( tPropPhaseState,      "PhaseStateFunction", mtk::Leader_Follower::LEADER );
+    tSPSUPG->set_property( tPropPCconst,         "PhaseChangeConst",   mtk::Leader_Follower::LEADER );
+    tSPSUPG->set_property( tPropAdvectionSource, "Source",             mtk::Leader_Follower::LEADER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -519,10 +519,10 @@ TEST_CASE( "IWG_Advection_PhaseChange_Bulk", "[IWG_Advection_PhaseChange_Bulk]" 
 
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::ADVECTION_BULK );
     tIWG->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
     tIWG->set_constitutive_model( tCMDiffusion, "Diffusion" );
     tIWG->set_stabilization_parameter( tSPSUPG, "SUPG" );
-    tIWG->set_property(tPropLoad, "Load", mtk::Master_Slave::MASTER);
+    tIWG->set_property(tPropLoad, "Load", mtk::Leader_Follower::LEADER);
 
     // init set info
     //------------------------------------------------------------------------------
@@ -539,10 +539,10 @@ TEST_CASE( "IWG_Advection_PhaseChange_Bulk", "[IWG_Advection_PhaseChange_Bulk]" 
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -658,22 +658,22 @@ TEST_CASE( "IWG_Advection_PhaseChange_Bulk", "[IWG_Advection_PhaseChange_Bulk]" 
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatTEMP;
-            fill_phat( tMasterDOFHatTEMP, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatTEMP;
+            fill_phat( tLeaderDOFHatTEMP, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator temperature
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatTEMP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatTEMP );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -702,8 +702,8 @@ TEST_CASE( "IWG_Advection_PhaseChange_Bulk", "[IWG_Advection_PhaseChange_Bulk]" 
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -711,12 +711,12 @@ TEST_CASE( "IWG_Advection_PhaseChange_Bulk", "[IWG_Advection_PhaseChange_Bulk]" 
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv,tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tFIManager;
+            tIWG->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tFIManager );
@@ -732,7 +732,7 @@ TEST_CASE( "IWG_Advection_PhaseChange_Bulk", "[IWG_Advection_PhaseChange_Bulk]" 
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -771,7 +771,7 @@ TEST_CASE( "IWG_Advection_PhaseChange_Bulk", "[IWG_Advection_PhaseChange_Bulk]" 
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }
@@ -870,8 +870,8 @@ TEST_CASE( "IWG_Advection_Bulk_YZBeta", "[IWG_Advection_Bulk_YZBeta]" )
             tSPFactory.create_SP( fem::Stabilization_Type::YZBETA_ADVECTION );
     tSPYZBeta->set_dof_type_list( { tTempDofTypes } );
     tSPYZBeta->set_constitutive_model( tCMDiffusion, "Diffusion" );
-    tSPYZBeta->set_property( tPropBeta,      "Beta",           mtk::Master_Slave::MASTER );
-    tSPYZBeta->set_property( tPropRefState,  "ReferenceState", mtk::Master_Slave::MASTER );
+    tSPYZBeta->set_property( tPropBeta,      "Beta",           mtk::Leader_Follower::LEADER );
+    tSPYZBeta->set_property( tPropRefState,  "ReferenceState", mtk::Leader_Follower::LEADER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -882,10 +882,10 @@ TEST_CASE( "IWG_Advection_Bulk_YZBeta", "[IWG_Advection_Bulk_YZBeta]" )
 
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::ADVECTION_BULK );
     tIWG->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
     tIWG->set_constitutive_model( tCMDiffusion, "Diffusion" );
     tIWG->set_stabilization_parameter( tSPYZBeta, "YZBeta" );
-    tIWG->set_property(tPropLoad, "Load", mtk::Master_Slave::MASTER);
+    tIWG->set_property(tPropLoad, "Load", mtk::Leader_Follower::LEADER);
 
     // init set info
     //------------------------------------------------------------------------------
@@ -902,10 +902,10 @@ TEST_CASE( "IWG_Advection_Bulk_YZBeta", "[IWG_Advection_Bulk_YZBeta]" )
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -1021,22 +1021,22 @@ TEST_CASE( "IWG_Advection_Bulk_YZBeta", "[IWG_Advection_Bulk_YZBeta]" )
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatTEMP;
-            fill_phat( tMasterDOFHatTEMP, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatTEMP;
+            fill_phat( tLeaderDOFHatTEMP, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator temperature
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatTEMP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatTEMP );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -1065,8 +1065,8 @@ TEST_CASE( "IWG_Advection_Bulk_YZBeta", "[IWG_Advection_Bulk_YZBeta]" )
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -1074,12 +1074,12 @@ TEST_CASE( "IWG_Advection_Bulk_YZBeta", "[IWG_Advection_Bulk_YZBeta]" )
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv,tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tFIManager;
+            tIWG->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tFIManager );
@@ -1095,7 +1095,7 @@ TEST_CASE( "IWG_Advection_Bulk_YZBeta", "[IWG_Advection_Bulk_YZBeta]" )
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -1134,7 +1134,7 @@ TEST_CASE( "IWG_Advection_Bulk_YZBeta", "[IWG_Advection_Bulk_YZBeta]" )
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }

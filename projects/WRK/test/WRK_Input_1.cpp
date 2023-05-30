@@ -169,14 +169,14 @@ namespace moris
         tParameterList( 2 )( 0 ).set( "stabilization_name", "SPDirichletNitscheU" );
         tParameterList( 2 )( 0 ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
         tParameterList( 2 )( 0 ).set( "function_parameters", "100.0" );
-        tParameterList( 2 )( 0 ).set( "master_properties", "PropEMod1,Material" );
+        tParameterList( 2 )( 0 ).set( "leader_properties", "PropEMod1,Material" );
 
         // create parameter list for stabilization parameter 2
         tParameterList( 2 )( 1 ) = prm::create_stabilization_parameter_parameter_list();
         tParameterList( 2 )( 1 ).set( "stabilization_name", "SPDirichletNitscheTEMP" );
         tParameterList( 2 )( 1 ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
         tParameterList( 2 )( 1 ).set( "function_parameters", "1.0" );
-        tParameterList( 2 )( 1 ).set( "master_properties", "PropConductivity1,Material" );
+        tParameterList( 2 )( 1 ).set( "leader_properties", "PropConductivity1,Material" );
 
         //------------------------------------------------------------------------------
         // fill the IWG part of the parameter list
@@ -188,8 +188,8 @@ namespace moris
         tParameterList( 3 )( 0 ).set( "IWG_name", "IWGBulkU_1" );
         tParameterList( 3 )( 0 ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_BULK ) );
         tParameterList( 3 )( 0 ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( 0 ).set( "master_dof_dependencies", "UX,UY" );
-        tParameterList( 3 )( 0 ).set( "master_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
+        tParameterList( 3 )( 0 ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 3 )( 0 ).set( "leader_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
         tParameterList( 3 )( 0 ).set( "mesh_set_names", "HMR_dummy_n_p1" );
 
         // create parameter list for IWG 2
@@ -197,8 +197,8 @@ namespace moris
         tParameterList( 3 )( 1 ).set( "IWG_name", "IWGBulkU_2" );
         tParameterList( 3 )( 1 ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_BULK ) );
         tParameterList( 3 )( 1 ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( 1 ).set( "master_dof_dependencies", "UX,UY" );
-        tParameterList( 3 )( 1 ).set( "master_constitutive_models", "CMStrucLinIso2,ElastLinIso" );
+        tParameterList( 3 )( 1 ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 3 )( 1 ).set( "leader_constitutive_models", "CMStrucLinIso2,ElastLinIso" );
         tParameterList( 3 )( 1 ).set( "mesh_set_names", "" );
 
         // create parameter list for IWG 3
@@ -206,9 +206,9 @@ namespace moris
         tParameterList( 3 )( 2 ).set( "IWG_name", "IWGDirichletU" );
         tParameterList( 3 )( 2 ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( 2 ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( 2 ).set( "master_dof_dependencies", "UX,UY" );
-        tParameterList( 3 )( 2 ).set( "master_properties", "PropDirichletU,Dirichlet" );
-        tParameterList( 3 )( 2 ).set( "master_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
+        tParameterList( 3 )( 2 ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 3 )( 2 ).set( "leader_properties", "PropDirichletU,Dirichlet" );
+        tParameterList( 3 )( 2 ).set( "leader_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
         tParameterList( 3 )( 2 ).set( "stabilization_parameters", "SPDirichletNitscheU,DirichletNitsche" );
         tParameterList( 3 )( 2 ).set( "mesh_set_names", "SideSet_4_n_p1" );
 
@@ -217,8 +217,8 @@ namespace moris
         tParameterList( 3 )( 3 ).set( "IWG_name", "IWGBulkTEMP_1" );
         tParameterList( 3 )( 3 ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
         tParameterList( 3 )( 3 ).set( "dof_residual", "TEMP" );
-        tParameterList( 3 )( 3 ).set( "master_dof_dependencies", "TEMP" );
-        tParameterList( 3 )( 3 ).set( "master_constitutive_models", "CMDiffLinIso1,Diffusion" );
+        tParameterList( 3 )( 3 ).set( "leader_dof_dependencies", "TEMP" );
+        tParameterList( 3 )( 3 ).set( "leader_constitutive_models", "CMDiffLinIso1,Diffusion" );
         tParameterList( 3 )( 3 ).set( "mesh_set_names", "HMR_dummy_n_p1" );
 
         // create parameter list for IWG 5
@@ -226,8 +226,8 @@ namespace moris
         tParameterList( 3 )( 4 ).set( "IWG_name", "IWGBulkTEMP_2" );
         tParameterList( 3 )( 4 ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
         tParameterList( 3 )( 4 ).set( "dof_residual", "TEMP" );
-        tParameterList( 3 )( 4 ).set( "master_dof_dependencies", "TEMP" );
-        tParameterList( 3 )( 4 ).set( "master_constitutive_models", "CMDiffLinIso2,Diffusion" );
+        tParameterList( 3 )( 4 ).set( "leader_dof_dependencies", "TEMP" );
+        tParameterList( 3 )( 4 ).set( "leader_constitutive_models", "CMDiffLinIso2,Diffusion" );
         tParameterList( 3 )( 4 ).set( "mesh_set_names", "" );
 
         // create parameter list for IWG 6
@@ -235,9 +235,9 @@ namespace moris
         tParameterList( 3 )( 5 ).set( "IWG_name", "IWGDirichletTEMP" );
         tParameterList( 3 )( 5 ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( 5 ).set( "dof_residual", "TEMP" );
-        tParameterList( 3 )( 5 ).set( "master_dof_dependencies", "TEMP" );
-        tParameterList( 3 )( 5 ).set( "master_properties", "PropDirichletTEMP,Dirichlet" );
-        tParameterList( 3 )( 5 ).set( "master_constitutive_models", "CMDiffLinIso2,Diffusion" );
+        tParameterList( 3 )( 5 ).set( "leader_dof_dependencies", "TEMP" );
+        tParameterList( 3 )( 5 ).set( "leader_properties", "PropDirichletTEMP,Dirichlet" );
+        tParameterList( 3 )( 5 ).set( "leader_constitutive_models", "CMDiffLinIso2,Diffusion" );
         tParameterList( 3 )( 5 ).set( "stabilization_parameters", "SPDirichletNitscheTEMP,DirichletNitsche" );
         tParameterList( 3 )( 5 ).set( "mesh_set_names", "SideSet_4_n_p1" );
 
@@ -250,8 +250,8 @@ namespace moris
         tParameterList( 4 )( 0 ) = prm::create_IQI_parameter_list();
         tParameterList( 4 )( 0 ).set( "IQI_name", "IQIBulkU_1" );
         tParameterList( 4 )( 0 ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
-        tParameterList( 4 )( 0 ).set( "master_dof_dependencies", "UX,UY" );
-        tParameterList( 4 )( 0 ).set( "master_constitutive_models", "CMStrucLinIso1,Elast" );
+        tParameterList( 4 )( 0 ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 4 )( 0 ).set( "leader_constitutive_models", "CMStrucLinIso1,Elast" );
         tParameterList( 4 )( 0 ).set( "mesh_set_names", "HMR_dummy_n_p1" );
 
         // create computation parameter list

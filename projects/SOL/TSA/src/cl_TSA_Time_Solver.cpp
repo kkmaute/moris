@@ -92,7 +92,7 @@ Time_Solver::~Time_Solver()
 void
 Time_Solver::delete_pointers()
 {
-    if ( mIsMasterTimeSolver )
+    if ( mIsLeaderTimeSolver )
     {
         for ( auto tFullSolVec : mFullVector )
         {
@@ -327,8 +327,8 @@ Time_Solver::solve()
 {
     Tracer tTracer( "TimeSolver", "Forward Analysis", "Solve" );
 
-    // flags if thats the master time solver and if this is a forward solve
-    mIsMasterTimeSolver = true;
+    // flags if thats the leader time solver and if this is a forward solve
+    mIsLeaderTimeSolver = true;
     mIsForwardSolve     = true;
 
     // delete pointers
@@ -690,7 +690,7 @@ Time_Solver::initialize_prev_sol_vec()
 void
 Time_Solver::prepare_sol_vec_for_next_time_step()
 {
-    if ( mIsMasterTimeSolver )
+    if ( mIsLeaderTimeSolver )
     {
         // get num RHS
         uint tNumRHMS = mSolverInterface->get_num_rhs();

@@ -45,9 +45,9 @@ namespace moris
 
             protected:
 
-                // pointer to master and slave integration cells on mesh
-                const mtk::Cell * mMasterCell;
-                const mtk::Cell * mSlaveCell;
+                // pointer to leader and follower integration cells on mesh
+                const mtk::Cell * mLeaderCell;
+                const mtk::Cell * mFollowerCell;
 
                 // index for the cell within the cluster
                 moris::moris_index mCellIndexInCluster;
@@ -95,7 +95,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * constructor for master only
+                 * constructor for leader only
                  * @param[ in ] aCell               a mesh cell pointer
                  * @param[ in ] aSet                a fem set pointer
                  * @param[ in ] aCluster            a mesh cluster pointer
@@ -113,7 +113,7 @@ namespace moris
                     mCellIndexInCluster = aCellIndexInCluster;
 
                     // fill the bulk mtk::Cell pointer //FIXME
-                    mMasterCell = aCell;
+                    mLeaderCell = aCell;
 
                     // set function pointers
                     this->set_function_pointers();
@@ -121,16 +121,16 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * constructor for slave only
-                 * @param[ in ] aMasterCell         a master mesh cell pointer
-                 * @param[ in ] aSlaveCell          a slave mesh cell pointer
+                 * constructor for follower only
+                 * @param[ in ] aLeaderCell         a leader mesh cell pointer
+                 * @param[ in ] aFollowerCell          a follower mesh cell pointer
                  * @param[ in ] aSet                a fem set pointer
                  * @param[ in ] aCluster            a mesh cluster pointer
                  * @param[ in ] aCellIndexInCluster the index of the cell within the cluster
                  */
                 Element(
-                        const mtk::Cell    * aMasterCell,
-                        const mtk::Cell    * aSlaveCell,
+                        const mtk::Cell    * aLeaderCell,
+                        const mtk::Cell    * aFollowerCell,
                         Set                * aSet,
                         Cluster            * aCluster,
                         moris::moris_index   aCellIndexInCluster )
@@ -140,9 +140,9 @@ namespace moris
                     // fill the cell index in cluster
                     mCellIndexInCluster = aCellIndexInCluster;
 
-                    // fill the master and slave cell pointers
-                    mMasterCell = aMasterCell;
-                    mSlaveCell  = aSlaveCell;
+                    // fill the leader and follower cell pointers
+                    mLeaderCell = aLeaderCell;
+                    mFollowerCell  = aFollowerCell;
 
                     // set function pointers
                     this->set_function_pointers();
@@ -326,22 +326,22 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * get mesh cell associated with the element
-                 * param[ in ]  aIsMaster                 enum for master or slave
-                 * param[ out ] mMasterCell or mSlaveCell a pointer to mtk cell
+                 * param[ in ]  aIsLeader                 enum for leader or follower
+                 * param[ out ] mLeaderCell or mFollowerCell a pointer to mtk cell
                  */
-                const mtk::Cell * get_mtk_cell( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+                const mtk::Cell * get_mtk_cell( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER )
                 {
-                    switch( aIsMaster )
+                    switch( aIsLeader )
                     {
-                        case mtk::Master_Slave::MASTER :
-                            return mMasterCell;
+                        case mtk::Leader_Follower::LEADER :
+                            return mLeaderCell;
 
-                        case mtk::Master_Slave::SLAVE :
-                            return mSlaveCell;
+                        case mtk::Leader_Follower::FOLLOWER :
+                            return mFollowerCell;
 
                         default:
-                            MORIS_ERROR( false, "Element::get_mtk_cell - can only be master or slave." );
-                            return mMasterCell;
+                            MORIS_ERROR( false, "Element::get_mtk_cell - can only be leader or follower." );
+                            return mLeaderCell;
                     }
                 }
 
@@ -504,9 +504,9 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * compute volume of the integration element
-                 * @param[ in ] aIsMaster enum master or slave
+                 * @param[ in ] aIsLeader enum leader or follower
                  */
-                virtual real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+                virtual real compute_volume( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER )
                 {
                     MORIS_ERROR( false, "Element::compute_volume - Not implemented for base class." );
                     return 0.0;

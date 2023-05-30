@@ -160,20 +160,20 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     // define constitutive model and assign properties
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterFluid =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_COMPRESSIBLE_NEWTONIAN );
-    tCMMasterFluid->set_dof_type_list( {tPressureDof, tVelocityDof, tTempDof } );
-    tCMMasterFluid->set_property( tPropViscosity,    "DynamicViscosity" );
-    tCMMasterFluid->set_property( tPropConductivity, "ThermalConductivity" );
-    tCMMasterFluid->set_material_model( tMMFluid, "ThermodynamicMaterialModel" );
+    tCMLeaderFluid->set_dof_type_list( {tPressureDof, tVelocityDof, tTempDof } );
+    tCMLeaderFluid->set_property( tPropViscosity,    "DynamicViscosity" );
+    tCMLeaderFluid->set_property( tPropConductivity, "ThermalConductivity" );
+    tCMLeaderFluid->set_material_model( tMMFluid, "ThermodynamicMaterialModel" );
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::COMPRESSIBLE_DIRICHLET_NITSCHE );
-    tSPNitsche->set_property( tPropViscosity, "DynamicViscosity", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropConductivity, "ThermalConductivity", mtk::Master_Slave::MASTER );
+    tSPNitsche->set_property( tPropViscosity, "DynamicViscosity", mtk::Leader_Follower::LEADER );
+    tSPNitsche->set_property( tPropConductivity, "ThermalConductivity", mtk::Leader_Follower::LEADER );
     Cell< Matrix< DDRMat > > tNitscheParams = { {{tPpenatly},{tUXpenatly/tMu},{tUYpenatly/tMu},{tTpenatly}} };
     tSPNitsche->set_parameters( tNitscheParams );
 
@@ -188,11 +188,11 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
             tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_DIRICHLET_UNSYMMETRIC_NITSCHE );
 
     tIWG->set_residual_dof_type( tResidualDofTypes );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
     tIWG->set_property( tPropViscosity,    "DynamicViscosity" );
     tIWG->set_property( tPropConductivity, "ThermalConductivity" );
     tIWG->set_material_model( tMMFluid, "FluidMM" );
-    tIWG->set_constitutive_model( tCMMasterFluid, "FluidCM" );
+    tIWG->set_constitutive_model( tCMLeaderFluid, "FluidCM" );
     tIWG->set_stabilization_parameter( tSPNitsche, "NitschePenaltyParameter" );
 
     // tIWG->set_property( tPropPrescPres, "PrescribedDof1" );
@@ -207,7 +207,7 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     MSI::Equation_Set * tSet = new fem::Set();
     static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::BULK );
     tMMFluid->set_set_pointer( static_cast< fem::Set* >( tSet ) );
-    tCMMasterFluid->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tCMLeaderFluid->set_set_pointer( static_cast< fem::Set* >( tSet ) );
     tIWG->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
@@ -224,11 +224,11 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )     = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )     = 0;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
 
     // set number of spatial dimensions
     uint iSpaceDim = 2;
@@ -241,7 +241,7 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
 
     // set space dimension to CM
     tMMFluid->set_space_dim( iSpaceDim );
-    tCMMasterFluid->set_space_dim( iSpaceDim );
+    tCMLeaderFluid->set_space_dim( iSpaceDim );
     tSPNitsche->set_space_dim( iSpaceDim );
 
     // // create normal for Nitsche
@@ -265,19 +265,19 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     // initialize matrices to be filled
     Matrix< DDRMat >tXHat;
     Matrix< DDRMat >tTHat;
-    Matrix< DDRMat >tMasterDOFHatP;
-    Matrix< DDRMat >tMasterDOFHatVel;
-    Matrix< DDRMat >tMasterDOFHatTemp;
+    Matrix< DDRMat >tLeaderDOFHatP;
+    Matrix< DDRMat >tLeaderDOFHatVel;
+    Matrix< DDRMat >tLeaderDOFHatTemp;
 
     // fill in data for element size
     fill_data_Nitsche_element( tXHat, tTHat );
 
     // fill DoF values
-    fill_Nitsche_PHat( tMasterDOFHatP );
-    //tMasterDOFHatP = trans( tMasterDOFHatP );
-    fill_Nitsche_UHat( tMasterDOFHatVel );
-    fill_Nitsche_THat( tMasterDOFHatTemp );
-    //tMasterDOFHatTemp = trans( tMasterDOFHatTemp );
+    fill_Nitsche_PHat( tLeaderDOFHatP );
+    //tLeaderDOFHatP = trans( tLeaderDOFHatP );
+    fill_Nitsche_UHat( tLeaderDOFHatVel );
+    fill_Nitsche_THat( tLeaderDOFHatTemp );
+    //tLeaderDOFHatTemp = trans( tLeaderDOFHatTemp );
 
     //------------------------------------------------------------------------------
     // space and time geometry interpolators
@@ -342,19 +342,19 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
             mtk::Interpolation_Order::LINEAR );
 
     // create a cell of field interpolators for IWG
-    Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+    Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
     // create the field interpolator density
-    tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPressureDof );
-    tMasterFIs( 0 )->set_coeff( tMasterDOFHatP );
+    tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPressureDof );
+    tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatP );
 
     // create the field interpolator velocity
-    tMasterFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof );
-    tMasterFIs( 1 )->set_coeff( tMasterDOFHatVel );
+    tLeaderFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof );
+    tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatVel );
 
     // create the field interpolator pressure
-    tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof );
-    tMasterFIs( 2 )->set_coeff( tMasterDOFHatTemp );
+    tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof );
+    tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatTemp );
 
     // set size and fill the set residual assembly map
     tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -386,8 +386,8 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     // build global dof type list
     tIWG->get_global_dof_type_list();
 
-    // populate the requested master dof type
-    tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+    // populate the requested leader dof type
+    tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -395,21 +395,21 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
     // populate the field interpolator manager
-    tFIManager.mFI = tMasterFIs;
+    tFIManager.mFI = tLeaderFIs;
     tFIManager.mIPGeometryInterpolator = &tGI;
     tFIManager.mIGGeometryInterpolator = &tGI;
 
     // set the interpolator manager to the set
-    tIWG->mSet->mMasterFIManager = &tFIManager;
+    tIWG->mSet->mLeaderFIManager = &tFIManager;
 
     // set IWG field interpolator manager
     tIWG->set_field_interpolator_manager( &tFIManager );
 
     // set the interpolator manager to the set
-    tCMMasterFluid->mSet->mMasterFIManager = &tFIManager;
+    tCMLeaderFluid->mSet->mLeaderFIManager = &tFIManager;
 
     // set IWG field interpolator manager
-    tCMMasterFluid->set_field_interpolator_manager( &tFIManager );
+    tCMLeaderFluid->set_field_interpolator_manager( &tFIManager );
 
     // create evaluation point xi, tau
     Matrix< DDRMat > tParamPoint = {
@@ -418,8 +418,8 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
             { +0.57735026918962 } };
 
     // set integration point
-    tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
-    tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+    tCMLeaderFluid->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+    tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
     // check evaluation of the residual for IWG
     //------------------------------------------------------------------------------
@@ -455,8 +455,8 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
             { +0.57735026918962 },
             { -1.0 },
             { +0.57735026918962 } };
-    tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
-    tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+    tCMLeaderFluid->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+    tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
     // assign normal to IWG
     tNormal = {{0.0},{-1.0}};
@@ -547,7 +547,7 @@ TEST_CASE( "IWG_Compressible_NS_Dirichlet_Analytical",
     //------------------------------------------------------------------------------
 
     // clean up
-    tMasterFIs.clear();
+    tLeaderFIs.clear();
 
 }/*END_TEST_CASE*/
 

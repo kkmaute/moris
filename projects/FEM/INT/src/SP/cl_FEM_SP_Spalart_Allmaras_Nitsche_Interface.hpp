@@ -37,29 +37,29 @@ namespace moris
             private:
 
                 // populate the dof map (default)
-                MSI::Dof_Type mMasterDofViscosity = MSI::Dof_Type::VISCOSITY;
-                MSI::Dof_Type mSlaveDofViscosity  = MSI::Dof_Type::VISCOSITY;
+                MSI::Dof_Type mLeaderDofViscosity = MSI::Dof_Type::VISCOSITY;
+                MSI::Dof_Type mFollowerDofViscosity  = MSI::Dof_Type::VISCOSITY;
 
-                // default tuple for master volume to define cluster measure
-                std::tuple<fem::Measure_Type,mtk::Primary_Void,mtk::Master_Slave > mMasterVolumeTuple =
+                // default tuple for leader volume to define cluster measure
+                std::tuple<fem::Measure_Type,mtk::Primary_Void,mtk::Leader_Follower > mLeaderVolumeTuple =
                         std::make_tuple(
                                 fem::Measure_Type::CELL_MEASURE,
                                 mtk::Primary_Void::PRIMARY,
-                                mtk::Master_Slave::MASTER );
+                                mtk::Leader_Follower::LEADER );
 
-                // default tuple for slave volume to define cluster measure
-                std::tuple<fem::Measure_Type,mtk::Primary_Void,mtk::Master_Slave > mSlaveVolumeTuple =
+                // default tuple for follower volume to define cluster measure
+                std::tuple<fem::Measure_Type,mtk::Primary_Void,mtk::Leader_Follower > mFollowerVolumeTuple =
                         std::make_tuple(
                                 fem::Measure_Type::CELL_MEASURE,
                                 mtk::Primary_Void::PRIMARY,
-                                mtk::Master_Slave::SLAVE );
+                                mtk::Leader_Follower::FOLLOWER );
 
-                // default tuple for slave volume to define cluster measure
-                std::tuple<fem::Measure_Type,mtk::Primary_Void,mtk::Master_Slave > mInterfaceSurfaceTuple =
+                // default tuple for follower volume to define cluster measure
+                std::tuple<fem::Measure_Type,mtk::Primary_Void,mtk::Leader_Follower > mInterfaceSurfaceTuple =
                         std::make_tuple(
                                 fem::Measure_Type::CELL_SIDE_MEASURE,
                                 mtk::Primary_Void::PRIMARY,
-                                mtk::Master_Slave::MASTER );
+                                mtk::Leader_Follower::LEADER );
 
                 // local constitutive enums
                 enum class IWG_Constitutive_Type
@@ -87,26 +87,26 @@ namespace moris
                  * set dof types
                  * @param[ in ] aDofTypes a cell of cell of dof types
                  * @param[ in ] aDofStrings list of strings describing the dof types
-                 * @param[ in ] aIsMaster enum for master or slave
+                 * @param[ in ] aIsLeader enum for leader or follower
                  */
                 void set_dof_type_list(
                         moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                         moris::Cell< std::string >                  & aDofStrings,
-                        mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER );
+                        mtk::Leader_Follower                             aIsLeader = mtk::Leader_Follower::LEADER );
 
                 //------------------------------------------------------------------------------
                 /**
                  * set dv types
                  * @param[ in ] aDvTypes   a cell of group of dv types
                  * @param[ in ] aDvStrings list of strings describing the dv types
-                 * @param[ in ] aIsMaster enum for master or slave
+                 * @param[ in ] aIsLeader enum for leader or follower
                  */
                 void set_dv_type_list(
                         moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
                         moris::Cell< std::string >             & aDvStrings,
-                        mtk::Master_Slave                        aIsMaster = mtk::Master_Slave::MASTER )
+                        mtk::Leader_Follower                        aIsLeader = mtk::Leader_Follower::LEADER )
                 {
-                    Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsMaster );
+                    Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsLeader );
                 }
 
                 //------------------------------------------------------------------------------
@@ -117,7 +117,7 @@ namespace moris
                 moris::Cell< std::tuple<
                 fem::Measure_Type,
                 mtk::Primary_Void,
-                mtk::Master_Slave > > get_cluster_measure_tuple_list();
+                mtk::Leader_Follower > > get_cluster_measure_tuple_list();
 
                 //------------------------------------------------------------------------------
                 /**
@@ -127,40 +127,40 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the stabilization parameter derivative wrt to a master dof type
+                 * evaluate the stabilization parameter derivative wrt to a leader dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-                 * dSPdMasterDOF ( 1 x numDerDof )
+                 * dSPdLeaderDOF ( 1 x numDerDof )
                  */
-                void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_dSPdLeaderDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the stabilization parameter derivative wrt to a slave dof type
+                 * evaluate the stabilization parameter derivative wrt to a follower dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-                 * dSPdSlaveDOF ( 1 x numDerDof )
+                 * dSPdFollowerDOF ( 1 x numDerDof )
                  */
-                void eval_dSPdSlaveDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
+                void eval_dSPdFollowerDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the penalty parameter derivative wrt to a master dv type
+                 * evaluate the penalty parameter derivative wrt to a leader dv type
                  * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
-                 * dPPdMasterDV ( 1 x numDerDv )
+                 * dPPdLeaderDV ( 1 x numDerDv )
                  */
-                void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
+                void eval_dSPdLeaderDV( const moris::Cell< PDV_Type > & aDvTypes )
                 {
-                    MORIS_ERROR( false, "SP_Nitsche_Interface::eval_dSPdMasterDV: not implemented." );
+                    MORIS_ERROR( false, "SP_Nitsche_Interface::eval_dSPdLeaderDV: not implemented." );
                 }
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the penalty parameter derivative wrt to a slave dv type
+                 * evaluate the penalty parameter derivative wrt to a follower dv type
                  * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
-                 * dSPdSlaveDV ( 1 x numDerDv )
+                 * dSPdFollowerDV ( 1 x numDerDv )
                  */
-                void eval_dSPdSlaveDV( const moris::Cell< PDV_Type > & aDvTypes )
+                void eval_dSPdFollowerDV( const moris::Cell< PDV_Type > & aDvTypes )
                 {
-                    MORIS_ERROR( false, "SP_Nitsche_Interface::eval_dSPdSlaveDV: not implemented." );
+                    MORIS_ERROR( false, "SP_Nitsche_Interface::eval_dSPdFollowerDV: not implemented." );
                 }
                 //------------------------------------------------------------------------------
         };

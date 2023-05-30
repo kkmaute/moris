@@ -83,7 +83,7 @@ fill_X_hat(
 //------------------------------------------------------------------------------
 
 inline void
-fill_u_hat_master(
+fill_u_hat_leader(
         moris::Matrix< moris::DDRMat >& aUHat,
         moris::uint                     aSpaceDim,
         moris::uint                     aInterpOrder )
@@ -300,7 +300,7 @@ fill_u_hat_master(
 //------------------------------------------------------------------------------
 
 inline void
-fill_u_hat_slave(
+fill_u_hat_follower(
         moris::Matrix< moris::DDRMat >& aUHat,
         moris::uint                     aSpaceDim,
         moris::uint                     aInterpOrder )

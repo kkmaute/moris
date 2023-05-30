@@ -35,7 +35,7 @@ namespace moris
         IWG_Compressible_NS_Bulk::IWG_Compressible_NS_Bulk()
         {
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "DynamicViscosity" ]     = static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY );
@@ -44,13 +44,13 @@ namespace moris
             mPropertyMap[ "BodyHeatLoad" ]         = static_cast< uint >( IWG_Property_Type::BODY_HEAT_LOAD );
 
             // set size for the material model pointer cell
-            mMasterMM.resize( static_cast< uint >( IWG_Material_Type::MAX_ENUM ), nullptr );
+            mLeaderMM.resize( static_cast< uint >( IWG_Material_Type::MAX_ENUM ), nullptr );
 
             // populate the material map
             mMaterialMap[ "FluidMM" ] = static_cast< uint >( IWG_Material_Type::FLUID_MM );
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "FluidCM" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID_CM );
@@ -90,7 +90,7 @@ namespace moris
 
         void IWG_Compressible_NS_Bulk::compute_residual( real aWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
@@ -153,7 +153,7 @@ namespace moris
 
         void IWG_Compressible_NS_Bulk::compute_jacobian( real aWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
@@ -162,7 +162,7 @@ namespace moris
                     "IWG_Compressible_NS_Bulk::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
             // check DoF dependencies
-            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ),
+            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedLeaderGlobalDofTypes ),
                     "IWG_Compressible_NS_Bulk::compute_jacobian - Set of DoF dependencies not suppported." );
 
             // get number of space dimensions
@@ -176,19 +176,19 @@ namespace moris
             auto tJac = tTempJac( { 0, tNumTotalBases - 1 }, { 0, tNumTotalBases - 1 } );
 
             // get the material and constitutive models
-            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
-            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+            std::shared_ptr< Material_Model > tMM = mLeaderMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+            std::shared_ptr< Constitutive_Model > tCM = mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
 
             // add contribution from d(A0)/dDof * Y,t
             Matrix< DDRMat > tdAdY;
-            eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->dYdt(), 0, tdAdY );
+            eval_dAdY_VR( tMM, tCM, mLeaderFIManager, mResidualDofType, this->dYdt(), 0, tdAdY );
             tJac += aWStar * this->W_trans() * ( tdAdY * this->W() + this->A( 0 ) * this->dWdt() );
 
             // loop over contributions from A-matrices
             for ( uint iDim = 0; iDim < tNumSpaceDims; iDim++ )
             {
                 // evaluate d(Ai)/dDof * Y,i
-                eval_dAdY_VR( tMM, tCM, mMasterFIManager, mResidualDofType, this->dYdx( iDim ), iDim + 1, tdAdY );
+                eval_dAdY_VR( tMM, tCM, mLeaderFIManager, mResidualDofType, this->dYdx( iDim ), iDim + 1, tdAdY );
 
                 // add contribution
                 tJac += aWStar * this->W_trans() * ( tdAdY * this->W() + this->A( iDim + 1 ) * this->dWdx( iDim ) );
@@ -196,8 +196,8 @@ namespace moris
             }
 
             // get properties for K-matrices
-            std::shared_ptr< Property > tPropMu    = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
-            std::shared_ptr< Property > tPropKappa = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
+            std::shared_ptr< Property > tPropMu    = mLeaderProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
+            std::shared_ptr< Property > tPropKappa = mLeaderProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
 
             // loop over contributions from K-matrices
             Matrix< DDRMat > dKdY;
@@ -206,7 +206,7 @@ namespace moris
                 for ( uint jDim = 0; jDim < tNumSpaceDims; jDim++ )
                 {
                     // get dKij/dY * Y,ij
-                    eval_dKdY_VR( tPropMu, tPropKappa, mMasterFIManager, this->dYdx( jDim ), iDim, jDim, dKdY );
+                    eval_dKdY_VR( tPropMu, tPropKappa, mLeaderFIManager, this->dYdx( jDim ), iDim, jDim, dKdY );
 
                     // add contributions from K-matrices
                     tJac += aWStar * this->dWdx_trans( iDim ) * ( dKdY * this->W() + K( iDim, jDim ) * this->dWdx( jDim ) );
@@ -241,7 +241,7 @@ namespace moris
         void IWG_Compressible_NS_Bulk::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators
+            // check leader field interpolators
             this->check_field_interpolators();
 #endif
 
@@ -253,7 +253,7 @@ namespace moris
         void IWG_Compressible_NS_Bulk::compute_dRdp( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators, properties and constitutive models
+            // check leader field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 
@@ -265,12 +265,12 @@ namespace moris
         Matrix< DDRMat > IWG_Compressible_NS_Bulk::dSqrtMinvdu_FD( const uint aColInd, const real aPerturbation )
         {
             // get residual dof type index in set, start and end indices for residual dof type
-            uint tMasterFirstDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
+            uint tLeaderFirstDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
 
             // get number of state variables
             uint tNumStateVars = this->num_space_dims() + 2;
 
-            // get number of master and slave rows
+            // get number of leader and follower rows
             uint tNumRows = tNumStateVars;
 
             // get number of cols for jacobian
@@ -287,27 +287,27 @@ namespace moris
                 fd_scheme( fem::FDScheme_Type::POINT_5, tFDScheme );
                 uint tNumFDPoints = tFDScheme( 0 ).size();
 
-                // get master number of dof types
-                uint tMasterNumDofTypes = mRequestedMasterGlobalDofTypes.size();
+                // get leader number of dof types
+                uint tLeaderNumDofTypes = mRequestedLeaderGlobalDofTypes.size();
 
                 // loop over the IWG dof types
-                for( uint iFI = 0; iFI < tMasterNumDofTypes; iFI++ )
+                for( uint iFI = 0; iFI < tLeaderNumDofTypes; iFI++ )
                 {
                     // init dof counter
                     uint tDofCounter = 0;
 
                     // get the dof type
-                    Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iFI );
+                    Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iFI );
 
                     // get the index for the dof type
-                    sint tMasterDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                    uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterFirstDofIndex )( tMasterDepDofIndex, 0 );
+                    sint tLeaderDepDofIndex   = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                    uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderFirstDofIndex )( tLeaderDepDofIndex, 0 );
 
                     // get field interpolator for dependency dof type
                     Field_Interpolator * tFI =
-                            mMasterFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+                            mLeaderFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
 
-                    // get number of master FI bases and fields
+                    // get number of leader FI bases and fields
                     uint tDerNumBases  = tFI->get_number_of_space_time_bases();
                     uint tDerNumFields = tFI->get_number_of_fields();
 
@@ -349,7 +349,7 @@ namespace moris
                                 this->reset_eval_flags();
 
                                 // index of dof being FDed
-                                uint tDofIndex = tMasterDepStartIndex + tDofCounter;
+                                uint tDofIndex = tLeaderDepStartIndex + tDofCounter;
 
                                 // evaluate column of M, Minv, or sqrtMinv
                                 Matrix< DDRMat > Mcol = this->SqrtMinv()( { 0, tNumStateVars - 1 }, { aColInd, aColInd } );

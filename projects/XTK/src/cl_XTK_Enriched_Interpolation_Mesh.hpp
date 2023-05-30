@@ -411,7 +411,7 @@ namespace xtk
         verify_basis_interpolating_into_cluster(
                 mtk::Cluster const &    aCluster,
                 moris_index const &     aMeshIndex,
-                const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
       protected:
         //------------------------------------------------------------------------------

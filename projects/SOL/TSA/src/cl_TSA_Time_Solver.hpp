@@ -83,7 +83,7 @@ namespace moris
 
             moris::sint mLevel = 0;
 
-            bool mIsMasterTimeSolver = false;
+            bool mIsLeaderTimeSolver = false;
 
             bool mIsForwardSolve = true;
 
@@ -147,12 +147,12 @@ namespace moris
             //--------------------------------------------------------------------------------------------------
 
             /**
-             * @brief Accessor function to determine if this time solver is the master time solver
+             * @brief Accessor function to determine if this time solver is the leader time solver
              */
             bool
-            get_is_master_time_solver()
+            get_is_leader_time_solver()
             {
-                return mIsMasterTimeSolver;
+                return mIsLeaderTimeSolver;
             };
 
             //--------------------------------------------------------------------------------------------------

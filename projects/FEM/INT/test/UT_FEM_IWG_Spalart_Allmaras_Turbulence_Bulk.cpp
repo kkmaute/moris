@@ -121,20 +121,20 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterSATurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderSATurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
-    tCMMasterSATurbulence->set_dof_type_list( tDofTypes );
-    tCMMasterSATurbulence->set_property( tPropWallDistance, "WallDistance" );
-    tCMMasterSATurbulence->set_property( tPropViscosity, "KinViscosity" );
-    tCMMasterSATurbulence->set_local_properties();
+    tCMLeaderSATurbulence->set_dof_type_list( tDofTypes );
+    tCMLeaderSATurbulence->set_property( tPropWallDistance, "WallDistance" );
+    tCMLeaderSATurbulence->set_property( tPropViscosity, "KinViscosity" );
+    tCMLeaderSATurbulence->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPSUPG =
             tSPFactory.create_SP( fem::Stabilization_Type::SUPG_SPALART_ALLMARAS_TURBULENCE );
-    tSPSUPG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tSPSUPG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
+    tSPSUPG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
+    tSPSUPG->set_constitutive_model( tCMLeaderSATurbulence, "SpalartAllmarasTurbulence" );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster* tCluster = new fem::Cluster();
@@ -146,8 +146,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_BULK );
     tIWG->set_residual_dof_type( tVisDofTypes );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
+    tIWG->set_constitutive_model( tCMLeaderSATurbulence, "SpalartAllmarasTurbulence" );
     tIWG->set_stabilization_parameter( tSPSUPG, "SUPG" );
 
     // init set info
@@ -165,10 +165,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
 
     // loop on the space dimension
     for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -246,7 +246,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimension to CM, SP
-        tCMMasterSATurbulence->set_space_dim( iSpaceDim );
+        tCMLeaderSATurbulence->set_space_dim( iSpaceDim );
         tSPSUPG->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
@@ -297,22 +297,22 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
             {
                 for ( uint iCp = 0; iCp < 3; ++iCp )
                 {
-                    // fill coefficients for master FI
-                    Matrix< DDRMat > tMasterDOFHatVel;
-                    fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder, iCu );
-                    Matrix< DDRMat > tMasterDOFHatVis;
-                    fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder, iCp );
+                    // fill coefficients for leader FI
+                    Matrix< DDRMat > tLeaderDOFHatVel;
+                    fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder, iCu );
+                    Matrix< DDRMat > tLeaderDOFHatVis;
+                    fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder, iCp );
 
                     // create a cell of field interpolators for IWG
-                    Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+                    Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
                     // create the field interpolator velocity
-                    tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
-                    tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+                    tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
+                    tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
                     // create the field interpolator viscosity
-                    tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
-                    tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
+                    tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
+                    tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatVis );
 
                     // set size and fill the set residual assembly map
                     tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -336,8 +336,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
                     // build global dof type list
                     tIWG->get_global_dof_type_list();
 
-                    // populate the requested master dof type
-                    tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+                    // populate the requested leader dof type
+                    tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
                     // create a field interpolator manager
                     moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
@@ -345,12 +345,12 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
                     Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
                     // populate the field interpolator manager
-                    tFIManager.mFI                     = tMasterFIs;
+                    tFIManager.mFI                     = tLeaderFIs;
                     tFIManager.mIPGeometryInterpolator = &tGI;
                     tFIManager.mIGGeometryInterpolator = &tGI;
 
                     // set the interpolator manager to the set
-                    tIWG->mSet->mMasterFIManager = &tFIManager;
+                    tIWG->mSet->mLeaderFIManager = &tFIManager;
 
                     // set IWG field interpolator manager
                     tIWG->set_field_interpolator_manager( &tFIManager );
@@ -366,7 +366,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
                         Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                         // set integration point
-                        tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                        tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                         // check evaluation of the residual for IWG
                         //------------------------------------------------------------------------------
@@ -409,7 +409,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk", "[IWG_Spalart_Allmaras_Turbul
                     }
 
                     // clean up
-                    tMasterFIs.clear();
+                    tLeaderFIs.clear();
                 }
             }
         }
@@ -479,20 +479,20 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterSATurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderSATurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
-    tCMMasterSATurbulence->set_dof_type_list( tDofTypes );
-    tCMMasterSATurbulence->set_property( tPropWallDistance, "WallDistance" );
-    tCMMasterSATurbulence->set_property( tPropViscosity, "KinViscosity" );
-    tCMMasterSATurbulence->set_local_properties();
+    tCMLeaderSATurbulence->set_dof_type_list( tDofTypes );
+    tCMLeaderSATurbulence->set_property( tPropWallDistance, "WallDistance" );
+    tCMLeaderSATurbulence->set_property( tPropViscosity, "KinViscosity" );
+    tCMLeaderSATurbulence->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPSUPG =
             tSPFactory.create_SP( fem::Stabilization_Type::SUPG_SPALART_ALLMARAS_TURBULENCE );
-    tSPSUPG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tSPSUPG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
+    tSPSUPG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
+    tSPSUPG->set_constitutive_model( tCMLeaderSATurbulence, "SpalartAllmarasTurbulence" );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster* tCluster = new fem::Cluster();
@@ -504,8 +504,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_BULK );
     tIWG->set_residual_dof_type( tVisDofTypes );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
+    tIWG->set_constitutive_model( tCMLeaderSATurbulence, "SpalartAllmarasTurbulence" );
     tIWG->set_stabilization_parameter( tSPSUPG, "SUPG" );
 
     // init set info
@@ -524,11 +524,11 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::L2 ) )        = 2;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::L2 ) )        = 2;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::L2 ) )        = 2;
 
     // loop on the space dimension
     for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -606,7 +606,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimension to CM, SP
-        tCMMasterSATurbulence->set_space_dim( iSpaceDim );
+        tCMLeaderSATurbulence->set_space_dim( iSpaceDim );
         tSPSUPG->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
@@ -658,32 +658,32 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
             {
                 for ( uint iCp = 0; iCp < 3; ++iCp )
                 {
-                    // fill coefficients for master FI
-                    Matrix< DDRMat > tMasterDOFHatVel;
-                    fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
+                    // fill coefficients for leader FI
+                    Matrix< DDRMat > tLeaderDOFHatVel;
+                    fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
 
-                    Matrix< DDRMat > tMasterDOFHatVis;
-                    fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
-                    tMasterDOFHatVis = tViscosityScaling * tMasterDOFHatVis;
+                    Matrix< DDRMat > tLeaderDOFHatVis;
+                    fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
+                    tLeaderDOFHatVis = tViscosityScaling * tLeaderDOFHatVis;
 
-                    Matrix< DDRMat > tMasterDOFHatWallDist;
-                    fill_phat( tMasterDOFHatWallDist, iSpaceDim, iInterpOrder );
-                    tMasterDOFHatWallDist = tWallDistScaling * tMasterDOFHatWallDist;
+                    Matrix< DDRMat > tLeaderDOFHatWallDist;
+                    fill_phat( tLeaderDOFHatWallDist, iSpaceDim, iInterpOrder );
+                    tLeaderDOFHatWallDist = tWallDistScaling * tLeaderDOFHatWallDist;
 
                     // create a cell of field interpolators for IWG
-                    Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+                    Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
                     // create the field interpolator velocity
-                    tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
-                    tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+                    tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
+                    tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
                     // create the field interpolator viscosity
-                    tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
-                    tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
+                    tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
+                    tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatVis );
 
                     // create the field interpolator wall distance
-                    tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tWallDistDofTypes( 0 ) );
-                    tMasterFIs( 2 )->set_coeff( tMasterDOFHatWallDist );
+                    tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tWallDistDofTypes( 0 ) );
+                    tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatWallDist );
 
                     // set size and fill the set residual assembly map
                     tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -711,8 +711,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                     // build global dof type list
                     tIWG->get_global_dof_type_list();
 
-                    // populate the requested master dof type
-                    tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+                    // populate the requested leader dof type
+                    tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
                     // create a field interpolator manager
                     moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
@@ -720,12 +720,12 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                     Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
                     // populate the field interpolator manager
-                    tFIManager.mFI                     = tMasterFIs;
+                    tFIManager.mFI                     = tLeaderFIs;
                     tFIManager.mIPGeometryInterpolator = &tGI;
                     tFIManager.mIGGeometryInterpolator = &tGI;
 
                     // set the interpolator manager to the set
-                    tIWG->mSet->mMasterFIManager = &tFIManager;
+                    tIWG->mSet->mLeaderFIManager = &tFIManager;
 
                     // set IWG field interpolator manager
                     tIWG->set_field_interpolator_manager( &tFIManager );
@@ -741,7 +741,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                         Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                         // set integration point
-                        tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                        tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                         //-------------------------------------------------------------------------------------------------------------------------
                         // check components of constitutive model - derivatives with respect to velocity dofs
@@ -751,58 +751,58 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                             moris::fem::IWG_Spalart_Allmaras_Turbulence_Bulk* tSAIWG =
                                     dynamic_cast< moris::fem::IWG_Spalart_Allmaras_Turbulence_Bulk* >( tIWG.get() );
 
-                            const Matrix< DDRMat >& tJacDestructionCoefficient = tCMMasterSATurbulence->dwalldestructioncoeffdu( tVelDofTypes );
-                            const Matrix< DDRMat >& tJacProductionCoefficient  = tCMMasterSATurbulence->dproductioncoeffdu( tVelDofTypes );
-                            const Matrix< DDRMat >& tJacDiffusionCoefficient   = tCMMasterSATurbulence->ddiffusioncoeffdu( tVelDofTypes );
-                            const Matrix< DDRMat >& tJacDivFlux                = tCMMasterSATurbulence->ddivfluxdu( tVelDofTypes );
-                            const Matrix< DDRMat >& tJacSUPG                   = tSPSUPG->dSPdMasterDOF( tVelDofTypes );
-                            const Matrix< DDRMat >& tJacDestructionTerm        = tCMMasterSATurbulence->dwalldestructiontermdu( tVelDofTypes );
-                            const Matrix< DDRMat >& tJacProductionTerm         = tCMMasterSATurbulence->dproductiontermdu( tVelDofTypes );
+                            const Matrix< DDRMat >& tJacDestructionCoefficient = tCMLeaderSATurbulence->dwalldestructioncoeffdu( tVelDofTypes );
+                            const Matrix< DDRMat >& tJacProductionCoefficient  = tCMLeaderSATurbulence->dproductioncoeffdu( tVelDofTypes );
+                            const Matrix< DDRMat >& tJacDiffusionCoefficient   = tCMLeaderSATurbulence->ddiffusioncoeffdu( tVelDofTypes );
+                            const Matrix< DDRMat >& tJacDivFlux                = tCMLeaderSATurbulence->ddivfluxdu( tVelDofTypes );
+                            const Matrix< DDRMat >& tJacSUPG                   = tSPSUPG->dSPdLeaderDOF( tVelDofTypes );
+                            const Matrix< DDRMat >& tJacDestructionTerm        = tCMLeaderSATurbulence->dwalldestructiontermdu( tVelDofTypes );
+                            const Matrix< DDRMat >& tJacProductionTerm         = tCMLeaderSATurbulence->dproductiontermdu( tVelDofTypes );
 
                             Matrix< DDRMat > tJacStrongForm, tResStrongForm;
                             tSAIWG->compute_jacobian_strong_form( tVelDofTypes, tJacStrongForm );
 
-                            Matrix< DDRMat > tJacDestructionCoefficientFD( 1, tMasterDOFHatVel.numel(), 0.0 );
-                            Matrix< DDRMat > tJacProductionCoefficientFD( 1, tMasterDOFHatVel.numel(), 0.0 );
-                            Matrix< DDRMat > tJacDiffusionCoefficientFD( 1, tMasterDOFHatVel.numel(), 0.0 );
-                            Matrix< DDRMat > tJacDivFluxFD( 1, tMasterDOFHatVel.numel(), 0.0 );
-                            Matrix< DDRMat > tJacSUPGFD( 1, tMasterDOFHatVel.numel(), 0.0 );
-                            Matrix< DDRMat > tJacStrongFormFD( 1, tMasterDOFHatVel.numel(), 0.0 );
-                            Matrix< DDRMat > tJacDestructionTermFD( 1, tMasterDOFHatVel.numel(), 0.0 );
-                            Matrix< DDRMat > tJacProductionTermFD( 1, tMasterDOFHatVel.numel(), 0.0 );
+                            Matrix< DDRMat > tJacDestructionCoefficientFD( 1, tLeaderDOFHatVel.numel(), 0.0 );
+                            Matrix< DDRMat > tJacProductionCoefficientFD( 1, tLeaderDOFHatVel.numel(), 0.0 );
+                            Matrix< DDRMat > tJacDiffusionCoefficientFD( 1, tLeaderDOFHatVel.numel(), 0.0 );
+                            Matrix< DDRMat > tJacDivFluxFD( 1, tLeaderDOFHatVel.numel(), 0.0 );
+                            Matrix< DDRMat > tJacSUPGFD( 1, tLeaderDOFHatVel.numel(), 0.0 );
+                            Matrix< DDRMat > tJacStrongFormFD( 1, tLeaderDOFHatVel.numel(), 0.0 );
+                            Matrix< DDRMat > tJacDestructionTermFD( 1, tLeaderDOFHatVel.numel(), 0.0 );
+                            Matrix< DDRMat > tJacProductionTermFD( 1, tLeaderDOFHatVel.numel(), 0.0 );
 
                             uint tCount = 0;
 
-                            for ( uint iDim = 0; iDim < tMasterDOFHatVel.n_cols(); ++iDim )
+                            for ( uint iDim = 0; iDim < tLeaderDOFHatVel.n_cols(); ++iDim )
                             {
-                                for ( uint iCoef = 0; iCoef < tMasterDOFHatVel.n_rows(); ++iCoef )
+                                for ( uint iCoef = 0; iCoef < tLeaderDOFHatVel.n_rows(); ++iCoef )
                                 {
-                                    tMasterDOFHatVel( iCoef, iDim ) += tPerturbation;
-                                    tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
-                                    tMasterFIs( 0 )->reset_eval_flags();
-                                    tCMMasterSATurbulence->reset_eval_flags();
+                                    tLeaderDOFHatVel( iCoef, iDim ) += tPerturbation;
+                                    tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
+                                    tLeaderFIs( 0 )->reset_eval_flags();
+                                    tCMLeaderSATurbulence->reset_eval_flags();
                                     tSPSUPG->reset_eval_flags();
-                                    tJacDestructionCoefficientFD( tCount ) = tCMMasterSATurbulence->wall_destruction_coefficient()( 0 );
-                                    tJacProductionCoefficientFD( tCount )  = tCMMasterSATurbulence->production_coefficient()( 0 );
-                                    tJacDestructionTermFD( tCount )        = tCMMasterSATurbulence->wall_destruction_term()( 0 );
-                                    tJacProductionTermFD( tCount )         = tCMMasterSATurbulence->production_term()( 0 );
-                                    tJacDiffusionCoefficientFD( tCount )   = tCMMasterSATurbulence->diffusion_coefficient()( 0 );
-                                    tJacDivFluxFD( tCount )                = tCMMasterSATurbulence->divflux()( 0 );
+                                    tJacDestructionCoefficientFD( tCount ) = tCMLeaderSATurbulence->wall_destruction_coefficient()( 0 );
+                                    tJacProductionCoefficientFD( tCount )  = tCMLeaderSATurbulence->production_coefficient()( 0 );
+                                    tJacDestructionTermFD( tCount )        = tCMLeaderSATurbulence->wall_destruction_term()( 0 );
+                                    tJacProductionTermFD( tCount )         = tCMLeaderSATurbulence->production_term()( 0 );
+                                    tJacDiffusionCoefficientFD( tCount )   = tCMLeaderSATurbulence->diffusion_coefficient()( 0 );
+                                    tJacDivFluxFD( tCount )                = tCMLeaderSATurbulence->divflux()( 0 );
                                     tJacSUPGFD( tCount )                   = tSPSUPG->val()( 0 );
                                     tSAIWG->compute_residual_strong_form( tResStrongForm );
                                     tJacStrongFormFD( tCount ) = tResStrongForm( 0 );
 
-                                    tMasterDOFHatVel( iCoef, iDim ) -= 2.0 * tPerturbation;
-                                    tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
-                                    tMasterFIs( 0 )->reset_eval_flags();
-                                    tCMMasterSATurbulence->reset_eval_flags();
+                                    tLeaderDOFHatVel( iCoef, iDim ) -= 2.0 * tPerturbation;
+                                    tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
+                                    tLeaderFIs( 0 )->reset_eval_flags();
+                                    tCMLeaderSATurbulence->reset_eval_flags();
                                     tSPSUPG->reset_eval_flags();
-                                    tJacDestructionCoefficientFD( tCount ) -= tCMMasterSATurbulence->wall_destruction_coefficient()( 0 );
-                                    tJacProductionCoefficientFD( tCount ) -= tCMMasterSATurbulence->production_coefficient()( 0 );
-                                    tJacDestructionTermFD( tCount ) -= tCMMasterSATurbulence->wall_destruction_term()( 0 );
-                                    tJacProductionTermFD( tCount ) -= tCMMasterSATurbulence->production_term()( 0 );
-                                    tJacDiffusionCoefficientFD( tCount ) -= tCMMasterSATurbulence->diffusion_coefficient()( 0 );
-                                    tJacDivFluxFD( tCount ) -= tCMMasterSATurbulence->divflux()( 0 );
+                                    tJacDestructionCoefficientFD( tCount ) -= tCMLeaderSATurbulence->wall_destruction_coefficient()( 0 );
+                                    tJacProductionCoefficientFD( tCount ) -= tCMLeaderSATurbulence->production_coefficient()( 0 );
+                                    tJacDestructionTermFD( tCount ) -= tCMLeaderSATurbulence->wall_destruction_term()( 0 );
+                                    tJacProductionTermFD( tCount ) -= tCMLeaderSATurbulence->production_term()( 0 );
+                                    tJacDiffusionCoefficientFD( tCount ) -= tCMLeaderSATurbulence->diffusion_coefficient()( 0 );
+                                    tJacDivFluxFD( tCount ) -= tCMLeaderSATurbulence->divflux()( 0 );
                                     tJacSUPGFD( tCount ) -= tSPSUPG->val()( 0 );
                                     tSAIWG->compute_residual_strong_form( tResStrongForm );
                                     tJacStrongFormFD( tCount ) -= tResStrongForm( 0 );
@@ -816,10 +816,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                     tJacSUPGFD( tCount )                   = tJacSUPGFD( tCount ) / 2.0 / tPerturbation;
                                     tJacStrongFormFD( tCount )             = tJacStrongFormFD( tCount ) / 2.0 / tPerturbation;
 
-                                    tMasterDOFHatVel( iCoef, iDim ) += tPerturbation;
-                                    tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
-                                    tMasterFIs( 0 )->reset_eval_flags();
-                                    tCMMasterSATurbulence->reset_eval_flags();
+                                    tLeaderDOFHatVel( iCoef, iDim ) += tPerturbation;
+                                    tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
+                                    tLeaderFIs( 0 )->reset_eval_flags();
+                                    tCMLeaderSATurbulence->reset_eval_flags();
                                     tSPSUPG->reset_eval_flags();
 
                                     tCount++;
@@ -915,50 +915,50 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                             moris::fem::IWG_Spalart_Allmaras_Turbulence_Bulk* tSAIWG =
                                     dynamic_cast< moris::fem::IWG_Spalart_Allmaras_Turbulence_Bulk* >( tIWG.get() );
 
-                            const Matrix< DDRMat >& tJacDestructionCoefficient = tCMMasterSATurbulence->dwalldestructioncoeffdu( tVisDofTypes( 0 ) );
-                            const Matrix< DDRMat >& tJacProductionCoefficient  = tCMMasterSATurbulence->dproductioncoeffdu( tVisDofTypes( 0 ) );
-                            const Matrix< DDRMat >& tJacDiffusionCoefficient   = tCMMasterSATurbulence->ddiffusioncoeffdu( tVisDofTypes( 0 ) );
-                            const Matrix< DDRMat >& tJacDivFlux                = tCMMasterSATurbulence->ddivfluxdu( tVisDofTypes( 0 ) );
-                            const Matrix< DDRMat >& tJacSUPG                   = tSPSUPG->dSPdMasterDOF( tVisDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacDestructionCoefficient = tCMLeaderSATurbulence->dwalldestructioncoeffdu( tVisDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacProductionCoefficient  = tCMLeaderSATurbulence->dproductioncoeffdu( tVisDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacDiffusionCoefficient   = tCMLeaderSATurbulence->ddiffusioncoeffdu( tVisDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacDivFlux                = tCMLeaderSATurbulence->ddivfluxdu( tVisDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacSUPG                   = tSPSUPG->dSPdLeaderDOF( tVisDofTypes( 0 ) );
 
                             Matrix< DDRMat > tJacStrongForm, tResStrongForm;
                             tSAIWG->compute_jacobian_strong_form( tVisDofTypes( 0 ), tJacStrongForm );
 
-                            Matrix< DDRMat > tJacDestructionCoefficientFD( 1, tMasterDOFHatVis.numel(), 0.0 );
-                            Matrix< DDRMat > tJacProductionCoefficientFD( 1, tMasterDOFHatVis.numel(), 0.0 );
-                            Matrix< DDRMat > tJacDiffusionCoefficientFD( 1, tMasterDOFHatVis.numel(), 0.0 );
-                            Matrix< DDRMat > tJacDivFluxFD( 1, tMasterDOFHatVis.numel(), 0.0 );
-                            Matrix< DDRMat > tJacSUPGFD( 1, tMasterDOFHatVis.numel(), 0.0 );
-                            Matrix< DDRMat > tJacStrongFormFD( 1, tMasterDOFHatVel.numel(), 0.0 );
+                            Matrix< DDRMat > tJacDestructionCoefficientFD( 1, tLeaderDOFHatVis.numel(), 0.0 );
+                            Matrix< DDRMat > tJacProductionCoefficientFD( 1, tLeaderDOFHatVis.numel(), 0.0 );
+                            Matrix< DDRMat > tJacDiffusionCoefficientFD( 1, tLeaderDOFHatVis.numel(), 0.0 );
+                            Matrix< DDRMat > tJacDivFluxFD( 1, tLeaderDOFHatVis.numel(), 0.0 );
+                            Matrix< DDRMat > tJacSUPGFD( 1, tLeaderDOFHatVis.numel(), 0.0 );
+                            Matrix< DDRMat > tJacStrongFormFD( 1, tLeaderDOFHatVel.numel(), 0.0 );
 
                             uint tCount = 0;
 
-                            for ( uint iDim = 0; iDim < tMasterDOFHatVis.n_cols(); ++iDim )
+                            for ( uint iDim = 0; iDim < tLeaderDOFHatVis.n_cols(); ++iDim )
                             {
-                                for ( uint iCoef = 0; iCoef < tMasterDOFHatVis.n_rows(); ++iCoef )
+                                for ( uint iCoef = 0; iCoef < tLeaderDOFHatVis.n_rows(); ++iCoef )
                                 {
-                                    tMasterDOFHatVis( iCoef, iDim ) += tPerturbation;
-                                    tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
-                                    tMasterFIs( 1 )->reset_eval_flags();
-                                    tCMMasterSATurbulence->reset_eval_flags();
+                                    tLeaderDOFHatVis( iCoef, iDim ) += tPerturbation;
+                                    tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatVis );
+                                    tLeaderFIs( 1 )->reset_eval_flags();
+                                    tCMLeaderSATurbulence->reset_eval_flags();
                                     tSPSUPG->reset_eval_flags();
-                                    tJacDestructionCoefficientFD( tCount ) = tCMMasterSATurbulence->wall_destruction_coefficient()( 0 );
-                                    tJacProductionCoefficientFD( tCount )  = tCMMasterSATurbulence->production_coefficient()( 0 );
-                                    tJacDiffusionCoefficientFD( tCount )   = tCMMasterSATurbulence->diffusion_coefficient()( 0 );
-                                    tJacDivFluxFD( tCount )                = tCMMasterSATurbulence->divflux()( 0 );
+                                    tJacDestructionCoefficientFD( tCount ) = tCMLeaderSATurbulence->wall_destruction_coefficient()( 0 );
+                                    tJacProductionCoefficientFD( tCount )  = tCMLeaderSATurbulence->production_coefficient()( 0 );
+                                    tJacDiffusionCoefficientFD( tCount )   = tCMLeaderSATurbulence->diffusion_coefficient()( 0 );
+                                    tJacDivFluxFD( tCount )                = tCMLeaderSATurbulence->divflux()( 0 );
                                     tJacSUPGFD( tCount )                   = tSPSUPG->val()( 0 );
                                     tSAIWG->compute_residual_strong_form( tResStrongForm );
                                     tJacStrongFormFD( tCount ) = tResStrongForm( 0 );
 
-                                    tMasterDOFHatVis( iCoef, iDim ) -= 2.0 * tPerturbation;
-                                    tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
-                                    tMasterFIs( 1 )->reset_eval_flags();
-                                    tCMMasterSATurbulence->reset_eval_flags();
+                                    tLeaderDOFHatVis( iCoef, iDim ) -= 2.0 * tPerturbation;
+                                    tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatVis );
+                                    tLeaderFIs( 1 )->reset_eval_flags();
+                                    tCMLeaderSATurbulence->reset_eval_flags();
                                     tSPSUPG->reset_eval_flags();
-                                    tJacDestructionCoefficientFD( tCount ) -= tCMMasterSATurbulence->wall_destruction_coefficient()( 0 );
-                                    tJacProductionCoefficientFD( tCount ) -= tCMMasterSATurbulence->production_coefficient()( 0 );
-                                    tJacDiffusionCoefficientFD( tCount ) -= tCMMasterSATurbulence->diffusion_coefficient()( 0 );
-                                    tJacDivFluxFD( tCount ) -= tCMMasterSATurbulence->divflux()( 0 );
+                                    tJacDestructionCoefficientFD( tCount ) -= tCMLeaderSATurbulence->wall_destruction_coefficient()( 0 );
+                                    tJacProductionCoefficientFD( tCount ) -= tCMLeaderSATurbulence->production_coefficient()( 0 );
+                                    tJacDiffusionCoefficientFD( tCount ) -= tCMLeaderSATurbulence->diffusion_coefficient()( 0 );
+                                    tJacDivFluxFD( tCount ) -= tCMLeaderSATurbulence->divflux()( 0 );
                                     tJacSUPGFD( tCount ) -= tSPSUPG->val()( 0 );
                                     tSAIWG->compute_residual_strong_form( tResStrongForm );
                                     tJacStrongFormFD( tCount ) -= tResStrongForm( 0 );
@@ -970,10 +970,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                     tJacSUPGFD( tCount )                   = tJacSUPGFD( tCount ) / 2.0 / tPerturbation;
                                     tJacStrongFormFD( tCount )             = tJacStrongFormFD( tCount ) / 2.0 / tPerturbation;
 
-                                    tMasterDOFHatVis( iCoef, iDim ) += tPerturbation;
-                                    tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
-                                    tMasterFIs( 1 )->reset_eval_flags();
-                                    tCMMasterSATurbulence->reset_eval_flags();
+                                    tLeaderDOFHatVis( iCoef, iDim ) += tPerturbation;
+                                    tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatVis );
+                                    tLeaderFIs( 1 )->reset_eval_flags();
+                                    tCMLeaderSATurbulence->reset_eval_flags();
                                     tSPSUPG->reset_eval_flags();
 
                                     tCount++;
@@ -1050,58 +1050,58 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                             moris::fem::IWG_Spalart_Allmaras_Turbulence_Bulk* tSAIWG =
                                     dynamic_cast< moris::fem::IWG_Spalart_Allmaras_Turbulence_Bulk* >( tIWG.get() );
 
-                            const Matrix< DDRMat >& tJacDestructionCoefficient = tCMMasterSATurbulence->dwalldestructioncoeffdu( tWallDistDofTypes( 0 ) );
-                            const Matrix< DDRMat >& tJacProductionCoefficient  = tCMMasterSATurbulence->dproductioncoeffdu( tWallDistDofTypes( 0 ) );
-                            const Matrix< DDRMat >& tJacDiffusionCoefficient   = tCMMasterSATurbulence->ddiffusioncoeffdu( tWallDistDofTypes( 0 ) );
-                            const Matrix< DDRMat >& tJacDestructionTerm        = tCMMasterSATurbulence->dwalldestructiontermdu( tWallDistDofTypes( 0 ) );
-                            const Matrix< DDRMat >& tJacProductionTerm         = tCMMasterSATurbulence->dproductiontermdu( tWallDistDofTypes( 0 ) );
-                            const Matrix< DDRMat >& tJacDivFlux                = tCMMasterSATurbulence->ddivfluxdu( tWallDistDofTypes( 0 ) );
-                            const Matrix< DDRMat >& tJacSUPG                   = tSPSUPG->dSPdMasterDOF( tWallDistDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacDestructionCoefficient = tCMLeaderSATurbulence->dwalldestructioncoeffdu( tWallDistDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacProductionCoefficient  = tCMLeaderSATurbulence->dproductioncoeffdu( tWallDistDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacDiffusionCoefficient   = tCMLeaderSATurbulence->ddiffusioncoeffdu( tWallDistDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacDestructionTerm        = tCMLeaderSATurbulence->dwalldestructiontermdu( tWallDistDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacProductionTerm         = tCMLeaderSATurbulence->dproductiontermdu( tWallDistDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacDivFlux                = tCMLeaderSATurbulence->ddivfluxdu( tWallDistDofTypes( 0 ) );
+                            const Matrix< DDRMat >& tJacSUPG                   = tSPSUPG->dSPdLeaderDOF( tWallDistDofTypes( 0 ) );
 
                             Matrix< DDRMat > tJacStrongForm, tResStrongForm;
                             tSAIWG->compute_jacobian_strong_form( tWallDistDofTypes( 0 ), tJacStrongForm );
 
-                            Matrix< DDRMat > tJacDestructionCoefficientFD( 1, tMasterDOFHatWallDist.numel(), 0.0 );
-                            Matrix< DDRMat > tJacProductionCoefficientFD( 1, tMasterDOFHatWallDist.numel(), 0.0 );
-                            Matrix< DDRMat > tJacDiffusionCoefficientFD( 1, tMasterDOFHatWallDist.numel(), 0.0 );
-                            Matrix< DDRMat > tJacDestructionTermFD( 1, tMasterDOFHatWallDist.numel(), 0.0 );
-                            Matrix< DDRMat > tJacProductionTermFD( 1, tMasterDOFHatWallDist.numel(), 0.0 );
-                            Matrix< DDRMat > tJacDivFluxFD( 1, tMasterDOFHatWallDist.numel(), 0.0 );
-                            Matrix< DDRMat > tJacSUPGFD( 1, tMasterDOFHatWallDist.numel(), 0.0 );
-                            Matrix< DDRMat > tJacStrongFormFD( 1, tMasterDOFHatWallDist.numel(), 0.0 );
+                            Matrix< DDRMat > tJacDestructionCoefficientFD( 1, tLeaderDOFHatWallDist.numel(), 0.0 );
+                            Matrix< DDRMat > tJacProductionCoefficientFD( 1, tLeaderDOFHatWallDist.numel(), 0.0 );
+                            Matrix< DDRMat > tJacDiffusionCoefficientFD( 1, tLeaderDOFHatWallDist.numel(), 0.0 );
+                            Matrix< DDRMat > tJacDestructionTermFD( 1, tLeaderDOFHatWallDist.numel(), 0.0 );
+                            Matrix< DDRMat > tJacProductionTermFD( 1, tLeaderDOFHatWallDist.numel(), 0.0 );
+                            Matrix< DDRMat > tJacDivFluxFD( 1, tLeaderDOFHatWallDist.numel(), 0.0 );
+                            Matrix< DDRMat > tJacSUPGFD( 1, tLeaderDOFHatWallDist.numel(), 0.0 );
+                            Matrix< DDRMat > tJacStrongFormFD( 1, tLeaderDOFHatWallDist.numel(), 0.0 );
 
                             uint tCount = 0;
 
-                            for ( uint iDim = 0; iDim < tMasterDOFHatWallDist.n_cols(); ++iDim )
+                            for ( uint iDim = 0; iDim < tLeaderDOFHatWallDist.n_cols(); ++iDim )
                             {
-                                for ( uint iCoef = 0; iCoef < tMasterDOFHatWallDist.n_rows(); ++iCoef )
+                                for ( uint iCoef = 0; iCoef < tLeaderDOFHatWallDist.n_rows(); ++iCoef )
                                 {
-                                    tMasterDOFHatWallDist( iCoef, iDim ) += tPerturbation;
-                                    tMasterFIs( 2 )->set_coeff( tMasterDOFHatWallDist );
-                                    tMasterFIs( 2 )->reset_eval_flags();
-                                    tCMMasterSATurbulence->reset_eval_flags();
+                                    tLeaderDOFHatWallDist( iCoef, iDim ) += tPerturbation;
+                                    tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatWallDist );
+                                    tLeaderFIs( 2 )->reset_eval_flags();
+                                    tCMLeaderSATurbulence->reset_eval_flags();
                                     tSPSUPG->reset_eval_flags();
-                                    tJacDestructionCoefficientFD( tCount ) = tCMMasterSATurbulence->wall_destruction_coefficient()( 0 );
-                                    tJacProductionCoefficientFD( tCount )  = tCMMasterSATurbulence->production_coefficient()( 0 );
-                                    tJacDiffusionCoefficientFD( tCount )   = tCMMasterSATurbulence->diffusion_coefficient()( 0 );
-                                    tJacDestructionTermFD( tCount )        = tCMMasterSATurbulence->wall_destruction_term()( 0 );
-                                    tJacProductionTermFD( tCount )         = tCMMasterSATurbulence->production_term()( 0 );
-                                    tJacDivFluxFD( tCount )                = tCMMasterSATurbulence->divflux()( 0 );
+                                    tJacDestructionCoefficientFD( tCount ) = tCMLeaderSATurbulence->wall_destruction_coefficient()( 0 );
+                                    tJacProductionCoefficientFD( tCount )  = tCMLeaderSATurbulence->production_coefficient()( 0 );
+                                    tJacDiffusionCoefficientFD( tCount )   = tCMLeaderSATurbulence->diffusion_coefficient()( 0 );
+                                    tJacDestructionTermFD( tCount )        = tCMLeaderSATurbulence->wall_destruction_term()( 0 );
+                                    tJacProductionTermFD( tCount )         = tCMLeaderSATurbulence->production_term()( 0 );
+                                    tJacDivFluxFD( tCount )                = tCMLeaderSATurbulence->divflux()( 0 );
                                     tJacSUPGFD( tCount )                   = tSPSUPG->val()( 0 );
                                     tSAIWG->compute_residual_strong_form( tResStrongForm );
                                     tJacStrongFormFD( tCount ) = tResStrongForm( 0 );
 
-                                    tMasterDOFHatWallDist( iCoef, iDim ) -= 2.0 * tPerturbation;
-                                    tMasterFIs( 2 )->set_coeff( tMasterDOFHatWallDist );
-                                    tMasterFIs( 2 )->reset_eval_flags();
-                                    tCMMasterSATurbulence->reset_eval_flags();
+                                    tLeaderDOFHatWallDist( iCoef, iDim ) -= 2.0 * tPerturbation;
+                                    tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatWallDist );
+                                    tLeaderFIs( 2 )->reset_eval_flags();
+                                    tCMLeaderSATurbulence->reset_eval_flags();
                                     tSPSUPG->reset_eval_flags();
-                                    tJacDestructionCoefficientFD( tCount ) -= tCMMasterSATurbulence->wall_destruction_coefficient()( 0 );
-                                    tJacProductionCoefficientFD( tCount ) -= tCMMasterSATurbulence->production_coefficient()( 0 );
-                                    tJacDiffusionCoefficientFD( tCount ) -= tCMMasterSATurbulence->diffusion_coefficient()( 0 );
-                                    tJacDestructionTermFD( tCount ) -= tCMMasterSATurbulence->wall_destruction_term()( 0 );
-                                    tJacProductionTermFD( tCount ) -= tCMMasterSATurbulence->production_term()( 0 );
-                                    tJacDivFluxFD( tCount ) -= tCMMasterSATurbulence->divflux()( 0 );
+                                    tJacDestructionCoefficientFD( tCount ) -= tCMLeaderSATurbulence->wall_destruction_coefficient()( 0 );
+                                    tJacProductionCoefficientFD( tCount ) -= tCMLeaderSATurbulence->production_coefficient()( 0 );
+                                    tJacDiffusionCoefficientFD( tCount ) -= tCMLeaderSATurbulence->diffusion_coefficient()( 0 );
+                                    tJacDestructionTermFD( tCount ) -= tCMLeaderSATurbulence->wall_destruction_term()( 0 );
+                                    tJacProductionTermFD( tCount ) -= tCMLeaderSATurbulence->production_term()( 0 );
+                                    tJacDivFluxFD( tCount ) -= tCMLeaderSATurbulence->divflux()( 0 );
                                     tJacSUPGFD( tCount ) -= tSPSUPG->val()( 0 );
                                     tSAIWG->compute_residual_strong_form( tResStrongForm );
                                     tJacStrongFormFD( tCount ) -= tResStrongForm( 0 );
@@ -1115,10 +1115,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                                     tJacSUPGFD( tCount )                   = tJacSUPGFD( tCount ) / 2.0 / tPerturbation;
                                     tJacStrongFormFD( tCount )             = tJacStrongFormFD( tCount ) / 2.0 / tPerturbation;
 
-                                    tMasterDOFHatWallDist( iCoef, iDim ) += tPerturbation;
-                                    tMasterFIs( 2 )->set_coeff( tMasterDOFHatWallDist );
-                                    tMasterFIs( 2 )->reset_eval_flags();
-                                    tCMMasterSATurbulence->reset_eval_flags();
+                                    tLeaderDOFHatWallDist( iCoef, iDim ) += tPerturbation;
+                                    tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatWallDist );
+                                    tLeaderFIs( 2 )->reset_eval_flags();
+                                    tCMLeaderSATurbulence->reset_eval_flags();
                                     tSPSUPG->reset_eval_flags();
 
                                     tCount++;
@@ -1251,7 +1251,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Small_Wall_Distance",
                     }
 
                     // clean up
-                    tMasterFIs.clear();
+                    tLeaderFIs.clear();
                 }
             }
         }
@@ -1312,20 +1312,20 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterSATurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderSATurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
-    tCMMasterSATurbulence->set_dof_type_list( tDofTypes );
-    tCMMasterSATurbulence->set_property( tPropWallDistance, "WallDistance" );
-    tCMMasterSATurbulence->set_property( tPropViscosity, "KinViscosity" );
-    tCMMasterSATurbulence->set_local_properties();
+    tCMLeaderSATurbulence->set_dof_type_list( tDofTypes );
+    tCMLeaderSATurbulence->set_property( tPropWallDistance, "WallDistance" );
+    tCMLeaderSATurbulence->set_property( tPropViscosity, "KinViscosity" );
+    tCMLeaderSATurbulence->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPSUPG =
             tSPFactory.create_SP( fem::Stabilization_Type::SUPG_SPALART_ALLMARAS_TURBULENCE );
-    tSPSUPG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tSPSUPG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
+    tSPSUPG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
+    tSPSUPG->set_constitutive_model( tCMLeaderSATurbulence, "SpalartAllmarasTurbulence" );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster* tCluster = new fem::Cluster();
@@ -1337,8 +1337,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_BULK );
     tIWG->set_residual_dof_type( tVisDofTypes );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence" );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
+    tIWG->set_constitutive_model( tCMLeaderSATurbulence, "SpalartAllmarasTurbulence" );
     tIWG->set_stabilization_parameter( tSPSUPG, "SUPG" );
 
     // init set info
@@ -1356,10 +1356,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 1;
 
     // loop on the space dimension
     for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -1437,7 +1437,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimension to CM, SP
-        tCMMasterSATurbulence->set_space_dim( iSpaceDim );
+        tCMLeaderSATurbulence->set_space_dim( iSpaceDim );
         tSPSUPG->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
@@ -1488,23 +1488,23 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
             {
                 for ( uint iCp = 0; iCp < 3; ++iCp )
                 {
-                    // fill coefficients for master FI
-                    Matrix< DDRMat > tMasterDOFHatVel;
-                    fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-                    Matrix< DDRMat > tMasterDOFHatVis;
-                    fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
-                    tMasterDOFHatVis = -1.0 * tMasterDOFHatVis;
+                    // fill coefficients for leader FI
+                    Matrix< DDRMat > tLeaderDOFHatVel;
+                    fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+                    Matrix< DDRMat > tLeaderDOFHatVis;
+                    fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
+                    tLeaderDOFHatVis = -1.0 * tLeaderDOFHatVis;
 
                     // create a cell of field interpolators for IWG
-                    Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+                    Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
                     // create the field interpolator velocity
-                    tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
-                    tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+                    tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes );
+                    tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
                     // create the field interpolator viscosity
-                    tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
-                    tMasterFIs( 1 )->set_coeff( tMasterDOFHatVis );
+                    tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
+                    tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatVis );
 
                     // set size and fill the set residual assembly map
                     tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -1528,8 +1528,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
                     // build global dof type list
                     tIWG->get_global_dof_type_list();
 
-                    // populate the requested master dof type
-                    tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+                    // populate the requested leader dof type
+                    tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
                     // create a field interpolator manager
                     moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
@@ -1537,12 +1537,12 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
                     Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
                     // populate the field interpolator manager
-                    tFIManager.mFI                     = tMasterFIs;
+                    tFIManager.mFI                     = tLeaderFIs;
                     tFIManager.mIPGeometryInterpolator = &tGI;
                     tFIManager.mIGGeometryInterpolator = &tGI;
 
                     // set the interpolator manager to the set
-                    tIWG->mSet->mMasterFIManager = &tFIManager;
+                    tIWG->mSet->mLeaderFIManager = &tFIManager;
 
                     // set IWG field interpolator manager
                     tIWG->set_field_interpolator_manager( &tFIManager );
@@ -1558,7 +1558,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
                         Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                         // set integration point
-                        tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                        tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                         // check evaluation of the residual for IWG
                         //------------------------------------------------------------------------------
@@ -1601,7 +1601,7 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Bulk_Negative",
                     }
 
                     // clean up
-                    tMasterFIs.clear();
+                    tLeaderFIs.clear();
                 }
             }
         }

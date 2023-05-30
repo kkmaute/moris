@@ -332,11 +332,11 @@ namespace moris
         // SUPG/PSPG fluid incompressible (note: use time step in tau although static; for testing purposes only)
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name", "SPIncFlow" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "master_phase_name", "PhaseFluid" );
+        tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "36.0/1.0" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
-        tParameterList( tSPIndex )( tSPCounter ).set( "master_properties",
+        tParameterList( tSPIndex )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
+        tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties",
                 "PropViscosity,Viscosity;"
                 "PropDensity,Density" );
         tSPCounter++;
@@ -344,22 +344,22 @@ namespace moris
         // SUPG advection (note: use time step in tau although static; for testing purposes only)
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name", "SPSUPGTemp" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "master_phase_name", "PhaseFluid" );
+        tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::SUPG_ADVECTION ) );
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "1.0" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-        tParameterList( tSPIndex )( tSPCounter ).set( "master_properties", "PropConductivity,Conductivity" );
+        tParameterList( tSPIndex )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
+        tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties", "PropConductivity,Conductivity" );
 
         tSPCounter++;
 
         // Dirichlet Nitsche for velocity
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name", "SPDirichletNitscheU" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "master_phase_name", "PhaseFluid" );
+        tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE ) );
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "100.0/1.0" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-        tParameterList( tSPIndex )( tSPCounter ).set( "master_properties",
+        tParameterList( tSPIndex )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
+        tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties",
                 "PropViscosity,Viscosity;"
                 "PropDensity,Density" );
         tSPCounter++;
@@ -367,10 +367,10 @@ namespace moris
         // Dirichhlet Nitsche for temperature
         tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name", "SPDirichletNitscheT" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "master_phase_name", "PhaseFluid" );
+        tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "100.0" );
-        tParameterList( tSPIndex )( tSPCounter ).set( "master_properties", "PropConductivity,Material" );
+        tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties", "PropConductivity,Material" );
         tSPCounter++;
 
         if ( isGhost )
@@ -378,30 +378,30 @@ namespace moris
             // ghost viscous
             tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
             tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name", "SPGPViscosity" );
-            tParameterList( tSPIndex )( tSPCounter ).set( "master_phase_name", "PhaseFluid" );
+            tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name", "PhaseFluid" );
             tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::VISCOUS_GHOST ) );
             tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "0.05" );
-            tParameterList( tSPIndex )( tSPCounter ).set( "master_properties", "PropViscosity,Viscosity" );
+            tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties", "PropViscosity,Viscosity" );
             tSPCounter++;
 
             // ghost convective
             tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
             tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name", "SPGPVelocity" );
-            tParameterList( tSPIndex )( tSPCounter ).set( "master_phase_name", "PhaseFluid" );
+            tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name", "PhaseFluid" );
             tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::CONVECTIVE_GHOST ) );
             tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "0.05" );
-            tParameterList( tSPIndex )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-            tParameterList( tSPIndex )( tSPCounter ).set( "master_properties", "PropDensity,Density" );
+            tParameterList( tSPIndex )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
+            tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties", "PropDensity,Density" );
             tSPCounter++;
 
             // ghost pressure
             tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
             tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name", "SPGPPressure" );
-            tParameterList( tSPIndex )( tSPCounter ).set( "master_phase_name", "PhaseFluid" );
+            tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name", "PhaseFluid" );
             tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::PRESSURE_GHOST ) );
             tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "0.005/1.0" );
-            tParameterList( tSPIndex )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-            tParameterList( tSPIndex )( tSPCounter ).set( "master_properties",
+            tParameterList( tSPIndex )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
+            tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties",
                     "PropViscosity,Viscosity;"
                     "PropDensity,Density" );
             tSPCounter++;
@@ -409,12 +409,12 @@ namespace moris
             // ghost temperature
             tParameterList( tSPIndex ).push_back( prm::create_stabilization_parameter_parameter_list() );
             tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_name", "SPGPTemp" );
-            tParameterList( tSPIndex )( tSPCounter ).set( "master_phase_name", "PhaseFluid" );
-            tParameterList( tSPIndex )( tSPCounter ).set( "slave_phase_name", "PhaseFluid" );
+            tParameterList( tSPIndex )( tSPCounter ).set( "leader_phase_name", "PhaseFluid" );
+            tParameterList( tSPIndex )( tSPCounter ).set( "follower_phase_name", "PhaseFluid" );
             tParameterList( tSPIndex )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
             tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "0.005" );
-            tParameterList( tSPIndex )( tSPCounter ).set( "master_properties", "PropConductivity,Material" );
-            tParameterList( tSPIndex )( tSPCounter ).set( "slave_properties", "PropConductivity,Material" );
+            tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties", "PropConductivity,Material" );
+            tParameterList( tSPIndex )( tSPCounter ).set( "follower_properties", "PropConductivity,Material" );
             tSPCounter++;
         }
 
@@ -428,10 +428,10 @@ namespace moris
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGVelocityBulk" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", static_cast< uint >( fem::Element_Type::BULK ) );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK ) );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "VX,VY" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPIncFlow,IncompressibleFlow" );
         tIWGCounter++;
 
@@ -439,10 +439,10 @@ namespace moris
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGPressureBulk" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", static_cast< uint >( fem::Element_Type::BULK ) );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK ) );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "P" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPIncFlow,IncompressibleFlow" );
         tIWGCounter++;
 
@@ -450,20 +450,20 @@ namespace moris
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGDiffusionBulk" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", static_cast< uint >( fem::Element_Type::BULK ) );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "TEMP" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion,Diffusion" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
         tIWGCounter++;
 
         // bulk advection
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGAdvectionBulk" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", static_cast< uint >( fem::Element_Type::BULK ) );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::ADVECTION_BULK ) );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "TEMP" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion,Diffusion" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPSUPGTemp,SUPG" );
         tIWGCounter++;
 
@@ -471,11 +471,11 @@ namespace moris
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGInletVelocity" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", static_cast< uint >( fem::Element_Type::SIDESET ) );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "VX,VY" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties", "PropDirichletInletU,Dirichlet" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropDirichletInletU,Dirichlet" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPDirichletNitscheU,DirichletNitsche" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "neighbor_phases", "PhaseInlet" );
         tIWGCounter++;
@@ -484,11 +484,11 @@ namespace moris
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGInletPressure" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", static_cast< uint >( fem::Element_Type::SIDESET ) );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "P" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties", "PropDirichletInletU,Dirichlet" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropDirichletInletU,Dirichlet" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "neighbor_phases", "PhaseInlet" );
         tIWGCounter++;
 
@@ -496,11 +496,11 @@ namespace moris
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGInletTemp" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", static_cast< uint >( fem::Element_Type::SIDESET ) );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE ) );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "TEMP" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties", "PropInletTemp,Dirichlet" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion,Diffusion" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropInletTemp,Dirichlet" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusion,Diffusion" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPDirichletNitscheT,DirichletNitsche" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "neighbor_phases", "PhaseInlet" );
         tIWGCounter++;
@@ -509,10 +509,10 @@ namespace moris
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGCylinderFluxTemp" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", static_cast< uint >( fem::Element_Type::SIDESET ) );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_NEUMANN ) );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "TEMP" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties", "PropSideFlux,Neumann" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropSideFlux,Neumann" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "neighbor_phases", "PhaseCylinder" );
         tIWGCounter++;
 
@@ -520,11 +520,11 @@ namespace moris
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGZeroVelocity" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", static_cast< uint >( fem::Element_Type::SIDESET ) );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "VX,VY" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties", "PropDirichletZeroU,Dirichlet" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropDirichletZeroU,Dirichlet" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPDirichletNitscheU,DirichletNitsche" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "neighbor_phases", "PhaseCylinder,PhaseWall" );
         tIWGCounter++;
@@ -533,11 +533,11 @@ namespace moris
         tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGZeroPressure" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", static_cast< uint >( fem::Element_Type::SIDESET ) );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name", "PhaseFluid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "P" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_properties", "PropDirichletZeroU,Dirichlet" );
-        tParameterList( tIWGIndex )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_properties", "PropDirichletZeroU,Dirichlet" );
+        tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
         tParameterList( tIWGIndex )( tIWGCounter ).set( "neighbor_phases", "PhaseCylinder,PhaseWall" );
         tIWGCounter++;
 
@@ -547,8 +547,8 @@ namespace moris
             tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGGPViscous" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", static_cast< uint >( fem::Element_Type::DOUBLE_SIDESET ) );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name", "PhaseFluid" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "slave_phase_name", "PhaseFluid" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "follower_phase_name", "PhaseFluid" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "VX,VY" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPGPViscosity,GhostSP" );
@@ -558,8 +558,8 @@ namespace moris
             tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGGPConvective" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", static_cast< uint >( fem::Element_Type::DOUBLE_SIDESET ) );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name", "PhaseFluid" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "slave_phase_name", "PhaseFluid" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "follower_phase_name", "PhaseFluid" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "VX,VY" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPGPVelocity,GhostSP" );
@@ -569,8 +569,8 @@ namespace moris
             tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGGPPressure" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", static_cast< uint >( fem::Element_Type::DOUBLE_SIDESET ) );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name", "PhaseFluid" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "slave_phase_name", "PhaseFluid" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "follower_phase_name", "PhaseFluid" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "P" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPGPPressure,GhostSP" );
@@ -580,8 +580,8 @@ namespace moris
             tParameterList( tIWGIndex ).push_back( prm::create_IWG_parameter_list() );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_name", "IWGGPTemp" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_bulk_type", static_cast< uint >( fem::Element_Type::DOUBLE_SIDESET ) );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "master_phase_name", "PhaseFluid" );
-            tParameterList( tIWGIndex )( tIWGCounter ).set( "slave_phase_name", "PhaseFluid" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "leader_phase_name", "PhaseFluid" );
+            tParameterList( tIWGIndex )( tIWGCounter ).set( "follower_phase_name", "PhaseFluid" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "dof_residual", "TEMP" );
             tParameterList( tIWGIndex )( tIWGCounter ).set( "stabilization_parameters", "SPGPTemp,GhostSP" );
@@ -597,7 +597,7 @@ namespace moris
         // dof VX
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIBulkVX" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "master_phase_name", "PhaseFluid" );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( tIQIIndex )( tIQICounter ).set( "dof_quantity", "VX,VY" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index", 0 );
@@ -606,7 +606,7 @@ namespace moris
         // dof VY
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIBulkVY" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "master_phase_name", "PhaseFluid" );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( tIQIIndex )( tIQICounter ).set( "dof_quantity", "VX,VY" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index", 1 );
@@ -615,7 +615,7 @@ namespace moris
         // dof P
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIBulkP" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "master_phase_name", "PhaseFluid" );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( tIQIIndex )( tIQICounter ).set( "dof_quantity", "P" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index", 0 );
@@ -624,7 +624,7 @@ namespace moris
         // dof TEMP
         tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name", "IQIBulkTEMP" );
-        tParameterList( tIQIIndex )( tIQICounter ).set( "master_phase_name", "PhaseFluid" );
+        tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name", "PhaseFluid" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( tIQIIndex )( tIQICounter ).set( "dof_quantity", "TEMP" );
         tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index", 0 );

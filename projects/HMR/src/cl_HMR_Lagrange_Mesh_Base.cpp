@@ -1984,21 +1984,21 @@ namespace moris
             // step 5: write facets into cells
             for( Facet * tFacet : mFacets )
             {
-                // get master
-                Element * tMaster = tFacet->get_hmr_master();
+                // get leader
+                Element * tLeader = tFacet->get_hmr_leader();
 
-                // get slave
-                Element * tSlave = tFacet->get_hmr_slave();
+                // get follower
+                Element * tFollower = tFacet->get_hmr_follower();
 
-                // master is always active
-                tMaster->set_hmr_facet( tFacet,
-                        tFacet->get_index_on_master() );
+                // leader is always active
+                tLeader->set_hmr_facet( tFacet,
+                        tFacet->get_index_on_leader() );
 
-                if( tSlave != NULL )
+                if( tFollower != NULL )
                 {
-                    // insert element into slave
-                    tSlave->set_hmr_facet( tFacet,
-                            tFacet->get_index_on_slave() );
+                    // insert element into follower
+                    tFollower->set_hmr_facet( tFacet,
+                            tFacet->get_index_on_follower() );
                 }
             }
 
@@ -2317,7 +2317,7 @@ namespace moris
                     ++tElementCount( p );
 
                     // incrememet memory counter
-                    tMemoryCount( p ) += tEdge->get_hmr_master()
+                    tMemoryCount( p ) += tEdge->get_hmr_leader()
                                                     ->get_background_element()->get_length_of_pedigree_path();
                 }
 
@@ -2352,12 +2352,12 @@ namespace moris
                     // index of proc
                     uint p = tProcMap( tEdge->get_owner() );
 
-                    // save index on master
+                    // save index on leader
                     tEdgeIndexListSend( p )( tElementCount( p ) )
-                                                = tEdge->get_index_on_master();
+                                                = tEdge->get_index_on_leader();
 
                     // calculate path o
-                    tEdge->get_hmr_master()->get_background_element()
+                    tEdge->get_hmr_leader()->get_background_element()
                                                                    ->endcode_pedigree_path( tAncestorListSend( p )( tElementCount( p )++ ),
                                                                            tPedigreeListSend( p ),
                                                                            tMemoryCount( p ) );
@@ -2417,11 +2417,11 @@ namespace moris
                                 tPedigreeListReceive( p ),
                                 tMemoryCounter );
 
-                        // get pointer to master
-                        Element * tMaster = this->get_element_by_memory_index( tBackElement->get_memory_index() );
+                        // get pointer to leader
+                        Element * tLeader = this->get_element_by_memory_index( tBackElement->get_memory_index() );
 
                         // get pointer to facet
-                        Edge * tEdge = tMaster->get_hmr_edge( tEdgeIndexListReceive( p )( k ) );
+                        Edge * tEdge = tLeader->get_hmr_edge( tEdgeIndexListReceive( p )( k ) );
 
                         // copy owner into matrix to send
                         tOwnerListSend( p )( k ) = tEdge->get_owner();
@@ -2583,7 +2583,7 @@ namespace moris
                             ++tElementCounter;
 
                             // get memory needed for pedigree path
-                            tMemoryCounter += tFacet->get_hmr_master()->get_background_element()
+                            tMemoryCounter += tFacet->get_hmr_leader()->get_background_element()
                                                                                               ->get_length_of_pedigree_path();
                         }
                     }
@@ -2610,11 +2610,11 @@ namespace moris
                         {
                             if( tFacet->get_owner() == tNeighbor )
                             {
-                                // save index on master
-                                tFacetIndexListSend( p )( tElementCounter ) = tFacet->get_index_on_master();
+                                // save index on leader
+                                tFacetIndexListSend( p )( tElementCounter ) = tFacet->get_index_on_leader();
 
                                 // calculate path of facet
-                                tFacet->get_hmr_master()->get_background_element()
+                                tFacet->get_hmr_leader()->get_background_element()
                                                                                 ->endcode_pedigree_path( tAncestorListSend( p )( tElementCounter++ ),
                                                                                         tPedigreeListSend( p ),
                                                                                         tMemoryCounter );
@@ -2671,12 +2671,12 @@ namespace moris
                             tPedigreeListReceive( p ),
                             tMemoryCounter );
 
-                    // get pointer to master
-                    Element * tMaster = this->get_element_by_memory_index(
+                    // get pointer to leader
+                    Element * tLeader = this->get_element_by_memory_index(
                             tBackElement->get_memory_index() );
 
                     // get pointer to facet
-                    Facet * tFacet = tMaster->get_hmr_facet(
+                    Facet * tFacet = tLeader->get_hmr_facet(
                             tFacetIndexListReceive( p )( k ) );
 
                     // copy ID into send index
@@ -2799,7 +2799,7 @@ namespace moris
 
                             // get memory needed for pedigree path
 
-                            tMemoryCounter += tEdge->get_hmr_master()
+                            tMemoryCounter += tEdge->get_hmr_leader()
                                                             ->get_background_element()
                                                             ->get_length_of_pedigree_path();
                         }
@@ -2827,11 +2827,11 @@ namespace moris
                         {
                             if( tEdge->get_owner() == tNeighbor )
                             {
-                                // save index on master
-                                tEdgeIndexListSend( p )( tElementCounter ) = tEdge->get_index_on_master();
+                                // save index on leader
+                                tEdgeIndexListSend( p )( tElementCounter ) = tEdge->get_index_on_leader();
 
                                 // calculate path of facet
-                                tEdge->get_hmr_master()->get_background_element()
+                                tEdge->get_hmr_leader()->get_background_element()
                                                                                ->endcode_pedigree_path(
                                                                                        tAncestorListSend( p )( tElementCounter++ ),
                                                                                        tPedigreeListSend( p ),
@@ -2889,12 +2889,12 @@ namespace moris
                             tPedigreeListReceive( p ),
                             tMemoryCounter );
 
-                    // get pointer to master
-                    Element * tMaster = this->get_element_by_memory_index(
+                    // get pointer to leader
+                    Element * tLeader = this->get_element_by_memory_index(
                             tBackElement->get_memory_index() );
 
                     // get pointer to facet
-                    Edge * tEdge = tMaster->get_hmr_edge( tEdgeIndexListReceive( p )( k ) );
+                    Edge * tEdge = tLeader->get_hmr_edge( tEdgeIndexListReceive( p )( k ) );
 
                     // copy ID into send index
                     tEdgeIndexListSend( p )( k ) = tEdge->get_id();
@@ -2943,46 +2943,46 @@ namespace moris
         {
             for( Facet * tFacet : mFacets )
             {
-                // get master
-                Element * tMaster = tFacet->get_hmr_master();
+                // get leader
+                Element * tLeader = tFacet->get_hmr_leader();
 
-                if( tMaster->is_refined() )
+                if( tLeader->is_refined() )
                 {
                     // reserve memory for children
                     tFacet->allocate_child_container( 2 );
                     if( par_rank() == 0 )
                     {
-                        std::cout << "Master " << tMaster->get_hmr_id() << std::endl;
+                        std::cout << "Leader " << tLeader->get_hmr_id() << std::endl;
                         for( uint k = 0; k<4; ++k )
                         {
-                            std::cout << k << " " << ( tMaster->get_child( mAllElementsOnProc, k) != NULL ) << std::endl;
+                            std::cout << k << " " << ( tLeader->get_child( mAllElementsOnProc, k) != NULL ) << std::endl;
                         }
                     }
-                    // get index on master
-                    switch( tFacet->get_index_on_master() )
+                    // get index on leader
+                    switch( tFacet->get_index_on_leader() )
                     {
                         case( 0 ) :
                         {
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 0 )->get_hmr_facet( 0 ), 0 );
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 1 )->get_hmr_facet( 0 ), 1 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 0 )->get_hmr_facet( 0 ), 0 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 1 )->get_hmr_facet( 0 ), 1 );
                             break;
                         }
                         case( 1 ) :
                         {
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 1 )->get_hmr_facet( 1 ), 0 );
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 3 )->get_hmr_facet( 1 ), 1 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 1 )->get_hmr_facet( 1 ), 0 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 3 )->get_hmr_facet( 1 ), 1 );
                             break;
                         }
                         case( 2 ) :
                         {
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 3 )->get_hmr_facet( 2 ), 0 );
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 2 )->get_hmr_facet( 2 ), 1 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 3 )->get_hmr_facet( 2 ), 0 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 2 )->get_hmr_facet( 2 ), 1 );
                             break;
                         }
                         case( 3 ) :
                         {
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 2 )->get_hmr_facet( 3 ), 0 );
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 0 )->get_hmr_facet( 3 ), 1 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 2 )->get_hmr_facet( 3 ), 0 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 0 )->get_hmr_facet( 3 ), 1 );
                             break;
                         }
                         default :
@@ -3001,63 +3001,63 @@ namespace moris
         {
             for( Facet * tFacet : mFacets )
             {
-                // get master
-                Element * tMaster = tFacet->get_hmr_master();
+                // get leader
+                Element * tLeader = tFacet->get_hmr_leader();
 
-                if( tMaster->is_refined() )
+                if( tLeader->is_refined() )
                 {
                     // reserve memory for children
                     tFacet->allocate_child_container( 4 );
 
-                    // get index on master
-                    switch( tFacet->get_index_on_master() )
+                    // get index on leader
+                    switch( tFacet->get_index_on_leader() )
                     {
                         case( 0 ) :
                         {
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 0 )->get_hmr_facet( 0 ), 0 );
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 1 )->get_hmr_facet( 0 ), 1 );
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 4 )->get_hmr_facet( 0 ), 2 );
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 5 )->get_hmr_facet( 0 ), 3 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 0 )->get_hmr_facet( 0 ), 0 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 1 )->get_hmr_facet( 0 ), 1 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 4 )->get_hmr_facet( 0 ), 2 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 5 )->get_hmr_facet( 0 ), 3 );
                             break;
                         }
                         case( 1 ) :
                         {
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 1 )->get_hmr_facet( 1 ), 0 );
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 3 )->get_hmr_facet( 1 ), 1 );
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 5 )->get_hmr_facet( 1 ), 2 );
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 7 )->get_hmr_facet( 1 ), 3 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 1 )->get_hmr_facet( 1 ), 0 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 3 )->get_hmr_facet( 1 ), 1 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 5 )->get_hmr_facet( 1 ), 2 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 7 )->get_hmr_facet( 1 ), 3 );
                             break;
                         }
                         case( 2 ) :
                         {
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 3 )->get_hmr_facet( 2 ), 0 );
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 2 )->get_hmr_facet( 2 ), 1 );
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 7 )->get_hmr_facet( 2 ), 2 );
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 6 )->get_hmr_facet( 2 ), 3 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 3 )->get_hmr_facet( 2 ), 0 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 2 )->get_hmr_facet( 2 ), 1 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 7 )->get_hmr_facet( 2 ), 2 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 6 )->get_hmr_facet( 2 ), 3 );
                             break;
                        }
                        case( 3 ) :
                        {
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 2 )->get_hmr_facet( 3 ), 0 );
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 0 )->get_hmr_facet( 3 ), 1 );
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 6 )->get_hmr_facet( 3 ), 2 );
-                            tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 4 )->get_hmr_facet( 3 ), 3 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 2 )->get_hmr_facet( 3 ), 0 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 0 )->get_hmr_facet( 3 ), 1 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 6 )->get_hmr_facet( 3 ), 2 );
+                            tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 4 )->get_hmr_facet( 3 ), 3 );
                             break;
                        }
                        case( 4 ) :
                        {
-                           tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 2 )->get_hmr_facet( 4 ), 0 );
-                           tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 3 )->get_hmr_facet( 4 ), 1 );
-                           tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 0 )->get_hmr_facet( 4 ), 2 );
-                           tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 1 )->get_hmr_facet( 4 ), 3 );
+                           tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 2 )->get_hmr_facet( 4 ), 0 );
+                           tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 3 )->get_hmr_facet( 4 ), 1 );
+                           tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 0 )->get_hmr_facet( 4 ), 2 );
+                           tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 1 )->get_hmr_facet( 4 ), 3 );
                            break;
                        }
                        case( 5 ) :
                        {
-                           tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 4 )->get_hmr_facet( 5 ), 0 );
-                           tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 5 )->get_hmr_facet( 5 ), 1 );
-                           tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 6 )->get_hmr_facet( 5 ), 2 );
-                           tFacet->insert_child( tMaster->get_child( mAllElementsOnProc, 7 )->get_hmr_facet( 5 ), 3 );
+                           tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 4 )->get_hmr_facet( 5 ), 0 );
+                           tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 5 )->get_hmr_facet( 5 ), 1 );
+                           tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 6 )->get_hmr_facet( 5 ), 2 );
+                           tFacet->insert_child( tLeader->get_child( mAllElementsOnProc, 7 )->get_hmr_facet( 5 ), 3 );
                            break;
                        }
                        default :
@@ -3260,7 +3260,7 @@ namespace moris
                 tFile << "LOOKUP_TABLE default" << std::endl;
                 for( Facet * tFacet : mFacets )
                 {
-                    tIChar = swap_byte_endian( (int) tFacet->get_hmr_master()
+                    tIChar = swap_byte_endian( (int) tFacet->get_hmr_leader()
                             ->get_background_element()->get_level() );
 
                     tFile.write( (char*) &tIChar, sizeof(int));
@@ -3478,29 +3478,29 @@ namespace moris
                 tFile << "LOOKUP_TABLE default" << std::endl;
                 for( Edge * tEdge : mEdges )
                 {
-                    tIChar = swap_byte_endian( (int) tEdge->get_hmr_master()
+                    tIChar = swap_byte_endian( (int) tEdge->get_hmr_leader()
                             ->get_background_element()->get_level() );
 
                     tFile.write( (char*) &tIChar, sizeof(int));
                 }
                 tFile << std::endl;
 
-                // write master
-                tFile << "SCALARS EDGE_MASTER int" << std::endl;
+                // write leader
+                tFile << "SCALARS EDGE_LEADER int" << std::endl;
                 tFile << "LOOKUP_TABLE default" << std::endl;
                 for( Edge * tEdge : mEdges )
                 {
-                    tIChar = swap_byte_endian( (int) tEdge->get_hmr_master()->get_hmr_id() );
+                    tIChar = swap_byte_endian( (int) tEdge->get_hmr_leader()->get_hmr_id() );
                     tFile.write( (char*) &tIChar, sizeof(int));
                 }
                 tFile << std::endl;
 
                 // write index
-                tFile << "SCALARS EDGE_INDEX_ON_MASTER int" << std::endl;
+                tFile << "SCALARS EDGE_INDEX_ON_LEADER int" << std::endl;
                 tFile << "LOOKUP_TABLE default" << std::endl;
                 for( Edge * tEdge : mEdges )
                 {
-                    tIChar = swap_byte_endian( (int) tEdge->get_index_on_master() );
+                    tIChar = swap_byte_endian( (int) tEdge->get_index_on_leader() );
                     tFile.write( (char*) &tIChar, sizeof(int));
                 }
                 tFile << std::endl;

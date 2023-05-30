@@ -30,9 +30,9 @@ fprintf('\nThe generated normal is: \n');
 print_matrix( Normal, 'tNormal' );
 
 % print the coefficients
-fprintf( '\nCoefficient vector for the master element: \n' );
+fprintf( '\nCoefficient vector for the leader element: \n' );
 print_matrix( UHatM, 'u_hat_M' );
-fprintf( '\nCoefficient vector for the slave element: \n' );
+fprintf( '\nCoefficient vector for the follower element: \n' );
 print_matrix( UHatS, 'u_hat_S' );
 
 % print the result

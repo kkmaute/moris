@@ -26,12 +26,12 @@ namespace moris
 
         SP_Nitsche_Interface::SP_Nitsche_Interface()
         {
-            // set has slave flag to true
-            mHasSlave = true;
+            // set has follower flag to true
+            mHasFollower = true;
 
             // set size for the property pointer cells
-            mMasterProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
-            mSlaveProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
+            mFollowerProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Material" ] = static_cast< uint >( SP_Property_Type::MATERIAL );
@@ -42,26 +42,26 @@ namespace moris
         moris::Cell< std::tuple<
         fem::Measure_Type,
         mtk::Primary_Void,
-        mtk::Master_Slave > > SP_Nitsche_Interface::get_cluster_measure_tuple_list()
+        mtk::Leader_Follower > > SP_Nitsche_Interface::get_cluster_measure_tuple_list()
         {
-            return { mMasterVolumeTuple, mSlaveVolumeTuple, mInterfaceSurfaceTuple };
+            return { mLeaderVolumeTuple, mFollowerVolumeTuple, mInterfaceSurfaceTuple };
         }
 
         //------------------------------------------------------------------------------
 
         void SP_Nitsche_Interface::eval_SP()
         {
-            // get master volume cluster measure value
-            real tMasterVolume = mCluster->get_cluster_measure(
-                    std::get<0>( mMasterVolumeTuple ),
-                    std::get<1>( mMasterVolumeTuple ),
-                    std::get<2>( mMasterVolumeTuple ) )->val()( 0 );
+            // get leader volume cluster measure value
+            real tLeaderVolume = mCluster->get_cluster_measure(
+                    std::get<0>( mLeaderVolumeTuple ),
+                    std::get<1>( mLeaderVolumeTuple ),
+                    std::get<2>( mLeaderVolumeTuple ) )->val()( 0 );
 
-            // get slave volume cluster measure value
-            real tSlaveVolume = mCluster->get_cluster_measure(
-                    std::get<0>( mSlaveVolumeTuple ),
-                    std::get<1>( mSlaveVolumeTuple ),
-                    std::get<2>( mSlaveVolumeTuple ) )->val()( 0 );
+            // get follower volume cluster measure value
+            real tFollowerVolume = mCluster->get_cluster_measure(
+                    std::get<0>( mFollowerVolumeTuple ),
+                    std::get<1>( mFollowerVolumeTuple ),
+                    std::get<2>( mFollowerVolumeTuple ) )->val()( 0 );
 
             // get interface surface cluster measure value
             real tInterfaceSurface = mCluster->get_cluster_measure(
@@ -72,164 +72,164 @@ namespace moris
             // init SP values
             mPPVal.set_size( 3, 1 );
 
-            // get the master/slave material property
-            const std::shared_ptr< Property > & tMasterPropMaterial =
-                    mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
-            const std::shared_ptr< Property > & tSlavePropMaterial =
-                    mSlaveProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
+            // get the leader/follower material property
+            const std::shared_ptr< Property > & tLeaderPropMaterial =
+                    mLeaderProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
+            const std::shared_ptr< Property > & tFollowerPropMaterial =
+                    mFollowerProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
-            // get the master/slave material property values
-            real tMasterMaterial = tMasterPropMaterial->val()( 0 );
-            real tSlaveMaterial  = tSlavePropMaterial->val()( 0 );
+            // get the leader/follower material property values
+            real tLeaderMaterial = tLeaderPropMaterial->val()( 0 );
+            real tFollowerMaterial  = tFollowerPropMaterial->val()( 0 );
 
             // compute the mean property value
-            real tDeno = ( tMasterVolume / tMasterMaterial ) + ( tSlaveVolume / tSlaveMaterial );
+            real tDeno = ( tLeaderVolume / tLeaderMaterial ) + ( tFollowerVolume / tFollowerMaterial );
 
             // compute Nitsche SP value
             mPPVal( 0 ) = 2.0 * mParameters( 0 )( 0 ) * tInterfaceSurface / tDeno;
 
-            // compute master weight SP value
-            mPPVal( 1 ) = ( tMasterVolume / tMasterMaterial ) / tDeno;
+            // compute leader weight SP value
+            mPPVal( 1 ) = ( tLeaderVolume / tLeaderMaterial ) / tDeno;
 
-            // compute slave weight SP value
-            mPPVal( 2 ) = ( tSlaveVolume / tSlaveMaterial ) / tDeno;
+            // compute follower weight SP value
+            mPPVal( 2 ) = ( tFollowerVolume / tFollowerMaterial ) / tDeno;
         }
 
         //------------------------------------------------------------------------------
 
-        void SP_Nitsche_Interface::eval_dSPdMasterDOF(
+        void SP_Nitsche_Interface::eval_dSPdLeaderDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
-            // get master volume cluster measure value
-            real tMasterVolume = mCluster->get_cluster_measure(
-                    std::get<0>( mMasterVolumeTuple ),
-                    std::get<1>( mMasterVolumeTuple ),
-                    std::get<2>( mMasterVolumeTuple ) )->val()( 0 );
+            // get leader volume cluster measure value
+            real tLeaderVolume = mCluster->get_cluster_measure(
+                    std::get<0>( mLeaderVolumeTuple ),
+                    std::get<1>( mLeaderVolumeTuple ),
+                    std::get<2>( mLeaderVolumeTuple ) )->val()( 0 );
 
-            // get slave volume cluster measure value
-            real tSlaveVolume = mCluster->get_cluster_measure(
-                    std::get<0>( mSlaveVolumeTuple ),
-                    std::get<1>( mSlaveVolumeTuple ),
-                    std::get<2>( mSlaveVolumeTuple ) )->val()( 0 );
+            // get follower volume cluster measure value
+            real tFollowerVolume = mCluster->get_cluster_measure(
+                    std::get<0>( mFollowerVolumeTuple ),
+                    std::get<1>( mFollowerVolumeTuple ),
+                    std::get<2>( mFollowerVolumeTuple ) )->val()( 0 );
 
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
 
             // get the dof type index
-            uint tDofIndex = mMasterGlobalDofTypeMap( tDofType );
+            uint tDofIndex = mLeaderGlobalDofTypeMap( tDofType );
 
             // get the derivative dof type FI
             Field_Interpolator * tFIDer =
-                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // reset the matrix
-            mdPPdMasterDof( tDofIndex ).set_size(
+            mdPPdLeaderDof( tDofIndex ).set_size(
                     3,
                     tFIDer->get_number_of_space_time_coefficients() );
 
-            // get the master/slave material property
-            const std::shared_ptr< Property > & tMasterPropMaterial =
-                    mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
-            const std::shared_ptr< Property > & tSlavePropMaterial =
-                    mSlaveProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
+            // get the leader/follower material property
+            const std::shared_ptr< Property > & tLeaderPropMaterial =
+                    mLeaderProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
+            const std::shared_ptr< Property > & tFollowerPropMaterial =
+                    mFollowerProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
-            // get the master/slave material property values
-            real tMasterMaterial = tMasterPropMaterial->val()( 0 );
-            real tSlaveMaterial  = tSlavePropMaterial->val()( 0 );
+            // get the leader/follower material property values
+            real tLeaderMaterial = tLeaderPropMaterial->val()( 0 );
+            real tFollowerMaterial  = tFollowerPropMaterial->val()( 0 );
 
             // compute the mean property value
-            real tDeno = ( tMasterVolume / tMasterMaterial ) + ( tSlaveVolume / tSlaveMaterial );
+            real tDeno = ( tLeaderVolume / tLeaderMaterial ) + ( tFollowerVolume / tFollowerMaterial );
 
-            // if master property depends on dof type
-            if ( tMasterPropMaterial->check_dof_dependency( aDofTypes ) )
+            // if leader property depends on dof type
+            if ( tLeaderPropMaterial->check_dof_dependency( aDofTypes ) )
             {
                 // compute Nitsche SP derivative
-                mdPPdMasterDof( tDofIndex ).get_row( 0 ) =
-                        this->val()( 0 ) * tMasterVolume * tMasterPropMaterial->dPropdDOF( aDofTypes ) /
-                        ( std::pow( tMasterMaterial, 2 ) * tDeno );
+                mdPPdLeaderDof( tDofIndex ).get_row( 0 ) =
+                        this->val()( 0 ) * tLeaderVolume * tLeaderPropMaterial->dPropdDOF( aDofTypes ) /
+                        ( std::pow( tLeaderMaterial, 2 ) * tDeno );
 
-                // compute master weight derivative
-                mdPPdMasterDof( tDofIndex ).get_row( 1 ) =
-                        - this->val()( 1 ) * tSlaveVolume * tMasterPropMaterial->dPropdDOF( aDofTypes ) /
-                        ( tMasterMaterial * tSlaveMaterial * tDeno );
+                // compute leader weight derivative
+                mdPPdLeaderDof( tDofIndex ).get_row( 1 ) =
+                        - this->val()( 1 ) * tFollowerVolume * tLeaderPropMaterial->dPropdDOF( aDofTypes ) /
+                        ( tLeaderMaterial * tFollowerMaterial * tDeno );
 
-                // compute slave weight derivative
-                mdPPdMasterDof( tDofIndex ).get_row( 2 ) =
-                        this->val()( 2 ) * tMasterVolume * tMasterPropMaterial->dPropdDOF( aDofTypes ) /
-                        ( std::pow( tMasterMaterial, 2 ) * tDeno );
+                // compute follower weight derivative
+                mdPPdLeaderDof( tDofIndex ).get_row( 2 ) =
+                        this->val()( 2 ) * tLeaderVolume * tLeaderPropMaterial->dPropdDOF( aDofTypes ) /
+                        ( std::pow( tLeaderMaterial, 2 ) * tDeno );
             }
             else
             {
-                mdPPdMasterDof( tDofIndex ).fill( 0.0 );
+                mdPPdLeaderDof( tDofIndex ).fill( 0.0 );
             }
         }
 
         //------------------------------------------------------------------------------
 
-        void SP_Nitsche_Interface::eval_dSPdSlaveDOF(
+        void SP_Nitsche_Interface::eval_dSPdFollowerDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
-            // get master volume cluster measure value
-            real tMasterVolume = mCluster->get_cluster_measure(
-                    std::get<0>( mMasterVolumeTuple ),
-                    std::get<1>( mMasterVolumeTuple ),
-                    std::get<2>( mMasterVolumeTuple ) )->val()( 0 );
+            // get leader volume cluster measure value
+            real tLeaderVolume = mCluster->get_cluster_measure(
+                    std::get<0>( mLeaderVolumeTuple ),
+                    std::get<1>( mLeaderVolumeTuple ),
+                    std::get<2>( mLeaderVolumeTuple ) )->val()( 0 );
 
-            // get slave volume cluster measure value
-            real tSlaveVolume = mCluster->get_cluster_measure(
-                    std::get<0>( mSlaveVolumeTuple ),
-                    std::get<1>( mSlaveVolumeTuple ),
-                    std::get<2>( mSlaveVolumeTuple ) )->val()( 0 );
+            // get follower volume cluster measure value
+            real tFollowerVolume = mCluster->get_cluster_measure(
+                    std::get<0>( mFollowerVolumeTuple ),
+                    std::get<1>( mFollowerVolumeTuple ),
+                    std::get<2>( mFollowerVolumeTuple ) )->val()( 0 );
 
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
 
             // get the dof type index
-            uint tDofIndex = mSlaveGlobalDofTypeMap( tDofType );
+            uint tDofIndex = mFollowerGlobalDofTypeMap( tDofType );
 
             // get the derivative dof type FI
             Field_Interpolator * tFIDer =
-                    mSlaveFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+                    mFollowerFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // reset the matrix
-            mdPPdSlaveDof( tDofIndex ).set_size(
+            mdPPdFollowerDof( tDofIndex ).set_size(
                     3,
                     tFIDer->get_number_of_space_time_coefficients() );
 
-            // get the master/slave material property
-            const std::shared_ptr< Property > & tMasterPropMaterial =
-                    mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
-            const std::shared_ptr< Property > & tSlavePropMaterial =
-                    mSlaveProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
+            // get the leader/follower material property
+            const std::shared_ptr< Property > & tLeaderPropMaterial =
+                    mLeaderProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
+            const std::shared_ptr< Property > & tFollowerPropMaterial =
+                    mFollowerProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
-            // get the master/slave material property values
-            real tMasterMaterial = tMasterPropMaterial->val()( 0 );
-            real tSlaveMaterial  = tSlavePropMaterial->val()( 0 );
+            // get the leader/follower material property values
+            real tLeaderMaterial = tLeaderPropMaterial->val()( 0 );
+            real tFollowerMaterial  = tFollowerPropMaterial->val()( 0 );
 
             // compute the mean property value
-            real tDeno = ( tMasterVolume / tMasterMaterial ) + ( tSlaveVolume / tSlaveMaterial );
+            real tDeno = ( tLeaderVolume / tLeaderMaterial ) + ( tFollowerVolume / tFollowerMaterial );
 
             // if indirect dependency on the dof type
-            if ( tSlavePropMaterial->check_dof_dependency( aDofTypes ) )
+            if ( tFollowerPropMaterial->check_dof_dependency( aDofTypes ) )
             {
                 // compute Nitsche SP derivative
-                mdPPdSlaveDof( tDofIndex ).get_row( 0 ) =
-                        this->val()( 0 ) * tSlaveVolume * tSlavePropMaterial->dPropdDOF( aDofTypes ) /
-                        ( std::pow( tSlaveMaterial, 2 ) * tDeno );
+                mdPPdFollowerDof( tDofIndex ).get_row( 0 ) =
+                        this->val()( 0 ) * tFollowerVolume * tFollowerPropMaterial->dPropdDOF( aDofTypes ) /
+                        ( std::pow( tFollowerMaterial, 2 ) * tDeno );
 
-                // compute master weight SP derivative
-                mdPPdSlaveDof( tDofIndex ).get_row( 1 ) =
-                        this->val()( 1 ) * tSlaveVolume * tSlavePropMaterial->dPropdDOF( aDofTypes ) /
-                        ( std::pow( tSlaveMaterial, 2 ) * tDeno );
+                // compute leader weight SP derivative
+                mdPPdFollowerDof( tDofIndex ).get_row( 1 ) =
+                        this->val()( 1 ) * tFollowerVolume * tFollowerPropMaterial->dPropdDOF( aDofTypes ) /
+                        ( std::pow( tFollowerMaterial, 2 ) * tDeno );
 
-                // compute slave weight SP derivative
-                mdPPdSlaveDof( tDofIndex ).get_row( 2 ) =
-                        - this->val()( 2 ) * tMasterVolume * tSlavePropMaterial->dPropdDOF( aDofTypes ) /
-                        ( tMasterMaterial * tSlaveMaterial * tDeno );
+                // compute follower weight SP derivative
+                mdPPdFollowerDof( tDofIndex ).get_row( 2 ) =
+                        - this->val()( 2 ) * tLeaderVolume * tFollowerPropMaterial->dPropdDOF( aDofTypes ) /
+                        ( tLeaderMaterial * tFollowerMaterial * tDeno );
             }
             else
             {
-                mdPPdSlaveDof( tDofIndex ).fill( 0.0 );
+                mdPPdFollowerDof( tDofIndex ).fill( 0.0 );
             }
         }
 

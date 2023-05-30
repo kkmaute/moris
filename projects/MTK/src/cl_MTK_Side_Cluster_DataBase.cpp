@@ -30,7 +30,7 @@ namespace moris::mtk
     // ----------------------------------------------------------------------------------
 
     bool
-    Side_Cluster_DataBase::is_trivial( const mtk::Master_Slave aIsMaster ) const
+    Side_Cluster_DataBase::is_trivial( const mtk::Leader_Follower aIsLeader ) const
     {
         return mMesh->cluster_is_trivial( ClusterType::SIDE_CLUSTER, mSideClusterIndex );
     }
@@ -38,7 +38,7 @@ namespace moris::mtk
     // ----------------------------------------------------------------------------------
 
     moris::mtk::Cell const&
-    Side_Cluster_DataBase::get_interpolation_cell( const mtk::Master_Slave aIsMaster ) const
+    Side_Cluster_DataBase::get_interpolation_cell( const mtk::Leader_Follower aIsLeader ) const
     {
         moris::mtk::Cell* tInterpolationCell = mMesh->get_ip_cell_in_cluster( ClusterType::SIDE_CLUSTER, mSideClusterIndex );
         return *tInterpolationCell;
@@ -55,7 +55,7 @@ namespace moris::mtk
     // ----------------------------------------------------------------------------------
 
     moris::Matrix< moris::IndexMat >
-    Side_Cluster_DataBase::get_cell_side_ordinals( const mtk::Master_Slave aIsMaster ) const
+    Side_Cluster_DataBase::get_cell_side_ordinals( const mtk::Leader_Follower aIsLeader ) const
     {
         // get the first side ord position and number of cells
         moris_index* tSideOrdinalPtr  = mMesh->get_side_ordinals_in_cluster( ClusterType::SIDE_CLUSTER, mSideClusterIndex );
@@ -71,7 +71,7 @@ namespace moris::mtk
 
     moris_index
     Side_Cluster_DataBase::get_cell_side_ordinal( moris::moris_index aCellIndexInCluster,
-        const mtk::Master_Slave                                      aIsMaster ) const
+        const mtk::Leader_Follower                                      aIsLeader ) const
     {
         // get the first side ordinal position
         moris_index* tSideOrdinalPtr = mMesh->get_side_ordinals_in_cluster( ClusterType::SIDE_CLUSTER, mSideClusterIndex );
@@ -82,7 +82,7 @@ namespace moris::mtk
     // ----------------------------------------------------------------------------------
 
     moris::Cell< moris::mtk::Vertex const* >
-    Side_Cluster_DataBase::get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
+    Side_Cluster_DataBase::get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader ) const
     {
         // initialize the output
         moris::Cell< moris::mtk::Vertex const* > tVerticesInCluster;
@@ -101,7 +101,7 @@ namespace moris::mtk
     // ----------------------------------------------------------------------------------
 
     moris::Matrix< moris::DDRMat >
-    Side_Cluster_DataBase::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster ) const
+    Side_Cluster_DataBase::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Leader_Follower aIsLeader ) const
     {
         // determine if the cluster is trivial
         bool tTrivial = mMesh->cluster_is_trivial( ClusterType::SIDE_CLUSTER, mSideClusterIndex );
@@ -157,7 +157,7 @@ namespace moris::mtk
     moris::Matrix< moris::DDRMat >
     Side_Cluster_DataBase::get_vertex_local_coordinate_wrt_interp_cell( 
         moris::mtk::Vertex const* aVertex,
-        const mtk::Master_Slave   aIsMaster ) const
+        const mtk::Leader_Follower   aIsLeader ) const
     {
         // determine if the cluster is trivial
         bool tTrivial = mMesh->cluster_is_trivial( ClusterType::SIDE_CLUSTER, mSideClusterIndex );
@@ -170,7 +170,7 @@ namespace moris::mtk
             {
                 mtk::Cell_Cluster const* tAssociatedCellCluster = mMesh->get_associated_cell_cluster( mSideClusterIndex );
 
-                return tAssociatedCellCluster->get_vertex_local_coordinate_wrt_interp_cell( aVertex, aIsMaster );
+                return tAssociatedCellCluster->get_vertex_local_coordinate_wrt_interp_cell( aVertex, aIsLeader );
             }
 
             // if it is a ghost
@@ -219,7 +219,7 @@ namespace moris::mtk
     // ----------------------------------------------------------------------------------
 
     moris_index
-    Side_Cluster_DataBase::get_dim_of_param_coord( const mtk::Master_Slave aIsMaster ) const
+    Side_Cluster_DataBase::get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader ) const
     {
         return (moris_index)mMesh->get_spatial_dim();
     }
@@ -245,7 +245,7 @@ namespace moris::mtk
 
     moris_index
     Side_Cluster_DataBase::get_vertex_cluster_index( const Vertex* aVertex,
-        const mtk::Master_Slave                                    aIsMaster ) const
+        const mtk::Leader_Follower                                    aIsLeader ) const
     {
         auto tVertexOrdinalFinder = [aVertex]( mtk::Vertex* aVertices ) { return aVertices->get_index() == aVertex->get_index(); };
 
@@ -303,13 +303,13 @@ namespace moris::mtk
     moris::real
     Side_Cluster_DataBase::compute_cluster_cell_measure(
         const mtk::Primary_Void aPrimaryOrVoid,
-        const mtk::Master_Slave aIsMaster ) const
+        const mtk::Leader_Follower aIsLeader ) const
     {
         if ( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY || aPrimaryOrVoid == mtk::Primary_Void::VOID )
         {
             mtk::Cell_Cluster const* tAssociatedCellCluster = mMesh->get_associated_cell_cluster( mSideClusterIndex );
 
-            return tAssociatedCellCluster->compute_cluster_cell_measure( aPrimaryOrVoid, aIsMaster );
+            return tAssociatedCellCluster->compute_cluster_cell_measure( aPrimaryOrVoid, aIsLeader );
         }
         else
         {
@@ -322,13 +322,13 @@ namespace moris::mtk
     Matrix< DDRMat >
     Side_Cluster_DataBase::compute_cluster_ig_cell_measures(
         const mtk::Primary_Void aPrimaryOrVoid,
-        const mtk::Master_Slave aIsMaster ) const
+        const mtk::Leader_Follower aIsLeader ) const
     {
         if ( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY || aPrimaryOrVoid == mtk::Primary_Void::VOID )
         {
             mtk::Cell_Cluster const* tAssociatedCellCluster = mMesh->get_associated_cell_cluster( mSideClusterIndex );
 
-            return tAssociatedCellCluster->compute_cluster_ig_cell_measures( aPrimaryOrVoid, aIsMaster );
+            return tAssociatedCellCluster->compute_cluster_ig_cell_measures( aPrimaryOrVoid, aIsLeader );
         }
         else
         {
@@ -343,7 +343,7 @@ namespace moris::mtk
         const Matrix< DDRMat >& aPerturbedVertexCoords,
         uint                    aDirection,
         const mtk::Primary_Void aPrimaryOrVoid,
-        const mtk::Master_Slave aIsMaster ) const
+        const mtk::Leader_Follower aIsLeader ) const
     {
         if ( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY || aPrimaryOrVoid == mtk::Primary_Void::VOID )
         {
@@ -353,7 +353,7 @@ namespace moris::mtk
                 aPerturbedVertexCoords,
                 aDirection,
                 aPrimaryOrVoid,
-                aIsMaster );
+                aIsLeader );
         }
         else
         {

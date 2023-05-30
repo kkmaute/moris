@@ -223,9 +223,9 @@ TEST_CASE("Element_Time_Sideset","[INT],[Element_Time_Sideset]")
 
         std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::TIME_CONTINUITY_DOF );
         tIWG->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-        tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-        tIWG->set_property( tPropWeightCurrent, "WeightCurrent", mtk::Master_Slave::MASTER );
-        tIWG->set_property( tPropWeightPrevious, "WeightPrevious", mtk::Master_Slave::MASTER );
+        tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Leader_Follower::LEADER );
+        tIWG->set_property( tPropWeightCurrent, "WeightCurrent", mtk::Leader_Follower::LEADER );
+        tIWG->set_property( tPropWeightPrevious, "WeightPrevious", mtk::Leader_Follower::LEADER );
 
         // define set info
         moris::Cell< fem::Set_User_Info > tSetInfo( 1 );
@@ -303,8 +303,8 @@ TEST_CASE("Element_Time_Sideset","[INT],[Element_Time_Sideset]")
         tIWG->get_global_dof_type_list();
         tIWG->get_global_dv_type_list();
 
-        // populate the requested master dof type
-        tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
+        // populate the requested leader dof type
+        tIWG->mRequestedLeaderGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
 
         // init residual
         tWorkSet->mResidual.resize( 1 );
@@ -480,24 +480,24 @@ TEST_CASE("Element_Time_Sideset_2","[INT],[Element_Time_Sideset_2]")
         tCMDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
         tCMDiffLinIso->set_property( tPropConductivity, "Conductivity" );
         tCMDiffLinIso->set_space_dim( 2 );
-        tCMMasterDiffLinIso->set_local_properties();
+        tCMLeaderDiffLinIso->set_local_properties();
 
         // define an IWG
         fem::IWG_Factory tIWGFactory;
 
         std::shared_ptr< fem::IWG > tIWGTime = tIWGFactory.create_IWG( fem::IWG_Type::TIME_CONTINUITY_DOF );
         tIWGTime->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-        tIWGTime->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
-        tIWGTime->set_property( tPropWeightCurrent, "WeightCurrent", mtk::Master_Slave::MASTER );
-        tIWGTime->set_property( tPropWeightPrevious, "WeightPrevious", mtk::Master_Slave::MASTER );
-        tIWGTime->set_property( tPropInitCond, "InitialCondition", mtk::Master_Slave::MASTER );
+        tIWGTime->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Leader_Follower::LEADER );
+        tIWGTime->set_property( tPropWeightCurrent, "WeightCurrent", mtk::Leader_Follower::LEADER );
+        tIWGTime->set_property( tPropWeightPrevious, "WeightPrevious", mtk::Leader_Follower::LEADER );
+        tIWGTime->set_property( tPropInitCond, "InitialCondition", mtk::Leader_Follower::LEADER );
 
         std::shared_ptr< fem::IWG > tIWGDiffusion = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGDiffusion->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-        tIWGDiffusion->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
-        tIWGDiffusion->set_constitutive_model( tCMDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
-        tIWGDiffusion->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
-        tIWGDiffusion->set_property( tPropHeatCapacity, "HeatCapacity", mtk::Master_Slave::MASTER );
+        tIWGDiffusion->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Leader_Follower::LEADER );
+        tIWGDiffusion->set_constitutive_model( tCMDiffLinIso, "Diffusion", mtk::Leader_Follower::LEADER );
+        tIWGDiffusion->set_property( tPropDensity, "Density", mtk::Leader_Follower::LEADER );
+        tIWGDiffusion->set_property( tPropHeatCapacity, "HeatCapacity", mtk::Leader_Follower::LEADER );
 
         // define set info
         moris::Cell< fem::Set_User_Info > tSetInfo( 2 );
@@ -593,8 +593,8 @@ TEST_CASE("Element_Time_Sideset_2","[INT],[Element_Time_Sideset_2]")
         tIWGTime->get_global_dof_type_list();
         tIWGTime->get_global_dv_type_list();
 
-        // populate the requested master dof type
-        tIWGTime->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
+        // populate the requested leader dof type
+        tIWGTime->mRequestedLeaderGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
 
         // init residual
         tWorkSet0->mResidual.resize( 1 );
@@ -622,8 +622,8 @@ TEST_CASE("Element_Time_Sideset_2","[INT],[Element_Time_Sideset_2]")
         tIWGDiffusion->get_global_dof_type_list();
         tIWGDiffusion->get_global_dv_type_list();
 
-        // populate the requested master dof type
-        tIWGDiffusion->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
+        // populate the requested leader dof type
+        tIWGDiffusion->mRequestedLeaderGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
 
         // init residual
         tWorkSet1->mResidual.resize( 1 );

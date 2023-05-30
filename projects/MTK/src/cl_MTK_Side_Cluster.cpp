@@ -32,7 +32,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::Cell<mtk::Cell const *> const &
-        Side_Cluster::get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster ) const
+        Side_Cluster::get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader ) const
         {
             return this->get_cells_in_side_cluster();
         }
@@ -42,7 +42,7 @@ namespace moris
         moris::real
         Side_Cluster::compute_cluster_cell_measure(
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster     ) const
+                const mtk::Leader_Follower aIsLeader     ) const
         {
             moris::real tVolume = 0.0;
 
@@ -70,7 +70,7 @@ namespace moris
         Matrix<DDRMat>
         Side_Cluster::compute_cluster_ig_cell_measures(
                 const mtk::Primary_Void  aPrimaryOrVoid,
-                const mtk::Master_Slave  aIsMaster     ) const
+                const mtk::Leader_Follower  aIsLeader     ) const
         {
             moris::Cell<moris::mtk::Cell const *> const* tCells = nullptr;
 
@@ -100,7 +100,7 @@ namespace moris
                 const Matrix< DDRMat > & aPerturbedVertexCoords,
                 uint aDirection,
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
             moris::real tDerivative = 0.0;
 
@@ -168,7 +168,7 @@ namespace moris
         moris::real
         Side_Cluster::compute_cluster_cell_side_measure(
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster     ) const
+                const mtk::Leader_Follower aIsLeader     ) const
         {
             MORIS_ASSERT(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY,
                     "Side cluster only operates on primary cells.");
@@ -177,7 +177,7 @@ namespace moris
 
             moris::Cell<mtk::Cell const *> const & tCells = this->get_primary_cells_in_cluster();
 
-            moris::Matrix<IndexMat> tSideOrds = this->get_cell_side_ordinals(aIsMaster);
+            moris::Matrix<IndexMat> tSideOrds = this->get_cell_side_ordinals(aIsLeader);
 
             for(moris::uint iC = 0 ; iC < tCells.size(); iC++)
             {
@@ -192,7 +192,7 @@ namespace moris
         Matrix<DDRMat>
         Side_Cluster::compute_cluster_ig_cell_side_measures(
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster     ) const
+                const mtk::Leader_Follower aIsLeader     ) const
         {
             MORIS_ASSERT(aPrimaryOrVoid == mtk::Primary_Void::PRIMARY,
                     "Side cluster only operates on primary cells.");
@@ -201,7 +201,7 @@ namespace moris
 
             Matrix<DDRMat> tMeasureVec(tCells.size(),1);
 
-            moris::Matrix<IndexMat> tSideOrds = this->get_cell_side_ordinals(aIsMaster);
+            moris::Matrix<IndexMat> tSideOrds = this->get_cell_side_ordinals(aIsLeader);
 
             for(moris::uint iC = 0 ; iC < tCells.size(); iC++)
             {
@@ -218,13 +218,13 @@ namespace moris
                 const Matrix< DDRMat > & aPerturbedVertexCoords,
                 uint aDirection,
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
             moris::real tDerivative = 0.0;
 
             moris::Cell<mtk::Cell const *> const & tCells = this->get_primary_cells_in_cluster();
 
-            moris::Matrix<IndexMat> tSideOrds = this->get_cell_side_ordinals(aIsMaster);
+            moris::Matrix<IndexMat> tSideOrds = this->get_cell_side_ordinals(aIsLeader);
 
             // loop over the ig cells in cluster
             for( moris::uint iC = 0 ; iC < tCells.size(); iC++ )
@@ -396,7 +396,7 @@ namespace moris
         moris::Matrix<moris::DDRMat>
         Side_Cluster::get_cell_local_coords_on_side_wrt_interp_cell(
                 moris::moris_index      aClusterLocalIndex,
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
             MORIS_ASSERT(aClusterLocalIndex < (moris_index)this->get_num_sides_in_cluster(),
                     "Integration Cell Cluster index out of bounds");
@@ -432,7 +432,7 @@ namespace moris
         moris::Matrix<moris::DDRMat>
         Side_Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell(
                 moris::moris_index      aPrimaryCellClusterIndex,
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
             return this ->get_cell_local_coords_on_side_wrt_interp_cell( aPrimaryCellClusterIndex );
         }

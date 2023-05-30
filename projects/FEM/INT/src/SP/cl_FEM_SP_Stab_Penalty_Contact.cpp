@@ -26,8 +26,8 @@ namespace moris
         SP_Stab_Penalty_Contact::SP_Stab_Penalty_Contact()
         {
             // set size for the property pointer cells
-            mMasterProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
-            mSlaveProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
+            mFollowerProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
         }
 
         //------------------------------------------------------------------------------

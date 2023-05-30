@@ -44,11 +44,11 @@ namespace moris
             // space interpolation order for IG cells
             mtk::Interpolation_Order mIGSpaceInterpolationOrder;
 
-            bool mIsTrivialMaster = false;
-            bool mIsTrivialSlave = false;
+            bool mIsTrivialLeader = false;
+            bool mIsTrivialFollower = false;
 
-            bool mMasterLock = false;
-            bool mSlaveLock = false;
+            bool mLeaderLock = false;
+            bool mFollowerLock = false;
 
             moris_index mSetIndex = MORIS_INDEX_MAX;
 
@@ -211,32 +211,32 @@ namespace moris
              * return a label that describes the block
              */
 
-            bool is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER )
+            bool is_trivial( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER )
             {
-                if ( !mMasterLock && aIsMaster == mtk::Master_Slave::MASTER )
+                if ( !mLeaderLock && aIsLeader == mtk::Leader_Follower::LEADER )
                 {
-                    this->communicate_is_trivial_flag( aIsMaster );
+                    this->communicate_is_trivial_flag( aIsLeader );
 
-                    mMasterLock = true;
+                    mLeaderLock = true;
                 }
-                else if ( !mSlaveLock && aIsMaster == mtk::Master_Slave::SLAVE )
+                else if ( !mFollowerLock && aIsLeader == mtk::Leader_Follower::FOLLOWER )
                 {
-                    this->communicate_is_trivial_flag( aIsMaster );
+                    this->communicate_is_trivial_flag( aIsLeader );
 
-                    mSlaveLock = true;
+                    mFollowerLock = true;
                 }
 
-                if ( aIsMaster == mtk::Master_Slave::MASTER )
+                if ( aIsLeader == mtk::Leader_Follower::LEADER )
                 {
-                    return mIsTrivialMaster;
+                    return mIsTrivialLeader;
                 }
-                else if ( aIsMaster == mtk::Master_Slave::SLAVE )
+                else if ( aIsLeader == mtk::Leader_Follower::FOLLOWER )
                 {
-                    return mIsTrivialSlave;
+                    return mIsTrivialFollower;
                 }
                 else
                 {
-                    MORIS_ASSERT( false, " is_trivial(); undefined type. has to be master or slave");
+                    MORIS_ASSERT( false, " is_trivial(); undefined type. has to be leader or follower");
 
                     return false;
                 }
@@ -456,10 +456,10 @@ namespace moris
                 tTotalSize += sizeof( mIPGeometryType );
                 tTotalSize += sizeof( mIPSpaceInterpolationOrder );
                 tTotalSize += sizeof( mIGSpaceInterpolationOrder );
-                tTotalSize += sizeof( mIsTrivialMaster );
-                tTotalSize += sizeof( mIsTrivialSlave );
-                tTotalSize += sizeof( mMasterLock );
-                tTotalSize += sizeof( mSlaveLock );
+                tTotalSize += sizeof( mIsTrivialLeader );
+                tTotalSize += sizeof( mIsTrivialFollower );
+                tTotalSize += sizeof( mLeaderLock );
+                tTotalSize += sizeof( mFollowerLock );
                 tTotalSize += sizeof( mSetIndex );
                 tTotalSize += sizeof( mIGCellShape );
                 tTotalSize += sizeof( mCellTopology );
@@ -509,10 +509,10 @@ namespace moris
                 if( mSetClusters.size() > 0 )
                 {
                     // interpolation order for IP cells fixme
-                    tIPInterpolationOrder = mSetClusters( 0 )->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_interpolation_order();
+                    tIPInterpolationOrder = mSetClusters( 0 )->get_interpolation_cell( mtk::Leader_Follower::LEADER ).get_interpolation_order();
 
                     // get list of primary IG cells in cluster
-                    moris::Cell< mtk::Cell const* > const& tPrimaryIgCellsInCluster = mSetClusters( 0 )->get_primary_cells_in_cluster( mtk::Master_Slave::MASTER );
+                    moris::Cell< mtk::Cell const* > const& tPrimaryIgCellsInCluster = mSetClusters( 0 )->get_primary_cells_in_cluster( mtk::Leader_Follower::LEADER );
 
                     // set interpolation order for IG cells fixme
                     if( tPrimaryIgCellsInCluster.size() > 0 )
@@ -538,25 +538,25 @@ namespace moris
             //------------------------------------------------------------------------------
 
             // FIXME should be user-defined in FEM
-            void communicate_is_trivial_flag( const mtk::Master_Slave aIsMaster )
+            void communicate_is_trivial_flag( const mtk::Leader_Follower aIsLeader )
             {
                 sint tIsTrivial = 1;
 
                 if( mSetClusters.size() > 0 )
                 {
                     // set the integration geometry type
-                    tIsTrivial = (sint)mSetClusters( 0 )->is_trivial( aIsMaster ); //FIXME change for double sided set
+                    tIsTrivial = (sint)mSetClusters( 0 )->is_trivial( aIsLeader ); //FIXME change for double sided set
                 }
 
                 sint tIsTrivialMax = max_all( tIsTrivial );
 
-                if( tIsTrivialMax == 1 && aIsMaster == mtk::Master_Slave::MASTER )
+                if( tIsTrivialMax == 1 && aIsLeader == mtk::Leader_Follower::LEADER )
                 {
-                    mIsTrivialMaster = true;
+                    mIsTrivialLeader = true;
                 }
-                else if( tIsTrivialMax == 1 && aIsMaster == mtk::Master_Slave::SLAVE )
+                else if( tIsTrivialMax == 1 && aIsLeader == mtk::Leader_Follower::FOLLOWER )
                 {
-                    mIsTrivialSlave = true;
+                    mIsTrivialFollower = true;
                 }
             };
         };

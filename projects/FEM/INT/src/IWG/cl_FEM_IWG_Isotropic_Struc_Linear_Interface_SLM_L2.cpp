@@ -25,13 +25,13 @@ namespace moris
     	IWG_Isotropic_Struc_Linear_Interface_SLM_L2::IWG_Isotropic_Struc_Linear_Interface_SLM_L2()
         {
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Normal" ] = static_cast< uint >( IWG_Property_Type::NORMAL );
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
@@ -43,29 +43,29 @@ namespace moris
         void IWG_Isotropic_Struc_Linear_Interface_SLM_L2::compute_residual( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators, properties and constitutive models
+            // check leader field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type (here displacement), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type (here displacement), indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get field interpolator for dof type
-            Field_Interpolator* tFILambda = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator* tFILambda = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the property immitating normal
             const std::shared_ptr< Property > & tPropNormal =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::NORMAL ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::NORMAL ) );
 
             // get elasticity CM
             const std::shared_ptr< Constitutive_Model > & tCMElasticity =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // get sub-matrix
             auto tRes = mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex } );
+                    { tLeaderResStartIndex, tLeaderResStopIndex } );
 
             // compute the residual
             tRes -= aWStar * tFILambda->N_trans() * ( tFILambda->val() - tCMElasticity->traction( tPropNormal->val() ) );
@@ -79,44 +79,44 @@ namespace moris
         void IWG_Isotropic_Struc_Linear_Interface_SLM_L2::compute_jacobian( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators, properties and constitutive models
+            // check leader field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type (here displacement), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type (here displacement), indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get field interpolator for dof type
-            Field_Interpolator* tFILambda = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+            Field_Interpolator* tFILambda = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the property immitating normal
             const std::shared_ptr< Property > & tPropNormal =
-            		mMasterProp( static_cast< uint >( IWG_Property_Type::NORMAL ) );
+            		mLeaderProp( static_cast< uint >( IWG_Property_Type::NORMAL ) );
 
             // get elasticity CM
             const std::shared_ptr< Constitutive_Model > & tCMElasticity =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
-            // get the number of master dof dependencies
-            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+            // get the number of leader dof dependencies
+            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
-            // loop over the master dof dependencies
+            // loop over the leader dof dependencies
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                const Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
-                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 0 );
+                uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
 
                 // get sub-matrix
                 auto tJac = mSet->get_jacobian()(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } );
+                        { tLeaderResStartIndex, tLeaderResStopIndex },
+                        { tLeaderDepStartIndex, tLeaderDepStopIndex } );
 
                 // if constitutive model depends on the dof type
                 if ( tDofType( 0 ) == MSI::Dof_Type::VX )

@@ -41,8 +41,8 @@ namespace moris
 
           private:
             // default dof type
-            MSI::Dof_Type mMasterDofScalarField = MSI::Dof_Type::TEMP;
-            MSI::Dof_Type mMasterDofVelocity    = MSI::Dof_Type::VX;
+            MSI::Dof_Type mLeaderDofScalarField = MSI::Dof_Type::TEMP;
+            MSI::Dof_Type mLeaderDofVelocity    = MSI::Dof_Type::VX;
 
             // property type for the SP
             enum class Property_Type
@@ -63,11 +63,11 @@ namespace moris
 
             // flag for evaluation
             bool                    mLengthScaleEval = true;
-            moris::Matrix< DDBMat > mdLengthScaledMasterDofEval;
+            moris::Matrix< DDBMat > mdLengthScaledLeaderDofEval;
 
             // storage
             real                            mLengthScale;
-            moris::Cell< Matrix< DDRMat > > mdLengthScaledMasterDof;
+            moris::Cell< Matrix< DDRMat > > mdLengthScaledLeaderDof;
 
             /*
              * Rem: mParameters
@@ -132,12 +132,12 @@ namespace moris
              * set dof types
              * @param[ in ] aDofTypes a cell of cell of dof types
              * @param[ in ] aDofStrings list of strings describing the dof types
-             * @param[ in ] aIsMaster enum for master or slave
+             * @param[ in ] aIsLeader enum for leader or follower
              */
             void set_dof_type_list(
                     moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
                     moris::Cell< std::string >&                  aDofStrings,
-                    mtk::Master_Slave                            aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower                            aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
@@ -151,15 +151,15 @@ namespace moris
              * set dv types
              * @param[ in ] aDvTypes   a cell of group of dv types
              * @param[ in ] aDvStrings list of strings describing the dv types
-             * @param[ in ] aIsMaster enum for master or slave
+             * @param[ in ] aIsLeader enum for leader or follower
              */
             void
             set_dv_type_list(
                     moris::Cell< moris::Cell< PDV_Type > >& aDvTypes,
                     moris::Cell< std::string >&             aDvStrings,
-                    mtk::Master_Slave                       aIsMaster = mtk::Master_Slave::MASTER )
+                    mtk::Leader_Follower                       aIsLeader = mtk::Leader_Follower::LEADER )
             {
-                Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsMaster );
+                Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsLeader );
             }
 
             //------------------------------------------------------------------------------
@@ -170,20 +170,20 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
-             * evaluate the stabilization parameter derivative wrt to a master dof type
+             * evaluate the stabilization parameter derivative wrt to a leader dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dSPdLeaderDOF( const moris::Cell< MSI::Dof_Type >& aDofTypes );
 
             //------------------------------------------------------------------------------
             /**
-             * evaluate the penalty parameter derivative wrt to a master dv type
+             * evaluate the penalty parameter derivative wrt to a leader dv type
              * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
              */
             void
-            eval_dSPdMasterDV( const moris::Cell< PDV_Type >& aDvTypes )
+            eval_dSPdLeaderDV( const moris::Cell< PDV_Type >& aDvTypes )
             {
-                MORIS_ERROR( false, "SP_SUPG_Advection::eval_dSPdMasterDV - not implemented." );
+                MORIS_ERROR( false, "SP_SUPG_Advection::eval_dSPdLeaderDV - not implemented." );
             }
 
           private:
@@ -201,16 +201,16 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
-             * return the length scale derivative wrt to a master dof type
+             * return the length scale derivative wrt to a leader dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            const Matrix< DDRMat >& dlengthscaledmasteru( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            const Matrix< DDRMat >& dlengthscaledleaderu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
 
             /**
-             * evaluate the length scale derivative wrt to a master dof type
+             * evaluate the length scale derivative wrt to a leader dof type
              * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
              */
-            void eval_dlengthscaledmasteru( const moris::Cell< MSI::Dof_Type >& aDofTypes );
+            void eval_dlengthscaledleaderu( const moris::Cell< MSI::Dof_Type >& aDofTypes );
 
             //------------------------------------------------------------------------------
         };

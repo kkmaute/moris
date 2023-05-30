@@ -103,26 +103,26 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Symmetric_Nitsche",
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
+    tCMLeaderTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
 
-    tCMMasterTurbulence->set_property( tPropViscosity,     "Viscosity" );
-    tCMMasterTurbulence->set_property( tPropKinViscosity,  "KinViscosity" );
-    tCMMasterTurbulence->set_property( tPropDensity,       "Density" );
+    tCMLeaderTurbulence->set_property( tPropViscosity,     "Viscosity" );
+    tCMLeaderTurbulence->set_property( tPropKinViscosity,  "KinViscosity" );
+    tCMLeaderTurbulence->set_property( tPropDensity,       "Density" );
 
-    tCMMasterTurbulence->set_local_properties();
+    tCMLeaderTurbulence->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_SLIPBOUNDARY_NITSCHE );
-    tSPNitsche->set_dof_type_list( { tVelDofTypes }, mtk::Master_Slave::MASTER );
+    tSPNitsche->set_dof_type_list( { tVelDofTypes }, mtk::Leader_Follower::LEADER );
 
-    tSPNitsche->set_property( tPropDensity,    "Density",    mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropViscosity,  "Viscosity",  mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropSlipLength, "SlipLength", mtk::Master_Slave::MASTER );
+    tSPNitsche->set_property( tPropDensity,    "Density",    mtk::Leader_Follower::LEADER );
+    tSPNitsche->set_property( tPropViscosity,  "Viscosity",  mtk::Leader_Follower::LEADER );
+    tSPNitsche->set_property( tPropSlipLength, "SlipLength", mtk::Leader_Follower::LEADER );
 
     tSPNitsche->set_parameters( { {{100.0 }}, {{ 1.0 }}, {{10.0}} } );
 
@@ -136,13 +136,13 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Symmetric_Nitsche",
     std::shared_ptr< fem::IWG > tIWGVelocity =
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_SLIPBOUNDARY_SYMMETRIC_NITSCHE );
     tIWGVelocity->set_residual_dof_type( tVelDofTypes );
-    tIWGVelocity->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes }, mtk::Master_Slave::MASTER );
+    tIWGVelocity->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes }, mtk::Leader_Follower::LEADER );
 
     tIWGVelocity->set_property( tPropVelocity,   "Dirichlet"  );
     tIWGVelocity->set_property( tPropTraction,   "Traction"   );
     tIWGVelocity->set_property( tPropSlipLength, "SlipLength" );
 
-    tIWGVelocity->set_constitutive_model( tCMMasterTurbulence, "IncompressibleFluid" );
+    tIWGVelocity->set_constitutive_model( tCMLeaderTurbulence, "IncompressibleFluid" );
     tIWGVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
     // set a fem set pointer
@@ -159,14 +159,14 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Symmetric_Nitsche",
     tIWGVelocity->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
     tIWGVelocity->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
-    // set size and populate the set master dof type map
-    tIWGVelocity->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWGVelocity->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tIWGVelocity->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
-    tIWGVelocity->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    // set size and populate the set leader dof type map
+    tIWGVelocity->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWGVelocity->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+    tIWGVelocity->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+    tIWGVelocity->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
     // build global dof type list
-    tCMMasterTurbulence->get_global_dof_type_list();
+    tCMLeaderTurbulence->get_global_dof_type_list();
     tSPNitsche->get_global_dof_type_list();
     tIWGVelocity->get_global_dof_type_list();
 
@@ -256,7 +256,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Symmetric_Nitsche",
         tPropVelocity->set_parameters( { tVelocity } );
         tPropTraction->set_parameters( { tTraction } );
 
-        tCMMasterTurbulence->set_space_dim( iSpaceDim );
+        tCMLeaderTurbulence->set_space_dim( iSpaceDim );
         tSPNitsche->set_space_dim( iSpaceDim );
 
         // set the normal
@@ -307,28 +307,28 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Symmetric_Nitsche",
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill random coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatP;
-            fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatVis;
-            fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
+            // fill random coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatP;
+            fill_phat( tLeaderDOFHatP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatVis;
+            fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatP );
 
             // create the field interpolator viscosity
-            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
-            tMasterFIs( 2 )->set_coeff( tMasterDOFHatVis );
+            tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatVis );
 
             // set size and fill the set residual assembly map
             tIWGVelocity->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -352,8 +352,8 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Symmetric_Nitsche",
             tIWGVelocity->mSet->mResidual( 0 ).set_size( tNumDofVel + tNumDofP + tNumDofVis, 1, 0.0 );
             tIWGVelocity->mSet->mJacobian.set_size( tNumDofVel + tNumDofP + tNumDofVis, tNumDofVel + tNumDofP + tNumDofVis, 0.0 );
 
-            // populate the requested master dof type
-            tIWGVelocity->mRequestedMasterGlobalDofTypes = tDofTypes;
+            // populate the requested leader dof type
+            tIWGVelocity->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
@@ -361,12 +361,12 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Symmetric_Nitsche",
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWGVelocity->mSet->mMasterFIManager = &tFIManager;
+            tIWGVelocity->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIWGVelocity->set_field_interpolator_manager( &tFIManager );
@@ -381,7 +381,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Symmetric_Nitsche",
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWGVelocity->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIWGVelocity->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -420,7 +420,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Symmetric_Nitsche",
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }/*END_TEST_CASE*/
@@ -488,26 +488,26 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Unsymmetric_Nitsche",
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
+    tCMLeaderTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
 
-    tCMMasterTurbulence->set_property( tPropViscosity,     "Viscosity" );
-    tCMMasterTurbulence->set_property( tPropKinViscosity,  "KinViscosity" );
-    tCMMasterTurbulence->set_property( tPropDensity,       "Density" );
+    tCMLeaderTurbulence->set_property( tPropViscosity,     "Viscosity" );
+    tCMLeaderTurbulence->set_property( tPropKinViscosity,  "KinViscosity" );
+    tCMLeaderTurbulence->set_property( tPropDensity,       "Density" );
 
-    tCMMasterTurbulence->set_local_properties();
+    tCMLeaderTurbulence->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_SLIPBOUNDARY_NITSCHE );
-    tSPNitsche->set_dof_type_list( { tVelDofTypes }, mtk::Master_Slave::MASTER );
+    tSPNitsche->set_dof_type_list( { tVelDofTypes }, mtk::Leader_Follower::LEADER );
 
-    tSPNitsche->set_property( tPropDensity,    "Density",    mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropViscosity,  "Viscosity",  mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropSlipLength, "SlipLength", mtk::Master_Slave::MASTER );
+    tSPNitsche->set_property( tPropDensity,    "Density",    mtk::Leader_Follower::LEADER );
+    tSPNitsche->set_property( tPropViscosity,  "Viscosity",  mtk::Leader_Follower::LEADER );
+    tSPNitsche->set_property( tPropSlipLength, "SlipLength", mtk::Leader_Follower::LEADER );
 
     tSPNitsche->set_parameters( { {{100.0 }}, {{ 1.0 }}, {{10.0}} } );
 
@@ -521,13 +521,13 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Unsymmetric_Nitsche",
     std::shared_ptr< fem::IWG > tIWGVelocity =
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_SLIPBOUNDARY_UNSYMMETRIC_NITSCHE );
     tIWGVelocity->set_residual_dof_type( tVelDofTypes );
-    tIWGVelocity->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes }, mtk::Master_Slave::MASTER );
+    tIWGVelocity->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes }, mtk::Leader_Follower::LEADER );
 
     tIWGVelocity->set_property( tPropVelocity,   "Dirichlet"  );
     tIWGVelocity->set_property( tPropTraction,   "Traction"   );
     tIWGVelocity->set_property( tPropSlipLength, "SlipLength" );
 
-    tIWGVelocity->set_constitutive_model( tCMMasterTurbulence, "IncompressibleFluid" );
+    tIWGVelocity->set_constitutive_model( tCMLeaderTurbulence, "IncompressibleFluid" );
     tIWGVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
 
     // set a fem set pointer
@@ -544,11 +544,11 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Unsymmetric_Nitsche",
     tIWGVelocity->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
     tIWGVelocity->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
-    // set size and populate the set master dof type map
-    tIWGVelocity->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWGVelocity->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tIWGVelocity->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
-    tIWGVelocity->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    // set size and populate the set leader dof type map
+    tIWGVelocity->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWGVelocity->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+    tIWGVelocity->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+    tIWGVelocity->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -637,7 +637,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Unsymmetric_Nitsche",
         tPropVelocity->set_parameters( { tVelocity } );
         tPropTraction->set_parameters( { tTraction } );
 
-        tCMMasterTurbulence->set_space_dim( iSpaceDim );
+        tCMLeaderTurbulence->set_space_dim( iSpaceDim );
         tSPNitsche->set_space_dim( iSpaceDim );
 
         // set the normal
@@ -688,28 +688,28 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Unsymmetric_Nitsche",
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill random coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatP;
-            fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatVis;
-            fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
+            // fill random coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatP;
+            fill_phat( tLeaderDOFHatP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatVis;
+            fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatP );
 
             // create the field interpolator viscosity
-            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
-            tMasterFIs( 2 )->set_coeff( tMasterDOFHatVis );
+            tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatVis );
 
             // set size and fill the set residual assembly map
             tIWGVelocity->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -735,8 +735,8 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Unsymmetric_Nitsche",
             // build global dof type list
             tIWGVelocity->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWGVelocity->mRequestedMasterGlobalDofTypes = tDofTypes;
+            // populate the requested leader dof type
+            tIWGVelocity->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -744,12 +744,12 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Unsymmetric_Nitsche",
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWGVelocity->mSet->mMasterFIManager = &tFIManager;
+            tIWGVelocity->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIWGVelocity->set_field_interpolator_manager( &tFIManager );
@@ -764,7 +764,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Unsymmetric_Nitsche",
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWGVelocity->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIWGVelocity->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -804,7 +804,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Velocity_Unsymmetric_Nitsche",
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }/*END_TEST_CASE*/
@@ -865,15 +865,15 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Symmetric_Nitsche",
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
+    tCMLeaderTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
 
-    tCMMasterTurbulence->set_property( tPropViscosity,     "Viscosity" );
-    tCMMasterTurbulence->set_property( tPropKinViscosity,  "KinViscosity" );
-    tCMMasterTurbulence->set_property( tPropDensity,       "Density" );
+    tCMLeaderTurbulence->set_property( tPropViscosity,     "Viscosity" );
+    tCMLeaderTurbulence->set_property( tPropKinViscosity,  "KinViscosity" );
+    tCMLeaderTurbulence->set_property( tPropDensity,       "Density" );
 
-    tCMMasterTurbulence->set_local_properties();
+    tCMLeaderTurbulence->set_local_properties();
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -881,9 +881,9 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Symmetric_Nitsche",
     std::shared_ptr< fem::IWG > tIWGPressure =
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_SLIPBOUNDARY_SYMMETRIC_NITSCHE );
     tIWGPressure->set_residual_dof_type( tPDofTypes );
-    tIWGPressure->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes }, mtk::Master_Slave::MASTER );
+    tIWGPressure->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes }, mtk::Leader_Follower::LEADER );
     tIWGPressure->set_property( tPropVelocity, "Dirichlet" );
-    tIWGPressure->set_constitutive_model( tCMMasterTurbulence, "IncompressibleFluid" );
+    tIWGPressure->set_constitutive_model( tCMLeaderTurbulence, "IncompressibleFluid" );
 
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
@@ -899,11 +899,11 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Symmetric_Nitsche",
     tIWGPressure->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
     tIWGPressure->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
-    // set size and populate the set master dof type map
-    tIWGPressure->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWGPressure->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tIWGPressure->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
-    tIWGPressure->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    // set size and populate the set leader dof type map
+    tIWGPressure->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWGPressure->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+    tIWGPressure->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+    tIWGPressure->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -987,7 +987,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Symmetric_Nitsche",
         // set space dimensions for property, CM and SP
         tPropVelocity->set_parameters( { tVelocity } );
 
-        tCMMasterTurbulence->set_space_dim( iSpaceDim );
+        tCMLeaderTurbulence->set_space_dim( iSpaceDim );
 
         // set the normal
         tIWGPressure->set_normal( tNormal );
@@ -1037,28 +1037,28 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Symmetric_Nitsche",
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill random coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatP;
-            fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatVis;
-            fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
+            // fill random coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatP;
+            fill_phat( tLeaderDOFHatP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatVis;
+            fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatP );
 
             // create the field interpolator viscosity
-            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
-            tMasterFIs( 2 )->set_coeff( tMasterDOFHatVis );
+            tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatVis );
 
             // set size and fill the set residual assembly map
             tIWGPressure->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -1084,8 +1084,8 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Symmetric_Nitsche",
             // build global dof type list
             tIWGPressure->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWGPressure->mRequestedMasterGlobalDofTypes = tDofTypes;
+            // populate the requested leader dof type
+            tIWGPressure->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -1093,12 +1093,12 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Symmetric_Nitsche",
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWGPressure->mSet->mMasterFIManager = &tFIManager;
+            tIWGPressure->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIWGPressure->set_field_interpolator_manager( &tFIManager );
@@ -1113,7 +1113,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Symmetric_Nitsche",
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWGPressure->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIWGPressure->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -1152,7 +1152,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Symmetric_Nitsche",
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }/*END_TEST_CASE*/
@@ -1213,15 +1213,15 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Unsymmetric_Nitsche",
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
+    tCMLeaderTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
 
-    tCMMasterTurbulence->set_property( tPropViscosity,     "Viscosity" );
-    tCMMasterTurbulence->set_property( tPropKinViscosity,  "KinViscosity" );
-    tCMMasterTurbulence->set_property( tPropDensity,       "Density" );
+    tCMLeaderTurbulence->set_property( tPropViscosity,     "Viscosity" );
+    tCMLeaderTurbulence->set_property( tPropKinViscosity,  "KinViscosity" );
+    tCMLeaderTurbulence->set_property( tPropDensity,       "Density" );
 
-    tCMMasterTurbulence->set_local_properties();
+    tCMLeaderTurbulence->set_local_properties();
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -1229,9 +1229,9 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Unsymmetric_Nitsche",
     std::shared_ptr< fem::IWG > tIWGPressure =
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_SLIPBOUNDARY_UNSYMMETRIC_NITSCHE );
     tIWGPressure->set_residual_dof_type( tPDofTypes );
-    tIWGPressure->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes }, mtk::Master_Slave::MASTER );
+    tIWGPressure->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes }, mtk::Leader_Follower::LEADER );
     tIWGPressure->set_property( tPropVelocity, "Dirichlet" );
-    tIWGPressure->set_constitutive_model( tCMMasterTurbulence, "IncompressibleFluid" );
+    tIWGPressure->set_constitutive_model( tCMLeaderTurbulence, "IncompressibleFluid" );
 
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
@@ -1247,11 +1247,11 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Unsymmetric_Nitsche",
     tIWGPressure->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
     tIWGPressure->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
-    // set size and populate the set master dof type map
-    tIWGPressure->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWGPressure->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tIWGPressure->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
-    tIWGPressure->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    // set size and populate the set leader dof type map
+    tIWGPressure->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWGPressure->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+    tIWGPressure->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+    tIWGPressure->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -1335,7 +1335,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Unsymmetric_Nitsche",
         // set space dimensions for property, CM and SP
         tPropVelocity->set_parameters( { tVelocity } );
 
-        tCMMasterTurbulence->set_space_dim( iSpaceDim );
+        tCMLeaderTurbulence->set_space_dim( iSpaceDim );
 
         // set the normal
         tIWGPressure->set_normal( tNormal );
@@ -1385,28 +1385,28 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Unsymmetric_Nitsche",
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatP;
-            fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatVis;
-            fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatP;
+            fill_phat( tLeaderDOFHatP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatVis;
+            fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatP );
 
             // create the field interpolator viscosity
-            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
-            tMasterFIs( 2 )->set_coeff( tMasterDOFHatVis );
+            tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatVis );
 
             // set size and fill the set residual assembly map
             tIWGPressure->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -1432,8 +1432,8 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Unsymmetric_Nitsche",
             // build global dof type list
             tIWGPressure->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWGPressure->mRequestedMasterGlobalDofTypes = tDofTypes;
+            // populate the requested leader dof type
+            tIWGPressure->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -1441,12 +1441,12 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Unsymmetric_Nitsche",
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWGPressure->mSet->mMasterFIManager = &tFIManager;
+            tIWGPressure->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIWGPressure->set_field_interpolator_manager( &tFIManager );
@@ -1461,7 +1461,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Unsymmetric_Nitsche",
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWGPressure->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIWGPressure->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -1500,7 +1500,7 @@ TEST_CASE( "IWG_Incompressible_NS_SlipBoundary_Pressure_Unsymmetric_Nitsche",
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }/*END_TEST_CASE*/

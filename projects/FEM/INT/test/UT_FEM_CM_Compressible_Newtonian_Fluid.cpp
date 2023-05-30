@@ -109,45 +109,45 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
     // define constitutive model and assign properties
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterFluid =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_COMPRESSIBLE_NEWTONIAN );
-    tCMMasterFluid->set_dof_type_list( {tDensityDof, tVelocityDof, tTempDof } );
-    tCMMasterFluid->set_property( tPropViscosity,    "DynamicViscosity" );
-    tCMMasterFluid->set_property( tPropConductivity, "ThermalConductivity" );
-    tCMMasterFluid->set_material_model( tMMFluid, "ThermodynamicMaterialModel" );
+    tCMLeaderFluid->set_dof_type_list( {tDensityDof, tVelocityDof, tTempDof } );
+    tCMLeaderFluid->set_property( tPropViscosity,    "DynamicViscosity" );
+    tCMLeaderFluid->set_property( tPropConductivity, "ThermalConductivity" );
+    tCMLeaderFluid->set_material_model( tMMFluid, "ThermodynamicMaterialModel" );
 
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
     tMMFluid->set_set_pointer( static_cast< fem::Set* >( tSet ) );
-    tCMMasterFluid->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tCMLeaderFluid->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
     tMMFluid->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
-    tCMMasterFluid->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
+    tCMLeaderFluid->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
     tMMFluid->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tMMFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )   = 0;
     tMMFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 1;
 
-    tCMMasterFluid->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMMasterFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )   = 0;
-    tCMMasterFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
-    tCMMasterFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
+    tCMLeaderFluid->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tCMLeaderFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )   = 0;
+    tCMLeaderFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
+    tCMLeaderFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
 
-    // set size and populate the set master dof type map
-    tMMFluid->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tMMFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )   = 0;
-    tMMFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 1;
+    // set size and populate the set leader dof type map
+    tMMFluid->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tMMFluid->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )   = 0;
+    tMMFluid->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 1;
 
-    tCMMasterFluid->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMMasterFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )   = 0;
-    tCMMasterFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
-    tCMMasterFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
+    tCMLeaderFluid->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tCMLeaderFluid->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )   = 0;
+    tCMLeaderFluid->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
+    tCMLeaderFluid->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
 
     // build global dof type list
     tMMFluid->get_global_dof_type_list();
-    tCMMasterFluid->get_global_dof_type_list();
+    tCMLeaderFluid->get_global_dof_type_list();
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -248,7 +248,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
 
         // set space dimensions for property, CM and SP
         tMMFluid->set_space_dim( iSpaceDim );
-        tCMMasterFluid->set_space_dim( iSpaceDim );
+        tCMLeaderFluid->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < tInterpolationOrders.size() + 1; iInterpOrder++ )
@@ -299,28 +299,28 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatRho;
-            fill_RhoHat( tMasterDOFHatRho, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_UHat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatTemp;
-            fill_TempHat( tMasterDOFHatTemp, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatRho;
+            fill_RhoHat( tLeaderDOFHatRho, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_UHat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatTemp;
+            fill_TempHat( tLeaderDOFHatTemp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator density
-            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDensityDof );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatRho );
+            tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDensityDof );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatRho );
 
             // create the field interpolator velocity
-            tMasterFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof );
-            tMasterFIs( 2 )->set_coeff( tMasterDOFHatTemp );
+            tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof );
+            tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatTemp );
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -328,49 +328,49 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField,tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tMMFluid->mSet->mMasterFIManager = &tFIManager;
-            tCMMasterFluid->mSet->mMasterFIManager = &tFIManager;
+            tMMFluid->mSet->mLeaderFIManager = &tFIManager;
+            tCMLeaderFluid->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tMMFluid->set_field_interpolator_manager( &tFIManager );
-            tCMMasterFluid->set_field_interpolator_manager( &tFIManager );
+            tCMLeaderFluid->set_field_interpolator_manager( &tFIManager );
 
             uint tNumGPs = tIntegPoints.n_cols();
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // reset IWG evaluation flags
                 tMMFluid->reset_eval_flags();
-                tCMMasterFluid->reset_eval_flags();
+                tCMLeaderFluid->reset_eval_flags();
 
                 // create evaluation point xi, tau
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tMMFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
-                tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tMMFluid->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+                tCMLeaderFluid->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
-                // populate the requested master dof type for CM
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tRequestedMasterGlobalDofTypes =
-                        tCMMasterFluid->get_global_dof_type_list();
+                // populate the requested leader dof type for CM
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
+                        tCMLeaderFluid->get_global_dof_type_list();
 
-                // populate the test master dof type for CM
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tMasterDofTypes =
-                        tCMMasterFluid->get_dof_type_list();
+                // populate the test leader dof type for CM
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tLeaderDofTypes =
+                        tCMLeaderFluid->get_dof_type_list();
 
                 // loop over requested dof type
-                for( uint jRequestedDof = 0; jRequestedDof < tRequestedMasterGlobalDofTypes.size(); jRequestedDof++ )
+                for( uint jRequestedDof = 0; jRequestedDof < tRequestedLeaderGlobalDofTypes.size(); jRequestedDof++ )
                 {
                     // output for debugging
                     // std::cout << "-------------------------------------------------------------------\n" << std::flush;
                     // std::cout << "Performing test for jacobian DOF derivative wrt. (0-RHO, 1-VX, 2-TEMP): " << jRequestedDof << "\n\n" << std::flush;
 
                     // derivative dof type
-                    Cell< MSI::Dof_Type > tDofDerivative = tRequestedMasterGlobalDofTypes( jRequestedDof );
+                    Cell< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( jRequestedDof );
 
                     if ( jRequestedDof != 1 )
                     {
@@ -628,11 +628,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
                     //  Energy
                     //------------------------------------------------------------------------------
                     // evaluate dEnergydu
-                    Matrix< DDRMat > tdEnergydDof = tCMMasterFluid->dEnergydDOF( tDofDerivative );
+                    Matrix< DDRMat > tdEnergydDof = tCMLeaderFluid->dEnergydDOF( tDofDerivative );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdEnergydDofFD;
-                    tCMMasterFluid->eval_dEnergydDOF_FD(
+                    tCMLeaderFluid->eval_dEnergydDOF_FD(
                             tDofDerivative,
                             tdEnergydDofFD,
                             tPerturbation,
@@ -646,11 +646,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
                     //  Energy Dot
                     //------------------------------------------------------------------------------
                     // evaluate dEnergydu
-                    Matrix< DDRMat > tdEnergyDotdDof = tCMMasterFluid->dEnergyDotdDOF( tDofDerivative );
+                    Matrix< DDRMat > tdEnergyDotdDof = tCMLeaderFluid->dEnergyDotdDOF( tDofDerivative );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdEnergyDotdDofFD;
-                    tCMMasterFluid->eval_dEnergyDotdDOF_FD(
+                    tCMLeaderFluid->eval_dEnergyDotdDOF_FD(
                             tDofDerivative,
                             tdEnergyDotdDofFD,
                             tPerturbation,
@@ -664,11 +664,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
                     //  Thermal Flux
                     //------------------------------------------------------------------------------
                     // evaluate dfluxdu
-                    Matrix< DDRMat > tdThermalFluxdu = tCMMasterFluid->dFluxdDOF( tDofDerivative, CM_Function_Type::THERMAL );
+                    Matrix< DDRMat > tdThermalFluxdu = tCMLeaderFluid->dFluxdDOF( tDofDerivative, CM_Function_Type::THERMAL );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdThermalFluxduFD;
-                    tCMMasterFluid->eval_dFluxdDOF_FD(
+                    tCMLeaderFluid->eval_dFluxdDOF_FD(
                             tDofDerivative,
                             tdThermalFluxduFD,
                             tPerturbation,
@@ -683,11 +683,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
                     //  Stress (Mechanical Flux)
                     //------------------------------------------------------------------------------
                     // evaluate dfluxdu
-                    Matrix< DDRMat > tdStressdDof = tCMMasterFluid->dFluxdDOF( tDofDerivative, CM_Function_Type::MECHANICAL );
+                    Matrix< DDRMat > tdStressdDof = tCMLeaderFluid->dFluxdDOF( tDofDerivative, CM_Function_Type::MECHANICAL );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdStressdDofFD;
-                    tCMMasterFluid->eval_dFluxdDOF_FD(
+                    tCMLeaderFluid->eval_dFluxdDOF_FD(
                             tDofDerivative,
                             tdStressdDofFD,
                             tPerturbation,
@@ -702,11 +702,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
                     //  Energy Flux
                     //------------------------------------------------------------------------------
                     // evaluate dfluxdu
-                    Matrix< DDRMat > tdEnergyFluxdu = tCMMasterFluid->dFluxdDOF( tDofDerivative, CM_Function_Type::ENERGY );
+                    Matrix< DDRMat > tdEnergyFluxdu = tCMLeaderFluid->dFluxdDOF( tDofDerivative, CM_Function_Type::ENERGY );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdEnergyFluxduFD;
-                    tCMMasterFluid->eval_dFluxdDOF_FD(
+                    tCMLeaderFluid->eval_dFluxdDOF_FD(
                             tDofDerivative,
                             tdEnergyFluxduFD,
                             tPerturbation,
@@ -721,11 +721,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
                     //  Work Flux
                     //------------------------------------------------------------------------------
                     // evaluate dfluxdu
-                    Matrix< DDRMat > tdWorkFluxdu = tCMMasterFluid->dFluxdDOF( tDofDerivative, CM_Function_Type::WORK );
+                    Matrix< DDRMat > tdWorkFluxdu = tCMLeaderFluid->dFluxdDOF( tDofDerivative, CM_Function_Type::WORK );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdWorkFluxduFD;
-                    tCMMasterFluid->eval_dFluxdDOF_FD(
+                    tCMLeaderFluid->eval_dFluxdDOF_FD(
                             tDofDerivative,
                             tdWorkFluxduFD,
                             tPerturbation,
@@ -740,11 +740,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
                     //  Div-Stress (Mechanical Div-Flux)
                     //------------------------------------------------------------------------------
                     // evaluate dfluxdu
-                    Matrix< DDRMat > tdMechDivFluxdDof = tCMMasterFluid->ddivfluxdu( tDofDerivative, CM_Function_Type::MECHANICAL );
+                    Matrix< DDRMat > tdMechDivFluxdDof = tCMLeaderFluid->ddivfluxdu( tDofDerivative, CM_Function_Type::MECHANICAL );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdMechDivFluxdDofFD;
-                    tCMMasterFluid->eval_ddivfluxdu_FD(
+                    tCMLeaderFluid->eval_ddivfluxdu_FD(
                             tDofDerivative,
                             tdMechDivFluxdDofFD,
                             tPerturbation,
@@ -759,11 +759,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
                     //  Div-Flux (thermal Div-Flux)
                     //------------------------------------------------------------------------------
                     // evaluate dfluxdu
-                    Matrix< DDRMat > tdThermalDivFluxdDof = tCMMasterFluid->ddivfluxdu( tDofDerivative, CM_Function_Type::THERMAL );
+                    Matrix< DDRMat > tdThermalDivFluxdDof = tCMLeaderFluid->ddivfluxdu( tDofDerivative, CM_Function_Type::THERMAL );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdThermalDivFluxdDofFD;
-                    tCMMasterFluid->eval_ddivfluxdu_FD(
+                    tCMLeaderFluid->eval_ddivfluxdu_FD(
                             tDofDerivative,
                             tdThermalDivFluxdDofFD,
                             tPerturbation,
@@ -778,11 +778,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
                     //  Div-Work-Flux (work Div-Flux)
                     //------------------------------------------------------------------------------
                     // evaluate dfluxdu
-                    Matrix< DDRMat > tdWorkDivFluxdDof = tCMMasterFluid->ddivfluxdu( tDofDerivative, CM_Function_Type::WORK );
+                    Matrix< DDRMat > tdWorkDivFluxdDof = tCMLeaderFluid->ddivfluxdu( tDofDerivative, CM_Function_Type::WORK );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdWorkDivFluxdDofFD;
-                    tCMMasterFluid->eval_ddivfluxdu_FD(
+                    tCMLeaderFluid->eval_ddivfluxdu_FD(
                             tDofDerivative,
                             tdWorkDivFluxdDofFD,
                             tPerturbation,
@@ -797,32 +797,32 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
                     // Mechanical Strain Rate
                     //------------------------------------------------------------------------------
                     // evaluate dstraindu
-                    Matrix< DDRMat > tdstraindu = tCMMasterFluid->dStraindDOF( tDofDerivative );
+                    Matrix< DDRMat > tdstraindu = tCMLeaderFluid->dStraindDOF( tDofDerivative );
 
                     // evaluate dstraindu by FD
                     Matrix< DDRMat > tdstrainduFD;
-                    tCMMasterFluid->eval_dStraindDOF_FD( tDofDerivative, tdstrainduFD, tPerturbation );
+                    tCMLeaderFluid->eval_dStraindDOF_FD( tDofDerivative, tdstrainduFD, tPerturbation );
 
                     // check that analytical and FD match
                     bool tCheckStrainFluid = fem::check( tdstraindu, tdstrainduFD, tEpsilon );
                     REQUIRE( tCheckStrainFluid );
 
                     // loop over requested dof type
-                //     for( uint iTestDof = 0; iTestDof < tRequestedMasterGlobalDofTypes.size(); iTestDof++ )
+                //     for( uint iTestDof = 0; iTestDof < tRequestedLeaderGlobalDofTypes.size(); iTestDof++ )
                 //     {
                 //         // output for debugging
                 //         std::cout << "-------------------------------------------------------------------\n" << std::flush;
                 //         std::cout << "Checking test-tractions for test DOF type (0-RHO, 1-VX, 2-TEMP): " << iTestDof << "\n\n" << std::flush;
 
                 //         // derivative dof type
-                //         Cell< MSI::Dof_Type > tTestDof = tRequestedMasterGlobalDofTypes( iTestDof );
+                //         Cell< MSI::Dof_Type > tTestDof = tRequestedLeaderGlobalDofTypes( iTestDof );
 
                 //         //------------------------------------------------------------------------------
                 //         //  Thermal Test Traction
                 //         //------------------------------------------------------------------------------
                 //         // evaluate dTestTractiondDOF
                 //         Matrix< DDRMat > tdThermalTestTractiondDOF =
-                //                 tCMMasterFluid->dTestTractiondDOF(
+                //                 tCMLeaderFluid->dTestTractiondDOF(
                 //                         tDofDerivative,
                 //                         tNormal,
                 //                         tTempJump,
@@ -831,7 +831,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
 
                 //         //  evaluate dTestTractiondDOF by FD
                 //         Matrix< DDRMat > tdThermalTestTractiondDofFD;
-                //         tCMMasterFluid->eval_dtesttractiondu_FD(
+                //         tCMLeaderFluid->eval_dtesttractiondu_FD(
                 //                 tDofDerivative,
                 //                 tTestDof,
                 //                 tdThermalTestTractiondDofFD,
@@ -850,7 +850,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
                 //         //------------------------------------------------------------------------------
                 //         // evaluate dTestTractiondDOF
                 //         Matrix< DDRMat > tdMechanicalTestTractiondDOF =
-                //                 tCMMasterFluid->dTestTractiondDOF(
+                //                 tCMLeaderFluid->dTestTractiondDOF(
                 //                         tDofDerivative,
                 //                         tNormal,
                 //                         tVelocityJump,
@@ -859,7 +859,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
 
                 //         //  evaluate dTestTractiondDOF by FD
                 //         Matrix< DDRMat > tdMechanicalTestTractiondDofFD;
-                //         tCMMasterFluid->eval_dtesttractiondu_FD(
+                //         tCMLeaderFluid->eval_dtesttractiondu_FD(
                 //                 tDofDerivative,
                 //                 tTestDof,
                 //                 tdMechanicalTestTractiondDofFD,
@@ -877,7 +877,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
                 }
             }
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }/*END_TEST_CASE*/
@@ -959,45 +959,45 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
     // define constitutive model and assign properties
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterFluid =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_COMPRESSIBLE_NEWTONIAN );
-    tCMMasterFluid->set_dof_type_list( {tPressureDof, tVelocityDof, tTempDof } );
-    tCMMasterFluid->set_property( tPropViscosity,    "DynamicViscosity" );
-    tCMMasterFluid->set_property( tPropConductivity, "ThermalConductivity" );
-    tCMMasterFluid->set_material_model( tMMFluid, "ThermodynamicMaterialModel" );
+    tCMLeaderFluid->set_dof_type_list( {tPressureDof, tVelocityDof, tTempDof } );
+    tCMLeaderFluid->set_property( tPropViscosity,    "DynamicViscosity" );
+    tCMLeaderFluid->set_property( tPropConductivity, "ThermalConductivity" );
+    tCMLeaderFluid->set_material_model( tMMFluid, "ThermodynamicMaterialModel" );
 
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
     tMMFluid->set_set_pointer( static_cast< fem::Set* >( tSet ) );
-    tCMMasterFluid->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tCMLeaderFluid->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
     //tMMFluid->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
-    tCMMasterFluid->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
+    tCMLeaderFluid->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
 //     tMMFluid->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
 //     tMMFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )   = 0;
 //     tMMFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 1;
 
-    tCMMasterFluid->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMMasterFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )   = 0;
-    tCMMasterFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
-    tCMMasterFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
+    tCMLeaderFluid->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tCMLeaderFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )   = 0;
+    tCMLeaderFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
+    tCMLeaderFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
 
-    // set size and populate the set master dof type map
-//     tMMFluid->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-//     tMMFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )   = 0;
-//     tMMFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 1;
+    // set size and populate the set leader dof type map
+//     tMMFluid->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+//     tMMFluid->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )   = 0;
+//     tMMFluid->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 1;
 
-    tCMMasterFluid->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMMasterFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )   = 0;
-    tCMMasterFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
-    tCMMasterFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
+    tCMLeaderFluid->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tCMLeaderFluid->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )   = 0;
+    tCMLeaderFluid->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
+    tCMLeaderFluid->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
 
     // build global dof type list
 //     tMMFluid->get_global_dof_type_list();
-    tCMMasterFluid->get_global_dof_type_list();
+    tCMLeaderFluid->get_global_dof_type_list();
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -1098,7 +1098,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
 
         // set space dimensions for property, CM and SP
         tMMFluid->set_space_dim( iSpaceDim );
-        tCMMasterFluid->set_space_dim( iSpaceDim );
+        tCMLeaderFluid->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < tInterpolationOrders.size() + 1; iInterpOrder++ )
@@ -1149,28 +1149,28 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatRho;
-            fill_RhoHat( tMasterDOFHatRho, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_UHat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatTemp;
-            fill_TempHat( tMasterDOFHatTemp, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatRho;
+            fill_RhoHat( tLeaderDOFHatRho, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_UHat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatTemp;
+            fill_TempHat( tLeaderDOFHatTemp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator density
-            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPressureDof );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatRho );
+            tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPressureDof );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatRho );
 
             // create the field interpolator velocity
-            tMasterFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof );
-            tMasterFIs( 2 )->set_coeff( tMasterDOFHatTemp );
+            tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof );
+            tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatTemp );
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -1178,49 +1178,49 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            //tMMFluid->mSet->mMasterFIManager = &tFIManager;
-            tCMMasterFluid->mSet->mMasterFIManager = &tFIManager;
+            //tMMFluid->mSet->mLeaderFIManager = &tFIManager;
+            tCMLeaderFluid->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             //tMMFluid->set_field_interpolator_manager( &tFIManager );
-            tCMMasterFluid->set_field_interpolator_manager( &tFIManager );
+            tCMLeaderFluid->set_field_interpolator_manager( &tFIManager );
 
             uint tNumGPs = tIntegPoints.n_cols();
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // reset IWG evaluation flags
                 tMMFluid->reset_eval_flags();
-                tCMMasterFluid->reset_eval_flags();
+                tCMLeaderFluid->reset_eval_flags();
 
                 // create evaluation point xi, tau
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                //tMMFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
-                tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                //tMMFluid->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+                tCMLeaderFluid->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
-                // populate the requested master dof type for CM
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tRequestedMasterGlobalDofTypes =
-                        tCMMasterFluid->get_global_dof_type_list();
+                // populate the requested leader dof type for CM
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
+                        tCMLeaderFluid->get_global_dof_type_list();
 
-                // populate the test master dof type for CM
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tMasterDofTypes =
-                        tCMMasterFluid->get_dof_type_list();
+                // populate the test leader dof type for CM
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tLeaderDofTypes =
+                        tCMLeaderFluid->get_dof_type_list();
 
                 // loop over requested dof type
-                for( uint jRequestedDof = 0; jRequestedDof < tRequestedMasterGlobalDofTypes.size(); jRequestedDof++ )
+                for( uint jRequestedDof = 0; jRequestedDof < tRequestedLeaderGlobalDofTypes.size(); jRequestedDof++ )
                 {
                     // output for debugging
                     // std::cout << "-------------------------------------------------------------------\n" << std::flush;
                     // std::cout << "Performing test for jacobian DOF derivative wrt. (0-P, 1-VX, 2-TEMP): " << jRequestedDof << "\n\n" << std::flush;
 
                     // derivative dof type
-                    Cell< MSI::Dof_Type > tDofDerivative = tRequestedMasterGlobalDofTypes( jRequestedDof );
+                    Cell< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( jRequestedDof );
 
                     if ( jRequestedDof != 1 )
                     {
@@ -1478,11 +1478,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
                     //  Energy
                     //------------------------------------------------------------------------------
                     // evaluate dEnergydu
-                    Matrix< DDRMat > tdEnergydDof = tCMMasterFluid->dEnergydDOF( tDofDerivative );
+                    Matrix< DDRMat > tdEnergydDof = tCMLeaderFluid->dEnergydDOF( tDofDerivative );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdEnergydDofFD;
-                    tCMMasterFluid->eval_dEnergydDOF_FD(
+                    tCMLeaderFluid->eval_dEnergydDOF_FD(
                             tDofDerivative,
                             tdEnergydDofFD,
                             tPerturbation,
@@ -1496,11 +1496,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
                     //  Energy Dot
                     //------------------------------------------------------------------------------
                     // evaluate dEnergydu
-                    Matrix< DDRMat > tdEnergyDotdDof = tCMMasterFluid->dEnergyDotdDOF( tDofDerivative );
+                    Matrix< DDRMat > tdEnergyDotdDof = tCMLeaderFluid->dEnergyDotdDOF( tDofDerivative );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdEnergyDotdDofFD;
-                    tCMMasterFluid->eval_dEnergyDotdDOF_FD(
+                    tCMLeaderFluid->eval_dEnergyDotdDOF_FD(
                             tDofDerivative,
                             tdEnergyDotdDofFD,
                             tPerturbation,
@@ -1514,11 +1514,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
                     //  Thermal Flux
                     //------------------------------------------------------------------------------
                     // evaluate dfluxdu
-                    Matrix< DDRMat > tdThermalFluxdu = tCMMasterFluid->dFluxdDOF( tDofDerivative, CM_Function_Type::THERMAL );
+                    Matrix< DDRMat > tdThermalFluxdu = tCMLeaderFluid->dFluxdDOF( tDofDerivative, CM_Function_Type::THERMAL );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdThermalFluxduFD;
-                    tCMMasterFluid->eval_dFluxdDOF_FD(
+                    tCMLeaderFluid->eval_dFluxdDOF_FD(
                             tDofDerivative,
                             tdThermalFluxduFD,
                             tPerturbation,
@@ -1533,11 +1533,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
                     //  Stress (Mechanical Flux)
                     //------------------------------------------------------------------------------
                     // evaluate dfluxdu
-                    Matrix< DDRMat > tdStressdDof = tCMMasterFluid->dFluxdDOF( tDofDerivative, CM_Function_Type::MECHANICAL );
+                    Matrix< DDRMat > tdStressdDof = tCMLeaderFluid->dFluxdDOF( tDofDerivative, CM_Function_Type::MECHANICAL );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdStressdDofFD;
-                    tCMMasterFluid->eval_dFluxdDOF_FD(
+                    tCMLeaderFluid->eval_dFluxdDOF_FD(
                             tDofDerivative,
                             tdStressdDofFD,
                             tPerturbation,
@@ -1552,11 +1552,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
                     //  Energy Flux
                     //------------------------------------------------------------------------------
                     // evaluate dfluxdu
-                    Matrix< DDRMat > tdEnergyFluxdu = tCMMasterFluid->dFluxdDOF( tDofDerivative, CM_Function_Type::ENERGY );
+                    Matrix< DDRMat > tdEnergyFluxdu = tCMLeaderFluid->dFluxdDOF( tDofDerivative, CM_Function_Type::ENERGY );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdEnergyFluxduFD;
-                    tCMMasterFluid->eval_dFluxdDOF_FD(
+                    tCMLeaderFluid->eval_dFluxdDOF_FD(
                             tDofDerivative,
                             tdEnergyFluxduFD,
                             tPerturbation,
@@ -1571,11 +1571,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
                     //  Work Flux
                     //------------------------------------------------------------------------------
                     // evaluate dfluxdu
-                    Matrix< DDRMat > tdWorkFluxdu = tCMMasterFluid->dFluxdDOF( tDofDerivative, CM_Function_Type::WORK );
+                    Matrix< DDRMat > tdWorkFluxdu = tCMLeaderFluid->dFluxdDOF( tDofDerivative, CM_Function_Type::WORK );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdWorkFluxduFD;
-                    tCMMasterFluid->eval_dFluxdDOF_FD(
+                    tCMLeaderFluid->eval_dFluxdDOF_FD(
                             tDofDerivative,
                             tdWorkFluxduFD,
                             tPerturbation,
@@ -1590,11 +1590,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
                     //  Div-Stress (Mechanical Div-Flux)
                     //------------------------------------------------------------------------------
                     // evaluate dfluxdu
-                    Matrix< DDRMat > tdMechDivFluxdDof = tCMMasterFluid->ddivfluxdu( tDofDerivative, CM_Function_Type::MECHANICAL );
+                    Matrix< DDRMat > tdMechDivFluxdDof = tCMLeaderFluid->ddivfluxdu( tDofDerivative, CM_Function_Type::MECHANICAL );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdMechDivFluxdDofFD;
-                    tCMMasterFluid->eval_ddivfluxdu_FD(
+                    tCMLeaderFluid->eval_ddivfluxdu_FD(
                             tDofDerivative,
                             tdMechDivFluxdDofFD,
                             tPerturbation,
@@ -1609,11 +1609,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
                     //  Div-Flux (thermal Div-Flux)
                     //------------------------------------------------------------------------------
                     // evaluate dfluxdu
-                    Matrix< DDRMat > tdThermalDivFluxdDof = tCMMasterFluid->ddivfluxdu( tDofDerivative, CM_Function_Type::THERMAL );
+                    Matrix< DDRMat > tdThermalDivFluxdDof = tCMLeaderFluid->ddivfluxdu( tDofDerivative, CM_Function_Type::THERMAL );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdThermalDivFluxdDofFD;
-                    tCMMasterFluid->eval_ddivfluxdu_FD(
+                    tCMLeaderFluid->eval_ddivfluxdu_FD(
                             tDofDerivative,
                             tdThermalDivFluxdDofFD,
                             tPerturbation,
@@ -1628,11 +1628,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
                     //  Div-Work-Flux (work Div-Flux)
                     //------------------------------------------------------------------------------
                     // evaluate dfluxdu
-                    Matrix< DDRMat > tdWorkDivFluxdDof = tCMMasterFluid->ddivfluxdu( tDofDerivative, CM_Function_Type::WORK );
+                    Matrix< DDRMat > tdWorkDivFluxdDof = tCMLeaderFluid->ddivfluxdu( tDofDerivative, CM_Function_Type::WORK );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdWorkDivFluxdDofFD;
-                    tCMMasterFluid->eval_ddivfluxdu_FD(
+                    tCMLeaderFluid->eval_ddivfluxdu_FD(
                             tDofDerivative,
                             tdWorkDivFluxdDofFD,
                             tPerturbation,
@@ -1647,32 +1647,32 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
                     // Mechanical Strain Rate
                     //------------------------------------------------------------------------------
                     // evaluate dstraindu
-                    Matrix< DDRMat > tdstraindu = tCMMasterFluid->dStraindDOF( tDofDerivative );
+                    Matrix< DDRMat > tdstraindu = tCMLeaderFluid->dStraindDOF( tDofDerivative );
 
                     // evaluate dstraindu by FD
                     Matrix< DDRMat > tdstrainduFD;
-                    tCMMasterFluid->eval_dStraindDOF_FD( tDofDerivative, tdstrainduFD, tPerturbation );
+                    tCMLeaderFluid->eval_dStraindDOF_FD( tDofDerivative, tdstrainduFD, tPerturbation );
 
                     // check that analytical and FD match
                     bool tCheckStrainFluid = fem::check( tdstraindu, tdstrainduFD, tEpsilon );
                     REQUIRE( tCheckStrainFluid );
 
                     // loop over requested dof type
-                //     for( uint iTestDof = 0; iTestDof < tRequestedMasterGlobalDofTypes.size(); iTestDof++ )
+                //     for( uint iTestDof = 0; iTestDof < tRequestedLeaderGlobalDofTypes.size(); iTestDof++ )
                 //     {
                 //         // output for debugging
                 //         std::cout << "-------------------------------------------------------------------\n" << std::flush;
                 //         std::cout << "Checking test-tractions for test DOF type (0-RHO, 1-VX, 2-TEMP): " << iTestDof << "\n\n" << std::flush;
 
                 //         // derivative dof type
-                //         Cell< MSI::Dof_Type > tTestDof = tRequestedMasterGlobalDofTypes( iTestDof );
+                //         Cell< MSI::Dof_Type > tTestDof = tRequestedLeaderGlobalDofTypes( iTestDof );
 
                 //         //------------------------------------------------------------------------------
                 //         //  Thermal Test Traction
                 //         //------------------------------------------------------------------------------
                 //         // evaluate dTestTractiondDOF
                 //         Matrix< DDRMat > tdThermalTestTractiondDOF =
-                //                 tCMMasterFluid->dTestTractiondDOF(
+                //                 tCMLeaderFluid->dTestTractiondDOF(
                 //                         tDofDerivative,
                 //                         tNormal,
                 //                         tTempJump,
@@ -1681,7 +1681,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
 
                 //         //  evaluate dTestTractiondDOF by FD
                 //         Matrix< DDRMat > tdThermalTestTractiondDofFD;
-                //         tCMMasterFluid->eval_dtesttractiondu_FD(
+                //         tCMLeaderFluid->eval_dtesttractiondu_FD(
                 //                 tDofDerivative,
                 //                 tTestDof,
                 //                 tdThermalTestTractiondDofFD,
@@ -1700,7 +1700,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
                 //         //------------------------------------------------------------------------------
                 //         // evaluate dTestTractiondDOF
                 //         Matrix< DDRMat > tdMechanicalTestTractiondDOF =
-                //                 tCMMasterFluid->dTestTractiondDOF(
+                //                 tCMLeaderFluid->dTestTractiondDOF(
                 //                         tDofDerivative,
                 //                         tNormal,
                 //                         tVelocityJump,
@@ -1709,7 +1709,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
 
                 //         //  evaluate dTestTractiondDOF by FD
                 //         Matrix< DDRMat > tdMechanicalTestTractiondDofFD;
-                //         tCMMasterFluid->eval_dtesttractiondu_FD(
+                //         tCMLeaderFluid->eval_dtesttractiondu_FD(
                 //                 tDofDerivative,
                 //                 tTestDof,
                 //                 tdMechanicalTestTractiondDofFD,
@@ -1727,7 +1727,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
                 }
             }
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }/*END_TEST_CASE*/

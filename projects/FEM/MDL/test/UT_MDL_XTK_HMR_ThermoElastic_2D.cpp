@@ -329,11 +329,11 @@ namespace moris
             fem::SP_Factory                                 tSPFactory;
             std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitscheU = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
             tSPDirichletNitscheU->set_parameters( { { { 100.0 } } } );
-            tSPDirichletNitscheU->set_property( tPropEMod1, "Material", mtk::Master_Slave::MASTER );
+            tSPDirichletNitscheU->set_property( tPropEMod1, "Material", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitscheTEMP = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
             tSPDirichletNitscheTEMP->set_parameters( { { { 1.0 } } } );
-            tSPDirichletNitscheTEMP->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
+            tSPDirichletNitscheTEMP->set_property( tPropConductivity1, "Material", mtk::Leader_Follower::LEADER );
 
             //----------------------------------------------------------------------------------------------------------
             // define the IWGs
@@ -342,43 +342,43 @@ namespace moris
             std::shared_ptr< fem::IWG > tIWGBulkU_1 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
             tIWGBulkU_1->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
             tIWGBulkU_1->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
-            tIWGBulkU_1->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
+            tIWGBulkU_1->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::IWG > tIWGBulkU_2 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
             tIWGBulkU_2->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
             tIWGBulkU_2->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
-            tIWGBulkU_2->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::MASTER );
+            tIWGBulkU_2->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::IWG > tIWGDirichletU = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
             tIWGDirichletU->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
             tIWGDirichletU->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
             tIWGDirichletU->set_stabilization_parameter( tSPDirichletNitscheU, "DirichletNitsche" );
-            tIWGDirichletU->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
-            tIWGDirichletU->set_property( tPropDirichletU, "Dirichlet", mtk::Master_Slave::MASTER );
+            tIWGDirichletU->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Leader_Follower::LEADER );
+            tIWGDirichletU->set_property( tPropDirichletU, "Dirichlet", mtk::Leader_Follower::LEADER );
 
             //        std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
             //        tIWGNeumann->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
             //        tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-            //        tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+            //        tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::IWG > tIWGBulkTEMP_1 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
             tIWGBulkTEMP_1->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
             tIWGBulkTEMP_1->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-            tIWGBulkTEMP_1->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Master_Slave::MASTER );
-            //        tIWGBulkTEMP_1->set_property( tPropTempLoad1, "Load", mtk::Master_Slave::MASTER );
+            tIWGBulkTEMP_1->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Leader_Follower::LEADER );
+            //        tIWGBulkTEMP_1->set_property( tPropTempLoad1, "Load", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::IWG > tIWGBulkTEMP_2 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
             tIWGBulkTEMP_2->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
             tIWGBulkTEMP_2->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-            tIWGBulkTEMP_2->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::MASTER );
-            //        tIWGBulkTEMP_2->set_property( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
+            tIWGBulkTEMP_2->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Leader_Follower::LEADER );
+            //        tIWGBulkTEMP_2->set_property( tPropTempLoad2, "Load", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::IWG > tIWGDirichletTEMP = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
             tIWGDirichletTEMP->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
             tIWGDirichletTEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
             tIWGDirichletTEMP->set_stabilization_parameter( tSPDirichletNitscheTEMP, "DirichletNitsche" );
-            tIWGDirichletTEMP->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::MASTER );
-            tIWGDirichletTEMP->set_property( tPropDirichletTEMP, "Dirichlet", mtk::Master_Slave::MASTER );
+            tIWGDirichletTEMP->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Leader_Follower::LEADER );
+            tIWGDirichletTEMP->set_property( tPropDirichletTEMP, "Dirichlet", mtk::Leader_Follower::LEADER );
 
             // create the IQIs
             // --------------------------------------------------------------------------------------
@@ -386,19 +386,19 @@ namespace moris
 
             std::shared_ptr< fem::IQI > tIQIUX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
             tIQIUX->set_quantity_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
-            tIQIUX->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
+            tIQIUX->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Leader_Follower::LEADER );
             tIQIUX->set_output_type_index( 0 );
             tIQIUX->set_name( "IQI_UX" );
 
             std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
             tIQIUY->set_quantity_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
-            tIQIUY->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
+            tIQIUY->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Leader_Follower::LEADER );
             tIQIUY->set_output_type_index( 1 );
             tIQIUY->set_name( "IQI_UY" );
 
             std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
             tIQITEMP->set_quantity_dof_type( { MSI::Dof_Type::TEMP } );
-            tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
+            tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Leader_Follower::LEADER );
             tIQITEMP->set_output_type_index( 0 );
             tIQITEMP->set_name( "IQI_TEMP" );
 
@@ -801,11 +801,11 @@ namespace moris
             fem::SP_Factory                                 tSPFactory;
             std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitscheU = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
             tSPDirichletNitscheU->set_parameters( { { { 100.0 } } } );
-            tSPDirichletNitscheU->set_property( tPropEMod1, "Material", mtk::Master_Slave::MASTER );
+            tSPDirichletNitscheU->set_property( tPropEMod1, "Material", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitscheTEMP = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
             tSPDirichletNitscheTEMP->set_parameters( { { { 1.0 } } } );
-            tSPDirichletNitscheTEMP->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
+            tSPDirichletNitscheTEMP->set_property( tPropConductivity1, "Material", mtk::Leader_Follower::LEADER );
 
             //----------------------------------------------------------------------------------------------------------
             // define the IWGs
@@ -814,43 +814,43 @@ namespace moris
             std::shared_ptr< fem::IWG > tIWGBulkU_1 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
             tIWGBulkU_1->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
             tIWGBulkU_1->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
-            tIWGBulkU_1->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
+            tIWGBulkU_1->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::IWG > tIWGBulkU_2 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
             tIWGBulkU_2->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
             tIWGBulkU_2->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
-            tIWGBulkU_2->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::MASTER );
+            tIWGBulkU_2->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::IWG > tIWGDirichletU = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
             tIWGDirichletU->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
             tIWGDirichletU->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
             tIWGDirichletU->set_stabilization_parameter( tSPDirichletNitscheU, "DirichletNitsche" );
-            tIWGDirichletU->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
-            tIWGDirichletU->set_property( tPropDirichletU, "Dirichlet", mtk::Master_Slave::MASTER );
+            tIWGDirichletU->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Leader_Follower::LEADER );
+            tIWGDirichletU->set_property( tPropDirichletU, "Dirichlet", mtk::Leader_Follower::LEADER );
 
             //         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
             //         tIWGNeumann->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
             //         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-            //         tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+            //         tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::IWG > tIWGBulkTEMP_1 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
             tIWGBulkTEMP_1->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
             tIWGBulkTEMP_1->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-            tIWGBulkTEMP_1->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Master_Slave::MASTER );
-            //         tIWGBulkTEMP_1->set_property( tPropTempLoad1, "Load", mtk::Master_Slave::MASTER );
+            tIWGBulkTEMP_1->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Leader_Follower::LEADER );
+            //         tIWGBulkTEMP_1->set_property( tPropTempLoad1, "Load", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::IWG > tIWGBulkTEMP_2 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
             tIWGBulkTEMP_2->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
             tIWGBulkTEMP_2->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-            tIWGBulkTEMP_2->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::MASTER );
-            //         tIWGBulkTEMP_2->set_property( tPropTempLoad2, "Load", mtk::Master_Slave::MASTER );
+            tIWGBulkTEMP_2->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Leader_Follower::LEADER );
+            //         tIWGBulkTEMP_2->set_property( tPropTempLoad2, "Load", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::IWG > tIWGDirichletTEMP = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
             tIWGDirichletTEMP->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
             tIWGDirichletTEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
             tIWGDirichletTEMP->set_stabilization_parameter( tSPDirichletNitscheTEMP, "DirichletNitsche" );
-            tIWGDirichletTEMP->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Master_Slave::MASTER );
-            tIWGDirichletTEMP->set_property( tPropDirichletTEMP, "Dirichlet", mtk::Master_Slave::MASTER );
+            tIWGDirichletTEMP->set_constitutive_model( tCMDiffLinIso2, "Diffusion", mtk::Leader_Follower::LEADER );
+            tIWGDirichletTEMP->set_property( tPropDirichletTEMP, "Dirichlet", mtk::Leader_Follower::LEADER );
 
             // create the IQIs
             // --------------------------------------------------------------------------------------
@@ -858,19 +858,19 @@ namespace moris
 
             std::shared_ptr< fem::IQI > tIQIUX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
             tIQIUX->set_quantity_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
-            tIQIUX->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
+            tIQIUX->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Leader_Follower::LEADER );
             tIQIUX->set_output_type_index( 0 );
             tIQIUX->set_name( "IQI_UX" );
 
             std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
             tIQIUY->set_quantity_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
-            tIQIUY->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Master_Slave::MASTER );
+            tIQIUY->set_dof_type_list( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } }, mtk::Leader_Follower::LEADER );
             tIQIUY->set_output_type_index( 1 );
             tIQIUY->set_name( "IQI_UY" );
 
             std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
             tIQITEMP->set_quantity_dof_type( { MSI::Dof_Type::TEMP } );
-            tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
+            tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Leader_Follower::LEADER );
             tIQITEMP->set_output_type_index( 0 );
             tIQITEMP->set_name( "IQI_TEMP" );
 

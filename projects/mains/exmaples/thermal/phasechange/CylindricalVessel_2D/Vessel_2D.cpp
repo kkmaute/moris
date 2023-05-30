@@ -323,21 +323,21 @@ moris::real tInnerRad        = 0.385; /* y top plane    (m) */
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGPTemp_Outer" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "0.01" );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropConductivity_Outer,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "leader_properties",       "PropConductivity_Outer,Material" );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGPTemp_Inner" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "0.01" );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropConductivity_Inner,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "leader_properties",       "PropConductivity_Inner,Material" );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGGLSDiffusion_Inner" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GGLS_DIFFUSION_PC ) );
-        tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",
+        tParameterList( 2 )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "TEMP", "Temperature" ) );
+        tParameterList( 2 )( tSPCounter ).set( "leader_properties",
                 "PropConductivity_Inner , Conductivity;"
                 "PropDensity_Inner      , Density;"
                 "PropHeatCapacity_Inner , Heat_Capacity;"
@@ -351,22 +351,22 @@ moris::real tInnerRad        = 0.385; /* y top plane    (m) */
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceNitsche" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::NITSCHE_INTERFACE ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0" );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropConductivity_Outer,Material" );
-        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropConductivity_Inner,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "leader_properties",   "PropConductivity_Outer,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "follower_properties",    "PropConductivity_Inner,Material" );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceMasterWeight" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::MASTER_WEIGHT_INTERFACE ) );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropConductivity_Outer,Material" );
-        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropConductivity_Inner,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceLeaderWeight" );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::LEADER_WEIGHT_INTERFACE ) );
+        tParameterList( 2 )( tSPCounter ).set( "leader_properties",   "PropConductivity_Outer,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "follower_properties",    "PropConductivity_Inner,Material" );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceSlaveWeight" );
-        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::SLAVE_WEIGHT_INTERFACE ) );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropConductivity_Outer,Material" );
-        tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropConductivity_Inner,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceFollowerWeight" );
+        tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::FOLLOWER_WEIGHT_INTERFACE ) );
+        tParameterList( 2 )( tSPCounter ).set( "leader_properties",   "PropConductivity_Outer,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "follower_properties",    "PropConductivity_Inner,Material" );
         tSPCounter++;
 
         //------------------------------------------------------------------------------
@@ -378,8 +378,8 @@ moris::real tInnerRad        = 0.385; /* y top plane    (m) */
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGDiffusionBulk" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion_Outer,Diffusion" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusion_Outer,Diffusion" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "HMR_dummy_n_p2,HMR_dummy_c_p2" );
         tIWGCounter++;
 
@@ -387,8 +387,8 @@ moris::real tInnerRad        = 0.385; /* y top plane    (m) */
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGDiffusionBulk" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion_Inner,Diffusion" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusion_Inner,Diffusion" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGGLSDiffusion_Inner,GGLS_Param" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "HMR_dummy_n_p3,HMR_dummy_c_p3" );
         tIWGCounter++;
@@ -397,8 +397,8 @@ moris::real tInnerRad        = 0.385; /* y top plane    (m) */
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInletFlux" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_NEUMANN ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropImposedFlux,Neumann" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties",          "PropImposedFlux,Neumann" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "iside_b0_2_b1_0" );
         tIWGCounter++;
 
@@ -406,8 +406,8 @@ moris::real tInnerRad        = 0.385; /* y top plane    (m) */
 		tParameterList( 3 )( tIWGCounter ).set( "IWG_name", 				  "IWGGPTemp" );
 		tParameterList( 3 )( tIWGCounter ).set( "IWG_type", 				  static_cast< uint >( fem::IWG_Type::SPATIALDIFF_GHOST ) );
 		tParameterList( 3 )( tIWGCounter ).set( "dof_residual", 			  "TEMP" );
-		tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
-		tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",	  "TEMP" );
+		tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "TEMP" );
+		tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies",	  "TEMP" );
 		tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGPTemp_Outer,GhostDispl" );
 		tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",			  "ghost_p2" );
 		tIWGCounter++;
@@ -416,8 +416,8 @@ moris::real tInnerRad        = 0.385; /* y top plane    (m) */
 		tParameterList( 3 )( tIWGCounter ).set( "IWG_name", 				  "IWGGPTemp" );
 		tParameterList( 3 )( tIWGCounter ).set( "IWG_type", 				  static_cast< uint >( fem::IWG_Type::SPATIALDIFF_GHOST ) );
 		tParameterList( 3 )( tIWGCounter ).set( "dof_residual", 			  "TEMP" );
-		tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
-		tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",	  "TEMP" );
+		tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "TEMP" );
+		tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies",	  "TEMP" );
 		tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGPTemp_Inner,GhostDispl" );
 		tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",			  "ghost_p3" );
 		tIWGCounter++;
@@ -426,14 +426,14 @@ moris::real tInnerRad        = 0.385; /* y top plane    (m) */
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInterfaceTEMP" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "TEMP" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusion_Outer,Diffusion" );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_constitutive_models",  "CMDiffusion_Inner,Diffusion" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies",     "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusion_Outer,Diffusion" );
+        tParameterList( 3 )( tIWGCounter ).set( "follower_constitutive_models",  "CMDiffusion_Inner,Diffusion" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",
                 "SPInterfaceNitsche     ,NitscheInterface;"
-                "SPInterfaceMasterWeight,MasterWeightInterface;"
-                "SPInterfaceSlaveWeight ,SlaveWeightInterface"   );
+                "SPInterfaceLeaderWeight,LeaderWeightInterface;"
+                "SPInterfaceFollowerWeight ,FollowerWeightInterface"   );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "dbl_iside_p0_2_p1_3" );
         tIWGCounter++;
 
@@ -441,8 +441,8 @@ moris::real tInnerRad        = 0.385; /* y top plane    (m) */
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGTimeContinuityTemp" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::TIME_CONTINUITY_DOF ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "TEMP" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties",
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "TEMP" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties",
                 "PropWeightCurrent,WeightCurrent;"
                 "PropWeightPrevious,WeightPrevious;"
                 "PropInitialCondition,InitialCondition" );
@@ -459,7 +459,7 @@ moris::real tInnerRad        = 0.385; /* y top plane    (m) */
         tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "IQI_output_type",            static_cast< uint >( vis::Output_Type::TEMP ) );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies",    "TEMP" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p2,HMR_dummy_c_p2,HMR_dummy_n_p3,HMR_dummy_c_p3" );
         tIQICounter++;

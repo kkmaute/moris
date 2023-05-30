@@ -81,20 +81,20 @@ namespace moris
 
             moris::Cell< mtk::Double_Side_Cluster > mDblSideClusters;
 
-            moris::Cell< mtk::Side_Cluster_DataBase > mGhostMaster;
-            moris::Cell< mtk::Side_Cluster_DataBase > mGhostSlave;
+            moris::Cell< mtk::Side_Cluster_DataBase > mGhostLeader;
+            moris::Cell< mtk::Side_Cluster_DataBase > mGhostFollower;
             moris::Cell< mtk::Double_Side_Cluster >   mGhostDblSidedSet;
 
-            moris::Cell< moris_index > mGhostMasterSlaveIPCellList;
-            moris::Cell< mtk::Cell* >  mGhostMasterSlaveIGCellList;
+            moris::Cell< moris_index > mGhostLeaderFollowerIPCellList;
+            moris::Cell< mtk::Cell* >  mGhostLeaderFollowerIGCellList;
 
-            moris::Cell< moris_index > mGhostMasterSlaveOrd;
+            moris::Cell< moris_index > mGhostLeaderFollowerOrd;
 
-            moris::Cell< bool > mGhostMasterSlaveIsTrivial;
+            moris::Cell< bool > mGhostLeaderFollowerIsTrivial;
 
-            moris::Cell< moris_index > mGhostMasterSlaveVertexOffSet;
+            moris::Cell< moris_index > mGhostLeaderFollowerVertexOffSet;
 
-            moris::Cell< mtk::Vertex* > mGhostMasterSlaveToVertex;
+            moris::Cell< mtk::Vertex* > mGhostLeaderFollowerToVertex;
             // Cell Information
             moris::Cell< Cell_DataBase > mCells;
 

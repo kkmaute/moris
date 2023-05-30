@@ -24,7 +24,7 @@ namespace moris
         SP_GGLS_Diffusion::SP_GGLS_Diffusion()
         {
             // set the property pointer cell size
-            mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
             mPropertyMap[ "Conductivity" ]       = static_cast< uint >( Property_Type::CONDUCTIVITY );
@@ -41,16 +41,16 @@ namespace moris
         void SP_GGLS_Diffusion::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 moris::Cell< std::string >                  & aDofStrings,
-                mtk::Master_Slave                             aIsMaster )
+                mtk::Leader_Follower                             aIsLeader )
         {
 
-            // switch on master slave
-            switch ( aIsMaster )
+            // switch on leader follower
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER :
+                case mtk::Leader_Follower::LEADER :
                 {
                     // set dof type list
-                    mMasterDofTypes = aDofTypes;
+                    mLeaderDofTypes = aDofTypes;
 
                     // loop on dof type
                     for( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
@@ -64,7 +64,7 @@ namespace moris
                         // if velocity
                         if( tDofString == "Temperature" )
                         {
-                            mMasterDofTemp = tDofType;
+                            mLeaderDofTemp = tDofType;
                         }
                         else
                         {
@@ -77,15 +77,15 @@ namespace moris
                     break;
                 }
 
-                case mtk::Master_Slave::SLAVE :
+                case mtk::Leader_Follower::FOLLOWER :
                 {
                     // set dof type list
-                    mSlaveDofTypes = aDofTypes;
+                    mFollowerDofTypes = aDofTypes;
                     break;
                 }
 
                 default:
-                    MORIS_ERROR( false, "SP_GGLS_Diffusion::set_dof_type_list - unknown master slave type." );
+                    MORIS_ERROR( false, "SP_GGLS_Diffusion::set_dof_type_list - unknown leader follower type." );
             }
         }
 
@@ -94,7 +94,7 @@ namespace moris
         moris::Cell< std::tuple<
         fem::Measure_Type,
         mtk::Primary_Void,
-        mtk::Master_Slave > > SP_GGLS_Diffusion::get_cluster_measure_tuple_list()
+        mtk::Leader_Follower > > SP_GGLS_Diffusion::get_cluster_measure_tuple_list()
         {
             return { mElementSizeTuple };
         }
@@ -110,14 +110,14 @@ namespace moris
                     std::get<2>( mElementSizeTuple ) )->val()( 0 );
 
             // get the property values
-            real tConductivity = mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->val()( 0 );
-            real tDensity      = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
-            real tHeatCapacity = mMasterProp( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
+            real tConductivity = mLeaderProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) )->val()( 0 );
+            real tDensity      = mLeaderProp( static_cast< uint >( Property_Type::DENSITY ) )->val()( 0 );
+            real tHeatCapacity = mLeaderProp( static_cast< uint >( Property_Type::HEAT_CAPACITY ) )->val()( 0 );
 
-            std::shared_ptr< Property > & tPropLatentHeat = mMasterProp( static_cast< uint >( Property_Type::LATENT_HEAT ) );
+            std::shared_ptr< Property > & tPropLatentHeat = mLeaderProp( static_cast< uint >( Property_Type::LATENT_HEAT ) );
 
             // time step size
-            real tDeltat = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+            real tDeltat = mLeaderFIManager->get_IP_geometry_interpolator()->get_time_step();
 
             // threshold product of conductivity and time step
             real tProdCondDeltat = std::max(tConductivity * tDeltat, mEpsilon);
@@ -130,13 +130,13 @@ namespace moris
             {
                 // get values of properties
                 real tLatentHeat = tPropLatentHeat->val()( 0 );
-                real tMeltTemp   = mMasterProp( static_cast< uint >( Property_Type::PC_TEMP ) )->val()( 0 );
-                real tPCconst    = mMasterProp( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 );
-                real tPSfunc     = mMasterProp( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) )->val()( 0 );
+                real tMeltTemp   = mLeaderProp( static_cast< uint >( Property_Type::PC_TEMP ) )->val()( 0 );
+                real tPCconst    = mLeaderProp( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 );
+                real tPSfunc     = mLeaderProp( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) )->val()( 0 );
 
                 // get the dof type FI
                 Field_Interpolator * tFITemp =
-                        mMasterFIManager->get_field_interpolators_for_type( mMasterDofTemp );
+                        mLeaderFIManager->get_field_interpolators_for_type( mLeaderDofTemp );
 
                 // get phase state function
                 moris::real tdfdT = eval_dFdTemp( tMeltTemp, tPCconst, tPSfunc, tFITemp );
@@ -170,7 +170,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_GGLS_Diffusion::eval_dSPdMasterDOF(
+        void SP_GGLS_Diffusion::eval_dSPdLeaderDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get element size cluster measure value
@@ -180,25 +180,25 @@ namespace moris
                     std::get<2>( mElementSizeTuple ) )->val()( 0 );
 
             // get the properties
-            const std::shared_ptr< Property > & tPropConductivity = mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
-            const std::shared_ptr< Property > & tPropDensity      = mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
-            const std::shared_ptr< Property > & tPropHeatCapacity = mMasterProp( static_cast< uint >( Property_Type::HEAT_CAPACITY ) );
-            const std::shared_ptr< Property > & tPropLatentHeat   = mMasterProp( static_cast< uint >( Property_Type::LATENT_HEAT ) );
-            const std::shared_ptr< Property > & tPropMeltTemp     = mMasterProp( static_cast< uint >( Property_Type::PC_TEMP ) );
-            const std::shared_ptr< Property > & tPropPCconst      = mMasterProp( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) );
-            const std::shared_ptr< Property > & tPropPSfunc       = mMasterProp( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) );
+            const std::shared_ptr< Property > & tPropConductivity = mLeaderProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
+            const std::shared_ptr< Property > & tPropDensity      = mLeaderProp( static_cast< uint >( Property_Type::DENSITY ) );
+            const std::shared_ptr< Property > & tPropHeatCapacity = mLeaderProp( static_cast< uint >( Property_Type::HEAT_CAPACITY ) );
+            const std::shared_ptr< Property > & tPropLatentHeat   = mLeaderProp( static_cast< uint >( Property_Type::LATENT_HEAT ) );
+            const std::shared_ptr< Property > & tPropMeltTemp     = mLeaderProp( static_cast< uint >( Property_Type::PC_TEMP ) );
+            const std::shared_ptr< Property > & tPropPCconst      = mLeaderProp( static_cast< uint >( Property_Type::PHASE_CHANGE_CONST ) );
+            const std::shared_ptr< Property > & tPropPSfunc       = mLeaderProp( static_cast< uint >( Property_Type::PHASE_STATE_FUNCTION ) );
 
             // get the dof type index
-            uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+            uint tDofIndex = mLeaderGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // get the dof type FI
-            Field_Interpolator * tFIDer = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+            Field_Interpolator * tFIDer = mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
-            // set size for dSPdMasterDof
-            mdPPdMasterDof( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
+            // set size for dSPdLeaderDof
+            mdPPdLeaderDof( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients(), 0.0 );
 
             // time step size
-            real tDeltat = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+            real tDeltat = mLeaderFIManager->get_IP_geometry_interpolator()->get_time_step();
 
             // initialize values
             real tConductivity = tPropConductivity->val()( 0 );
@@ -255,7 +255,7 @@ namespace moris
                 {
                     if ( tProdCondDeltat > mEpsilon )
                     {
-                        mdPPdMasterDof( tDofIndex ) -=
+                        mdPPdLeaderDof( tDofIndex ) -=
                                 tdSPdAlpha *
                                 ( tDensity * tHeatCapacity * std::pow(tElementSize, 2.0) /
                                         ( 6.0 * std::pow(tConductivity, 2.0) * tDeltat ) ) *
@@ -266,7 +266,7 @@ namespace moris
                 // if indirect dependency on density
                 if ( tPropDensity->check_dof_dependency( aDofTypes ) )
                 {
-                    mdPPdMasterDof( tDofIndex ) +=
+                    mdPPdLeaderDof( tDofIndex ) +=
                             tdSPdAlpha *
                             ( tHeatCapacity * std::pow(tElementSize, 2.0) /
                                     ( 6.0 * tProdCondDeltat ) ) *
@@ -276,7 +276,7 @@ namespace moris
                 // if indirect dependency on heat capacity
                 if ( tPropHeatCapacity->check_dof_dependency( aDofTypes ) )
                 {
-                    mdPPdMasterDof( tDofIndex ) +=
+                    mdPPdLeaderDof( tDofIndex ) +=
                             tdSPdAlpha *
                             ( tDensity * std::pow(tElementSize, 2.0) /
                                     ( 6.0 * tProdCondDeltat ) ) *
@@ -287,14 +287,14 @@ namespace moris
                 if (tPropLatentHeat != nullptr)
                 {
                     // if dof type is temperature
-                    if( aDofTypes( 0 ) == mMasterDofTemp )
+                    if( aDofTypes( 0 ) == mLeaderDofTemp )
                     {
                         // get Dof-deriv of phase state function
                         moris::Matrix<DDRMat> td2fdTdDOF =
                                 eval_dFdTempdDOF( tMeltTemp, tPCconst, tPSfunc, tFIDer);
 
                         // derivative of tau wrt temperature DOFs
-                        mdPPdMasterDof( tDofIndex ) +=
+                        mdPPdLeaderDof( tDofIndex ) +=
                                 tdSPdAlpha *
                                 ( tDensity * tLatentHeat * std::pow(tElementSize, 2.0) /
                                         ( 6.0 * tProdCondDeltat ) ) *
@@ -306,7 +306,7 @@ namespace moris
                     {
                         if ( tProdCondDeltat > mEpsilon )
                         {
-                            mdPPdMasterDof( tDofIndex ) -=
+                            mdPPdLeaderDof( tDofIndex ) -=
                                     tdSPdAlpha *
                                     ( tDensity * tLatentHeat * tdfdT * std::pow(tElementSize, 2.0) /
                                             ( 6.0 * std::pow(tConductivity, 2.0) * tDeltat ) ) *
@@ -317,7 +317,7 @@ namespace moris
                     // if indirect dependency on density
                     if ( tPropDensity->check_dof_dependency( aDofTypes ) )
                     {
-                        mdPPdMasterDof( tDofIndex ) +=
+                        mdPPdLeaderDof( tDofIndex ) +=
                                 tdSPdAlpha *
                                 ( tLatentHeat * tdfdT * std::pow(tElementSize, 2.0) /
                                         ( 6.0 * tProdCondDeltat ) ) *

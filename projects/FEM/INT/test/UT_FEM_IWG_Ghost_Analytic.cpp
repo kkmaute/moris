@@ -79,7 +79,7 @@ TEST_CASE( "IWG_Diff_Ghost_Analytic", "[moris],[fem],[IWG_Diff_Ghost_Analytic]" 
     fem::SP_Factory tSPFactory;
     std::shared_ptr< fem::Stabilization_Parameter > tSP = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
     tSP->set_parameters( { {{ 1.0 }} });
-    tSP->set_property( tPropUnit, "Material", mtk::Master_Slave::MASTER );
+    tSP->set_property( tPropUnit, "Material", mtk::Leader_Follower::LEADER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -90,8 +90,8 @@ TEST_CASE( "IWG_Diff_Ghost_Analytic", "[moris],[fem],[IWG_Diff_Ghost_Analytic]" 
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
     tIWG->set_stabilization_parameter( tSP, "GhostSP" );
     tIWG->set_residual_dof_type( tDofTypes );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::FOLLOWER );
 
     //------------------------------------------------------------------------------
     // initialize set info
@@ -108,13 +108,13 @@ TEST_CASE( "IWG_Diff_Ghost_Analytic", "[moris],[fem],[IWG_Diff_Ghost_Analytic]" 
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
-    // set size and populate the set slave dof type map
-    tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+    // set size and populate the set follower dof type map
+    tIWG->mSet->mFollowerDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mFollowerDofTypeMap ( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -193,27 +193,27 @@ TEST_CASE( "IWG_Diff_Ghost_Analytic", "[moris],[fem],[IWG_Diff_Ghost_Analytic]" 
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatTemp;
-            fill_u_hat_master( tMasterDOFHatTemp, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatTemp;
+            fill_u_hat_leader( tLeaderDOFHatTemp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator temperature
-            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatTemp );
+            tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatTemp );
 
-            // fill random coefficients for slave FI
-            Matrix< DDRMat > tSlaveDOFHatTemp;
-            fill_u_hat_slave( tSlaveDOFHatTemp, iSpaceDim, iInterpOrder );
+            // fill random coefficients for follower FI
+            Matrix< DDRMat > tFollowerDOFHatTemp;
+            fill_u_hat_follower( tFollowerDOFHatTemp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
 
             // create the field interpolator temperature
-            tSlaveFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDofTypes( 0 ) );
-            tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatTemp );
+            tFollowerFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDofTypes( 0 ) );
+            tFollowerFIs( 0 )->set_coeff( tFollowerDOFHatTemp );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 2 * tDofTypes.size() );
@@ -222,8 +222,8 @@ TEST_CASE( "IWG_Diff_Ghost_Analytic", "[moris],[fem],[IWG_Diff_Ghost_Analytic]" 
 
             // assemble the two coefficient vectors into one
             Matrix< DDRMat > tGlobalUHat( 2 * tNumCoeff, 1, 0.0 );
-            tGlobalUHat( { 0, tNumCoeff - 1 }, { 0, 0 } ) = tMasterDOFHatTemp.matrix_data();
-            tGlobalUHat( { tNumCoeff, 2 * tNumCoeff - 1 }, { 0, 0 } ) = tSlaveDOFHatTemp.matrix_data();
+            tGlobalUHat( { 0, tNumCoeff - 1 }, { 0, 0 } ) = tLeaderDOFHatTemp.matrix_data();
+            tGlobalUHat( { tNumCoeff, 2 * tNumCoeff - 1 }, { 0, 0 } ) = tFollowerDOFHatTemp.matrix_data();
             Matrix< DDRMat > tTransGlobalUHat = trans( tGlobalUHat );
 
             // set size and fill the set jacobian assembly map
@@ -240,31 +240,31 @@ TEST_CASE( "IWG_Diff_Ghost_Analytic", "[moris],[fem],[IWG_Diff_Ghost_Analytic]" 
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
-            tIWG->mRequestedSlaveGlobalDofTypes  = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
+            tIWG->mRequestedFollowerGlobalDofTypes  = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tMasterFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
-            Field_Interpolator_Manager tSlaveFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tLeaderFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tFollowerFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tMasterFIManager.mFI = tMasterFIs;
-            tMasterFIManager.mIPGeometryInterpolator = &tGI;
-            tMasterFIManager.mIGGeometryInterpolator = &tGI;
-            tSlaveFIManager.mFI = tSlaveFIs;
-            tSlaveFIManager.mIPGeometryInterpolator = &tGI;
-            tSlaveFIManager.mIGGeometryInterpolator = &tGI;
+            tLeaderFIManager.mFI = tLeaderFIs;
+            tLeaderFIManager.mIPGeometryInterpolator = &tGI;
+            tLeaderFIManager.mIGGeometryInterpolator = &tGI;
+            tFollowerFIManager.mFI = tFollowerFIs;
+            tFollowerFIManager.mIPGeometryInterpolator = &tGI;
+            tFollowerFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tMasterFIManager;
-            tIWG->mSet->mSlaveFIManager = &tSlaveFIManager;
+            tIWG->mSet->mLeaderFIManager = &tLeaderFIManager;
+            tIWG->mSet->mFollowerFIManager = &tFollowerFIManager;
 
             // set IWG field interpolator manager
-            tIWG->set_field_interpolator_manager( &tMasterFIManager, mtk::Master_Slave::MASTER );
-            tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
+            tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
+            tIWG->set_field_interpolator_manager( &tFollowerFIManager, mtk::Leader_Follower::FOLLOWER );
 
             // set the interpolation order for the ghost sum
             tIWG->set_interpolation_order( iInterpOrder );
@@ -287,8 +287,8 @@ TEST_CASE( "IWG_Diff_Ghost_Analytic", "[moris],[fem],[IWG_Diff_Ghost_Analytic]" 
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
-                tIWG->mSet->mSlaveFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mFollowerFIManager->set_space_time( tParamPoint );
 
                 // reset residual and jacobian
                 tIWG->mSet->mResidual( 0 ).fill( 0.0 );
@@ -334,8 +334,8 @@ TEST_CASE( "IWG_Diff_Ghost_Analytic", "[moris],[fem],[IWG_Diff_Ghost_Analytic]" 
             REQUIRE( tCheckJacobian );
 
             // clean up before going to next Element type
-            tMasterFIs.clear();
-            tSlaveFIs.clear();
+            tLeaderFIs.clear();
+            tFollowerFIs.clear();
         }
     }
 }/* END_TEST_CASE */

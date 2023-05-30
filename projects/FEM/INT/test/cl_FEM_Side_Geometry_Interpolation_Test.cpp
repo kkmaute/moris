@@ -168,10 +168,10 @@ TEST_CASE("Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],[fem]
             // get treated side ordinal
             moris_index tSideOrdinal = tListOfSideOrdinals( iSide );
 
-            // get the node ids associated to the slave side ordinal
+            // get the node ids associated to the follower side ordinal
             Matrix< DDSMat > tSideOrdNodes = tSideNodes.get_row( tSideOrdinal );
 
-            // phys coords and param coords in IP param space for the slave side
+            // phys coords and param coords in IP param space for the follower side
             uint tNumSideNodes = tSideOrdNodes.numel();
             Matrix< DDRMat > tSideXHat( tNumSideNodes, 2 );
             Matrix< DDRMat > tSideXiHat( tNumSideNodes, 2 );
@@ -420,10 +420,10 @@ TEST_CASE( "Side_Geometry_Interpolation : TRI3 - TRI6 - TRI10", "[moris],[fem],[
             // get treated side ordinal
             moris_index tSideOrdinal = tListOfSideOrdinals( iSide );
 
-            // get the node ids associated to the slave side ordinal
+            // get the node ids associated to the follower side ordinal
             Matrix< DDSMat > tSideOrdNodes = tSideNodes.get_row( tSideOrdinal );
 
-            // phys coords and param coords in IP param space for the slave side
+            // phys coords and param coords in IP param space for the follower side
             uint tNumSideNodes = tSideOrdNodes.numel();
             Matrix< DDRMat > tSideXHat( tNumSideNodes, 2 );
             Matrix< DDRMat > tSideXiHat( tNumSideNodes, 3 );
@@ -643,10 +643,10 @@ TEST_CASE( "Side_Geometry_Interpolation :  TET4 - TET10 - TET20", "[moris],[fem]
              // get treated side ordinal
              moris_index tSideOrdinal = tListOfSideOrdinals( iSide );
 
-             // get the node ids associated to the slave side ordinal
+             // get the node ids associated to the follower side ordinal
              Matrix< DDSMat > tSideOrdNodes = tSideNodes.get_row( tSideOrdinal );
 
-             // phys coords and param coords in IP param space for the slave side
+             // phys coords and param coords in IP param space for the follower side
              uint tNumSideNodes = tSideOrdNodes.numel();
              Matrix< DDRMat > tSideXHat( tNumSideNodes, 3 );
              Matrix< DDRMat > tSideXiHat( tNumSideNodes, 4 );
@@ -815,10 +815,10 @@ TEST_CASE( "Side_Geometry_Interpolation : HEX8", "[moris],[fem],[SideGeoInterp_H
             // get treated side ordinal
             moris_index tSideOrdinal = tListOfSideOrdinals( iSide );
 
-            // get the node ids associated to the slave side ordinal
+            // get the node ids associated to the follower side ordinal
             Matrix< DDSMat > tSideOrdNodes = tSideNodes.get_row( tSideOrdinal );
 
-            // phys coords and param coords in IP param space for the slave side
+            // phys coords and param coords in IP param space for the follower side
             uint tNumSideNodes = tSideOrdNodes.numel();
             Matrix< DDRMat > tSideXHat( tNumSideNodes, 3 );
             Matrix< DDRMat > tSideXiHat( tNumSideNodes, 3 );

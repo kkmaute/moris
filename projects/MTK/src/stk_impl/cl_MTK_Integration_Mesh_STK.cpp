@@ -1053,9 +1053,9 @@ namespace moris
                 // initialize counter for matching clusters
                 uint tNumMatchingClusters = 0;
 
-                // determine master side which has lower block index
-                uint tMasterBlkIndex = MORIS_UINT_MAX;
-                uint tSlaveBlkIndex  = MORIS_UINT_MAX;
+                // determine leader side which has lower block index
+                uint tLeaderBlkIndex = MORIS_UINT_MAX;
+                uint tFollowerBlkIndex  = MORIS_UINT_MAX;
 
                 // initialize inconsistency flag (side set connected to more than 2 bulk phases)
                 bool tInconsistentFlag = false;
@@ -1069,20 +1069,20 @@ namespace moris
                     moris_index tIpCellIndex = tSideClusters->get_interpolation_cell().get_index();
                     uint        tBlkIndex    = mIpCellToBlockSetOrd( tIpCellIndex );
 
-                    // store master block index and check if there are more than 2 blocks
-                    if ( tBlkIndex <= tMasterBlkIndex )
+                    // store leader block index and check if there are more than 2 blocks
+                    if ( tBlkIndex <= tLeaderBlkIndex )
                     {
-                        tMasterBlkIndex = tBlkIndex;
+                        tLeaderBlkIndex = tBlkIndex;
                     }
                     else
                     {
-                        if ( tSlaveBlkIndex == MORIS_UINT_MAX )
+                        if ( tFollowerBlkIndex == MORIS_UINT_MAX )
                         {
-                            tSlaveBlkIndex = tBlkIndex;
+                            tFollowerBlkIndex = tBlkIndex;
                         }
                         else
                         {
-                            if ( tSlaveBlkIndex != tBlkIndex )
+                            if ( tFollowerBlkIndex != tBlkIndex )
                             {
                                 MORIS_LOG_INFO( "Integration_Mesh_STK::setup_double_side_set_clusters_all_trivial - side set  %s is connected to more than two block sets",
                                         mListOfSideSets( Ik )->get_set_name().c_str() );
@@ -1199,20 +1199,20 @@ namespace moris
                         if ( tNumMatchingClusters == 0 )
                         {
                             // build label for double sided side set
-                            std::string tMasterBlkLabel = this->get_block_set_label( tMasterBlkIndex );
-                            std::string tSlaveBlkLabel  = this->get_block_set_label( tSlaveBlkIndex );
+                            std::string tLeaderBlkLabel = this->get_block_set_label( tLeaderBlkIndex );
+                            std::string tFollowerBlkLabel  = this->get_block_set_label( tFollowerBlkIndex );
 
-                            std::string tMasterLabel = mListOfSideSets( Ik )->get_set_name()    //
-                                                     + "_" + tMasterBlkLabel + "_" + tSlaveBlkLabel;
+                            std::string tLeaderLabel = mListOfSideSets( Ik )->get_set_name()    //
+                                                     + "_" + tLeaderBlkLabel + "_" + tFollowerBlkLabel;
 
-                            std::string tSlaveLabel = mListOfSideSets( Ik )->get_set_name()    //
-                                                    + "_" + tSlaveBlkLabel + "_" + tMasterBlkLabel;
+                            std::string tFollowerLabel = mListOfSideSets( Ik )->get_set_name()    //
+                                                    + "_" + tFollowerBlkLabel + "_" + tLeaderBlkLabel;
                             ;
 
-                            mDoubleSideSetLabels.push_back( tMasterLabel );
-                            mDoubleSideSetLabels.push_back( tSlaveLabel );
+                            mDoubleSideSetLabels.push_back( tLeaderLabel );
+                            mDoubleSideSetLabels.push_back( tFollowerLabel );
 
-                            MORIS_LOG_INFO( "Created double side sets: %s  and %s", tMasterLabel.c_str(), tSlaveLabel.c_str() );
+                            MORIS_LOG_INFO( "Created double side sets: %s  and %s", tLeaderLabel.c_str(), tFollowerLabel.c_str() );
 
                             // allocate new cell of clusters for double side set
                             mDoubleSideSets.push_back( moris::Cell< Cluster const * >() );
@@ -1224,11 +1224,11 @@ namespace moris
                         // increase counter of matching clusters
                         tNumMatchingClusters++;
 
-                        // determine which pairing is master-to-slave and slave-to-master set
+                        // determine which pairing is leader-to-follower and follower-to-leader set
                         uint tLeftToRightIndex = tNumDoubleSideSets - 2;
                         uint tRightToLeftIndex = tNumDoubleSideSets - 1;
 
-                        if ( tRightSideBlkIndex == tMasterBlkIndex )
+                        if ( tRightSideBlkIndex == tLeaderBlkIndex )
                         {
                             tLeftToRightIndex = tNumDoubleSideSets - 1;
                             tRightToLeftIndex = tNumDoubleSideSets - 2;

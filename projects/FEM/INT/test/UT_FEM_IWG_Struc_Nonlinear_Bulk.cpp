@@ -81,12 +81,12 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_SE_Saint_Venant", "[moris],[fem],[IWG_NL_Elas
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucNonlinIso =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderStrucNonlinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF );
-    tCMMasterStrucNonlinIso->set_dof_type_list( { tDispDofTypes } );
-    tCMMasterStrucNonlinIso->set_property( tPropEMod, "YoungsModulus" );
-    tCMMasterStrucNonlinIso->set_property( tPropNu, "PoissonRatio" );
-    tCMMasterStrucNonlinIso->set_local_properties();
+    tCMLeaderStrucNonlinIso->set_dof_type_list( { tDispDofTypes } );
+    tCMLeaderStrucNonlinIso->set_property( tPropEMod, "YoungsModulus" );
+    tCMLeaderStrucNonlinIso->set_property( tPropNu, "PoissonRatio" );
+    tCMLeaderStrucNonlinIso->set_local_properties();
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -94,8 +94,8 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_SE_Saint_Venant", "[moris],[fem],[IWG_NL_Elas
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::STRUC_NON_LINEAR_BULK_SE );
     tIWG->set_residual_dof_type( tDispDofTypes );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMMasterStrucNonlinIso, "ElastLinIso" );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
+    tIWG->set_constitutive_model( tCMLeaderStrucNonlinIso, "ElastLinIso" );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -111,9 +111,9 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_SE_Saint_Venant", "[moris],[fem],[IWG_NL_Elas
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -143,8 +143,8 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_SE_Saint_Venant", "[moris],[fem],[IWG_NL_Elas
         }
 
         // set space dimension to CM, SP
-        tCMMasterStrucNonlinIso->set_model_type( fem::Model_Type::PLANE_STRAIN );
-        tCMMasterStrucNonlinIso->set_space_dim( iSpaceDim );
+        tCMLeaderStrucNonlinIso->set_model_type( fem::Model_Type::PLANE_STRAIN );
+        tCMLeaderStrucNonlinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -212,19 +212,19 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_SE_Saint_Venant", "[moris],[fem],[IWG_NL_Elas
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDofHatDisp;
-            fill_uhat_Elast( tMasterDofHatDisp, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDofHatDisp;
+            fill_uhat_Elast( tLeaderDofHatDisp, iSpaceDim, iInterpOrder );
 
-//            tMasterDofHatDisp = tMasterDofHatDisp * 0.015;
-            tMasterDofHatDisp = tMasterDofHatDisp * 0.01;
+//            tLeaderDofHatDisp = tLeaderDofHatDisp * 0.015;
+            tLeaderDofHatDisp = tLeaderDofHatDisp * 0.01;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDofHatDisp );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -243,8 +243,8 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_SE_Saint_Venant", "[moris],[fem],[IWG_NL_Elas
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -252,12 +252,12 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_SE_Saint_Venant", "[moris],[fem],[IWG_NL_Elas
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tFIManager;
+            tIWG->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tFIManager );
@@ -273,7 +273,7 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_SE_Saint_Venant", "[moris],[fem],[IWG_NL_Elas
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -312,7 +312,7 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_SE_Saint_Venant", "[moris],[fem],[IWG_NL_Elas
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
 
         }
     }
@@ -363,12 +363,12 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_PF_Saint_Venant", "[moris],[fem],[IWG_NL_Elas
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucNonlinIso =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderStrucNonlinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF );
-    tCMMasterStrucNonlinIso->set_dof_type_list( { tDispDofTypes } );
-    tCMMasterStrucNonlinIso->set_property( tPropEMod, "YoungsModulus" );
-    tCMMasterStrucNonlinIso->set_property( tPropNu, "PoissonRatio" );
-    tCMMasterStrucNonlinIso->set_local_properties();
+    tCMLeaderStrucNonlinIso->set_dof_type_list( { tDispDofTypes } );
+    tCMLeaderStrucNonlinIso->set_property( tPropEMod, "YoungsModulus" );
+    tCMLeaderStrucNonlinIso->set_property( tPropNu, "PoissonRatio" );
+    tCMLeaderStrucNonlinIso->set_local_properties();
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -376,8 +376,8 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_PF_Saint_Venant", "[moris],[fem],[IWG_NL_Elas
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::STRUC_NON_LINEAR_BULK_PF );
     tIWG->set_residual_dof_type( tDispDofTypes );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMMasterStrucNonlinIso, "ElastLinIso" );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
+    tIWG->set_constitutive_model( tCMLeaderStrucNonlinIso, "ElastLinIso" );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -393,9 +393,9 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_PF_Saint_Venant", "[moris],[fem],[IWG_NL_Elas
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -425,8 +425,8 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_PF_Saint_Venant", "[moris],[fem],[IWG_NL_Elas
         }
 
         // set space dimension to CM, SP
-        tCMMasterStrucNonlinIso->set_model_type( fem::Model_Type::PLANE_STRAIN );
-        tCMMasterStrucNonlinIso->set_space_dim( iSpaceDim );
+        tCMLeaderStrucNonlinIso->set_model_type( fem::Model_Type::PLANE_STRAIN );
+        tCMLeaderStrucNonlinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -494,19 +494,19 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_PF_Saint_Venant", "[moris],[fem],[IWG_NL_Elas
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDofHatDisp;
-            fill_uhat_Elast( tMasterDofHatDisp, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDofHatDisp;
+            fill_uhat_Elast( tLeaderDofHatDisp, iSpaceDim, iInterpOrder );
 
-//            tMasterDofHatDisp = tMasterDofHatDisp * 0.015;
-            tMasterDofHatDisp = tMasterDofHatDisp * 0.01;
+//            tLeaderDofHatDisp = tLeaderDofHatDisp * 0.015;
+            tLeaderDofHatDisp = tLeaderDofHatDisp * 0.01;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDofHatDisp );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -525,8 +525,8 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_PF_Saint_Venant", "[moris],[fem],[IWG_NL_Elas
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -534,12 +534,12 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_PF_Saint_Venant", "[moris],[fem],[IWG_NL_Elas
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tFIManager;
+            tIWG->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tFIManager );
@@ -555,7 +555,7 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_PF_Saint_Venant", "[moris],[fem],[IWG_NL_Elas
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -594,7 +594,7 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_PF_Saint_Venant", "[moris],[fem],[IWG_NL_Elas
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
 
         }
     }
@@ -645,12 +645,12 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_Neo_Hookean", "[moris],[fem],[IWG_NL_Elastici
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucNonlinIso =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderStrucNonlinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::STRUC_NON_LIN_ISO_NEO_HOOKEAN );
-    tCMMasterStrucNonlinIso->set_dof_type_list( { tDispDofTypes } );
-    tCMMasterStrucNonlinIso->set_property( tPropEMod, "YoungsModulus" );
-    tCMMasterStrucNonlinIso->set_property( tPropNu, "PoissonRatio" );
-    tCMMasterStrucNonlinIso->set_local_properties();
+    tCMLeaderStrucNonlinIso->set_dof_type_list( { tDispDofTypes } );
+    tCMLeaderStrucNonlinIso->set_property( tPropEMod, "YoungsModulus" );
+    tCMLeaderStrucNonlinIso->set_property( tPropNu, "PoissonRatio" );
+    tCMLeaderStrucNonlinIso->set_local_properties();
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -658,8 +658,8 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_Neo_Hookean", "[moris],[fem],[IWG_NL_Elastici
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::STRUC_NON_LINEAR_BULK_SE );
     tIWG->set_residual_dof_type( tDispDofTypes );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMMasterStrucNonlinIso, "ElastLinIso" );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
+    tIWG->set_constitutive_model( tCMLeaderStrucNonlinIso, "ElastLinIso" );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -675,9 +675,9 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_Neo_Hookean", "[moris],[fem],[IWG_NL_Elastici
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -707,8 +707,8 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_Neo_Hookean", "[moris],[fem],[IWG_NL_Elastici
         }
 
         // set space dimension to CM, SP
-        tCMMasterStrucNonlinIso->set_model_type( fem::Model_Type::PLANE_STRAIN );
-        tCMMasterStrucNonlinIso->set_space_dim( iSpaceDim );
+        tCMLeaderStrucNonlinIso->set_model_type( fem::Model_Type::PLANE_STRAIN );
+        tCMLeaderStrucNonlinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -776,19 +776,19 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_Neo_Hookean", "[moris],[fem],[IWG_NL_Elastici
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDofHatDisp;
-            fill_uhat_Elast( tMasterDofHatDisp, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDofHatDisp;
+            fill_uhat_Elast( tLeaderDofHatDisp, iSpaceDim, iInterpOrder );
 
-//            tMasterDofHatDisp = tMasterDofHatDisp * 0.015;
-            tMasterDofHatDisp = tMasterDofHatDisp * 0.01;
+//            tLeaderDofHatDisp = tLeaderDofHatDisp * 0.015;
+            tLeaderDofHatDisp = tLeaderDofHatDisp * 0.01;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDofHatDisp );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -807,8 +807,8 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_Neo_Hookean", "[moris],[fem],[IWG_NL_Elastici
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -816,12 +816,12 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_Neo_Hookean", "[moris],[fem],[IWG_NL_Elastici
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tFIManager;
+            tIWG->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tFIManager );
@@ -837,7 +837,7 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_Neo_Hookean", "[moris],[fem],[IWG_NL_Elastici
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -876,7 +876,7 @@ TEST_CASE( "IWG_NL_Elasticity_Bulk_Neo_Hookean", "[moris],[fem],[IWG_NL_Elastici
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
 
         }
     }

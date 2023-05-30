@@ -88,19 +88,19 @@ TEST_CASE( "IWG_Interface_SLM_L2", "[moris],[fem],[IWG_Interface_SLM_L2]" )
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderStrucLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    tCMMasterStrucLinIso->set_dof_type_list( { tDispDofTypes } );
-    tCMMasterStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
-    tCMMasterStrucLinIso->set_property( tPropNu, "PoissonRatio" );
-    tCMMasterStrucLinIso->set_local_properties();
+    tCMLeaderStrucLinIso->set_dof_type_list( { tDispDofTypes } );
+    tCMLeaderStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
+    tCMLeaderStrucLinIso->set_property( tPropNu, "PoissonRatio" );
+    tCMLeaderStrucLinIso->set_local_properties();
 
 //    fem::SP_Factory tSPFactory;
 //
 //    std::shared_ptr< fem::Stabilization_Parameter > tSPL2Weight = tSPFactory.create_SP( fem::Stabilization_Type::LAGRANGE_MULTIPLIER_L2 );
-//    tSPL2Weight->set_dof_type_list( {{ MSI::Dof_Type::UX }}, mtk::Master_Slave::MASTER );
+//    tSPL2Weight->set_dof_type_list( {{ MSI::Dof_Type::UX }}, mtk::Leader_Follower::LEADER );
 //    tSPL2Weight->set_parameters( { {{ 2.3 }} });
-//    tSPL2Weight->set_property( tPropEMod, "Material", mtk::Master_Slave::MASTER );
+//    tSPL2Weight->set_property( tPropEMod, "Material", mtk::Leader_Follower::LEADER );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -108,10 +108,10 @@ TEST_CASE( "IWG_Interface_SLM_L2", "[moris],[fem],[IWG_Interface_SLM_L2]" )
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::Struc_Linear_Interface_SLM_L2 );
     tIWG->set_residual_dof_type( tLMDofTypes );
-    tIWG->set_dof_type_list( tAllDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
+    tIWG->set_dof_type_list( tAllDofTypes, mtk::Leader_Follower::LEADER );
+    tIWG->set_constitutive_model( tCMLeaderStrucLinIso, "ElastLinIso" );
 //    tIWG->set_stabilization_parameter( tSPL2Weight, "L2Weight");
-    tIWG->set_property( tPropDummyNormal, "Normal", mtk::Master_Slave::MASTER );
+    tIWG->set_property( tPropDummyNormal, "Normal", mtk::Leader_Follower::LEADER );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -128,10 +128,10 @@ TEST_CASE( "IWG_Interface_SLM_L2", "[moris],[fem],[IWG_Interface_SLM_L2]" )
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 1;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 1;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 1;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 3; iSpaceDim++ )
@@ -161,8 +161,8 @@ TEST_CASE( "IWG_Interface_SLM_L2", "[moris],[fem],[IWG_Interface_SLM_L2]" )
         }
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
+        tCMLeaderStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
+        tCMLeaderStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -231,22 +231,22 @@ TEST_CASE( "IWG_Interface_SLM_L2", "[moris],[fem],[IWG_Interface_SLM_L2]" )
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDofHatDisp;
-            fill_uhat_Elast( tMasterDofHatDisp, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDofHatDisp;
+            fill_uhat_Elast( tLeaderDofHatDisp, iSpaceDim, iInterpOrder );
 
-            Matrix< DDRMat > tMasterDofHatLM;
-            fill_uhat_Elast( tMasterDofHatLM, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDofHatLM;
+            fill_uhat_Elast( tLeaderDofHatLM, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tAllDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tAllDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDofHatDisp );
 
-            tMasterFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tLMDofTypes( 0 ) );
-            tMasterFIs( 1 )->set_coeff( tMasterDofHatLM );
+            tLeaderFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tLMDofTypes( 0 ) );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDofHatLM );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tAllDofTypes.size() );
@@ -267,8 +267,8 @@ TEST_CASE( "IWG_Interface_SLM_L2", "[moris],[fem],[IWG_Interface_SLM_L2]" )
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tAllDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tAllDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -276,12 +276,12 @@ TEST_CASE( "IWG_Interface_SLM_L2", "[moris],[fem],[IWG_Interface_SLM_L2]" )
             Field_Interpolator_Manager tFIManager( tAllDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tFIManager;
+            tIWG->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tFIManager );
@@ -297,7 +297,7 @@ TEST_CASE( "IWG_Interface_SLM_L2", "[moris],[fem],[IWG_Interface_SLM_L2]" )
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -336,7 +336,7 @@ TEST_CASE( "IWG_Interface_SLM_L2", "[moris],[fem],[IWG_Interface_SLM_L2]" )
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
 
         }
     }

@@ -22,7 +22,7 @@ namespace moris
         SP_Velocity_Dirichlet_Nitsche::SP_Velocity_Dirichlet_Nitsche()
         {
             // set the property pointer cell size
-            mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
             mPropertyMap[ "Viscosity" ]       = static_cast< uint >( Property_Type::VISCOSITY );
@@ -69,15 +69,15 @@ namespace moris
         SP_Velocity_Dirichlet_Nitsche::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
                 moris::Cell< std::string >&                  aDofStrings,
-                mtk::Master_Slave                            aIsMaster )
+                mtk::Leader_Follower                            aIsLeader )
         {
-            // switch on master slave
-            switch ( aIsMaster )
+            // switch on leader follower
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
+                case mtk::Leader_Follower::LEADER:
                 {
                     // set dof type list
-                    mMasterDofTypes = aDofTypes;
+                    mLeaderDofTypes = aDofTypes;
 
                     // loop on dof type
                     for ( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
@@ -91,7 +91,7 @@ namespace moris
                         // if velocity
                         if ( tDofString == "Velocity" )
                         {
-                            mMasterDofVelocity = tDofType;
+                            mLeaderDofVelocity = tDofType;
                         }
                         else
                         {
@@ -104,15 +104,15 @@ namespace moris
                     break;
                 }
 
-                case mtk::Master_Slave::SLAVE:
+                case mtk::Leader_Follower::FOLLOWER:
                 {
                     // set dof type list
-                    mSlaveDofTypes = aDofTypes;
+                    mFollowerDofTypes = aDofTypes;
                     break;
                 }
 
                 default:
-                    MORIS_ERROR( false, "SP_Velocity_Dirichlet_Nitsche::set_dof_type_list - unknown master slave type." );
+                    MORIS_ERROR( false, "SP_Velocity_Dirichlet_Nitsche::set_dof_type_list - unknown leader follower type." );
             }
         }
 
@@ -121,7 +121,7 @@ namespace moris
         moris::Cell< std::tuple<
                 fem::Measure_Type,
                 mtk::Primary_Void,
-                mtk::Master_Slave > >
+                mtk::Leader_Follower > >
         SP_Velocity_Dirichlet_Nitsche::get_cluster_measure_tuple_list()
         {
             return { mElementSizeTuple };
@@ -141,18 +141,18 @@ namespace moris
 
             // get the velocity FI
             Field_Interpolator* tFIVelocity =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
+                    mLeaderFIManager->get_field_interpolators_for_type( mLeaderDofVelocity );
 
             // get the viscosity and density property
             const std::shared_ptr< Property >& tPropViscosity =
-                    mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::VISCOSITY ) );
 
             const std::shared_ptr< Property >& tPropDensity =
-                    mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // get the inverse permeability property (Brinkman coefficient)
             const std::shared_ptr< Property >& tInvPermeabProp =
-                    mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
 
             // check that properties are set
             MORIS_ASSERT( tPropViscosity and tPropDensity,
@@ -183,7 +183,7 @@ namespace moris
             if ( mSetAlphaTime )
             {
                 // compute deltaT
-                real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+                real tDeltaT = mLeaderFIManager->get_IP_geometry_interpolator()->get_time_step();
 
                 // add time step contribution
                 mPPVal += mAlphaN * tPropDensity->val()( 0 ) * tElementSize / ( 12.0 * mAlphaTime * tDeltaT );
@@ -193,7 +193,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        SP_Velocity_Dirichlet_Nitsche::eval_dSPdMasterDOF(
+        SP_Velocity_Dirichlet_Nitsche::eval_dSPdLeaderDOF(
                 const moris::Cell< MSI::Dof_Type >& aDofTypes )
         {
             // get element size cluster measure value
@@ -204,30 +204,30 @@ namespace moris
                                         ->val()( 0 );
 
             // get the dof type index
-            uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+            uint tDofIndex = mLeaderGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // get the dof type FI
             Field_Interpolator* tFIDerivative =
-                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
-            // set size for dSPdMasterDof
-            mdPPdMasterDof( tDofIndex ).set_size( 1, tFIDerivative->get_number_of_space_time_coefficients() );
+            // set size for dSPdLeaderDof
+            mdPPdLeaderDof( tDofIndex ).set_size( 1, tFIDerivative->get_number_of_space_time_coefficients() );
 
             // get the velocity field interpolator
             Field_Interpolator* tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
+                    mLeaderFIManager->get_field_interpolators_for_type( mLeaderDofVelocity );
 
             // get the viscosity property
             const std::shared_ptr< Property >& tPropViscosity =
-                    mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::VISCOSITY ) );
 
             // get the density property
             const std::shared_ptr< Property >& tPropDensity =
-                    mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // get the inverse permeability property (Brinkman coefficient)
             const std::shared_ptr< Property >& tInvPermeabProp =
-                    mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
 
             // compute infinity norm
             uint tInfinityNormIndex = 0;
@@ -243,7 +243,7 @@ namespace moris
             }
 
             // if dof type == velocity
-            if ( aDofTypes( 0 ) == mMasterDofVelocity )
+            if ( aDofTypes( 0 ) == mLeaderDofVelocity )
             {
                 // compute derivative of the infinity norm
                 Matrix< DDRMat > tdInfinityNormdu = tVelocityFI->N().get_row( tInfinityNormIndex );
@@ -253,19 +253,19 @@ namespace moris
                 }
 
                 // compute contribution from velocity
-                mdPPdMasterDof( tDofIndex ) =
+                mdPPdLeaderDof( tDofIndex ) =
                         mAlphaN * tPropDensity->val()( 0 ) * tdInfinityNormdu / 6.0;
             }
             else
             {
-                mdPPdMasterDof( tDofIndex ).fill( 0.0 );
+                mdPPdLeaderDof( tDofIndex ).fill( 0.0 );
             }
 
             // if viscosity depends on dof type
             if ( tPropViscosity->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution from viscosity
-                mdPPdMasterDof( tDofIndex ) +=
+                mdPPdLeaderDof( tDofIndex ) +=
                         mAlphaN * tPropViscosity->dPropdDOF( aDofTypes ) / tElementSize;
             }
 
@@ -282,17 +282,17 @@ namespace moris
             if ( tPropDensity->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution from density
-                mdPPdMasterDof( tDofIndex ) +=
+                mdPPdLeaderDof( tDofIndex ) +=
                         mAlphaN * tPropDensity->dPropdDOF( aDofTypes ) * ( tInfinityNorm / 6.0 );
 
                 // if time step contribution
                 if ( mSetAlphaTime )
                 {
                     // compute deltaT
-                    real tDeltaT = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+                    real tDeltaT = mLeaderFIManager->get_IP_geometry_interpolator()->get_time_step();
 
                     // add time step contribution
-                    mdPPdMasterDof( tDofIndex ) +=
+                    mdPPdLeaderDof( tDofIndex ) +=
                             mAlphaN * tPropDensity->dPropdDOF( aDofTypes ) *    //
                             ( tElementSize / ( 12.0 * mAlphaTime * tDeltaT ) );
                 }

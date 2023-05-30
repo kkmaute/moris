@@ -129,11 +129,11 @@ namespace moris
                 moris_index tSideSetIndex = tIter->second;
 
                 // if the side set is NOT empty
-                if( mIntersectionDetect->mMasterSideSets(tSideSetIndex).size() > 0)
+                if( mIntersectionDetect->mLeaderSideSets(tSideSetIndex).size() > 0)
                 {
 
                     //access the clusters in the side set
-                    moris::Cell<mtk::Cluster const *> tSideClusters = mIntersectionDetect->mMasterSideSets(tSideSetIndex);
+                    moris::Cell<mtk::Cluster const *> tSideClusters = mIntersectionDetect->mLeaderSideSets(tSideSetIndex);
 
                     // iterate through side clusters and count number of sides in set
                     moris::uint tNumSides = 0;
@@ -188,15 +188,15 @@ namespace moris
             if( this->is_intersection_block_set( this->get_set_names(EntityRank::ELEMENT)(aSetIndex) ) )
             {
                 //If the block set is NOT empty
-                if( mIntersectionDetect->mMasterSideCells.size() > 0)
+                if( mIntersectionDetect->mLeaderSideCells.size() > 0)
                 {
                     //Initialize the output
-                    Matrix<IndexMat> tIndexMatrix(1, mIntersectionDetect->mMasterSideCells.size()) ;
+                    Matrix<IndexMat> tIndexMatrix(1, mIntersectionDetect->mLeaderSideCells.size()) ;
 
                     //Iterate through the cells and obtain their index
-                    for(uint i = 0 ; i < mIntersectionDetect->mMasterSideCells.size(); i++ )
+                    for(uint i = 0 ; i < mIntersectionDetect->mLeaderSideCells.size(); i++ )
                     {
-                        tIndexMatrix(i) = mIntersectionDetect->mMasterSideCells(i)->get_index();
+                        tIndexMatrix(i) = mIntersectionDetect->mLeaderSideCells(i)->get_index();
                     }
 
                     return tIndexMatrix;
@@ -228,15 +228,15 @@ namespace moris
             if( this->is_intersection_block_set( this->get_set_names(EntityRank::ELEMENT)(aSetIndex) ) )
             {
                 //If the block set is NOT empty
-                if( mIntersectionDetect->mMasterSideCells.size() > 0)
+                if( mIntersectionDetect->mLeaderSideCells.size() > 0)
                 {
                     //Initialize the output
-                    Matrix<IndexMat> tIndexMatrix(1, mIntersectionDetect->mMasterSideCells.size()) ;
+                    Matrix<IndexMat> tIndexMatrix(1, mIntersectionDetect->mLeaderSideCells.size()) ;
 
                     //Iterate through the cells and obtain their index
-                    for(uint i = 0 ; i < mIntersectionDetect->mMasterSideCells.size(); i++ )
+                    for(uint i = 0 ; i < mIntersectionDetect->mLeaderSideCells.size(); i++ )
                     {
-                        tIndexMatrix(i) = mIntersectionDetect->mMasterSideCells(i)->get_id();
+                        tIndexMatrix(i) = mIntersectionDetect->mLeaderSideCells(i)->get_id();
                     }
 
                     return tIndexMatrix;
@@ -320,9 +320,9 @@ namespace moris
                 // based on the map from cell index to mtk::cell
                  //moris::size_t tNumBackgroundEntities = mBackGroundMesh->get_num_entities(EntityRank::ELEMENT);
 
-                //moris::mtk::Cell const * tCell = mIntersectionDetect->mMasterSideCells(aElementIndex-tNumBackgroundEntities);
+                //moris::mtk::Cell const * tCell = mIntersectionDetect->mLeaderSideCells(aElementIndex-tNumBackgroundEntities);
 
-                moris::mtk::Cell const * tCell = mIntersectionDetect->mMasterSideCells(mIntersectionDetect->mMasterCellIndextoCellMap[aElementIndex]);
+                moris::mtk::Cell const * tCell = mIntersectionDetect->mLeaderSideCells(mIntersectionDetect->mLeaderCellIndextoCellMap[aElementIndex]);
 
                 // Get vertices' indices attached to that cell
                 return tCell->get_vertex_inds();

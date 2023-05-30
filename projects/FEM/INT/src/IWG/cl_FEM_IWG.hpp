@@ -65,61 +65,61 @@ namespace moris
             // residual dof type
             moris::Cell< moris::Cell< MSI::Dof_Type > > mResidualDofType;
 
-            // master and slave dof type lists
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterDofTypes;
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveDofTypes;
+            // leader and follower dof type lists
+            moris::Cell< moris::Cell< MSI::Dof_Type > > mLeaderDofTypes;
+            moris::Cell< moris::Cell< MSI::Dof_Type > > mFollowerDofTypes;
 
             // bool for building global dof type list and map
             bool mGlobalDofBuild   = true;
             bool mGlobalDvBuild    = true;
             bool mGlobalFieldBuild = true;
 
-            // master and slave global dof type lists
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mMasterGlobalDofTypes;
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mSlaveGlobalDofTypes;
+            // leader and follower global dof type lists
+            moris::Cell< moris::Cell< MSI::Dof_Type > > mLeaderGlobalDofTypes;
+            moris::Cell< moris::Cell< MSI::Dof_Type > > mFollowerGlobalDofTypes;
 
-            // master and slave requested global dof type lists
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedMasterGlobalDofTypes;
-            moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedSlaveGlobalDofTypes;
+            // leader and follower requested global dof type lists
+            moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedLeaderGlobalDofTypes;
+            moris::Cell< moris::Cell< MSI::Dof_Type > > mRequestedFollowerGlobalDofTypes;
 
-            // master and slave field interpolator managers
-            Field_Interpolator_Manager* mMasterFIManager         = nullptr;
-            Field_Interpolator_Manager* mSlaveFIManager          = nullptr;
-            Field_Interpolator_Manager* mMasterPreviousFIManager = nullptr;
+            // leader and follower field interpolator managers
+            Field_Interpolator_Manager* mLeaderFIManager         = nullptr;
+            Field_Interpolator_Manager* mFollowerFIManager          = nullptr;
+            Field_Interpolator_Manager* mLeaderPreviousFIManager = nullptr;
 
-            // master and slave dv type lists
-            moris::Cell< moris::Cell< PDV_Type > > mMasterDvTypes;
-            moris::Cell< moris::Cell< PDV_Type > > mSlaveDvTypes;
+            // leader and follower dv type lists
+            moris::Cell< moris::Cell< PDV_Type > > mLeaderDvTypes;
+            moris::Cell< moris::Cell< PDV_Type > > mFollowerDvTypes;
 
-            // master and slave global dv type list
-            moris::Cell< moris::Cell< PDV_Type > > mMasterGlobalDvTypes;
-            moris::Cell< moris::Cell< PDV_Type > > mSlaveGlobalDvTypes;
+            // leader and follower global dv type list
+            moris::Cell< moris::Cell< PDV_Type > > mLeaderGlobalDvTypes;
+            moris::Cell< moris::Cell< PDV_Type > > mFollowerGlobalDvTypes;
 
-            // master and slave field type lists
-            moris::Cell< moris::Cell< mtk::Field_Type > > mMasterFieldTypes;
-            moris::Cell< moris::Cell< mtk::Field_Type > > mSlaveFieldTypes;
+            // leader and follower field type lists
+            moris::Cell< moris::Cell< mtk::Field_Type > > mLeaderFieldTypes;
+            moris::Cell< moris::Cell< mtk::Field_Type > > mFollowerFieldTypes;
 
-            // master and slave global dv type list
-            moris::Cell< moris::Cell< mtk::Field_Type > > mMasterGlobalFieldTypes;
-            moris::Cell< moris::Cell< mtk::Field_Type > > mSlaveGlobalFieldTypes;
+            // leader and follower global dv type list
+            moris::Cell< moris::Cell< mtk::Field_Type > > mLeaderGlobalFieldTypes;
+            moris::Cell< moris::Cell< mtk::Field_Type > > mFollowerGlobalFieldTypes;
 
-            // master and slave properties
-            moris::Cell< std::shared_ptr< Property > > mMasterProp;
-            moris::Cell< std::shared_ptr< Property > > mSlaveProp;
+            // leader and follower properties
+            moris::Cell< std::shared_ptr< Property > > mLeaderProp;
+            moris::Cell< std::shared_ptr< Property > > mFollowerProp;
 
             // local string to int map for properties
             std::map< std::string, uint > mPropertyMap;
 
-            // master and slave material models
-            moris::Cell< std::shared_ptr< fem::Material_Model > > mMasterMM;
-            moris::Cell< std::shared_ptr< fem::Material_Model > > mSlaveMM;
+            // leader and follower material models
+            moris::Cell< std::shared_ptr< fem::Material_Model > > mLeaderMM;
+            moris::Cell< std::shared_ptr< fem::Material_Model > > mFollowerMM;
 
             // Local string to int map for material models
             std::map< std::string, uint > mMaterialMap;
 
-            // master and slave constitutive models
-            moris::Cell< std::shared_ptr< fem::Constitutive_Model > > mMasterCM;
-            moris::Cell< std::shared_ptr< fem::Constitutive_Model > > mSlaveCM;
+            // leader and follower constitutive models
+            moris::Cell< std::shared_ptr< fem::Constitutive_Model > > mLeaderCM;
+            moris::Cell< std::shared_ptr< fem::Constitutive_Model > > mFollowerCM;
 
             // Local string to int map for constitutive models
             std::map< std::string, uint > mConstitutiveMap;
@@ -142,9 +142,9 @@ namespace moris
             // bulk type
             fem::Element_Type mBulkType = fem::Element_Type::BULK;
 
-            // strings for master and slave phase name
-            std::string mMasterPhaseName;
-            std::string mSlavePhaseName;
+            // strings for leader and follower phase name
+            std::string mLeaderPhaseName;
+            std::string mFollowerPhaseName;
 
             // bool for time continuity
             bool mTimeContinuity = false;
@@ -304,19 +304,19 @@ namespace moris
             /**
              * set phase name
              * param[ in ] aPhaseName a string for phase name
-             * param[ in ] aIsMaster  an enum for master or slave
+             * param[ in ] aIsLeader  an enum for leader or follower
              */
             void set_phase_name(
                     std::string       aPhaseName,
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * get phase name
-             * param[ in ]  aIsMaster an enum for master or slave
+             * param[ in ]  aIsLeader an enum for leader or follower
              * param[ out ] mName     a string for phase name
              */
-            std::string get_phase_name( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+            std::string get_phase_name( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
@@ -370,30 +370,30 @@ namespace moris
             /*
              * set field interpolator manager
              * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
-             * @param[ in ] aIsMaster                 an enum for master or slave
+             * @param[ in ] aIsLeader                 an enum for leader or follower
              */
             void set_field_interpolator_manager(
                     Field_Interpolator_Manager* aFieldInterpolatorManager,
-                    mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower           aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /*
              * set field interpolator manager for previous time step
              * @param[ in ] aFieldInterpolatorManager a field interpolator manager pointer
-             * @param[ in ] aIsMaster                 an enum for master or slave
+             * @param[ in ] aIsLeader                 an enum for leader or follower
              */
             void set_field_interpolator_manager_previous_time(
                     Field_Interpolator_Manager* aFieldInterpolatorManager,
-                    mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower           aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /*
              * get field interpolator manager
              * @param[ out ] aFieldInterpolatorManager a field interpolator manager pointer
-             * @param[ in ]  aIsMaster                 an enum for master or slave
+             * @param[ in ]  aIsLeader                 an enum for leader or follower
              */
             Field_Interpolator_Manager* get_field_interpolator_manager(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /*
@@ -495,129 +495,129 @@ namespace moris
             /**
              * set IWG active dof types
              * @param[ in ] aDofTypes a list of group of dof types
-             * @param[ in ] aIsMaster enum for master or slave
+             * @param[ in ] aIsLeader enum for leader or follower
              */
             void set_dof_type_list(
                     const moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
-                    mtk::Master_Slave                                  aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower                                  aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * return a cell of dof types active for the IWG
-             * @param[ in ] aIsMaster enum master or slave
+             * @param[ in ] aIsLeader enum leader or follower
              * @param[ out ] aDofTypes a list of group of dof types
              */
             const moris::Cell< moris::Cell< MSI::Dof_Type > >& get_dof_type_list(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
             /**
              * set IWG active dv types
              * @param[ in ] aDvTypes a list of group of dv types
-             * @param[ in ] aIsMaster enum for master or slave
+             * @param[ in ] aIsLeader enum for leader or follower
              */
             void set_dv_type_list(
                     const moris::Cell< moris::Cell< PDV_Type > >& aDvTypes,
-                    mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower                             aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * return a cell of dv types active for the IWG
-             * @param[ in ]  aIsMaster enum master or slave
+             * @param[ in ]  aIsLeader enum leader or follower
              * @param[ out ] aDvTypes a list of group of dv types
              */
             const moris::Cell< moris::Cell< PDV_Type > >& get_dv_type_list(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
             /**
              * return a cell of field types active for the IWG
-             * @param[ in ]  aIsMaster enum master or slave
+             * @param[ in ]  aIsLeader enum leader or follower
              * @param[ out ] aFieldTypes a list of group of field types
              */
             const moris::Cell< moris::Cell< mtk::Field_Type > >& get_field_type_list(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
             /**
              * set IWG active field types
              * @param[ in ] aFieldTypes a list of group of field types
-             * @param[ in ] aIsMaster enum for master or slave
+             * @param[ in ] aIsLeader enum for leader or follower
              */
             void set_field_type_list(
                     const moris::Cell< moris::Cell< mtk::Field_Type > >& aDvTypes,
-                    mtk::Master_Slave                                    aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower                                    aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * check that field interpolators were assigned
-             * @param[ in ]  aIsMaster enum master or slave
+             * @param[ in ]  aIsLeader enum leader or follower
              */
             void check_field_interpolators(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * set property
              * @param[ in ] aProperty       a property pointer
              * @param[ in ] aPropertyString a string describing the property
-             * @param[ in ] aIsMaster       enum master or slave
+             * @param[ in ] aIsLeader       enum leader or follower
              */
             void set_property(
                     std::shared_ptr< Property > aProperty,
                     std::string                 aPropertyString,
-                    mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower           aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * get properties
-             * @param[ in ]  aIsMaster   enum master or slave
+             * @param[ in ]  aIsLeader   enum leader or follower
              * @param[ out ] aProperties cell of property pointers
              */
             moris::Cell< std::shared_ptr< Property > >& get_properties(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * set material model
              * @param[ in ] aMaterialModel       a material model pointer
              * @param[ in ] aMaterialModelString a string defining the material model
-             * @param[ in ] aIsMaster            an enum for master or slave
+             * @param[ in ] aIsLeader            an enum for leader or follower
              */
             void set_material_model(
                     std::shared_ptr< Material_Model > aMaterialModel,
                     std::string                       aMaterialModelString,
-                    mtk::Master_Slave                 aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower                 aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * get material models
-             * @param[ in ]  aIsMaster           enum master or slave
+             * @param[ in ]  aIsLeader           enum leader or follower
              * @param[ out ] aMaterialModels     cell of material model pointers
              */
             moris::Cell< std::shared_ptr< Material_Model > >& get_material_models(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * set constitutive model
              * @param[ in ] aConstitutiveModel  a constitutive model pointer
              * @param[ in ] aConstitutiveString a string defining the constitutive model
-             * @param[ in ] aIsMaster           an enum for master or slave
+             * @param[ in ] aIsLeader           an enum for leader or follower
              */
             void set_constitutive_model(
                     std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                     std::string                           aConstitutiveString,
-                    mtk::Master_Slave                     aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower                     aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * get constitutive models
-             * @param[ in ]  aIsMaster           enum master or slave
+             * @param[ in ]  aIsLeader           enum leader or follower
              * @param[ out ] aConstitutiveModels cell of constitutive model pointers
              */
             moris::Cell< std::shared_ptr< Constitutive_Model > >& get_constitutive_models(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
@@ -652,7 +652,7 @@ namespace moris
             /**
              * get a non unique list of dof type including
              * IWG, property, constitutive and stabilization dependencies
-             * for both master and slave
+             * for both leader and follower
              */
             void get_non_unique_dof_dv_and_field_types(
                     moris::Cell< moris::Cell< MSI::Dof_Type > >&   aDofTypes,
@@ -662,30 +662,30 @@ namespace moris
             //------------------------------------------------------------------------------
             /**
              * get global dof type list
-             * @param[ in ]  aIsMaster       enum master or slave
+             * @param[ in ]  aIsLeader       enum leader or follower
              * @param[ out ] mGlobalDofTypes global list of group of dof types
              */
             const moris::Cell< moris::Cell< MSI::Dof_Type > >& get_global_dof_type_list(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * get global dv type list
-             * @param[ in ]  aIsMaster       enum master or slave
+             * @param[ in ]  aIsLeader       enum leader or follower
              * @param[ out ] mGlobalDvTypes global list of group of dv types
              */
             const moris::Cell< moris::Cell< PDV_Type > >& get_global_dv_type_list(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * get global field type list. TODO: Field types are only used by the IWG.
              * If a user wants to use them in a property or CM this cuntion has to be modified in the same way than get_global_dof_type_list()
-             * @param[ in ]  aIsMaster    enum master or slave
+             * @param[ in ]  aIsLeader    enum leader or follower
              * @param[ out ] mFieldTypes global list of group of dv types
              */
             const moris::Cell< moris::Cell< mtk::Field_Type > >& get_global_field_type_list(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**

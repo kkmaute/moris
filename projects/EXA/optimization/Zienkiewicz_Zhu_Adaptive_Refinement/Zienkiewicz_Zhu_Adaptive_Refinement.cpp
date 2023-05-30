@@ -1286,40 +1286,40 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPNitscheDirichletBC" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0" );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties", "PropYoungsFrame,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropYoungsFrame,Material" );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", std::string( "SPNitscheFrameInteriorInterface" ) );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::NITSCHE_INTERFACE ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", std::string( "100.0" ) );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties", std::string( "PropYoungs,Material" ) );
-        tParameterList( 2 )( tSPCounter ).set( "slave_properties", std::string( "PropYoungsFrame,Material" ) );
+        tParameterList( 2 )( tSPCounter ).set( "leader_properties", std::string( "PropYoungs,Material" ) );
+        tParameterList( 2 )( tSPCounter ).set( "follower_properties", std::string( "PropYoungsFrame,Material" ) );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", std::string( "SPGhost" ) );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", std::string( "0.005" ) );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties", std::string( "PropYoungs,Material" ) );
-        tParameterList( 2 )( tSPCounter ).set( "slave_properties", std::string( "PropYoungs,Material" ) );
+        tParameterList( 2 )( tSPCounter ).set( "leader_properties", std::string( "PropYoungs,Material" ) );
+        tParameterList( 2 )( tSPCounter ).set( "follower_properties", std::string( "PropYoungs,Material" ) );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", std::string( "SPGhostFrame" ) );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", std::string( "0.001" ) );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties", std::string( "PropYoungsFrame,Material" ) );
-        tParameterList( 2 )( tSPCounter ).set( "slave_properties", std::string( "PropYoungsFrame,Material" ) );
+        tParameterList( 2 )( tSPCounter ).set( "leader_properties", std::string( "PropYoungsFrame,Material" ) );
+        tParameterList( 2 )( tSPCounter ).set( "follower_properties", std::string( "PropYoungsFrame,Material" ) );
         tSPCounter++;
 
         tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPGhost_VM" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", std::to_string( tStressGhost ) + "/0" );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties", std::string( "PropYoungsFrame,Material" ) );
-        tParameterList( 2 )( tSPCounter ).set( "slave_properties", std::string( "PropYoungsFrame,Material" ) );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties", "PropUnitValue,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "leader_properties", std::string( "PropYoungsFrame,Material" ) );
+        tParameterList( 2 )( tSPCounter ).set( "follower_properties", std::string( "PropYoungsFrame,Material" ) );
+        tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropUnitValue,Material" );
         tSPCounter++;
 
         // create parameter list for ghost stabilization parameter for theta and phi problems
@@ -1327,8 +1327,8 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPGPTemp" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "0.001" );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties", "PropConductivity,Material" );
-        tParameterList( 2 )( tSPCounter ).set( "slave_properties", "PropConductivity,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropConductivity,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "follower_properties", "PropConductivity,Material" );
         tSPCounter++;
 
         // create parameter list for DBC on interface for theta problem
@@ -1336,7 +1336,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPNitscheTemp" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0" );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties", "PropConductivity,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropConductivity,Material" );
         tSPCounter++;
 
         //------------------------------------------------------------------------------
@@ -1348,8 +1348,8 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDiffusionThetaBulk" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "THETA" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "THETA;PHID" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusionTheta,Diffusion" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "THETA;PHID" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusionTheta,Diffusion" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tTotalDomain );
         tIWGCounter++;
 
@@ -1358,9 +1358,9 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGSurfaceInnerTheta" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "THETA" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "THETA;PHID" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropPrescTheta,Dirichlet" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusionTheta,Diffusion" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "THETA;PHID" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropPrescTheta,Dirichlet" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusionTheta,Diffusion" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPNitscheTemp,DirichletNitsche" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tVoidInterfaceSets );
         tIWGCounter++;
@@ -1370,9 +1370,9 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGSurfaceOuterTheta" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "THETA" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "THETA;PHID" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropPrescTheta,Dirichlet" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusionTheta,Diffusion" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "THETA;PHID" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropPrescTheta,Dirichlet" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusionTheta,Diffusion" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPNitscheTemp,DirichletNitsche" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tInterfaceVoidSets );
         tIWGCounter++;
@@ -1381,8 +1381,8 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGTimeContinuityThetaInterior" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::TIME_CONTINUITY_DOF ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "THETA" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "THETA;PHID;UX,UY;STRESS_DOF" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties",
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "THETA;PHID;UX,UY;STRESS_DOF" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties",
                 "PropWeightCurrent,       WeightCurrent;"
                 "PropWeightPrevious,      WeightPrevious;"
                 "PropInitialCondition,    InitialCondition" );
@@ -1394,8 +1394,8 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGTimeContinuityThetaVoid" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::TIME_CONTINUITY_DOF ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "THETA" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "THETA;PHID" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties",
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "THETA;PHID" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties",
                 "PropWeightCurrent,       WeightCurrent;"
                 "PropWeightPrevious,      WeightPrevious;"
                 "PropInitialCondition,    InitialCondition" );
@@ -1408,8 +1408,8 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDiffusionOuterBulk" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "PHID" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "THETA;PHID" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusionPhi,Diffusion" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "THETA;PHID" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusionPhi,Diffusion" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tTotalDomain );
         tIWGCounter++;
 
@@ -1418,9 +1418,9 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGSurfaceInnerPhi" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "PHID" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "THETA;PHID" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropPrescPhi,Dirichlet" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusionPhi,Diffusion" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "THETA;PHID" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropPrescPhi,Dirichlet" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusionPhi,Diffusion" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPNitscheTemp,DirichletNitsche" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tVoidInterfaceSets );
         tIWGCounter++;
@@ -1430,9 +1430,9 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGSurfaceOuterPhi" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "PHID" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "THETA;PHID" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropPrescPhi,Dirichlet" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMDiffusionPhi,Diffusion" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "THETA;PHID" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropPrescPhi,Dirichlet" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMDiffusionPhi,Diffusion" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPNitscheTemp,DirichletNitsche" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tInterfaceVoidSets );
         tIWGCounter++;
@@ -1441,9 +1441,9 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGBulkU" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso,ElastLinIso" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropBedding,Bedding" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso,ElastLinIso" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropBedding,Bedding" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tBulkSets );
         tIWGCounter++;
 
@@ -1451,8 +1451,8 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGBulkUFrame" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIsoFrame,ElastLinIso" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIsoFrame,ElastLinIso" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tFrameSets );
         tIWGCounter++;
 
@@ -1460,9 +1460,9 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletU" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropDirichletU,Dirichlet;PropSelect,Select" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIsoFrame,ElastLinIso" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropDirichletU,Dirichlet;PropSelect,Select" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIsoFrame,ElastLinIso" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPNitscheDirichletBC,DirichletNitsche" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tDirichletSets );
         tIWGCounter++;
@@ -1471,8 +1471,8 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGTraction" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_NEUMANN ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropTraction,Traction" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropTraction,Traction" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tLoadSets );
         tIWGCounter++;
 
@@ -1480,12 +1480,12 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGFrameInteriorInterface" ) );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_INTERFACE_UNSYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dv_dependencies", "LS1" );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dv_dependencies", "LS1" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", std::string( "CMStrucLinIso,ElastLinIso" ) );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_constitutive_models", std::string( "CMStrucLinIsoFrame,ElastLinIso" ) );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "UX,UY" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dv_dependencies", "LS1" );
+        tParameterList( 3 )( tIWGCounter ).set( "follower_dv_dependencies", "LS1" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", std::string( "CMStrucLinIso,ElastLinIso" ) );
+        tParameterList( 3 )( tIWGCounter ).set( "follower_constitutive_models", std::string( "CMStrucLinIsoFrame,ElastLinIso" ) );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", std::string( "SPNitscheFrameInteriorInterface,NitscheInterface" ) );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tFrameInteriorDSets );
         tIWGCounter++;
@@ -1494,8 +1494,8 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGStress" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_VON_MISES_STRESS ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "STRESS_DOF" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "STRESS_DOF" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso,ElastLinIso" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "STRESS_DOF" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso,ElastLinIso" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tBulkSets );
         tIWGCounter++;
 
@@ -1505,10 +1505,10 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGGhost" ) );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY" );
-            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies", "UX,UY" );
-            tParameterList( 3 )( tIWGCounter ).set( "master_dv_dependencies", "LS1" );
-            tParameterList( 3 )( tIWGCounter ).set( "slave_dv_dependencies", "LS1" );
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
+            tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "UX,UY" );
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dv_dependencies", "LS1" );
+            tParameterList( 3 )( tIWGCounter ).set( "follower_dv_dependencies", "LS1" );
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", std::string( "SPGhost,GhostSP" ) );
             tParameterList( 3 )( tIWGCounter ).set( "ghost_order", (uint)tDispOrder );
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tInteriorGhost );
@@ -1518,8 +1518,8 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGGhostFrame" ) );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY" );
-            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies", "UX,UY" );
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY" );
+            tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "UX,UY" );
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", std::string( "SPGhostFrame,GhostSP" ) );
             tParameterList( 3 )( tIWGCounter ).set( "ghost_order", (uint)tDispOrder );
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tFrameGhost );
@@ -1529,8 +1529,8 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGGSStress" ) );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "STRESS_DOF" );
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "STRESS_DOF" );
-            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies", "STRESS_DOF" );
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "STRESS_DOF" );
+            tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "STRESS_DOF" );
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", std::string( "SPGhost_VM,GhostSP" ) );
             tParameterList( 3 )( tIWGCounter ).set( "ghost_order", (uint)tDispOrder );
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tInteriorGhost );
@@ -1540,8 +1540,8 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGGhost" ) );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "PHID" );
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "PHID" );
-            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies", "PHID" );
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "PHID" );
+            tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "PHID" );
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", std::string( "SPGPTemp,GhostSP" ) );
             tParameterList( 3 )( tIWGCounter ).set( "ghost_order", (uint)tDispOrder );
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tInteriorGhost + "," + tVoidGhost );
@@ -1551,8 +1551,8 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name", std::string( "IWGGhost" ) );
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "THETA" );
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "THETA" );
-            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies", "THETA" );
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "THETA" );
+            tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "THETA" );
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", std::string( "SPGPTemp,GhostSP" ) );
             tParameterList( 3 )( tIWGCounter ).set( "ghost_order", (uint)tDispOrder );
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tInteriorGhost + "," + tVoidGhost );
@@ -1567,7 +1567,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkUX" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "UX,UY" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tBulkSets + "," + tFrameSets );
         tIQICounter++;
@@ -1575,7 +1575,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkUY" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "UX,UY" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 1 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tBulkSets + "," + tFrameSets );
@@ -1584,7 +1584,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkStress" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "STRESS_DOF" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "STRESS_DOF" );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "STRESS_DOF" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tBulkSets );
@@ -1593,30 +1593,30 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkStrainEnergy" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "UX,UY" );
-        tParameterList( 4 )( tIQICounter ).set( "master_constitutive_models", "CMStrucLinIso,Elast" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_constitutive_models", "CMStrucLinIso,Elast" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tBulkSets );
         tIQICounter++;
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkStrainEnergy_Frame" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "UX,UY" );
-        tParameterList( 4 )( tIQICounter ).set( "master_constitutive_models", "CMStrucLinIsoFrame,Elast" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_constitutive_models", "CMStrucLinIsoFrame,Elast" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tFrameSets );
         tIQICounter++;
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkVolume" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::VOLUME ) );
-        tParameterList( 4 )( tIQICounter ).set( "master_properties", "PropDensity,Density" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropDensity,Density" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tBulkSets );
         tIQICounter++;
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIPerimeter_InterfaceVoid" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::VOLUME ) );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "UX,UY" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tInterfaceVoidSets );
         tIQICounter++;
 
@@ -1624,21 +1624,21 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQILevelSet" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::PROPERTY ) );
-        tParameterList( 4 )( tIQICounter ).set( "master_properties", "PropLevelSetReal,Property" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropLevelSetReal,Property" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain );
         tIQICounter++;
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQITruncPHID" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::PROPERTY ) );
-        tParameterList( 4 )( tIQICounter ).set( "master_properties", "PropTruncPHID,Property" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropTruncPHID,Property" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain );
         tIQICounter++;
 
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQILevelSetHeatMethod" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::PROPERTY ) );
-        tParameterList( 4 )( tIQICounter ).set( "master_properties", "PropLevelSet,Property" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropLevelSet,Property" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain );
         tIQICounter++;
 
@@ -1646,7 +1646,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkTHETA" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "THETA" );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "THETA" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "THETA" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain );
         tIQICounter++;
@@ -1656,7 +1656,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkPHID" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "PHID" );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "PHID" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "PHID" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain );
         tIQICounter++;
@@ -1666,9 +1666,9 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIH1ErrorConst" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::H1_ERROR ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "PHID" );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "THETA;PHID" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "THETA;PHID" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
-        tParameterList( 4 )( tIQICounter ).set( "master_properties", "PropLevelSetConst,L2_Reference;PropLevelSetGradxConst,H1S_Reference" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropLevelSetConst,L2_Reference;PropLevelSetGradxConst,H1S_Reference" );
         tParameterList( 4 )( tIQICounter ).set( "function_parameters", "1.0 / 1.0 / 1.0" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain );
         tIQICounter++;
@@ -1678,9 +1678,9 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIH1Error" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::H1_ERROR ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "PHID" );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "THETA;PHID" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "THETA;PHID" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
-        tParameterList( 4 )( tIQICounter ).set( "master_properties", "PropLevelSet,L2_Reference;PropLevelSetGradx,H1S_Reference" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropLevelSet,L2_Reference;PropLevelSetGradx,H1S_Reference" );
         tParameterList( 4 )( tIQICounter ).set( "function_parameters", "1.0 / 1.0 / 1.0" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain );
         tIQICounter++;
@@ -1690,9 +1690,9 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIHeatMethodPenalty" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::HEAT_METHOD_PENALTY ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "PHID" );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "THETA;PHID" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "THETA;PHID" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
-        tParameterList( 4 )( tIQICounter ).set( "master_properties", "PropLevelSet,L2_Reference;PropLevelSetGradx,H1S_Reference" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropLevelSet,L2_Reference;PropLevelSetGradx,H1S_Reference" );
         tParameterList( 4 )( tIQICounter ).set( "function_parameters", moris_to_string( tBSplineLimit ) + " / " + moris_to_string( tPhiGradient ) + " / " + moris_to_string( tPhiGamma ) + " / 0.0/ 0.2 / 1.0 / 1.0 " );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain );
         tIQICounter++;
@@ -1701,7 +1701,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIMaxStress" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::MAX_DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "STRESS_DOF" );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "STRESS_DOF" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "STRESS_DOF" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
         tParameterList( 4 )( tIQICounter ).set( "function_parameters", std::to_string( 5.0 ) + "/" + std::to_string( tVMMaxDofNValue ) + "/" + std::to_string( tVMShift ) + "/1" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tBulkSets );
@@ -1711,20 +1711,20 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkZienkiewiczZhu" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::ZIENKIEWICZ_ZHU_VON_MISES_STRESS ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "STRESS_DOF" );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "STRESS_DOF" );
-        tParameterList( 4 )( tIQICounter ).set( "master_constitutive_models", "CMStrucLinIso,ElastLinIso" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "STRESS_DOF" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_constitutive_models", "CMStrucLinIso,ElastLinIso" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tBulkSets );
         tIQICounter++;
 
         /*
     tParameterList( tIQIIndex ).push_back( prm::create_IQI_parameter_list() );
     tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_name",                   "IQIMaxStress2");
-    tParameterList( tIQIIndex )( tIQICounter ).set( "master_phase_name",          "PhaseLBracket" );
+    tParameterList( tIQIIndex )( tIQICounter ).set( "leader_phase_name",          "PhaseLBracket" );
     tParameterList( tIQIIndex )( tIQICounter ).set( "neighbor_phases",            "PhaseVoid2" );
     tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_bulk_type",              static_cast< uint >( fem::Element_Type::SIDESET ) );
     tParameterList( tIQIIndex )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::MAX_DOF ) );
     tParameterList( tIQIIndex )( tIQICounter ).set( "dof_quantity",               "STRESS_DOF");
-    tParameterList( tIQIIndex )( tIQICounter ).set( "master_dof_dependencies",    "STRESS_DOF");
+    tParameterList( tIQIIndex )( tIQICounter ).set( "leader_dof_dependencies",    "STRESS_DOF");
     tParameterList( tIQIIndex )( tIQICounter ).set( "vectorial_field_index",      0 );
     tParameterList( tIQIIndex )( tIQICounter ).set( "function_parameters",
         std::to_stri

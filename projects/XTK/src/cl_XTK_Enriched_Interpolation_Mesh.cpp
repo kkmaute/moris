@@ -1719,12 +1719,12 @@ namespace xtk
     Enriched_Interpolation_Mesh::verify_basis_interpolating_into_cluster(
             mtk::Cluster const &    aCluster,
             moris_index const &     aMeshIndex,
-            const mtk::Master_Slave aIsMaster )
+            const mtk::Leader_Follower aIsLeader )
     {
         bool tDiagnosticFlag = true;
 
         // interpolation cell
-        moris::mtk::Cell const & tIpCell = aCluster.get_interpolation_cell( aIsMaster );
+        moris::mtk::Cell const & tIpCell = aCluster.get_interpolation_cell( aIsLeader );
 
         // get the xtk interpolation cell
         Interpolation_Cell_Unzipped* tEnrichedIpCell = mEnrichedInterpCells( tIpCell.get_index() );

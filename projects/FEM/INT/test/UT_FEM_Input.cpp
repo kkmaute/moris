@@ -72,14 +72,14 @@ namespace moris
 //            tParameterList( 2 )( 0 ).set( "stabilization_name",  "SP1" );
 //            tParameterList( 2 )( 0 ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
 //            tParameterList( 2 )( 0 ).set( "function_parameters", "1.0, 2.0, 3.0; 4.0, 5.0, 6.0; 7.0, 8.0, 9.0 / 10.0, 11.0, 12.0; 13.0, 14.0, 15.0; 16.0, 17.0, 18.0" );
-//            tParameterList( 2 )( 0 ).set( "master_properties",   "Property1,Material" );
+//            tParameterList( 2 )( 0 ).set( "leader_properties",   "Property1,Material" );
 //
 //            // create parameter list for stabilization parameter 2
 //            tParameterList( 2 )( 1 ) = prm::create_stabilization_parameter_parameter_list();
 //            tParameterList( 2 )( 1 ).set( "stabilization_name", "SP2" );
 //            tParameterList( 2 )( 1 ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::NITSCHE_INTERFACE ) );
-//            tParameterList( 2 )( 1 ).set( "master_properties",  "Property1,Material" );
-//            tParameterList( 2 )( 1 ).set( "slave_properties",   "Property2,Material" );
+//            tParameterList( 2 )( 1 ).set( "leader_properties",  "Property1,Material" );
+//            tParameterList( 2 )( 1 ).set( "follower_properties",   "Property2,Material" );
 //
 //            //------------------------------------------------------------------------------
 //            // fill the IWG part of the parameter list
@@ -91,9 +91,9 @@ namespace moris
 //            tParameterList( 3 )( 0 ).set( "IWG_name",                   "IWG1" );
 //            tParameterList( 3 )( 0 ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
 //            tParameterList( 3 )( 0 ).set( "dof_residual",               "TEMP" );
-//            tParameterList( 3 )( 0 ).set( "master_dof_dependencies",    "TEMP" );
-//            tParameterList( 3 )( 0 ).set( "master_properties",          "Property1,Load" );
-//            tParameterList( 3 )( 0 ).set( "master_constitutive_models", "CM1,DiffLinIso" );
+//            tParameterList( 3 )( 0 ).set( "leader_dof_dependencies",    "TEMP" );
+//            tParameterList( 3 )( 0 ).set( "leader_properties",          "Property1,Load" );
+//            tParameterList( 3 )( 0 ).set( "leader_constitutive_models", "CM1,DiffLinIso" );
 //            tParameterList( 3 )( 0 ).set( "mesh_set_names",             "MeshSet1,MeshSet2" );
 //
 //            // create parameter list for IWG 2
@@ -101,10 +101,10 @@ namespace moris
 //            tParameterList( 3 )( 1 ).set( "IWG_name",                   "IWG2" );
 //            tParameterList( 3 )( 1 ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE ) );
 //            tParameterList( 3 )( 1 ).set( "dof_residual",               "TEMP" );
-//            tParameterList( 3 )( 1 ).set( "master_dof_dependencies",    "TEMP" );
-//            tParameterList( 3 )( 1 ).set( "slave_dof_dependencies",     "TEMP" );
-//            tParameterList( 3 )( 1 ).set( "master_constitutive_models", "CM1,DiffLinIso" );
-//            tParameterList( 3 )( 1 ).set( "slave_constitutive_models",  "CM2,DiffLinIso" );
+//            tParameterList( 3 )( 1 ).set( "leader_dof_dependencies",    "TEMP" );
+//            tParameterList( 3 )( 1 ).set( "follower_dof_dependencies",     "TEMP" );
+//            tParameterList( 3 )( 1 ).set( "leader_constitutive_models", "CM1,DiffLinIso" );
+//            tParameterList( 3 )( 1 ).set( "follower_constitutive_models",  "CM2,DiffLinIso" );
 //            tParameterList( 3 )( 1 ).set( "stabilization_parameters",   "SP2,NitscheInterface" );
 //            tParameterList( 3 )( 1 ).set( "mesh_set_names",             "MeshSet2" );
 //
@@ -114,9 +114,9 @@ namespace moris
 //            tParameterList( 3 )( 2 ).set( "IWG_name",                   "IWG3" );
 //            tParameterList( 3 )( 2 ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE ) );
 //            tParameterList( 3 )( 2 ).set( "dof_residual",               "UX,UY,UZ" );
-//            tParameterList( 3 )( 2 ).set( "master_dof_dependencies",    "UX,UY,UZ" );
-//            tParameterList( 3 )( 2 ).set( "master_constitutive_models", "CM1,ElastLinIso" );
-//            tParameterList( 3 )( 2 ).set( "master_properties",          "Property2,Dirichlet;Property1,Select" );
+//            tParameterList( 3 )( 2 ).set( "leader_dof_dependencies",    "UX,UY,UZ" );
+//            tParameterList( 3 )( 2 ).set( "leader_constitutive_models", "CM1,ElastLinIso" );
+//            tParameterList( 3 )( 2 ).set( "leader_properties",          "Property2,Dirichlet;Property1,Select" );
 //            tParameterList( 3 )( 2 ).set( "mesh_set_names",             "MeshSet2,MeshSet3,MeshSet4" );
 //
 //            //------------------------------------------------------------------------------
@@ -128,16 +128,16 @@ namespace moris
 //            tParameterList( 4 )( 0 ) = prm::create_IQI_parameter_list();
 //            tParameterList( 4 )( 0 ).set( "IQI_name",                   "IQI1" );
 //            tParameterList( 4 )( 0 ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
-//            tParameterList( 4 )( 0 ).set( "master_dof_dependencies",    "TEMP" );
-//            tParameterList( 4 )( 0 ).set( "master_constitutive_models", "CM1,Elast" );
+//            tParameterList( 4 )( 0 ).set( "leader_dof_dependencies",    "TEMP" );
+//            tParameterList( 4 )( 0 ).set( "leader_constitutive_models", "CM1,Elast" );
 //            tParameterList( 4 )( 0 ).set( "mesh_set_names",             "MeshSet5,MeshSet2" );
 //
 //            // create parameter list for IQI 2
 //            tParameterList( 4 )( 1 ) = prm::create_IQI_parameter_list();
 //            tParameterList( 4 )( 1 ).set( "IQI_name",                   "IQI2" );
 //            tParameterList( 4 )( 1 ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::STRAIN_ENERGY ) );
-//            tParameterList( 4 )( 1 ).set( "master_dof_dependencies",    "TEMP" );
-//            tParameterList( 4 )( 1 ).set( "master_constitutive_models", "CM2,Elast" );
+//            tParameterList( 4 )( 1 ).set( "leader_dof_dependencies",    "TEMP" );
+//            tParameterList( 4 )( 1 ).set( "leader_constitutive_models", "CM2,Elast" );
 //            tParameterList( 4 )( 1 ).set( "mesh_set_names",             "MeshSet5" );
 //
 //            //------------------------------------------------------------------------------

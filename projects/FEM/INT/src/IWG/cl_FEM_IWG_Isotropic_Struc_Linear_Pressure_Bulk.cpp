@@ -26,13 +26,13 @@ namespace moris
         IWG_Isotropic_Struc_Linear_Pressure_Bulk::IWG_Isotropic_Struc_Linear_Pressure_Bulk()
         {
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
@@ -43,35 +43,35 @@ namespace moris
         void IWG_Isotropic_Struc_Linear_Pressure_Bulk::compute_residual( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators, properties and constitutive models
+            // check leader field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type (here pressure), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type (here pressure), indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get field interpolator for dof type
             Field_Interpolator* tPressureFI     =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
             Field_Interpolator* tDisplacementFI =
-                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
+                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX );
 
             // get elasticity CM
             moris::fem::CM_Struc_Linear_Isotropic* tCMElasticity =
-                    static_cast < moris::fem::CM_Struc_Linear_Isotropic* > ( mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) ).get());
+                    static_cast < moris::fem::CM_Struc_Linear_Isotropic* > ( mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) ).get());
 
             // get thickness property
             const std::shared_ptr< Property > & tPropThickness =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
             // compute the residual
             mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex },
+                    { tLeaderResStartIndex, tLeaderResStopIndex },
                     { 0, 0 } ) += aWStar * (
                     trans( tPressureFI->N() ) * ( tDisplacementFI->div() + tCMElasticity->eval_inv_bulk_modulus() * tPressureFI->val()( 0 ) ) );
 
@@ -85,50 +85,50 @@ namespace moris
         void IWG_Isotropic_Struc_Linear_Pressure_Bulk::compute_jacobian( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators, properties and constitutive models
+            // check leader field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type (here pressure), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type (here pressure), indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type
-            Field_Interpolator* tPressureFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator* tPressureFI = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get elasticity CM
             moris::fem::CM_Struc_Linear_Isotropic* tCMElasticity =
-                    static_cast < moris::fem::CM_Struc_Linear_Isotropic* > ( mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) ).get());
+                    static_cast < moris::fem::CM_Struc_Linear_Isotropic* > ( mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) ).get());
 
             // get thickness property
             const std::shared_ptr< Property > & tPropThickness =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= (tPropThickness!=nullptr) ? tPropThickness->val()(0) : 1;
 
             // compute the jacobian for dof dependencies
-            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
-                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 0 );
+                uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
 
                 // get FI for treated dof type
-                Field_Interpolator * tFIDer = mMasterFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+                Field_Interpolator * tFIDer = mLeaderFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
 
                 // if dof type is pressure
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                            { tLeaderResStartIndex, tLeaderResStopIndex },
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * (
                                     trans( tPressureFI->N() ) * tCMElasticity->eval_inv_bulk_modulus() * tPressureFI->N() );
                 }
 
@@ -136,8 +136,8 @@ namespace moris
                 if ( tDofType( 0 ) == MSI::Dof_Type::UX )
                 {
                     mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                            { tLeaderResStartIndex, tLeaderResStopIndex },
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * (
                                     trans( tPressureFI->N() ) * tFIDer->div_operator() );
                 }
 
@@ -145,8 +145,8 @@ namespace moris
                 if ( tCMElasticity->check_dof_dependency( tDofType ) )
                 {
                     mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                            { tLeaderResStartIndex, tLeaderResStopIndex },
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * (
                                     trans( tPressureFI->N() ) * tCMElasticity->eval_dInvBulkModulusdDOF( tDofType ) * tPressureFI->val()( 0 ) );
                 }
             }

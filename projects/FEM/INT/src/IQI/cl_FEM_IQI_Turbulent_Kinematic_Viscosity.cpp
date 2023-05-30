@@ -25,7 +25,7 @@ namespace moris
             mFEMIQIType = fem::IQI_Type::TURBULENT_KINEMATIC_VISCOSITY;
 
             // set the property pointer cell size
-            mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
             mPropertyMap[ "Density" ]          = static_cast< uint >( Property_Type::DENSITY );
@@ -37,15 +37,15 @@ namespace moris
         void IQI_Turbulent_Kinematic_Viscosity::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 moris::Cell< std::string >                  & aDofStrings,
-                mtk::Master_Slave                             aIsMaster )
+                mtk::Leader_Follower                             aIsLeader )
         {
-            // switch on master slave
-            switch ( aIsMaster )
+            // switch on leader follower
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER :
+                case mtk::Leader_Follower::LEADER :
                 {
                     // set dof type list
-                    mMasterDofTypes = aDofTypes;
+                    mLeaderDofTypes = aDofTypes;
 
                     // loop on dof type
                     for( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
@@ -59,7 +59,7 @@ namespace moris
                         // if viscosity
                         if( tDofString == "Viscosity" )
                         {
-                            mMasterDofViscosity = tDofType;
+                            mLeaderDofViscosity = tDofType;
                         }
                         else
                         {
@@ -73,15 +73,15 @@ namespace moris
                     break;
                 }
 
-                case mtk::Master_Slave::SLAVE :
+                case mtk::Leader_Follower::FOLLOWER :
                 {
                     // set dof type list
-                    mSlaveDofTypes = aDofTypes;
+                    mFollowerDofTypes = aDofTypes;
                     break;
                 }
 
                 default:
-                    MORIS_ERROR( false, "IQI_Turbulent_Kinematic_Viscosity::set_dof_type_list - unknown master slave type." );
+                    MORIS_ERROR( false, "IQI_Turbulent_Kinematic_Viscosity::set_dof_type_list - unknown leader follower type." );
             }
         }
 
@@ -91,20 +91,20 @@ namespace moris
         {
             // get field interpolator for modified viscosity
             Field_Interpolator * tFIModViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
+                    mLeaderFIManager->get_field_interpolators_for_type( mLeaderDofViscosity );
 
             // get the density property
             const std::shared_ptr< Property > & tPropDensity =
-                    mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // get the kinematic viscosity property
             const std::shared_ptr< Property > & tPropKinViscosity =
-                    mMasterProp( static_cast< uint >( Property_Type::KINEMATIC_VISCOSITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::KINEMATIC_VISCOSITY ) );
 
             // compute fv1
             real tFv1 = compute_fv1(
-                    { mMasterDofViscosity },
-                    mMasterFIManager,
+                    { mLeaderDofViscosity },
+                    mLeaderFIManager,
                     tPropKinViscosity );
 
             // compute turbulent kinematic viscosity
@@ -120,20 +120,20 @@ namespace moris
 
             // get field interpolator for modified viscosity
             Field_Interpolator * tFIModViscosity =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofViscosity );
+                    mLeaderFIManager->get_field_interpolators_for_type( mLeaderDofViscosity );
 
             // get the density property
             const std::shared_ptr< Property > & tPropDensity =
-                    mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // get the kinematic viscosity property
             const std::shared_ptr< Property > & tPropKinViscosity =
-                    mMasterProp( static_cast< uint >( Property_Type::KINEMATIC_VISCOSITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::KINEMATIC_VISCOSITY ) );
 
             // compute fv1
             real tFv1 = compute_fv1(
-                    { mMasterDofViscosity },
-                    mMasterFIManager,
+                    { mLeaderDofViscosity },
+                    mLeaderFIManager,
                     tPropKinViscosity );
 
             // compute turbulent kinematic viscosity

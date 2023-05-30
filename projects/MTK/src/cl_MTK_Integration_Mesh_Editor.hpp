@@ -73,16 +73,16 @@ namespace moris::mtk
         moris::Cell< moris_index > mGhostToVertexOffset;
 
         // Temporary data needs to be fixed
-        moris::Cell< moris_index > mGhostMasterToIPCellIndex;
-        moris::Cell< moris_index > mGhostSlaveToIPCellIndex;
+        moris::Cell< moris_index > mGhostLeaderToIPCellIndex;
+        moris::Cell< moris_index > mGhostFollowerToIPCellIndex;
 
-        moris::Cell< moris_index > mGhostMasterToIGCellIndex;
-        moris::Cell< moris_index > mGhostSlaveToIGCellIndex;
+        moris::Cell< moris_index > mGhostLeaderToIGCellIndex;
+        moris::Cell< moris_index > mGhostFollowerToIGCellIndex;
 
         // Ghost side clusters and double sided clusters
         moris::Cell< moris_index > mDoubleSidedGhostToSideClusterGhostOffset;
 
-        moris::Cell< moris_index > mGhostMasterSlaveVertexIndices;
+        moris::Cell< moris_index > mGhostLeaderFollowerVertexIndices;
     };
 }    // namespace moris::mtk
 

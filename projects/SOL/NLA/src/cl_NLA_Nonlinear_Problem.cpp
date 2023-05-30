@@ -144,7 +144,7 @@ Nonlinear_Problem::Nonlinear_Problem(
     }
 
     // set flag that interface has been set
-    mIsMasterSystem = true;
+    mIsLeaderSystem = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -166,12 +166,12 @@ Nonlinear_Problem::~Nonlinear_Problem()
     delete mMapFull;
     mMapFull = nullptr;
 
-    if ( mIsMasterSystem )
+    if ( mIsLeaderSystem )
     {
         delete mFullVector;
     }
 
-    if ( mIsMasterSystem )
+    if ( mIsLeaderSystem )
     {
         if ( mMapType == sol::MapType::Petsc )
         {

@@ -29,28 +29,28 @@ namespace moris
         void IWG_FS_Struc_Interface::compute_residual( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master and slave field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
+            // check leader and follower field interpolators
+            this->check_field_interpolators( mtk::Leader_Follower::LEADER );
+            this->check_field_interpolators( mtk::Leader_Follower::FOLLOWER );
 #endif
 
-            // get slave index for residual dof type, indices for assembly
-            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
-            uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
-            uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
+            // get follower index for residual dof type, indices for assembly
+            uint tFollowerDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
+            uint tFollowerResStartIndex = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
+            uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
-            // get master field interpolator for the residual dof type
+            // get leader field interpolator for the residual dof type
             // FIXME protect dof type
             Field_Interpolator * tFIFluidPressure =
-                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::P );
+                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::P );
 
-            // get master field interpolator for the residual dof type
+            // get leader field interpolator for the residual dof type
             Field_Interpolator * tFISolidDispl =
-                    mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+                    mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
-            // compute slave residual
+            // compute follower residual
             mSet->get_residual()( 0 )(
-                    { tSlaveResStartIndex, tSlaveResStopIndex },
+                    { tFollowerResStartIndex, tFollowerResStopIndex },
                     { 0, 0 } ) -= aWStar * (
                             trans( tFISolidDispl->N() ) * tFIFluidPressure->val() );
 
@@ -64,48 +64,48 @@ namespace moris
         void IWG_FS_Struc_Interface::compute_jacobian( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master and slave field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
+            // check leader and follower field interpolators
+            this->check_field_interpolators( mtk::Leader_Follower::LEADER );
+            this->check_field_interpolators( mtk::Leader_Follower::FOLLOWER );
 #endif
 
-            // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
+            // get leader index for residual dof type, indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
 
-            // get slave index for residual dof type, indices for assembly
-            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
-            uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
-            uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
+            // get follower index for residual dof type, indices for assembly
+            uint tFollowerDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
+            uint tFollowerResStartIndex = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
+            uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
-            // get master field interpolator for the residual dof type
+            // get leader field interpolator for the residual dof type
             // FIXME protect dof type
             Field_Interpolator * tFIFluidPressure =
-                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::P );
+                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::P );
 
-            // get master field interpolator for the residual dof type
+            // get leader field interpolator for the residual dof type
             Field_Interpolator * tFISolidDispl =
-                    mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+                    mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
-            // get number of master dof dependencies
-            uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+            // get number of leader dof dependencies
+            uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
-            // compute the jacobian for indirect dof dependencies through master constitutive models
-            for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
+            // compute the jacobian for indirect dof dependencies through leader constitutive models
+            for( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for the dof type
-                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 0 );
+                uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
 
                 // compute jacobian direct dependencies
                 if ( tDofType( 0 ) == MSI::Dof_Type::P )
                 {
                     mSet->get_jacobian()(
-                            { tSlaveResStartIndex,  tSlaveResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
+                            { tFollowerResStartIndex,  tFollowerResStopIndex },
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * (
                                     trans( tFISolidDispl->N() ) * tFIFluidPressure->N() );
                 }
             }

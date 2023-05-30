@@ -92,8 +92,8 @@ namespace moris
                 /**
                  * create an integration element
                  * @param[ in ] aElementType        enum for element type (BULK, SIDESET, ...)
-                 * @param[ in ] aLeftCell           pointer to corresponding master IG mesh cell
-                 * @param[ in ] aRightCell          pointer to corresponding slave IG mesh cell
+                 * @param[ in ] aLeftCell           pointer to corresponding leader IG mesh cell
+                 * @param[ in ] aRightCell          pointer to corresponding follower IG mesh cell
                  * @param[ in ] aSet                pointer to corresponding fem set
                  * @param[ in ] aCluster            pointer to corresponding fem cluster
                  * @param[ in ] aCellIndexInCluster a index for the IG cell within the cluster

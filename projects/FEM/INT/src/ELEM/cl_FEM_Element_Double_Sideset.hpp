@@ -31,8 +31,8 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * constructor
-                 * @param[ in ] aLeftIGCell         pointer to mesh cell for master element
-                 * @param[ in ] aRightIGCell        pointer to mesh cell for slave element
+                 * @param[ in ] aLeftIGCell         pointer to mesh cell for leader element
+                 * @param[ in ] aRightIGCell        pointer to mesh cell for follower element
                  * @param[ in ] aSet                pointer to FEM set to which the elements belong
                  * @param[ in ] aCluster            pointer to FEM cluster to which the elements belong
                  * @param[ in ] aCellIndexInCluster index of the element in the cluster
@@ -107,35 +107,35 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * compute volume over the element
-                 * @param[ in ] aIsMaster enum for master or slave
+                 * @param[ in ] aIsLeader enum for leader or follower
                  */
-                real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                real compute_volume( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
                 //------------------------------------------------------------------------------
             protected:
 
                 //------------------------------------------------------------------------------
                 /**
-                 * initialize the geometry interpolator for the IG master and slave element
-                 * @param[ in ] aMasterSideOrdinal side ordinal for the master element
-                 * @param[ in ] aSlaveSideOrdinal  side ordinal for the slave element
+                 * initialize the geometry interpolator for the IG leader and follower element
+                 * @param[ in ] aLeaderSideOrdinal side ordinal for the leader element
+                 * @param[ in ] aFollowerSideOrdinal  side ordinal for the follower element
                  */
                 void init_ig_geometry_interpolator(
-                        uint aMasterSideOrdinal,
-                        uint aSlaveSideOrdinal );
+                        uint aLeaderSideOrdinal,
+                        uint aFollowerSideOrdinal );
 
                 //------------------------------------------------------------------------------
                 /**
-                 * initialize the geometry interpolator for the IG master and slave element
-                 * @param[ in ] aMasterSideOrdinal side ordinal for the master element
-                 * @param[ in ] aSlaveSideOrdinal  side ordinal for the slave element
+                 * initialize the geometry interpolator for the IG leader and follower element
+                 * @param[ in ] aLeaderSideOrdinal side ordinal for the leader element
+                 * @param[ in ] aFollowerSideOrdinal  side ordinal for the follower element
                  * @param[ in ] aGeoLocalAssembly  matrix with pdv local assembly indices
-                 *                                 for master element
+                 *                                 for leader element
                  *                                 ( NumVertexIndices x NumPdvTypes )
                  */
                 void init_ig_geometry_interpolator(
-                        uint               aMasterSideOrdinal,
-                        uint               aSlaveSideOrdinal,
+                        uint               aLeaderSideOrdinal,
+                        uint               aFollowerSideOrdinal,
                         Matrix< DDSMat > & aGeoLocalAssembly );
         };
 

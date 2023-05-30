@@ -38,12 +38,12 @@ namespace moris
                 , mSet( aSet )
                 , mElementType( aElementType )
         {
-            // fill the master interpolation cell
-            mMasterInterpolationCell = aInterpolationCell( 0 );
+            // fill the leader interpolation cell
+            mLeaderInterpolationCell = aInterpolationCell( 0 );
 
             // get vertices from cell
             moris::Cell< mtk::Vertex* > tVertices =
-                    mMasterInterpolationCell->get_vertex_pointers();
+                    mLeaderInterpolationCell->get_vertex_pointers();
 
             // get number of vertices from cell
             uint tNumOfVertices = tVertices.size();
@@ -52,7 +52,7 @@ namespace moris
             mNodeObj.resize( 1 );
             mNodeObj( 0 ).resize( tNumOfVertices, nullptr );
 
-            // fill master node objects
+            // fill leader node objects
             for ( uint iVertex = 0; iVertex < tNumOfVertices; iVertex++ )
             {
                 mNodeObj( 0 )( iVertex ) = aNodes( tVertices( iVertex )->get_index() );
@@ -61,24 +61,24 @@ namespace moris
             // if double sided sideset
             if ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
             {
-                // fill the slave interpolation cell
-                mSlaveInterpolationCell = aInterpolationCell( 1 );
+                // fill the follower interpolation cell
+                mFollowerInterpolationCell = aInterpolationCell( 1 );
 
                 // get vertices from cell
-                moris::Cell< mtk::Vertex* > tSlaveVertices =
-                        mSlaveInterpolationCell->get_vertex_pointers();
+                moris::Cell< mtk::Vertex* > tFollowerVertices =
+                        mFollowerInterpolationCell->get_vertex_pointers();
 
                 // get number of vertices from cell
-                uint tNumOfSlaveVertices = tSlaveVertices.size();
+                uint tNumOfFollowerVertices = tFollowerVertices.size();
 
                 // assign node object
                 mNodeObj.resize( 2 );
-                mNodeObj( 1 ).resize( tNumOfSlaveVertices, nullptr );
+                mNodeObj( 1 ).resize( tNumOfFollowerVertices, nullptr );
 
-                // fill slave node objects
-                for ( uint iVertex = 0; iVertex < tNumOfSlaveVertices; iVertex++ )
+                // fill follower node objects
+                for ( uint iVertex = 0; iVertex < tNumOfFollowerVertices; iVertex++ )
                 {
-                    mNodeObj( 1 )( iVertex ) = aNodes( tSlaveVertices( iVertex )->get_index() );
+                    mNodeObj( 1 )( iVertex ) = aNodes( tFollowerVertices( iVertex )->get_index() );
                 }
             }
         }
@@ -126,18 +126,18 @@ namespace moris
         {
             // dof field interpolators------------------------------------------
 
-            // get master dof type list from set
-            Cell< Cell< MSI::Dof_Type > >& tMasterDofTypeList =
-                    mSet->get_dof_type_list( mtk::Master_Slave::MASTER );
+            // get leader dof type list from set
+            Cell< Cell< MSI::Dof_Type > >& tLeaderDofTypeList =
+                    mSet->get_dof_type_list( mtk::Leader_Follower::LEADER );
 
-            // get number of master dof types
-            uint tMasterNumDofTypes = tMasterDofTypeList.size();
+            // get number of leader dof types
+            uint tLeaderNumDofTypes = tLeaderDofTypeList.size();
 
-            // loop on the master dof types
-            for ( uint iDOF = 0; iDOF < tMasterNumDofTypes; iDOF++ )
+            // loop on the leader dof types
+            for ( uint iDOF = 0; iDOF < tLeaderNumDofTypes; iDOF++ )
             {
                 // get the ith dof type group
-                moris::Cell< MSI::Dof_Type >& tDofTypeGroup = tMasterDofTypeList( iDOF );
+                moris::Cell< MSI::Dof_Type >& tDofTypeGroup = tLeaderDofTypeList( iDOF );
 
                 // get the pdof values for the ith dof type group
                 Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
@@ -189,51 +189,51 @@ namespace moris
                 }
             }
 
-            // get slave dof type list from set
-            Cell< Cell< MSI::Dof_Type > >& tSlaveDofTypeList =
-                    mSet->get_dof_type_list( mtk::Master_Slave::SLAVE );
+            // get follower dof type list from set
+            Cell< Cell< MSI::Dof_Type > >& tFollowerDofTypeList =
+                    mSet->get_dof_type_list( mtk::Leader_Follower::FOLLOWER );
 
-            // get number of slave dof types
-            uint tSlaveNumDofTypes = tSlaveDofTypeList.size();
+            // get number of follower dof types
+            uint tFollowerNumDofTypes = tFollowerDofTypeList.size();
 
-            // loop on the slave dof types
-            for ( uint iDOF = 0; iDOF < tSlaveNumDofTypes; iDOF++ )
+            // loop on the follower dof types
+            for ( uint iDOF = 0; iDOF < tFollowerNumDofTypes; iDOF++ )
             {
                 // get the ith dof type group
-                moris::Cell< MSI::Dof_Type >& tDofTypeGroup = tSlaveDofTypeList( iDOF );
+                moris::Cell< MSI::Dof_Type >& tDofTypeGroup = tFollowerDofTypeList( iDOF );
 
                 // get the pdof values for the ith dof type group
                 Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
-                this->get_my_pdof_values( mSet->mPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
+                this->get_my_pdof_values( mSet->mPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Leader_Follower::FOLLOWER );
 
                 // reshape tCoeffs into the order the cluster expects them
                 Matrix< DDRMat > tCoeff;
                 this->reshape_pdof_values( tCoeff_Original( 0 ), tCoeff );
 
                 // set the field coefficients
-                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->set_coeff_for_type( tDofTypeGroup( 0 ), tCoeff );
+                mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_coeff_for_type( tDofTypeGroup( 0 ), tCoeff );
             }
 
             // dv field interpolators------------------------------------------
 
-            // get master dv type list from set
-            const Cell< Cell< PDV_Type > >& tMasterDvTypeList =
-                    mSet->get_dv_type_list( mtk::Master_Slave::MASTER );
+            // get leader dv type list from set
+            const Cell< Cell< PDV_Type > >& tLeaderDvTypeList =
+                    mSet->get_dv_type_list( mtk::Leader_Follower::LEADER );
 
-            // get number of master dv types
-            uint tMasterNumDvTypes = tMasterDvTypeList.size();
+            // get number of leader dv types
+            uint tLeaderNumDvTypes = tLeaderDvTypeList.size();
 
-            // loop on the master dv types
-            for ( uint iDv = 0; iDv < tMasterNumDvTypes; iDv++ )
+            // loop on the leader dv types
+            for ( uint iDv = 0; iDv < tLeaderNumDvTypes; iDv++ )
             {
                 // get the dv type group
-                const moris::Cell< PDV_Type >& tDvTypeGroup = tMasterDvTypeList( iDv );
+                const moris::Cell< PDV_Type >& tDvTypeGroup = tLeaderDvTypeList( iDv );
 
                 // get the pdv values for the ith dv type group
                 // FIXME: the underlying use of the base cell needs to be hidden within PDV
                 Cell< Matrix< DDRMat > > tCoeff_Original;
                 mSet->get_equation_model()->get_design_variable_interface()->get_ip_pdv_value(
-                        mMasterInterpolationCell->get_base_cell()->get_vertex_inds(),
+                        mLeaderInterpolationCell->get_base_cell()->get_vertex_inds(),
                         tDvTypeGroup,
                         tCoeff_Original );
 
@@ -245,23 +245,23 @@ namespace moris
                 mSet->get_field_interpolator_manager()->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
             }
 
-            // get slave dv type list from set
-            const Cell< Cell< PDV_Type > >& tSlaveDvTypeList =
-                    mSet->get_dv_type_list( mtk::Master_Slave::SLAVE );
+            // get follower dv type list from set
+            const Cell< Cell< PDV_Type > >& tFollowerDvTypeList =
+                    mSet->get_dv_type_list( mtk::Leader_Follower::FOLLOWER );
 
-            // get number of slave dv types
-            uint tSlaveNumDvTypes = tSlaveDvTypeList.size();
+            // get number of follower dv types
+            uint tFollowerNumDvTypes = tFollowerDvTypeList.size();
 
-            // loop on the slave dv types
-            for ( uint iDv = 0; iDv < tSlaveNumDvTypes; iDv++ )
+            // loop on the follower dv types
+            for ( uint iDv = 0; iDv < tFollowerNumDvTypes; iDv++ )
             {
                 // get the dv type group
-                const moris::Cell< PDV_Type >& tDvTypeGroup = tSlaveDvTypeList( iDv );
+                const moris::Cell< PDV_Type >& tDvTypeGroup = tFollowerDvTypeList( iDv );
 
                 // get the pdv values for the ith dv type group
                 Cell< Matrix< DDRMat > > tCoeff_Original;
                 mSet->get_equation_model()->get_design_variable_interface()->get_ip_pdv_value(
-                        mSlaveInterpolationCell->get_base_cell()->get_vertex_inds(),
+                        mFollowerInterpolationCell->get_base_cell()->get_vertex_inds(),
                         tDvTypeGroup,
                         tCoeff_Original );
 
@@ -270,25 +270,25 @@ namespace moris
                 mSet->get_equation_model()->get_design_variable_interface()->reshape_pdv_values( tCoeff_Original, tCoeff );
 
                 // set the field coefficients
-                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
+                mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_coeff_for_type( tDvTypeGroup( 0 ), tCoeff );
             }
 
             // field field interpolators------------------------------------------
 
-            // get master field type list from set
-            const Cell< Cell< mtk::Field_Type > >& tMasterFieldTypeList =
-                    mSet->get_field_type_list( mtk::Master_Slave::MASTER );
+            // get leader field type list from set
+            const Cell< Cell< mtk::Field_Type > >& tLeaderFieldTypeList =
+                    mSet->get_field_type_list( mtk::Leader_Follower::LEADER );
 
-            // get number of master field types
-            uint tMasterNumFieldTypes = tMasterFieldTypeList.size();
+            // get number of leader field types
+            uint tLeaderNumFieldTypes = tLeaderFieldTypeList.size();
 
-            // loop on the master field types
-            for ( uint iFi = 0; iFi < tMasterNumFieldTypes; iFi++ )
+            // loop on the leader field types
+            for ( uint iFi = 0; iFi < tLeaderNumFieldTypes; iFi++ )
             {
                 // get the field type group
-                const moris::Cell< mtk::Field_Type >& tFieldTypeGroup = tMasterFieldTypeList( iFi );
+                const moris::Cell< mtk::Field_Type >& tFieldTypeGroup = tLeaderFieldTypeList( iFi );
 
-                Matrix< IndexMat > tIPCellIndices = mMasterInterpolationCell->get_vertex_inds();
+                Matrix< IndexMat > tIPCellIndices = mLeaderInterpolationCell->get_vertex_inds();
 
                 Matrix< DDRMat > tCoeff;
                 mSet->get_fem_model()->get_field( tFieldTypeGroup( 0 ) )->get_values( tIPCellIndices, tCoeff, tFieldTypeGroup );
@@ -299,20 +299,20 @@ namespace moris
                 mSet->get_field_interpolator_manager()->set_coeff_for_type( tFieldTypeGroup( 0 ), tCoeff );
             }
 
-            // get slave field type list from set
-            const Cell< Cell< mtk::Field_Type > >& tSlaveFieldTypeList =
-                    mSet->get_field_type_list( mtk::Master_Slave::SLAVE );
+            // get follower field type list from set
+            const Cell< Cell< mtk::Field_Type > >& tFollowerFieldTypeList =
+                    mSet->get_field_type_list( mtk::Leader_Follower::FOLLOWER );
 
-            // get number of slave field types
-            uint tSlaveNumFieldTypes = tSlaveFieldTypeList.size();
+            // get number of follower field types
+            uint tFollowerNumFieldTypes = tFollowerFieldTypeList.size();
 
-            // loop on the slave field types
-            for ( uint iFi = 0; iFi < tSlaveNumFieldTypes; iFi++ )
+            // loop on the follower field types
+            for ( uint iFi = 0; iFi < tFollowerNumFieldTypes; iFi++ )
             {
                 // get the field type group
-                const moris::Cell< mtk::Field_Type >& tFieldTypeGroup = tSlaveFieldTypeList( iFi );
+                const moris::Cell< mtk::Field_Type >& tFieldTypeGroup = tFollowerFieldTypeList( iFi );
 
-                Matrix< IndexMat > tIPCellIndices = mSlaveInterpolationCell->get_vertex_inds();
+                Matrix< IndexMat > tIPCellIndices = mFollowerInterpolationCell->get_vertex_inds();
 
                 Matrix< DDRMat > tCoeff;
                 mSet->get_fem_model()->get_field( tFieldTypeGroup( 0 ) )->get_values( tIPCellIndices, tCoeff, tFieldTypeGroup );
@@ -320,37 +320,37 @@ namespace moris
                 // FIXME implement reshape for vector fields
 
                 // set field interpolator coefficients
-                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->set_coeff_for_type( tFieldTypeGroup( 0 ), tCoeff );
+                mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_coeff_for_type( tFieldTypeGroup( 0 ), tCoeff );
             }
 
             // geometry interpolators------------------------------------------
-            // set the IP geometry interpolator physical space and time coefficients for the master
-            mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->get_IP_geometry_interpolator()->set_space_coeff( mMasterInterpolationCell->get_vertex_coords() );
-            mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->get_IP_geometry_interpolator()->set_param_coeff();
-            mSet->get_field_interpolator_manager( mtk::Master_Slave::MASTER )->get_IP_geometry_interpolator()->set_time_coeff( this->get_time() );
+            // set the IP geometry interpolator physical space and time coefficients for the leader
+            mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )->get_IP_geometry_interpolator()->set_space_coeff( mLeaderInterpolationCell->get_vertex_coords() );
+            mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )->get_IP_geometry_interpolator()->set_param_coeff();
+            mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )->get_IP_geometry_interpolator()->set_time_coeff( this->get_time() );
 
             // if double sideset
             if ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
             {
-                // set the IP geometry interpolator physical space and time coefficients for the slave
-                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IP_geometry_interpolator()->set_space_coeff( mSlaveInterpolationCell->get_vertex_coords() );
-                mSet->get_field_interpolator_manager( mtk::Master_Slave::SLAVE )->get_IP_geometry_interpolator()->set_time_coeff( this->get_time() );
+                // set the IP geometry interpolator physical space and time coefficients for the follower
+                mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->get_IP_geometry_interpolator()->set_space_coeff( mFollowerInterpolationCell->get_vertex_coords() );
+                mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->get_IP_geometry_interpolator()->set_time_coeff( this->get_time() );
             }
 
             // if time sideset
             if ( mElementType == fem::Element_Type::TIME_SIDESET )
             {
                 // set the IP geometry interpolator physical space and time coefficients for the previous
-                mSet->get_field_interpolator_manager_previous_time( mtk::Master_Slave::MASTER )->get_IP_geometry_interpolator()->set_space_coeff( mMasterInterpolationCell->get_vertex_coords() );
-                mSet->get_field_interpolator_manager_previous_time( mtk::Master_Slave::MASTER )->get_IP_geometry_interpolator()->set_time_coeff( this->get_previous_time() );
+                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::LEADER )->get_IP_geometry_interpolator()->set_space_coeff( mLeaderInterpolationCell->get_vertex_coords() );
+                mSet->get_field_interpolator_manager_previous_time( mtk::Leader_Follower::LEADER )->get_IP_geometry_interpolator()->set_time_coeff( this->get_previous_time() );
             }
 
             // if eigen vectors
             if ( mSet->mEigenVectorPdofValues.size() > 0 )
             {
                 // set the IP geometry interpolator physical space and time coefficients for eigen vectors
-                mSet->get_field_interpolator_manager_eigen_vectors( mtk::Master_Slave::MASTER )->get_IP_geometry_interpolator()->set_space_coeff( mMasterInterpolationCell->get_vertex_coords() );
-                mSet->get_field_interpolator_manager_eigen_vectors( mtk::Master_Slave::MASTER )->get_IP_geometry_interpolator()->set_time_coeff( this->get_time() );
+                mSet->get_field_interpolator_manager_eigen_vectors( mtk::Leader_Follower::LEADER )->get_IP_geometry_interpolator()->set_space_coeff( mLeaderInterpolationCell->get_vertex_coords() );
+                mSet->get_field_interpolator_manager_eigen_vectors( mtk::Leader_Follower::LEADER )->get_IP_geometry_interpolator()->set_time_coeff( this->get_time() );
             }
         }
 
@@ -373,9 +373,9 @@ namespace moris
             // init pdv counter
             uint tCounter = 0;
 
-            // get master vertices from cell
-            Matrix< IndexMat > tMasterVerticesInds =
-                    mMasterInterpolationCell->get_base_cell()->get_vertex_inds();
+            // get leader vertices from cell
+            Matrix< IndexMat > tLeaderVerticesInds =
+                    mLeaderInterpolationCell->get_base_cell()->get_vertex_inds();
 
             // loop over the dv types
             for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
@@ -385,7 +385,7 @@ namespace moris
 
                 // get the pdv ids for requested vertices and pdv type
                 tDVInterface->get_ip_dv_ids_for_type_and_ind(
-                        tMasterVerticesInds,
+                        tLeaderVerticesInds,
                         tRequestedDvTypes( Ik ),
                         tPdvIds );
 
@@ -408,12 +408,12 @@ namespace moris
             // double sided
             if ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
             {
-                // get slave vertices from cell
-                Matrix< IndexMat > tSlaveVerticesInds =
-                        mSlaveInterpolationCell->get_base_cell()->get_vertex_inds();
+                // get follower vertices from cell
+                Matrix< IndexMat > tFollowerVerticesInds =
+                        mFollowerInterpolationCell->get_base_cell()->get_vertex_inds();
 
-                // get the list of requested dv types by the opt solver for the slave side
-                mSet->get_ip_dv_types_for_set( tRequestedDvTypes, mtk::Master_Slave::SLAVE );
+                // get the list of requested dv types by the opt solver for the follower side
+                mSet->get_ip_dv_types_for_set( tRequestedDvTypes, mtk::Leader_Follower::FOLLOWER );
 
                 // loop over the dv types
                 for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
@@ -423,7 +423,7 @@ namespace moris
 
                     // get the pdv ids for requested vertices and pdv type
                     tDVInterface->get_ip_dv_ids_for_type_and_ind(
-                            tSlaveVerticesInds,
+                            tFollowerVerticesInds,
                             tRequestedDvTypes( Ik ),
                             tPdvIds );
 
@@ -788,19 +788,19 @@ namespace moris
             // reorder adjoint values following the requested dof types order
             Matrix< DDRMat > tAdjointPdofValuesReordered;
 
-            // get master dof type list from set
-            const Cell< Cell< MSI::Dof_Type > >& tMasterDofTypeGroup =
-                    mSet->get_dof_type_list( mtk::Master_Slave::MASTER );
+            // get leader dof type list from set
+            const Cell< Cell< MSI::Dof_Type > >& tLeaderDofTypeGroup =
+                    mSet->get_dof_type_list( mtk::Leader_Follower::LEADER );
 
-            // get number of master dof types
-            uint tNumMasterDofTypes = tMasterDofTypeGroup.size();
+            // get number of leader dof types
+            uint tNumLeaderDofTypes = tLeaderDofTypeGroup.size();
 
-            // get slave dof type list from set
-            const Cell< Cell< MSI::Dof_Type > >& tSlaveDofTypeGroup =
-                    mSet->get_dof_type_list( mtk::Master_Slave::SLAVE );
+            // get follower dof type list from set
+            const Cell< Cell< MSI::Dof_Type > >& tFollowerDofTypeGroup =
+                    mSet->get_dof_type_list( mtk::Leader_Follower::FOLLOWER );
 
-            // get number of slave dof types
-            uint tNumSlaveDofTypes = tSlaveDofTypeGroup.size();
+            // get number of follower dof types
+            uint tNumFollowerDofTypes = tFollowerDofTypeGroup.size();
 
             // loop over the RHS
             for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
@@ -808,54 +808,54 @@ namespace moris
                 // set size for reordered adjoint values
                 tAdjointPdofValuesReordered.set_size( tNumPdofValues, 1, 0.0 );
 
-                // loop over the master dof types
-                for ( uint Ia = 0; Ia < tNumMasterDofTypes; Ia++ )
+                // loop over the leader dof types
+                for ( uint Ia = 0; Ia < tNumLeaderDofTypes; Ia++ )
                 {
                     // get the adjoint values for the ith dof type group
-                    Cell< Cell< Matrix< DDRMat > > > tMasterAdjointOriginal;
+                    Cell< Cell< Matrix< DDRMat > > > tLeaderAdjointOriginal;
                     this->get_my_pdof_values(
                             mSet->mAdjointPdofValues,
-                            tMasterDofTypeGroup( Ia ),
-                            tMasterAdjointOriginal,
-                            mtk::Master_Slave::MASTER );
+                            tLeaderDofTypeGroup( Ia ),
+                            tLeaderAdjointOriginal,
+                            mtk::Leader_Follower::LEADER );
 
                     // reshape adjoint values
-                    Matrix< DDRMat > tMasterAdjointCoeff;
-                    this->reshape_pdof_values_vector( tMasterAdjointOriginal( Ik ), tMasterAdjointCoeff );
+                    Matrix< DDRMat > tLeaderAdjointCoeff;
+                    this->reshape_pdof_values_vector( tLeaderAdjointOriginal( Ik ), tLeaderAdjointCoeff );
 
                     // get indices for begin and end
-                    uint tDofIndex   = mSet->get_dof_index_for_type( tMasterDofTypeGroup( Ia )( 0 ), mtk::Master_Slave::MASTER );
+                    uint tDofIndex   = mSet->get_dof_index_for_type( tLeaderDofTypeGroup( Ia )( 0 ), mtk::Leader_Follower::LEADER );
                     uint tStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
                     uint tStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
                     // fill reordered adjoint pdof values
                     tAdjointPdofValuesReordered( { tStartIndex, tStopIndex } ) =
-                            tMasterAdjointCoeff.matrix_data();
+                            tLeaderAdjointCoeff.matrix_data();
                 }
 
-                // loop over the slave dof types
-                for ( uint Ia = 0; Ia < tNumSlaveDofTypes; Ia++ )
+                // loop over the follower dof types
+                for ( uint Ia = 0; Ia < tNumFollowerDofTypes; Ia++ )
                 {
                     // get the adjoint values for the ith dof type group
-                    Cell< Cell< Matrix< DDRMat > > > tSlaveAdjointOriginal;
+                    Cell< Cell< Matrix< DDRMat > > > tFollowerAdjointOriginal;
                     this->get_my_pdof_values(
                             mSet->mAdjointPdofValues,
-                            tSlaveDofTypeGroup( Ia ),
-                            tSlaveAdjointOriginal,
-                            mtk::Master_Slave::SLAVE );
+                            tFollowerDofTypeGroup( Ia ),
+                            tFollowerAdjointOriginal,
+                            mtk::Leader_Follower::FOLLOWER );
 
                     // reshape adjoint values
-                    Matrix< DDRMat > tSlaveAdjointCoeff;
-                    this->reshape_pdof_values_vector( tSlaveAdjointOriginal( Ik ), tSlaveAdjointCoeff );
+                    Matrix< DDRMat > tFollowerAdjointCoeff;
+                    this->reshape_pdof_values_vector( tFollowerAdjointOriginal( Ik ), tFollowerAdjointCoeff );
 
                     // get indices for begin and end
-                    uint tDofIndex   = mSet->get_dof_index_for_type( tSlaveDofTypeGroup( Ia )( 0 ), mtk::Master_Slave::SLAVE );
+                    uint tDofIndex   = mSet->get_dof_index_for_type( tFollowerDofTypeGroup( Ia )( 0 ), mtk::Leader_Follower::FOLLOWER );
                     uint tStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
                     uint tStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
                     // fill reordered adjoint pdof values
                     tAdjointPdofValuesReordered( { tStartIndex, tStopIndex } ) =
-                            tSlaveAdjointCoeff.matrix_data();
+                            tFollowerAdjointCoeff.matrix_data();
                 }
 
                 // Assembly for the IP pdv
@@ -976,19 +976,19 @@ namespace moris
             // reorder adjoint values following the requested dof types order
             Matrix< DDRMat > tAdjointPdofValuesReordered;
 
-            // get master dof type list from set
-            const Cell< Cell< MSI::Dof_Type > >& tMasterDofTypeGroup =
-                    mSet->get_dof_type_list( mtk::Master_Slave::MASTER );
+            // get leader dof type list from set
+            const Cell< Cell< MSI::Dof_Type > >& tLeaderDofTypeGroup =
+                    mSet->get_dof_type_list( mtk::Leader_Follower::LEADER );
 
-            // get number of master dof types
-            uint tNumMasterDofTypes = tMasterDofTypeGroup.size();
+            // get number of leader dof types
+            uint tNumLeaderDofTypes = tLeaderDofTypeGroup.size();
 
-            // get slave dof type list from set
-            const Cell< Cell< MSI::Dof_Type > >& tSlaveDofTypeGroup =
-                    mSet->get_dof_type_list( mtk::Master_Slave::SLAVE );
+            // get follower dof type list from set
+            const Cell< Cell< MSI::Dof_Type > >& tFollowerDofTypeGroup =
+                    mSet->get_dof_type_list( mtk::Leader_Follower::FOLLOWER );
 
-            // get number of slave dof types
-            uint tNumSlaveDofTypes = tSlaveDofTypeGroup.size();
+            // get number of follower dof types
+            uint tNumFollowerDofTypes = tFollowerDofTypeGroup.size();
 
             // loop over the RHS
             for ( uint Ik = 0; Ik < tNumRHS; Ik++ )
@@ -996,54 +996,54 @@ namespace moris
                 // set size for reordered adjoint values
                 tAdjointPdofValuesReordered.set_size( tNumPdofValues, 1, 0.0 );
 
-                // loop over the master dof types
-                for ( uint Ia = 0; Ia < tNumMasterDofTypes; Ia++ )
+                // loop over the leader dof types
+                for ( uint Ia = 0; Ia < tNumLeaderDofTypes; Ia++ )
                 {
                     // get the adjoint values for the ith dof type group
-                    Cell< Cell< Matrix< DDRMat > > > tMasterAdjointOriginal;
+                    Cell< Cell< Matrix< DDRMat > > > tLeaderAdjointOriginal;
                     this->get_my_pdof_values(
                             mSet->mAdjointPdofValues,
-                            tMasterDofTypeGroup( Ia ),
-                            tMasterAdjointOriginal,
-                            mtk::Master_Slave::MASTER );
+                            tLeaderDofTypeGroup( Ia ),
+                            tLeaderAdjointOriginal,
+                            mtk::Leader_Follower::LEADER );
 
                     // reshape adjoint values
-                    Matrix< DDRMat > tMasterAdjointCoeff;
-                    this->reshape_pdof_values_vector( tMasterAdjointOriginal( Ik ), tMasterAdjointCoeff );
+                    Matrix< DDRMat > tLeaderAdjointCoeff;
+                    this->reshape_pdof_values_vector( tLeaderAdjointOriginal( Ik ), tLeaderAdjointCoeff );
 
                     // get indices for begin and end
-                    uint tDofIndex   = mSet->get_dof_index_for_type( tMasterDofTypeGroup( Ia )( 0 ), mtk::Master_Slave::MASTER );
+                    uint tDofIndex   = mSet->get_dof_index_for_type( tLeaderDofTypeGroup( Ia )( 0 ), mtk::Leader_Follower::LEADER );
                     uint tStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
                     uint tStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
                     // fill reordered adjoint pdof values
                     tAdjointPdofValuesReordered( { tStartIndex, tStopIndex } ) =
-                            tMasterAdjointCoeff.matrix_data();
+                            tLeaderAdjointCoeff.matrix_data();
                 }
 
-                // loop over the slave dof types
-                for ( uint Ia = 0; Ia < tNumSlaveDofTypes; Ia++ )
+                // loop over the follower dof types
+                for ( uint Ia = 0; Ia < tNumFollowerDofTypes; Ia++ )
                 {
                     // get the adjoint values for the ith dof type group
-                    Cell< Cell< Matrix< DDRMat > > > tSlaveAdjointOriginal;
+                    Cell< Cell< Matrix< DDRMat > > > tFollowerAdjointOriginal;
                     this->get_my_pdof_values(
                             mSet->mAdjointPdofValues,
-                            tSlaveDofTypeGroup( Ia ),
-                            tSlaveAdjointOriginal,
-                            mtk::Master_Slave::SLAVE );
+                            tFollowerDofTypeGroup( Ia ),
+                            tFollowerAdjointOriginal,
+                            mtk::Leader_Follower::FOLLOWER );
 
                     // reshape adjoint values
-                    Matrix< DDRMat > tSlaveAdjointCoeff;
-                    this->reshape_pdof_values_vector( tSlaveAdjointOriginal( Ik ), tSlaveAdjointCoeff );
+                    Matrix< DDRMat > tFollowerAdjointCoeff;
+                    this->reshape_pdof_values_vector( tFollowerAdjointOriginal( Ik ), tFollowerAdjointCoeff );
 
                     // get indices for begin and end
-                    uint tDofIndex   = mSet->get_dof_index_for_type( tSlaveDofTypeGroup( Ia )( 0 ), mtk::Master_Slave::SLAVE );
+                    uint tDofIndex   = mSet->get_dof_index_for_type( tFollowerDofTypeGroup( Ia )( 0 ), mtk::Leader_Follower::FOLLOWER );
                     uint tStartIndex = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 );
                     uint tStopIndex  = mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 );
 
                     // fill reordered adjoint pdof values
                     tAdjointPdofValuesReordered( { tStartIndex, tStopIndex } ) =
-                            tSlaveAdjointCoeff.matrix_data();
+                            tFollowerAdjointCoeff.matrix_data();
                 }
 
                 // Assembly for the IP pdv
@@ -1196,12 +1196,12 @@ namespace moris
             // if nodal field
             if ( aFieldType == vis::Field_Type::NODAL )
             {
-                // get the master vertices indices on the mesh cluster
+                // get the leader vertices indices on the mesh cluster
                 moris::Matrix< moris::IndexMat > tVertexIndices;
                 mFemCluster( aMeshIndex )->get_vertex_indices_in_cluster_for_visualization( tVertexIndices );
 
                 // FIXME: this operation only works for BULK clusters
-                // get the master vertices local coordinates on the mesh cluster
+                // get the leader vertices local coordinates on the mesh cluster
                 moris::Matrix< moris::DDRMat > tVertexLocalCoords =
                         mFemCluster( aMeshIndex )->get_vertices_local_coordinates_wrt_interp_cell();
 
@@ -1301,16 +1301,16 @@ namespace moris
                 // if nodal field
                 if ( aFields( tGlobalIndex )->get_field_entity_type() == mtk::Field_Entity_Type::NODAL )
                 {
-                    //                // get the master vertices indices on the mesh cluster
+                    //                // get the leader vertices indices on the mesh cluster
                     //                moris::Matrix< moris::IndexMat > tVertexIndices = mFemCluster( 0 )->
                     //                        get_mesh_cluster()->
                     //                        get_interpolation_cell().
                     //                        get_vertex_inds();
 
                     Matrix< IndexMat > tVertexIndices =
-                            mMasterInterpolationCell->get_vertex_inds();
+                            mLeaderInterpolationCell->get_vertex_inds();
 
-                    // get the master vertices local coordinates on the interpolation element
+                    // get the leader vertices local coordinates on the interpolation element
                     Geometry_Interpolator* tIPGI =
                             mSet->get_field_interpolator_manager()->get_IP_geometry_interpolator();
 
@@ -1344,7 +1344,7 @@ namespace moris
                 else
                 {
                     // get mtk interpolation element index
-                    moris_index tIndex = mMasterInterpolationCell->get_index();
+                    moris_index tIndex = mLeaderInterpolationCell->get_index();
 
                     moris::Matrix< DDRMat > tValues( 1, 1, 0.0 );
 

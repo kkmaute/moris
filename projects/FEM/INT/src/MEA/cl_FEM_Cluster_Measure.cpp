@@ -37,7 +37,7 @@ namespace moris
                     // evaluate cell measure from the cluster
                     mMEAVal = mCluster->compute_cluster_cell_measure(
                             mIsPrimary,
-                            mIsMaster );
+                            mIsLeader );
 
                     // set evaluation flag to true
                     mMEAEval = true;
@@ -49,7 +49,7 @@ namespace moris
                     // evaluate cell side measure from the cluster
                     mMEAVal = mCluster->compute_cluster_cell_side_measure(
                             mIsPrimary,
-                            mIsMaster );
+                            mIsLeader );
 
                     // set evaluation flag to true
                     mMEAEval = true;
@@ -61,7 +61,7 @@ namespace moris
                     // evaluate cell length measure from the cluster
                     mMEAVal = mCluster->compute_cluster_cell_length_measure(
                             mIsPrimary,
-                            mIsMaster );
+                            mIsLeader );
 
                     // set evaluation flag to true
                     mMEAEval = true;
@@ -105,7 +105,7 @@ namespace moris
                     // evaluate cell measure from the cluster
                     mdMEAdPDV = mCluster->compute_cluster_cell_measure_derivative(
                             mIsPrimary,
-                            mIsMaster );
+                            mIsLeader );
 
                     // set evaluation flag to true
                     mdMEAdPDVEval = true;
@@ -116,7 +116,7 @@ namespace moris
                     // evaluate cell side measure from the cluster
                     mdMEAdPDV = mCluster->compute_cluster_cell_side_measure_derivative(
                             mIsPrimary,
-                            mIsMaster );
+                            mIsLeader );
 
                     // set evaluation flag to true
                     mdMEAdPDVEval = true;
@@ -127,7 +127,7 @@ namespace moris
                     // evaluate cell length measure from the cluster
                     mdMEAdPDV = mCluster->compute_cluster_cell_length_measure_derivative(
                             mIsPrimary,
-                            mIsMaster );
+                            mIsLeader );
 
                     // set evaluation flag to true
                     mdMEAdPDVEval = true;

@@ -81,18 +81,18 @@ namespace moris
             }
 
             // check that the assembly map is a connected block
-            uint tMasterDof1Index      = aFemSet->get_dof_index_for_type( aResidualDofTypes( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof2Index      = aFemSet->get_dof_index_for_type( aResidualDofTypes( 1 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof3Index      = aFemSet->get_dof_index_for_type( aResidualDofTypes( 2 )( 0 ), mtk::Master_Slave::MASTER );
-            sint tDofDep1Index         = aFemSet->get_dof_index_for_type( aRequestedDofTypeList( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            sint tDofDep2Index         = aFemSet->get_dof_index_for_type( aRequestedDofTypeList( 1 )( 0 ), mtk::Master_Slave::MASTER );
-            sint tDofDep3Index         = aFemSet->get_dof_index_for_type( aRequestedDofTypeList( 2 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDep1StopIndex  = aFemSet->get_jac_dof_assembly_map()( tMasterDof1Index )( tDofDep1Index, 1 );
-            uint tMasterDep2StartIndex = aFemSet->get_jac_dof_assembly_map()( tMasterDof2Index )( tDofDep2Index, 0 );
-            uint tMasterDep2StopIndex  = aFemSet->get_jac_dof_assembly_map()( tMasterDof2Index )( tDofDep2Index, 1 );
-            uint tMasterDep3StartIndex = aFemSet->get_jac_dof_assembly_map()( tMasterDof3Index )( tDofDep3Index, 0 );
+            uint tLeaderDof1Index      = aFemSet->get_dof_index_for_type( aResidualDofTypes( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderDof2Index      = aFemSet->get_dof_index_for_type( aResidualDofTypes( 1 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderDof3Index      = aFemSet->get_dof_index_for_type( aResidualDofTypes( 2 )( 0 ), mtk::Leader_Follower::LEADER );
+            sint tDofDep1Index         = aFemSet->get_dof_index_for_type( aRequestedDofTypeList( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            sint tDofDep2Index         = aFemSet->get_dof_index_for_type( aRequestedDofTypeList( 1 )( 0 ), mtk::Leader_Follower::LEADER );
+            sint tDofDep3Index         = aFemSet->get_dof_index_for_type( aRequestedDofTypeList( 2 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderDep1StopIndex  = aFemSet->get_jac_dof_assembly_map()( tLeaderDof1Index )( tDofDep1Index, 1 );
+            uint tLeaderDep2StartIndex = aFemSet->get_jac_dof_assembly_map()( tLeaderDof2Index )( tDofDep2Index, 0 );
+            uint tLeaderDep2StopIndex  = aFemSet->get_jac_dof_assembly_map()( tLeaderDof2Index )( tDofDep2Index, 1 );
+            uint tLeaderDep3StartIndex = aFemSet->get_jac_dof_assembly_map()( tLeaderDof3Index )( tDofDep3Index, 0 );
 
-            if ( !( ( tMasterDep1StopIndex + 1 == tMasterDep2StartIndex ) && ( tMasterDep2StopIndex + 1 == tMasterDep3StartIndex ) ) )
+            if ( !( ( tLeaderDep1StopIndex + 1 == tLeaderDep2StartIndex ) && ( tLeaderDep2StopIndex + 1 == tLeaderDep3StartIndex ) ) )
             {
                 MORIS_LOG_ERROR( "Compressible_NS_Dof_Check::check_dof_dependencies() - Assembly map is not connected." );
             }

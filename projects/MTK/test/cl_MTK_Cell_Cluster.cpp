@@ -168,8 +168,8 @@ TEST_CASE("Cell Cluster Proxy","[MTK_CLUSTER_PROXY]")
         CHECK(tVerticesInCluster2(i)->get_id() == tVertexIDsInCluster(i));
     }
 
-    CHECK(tCellCluster.compute_cluster_cell_measure(Primary_Void::PRIMARY,Master_Slave::MASTER));
-    CHECK(tCellCluster.compute_cluster_cell_measure(Primary_Void::VOID,Master_Slave::MASTER));
+    CHECK(tCellCluster.compute_cluster_cell_measure(Primary_Void::PRIMARY,Leader_Follower::LEADER));
+    CHECK(tCellCluster.compute_cluster_cell_measure(Primary_Void::VOID,Leader_Follower::LEADER));
         }
 
 TEST_CASE(" Same Interpolation and Integration Mesh + Cluster Input ","[MTK_MESH_CLUSTER]")

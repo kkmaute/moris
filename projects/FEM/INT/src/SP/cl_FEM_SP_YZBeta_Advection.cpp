@@ -27,14 +27,14 @@ namespace moris
         SP_YZBeta_Advection::SP_YZBeta_Advection()
         {
             // set the property pointer cell size
-            mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
             mPropertyMap[ "Beta" ]           = static_cast< uint >( Property_Type::BETA_CONSTANT );
             mPropertyMap[ "ReferenceState" ] = static_cast< uint >( Property_Type::REFERENCE_STATE );
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "Diffusion" ] = static_cast< uint >( IWG_Constitutive_Type::DIFFUSION );
@@ -46,15 +46,15 @@ namespace moris
         SP_YZBeta_Advection::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
                 moris::Cell< std::string >&                  aDofStrings,
-                mtk::Master_Slave                            aIsMaster )
+                mtk::Leader_Follower                            aIsLeader )
         {
-            // switch on master slave
-            switch ( aIsMaster )
+            // switch on leader follower
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
+                case mtk::Leader_Follower::LEADER:
                 {
                     // set dof type list
-                    mMasterDofTypes = aDofTypes;
+                    mLeaderDofTypes = aDofTypes;
 
                     // loop on dof type
                     for ( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
@@ -68,7 +68,7 @@ namespace moris
                         // if scalar field
                         if ( tDofString == "ScalarField" )
                         {
-                            mMasterDofScalarField = tDofType;
+                            mLeaderDofScalarField = tDofType;
                         }
                         else
                         {
@@ -80,14 +80,14 @@ namespace moris
                     }
                     break;
                 }
-                case mtk::Master_Slave::SLAVE:
+                case mtk::Leader_Follower::FOLLOWER:
                 {
                     // set dof type list
-                    mSlaveDofTypes = aDofTypes;
+                    mFollowerDofTypes = aDofTypes;
                     break;
                 }
                 default:
-                    MORIS_ERROR( false, "SP_YZBeta_Advection::set_dof_type_list - unknown master slave type." );
+                    MORIS_ERROR( false, "SP_YZBeta_Advection::set_dof_type_list - unknown leader follower type." );
             }
         }
 
@@ -98,18 +98,18 @@ namespace moris
         {
             // get the FI for scalar field
             Field_Interpolator* tScalarFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofScalarField );
+                    mLeaderFIManager->get_field_interpolators_for_type( mLeaderDofScalarField );
 
             // get the diffusion CM
             const std::shared_ptr< Constitutive_Model >& tCMDiffusion =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             MORIS_ASSERT( tCMDiffusion != nullptr,
                     "SP_YZBeta_Advection::eval_SP - constitutive model not defined\n" );
 
             // get the beta property
             const std::shared_ptr< Property >& tPropBeta =
-                    mMasterProp( static_cast< uint >( Property_Type::BETA_CONSTANT ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::BETA_CONSTANT ) );
 
             MORIS_ASSERT( tPropBeta != nullptr,
                     "SP_YZBeta_Advection::eval_SP - beta parameter not defined\n" );
@@ -118,7 +118,7 @@ namespace moris
 
             // get the reference state property
             const std::shared_ptr< Property >& tPropYref =
-                    mMasterProp( static_cast< uint >( Property_Type::REFERENCE_STATE ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::REFERENCE_STATE ) );
 
             MORIS_ASSERT( tPropBeta != nullptr,
                     "SP_YZBeta_Advection::eval_SP - reference state not defined\n" );
@@ -158,36 +158,36 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        SP_YZBeta_Advection::eval_dSPdMasterDOF(
+        SP_YZBeta_Advection::eval_dSPdLeaderDOF(
                 const moris::Cell< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type index
-            const uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+            const uint tDofIndex = mLeaderGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // get the dof type FI
             Field_Interpolator* tFIDer =
-                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
-            // set size for dSPdMasterDof, dTau1dDof, dTau3dDof
-            mdPPdMasterDof( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients() );
+            // set size for dSPdLeaderDof, dTau1dDof, dTau3dDof
+            mdPPdLeaderDof( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients() );
 
             // get the FI for scalar field
             Field_Interpolator* tScalarFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofScalarField );
+                    mLeaderFIManager->get_field_interpolators_for_type( mLeaderDofScalarField );
 
             // get the diffusion CM
             const std::shared_ptr< Constitutive_Model >& tCMDiffusion =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // get the beta property
             const std::shared_ptr< Property >& tPropBeta =
-                    mMasterProp( static_cast< uint >( Property_Type::BETA_CONSTANT ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::BETA_CONSTANT ) );
 
             const real tBeta = tPropBeta->val()( 0 );
 
             // get the reference state property
             const std::shared_ptr< Property >& tPropYref =
-                    mMasterProp( static_cast< uint >( Property_Type::REFERENCE_STATE ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::REFERENCE_STATE ) );
 
             const real tYref = tPropYref->val()( 0 );
 
@@ -255,7 +255,7 @@ namespace moris
                 tdHdcHalfdu = -1.0 / tHdcAux / tHdcAux * tdHdcAuxdu;
 
                 // compute the derivative Eqn (12) without accounting for |Z|
-                mdPPdMasterDof( tDofIndex ) =                                                       //
+                mdPPdLeaderDof( tDofIndex ) =                                                       //
                         1.0 / tYref *                                                               //
                         ( ( tBeta - 2.0 ) / tYref * std::pow( tGradNorm / tYref, tBeta - 3.0 ) *    //
                                         std::pow( tHdcHalf, tBeta ) * tdGradNormdu                  //
@@ -264,20 +264,20 @@ namespace moris
             }
             else
             {
-                mdPPdMasterDof( tDofIndex ).fill( 0.0 );
+                mdPPdLeaderDof( tDofIndex ).fill( 0.0 );
             }
 
             // if beta depends on dof type
             MORIS_ASSERT( !tPropBeta->check_dof_dependency( aDofTypes ),
-                    "SP_YZBeta_Advection::eval_dSPdMasterDOF - Dof depenced of beta not implemented yet.\n" );
+                    "SP_YZBeta_Advection::eval_dSPdLeaderDOF - Dof depenced of beta not implemented yet.\n" );
 
             // if Yref depends on dof type
             MORIS_ASSERT( !tPropYref->check_dof_dependency( aDofTypes ),
-                    "SP_YZBeta_Advection::eval_dSPdMasterDOF - Dof depenced of Yref not implemented yet.\n" );
+                    "SP_YZBeta_Advection::eval_dSPdLeaderDOF - Dof depenced of Yref not implemented yet.\n" );
 
             // check for nan, infinity
-            MORIS_ASSERT( isfinite( mdPPdMasterDof( tDofIndex ) ),
-                    "SP_YZBeta_Advection::eval_dSPdMasterDOF - mdPPdMasterDof contains NAN or INF, exiting for tDofIndex = %d !\n",
+            MORIS_ASSERT( isfinite( mdPPdLeaderDof( tDofIndex ) ),
+                    "SP_YZBeta_Advection::eval_dSPdLeaderDOF - mdPPdLeaderDof contains NAN or INF, exiting for tDofIndex = %d !\n",
                     tDofIndex );
         }
 

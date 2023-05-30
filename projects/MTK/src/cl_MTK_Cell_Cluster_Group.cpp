@@ -28,7 +28,7 @@ namespace moris
         moris::real
         Cell_Cluster_Group::compute_cluster_group_cell_measure(
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
             // initialize volume measure
             real tVolume = 0.0;
@@ -39,7 +39,7 @@ namespace moris
             // sum up volume over all clusters 
             for( uint iCluster = 0; iCluster < tMyClusters.size(); iCluster++ )
             {
-                tVolume += tMyClusters( iCluster )->compute_cluster_cell_measure( aPrimaryOrVoid, aIsMaster );
+                tVolume += tMyClusters( iCluster )->compute_cluster_cell_measure( aPrimaryOrVoid, aIsLeader );
             }
 
             // return sum
@@ -53,7 +53,7 @@ namespace moris
                 const Matrix< DDRMat > & aPerturbedVertexCoords,
                 uint aDirection,
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
             // TODO
             MORIS_ERROR( false, "Cluster_Group_DataBase::compute_cluster_group_cell_measure_derivative() - not implemented yet." );
@@ -65,7 +65,7 @@ namespace moris
         moris::real
         Cell_Cluster_Group::compute_cluster_group_side_measure(
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
             // this function is not implemented in this 
             MORIS_ERROR( false, 
@@ -83,7 +83,7 @@ namespace moris
                 const Matrix< DDRMat > & aPerturbedVertexCoords,
                 uint aDirection,
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
             // this function is not implemented in this 
             MORIS_ERROR( false, 

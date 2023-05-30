@@ -25,8 +25,8 @@ nq = 2;
 %% Generate the Analytic Function and its Derivatives
 
 % generate random arrays of coefficients
-aM = rand( d, p + 1 ); % master element
-aS = rand( d, p + 1 ); % slave element
+aM = rand( d, p + 1 ); % leader element
+aS = rand( d, p + 1 ); % follower element
 % aM = ones( d, p + 1 );
 % aS = 0.5 * ones( d, p + 1 );
 
@@ -66,7 +66,7 @@ NodalPoints = 0.5 * NodalPoints + 0.5;
 % get the number of nodal points
 NumNodes = length( NodalPoints(:,1) );
 
-% compute coefficients for master and slave elements
+% compute coefficients for leader and follower elements
 UHatM = zeros( NumNodes, 1 );
 UHatS = zeros( NumNodes, 1 );
 for i = 1:NumNodes
@@ -141,9 +141,9 @@ fprintf('\nThe generated normal is: \n');
 print_matrix( Normal, 'tNormal' );
 
 % print the coefficients
-fprintf( '\nCoefficient vector for the master element: \n' );
+fprintf( '\nCoefficient vector for the leader element: \n' );
 print_matrix( UHatM, 'u_hat_M' );
-fprintf( '\nCoefficient vector for the slave element: \n' );
+fprintf( '\nCoefficient vector for the follower element: \n' );
 print_matrix( UHatS, 'u_hat_S' );
 
 % print the result

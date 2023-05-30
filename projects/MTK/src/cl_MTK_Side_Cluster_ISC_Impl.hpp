@@ -72,18 +72,18 @@ namespace moris
                 //----------------------------------------------------------------
                 /**
                  * Determines if a side cluster is trivial
-                 * @param[ in ] aIsMaster If the cluster is master or slave
+                 * @param[ in ] aIsLeader If the cluster is leader or follower
                  */
                 bool
-                is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+                is_trivial( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
                 //----------------------------------------------------------------
                 /**
                  * Returns Interpolation Cell
-                 * @param[ in ] aIsMaster If the cluster is master or slave
+                 * @param[ in ] aIsLeader If the cluster is leader or follower
                  */
                 moris::mtk::Cell const &
-                get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const;
+                get_interpolation_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER) const;
 
                 //----------------------------------------------------------------
                 /**
@@ -95,46 +95,46 @@ namespace moris
                 //----------------------------------------------------------------
                 /**
                  * Returns side ordinals of the integration cells
-                 * @param[ in ] aIsMaster If the cluster is master or slave
+                 * @param[ in ] aIsLeader If the cluster is leader or follower
                  */
                 moris::Matrix<moris::IndexMat>
-                get_cell_side_ordinals( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+                get_cell_side_ordinals( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
                 //----------------------------------------------------------------
                 /**
                  * Returns side ordinal of a specific integration cell within cluster
-                 * @param[ in ] aIsMaster If the cluster is master or slave
+                 * @param[ in ] aIsLeader If the cluster is leader or follower
                  * @param[ in ] aCellIndexInCluster Local index of the integration cell in the cluster
                  */
                 moris_index
                 get_cell_side_ordinal(moris::moris_index aCellIndexInCluster,
-                        const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+                        const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
                 //----------------------------------------------------------------
                 /**
                  * Returns cell of vertices in the clsuter
-                 * @param[ in ] aIsMaster If the cluster is master or slave
+                 * @param[ in ] aIsLeader If the cluster is leader or follower
                  */
                 moris::Cell<moris::mtk::Vertex const *>
-                get_vertices_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+                get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
                 //----------------------------------------------------------------
                 /**
                  * Returns vertices local coordinates wrt to the interpolation cell
-                 * @param[ in ] aIsMaster If the cluster is master or slave
+                 * @param[ in ] aIsLeader If the cluster is leader or follower
                  */
                 moris::Matrix<moris::DDRMat>
-                get_vertices_local_coordinates_wrt_interp_cell(const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const;
+                get_vertices_local_coordinates_wrt_interp_cell(const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER) const;
 
                 //----------------------------------------------------------------
                 /**
                  * Returns local index of the vertex within cluster
                  * @param[ in ] aVertex an mtk vertex
-                 * @param[ in ] aIsMaster If the cluster is master or slave
+                 * @param[ in ] aIsLeader If the cluster is leader or follower
                  */
                 moris_index
                 get_vertex_cluster_index( moris::mtk::Vertex const * aVertex,
-                        const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER  ) const;
+                        const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER  ) const;
 
                 //----------------------------------------------------------------
                 /**
@@ -149,11 +149,11 @@ namespace moris
                 /**
                  * Returns local coordinates of a vertex
                  * @param[ in ] aVertex an mtk vertex
-                 * @param[ in ] aIsMaster If the cluster is master or slave
+                 * @param[ in ] aIsLeader If the cluster is leader or follower
                  */
                 moris::Matrix<moris::DDRMat>
                 get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
-                        const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const;
+                        const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER) const;
 
                 //----------------------------------------------------------------
                 /**
@@ -161,7 +161,7 @@ namespace moris
                  * @param[ in ] aVertex an mtk vertex
                  */
                 moris_index
-                get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+                get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
                 //----------------------------------------------------------------
                 /**

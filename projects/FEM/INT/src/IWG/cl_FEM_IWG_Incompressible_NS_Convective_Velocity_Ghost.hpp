@@ -87,11 +87,11 @@ namespace moris
                 /**
                  * compute the block matrix for dnNdxn
                  * @param[ in ] adNdx     matrix to fill with derivatives
-                 * @param[ in ] aIsMaster enum for master or slave
+                 * @param[ in ] aIsLeader enum for leader or follower
                  */
                 void compute_dnNdxn(
                         Matrix< DDRMat >  & adNdx,
-                        mtk::Master_Slave   aIsMaster );
+                        mtk::Leader_Follower   aIsLeader );
 
                 //------------------------------------------------------------------------------
         };

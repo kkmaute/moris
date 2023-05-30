@@ -21,7 +21,7 @@ namespace moris
         IQI_Volume::IQI_Volume()
         {
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Density" ] = static_cast< uint >( IQI_Property_Type::DENSITY );
@@ -39,7 +39,7 @@ namespace moris
 
             // get density property
             std::shared_ptr< Property > & tPropDensity =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
 
             // if density property
             if ( tPropDensity != nullptr )
@@ -69,7 +69,7 @@ namespace moris
 
             // get density property
             std::shared_ptr< Property > & tPropDensity =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
 
             // if density property
             if ( tPropDensity != nullptr )
@@ -99,28 +99,28 @@ namespace moris
 
             // get density property
             const std::shared_ptr< Property > & tPropDensity =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
 
-            // get the number of master dof type dependencies
-            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+            // get the number of leader dof type dependencies
+            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
             // compute dQIdu for indirect dof dependencies
             for( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDof );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDof );
 
-                // get master index for residual dof type, indices for assembly
-                uint tMasterDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-                uint tMasterDepStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+                // get leader index for residual dof type, indices for assembly
+                uint tLeaderDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                uint tLeaderDepStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+                uint tLeaderDepStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
                 // Dof dependency
                 if ( tPropDensity != nullptr && tPropDensity->check_dof_dependency( tDofType ) )
                 {
                     // compute dQIdu
                     mSet->get_residual()( tQIIndex )(
-                            { tMasterDepStartIndex, tMasterDepStopIndex },
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex },
                             { 0, 0 } ) += aWStar * ( tPropDensity->dPropdDOF( tDofType ) );
                 }
             }
@@ -140,7 +140,7 @@ namespace moris
 
             // get density property
             std::shared_ptr< Property > & tPropDensity =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
 
             // Dof dependency
             if ( tPropDensity != nullptr && tPropDensity->check_dof_dependency( aDofType ) )
@@ -164,7 +164,7 @@ namespace moris
                 else
                 {
                         // get the coordinate 
-                        const Matrix<DDRMat> & tGaussPoint = mMasterFIManager->get_IG_geometry_interpolator()->valx();
+                        const Matrix<DDRMat> & tGaussPoint = mLeaderFIManager->get_IG_geometry_interpolator()->valx();
 
                         //check if the calculation point coordinates are more then lower corner of the box 
                         bool tLowerBound = std::equal(mParameters(0).begin(), mParameters(0).end(), tGaussPoint.begin(),tGaussPoint.end() , 

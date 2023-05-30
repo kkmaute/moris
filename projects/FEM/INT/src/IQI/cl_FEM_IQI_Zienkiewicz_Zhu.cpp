@@ -24,7 +24,7 @@ namespace moris
             mStressType = aStressType;
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO );
@@ -39,7 +39,7 @@ namespace moris
             aQI.set_size( 1, 1, 0.0 );
 
             // check if dof index was set
-            if ( ( mMasterDofTypes( 0 ).size() > 1 ) &&    //
+            if ( ( mLeaderDofTypes( 0 ).size() > 1 ) &&    //
                     ( mStressType != Stress_Type::VON_MISES_STRESS ) )
             {
                 MORIS_ERROR( mIQITypeIndex != -1,
@@ -51,7 +51,7 @@ namespace moris
 
             // get field interpolator
             Field_Interpolator* tFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // initialize stress value
             real tStressValue;
@@ -94,7 +94,7 @@ namespace moris
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
             // check if dof index was set
-            if ( ( mMasterDofTypes( 0 ).size() > 1 ) &&    //
+            if ( ( mLeaderDofTypes( 0 ).size() > 1 ) &&    //
                     ( mStressType != Stress_Type::VON_MISES_STRESS ) )
             {
                 MORIS_ERROR( mIQITypeIndex != -1,
@@ -106,7 +106,7 @@ namespace moris
 
             // get field interpolator
             Field_Interpolator* tFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // initialize stress value
             real tStressValue;
@@ -183,7 +183,7 @@ namespace moris
 
             // switch between the 2D case and the 3D case
             // for 2D
-            if ( mMasterFIManager->get_IP_geometry_interpolator()->get_number_of_space_dimensions() == 2 )
+            if ( mLeaderFIManager->get_IP_geometry_interpolator()->get_number_of_space_dimensions() == 2 )
             {
                 switch ( aPrincipalStressIndex )
                 {
@@ -289,7 +289,7 @@ namespace moris
 
             // get stress vector from Constitutive model
             Matrix< DDRMat > tCMStress =
-                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) )->flux();
+                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) )->flux();
 
             // pull apart stress vector into components
             uint tNumStressComponents = tCMStress.length();

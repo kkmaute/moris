@@ -27,7 +27,7 @@ namespace moris
     	SP_Lagrange_Multiplier_L2::SP_Lagrange_Multiplier_L2()
         {
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Material" ] = static_cast< uint >( SP_Property_Type::MATERIAL );
@@ -38,7 +38,7 @@ namespace moris
         moris::Cell< std::tuple<
         fem::Measure_Type,
         mtk::Primary_Void,
-        mtk::Master_Slave > > SP_Lagrange_Multiplier_L2::get_cluster_measure_tuple_list()
+        mtk::Leader_Follower > > SP_Lagrange_Multiplier_L2::get_cluster_measure_tuple_list()
         {
             return { mElementSizeTuple };
         }
@@ -49,7 +49,7 @@ namespace moris
         {
             // get the material property
             const std::shared_ptr< Property > & tPropMaterial =
-                    mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
+                    mLeaderProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
             // compute stabilization parameter value
             mPPVal = mParameters( 0 ) / tPropMaterial->val()( 0 );
@@ -57,38 +57,38 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_Lagrange_Multiplier_L2::eval_dSPdMasterDOF(
+        void SP_Lagrange_Multiplier_L2::eval_dSPdLeaderDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type as a uint
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
 
             // get the dof type index
-            uint tDofIndex = mMasterGlobalDofTypeMap( tDofType );
+            uint tDofIndex = mLeaderGlobalDofTypeMap( tDofType );
 
             // get FI for derivative dof type
             Field_Interpolator * tFIDer =
-                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // reset the matrix
-            mdPPdMasterDof( tDofIndex ).set_size(
+            mdPPdLeaderDof( tDofIndex ).set_size(
                     1,
                     tFIDer->get_number_of_space_time_coefficients() );
 
             // get the material property
             const std::shared_ptr< Property > & tPropMaterial =
-                    mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
+                    mLeaderProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
             // if material property depends on the dof type
             if ( tPropMaterial->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                MORIS_ERROR( false, "SP_Lagrange_Multiplier_L2::eval_dSPdMasterDOF() - "
+                MORIS_ERROR( false, "SP_Lagrange_Multiplier_L2::eval_dSPdLeaderDOF() - "
                 		"This stabilization parameter doesn't have a derivative implemented. Implement this if you want to use a non-constant material parameter." );
             }
             else
             {
-                mdPPdMasterDof( tDofIndex ).fill( 0.0 );
+                mdPPdLeaderDof( tDofIndex ).fill( 0.0 );
             }
         }
 

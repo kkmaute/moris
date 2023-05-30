@@ -48,17 +48,17 @@ namespace moris
              * integration cell and interpolation cells in this cluster
              */
             virtual bool
-            is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
+            is_trivial( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
             // ----------------------------------------------------------------------------------
 
             /*!
              * Get interpolation cell interpolating into this side cluster
-             * @param[in] aIsMaster  Master or Slave Selector Enum (for Double side clusters only)
+             * @param[in] aIsLeader  Leader or Follower Selector Enum (for Double side clusters only)
              * @return Interpolation cell related to cluster
              */
             virtual moris::mtk::Cell const &
-            get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
+            get_interpolation_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
             // ----------------------------------------------------------------------------------
 
@@ -70,19 +70,19 @@ namespace moris
 
             // ----------------------------------------------------------------------------------
             /*!
-             * @param[in] aIsMaster  Master or Slave Selector Enum (for Double side clusters only)
+             * @param[in] aIsLeader  Leader or Follower Selector Enum (for Double side clusters only)
              */
             moris::Cell< mtk::Cell const * > const &
-            get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+            get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
             // ----------------------------------------------------------------------------------
 
             /*!
-             * @param[in] aIsMaster  Master or Slave Selector Enum (for Double side clusters only)
+             * @param[in] aIsLeader  Leader or Follower Selector Enum (for Double side clusters only)
              * @return all integration cell side ordinals
              */
             virtual moris::Matrix< moris::IndexMat >
-            get_cell_side_ordinals( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
+            get_cell_side_ordinals( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
             // ----------------------------------------------------------------------------------
 
@@ -94,7 +94,7 @@ namespace moris
              */
             virtual moris_index
             get_cell_side_ordinal( moris::moris_index aCellIndexInCluster,
-                    const mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
+                    const mtk::Leader_Follower           aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
             // ----------------------------------------------------------------------------------
 
@@ -102,28 +102,28 @@ namespace moris
              * @return all the vertices in this cluster
              */
             virtual moris::Cell< moris::mtk::Vertex const * >
-            get_vertices_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
+            get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
             // ----------------------------------------------------------------------------------
             // Local Coordinate Access
             // ----------------------------------------------------------------------------------
             /*!
              * Access the full array of local coordinates
-             * @param[in] aIsMaster - Master or Slave Selector Enum (for Double side clusters only)
+             * @param[in] aIsLeader - Leader or Follower Selector Enum (for Double side clusters only)
              * @return All vertex local coordinates
              */
             virtual moris::Matrix< moris::DDRMat >
-            get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
+            get_vertices_local_coordinates_wrt_interp_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
             /*!
              * Access a single local coordinate of a vertex
-             * @param[in] aIsMaster - Master or Slave Selector Enum (for Double side clusters only)
+             * @param[in] aIsLeader - Leader or Follower Selector Enum (for Double side clusters only)
              * @return Single vertex local coordinates
              */
             virtual moris::Matrix< moris::DDRMat >
             get_vertex_local_coordinate_wrt_interp_cell(
                     moris::mtk::Vertex const *aVertex,
-                    const mtk::Master_Slave   aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
+                    const mtk::Leader_Follower   aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
             //----------------------------------------------------------------
 
@@ -163,18 +163,18 @@ namespace moris
              * @return Size of the xsi vector in this side cluster
              */
             virtual moris_index
-            get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const = 0;
+            get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const = 0;
 
             // ----------------------------------------------------------------------------------
             /*!
              * @param[in] aPrimaryOrVoid Primary or Void Integration Cell Selector Enum
-             * @param[in] aIsMaster Master or Slave Selector Enum (for Double side clusters only)
+             * @param[in] aIsLeader Leader or Follower Selector Enum (for Double side clusters only)
              * @return Cell Measure
              */
             moris::real
             compute_cluster_cell_measure(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
 
@@ -182,7 +182,7 @@ namespace moris
             compute_cluster_group_cell_measure(
                     const moris_index       aDiscretizationMeshIndex,
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const
             {
                 MORIS_ERROR( false, "mtk::Side_Cluster::compute_cluster_group_cell_measure() - Only implemented in child xtk::Side_Cluster" );
                 return 0.0;
@@ -191,20 +191,20 @@ namespace moris
             // ----------------------------------------------------------------------------------
             /*!
              * @param[in] aPrimaryOrVoid Primary or Void Integration Cell Selector Enum
-             * @param[in] aIsMaster Master or Slave Selector Enum (for Double side clusters only)
+             * @param[in] aIsLeader Leader or Follower Selector Enum (for Double side clusters only)
              * @return vector of IG cell Measures
              */
             Matrix< DDRMat >
             compute_cluster_ig_cell_measures(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             // ----------------------------------------------------------------------------------
             /*!
              * @param[in] aPerturbedVertexCoords coordinate of perturbed vertex
              * @param[in] aDirection spatial direction for perturbation
              * @param[in] aPrimaryOrVoid Primary or Void Integration Cell Selector Enum
-             * @param[in] aIsMaster Master or Slave Selector Enum (for Double side clusters only)
+             * @param[in] aIsLeader Leader or Follower Selector Enum (for Double side clusters only)
              * @return Derivative of Cell Measure
              */
             moris::real
@@ -212,7 +212,7 @@ namespace moris
                     const Matrix< DDRMat > &aPerturbedVertexCoords,
                     uint                    aDirection,
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
 
@@ -222,7 +222,7 @@ namespace moris
                     const Matrix< DDRMat > &aPerturbedVertexCoords,
                     uint                    aDirection,
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const
             {
                 MORIS_ERROR( false, "mtk::Side_Cluster::compute_cluster_group_cell_measure_derivative() - Only implemented in child xtk::Side_Cluster" );
                 return 0.0;
@@ -231,13 +231,13 @@ namespace moris
             // ----------------------------------------------------------------------------------
             /*!
              * @param[in] aPrimaryOrVoid Primary or Void Integration Cell Selector Enum
-             * @param[in] aIsMaster Master or Slave Selector Enum (for Double side clusters only)
+             * @param[in] aIsLeader Leader or Follower Selector Enum (for Double side clusters only)
              * @return Cell Side Measure
              */
             virtual moris::real
             compute_cluster_cell_side_measure(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
 
@@ -245,7 +245,7 @@ namespace moris
             compute_cluster_group_cell_side_measure(
                     const moris_index       aDiscretizationMeshIndex,
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const
             {
                 MORIS_ERROR( false, "mtk::Side_Cluster::compute_cluster_group_cell_side_measure() - Only implemented in child xtk::Side_Cluster" );
                 return 0.0;
@@ -254,20 +254,20 @@ namespace moris
             // ----------------------------------------------------------------------------------
             /*!
              * @param[in] aPrimaryOrVoid Primary or Void Integration Cell Selector Enum
-             * @param[in] aIsMaster Master or Slave Selector Enum (for Double side clusters only)
+             * @param[in] aIsLeader Leader or Follower Selector Enum (for Double side clusters only)
              * @return vector of individual side measures for each IG cell
              */
             virtual Matrix< DDRMat >
             compute_cluster_ig_cell_side_measures(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             // ----------------------------------------------------------------------------------
             /*!
              * @param[in] aPerturbedVertexCoords coordinate of perturbed vertex
              * @param[in] aDirection spatial direction for perturbation
              * @param[in] aPrimaryOrVoid Primary or Void Integration Cell Selector Enum
-             * @param[in] aIsMaster Master or Slave Selector Enum (for Double side clusters only)
+             * @param[in] aIsLeader Leader or Follower Selector Enum (for Double side clusters only)
              * @return Derivative of Cell Side Measure
              */
             virtual moris::real
@@ -275,7 +275,7 @@ namespace moris
                     const Matrix< DDRMat > &aPerturbedVertexCoords,
                     uint                    aDirection,
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
 
@@ -285,7 +285,7 @@ namespace moris
                     const Matrix< DDRMat > &aPerturbedVertexCoords,
                     uint                    aDirection,
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const
             {
                 MORIS_ERROR( false, "mtk::Side_Cluster::compute_cluster_group_cell_side_measure_derivative() - Only implemented in child xtk::Side_Cluster" );
                 return 0.0;
@@ -349,25 +349,25 @@ namespace moris
             /*!
              * @brief Access an integration cells parametric coordinates on a side.
              * @param[in] aClusterLocalIndex Local integration cell index with respect to the cluster (not proc local index)
-             * @param[in] aIsMaster Master or Slave Selector Enum (for Double side clusters only)
+             * @param[in] aIsLeader Leader or Follower Selector Enum (for Double side clusters only)
              * @return Local coordinates wrt interpolation cell of vertices on integration cell side
              */
             virtual moris::Matrix< moris::DDRMat >
             get_cell_local_coords_on_side_wrt_interp_cell(
                     moris::moris_index      aClusterLocalIndex,
-                    const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+                    const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
             // ----------------------------------------------------------------------------------
             /*!
              * @brief Access an integration cells parametric coordinates on a side.
              * @param[in] aClusterLocalIndex Local integration cell index with respect to the cluster (not proc local index)
-             * @param[in] aIsMaster Master or Slave Selector Enum (for Double side clusters only)
+             * @param[in] aIsLeader Leader or Follower Selector Enum (for Double side clusters only)
              * @return Local coordinates wrt interpolation cell of vertices on integration cell side (primary)
              */
             virtual moris::Matrix< moris::DDRMat >
             get_primary_cell_local_coords_on_side_wrt_interp_cell(
                     moris::moris_index      aPrimaryCellClusterIndex,
-                    const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+                    const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
             // ----------------------------------------------------------------------------------
             // Size Access

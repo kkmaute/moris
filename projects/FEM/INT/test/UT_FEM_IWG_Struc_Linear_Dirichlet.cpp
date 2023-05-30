@@ -73,29 +73,29 @@ TEST_CASE( "IWG_Struc_Dirichlet_Symmetric_Nitsche",
     // init IWG
     //------------------------------------------------------------------------------
     // create the properties
-    std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property >();
-    tPropMasterEMod->set_parameters( {{{ 10.0 }}} );
-    tPropMasterEMod->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderEMod = std::make_shared< fem::Property >();
+    tPropLeaderEMod->set_parameters( {{{ 10.0 }}} );
+    tPropLeaderEMod->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterNu = std::make_shared< fem::Property >();
-    tPropMasterNu->set_parameters( {{{ 0.3 }}} );
-    tPropMasterNu->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderNu = std::make_shared< fem::Property >();
+    tPropLeaderNu->set_parameters( {{{ 0.3 }}} );
+    tPropLeaderNu->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterDirichlet = std::make_shared< fem::Property >();
-    tPropMasterDirichlet->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderDirichlet = std::make_shared< fem::Property >();
+    tPropLeaderDirichlet->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterSelect = std::make_shared< fem::Property >();
-    tPropMasterSelect->set_val_function( tMValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderSelect = std::make_shared< fem::Property >();
+    tPropLeaderSelect->set_val_function( tMValFunc_Elast );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderStrucLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    tCMMasterStrucLinIso->set_dof_type_list( { tDispDofTypes } );
-    tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
-    tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
-    tCMMasterStrucLinIso->set_local_properties();
+    tCMLeaderStrucLinIso->set_dof_type_list( { tDispDofTypes } );
+    tCMLeaderStrucLinIso->set_property( tPropLeaderEMod, "YoungsModulus" );
+    tCMLeaderStrucLinIso->set_property( tPropLeaderNu, "PoissonRatio" );
+    tCMLeaderStrucLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -103,7 +103,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Symmetric_Nitsche",
     std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
     tSPDirichletNitsche->set_parameters( { {{ 100.0 }} } );
-    tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
+    tSPDirichletNitsche->set_property( tPropLeaderEMod, "Material", mtk::Leader_Follower::LEADER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -117,9 +117,9 @@ TEST_CASE( "IWG_Struc_Dirichlet_Symmetric_Nitsche",
     tIWG->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-    tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
-    tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
-    tIWG->set_property( tPropMasterSelect, "Select" );
+    tIWG->set_constitutive_model( tCMLeaderStrucLinIso, "ElastLinIso" );
+    tIWG->set_property( tPropLeaderDirichlet, "Dirichlet" );
+    tIWG->set_property( tPropLeaderSelect, "Select" );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -135,9 +135,9 @@ TEST_CASE( "IWG_Struc_Dirichlet_Symmetric_Nitsche",
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -172,15 +172,15 @@ TEST_CASE( "IWG_Struc_Dirichlet_Symmetric_Nitsche",
         tIWG->set_normal( tNormal );
 
         // set selection matrix parameters
-        tPropMasterSelect->set_parameters( { {{ static_cast< real >( iSpaceDim ) }} } );
+        tPropLeaderSelect->set_parameters( { {{ static_cast< real >( iSpaceDim ) }} } );
 
         // Dirichlet BC
         Matrix< DDRMat > tImposedDisp( iSpaceDim, 1, 0.5 );
-        tPropMasterDirichlet->set_parameters( { tImposedDisp } );
+        tPropLeaderDirichlet->set_parameters( { tImposedDisp } );
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
+        tCMLeaderStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
+        tCMLeaderStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -248,16 +248,16 @@ TEST_CASE( "IWG_Struc_Dirichlet_Symmetric_Nitsche",
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDofHatDisp;
-            fill_uhat_Elast( tMasterDofHatDisp, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDofHatDisp;
+            fill_uhat_Elast( tLeaderDofHatDisp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDofHatDisp );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -276,8 +276,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Symmetric_Nitsche",
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -285,12 +285,12 @@ TEST_CASE( "IWG_Struc_Dirichlet_Symmetric_Nitsche",
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tFIManager;
+            tIWG->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tFIManager );
@@ -306,7 +306,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Symmetric_Nitsche",
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -345,7 +345,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Symmetric_Nitsche",
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }/* END_TEST_CASE */
@@ -385,29 +385,29 @@ TEST_CASE( "IWG_Struc_Dirichlet_Unsymmetric_Nitsche",
     // init IWG
     //------------------------------------------------------------------------------
     // create the properties
-    std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property >();
-    tPropMasterEMod->set_parameters( {{{ 10.0 }}} );
-    tPropMasterEMod->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderEMod = std::make_shared< fem::Property >();
+    tPropLeaderEMod->set_parameters( {{{ 10.0 }}} );
+    tPropLeaderEMod->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterNu = std::make_shared< fem::Property >();
-    tPropMasterNu->set_parameters( {{{ 0.3 }}} );
-    tPropMasterNu->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderNu = std::make_shared< fem::Property >();
+    tPropLeaderNu->set_parameters( {{{ 0.3 }}} );
+    tPropLeaderNu->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterDirichlet = std::make_shared< fem::Property >();
-    tPropMasterDirichlet->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderDirichlet = std::make_shared< fem::Property >();
+    tPropLeaderDirichlet->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterSelect = std::make_shared< fem::Property >();
-    tPropMasterSelect->set_val_function( tMValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderSelect = std::make_shared< fem::Property >();
+    tPropLeaderSelect->set_val_function( tMValFunc_Elast );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderStrucLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    tCMMasterStrucLinIso->set_dof_type_list( { tDispDofTypes } );
-    tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
-    tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
-    tCMMasterStrucLinIso->set_local_properties();
+    tCMLeaderStrucLinIso->set_dof_type_list( { tDispDofTypes } );
+    tCMLeaderStrucLinIso->set_property( tPropLeaderEMod, "YoungsModulus" );
+    tCMLeaderStrucLinIso->set_property( tPropLeaderNu, "PoissonRatio" );
+    tCMLeaderStrucLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -415,7 +415,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Unsymmetric_Nitsche",
     std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
     tSPDirichletNitsche->set_parameters( { {{ 100.0 }} } );
-    tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
+    tSPDirichletNitsche->set_property( tPropLeaderEMod, "Material", mtk::Leader_Follower::LEADER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -429,9 +429,9 @@ TEST_CASE( "IWG_Struc_Dirichlet_Unsymmetric_Nitsche",
     tIWG->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
     tIWG->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-    tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
-    tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
-    tIWG->set_property( tPropMasterSelect, "Select" );
+    tIWG->set_constitutive_model( tCMLeaderStrucLinIso, "ElastLinIso" );
+    tIWG->set_property( tPropLeaderDirichlet, "Dirichlet" );
+    tIWG->set_property( tPropLeaderSelect, "Select" );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -447,9 +447,9 @@ TEST_CASE( "IWG_Struc_Dirichlet_Unsymmetric_Nitsche",
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -484,15 +484,15 @@ TEST_CASE( "IWG_Struc_Dirichlet_Unsymmetric_Nitsche",
         tIWG->set_normal( tNormal );
 
         // set selection matrix parameters
-        tPropMasterSelect->set_parameters( { {{ static_cast< real >( iSpaceDim ) }} } );
+        tPropLeaderSelect->set_parameters( { {{ static_cast< real >( iSpaceDim ) }} } );
 
         // Dirichlet BC
         Matrix< DDRMat > tImposedDisp( iSpaceDim, 1, 0.5 );
-        tPropMasterDirichlet->set_parameters( { tImposedDisp } );
+        tPropLeaderDirichlet->set_parameters( { tImposedDisp } );
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
+        tCMLeaderStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
+        tCMLeaderStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -560,16 +560,16 @@ TEST_CASE( "IWG_Struc_Dirichlet_Unsymmetric_Nitsche",
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDofHatDisp;
-            fill_uhat_Elast( tMasterDofHatDisp, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDofHatDisp;
+            fill_uhat_Elast( tLeaderDofHatDisp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDofHatDisp );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -588,8 +588,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Unsymmetric_Nitsche",
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -597,12 +597,12 @@ TEST_CASE( "IWG_Struc_Dirichlet_Unsymmetric_Nitsche",
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tFIManager;
+            tIWG->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tFIManager );
@@ -618,7 +618,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Unsymmetric_Nitsche",
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -657,7 +657,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Unsymmetric_Nitsche",
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }/* END_TEST_CASE */
@@ -699,29 +699,29 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Symmetric_Nitsche",
     // init IWG
     //------------------------------------------------------------------------------
     // create the properties
-    std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property >();
-    tPropMasterEMod->set_parameters( {{{ 10.0 }}} );
-    tPropMasterEMod->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderEMod = std::make_shared< fem::Property >();
+    tPropLeaderEMod->set_parameters( {{{ 10.0 }}} );
+    tPropLeaderEMod->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterNu = std::make_shared< fem::Property >();
-    tPropMasterNu->set_parameters( {{{ 0.3 }}} );
-    tPropMasterNu->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderNu = std::make_shared< fem::Property >();
+    tPropLeaderNu->set_parameters( {{{ 0.3 }}} );
+    tPropLeaderNu->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterDirichlet = std::make_shared< fem::Property >();
-    tPropMasterDirichlet->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderDirichlet = std::make_shared< fem::Property >();
+    tPropLeaderDirichlet->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterSelect = std::make_shared< fem::Property >();
-    tPropMasterSelect->set_val_function( tMValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderSelect = std::make_shared< fem::Property >();
+    tPropLeaderSelect->set_val_function( tMValFunc_Elast );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderStrucLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    tCMMasterStrucLinIso->set_dof_type_list( tDofTypes, { "Displacement", "Pressure" } );
-    tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
-    tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
-    tCMMasterStrucLinIso->set_local_properties();
+    tCMLeaderStrucLinIso->set_dof_type_list( tDofTypes, { "Displacement", "Pressure" } );
+    tCMLeaderStrucLinIso->set_property( tPropLeaderEMod, "YoungsModulus" );
+    tCMLeaderStrucLinIso->set_property( tPropLeaderNu, "PoissonRatio" );
+    tCMLeaderStrucLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -729,7 +729,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Symmetric_Nitsche",
     std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
     tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
-    tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
+    tSPDirichletNitsche->set_property( tPropLeaderEMod, "Material", mtk::Leader_Follower::LEADER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -743,9 +743,9 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Symmetric_Nitsche",
     tIWG->set_residual_dof_type( tDispDofTypes );
     tIWG->set_dof_type_list( tDofTypes );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-    tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
-    tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
-    tIWG->set_property( tPropMasterSelect, "Select" );
+    tIWG->set_constitutive_model( tCMLeaderStrucLinIso, "ElastLinIso" );
+    tIWG->set_property( tPropLeaderDirichlet, "Dirichlet" );
+    tIWG->set_property( tPropLeaderSelect, "Select" );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -762,20 +762,20 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Symmetric_Nitsche",
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // set selection matrix parameters
-        tPropMasterSelect->set_parameters( { {{ static_cast< real >( iSpaceDim ) }} } );
+        tPropLeaderSelect->set_parameters( { {{ static_cast< real >( iSpaceDim ) }} } );
 
         // Dirichlet BC
         Matrix< DDRMat > tImposedDisp( iSpaceDim, 1, 0.5 );
-        tPropMasterDirichlet->set_parameters( { tImposedDisp } );
+        tPropLeaderDirichlet->set_parameters( { tImposedDisp } );
 
         // set normal
         Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
@@ -807,9 +807,9 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Symmetric_Nitsche",
         }
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
-        tCMMasterStrucLinIso->set_model_type(fem::Model_Type::DEVIATORIC);
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
+        tCMLeaderStrucLinIso->set_model_type(fem::Model_Type::PLANE_STRESS);
+        tCMLeaderStrucLinIso->set_model_type(fem::Model_Type::DEVIATORIC);
+        tCMLeaderStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -878,22 +878,22 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Symmetric_Nitsche",
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDofHatDisp;
-            fill_uhat_Elast( tMasterDofHatDisp, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDofHatP;
-            fill_phat_Elast( tMasterDofHatP, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDofHatDisp;
+            fill_uhat_Elast( tLeaderDofHatDisp, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDofHatP;
+            fill_phat_Elast( tLeaderDofHatP, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDofHatDisp );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes );
-            tMasterFIs( 1 )->set_coeff( tMasterDofHatP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDofHatP );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -916,8 +916,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Symmetric_Nitsche",
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -925,12 +925,12 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Symmetric_Nitsche",
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tFIManager;
+            tIWG->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tFIManager );
@@ -946,7 +946,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Symmetric_Nitsche",
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -985,7 +985,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Symmetric_Nitsche",
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }/* END_TEST_CASE */
@@ -1027,29 +1027,29 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche",
     // init IWG
     //------------------------------------------------------------------------------
     // create the properties
-    std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property >();
-    tPropMasterEMod->set_parameters( {{{ 10.0 }}} );
-    tPropMasterEMod->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderEMod = std::make_shared< fem::Property >();
+    tPropLeaderEMod->set_parameters( {{{ 10.0 }}} );
+    tPropLeaderEMod->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterNu = std::make_shared< fem::Property >();
-    tPropMasterNu->set_parameters( {{{ 0.3 }}} );
-    tPropMasterNu->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderNu = std::make_shared< fem::Property >();
+    tPropLeaderNu->set_parameters( {{{ 0.3 }}} );
+    tPropLeaderNu->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterDirichlet = std::make_shared< fem::Property >();
-    tPropMasterDirichlet->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderDirichlet = std::make_shared< fem::Property >();
+    tPropLeaderDirichlet->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterSelect = std::make_shared< fem::Property >();
-    tPropMasterSelect->set_val_function( tMValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderSelect = std::make_shared< fem::Property >();
+    tPropLeaderSelect->set_val_function( tMValFunc_Elast );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderStrucLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    tCMMasterStrucLinIso->set_dof_type_list( tDofTypes, { "Displacement", "Pressure" } );
-    tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
-    tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
-    tCMMasterStrucLinIso->set_local_properties();
+    tCMLeaderStrucLinIso->set_dof_type_list( tDofTypes, { "Displacement", "Pressure" } );
+    tCMLeaderStrucLinIso->set_property( tPropLeaderEMod, "YoungsModulus" );
+    tCMLeaderStrucLinIso->set_property( tPropLeaderNu, "PoissonRatio" );
+    tCMLeaderStrucLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -1057,7 +1057,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche",
     std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
     tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
-    tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
+    tSPDirichletNitsche->set_property( tPropLeaderEMod, "Material", mtk::Leader_Follower::LEADER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -1071,9 +1071,9 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche",
     tIWG->set_residual_dof_type( tDispDofTypes );
     tIWG->set_dof_type_list( tDofTypes );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-    tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
-    tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
-    tIWG->set_property( tPropMasterSelect, "Select" );
+    tIWG->set_constitutive_model( tCMLeaderStrucLinIso, "ElastLinIso" );
+    tIWG->set_property( tPropLeaderDirichlet, "Dirichlet" );
+    tIWG->set_property( tPropLeaderSelect, "Select" );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -1090,20 +1090,20 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche",
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )        = 0;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // set selection matrix parameters
-        tPropMasterSelect->set_parameters( { {{ static_cast< real >( iSpaceDim ) }} } );
+        tPropLeaderSelect->set_parameters( { {{ static_cast< real >( iSpaceDim ) }} } );
 
         // Dirichlet BC
         Matrix< DDRMat > tImposedDisp( iSpaceDim, 1, 0.5 );
-        tPropMasterDirichlet->set_parameters( { tImposedDisp } );
+        tPropLeaderDirichlet->set_parameters( { tImposedDisp } );
 
         // set normal
         Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
@@ -1135,9 +1135,9 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche",
         }
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
-        tCMMasterStrucLinIso->set_model_type( fem::Model_Type::DEVIATORIC );
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
+        tCMLeaderStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
+        tCMLeaderStrucLinIso->set_model_type( fem::Model_Type::DEVIATORIC );
+        tCMLeaderStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -1206,22 +1206,22 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche",
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDofHatDisp;
-            fill_uhat_Elast( tMasterDofHatDisp, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDofHatP;
-            fill_phat_Elast( tMasterDofHatP, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDofHatDisp;
+            fill_uhat_Elast( tLeaderDofHatDisp, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDofHatP;
+            fill_phat_Elast( tLeaderDofHatP, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDofHatDisp );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes );
-            tMasterFIs( 1 )->set_coeff( tMasterDofHatP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDofHatP );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -1244,8 +1244,8 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche",
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -1253,12 +1253,12 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche",
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tFIManager;
+            tIWG->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tFIManager );
@@ -1274,7 +1274,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche",
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -1313,7 +1313,7 @@ TEST_CASE( "IWG_Struc_Dirichlet_Mixed_Displacement_Unsymmetric_Nitsche",
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }/* END_TEST_CASE */
@@ -1355,39 +1355,39 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Symmetric_Nitsche",
     // init IWG
     //------------------------------------------------------------------------------
     // create the properties
-    std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property >();
-    tPropMasterEMod->set_parameters( {{{ 10.0 }}} );
-    tPropMasterEMod->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderEMod = std::make_shared< fem::Property >();
+    tPropLeaderEMod->set_parameters( {{{ 10.0 }}} );
+    tPropLeaderEMod->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterNu = std::make_shared< fem::Property >();
-    tPropMasterNu->set_parameters( {{{ 0.3 }}} );
-    tPropMasterNu->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderNu = std::make_shared< fem::Property >();
+    tPropLeaderNu->set_parameters( {{{ 0.3 }}} );
+    tPropLeaderNu->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterDirichlet = std::make_shared< fem::Property >();
-    tPropMasterDirichlet->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderDirichlet = std::make_shared< fem::Property >();
+    tPropLeaderDirichlet->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterSelect = std::make_shared< fem::Property >();
-    tPropMasterSelect->set_val_function( tMValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderSelect = std::make_shared< fem::Property >();
+    tPropLeaderSelect->set_val_function( tMValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterCTE = std::make_shared< fem::Property >();
-    tPropMasterCTE->set_parameters( {{{ 1.0 }}} );
-    tPropMasterCTE->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderCTE = std::make_shared< fem::Property >();
+    tPropLeaderCTE->set_parameters( {{{ 1.0 }}} );
+    tPropLeaderCTE->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterTRef = std::make_shared< fem::Property >();
-    tPropMasterTRef->set_parameters( {{{ 1.25 }}} );
-    tPropMasterTRef->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderTRef = std::make_shared< fem::Property >();
+    tPropLeaderTRef->set_parameters( {{{ 1.25 }}} );
+    tPropLeaderTRef->set_val_function( tConstValFunc_Elast );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderStrucLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    tCMMasterStrucLinIso->set_dof_type_list( tDofTypes, { "Displacement", "Temperature" } );
-    tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
-    tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
-    tCMMasterStrucLinIso->set_property( tPropMasterCTE, "CTE" );
-    tCMMasterStrucLinIso->set_property( tPropMasterTRef, "ReferenceTemperature" );
-    tCMMasterStrucLinIso->set_local_properties();
+    tCMLeaderStrucLinIso->set_dof_type_list( tDofTypes, { "Displacement", "Temperature" } );
+    tCMLeaderStrucLinIso->set_property( tPropLeaderEMod, "YoungsModulus" );
+    tCMLeaderStrucLinIso->set_property( tPropLeaderNu, "PoissonRatio" );
+    tCMLeaderStrucLinIso->set_property( tPropLeaderCTE, "CTE" );
+    tCMLeaderStrucLinIso->set_property( tPropLeaderTRef, "ReferenceTemperature" );
+    tCMLeaderStrucLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -1395,7 +1395,7 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Symmetric_Nitsche",
     std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
     tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
-    tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
+    tSPDirichletNitsche->set_property( tPropLeaderEMod, "Material", mtk::Leader_Follower::LEADER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -1409,9 +1409,9 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Symmetric_Nitsche",
     tIWG->set_residual_dof_type( tDispDofTypes );
     tIWG->set_dof_type_list( tDofTypes );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-    tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
-    tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
-    tIWG->set_property( tPropMasterSelect, "Select" );
+    tIWG->set_constitutive_model( tCMLeaderStrucLinIso, "ElastLinIso" );
+    tIWG->set_property( tPropLeaderDirichlet, "Dirichlet" );
+    tIWG->set_property( tPropLeaderSelect, "Select" );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -1428,20 +1428,20 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Symmetric_Nitsche",
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 0;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 0;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // set selection matrix parameters
-        tPropMasterSelect->set_parameters( { {{ static_cast< real >( iSpaceDim ) }} } );
+        tPropLeaderSelect->set_parameters( { {{ static_cast< real >( iSpaceDim ) }} } );
 
         // Dirichlet BC
         Matrix< DDRMat > tImposedDisp( iSpaceDim, 1, 0.5 );
-        tPropMasterDirichlet->set_parameters( { tImposedDisp } );
+        tPropLeaderDirichlet->set_parameters( { tImposedDisp } );
 
         // set normal
         Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
@@ -1473,9 +1473,9 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Symmetric_Nitsche",
         }
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
-        tCMMasterStrucLinIso->set_model_type( fem::Model_Type::DEVIATORIC );
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
+        tCMLeaderStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
+        tCMLeaderStrucLinIso->set_model_type( fem::Model_Type::DEVIATORIC );
+        tCMLeaderStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -1544,22 +1544,22 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Symmetric_Nitsche",
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDofHatDisp;
-            fill_uhat_Elast( tMasterDofHatDisp, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDofHatTemp;
-            fill_phat_Elast( tMasterDofHatTemp, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDofHatDisp;
+            fill_uhat_Elast( tLeaderDofHatDisp, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDofHatTemp;
+            fill_phat_Elast( tLeaderDofHatTemp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDofHatDisp );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
-            tMasterFIs( 1 )->set_coeff( tMasterDofHatTemp );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDofHatTemp );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -1582,8 +1582,8 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Symmetric_Nitsche",
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -1591,12 +1591,12 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Symmetric_Nitsche",
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tFIManager;
+            tIWG->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tFIManager );
@@ -1612,7 +1612,7 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Symmetric_Nitsche",
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -1651,7 +1651,7 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Symmetric_Nitsche",
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }/* END_TEST_CASE */
@@ -1693,39 +1693,39 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
     // init IWG
     //------------------------------------------------------------------------------
     // create the properties
-    std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property >();
-    tPropMasterEMod->set_parameters( {{{ 10.0 }}} );
-    tPropMasterEMod->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderEMod = std::make_shared< fem::Property >();
+    tPropLeaderEMod->set_parameters( {{{ 10.0 }}} );
+    tPropLeaderEMod->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterNu = std::make_shared< fem::Property >();
-    tPropMasterNu->set_parameters( {{{ 0.3 }}} );
-    tPropMasterNu->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderNu = std::make_shared< fem::Property >();
+    tPropLeaderNu->set_parameters( {{{ 0.3 }}} );
+    tPropLeaderNu->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterDirichlet = std::make_shared< fem::Property >();
-    tPropMasterDirichlet->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderDirichlet = std::make_shared< fem::Property >();
+    tPropLeaderDirichlet->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterSelect = std::make_shared< fem::Property >();
-    tPropMasterSelect->set_val_function( tMValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderSelect = std::make_shared< fem::Property >();
+    tPropLeaderSelect->set_val_function( tMValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterCTE = std::make_shared< fem::Property >();
-    tPropMasterCTE->set_parameters( {{{ 1.0 }}} );
-    tPropMasterCTE->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderCTE = std::make_shared< fem::Property >();
+    tPropLeaderCTE->set_parameters( {{{ 1.0 }}} );
+    tPropLeaderCTE->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterTRef = std::make_shared< fem::Property >();
-    tPropMasterTRef->set_parameters( {{{ 1.25 }}} );
-    tPropMasterTRef->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderTRef = std::make_shared< fem::Property >();
+    tPropLeaderTRef->set_parameters( {{{ 1.25 }}} );
+    tPropLeaderTRef->set_val_function( tConstValFunc_Elast );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderStrucLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    tCMMasterStrucLinIso->set_dof_type_list( tDofTypes, { "Displacement", "Temperature" } );
-    tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
-    tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
-    tCMMasterStrucLinIso->set_property( tPropMasterCTE, "CTE" );
-    tCMMasterStrucLinIso->set_property( tPropMasterTRef, "ReferenceTemperature" );
-    tCMMasterStrucLinIso->set_local_properties();
+    tCMLeaderStrucLinIso->set_dof_type_list( tDofTypes, { "Displacement", "Temperature" } );
+    tCMLeaderStrucLinIso->set_property( tPropLeaderEMod, "YoungsModulus" );
+    tCMLeaderStrucLinIso->set_property( tPropLeaderNu, "PoissonRatio" );
+    tCMLeaderStrucLinIso->set_property( tPropLeaderCTE, "CTE" );
+    tCMLeaderStrucLinIso->set_property( tPropLeaderTRef, "ReferenceTemperature" );
+    tCMLeaderStrucLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -1733,7 +1733,7 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
     std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
     tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
-    tSPDirichletNitsche->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
+    tSPDirichletNitsche->set_property( tPropLeaderEMod, "Material", mtk::Leader_Follower::LEADER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -1747,9 +1747,9 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
     tIWG->set_residual_dof_type( tDispDofTypes );
     tIWG->set_dof_type_list( tDofTypes );
     tIWG->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-    tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso" );
-    tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
-    tIWG->set_property( tPropMasterSelect, "Select" );
+    tIWG->set_constitutive_model( tCMLeaderStrucLinIso, "ElastLinIso" );
+    tIWG->set_property( tPropLeaderDirichlet, "Dirichlet" );
+    tIWG->set_property( tPropLeaderSelect, "Select" );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -1766,20 +1766,20 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 0;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 0;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
     {
         // set selection matrix parameters
-        tPropMasterSelect->set_parameters( { {{ static_cast< real >( iSpaceDim ) }} } );
+        tPropLeaderSelect->set_parameters( { {{ static_cast< real >( iSpaceDim ) }} } );
 
         // Dirichlet BC
         Matrix< DDRMat > tImposedDisp( iSpaceDim, 1, 0.5 );
-        tPropMasterDirichlet->set_parameters( { tImposedDisp } );
+        tPropLeaderDirichlet->set_parameters( { tImposedDisp } );
 
         // set normal
         Matrix< DDRMat > tNormal( iSpaceDim, 1, 0.5 );
@@ -1811,9 +1811,9 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
         }
 
         // set space dimension to CM, SP
-        tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
-        tCMMasterStrucLinIso->set_model_type( fem::Model_Type::DEVIATORIC );
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
+        tCMLeaderStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRESS );
+        tCMLeaderStrucLinIso->set_model_type( fem::Model_Type::DEVIATORIC );
+        tCMLeaderStrucLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -1882,22 +1882,22 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDofHatDisp;
-            fill_uhat_Elast( tMasterDofHatDisp, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDofHatTemp;
-            fill_phat_Elast( tMasterDofHatTemp, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDofHatDisp;
+            fill_uhat_Elast( tLeaderDofHatDisp, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDofHatTemp;
+            fill_phat_Elast( tLeaderDofHatTemp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDofHatDisp );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDofHatDisp );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
-            tMasterFIs( 1 )->set_coeff( tMasterDofHatTemp );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDofHatTemp );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -1920,8 +1920,8 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -1929,12 +1929,12 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tFIManager;
+            tIWG->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tFIManager );
@@ -1950,7 +1950,7 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -1989,7 +1989,7 @@ TEST_CASE( "IWG_Struc_Thermo_Elastic_Dirichlet_Unsymmetric_Nitsche",
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }/* END_TEST_CASE */

@@ -74,7 +74,7 @@ namespace moris
         //----------------------------------------------------------------
 
         bool
-        Side_Cluster_ISC::is_trivial( const mtk::Master_Slave aIsMaster ) const
+        Side_Cluster_ISC::is_trivial( const mtk::Leader_Follower aIsLeader ) const
         {
             return mTrivial;
         }
@@ -82,7 +82,7 @@ namespace moris
         //----------------------------------------------------------------
 
         moris::mtk::Cell const &
-        Side_Cluster_ISC::get_interpolation_cell(const mtk::Master_Slave aIsMaster ) const
+        Side_Cluster_ISC::get_interpolation_cell(const mtk::Leader_Follower aIsLeader ) const
         {
             return *mInterpolationCell;
         }
@@ -98,7 +98,7 @@ namespace moris
         //----------------------------------------------------------------
 
         moris::Matrix<moris::IndexMat>
-        Side_Cluster_ISC::get_cell_side_ordinals( const mtk::Master_Slave aIsMaster ) const
+        Side_Cluster_ISC::get_cell_side_ordinals( const mtk::Leader_Follower aIsLeader ) const
         {
             return mIntegrationCellSideOrdinals;
         }
@@ -107,7 +107,7 @@ namespace moris
 
         moris_index
         Side_Cluster_ISC::get_cell_side_ordinal(moris::moris_index aCellIndexInCluster,
-                const mtk::Master_Slave aIsMaster  ) const
+                const mtk::Leader_Follower aIsLeader  ) const
         {
             MORIS_ASSERT(aCellIndexInCluster<(moris_index)mIntegrationCellSideOrdinals.numel(),"Cell index in cluster out of bounds");
 
@@ -117,7 +117,7 @@ namespace moris
         //----------------------------------------------------------------
 
         moris::Cell<moris::mtk::Vertex const *>
-        Side_Cluster_ISC::get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
+        Side_Cluster_ISC::get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader ) const
         {
             return mVerticesInCluster;
         }
@@ -125,7 +125,7 @@ namespace moris
         //----------------------------------------------------------------
 
         moris::Matrix<moris::DDRMat>
-        Side_Cluster_ISC::get_vertices_local_coordinates_wrt_interp_cell(const mtk::Master_Slave aIsMaster ) const
+        Side_Cluster_ISC::get_vertices_local_coordinates_wrt_interp_cell(const mtk::Leader_Follower aIsLeader ) const
         {
             return mVertexParamCoords;
             //return moris::Matrix<moris::DDRMat>();;
@@ -135,7 +135,7 @@ namespace moris
 
         moris::moris_index
         Side_Cluster_ISC::get_vertex_cluster_index( moris::mtk::Vertex const * aVertex,
-                const mtk::Master_Slave    aIsMaster ) const
+                const mtk::Leader_Follower    aIsLeader ) const
         {
 
             return this->get_vertex_cluster_local_index(aVertex->get_id());
@@ -166,7 +166,7 @@ namespace moris
 
         moris::Matrix<moris::DDRMat>
         Side_Cluster_ISC::get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
            moris_index tLocalVertIndex = this->get_vertex_cluster_local_index(aVertex->get_id());
 
@@ -179,9 +179,9 @@ namespace moris
         //----------------------------------------------------------------
 
         moris_index
-        Side_Cluster_ISC::get_dim_of_param_coord( const mtk::Master_Slave aIsMaster ) const
+        Side_Cluster_ISC::get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader ) const
         {
-            return this->get_vertices_local_coordinates_wrt_interp_cell(aIsMaster).n_cols();
+            return this->get_vertices_local_coordinates_wrt_interp_cell(aIsLeader).n_cols();
 
         }
 

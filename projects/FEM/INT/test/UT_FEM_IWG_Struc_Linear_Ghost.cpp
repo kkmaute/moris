@@ -73,12 +73,12 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
     // init IWG
     //------------------------------------------------------------------------------
     // create the properties
-    std::shared_ptr< fem::Property > tPropMasterYoungModulus = std::make_shared< fem::Property > ();
-    tPropMasterYoungModulus->set_parameters( { {{ 1.0 }} } );
-    tPropMasterYoungModulus->set_val_function( tConstValFunc_Elast );
-    //tPropMasterYoungModulus->set_dof_type_list( { tDispDofTypes } );
-    //tPropMasterYoungModulus->set_val_function( tUXFIValFunc_Elast );
-    //tPropMasterYoungModulus->set_dof_derivative_functions( { tUXFIDerFunc_Elast } );
+    std::shared_ptr< fem::Property > tPropLeaderYoungModulus = std::make_shared< fem::Property > ();
+    tPropLeaderYoungModulus->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderYoungModulus->set_val_function( tConstValFunc_Elast );
+    //tPropLeaderYoungModulus->set_dof_type_list( { tDispDofTypes } );
+    //tPropLeaderYoungModulus->set_val_function( tUXFIValFunc_Elast );
+    //tPropLeaderYoungModulus->set_dof_derivative_functions( { tUXFIDerFunc_Elast } );
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -86,7 +86,7 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
     std::shared_ptr< fem::Stabilization_Parameter > tSPGhost =
             tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
     tSPGhost->set_parameters( {{{ 100.0 }} });
-    tSPGhost->set_property( tPropMasterYoungModulus, "Material", mtk::Master_Slave::MASTER );
+    tSPGhost->set_property( tPropLeaderYoungModulus, "Material", mtk::Leader_Follower::LEADER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -98,8 +98,8 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_GHOST );
     tIWG->set_residual_dof_type( tDispDofTypes );
-    tIWG->set_dof_type_list( { tDispDofTypes }, mtk::Master_Slave::MASTER );
-    tIWG->set_dof_type_list( { tDispDofTypes }, mtk::Master_Slave::SLAVE );
+    tIWG->set_dof_type_list( { tDispDofTypes }, mtk::Leader_Follower::LEADER );
+    tIWG->set_dof_type_list( { tDispDofTypes }, mtk::Leader_Follower::FOLLOWER );
     tIWG->set_stabilization_parameter( tSPGhost, "GhostDispl" );
 
     // init set info
@@ -116,13 +116,13 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
-    // set size and populate the set slave dof type map
-    tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    // set size and populate the set follower dof type map
+    tIWG->mSet->mFollowerDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mFollowerDofTypeMap ( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -223,27 +223,27 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatDisp;
-            fill_uhat_Elast( tMasterDOFHatDisp, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatDisp;
+            fill_uhat_Elast( tLeaderDOFHatDisp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDispDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDispDofTypes.size() );
 
             // create the field interpolator displacement
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatDisp );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatDisp );
 
-            // fill random coefficients for slave FI
-            Matrix< DDRMat > tSlaveDOFHatDisp;
-            fill_uhat_Elast( tSlaveDOFHatDisp, iSpaceDim, iInterpOrder );
+            // fill random coefficients for follower FI
+            Matrix< DDRMat > tFollowerDOFHatDisp;
+            fill_uhat_Elast( tFollowerDOFHatDisp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tSlaveFIs( tDispDofTypes.size() );
+            Cell< Field_Interpolator* > tFollowerFIs( tDispDofTypes.size() );
 
             // create the field interpolator displacement
-            tSlaveFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
-            tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatDisp );
+            tFollowerFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
+            tFollowerFIs( 0 )->set_coeff( tFollowerDOFHatDisp );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 2 * tDispDofTypes.size() );
@@ -266,31 +266,31 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDispDofTypes;
-            tIWG->mRequestedSlaveGlobalDofTypes  = tDispDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDispDofTypes;
+            tIWG->mRequestedFollowerGlobalDofTypes  = tDispDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tMasterFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
-            Field_Interpolator_Manager tSlaveFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tLeaderFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tFollowerFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tMasterFIManager.mFI = tMasterFIs;
-            tMasterFIManager.mIPGeometryInterpolator = &tGI;
-            tMasterFIManager.mIGGeometryInterpolator = &tGI;
-            tSlaveFIManager.mFI = tSlaveFIs;
-            tSlaveFIManager.mIPGeometryInterpolator = &tGI;
-            tSlaveFIManager.mIGGeometryInterpolator = &tGI;
+            tLeaderFIManager.mFI = tLeaderFIs;
+            tLeaderFIManager.mIPGeometryInterpolator = &tGI;
+            tLeaderFIManager.mIGGeometryInterpolator = &tGI;
+            tFollowerFIManager.mFI = tFollowerFIs;
+            tFollowerFIManager.mIPGeometryInterpolator = &tGI;
+            tFollowerFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tMasterFIManager;
-            tIWG->mSet->mSlaveFIManager = &tSlaveFIManager;
+            tIWG->mSet->mLeaderFIManager = &tLeaderFIManager;
+            tIWG->mSet->mFollowerFIManager = &tFollowerFIManager;
 
             // set IWG field interpolator manager
-            tIWG->set_field_interpolator_manager( &tMasterFIManager, mtk::Master_Slave::MASTER );
-            tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
+            tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
+            tIWG->set_field_interpolator_manager( &tFollowerFIManager, mtk::Leader_Follower::FOLLOWER );
 
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
@@ -303,8 +303,8 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
-                tIWG->mSet->mSlaveFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mFollowerFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -343,8 +343,8 @@ TEST_CASE( "IWG_Struc_Linear_Ghost", "[moris],[fem],[IWG_Struc_Linear_Ghost]" )
             }
 
             // clean up
-            tMasterFIs.clear();
-            tSlaveFIs.clear();
+            tLeaderFIs.clear();
+            tFollowerFIs.clear();
         }
     }
 }/* END_TEST_CASE */

@@ -109,54 +109,54 @@ test_IWG_Diffusion_Bulk(
     real tPerturbation = 1.0E-6;
 
     // create the properties
-    std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property >();
-    tPropMasterConductivity->set_parameters( { { { 1.2 } } } );
-    tPropMasterConductivity->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-    tPropMasterConductivity->set_val_function( tFIValFunction_UTIWGDIFFBULK );
-    tPropMasterConductivity->set_dof_derivative_functions( { tFIDerFunction_UTIWGDIFFBULK } );
-    //    tPropMasterConductivity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
+    std::shared_ptr< fem::Property > tPropLeaderConductivity = std::make_shared< fem::Property >();
+    tPropLeaderConductivity->set_parameters( { { { 1.2 } } } );
+    tPropLeaderConductivity->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
+    tPropLeaderConductivity->set_val_function( tFIValFunction_UTIWGDIFFBULK );
+    tPropLeaderConductivity->set_dof_derivative_functions( { tFIDerFunction_UTIWGDIFFBULK } );
+    //    tPropLeaderConductivity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
 
-    std::shared_ptr< fem::Property > tPropMasterTempLoad = std::make_shared< fem::Property >();
-    tPropMasterTempLoad->set_parameters( { { { 2.0 } } } );
-    tPropMasterTempLoad->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-    tPropMasterTempLoad->set_val_function( tFIValFunction_UTIWGDIFFBULK );
-    tPropMasterTempLoad->set_dof_derivative_functions( { tFIDerFunction_UTIWGDIFFBULK } );
-    //    tPropMasterTempLoad->set_val_function( tConstValFunction_UTIWGDIFFBULK );
+    std::shared_ptr< fem::Property > tPropLeaderTempLoad = std::make_shared< fem::Property >();
+    tPropLeaderTempLoad->set_parameters( { { { 2.0 } } } );
+    tPropLeaderTempLoad->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
+    tPropLeaderTempLoad->set_val_function( tFIValFunction_UTIWGDIFFBULK );
+    tPropLeaderTempLoad->set_dof_derivative_functions( { tFIDerFunction_UTIWGDIFFBULK } );
+    //    tPropLeaderTempLoad->set_val_function( tConstValFunction_UTIWGDIFFBULK );
 
-    std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
-    tPropMasterDensity->set_parameters( { { { 3.0 } } } );
-    tPropMasterDensity->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-    tPropMasterDensity->set_val_function( tFIValFunction_UTIWGDIFFBULK );
-    tPropMasterDensity->set_dof_derivative_functions( { tFIDerFunction_UTIWGDIFFBULK } );
-    //    tPropMasterDensity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
+    std::shared_ptr< fem::Property > tPropLeaderDensity = std::make_shared< fem::Property >();
+    tPropLeaderDensity->set_parameters( { { { 3.0 } } } );
+    tPropLeaderDensity->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
+    tPropLeaderDensity->set_val_function( tFIValFunction_UTIWGDIFFBULK );
+    tPropLeaderDensity->set_dof_derivative_functions( { tFIDerFunction_UTIWGDIFFBULK } );
+    //    tPropLeaderDensity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
 
-    std::shared_ptr< fem::Property > tPropMasterHeatCapacity = std::make_shared< fem::Property >();
-    tPropMasterHeatCapacity->set_parameters( { { { 4.0 } } } );
-    tPropMasterHeatCapacity->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-    tPropMasterHeatCapacity->set_val_function( tFIValFunction_UTIWGDIFFBULK );
-    tPropMasterHeatCapacity->set_dof_derivative_functions( { tFIDerFunction_UTIWGDIFFBULK } );
-    //    tPropMasterHeatCapacity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
+    std::shared_ptr< fem::Property > tPropLeaderHeatCapacity = std::make_shared< fem::Property >();
+    tPropLeaderHeatCapacity->set_parameters( { { { 4.0 } } } );
+    tPropLeaderHeatCapacity->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
+    tPropLeaderHeatCapacity->set_val_function( tFIValFunction_UTIWGDIFFBULK );
+    tPropLeaderHeatCapacity->set_dof_derivative_functions( { tFIDerFunction_UTIWGDIFFBULK } );
+    //    tPropLeaderHeatCapacity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderDiffLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-    tCMMasterDiffLinIso->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-    tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
-    tCMMasterDiffLinIso->set_property( tPropMasterDensity, "Density" );
-    tCMMasterDiffLinIso->set_property( tPropMasterHeatCapacity, "HeatCapacity" );
-    tCMMasterDiffLinIso->set_space_dim( 3 );
-    tCMMasterDiffLinIso->set_local_properties();
+    tCMLeaderDiffLinIso->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
+    tCMLeaderDiffLinIso->set_property( tPropLeaderConductivity, "Conductivity" );
+    tCMLeaderDiffLinIso->set_property( tPropLeaderDensity, "Density" );
+    tCMLeaderDiffLinIso->set_property( tPropLeaderHeatCapacity, "HeatCapacity" );
+    tCMLeaderDiffLinIso->set_space_dim( 3 );
+    tCMLeaderDiffLinIso->set_local_properties();
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
     tIWG->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-    tIWG->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropMasterTempLoad, "Load", mtk::Master_Slave::MASTER );
+    tIWG->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Leader_Follower::LEADER );
+    tIWG->set_constitutive_model( tCMLeaderDiffLinIso, "Diffusion", mtk::Leader_Follower::LEADER );
+    tIWG->set_property( tPropLeaderTempLoad, "Load", mtk::Leader_Follower::LEADER );
 
     // space and time geometry interpolators
     //------------------------------------------------------------------------------
@@ -200,9 +200,9 @@ test_IWG_Diffusion_Bulk(
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
     int aInt = ( aNumDOFs - 1 );
 
@@ -222,8 +222,8 @@ test_IWG_Diffusion_Bulk(
     // build global dof type list
     tIWG->get_global_dof_type_list();
 
-    // populate the requested master dof type
-    tIWG->mRequestedMasterGlobalDofTypes = { { MSI::Dof_Type::TEMP } };
+    // populate the requested leader dof type
+    tIWG->mRequestedLeaderGlobalDofTypes = { { MSI::Dof_Type::TEMP } };
 
     // create a field interpolator manager
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
@@ -518,42 +518,42 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     real tPerturbation = 1E-6;
 
     // create the properties
-    std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property >();
-    tPropMasterConductivity->set_parameters( { { { 1.0 } } } );
-    tPropMasterConductivity->set_val_function( tGeoValFunction_UTIWGDIFFBULK );
+    std::shared_ptr< fem::Property > tPropLeaderConductivity = std::make_shared< fem::Property >();
+    tPropLeaderConductivity->set_parameters( { { { 1.0 } } } );
+    tPropLeaderConductivity->set_val_function( tGeoValFunction_UTIWGDIFFBULK );
 
-    std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
-    tPropMasterDensity->set_parameters( { { { 0.0 } } } );
-    tPropMasterDensity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
+    std::shared_ptr< fem::Property > tPropLeaderDensity = std::make_shared< fem::Property >();
+    tPropLeaderDensity->set_parameters( { { { 0.0 } } } );
+    tPropLeaderDensity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
 
-    std::shared_ptr< fem::Property > tPropMasterHeatCapacity = std::make_shared< fem::Property >();
-    tPropMasterHeatCapacity->set_parameters( { { { 0.0 } } } );
-    tPropMasterHeatCapacity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
+    std::shared_ptr< fem::Property > tPropLeaderHeatCapacity = std::make_shared< fem::Property >();
+    tPropLeaderHeatCapacity->set_parameters( { { { 0.0 } } } );
+    tPropLeaderHeatCapacity->set_val_function( tConstValFunction_UTIWGDIFFBULK );
 
-    std::shared_ptr< fem::Property > tPropMasterTempLoad = std::make_shared< fem::Property >();
-    tPropMasterTempLoad->set_parameters( { { { 1.0 } } } );
-    tPropMasterTempLoad->set_val_function( tGeoValFunction_UTIWGDIFFBULK );
+    std::shared_ptr< fem::Property > tPropLeaderTempLoad = std::make_shared< fem::Property >();
+    tPropLeaderTempLoad->set_parameters( { { { 1.0 } } } );
+    tPropLeaderTempLoad->set_val_function( tGeoValFunction_UTIWGDIFFBULK );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderDiffLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-    tCMMasterDiffLinIso->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-    tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
-    tCMMasterDiffLinIso->set_property( tPropMasterDensity, "Density" );
-    tCMMasterDiffLinIso->set_property( tPropMasterHeatCapacity, "HeatCapacity" );
-    tCMMasterDiffLinIso->set_space_dim( 3 );
-    tCMMasterDiffLinIso->set_local_properties();
+    tCMLeaderDiffLinIso->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
+    tCMLeaderDiffLinIso->set_property( tPropLeaderConductivity, "Conductivity" );
+    tCMLeaderDiffLinIso->set_property( tPropLeaderDensity, "Density" );
+    tCMLeaderDiffLinIso->set_property( tPropLeaderHeatCapacity, "HeatCapacity" );
+    tCMLeaderDiffLinIso->set_space_dim( 3 );
+    tCMLeaderDiffLinIso->set_local_properties();
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
 
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
     tIWG->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-    tIWG->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
-    tIWG->set_property( tPropMasterTempLoad, "Load", mtk::Master_Slave::MASTER );
+    tIWG->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Leader_Follower::LEADER );
+    tIWG->set_constitutive_model( tCMLeaderDiffLinIso, "Diffusion", mtk::Leader_Follower::LEADER );
+    tIWG->set_property( tPropLeaderTempLoad, "Load", mtk::Leader_Follower::LEADER );
 
     // create evaluation point xi, tau
     //------------------------------------------------------------------------------
@@ -627,8 +627,8 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
     tIWG->mSet->mResDofAssemblyMap.resize( 1 );
     tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
@@ -642,7 +642,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Geo_Prop", "[moris],[fem],[IWG_Diff_Bulk_Geo_Prop
     // build global dof type list
     tIWG->get_global_dof_type_list();
 
-    tIWG->mRequestedMasterGlobalDofTypes = { { MSI::Dof_Type::TEMP } };
+    tIWG->mRequestedLeaderGlobalDofTypes = { { MSI::Dof_Type::TEMP } };
 
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
     Field_Interpolator_Manager                       tFIManager( tDummy, tSet );
@@ -688,32 +688,32 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     //    real tPerturbation = 1E-6;
     //
     //    // create the properties
-    //    std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property > ();
-    //    tPropMasterConductivity->set_parameters( { {{ 1.0 }} } );
-    //    tPropMasterConductivity->set_dv_type_list( {{ PDV_Type::DENSITY0 }} );
-    //    tPropMasterConductivity->set_val_function( tFIValDvFunction_UTIWGDIFFBULK );
-    //    tPropMasterConductivity->set_dv_derivative_functions( { tFIDerDvFunction_UTIWGDIFFBULK } );
+    //    std::shared_ptr< fem::Property > tPropLeaderConductivity = std::make_shared< fem::Property > ();
+    //    tPropLeaderConductivity->set_parameters( { {{ 1.0 }} } );
+    //    tPropLeaderConductivity->set_dv_type_list( {{ PDV_Type::DENSITY0 }} );
+    //    tPropLeaderConductivity->set_val_function( tFIValDvFunction_UTIWGDIFFBULK );
+    //    tPropLeaderConductivity->set_dv_derivative_functions( { tFIDerDvFunction_UTIWGDIFFBULK } );
     //
-    //    std::shared_ptr< fem::Property > tPropMasterTempLoad = std::make_shared< fem::Property > ();
-    //    tPropMasterTempLoad->set_parameters( { {{ 1.0 }} } );
-    //    tPropMasterTempLoad->set_val_function( tGeoValFunction_UTIWGDIFFBULK );
+    //    std::shared_ptr< fem::Property > tPropLeaderTempLoad = std::make_shared< fem::Property > ();
+    //    tPropLeaderTempLoad->set_parameters( { {{ 1.0 }} } );
+    //    tPropLeaderTempLoad->set_val_function( tGeoValFunction_UTIWGDIFFBULK );
     //
     //    // define constitutive models
     //    fem::CM_Factory tCMFactory;
     //
-    //    std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-    //    tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    //    tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
-    //    tCMMasterDiffLinIso->set_space_dim( 3 );
+    //    std::shared_ptr< fem::Constitutive_Model > tCMLeaderDiffLinIso = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
+    //    tCMLeaderDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    //    tCMLeaderDiffLinIso->set_property( tPropLeaderConductivity, "Conductivity" );
+    //    tCMLeaderDiffLinIso->set_space_dim( 3 );
     //
     //    // define the IWGs
     //    fem::IWG_Factory tIWGFactory;
     //
     //    std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
     //    tIWG->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-    //    tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-    //    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
-    //    tIWG->set_property( tPropMasterTempLoad, "Load", mtk::Master_Slave::MASTER );
+    //    tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Leader_Follower::LEADER );
+    //    tIWG->set_constitutive_model( tCMLeaderDiffLinIso, "Diffusion", mtk::Leader_Follower::LEADER );
+    //    tIWG->set_property( tPropLeaderTempLoad, "Load", mtk::Leader_Follower::LEADER );
     //
     //    // create evaluation point xi, tau
     //    //------------------------------------------------------------------------------
@@ -802,14 +802,14 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     //    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
     //    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
     //
-    //    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-    //    tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
+    //    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    //    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
     //
     //    tIWG->mSet->mUniqueDvTypeMap.set_size( static_cast< int >( PDV_Type::END_ENUM ) + 1, 1, -1 );
     //    tIWG->mSet->mUniqueDvTypeMap( static_cast< int >( PDV_Type::DENSITY0 ) ) = 0;
     //
-    //    tIWG->mSet->mMasterDvTypeMap.set_size( static_cast< int >( PDV_Type::END_ENUM ) + 1, 1, -1 );
-    //    tIWG->mSet->mMasterDvTypeMap( static_cast< int >( PDV_Type::DENSITY0 ) ) = 0;
+    //    tIWG->mSet->mLeaderDvTypeMap.set_size( static_cast< int >( PDV_Type::END_ENUM ) + 1, 1, -1 );
+    //    tIWG->mSet->mLeaderDvTypeMap( static_cast< int >( PDV_Type::DENSITY0 ) ) = 0;
     //
     //    tIWG->mSet->mResDofAssemblyMap.resize( 1 );
     //    tIWG->mSet->mResDofAssemblyMap( 0 ) = { { 0, 7 } };
@@ -824,7 +824,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     //    tIWG->get_global_dof_type_list();
     //    tIWG->get_global_dv_type_list();
     //
-    //    tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
+    //    tIWG->mRequestedLeaderGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
     //
     //    moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
     //    Field_Interpolator_Manager tFIManager( tDummy, tSet );
@@ -835,7 +835,7 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     //    tFIManager.mIGGeometryInterpolator = &tGI;
     //
     //    // set the interpolator manager to the set
-    //    tIWG->mSet->mMasterFIManager = &tFIManager;
+    //    tIWG->mSet->mLeaderFIManager = &tFIManager;
     //
     //    // set IWG field interpolator manager
     //    tIWG->set_field_interpolator_manager( &tFIManager );

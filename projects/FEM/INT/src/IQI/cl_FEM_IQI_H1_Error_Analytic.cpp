@@ -27,7 +27,7 @@ namespace moris
             mFEMIQIType = fem::IQI_Type::H1_ERROR_ANALYTIC;
 
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "H1Check" ] = static_cast< uint >( IQI_Property_Type::H1_CHECK );
@@ -44,11 +44,11 @@ namespace moris
 
             // get field interpolator
             Field_Interpolator* tFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // get analytical solution property
             std::shared_ptr< Property >& tPropH1Check =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::H1_CHECK ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::H1_CHECK ) );
 
             // get jump between value and analytic
             real tJumpNorm = norm( vectorize( tFI->gradx( 1 ) - tPropH1Check->val() ) );
@@ -71,11 +71,11 @@ namespace moris
 
             // get field interpolator
             Field_Interpolator* tFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // get analytical solution property
             std::shared_ptr< Property >& tPropH1Check =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::H1_CHECK ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::H1_CHECK ) );
 
             // get jump between value and analytic
             real tJumpNorm = norm( vectorize( tFI->gradx( 1 ) - tPropH1Check->val() ) );

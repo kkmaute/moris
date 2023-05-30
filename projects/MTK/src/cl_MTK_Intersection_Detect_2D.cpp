@@ -73,27 +73,27 @@ namespace moris
             {
                 delete p;
             }
-            for(auto p : mMasterSidedClusters)
+            for(auto p : mLeaderSidedClusters)
             {
                 delete p;
             }
-            for(auto p : mSlaveSidedClusters)
+            for(auto p : mFollowerSidedClusters)
             {
                 delete p;
             }
-            for(auto p : mMasterSideCells)
+            for(auto p : mLeaderSideCells)
             {
                 delete p;
             }
-            for(auto p : mSlaveSideCells)
+            for(auto p : mFollowerSideCells)
             {
                 delete p;
             }
-            for(auto p : mMasterVertices)
+            for(auto p : mLeaderVertices)
             {
                 delete p;
             }
-            for(auto p : mSlaveVertices)
+            for(auto p : mFollowerVertices)
             {
                 delete p;
             }
@@ -517,96 +517,96 @@ namespace moris
                 tUniqueIntersectedPoints = join_horiz( tUniqueIntersectedPoints, tP( aIndicesinCutCell( i ) ) );
             }
 
-            //create master and slave side vertices
-            moris::Cell<moris::mtk::Vertex* > tMasterVerticesCell = this->create_master_vertices(tUniqueIntersectedPoints,aInterpCell1, aPairCount);
-            moris::Cell<moris::mtk::Vertex* > tSlaveVerticesCell = this->create_slave_vertices(tUniqueIntersectedPoints,aInterpCell2, aPairCount);
+            //create leader and follower side vertices
+            moris::Cell<moris::mtk::Vertex* > tLeaderVerticesCell = this->create_leader_vertices(tUniqueIntersectedPoints,aInterpCell1, aPairCount);
+            moris::Cell<moris::mtk::Vertex* > tFollowerVerticesCell = this->create_follower_vertices(tUniqueIntersectedPoints,aInterpCell2, aPairCount);
 
-            //initialize master,slave side cluster data
-            moris::Cell<moris::mtk::Cell const *> tMasterIntegCells;
-            moris::Cell<moris::mtk::Cell const *> tSlaveIntegCells;
+            //initialize leader,follower side cluster data
+            moris::Cell<moris::mtk::Cell const *> tLeaderIntegCells;
+            moris::Cell<moris::mtk::Cell const *> tFollowerIntegCells;
 
             //loop over the side clusters needs to be created( It is 1 in 2D)
             for( size_t tClusterNum = 0 ; tClusterNum < tP.size() ; tClusterNum++ )
             {
-                //create master IG cell
-                moris::mtk::Cell const * tMasterIgCell = this->create_master_ig_cell( tMasterVerticesCell, aInterpCell1, aPairCount) ;
-                tMasterIntegCells.push_back(tMasterIgCell);
+                //create leader IG cell
+                moris::mtk::Cell const * tLeaderIgCell = this->create_leader_ig_cell( tLeaderVerticesCell, aInterpCell1, aPairCount) ;
+                tLeaderIntegCells.push_back(tLeaderIgCell);
 
-                //create slave IG cell
-                moris::mtk::Cell const * tSlaveIgCell = this->create_slave_ig_cell( tSlaveVerticesCell, aInterpCell2, aPairCount ) ;
-                tSlaveIntegCells.push_back(tSlaveIgCell);
+                //create follower IG cell
+                moris::mtk::Cell const * tFollowerIgCell = this->create_follower_ig_cell( tFollowerVerticesCell, aInterpCell2, aPairCount ) ;
+                tFollowerIntegCells.push_back(tFollowerIgCell);
             }
 
-            //create a matrix for ordinals for slave and master cells
-            moris::Matrix<moris::IndexMat>          tMasterIntegrationCellSideOrdinals(1,tP.size(), 0);
-            moris::Matrix<moris::IndexMat>          tSlaveIntegrationCellSideOrdinals(1,tP.size(), 0);
+            //create a matrix for ordinals for follower and leader cells
+            moris::Matrix<moris::IndexMat>          tLeaderIntegrationCellSideOrdinals(1,tP.size(), 0);
+            moris::Matrix<moris::IndexMat>          tFollowerIntegrationCellSideOrdinals(1,tP.size(), 0);
 
-            //parametric coords of master and slave vertices
-            moris::Matrix< DDRMat > tMasterParamCoords(tUniqueIntersectedPoints.n_cols(), 2 );
-            moris::Matrix< DDRMat > tSlaveParamCoords(tUniqueIntersectedPoints.n_cols(), 2 ) ;
+            //parametric coords of leader and follower vertices
+            moris::Matrix< DDRMat > tLeaderParamCoords(tUniqueIntersectedPoints.n_cols(), 2 );
+            moris::Matrix< DDRMat > tFollowerParamCoords(tUniqueIntersectedPoints.n_cols(), 2 ) ;
 
             //loop through
             for(uint  i = 0 ; i < tUniqueIntersectedPoints.n_cols() ; i++ )
             {
-                moris::Matrix< DDRMat > tMasterParamCoord = { { -1,  tUniqueIntersectedPoints( 0, i )} };
-                moris::Matrix< DDRMat > tSlaveParamCoord = { { +1,  tUniqueIntersectedPoints( 0, i ) } };
-                tMasterParamCoord = tMasterParamCoord * tRotation;
-                tSlaveParamCoord  = tSlaveParamCoord * tRotation;
-                tMasterParamCoords.get_row( i ) = tMasterParamCoord.get_row( 0 );
-                tSlaveParamCoords.get_row( i )  = tSlaveParamCoord.get_row( 0 );
+                moris::Matrix< DDRMat > tLeaderParamCoord = { { -1,  tUniqueIntersectedPoints( 0, i )} };
+                moris::Matrix< DDRMat > tFollowerParamCoord = { { +1,  tUniqueIntersectedPoints( 0, i ) } };
+                tLeaderParamCoord = tLeaderParamCoord * tRotation;
+                tFollowerParamCoord  = tFollowerParamCoord * tRotation;
+                tLeaderParamCoords.get_row( i ) = tLeaderParamCoord.get_row( 0 );
+                tFollowerParamCoords.get_row( i )  = tFollowerParamCoord.get_row( 0 );
             }
 
             //create constant version of the vertices on cluster
-            moris::Cell<moris::mtk::Vertex const *> tMasterVerticesConst;
-            moris::Cell<moris::mtk::Vertex const *> tSlaveVerticesConst;
+            moris::Cell<moris::mtk::Vertex const *> tLeaderVerticesConst;
+            moris::Cell<moris::mtk::Vertex const *> tFollowerVerticesConst;
 
-            for(uint i = 0 ; i < tMasterVerticesCell.size() - 1 ; i++)
+            for(uint i = 0 ; i < tLeaderVerticesCell.size() - 1 ; i++)
             {
-                tMasterVerticesConst.push_back(tMasterVerticesCell(i));
-                tSlaveVerticesConst.push_back(tSlaveVerticesCell(i));
+                tLeaderVerticesConst.push_back(tLeaderVerticesCell(i));
+                tFollowerVerticesConst.push_back(tFollowerVerticesCell(i));
             }
 
-            moris::mtk::Side_Cluster_ISC* tMasterSideCluster = new moris::mtk::Side_Cluster_ISC(false,
+            moris::mtk::Side_Cluster_ISC* tLeaderSideCluster = new moris::mtk::Side_Cluster_ISC(false,
                     & aInterpCell1,
-                    tMasterIntegCells,
-                    tMasterIntegrationCellSideOrdinals,
-                    tMasterVerticesConst,
-                    tMasterParamCoords);
+                    tLeaderIntegCells,
+                    tLeaderIntegrationCellSideOrdinals,
+                    tLeaderVerticesConst,
+                    tLeaderParamCoords);
 
-            moris::mtk::Side_Cluster_ISC* tSlaveSideCluster  = new moris::mtk::Side_Cluster_ISC(false,
+            moris::mtk::Side_Cluster_ISC* tFollowerSideCluster  = new moris::mtk::Side_Cluster_ISC(false,
                     & aInterpCell2,
-                    tSlaveIntegCells,
-                    tSlaveIntegrationCellSideOrdinals,
-                    tSlaveVerticesConst,
-                    tSlaveParamCoords);
+                    tFollowerIntegCells,
+                    tFollowerIntegrationCellSideOrdinals,
+                    tFollowerVerticesConst,
+                    tFollowerParamCoords);
 
             // create double side cluster
             mtk::Double_Side_Cluster* tDblSideCluster = new mtk::Double_Side_Cluster(
-                    tMasterSideCluster,
-                    tSlaveSideCluster,
-                    tSlaveSideCluster->mVerticesInCluster);
+                    tLeaderSideCluster,
+                    tFollowerSideCluster,
+                    tFollowerSideCluster->mVerticesInCluster);
 
             //store double side cluster
             mDoubleSidedClusters.push_back(tDblSideCluster);
             mDoubleSidedClustersIndex.push_back(aPhaseToPhase);
 
             //store side clusters
-            mMasterSidedClusters.push_back( tMasterSideCluster );
-            mSlaveSidedClusters.push_back( tSlaveSideCluster );
+            mLeaderSidedClusters.push_back( tLeaderSideCluster );
+            mFollowerSidedClusters.push_back( tFollowerSideCluster );
 
             //store the vertices to prevent memory leak
-            mMasterVertices.append(tMasterVerticesConst);
-            mSlaveVertices.append( tSlaveVerticesConst);
+            mLeaderVertices.append(tLeaderVerticesConst);
+            mFollowerVertices.append( tFollowerVerticesConst);
 
             // Append the integration cells
-            mMasterSideCells.append(tMasterIntegCells);
-            mSlaveSideCells.append(tSlaveIntegCells);
+            mLeaderSideCells.append(tLeaderIntegCells);
+            mFollowerSideCells.append(tFollowerIntegCells);
         }
 
         //------------------------------------------------------------------------------------------------------------
 
         moris::mtk::Cell const *
-        Intersection_Detect_2D::create_master_ig_cell( moris::Cell<moris::mtk::Vertex *> aMasterVertices,  moris::mtk::Cell const & aMasterInterpCell, uint aPairCount)
+        Intersection_Detect_2D::create_leader_ig_cell( moris::Cell<moris::mtk::Vertex *> aLeaderVertices,  moris::mtk::Cell const & aLeaderInterpCell, uint aPairCount)
         {
             Matrix<IndexMat> tPermutation;
 
@@ -620,10 +620,10 @@ namespace moris
             }
 
             //arrange the permutation based on the set
-            moris::Cell<moris::mtk::Vertex *> tMasterVertices( aMasterVertices.size() );
+            moris::Cell<moris::mtk::Vertex *> tLeaderVertices( aLeaderVertices.size() );
             for(uint  i = 0 ; i < tPermutation.n_cols(); i++)
             {
-                tMasterVertices( i ) = aMasterVertices( tPermutation( i ) );
+                tLeaderVertices( i ) = aLeaderVertices( tPermutation( i ) );
             }
 
             //allocate id and index from intersection data
@@ -638,9 +638,9 @@ namespace moris
             moris::mtk::Cell* tIgCell = new Cell_ISC(
                     tCellId,
                     tCellIndex,
-                    aMasterInterpCell.get_owner(),
+                    aLeaderInterpCell.get_owner(),
                     tLinearCellInfo,
-                    tMasterVertices);
+                    tLeaderVertices);
 
             mIntersectedMeshData.update_first_available_index_external_data( tCellIndex+1, EntityRank::ELEMENT);
 
@@ -650,7 +650,7 @@ namespace moris
         //------------------------------------------------------------------------------------------------------------
 
         moris::mtk::Cell const *
-        Intersection_Detect_2D::create_slave_ig_cell( moris::Cell<moris::mtk::Vertex *> aSlaveVertices ,  moris::mtk::Cell const & aSlaveInterpCell, uint aPairCount)
+        Intersection_Detect_2D::create_follower_ig_cell( moris::Cell<moris::mtk::Vertex *> aFollowerVertices ,  moris::mtk::Cell const & aFollowerInterpCell, uint aPairCount)
         {
 
             Matrix<IndexMat> tPermutation;
@@ -665,10 +665,10 @@ namespace moris
             }
 
             //arrange the permutation based on the set
-            moris::Cell<moris::mtk::Vertex *> tSlaveVertices( aSlaveVertices.size() );
+            moris::Cell<moris::mtk::Vertex *> tFollowerVertices( aFollowerVertices.size() );
             for(uint  i = 0 ; i < tPermutation.n_cols(); i++)
             {
-                tSlaveVertices( i ) = aSlaveVertices( tPermutation( i ) );
+                tFollowerVertices( i ) = aFollowerVertices( tPermutation( i ) );
             }
 
             //allocate id and index from the data
@@ -683,9 +683,9 @@ namespace moris
             moris::mtk::Cell* tIgCell = new Cell_ISC(
                     tCellId,
                     tCellIndex,
-                    aSlaveInterpCell.get_owner(),
+                    aFollowerInterpCell.get_owner(),
                     tLinearCellInfo,
-                    tSlaveVertices);
+                    tFollowerVertices);
 
             mIntersectedMeshData.update_first_available_index_external_data( tCellIndex+1, EntityRank::ELEMENT);
 
@@ -839,7 +839,7 @@ namespace moris
         // ----------------------------------------------------------------------------
 
         moris::Cell< moris::mtk::Vertex *>
-        Intersection_Detect_2D::create_master_vertices(Matrix < DDRMat> tUniqueIntersectedPoints,moris::mtk::Cell const & aMasterInterpCell, uint aPairCount )
+        Intersection_Detect_2D::create_leader_vertices(Matrix < DDRMat> tUniqueIntersectedPoints,moris::mtk::Cell const & aLeaderInterpCell, uint aPairCount )
         {
             moris::Matrix<DDRMat >     tRotation;
             moris::Matrix<DDRMat >     tInverseRotation;
@@ -859,7 +859,7 @@ namespace moris
             //get the indices of the interpolation cell nodes
             moris::Matrix<moris::IndexMat> tElementNodes =
                     tInterpMesh->get_entity_connected_to_entity_loc_inds(
-                            aMasterInterpCell.get_index(),
+                            aLeaderInterpCell.get_index(),
                             moris::EntityRank::ELEMENT,
                             moris::EntityRank::NODE);
 
@@ -911,7 +911,7 @@ namespace moris
         // ----------------------------------------------------------------------------
 
         moris::Cell< moris::mtk::Vertex *>
-        Intersection_Detect_2D::create_slave_vertices(Matrix < DDRMat> tUniqueIntersectedPoints,moris::mtk::Cell const & aSlaveInterpCell, uint aPairCount )
+        Intersection_Detect_2D::create_follower_vertices(Matrix < DDRMat> tUniqueIntersectedPoints,moris::mtk::Cell const & aFollowerInterpCell, uint aPairCount )
         {
 
             moris::Matrix<DDRMat >     tRotation;
@@ -932,7 +932,7 @@ namespace moris
             //get the indices of the interpolation cell nodes
             moris::Matrix<moris::IndexMat> tElementNodes =
                     tInterpMesh->get_entity_connected_to_entity_loc_inds(
-                            aSlaveInterpCell.get_index(),
+                            aFollowerInterpCell.get_index(),
                             moris::EntityRank::ELEMENT,
                             moris::EntityRank::NODE);
 

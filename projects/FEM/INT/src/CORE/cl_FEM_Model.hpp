@@ -580,8 +580,8 @@ namespace moris
              * get mesh set name from input
              * @param[ in ] aBulkType             enum for bulk type
              *                                    (bulk, single sideset, double sideset, ...)
-             * @param[ in ] aMasterPhaseName      name for master phase
-             * @param[ in ] aSlavePhaseName       name for slave phase
+             * @param[ in ] aLeaderPhaseName      name for leader phase
+             * @param[ in ] aFollowerPhaseName       name for follower phase
              * @param[ in ] aNeighborPhasesString string with neighboring phases for single sideset
              * @param[ in ] aSideOrdinalsString   string with side ordinals for single sideset
              * @param[ in ] aIsGhost              bool true if ghost IWG
@@ -589,8 +589,8 @@ namespace moris
              */
             void get_mesh_set_names(
                 fem::Element_Type aBulkType,
-                std::string aMasterPhaseName,
-                std::string aSlavePhaseName,
+                std::string aLeaderPhaseName,
+                std::string aFollowerPhaseName,
                 std::string aNeighborPhasesString,
                 std::string aSideOrdinalsString,
                 bool aIsGhost,

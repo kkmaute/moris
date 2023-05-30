@@ -26,7 +26,7 @@ namespace moris
             mFEMIQIType = fem::IQI_Type::SPALART_ALLMARAS_COEFFICIENT;
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "SpalartAllmarasTurbulence" ] =
@@ -40,7 +40,7 @@ namespace moris
         {
             // get the diffusion CM
             const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
-                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
+                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
 
             // cast constitutive model base class pointer to SA constitutive model
             CM_Spalart_Allmaras_Turbulence* tCMSATurbulencePtr =

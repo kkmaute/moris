@@ -81,13 +81,13 @@ namespace moris
                     // Add pointer to pdof host to the list containing this equation objects pdof hosts.
                     mMyPdofHosts( Ik )( Ii ) = aPdofHostList( tNodeID );
 
-                    uint tNumUsedDofTypes = mEquationSet->get_unique_master_slave_dof_type_list()( Ik ).size();
+                    uint tNumUsedDofTypes = mEquationSet->get_unique_leader_follower_dof_type_list()( Ik ).size();
 
                     // FIXME: rewrite this function
                     for ( uint iDofType = 0; iDofType < tNumUsedDofTypes; iDofType++ )
                     {
                         mMyPdofHosts( Ik )( Ii )->set_pdof_type(
-                                mEquationSet->get_unique_master_slave_dof_type_list()( Ik )( iDofType ),
+                                mEquationSet->get_unique_leader_follower_dof_type_list()( Ik )( iDofType ),
                                 aTimePerDofType,
                                 aNumUsedDofTypes,
                                 aPdofTypeMap );
@@ -676,9 +676,9 @@ namespace moris
 
                 const Cell< enum MSI::Dof_Type >& tRequestedDofTypes = mEquationSet->get_requested_dof_types();
 
-                // get master dof type list from set
-                Cell< Cell< MSI::Dof_Type > >& tMasterDofTypeList =
-                        mEquationSet->get_dof_type_list( mtk::Master_Slave::MASTER );
+                // get leader dof type list from set
+                Cell< Cell< MSI::Dof_Type > >& tLeaderDofTypeList =
+                        mEquationSet->get_dof_type_list( mtk::Leader_Follower::LEADER );
 
                 Matrix< DDSMat > tIdentifierMat( (uint)MSI::Dof_Type::END_ENUM, 1, -1 );
 
@@ -686,10 +686,10 @@ namespace moris
 
                 for ( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
                 {
-                    // get the set index for the requested master dof type
+                    // get the set index for the requested leader dof type
                     sint tDofIndex = mEquationSet->get_dof_index_for_type(
                             tRequestedDofTypes( Ik ),
-                            mtk::Master_Slave::MASTER );
+                            mtk::Leader_Follower::LEADER );
 
                     // if the index was set (and is different from -1)
                     if ( tDofIndex != -1 )
@@ -708,12 +708,12 @@ namespace moris
                     tCoeff( Ik ).set_size( tCounter, 1, MORIS_REAL_MAX );
                 }
 
-                for ( uint Ik = 0; Ik < tMasterDofTypeList.size(); Ik++ )
+                for ( uint Ik = 0; Ik < tLeaderDofTypeList.size(); Ik++ )
                 {
-                    // get the set index for the requested master dof type
+                    // get the set index for the requested leader dof type
                     sint tDofIndex = mEquationSet->get_dof_index_for_type(
-                            tMasterDofTypeList( Ik )( 0 ),
-                            mtk::Master_Slave::MASTER );
+                            tLeaderDofTypeList( Ik )( 0 ),
+                            mtk::Leader_Follower::LEADER );
 
                     if ( tIdentifierMat( tDofIndex ) == 1 )
                     {
@@ -722,9 +722,9 @@ namespace moris
 
                         this->get_my_pdof_values(
                                 mEquationSet->mPreviousAdjointPdofValues,
-                                tMasterDofTypeList( Ik ),
+                                tLeaderDofTypeList( Ik ),
                                 tCoeff_Original,
-                                mtk::Master_Slave::MASTER );
+                                mtk::Leader_Follower::LEADER );
 
                         // loop over the rhs
                         for ( uint Ia = 0; Ia < tNumRHS; Ia++ )
@@ -849,14 +849,14 @@ namespace moris
             {
                 moris::Cell< enum MSI::Dof_Type > tRequestedDofTypes = mEquationSet->get_requested_dof_types();
 
-                // combined master slave index
-                sint tSecDofIndex = mEquationSet->get_dof_index_for_type( tSecDofTypes, mtk::Master_Slave::MASTER );
+                // combined leader follower index
+                sint tSecDofIndex = mEquationSet->get_dof_index_for_type( tSecDofTypes, mtk::Leader_Follower::LEADER );
 
                 if ( tSecDofIndex != -1 )
                 {
                     for ( auto tDofTypes : tRequestedDofTypes )
                     {
-                        sint tDofIndex = mEquationSet->get_dof_index_for_type( tDofTypes, mtk::Master_Slave::MASTER );
+                        sint tDofIndex = mEquationSet->get_dof_index_for_type( tDofTypes, mtk::Leader_Follower::LEADER );
 
                         if ( tDofIndex != -1 )
                         {
@@ -872,16 +872,16 @@ namespace moris
                                             { tStartRow, tEndRow },
                                             { tStartCol, tEndCol } ) );
 
-                            // separate master slave index
-                            sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Master_Slave::MASTER );
+                            // separate leader follower index
+                            sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Leader_Follower::LEADER );
 
                             // get the ith dof type group
-                            const moris::Cell< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mMasterDofTypes( tseparateSecDofIndex );
+                            const moris::Cell< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mLeaderDofTypes( tseparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
 
-                            this->get_my_pdof_values( mEquationSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::MASTER );
+                            this->get_my_pdof_values( mEquationSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Leader_Follower::LEADER );
 
                             uint                     tNumRHS = tCoeff_Original.size();
                             Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
@@ -909,7 +909,7 @@ namespace moris
                             }
                         }
 
-                        tDofIndex = mEquationSet->get_dof_index_for_type( tDofTypes, mtk::Master_Slave::SLAVE );
+                        tDofIndex = mEquationSet->get_dof_index_for_type( tDofTypes, mtk::Leader_Follower::FOLLOWER );
 
                         if ( tDofIndex != -1 )
                         {
@@ -925,16 +925,16 @@ namespace moris
                                             { tStartRow, tEndRow },
                                             { tStartCol, tEndCol } ) );
 
-                            // separate master slave index
-                            sint tSeparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Master_Slave::SLAVE );
+                            // separate leader follower index
+                            sint tSeparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Leader_Follower::FOLLOWER );
 
                             // get the ith dof type group
-                            const moris::Cell< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mSlaveDofTypes( tSeparateSecDofIndex );
+                            const moris::Cell< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mFollowerDofTypes( tSeparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
 
-                            this->get_my_pdof_values( mEquationSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
+                            this->get_my_pdof_values( mEquationSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Leader_Follower::FOLLOWER );
 
                             uint                     tNumRHS = tCoeff_Original.size();
                             Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
@@ -966,14 +966,14 @@ namespace moris
                     }
                 }
 
-                // combined master slave index
-                tSecDofIndex = mEquationSet->get_dof_index_for_type( tSecDofTypes, mtk::Master_Slave::SLAVE );
+                // combined leader follower index
+                tSecDofIndex = mEquationSet->get_dof_index_for_type( tSecDofTypes, mtk::Leader_Follower::FOLLOWER );
 
                 if ( tSecDofIndex != -1 )
                 {
                     for ( auto tDofTypes : tRequestedDofTypes )
                     {
-                        sint tDofIndex = mEquationSet->get_dof_index_for_type( tDofTypes, mtk::Master_Slave::MASTER );
+                        sint tDofIndex = mEquationSet->get_dof_index_for_type( tDofTypes, mtk::Leader_Follower::LEADER );
 
                         if ( tDofIndex != -1 )
                         {
@@ -989,16 +989,16 @@ namespace moris
                                             { tStartRow, tEndRow },
                                             { tStartCol, tEndCol } ) );
 
-                            // separate master slave index
-                            sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Master_Slave::MASTER );
+                            // separate leader follower index
+                            sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Leader_Follower::LEADER );
 
                             // get the ith dof type group
-                            const moris::Cell< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mMasterDofTypes( tseparateSecDofIndex );
+                            const moris::Cell< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mLeaderDofTypes( tseparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
 
-                            this->get_my_pdof_values( mEquationSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::MASTER );
+                            this->get_my_pdof_values( mEquationSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Leader_Follower::LEADER );
 
                             uint                     tNumRHS = tCoeff_Original.size();
                             Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
@@ -1028,7 +1028,7 @@ namespace moris
                             }
                         }
 
-                        tDofIndex = mEquationSet->get_dof_index_for_type( tDofTypes, mtk::Master_Slave::SLAVE );
+                        tDofIndex = mEquationSet->get_dof_index_for_type( tDofTypes, mtk::Leader_Follower::FOLLOWER );
 
                         if ( tDofIndex != -1 )
                         {
@@ -1044,16 +1044,16 @@ namespace moris
                                             { tStartRow, tEndRow },
                                             { tStartCol, tEndCol } ) );
 
-                            // separate master slave index
-                            sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Master_Slave::SLAVE );
+                            // separate leader follower index
+                            sint tseparateSecDofIndex = mEquationSet->get_dof_index_for_type_1( tDofTypes, mtk::Leader_Follower::FOLLOWER );
 
                             // get the ith dof type group
-                            const moris::Cell< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mSlaveDofTypes( tseparateSecDofIndex );
+                            const moris::Cell< MSI::Dof_Type >& tDofTypeGroup = mEquationSet->mFollowerDofTypes( tseparateSecDofIndex );
 
                             // get the pdof values for the ith dof type group
                             Cell< Cell< Matrix< DDRMat > > > tCoeff_Original;
 
-                            this->get_my_pdof_values( mEquationSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Master_Slave::SLAVE );
+                            this->get_my_pdof_values( mEquationSet->mAdjointPdofValues, tDofTypeGroup, tCoeff_Original, mtk::Leader_Follower::FOLLOWER );
 
                             uint                     tNumRHS = tCoeff_Original.size();
                             Cell< Matrix< DDRMat > > tCoeff( tNumRHS );
@@ -1345,14 +1345,14 @@ namespace moris
                 const moris::Cell< Matrix< DDRMat > >&   aPdofValues,
                 const moris::Cell< enum Dof_Type >&      aRequestedDofTypes,
                 moris::Cell< Cell< Matrix< DDRMat > > >& aRequestedPdofValues,
-                const mtk::Master_Slave                  aIsMaster )
+                const mtk::Leader_Follower                  aIsLeader )
         {
-            // check that master or slave
-            MORIS_ERROR( ( aIsMaster == mtk::Master_Slave::MASTER ) || ( aIsMaster == mtk::Master_Slave::SLAVE ),
-                    "Equation_Object::get_my_pdof_values - can only be MASTER or SLAVE" );
+            // check that leader or follower
+            MORIS_ERROR( ( aIsLeader == mtk::Leader_Follower::LEADER ) || ( aIsLeader == mtk::Leader_Follower::FOLLOWER ),
+                    "Equation_Object::get_my_pdof_values - can only be LEADER or FOLLOWER" );
 
-            // uint for master/slave
-            uint tIsMaster = static_cast< uint >( aIsMaster );
+            // uint for leader/follower
+            uint tIsLeader = static_cast< uint >( aIsLeader );
 
             // Initialize list which contains the maximal number of time levels per dof type
             Matrix< DDSMat > tTimeLevelsPerDofType( aRequestedDofTypes.size(), 1, -1 );
@@ -1375,17 +1375,17 @@ namespace moris
                 tCounter = 0;
 
                 // Loop over all elemental pdof hosts
-                for ( uint Ik = 0; Ik < mMyPdofHosts( tIsMaster ).size(); Ik++ )
+                for ( uint Ik = 0; Ik < mMyPdofHosts( tIsLeader ).size(); Ik++ )
                 {
                     // Get dof type index
                     sint tDofTypeIndex = mEquationSet->get_model_solver_interface()->get_dof_manager()->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
 
                     // FIXME delete this error after a closer look
-                    MORIS_ASSERT( mMyPdofHosts( tIsMaster )( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) != 0,
+                    MORIS_ASSERT( mMyPdofHosts( tIsLeader )( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) != 0,
                             "Equation_Object::get_my_pdof_values: talk with Mathias about this" );
 
                     // get number of time levels for this dof type
-                    sint tNumTimeLevels = mMyPdofHosts( tIsMaster )( Ik )->get_num_time_levels_of_type( tDofTypeIndex );
+                    sint tNumTimeLevels = mMyPdofHosts( tIsLeader )( Ik )->get_num_time_levels_of_type( tDofTypeIndex );
                     tCounter            = tCounter + tNumTimeLevels;
 
                     // Add maximal value of time levels to list
@@ -1416,16 +1416,16 @@ namespace moris
                 for ( sint Ia = 0; Ia < tMaxTimeLevelsOnDofType; Ia++ )
                 {
                     // Loop over all elemental pdof hosts
-                    for ( uint Ik = 0; Ik < mMyPdofHosts( tIsMaster ).size(); Ik++ )
+                    for ( uint Ik = 0; Ik < mMyPdofHosts( tIsLeader ).size(); Ik++ )
                     {
                         // Get dof type index
                         sint tDofTypeIndex = mEquationSet->get_model_solver_interface()->get_dof_manager()->get_pdof_index_for_type( aRequestedDofTypes( Ii ) );
 
                         // Check if number of time levels on this dof type is smaller than maximal number of time levels on dof type
-                        if ( (sint)mMyPdofHosts( tIsMaster )( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) == tMaxTimeLevelsOnDofType )
+                        if ( (sint)mMyPdofHosts( tIsLeader )( Ik )->get_num_time_levels_of_type( tDofTypeIndex ) == tMaxTimeLevelsOnDofType )
                         {
                             // get pointer list all time pdofs on this pdof type
-                            moris::Cell< Pdof* > tPdofTimeList = mMyPdofHosts( tIsMaster )( Ik )->get_pdof_time_list( tDofTypeIndex );
+                            moris::Cell< Pdof* > tPdofTimeList = mMyPdofHosts( tIsLeader )( Ik )->get_pdof_time_list( tDofTypeIndex );
 
                             // get entry number of this pdof in the elemental pdof value vector
                             uint tElementalSolVecEntry = tPdofTimeList( Ia )->mElementalSolVecEntry;

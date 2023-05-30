@@ -21,7 +21,7 @@ namespace moris
         Edge::Edge( Mesh_Base*   aMesh,
                 Background_Edge* aBackgroundEdge )
         {
-            this->find_master( aMesh, aBackgroundEdge );
+            this->find_leader( aMesh, aBackgroundEdge );
         }
 
         //------------------------------------------------------------------------------
@@ -173,10 +173,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        Edge::find_master( Mesh_Base* aMesh,
+        Edge::find_leader( Mesh_Base* aMesh,
                 Background_Edge*      aBackgroundEdge )
         {
-            // master is element with lowest id and active
+            // leader is element with lowest id and active
 
             // get activation pattern
             uint tPattern = aMesh->get_activation_pattern();
@@ -220,7 +220,7 @@ namespace moris
                 }
             }
 
-            // find master
+            // find leader
             uint tKmin = MORIS_UINT_MAX;
             for ( uint k = 0; k < tCount; ++k )
             {
@@ -232,7 +232,7 @@ namespace moris
                 }
             }
 
-            // test if no active master was found
+            // test if no active leader was found
             if ( tKmin > tCount )
             {
                 // search for refined element with lowest id
@@ -246,13 +246,13 @@ namespace moris
                 }
             }
 
-            MORIS_ASSERT( tKmin < tCount, "something went wrong while determining edge master" );
+            MORIS_ASSERT( tKmin < tCount, "something went wrong while determining edge leader" );
 
-            // remember master index
-            mIndexOfMaster = tKmin;
+            // remember leader index
+            mIndexOfLeader = tKmin;
 
             // set owner of this edge
-            mOwner = mElements( mIndexOfMaster )->get_owner();
+            mOwner = mElements( mIndexOfLeader )->get_owner();
         }
         
         //------------------------------------------------------------------------------
@@ -302,17 +302,17 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Element*
-        Edge::get_hmr_master()
+        Edge::get_hmr_leader()
         {
-            return mElements( mIndexOfMaster );
+            return mElements( mIndexOfLeader );
         }
 
         //------------------------------------------------------------------------------
 
         uint
-        Edge::get_index_on_master() const
+        Edge::get_index_on_leader() const
         {
-            return mIndicesInElements( mIndexOfMaster );
+            return mIndicesInElements( mIndexOfLeader );
         }
 
         //------------------------------------------------------------------------------

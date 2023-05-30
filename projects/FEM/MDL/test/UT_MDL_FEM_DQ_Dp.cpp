@@ -250,12 +250,12 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //       fem::SP_Factory tSPFactory;
 //       std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
 //       tSPDirichletNitsche->set_parameters( { {{ 100.0 }} } );
-//       tSPDirichletNitsche->set_property( tPropEMod1, "Material", mtk::Master_Slave::MASTER );
+//       tSPDirichletNitsche->set_property( tPropEMod1, "Material", mtk::Leader_Follower::LEADER );
 //
 //       std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface = tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
 //       tSPNitscheInterface->set_parameters( { {{ 100.0 }} } );
-//       tSPNitscheInterface->set_property( tPropEMod1, "Material", mtk::Master_Slave::MASTER );
-//       tSPNitscheInterface->set_property( tPropEMod2, "Material", mtk::Master_Slave::SLAVE );
+//       tSPNitscheInterface->set_property( tPropEMod1, "Material", mtk::Leader_Follower::LEADER );
+//       tSPNitscheInterface->set_property( tPropEMod2, "Material", mtk::Leader_Follower::FOLLOWER );
 //
 //       // define the IWGs
 //       fem::IWG_Factory tIWGFactory;
@@ -263,49 +263,49 @@ TEST_CASE("MDL FEM Elastic DQ/Dp","[MDL_FEM_DQ_DP]")
 //       std::shared_ptr< fem::IWG > tIWGBulk1 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
 //       tIWGBulk1->set_residual_dof_type( tResDofTypes );
 //       tIWGBulk1->set_dof_type_list( { tResDofTypes } );
-//       tIWGBulk1->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
+//       tIWGBulk1->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Leader_Follower::LEADER );
 //
 //       std::shared_ptr< fem::IWG > tIWGBulk2 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
 //       tIWGBulk2->set_residual_dof_type( tResDofTypes );
 //       tIWGBulk2->set_dof_type_list( { tResDofTypes } );
-//       tIWGBulk2->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::MASTER );
+//       tIWGBulk2->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Leader_Follower::LEADER );
 //
 //       std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
 //       tIWGDirichlet->set_residual_dof_type( tResDofTypes );
 //       tIWGDirichlet->set_dof_type_list( { tResDofTypes } );
 //       tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-//       tIWGDirichlet->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
-//       tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
+//       tIWGDirichlet->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Leader_Follower::LEADER );
+//       tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Leader_Follower::LEADER );
 //
 //       std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
 //       tIWGNeumann->set_residual_dof_type( tResDofTypes );
 //       tIWGNeumann->set_dof_type_list( { tResDofTypes } );
-//       tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+//       tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Leader_Follower::LEADER );
 //
 //       std::shared_ptr< fem::IWG > tIWGInterface = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE );
 //       tIWGInterface->set_residual_dof_type( tResDofTypes );
 //       tIWGInterface->set_dof_type_list( { tResDofTypes } );
-//       tIWGInterface->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::SLAVE );
+//       tIWGInterface->set_dof_type_list( { tResDofTypes }, mtk::Leader_Follower::FOLLOWER );
 //       tIWGInterface->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
-//       tIWGInterface->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
-//       tIWGInterface->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::SLAVE );
+//       tIWGInterface->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Leader_Follower::LEADER );
+//       tIWGInterface->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Leader_Follower::FOLLOWER );
 //
 //       // create the IQIs
 //       fem::IQI_Factory tIQIFactory;
 //
 //       std::shared_ptr< fem::IQI > tIQIUX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
 //       tIQIUX->set_output_type( vis::Output_Type::UX );
-//       tIQIUX->set_dof_type_list( { { tResDofTypes } }, mtk::Master_Slave::MASTER );
+//       tIQIUX->set_dof_type_list( { { tResDofTypes } }, mtk::Leader_Follower::LEADER );
 //       tIQIUX->set_output_type_index( 0 );
 //
 //       std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
 //       tIQIUY->set_output_type( vis::Output_Type::UY );
-//       tIQIUY->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
+//       tIQIUY->set_dof_type_list( { tResDofTypes }, mtk::Leader_Follower::LEADER );
 //       tIQIUY->set_output_type_index( 1 );
 //
 //       std::shared_ptr< fem::IQI > tIQIUZ = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
 //       tIQIUZ->set_output_type( vis::Output_Type::UZ );
-//       tIQIUZ->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
+//       tIQIUZ->set_dof_type_list( { tResDofTypes }, mtk::Leader_Follower::LEADER );
 //       tIQIUZ->set_output_type_index( 2 );
 //
 //       // define set info

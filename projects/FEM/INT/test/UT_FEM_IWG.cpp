@@ -48,80 +48,80 @@ namespace moris
     TEST_CASE( "IWG_dof_dv", "[moris],[fem],[IWG_dof_dv]" )
     {
         // create the properties
-        std::shared_ptr< fem::Property > tPropMaster1 = std::make_shared< fem::Property > ();
-        tPropMaster1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::VX }} );
-        tPropMaster1->set_val_function( tValFunction_UTIWG );
+        std::shared_ptr< fem::Property > tPropLeader1 = std::make_shared< fem::Property > ();
+        tPropLeader1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::VX }} );
+        tPropLeader1->set_val_function( tValFunction_UTIWG );
 
-        std::shared_ptr< fem::Property > tPropMaster2 = std::make_shared< fem::Property > ();
-        tPropMaster2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::LS1 }} );
-//        tPropMaster2->set_dv_type_list( {{ PDV_Type::LS1 }, { PDV_Type::LS2 }} );
-        tPropMaster2->set_val_function( tValFunction_UTIWG );
+        std::shared_ptr< fem::Property > tPropLeader2 = std::make_shared< fem::Property > ();
+        tPropLeader2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::LS1 }} );
+//        tPropLeader2->set_dv_type_list( {{ PDV_Type::LS1 }, { PDV_Type::LS2 }} );
+        tPropLeader2->set_val_function( tValFunction_UTIWG );
 
-        std::shared_ptr< fem::Property > tPropSlave1 = std::make_shared< fem::Property > ();
-        tPropSlave1->set_val_function( tValFunction_UTIWG );
+        std::shared_ptr< fem::Property > tPropFollower1 = std::make_shared< fem::Property > ();
+        tPropFollower1->set_val_function( tValFunction_UTIWG );
 
-        std::shared_ptr< fem::Property > tPropSlave2 = std::make_shared< fem::Property > ();
-        tPropSlave2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::LS1 }} );
-//        tPropSlave2->set_dv_type_list( {{ PDV_Type::LS1 }, { PDV_Type::LS2 }} );
-        tPropSlave2->set_val_function( tValFunction_UTIWG );
+        std::shared_ptr< fem::Property > tPropFollower2 = std::make_shared< fem::Property > ();
+        tPropFollower2->set_dof_type_list( {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::LS1 }} );
+//        tPropFollower2->set_dv_type_list( {{ PDV_Type::LS1 }, { PDV_Type::LS2 }} );
+        tPropFollower2->set_val_function( tValFunction_UTIWG );
 
         // define constitutive models
         fem::CM_Factory tCMFactory;
 
-        std::shared_ptr< fem::Constitutive_Model > tCMMaster1 =
+        std::shared_ptr< fem::Constitutive_Model > tCMLeader1 =
                 tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-        tCMMaster1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tCMMaster1->set_property( tPropMaster2, "Conductivity" );
-        tCMMaster1->set_space_dim( 3 );
-        tCMMaster1->set_local_properties();
+        tCMLeader1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tCMLeader1->set_property( tPropLeader2, "Conductivity" );
+        tCMLeader1->set_space_dim( 3 );
+        tCMLeader1->set_local_properties();
 
-        std::shared_ptr< fem::Constitutive_Model > tCMSlave1 =
+        std::shared_ptr< fem::Constitutive_Model > tCMFollower1 =
                 tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-        tCMSlave1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tCMSlave1->set_property( tPropSlave2, "Conductivity" );
-        tCMSlave1->set_space_dim( 3 );
-        tCMSlave1->set_local_properties();
+        tCMFollower1->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tCMFollower1->set_property( tPropFollower2, "Conductivity" );
+        tCMFollower1->set_space_dim( 3 );
+        tCMFollower1->set_local_properties();
 
-        // create master dof field interpolators
+        // create leader dof field interpolators
         uint tNumberOfFields = 1;
-        Cell< Field_Interpolator* > tMasterDofFI( 4, nullptr );
-        tMasterDofFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::TEMP } );
-        tMasterDofFI( 2 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::LS1 } );
-        tMasterDofFI( 3 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::VX } );
+        Cell< Field_Interpolator* > tLeaderDofFI( 4, nullptr );
+        tLeaderDofFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::TEMP } );
+        tLeaderDofFI( 2 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::LS1 } );
+        tLeaderDofFI( 3 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::VX } );
 
-//        // create master dv field interpolators
-//        Cell< Field_Interpolator* > tMasterDvFI( 3, nullptr );
-//        tMasterDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::DENSITY } );
-//        tMasterDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::LS1 } );
-//        tMasterDvFI( 2 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::LS2 } );
+//        // create leader dv field interpolators
+//        Cell< Field_Interpolator* > tLeaderDvFI( 3, nullptr );
+//        tLeaderDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::DENSITY } );
+//        tLeaderDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::LS1 } );
+//        tLeaderDvFI( 2 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::LS2 } );
 
-//        // create slave dof field interpolators
-//        Cell< Field_Interpolator* > tSlaveDofFI( 4, nullptr );
-//        tSlaveDofFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::UX } );
-//        tSlaveDofFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::TEMP } );
-//        tSlaveDofFI( 2 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::LS1 } );
+//        // create follower dof field interpolators
+//        Cell< Field_Interpolator* > tFollowerDofFI( 4, nullptr );
+//        tFollowerDofFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::UX } );
+//        tFollowerDofFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::TEMP } );
+//        tFollowerDofFI( 2 ) = new Field_Interpolator ( tNumberOfFields, { MSI::Dof_Type::LS1 } );
 
-//        // create slave dv field interpolators
-//        Cell< Field_Interpolator* > tSlaveDvFI( 2, nullptr );
-//        tSlaveDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::LS1 } );
-//        tSlaveDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::LS2 } );
+//        // create follower dv field interpolators
+//        Cell< Field_Interpolator* > tFollowerDvFI( 2, nullptr );
+//        tFollowerDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::LS1 } );
+//        tFollowerDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields, { PDV_Type::LS2 } );
 
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
 
         std::shared_ptr< moris::fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWG->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-        tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-        tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP },{ MSI::Dof_Type::UX }}, mtk::Master_Slave::SLAVE );
-        //tIWG->set_dv_type_list( {{ PDV_Type::DENSITY }, {PDV_Type::LS1 }}, mtk::Master_Slave::MASTER );
-        //tIWG->set_dv_type_list( {{PDV_Type::LS1 }}, mtk::Master_Slave::SLAVE );
-        tIWG->set_constitutive_model( tCMMaster1, "Diffusion", mtk::Master_Slave::MASTER );
-        //tIWG->set_constitutive_model( tCMSlave1, "Diffusion", mtk::Master_Slave::SLAVE );
-        tIWG->set_property( tPropMaster1, "Load", mtk::Master_Slave::MASTER );
-        //tIWG->set_property( tPropSlave1, "Load", mtk::Master_Slave::SLAVE );
+        tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Leader_Follower::LEADER );
+        tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP },{ MSI::Dof_Type::UX }}, mtk::Leader_Follower::FOLLOWER );
+        //tIWG->set_dv_type_list( {{ PDV_Type::DENSITY }, {PDV_Type::LS1 }}, mtk::Leader_Follower::LEADER );
+        //tIWG->set_dv_type_list( {{PDV_Type::LS1 }}, mtk::Leader_Follower::FOLLOWER );
+        tIWG->set_constitutive_model( tCMLeader1, "Diffusion", mtk::Leader_Follower::LEADER );
+        //tIWG->set_constitutive_model( tCMFollower1, "Diffusion", mtk::Leader_Follower::FOLLOWER );
+        tIWG->set_property( tPropLeader1, "Load", mtk::Leader_Follower::LEADER );
+        //tIWG->set_property( tPropFollower1, "Load", mtk::Leader_Follower::FOLLOWER );
 
-        tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP },{ MSI::Dof_Type::LS1},{ MSI::Dof_Type::VX}};
-        //tIWG->mRequestedSlaveGlobalDofTypes = {{ MSI::Dof_Type::UX },{ MSI::Dof_Type::TEMP},{ MSI::Dof_Type::LS1}};
+        tIWG->mRequestedLeaderGlobalDofTypes = {{ MSI::Dof_Type::TEMP },{ MSI::Dof_Type::LS1},{ MSI::Dof_Type::VX}};
+        //tIWG->mRequestedFollowerGlobalDofTypes = {{ MSI::Dof_Type::UX },{ MSI::Dof_Type::TEMP},{ MSI::Dof_Type::LS1}};
         MSI::Equation_Set * tSet = new fem::Set();
 
         static_cast<fem::Set*>(tSet)->set_set_type( fem::Element_Type::BULK );
@@ -136,99 +136,99 @@ namespace moris
         tIWG->mSet->mUniqueDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
         tIWG->mSet->mUniqueDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 3;
 
-        tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-        tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
-        tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 1;
-        tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
-        tIWG->mSet->mMasterDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 3;
+        tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+        tIWG->mSet->mLeaderDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
+        tIWG->mSet->mLeaderDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 1;
+        tIWG->mSet->mLeaderDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
+        tIWG->mSet->mLeaderDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 3;
 
-//        tIWG->mSet->mSlaveDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-//        tIWG->mSet->mSlaveDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
-//        tIWG->mSet->mSlaveDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 1;
-//        tIWG->mSet->mSlaveDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
-//        tIWG->mSet->mSlaveDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 3;
+//        tIWG->mSet->mFollowerDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+//        tIWG->mSet->mFollowerDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
+//        tIWG->mSet->mFollowerDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 1;
+//        tIWG->mSet->mFollowerDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
+//        tIWG->mSet->mFollowerDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 3;
 
         tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
 
         moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
         Field_Interpolator_Manager tFIManager( tDummy, tSet );
-        tFIManager.mFI = tMasterDofFI;
-//        tFIManager.mSlaveFI = tSlaveDofFI;
+        tFIManager.mFI = tLeaderDofFI;
+//        tFIManager.mFollowerFI = tFollowerDofFI;
 
-        // build master and slave global dof type list
+        // build leader and follower global dof type list
         tIWG->get_global_dof_type_list();
 
         // set IWG field interpolators
-        tIWG->mMasterFIManager = &tFIManager;
+        tIWG->mLeaderFIManager = &tFIManager;
 //
-//        // build master and slave global dv type list
+//        // build leader and follower global dv type list
 //        tIWG->build_global_dv_type_list();
 //
-//        // set IWG master and slave dv field interpolators
-//        tIWG->set_dv_field_interpolators( tMasterDvFI );
-//        tIWG->set_dv_field_interpolators( tSlaveDvFI, mtk::Master_Slave::SLAVE );
+//        // set IWG leader and follower dv field interpolators
+//        tIWG->set_dv_field_interpolators( tLeaderDvFI );
+//        tIWG->set_dv_field_interpolators( tFollowerDvFI, mtk::Leader_Follower::FOLLOWER );
 
         // dof check--------------------------------------------------------------------
-        // check master global dof list size
-        CHECK( equal_to( tIWG->mMasterGlobalDofTypes.size(), 3 ));
+        // check leader global dof list size
+        CHECK( equal_to( tIWG->mLeaderGlobalDofTypes.size(), 3 ));
 
-        // check master global dof list content
-        CHECK( equal_to( static_cast< uint >( tIWG->mMasterGlobalDofTypes( 0 )( 0 ) ), 3 ) );
-        CHECK( equal_to( static_cast< uint >( tIWG->mMasterGlobalDofTypes( 1 )( 0 ) ), 14 ) );
-        CHECK( equal_to( static_cast< uint >( tIWG->mMasterGlobalDofTypes( 2 )( 0 ) ), 6 ) );
+        // check leader global dof list content
+        CHECK( equal_to( static_cast< uint >( tIWG->mLeaderGlobalDofTypes( 0 )( 0 ) ), 3 ) );
+        CHECK( equal_to( static_cast< uint >( tIWG->mLeaderGlobalDofTypes( 1 )( 0 ) ), 14 ) );
+        CHECK( equal_to( static_cast< uint >( tIWG->mLeaderGlobalDofTypes( 2 )( 0 ) ), 6 ) );
 
-//        // check slave global dof list size
-//        CHECK( equal_to( tIWG->mSlaveGlobalDofTypes.size(), 3 ));
+//        // check follower global dof list size
+//        CHECK( equal_to( tIWG->mFollowerGlobalDofTypes.size(), 3 ));
 //
-//        // check slave global dof list content
-//        CHECK( equal_to( static_cast< uint >( tIWG->mSlaveGlobalDofTypes( 0 )( 0 ) ), 3 ) );
-//        CHECK( equal_to( static_cast< uint >( tIWG->mSlaveGlobalDofTypes( 1 )( 0 ) ), 0 ) );
-//        CHECK( equal_to( static_cast< uint >( tIWG->mSlaveGlobalDofTypes( 2 )( 0 ) ), 6 ) );
+//        // check follower global dof list content
+//        CHECK( equal_to( static_cast< uint >( tIWG->mFollowerGlobalDofTypes( 0 )( 0 ) ), 3 ) );
+//        CHECK( equal_to( static_cast< uint >( tIWG->mFollowerGlobalDofTypes( 1 )( 0 ) ), 0 ) );
+//        CHECK( equal_to( static_cast< uint >( tIWG->mFollowerGlobalDofTypes( 2 )( 0 ) ), 6 ) );
 
         // check dof field interpolators
         tIWG->check_field_interpolators();
-        tIWG->check_field_interpolators( mtk::Master_Slave::SLAVE );
+        tIWG->check_field_interpolators( mtk::Leader_Follower::FOLLOWER );
 
 //        // dv check---------------------------------------------------------------------
-//        // check master global dv list size
-//        CHECK( equal_to( tIWG->mMasterGlobalDvTypes.size(), 3 ));
+//        // check leader global dv list size
+//        CHECK( equal_to( tIWG->mLeaderGlobalDvTypes.size(), 3 ));
 //
-//        // check master global dv list content
-//        CHECK( equal_to( static_cast< uint >( tIWG->mMasterGlobalDvTypes( 0 )( 0 ) ), 2 ) );
-//        CHECK( equal_to( static_cast< uint >( tIWG->mMasterGlobalDvTypes( 1 )( 0 ) ), 0 ) );
-//        CHECK( equal_to( static_cast< uint >( tIWG->mMasterGlobalDvTypes( 2 )( 0 ) ), 1 ) );
+//        // check leader global dv list content
+//        CHECK( equal_to( static_cast< uint >( tIWG->mLeaderGlobalDvTypes( 0 )( 0 ) ), 2 ) );
+//        CHECK( equal_to( static_cast< uint >( tIWG->mLeaderGlobalDvTypes( 1 )( 0 ) ), 0 ) );
+//        CHECK( equal_to( static_cast< uint >( tIWG->mLeaderGlobalDvTypes( 2 )( 0 ) ), 1 ) );
 //
-//        // check slave global dv list size
-//        CHECK( equal_to( tIWG->mSlaveGlobalDvTypes.size(), 2 ));
+//        // check follower global dv list size
+//        CHECK( equal_to( tIWG->mFollowerGlobalDvTypes.size(), 2 ));
 //
-//        // check master global dv list content
-//        CHECK( equal_to( static_cast< uint >( tIWG->mSlaveGlobalDvTypes( 0 )( 0 ) ), 0 ) );
-//        CHECK( equal_to( static_cast< uint >( tIWG->mSlaveGlobalDvTypes( 1 )( 0 ) ), 1 ) );
+//        // check leader global dv list content
+//        CHECK( equal_to( static_cast< uint >( tIWG->mFollowerGlobalDvTypes( 0 )( 0 ) ), 0 ) );
+//        CHECK( equal_to( static_cast< uint >( tIWG->mFollowerGlobalDvTypes( 1 )( 0 ) ), 1 ) );
 //
 //        // check dv field interpolators
 //        tIWG->check_dv_field_interpolators();
-//        tIWG->check_dv_field_interpolators( mtk::Master_Slave::SLAVE );
+//        tIWG->check_dv_field_interpolators( mtk::Leader_Follower::FOLLOWER );
 
         // clean up---------------------------------------------------------------------
         // delete the dof field interpolator pointers
-        tMasterDofFI.clear();
+        tLeaderDofFI.clear();
 
 //        // delete the dof field interpolator pointers
-//        tSlaveDofFI.clear();
+//        tFollowerDofFI.clear();
 
         // delete the dv field interpolator pointers
-//        for( Field_Interpolator* tFI : tMasterDvFI )
+//        for( Field_Interpolator* tFI : tLeaderDvFI )
 //        {
 //            delete tFI;
 //        }
-//        tMasterDvFI.clear();
+//        tLeaderDvFI.clear();
 
         // delete the dv field interpolator pointers
-//        for( Field_Interpolator* tFI : tSlaveDvFI )
+//        for( Field_Interpolator* tFI : tFollowerDvFI )
 //        {
 //            delete tFI;
 //        }
-//        tSlaveDvFI.clear();
+//        tFollowerDvFI.clear();
 
         delete (tSet);
 

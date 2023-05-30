@@ -86,7 +86,7 @@ namespace moris
         {
             // get field interpolator for a given dof type
             Field_Interpolator* tFI =
-                    mMasterEigenFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ), mEigenVectorIndex );
+                    mLeaderEigenFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ), mEigenVectorIndex );
 
             // check that field interpolator exists
             MORIS_ASSERT( tFI != nullptr,

@@ -38,39 +38,39 @@ namespace moris
         void IWG_Ghost_Normal_Field::compute_residual( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master and slave field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
+            // check leader and follower field interpolators
+            this->check_field_interpolators( mtk::Leader_Follower::LEADER );
+            this->check_field_interpolators( mtk::Leader_Follower::FOLLOWER );
 #endif
 
             // set interpolation order
             IWG::set_interpolation_order();
 
-            // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type, indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
-            // get slave index for residual dof type, indices for assembly
-            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
-            uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
-            uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
+            // get follower index for residual dof type, indices for assembly
+            uint tFollowerDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
+            uint tFollowerResStartIndex = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
+            uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
-            // get the master field interpolator for residual dof type
-            Field_Interpolator * tFIMaster =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            // get the leader field interpolator for residual dof type
+            Field_Interpolator * tFILeader =
+                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
-            // get the slave field interpolator for residual dof type
-            Field_Interpolator * tFISlave  =
-                    mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            // get the follower field interpolator for residual dof type
+            Field_Interpolator * tFIFollower  =
+                    mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the stabilization parameter
             std::shared_ptr< Stabilization_Parameter > & tSP =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_SP ) );
 
             // get the part of the matrix to assemble into
-            auto tMasterRes = mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } );
-            auto tSlaveRes  = mSet->get_residual()( 0 )( { tSlaveResStartIndex,  tSlaveResStopIndex  }, { 0, 0 } );
+            auto tLeaderRes = mSet->get_residual()( 0 )( { tLeaderResStartIndex, tLeaderResStopIndex }, { 0, 0 } );
+            auto tFollowerRes  = mSet->get_residual()( 0 )( { tFollowerResStartIndex,  tFollowerResStopIndex  }, { 0, 0 } );
 
             // loop over the interpolation order
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
@@ -84,19 +84,19 @@ namespace moris
 
                 // premultiply common terms
                 Matrix< DDRMat > tPreMultiply = vectorize(
-                        tSP->val()( 0 ) * tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) ) );
+                        tSP->val()( 0 ) * tFlatNormal * ( tFILeader->gradx( iOrder ) - tFIFollower->gradx( iOrder ) ) );
 
-                // get flattened directional derivatives for master and slave
-                Matrix< DDRMat > tMasterdNdxFlat;
-                this->compute_flat_dnNdxn( tMasterdNdxFlat, iOrder, mtk::Master_Slave::MASTER );
-                Matrix< DDRMat > tSlavedNdxFlat;
-                this->compute_flat_dnNdxn( tSlavedNdxFlat, iOrder, mtk::Master_Slave::SLAVE );
+                // get flattened directional derivatives for leader and follower
+                Matrix< DDRMat > tLeaderdNdxFlat;
+                this->compute_flat_dnNdxn( tLeaderdNdxFlat, iOrder, mtk::Leader_Follower::LEADER );
+                Matrix< DDRMat > tFollowerdNdxFlat;
+                this->compute_flat_dnNdxn( tFollowerdNdxFlat, iOrder, mtk::Leader_Follower::FOLLOWER );
 
-                // compute master residual
-                tMasterRes += aWStar * ( tMasterdNdxFlat * tPreMultiply );
+                // compute leader residual
+                tLeaderRes += aWStar * ( tLeaderdNdxFlat * tPreMultiply );
 
-                // compute slave residual
-                tSlaveRes -= aWStar * ( tSlavedNdxFlat * tPreMultiply );
+                // compute follower residual
+                tFollowerRes -= aWStar * ( tFollowerdNdxFlat * tPreMultiply );
             }
 
             // check for nan, infinity
@@ -109,39 +109,39 @@ namespace moris
         void IWG_Ghost_Normal_Field::compute_jacobian( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master and slave field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
+            // check leader and follower field interpolators
+            this->check_field_interpolators( mtk::Leader_Follower::LEADER );
+            this->check_field_interpolators( mtk::Leader_Follower::FOLLOWER );
 #endif
 
             // set interpolation order
             IWG::set_interpolation_order();
 
-            // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type, indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
-            // get slave index for residual dof type, indices for assembly
-            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
-            uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
-            uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
+            // get follower index for residual dof type, indices for assembly
+            uint tFollowerDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
+            uint tFollowerResStartIndex = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
+            uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
-            // get the master field interpolator for residual dof type
-            Field_Interpolator * tFIMaster =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            // get the leader field interpolator for residual dof type
+            Field_Interpolator * tFILeader =
+                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
-            // get the slave field interpolator for residual dof type
-            Field_Interpolator * tFISlave  =
-                    mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            // get the follower field interpolator for residual dof type
+            Field_Interpolator * tFIFollower  =
+                    mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the stabilization parameter
             std::shared_ptr< Stabilization_Parameter > & tSP =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::GHOST_SP ) );
 
-            // get number of master and slave dependencies
-            uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
-            uint tSlaveNumDofDependencies  = mRequestedSlaveGlobalDofTypes.size();
+            // get number of leader and follower dependencies
+            uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tFollowerNumDofDependencies  = mRequestedFollowerGlobalDofTypes.size();
 
             // loop over the interpolation orders
             for ( uint iOrder = 1; iOrder <= mOrder; iOrder++ )
@@ -153,35 +153,35 @@ namespace moris
                 Matrix< DDRMat > tFlatNormal;
                 this->get_flat_normal_matrix( tFlatNormal, iOrder );
 
-                // get flattened directional derivatives for master and slave
-                Matrix< DDRMat > tMasterdNdxFlat;
-                this->compute_flat_dnNdxn( tMasterdNdxFlat, iOrder, mtk::Master_Slave::MASTER );
-                Matrix< DDRMat > tSlavedNdxFlat;
-                this->compute_flat_dnNdxn( tSlavedNdxFlat, iOrder, mtk::Master_Slave::SLAVE );
+                // get flattened directional derivatives for leader and follower
+                Matrix< DDRMat > tLeaderdNdxFlat;
+                this->compute_flat_dnNdxn( tLeaderdNdxFlat, iOrder, mtk::Leader_Follower::LEADER );
+                Matrix< DDRMat > tFollowerdNdxFlat;
+                this->compute_flat_dnNdxn( tFollowerdNdxFlat, iOrder, mtk::Leader_Follower::FOLLOWER );
 
-                // compute the jacobian for indirect dof dependencies through master
-                for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
+                // compute the jacobian for indirect dof dependencies through leader
+                for( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
                 {
                     // get the dof type
-                    Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                    Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                     // get the index for the dof type
-                    sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                    uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                    uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                    sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                    uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 0 );
+                    uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
 
                     // get the part of the Jacobian to assemble into
-                    auto tJacMasterMaster = mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },  { tMasterDepStartIndex, tMasterDepStopIndex } );
-                    auto tJacSlaveMaster  = mSet->get_jacobian()( { tSlaveResStartIndex,  tSlaveResStopIndex  },  { tMasterDepStartIndex, tMasterDepStopIndex } );
+                    auto tJacLeaderLeader = mSet->get_jacobian()( { tLeaderResStartIndex, tLeaderResStopIndex },  { tLeaderDepStartIndex, tLeaderDepStopIndex } );
+                    auto tJacFollowerLeader  = mSet->get_jacobian()( { tFollowerResStartIndex,  tFollowerResStopIndex  },  { tLeaderDepStartIndex, tLeaderDepStopIndex } );
 
                     // compute jacobian direct dependencies
                     if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                     {
                         // dRM/dM
-                        tJacMasterMaster += aWStar * ( tMasterdNdxFlat * tSP->val()( 0 ) * trans( tMasterdNdxFlat ) );
+                        tJacLeaderLeader += aWStar * ( tLeaderdNdxFlat * tSP->val()( 0 ) * trans( tLeaderdNdxFlat ) );
 
                         // dRS/dM
-                        tJacSlaveMaster -= aWStar * ( tSlavedNdxFlat * tSP->val()( 0 ) * trans( tMasterdNdxFlat ) );
+                        tJacFollowerLeader -= aWStar * ( tFollowerdNdxFlat * tSP->val()( 0 ) * trans( tLeaderdNdxFlat ) );
                     }
 
                     // if stabilization parameter dependency on the dof type
@@ -189,40 +189,40 @@ namespace moris
                     {
                         // premultiply common terms
                         Matrix< DDRMat > tPreMultiply = vectorize(
-                                tFlatNormal * ( tFIMaster->gradx( iOrder ) - tFISlave->gradx( iOrder ) ) );
+                                tFlatNormal * ( tFILeader->gradx( iOrder ) - tFIFollower->gradx( iOrder ) ) );
 
-                        tPreMultiply = tPreMultiply * tSP->dSPdMasterDOF( tDofType );
+                        tPreMultiply = tPreMultiply * tSP->dSPdLeaderDOF( tDofType );
 
                         // add contribution to jacobian
-                        tJacMasterMaster += aWStar * ( tMasterdNdxFlat * tPreMultiply );
+                        tJacLeaderLeader += aWStar * ( tLeaderdNdxFlat * tPreMultiply );
 
-                        tJacSlaveMaster -= aWStar * ( tSlavedNdxFlat  * tPreMultiply );
+                        tJacFollowerLeader -= aWStar * ( tFollowerdNdxFlat  * tPreMultiply );
                     }
                 }
 
-                // compute the jacobian for indirect dof dependencies through slave
-                for( uint iDOF = 0; iDOF < tSlaveNumDofDependencies; iDOF++ )
+                // compute the jacobian for indirect dof dependencies through follower
+                for( uint iDOF = 0; iDOF < tFollowerNumDofDependencies; iDOF++ )
                 {
                     // get the dof type
-                    Cell< MSI::Dof_Type > tDofType = mRequestedSlaveGlobalDofTypes( iDOF );
+                    Cell< MSI::Dof_Type > tDofType = mRequestedFollowerGlobalDofTypes( iDOF );
 
                     // get the index for the dof type
-                    sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::SLAVE );
-                    uint tSlaveDepStartIndex = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 0 );
-                    uint tSlaveDepStopIndex  = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 1 );
+                    sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );
+                    uint tFollowerDepStartIndex = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tDofDepIndex, 0 );
+                    uint tFollowerDepStopIndex  = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tDofDepIndex, 1 );
 
                     // get the part of the Jacobian to assemble into
-                    auto tJacMasterSlave = mSet->get_jacobian()( { tMasterResStartIndex, tMasterResStopIndex },  { tSlaveDepStartIndex,  tSlaveDepStopIndex } );
-                    auto tJacSlaveSlave  = mSet->get_jacobian()( { tSlaveResStartIndex,  tSlaveResStopIndex  },  { tSlaveDepStartIndex,  tSlaveDepStopIndex } );
+                    auto tJacLeaderFollower = mSet->get_jacobian()( { tLeaderResStartIndex, tLeaderResStopIndex },  { tFollowerDepStartIndex,  tFollowerDepStopIndex } );
+                    auto tJacFollowerFollower  = mSet->get_jacobian()( { tFollowerResStartIndex,  tFollowerResStopIndex  },  { tFollowerDepStartIndex,  tFollowerDepStopIndex } );
 
                     // compute jacobian direct dependencies
                     if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                     {
                         // dRM/dS
-                        tJacMasterSlave -= aWStar * ( tMasterdNdxFlat * tSP->val()( 0 ) * trans( tSlavedNdxFlat ) );
+                        tJacLeaderFollower -= aWStar * ( tLeaderdNdxFlat * tSP->val()( 0 ) * trans( tFollowerdNdxFlat ) );
 
                         // dRS/dS
-                        tJacSlaveSlave += aWStar * ( tSlavedNdxFlat * tSP->val()( 0 ) * trans( tSlavedNdxFlat ) );
+                        tJacFollowerFollower += aWStar * ( tFollowerdNdxFlat * tSP->val()( 0 ) * trans( tFollowerdNdxFlat ) );
                     }
                 }
             }
@@ -401,7 +401,7 @@ namespace moris
         void IWG_Ghost_Normal_Field::compute_flat_dnNdxn(
                 Matrix< DDRMat >  & aFlatdnNdxn,
                 uint                aOrder,
-                mtk::Master_Slave   aIsMaster )
+                mtk::Leader_Follower   aIsLeader )
         {
             // get flattened normal
             Matrix< DDRMat > tFlatNormal;
@@ -409,7 +409,7 @@ namespace moris
 
             // get the residual dof type FI
             Field_Interpolator * tFIResidual =
-                    this->get_field_interpolator_manager( aIsMaster )->
+                    this->get_field_interpolator_manager( aIsLeader )->
                     get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get number of fields

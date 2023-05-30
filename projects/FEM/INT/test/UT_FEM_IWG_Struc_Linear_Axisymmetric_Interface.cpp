@@ -69,21 +69,21 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
     // init IWG
     //------------------------------------------------------------------------------
     // create the properties
-    std::shared_ptr< fem::Property > tPropMasterEMod = std::make_shared< fem::Property > ();
-    tPropMasterEMod->set_parameters( {{{ 10.0 }}} );
-    tPropMasterEMod->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderEMod = std::make_shared< fem::Property > ();
+    tPropLeaderEMod->set_parameters( {{{ 10.0 }}} );
+    tPropLeaderEMod->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropMasterNu = std::make_shared< fem::Property > ();
-    tPropMasterNu->set_parameters( {{{ 0.3 }}} );
-    tPropMasterNu->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropLeaderNu = std::make_shared< fem::Property > ();
+    tPropLeaderNu->set_parameters( {{{ 0.3 }}} );
+    tPropLeaderNu->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropSlaveEMod = std::make_shared< fem::Property > ();
-    tPropSlaveEMod->set_parameters( {{{ 20.0 }}} );
-    tPropSlaveEMod->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropFollowerEMod = std::make_shared< fem::Property > ();
+    tPropFollowerEMod->set_parameters( {{{ 20.0 }}} );
+    tPropFollowerEMod->set_val_function( tConstValFunc_Elast );
 
-    std::shared_ptr< fem::Property > tPropSlaveNu = std::make_shared< fem::Property > ();
-    tPropSlaveNu->set_parameters( {{{ 0.3 }}} );
-    tPropSlaveNu->set_val_function( tConstValFunc_Elast );
+    std::shared_ptr< fem::Property > tPropFollowerNu = std::make_shared< fem::Property > ();
+    tPropFollowerNu->set_parameters( {{{ 0.3 }}} );
+    tPropFollowerNu->set_val_function( tConstValFunc_Elast );
 
     std::shared_ptr< fem::Property > tRotAxisRadVec = std::make_shared< fem::Property >();
     tRotAxisRadVec->set_parameters( { {{ -4.0, 0}, {0, -4.0}} } );
@@ -92,23 +92,23 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderStrucLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    tCMMasterStrucLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
-    tCMMasterStrucLinIso->set_dof_type_list( tDispDofTypes );
-    tCMMasterStrucLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
-    tCMMasterStrucLinIso->set_property( tPropMasterNu, "PoissonRatio" );
-    tCMMasterStrucLinIso->set_property( tRotAxisRadVec, "AxisymRotationAxis" );
-    tCMMasterStrucLinIso->set_local_properties();
+    tCMLeaderStrucLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
+    tCMLeaderStrucLinIso->set_dof_type_list( tDispDofTypes );
+    tCMLeaderStrucLinIso->set_property( tPropLeaderEMod, "YoungsModulus" );
+    tCMLeaderStrucLinIso->set_property( tPropLeaderNu, "PoissonRatio" );
+    tCMLeaderStrucLinIso->set_property( tRotAxisRadVec, "AxisymRotationAxis" );
+    tCMLeaderStrucLinIso->set_local_properties();
 
-    std::shared_ptr< fem::Constitutive_Model > tCMSlaveStrucLinIso =
+    std::shared_ptr< fem::Constitutive_Model > tCMFollowerStrucLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    tCMSlaveStrucLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
-    tCMSlaveStrucLinIso->set_dof_type_list( tDispDofTypes );
-    tCMSlaveStrucLinIso->set_property( tPropSlaveEMod, "YoungsModulus" );
-    tCMSlaveStrucLinIso->set_property( tPropSlaveNu, "PoissonRatio" );
-    tCMSlaveStrucLinIso->set_property( tRotAxisRadVec, "AxisymRotationAxis" );
-    tCMSlaveStrucLinIso->set_local_properties();
+    tCMFollowerStrucLinIso->set_model_type( fem::Model_Type::AXISYMMETRIC );
+    tCMFollowerStrucLinIso->set_dof_type_list( tDispDofTypes );
+    tCMFollowerStrucLinIso->set_property( tPropFollowerEMod, "YoungsModulus" );
+    tCMFollowerStrucLinIso->set_property( tPropFollowerNu, "PoissonRatio" );
+    tCMFollowerStrucLinIso->set_property( tRotAxisRadVec, "AxisymRotationAxis" );
+    tCMFollowerStrucLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -116,8 +116,8 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface =
             tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
     tSPNitscheInterface->set_parameters( { {{ 100.0 }} } );
-    tSPNitscheInterface->set_property( tPropMasterEMod, "Material", mtk::Master_Slave::MASTER );
-    tSPNitscheInterface->set_property( tPropSlaveEMod, "Material", mtk::Master_Slave::SLAVE );
+    tSPNitscheInterface->set_property( tPropLeaderEMod, "Material", mtk::Leader_Follower::LEADER );
+    tSPNitscheInterface->set_property( tPropFollowerEMod, "Material", mtk::Leader_Follower::FOLLOWER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -129,10 +129,10 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( tDispDofTypes );
-    tIWG->set_dof_type_list( tDispDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_dof_type_list( tDispDofTypes, mtk::Master_Slave::SLAVE );
-    tIWG->set_constitutive_model( tCMMasterStrucLinIso, "ElastLinIso", mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMSlaveStrucLinIso, "ElastLinIso", mtk::Master_Slave::SLAVE );
+    tIWG->set_dof_type_list( tDispDofTypes, mtk::Leader_Follower::LEADER );
+    tIWG->set_dof_type_list( tDispDofTypes, mtk::Leader_Follower::FOLLOWER );
+    tIWG->set_constitutive_model( tCMLeaderStrucLinIso, "ElastLinIso", mtk::Leader_Follower::LEADER );
+    tIWG->set_constitutive_model( tCMFollowerStrucLinIso, "ElastLinIso", mtk::Leader_Follower::FOLLOWER );
     tIWG->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
     tIWG->set_property( tRotAxisRadVec, "Thickness" );
 
@@ -150,13 +150,13 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
-    // set size and populate the set slave dof type map
-    tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    // set size and populate the set follower dof type map
+    tIWG->mSet->mFollowerDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mFollowerDofTypeMap ( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 3; iSpaceDim++ )
@@ -167,8 +167,8 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
         tIWG->set_normal( tNormal );
 
         // set space dim for CM
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
-        tCMSlaveStrucLinIso->set_space_dim( iSpaceDim );
+        tCMLeaderStrucLinIso->set_space_dim( iSpaceDim );
+        tCMFollowerStrucLinIso->set_space_dim( iSpaceDim );
         tSPNitscheInterface->set_space_dim( iSpaceDim );
 
         // set geometry inputs
@@ -255,27 +255,27 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatDisp;
-            fill_uhat_Elast( tMasterDOFHatDisp, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatDisp;
+            fill_uhat_Elast( tLeaderDOFHatDisp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDispDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDispDofTypes.size() );
 
             // create the field interpolator displacement
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatDisp );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatDisp );
 
-            // fill random coefficients for slave FI
-            Matrix< DDRMat > tSlaveDOFHatDisp;
-            fill_uhat_Elast( tSlaveDOFHatDisp, iSpaceDim, iInterpOrder );
+            // fill random coefficients for follower FI
+            Matrix< DDRMat > tFollowerDOFHatDisp;
+            fill_uhat_Elast( tFollowerDOFHatDisp, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tSlaveFIs( tDispDofTypes.size() );
+            Cell< Field_Interpolator* > tFollowerFIs( tDispDofTypes.size() );
 
             // create the field interpolator displacement
-            tSlaveFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
-            tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatDisp );
+            tFollowerFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
+            tFollowerFIs( 0 )->set_coeff( tFollowerDOFHatDisp );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 2 * tDispDofTypes.size() );
@@ -298,31 +298,31 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDispDofTypes;
-            tIWG->mRequestedSlaveGlobalDofTypes  = tDispDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDispDofTypes;
+            tIWG->mRequestedFollowerGlobalDofTypes  = tDispDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tMasterFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
-            Field_Interpolator_Manager tSlaveFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tLeaderFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tFollowerFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tMasterFIManager.mFI = tMasterFIs;
-            tMasterFIManager.mIPGeometryInterpolator = &tGI;
-            tMasterFIManager.mIGGeometryInterpolator = &tGI;
-            tSlaveFIManager.mFI = tSlaveFIs;
-            tSlaveFIManager.mIPGeometryInterpolator = &tGI;
-            tSlaveFIManager.mIGGeometryInterpolator = &tGI;
+            tLeaderFIManager.mFI = tLeaderFIs;
+            tLeaderFIManager.mIPGeometryInterpolator = &tGI;
+            tLeaderFIManager.mIGGeometryInterpolator = &tGI;
+            tFollowerFIManager.mFI = tFollowerFIs;
+            tFollowerFIManager.mIPGeometryInterpolator = &tGI;
+            tFollowerFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tMasterFIManager;
-            tIWG->mSet->mSlaveFIManager = &tSlaveFIManager;
+            tIWG->mSet->mLeaderFIManager = &tLeaderFIManager;
+            tIWG->mSet->mFollowerFIManager = &tFollowerFIManager;
 
             // set IWG field interpolator manager
-            tIWG->set_field_interpolator_manager( &tMasterFIManager, mtk::Master_Slave::MASTER );
-            tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
+            tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
+            tIWG->set_field_interpolator_manager( &tFollowerFIManager, mtk::Leader_Follower::FOLLOWER );
 
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
@@ -335,8 +335,8 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
-                tIWG->mSet->mSlaveFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mFollowerFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -375,8 +375,8 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
             }
 
             // clean up
-            tMasterFIs.clear();
-            tSlaveFIs.clear();
+            tLeaderFIs.clear();
+            tFollowerFIs.clear();
         }
     }
 }/* END_TEST_CASE */

@@ -24,7 +24,7 @@ namespace moris
         IWG_Spalart_Allmaras_Turbulence_Bulk::IWG_Spalart_Allmaras_Turbulence_Bulk()
         {
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "SpalartAllmarasTurbulence" ] = static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
@@ -41,22 +41,22 @@ namespace moris
         void
         IWG_Spalart_Allmaras_Turbulence_Bulk::compute_residual( real aWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type (here velocity), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type (here velocity), indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the residual viscosity FI
-            Field_Interpolator* tFIViscosity = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFIViscosity = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the SA turbulence CM
             const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
 
             // get the SUPG stabilization parameter
             const std::shared_ptr< Stabilization_Parameter >& tSPSUPG =
@@ -67,7 +67,7 @@ namespace moris
             this->compute_residual_strong_form( tR );
 
             // get sub-matrix of residual
-            auto tRes = mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex } );
+            auto tRes = mSet->get_residual()( 0 )( { tLeaderResStartIndex, tLeaderResStopIndex } );
 
             // compute the residual weak form
             tRes += aWStar
@@ -89,21 +89,21 @@ namespace moris
         IWG_Spalart_Allmaras_Turbulence_Bulk::compute_jacobian( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators
+            // check leader field interpolators
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type (here velocity), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type (here velocity), indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the residual viscosity FI
-            Field_Interpolator* tFIViscosity = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFIViscosity = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the SA turbulence CM
             const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
 
             // get the SUPG stabilization parameter
             const std::shared_ptr< Stabilization_Parameter >& tSPSUPG =
@@ -114,22 +114,22 @@ namespace moris
             this->compute_residual_strong_form( tR );
 
             // get number of dof dependencies
-            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
             // loop over the dof dependencies
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                const Cell< MSI::Dof_Type >& tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
-                const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                const uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                const uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                const uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 0 );
+                const uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
 
                 // extract sub-matrix
                 auto tJac = mSet->get_jacobian()(
-                        { tMasterResStartIndex, tMasterResStopIndex }, { tMasterDepStartIndex, tMasterDepStopIndex } );
+                        { tLeaderResStartIndex, tLeaderResStopIndex }, { tLeaderDepStartIndex, tLeaderDepStopIndex } );
 
                 // if residual dof type (here viscosity)
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
@@ -156,7 +156,7 @@ namespace moris
                 if ( tSPSUPG->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to jacobian
-                    tJac += aWStar * ( trans( tFIViscosity->dnNdxn( 1 ) ) * tCMSATurbulence->modified_velocity() * tR( 0 ) * tSPSUPG->dSPdMasterDOF( tDofType ) );
+                    tJac += aWStar * ( trans( tFIViscosity->dnNdxn( 1 ) ) * tCMSATurbulence->modified_velocity() * tR( 0 ) * tSPSUPG->dSPdLeaderDOF( tDofType ) );
                 }
 
                 // compute jacobian of the strong form
@@ -177,7 +177,7 @@ namespace moris
         IWG_Spalart_Allmaras_Turbulence_Bulk::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators
+            // check leader field interpolators
             this->check_field_interpolators();
 #endif
 
@@ -189,7 +189,7 @@ namespace moris
         IWG_Spalart_Allmaras_Turbulence_Bulk::compute_dRdp( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators, properties and constitutive models
+            // check leader field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 
@@ -202,11 +202,11 @@ namespace moris
         IWG_Spalart_Allmaras_Turbulence_Bulk::compute_residual_strong_form( Matrix< DDRMat >& aR )
         {
             // get the residual viscosity FI
-            Field_Interpolator* tFIViscosity = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFIViscosity = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the SA turbulence CM
             const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
 
             // compute strong form of residual
             aR = tFIViscosity->gradt( 1 )
@@ -227,14 +227,14 @@ namespace moris
                 Matrix< DDRMat >&                   aJ )
         {
             // get the residual viscosity FI
-            Field_Interpolator* tFIViscosity = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tFIViscosity = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the SA turbulence CM
             const std::shared_ptr< Constitutive_Model >& tCMSATurbulence =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
 
             // get the der FI
-            Field_Interpolator* tFIDer = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+            Field_Interpolator* tFIDer = mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init aJ
             aJ.set_size( 1, tFIDer->get_number_of_space_time_coefficients() );

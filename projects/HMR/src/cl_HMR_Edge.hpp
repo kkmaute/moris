@@ -46,8 +46,8 @@ namespace moris
           protected:
             // ----------------------------------------------------------------------------
 
-            // index on master
-            uint mIndexOfMaster;
+            // index on leader
+            uint mIndexOfLeader;
 
             // pointer with elements
             moris::Cell< Element* > mElements;
@@ -177,11 +177,11 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            Element* get_hmr_master();
+            Element* get_hmr_leader();
 
             // ----------------------------------------------------------------------------
 
-            uint get_index_on_master() const;
+            uint get_index_on_leader() const;
 
             // ----------------------------------------------------------------------------
 
@@ -201,7 +201,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            void find_master(
+            void find_leader(
                     Mesh_Base*       aMesh,
                     Background_Edge* aBackgroundEdge );
 

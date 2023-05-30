@@ -21,7 +21,7 @@ namespace moris
         IQI_J_Integral::IQI_J_Integral()
         {
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO );
@@ -45,9 +45,9 @@ namespace moris
              */
 
             // 2D
-            aQI = ( trans( mMasterCM( tElastLinIsoIndex )->flux() ) * mMasterCM( tElastLinIsoIndex )->strain() )*tN(0)
-                            - mMasterCM( tElastLinIsoIndex )->traction(tN)(0)*mMasterCM( tElastLinIsoIndex )->strain()(0)
-                            - mMasterCM( tElastLinIsoIndex )->traction(tN)(1)*mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX )->gradx(1)(1,0);  //FIXME: need to ask for displacement dof
+            aQI = ( trans( mLeaderCM( tElastLinIsoIndex )->flux() ) * mLeaderCM( tElastLinIsoIndex )->strain() )*tN(0)
+                            - mLeaderCM( tElastLinIsoIndex )->traction(tN)(0)*mLeaderCM( tElastLinIsoIndex )->strain()(0)
+                            - mLeaderCM( tElastLinIsoIndex )->traction(tN)(1)*mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX )->gradx(1)(1,0);  //FIXME: need to ask for displacement dof
 
         }
 
@@ -73,9 +73,9 @@ namespace moris
             // 2D
             // evaluate the QI
             mSet->get_QI()( tQIIndex ) += aWStar * (
-                    trans( mMasterCM( tElastLinIsoIndex )->flux() ) * mMasterCM( tElastLinIsoIndex )->strain() )*tN(0)
-                    - mMasterCM( tElastLinIsoIndex )->traction(tN)(0)*mMasterCM( tElastLinIsoIndex )->strain()(0)
-                    - mMasterCM( tElastLinIsoIndex )->traction(tN)(1)*mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX )->gradx(1)(1,0);  //FIXME: need to ask for displacement dof
+                    trans( mLeaderCM( tElastLinIsoIndex )->flux() ) * mLeaderCM( tElastLinIsoIndex )->strain() )*tN(0)
+                    - mLeaderCM( tElastLinIsoIndex )->traction(tN)(0)*mLeaderCM( tElastLinIsoIndex )->strain()(0)
+                    - mLeaderCM( tElastLinIsoIndex )->traction(tN)(1)*mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::UX )->gradx(1)(1,0);  //FIXME: need to ask for displacement dof
 
         }
 

@@ -40,7 +40,7 @@ namespace moris
             //---------------------------------------------------------------------------------------
 
             bool
-            is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
+            is_trivial( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const
             {
                 return mTrivial;
             }
@@ -48,7 +48,7 @@ namespace moris
             //---------------------------------------------------------------------------------------
 
             moris::Cell<moris::mtk::Cell const *> const &
-            get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
+            get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const
             {
                 return mPrimaryIntegrationCells;
             }
@@ -64,7 +64,7 @@ namespace moris
             //---------------------------------------------------------------------------------------
 
             moris::mtk::Cell const &
-            get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const
+            get_interpolation_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER) const
             {
                 return *mInterpolationCell;
             }
@@ -72,7 +72,7 @@ namespace moris
             //---------------------------------------------------------------------------------------
 
             moris::Cell<moris::mtk::Vertex const *>
-            get_vertices_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
+            get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const
             {
                 return mVerticesInCluster;
             }
@@ -80,7 +80,7 @@ namespace moris
             //---------------------------------------------------------------------------------------
 
             moris::Matrix<moris::DDRMat>
-            get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
+            get_vertices_local_coordinates_wrt_interp_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const
             {
                 return mVertexParamCoords;
             }
@@ -90,7 +90,7 @@ namespace moris
             moris::Matrix<moris::DDRMat>
             get_vertex_local_coordinate_wrt_interp_cell(
                     moris::mtk::Vertex const * aVertex,
-                    const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER) const
+                    const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER) const
             {
                 MORIS_ERROR(0,"get_vertex_local_coordinate_wrt_interp_cell not implemented in proxy cell cluster");
                 return moris::Matrix<moris::DDRMat>(0,0);
@@ -99,7 +99,7 @@ namespace moris
             //---------------------------------------------------------------------------------------
 
             moris_index
-            get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const
+            get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const
             {
                 return mVertexParamCoords.n_cols();
             }
@@ -109,7 +109,7 @@ namespace moris
             moris::real
             compute_cluster_cell_measure(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER) const
             {
                 moris::real tVolume = 0.0;
 
@@ -137,7 +137,7 @@ namespace moris
             Matrix<DDRMat>
             compute_cluster_ig_cell_measures(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER) const
             {
                 moris::Cell<moris::mtk::Cell const *> const* tCells = nullptr;
 
@@ -165,7 +165,7 @@ namespace moris
             moris::real
             compute_cluster_cell_side_measure(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER) const
             {
                 MORIS_ERROR(0,"compute_cluster_cell_side_measure only valid on side clusters");
                 return 0;
@@ -176,7 +176,7 @@ namespace moris
             Matrix<DDRMat>
             compute_cluster_ig_cell_side_measures(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER) const
             {
                 MORIS_ERROR(0,"compute_cluster_cell_side_measure only valid on side clusters");
                 return {{0}};

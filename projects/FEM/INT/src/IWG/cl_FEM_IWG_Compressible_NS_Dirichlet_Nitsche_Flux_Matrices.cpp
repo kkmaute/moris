@@ -44,10 +44,10 @@ namespace moris
             uint tNumSpaceDims = this->num_space_dims();
 
             // get the properties
-            std::shared_ptr< Property > tPropPrescDof1 = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_DOF_1 ) );
-            std::shared_ptr< Property > tPropPrescVel  = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_VELOCITY ) );
-            std::shared_ptr< Property > tPropSelectVel = mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT_VELOCITY ) );
-            std::shared_ptr< Property > tPropPrescDof3 = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_DOF_3 ) );
+            std::shared_ptr< Property > tPropPrescDof1 = mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_DOF_1 ) );
+            std::shared_ptr< Property > tPropPrescVel  = mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_VELOCITY ) );
+            std::shared_ptr< Property > tPropSelectVel = mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT_VELOCITY ) );
+            std::shared_ptr< Property > tPropPrescDof3 = mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_DOF_3 ) );
 
             // assemble field var vector and matrix based on number of spatial dimensions
             mJump.set_size( tNumSpaceDims + 2, 1, 0.0 );
@@ -69,7 +69,7 @@ namespace moris
             if ( tPropPrescDof1 != nullptr )
             {
                 // get field interpolator
-                Field_Interpolator * tFIFirstDofType =  mMasterFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 0 ) );
+                Field_Interpolator * tFIFirstDofType =  mLeaderFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 0 ) );
 
                 // compute jump term for velocity, if prescribed
                 mJump( 0 ) = tFIFirstDofType->val()( 0 ) - tPropPrescDof1->val()( 0 );
@@ -78,7 +78,7 @@ namespace moris
             if ( tPropPrescVel != nullptr )
             {
                 // get field interpolator
-                Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 1 ) );
+                Field_Interpolator * tFIVelocity =  mLeaderFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 1 ) );
 
                 // compute jump term for velocity, if prescribed
                 mJump( { 1, tNumSpaceDims } ) = tSelectVelMat * ( tFIVelocity->val() - tPropPrescVel->val() );
@@ -87,7 +87,7 @@ namespace moris
             if ( tPropPrescDof3 != nullptr )
             {
                 // get field interpolator
-                Field_Interpolator * tFIThirdDofType =  mMasterFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 2 ) );
+                Field_Interpolator * tFIThirdDofType =  mLeaderFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 2 ) );
 
                 // compute jump term for third Dof, if prescribed
                 mJump( tNumSpaceDims + 1 ) = tFIThirdDofType->val()( 0 ) - tPropPrescDof3->val()( 0 );
@@ -117,7 +117,7 @@ namespace moris
                     "IWG_Compressible_NS_Dirichlet_Nitsche::mJumpDofEval() - check for residual DoF types failed." );
 
             // check Dof dependencies
-            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ),
+            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedLeaderGlobalDofTypes ),
                     "IWG_Compressible_NS_Dirichlet_Nitsche::eval_dJumpdDOF() - List of Dof Dependencies not supported. See error messages above." );
 
             // get number of space dimensions
@@ -127,10 +127,10 @@ namespace moris
             uint tNumBases = this->num_bases();
 
             // get the properties
-            std::shared_ptr< Property > tPropPrescDof1 = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_DOF_1 ) );
-            std::shared_ptr< Property > tPropPrescVel  = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_VELOCITY ) );
-            std::shared_ptr< Property > tPropSelectVel = mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT_VELOCITY ) );
-            std::shared_ptr< Property > tPropPrescDof3 = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_DOF_3 ) );
+            std::shared_ptr< Property > tPropPrescDof1 = mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_DOF_1 ) );
+            std::shared_ptr< Property > tPropPrescVel  = mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_VELOCITY ) );
+            std::shared_ptr< Property > tPropSelectVel = mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT_VELOCITY ) );
+            std::shared_ptr< Property > tPropPrescDof3 = mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_DOF_3 ) );
 
             // assemble field var vector and matrix based on number of spatial dimensions
             mdJumpdDOF.set_size( tNumSpaceDims + 2, ( tNumSpaceDims + 2 ) * tNumBases, 0.0 );
@@ -152,7 +152,7 @@ namespace moris
             if ( tPropPrescDof1 != nullptr )
             {
                 // get field interpolator
-                Field_Interpolator * tFIFirstVar =  mMasterFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 0 ) );
+                Field_Interpolator * tFIFirstVar =  mLeaderFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 0 ) );
 
                 // direct dependency of the state variable
                 mdJumpdDOF( { 0, 0 }, { 0, tNumBases - 1 } ) =
@@ -163,7 +163,7 @@ namespace moris
             if ( tPropPrescVel != nullptr )
             {
                 // get field interpolator
-                Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 1 ) );
+                Field_Interpolator * tFIVelocity =  mLeaderFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 1 ) );
 
                 // direct dependency of the state variable
                 mdJumpdDOF( { 1, tNumSpaceDims }, { tNumBases, ( tNumSpaceDims + 1 ) * tNumBases - 1 } ) =
@@ -174,7 +174,7 @@ namespace moris
             if ( tPropPrescDof3 != nullptr )
             {
                 // get field interpolator
-                Field_Interpolator * tFIThirdVar =  mMasterFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 2 ) );
+                Field_Interpolator * tFIThirdVar =  mLeaderFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 2 ) );
 
                 // direct dependency of the state variable
                 mdJumpdDOF( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { ( tNumSpaceDims + 1 ) * tNumBases, ( tNumSpaceDims + 2 ) * tNumBases - 1 } ) =
@@ -182,16 +182,16 @@ namespace moris
             }
 
             // loop over dof dependencies and add contributions from property derivatives
-            for (uint iDof = 0; iDof < mRequestedMasterGlobalDofTypes.size(); iDof++)
+            for (uint iDof = 0; iDof < mRequestedLeaderGlobalDofTypes.size(); iDof++)
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDof );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDof );
 
                 // get index
-                uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( iDof )( 0 ), mtk::Master_Slave::MASTER );
-                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( iDof )( 0 ), mtk::Leader_Follower::LEADER );
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 0 );
+                uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
 
                 // first DoF type
                 if ( tPropPrescDof1 != nullptr )
@@ -199,7 +199,7 @@ namespace moris
                     if ( tPropPrescDof1->check_dof_dependency( tDofType ) )
                     {
                         // add contribution
-                        mdJumpdDOF( { 0, 0 }, { tMasterDepStartIndex, tMasterDepStopIndex } ) -=
+                        mdJumpdDOF( { 0, 0 }, { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -=
                                 tPropPrescDof1->dPropdDOF( tDofType ).matrix_data();
                     }
                 }
@@ -210,7 +210,7 @@ namespace moris
                     if ( tPropPrescVel->check_dof_dependency( tDofType ) )
                     {
                         // direct dependency of the state variable
-                        mdJumpdDOF( { 1, tNumSpaceDims }, { tMasterDepStartIndex, tMasterDepStopIndex } ) -=
+                        mdJumpdDOF( { 1, tNumSpaceDims }, { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -=
                                 tPropPrescVel->dPropdDOF( tDofType ).matrix_data();
                     }
                 }
@@ -221,7 +221,7 @@ namespace moris
                     if ( tPropPrescDof3->check_dof_dependency( tDofType ) )
                     {
                         // add contribution
-                        mdJumpdDOF( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { tMasterDepStartIndex, tMasterDepStopIndex } ) -=
+                        mdJumpdDOF( { tNumSpaceDims + 1, tNumSpaceDims + 1 }, { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -=
                                 tPropPrescDof3->dPropdDOF( tDofType ).matrix_data();
                     }
                 }
@@ -245,10 +245,10 @@ namespace moris
             mSelectMatrixEval = false;
 
             // get the properties
-            std::shared_ptr< Property > tPropPrescDof1 = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_DOF_1 ) );
-            std::shared_ptr< Property > tPropPrescVel  = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_VELOCITY ) );
-            std::shared_ptr< Property > tPropSelectVel = mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT_VELOCITY ) );
-            std::shared_ptr< Property > tPropPrescDof3 = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_DOF_3 ) );
+            std::shared_ptr< Property > tPropPrescDof1 = mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_DOF_1 ) );
+            std::shared_ptr< Property > tPropPrescVel  = mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_VELOCITY ) );
+            std::shared_ptr< Property > tPropSelectVel = mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT_VELOCITY ) );
+            std::shared_ptr< Property > tPropPrescDof3 = mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESCRIBED_DOF_3 ) );
 
             // get number of spatial dimensions
             uint tNumSpaceDims = this->num_space_dims();
@@ -345,8 +345,8 @@ namespace moris
             mTractionDofEval = false;
 
             // get the properties
-            std::shared_ptr< Property > tPropMu = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
-            std::shared_ptr< Property > tPropKappa = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
+            std::shared_ptr< Property > tPropMu = mLeaderProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
+            std::shared_ptr< Property > tPropKappa = mLeaderProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
 
             // number of state variables and total bases
             uint tNumStateVars = this->num_space_dims() + 2;
@@ -365,7 +365,7 @@ namespace moris
                 for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
                 {
                     // get dKij/dY * Y,j
-                    eval_dKdY_VR( tPropMu, tPropKappa, mMasterFIManager, this->dYdx( jDim ), iDim, jDim, dKijdY_dYdxj );
+                    eval_dKdY_VR( tPropMu, tPropKappa, mLeaderFIManager, this->dYdx( jDim ), iDim, jDim, dKijdY_dYdxj );
 
                     // add contribution
                     tTractionDOF += mNormal( iDim ) * ( dKijdY_dYdxj * this->W() + this->K( iDim, jDim ) * this->dWdx( jDim ) );
@@ -417,8 +417,8 @@ namespace moris
             auto tTestTractionDOF = mTestTractionDOF( { 0, tTotNumBases - 1 }, { 0, tTotNumBases - 1 } );
 
             // get the properties
-            std::shared_ptr< Property > tPropMu = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
-            std::shared_ptr< Property > tPropKappa = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
+            std::shared_ptr< Property > tPropMu = mLeaderProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
+            std::shared_ptr< Property > tPropKappa = mLeaderProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
 
             // initialize storage matrix for variable derivative of K
             Matrix< DDRMat > tdKdY_jump;
@@ -429,7 +429,7 @@ namespace moris
                 for ( uint jDim = 0; jDim < this->num_space_dims(); jDim++ )
                 {
                     // get dKij/dY * Y,j
-                    eval_VL_dKdY( tPropMu, tPropKappa, mMasterFIManager, aVL, iDim, jDim, tdKdY_jump );
+                    eval_VL_dKdY( tPropMu, tPropKappa, mLeaderFIManager, aVL, iDim, jDim, tdKdY_jump );
 
                     // add contribution
                     Matrix< DDRMat > tdTijdDOF = mNormal( iDim ) * trans( this->dWdx( jDim ) ) * tdKdY_jump * this->W();

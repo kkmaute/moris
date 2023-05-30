@@ -26,13 +26,13 @@ namespace moris
             mFEMIQIType = fem::IQI_Type::ADVECTION_STRONG_RESIDUAL;
 
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Load" ] = static_cast< uint >( IQI_Property_Type::BODY_LOAD );
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "Diffusion" ] = static_cast< uint >( IQI_Constitutive_Type::DIFFUSION );
@@ -43,15 +43,15 @@ namespace moris
         void IQI_Advection_Strong_Residual::compute_QI( Matrix< DDRMat > & aQI )
         {
             Field_Interpolator* tFIVelocity =
-                     mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+                     mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
              // get the diffusion CM
              const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
-                     mMasterCM( static_cast< uint >( IQI_Constitutive_Type::DIFFUSION ) );
+                     mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::DIFFUSION ) );
 
              // get body load property
              const std::shared_ptr< Property > & tPropLoad =
-                     mMasterProp( static_cast< uint >( IQI_Property_Type::BODY_LOAD ) );
+                     mLeaderProp( static_cast< uint >( IQI_Property_Type::BODY_LOAD ) );
 
              Matrix< DDRMat > tRT = tCMDiffusion->EnergyDot() +
                      tFIVelocity->val_trans() * tCMDiffusion->gradEnergy() -

@@ -30,7 +30,7 @@ namespace moris
             mFluxType = aFluxType;
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO );
@@ -41,7 +41,7 @@ namespace moris
         void IQI_Stress::compute_QI( Matrix< DDRMat > & aQI )
         {
             // check if dof index was set
-            if( ( mMasterDofTypes( 0 ).size() > 1 ) &&
+            if( ( mLeaderDofTypes( 0 ).size() > 1 ) &&
                     ( mStressType != Stress_Type::VON_MISES_STRESS ) && ( mStressType != Stress_Type::STRESS_VECTOR ) )
             {
                 MORIS_ERROR( mIQITypeIndex != -1,
@@ -88,7 +88,7 @@ namespace moris
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
             // check if dof index was set
-            if( ( mMasterDofTypes( 0 ).size() > 1 ) &&
+            if( ( mLeaderDofTypes( 0 ).size() > 1 ) &&
                     ( mStressType != Stress_Type::VON_MISES_STRESS ) && ( mStressType != Stress_Type::STRESS_VECTOR ) )
             {
                 MORIS_ERROR( mIQITypeIndex != -1,
@@ -172,7 +172,7 @@ namespace moris
 
             // switch between the 2D case and the 3D case
             // for 2D
-            if ( mMasterFIManager->get_IP_geometry_interpolator()->get_number_of_space_dimensions() == 2 )
+            if ( mLeaderFIManager->get_IP_geometry_interpolator()->get_number_of_space_dimensions() == 2 )
             {
                 switch ( aPrincipalStressIndex )
                 {
@@ -275,7 +275,7 @@ namespace moris
 
             // get stress vector from Constitutive model
             const Matrix< DDRMat >& tCMStress =
-                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) )->flux( mFluxType );
+                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) )->flux( mFluxType );
 
             // pull apart stress vector into components
             uint tNumStressComponents = tCMStress.length();
@@ -323,7 +323,7 @@ namespace moris
 
             //get the const. model pointer element corresponding to elasticity from the cell
             std::shared_ptr< fem::Constitutive_Model > & tCMElasticity =
-                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) );
+                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // obtain the model type
             Model_Type tModelType = tCMElasticity->get_plane_type();

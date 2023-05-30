@@ -130,12 +130,12 @@ TEST_CASE( "IWG_Compressible_NS_Boundary_Pressure_Primitive",
     // define constitutive model and assign properties
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterFluid =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_COMPRESSIBLE_NEWTONIAN );
-    tCMMasterFluid->set_dof_type_list( {tPressureDof, tVelocityDof, tTempDof } );
-    tCMMasterFluid->set_property( tPropViscosity,    "DynamicViscosity" );
-    tCMMasterFluid->set_property( tPropConductivity, "ThermalConductivity" );
-    tCMMasterFluid->set_material_model( tMMFluid, "ThermodynamicMaterialModel" );
+    tCMLeaderFluid->set_dof_type_list( {tPressureDof, tVelocityDof, tTempDof } );
+    tCMLeaderFluid->set_property( tPropViscosity,    "DynamicViscosity" );
+    tCMLeaderFluid->set_property( tPropConductivity, "ThermalConductivity" );
+    tCMLeaderFluid->set_material_model( tMMFluid, "ThermodynamicMaterialModel" );
 
     // define the IWGs
     fem::IWG_Factory tIWGFactory;
@@ -151,9 +151,9 @@ TEST_CASE( "IWG_Compressible_NS_Boundary_Pressure_Primitive",
         std::shared_ptr< fem::IWG > tIWG =
                 tIWGFactory.create_IWG( fem::IWG_Type::COMPRESSIBLE_NS_BOUNDARY );
         tIWG->set_residual_dof_type( tResidualDofTypes );
-        tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
+        tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
         tIWG->set_material_model( tMMFluid, "FluidMM" );
-        tIWG->set_constitutive_model( tCMMasterFluid, "FluidCM" );
+        tIWG->set_constitutive_model( tCMLeaderFluid, "FluidCM" );
 
         // test different configurations - prescribe pressure or traction
         switch ( iIWG )
@@ -192,11 +192,11 @@ TEST_CASE( "IWG_Compressible_NS_Boundary_Pressure_Primitive",
         tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
         tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
 
-        // set size and populate the set master dof type map
-        tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-        tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )     = 0;
-        tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
-        tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
+        // set size and populate the set leader dof type map
+        tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+        tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )     = 0;
+        tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )    = 1;
+        tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
 
         // loop on the space dimension
         for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -261,7 +261,7 @@ TEST_CASE( "IWG_Compressible_NS_Boundary_Pressure_Primitive",
             tIWG->set_normal( tNormal );
 
             // set space dimension to CM
-            tCMMasterFluid->set_space_dim( iSpaceDim );
+            tCMLeaderFluid->set_space_dim( iSpaceDim );
 
             // set prescribed Values
             tPropTraction->set_parameters( { tTraction } );
@@ -348,28 +348,28 @@ TEST_CASE( "IWG_Compressible_NS_Boundary_Pressure_Primitive",
                         mtk::Interpolation_Type::LAGRANGE,
                         mtk::Interpolation_Order::LINEAR );
 
-                // fill coefficients for master FI
-                Matrix< DDRMat > tMasterDOFHatP;
-                fill_RhoHat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
-                Matrix< DDRMat > tMasterDOFHatVel;
-                fill_UHat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-                Matrix< DDRMat > tMasterDOFHatTemp;
-                fill_TempHat( tMasterDOFHatTemp, iSpaceDim, iInterpOrder );
+                // fill coefficients for leader FI
+                Matrix< DDRMat > tLeaderDOFHatP;
+                fill_RhoHat( tLeaderDOFHatP, iSpaceDim, iInterpOrder );
+                Matrix< DDRMat > tLeaderDOFHatVel;
+                fill_UHat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+                Matrix< DDRMat > tLeaderDOFHatTemp;
+                fill_TempHat( tLeaderDOFHatTemp, iSpaceDim, iInterpOrder );
 
                 // create a cell of field interpolators for IWG
-                Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+                Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
                 // create the field interpolator density
-                tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPressureDof );
-                tMasterFIs( 0 )->set_coeff( tMasterDOFHatP );
+                tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPressureDof );
+                tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatP );
 
                 // create the field interpolator velocity
-                tMasterFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof );
-                tMasterFIs( 1 )->set_coeff( tMasterDOFHatVel );
+                tLeaderFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof );
+                tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatVel );
 
                 // create the field interpolator pressure
-                tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof );
-                tMasterFIs( 2 )->set_coeff( tMasterDOFHatTemp );
+                tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof );
+                tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatTemp );
 
                 // set size and fill the set residual assembly map
                 tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -401,8 +401,8 @@ TEST_CASE( "IWG_Compressible_NS_Boundary_Pressure_Primitive",
                 // build global dof type list
                 tIWG->get_global_dof_type_list();
 
-                // populate the requested master dof type
-                tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+                // populate the requested leader dof type
+                tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
                 // create a field interpolator manager
                 moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -410,12 +410,12 @@ TEST_CASE( "IWG_Compressible_NS_Boundary_Pressure_Primitive",
                 Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
                 // populate the field interpolator manager
-                tFIManager.mFI = tMasterFIs;
+                tFIManager.mFI = tLeaderFIs;
                 tFIManager.mIPGeometryInterpolator = &tGI;
                 tFIManager.mIGGeometryInterpolator = &tGI;
 
                 // set the interpolator manager to the set
-                tIWG->mSet->mMasterFIManager = &tFIManager;
+                tIWG->mSet->mLeaderFIManager = &tFIManager;
 
                 // set IWG field interpolator manager
                 tIWG->set_field_interpolator_manager( &tFIManager );
@@ -435,7 +435,7 @@ TEST_CASE( "IWG_Compressible_NS_Boundary_Pressure_Primitive",
                     Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                     // set integration point
-                    tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                    tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                     // check evaluation of the residual for IWG
                     //------------------------------------------------------------------------------
@@ -474,7 +474,7 @@ TEST_CASE( "IWG_Compressible_NS_Boundary_Pressure_Primitive",
                 }
 
                 // clean up
-                tMasterFIs.clear();
+                tLeaderFIs.clear();
             }
         }
     }

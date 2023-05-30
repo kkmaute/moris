@@ -47,12 +47,12 @@ namespace xtk
         // Maps for old Ghost
 
         // interpolation cells
-        Cell< Cell< moris_index > > mMasterSideIpCells; // input: bulk phase index || output: list of enriched master IP cells used for ghost facet construction 
-        Cell< Cell< moris_index > > mSlaveSideIpCells;  // input: bulk phase index || output: list of corresponding enriched slave IP cells used for ghost facet construction  
+        Cell< Cell< moris_index > > mLeaderSideIpCells; // input: bulk phase index || output: list of enriched leader IP cells used for ghost facet construction 
+        Cell< Cell< moris_index > > mFollowerSideIpCells;  // input: bulk phase index || output: list of corresponding enriched follower IP cells used for ghost facet construction  
 
         // Side ordinals
-        Cell< Cell< moris_index > > mMasterSideIgCellSideOrds; // input: bulk phase index || output: list of side ordinals of the master IP cells used for ghost facet construction
-        Cell< Cell< moris_index > > mSlaveSideIgCellSideOrds;  // input: bulk phase index || output: list of side ordinals of the corresponding slave IP cells used for ghost facet construction
+        Cell< Cell< moris_index > > mLeaderSideIgCellSideOrds; // input: bulk phase index || output: list of side ordinals of the leader IP cells used for ghost facet construction
+        Cell< Cell< moris_index > > mFollowerSideIgCellSideOrds;  // input: bulk phase index || output: list of side ordinals of the corresponding follower IP cells used for ghost facet construction
 
         // trivial clusters are ones that are not on a hanging node interface
         Cell< Cell< moris_index > > mNonTrivialFlag;     // input: bulk phase index || output: list of flags indicating whether corresponding ghost facet construction is Non-trivial (i.e. it has hanging nodes)
@@ -62,12 +62,12 @@ namespace xtk
         // Revised Maps for new Ghost
 
         // interpolation cells
-        Cell< Cell< Cell< moris_index > > > mMasterSideIpCellsNew; // input: B-spline mesh list index, bulk phase index || output: list of enriched master IP cells used for ghost facet construction 
-        Cell< Cell< Cell< moris_index > > > mSlaveSideIpCellsNew;  // input: B-spline mesh list index, bulk phase index || output: list of corresponding enriched slave IP cells used for ghost facet construction  
+        Cell< Cell< Cell< moris_index > > > mLeaderSideIpCellsNew; // input: B-spline mesh list index, bulk phase index || output: list of enriched leader IP cells used for ghost facet construction 
+        Cell< Cell< Cell< moris_index > > > mFollowerSideIpCellsNew;  // input: B-spline mesh list index, bulk phase index || output: list of corresponding enriched follower IP cells used for ghost facet construction  
 
         // Side ordinals
-        Cell< Cell< Cell< moris_index > > > mMasterSideIgCellSideOrdsNew; // input: B-spline mesh list index, bulk phase index || output: list of side ordinals of the master IP cells used for ghost facet construction
-        Cell< Cell< Cell< moris_index > > > mSlaveSideIgCellSideOrdsNew;  // input: B-spline mesh list index, bulk phase index || output: list of side ordinals of the corresponding slave IP cells used for ghost facet construction
+        Cell< Cell< Cell< moris_index > > > mLeaderSideIgCellSideOrdsNew; // input: B-spline mesh list index, bulk phase index || output: list of side ordinals of the leader IP cells used for ghost facet construction
+        Cell< Cell< Cell< moris_index > > > mFollowerSideIgCellSideOrdsNew;  // input: B-spline mesh list index, bulk phase index || output: list of side ordinals of the corresponding follower IP cells used for ghost facet construction
 
         // trivial clusters are ones that are not on a hanging node interface
         Cell< Cell< Cell< moris_index > > > mNonTrivialFlagNew;     // input: B-spline mesh list index, bulk phase index || output: list of trivial flags indicating whether corresponding ghost facet construction is trivial (i.e. no hanging nodes)
@@ -86,9 +86,9 @@ namespace xtk
             size_t tTotal = 0;
             tTotal += mSubphaseIndexToInterpolationCellIndex.capacity();
             tTotal += mDblSideSetIndexInMesh.capacity();
-            tTotal += moris::internal_capacity( mMasterSideIgCellSideOrds );
-            tTotal += moris::internal_capacity( mMasterSideIgCellSideOrds );
-            tTotal += moris::internal_capacity( mSlaveSideIgCellSideOrds );
+            tTotal += moris::internal_capacity( mLeaderSideIgCellSideOrds );
+            tTotal += moris::internal_capacity( mLeaderSideIgCellSideOrds );
+            tTotal += moris::internal_capacity( mFollowerSideIgCellSideOrds );
             tTotal += moris::internal_capacity( mNonTrivialFlag );
             tTotal += moris::internal_capacity( mTransitionLocation );
             return tTotal;
@@ -343,13 +343,13 @@ namespace xtk
              * Rules:
              * 1. Only create ghost facets between a subphase created inside an intersected
              *    cell and its neighbors.
-             * 2. The owning processor of the master (first) subphase constructs the ghost facet.
+             * 2. The owning processor of the leader (first) subphase constructs the ghost facet.
              * 3. Construct from coarse to fine in HMR
              * 
              * @param aGhostSetupData 
              * @param aFirstSubphase 
              * @param aSecondSubphase 
-             * @param aTrivialFlag output: flag whether the transition between the master and slave element is trivial 
+             * @param aTrivialFlag output: flag whether the transition between the leader and follower element is trivial 
              * @return bool whether Ghost side set should be created or not
              */
             bool
@@ -369,7 +369,7 @@ namespace xtk
             // ----------------------------------------------------------------------------------
 
             std::shared_ptr<Side_Cluster>
-            create_slave_side_cluster(
+            create_follower_side_cluster(
                     Ghost_Setup_Data &  aGhostSetupData,
                     Cell<Interpolation_Cell_Unzipped*> & aEnrIpCells,
                     uint const   & aBulkIndex,
@@ -378,7 +378,7 @@ namespace xtk
                     moris_index  & aCurrentId);
 
             std::shared_ptr< Side_Cluster >
-            create_slave_side_cluster_new(
+            create_follower_side_cluster_new(
                     Ghost_Setup_Data&                     aGhostSetupData,
                     Cell< Interpolation_Cell_Unzipped* >& aEnrIpCells,
                     uint const&                           aBsplineMeshListIndex,
@@ -390,46 +390,46 @@ namespace xtk
             // ----------------------------------------------------------------------------------
 
             std::shared_ptr<Side_Cluster>
-            create_master_side_cluster(
+            create_leader_side_cluster(
                     Ghost_Setup_Data &  aGhostSetupData,
                     Cell<Interpolation_Cell_Unzipped*> & aEnrIpCells,
                     uint const & aBulkIndex,
                     uint const & aCellIndex,
-                    Side_Cluster* aSlaveSideCluster,
+                    Side_Cluster* aFollowerSideCluster,
                     moris_index & aCurrentIndex,
                     moris_index & aCurrentId);
 
             std::shared_ptr< Side_Cluster >
-            create_master_side_cluster_new(
+            create_leader_side_cluster_new(
                     Ghost_Setup_Data&                     aGhostSetupData,
                     Cell< Interpolation_Cell_Unzipped* >& aEnrIpCells,
                     uint const&                           aBsplineMeshListIndex,
                     uint const&                           aBulkPhaseIndex,
                     uint const&                           aGhostFacetIndexInSet,
-                    Side_Cluster*                         aSlaveSideCluster,
+                    Side_Cluster*                         aFollowerSideCluster,
                     moris_index&                          aCurrentIndex,
                     moris_index&                          aCurrentId );
 
             // ----------------------------------------------------------------------------------
 
             std::shared_ptr< xtk::Cell_XTK_No_CM >
-            create_non_trivial_master_ig_cell(
+            create_non_trivial_leader_ig_cell(
                     Ghost_Setup_Data& aGhostSetupData,
                     uint const &      aBulkIndex,
                     uint const &      aCellIndex,
-                    Side_Cluster*     aMasterSideCluster,
-                    Side_Cluster*     aSlaveSideCluster,
+                    Side_Cluster*     aLeaderSideCluster,
+                    Side_Cluster*     aFollowerSideCluster,
                     moris_index&      aCurrentIndex,
                     moris_index&      aCurrentId );
 
             std::shared_ptr<xtk::Cell_XTK_No_CM>
-            create_non_trivial_master_ig_cell_new(
+            create_non_trivial_leader_ig_cell_new(
                     Ghost_Setup_Data& aGhostSetupData,
                     uint const&       aBsplineMeshListIndex,
                     uint const&       aBulkIndex,
                     uint const&       aCellIndex,
-                    Side_Cluster*     aMasterSideCluster,
-                    Side_Cluster*     aSlaveSideCluster,
+                    Side_Cluster*     aLeaderSideCluster,
+                    Side_Cluster*     aFollowerSideCluster,
                     moris_index&      aCurrentIndex,
                     moris_index&      aCurrentId );
 
@@ -452,10 +452,10 @@ namespace xtk
             // ----------------------------------------------------------------------------------
 
             void
-            permute_slave_vertices(
-                    moris::Cell<moris::mtk::Vertex const *> const & aSlaveVertices,
-                    moris::Cell<moris::mtk::Vertex const *> const & aMasterVertices,
-                    moris::Cell<moris::mtk::Vertex const *>  & aPermutedSlaveVertices,
+            permute_follower_vertices(
+                    moris::Cell<moris::mtk::Vertex const *> const & aFollowerVertices,
+                    moris::Cell<moris::mtk::Vertex const *> const & aLeaderVertices,
+                    moris::Cell<moris::mtk::Vertex const *>  & aPermutedFollowerVertices,
                     moris::Cell<moris::mtk::Vertex const *>  & aPermutedAdjMastVertices);
 
             // ----------------------------------------------------------------------------------
@@ -467,7 +467,7 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
-            moris_index get_side_ordinals_for_non_trivial_master();
+            moris_index get_side_ordinals_for_non_trivial_leader();
     };
 
 }

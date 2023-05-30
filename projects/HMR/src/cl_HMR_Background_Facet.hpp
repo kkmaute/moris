@@ -46,11 +46,11 @@ namespace moris
             // uint                        mMemoryIndex;
 
             //! reference element ( the element with the lower id )
-            Background_Element_Base *   mMasterElement;
-            Background_Element_Base *   mSlaveElement;
+            Background_Element_Base *   mLeaderElement;
+            Background_Element_Base *   mFollowerElement;
 
-            //! face index for master element
-            uint                        mIndexOnMaster;
+            //! face index for leader element
+            uint                        mIndexOnLeader;
 
             //! multi purpose flag
             bool                        mFlag = false;
@@ -101,41 +101,41 @@ namespace moris
 //--------------------------------------------------------------------------------
 
             /**
-             * get pointer to master element
+             * get pointer to leader element
              */
-            Background_Element_Base * get_master();
+            Background_Element_Base * get_leader();
 //--------------------------------------------------------------------------------
 
             /**
-             * get pointer to slave element
+             * get pointer to follower element
              */
-            Background_Element_Base * get_slave();
-
-//--------------------------------------------------------------------------------
-
-            /**
-             * sets the slave element
-             */
-            void set_slave( Background_Element_Base * aElement );
+            Background_Element_Base * get_follower();
 
 //--------------------------------------------------------------------------------
 
             /**
-             * returns the index in relation to the master element
+             * sets the follower element
              */
-            uint get_index_on_master() const;
+            void set_follower( Background_Element_Base * aElement );
 
 //--------------------------------------------------------------------------------
 
             /**
-             * returns the index in relation to the master element
+             * returns the index in relation to the leader element
              */
-            uint get_index_on_slave() const;
+            uint get_index_on_leader() const;
 
 //--------------------------------------------------------------------------------
 
             /**
-             * returns the index in relation to the master element
+             * returns the index in relation to the leader element
+             */
+            uint get_index_on_follower() const;
+
+//--------------------------------------------------------------------------------
+
+            /**
+             * returns the index in relation to the leader element
              */
             uint get_index_on_other( const uint & aIndex ) const;
 

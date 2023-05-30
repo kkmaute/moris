@@ -25,13 +25,13 @@ namespace moris
         IWG_Advection_Bulk::IWG_Advection_Bulk()
         {
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Load" ] = static_cast< uint >( IWG_Property_Type::BODY_LOAD );
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "Diffusion" ] = static_cast< uint >( IWG_Constitutive_Type::DIFFUSION );
@@ -48,28 +48,28 @@ namespace moris
 
         void IWG_Advection_Bulk::compute_residual( real aWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type, indices for assembly
-            const uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            const uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            const uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type, indices for assembly
+            const uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            const uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            const uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the residual dof (here temperature) field interpolator
             Field_Interpolator* tFITemp =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the velocity dof field interpolator
             // FIXME protect dof type
             Field_Interpolator* tFIVelocity =
-                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the diffusion CM
             const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // get the SUPG stabilization parameter
             const std::shared_ptr< Stabilization_Parameter > & tSPSUPG =
@@ -88,14 +88,14 @@ namespace moris
 
             // compute the residual
             mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar *
+                    { tLeaderResStartIndex, tLeaderResStopIndex } ) += aWStar *
                     tFITemp->N_trans() * tFIVelocity->val_trans() * tCMDiffusion->gradEnergy();
 
             // compute SUPG contribution to residual
             if ( tSPSUPG )
             {
                 mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar *
+                        { tLeaderResStartIndex, tLeaderResStopIndex } ) += aWStar *
                         tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 );
             }
 
@@ -103,7 +103,7 @@ namespace moris
             if ( tSPYZBeta )
             {
                 mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex } ) += aWStar *
+                        { tLeaderResStartIndex, tLeaderResStopIndex } ) += aWStar *
                         tSPYZBeta->val()( 0 ) * std::abs(tRT( 0, 0 )) * trans( tFITemp->dnNdxn( 1 ) ) * tCMDiffusion->gradEnergy();
             }
 
@@ -117,26 +117,26 @@ namespace moris
         void IWG_Advection_Bulk::compute_jacobian( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators
+            // check leader field interpolators
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type, indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the residual dof (here temperature) field interpolator
-            Field_Interpolator* tFITemp = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator* tFITemp = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the velocity dof field interpolator
             // FIXME protect dof type
             Field_Interpolator* tFIVelocity =
-                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the diffusion CM
             const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // get the SUPG stabilization parameter
             const std::shared_ptr< Stabilization_Parameter > & tSPSUPG =
@@ -153,24 +153,24 @@ namespace moris
                 this->compute_residual_strong_form( tRT );
             }
 
-            // get number of master dof dependencies
-            const  uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+            // get number of leader dof dependencies
+            const  uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
-            // loop over master dof dependencies
+            // loop over leader dof dependencies
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                const Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
-                const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                const uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                const uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                const uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 0 );
+                const uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
 
                 // get sub-matrix
                 auto jac = mSet->get_jacobian()(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } );
+                        { tLeaderResStartIndex, tLeaderResStopIndex },
+                        { tLeaderDepStartIndex, tLeaderDepStopIndex } );
 
                 // if velocity dof type
                 // FIXME protect dof type
@@ -216,7 +216,7 @@ namespace moris
                     {
                         // add contribution to Jacobian
                         jac += aWStar * (
-                                trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) * tSPSUPG->dSPdMasterDOF( tDofType ) );
+                                trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) * tSPSUPG->dSPdLeaderDOF( tDofType ) );
                     }
                 }
 
@@ -240,7 +240,7 @@ namespace moris
                     if( tSPYZBeta->check_dof_dependency( tDofType ) )
                     {
                         jac += aWStar * std::abs(tRT( 0, 0 )) * (
-                                trans( tFITemp->dnNdxn( 1 ) ) * tCMDiffusion->gradEnergy() * tSPYZBeta->dSPdMasterDOF( tDofType ) );
+                                trans( tFITemp->dnNdxn( 1 ) ) * tCMDiffusion->gradEnergy() * tSPYZBeta->dSPdLeaderDOF( tDofType ) );
                     }
                 }
             }
@@ -271,15 +271,15 @@ namespace moris
             // get the velocity dof field interpolator
             // FIXME protect dof type
             Field_Interpolator* tFIVelocity =
-                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the diffusion CM
             const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // get body load property
             const std::shared_ptr< Property > & tPropLoad =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
 
             aRT = tCMDiffusion->EnergyDot() +
                     tFIVelocity->val_trans() * tCMDiffusion->gradEnergy() -
@@ -301,23 +301,23 @@ namespace moris
         {
             // get the res dof and the derivative dof FIs
             Field_Interpolator * tFIDer =
-                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // get the velocity dof field interpolator
             // FIXME protect dof type
             Field_Interpolator* tFIVelocity =
-                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // initialize aJT
             aJT.set_size( 1, tFIDer->get_number_of_space_time_coefficients());
 
             // get the diffusion CM
             const std::shared_ptr< Constitutive_Model > & tCMDiffusion =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // get body load property
             const std::shared_ptr< Property > & tPropLoad =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
 
             // if CM diffusion depends on dof type
             if( tCMDiffusion->check_dof_dependency( aDofTypes ) )

@@ -674,7 +674,7 @@ namespace moris
                         // test if this element is on the edge of the domain
                         if( mNeighbors[ f ] == NULL )
                         {
-                            // this facet has now proc owner, I am master
+                            // this facet has now proc owner, I am leader
                             // create face
                             mFacets[ f ] = new Background_Facet( this, f );
                         }

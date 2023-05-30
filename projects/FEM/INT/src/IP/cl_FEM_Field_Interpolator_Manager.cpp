@@ -21,13 +21,13 @@ namespace moris
         Field_Interpolator_Manager::Field_Interpolator_Manager(
                 const moris::Cell< moris::Cell< enum MSI::Dof_Type > >& aDofTypes,
                 MSI::Equation_Set*                                      aEquationSet,
-                mtk::Master_Slave                                       aIsMaster )
+                mtk::Leader_Follower                                       aIsLeader )
                 : mDofTypes( aDofTypes )
                 , mEquationSet( aEquationSet )
-                , mIsMaster( aIsMaster )
+                , mIsLeader( aIsLeader )
         {
             // set the dof type map
-            mDofTypeMap = mEquationSet->get_dof_type_map( aIsMaster );
+            mDofTypeMap = mEquationSet->get_dof_type_map( aIsLeader );
 
             // maximum number of dof field interpolators
             mMaxNumDofFI = mEquationSet->get_num_unique_dof_types();
@@ -41,15 +41,15 @@ namespace moris
                 const moris::Cell< moris::Cell< enum PDV_Type > >&        aDvTypes,
                 const moris::Cell< moris::Cell< enum mtk::Field_Type > >& aFieldTypes,
                 MSI::Equation_Set*                                        aEquationSet,
-                mtk::Master_Slave                                         aIsMaster )
+                mtk::Leader_Follower                                         aIsLeader )
                 : mDofTypes( aDofTypes )
                 , mEquationSet( aEquationSet )
-                , mIsMaster( aIsMaster )
+                , mIsLeader( aIsLeader )
                 , mDvTypes( aDvTypes )
                 , mFieldTypes( aFieldTypes )
         {
             // set the dof type map
-            mDofTypeMap = mEquationSet->get_dof_type_map( aIsMaster );
+            mDofTypeMap = mEquationSet->get_dof_type_map( aIsLeader );
 
             // maximum number of dof field interpolators
             mMaxNumDofFI = mEquationSet->get_num_unique_dof_types();
@@ -57,9 +57,9 @@ namespace moris
             // FIXME maximum number of dv field interpolators
             mMaxNumDvFI = 3;    // FIXME FIXME FIXME
 
-            mDvTypeMap = mEquationSet->get_dv_type_map( aIsMaster );
+            mDvTypeMap = mEquationSet->get_dv_type_map( aIsLeader );
 
-            mFieldTypeMap = mEquationSet->get_field_type_map( aIsMaster );
+            mFieldTypeMap = mEquationSet->get_field_type_map( aIsLeader );
 
             mMaxNumFieldFI = mEquationSet->get_num_unique_field_types();
         }
@@ -68,13 +68,13 @@ namespace moris
                 const moris::Cell< moris::Cell< enum MSI::Dof_Type > >& aDofTypes,
                 MSI::Equation_Set*                                      aEquationSet,
                 MSI::Model_Solver_Interface*                            aModelSolverInterface,
-                mtk::Master_Slave                                       aIsMaster )
+                mtk::Leader_Follower                                       aIsLeader )
                 : mDofTypes( aDofTypes )
                 , mEquationSet( aEquationSet )
-                , mIsMaster( aIsMaster )
+                , mIsLeader( aIsLeader )
         {
             // set the dof type map
-            mDofTypeMap = mEquationSet->get_dof_type_map( aIsMaster );
+            mDofTypeMap = mEquationSet->get_dof_type_map( aIsLeader );
 
             // maximum number of dof field interpolators
             mMaxNumDofFI = mEquationSet->get_num_unique_dof_types();
@@ -154,7 +154,7 @@ namespace moris
                 uint tNumTimeNodes = aModelSolverInterface->get_time_levels_for_type( mDofTypes( iDof )( 0 ) );
 
                 // get the set index for the dof type group
-                uint tDofIndex = mEquationSet->get_dof_index_for_type_1( mDofTypes( iDof )( 0 ), mIsMaster );
+                uint tDofIndex = mEquationSet->get_dof_index_for_type_1( mDofTypes( iDof )( 0 ), mIsLeader );
 
                 // create the field interpolation rule for the dof type group
                 mtk::Interpolation_Rule tFieldInterpolationRule(
@@ -203,7 +203,7 @@ namespace moris
                 uint tNumTimeNodes = 1;
 
                 // get the set index for the dv type group
-                uint tDvIndex = mEquationSet->get_dv_index_for_type_1( mDvTypes( iDv )( 0 ), mIsMaster );
+                uint tDvIndex = mEquationSet->get_dv_index_for_type_1( mDvTypes( iDv )( 0 ), mIsLeader );
 
                 // create the field interpolation rule for the dv type group
                 mtk::Interpolation_Rule tFieldInterpolationRule(
@@ -239,7 +239,7 @@ namespace moris
                 uint tNumTimeNodes = 1;
 
                 // get the set index for the dv type group
-                uint tFieldIndex = mEquationSet->get_field_index_for_type_1( mFieldTypes( iFi )( 0 ), mIsMaster );
+                uint tFieldIndex = mEquationSet->get_field_index_for_type_1( mFieldTypes( iFi )( 0 ), mIsLeader );
 
                 // create the field interpolation rule for the dv type group
                 mtk::Interpolation_Rule tFieldInterpolationRule(
@@ -347,7 +347,7 @@ namespace moris
                     "Field_Interpolator_Manager::get_field_interpolators_for_type - Equation Set pointer not set" );
 
             // get the set index for the requested dof type
-            sint tDofIndex = mEquationSet->get_dof_index_for_type_1( aDofType, mIsMaster );
+            sint tDofIndex = mEquationSet->get_dof_index_for_type_1( aDofType, mIsLeader );
 
             // if the index was set for the equation set
             if ( tDofIndex != -1 )
@@ -375,7 +375,7 @@ namespace moris
                 enum PDV_Type aDvType )
         {
             // get the set index for the requested dv type
-            sint tDvIndex = mEquationSet->get_dv_index_for_type_1( aDvType, mIsMaster );
+            sint tDvIndex = mEquationSet->get_dv_index_for_type_1( aDvType, mIsLeader );
 
             // if the index was set for the equation set
             if ( tDvIndex != -1 )
@@ -400,7 +400,7 @@ namespace moris
                 enum mtk::Field_Type aFieldType )
         {
             // get the set index for the requested dv type
-            sint tFieldIndex = mEquationSet->get_field_index_for_type_1( aFieldType, mIsMaster );
+            sint tFieldIndex = mEquationSet->get_field_index_for_type_1( aFieldType, mIsLeader );
 
             // if the index was set for the equation set
             if ( tFieldIndex != -1 )

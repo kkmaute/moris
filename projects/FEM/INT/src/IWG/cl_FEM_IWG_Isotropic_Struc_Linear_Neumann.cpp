@@ -26,7 +26,7 @@ namespace moris
         IWG_Isotropic_Struc_Linear_Neumann::IWG_Isotropic_Struc_Linear_Neumann()
         {
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Traction" ]  = static_cast< uint >( IWG_Property_Type::TRACTION );
@@ -40,37 +40,37 @@ namespace moris
         IWG_Isotropic_Struc_Linear_Neumann::compute_residual( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators, properties and constitutive models
+            // check leader field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type (here displacement), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type (here displacement), indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get field interpolator for the residual dof type
             Field_Interpolator* tFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get traction load property
             const std::shared_ptr< Property >& tPropTraction =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
 
             // get traction load property
             const std::shared_ptr< Property >& tPropPressure =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
 
             // get thickness property
             const std::shared_ptr< Property >& tPropThickness =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // get sub-vector
             auto tRes = mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex } );
+                    { tLeaderResStartIndex, tLeaderResStopIndex } );
 
             // compute the residual
             if ( tPropTraction != nullptr )
@@ -93,48 +93,48 @@ namespace moris
         IWG_Isotropic_Struc_Linear_Neumann::compute_jacobian( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators, properties and constitutive models
+            // check leader field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type (here displacement), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type (here displacement), indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get field interpolator for the residual dof type
             Field_Interpolator* tFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get traction load property
             const std::shared_ptr< Property >& tPropTraction =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
 
             // get traction load property
             const std::shared_ptr< Property >& tPropPressure =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
 
             // get thickness property
             const std::shared_ptr< Property >& tPropThickness =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // compute the Jacobian for indirect IWG dof dependencies through properties
-            for ( uint iDOF = 0; iDOF < mRequestedMasterGlobalDofTypes.size(); iDOF++ )
+            for ( uint iDOF = 0; iDOF < mRequestedLeaderGlobalDofTypes.size(); iDOF++ )
             {
                 // get dof type
-                const Cell< MSI::Dof_Type >& tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for the dof type
-                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 0 );
+                uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
 
                 auto tJac = mSet->get_jacobian()(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } );
+                        { tLeaderResStartIndex, tLeaderResStopIndex },
+                        { tLeaderDepStartIndex, tLeaderDepStopIndex } );
 
                 // if traction load depends on the dof type
                 if ( tPropTraction != nullptr )

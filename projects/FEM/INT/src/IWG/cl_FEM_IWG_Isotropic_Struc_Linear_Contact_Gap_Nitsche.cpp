@@ -28,7 +28,7 @@ namespace moris
             mBeta = aBeta;
 
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
@@ -36,8 +36,8 @@ namespace moris
 
             // set size for the constitutive model pointer cell
             // .resize: gives aValue:(The value to initialize the new elements with) and aCount:(new size of the Cell)
-            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-            mSlaveCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mFollowerCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO );
@@ -55,33 +55,33 @@ namespace moris
         IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche::compute_residual( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master and slave field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
+            // check leader and follower field interpolators
+            this->check_field_interpolators( mtk::Leader_Follower::LEADER );
+            this->check_field_interpolators( mtk::Leader_Follower::FOLLOWER );
 #endif
 
-            // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type, indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
-            // get slave index for residual dof type, indices for assembly
-            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
-            uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
-            uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
+            // get follower index for residual dof type, indices for assembly
+            uint tFollowerDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
+            uint tFollowerResStartIndex = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
+            uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
-            // get master field interpolator for the residual dof type
-            Field_Interpolator* tFIMaster = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            // get leader field interpolator for the residual dof type
+            Field_Interpolator* tFILeader = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
-            // get slave field interpolator for the residual dof type
-            Field_Interpolator* tFISlave = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            // get follower field interpolator for the residual dof type
+            Field_Interpolator* tFIFollower = mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the elasticity constitutive model
-            const std::shared_ptr< Constitutive_Model >& tCMMasterElasticity =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model >& tCMLeaderElasticity =
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
-            const std::shared_ptr< Constitutive_Model >& tCMSlaveElasticity =
-                    mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model >& tCMFollowerElasticity =
+                    mFollowerCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // get the Nitsche stabilization parameter
             const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
@@ -89,93 +89,93 @@ namespace moris
 
             // get thickness property
             const std::shared_ptr< Property >& tPropThickness =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             const real tNitsche      = tSPNitsche->val()( 0 );
-            const real tMasterWeight = tSPNitsche->val()( 1 );
-            const real tSlaveWeight  = tSPNitsche->val()( 2 );
+            const real tLeaderWeight = tSPNitsche->val()( 1 );
+            const real tFollowerWeight  = tSPNitsche->val()( 2 );
 
-            // normals on master and slave side (needs to be generalized)
-            const Matrix< DDRMat > tNormalMaster = mNormal;
-            const Matrix< DDRMat > tNormalSlave  = -1.0 * mNormal;
+            // normals on leader and follower side (needs to be generalized)
+            const Matrix< DDRMat > tNormalLeader = mNormal;
+            const Matrix< DDRMat > tNormalFollower  = -1.0 * mNormal;
 
-            // projections from slave to master and master to slave (needs to be generalized)
-            const real tPrjSlaveToMaster      = 1.0;    // should be matrix
-            const real tPrjMasterToSlave      = 1.0;    // should be matrix
-            const real tPrjSlaveToMasterTrans = 1.0;    // should be matrix
-            const real tPrjMasterToSlaveTrans = 1.0;    // should be matrix
+            // projections from follower to leader and leader to follower (needs to be generalized)
+            const real tPrjFollowerToLeader      = 1.0;    // should be matrix
+            const real tPrjLeaderToFollower      = 1.0;    // should be matrix
+            const real tPrjFollowerToLeaderTrans = 1.0;    // should be matrix
+            const real tPrjLeaderToFollowerTrans = 1.0;    // should be matrix
 
             // normal projection operator
-            const Matrix< DDRMat > tNormalProjectorMaster = tNormalMaster * trans( tNormalMaster );
-            const Matrix< DDRMat > tNormalProjectorSlave  = tNormalSlave * trans( tNormalSlave );
+            const Matrix< DDRMat > tNormalProjectorLeader = tNormalLeader * trans( tNormalLeader );
+            const Matrix< DDRMat > tNormalProjectorFollower  = tNormalFollower * trans( tNormalFollower );
 
             // compute the jump
-            const Matrix< DDRMat > tJumpMaster = tFIMaster->val() - tPrjSlaveToMaster * tFISlave->val();
-            const Matrix< DDRMat > tJumpSlave  = tFISlave->val() - tPrjMasterToSlave * tFIMaster->val();
+            const Matrix< DDRMat > tJumpLeader = tFILeader->val() - tPrjFollowerToLeader * tFIFollower->val();
+            const Matrix< DDRMat > tJumpFollower  = tFIFollower->val() - tPrjLeaderToFollower * tFILeader->val();
 
             // compute projection of displacement jump onto normal
-            const real tNormalJumpMaster = dot( tJumpMaster, tNormalMaster );
-            const real tNormalJumpSlave  = dot( tJumpSlave, tNormalSlave );
+            const real tNormalJumpLeader = dot( tJumpLeader, tNormalLeader );
+            const real tNormalJumpFollower  = dot( tJumpFollower, tNormalFollower );
 
             // evaluate tractions
-            const Matrix< DDRMat > tTractionMaster = tCMMasterElasticity->traction( tNormalMaster );
-            const Matrix< DDRMat > tTractionSlave  = tCMSlaveElasticity->traction( tNormalSlave );
+            const Matrix< DDRMat > tTractionLeader = tCMLeaderElasticity->traction( tNormalLeader );
+            const Matrix< DDRMat > tTractionFollower  = tCMFollowerElasticity->traction( tNormalFollower );
 
             // compute contact pressure
-            const real tIfcPressureMaster = dot( tTractionMaster, tNormalMaster );
-            const real tIfcPressureSlave  = dot( tTractionSlave, tNormalSlave );
+            const real tIfcPressureLeader = dot( tTractionLeader, tNormalLeader );
+            const real tIfcPressureFollower  = dot( tTractionFollower, tNormalFollower );
 
-            // check for contact on master side
-            if ( tIfcPressureMaster - tNitsche * tNormalJumpMaster < 0 )
+            // check for contact on leader side
+            if ( tIfcPressureLeader - tNitsche * tNormalJumpLeader < 0 )
             {
-                // compute master residual
+                // compute leader residual
                 mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex } ) +=                                                                                          //
-                        aWStar * tMasterWeight * (                                                                                                                  //
-                                -tFIMaster->N_trans() * tNormalProjectorMaster * tTractionMaster                                                                    //
-                                + mBeta * tCMMasterElasticity->testTraction_trans( tNormalMaster, mResidualDofType( 0 ) ) * tNormalProjectorMaster * tJumpMaster    //
-                                + tNitsche * tFIMaster->N_trans() * tNormalProjectorMaster * tJumpMaster );
+                        { tLeaderResStartIndex, tLeaderResStopIndex } ) +=                                                                                          //
+                        aWStar * tLeaderWeight * (                                                                                                                  //
+                                -tFILeader->N_trans() * tNormalProjectorLeader * tTractionLeader                                                                    //
+                                + mBeta * tCMLeaderElasticity->testTraction_trans( tNormalLeader, mResidualDofType( 0 ) ) * tNormalProjectorLeader * tJumpLeader    //
+                                + tNitsche * tFILeader->N_trans() * tNormalProjectorLeader * tJumpLeader );
 
                 mSet->get_residual()( 0 )(
-                        { tSlaveResStartIndex, tSlaveResStopIndex } ) +=                                                    //
-                        aWStar * tMasterWeight * (                                                                          //
-                                +tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tTractionMaster    //
-                                - tNitsche * tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tJumpMaster );
+                        { tFollowerResStartIndex, tFollowerResStopIndex } ) +=                                                    //
+                        aWStar * tLeaderWeight * (                                                                          //
+                                +tFIFollower->N_trans() * tPrjFollowerToLeaderTrans * tNormalProjectorLeader * tTractionLeader    //
+                                - tNitsche * tFIFollower->N_trans() * tPrjFollowerToLeaderTrans * tNormalProjectorLeader * tJumpLeader );
             }
             else
             {
                 mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex } ) +=    //
-                        aWStar * tMasterWeight * (                            //
-                                -mBeta / tNitsche * tCMMasterElasticity->testTraction_trans( tNormalMaster, mResidualDofType( 0 ) ) * tNormalProjectorMaster * tTractionMaster );
+                        { tLeaderResStartIndex, tLeaderResStopIndex } ) +=    //
+                        aWStar * tLeaderWeight * (                            //
+                                -mBeta / tNitsche * tCMLeaderElasticity->testTraction_trans( tNormalLeader, mResidualDofType( 0 ) ) * tNormalProjectorLeader * tTractionLeader );
             }
 
-            // check for contact on slave side
-            if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 )
+            // check for contact on follower side
+            if ( tIfcPressureFollower - tNitsche * tNormalJumpFollower < 0 )
             {
-                // compute slave residual
+                // compute follower residual
                 mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex } ) +=                                                 //
-                        aWStar * tSlaveWeight * (                                                                          //
-                                +tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tTractionSlave    //
-                                - tNitsche * tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tJumpSlave );
+                        { tLeaderResStartIndex, tLeaderResStopIndex } ) +=                                                 //
+                        aWStar * tFollowerWeight * (                                                                          //
+                                +tFILeader->N_trans() * tPrjLeaderToFollowerTrans * tNormalProjectorFollower * tTractionFollower    //
+                                - tNitsche * tFILeader->N_trans() * tPrjLeaderToFollowerTrans * tNormalProjectorFollower * tJumpFollower );
 
                 mSet->get_residual()( 0 )(
-                        { tSlaveResStartIndex, tSlaveResStopIndex } ) +=                                                                                        //
-                        aWStar * tSlaveWeight * (                                                                                                               //
-                                -tFISlave->N_trans() * tNormalProjectorSlave * tTractionSlave                                                                   //
-                                + mBeta * tCMSlaveElasticity->testTraction_trans( tNormalSlave, mResidualDofType( 0 ) ) * tNormalProjectorSlave * tJumpSlave    //
-                                + tNitsche * tFISlave->N_trans() * tNormalProjectorSlave * tJumpSlave );
+                        { tFollowerResStartIndex, tFollowerResStopIndex } ) +=                                                                                        //
+                        aWStar * tFollowerWeight * (                                                                                                               //
+                                -tFIFollower->N_trans() * tNormalProjectorFollower * tTractionFollower                                                                   //
+                                + mBeta * tCMFollowerElasticity->testTraction_trans( tNormalFollower, mResidualDofType( 0 ) ) * tNormalProjectorFollower * tJumpFollower    //
+                                + tNitsche * tFIFollower->N_trans() * tNormalProjectorFollower * tJumpFollower );
             }
             else
             {
                 mSet->get_residual()( 0 )(
-                        { tSlaveResStartIndex, tSlaveResStopIndex } ) +=    //
-                        aWStar * tSlaveWeight * (                           //
-                                -mBeta / tNitsche * tCMSlaveElasticity->testTraction_trans( tNormalSlave, mResidualDofType( 0 ) ) * tNormalProjectorSlave * tTractionSlave );
+                        { tFollowerResStartIndex, tFollowerResStopIndex } ) +=    //
+                        aWStar * tFollowerWeight * (                           //
+                                -mBeta / tNitsche * tCMFollowerElasticity->testTraction_trans( tNormalFollower, mResidualDofType( 0 ) ) * tNormalProjectorFollower * tTractionFollower );
             }
 
             // check for nan, infinity
@@ -189,33 +189,33 @@ namespace moris
         IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche::compute_jacobian( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master and slave field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
+            // check leader and follower field interpolators
+            this->check_field_interpolators( mtk::Leader_Follower::LEADER );
+            this->check_field_interpolators( mtk::Leader_Follower::FOLLOWER );
 #endif
 
-            // get master index for residual dof type, indices for assembly
-            const uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            const uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            const uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type, indices for assembly
+            const uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            const uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            const uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
-            // get slave index for residual dof type, indices for assembly
-            const uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
-            const uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
-            const uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
+            // get follower index for residual dof type, indices for assembly
+            const uint tFollowerDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
+            const uint tFollowerResStartIndex = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
+            const uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
-            // get master field interpolator for the residual dof type
-            Field_Interpolator* tFIMaster = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            // get leader field interpolator for the residual dof type
+            Field_Interpolator* tFILeader = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
-            // get slave field interpolator for the residual dof type
-            Field_Interpolator* tFISlave = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            // get follower field interpolator for the residual dof type
+            Field_Interpolator* tFIFollower = mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the elasticity constitutive model
-            const std::shared_ptr< Constitutive_Model >& tCMMasterElasticity =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model >& tCMLeaderElasticity =
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
-            const std::shared_ptr< Constitutive_Model >& tCMSlaveElasticity =
-                    mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model >& tCMFollowerElasticity =
+                    mFollowerCM( static_cast< uint >( IWG_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // get the Nitsche stabilization parameter
             const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
@@ -223,285 +223,285 @@ namespace moris
 
             // get thickness property
             const std::shared_ptr< Property >& tPropThickness =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             const real tNitsche      = tSPNitsche->val()( 0 );
-            const real tMasterWeight = tSPNitsche->val()( 1 );
-            const real tSlaveWeight  = tSPNitsche->val()( 2 );
+            const real tLeaderWeight = tSPNitsche->val()( 1 );
+            const real tFollowerWeight  = tSPNitsche->val()( 2 );
 
-            // normals on master and slave side (needs to be generalized)
-            const Matrix< DDRMat > tNormalMaster = mNormal;
-            const Matrix< DDRMat > tNormalSlave  = -1.0 * mNormal;
+            // normals on leader and follower side (needs to be generalized)
+            const Matrix< DDRMat > tNormalLeader = mNormal;
+            const Matrix< DDRMat > tNormalFollower  = -1.0 * mNormal;
 
-            // projections from slave to master and master to slave (needs to be generalized)
-            const real tPrjSlaveToMaster      = 1.0;    // should be matrix
-            const real tPrjMasterToSlave      = 1.0;    // should be matrix
-            const real tPrjSlaveToMasterTrans = 1.0;    // should be matrix
-            const real tPrjMasterToSlaveTrans = 1.0;    // should be matrix
+            // projections from follower to leader and leader to follower (needs to be generalized)
+            const real tPrjFollowerToLeader      = 1.0;    // should be matrix
+            const real tPrjLeaderToFollower      = 1.0;    // should be matrix
+            const real tPrjFollowerToLeaderTrans = 1.0;    // should be matrix
+            const real tPrjLeaderToFollowerTrans = 1.0;    // should be matrix
 
             // normal projection operator
-            const Matrix< DDRMat > tNormalProjectorMaster = tNormalMaster * trans( tNormalMaster );
-            const Matrix< DDRMat > tNormalProjectorSlave  = tNormalSlave * trans( tNormalSlave );
+            const Matrix< DDRMat > tNormalProjectorLeader = tNormalLeader * trans( tNormalLeader );
+            const Matrix< DDRMat > tNormalProjectorFollower  = tNormalFollower * trans( tNormalFollower );
 
             // compute the jump
-            const Matrix< DDRMat > tJumpMaster = tFIMaster->val() - tPrjSlaveToMaster * tFISlave->val();
-            const Matrix< DDRMat > tJumpSlave  = tFISlave->val() - tPrjMasterToSlave * tFIMaster->val();
+            const Matrix< DDRMat > tJumpLeader = tFILeader->val() - tPrjFollowerToLeader * tFIFollower->val();
+            const Matrix< DDRMat > tJumpFollower  = tFIFollower->val() - tPrjLeaderToFollower * tFILeader->val();
 
             // compute projection of displacement jump onto normal
-            const real tNormalJumpMaster = dot( tJumpMaster, tNormalMaster );
-            const real tNormalJumpSlave  = dot( tJumpSlave, tNormalSlave );
+            const real tNormalJumpLeader = dot( tJumpLeader, tNormalLeader );
+            const real tNormalJumpFollower  = dot( tJumpFollower, tNormalFollower );
 
             // evaluate tractions
-            const Matrix< DDRMat > tTractionMaster = tCMMasterElasticity->traction( tNormalMaster );
-            const Matrix< DDRMat > tTractionSlave  = tCMSlaveElasticity->traction( tNormalSlave );
+            const Matrix< DDRMat > tTractionLeader = tCMLeaderElasticity->traction( tNormalLeader );
+            const Matrix< DDRMat > tTractionFollower  = tCMFollowerElasticity->traction( tNormalFollower );
 
             // compute contact pressure
-            const real tIfcPressureMaster = dot( tTractionMaster, tNormalMaster );
-            const real tIfcPressureSlave  = dot( tTractionSlave, tNormalSlave );
+            const real tIfcPressureLeader = dot( tTractionLeader, tNormalLeader );
+            const real tIfcPressureFollower  = dot( tTractionFollower, tNormalFollower );
 
-            // get number of master dof dependencies
-            const uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+            // get number of leader dof dependencies
+            const uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
-            // compute the Jacobian for indirect dof dependencies through master constitutive models
-            for ( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
+            // compute the Jacobian for indirect dof dependencies through leader constitutive models
+            for ( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                const Cell< MSI::Dof_Type >& tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for the dof type
-                const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                const uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                const uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                const sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                const uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 0 );
+                const uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
 
                 // extract sub-matrices
                 auto tJacMM = mSet->get_jacobian()(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } );
+                        { tLeaderResStartIndex, tLeaderResStopIndex },
+                        { tLeaderDepStartIndex, tLeaderDepStopIndex } );
 
                 auto tJacSM = mSet->get_jacobian()(
-                        { tSlaveResStartIndex, tSlaveResStopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } );
+                        { tFollowerResStartIndex, tFollowerResStopIndex },
+                        { tLeaderDepStartIndex, tLeaderDepStopIndex } );
 
                 // compute Jacobian direct dependencies
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
-                    if ( tIfcPressureMaster - tNitsche * tNormalJumpMaster < 0 )
+                    if ( tIfcPressureLeader - tNitsche * tNormalJumpLeader < 0 )
                     {
-                        tJacMM += aWStar * tMasterWeight * (                                                                                                                    //
-                                          +mBeta * tCMMasterElasticity->testTraction_trans( tNormalMaster, mResidualDofType( 0 ) ) * tNormalProjectorMaster * tFIMaster->N()    //
-                                          + tNitsche * tFIMaster->N_trans() * tNormalProjectorMaster * tFIMaster->N() );
+                        tJacMM += aWStar * tLeaderWeight * (                                                                                                                    //
+                                          +mBeta * tCMLeaderElasticity->testTraction_trans( tNormalLeader, mResidualDofType( 0 ) ) * tNormalProjectorLeader * tFILeader->N()    //
+                                          + tNitsche * tFILeader->N_trans() * tNormalProjectorLeader * tFILeader->N() );
 
-                        tJacSM += aWStar * tMasterWeight * (    //
-                                          -tNitsche * tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tFIMaster->N() );
+                        tJacSM += aWStar * tLeaderWeight * (    //
+                                          -tNitsche * tFIFollower->N_trans() * tPrjFollowerToLeaderTrans * tNormalProjectorLeader * tFILeader->N() );
                     }
 
-                    if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 )
+                    if ( tIfcPressureFollower - tNitsche * tNormalJumpFollower < 0 )
                     {
-                        tJacMM += aWStar * tSlaveWeight * (    //
-                                          +tNitsche * tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tPrjMasterToSlave * tFIMaster->N() );
+                        tJacMM += aWStar * tFollowerWeight * (    //
+                                          +tNitsche * tFILeader->N_trans() * tPrjLeaderToFollowerTrans * tNormalProjectorFollower * tPrjLeaderToFollower * tFILeader->N() );
 
-                        tJacSM += aWStar * tSlaveWeight * (                                                                                                                                      //
-                                          -mBeta * tCMSlaveElasticity->testTraction_trans( tNormalSlave, mResidualDofType( 0 ) ) * tNormalProjectorSlave * tPrjMasterToSlave * tFIMaster->N()    //
-                                          - tNitsche * tFISlave->N_trans() * tNormalProjectorSlave * tPrjMasterToSlave * tFIMaster->N() );
+                        tJacSM += aWStar * tFollowerWeight * (                                                                                                                                      //
+                                          -mBeta * tCMFollowerElasticity->testTraction_trans( tNormalFollower, mResidualDofType( 0 ) ) * tNormalProjectorFollower * tPrjLeaderToFollower * tFILeader->N()    //
+                                          - tNitsche * tFIFollower->N_trans() * tNormalProjectorFollower * tPrjLeaderToFollower * tFILeader->N() );
                     }
                 }
 
                 // if dependency on the dof type
-                if ( tCMMasterElasticity->check_dof_dependency( tDofType ) )
+                if ( tCMLeaderElasticity->check_dof_dependency( tDofType ) )
                 {
-                    if ( tIfcPressureMaster - tNitsche * tNormalJumpMaster < 0 )
+                    if ( tIfcPressureLeader - tNitsche * tNormalJumpLeader < 0 )
                     {
                         // add contribution to Jacobian
-                        tJacMM += aWStar * tMasterWeight * (                                                                                                //
-                                          -tFIMaster->N_trans() * tNormalProjectorMaster * tCMMasterElasticity->dTractiondDOF( tDofType, tNormalMaster )    //
-                                          + mBeta * tCMMasterElasticity->dTestTractiondDOF( tDofType, tNormalMaster, tNormalProjectorMaster * tJumpMaster, mResidualDofType( 0 ) ) );
+                        tJacMM += aWStar * tLeaderWeight * (                                                                                                //
+                                          -tFILeader->N_trans() * tNormalProjectorLeader * tCMLeaderElasticity->dTractiondDOF( tDofType, tNormalLeader )    //
+                                          + mBeta * tCMLeaderElasticity->dTestTractiondDOF( tDofType, tNormalLeader, tNormalProjectorLeader * tJumpLeader, mResidualDofType( 0 ) ) );
 
-                        tJacSM += aWStar * tMasterWeight * (    //
-                                          +tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tCMMasterElasticity->dTractiondDOF( tDofType, tNormalMaster ) );
+                        tJacSM += aWStar * tLeaderWeight * (    //
+                                          +tFIFollower->N_trans() * tPrjFollowerToLeaderTrans * tNormalProjectorLeader * tCMLeaderElasticity->dTractiondDOF( tDofType, tNormalLeader ) );
                     }
                     else
                     {
-                        tJacMM += aWStar * tMasterWeight * -mBeta / tNitsche * (                                                                                                                                      //
-                                          tCMMasterElasticity->testTraction_trans( tNormalMaster, mResidualDofType( 0 ) ) * tNormalProjectorMaster * tCMMasterElasticity->dTractiondDOF( tDofType, tNormalMaster )    //
-                                          + tCMMasterElasticity->dTestTractiondDOF( tDofType, tNormalMaster, tNormalProjectorMaster * tTractionMaster, mResidualDofType( 0 ) ) );
+                        tJacMM += aWStar * tLeaderWeight * -mBeta / tNitsche * (                                                                                                                                      //
+                                          tCMLeaderElasticity->testTraction_trans( tNormalLeader, mResidualDofType( 0 ) ) * tNormalProjectorLeader * tCMLeaderElasticity->dTractiondDOF( tDofType, tNormalLeader )    //
+                                          + tCMLeaderElasticity->dTestTractiondDOF( tDofType, tNormalLeader, tNormalProjectorLeader * tTractionLeader, mResidualDofType( 0 ) ) );
                     }
                 }
 
                 // if dependency of stabilization parameters on the dof type
-                if ( tSPNitsche->check_dof_dependency( tDofType, mtk::Master_Slave::MASTER ) )
+                if ( tSPNitsche->check_dof_dependency( tDofType, mtk::Leader_Follower::LEADER ) )
                 {
                     // get the derivatives of the SPs
-                    const Matrix< DDRMat > tNitscheDer      = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 0 );
-                    const Matrix< DDRMat > tMasterWeightDer = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 1 );
-                    const Matrix< DDRMat > tSlaveWeightDer  = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 2 );
+                    const Matrix< DDRMat > tNitscheDer      = tSPNitsche->dSPdLeaderDOF( tDofType ).get_row( 0 );
+                    const Matrix< DDRMat > tLeaderWeightDer = tSPNitsche->dSPdLeaderDOF( tDofType ).get_row( 1 );
+                    const Matrix< DDRMat > tFollowerWeightDer  = tSPNitsche->dSPdLeaderDOF( tDofType ).get_row( 2 );
 
-                    if ( tIfcPressureMaster - tNitsche * tNormalJumpMaster < 0 )
+                    if ( tIfcPressureLeader - tNitsche * tNormalJumpLeader < 0 )
                     {
                         // add contribution to Jacobian
                         tJacMM += aWStar * (                                                                                                                                          //
-                                          ( -tFIMaster->N_trans() * tNormalProjectorMaster * tTractionMaster                                                                          //
-                                                  + mBeta * tCMMasterElasticity->testTraction_trans( tNormalMaster, mResidualDofType( 0 ) ) * tNormalProjectorMaster * tJumpMaster    //
-                                                  + tNitsche * tFIMaster->N_trans() * tNormalProjectorMaster * tJumpMaster )                                                          //
-                                                  * tMasterWeightDer                                                                                                                  //
-                                          + tMasterWeight * tFIMaster->N_trans() * tNormalProjectorMaster * tJumpMaster * tNitscheDer );
+                                          ( -tFILeader->N_trans() * tNormalProjectorLeader * tTractionLeader                                                                          //
+                                                  + mBeta * tCMLeaderElasticity->testTraction_trans( tNormalLeader, mResidualDofType( 0 ) ) * tNormalProjectorLeader * tJumpLeader    //
+                                                  + tNitsche * tFILeader->N_trans() * tNormalProjectorLeader * tJumpLeader )                                                          //
+                                                  * tLeaderWeightDer                                                                                                                  //
+                                          + tLeaderWeight * tFILeader->N_trans() * tNormalProjectorLeader * tJumpLeader * tNitscheDer );
 
                         tJacSM += aWStar * (                                                                                                            //
-                                          ( +tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tTractionMaster                    //
-                                                  - tNitsche * tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tJumpMaster )    //
-                                                  * tMasterWeightDer                                                                                    //
-                                          - tMasterWeight * tFISlave->N_trans() * tPrjSlaveToMaster * tNormalProjectorMaster * tJumpMaster * tNitscheDer );
+                                          ( +tFIFollower->N_trans() * tPrjFollowerToLeaderTrans * tNormalProjectorLeader * tTractionLeader                    //
+                                                  - tNitsche * tFIFollower->N_trans() * tPrjFollowerToLeaderTrans * tNormalProjectorLeader * tJumpLeader )    //
+                                                  * tLeaderWeightDer                                                                                    //
+                                          - tLeaderWeight * tFIFollower->N_trans() * tPrjFollowerToLeader * tNormalProjectorLeader * tJumpLeader * tNitscheDer );
                     }
                     else
                     {
                         tJacMM += aWStar * (    //
-                                          -mBeta * tCMMasterElasticity->testTraction_trans( tNormalMaster, mResidualDofType( 0 ) ) * tNormalProjectorMaster * tTractionMaster )
-                                * ( 1.0 / tNitsche * tMasterWeightDer - tMasterWeight / tNitsche / tNitsche * tNitscheDer );
+                                          -mBeta * tCMLeaderElasticity->testTraction_trans( tNormalLeader, mResidualDofType( 0 ) ) * tNormalProjectorLeader * tTractionLeader )
+                                * ( 1.0 / tNitsche * tLeaderWeightDer - tLeaderWeight / tNitsche / tNitsche * tNitscheDer );
                     }
 
-                    if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 )
+                    if ( tIfcPressureFollower - tNitsche * tNormalJumpFollower < 0 )
                     {
                         tJacMM += aWStar * (                                                                                                           //
-                                          ( +tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tTractionSlave                    //
-                                                  - tNitsche * tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tJumpSlave )    //
-                                                  * tSlaveWeightDer                                                                                    //
-                                          - tSlaveWeight * tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tJumpSlave * tNitscheDer );
+                                          ( +tFILeader->N_trans() * tPrjLeaderToFollowerTrans * tNormalProjectorFollower * tTractionFollower                    //
+                                                  - tNitsche * tFILeader->N_trans() * tPrjLeaderToFollowerTrans * tNormalProjectorFollower * tJumpFollower )    //
+                                                  * tFollowerWeightDer                                                                                    //
+                                          - tFollowerWeight * tFILeader->N_trans() * tPrjLeaderToFollowerTrans * tNormalProjectorFollower * tJumpFollower * tNitscheDer );
 
                         tJacSM += aWStar * (                                                                                                                                      //
-                                          ( -tFISlave->N_trans() * tNormalProjectorSlave * tTractionSlave                                                                         //
-                                                  + mBeta * tCMSlaveElasticity->testTraction_trans( tNormalSlave, mResidualDofType( 0 ) ) * tNormalProjectorSlave * tJumpSlave    //
-                                                  + tNitsche * tFISlave->N_trans() * tNormalProjectorSlave * tJumpSlave )                                                         //
-                                                  * tSlaveWeightDer                                                                                                               //
-                                          + tSlaveWeight * tFISlave->N_trans() * tNormalProjectorSlave * tJumpSlave * tNitscheDer );
+                                          ( -tFIFollower->N_trans() * tNormalProjectorFollower * tTractionFollower                                                                         //
+                                                  + mBeta * tCMFollowerElasticity->testTraction_trans( tNormalFollower, mResidualDofType( 0 ) ) * tNormalProjectorFollower * tJumpFollower    //
+                                                  + tNitsche * tFIFollower->N_trans() * tNormalProjectorFollower * tJumpFollower )                                                         //
+                                                  * tFollowerWeightDer                                                                                                               //
+                                          + tFollowerWeight * tFIFollower->N_trans() * tNormalProjectorFollower * tJumpFollower * tNitscheDer );
                     }
                     else
                     {
                         tJacSM += aWStar * (    //
-                                          -mBeta * tCMSlaveElasticity->testTraction_trans( tNormalSlave, mResidualDofType( 0 ) ) * tNormalProjectorSlave * tTractionSlave )
-                                * ( 1.0 / tNitsche * tSlaveWeightDer - tSlaveWeight / tNitsche / tNitsche * tNitscheDer );
+                                          -mBeta * tCMFollowerElasticity->testTraction_trans( tNormalFollower, mResidualDofType( 0 ) ) * tNormalProjectorFollower * tTractionFollower )
+                                * ( 1.0 / tNitsche * tFollowerWeightDer - tFollowerWeight / tNitsche / tNitsche * tNitscheDer );
                     }
                 }
             }
 
-            // compute the Jacobian for indirect dof dependencies through slave constitutive models
-            uint tSlaveNumDofDependencies = mRequestedSlaveGlobalDofTypes.size();
-            for ( uint iDOF = 0; iDOF < tSlaveNumDofDependencies; iDOF++ )
+            // compute the Jacobian for indirect dof dependencies through follower constitutive models
+            uint tFollowerNumDofDependencies = mRequestedFollowerGlobalDofTypes.size();
+            for ( uint iDOF = 0; iDOF < tFollowerNumDofDependencies; iDOF++ )
             {
                 // get dof type
-                const Cell< MSI::Dof_Type >& tDofType = mRequestedSlaveGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type >& tDofType = mRequestedFollowerGlobalDofTypes( iDOF );
 
                 // get the index for the dof type
-                const sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::SLAVE );
-                const uint tSlaveDepStartIndex = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 0 );
-                const uint tSlaveDepStopIndex  = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 1 );
+                const sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );
+                const uint tFollowerDepStartIndex = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tDofDepIndex, 0 );
+                const uint tFollowerDepStopIndex  = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tDofDepIndex, 1 );
 
                 // extract sub-matrices
                 auto tJacMS = mSet->get_jacobian()(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { tSlaveDepStartIndex, tSlaveDepStopIndex } );
+                        { tLeaderResStartIndex, tLeaderResStopIndex },
+                        { tFollowerDepStartIndex, tFollowerDepStopIndex } );
 
                 auto tJacSS = mSet->get_jacobian()(
-                        { tSlaveResStartIndex, tSlaveResStopIndex },
-                        { tSlaveDepStartIndex, tSlaveDepStopIndex } );
+                        { tFollowerResStartIndex, tFollowerResStopIndex },
+                        { tFollowerDepStartIndex, tFollowerDepStopIndex } );
 
                 // if dof type is residual dof type
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
-                    if ( tIfcPressureMaster - tNitsche * tNormalJumpMaster < 0 )
+                    if ( tIfcPressureLeader - tNitsche * tNormalJumpLeader < 0 )
                     {
-                        tJacMS += aWStar * tMasterWeight * (                                                                                                                                       //
-                                          -mBeta * tCMMasterElasticity->testTraction_trans( tNormalMaster, mResidualDofType( 0 ) ) * tNormalProjectorMaster * tPrjSlaveToMaster * tFISlave->N()    //
-                                          - tNitsche * tFIMaster->N_trans() * tNormalProjectorMaster * tPrjSlaveToMaster * tFISlave->N() );
+                        tJacMS += aWStar * tLeaderWeight * (                                                                                                                                       //
+                                          -mBeta * tCMLeaderElasticity->testTraction_trans( tNormalLeader, mResidualDofType( 0 ) ) * tNormalProjectorLeader * tPrjFollowerToLeader * tFIFollower->N()    //
+                                          - tNitsche * tFILeader->N_trans() * tNormalProjectorLeader * tPrjFollowerToLeader * tFIFollower->N() );
 
-                        tJacSS += aWStar * tMasterWeight * (    //
-                                          +tNitsche * tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tPrjSlaveToMaster * tFISlave->N() );
+                        tJacSS += aWStar * tLeaderWeight * (    //
+                                          +tNitsche * tFIFollower->N_trans() * tPrjFollowerToLeaderTrans * tNormalProjectorLeader * tPrjFollowerToLeader * tFIFollower->N() );
                     }
 
-                    if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 )
+                    if ( tIfcPressureFollower - tNitsche * tNormalJumpFollower < 0 )
                     {
-                        tJacMS += aWStar * tSlaveWeight * (    //
-                                          -tNitsche * tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tFISlave->N() );
+                        tJacMS += aWStar * tFollowerWeight * (    //
+                                          -tNitsche * tFILeader->N_trans() * tPrjLeaderToFollowerTrans * tNormalProjectorFollower * tFIFollower->N() );
 
-                        tJacSS += aWStar * tSlaveWeight * (                                                                                                                 //
-                                          +mBeta * tCMSlaveElasticity->testTraction_trans( tNormalSlave, mResidualDofType( 0 ) ) * tNormalProjectorSlave * tFISlave->N()    //
-                                          + tNitsche * tFISlave->N_trans() * tNormalProjectorSlave * tFISlave->N() );
+                        tJacSS += aWStar * tFollowerWeight * (                                                                                                                 //
+                                          +mBeta * tCMFollowerElasticity->testTraction_trans( tNormalFollower, mResidualDofType( 0 ) ) * tNormalProjectorFollower * tFIFollower->N()    //
+                                          + tNitsche * tFIFollower->N_trans() * tNormalProjectorFollower * tFIFollower->N() );
                     }
                 }
 
                 // if dependency on the dof type
-                if ( tCMSlaveElasticity->check_dof_dependency( tDofType ) )
+                if ( tCMFollowerElasticity->check_dof_dependency( tDofType ) )
                 {
-                    if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 )
+                    if ( tIfcPressureFollower - tNitsche * tNormalJumpFollower < 0 )
                     {
                         // add contribution to Jacobian
-                        tJacMS += aWStar * tSlaveWeight * (    //
-                                          +tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tCMSlaveElasticity->dTractiondDOF( tDofType, tNormalSlave ) );
+                        tJacMS += aWStar * tFollowerWeight * (    //
+                                          +tFILeader->N_trans() * tPrjLeaderToFollowerTrans * tNormalProjectorFollower * tCMFollowerElasticity->dTractiondDOF( tDofType, tNormalFollower ) );
 
-                        tJacSS += aWStar * tSlaveWeight * (                                                                                             //
-                                          -tFISlave->N_trans() * tNormalProjectorSlave * tCMSlaveElasticity->dTractiondDOF( tDofType, tNormalSlave )    //
-                                          + mBeta * tCMSlaveElasticity->dTestTractiondDOF( tDofType, tNormalSlave, tNormalProjectorSlave * tJumpSlave, mResidualDofType( 0 ) ) );
+                        tJacSS += aWStar * tFollowerWeight * (                                                                                             //
+                                          -tFIFollower->N_trans() * tNormalProjectorFollower * tCMFollowerElasticity->dTractiondDOF( tDofType, tNormalFollower )    //
+                                          + mBeta * tCMFollowerElasticity->dTestTractiondDOF( tDofType, tNormalFollower, tNormalProjectorFollower * tJumpFollower, mResidualDofType( 0 ) ) );
                     }
                     else
                     {
-                        tJacSS += aWStar * tSlaveWeight * -mBeta / tNitsche * (                                                                                                                                  //
-                                          tCMSlaveElasticity->testTraction_trans( tNormalSlave, mResidualDofType( 0 ) ) * tNormalProjectorSlave * tCMSlaveElasticity->dTractiondDOF( tDofType, tNormalSlave )    //
-                                          + tCMSlaveElasticity->dTestTractiondDOF( tDofType, tNormalSlave, tNormalProjectorSlave * tTractionSlave, mResidualDofType( 0 ) ) );
+                        tJacSS += aWStar * tFollowerWeight * -mBeta / tNitsche * (                                                                                                                                  //
+                                          tCMFollowerElasticity->testTraction_trans( tNormalFollower, mResidualDofType( 0 ) ) * tNormalProjectorFollower * tCMFollowerElasticity->dTractiondDOF( tDofType, tNormalFollower )    //
+                                          + tCMFollowerElasticity->dTestTractiondDOF( tDofType, tNormalFollower, tNormalProjectorFollower * tTractionFollower, mResidualDofType( 0 ) ) );
                     }
                 }
 
                 // if dependency of stabilization parameters on the dof type
-                if ( tSPNitsche->check_dof_dependency( tDofType, mtk::Master_Slave::SLAVE ) )
+                if ( tSPNitsche->check_dof_dependency( tDofType, mtk::Leader_Follower::FOLLOWER ) )
                 {
                     // get the derivatives of the SPs
-                    const Matrix< DDRMat > tNitscheDer      = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 0 );
-                    const Matrix< DDRMat > tMasterWeightDer = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 1 );
-                    const Matrix< DDRMat > tSlaveWeightDer  = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 2 );
+                    const Matrix< DDRMat > tNitscheDer      = tSPNitsche->dSPdFollowerDOF( tDofType ).get_row( 0 );
+                    const Matrix< DDRMat > tLeaderWeightDer = tSPNitsche->dSPdFollowerDOF( tDofType ).get_row( 1 );
+                    const Matrix< DDRMat > tFollowerWeightDer  = tSPNitsche->dSPdFollowerDOF( tDofType ).get_row( 2 );
 
-                    if ( tIfcPressureMaster - tNitsche * tNormalJumpMaster < 0 )
+                    if ( tIfcPressureLeader - tNitsche * tNormalJumpLeader < 0 )
                     {
                         // add contribution to Jacobian
                         tJacMS += aWStar * (                                                                                                                                          //
-                                          ( -tFIMaster->N_trans() * tNormalProjectorMaster * tTractionMaster                                                                          //
-                                                  + mBeta * tCMMasterElasticity->testTraction_trans( tNormalMaster, mResidualDofType( 0 ) ) * tNormalProjectorMaster * tJumpMaster    //
-                                                  + tNitsche * tFIMaster->N_trans() * tNormalProjectorMaster * tJumpMaster )
-                                                  * tMasterWeightDer    //
-                                          + tMasterWeight * tFIMaster->N_trans() * tNormalProjectorMaster * tJumpMaster * tNitscheDer );
+                                          ( -tFILeader->N_trans() * tNormalProjectorLeader * tTractionLeader                                                                          //
+                                                  + mBeta * tCMLeaderElasticity->testTraction_trans( tNormalLeader, mResidualDofType( 0 ) ) * tNormalProjectorLeader * tJumpLeader    //
+                                                  + tNitsche * tFILeader->N_trans() * tNormalProjectorLeader * tJumpLeader )
+                                                  * tLeaderWeightDer    //
+                                          + tLeaderWeight * tFILeader->N_trans() * tNormalProjectorLeader * tJumpLeader * tNitscheDer );
 
                         tJacSS += aWStar * (                                                                                                            //
-                                          ( +tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tTractionMaster                    //
-                                                  - tNitsche * tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tJumpMaster )    //
-                                                  * tMasterWeightDer                                                                                    //
-                                          - tMasterWeight * tFISlave->N_trans() * tPrjSlaveToMasterTrans * tNormalProjectorMaster * tJumpMaster * tNitscheDer );
+                                          ( +tFIFollower->N_trans() * tPrjFollowerToLeaderTrans * tNormalProjectorLeader * tTractionLeader                    //
+                                                  - tNitsche * tFIFollower->N_trans() * tPrjFollowerToLeaderTrans * tNormalProjectorLeader * tJumpLeader )    //
+                                                  * tLeaderWeightDer                                                                                    //
+                                          - tLeaderWeight * tFIFollower->N_trans() * tPrjFollowerToLeaderTrans * tNormalProjectorLeader * tJumpLeader * tNitscheDer );
                     }
                     else
                     {
                         tJacMS += aWStar * (                                                                                                                                       //
-                                          -mBeta * tCMMasterElasticity->testTraction_trans( tNormalMaster, mResidualDofType( 0 ) ) * tNormalProjectorMaster * tTractionMaster )    //
-                                * ( 1.0 / tNitsche * tMasterWeightDer - tMasterWeight / tNitsche / tNitsche * tNitscheDer );
+                                          -mBeta * tCMLeaderElasticity->testTraction_trans( tNormalLeader, mResidualDofType( 0 ) ) * tNormalProjectorLeader * tTractionLeader )    //
+                                * ( 1.0 / tNitsche * tLeaderWeightDer - tLeaderWeight / tNitsche / tNitsche * tNitscheDer );
                     }
 
-                    if ( tIfcPressureSlave - tNitsche * tNormalJumpSlave < 0 )
+                    if ( tIfcPressureFollower - tNitsche * tNormalJumpFollower < 0 )
                     {
                         tJacMS += aWStar * (                                                                                                           //
-                                          ( +tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tTractionSlave                    //
-                                                  - tNitsche * tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tJumpSlave )    //
-                                                  * tSlaveWeightDer                                                                                    //
-                                          - tSlaveWeight * tFIMaster->N_trans() * tPrjMasterToSlaveTrans * tNormalProjectorSlave * tJumpSlave * tNitscheDer );
+                                          ( +tFILeader->N_trans() * tPrjLeaderToFollowerTrans * tNormalProjectorFollower * tTractionFollower                    //
+                                                  - tNitsche * tFILeader->N_trans() * tPrjLeaderToFollowerTrans * tNormalProjectorFollower * tJumpFollower )    //
+                                                  * tFollowerWeightDer                                                                                    //
+                                          - tFollowerWeight * tFILeader->N_trans() * tPrjLeaderToFollowerTrans * tNormalProjectorFollower * tJumpFollower * tNitscheDer );
 
                         tJacSS += aWStar * (                                                                                                                                      //
-                                          ( -tFISlave->N_trans() * tNormalProjectorSlave * tTractionSlave                                                                         //
-                                                  + mBeta * tCMSlaveElasticity->testTraction_trans( tNormalSlave, mResidualDofType( 0 ) ) * tNormalProjectorSlave * tJumpSlave    //
-                                                  + tNitsche * tFISlave->N_trans() * tNormalProjectorSlave * tJumpSlave )                                                         //
-                                                  * tSlaveWeightDer                                                                                                               //
-                                          + tFISlave->N_trans() * tNormalProjectorSlave * tJumpSlave * tNitscheDer );
+                                          ( -tFIFollower->N_trans() * tNormalProjectorFollower * tTractionFollower                                                                         //
+                                                  + mBeta * tCMFollowerElasticity->testTraction_trans( tNormalFollower, mResidualDofType( 0 ) ) * tNormalProjectorFollower * tJumpFollower    //
+                                                  + tNitsche * tFIFollower->N_trans() * tNormalProjectorFollower * tJumpFollower )                                                         //
+                                                  * tFollowerWeightDer                                                                                                               //
+                                          + tFIFollower->N_trans() * tNormalProjectorFollower * tJumpFollower * tNitscheDer );
                     }
                     else
                     {
                         tJacSS += aWStar * (    //
-                                          -mBeta * tCMSlaveElasticity->testTraction_trans( tNormalSlave, mResidualDofType( 0 ) ) * tNormalProjectorSlave * tTractionSlave )
-                                * ( 1.0 / tNitsche * tSlaveWeightDer - tSlaveWeight / tNitsche / tNitsche * tNitscheDer );
+                                          -mBeta * tCMFollowerElasticity->testTraction_trans( tNormalFollower, mResidualDofType( 0 ) ) * tNormalProjectorFollower * tTractionFollower )
+                                * ( 1.0 / tNitsche * tFollowerWeightDer - tFollowerWeight / tNitsche / tNitsche * tNitscheDer );
                     }
                 }
             }

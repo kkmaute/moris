@@ -75,31 +75,31 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     real tPerturbation = 1E-6;
 
     // create the properties
-    std::shared_ptr<fem::Property> tPropMasterEMod = std::make_shared<fem::Property>();
-    tPropMasterEMod->set_parameters({{{1.0}}});
-    tPropMasterEMod->set_dv_type_list( {{ PDV_Type::DENSITY }} );
-    tPropMasterEMod->set_val_function( tFIValDvFunction_UTIQISTRAINENERGY );
-    tPropMasterEMod->set_dv_derivative_functions( { tFIDerDvFunction_UTIQISTRAINENERGY } );
+    std::shared_ptr<fem::Property> tPropLeaderEMod = std::make_shared<fem::Property>();
+    tPropLeaderEMod->set_parameters({{{1.0}}});
+    tPropLeaderEMod->set_dv_type_list( {{ PDV_Type::DENSITY }} );
+    tPropLeaderEMod->set_val_function( tFIValDvFunction_UTIQISTRAINENERGY );
+    tPropLeaderEMod->set_dv_derivative_functions( { tFIDerDvFunction_UTIQISTRAINENERGY } );
 
-    std::shared_ptr< fem::Property > tPropMasterNu = std::make_shared< fem::Property > ();
-    tPropMasterNu->set_parameters( { {{ 0.3 }} } );
-    tPropMasterNu->set_val_function( tConstValFunction_UTIQISTRAINENERGY );
+    std::shared_ptr< fem::Property > tPropLeaderNu = std::make_shared< fem::Property > ();
+    tPropLeaderNu->set_parameters( { {{ 0.3 }} } );
+    tPropLeaderNu->set_val_function( tConstValFunction_UTIQISTRAINENERGY );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterElastLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
-    tCMMasterElastLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
-    tCMMasterElastLinIso->set_property( tPropMasterEMod, "YoungsModulus" );
-    tCMMasterElastLinIso->set_property( tPropMasterNu, "PoissonRatio" );
-    tCMMasterElastLinIso->set_space_dim( 3 );
-    tCMMasterElastLinIso->set_local_properties();
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderElastLinIso = tCMFactory.create_CM( fem::Constitutive_Type::STRUC_LIN_ISO );
+    tCMLeaderElastLinIso->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY, MSI::Dof_Type::UZ }} );
+    tCMLeaderElastLinIso->set_property( tPropLeaderEMod, "YoungsModulus" );
+    tCMLeaderElastLinIso->set_property( tPropLeaderNu, "PoissonRatio" );
+    tCMLeaderElastLinIso->set_space_dim( 3 );
+    tCMLeaderElastLinIso->set_local_properties();
 
     // define the IWGs
     fem::IQI_Factory tIQIFactory;
 
     std::shared_ptr< fem::IQI > tIQI = tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
-    tIQI->set_constitutive_model( tCMMasterElastLinIso, "Elast", mtk::Master_Slave::MASTER );
+    tIQI->set_constitutive_model( tCMLeaderElastLinIso, "Elast", mtk::Leader_Follower::LEADER );
     tIQI->set_name("Strain Energy");
 
     // create evaluation point xi, tau
@@ -215,17 +215,17 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     tIQI->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIQI->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
-    // set size and populate the set master dof type map
-    tIQI->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIQI->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    // set size and populate the set leader dof type map
+    tIQI->mSet->mLeaderDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIQI->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
     // set size and populate the set dof type map
     tIQI->mSet->mUniqueDvTypeMap.set_size( static_cast< int >( PDV_Type::UNDEFINED ) + 1, 1, -1 );
     tIQI->mSet->mUniqueDvTypeMap( static_cast< int >( PDV_Type::DENSITY ) ) = 0;
 
-    // set size and populate the set master dof type map
-    tIQI->mSet->mMasterDvTypeMap.set_size( static_cast< int >( PDV_Type::UNDEFINED ) + 1, 1, -1 );
-    tIQI->mSet->mMasterDvTypeMap( static_cast< int >( PDV_Type::DENSITY ) ) = 0;
+    // set size and populate the set leader dof type map
+    tIQI->mSet->mLeaderDvTypeMap.set_size( static_cast< int >( PDV_Type::UNDEFINED ) + 1, 1, -1 );
+    tIQI->mSet->mLeaderDvTypeMap( static_cast< int >( PDV_Type::DENSITY ) ) = 0;
 
     // set size and populate residual assembly map
     tIQI->mSet->mResDofAssemblyMap.resize( 1 );
@@ -247,8 +247,8 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     tIQI->mSet->mQI.resize( 1 );
     tIQI->mSet->mQI( 0 ).set_size( 1, 1, 0.0 );
 
-    // populate the requested master dof type
-    tIQI->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::UX }};
+    // populate the requested leader dof type
+    tIQI->mRequestedLeaderGlobalDofTypes = {{ MSI::Dof_Type::UX }};
 
     moris::Cell< moris::Cell< enum fem::IQI_Type > > tRequestedIQITypes( 1 );
     tRequestedIQITypes( 0 ).resize( 1, fem::IQI_Type::STRAIN_ENERGY );
@@ -266,7 +266,7 @@ TEST_CASE("IQI_Strain_Energy", "[moris],[fem],[IQI_Strain_Energy]")
     tFIManager.mIGGeometryInterpolator = &tGI;
 
     // set the interpolator manager to the set
-    tIQI->mSet->mMasterFIManager = &tFIManager;
+    tIQI->mSet->mLeaderFIManager = &tFIManager;
 
     // set IWG field interpolator manager
     tIQI->set_field_interpolator_manager( &tFIManager );

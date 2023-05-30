@@ -99,12 +99,12 @@ namespace moris
                  * (dnNdxn . normal)
                  * @param[ in ] aFlatdnNdxn matrix to fill with derivatives
                  * @param[ in ] aOrder      interpolation order for residual dof type
-                 * @param[ in ] aIsMaster   enum for master or slave
+                 * @param[ in ] aIsLeader   enum for leader or follower
                  */
                 void compute_flat_dnNdxn(
                         Matrix< DDRMat >  & aFlatdnNdxn,
                         uint                aOrder,
-                        mtk::Master_Slave   aIsMaster );
+                        mtk::Leader_Follower   aIsLeader );
 
                 //------------------------------------------------------------------------------
         };

@@ -29,7 +29,7 @@ namespace moris
             mBeta = aBeta;
 
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Dirichlet" ] = static_cast< uint >( IWG_Property_Type::DIRICHLET );
@@ -37,7 +37,7 @@ namespace moris
             mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "Diffusion" ] = static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO );
@@ -59,18 +59,18 @@ namespace moris
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type, indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get field interpolator for a given dof type
             Field_Interpolator* tFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the selection matrix property
             const std::shared_ptr< Property >& tPropSelect =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
             real tM = 1.0;
@@ -84,14 +84,14 @@ namespace moris
 
             // get imposed temperature property
             const std::shared_ptr< Property >& tPropDirichlet =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             MORIS_ASSERT( tPropDirichlet != nullptr,
                     "IWG_Diffusion_Dirichlet_Nitsche::compute_residual - DBC property missing." );
 
             // get the elasticity CM
             const std::shared_ptr< Constitutive_Model >& tCMDiffusion =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
 
             MORIS_ASSERT( tCMDiffusion != nullptr,
                     "IWG_Diffusion_Dirichlet_Nitsche::compute_residual - Constitutive model missing." );
@@ -105,7 +105,7 @@ namespace moris
 
             // get thickness property
             const std::shared_ptr< Property >& tPropThickness =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -114,7 +114,7 @@ namespace moris
             real tJump = tFI->val()( 0 ) - tPropDirichlet->val()( 0 );
 
             // compute the residual
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex } ) +=
+            mSet->get_residual()( 0 )( { tLeaderResStartIndex, tLeaderResStopIndex } ) +=
                     aWStar * ( -tFI->N_trans() * tM * tCMDiffusion->traction( mNormal )                               //
                                + mBeta * tCMDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tJump    //
                                + tSPNitsche->val()( 0 ) * tFI->N_trans() * tM * tJump );
@@ -134,18 +134,18 @@ namespace moris
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type, indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get field interpolator for residual dof type
             Field_Interpolator* tFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the selection matrix property
             const std::shared_ptr< Property >& tPropSelect =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
             real tM = 1.0;
@@ -159,11 +159,11 @@ namespace moris
 
             // get imposed temperature property
             const std::shared_ptr< Property >& tPropDirichlet =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get the elasticity CM
             const std::shared_ptr< Constitutive_Model >& tCMDiffusion =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
 
             // get the stabilization parameter
             const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
@@ -171,7 +171,7 @@ namespace moris
 
             // get thickness property
             const std::shared_ptr< Property >& tPropThickness =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
@@ -180,22 +180,22 @@ namespace moris
             real tJump = tFI->val()( 0 ) - tPropDirichlet->val()( 0 );
 
             // compute the Jacobian for indirect dof dependencies through properties
-            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                const Cell< MSI::Dof_Type >& tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
-                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 0 );
+                uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
 
                 // get sub-matrix
                 auto tJac = mSet->get_jacobian()(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } );
+                        { tLeaderResStartIndex, tLeaderResStopIndex },
+                        { tLeaderDepStartIndex, tLeaderDepStopIndex } );
 
                 // if dof type is residual dof type
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
@@ -224,7 +224,7 @@ namespace moris
                 if ( tSPNitsche->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to Jacobian
-                    tJac += aWStar * ( tFI->N_trans() * tM * tJump * tSPNitsche->dSPdMasterDOF( tDofType ) );
+                    tJac += aWStar * ( tFI->N_trans() * tM * tJump * tSPNitsche->dSPdLeaderDOF( tDofType ) );
                 }
             }
 

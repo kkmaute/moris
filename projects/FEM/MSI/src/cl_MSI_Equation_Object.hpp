@@ -108,7 +108,7 @@ namespace moris
             //------------------------------------------------------------------------------
             /**
              * constructor
-             * @param[ in ] aNodeObjs master/slave list of fem nodes
+             * @param[ in ] aNodeObjs leader/follower list of fem nodes
              */
             Equation_Object( const moris::Cell< moris::Cell< fem::Node_Base* > >& aNodeObjs )
                     : mNodeObj( aNodeObjs )
@@ -263,13 +263,13 @@ namespace moris
              * @param[ in ] aPdofValues           All pdof values of this equation object
              * @param[ in ] aRequestedDofTypes    List of requested dof types
              * @param[ in ] aRequestedPdofValues  Reference to the matrix of requested pdof values
-             * @param[ in ] aIsMaster             enum for master or slave
+             * @param[ in ] aIsLeader             enum for leader or follower
              */
             void get_my_pdof_values(
                     const moris::Cell< Matrix< DDRMat > >& aPdofValues,
                     const moris::Cell< enum Dof_Type >&    aRequestedDofTypes,
                     Cell< Cell< Matrix< DDRMat > > >&      aRequestedPdofValues,
-                    const mtk::Master_Slave                aIsMaster = mtk::Master_Slave::MASTER );
+                    const mtk::Leader_Follower                aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**

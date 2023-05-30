@@ -138,7 +138,7 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
             }
         }
 
-        tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
+        tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
 
         //------------------------------------------------------------------------------
         // set a fem set pointer
@@ -156,11 +156,11 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
         tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 1;
         tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 2;
 
-        // set size and populate the set master dof type map
-        tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-        tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )  = 0;
-        tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 1;
-        tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 2;
+        // set size and populate the set leader dof type map
+        tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+        tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::RHO ) )  = 0;
+        tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 1;
+        tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 2;
 
         // loop on the space dimension
         for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -295,28 +295,28 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
                         mtk::Interpolation_Type::LAGRANGE,
                         mtk::Interpolation_Order::LINEAR );
 
-                // fill coefficients for master FI
-                Matrix< DDRMat > tMasterDOFHatRho;
-                fill_RhoHat( tMasterDOFHatRho, iSpaceDim, iInterpOrder );
-                Matrix< DDRMat > tMasterDOFHatVel;
-                fill_UHat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-                Matrix< DDRMat > tMasterDOFHatTemp;
-                fill_TempHat( tMasterDOFHatTemp, iSpaceDim, iInterpOrder );
+                // fill coefficients for leader FI
+                Matrix< DDRMat > tLeaderDOFHatRho;
+                fill_RhoHat( tLeaderDOFHatRho, iSpaceDim, iInterpOrder );
+                Matrix< DDRMat > tLeaderDOFHatVel;
+                fill_UHat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+                Matrix< DDRMat > tLeaderDOFHatTemp;
+                fill_TempHat( tLeaderDOFHatTemp, iSpaceDim, iInterpOrder );
 
                 // create a cell of field interpolators for IWG
-                Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+                Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
                 // create the field interpolator density
-                tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDensityDof( 0 ) );
-                tMasterFIs( 0 )->set_coeff( tMasterDOFHatRho );
+                tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tDensityDof( 0 ) );
+                tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatRho );
 
                 // create the field interpolator velocity
-                tMasterFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof( 0 ) );
-                tMasterFIs( 1 )->set_coeff( tMasterDOFHatVel );
+                tLeaderFIs( 1 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelocityDof( 0 ) );
+                tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatVel );
 
                 // create the field interpolator pressure
-                tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof( 0 ) );
-                tMasterFIs( 2 )->set_coeff( tMasterDOFHatTemp );
+                tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDof( 0 ) );
+                tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatTemp );
 
                 // set size and fill the set residual assembly map
                 tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -349,8 +349,8 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
                 // build global dof type list
                 tIWG->get_global_dof_type_list();
 
-                // populate the requested master dof type
-                tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+                // populate the requested leader dof type
+                tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
                 // create a field interpolator manager
                 moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
@@ -358,12 +358,12 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
                 Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
                 // populate the field interpolator manager
-                tFIManager.mFI                     = tMasterFIs;
+                tFIManager.mFI                     = tLeaderFIs;
                 tFIManager.mIPGeometryInterpolator = &tGI;
                 tFIManager.mIGGeometryInterpolator = &tGI;
 
                 // set the interpolator manager to the set
-                tIWG->mSet->mMasterFIManager = &tFIManager;
+                tIWG->mSet->mLeaderFIManager = &tFIManager;
 
                 // set IWG field interpolator manager
                 tIWG->set_field_interpolator_manager( &tFIManager );
@@ -383,7 +383,7 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
                     Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                     // set integration point
-                    tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                    tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                     // check evaluation of the residual for IWG
                     //------------------------------------------------------------------------------
@@ -422,7 +422,7 @@ TEST_CASE( "IWG_Compressible_NS_Neumann_Boundaries",
                 }
 
                 // clean up
-                tMasterFIs.clear();
+                tLeaderFIs.clear();
             }
         }
     }

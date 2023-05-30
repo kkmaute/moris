@@ -27,7 +27,7 @@ namespace moris
                 moris::Cell< std::tuple<
                 fem::Measure_Type,
                 mtk::Primary_Void,
-                mtk::Master_Slave > >      & aClusterMeasureTuples,
+                mtk::Leader_Follower > >      & aClusterMeasureTuples,
                 moris::Cell< std::string > & aClusterMeasureStrings )
         {
             // loop over provided cluster measure strings
@@ -54,7 +54,7 @@ namespace moris
         moris::Cell< std::tuple<
                        fem::Measure_Type,
                        mtk::Primary_Void,
-                       mtk::Master_Slave > > SP_Measure::get_cluster_measure_tuple_list()
+                       mtk::Leader_Follower > > SP_Measure::get_cluster_measure_tuple_list()
         {
             return { mElementSizeTuple };
         }

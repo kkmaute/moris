@@ -27,22 +27,22 @@ namespace moris
         //------------------------------------------------------------------------------
 
         moris::Cell< moris::Cell< MSI::Dof_Type > > & Equation_Set::get_dof_type_list(
-                mtk::Master_Slave aIsMaster )
+                mtk::Leader_Follower aIsLeader )
         {
-            switch ( aIsMaster )
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
+                case mtk::Leader_Follower::LEADER:
                 {
-                    return mMasterDofTypes;
+                    return mLeaderDofTypes;
                 }
-                case mtk::Master_Slave::SLAVE:
+                case mtk::Leader_Follower::FOLLOWER:
                 {
-                    return mSlaveDofTypes;
+                    return mFollowerDofTypes;
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "Equation_Set::get_dof_type_list - can only be MASTER or SLAVE");
-                    return mMasterDofTypes;
+                    MORIS_ERROR( false, "Equation_Set::get_dof_type_list - can only be LEADER or FOLLOWER");
+                    return mLeaderDofTypes;
                 }
             }
         }
@@ -50,22 +50,22 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Matrix< DDSMat > & Equation_Set::get_dof_type_map(
-                mtk::Master_Slave aIsMaster )
+                mtk::Leader_Follower aIsLeader )
         {
-            switch ( aIsMaster )
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
+                case mtk::Leader_Follower::LEADER:
                 {
-                    return mMasterDofTypeMap;
+                    return mLeaderDofTypeMap;
                 }
-                case mtk::Master_Slave::SLAVE:
+                case mtk::Leader_Follower::FOLLOWER:
                 {
-                    return mSlaveDofTypeMap;
+                    return mFollowerDofTypeMap;
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "Equation_Set::get_dof_type_map - can only be MASTER or SLAVE");
-                    return mMasterDofTypeMap;
+                    MORIS_ERROR(false, "Equation_Set::get_dof_type_map - can only be LEADER or FOLLOWER");
+                    return mLeaderDofTypeMap;
                 }
             }
         }
@@ -74,62 +74,62 @@ namespace moris
 
         sint Equation_Set::get_dof_index_for_type(
                 enum MSI::Dof_Type aDofType,
-                mtk::Master_Slave  aIsMaster )
+                mtk::Leader_Follower  aIsLeader )
         {
-            switch ( aIsMaster )
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
+                case mtk::Leader_Follower::LEADER:
                 {
-                    // check if master dof type in list
-                    MORIS_ASSERT( static_cast< uint >( aDofType ) < mMasterDofTypeMap.numel(),
-                            "Equation_Set::get_dof_index_for_type - master dof type does not exist in map." );
+                    // check if leader dof type in list
+                    MORIS_ASSERT( static_cast< uint >( aDofType ) < mLeaderDofTypeMap.numel(),
+                            "Equation_Set::get_dof_index_for_type - leader dof type does not exist in map." );
 
-                    // get the index for master dof type from map
-                    sint tMasterIndex = mMasterDofTypeMap( static_cast< int >( aDofType ) );
+                    // get the index for leader dof type from map
+                    sint tLeaderIndex = mLeaderDofTypeMap( static_cast< int >( aDofType ) );
 
-                    //                    // check if master dof type assigned in map
-                    //                    MORIS_ASSERT( tMasterIndex != -1,
-                    //                                  "Equation_Set::get_dof_index_for_type - master dof type not assigned in map." );
+                    //                    // check if leader dof type assigned in map
+                    //                    MORIS_ASSERT( tLeaderIndex != -1,
+                    //                                  "Equation_Set::get_dof_index_for_type - leader dof type not assigned in map." );
 
-                    // return master dof type index
-                    return tMasterIndex;
+                    // return leader dof type index
+                    return tLeaderIndex;
                 }
 
-                case mtk::Master_Slave::SLAVE:
+                case mtk::Leader_Follower::FOLLOWER:
                 {
-                    // check if slave dof type in map
-                    MORIS_ASSERT( static_cast< uint >( aDofType ) < mSlaveDofTypeMap.numel(),
-                            "Equation_Set::get_dof_index_for_type - slave dof type does not exist in map." );
+                    // check if follower dof type in map
+                    MORIS_ASSERT( static_cast< uint >( aDofType ) < mFollowerDofTypeMap.numel(),
+                            "Equation_Set::get_dof_index_for_type - follower dof type does not exist in map." );
 
-                    // get the index for slave dof type from map
-                    sint tSlaveIndex = mSlaveDofTypeMap( static_cast< int >( aDofType ) );
+                    // get the index for follower dof type from map
+                    sint tFollowerIndex = mFollowerDofTypeMap( static_cast< int >( aDofType ) );
 
-                    //                    // check if slave dof type assigned in map
-                    //                    MORIS_ASSERT( tSlaveIndex != -1,
-                    //                                  "Equation_Set::get_dof_index_for_type - slave dof type not assigned in map." );
+                    //                    // check if follower dof type assigned in map
+                    //                    MORIS_ASSERT( tFollowerIndex != -1,
+                    //                                  "Equation_Set::get_dof_index_for_type - follower dof type not assigned in map." );
 
-                    if ( tSlaveIndex == -1 )
+                    if ( tFollowerIndex == -1 )
                     {
-                        return tSlaveIndex;
+                        return tFollowerIndex;
                     }
                     else
                     {
-                        // get maximum index from master map
-                        moris::sint tMaxMasterIndex = mMasterDofTypeMap.max();
+                        // get maximum index from leader map
+                        moris::sint tMaxLeaderIndex = mLeaderDofTypeMap.max();
 
-                        // check if master map was assigned
-                        MORIS_ASSERT( tMaxMasterIndex != -1,
-                                "Equation_Set::get_dof_index_for_type - mMasterDofTypeMap is empty." );
+                        // check if leader map was assigned
+                        MORIS_ASSERT( tMaxLeaderIndex != -1,
+                                "Equation_Set::get_dof_index_for_type - mLeaderDofTypeMap is empty." );
 
-                        // return slave dof type index
-                        return tSlaveIndex + tMaxMasterIndex + 1;
+                        // return follower dof type index
+                        return tFollowerIndex + tMaxLeaderIndex + 1;
                     }
                 }
 
                 default:
                 {
                     MORIS_ERROR( false,
-                            "Equation_Set::get_dof_index_for_type - can only be MASTER or SLAVE.");
+                            "Equation_Set::get_dof_index_for_type - can only be LEADER or FOLLOWER.");
                     return 0;
                 }
             }
@@ -139,41 +139,41 @@ namespace moris
 
         sint Equation_Set::get_dof_index_for_type_1(
                 enum MSI::Dof_Type     aDofType,
-                mtk::Master_Slave aIsMaster )
+                mtk::Leader_Follower aIsLeader )
         {
-            switch ( aIsMaster )
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
+                case mtk::Leader_Follower::LEADER:
                 {
-                    // check if master dof type in map
-                    MORIS_ASSERT( static_cast< uint >( aDofType ) < mMasterDofTypeMap.numel(),
-                            "Equation_Set::get_dof_index_for_type_1 - master dof type does not exist in map." );
+                    // check if leader dof type in map
+                    MORIS_ASSERT( static_cast< uint >( aDofType ) < mLeaderDofTypeMap.numel(),
+                            "Equation_Set::get_dof_index_for_type_1 - leader dof type does not exist in map." );
 
-                    //                    // check if master dof type assigned in map
-                    //                    MORIS_ASSERT( mMasterDofTypeMap( static_cast< int >( aDofType ) ) != -1,
-                    //                                  "Equation_Set::get_dof_index_for_type_1 - master dof type does not assigned in map." );
+                    //                    // check if leader dof type assigned in map
+                    //                    MORIS_ASSERT( mLeaderDofTypeMap( static_cast< int >( aDofType ) ) != -1,
+                    //                                  "Equation_Set::get_dof_index_for_type_1 - leader dof type does not assigned in map." );
 
-                    // return index for master dof type
-                    return mMasterDofTypeMap( static_cast< int >( aDofType ) );
+                    // return index for leader dof type
+                    return mLeaderDofTypeMap( static_cast< int >( aDofType ) );
                 }
 
-                case mtk::Master_Slave::SLAVE :
+                case mtk::Leader_Follower::FOLLOWER :
                 {
-                    // check if slave dof type in map
-                    MORIS_ASSERT( static_cast< uint >( aDofType ) < mSlaveDofTypeMap.numel(),
-                            "Equation_Set::get_dof_index_for_type_1 - slave dof type does not exist in map." );
+                    // check if follower dof type in map
+                    MORIS_ASSERT( static_cast< uint >( aDofType ) < mFollowerDofTypeMap.numel(),
+                            "Equation_Set::get_dof_index_for_type_1 - follower dof type does not exist in map." );
 
-                    //                    // check if slave dof type assigned in map
-                    //                    MORIS_ASSERT( mSlaveDofTypeMap( static_cast< int >( aDofType ) ) != -1,
-                    //                                  "Equation_Set::get_dof_index_for_type_1 - slave dof type not assigned in map." );
+                    //                    // check if follower dof type assigned in map
+                    //                    MORIS_ASSERT( mFollowerDofTypeMap( static_cast< int >( aDofType ) ) != -1,
+                    //                                  "Equation_Set::get_dof_index_for_type_1 - follower dof type not assigned in map." );
 
-                    // return index for slave dof type
-                    return mSlaveDofTypeMap( static_cast< int >( aDofType ) );
+                    // return index for follower dof type
+                    return mFollowerDofTypeMap( static_cast< int >( aDofType ) );
                 }
 
                 default:
                 {
-                    MORIS_ERROR( false, "Equation_Set::get_dof_index_for_type_1 - can only be MASTER or SLAVE." );
+                    MORIS_ERROR( false, "Equation_Set::get_dof_index_for_type_1 - can only be LEADER or FOLLOWER." );
                     return 0;
                 }
             }
@@ -182,22 +182,22 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const moris::Cell< moris::Cell< PDV_Type > > & Equation_Set::get_dv_type_list(
-                mtk::Master_Slave aIsMaster )
+                mtk::Leader_Follower aIsLeader )
         {
-            switch ( aIsMaster )
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
+                case mtk::Leader_Follower::LEADER:
                 {
-                    return mMasterDvTypes;
+                    return mLeaderDvTypes;
                 }
-                case mtk::Master_Slave::SLAVE:
+                case mtk::Leader_Follower::FOLLOWER:
                 {
-                    return mSlaveDvTypes;
+                    return mFollowerDvTypes;
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "Equation_Set::get_dv_type_list - can only be MASTER or SLAVE.");
-                    return mMasterDvTypes;
+                    MORIS_ERROR( false, "Equation_Set::get_dv_type_list - can only be LEADER or FOLLOWER.");
+                    return mLeaderDvTypes;
                 }
             }
         }
@@ -205,22 +205,22 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDSMat > & Equation_Set::get_dv_type_map(
-                mtk::Master_Slave aIsMaster )
+                mtk::Leader_Follower aIsLeader )
         {
-            switch ( aIsMaster )
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
+                case mtk::Leader_Follower::LEADER:
                 {
-                    return mMasterDvTypeMap;
+                    return mLeaderDvTypeMap;
                 }
-                case mtk::Master_Slave::SLAVE:
+                case mtk::Leader_Follower::FOLLOWER:
                 {
-                    return mSlaveDvTypeMap;
+                    return mFollowerDvTypeMap;
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "Equation_Set::get_dv_type_map - can only be MASTER or SLAVE");
-                    return mMasterDvTypeMap;
+                    MORIS_ERROR(false, "Equation_Set::get_dv_type_map - can only be LEADER or FOLLOWER");
+                    return mLeaderDvTypeMap;
                 }
             }
         }
@@ -228,22 +228,22 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const moris::Cell< moris::Cell< mtk::Field_Type > > & Equation_Set::get_field_type_list(
-                mtk::Master_Slave aIsMaster )
+                mtk::Leader_Follower aIsLeader )
         {
-            switch ( aIsMaster )
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
+                case mtk::Leader_Follower::LEADER:
                 {
-                    return mMasterFieldTypes;
+                    return mLeaderFieldTypes;
                 }
-                case mtk::Master_Slave::SLAVE:
+                case mtk::Leader_Follower::FOLLOWER:
                 {
-                    return mSlaveFieldTypes;
+                    return mFollowerFieldTypes;
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "Equation_Set::get_field_type_list - can only be MASTER or SLAVE.");
-                    return mMasterFieldTypes;
+                    MORIS_ERROR( false, "Equation_Set::get_field_type_list - can only be LEADER or FOLLOWER.");
+                    return mLeaderFieldTypes;
                 }
             }
         }
@@ -251,22 +251,22 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDSMat > & Equation_Set::get_field_type_map(
-                mtk::Master_Slave aIsMaster )
+                mtk::Leader_Follower aIsLeader )
         {
-            switch ( aIsMaster )
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
+                case mtk::Leader_Follower::LEADER:
                 {
-                    return mMasterFieldTypeMap;
+                    return mLeaderFieldTypeMap;
                 }
-                case mtk::Master_Slave::SLAVE:
+                case mtk::Leader_Follower::FOLLOWER:
                 {
-                    return mSlaveFieldTypeMap;
+                    return mFollowerFieldTypeMap;
                 }
                 default:
                 {
-                    MORIS_ERROR(false, "Equation_Set::get_field_type_map - can only be MASTER or SLAVE");
-                    return mMasterFieldTypeMap;
+                    MORIS_ERROR(false, "Equation_Set::get_field_type_map - can only be LEADER or FOLLOWER");
+                    return mLeaderFieldTypeMap;
                 }
             }
         }
@@ -275,59 +275,59 @@ namespace moris
 
         sint Equation_Set::get_dv_index_for_type(
                 enum PDV_Type     aDvType,
-                mtk::Master_Slave aIsMaster  )
+                mtk::Leader_Follower aIsLeader  )
         {
-            switch ( aIsMaster )
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
+                case mtk::Leader_Follower::LEADER:
                 {
                     // check if dv type exists in map
-                    MORIS_ASSERT( static_cast< uint >( aDvType ) < mMasterDvTypeMap.numel(),
-                            "Equation_Set::get_dv_index_for_type - master dv type does not exist in map." );
+                    MORIS_ASSERT( static_cast< uint >( aDvType ) < mLeaderDvTypeMap.numel(),
+                            "Equation_Set::get_dv_index_for_type - leader dv type does not exist in map." );
 
                     //                    // check if dv type assigned in map
-                    //                    MORIS_ASSERT( mMasterDvTypeMap( static_cast< int >( aDvType ) ),
-                    //                                  "Equation_Set::get_dv_index_for_type - master dv type not assigned in map." );
+                    //                    MORIS_ASSERT( mLeaderDvTypeMap( static_cast< int >( aDvType ) ),
+                    //                                  "Equation_Set::get_dv_index_for_type - leader dv type not assigned in map." );
 
                     // return set index for dv type
-                    return mMasterDvTypeMap( static_cast< int >( aDvType ) );
+                    return mLeaderDvTypeMap( static_cast< int >( aDvType ) );
                 }
 
-                case mtk::Master_Slave::SLAVE:
+                case mtk::Leader_Follower::FOLLOWER:
                 {
                     // check if dv type exists in map
-                    MORIS_ASSERT( static_cast< uint >( aDvType ) < mSlaveDvTypeMap.numel(),
-                            "Equation_Set::get_dv_index_for_type(), slave dv type does not exist in map." );
+                    MORIS_ASSERT( static_cast< uint >( aDvType ) < mFollowerDvTypeMap.numel(),
+                            "Equation_Set::get_dv_index_for_type(), follower dv type does not exist in map." );
 
                     //                    // check if dv type assigned in map
-                    //                    MORIS_ASSERT( mSlaveDvTypeMap( static_cast< int >( aDvType ) ),
-                    //                                  "Equation_Set::get_dv_index_for_type - slave dv type not assigned in map." );
+                    //                    MORIS_ASSERT( mFollowerDvTypeMap( static_cast< int >( aDvType ) ),
+                    //                                  "Equation_Set::get_dv_index_for_type - follower dv type not assigned in map." );
 
                     // get the set index for dv type
-                    sint tSlaveIndex = mSlaveDvTypeMap( static_cast< int >( aDvType ) );
+                    sint tFollowerIndex = mFollowerDvTypeMap( static_cast< int >( aDvType ) );
 
                     // if index is -1
-                    if ( tSlaveIndex == -1 )
+                    if ( tFollowerIndex == -1 )
                     {
-                        return tSlaveIndex;
+                        return tFollowerIndex;
                     }
                     else
                     {
                         // get the max set index for dv types
-                        moris::sint tMaxMasterIndex = mMasterDvTypeMap.max();
+                        moris::sint tMaxLeaderIndex = mLeaderDvTypeMap.max();
 
-                        // check if mMasterDvTypeMap is set
-                        MORIS_ASSERT( tMaxMasterIndex != -1,
-                                "Equation_Set::get_dv_index_for_type - mMasterDvTypeMap is empty." );
+                        // check if mLeaderDvTypeMap is set
+                        MORIS_ASSERT( tMaxLeaderIndex != -1,
+                                "Equation_Set::get_dv_index_for_type - mLeaderDvTypeMap is empty." );
 
                         // return set index for dv type
-                        return tSlaveIndex + tMaxMasterIndex + 1;
+                        return tFollowerIndex + tMaxLeaderIndex + 1;
                     }
                 }
                 default:
                 {
                     MORIS_ERROR(false,
-                            "Equation_Set::get_dv_index_for_type - can only be MASTER or SLAVE.");
+                            "Equation_Set::get_dv_index_for_type - can only be LEADER or FOLLOWER.");
                     return 0;
                 }
             }
@@ -337,40 +337,40 @@ namespace moris
 
         sint Equation_Set::get_dv_index_for_type_1(
                 enum PDV_Type            aDvType,
-                mtk::Master_Slave aIsMaster )
+                mtk::Leader_Follower aIsLeader )
         {
-            switch ( aIsMaster )
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
+                case mtk::Leader_Follower::LEADER:
                 {
                     // check if dv type is set in map
-                    MORIS_ASSERT( static_cast< uint >( aDvType ) < mMasterDvTypeMap.numel(),
-                            "Equation_Set::get_dv_index_for_type_1 - master dv type does not exist in map." );
+                    MORIS_ASSERT( static_cast< uint >( aDvType ) < mLeaderDvTypeMap.numel(),
+                            "Equation_Set::get_dv_index_for_type_1 - leader dv type does not exist in map." );
 
                     //                    // check if dv type is set in map
-                    //                    MORIS_ASSERT( mMasterDvTypeMap( static_cast< int >( aDvType ) ),
-                    //                                  "Equation_Set::get_dv_index_for_type_1 - master dv type not assigned in map." );
+                    //                    MORIS_ASSERT( mLeaderDvTypeMap( static_cast< int >( aDvType ) ),
+                    //                                  "Equation_Set::get_dv_index_for_type_1 - leader dv type not assigned in map." );
 
                     // return set index for dv type
-                    return mMasterDvTypeMap( static_cast< int >( aDvType ) );
+                    return mLeaderDvTypeMap( static_cast< int >( aDvType ) );
                 }
-                case mtk::Master_Slave::SLAVE:
+                case mtk::Leader_Follower::FOLLOWER:
                 {
                     // check if dv type is set in map
-                    MORIS_ASSERT( static_cast< uint >( aDvType ) < mSlaveDvTypeMap.numel(),
-                            "Equation_Set::get_dv_index_for_type_1 - slave dv type does not exist in map." );
+                    MORIS_ASSERT( static_cast< uint >( aDvType ) < mFollowerDvTypeMap.numel(),
+                            "Equation_Set::get_dv_index_for_type_1 - follower dv type does not exist in map." );
 
                     //                    // check if dv type is set in map
-                    //                    MORIS_ASSERT( mSlaveDvTypeMap( static_cast< int >( aDvType ) ),
-                    //                                  "Equation_Set::get_dv_index_for_type_1 - slave dv type not assigned in map." );
+                    //                    MORIS_ASSERT( mFollowerDvTypeMap( static_cast< int >( aDvType ) ),
+                    //                                  "Equation_Set::get_dv_index_for_type_1 - follower dv type not assigned in map." );
 
                     // return set index for dv type
-                    return mSlaveDvTypeMap( static_cast< int >( aDvType ) );
+                    return mFollowerDvTypeMap( static_cast< int >( aDvType ) );
                 }
                 default:
                 {
                     MORIS_ERROR(false,
-                            "Equation_Set::get_dv_index_for_type_1 - can only be MASTER or SLAVE.");
+                            "Equation_Set::get_dv_index_for_type_1 - can only be LEADER or FOLLOWER.");
                     return 0;
                 }
             }
@@ -380,40 +380,40 @@ namespace moris
 
         sint Equation_Set::get_field_index_for_type_1(
                 enum mtk::Field_Type aFieldType,
-                mtk::Master_Slave    aIsMaster )
+                mtk::Leader_Follower    aIsLeader )
         {
-            switch ( aIsMaster )
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
+                case mtk::Leader_Follower::LEADER:
                 {
                     // check if dv type is set in map
-                    MORIS_ASSERT( static_cast< uint >( aFieldType ) < mMasterFieldTypeMap.numel(),
-                            "Equation_Set::get_field_index_for_type_1 - master field type does not exist in map." );
+                    MORIS_ASSERT( static_cast< uint >( aFieldType ) < mLeaderFieldTypeMap.numel(),
+                            "Equation_Set::get_field_index_for_type_1 - leader field type does not exist in map." );
 
                     //// check if field type is set in map
-                    //MORIS_ASSERT( mMasterDvTypeMap( static_cast< int >( aFieldType ) ),
-                    //          "Equation_Set::get_field_index_for_type_1 - master field type not assigned in map." );
+                    //MORIS_ASSERT( mLeaderDvTypeMap( static_cast< int >( aFieldType ) ),
+                    //          "Equation_Set::get_field_index_for_type_1 - leader field type not assigned in map." );
 
                     // return set index for dv type
-                    return mMasterFieldTypeMap( static_cast< int >( aFieldType ) );
+                    return mLeaderFieldTypeMap( static_cast< int >( aFieldType ) );
                 }
-                case mtk::Master_Slave::SLAVE:
+                case mtk::Leader_Follower::FOLLOWER:
                 {
                     // check if field type is set in map
-                    MORIS_ASSERT( static_cast< uint >( aFieldType ) < mSlaveFieldTypeMap.numel(),
-                            "Equation_Set::get_field_index_for_type_1 - slave dv type does not exist in map." );
+                    MORIS_ASSERT( static_cast< uint >( aFieldType ) < mFollowerFieldTypeMap.numel(),
+                            "Equation_Set::get_field_index_for_type_1 - follower dv type does not exist in map." );
 
                     //// check if field type is set in map
-                    //MORIS_ASSERT( mSlaveFieldTypeMap( static_cast< int >( aDvType ) ),
-                    //        "Equation_Set::get_field_index_for_type_1 - slave field type not assigned in map." );
+                    //MORIS_ASSERT( mFollowerFieldTypeMap( static_cast< int >( aDvType ) ),
+                    //        "Equation_Set::get_field_index_for_type_1 - follower field type not assigned in map." );
 
                     // return set index for dv type
-                    return mSlaveFieldTypeMap( static_cast< int >( aFieldType ) );
+                    return mFollowerFieldTypeMap( static_cast< int >( aFieldType ) );
                 }
                 default:
                 {
                     MORIS_ERROR(false,
-                            "Equation_Set::get_field_index_for_type_1 - can only be MASTER or SLAVE.");
+                            "Equation_Set::get_field_index_for_type_1 - can only be LEADER or FOLLOWER.");
                     return 0;
                 }
             }

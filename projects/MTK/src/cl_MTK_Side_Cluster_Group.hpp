@@ -84,13 +84,13 @@ namespace moris
              * @brief Compute the sum of all cluster volumes within the cluster group
              * 
              * @param aPrimaryOrVoid 
-             * @param aIsMaster 
+             * @param aIsLeader 
              * @return moris::real volume of all clusters 
              */
             moris::real
             compute_cluster_group_cell_measure(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
 
@@ -100,7 +100,7 @@ namespace moris
              * @param aPerturbedVertexCoords 
              * @param aDirection 
              * @param aPrimaryOrVoid 
-             * @param aIsMaster 
+             * @param aIsLeader 
              * @return moris::real 
              */            
             moris::real
@@ -108,7 +108,7 @@ namespace moris
                     const Matrix< DDRMat > & aPerturbedVertexCoords,
                     uint aDirection,
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
             
@@ -116,13 +116,13 @@ namespace moris
              * @brief compute the total cluster group interface/boundary surface/length
              * 
              * @param aPrimaryOrVoid 
-             * @param aIsMaster 
+             * @param aIsLeader 
              * @return moris::real 
              */
             moris::real
             compute_cluster_group_side_measure(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
             
@@ -132,7 +132,7 @@ namespace moris
              * @param aPerturbedVertexCoords 
              * @param aDirection 
              * @param aPrimaryOrVoid 
-             * @param aIsMaster 
+             * @param aIsLeader 
              * @return moris::real 
              */
             moris::real
@@ -140,7 +140,7 @@ namespace moris
                     const Matrix< DDRMat > & aPerturbedVertexCoords,
                     uint aDirection,
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
 

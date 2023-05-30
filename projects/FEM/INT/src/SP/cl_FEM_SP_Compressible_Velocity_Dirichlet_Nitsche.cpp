@@ -22,7 +22,7 @@ namespace moris
         SP_Compressible_Velocity_Dirichlet_Nitsche::SP_Compressible_Velocity_Dirichlet_Nitsche()
         {
             // set the property pointer cell size
-            mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
             mPropertyMap[ "DynamicViscosity" ] = static_cast< uint >( Property_Type::VISCOSITY );
@@ -33,15 +33,15 @@ namespace moris
         void SP_Compressible_Velocity_Dirichlet_Nitsche::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 moris::Cell< std::string >                  & aDofStrings,
-                mtk::Master_Slave                             aIsMaster )
+                mtk::Leader_Follower                             aIsLeader )
         {
-            // switch on master slave
-            switch ( aIsMaster )
+            // switch on leader follower
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER :
+                case mtk::Leader_Follower::LEADER :
                 {
                     // set dof type list
-                    mMasterDofTypes = aDofTypes;
+                    mLeaderDofTypes = aDofTypes;
 
                     // loop on dof type
                     for( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
@@ -55,7 +55,7 @@ namespace moris
                         // if velocity
                         if( tDofString == "Velocity" )
                         {
-                            mMasterDofVelocity = tDofType;
+                            mLeaderDofVelocity = tDofType;
                         }
                         else
                         {
@@ -69,15 +69,15 @@ namespace moris
                     break;
                 }
 
-                case mtk::Master_Slave::SLAVE :
+                case mtk::Leader_Follower::FOLLOWER :
                 {
                     // set dof type list
-                    mSlaveDofTypes = aDofTypes;
+                    mFollowerDofTypes = aDofTypes;
                     break;
                 }
 
                 default:
-                    MORIS_ERROR( false, "SP_Compressible_Velocity_Dirichlet_Nitsche::set_dof_type_list - unknown master slave type." );
+                    MORIS_ERROR( false, "SP_Compressible_Velocity_Dirichlet_Nitsche::set_dof_type_list - unknown leader follower type." );
             }
         }
 
@@ -86,7 +86,7 @@ namespace moris
         moris::Cell< std::tuple<
         fem::Measure_Type,
         mtk::Primary_Void,
-        mtk::Master_Slave > > SP_Compressible_Velocity_Dirichlet_Nitsche::get_cluster_measure_tuple_list()
+        mtk::Leader_Follower > > SP_Compressible_Velocity_Dirichlet_Nitsche::get_cluster_measure_tuple_list()
         {
             return { mElementSizeTuple };
         }
@@ -103,7 +103,7 @@ namespace moris
 
             // get the viscosity and density property
             std::shared_ptr< Property > & tPropViscosity =
-                    mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::VISCOSITY ) );
 
             // compute stabilization parameter value
             mPPVal = mParameters( 0 ) * tPropViscosity->val()( 0 ) / tElementSize;
@@ -111,7 +111,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_Compressible_Velocity_Dirichlet_Nitsche::eval_dSPdMasterDOF(
+        void SP_Compressible_Velocity_Dirichlet_Nitsche::eval_dSPdLeaderDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get element size cluster measure value
@@ -121,24 +121,24 @@ namespace moris
                     std::get<2>( mElementSizeTuple ) )->val()( 0 );
 
             // get the dof type index
-            uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+            uint tDofIndex = mLeaderGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // get the dof type FI
             Field_Interpolator * tFIDerivative =
-                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
-            // set size for dSPdMasterDof
-            mdPPdMasterDof( tDofIndex ).set_size( 1, tFIDerivative->get_number_of_space_time_coefficients(), 0.0 );
+            // set size for dSPdLeaderDof
+            mdPPdLeaderDof( tDofIndex ).set_size( 1, tFIDerivative->get_number_of_space_time_coefficients(), 0.0 );
 
             // get the viscosity property
             std::shared_ptr< Property > & tPropViscosity =
-                    mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::VISCOSITY ) );
 
             // if viscosity depends on dof type
             if( tPropViscosity->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution from viscosity
-                mdPPdMasterDof( tDofIndex ) +=
+                mdPPdLeaderDof( tDofIndex ) +=
                         mParameters( 0 )( 0 ) * tPropViscosity->dPropdDOF( aDofTypes ) / tElementSize;
             }
         }

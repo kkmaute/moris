@@ -86,10 +86,10 @@ namespace moris
             mtk::Interpolation_Order mIGTimeInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
 
             // field interpolator manager pointers
-            Field_Interpolator_Manager* mMasterFIManager         = nullptr;
-            Field_Interpolator_Manager* mSlaveFIManager          = nullptr;
-            Field_Interpolator_Manager* mMasterPreviousFIManager = nullptr;
-            Field_Interpolator_Manager* mMasterEigenFIManager    = nullptr;
+            Field_Interpolator_Manager* mLeaderFIManager         = nullptr;
+            Field_Interpolator_Manager* mFollowerFIManager          = nullptr;
+            Field_Interpolator_Manager* mLeaderPreviousFIManager = nullptr;
+            Field_Interpolator_Manager* mLeaderEigenFIManager    = nullptr;
 
             // number of eigen vectors
             uint mNumEigenVectors = 0;
@@ -136,14 +136,14 @@ namespace moris
             moris::Cell< std::tuple<
                     fem::Measure_Type,
                     mtk::Primary_Void,
-                    mtk::Master_Slave > >
+                    mtk::Leader_Follower > >
                     mClusterMEATuples;
 
             // cluster measure specification map on set
             std::map< std::tuple<
                               fem::Measure_Type,
                               mtk::Primary_Void,
-                              mtk::Master_Slave >,
+                              mtk::Leader_Follower >,
                     uint >
                     mClusterMEAMap;
 
@@ -480,7 +480,7 @@ namespace moris
             /**
              * create a unique dof type list for the solver
              * Cell< MSI::Dof_Type >, no group of dof type
-             * one for both master and slave
+             * one for both leader and follower
              */
             void create_unique_dof_and_dv_type_lists();
 
@@ -488,14 +488,14 @@ namespace moris
             /**
              * create a unique group of dof type list for the set
              * Cell< Cell< MSI::Dof_Type > > list of groups of dof type
-             * one for the master, one for the slave
+             * one for the leader, one for the follower
              */
             void create_dof_and_dv_type_lists();
 
             //------------------------------------------------------------------------------
             /**
              * create a map of the dof type for the set
-             * one for the master, one for the slave
+             * one for the leader, one for the follower
              */
             void create_dof_and_dv_type_maps();
 
@@ -631,7 +631,7 @@ namespace moris
             moris::Cell< std::tuple<
                     fem::Measure_Type,
                     mtk::Primary_Void,
-                    mtk::Master_Slave > >&
+                    mtk::Leader_Follower > >&
             get_cluster_measure_tuples();
 
             //------------------------------------------------------------------------------
@@ -642,7 +642,7 @@ namespace moris
             std::map< std::tuple<
                               fem::Measure_Type,
                               mtk::Primary_Void,
-                              mtk::Master_Slave >,
+                              mtk::Leader_Follower >,
                     uint >&
             get_cluster_measure_map();
 
@@ -774,29 +774,29 @@ namespace moris
             //------------------------------------------------------------------------------
             /**
              * get the field interpolator manager
-             * @param[ in ]  aIsMaster an enum for master or slave
+             * @param[ in ]  aIsLeader an enum for leader or follower
              * @param[ out ] mFIManger a field interpolator manager pointer
              */
             Field_Interpolator_Manager* get_field_interpolator_manager(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * get the field interpolator manager for previous time step
-             * @param[ in ]  aIsMaster an enum for master or slave
+             * @param[ in ]  aIsLeader an enum for leader or follower
              * @param[ out ] mFIManger a field interpolator manager pointer
              */
             Field_Interpolator_Manager* get_field_interpolator_manager_previous_time(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * get the field interpolator manager for eigen vectors
-             * @param[ in ]  aIsMaster an enum for master or slave
+             * @param[ in ]  aIsLeader an enum for leader or follower
              * @param[ out ] mFIManger a field interpolator manager pointer
              */
             Field_Interpolator_Manager* get_field_interpolator_manager_eigen_vectors(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
@@ -1056,10 +1056,10 @@ namespace moris
             /**
              * get ip dv types for set from design variable interface
              * @param[ in ] aMatPdvType list of group of ip pdv types on set
-             * @param[ in ] aIsMaster determine the master / slave side, only for dbl sided set, is master by default
+             * @param[ in ] aIsLeader determine the leader / follower side, only for dbl sided set, is leader by default
              */
 
-            void get_ip_dv_types_for_set( moris::Cell< moris::Cell< enum PDV_Type > >& aMatPdvType, mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+            void get_ip_dv_types_for_set( moris::Cell< moris::Cell< enum PDV_Type > >& aMatPdvType, mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
 

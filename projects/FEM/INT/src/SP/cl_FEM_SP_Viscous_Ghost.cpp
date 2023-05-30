@@ -22,7 +22,7 @@ namespace moris
         SP_Viscous_Ghost::SP_Viscous_Ghost()
         {
             // set the property pointer cell size
-            mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
             mPropertyMap[ "Viscosity" ]       = static_cast< uint >( Property_Type::VISCOSITY );
@@ -34,7 +34,7 @@ namespace moris
         moris::Cell< std::tuple<
                 fem::Measure_Type,
                 mtk::Primary_Void,
-                mtk::Master_Slave > >
+                mtk::Leader_Follower > >
         SP_Viscous_Ghost::get_cluster_measure_tuple_list()
         {
             return { mElementSizeTuple };
@@ -54,11 +54,11 @@ namespace moris
 
             // get the viscosity property
             const std::shared_ptr< Property >& tViscosityProp =
-                    mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::VISCOSITY ) );
 
             // get the inverse permeability property (Brinkman coefficient)
             const std::shared_ptr< Property >& tInvPermeabProp =
-                    mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
 
             // compute stabilization parameter value
             mPPVal = mParameters( 0 ) * tViscosityProp->val()( 0 )    //
@@ -74,7 +74,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        SP_Viscous_Ghost::eval_dSPdMasterDOF(
+        SP_Viscous_Ghost::eval_dSPdLeaderDOF(
                 const moris::Cell< MSI::Dof_Type >& aDofTypes )
         {
             // get element size cluster measure value
@@ -85,33 +85,33 @@ namespace moris
                                         ->val()( 0 );
 
             // get the dof type index
-            uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+            uint tDofIndex = mLeaderGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // get the dof type FI
-            Field_Interpolator* tFI = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+            Field_Interpolator* tFI = mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
-            // set size for dSPdMasterDof
-            mdPPdMasterDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients() );
+            // set size for dSPdLeaderDof
+            mdPPdLeaderDof( tDofIndex ).set_size( 1, tFI->get_number_of_space_time_coefficients() );
 
             // get the viscosity property
             const std::shared_ptr< Property >& tViscosityProp =
-                    mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::VISCOSITY ) );
 
             // get the inverse permeability property (Brinkman coefficient)
             const std::shared_ptr< Property >& tInvPermeabProp =
-                    mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
 
             // if viscosity depends on dof type
             if ( tViscosityProp->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution from viscosity
-                mdPPdMasterDof( tDofIndex ) =
+                mdPPdLeaderDof( tDofIndex ) =
                         mParameters( 0 ) * std::pow( tElementSize, 2.0 * ( mOrder - 1.0 ) + 1.0 )    //
                         * tViscosityProp->dPropdDOF( aDofTypes );
             }
             else
             {
-                mdPPdMasterDof( tDofIndex ).fill( 0.0 );
+                mdPPdLeaderDof( tDofIndex ).fill( 0.0 );
             }
 
             // if inverse permeability depends on dof type

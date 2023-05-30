@@ -72,38 +72,38 @@ test_diffusion_constitutive_model(
     moris::Cell< bool > tChecks( 7, false );
 
     // create the properties --------------------------------------------------------------------- //
-    std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property >();
-    tPropMasterConductivity->set_parameters( { { { 1.1 } }, { { 1.1 } } } );
-    //            tPropMasterConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    //            tPropMasterConductivity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
-    //            tPropMasterConductivity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
-    tPropMasterConductivity->set_val_function( tConstValFunctionCM_Diff_Lin_Iso );
+    std::shared_ptr< fem::Property > tPropLeaderConductivity = std::make_shared< fem::Property >();
+    tPropLeaderConductivity->set_parameters( { { { 1.1 } }, { { 1.1 } } } );
+    //            tPropLeaderConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    //            tPropLeaderConductivity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
+    //            tPropLeaderConductivity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
+    tPropLeaderConductivity->set_val_function( tConstValFunctionCM_Diff_Lin_Iso );
 
-    std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
-    tPropMasterDensity->set_parameters( { { { 1.2 } } } );
-    tPropMasterDensity->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-    tPropMasterDensity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
-    tPropMasterDensity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
-    //            tPropMasterDensity->set_val_function( tConstValFunctionCM_Diff_Lin_Iso );
+    std::shared_ptr< fem::Property > tPropLeaderDensity = std::make_shared< fem::Property >();
+    tPropLeaderDensity->set_parameters( { { { 1.2 } } } );
+    tPropLeaderDensity->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
+    tPropLeaderDensity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
+    tPropLeaderDensity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
+    //            tPropLeaderDensity->set_val_function( tConstValFunctionCM_Diff_Lin_Iso );
 
-    std::shared_ptr< fem::Property > tPropMasterHeatCapacity = std::make_shared< fem::Property >();
-    tPropMasterHeatCapacity->set_parameters( { { { 1.3 } } } );
-    tPropMasterHeatCapacity->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-    tPropMasterHeatCapacity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
-    tPropMasterHeatCapacity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
-    //            tPropMasterHeatCapacity->set_val_function( tConstValFunctionCM_Diff_Lin_Iso );
+    std::shared_ptr< fem::Property > tPropLeaderHeatCapacity = std::make_shared< fem::Property >();
+    tPropLeaderHeatCapacity->set_parameters( { { { 1.3 } } } );
+    tPropLeaderHeatCapacity->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
+    tPropLeaderHeatCapacity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
+    tPropLeaderHeatCapacity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
+    //            tPropLeaderHeatCapacity->set_val_function( tConstValFunctionCM_Diff_Lin_Iso );
 
     // define constitutive models ---------------------------------------------------------------- //
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderDiffLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-    tCMMasterDiffLinIso->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-    tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
-    tCMMasterDiffLinIso->set_property( tPropMasterDensity, "Density" );
-    tCMMasterDiffLinIso->set_property( tPropMasterHeatCapacity, "HeatCapacity" );
-    tCMMasterDiffLinIso->set_space_dim( aSpatialDim );
-    tCMMasterDiffLinIso->set_local_properties();
+    tCMLeaderDiffLinIso->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
+    tCMLeaderDiffLinIso->set_property( tPropLeaderConductivity, "Conductivity" );
+    tCMLeaderDiffLinIso->set_property( tPropLeaderDensity, "Density" );
+    tCMLeaderDiffLinIso->set_property( tPropLeaderHeatCapacity, "HeatCapacity" );
+    tCMLeaderDiffLinIso->set_space_dim( aSpatialDim );
+    tCMLeaderDiffLinIso->set_local_properties();
 
     // create a space and a time geometry interpolator
     Geometry_Interpolator tGI( aGeomInterpRule );
@@ -131,9 +131,9 @@ test_diffusion_constitutive_model(
     tSet.mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tSet.mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
-    // set size and populate the set master dof type map
-    tSet.mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tSet.mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+    // set size and populate the set leader dof type map
+    tSet.mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tSet.mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
     // create a field interpolator manager
     Cell< Cell< MSI::Dof_Type > > tDofTypes = { { MSI::Dof_Type::TEMP } };
@@ -142,22 +142,22 @@ test_diffusion_constitutive_model(
     tFIManager.mIPGeometryInterpolator = &tGI;
 
     // set field interpolator manager
-    tCMMasterDiffLinIso->set_field_interpolator_manager( &tFIManager );
+    tCMLeaderDiffLinIso->set_field_interpolator_manager( &tFIManager );
 
     // check flux-------------------------------------------------------------------
     //------------------------------------------------------------------------------
     // evaluate the constitutive model flux
 
-    Matrix< DDRMat > tFlux = tCMMasterDiffLinIso->flux();
+    Matrix< DDRMat > tFlux = tCMLeaderDiffLinIso->flux();
     // print( tFlux, "tFlux");
 
     // evaluate the constitutive model flux derivative
-    Matrix< DDRMat > tdFluxdDOF = tCMMasterDiffLinIso->dFluxdDOF( { MSI::Dof_Type::TEMP } );
+    Matrix< DDRMat > tdFluxdDOF = tCMLeaderDiffLinIso->dFluxdDOF( { MSI::Dof_Type::TEMP } );
     // print( tdFluxdDOF, "tdFluxdDOF");
 
     // evaluate the constitutive model stress derivative by FD
     Matrix< DDRMat > tdFluxdDOF_FD;
-    tCMMasterDiffLinIso->eval_dFluxdDOF_FD( { MSI::Dof_Type::TEMP }, tdFluxdDOF_FD, 1E-6 );
+    tCMLeaderDiffLinIso->eval_dFluxdDOF_FD( { MSI::Dof_Type::TEMP }, tdFluxdDOF_FD, 1E-6 );
 
     // check stress derivative
     bool tCheckdStress = fem::check( tdFluxdDOF, tdFluxdDOF_FD, tEpsilonRel );
@@ -172,16 +172,16 @@ test_diffusion_constitutive_model(
     // check strain-----------------------------------------------------------------
     //------------------------------------------------------------------------------
     // evaluate the constitutive model strain
-    Matrix< DDRMat > tStrain = tCMMasterDiffLinIso->strain();
+    Matrix< DDRMat > tStrain = tCMLeaderDiffLinIso->strain();
     // print( tStrain, "tStrain");
 
     // evaluate the constitutive model strain derivative
-    Matrix< DDRMat > tdStraindDOF = tCMMasterDiffLinIso->dStraindDOF( { MSI::Dof_Type::TEMP } );
+    Matrix< DDRMat > tdStraindDOF = tCMLeaderDiffLinIso->dStraindDOF( { MSI::Dof_Type::TEMP } );
     // print( tdStraindDOF, "tdStraindDOF" );
 
     // evaluate the constitutive model strain derivative by FD
     Matrix< DDRMat > tdStraindDOF_FD;
-    tCMMasterDiffLinIso->eval_dStraindDOF_FD( { MSI::Dof_Type::TEMP }, tdStraindDOF_FD, 1E-6 );
+    tCMLeaderDiffLinIso->eval_dStraindDOF_FD( { MSI::Dof_Type::TEMP }, tdStraindDOF_FD, 1E-6 );
 
     // check strain derivative
     bool tCheckdStrain = fem::check( tdStraindDOF, tdStraindDOF_FD, tEpsilonRel );
@@ -196,7 +196,7 @@ test_diffusion_constitutive_model(
     // check constitutive matrix----------------------------------------------------
     //------------------------------------------------------------------------------
     // evaluate the constitutive model constitutive matrix
-    Matrix< DDRMat > tConst = tCMMasterDiffLinIso->constitutive();
+    Matrix< DDRMat > tConst = tCMLeaderDiffLinIso->constitutive();
     // print( tConst, "tConst");
 
     // check traction---------------------------------------------------------------
@@ -209,39 +209,39 @@ test_diffusion_constitutive_model(
         tNormal = { { 0.0 }, { 1.0 }, { 0.0 } };
 
     // evaluate the constitutive model traction
-    Matrix< DDRMat > tTraction = tCMMasterDiffLinIso->traction( tNormal );
+    Matrix< DDRMat > tTraction = tCMLeaderDiffLinIso->traction( tNormal );
     // print( tTraction, "tTraction");
 
     // evaluate the constitutive model traction derivative
-    Matrix< DDRMat > tdTractiondDOF = tCMMasterDiffLinIso->dTractiondDOF( { MSI::Dof_Type::TEMP }, tNormal );
+    Matrix< DDRMat > tdTractiondDOF = tCMLeaderDiffLinIso->dTractiondDOF( { MSI::Dof_Type::TEMP }, tNormal );
     // print( tdTractiondDOF, "tdTractiondDOF" );
 
     // check test traction----------------------------------------------------------
     //------------------------------------------------------------------------------
     // evaluate the constitutive model test traction
-    Matrix< DDRMat > tTestTraction = tCMMasterDiffLinIso->testTraction( tNormal, { MSI::Dof_Type::TEMP } );
+    Matrix< DDRMat > tTestTraction = tCMLeaderDiffLinIso->testTraction( tNormal, { MSI::Dof_Type::TEMP } );
     // print( tTestTraction, "tTestTraction");
 
     // evaluate the constitutive model test traction derivative
-    Matrix< DDRMat > tdTestTractiondDOF = tCMMasterDiffLinIso->dTestTractiondDOF( { MSI::Dof_Type::TEMP }, tNormal, { { 0.0 } }, { MSI::Dof_Type::TEMP } );
+    Matrix< DDRMat > tdTestTractiondDOF = tCMLeaderDiffLinIso->dTestTractiondDOF( { MSI::Dof_Type::TEMP }, tNormal, { { 0.0 } }, { MSI::Dof_Type::TEMP } );
     // print( tdTestTractiondDOF, "tdTestTractiondDOF" );
 
     // check test strain------------------------------------------------------------
     //------------------------------------------------------------------------------
     // evaluate the constitutive model test strain
-    Matrix< DDRMat > tTestStrain = tCMMasterDiffLinIso->testStrain();
+    Matrix< DDRMat > tTestStrain = tCMLeaderDiffLinIso->testStrain();
     // print( tTestStrain, "tTestStrain");
 
     // check Energy ------------------------------------------------------------------
     //------------------------------------------------------------------------------
 
     // evaluate the constitutive model flux derivative
-    Matrix< DDRMat > tdEnergydDOF = tCMMasterDiffLinIso->dEnergydDOF( { MSI::Dof_Type::TEMP } );
+    Matrix< DDRMat > tdEnergydDOF = tCMLeaderDiffLinIso->dEnergydDOF( { MSI::Dof_Type::TEMP } );
     // print( tdFluxdDOF, "tdFluxdDOF");
 
     // evaluate the constitutive model stress derivative by FD
     Matrix< DDRMat > tdEnergydDOF_FD;
-    tCMMasterDiffLinIso->eval_dEnergydDOF_FD( { MSI::Dof_Type::TEMP }, tdEnergydDOF_FD, 1E-6 );
+    tCMLeaderDiffLinIso->eval_dEnergydDOF_FD( { MSI::Dof_Type::TEMP }, tdEnergydDOF_FD, 1E-6 );
 
     // check stress derivative
     bool tCheckEnergy = fem::check( tdEnergydDOF, tdEnergydDOF_FD, tEpsilonRel );
@@ -253,12 +253,12 @@ test_diffusion_constitutive_model(
     //------------------------------------------------------------------------------
 
     // evaluate the constitutive model flux derivative
-    Matrix< DDRMat > tdEnergyDotdDOF = tCMMasterDiffLinIso->dEnergyDotdDOF( { MSI::Dof_Type::TEMP } );
+    Matrix< DDRMat > tdEnergyDotdDOF = tCMLeaderDiffLinIso->dEnergyDotdDOF( { MSI::Dof_Type::TEMP } );
     // print( tdFluxdDOF, "tdFluxdDOF");
 
     // evaluate the constitutive model stress derivative by FD
     Matrix< DDRMat > tdEnergyDotdDOF_FD;
-    tCMMasterDiffLinIso->eval_dEnergyDotdDOF_FD( { MSI::Dof_Type::TEMP }, tdEnergyDotdDOF_FD, 1E-6 );
+    tCMLeaderDiffLinIso->eval_dEnergyDotdDOF_FD( { MSI::Dof_Type::TEMP }, tdEnergyDotdDOF_FD, 1E-6 );
 
     // check stress derivative
     bool tCheckEnergyDot = fem::check( tdEnergyDotdDOF, tdEnergyDotdDOF_FD, tEpsilonRel );
@@ -274,12 +274,12 @@ test_diffusion_constitutive_model(
     //------------------------------------------------------------------------------
 
     // evaluate the constitutive model flux derivative
-    Matrix< DDRMat > tdGradEnergydDOF = tCMMasterDiffLinIso->dGradEnergydDOF( { MSI::Dof_Type::TEMP } );
+    Matrix< DDRMat > tdGradEnergydDOF = tCMLeaderDiffLinIso->dGradEnergydDOF( { MSI::Dof_Type::TEMP } );
     // print( tdFluxdDOF, "tdFluxdDOF");
 
     // evaluate the constitutive model stress derivative by FD
     Matrix< DDRMat > tdGradEnergydDOF_FD;
-    tCMMasterDiffLinIso->eval_dGradEnergydDOF_FD( { MSI::Dof_Type::TEMP }, tdGradEnergydDOF_FD, 1E-6 );
+    tCMLeaderDiffLinIso->eval_dGradEnergydDOF_FD( { MSI::Dof_Type::TEMP }, tdGradEnergydDOF_FD, 1E-6 );
 
     // check stress derivative
     bool tCheckGradH = fem::check( tdGradEnergydDOF, tdGradEnergydDOF_FD, tEpsilonRel );
@@ -295,12 +295,12 @@ test_diffusion_constitutive_model(
     //------------------------------------------------------------------------------
 
     // evaluate the constitutive model flux derivative
-    Matrix< DDRMat > tdGradEnergyDotdDOF = tCMMasterDiffLinIso->dGradEnergyDotdDOF( { MSI::Dof_Type::TEMP } );
+    Matrix< DDRMat > tdGradEnergyDotdDOF = tCMLeaderDiffLinIso->dGradEnergyDotdDOF( { MSI::Dof_Type::TEMP } );
     // print( tdFluxdDOF, "tdFluxdDOF");
 
     // evaluate the constitutive model stress derivative by FD
     Matrix< DDRMat > tdGradEnergyDotdDOF_FD;
-    tCMMasterDiffLinIso->eval_dGradEnergyDotdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradEnergyDotdDOF_FD, 1E-6 );
+    tCMLeaderDiffLinIso->eval_dGradEnergyDotdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradEnergyDotdDOF_FD, 1E-6 );
 
     // check stress derivative
     bool tCheckGradEnergyDot = fem::check( tdGradEnergyDotdDOF, tdGradEnergyDotdDOF_FD, tEpsilonRel );
@@ -316,12 +316,12 @@ test_diffusion_constitutive_model(
     //------------------------------------------------------------------------------
 
     // evaluate the constitutive model strain derivative
-    Matrix< DDRMat > tdGradDivFluxdDOF = tCMMasterDiffLinIso->dGradDivFluxdDOF( { MSI::Dof_Type::TEMP } );
+    Matrix< DDRMat > tdGradDivFluxdDOF = tCMLeaderDiffLinIso->dGradDivFluxdDOF( { MSI::Dof_Type::TEMP } );
     // print( tdStraindDOF, "tdStraindDOF" );
 
     // evaluate the constitutive model strain derivative by FD
     Matrix< DDRMat > tdGradDivFluxdDOF_FD;
-    tCMMasterDiffLinIso->eval_dGradDivFluxdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradDivFluxdDOF_FD, 1E-6 );
+    tCMLeaderDiffLinIso->eval_dGradDivFluxdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradDivFluxdDOF_FD, 1E-6 );
 
     // check strain derivative
     bool tCheckGradDivFlux = fem::check( tdGradDivFluxdDOF, tdGradDivFluxdDOF_FD, tEpsilonRel );

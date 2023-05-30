@@ -87,32 +87,32 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterFluid =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
-    tCMMasterFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) } );
-    tCMMasterFluid->set_property( tPropViscosity, "Viscosity" );
-    tCMMasterFluid->set_property( tPropDensity, "Density" );
-    tCMMasterFluid->set_local_properties();
+    tCMLeaderFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) } );
+    tCMLeaderFluid->set_property( tPropViscosity, "Viscosity" );
+    tCMLeaderFluid->set_property( tPropDensity, "Density" );
+    tCMLeaderFluid->set_local_properties();
 
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
-    tCMMasterFluid->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tCMLeaderFluid->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tCMMasterFluid->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
+    tCMLeaderFluid->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
-    tCMMasterFluid->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMMasterFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tCMMasterFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+    tCMLeaderFluid->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tCMLeaderFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+    tCMLeaderFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
 
-    // set size and populate the set master dof type map
-    tCMMasterFluid->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMMasterFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tCMMasterFluid->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+    // set size and populate the set leader dof type map
+    tCMLeaderFluid->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tCMLeaderFluid->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+    tCMLeaderFluid->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
 
     // build global dof type list
-    tCMMasterFluid->get_global_dof_type_list();
+    tCMLeaderFluid->get_global_dof_type_list();
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -196,7 +196,7 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimensions for property, CM and SP
-        tCMMasterFluid->set_space_dim( iSpaceDim );
+        tCMLeaderFluid->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -235,22 +235,22 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatP;
-            fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatP;
+            fill_phat( tLeaderDOFHatP, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatP );
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -258,50 +258,50 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tCMMasterFluid->mSet->mMasterFIManager = &tFIManager;
+            tCMLeaderFluid->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
-            tCMMasterFluid->set_field_interpolator_manager( &tFIManager );
+            tCMLeaderFluid->set_field_interpolator_manager( &tFIManager );
 
             uint tNumGPs = tIntegPoints.n_cols();
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // reset IWG evaluation flags
-                tCMMasterFluid->reset_eval_flags();
+                tCMLeaderFluid->reset_eval_flags();
 
                 // create evaluation point xi, tau
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tCMMasterFluid->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tCMLeaderFluid->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
-                // populate the requested master dof type for CM
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tRequestedMasterGlobalDofTypes =
-                        tCMMasterFluid->get_global_dof_type_list();
+                // populate the requested leader dof type for CM
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
+                        tCMLeaderFluid->get_global_dof_type_list();
 
-                // populate the test master dof type for CM
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tMasterDofTypes =
-                        tCMMasterFluid->get_dof_type_list();
+                // populate the test leader dof type for CM
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tLeaderDofTypes =
+                        tCMLeaderFluid->get_dof_type_list();
 
                 // loop over requested dof type
-                for( uint iRequestedDof = 0; iRequestedDof < tRequestedMasterGlobalDofTypes.size(); iRequestedDof++ )
+                for( uint iRequestedDof = 0; iRequestedDof < tRequestedLeaderGlobalDofTypes.size(); iRequestedDof++ )
                 {
                     // derivative dof type
-                    Cell< MSI::Dof_Type > tDofDerivative = tRequestedMasterGlobalDofTypes( iRequestedDof );
+                    Cell< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // flux
                     //------------------------------------------------------------------------------
                     // evaluate dfluxdu
-                    Matrix< DDRMat > tdfluxdu = tCMMasterFluid->dFluxdDOF( tDofDerivative );
+                    Matrix< DDRMat > tdfluxdu = tCMLeaderFluid->dFluxdDOF( tDofDerivative );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdfluxduFD;
-                    tCMMasterFluid->eval_dFluxdDOF_FD( tDofDerivative, tdfluxduFD, tPerturbation );
+                    tCMLeaderFluid->eval_dFluxdDOF_FD( tDofDerivative, tdfluxduFD, tPerturbation );
 
                     // check that analytical and FD match
                     bool tCheckFluxFluid = fem::check( tdfluxdu, tdfluxduFD, tEpsilon );
@@ -310,11 +310,11 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
                     // strain
                     //------------------------------------------------------------------------------
                     // evaluate dstraindu
-                    Matrix< DDRMat > tdstraindu = tCMMasterFluid->dStraindDOF( tDofDerivative );
+                    Matrix< DDRMat > tdstraindu = tCMLeaderFluid->dStraindDOF( tDofDerivative );
 
                     // evaluate dstraindu by FD
                     Matrix< DDRMat > tdstrainduFD;
-                    tCMMasterFluid->eval_dStraindDOF_FD( tDofDerivative, tdstrainduFD, tPerturbation );
+                    tCMLeaderFluid->eval_dStraindDOF_FD( tDofDerivative, tdstrainduFD, tPerturbation );
 
                     // check that analytical and FD match
                     bool tCheckStrainFluid = fem::check( tdstraindu, tdstrainduFD, tEpsilon );
@@ -323,11 +323,11 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
                     // traction
                     //------------------------------------------------------------------------------
                     // evaluate dtractiondu
-                    Matrix< DDRMat > tdtractiondu = tCMMasterFluid->dTractiondDOF( tDofDerivative, tNormal );
+                    Matrix< DDRMat > tdtractiondu = tCMLeaderFluid->dTractiondDOF( tDofDerivative, tNormal );
 
                     // evaluate dtractiondu by FD
                     Matrix< DDRMat > tdtractionduFD;
-                    tCMMasterFluid->eval_dtractiondu_FD( tDofDerivative, tdtractionduFD, tPerturbation, tNormal );
+                    tCMLeaderFluid->eval_dtractiondu_FD( tDofDerivative, tdtractionduFD, tPerturbation, tNormal );
 
                     // check that analytical and FD match
                     bool tCheckTractionFluid = fem::check( tdtractiondu, tdtractionduFD, tEpsilon );
@@ -336,13 +336,13 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
                     // test traction
                     //------------------------------------------------------------------------------
                     // loop over test dof type
-                    for( uint iTestDof = 0; iTestDof < tMasterDofTypes.size(); iTestDof++ )
+                    for( uint iTestDof = 0; iTestDof < tLeaderDofTypes.size(); iTestDof++ )
                     {
                         // get the test dof type
-                        Cell< MSI::Dof_Type > tDofTest = tMasterDofTypes( iTestDof );
+                        Cell< MSI::Dof_Type > tDofTest = tLeaderDofTypes( iTestDof );
 
                         // evaluate dtesttractiondu
-                        Matrix< DDRMat > tdtesttractiondu = tCMMasterFluid->dTestTractiondDOF(
+                        Matrix< DDRMat > tdtesttractiondu = tCMLeaderFluid->dTestTractiondDOF(
                                 tDofDerivative,
                                 tNormal,
                                 tJump,
@@ -350,7 +350,7 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
 
                         // evaluate dtractiondu by FD
                         Matrix< DDRMat > tdtesttractionduFD;
-                        tCMMasterFluid->eval_dtesttractiondu_FD(
+                        tCMLeaderFluid->eval_dtesttractiondu_FD(
                                 tDofDerivative,
                                 tDofTest,
                                 tdtesttractionduFD,
@@ -366,11 +366,11 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
                     // div flux
                     //------------------------------------------------------------------------------
                     // evaluate ddivfluxdu
-                    Matrix< DDRMat > tddivfluxdu = tCMMasterFluid->ddivfluxdu( tDofDerivative );
+                    Matrix< DDRMat > tddivfluxdu = tCMLeaderFluid->ddivfluxdu( tDofDerivative );
 
                     // evaluate ddivfluxdu by FD
                     Matrix< DDRMat > tddivfluxduFD;
-                    tCMMasterFluid->eval_ddivfluxdu_FD( tDofDerivative, tddivfluxduFD, tPerturbation );
+                    tCMLeaderFluid->eval_ddivfluxdu_FD( tDofDerivative, tddivfluxduFD, tPerturbation );
 
                     // check that analytical and FD match
                     bool tCheckDivFluxFluid = fem::check( tddivfluxdu, tddivfluxduFD, tEpsilon );
@@ -379,11 +379,11 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
                     // div strain
                     //------------------------------------------------------------------------------
                     // evaluate ddivstraindu
-                    Matrix< DDRMat > tddivstraindu = tCMMasterFluid->ddivstraindu( tDofDerivative );
+                    Matrix< DDRMat > tddivstraindu = tCMLeaderFluid->ddivstraindu( tDofDerivative );
 
                     // evaluate ddivstraindu by FD
                     Matrix< DDRMat > tddivstrainduFD;
-                    tCMMasterFluid->eval_ddivstraindu_FD( tDofDerivative, tddivstrainduFD, tPerturbation );
+                    tCMLeaderFluid->eval_ddivstraindu_FD( tDofDerivative, tddivstrainduFD, tPerturbation );
 
                     // check that analytical and FD match
                     bool tCheckDivStrainFluid = fem::check( tddivstraindu, tddivstrainduFD, tEpsilon );
@@ -391,7 +391,7 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
                 }
             }
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }/*END_TEST_CASE*/
@@ -455,44 +455,44 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterLaminar =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderLaminar =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
-    tCMMasterLaminar->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) } );
-    tCMMasterLaminar->set_property( tPropViscosity, "Viscosity" );
-    tCMMasterLaminar->set_property( tPropDensity, "Density" );
-    tCMMasterLaminar->set_local_properties();
+    tCMLeaderLaminar->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) } );
+    tCMLeaderLaminar->set_property( tPropViscosity, "Viscosity" );
+    tCMLeaderLaminar->set_property( tPropDensity, "Density" );
+    tCMLeaderLaminar->set_local_properties();
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
-    tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
-    tCMMasterTurbulence->set_property( tPropKinViscosity, "KinViscosity" );
-    tCMMasterTurbulence->set_property( tPropDensity, "Density" );
-    tCMMasterTurbulence->set_local_properties();
+    tCMLeaderTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
+    tCMLeaderTurbulence->set_property( tPropViscosity, "Viscosity" );
+    tCMLeaderTurbulence->set_property( tPropKinViscosity, "KinViscosity" );
+    tCMLeaderTurbulence->set_property( tPropDensity, "Density" );
+    tCMLeaderTurbulence->set_local_properties();
 
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
-    tCMMasterLaminar->set_set_pointer( static_cast< fem::Set* >( tSet ) );
-    tCMMasterTurbulence->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tCMLeaderLaminar->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tCMLeaderTurbulence->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tCMMasterTurbulence->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
+    tCMLeaderTurbulence->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
-    tCMMasterTurbulence->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMMasterTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tCMMasterTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
-    tCMMasterTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    tCMLeaderTurbulence->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tCMLeaderTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+    tCMLeaderTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+    tCMLeaderTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
-    // set size and populate the set master dof type map
-    tCMMasterTurbulence->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMMasterTurbulence->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tCMMasterTurbulence->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P  ) )        = 1;
-    tCMMasterTurbulence->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    // set size and populate the set leader dof type map
+    tCMLeaderTurbulence->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tCMLeaderTurbulence->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+    tCMLeaderTurbulence->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P  ) )        = 1;
+    tCMLeaderTurbulence->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
     // build global dof type list
-    tCMMasterLaminar->get_global_dof_type_list();
-    tCMMasterTurbulence->get_global_dof_type_list();
+    tCMLeaderLaminar->get_global_dof_type_list();
+    tCMLeaderTurbulence->get_global_dof_type_list();
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -577,8 +577,8 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimensions for property, CM and SP
-        tCMMasterLaminar->set_space_dim( iSpaceDim );
-        tCMMasterTurbulence->set_space_dim( iSpaceDim );
+        tCMLeaderLaminar->set_space_dim( iSpaceDim );
+        tCMLeaderTurbulence->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -617,29 +617,29 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill random coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatP;
-            fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatVis;
-            fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
-            tMasterDOFHatVis = 0.0 * tMasterDOFHatVis;
+            // fill random coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatP;
+            fill_phat( tLeaderDOFHatP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatVis;
+            fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
+            tLeaderDOFHatVis = 0.0 * tLeaderDOFHatVis;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatP );
 
             // create the field interpolator viscosity
-            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
-            tMasterFIs( 2 )->set_coeff( tMasterDOFHatVis );
+            tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatVis );
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -647,53 +647,53 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tCMMasterLaminar->mSet->mMasterFIManager = &tFIManager;
-            tCMMasterTurbulence->mSet->mMasterFIManager = &tFIManager;
+            tCMLeaderLaminar->mSet->mLeaderFIManager = &tFIManager;
+            tCMLeaderTurbulence->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
-            tCMMasterLaminar->set_field_interpolator_manager( &tFIManager );
-            tCMMasterTurbulence->set_field_interpolator_manager( &tFIManager );
+            tCMLeaderLaminar->set_field_interpolator_manager( &tFIManager );
+            tCMLeaderTurbulence->set_field_interpolator_manager( &tFIManager );
 
             uint tNumGPs = tIntegPoints.n_cols();
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // reset IWG evaluation flags
-                tCMMasterTurbulence->reset_eval_flags();
+                tCMLeaderTurbulence->reset_eval_flags();
 
                 // create evaluation point xi, tau
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tCMMasterLaminar->mSet->mMasterFIManager->set_space_time( tParamPoint );
-                tCMMasterTurbulence->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tCMLeaderLaminar->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+                tCMLeaderTurbulence->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
-                // populate the requested master dof type for CM
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tRequestedMasterGlobalDofTypes =
-                        tCMMasterLaminar->get_global_dof_type_list();
+                // populate the requested leader dof type for CM
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
+                        tCMLeaderLaminar->get_global_dof_type_list();
 
-                // populate the test master dof type for CM
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tMasterDofTypes =
-                        tCMMasterLaminar->get_dof_type_list();
+                // populate the test leader dof type for CM
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tLeaderDofTypes =
+                        tCMLeaderLaminar->get_dof_type_list();
 
                 // loop over requested dof type
-                for( uint iRequestedDof = 0; iRequestedDof < tRequestedMasterGlobalDofTypes.size(); iRequestedDof++ )
+                for( uint iRequestedDof = 0; iRequestedDof < tRequestedLeaderGlobalDofTypes.size(); iRequestedDof++ )
                 {
                     // derivative dof type
-                    Cell< MSI::Dof_Type > tDofDerivative = tRequestedMasterGlobalDofTypes( iRequestedDof );
+                    Cell< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // flux
                     //------------------------------------------------------------------------------
                     // evaluate dfluxdu
-                    Matrix< DDRMat > tdfluxdu = tCMMasterTurbulence->dFluxdDOF( tDofDerivative );
+                    Matrix< DDRMat > tdfluxdu = tCMLeaderTurbulence->dFluxdDOF( tDofDerivative );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdfluxduFD;
-                    tCMMasterLaminar->eval_dFluxdDOF_FD( tDofDerivative, tdfluxduFD, tPerturbation );
+                    tCMLeaderLaminar->eval_dFluxdDOF_FD( tDofDerivative, tdfluxduFD, tPerturbation );
 
                     // check that analytical and FD match
                     bool tCheckFluxTurbulence = fem::check( tdfluxdu, tdfluxduFD, tEpsilon );
@@ -702,11 +702,11 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
                     // strain
                     //------------------------------------------------------------------------------
                     // evaluate dstraindu
-                    Matrix< DDRMat > tdstraindu = tCMMasterTurbulence->dStraindDOF( tDofDerivative );
+                    Matrix< DDRMat > tdstraindu = tCMLeaderTurbulence->dStraindDOF( tDofDerivative );
 
                     // evaluate dstraindu by FD
                     Matrix< DDRMat > tdstrainduFD;
-                    tCMMasterLaminar->eval_dStraindDOF_FD( tDofDerivative, tdstrainduFD, tPerturbation );
+                    tCMLeaderLaminar->eval_dStraindDOF_FD( tDofDerivative, tdstrainduFD, tPerturbation );
 
                     // check that analytical and FD match
                     bool tCheckStrainTurbulence = fem::check( tdstraindu, tdstrainduFD, tEpsilon );
@@ -715,11 +715,11 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
                     // traction
                     //------------------------------------------------------------------------------
                     // evaluate dtractiondu
-                    Matrix< DDRMat > tdtractiondu = tCMMasterTurbulence->dTractiondDOF( tDofDerivative, tNormal );
+                    Matrix< DDRMat > tdtractiondu = tCMLeaderTurbulence->dTractiondDOF( tDofDerivative, tNormal );
 
                     // evaluate dtractiondu by FD
                     Matrix< DDRMat > tdtractionduFD;
-                    tCMMasterLaminar->eval_dtractiondu_FD( tDofDerivative, tdtractionduFD, tPerturbation, tNormal );
+                    tCMLeaderLaminar->eval_dtractiondu_FD( tDofDerivative, tdtractionduFD, tPerturbation, tNormal );
 
                     // check that analytical and FD match
                     bool tCheckTractionTurbulence = fem::check( tdtractiondu, tdtractionduFD, tEpsilon );
@@ -728,13 +728,13 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
                     // test traction
                     //------------------------------------------------------------------------------
                     // loop over test dof type
-                    for( uint iTestDof = 0; iTestDof < tMasterDofTypes.size(); iTestDof++ )
+                    for( uint iTestDof = 0; iTestDof < tLeaderDofTypes.size(); iTestDof++ )
                     {
                         // get the test dof type
-                        Cell< MSI::Dof_Type > tDofTest = tMasterDofTypes( iTestDof );
+                        Cell< MSI::Dof_Type > tDofTest = tLeaderDofTypes( iTestDof );
 
                         // evaluate dtesttractiondu
-                        Matrix< DDRMat > tdtesttractiondu = tCMMasterTurbulence->dTestTractiondDOF(
+                        Matrix< DDRMat > tdtesttractiondu = tCMLeaderTurbulence->dTestTractiondDOF(
                                 tDofDerivative,
                                 tNormal,
                                 tJump,
@@ -742,7 +742,7 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
 
                         // evaluate dtractiondu by FD
                         Matrix< DDRMat > tdtesttractionduFD;
-                        tCMMasterLaminar->eval_dtesttractiondu_FD(
+                        tCMLeaderLaminar->eval_dtesttractiondu_FD(
                                 tDofDerivative,
                                 tDofTest,
                                 tdtesttractionduFD,
@@ -758,11 +758,11 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
                     // div flux
                     //------------------------------------------------------------------------------
                     // evaluate ddivfluxdu
-                    Matrix< DDRMat > tddivfluxdu = tCMMasterTurbulence->ddivfluxdu( tDofDerivative );
+                    Matrix< DDRMat > tddivfluxdu = tCMLeaderTurbulence->ddivfluxdu( tDofDerivative );
 
                     // evaluate ddivfluxdu by FD
                     Matrix< DDRMat > tddivfluxduFD;
-                    tCMMasterLaminar->eval_ddivfluxdu_FD( tDofDerivative, tddivfluxduFD, tPerturbation );
+                    tCMLeaderLaminar->eval_ddivfluxdu_FD( tDofDerivative, tddivfluxduFD, tPerturbation );
 
                     // check that analytical and FD match
                     bool tCheckDivFluxTurbulence = fem::check( tddivfluxdu, tddivfluxduFD, tEpsilon );
@@ -771,11 +771,11 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
                     // div strain
                     //------------------------------------------------------------------------------
                     // evaluate ddivstraindu
-                    Matrix< DDRMat > tddivstraindu = tCMMasterTurbulence->ddivstraindu( tDofDerivative );
+                    Matrix< DDRMat > tddivstraindu = tCMLeaderTurbulence->ddivstraindu( tDofDerivative );
 
                     // evaluate ddivstraindu by FD
                     Matrix< DDRMat > tddivstrainduFD;
-                    tCMMasterLaminar->eval_ddivstraindu_FD( tDofDerivative, tddivstrainduFD, tPerturbation );
+                    tCMLeaderLaminar->eval_ddivstraindu_FD( tDofDerivative, tddivstrainduFD, tPerturbation );
 
                     // check that analytical and FD match
                     bool tCheckDivStrainTurbulence = fem::check( tddivstraindu, tddivstrainduFD, tEpsilon );
@@ -783,7 +783,7 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
                 }
             }
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }/*END_TEST_CASE*/
@@ -848,44 +848,44 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterLaminar =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderLaminar =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
-    tCMMasterLaminar->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) } );
-    tCMMasterLaminar->set_property( tPropViscosity, "Viscosity" );
-    tCMMasterLaminar->set_property( tPropDensity, "Density" );
-    tCMMasterLaminar->set_local_properties();
+    tCMLeaderLaminar->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) } );
+    tCMLeaderLaminar->set_property( tPropViscosity, "Viscosity" );
+    tCMLeaderLaminar->set_property( tPropDensity, "Density" );
+    tCMLeaderLaminar->set_local_properties();
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
-    tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
-    tCMMasterTurbulence->set_property( tPropKinViscosity, "KinViscosity" );
-    tCMMasterTurbulence->set_property( tPropDensity, "Density" );
-    tCMMasterTurbulence->set_local_properties();
+    tCMLeaderTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
+    tCMLeaderTurbulence->set_property( tPropViscosity, "Viscosity" );
+    tCMLeaderTurbulence->set_property( tPropKinViscosity, "KinViscosity" );
+    tCMLeaderTurbulence->set_property( tPropDensity, "Density" );
+    tCMLeaderTurbulence->set_local_properties();
 
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
-    tCMMasterLaminar->set_set_pointer( static_cast< fem::Set* >( tSet ) );
-    tCMMasterTurbulence->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tCMLeaderLaminar->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tCMLeaderTurbulence->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tCMMasterTurbulence->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
+    tCMLeaderTurbulence->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
-    tCMMasterTurbulence->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMMasterTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tCMMasterTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
-    tCMMasterTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    tCMLeaderTurbulence->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tCMLeaderTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+    tCMLeaderTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+    tCMLeaderTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
-    // set size and populate the set master dof type map
-    tCMMasterTurbulence->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMMasterTurbulence->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tCMMasterTurbulence->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P  ) )        = 1;
-    tCMMasterTurbulence->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    // set size and populate the set leader dof type map
+    tCMLeaderTurbulence->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tCMLeaderTurbulence->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+    tCMLeaderTurbulence->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P  ) )        = 1;
+    tCMLeaderTurbulence->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
     // build global dof type list
-    tCMMasterLaminar->get_global_dof_type_list();
-    tCMMasterTurbulence->get_global_dof_type_list();
+    tCMLeaderLaminar->get_global_dof_type_list();
+    tCMLeaderTurbulence->get_global_dof_type_list();
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -970,8 +970,8 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimensions for property, CM and SP
-        tCMMasterLaminar->set_space_dim( iSpaceDim );
-        tCMMasterTurbulence->set_space_dim( iSpaceDim );
+        tCMLeaderLaminar->set_space_dim( iSpaceDim );
+        tCMLeaderTurbulence->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -1010,28 +1010,28 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill random coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatP;
-            fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatVis;
-            fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
+            // fill random coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatP;
+            fill_phat( tLeaderDOFHatP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatVis;
+            fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatP );
 
             // create the field interpolator viscosity
-            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
-            tMasterFIs( 2 )->set_coeff( tMasterDOFHatVis );
+            tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatVis );
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -1039,59 +1039,59 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tCMMasterLaminar->mSet->mMasterFIManager = &tFIManager;
-            tCMMasterTurbulence->mSet->mMasterFIManager = &tFIManager;
+            tCMLeaderLaminar->mSet->mLeaderFIManager = &tFIManager;
+            tCMLeaderTurbulence->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
-            tCMMasterLaminar->set_field_interpolator_manager( &tFIManager );
-            tCMMasterTurbulence->set_field_interpolator_manager( &tFIManager );
+            tCMLeaderLaminar->set_field_interpolator_manager( &tFIManager );
+            tCMLeaderTurbulence->set_field_interpolator_manager( &tFIManager );
 
             uint tNumGPs = tIntegPoints.n_cols();
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // reset IWG evaluation flags
-                tCMMasterLaminar->reset_eval_flags();
-                tCMMasterTurbulence->reset_eval_flags();
+                tCMLeaderLaminar->reset_eval_flags();
+                tCMLeaderTurbulence->reset_eval_flags();
 
                 // create evaluation point xi, tau
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tCMMasterLaminar->mSet->mMasterFIManager->set_space_time( tParamPoint );
-                tCMMasterTurbulence->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tCMLeaderLaminar->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+                tCMLeaderTurbulence->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
-                // populate the requested master dof type for CM
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tRequestedMasterGlobalDofTypes =
-                        tCMMasterTurbulence->get_global_dof_type_list();
+                // populate the requested leader dof type for CM
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
+                        tCMLeaderTurbulence->get_global_dof_type_list();
 
-                // populate the test master dof type for CM
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tMasterDofTypes =
-                        tCMMasterTurbulence->get_dof_type_list();
+                // populate the test leader dof type for CM
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tLeaderDofTypes =
+                        tCMLeaderTurbulence->get_dof_type_list();
 
                 // loop over requested dof type
-                for( uint iRequestedDof = 0; iRequestedDof < tRequestedMasterGlobalDofTypes.size(); iRequestedDof++ )
+                for( uint iRequestedDof = 0; iRequestedDof < tRequestedLeaderGlobalDofTypes.size(); iRequestedDof++ )
                 {
                     // derivative dof type
-                    Cell< MSI::Dof_Type > tDofDerivative = tRequestedMasterGlobalDofTypes( iRequestedDof );
+                    Cell< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // flux
                     //------------------------------------------------------------------------------
                     // evaluate dfluxdu
-                    Matrix< DDRMat > tdfluxdu = tCMMasterTurbulence->dFluxdDOF( tDofDerivative );
+                    Matrix< DDRMat > tdfluxdu = tCMLeaderTurbulence->dFluxdDOF( tDofDerivative );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdfluxduFD;
-                    tCMMasterTurbulence->eval_dFluxdDOF_FD( tDofDerivative, tdfluxduFD, tPerturbation );
+                    tCMLeaderTurbulence->eval_dFluxdDOF_FD( tDofDerivative, tdfluxduFD, tPerturbation );
 
                     if( tDofDerivative( 0 ) == MSI::Dof_Type::VX || tDofDerivative( 0 ) == MSI::Dof_Type::P )
                     {
                         // get the laminar part of dfluxdu
-                        Matrix< DDRMat > tdfluxduLaminar = tCMMasterLaminar->dFluxdDOF( tDofDerivative );
+                        Matrix< DDRMat > tdfluxduLaminar = tCMLeaderLaminar->dFluxdDOF( tDofDerivative );
 
                         // get turbulent contribution
                         tdfluxdu   = tdfluxdu - tdfluxduLaminar;
@@ -1108,16 +1108,16 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
                     // strain
                     //------------------------------------------------------------------------------
                     // evaluate dstraindu
-                    Matrix< DDRMat > tdstraindu = tCMMasterTurbulence->dStraindDOF( tDofDerivative );
+                    Matrix< DDRMat > tdstraindu = tCMLeaderTurbulence->dStraindDOF( tDofDerivative );
 
                     // evaluate dstraindu by FD
                     Matrix< DDRMat > tdstrainduFD;
-                    tCMMasterTurbulence->eval_dStraindDOF_FD( tDofDerivative, tdstrainduFD, tPerturbation );
+                    tCMLeaderTurbulence->eval_dStraindDOF_FD( tDofDerivative, tdstrainduFD, tPerturbation );
 
                     if( tDofDerivative( 0 ) == MSI::Dof_Type::VX || tDofDerivative( 0 ) == MSI::Dof_Type::P )
                     {
                         // evaluate laminar part of dstraindu
-                        Matrix< DDRMat > tdstrainduLaminar = tCMMasterLaminar->dStraindDOF( tDofDerivative );
+                        Matrix< DDRMat > tdstrainduLaminar = tCMLeaderLaminar->dStraindDOF( tDofDerivative );
 
                         // get turbulent part
                         tdstraindu = tdstraindu - tdstrainduLaminar;
@@ -1134,16 +1134,16 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
                     // traction
                     //------------------------------------------------------------------------------
                     // evaluate dtractiondu
-                    Matrix< DDRMat > tdtractiondu = tCMMasterTurbulence->dTractiondDOF( tDofDerivative, tNormal );
+                    Matrix< DDRMat > tdtractiondu = tCMLeaderTurbulence->dTractiondDOF( tDofDerivative, tNormal );
 
                     // evaluate dtractiondu by FD
                     Matrix< DDRMat > tdtractionduFD;
-                    tCMMasterTurbulence->eval_dtractiondu_FD( tDofDerivative, tdtractionduFD, tPerturbation, tNormal );
+                    tCMLeaderTurbulence->eval_dtractiondu_FD( tDofDerivative, tdtractionduFD, tPerturbation, tNormal );
 
                     if( tDofDerivative( 0 ) == MSI::Dof_Type::VX || tDofDerivative( 0 ) == MSI::Dof_Type::P )
                     {
                         // evaluate laminar part of dtractiondu
-                        Matrix< DDRMat > tdtractionduLaminar = tCMMasterLaminar->dTractiondDOF( tDofDerivative, tNormal );
+                        Matrix< DDRMat > tdtractionduLaminar = tCMLeaderLaminar->dTractiondDOF( tDofDerivative, tNormal );
 
                         // get turbulent contribution
                         tdtractiondu = tdtractiondu - tdtractionduLaminar;
@@ -1160,13 +1160,13 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
                     // test traction
                     //------------------------------------------------------------------------------
                     // loop over test dof type
-                    for( uint iTestDof = 0; iTestDof < tMasterDofTypes.size(); iTestDof++ )
+                    for( uint iTestDof = 0; iTestDof < tLeaderDofTypes.size(); iTestDof++ )
                     {
                         // get the test dof type
-                        Cell< MSI::Dof_Type > tDofTest = tMasterDofTypes( iTestDof );
+                        Cell< MSI::Dof_Type > tDofTest = tLeaderDofTypes( iTestDof );
 
                         // evaluate dtesttractiondu
-                        Matrix< DDRMat > tdtesttractiondu = tCMMasterTurbulence->dTestTractiondDOF(
+                        Matrix< DDRMat > tdtesttractiondu = tCMLeaderTurbulence->dTestTractiondDOF(
                                 tDofDerivative,
                                 tNormal,
                                 tJump,
@@ -1174,7 +1174,7 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
 
                         // evaluate dtractiondu by FD
                         Matrix< DDRMat > tdtesttractionduFD;
-                        tCMMasterTurbulence->eval_dtesttractiondu_FD(
+                        tCMLeaderTurbulence->eval_dtesttractiondu_FD(
                                 tDofDerivative,
                                 tDofTest,
                                 tdtesttractionduFD,
@@ -1186,7 +1186,7 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
                         {
                             if( tDofDerivative( 0 ) == MSI::Dof_Type::VX || tDofDerivative( 0 ) == MSI::Dof_Type::P )
                             {
-                                Matrix< DDRMat > tdtesttractionduLaminar = tCMMasterLaminar->dTestTractiondDOF(
+                                Matrix< DDRMat > tdtesttractionduLaminar = tCMLeaderLaminar->dTestTractiondDOF(
                                         tDofDerivative,
                                         tNormal,
                                         tJump,
@@ -1208,16 +1208,16 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
                     // div flux
                     //------------------------------------------------------------------------------
                     // evaluate ddivfluxdu
-                    Matrix< DDRMat > tddivfluxdu = tCMMasterTurbulence->ddivfluxdu( tDofDerivative );
+                    Matrix< DDRMat > tddivfluxdu = tCMLeaderTurbulence->ddivfluxdu( tDofDerivative );
 
                     // evaluate ddivfluxdu by FD
                     Matrix< DDRMat > tddivfluxduFD;
-                    tCMMasterTurbulence->eval_ddivfluxdu_FD( tDofDerivative, tddivfluxduFD, tPerturbation );
+                    tCMLeaderTurbulence->eval_ddivfluxdu_FD( tDofDerivative, tddivfluxduFD, tPerturbation );
 
                     if( tDofDerivative( 0 ) == MSI::Dof_Type::VX || tDofDerivative( 0 ) == MSI::Dof_Type::P )
                     {
                         // evaluate the laminar part of ddivfluxdu
-                        Matrix< DDRMat > tddivfluxduLaminar = tCMMasterLaminar->ddivfluxdu( tDofDerivative );
+                        Matrix< DDRMat > tddivfluxduLaminar = tCMLeaderLaminar->ddivfluxdu( tDofDerivative );
 
                         // get turbulent contribution
                         tddivfluxdu = tddivfluxdu - tddivfluxduLaminar;
@@ -1234,16 +1234,16 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
                     // div strain
                     //------------------------------------------------------------------------------
                     // evaluate ddivstraindu
-                    Matrix< DDRMat > tddivstraindu = tCMMasterTurbulence->ddivstraindu( tDofDerivative );
+                    Matrix< DDRMat > tddivstraindu = tCMLeaderTurbulence->ddivstraindu( tDofDerivative );
 
                     // evaluate ddivstraindu by FD
                     Matrix< DDRMat > tddivstrainduFD;
-                    tCMMasterTurbulence->eval_ddivstraindu_FD( tDofDerivative, tddivstrainduFD, tPerturbation );
+                    tCMLeaderTurbulence->eval_ddivstraindu_FD( tDofDerivative, tddivstrainduFD, tPerturbation );
 
                     if( tDofDerivative( 0 ) == MSI::Dof_Type::VX || tDofDerivative( 0 ) == MSI::Dof_Type::P )
                     {
                         // evaluate the laminar part of ddivstraindu
-                        Matrix< DDRMat > tddivstrainduLaminar = tCMMasterLaminar->ddivstraindu( tDofDerivative );
+                        Matrix< DDRMat > tddivstrainduLaminar = tCMLeaderLaminar->ddivstraindu( tDofDerivative );
 
                         // get the turbulent contribution
                         tddivstraindu = tddivstraindu - tddivstrainduLaminar;
@@ -1259,7 +1259,7 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
                 }
             }
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }/*END_TEST_CASE*/
@@ -1324,35 +1324,35 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
-    tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
-    tCMMasterTurbulence->set_property( tPropKinViscosity, "KinViscosity" );
-    tCMMasterTurbulence->set_property( tPropDensity, "Density" );
-    tCMMasterTurbulence->set_local_properties();
+    tCMLeaderTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
+    tCMLeaderTurbulence->set_property( tPropViscosity, "Viscosity" );
+    tCMLeaderTurbulence->set_property( tPropKinViscosity, "KinViscosity" );
+    tCMLeaderTurbulence->set_property( tPropDensity, "Density" );
+    tCMLeaderTurbulence->set_local_properties();
 
     // set a fem set pointer
     MSI::Equation_Set * tSet = new fem::Set();
-    tCMMasterTurbulence->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tCMLeaderTurbulence->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tCMMasterTurbulence->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
+    tCMLeaderTurbulence->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
-    tCMMasterTurbulence->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMMasterTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tCMMasterTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
-    tCMMasterTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    tCMLeaderTurbulence->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tCMLeaderTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+    tCMLeaderTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+    tCMLeaderTurbulence->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
-    // set size and populate the set master dof type map
-    tCMMasterTurbulence->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMMasterTurbulence->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tCMMasterTurbulence->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P  ) )        = 1;
-    tCMMasterTurbulence->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    // set size and populate the set leader dof type map
+    tCMLeaderTurbulence->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tCMLeaderTurbulence->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+    tCMLeaderTurbulence->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P  ) )        = 1;
+    tCMLeaderTurbulence->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
     // build global dof type list
-    tCMMasterTurbulence->get_global_dof_type_list();
+    tCMLeaderTurbulence->get_global_dof_type_list();
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -1437,7 +1437,7 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimensions for property, CM and SP
-        tCMMasterTurbulence->set_space_dim( iSpaceDim );
+        tCMLeaderTurbulence->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -1476,28 +1476,28 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill random coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatP;
-            fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatVis;
-            fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
+            // fill random coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatP;
+            fill_phat( tLeaderDOFHatP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatVis;
+            fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatP );
 
             // create the field interpolator viscosity
-            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
-            tMasterFIs( 2 )->set_coeff( tMasterDOFHatVis );
+            tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatVis );
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -1505,51 +1505,51 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tCMMasterTurbulence->mSet->mMasterFIManager = &tFIManager;
+            tCMLeaderTurbulence->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
-            tCMMasterTurbulence->set_field_interpolator_manager( &tFIManager );
+            tCMLeaderTurbulence->set_field_interpolator_manager( &tFIManager );
 
             uint tNumGPs = tIntegPoints.n_cols();
             for( uint iGP = 0; iGP < tNumGPs; iGP ++ )
             {
                 // reset IWG evaluation flags
-                tCMMasterTurbulence->reset_eval_flags();
+                tCMLeaderTurbulence->reset_eval_flags();
 
                 // create evaluation point xi, tau
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tCMMasterTurbulence->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tCMLeaderTurbulence->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
-                // populate the requested master dof type for CM
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tRequestedMasterGlobalDofTypes =
-                        tCMMasterTurbulence->get_global_dof_type_list();
+                // populate the requested leader dof type for CM
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
+                        tCMLeaderTurbulence->get_global_dof_type_list();
 
-                // populate the test master dof type for CM
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tMasterDofTypes =
-                        tCMMasterTurbulence->get_dof_type_list();
-                //moris::Cell< moris::Cell< MSI::Dof_Type > > tMasterDofTypes = { tVelDofTypes };
+                // populate the test leader dof type for CM
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tLeaderDofTypes =
+                        tCMLeaderTurbulence->get_dof_type_list();
+                //moris::Cell< moris::Cell< MSI::Dof_Type > > tLeaderDofTypes = { tVelDofTypes };
 
                 // loop over requested dof type
-                for( uint iRequestedDof = 0; iRequestedDof < tRequestedMasterGlobalDofTypes.size(); iRequestedDof++ )
+                for( uint iRequestedDof = 0; iRequestedDof < tRequestedLeaderGlobalDofTypes.size(); iRequestedDof++ )
                 {
                     // derivative dof type
-                    Cell< MSI::Dof_Type > tDofDerivative = tRequestedMasterGlobalDofTypes( iRequestedDof );
+                    Cell< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // flux
                     //------------------------------------------------------------------------------
                     // evaluate dfluxdu
-                    Matrix< DDRMat > tdfluxdu = tCMMasterTurbulence->dFluxdDOF( tDofDerivative );
+                    Matrix< DDRMat > tdfluxdu = tCMLeaderTurbulence->dFluxdDOF( tDofDerivative );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdfluxduFD;
-                    tCMMasterTurbulence->eval_dFluxdDOF_FD( tDofDerivative, tdfluxduFD, tPerturbation );
+                    tCMLeaderTurbulence->eval_dFluxdDOF_FD( tDofDerivative, tdfluxduFD, tPerturbation );
 
                     // check that analytical and FD match
                     bool tCheckFluxTurbulence = fem::check( tdfluxdu, tdfluxduFD, tEpsilon );
@@ -1558,11 +1558,11 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
                     // strain
                     //------------------------------------------------------------------------------
                     // evaluate dstraindu
-                    Matrix< DDRMat > tdstraindu = tCMMasterTurbulence->dStraindDOF( tDofDerivative );
+                    Matrix< DDRMat > tdstraindu = tCMLeaderTurbulence->dStraindDOF( tDofDerivative );
 
                     // evaluate dstraindu by FD
                     Matrix< DDRMat > tdstrainduFD;
-                    tCMMasterTurbulence->eval_dStraindDOF_FD( tDofDerivative, tdstrainduFD, tPerturbation );
+                    tCMLeaderTurbulence->eval_dStraindDOF_FD( tDofDerivative, tdstrainduFD, tPerturbation );
 
                     // check that analytical and FD match
                     bool tCheckStrainTurbulence = fem::check( tdstraindu, tdstrainduFD, tEpsilon );
@@ -1571,11 +1571,11 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
                     // traction
                     //------------------------------------------------------------------------------
                     // evaluate dtractiondu
-                    Matrix< DDRMat > tdtractiondu = tCMMasterTurbulence->dTractiondDOF( tDofDerivative, tNormal );
+                    Matrix< DDRMat > tdtractiondu = tCMLeaderTurbulence->dTractiondDOF( tDofDerivative, tNormal );
 
                     // evaluate dtractiondu by FD
                     Matrix< DDRMat > tdtractionduFD;
-                    tCMMasterTurbulence->eval_dtractiondu_FD( tDofDerivative, tdtractionduFD, tPerturbation, tNormal );
+                    tCMLeaderTurbulence->eval_dtractiondu_FD( tDofDerivative, tdtractionduFD, tPerturbation, tNormal );
 
                     // check that analytical and FD match
                     bool tCheckTractionTurbulence = fem::check( tdtractiondu, tdtractionduFD, tEpsilon );
@@ -1584,13 +1584,13 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
                     // test traction
                     //------------------------------------------------------------------------------
                     // loop over test dof type
-                    for( uint iTestDof = 0; iTestDof < tMasterDofTypes.size(); iTestDof++ )
+                    for( uint iTestDof = 0; iTestDof < tLeaderDofTypes.size(); iTestDof++ )
                     {
                         // get the test dof type
-                        Cell< MSI::Dof_Type > tDofTest = tMasterDofTypes( iTestDof );
+                        Cell< MSI::Dof_Type > tDofTest = tLeaderDofTypes( iTestDof );
 
                         // evaluate dtesttractiondu
-                        Matrix< DDRMat > tdtesttractiondu = tCMMasterTurbulence->dTestTractiondDOF(
+                        Matrix< DDRMat > tdtesttractiondu = tCMLeaderTurbulence->dTestTractiondDOF(
                                 tDofDerivative,
                                 tNormal,
                                 tJump,
@@ -1598,7 +1598,7 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
 
                         // evaluate dtractiondu by FD
                         Matrix< DDRMat > tdtesttractionduFD;
-                        tCMMasterTurbulence->eval_dtesttractiondu_FD(
+                        tCMLeaderTurbulence->eval_dtesttractiondu_FD(
                                 tDofDerivative,
                                 tDofTest,
                                 tdtesttractionduFD,
@@ -1614,11 +1614,11 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
                     // div flux
                     //------------------------------------------------------------------------------
                     // evaluate ddivfluxdu
-                    Matrix< DDRMat > tddivfluxdu = tCMMasterTurbulence->ddivfluxdu( tDofDerivative );
+                    Matrix< DDRMat > tddivfluxdu = tCMLeaderTurbulence->ddivfluxdu( tDofDerivative );
 
                     // evaluate ddivfluxdu by FD
                     Matrix< DDRMat > tddivfluxduFD;
-                    tCMMasterTurbulence->eval_ddivfluxdu_FD( tDofDerivative, tddivfluxduFD, tPerturbation );
+                    tCMLeaderTurbulence->eval_ddivfluxdu_FD( tDofDerivative, tddivfluxduFD, tPerturbation );
 
                     // check that analytical and FD match
                     bool tCheckDivFluxTurbulence = fem::check( tddivfluxdu, tddivfluxduFD, tEpsilon );
@@ -1627,11 +1627,11 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
                     // div strain
                     //------------------------------------------------------------------------------
                     // evaluate ddivstraindu
-                    Matrix< DDRMat > tddivstraindu = tCMMasterTurbulence->ddivstraindu( tDofDerivative );
+                    Matrix< DDRMat > tddivstraindu = tCMLeaderTurbulence->ddivstraindu( tDofDerivative );
 
                     // evaluate ddivstraindu by FD
                     Matrix< DDRMat > tddivstrainduFD;
-                    tCMMasterTurbulence->eval_ddivstraindu_FD( tDofDerivative, tddivstrainduFD, tPerturbation );
+                    tCMLeaderTurbulence->eval_ddivstraindu_FD( tDofDerivative, tddivstrainduFD, tPerturbation );
 
                     // check that analytical and FD match
                     bool tCheckDivStrainTurbulence = fem::check( tddivstraindu, tddivstrainduFD, tEpsilon );
@@ -1639,7 +1639,7 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
                 }
             }
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }/*END_TEST_CASE*/

@@ -95,20 +95,20 @@ TEST_CASE( "IQI_Power_Dissipation","[moris],[fem],[IQI_Power_Dissipation]" )
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterIncFluid =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderIncFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
-    tCMMasterIncFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) } );
-    tCMMasterIncFluid->set_property( tPropViscosity, "Viscosity" );
-    tCMMasterIncFluid->set_property( tPropDensity, "Density" );
-    tCMMasterIncFluid->set_local_properties();
+    tCMLeaderIncFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) } );
+    tCMLeaderIncFluid->set_property( tPropViscosity, "Viscosity" );
+    tCMLeaderIncFluid->set_property( tPropDensity, "Density" );
+    tCMLeaderIncFluid->set_local_properties();
 
     // define the IQI
     fem::IQI_Factory tIQIFactory;
 
     std::shared_ptr< fem::IQI > tIQI =
             tIQIFactory.create_IQI( fem::IQI_Type::POWER_DISSIPATION );
-    tIQI->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIQI->set_constitutive_model( tCMMasterIncFluid, "Fluid" );
+    tIQI->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
+    tIQI->set_constitutive_model( tCMLeaderIncFluid, "Fluid" );
     tIQI->set_name("PowerDissipation");
 
     // init set info
@@ -126,10 +126,10 @@ TEST_CASE( "IQI_Power_Dissipation","[moris],[fem],[IQI_Power_Dissipation]" )
     tIQI->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
     tIQI->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
 
-    // set size and populate the set master dof type map
-    tIQI->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIQI->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tIQI->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+    // set size and populate the set leader dof type map
+    tIQI->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIQI->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+    tIQI->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -170,7 +170,7 @@ TEST_CASE( "IQI_Power_Dissipation","[moris],[fem],[IQI_Power_Dissipation]" )
         }
 
         // set space dimension to CM
-        tCMMasterIncFluid->set_space_dim( iSpaceDim );
+        tCMLeaderIncFluid->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -239,22 +239,22 @@ TEST_CASE( "IQI_Power_Dissipation","[moris],[fem],[IQI_Power_Dissipation]" )
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatP;
-            fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatP;
+            fill_phat( tLeaderDOFHatP, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatP );
 
             // set size and fill the set residual assembly map
             tIQI->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -280,8 +280,8 @@ TEST_CASE( "IQI_Power_Dissipation","[moris],[fem],[IQI_Power_Dissipation]" )
             // build global dof type list
             tIQI->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIQI->mRequestedMasterGlobalDofTypes = tDofTypes;
+            // populate the requested leader dof type
+            tIQI->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
@@ -289,12 +289,12 @@ TEST_CASE( "IQI_Power_Dissipation","[moris],[fem],[IQI_Power_Dissipation]" )
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIQI->mSet->mMasterFIManager = &tFIManager;
+            tIQI->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIQI->set_field_interpolator_manager( &tFIManager );
@@ -310,7 +310,7 @@ TEST_CASE( "IQI_Power_Dissipation","[moris],[fem],[IQI_Power_Dissipation]" )
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIQI->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIQI->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the quantity of interest
                 //------------------------------------------------------------------------------
@@ -346,7 +346,7 @@ TEST_CASE( "IQI_Power_Dissipation","[moris],[fem],[IQI_Power_Dissipation]" )
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }/*END_TEST_CASE*/

@@ -248,7 +248,7 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
         tSPDirichletNitsche->set_parameters( { {{ 100.0 }} } );
-        tSPDirichletNitsche->set_property( tPropEMod, "Material", mtk::Master_Slave::MASTER );
+        tSPDirichletNitsche->set_property( tPropEMod, "Material", mtk::Leader_Follower::LEADER );
 
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
@@ -256,28 +256,28 @@ TEST_CASE("2D XTK WITH HMR SYMM BCs","[XTK_HMR_2D_Symm_BCs]")
         std::shared_ptr< fem::IWG > tIWGBulk1 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
         tIWGBulk1->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
         tIWGBulk1->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-        tIWGBulk1->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulk1->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Leader_Follower::LEADER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet_ss2 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet_ss2->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
         tIWGDirichlet_ss2->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tIWGDirichlet_ss2->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-        tIWGDirichlet_ss2->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
-        tIWGDirichlet_ss2->set_property( tPropDirichletUX_ss2, "Dirichlet", mtk::Master_Slave::MASTER );
-        tIWGDirichlet_ss2->set_property( tPropDirichletUX_ss2_select, "Select", mtk::Master_Slave::MASTER );
+        tIWGDirichlet_ss2->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Leader_Follower::LEADER );
+        tIWGDirichlet_ss2->set_property( tPropDirichletUX_ss2, "Dirichlet", mtk::Leader_Follower::LEADER );
+        tIWGDirichlet_ss2->set_property( tPropDirichletUX_ss2_select, "Select", mtk::Leader_Follower::LEADER );
 
         std::shared_ptr< fem::IWG > tIWGDirichletFixed_ss4 = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichletFixed_ss4->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
         tIWGDirichletFixed_ss4->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tIWGDirichletFixed_ss4->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-        tIWGDirichletFixed_ss4->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
-        tIWGDirichletFixed_ss4->set_property( tPropDirichletUXUY_ss4, "Dirichlet", mtk::Master_Slave::MASTER );
-        tIWGDirichletFixed_ss4->set_property( tPropDirichletUXUY_ss4_select, "Select", mtk::Master_Slave::MASTER );
+        tIWGDirichletFixed_ss4->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Leader_Follower::LEADER );
+        tIWGDirichletFixed_ss4->set_property( tPropDirichletUXUY_ss4, "Dirichlet", mtk::Leader_Follower::LEADER );
+        tIWGDirichletFixed_ss4->set_property( tPropDirichletUXUY_ss4_select, "Select", mtk::Leader_Follower::LEADER );
 
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
         tIWGNeumann->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-        tIWGNeumann->set_property( tPropTraction, "Traction", mtk::Master_Slave::MASTER );
+        tIWGNeumann->set_property( tPropTraction, "Traction", mtk::Leader_Follower::LEADER );
 
         // create a list of active block-sets
         std::string tInterfaceSideSetName = tEnrIntegMesh.get_interface_side_set_name( 0, 0, 1 );

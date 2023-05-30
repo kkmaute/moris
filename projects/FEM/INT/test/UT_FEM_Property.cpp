@@ -175,8 +175,8 @@ TEST_CASE( "Property", "[moris],[fem],[Property]" )
 
     // create a field interpolator manager
     fem::Set tSet; // dummy set
-    tSet.mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-    tSet.mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+    tSet.mLeaderDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tSet.mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
     Field_Interpolator_Manager tFIManager( moris::Cell< moris::Cell< enum MSI::Dof_Type > >( 0 ), &tSet );
 
@@ -292,9 +292,9 @@ TEST_CASE( "Property_with_dependency", "[moris],[fem],[Property_with_dependency]
 
     // create a field interpolator manager
     fem::Set tSet; // dummy set
-    tSet.mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-    tSet.mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
-    tSet.mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 1;
+    tSet.mLeaderDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tSet.mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+    tSet.mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 1;
 
     Field_Interpolator_Manager tFIManager( moris::Cell< moris::Cell< enum MSI::Dof_Type > >( 0 ), &tSet );
 
@@ -434,12 +434,12 @@ TEST_CASE( "Property_with_dof_dv_dependency", "[moris],[fem],[Property_with_dof_
 
     // create a field interpolator manager
     fem::Set tSet; // dummy set
-    tSet.mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-    tSet.mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
-    tSet.mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 1;
-    tSet.mMasterDvTypeMap.set_size( static_cast< int >(PDV_Type::UNDEFINED) + 1, 1, -1 );
-    tSet.mMasterDvTypeMap( static_cast< int >( PDV_Type::LS1 ) ) = 0;
-    tSet.mMasterDvTypeMap( static_cast< int >( PDV_Type::LS2 ) )   = 1;
+    tSet.mLeaderDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tSet.mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+    tSet.mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 1;
+    tSet.mLeaderDvTypeMap.set_size( static_cast< int >(PDV_Type::UNDEFINED) + 1, 1, -1 );
+    tSet.mLeaderDvTypeMap( static_cast< int >( PDV_Type::LS1 ) ) = 0;
+    tSet.mLeaderDvTypeMap( static_cast< int >( PDV_Type::LS2 ) )   = 1;
     Field_Interpolator_Manager tFIManager( moris::Cell< moris::Cell< enum MSI::Dof_Type > >( 0 ), &tSet );
 
     // populate the field interpolator manager
@@ -562,8 +562,8 @@ TEST_CASE( "Property_geometry", "[moris],[fem],[Property_geometry]" )
 
     // create a field interpolator manager
     fem::Set tSet; // dummy set
-    tSet.mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-    tSet.mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+    tSet.mLeaderDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    tSet.mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
     Field_Interpolator_Manager tFIManager( moris::Cell< moris::Cell< enum MSI::Dof_Type > >( 0 ), &tSet );
 
     // populate the field interpolator manager

@@ -186,8 +186,8 @@ namespace moris
             mVisMesh->mClustersOnBlockSets.resize( tNumBlockSets );
             mVisMesh->mClustersOnSideSets.resize( tNumSideSets );
             mVisMesh->mClustersOnDoubleSideSets.resize( tNumDblSideSets );
-            mVisMesh->mMasterSideClusters.resize( tNumDblSideSets );
-            mVisMesh->mSlaveSideClusters.resize( tNumDblSideSets );
+            mVisMesh->mLeaderSideClusters.resize( tNumDblSideSets );
+            mVisMesh->mFollowerSideClusters.resize( tNumDblSideSets );
 
             // initialize  maps
             uint tNumFemCells = mIntegrationMesh->get_num_entities( EntityRank::ELEMENT ) + 1;
@@ -1051,340 +1051,340 @@ namespace moris
 
                 // resize list of clusters for this set
                 mVisMesh->mClustersOnDoubleSideSets( iDblSideSet ).resize( tNumDblSideClustersOnSet, nullptr );
-                mVisMesh->mMasterSideClusters( iDblSideSet ).resize( tNumDblSideClustersOnSet, nullptr );
-                mVisMesh->mSlaveSideClusters( iDblSideSet ).resize( tNumDblSideClustersOnSet, nullptr );
+                mVisMesh->mLeaderSideClusters( iDblSideSet ).resize( tNumDblSideClustersOnSet, nullptr );
+                mVisMesh->mFollowerSideClusters( iDblSideSet ).resize( tNumDblSideClustersOnSet, nullptr );
 
                 // loop over clusters in existing fem/mtk set
                 for ( uint iDblSideClusterOnSet = 0; iDblSideClusterOnSet < tDblSideClustersOnFemSet.size(); iDblSideClusterOnSet++ )
                 {
-                    // get access to the current fem dbl side cluster and its master and slave components
+                    // get access to the current fem dbl side cluster and its leader and follower components
                     mtk::Cluster const * tFemDblSideCluster    = tDblSideClustersOnFemSet( iDblSideClusterOnSet );
-                    mtk::Cluster const & tFemMasterSideCluster = tFemDblSideCluster->get_master_side_cluster();
-                    mtk::Cluster const & tFemSlaveSideCluster  = tFemDblSideCluster->get_slave_side_cluster();
+                    mtk::Cluster const & tFemLeaderSideCluster = tFemDblSideCluster->get_leader_side_cluster();
+                    mtk::Cluster const & tFemFollowerSideCluster  = tFemDblSideCluster->get_follower_side_cluster();
 
                     // create the VIS side cluster objects and populate these below
-                    vis::Side_Cluster_Visualization* tVisMasterSideCluster = new vis::Side_Cluster_Visualization();
-                    vis::Side_Cluster_Visualization* tVisSlaveSideCluster  = new vis::Side_Cluster_Visualization();
+                    vis::Side_Cluster_Visualization* tVisLeaderSideCluster = new vis::Side_Cluster_Visualization();
+                    vis::Side_Cluster_Visualization* tVisFollowerSideCluster  = new vis::Side_Cluster_Visualization();
 
                     // mark as non-trivial if old clusters were not trivial
-                    if ( !tFemMasterSideCluster.is_trivial() )
+                    if ( !tFemLeaderSideCluster.is_trivial() )
                     {
-                        tVisMasterSideCluster->mark_as_nontrivial();
+                        tVisLeaderSideCluster->mark_as_nontrivial();
                     }
-                    if ( !tFemSlaveSideCluster.is_trivial() )
+                    if ( !tFemFollowerSideCluster.is_trivial() )
                     {
-                        tVisSlaveSideCluster->mark_as_nontrivial();
+                        tVisFollowerSideCluster->mark_as_nontrivial();
                     }
 
                     // ------------------------
                     // IG cells that the side cluster are attached to
 
                     // get the IG cells the side elements are attached to
-                    const moris::Cell< const moris::mtk::Cell* >& tFemCellsInMasterCluster = tFemMasterSideCluster.get_primary_cells_in_cluster();
-                    const moris::Cell< const moris::mtk::Cell* >& tFemCellsInSlaveCluster  = tFemSlaveSideCluster.get_primary_cells_in_cluster();
+                    const moris::Cell< const moris::mtk::Cell* >& tFemCellsInLeaderCluster = tFemLeaderSideCluster.get_primary_cells_in_cluster();
+                    const moris::Cell< const moris::mtk::Cell* >& tFemCellsInFollowerCluster  = tFemFollowerSideCluster.get_primary_cells_in_cluster();
 
                     MORIS_ASSERT(
-                            tFemCellsInMasterCluster.size() == tFemCellsInSlaveCluster.size(),
+                            tFemCellsInLeaderCluster.size() == tFemCellsInFollowerCluster.size(),
                             "VIS_Factory::create_visualization_dbl_side_clusters() - "
-                            "Master and slave side clusters obtained from double side cluster have different number of facets." );
+                            "Leader and follower side clusters obtained from double side cluster have different number of facets." );
                     MORIS_ASSERT(
-                            tFemCellsInMasterCluster.size() > 0,
+                            tFemCellsInLeaderCluster.size() > 0,
                             "VIS_Factory::create_visualization_dbl_side_clusters() - "
-                            "Empty master side cluster in FEM mesh. This shouldn't happen." );
+                            "Empty leader side cluster in FEM mesh. This shouldn't happen." );
                     MORIS_ASSERT(
-                            tFemCellsInSlaveCluster.size() > 0,
+                            tFemCellsInFollowerCluster.size() > 0,
                             "VIS_Factory::create_visualization_dbl_side_clusters() - "
-                            "Empty slave side cluster in FEM mesh. This shouldn't happen." );
+                            "Empty follower side cluster in FEM mesh. This shouldn't happen." );
 
                     // get the number of facets in the dbl sided side cluster
-                    uint tNumFacetsInSideClusters = tFemCellsInMasterCluster.size();
+                    uint tNumFacetsInSideClusters = tFemCellsInLeaderCluster.size();
 
                     // initialize list of VIS IG cells the facets are attached to
-                    Cell< mtk::Cell const * > tMasterSideClusterVisIgCells( tNumFacetsInSideClusters, nullptr );
-                    Cell< mtk::Cell const * > tSlaveSideClusterVisIgCells( tNumFacetsInSideClusters, nullptr );
+                    Cell< mtk::Cell const * > tLeaderSideClusterVisIgCells( tNumFacetsInSideClusters, nullptr );
+                    Cell< mtk::Cell const * > tFollowerSideClusterVisIgCells( tNumFacetsInSideClusters, nullptr );
 
                     // find the corresponding VIS cells constructed from the original mtk/fem cells and collect these in a list for constructing the VIS side cluster
                     for ( uint iFacet = 0; iFacet < tNumFacetsInSideClusters; iFacet++ )
                     {
                         // get the FEM IG cells' indices the facet is attached to
-                        moris_index tFemMasterCellIndex = tFemCellsInMasterCluster( iFacet )->get_index();
-                        moris_index tFemSlaveCellIndex  = tFemCellsInSlaveCluster( iFacet )->get_index();
+                        moris_index tFemLeaderCellIndex = tFemCellsInLeaderCluster( iFacet )->get_index();
+                        moris_index tFemFollowerCellIndex  = tFemCellsInFollowerCluster( iFacet )->get_index();
 
                         // get the corresponding VIS cells' indices
-                        moris_index tVisMasterCellIndex = mPrimaryFemCellIndexToVisCellIndex( tFemMasterCellIndex );
-                        moris_index tVisSlaveCellIndex  = mPrimaryFemCellIndexToVisCellIndex( tFemSlaveCellIndex );
+                        moris_index tVisLeaderCellIndex = mPrimaryFemCellIndexToVisCellIndex( tFemLeaderCellIndex );
+                        moris_index tVisFollowerCellIndex  = mPrimaryFemCellIndexToVisCellIndex( tFemFollowerCellIndex );
 
                         // make sure the requested VIS cells actually exists
                         MORIS_ERROR(
-                                tVisMasterCellIndex > -1 && tVisMasterCellIndex != MORIS_INDEX_MAX && tVisSlaveCellIndex > -1 && tVisSlaveCellIndex != MORIS_INDEX_MAX,
+                                tVisLeaderCellIndex > -1 && tVisLeaderCellIndex != MORIS_INDEX_MAX && tVisFollowerCellIndex > -1 && tVisFollowerCellIndex != MORIS_INDEX_MAX,
                                 "VIS_Factory::create_visualization_dbl_side_clusters() - "
                                 "No VIS cell index for the given FEM cell. "
                                 "The current dbl side cluster may be attached to a block set that is not part of the VIS mesh. "
                                 "Make sure to include it." );
 
                         // store the corrsponding VIS cells
-                        tMasterSideClusterVisIgCells( iFacet ) = mVisMesh->mCells( tVisMasterCellIndex );
-                        tSlaveSideClusterVisIgCells( iFacet )  = mVisMesh->mCells( tVisSlaveCellIndex );
+                        tLeaderSideClusterVisIgCells( iFacet ) = mVisMesh->mCells( tVisLeaderCellIndex );
+                        tFollowerSideClusterVisIgCells( iFacet )  = mVisMesh->mCells( tVisFollowerCellIndex );
 
                     }    // end for: each facet (i.e. for each IG cell)
 
                     // store list of cells on VIS cluster
-                    tVisMasterSideCluster->add_primary_integration_cell( tMasterSideClusterVisIgCells );
-                    tVisSlaveSideCluster->add_primary_integration_cell( tSlaveSideClusterVisIgCells );
+                    tVisLeaderSideCluster->add_primary_integration_cell( tLeaderSideClusterVisIgCells );
+                    tVisFollowerSideCluster->add_primary_integration_cell( tFollowerSideClusterVisIgCells );
 
                     // add interpolation cell to vis cluster
-                    tVisMasterSideCluster->set_interpolation_cell( &tFemMasterSideCluster.get_interpolation_cell() );
-                    tVisSlaveSideCluster->set_interpolation_cell( &tFemSlaveSideCluster.get_interpolation_cell() );
+                    tVisLeaderSideCluster->set_interpolation_cell( &tFemLeaderSideCluster.get_interpolation_cell() );
+                    tVisFollowerSideCluster->set_interpolation_cell( &tFemFollowerSideCluster.get_interpolation_cell() );
 
                     // ------------------------
                     // side ordinals of the IG cells that the side cluster is attached to
 
                     // get the side ordinals of each IG cell that make up the side cluster
-                    Matrix< IndexMat > tMasterSideOrdinals = tFemMasterSideCluster.get_cell_side_ordinals();
-                    Matrix< IndexMat > tSlaveSideOrdinals  = tFemSlaveSideCluster.get_cell_side_ordinals();
+                    Matrix< IndexMat > tLeaderSideOrdinals = tFemLeaderSideCluster.get_cell_side_ordinals();
+                    Matrix< IndexMat > tFollowerSideOrdinals  = tFemFollowerSideCluster.get_cell_side_ordinals();
 
                     // store information in side cluster
-                    tVisMasterSideCluster->add_integration_cell_side_ordinals( tMasterSideOrdinals );
-                    tVisSlaveSideCluster->add_integration_cell_side_ordinals( tSlaveSideOrdinals );
+                    tVisLeaderSideCluster->add_integration_cell_side_ordinals( tLeaderSideOrdinals );
+                    tVisFollowerSideCluster->add_integration_cell_side_ordinals( tFollowerSideOrdinals );
 
                     // ------------------------
                     // add vertices to cluster
 
                     // get vertices from the mtk/fem cluster
-                    Cell< mtk::Vertex const * > tFemMasterVertices = tFemMasterSideCluster.get_vertices_in_cluster();
-                    Cell< mtk::Vertex const * > tFemSlaveVertices  = tFemSlaveSideCluster.get_vertices_in_cluster();
+                    Cell< mtk::Vertex const * > tFemLeaderVertices = tFemLeaderSideCluster.get_vertices_in_cluster();
+                    Cell< mtk::Vertex const * > tFemFollowerVertices  = tFemFollowerSideCluster.get_vertices_in_cluster();
 
                     // get the number of vertices on the fem cluster for convenient access
-                    uint tNumUsedVerticesInFemMasterCluster = tFemMasterVertices.size();
-                    uint tNumUsedVerticesInFemSlaveCluster  = tFemSlaveVertices.size();
+                    uint tNumUsedVerticesInFemLeaderCluster = tFemLeaderVertices.size();
+                    uint tNumUsedVerticesInFemFollowerCluster  = tFemFollowerVertices.size();
 
                     // construct map relating fem vertex indices to their respective position in the list of vertices on the clusters
-                    map< moris_index, moris_index > tFemVertexIndexToPosInFemMasterClusterMap;
-                    map< moris_index, moris_index > tFemVertexIndexToPosInFemSlaveClusterMap;
-                    for ( uint iVertInFemMasterCluster = 0; iVertInFemMasterCluster < tNumUsedVerticesInFemMasterCluster; iVertInFemMasterCluster++ )
+                    map< moris_index, moris_index > tFemVertexIndexToPosInFemLeaderClusterMap;
+                    map< moris_index, moris_index > tFemVertexIndexToPosInFemFollowerClusterMap;
+                    for ( uint iVertInFemLeaderCluster = 0; iVertInFemLeaderCluster < tNumUsedVerticesInFemLeaderCluster; iVertInFemLeaderCluster++ )
                     {
-                        moris_index tFemMasterVertexIndex                                  = tFemMasterVertices( iVertInFemMasterCluster )->get_index();
-                        tFemVertexIndexToPosInFemMasterClusterMap[ tFemMasterVertexIndex ] = iVertInFemMasterCluster;
+                        moris_index tFemLeaderVertexIndex                                  = tFemLeaderVertices( iVertInFemLeaderCluster )->get_index();
+                        tFemVertexIndexToPosInFemLeaderClusterMap[ tFemLeaderVertexIndex ] = iVertInFemLeaderCluster;
                     }
-                    for ( uint iVertInFemSlaveCluster = 0; iVertInFemSlaveCluster < tNumUsedVerticesInFemSlaveCluster; iVertInFemSlaveCluster++ )
+                    for ( uint iVertInFemFollowerCluster = 0; iVertInFemFollowerCluster < tNumUsedVerticesInFemFollowerCluster; iVertInFemFollowerCluster++ )
                     {
-                        moris_index tFemSlaveVertexIndex                                 = tFemSlaveVertices( iVertInFemSlaveCluster )->get_index();
-                        tFemVertexIndexToPosInFemSlaveClusterMap[ tFemSlaveVertexIndex ] = iVertInFemSlaveCluster;
+                        moris_index tFemFollowerVertexIndex                                 = tFemFollowerVertices( iVertInFemFollowerCluster )->get_index();
+                        tFemVertexIndexToPosInFemFollowerClusterMap[ tFemFollowerVertexIndex ] = iVertInFemFollowerCluster;
                     }
 
                     // initialize list of VIS vertices constructed from the corresponding mtk/fem vertices
-                    moris::Cell< mtk::Vertex const * > tMasterClusterVisVertices;
-                    moris::Cell< mtk::Vertex const * > tSlaveClusterVisVertices;
-                    tMasterClusterVisVertices.reserve( tNumUsedVerticesInFemMasterCluster );
-                    tSlaveClusterVisVertices.reserve( tNumUsedVerticesInFemSlaveCluster );
+                    moris::Cell< mtk::Vertex const * > tLeaderClusterVisVertices;
+                    moris::Cell< mtk::Vertex const * > tFollowerClusterVisVertices;
+                    tLeaderClusterVisVertices.reserve( tNumUsedVerticesInFemLeaderCluster );
+                    tFollowerClusterVisVertices.reserve( tNumUsedVerticesInFemFollowerCluster );
 
                     // initialize map identifying which VIS vertices are in the newly constructed VIS cluster and at which position
-                    map< moris_index, moris_index > tVisVertexIndexToPosInVisMasterClusterMap;
-                    map< moris_index, moris_index > tVisVertexIndexToPosInVisSlaveClusterMap;
-                    uint                            tNextVertexInVisMasterClusterPosition = 0;
-                    uint                            tNextVertexInVisSlaveClusterPosition  = 0;
+                    map< moris_index, moris_index > tVisVertexIndexToPosInVisLeaderClusterMap;
+                    map< moris_index, moris_index > tVisVertexIndexToPosInVisFollowerClusterMap;
+                    uint                            tNextVertexInVisLeaderClusterPosition = 0;
+                    uint                            tNextVertexInVisFollowerClusterPosition  = 0;
 
                     // go through IG cells the side cluster is attached to
                     for ( uint iFacet = 0; iFacet < tNumFacetsInSideClusters; iFacet++ )
                     {
                         // get the current Fem cells' indices
-                        moris_index tFemMasterCellIndex = tFemCellsInMasterCluster( iFacet )->get_index();
-                        moris_index tFemSlaveCellIndex  = tFemCellsInSlaveCluster( iFacet )->get_index();
+                        moris_index tFemLeaderCellIndex = tFemCellsInLeaderCluster( iFacet )->get_index();
+                        moris_index tFemFollowerCellIndex  = tFemCellsInFollowerCluster( iFacet )->get_index();
 
                         // get the block set index the side cluster is attached to
-                        moris_index tMasterPrimaryBlockSetIndex = mPrimaryFemCellIndexToBlockIndex( tFemMasterCellIndex );
-                        moris_index tSlavePrimaryBlockSetIndex  = mPrimaryFemCellIndexToBlockIndex( tFemSlaveCellIndex );
+                        moris_index tLeaderPrimaryBlockSetIndex = mPrimaryFemCellIndexToBlockIndex( tFemLeaderCellIndex );
+                        moris_index tFollowerPrimaryBlockSetIndex  = mPrimaryFemCellIndexToBlockIndex( tFemFollowerCellIndex );
 
                         // get the VIS vertex indices
-                        const Cell< moris_index > tVisMasterVertexIndices =
-                                mBlockAndFemCellIndexToVisVertexIndices( tMasterPrimaryBlockSetIndex )( tFemMasterCellIndex );
-                        const Cell< moris_index > tVisSlaveVertexIndices =
-                                mBlockAndFemCellIndexToVisVertexIndices( tSlavePrimaryBlockSetIndex )( tFemSlaveCellIndex );
+                        const Cell< moris_index > tVisLeaderVertexIndices =
+                                mBlockAndFemCellIndexToVisVertexIndices( tLeaderPrimaryBlockSetIndex )( tFemLeaderCellIndex );
+                        const Cell< moris_index > tVisFollowerVertexIndices =
+                                mBlockAndFemCellIndexToVisVertexIndices( tFollowerPrimaryBlockSetIndex )( tFemFollowerCellIndex );
 
-                        // go through the vertices listed in the master FEM cluster, find the corresponding VIS vertices, and store them in the above list
-                        for ( uint iVertOnMasterCell = 0; iVertOnMasterCell < tVisMasterVertexIndices.size(); iVertOnMasterCell++ )
+                        // go through the vertices listed in the leader FEM cluster, find the corresponding VIS vertices, and store them in the above list
+                        for ( uint iVertOnLeaderCell = 0; iVertOnLeaderCell < tVisLeaderVertexIndices.size(); iVertOnLeaderCell++ )
                         {
                             // get the VIS vertex's index
-                            moris_index tMasterVisVertexIndex = tVisMasterVertexIndices( iVertOnMasterCell );
+                            moris_index tLeaderVisVertexIndex = tVisLeaderVertexIndices( iVertOnLeaderCell );
 
                             // get the VIS vertex
-                            mtk::Vertex const * tMasterVisVertex = mVisMesh->mVertices( tMasterVisVertexIndex );
+                            mtk::Vertex const * tLeaderVisVertex = mVisMesh->mVertices( tLeaderVisVertexIndex );
 
                             // get the corresponding FEM/MTK vertex's index
-                            moris_index tFemMasterVertexIndex = tMasterVisVertex->get_base_vertex()->get_index();
+                            moris_index tFemLeaderVertexIndex = tLeaderVisVertex->get_base_vertex()->get_index();
 
                             // don't add vis vertices to the cluster, if their corresponding FEM vertices are not in the cluster either
-                            if ( !tFemVertexIndexToPosInFemMasterClusterMap.key_exists( tFemMasterVertexIndex ) )
+                            if ( !tFemVertexIndexToPosInFemLeaderClusterMap.key_exists( tFemLeaderVertexIndex ) )
                             {
                                 continue;
                             }
 
                             // check whether this VIS vertex has already been identified as being part of the VIS cluster (if so, skip, nothing needs to be done)
-                            if ( !tVisVertexIndexToPosInVisMasterClusterMap.key_exists( tMasterVisVertexIndex ) )
+                            if ( !tVisVertexIndexToPosInVisLeaderClusterMap.key_exists( tLeaderVisVertexIndex ) )
                             {
                                 // list the vertex as being part of this cluster
-                                tVisVertexIndexToPosInVisMasterClusterMap[ tMasterVisVertexIndex ] = tNextVertexInVisMasterClusterPosition;
+                                tVisVertexIndexToPosInVisLeaderClusterMap[ tLeaderVisVertexIndex ] = tNextVertexInVisLeaderClusterPosition;
 
                                 // list the vertex in the cluster
-                                tMasterClusterVisVertices.push_back( tMasterVisVertex );
+                                tLeaderClusterVisVertices.push_back( tLeaderVisVertex );
 
                                 // update next available local vertex index in the cluster
-                                tNextVertexInVisMasterClusterPosition++;
+                                tNextVertexInVisLeaderClusterPosition++;
                             }
 
-                        }    // end for: each used vertex on the master side cluster
+                        }    // end for: each used vertex on the leader side cluster
 
-                        // go through the vertices listed in the slave FEM cluster, find the corresponding VIS vertices, and store them in the above list
-                        for ( uint iVertOnSlaveCell = 0; iVertOnSlaveCell < tVisSlaveVertexIndices.size(); iVertOnSlaveCell++ )
+                        // go through the vertices listed in the follower FEM cluster, find the corresponding VIS vertices, and store them in the above list
+                        for ( uint iVertOnFollowerCell = 0; iVertOnFollowerCell < tVisFollowerVertexIndices.size(); iVertOnFollowerCell++ )
                         {
                             // get the VIS vertex's index
-                            moris_index tSlaveVisVertexIndex = tVisSlaveVertexIndices( iVertOnSlaveCell );
+                            moris_index tFollowerVisVertexIndex = tVisFollowerVertexIndices( iVertOnFollowerCell );
 
                             // get the VIS vertex
-                            mtk::Vertex const * tSlaveVisVertex = mVisMesh->mVertices( tSlaveVisVertexIndex );
+                            mtk::Vertex const * tFollowerVisVertex = mVisMesh->mVertices( tFollowerVisVertexIndex );
 
                             // get the corresponding FEM/MTK vertex's index
-                            moris_index tFemSlaveVertexIndex = tSlaveVisVertex->get_base_vertex()->get_index();
+                            moris_index tFemFollowerVertexIndex = tFollowerVisVertex->get_base_vertex()->get_index();
 
                             // don't add vis vertices to the cluster, if their corresponding FEM vertices are not in the cluster either
-                            if ( !tFemVertexIndexToPosInFemSlaveClusterMap.key_exists( tFemSlaveVertexIndex ) )
+                            if ( !tFemVertexIndexToPosInFemFollowerClusterMap.key_exists( tFemFollowerVertexIndex ) )
                             {
                                 continue;
                             }
 
                             // check whether this VIS vertex has already been identified as being part of the VIS cluster (if so, skip, nothing needs to be done)
-                            if ( !tVisVertexIndexToPosInVisSlaveClusterMap.key_exists( tSlaveVisVertexIndex ) )
+                            if ( !tVisVertexIndexToPosInVisFollowerClusterMap.key_exists( tFollowerVisVertexIndex ) )
                             {
                                 // list the vertex as being part of this cluster
-                                tVisVertexIndexToPosInVisSlaveClusterMap[ tSlaveVisVertexIndex ] = tNextVertexInVisSlaveClusterPosition;
+                                tVisVertexIndexToPosInVisFollowerClusterMap[ tFollowerVisVertexIndex ] = tNextVertexInVisFollowerClusterPosition;
 
                                 // list the vertex in the cluster
-                                tSlaveClusterVisVertices.push_back( tSlaveVisVertex );
+                                tFollowerClusterVisVertices.push_back( tFollowerVisVertex );
 
                                 // update next available local vertex index in the cluster
-                                tNextVertexInVisSlaveClusterPosition++;
+                                tNextVertexInVisFollowerClusterPosition++;
                             }
 
-                        }    // end for: each used vertex on the slave side cluster
+                        }    // end for: each used vertex on the follower side cluster
 
                     }        // end for: each facet in the dbl side cluster
 
                     // store pointer lists of VIS vertices in the VIS cluster being constructed
-                    tVisMasterSideCluster->add_vertex_to_cluster( tMasterClusterVisVertices );
-                    tVisSlaveSideCluster->add_vertex_to_cluster( tSlaveClusterVisVertices );
+                    tVisLeaderSideCluster->add_vertex_to_cluster( tLeaderClusterVisVertices );
+                    tVisFollowerSideCluster->add_vertex_to_cluster( tFollowerClusterVisVertices );
 
                     // ------------------------
                     // add vertex coordinates
 
                     // get the coordinates for all vertices in the corresponding FEM clusters
-                    Matrix< DDRMat > tLocalCoordsOfAllFemVertsOnMasterCluster = tFemMasterSideCluster.get_vertices_local_coordinates_wrt_interp_cell();
-                    Matrix< DDRMat > tLocalCoordsOfAllFemVertsOnSlaveCluster  = tFemSlaveSideCluster.get_vertices_local_coordinates_wrt_interp_cell();
+                    Matrix< DDRMat > tLocalCoordsOfAllFemVertsOnLeaderCluster = tFemLeaderSideCluster.get_vertices_local_coordinates_wrt_interp_cell();
+                    Matrix< DDRMat > tLocalCoordsOfAllFemVertsOnFollowerCluster  = tFemFollowerSideCluster.get_vertices_local_coordinates_wrt_interp_cell();
 
                     // initialize matrices containing all local coords for the vertices in the VIS clusters
-                    Matrix< DDRMat > tMasterVisClusterVerticesLocalCoords( tNextVertexInVisMasterClusterPosition, tLocalCoordsOfAllFemVertsOnMasterCluster.n_cols(), 0.0 );
-                    Matrix< DDRMat > tSlaveVisClusterVerticesLocalCoords( tNextVertexInVisSlaveClusterPosition, tLocalCoordsOfAllFemVertsOnSlaveCluster.n_cols(), 0.0 );
+                    Matrix< DDRMat > tLeaderVisClusterVerticesLocalCoords( tNextVertexInVisLeaderClusterPosition, tLocalCoordsOfAllFemVertsOnLeaderCluster.n_cols(), 0.0 );
+                    Matrix< DDRMat > tFollowerVisClusterVerticesLocalCoords( tNextVertexInVisFollowerClusterPosition, tLocalCoordsOfAllFemVertsOnFollowerCluster.n_cols(), 0.0 );
 
-                    // go through the vertices in the VIS master cluster, find the corresponding FEM vertices, and copy over the local coordinates
-                    for ( uint iVertInVisMasterCluster = 0; iVertInVisMasterCluster < tNextVertexInVisMasterClusterPosition; iVertInVisMasterCluster++ )
+                    // go through the vertices in the VIS leader cluster, find the corresponding FEM vertices, and copy over the local coordinates
+                    for ( uint iVertInVisLeaderCluster = 0; iVertInVisLeaderCluster < tNextVertexInVisLeaderClusterPosition; iVertInVisLeaderCluster++ )
                     {
                         // get the corresponding FEM vertex's index
-                        moris_index tMasterFemVertexIndex = tMasterClusterVisVertices( iVertInVisMasterCluster )->get_base_vertex()->get_index();
+                        moris_index tLeaderFemVertexIndex = tLeaderClusterVisVertices( iVertInVisLeaderCluster )->get_base_vertex()->get_index();
 
                         // get the FEM vertex's position in the list of cluster vertices
-                        moris_index tVertInFemMasterCluster = tFemVertexIndexToPosInFemMasterClusterMap.find( tMasterFemVertexIndex );
+                        moris_index tVertInFemLeaderCluster = tFemVertexIndexToPosInFemLeaderClusterMap.find( tLeaderFemVertexIndex );
 
                         // copy over coordinates
-                        tMasterVisClusterVerticesLocalCoords.set_row(
-                                iVertInVisMasterCluster,
-                                tLocalCoordsOfAllFemVertsOnMasterCluster.get_row( tVertInFemMasterCluster ) );
+                        tLeaderVisClusterVerticesLocalCoords.set_row(
+                                iVertInVisLeaderCluster,
+                                tLocalCoordsOfAllFemVertsOnLeaderCluster.get_row( tVertInFemLeaderCluster ) );
                     }
 
-                    // go through the vertices in the VIS master cluster, find the corresponding FEM vertices, and copy over the local coordinates
-                    for ( uint iVertInVisSlaveCluster = 0; iVertInVisSlaveCluster < tNextVertexInVisSlaveClusterPosition; iVertInVisSlaveCluster++ )
+                    // go through the vertices in the VIS leader cluster, find the corresponding FEM vertices, and copy over the local coordinates
+                    for ( uint iVertInVisFollowerCluster = 0; iVertInVisFollowerCluster < tNextVertexInVisFollowerClusterPosition; iVertInVisFollowerCluster++ )
                     {
                         // get the corresponding FEM vertex's index
-                        moris_index tSlaveFemVertexIndex = tSlaveClusterVisVertices( iVertInVisSlaveCluster )->get_base_vertex()->get_index();
+                        moris_index tFollowerFemVertexIndex = tFollowerClusterVisVertices( iVertInVisFollowerCluster )->get_base_vertex()->get_index();
 
                         // get the FEM vertex's position in the list of cluster vertices
-                        moris_index tVertInFemSlaveCluster = tFemVertexIndexToPosInFemSlaveClusterMap.find( tSlaveFemVertexIndex );
+                        moris_index tVertInFemFollowerCluster = tFemVertexIndexToPosInFemFollowerClusterMap.find( tFollowerFemVertexIndex );
 
                         // copy over coordinates
-                        tSlaveVisClusterVerticesLocalCoords.set_row(
-                                iVertInVisSlaveCluster,
-                                tLocalCoordsOfAllFemVertsOnSlaveCluster.get_row( tVertInFemSlaveCluster ) );
+                        tFollowerVisClusterVerticesLocalCoords.set_row(
+                                iVertInVisFollowerCluster,
+                                tLocalCoordsOfAllFemVertsOnFollowerCluster.get_row( tVertInFemFollowerCluster ) );
                     }
 
                     // add local coordinates to vis clusters
-                    tVisMasterSideCluster->add_vertex_local_coordinates_wrt_interp_cell( tMasterVisClusterVerticesLocalCoords );
-                    tVisSlaveSideCluster->add_vertex_local_coordinates_wrt_interp_cell( tSlaveVisClusterVerticesLocalCoords );
+                    tVisLeaderSideCluster->add_vertex_local_coordinates_wrt_interp_cell( tLeaderVisClusterVerticesLocalCoords );
+                    tVisFollowerSideCluster->add_vertex_local_coordinates_wrt_interp_cell( tFollowerVisClusterVerticesLocalCoords );
 
                     // ------------------------
                     // create vertex pairs for the double sided side cluster
 
-                    /* initialize list that correlates the VIS vertices from the master to the slave side cluster
+                    /* initialize list that correlates the VIS vertices from the leader to the follower side cluster
                      * NOTE: currently, only vertices on the interface are considered.
-                     * In the FEM clusters every master/slave side cluster knows about all the vertices of its neighbors.
+                     * In the FEM clusters every leader/follower side cluster knows about all the vertices of its neighbors.
                      * The vertices are the same, regardless from which side cluster they are considered.
                      * In the VIS mesh we do not necessarily have a VIS vertex in the void of one side cluster that would
                      * correspond to a VIS vertex in the material part of the neighboring side cluster. */
-                    Cell< mtk::Vertex const * > tMasterToSlaveVertexPair( tMasterClusterVisVertices.size(), nullptr );
+                    Cell< mtk::Vertex const * > tLeaderToFollowerVertexPair( tLeaderClusterVisVertices.size(), nullptr );
 
-                    // for each master vertex find the corresponding VIS vertex, if there is one.
+                    // for each leader vertex find the corresponding VIS vertex, if there is one.
                     // NOTE: This operation is done element-wise to support full DG capabilities.
                     for ( uint iFacet = 0; iFacet < tNumFacetsInSideClusters; iFacet++ )
                     {
                         // get the current Fem cells' indices
-                        moris_index tFemMasterCellIndex = tFemCellsInMasterCluster( iFacet )->get_index();
-                        moris_index tFemSlaveCellIndex  = tFemCellsInSlaveCluster( iFacet )->get_index();
+                        moris_index tFemLeaderCellIndex = tFemCellsInLeaderCluster( iFacet )->get_index();
+                        moris_index tFemFollowerCellIndex  = tFemCellsInFollowerCluster( iFacet )->get_index();
 
                         // get the block set index the side cluster is attached to
-                        moris_index tMasterPrimaryBlockSetIndex = mPrimaryFemCellIndexToBlockIndex( tFemMasterCellIndex );
-                        moris_index tSlavePrimaryBlockSetIndex  = mPrimaryFemCellIndexToBlockIndex( tFemSlaveCellIndex );
+                        moris_index tLeaderPrimaryBlockSetIndex = mPrimaryFemCellIndexToBlockIndex( tFemLeaderCellIndex );
+                        moris_index tFollowerPrimaryBlockSetIndex  = mPrimaryFemCellIndexToBlockIndex( tFemFollowerCellIndex );
 
                         // get the VIS vertex indices
-                        const Cell< moris_index > tVisMasterVertexIndices =
-                                mBlockAndFemCellIndexToVisVertexIndices( tMasterPrimaryBlockSetIndex )( tFemMasterCellIndex );
-                        const Cell< moris_index > tVisSlaveVertexIndices =
-                                mBlockAndFemCellIndexToVisVertexIndices( tSlavePrimaryBlockSetIndex )( tFemSlaveCellIndex );
+                        const Cell< moris_index > tVisLeaderVertexIndices =
+                                mBlockAndFemCellIndexToVisVertexIndices( tLeaderPrimaryBlockSetIndex )( tFemLeaderCellIndex );
+                        const Cell< moris_index > tVisFollowerVertexIndices =
+                                mBlockAndFemCellIndexToVisVertexIndices( tFollowerPrimaryBlockSetIndex )( tFemFollowerCellIndex );
 
-                        // build a map from slave to position in list of vertices on element
-                        map< moris_index, moris_index > tSlaveFemVertexIndexToPosInElemMap;
-                        for ( uint iSlaveVert = 0; iSlaveVert < tVisSlaveVertexIndices.size(); iSlaveVert++ )
+                        // build a map from follower to position in list of vertices on element
+                        map< moris_index, moris_index > tFollowerFemVertexIndexToPosInElemMap;
+                        for ( uint iFollowerVert = 0; iFollowerVert < tVisFollowerVertexIndices.size(); iFollowerVert++ )
                         {
                             // get access to the vertex
-                            moris_index        tSlaveVisVertexIndex = tVisSlaveVertexIndices( iSlaveVert );
-                            const mtk::Vertex* tSlaveVisVertex      = mVisMesh->mVertices( tSlaveVisVertexIndex );
+                            moris_index        tFollowerVisVertexIndex = tVisFollowerVertexIndices( iFollowerVert );
+                            const mtk::Vertex* tFollowerVisVertex      = mVisMesh->mVertices( tFollowerVisVertexIndex );
 
                             // get the corresponding FEM vertex
-                            const mtk::Vertex* tSlaveFemVertex      = tSlaveVisVertex->get_base_vertex();
-                            moris_index        tSlaveFemVertexIndex = tSlaveFemVertex->get_index();
+                            const mtk::Vertex* tFollowerFemVertex      = tFollowerVisVertex->get_base_vertex();
+                            moris_index        tFollowerFemVertexIndex = tFollowerFemVertex->get_index();
 
                             // populate the map
-                            tSlaveFemVertexIndexToPosInElemMap[ tSlaveFemVertexIndex ] = iSlaveVert;
+                            tFollowerFemVertexIndexToPosInElemMap[ tFollowerFemVertexIndex ] = iFollowerVert;
                         }
 
-                        // go through the vertices listed in the master FEM cluster, find the corresponding VIS vertices, and store them in the above list
-                        for ( uint iVertOnMasterCell = 0; iVertOnMasterCell < tVisMasterVertexIndices.size(); iVertOnMasterCell++ )
+                        // go through the vertices listed in the leader FEM cluster, find the corresponding VIS vertices, and store them in the above list
+                        for ( uint iVertOnLeaderCell = 0; iVertOnLeaderCell < tVisLeaderVertexIndices.size(); iVertOnLeaderCell++ )
                         {
-                            // get the master vertex
-                            moris_index         tMasterVisVertexIndex = tVisMasterVertexIndices( iVertOnMasterCell );
-                            mtk::Vertex const * tMasterVisVertex      = mVisMesh->mVertices( tMasterVisVertexIndex );
+                            // get the leader vertex
+                            moris_index         tLeaderVisVertexIndex = tVisLeaderVertexIndices( iVertOnLeaderCell );
+                            mtk::Vertex const * tLeaderVisVertex      = mVisMesh->mVertices( tLeaderVisVertexIndex );
 
                             // get the corresponding FEM vertex index
-                            mtk::Vertex const * tMasterFemVertex      = tMasterVisVertex->get_base_vertex();
-                            moris_index         tMasterFemVertexIndex = tMasterFemVertex->get_index();
+                            mtk::Vertex const * tLeaderFemVertex      = tLeaderVisVertex->get_base_vertex();
+                            moris_index         tLeaderFemVertexIndex = tLeaderFemVertex->get_index();
 
                             // check if this FEM vertex is also on the neighbor element (if not, move on to the next vertex)
-                            if ( tSlaveFemVertexIndexToPosInElemMap.key_exists( tMasterFemVertexIndex ) )
+                            if ( tFollowerFemVertexIndexToPosInElemMap.key_exists( tLeaderFemVertexIndex ) )
                             {
-                                // get the corresponding Slave vertex
-                                moris_index         tSlaveVertexPos      = tSlaveFemVertexIndexToPosInElemMap.find( tMasterFemVertexIndex );
-                                moris_index         tSlaveVisVertexIndex = tVisSlaveVertexIndices( tSlaveVertexPos );
-                                mtk::Vertex const * tSlaveVisVertex      = mVisMesh->mVertices( tSlaveVisVertexIndex );
+                                // get the corresponding Follower vertex
+                                moris_index         tFollowerVertexPos      = tFollowerFemVertexIndexToPosInElemMap.find( tLeaderFemVertexIndex );
+                                moris_index         tFollowerVisVertexIndex = tVisFollowerVertexIndices( tFollowerVertexPos );
+                                mtk::Vertex const * tFollowerVisVertex      = mVisMesh->mVertices( tFollowerVisVertexIndex );
 
                                 // store away the vertex pair
-                                moris_index tVisVertexIndexInMasterCluster                 = tVisVertexIndexToPosInVisMasterClusterMap.find( tMasterVisVertexIndex );
-                                tMasterToSlaveVertexPair( tVisVertexIndexInMasterCluster ) = tSlaveVisVertex;
+                                moris_index tVisVertexIndexInLeaderCluster                 = tVisVertexIndexToPosInVisLeaderClusterMap.find( tLeaderVisVertexIndex );
+                                tLeaderToFollowerVertexPair( tVisVertexIndexInLeaderCluster ) = tFollowerVisVertex;
                             }
                         }
 
@@ -1395,14 +1395,14 @@ namespace moris
 
                     // create the VIS dbl side cluster object. the below information will be feed into it
                     mtk::Double_Side_Cluster* tVisDblSideCluster =
-                            new mtk::Double_Side_Cluster( tVisMasterSideCluster, tVisSlaveSideCluster, tMasterToSlaveVertexPair );
+                            new mtk::Double_Side_Cluster( tVisLeaderSideCluster, tVisFollowerSideCluster, tLeaderToFollowerVertexPair );
 
                     // store away the dbl sided side cluster
                     mVisMesh->mClustersOnDoubleSideSets( iDblSideSet )( iDblSideClusterOnSet ) = tVisDblSideCluster;
 
                     // store away the constructed single side clusters
-                    mVisMesh->mMasterSideClusters( iDblSideSet )( iDblSideClusterOnSet ) = tVisMasterSideCluster;
-                    mVisMesh->mSlaveSideClusters( iDblSideSet )( iDblSideClusterOnSet )  = tVisSlaveSideCluster;
+                    mVisMesh->mLeaderSideClusters( iDblSideSet )( iDblSideClusterOnSet ) = tVisLeaderSideCluster;
+                    mVisMesh->mFollowerSideClusters( iDblSideSet )( iDblSideClusterOnSet )  = tVisFollowerSideCluster;
 
 
                 }    // end for: each dbl side cluster in set

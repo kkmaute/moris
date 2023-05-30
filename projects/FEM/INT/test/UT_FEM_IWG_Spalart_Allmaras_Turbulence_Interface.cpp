@@ -80,46 +80,46 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
 
     // init IWG
     //------------------------------------------------------------------------------
-    // create the master properties
-    std::shared_ptr< fem::Property > tPropMasterViscosity = std::make_shared< fem::Property >();
-    tPropMasterViscosity->set_parameters( { { { 2.0 } } } );
-    tPropMasterViscosity->set_val_function( tConstValFunc );
-    // tPropMasterViscosity->set_dof_type_list( { tVisDofTypes } );
-    // tPropMasterViscosity->set_val_function( tVISCOSITYFIValFunc );
-    // tPropMasterViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
+    // create the leader properties
+    std::shared_ptr< fem::Property > tPropLeaderViscosity = std::make_shared< fem::Property >();
+    tPropLeaderViscosity->set_parameters( { { { 2.0 } } } );
+    tPropLeaderViscosity->set_val_function( tConstValFunc );
+    // tPropLeaderViscosity->set_dof_type_list( { tVisDofTypes } );
+    // tPropLeaderViscosity->set_val_function( tVISCOSITYFIValFunc );
+    // tPropLeaderViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropMasterWallDistance = std::make_shared< fem::Property >();
-    tPropMasterWallDistance->set_parameters( { {{ 1.0 }} } );
-    tPropMasterWallDistance->set_val_function( tConstValFunc );
+    std::shared_ptr< fem::Property > tPropLeaderWallDistance = std::make_shared< fem::Property >();
+    tPropLeaderWallDistance->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderWallDistance->set_val_function( tConstValFunc );
 
-    // create the slave properties
-    std::shared_ptr< fem::Property > tPropSlaveViscosity = std::make_shared< fem::Property >();
-    tPropSlaveViscosity->set_parameters( { { { 1.0 } } } );
-    tPropSlaveViscosity->set_val_function( tConstValFunc );
-    // tPropSlaveViscosity->set_dof_type_list( { tVisDofTypes } );
-    // tPropSlaveViscosity->set_val_function( tVISCOSITYFIValFunc );
-    // tPropSlaveViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
+    // create the follower properties
+    std::shared_ptr< fem::Property > tPropFollowerViscosity = std::make_shared< fem::Property >();
+    tPropFollowerViscosity->set_parameters( { { { 1.0 } } } );
+    tPropFollowerViscosity->set_val_function( tConstValFunc );
+    // tPropFollowerViscosity->set_dof_type_list( { tVisDofTypes } );
+    // tPropFollowerViscosity->set_val_function( tVISCOSITYFIValFunc );
+    // tPropFollowerViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropSlaveWallDistance = std::make_shared< fem::Property >();
-    tPropSlaveWallDistance->set_parameters( { {{ 1.0 }} } );
-    tPropSlaveWallDistance->set_val_function( tConstValFunc );
+    std::shared_ptr< fem::Property > tPropFollowerWallDistance = std::make_shared< fem::Property >();
+    tPropFollowerWallDistance->set_parameters( { {{ 1.0 }} } );
+    tPropFollowerWallDistance->set_val_function( tConstValFunc );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterSATurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderSATurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
-    tCMMasterSATurbulence->set_dof_type_list( tDofTypes );
-    tCMMasterSATurbulence->set_property( tPropMasterWallDistance, "WallDistance" );
-    tCMMasterSATurbulence->set_property( tPropMasterViscosity, "KinViscosity" );
-    tCMMasterSATurbulence->set_local_properties();
+    tCMLeaderSATurbulence->set_dof_type_list( tDofTypes );
+    tCMLeaderSATurbulence->set_property( tPropLeaderWallDistance, "WallDistance" );
+    tCMLeaderSATurbulence->set_property( tPropLeaderViscosity, "KinViscosity" );
+    tCMLeaderSATurbulence->set_local_properties();
 
-    std::shared_ptr< fem::Constitutive_Model > tCMSlaveSATurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMFollowerSATurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
-    tCMSlaveSATurbulence->set_dof_type_list( tDofTypes );
-    tCMSlaveSATurbulence->set_property( tPropSlaveWallDistance, "WallDistance" );
-    tCMSlaveSATurbulence->set_property( tPropSlaveViscosity, "KinViscosity" );
-    tCMSlaveSATurbulence->set_local_properties();
+    tCMFollowerSATurbulence->set_dof_type_list( tDofTypes );
+    tCMFollowerSATurbulence->set_property( tPropFollowerWallDistance, "WallDistance" );
+    tCMFollowerSATurbulence->set_property( tPropFollowerViscosity, "KinViscosity" );
+    tCMFollowerSATurbulence->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -127,8 +127,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::SPALART_ALLMARAS_NITSCHE_INTERFACE );
     tSPNitsche->set_parameters( { { { 1.0 } } } );
-    tSPNitsche->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_constitutive_model( tCMSlaveSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::SLAVE );
+    tSPNitsche->set_constitutive_model( tCMLeaderSATurbulence, "SpalartAllmarasTurbulence", mtk::Leader_Follower::LEADER );
+    tSPNitsche->set_constitutive_model( tCMFollowerSATurbulence, "SpalartAllmarasTurbulence", mtk::Leader_Follower::FOLLOWER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster* tCluster = new fem::Cluster();
@@ -140,10 +140,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_INTERFACE_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( tVisDofTypes );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
-    tIWG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMSlaveSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::SLAVE );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::FOLLOWER );
+    tIWG->set_constitutive_model( tCMLeaderSATurbulence, "SpalartAllmarasTurbulence", mtk::Leader_Follower::LEADER );
+    tIWG->set_constitutive_model( tCMFollowerSATurbulence, "SpalartAllmarasTurbulence", mtk::Leader_Follower::FOLLOWER );
     tIWG->set_stabilization_parameter( tSPNitsche, "NitscheInterface" );
 
     // init set info
@@ -160,13 +160,13 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
 
-    // set size and populate the set slave dof type map
-    tIWG->mSet->mSlaveDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mSlaveDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
+    // set size and populate the set follower dof type map
+    tIWG->mSet->mFollowerDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mFollowerDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
 
     // loop on the space dimension
     for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -235,8 +235,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimension to CM, SP
-        tCMMasterSATurbulence->set_space_dim( iSpaceDim );
-        tCMSlaveSATurbulence->set_space_dim( iSpaceDim );
+        tCMLeaderSATurbulence->set_space_dim( iSpaceDim );
+        tCMFollowerSATurbulence->set_space_dim( iSpaceDim );
         tSPNitsche->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
@@ -281,27 +281,27 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVis;
-            fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVis;
+            fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVis );
+            tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVis );
 
-            // fill random coefficients for slave FI
-            Matrix< DDRMat > tSlaveDOFHatVis;
-            fill_phat( tSlaveDOFHatVis, iSpaceDim, iInterpOrder );
+            // fill random coefficients for follower FI
+            Matrix< DDRMat > tFollowerDOFHatVis;
+            fill_phat( tFollowerDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tSlaveFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
-            tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatVis );
+            tFollowerFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
+            tFollowerFIs( 0 )->set_coeff( tFollowerDOFHatVis );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 2 * tDofTypes.size() );
@@ -325,31 +325,31 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
-            tIWG->mRequestedSlaveGlobalDofTypes  = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
+            tIWG->mRequestedFollowerGlobalDofTypes  = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager                         tMasterFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
-            Field_Interpolator_Manager                         tSlaveFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tLeaderFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tFollowerFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tMasterFIManager.mFI                     = tMasterFIs;
-            tMasterFIManager.mIPGeometryInterpolator = &tGI;
-            tMasterFIManager.mIGGeometryInterpolator = &tGI;
-            tSlaveFIManager.mFI                      = tSlaveFIs;
-            tSlaveFIManager.mIPGeometryInterpolator  = &tGI;
-            tSlaveFIManager.mIGGeometryInterpolator  = &tGI;
+            tLeaderFIManager.mFI                     = tLeaderFIs;
+            tLeaderFIManager.mIPGeometryInterpolator = &tGI;
+            tLeaderFIManager.mIGGeometryInterpolator = &tGI;
+            tFollowerFIManager.mFI                      = tFollowerFIs;
+            tFollowerFIManager.mIPGeometryInterpolator  = &tGI;
+            tFollowerFIManager.mIGGeometryInterpolator  = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tMasterFIManager;
-            tIWG->mSet->mSlaveFIManager  = &tSlaveFIManager;
+            tIWG->mSet->mLeaderFIManager = &tLeaderFIManager;
+            tIWG->mSet->mFollowerFIManager  = &tFollowerFIManager;
 
             // set IWG field interpolator manager
-            tIWG->set_field_interpolator_manager( &tMasterFIManager, mtk::Master_Slave::MASTER );
-            tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
+            tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
+            tIWG->set_field_interpolator_manager( &tFollowerFIManager, mtk::Leader_Follower::FOLLOWER );
 
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
@@ -362,8 +362,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
-                tIWG->mSet->mSlaveFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mFollowerFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -402,8 +402,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche",
             }
 
             // clean up
-            tMasterFIs.clear();
-            tSlaveFIs.clear();
+            tLeaderFIs.clear();
+            tFollowerFIs.clear();
         }
     }
 } /*END_TEST_CASE*/
@@ -447,46 +447,46 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
 
     // init IWG
     //------------------------------------------------------------------------------
-    // create the master properties
-    std::shared_ptr< fem::Property > tPropMasterViscosity = std::make_shared< fem::Property >();
-    tPropMasterViscosity->set_parameters( { { { 2.0 } } } );
-    tPropMasterViscosity->set_val_function( tConstValFunc );
-    // tPropMasterViscosity->set_dof_type_list( { tVisDofTypes } );
-    // tPropMasterViscosity->set_val_function( tVISCOSITYFIValFunc );
-    // tPropMasterViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
+    // create the leader properties
+    std::shared_ptr< fem::Property > tPropLeaderViscosity = std::make_shared< fem::Property >();
+    tPropLeaderViscosity->set_parameters( { { { 2.0 } } } );
+    tPropLeaderViscosity->set_val_function( tConstValFunc );
+    // tPropLeaderViscosity->set_dof_type_list( { tVisDofTypes } );
+    // tPropLeaderViscosity->set_val_function( tVISCOSITYFIValFunc );
+    // tPropLeaderViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropMasterWallDistance = std::make_shared< fem::Property >();
-    tPropMasterWallDistance->set_parameters( { {{ 1.0 }} } );
-    tPropMasterWallDistance->set_val_function( tConstValFunc );
+    std::shared_ptr< fem::Property > tPropLeaderWallDistance = std::make_shared< fem::Property >();
+    tPropLeaderWallDistance->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderWallDistance->set_val_function( tConstValFunc );
 
-    // create the slave properties
-    std::shared_ptr< fem::Property > tPropSlaveViscosity = std::make_shared< fem::Property >();
-    tPropSlaveViscosity->set_parameters( { { { 1.0 } } } );
-    tPropSlaveViscosity->set_val_function( tConstValFunc );
-    // tPropSlaveViscosity->set_dof_type_list( { tVisDofTypes } );
-    // tPropSlaveViscosity->set_val_function( tVISCOSITYFIValFunc );
-    // tPropSlaveViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
+    // create the follower properties
+    std::shared_ptr< fem::Property > tPropFollowerViscosity = std::make_shared< fem::Property >();
+    tPropFollowerViscosity->set_parameters( { { { 1.0 } } } );
+    tPropFollowerViscosity->set_val_function( tConstValFunc );
+    // tPropFollowerViscosity->set_dof_type_list( { tVisDofTypes } );
+    // tPropFollowerViscosity->set_val_function( tVISCOSITYFIValFunc );
+    // tPropFollowerViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropSlaveWallDistance = std::make_shared< fem::Property >();
-    tPropSlaveWallDistance->set_parameters( { {{ 1.0 }} } );
-    tPropSlaveWallDistance->set_val_function( tConstValFunc );
+    std::shared_ptr< fem::Property > tPropFollowerWallDistance = std::make_shared< fem::Property >();
+    tPropFollowerWallDistance->set_parameters( { {{ 1.0 }} } );
+    tPropFollowerWallDistance->set_val_function( tConstValFunc );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterSATurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderSATurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
-    tCMMasterSATurbulence->set_dof_type_list( tDofTypes );
-    tCMMasterSATurbulence->set_property( tPropMasterWallDistance, "WallDistance" );
-    tCMMasterSATurbulence->set_property( tPropMasterViscosity, "KinViscosity" );
-    tCMMasterSATurbulence->set_local_properties();
+    tCMLeaderSATurbulence->set_dof_type_list( tDofTypes );
+    tCMLeaderSATurbulence->set_property( tPropLeaderWallDistance, "WallDistance" );
+    tCMLeaderSATurbulence->set_property( tPropLeaderViscosity, "KinViscosity" );
+    tCMLeaderSATurbulence->set_local_properties();
 
-    std::shared_ptr< fem::Constitutive_Model > tCMSlaveSATurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMFollowerSATurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
-    tCMSlaveSATurbulence->set_dof_type_list( tDofTypes );
-    tCMSlaveSATurbulence->set_property( tPropSlaveWallDistance, "WallDistance" );
-    tCMSlaveSATurbulence->set_property( tPropSlaveViscosity, "KinViscosity" );
-    tCMSlaveSATurbulence->set_local_properties();
+    tCMFollowerSATurbulence->set_dof_type_list( tDofTypes );
+    tCMFollowerSATurbulence->set_property( tPropFollowerWallDistance, "WallDistance" );
+    tCMFollowerSATurbulence->set_property( tPropFollowerViscosity, "KinViscosity" );
+    tCMFollowerSATurbulence->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -494,8 +494,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::SPALART_ALLMARAS_NITSCHE_INTERFACE );
     tSPNitsche->set_parameters( { { { 1.0 } } } );
-    tSPNitsche->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_constitutive_model( tCMSlaveSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::SLAVE );
+    tSPNitsche->set_constitutive_model( tCMLeaderSATurbulence, "SpalartAllmarasTurbulence", mtk::Leader_Follower::LEADER );
+    tSPNitsche->set_constitutive_model( tCMFollowerSATurbulence, "SpalartAllmarasTurbulence", mtk::Leader_Follower::FOLLOWER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster* tCluster = new fem::Cluster();
@@ -507,10 +507,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_INTERFACE_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( tVisDofTypes );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
-    tIWG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMSlaveSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::SLAVE );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::FOLLOWER );
+    tIWG->set_constitutive_model( tCMLeaderSATurbulence, "SpalartAllmarasTurbulence", mtk::Leader_Follower::LEADER );
+    tIWG->set_constitutive_model( tCMFollowerSATurbulence, "SpalartAllmarasTurbulence", mtk::Leader_Follower::FOLLOWER );
     tIWG->set_stabilization_parameter( tSPNitsche, "NitscheInterface" );
 
     // init set info
@@ -527,13 +527,13 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
 
-    // set size and populate the set slave dof type map
-    tIWG->mSet->mSlaveDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mSlaveDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
+    // set size and populate the set follower dof type map
+    tIWG->mSet->mFollowerDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mFollowerDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
 
     // loop on the space dimension
     for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -602,8 +602,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimension to CM, SP
-        tCMMasterSATurbulence->set_space_dim( iSpaceDim );
-        tCMSlaveSATurbulence->set_space_dim( iSpaceDim );
+        tCMLeaderSATurbulence->set_space_dim( iSpaceDim );
+        tCMFollowerSATurbulence->set_space_dim( iSpaceDim );
         tSPNitsche->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
@@ -648,29 +648,29 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVis;
-            fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
-            tMasterDOFHatVis = -1.0 * tMasterDOFHatVis;
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVis;
+            fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
+            tLeaderDOFHatVis = -1.0 * tLeaderDOFHatVis;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVis );
+            tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVis );
 
-            // fill random coefficients for slave FI
-            Matrix< DDRMat > tSlaveDOFHatVis;
-            fill_phat( tSlaveDOFHatVis, iSpaceDim, iInterpOrder );
-            tSlaveDOFHatVis = -1.0 * tSlaveDOFHatVis;
+            // fill random coefficients for follower FI
+            Matrix< DDRMat > tFollowerDOFHatVis;
+            fill_phat( tFollowerDOFHatVis, iSpaceDim, iInterpOrder );
+            tFollowerDOFHatVis = -1.0 * tFollowerDOFHatVis;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tSlaveFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
-            tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatVis );
+            tFollowerFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
+            tFollowerFIs( 0 )->set_coeff( tFollowerDOFHatVis );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 2 * tDofTypes.size() );
@@ -694,31 +694,31 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
-            tIWG->mRequestedSlaveGlobalDofTypes  = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
+            tIWG->mRequestedFollowerGlobalDofTypes  = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager                         tMasterFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
-            Field_Interpolator_Manager                         tSlaveFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tLeaderFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tFollowerFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tMasterFIManager.mFI                     = tMasterFIs;
-            tMasterFIManager.mIPGeometryInterpolator = &tGI;
-            tMasterFIManager.mIGGeometryInterpolator = &tGI;
-            tSlaveFIManager.mFI                      = tSlaveFIs;
-            tSlaveFIManager.mIPGeometryInterpolator  = &tGI;
-            tSlaveFIManager.mIGGeometryInterpolator  = &tGI;
+            tLeaderFIManager.mFI                     = tLeaderFIs;
+            tLeaderFIManager.mIPGeometryInterpolator = &tGI;
+            tLeaderFIManager.mIGGeometryInterpolator = &tGI;
+            tFollowerFIManager.mFI                      = tFollowerFIs;
+            tFollowerFIManager.mIPGeometryInterpolator  = &tGI;
+            tFollowerFIManager.mIGGeometryInterpolator  = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tMasterFIManager;
-            tIWG->mSet->mSlaveFIManager  = &tSlaveFIManager;
+            tIWG->mSet->mLeaderFIManager = &tLeaderFIManager;
+            tIWG->mSet->mFollowerFIManager  = &tFollowerFIManager;
 
             // set IWG field interpolator manager
-            tIWG->set_field_interpolator_manager( &tMasterFIManager, mtk::Master_Slave::MASTER );
-            tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
+            tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
+            tIWG->set_field_interpolator_manager( &tFollowerFIManager, mtk::Leader_Follower::FOLLOWER );
 
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
@@ -731,8 +731,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
-                tIWG->mSet->mSlaveFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mFollowerFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -771,8 +771,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Symmetric_Nitsche_Negative
             }
 
             // clean up
-            tMasterFIs.clear();
-            tSlaveFIs.clear();
+            tLeaderFIs.clear();
+            tFollowerFIs.clear();
         }
     }
 } /*END_TEST_CASE*/
@@ -816,46 +816,46 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
 
     // init IWG
     //------------------------------------------------------------------------------
-    // create the master properties
-    std::shared_ptr< fem::Property > tPropMasterViscosity = std::make_shared< fem::Property >();
-    tPropMasterViscosity->set_parameters( { { { 2.0 } } } );
-    tPropMasterViscosity->set_val_function( tConstValFunc );
-    // tPropMasterViscosity->set_dof_type_list( { tVisDofTypes } );
-    // tPropMasterViscosity->set_val_function( tVISCOSITYFIValFunc );
-    // tPropMasterViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
+    // create the leader properties
+    std::shared_ptr< fem::Property > tPropLeaderViscosity = std::make_shared< fem::Property >();
+    tPropLeaderViscosity->set_parameters( { { { 2.0 } } } );
+    tPropLeaderViscosity->set_val_function( tConstValFunc );
+    // tPropLeaderViscosity->set_dof_type_list( { tVisDofTypes } );
+    // tPropLeaderViscosity->set_val_function( tVISCOSITYFIValFunc );
+    // tPropLeaderViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropMasterWallDistance = std::make_shared< fem::Property >();
-    tPropMasterWallDistance->set_parameters( { {{ 1.0 }} } );
-    tPropMasterWallDistance->set_val_function( tConstValFunc );
+    std::shared_ptr< fem::Property > tPropLeaderWallDistance = std::make_shared< fem::Property >();
+    tPropLeaderWallDistance->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderWallDistance->set_val_function( tConstValFunc );
 
-    // create the slave properties
-    std::shared_ptr< fem::Property > tPropSlaveViscosity = std::make_shared< fem::Property >();
-    tPropSlaveViscosity->set_parameters( { { { 1.0 } } } );
-    tPropSlaveViscosity->set_val_function( tConstValFunc );
-    // tPropSlaveViscosity->set_dof_type_list( { tVisDofTypes } );
-    // tPropSlaveViscosity->set_val_function( tVISCOSITYFIValFunc );
-    // tPropSlaveViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
+    // create the follower properties
+    std::shared_ptr< fem::Property > tPropFollowerViscosity = std::make_shared< fem::Property >();
+    tPropFollowerViscosity->set_parameters( { { { 1.0 } } } );
+    tPropFollowerViscosity->set_val_function( tConstValFunc );
+    // tPropFollowerViscosity->set_dof_type_list( { tVisDofTypes } );
+    // tPropFollowerViscosity->set_val_function( tVISCOSITYFIValFunc );
+    // tPropFollowerViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropSlaveWallDistance = std::make_shared< fem::Property >();
-    tPropSlaveWallDistance->set_parameters( { {{ 1.0 }} } );
-    tPropSlaveWallDistance->set_val_function( tConstValFunc );
+    std::shared_ptr< fem::Property > tPropFollowerWallDistance = std::make_shared< fem::Property >();
+    tPropFollowerWallDistance->set_parameters( { {{ 1.0 }} } );
+    tPropFollowerWallDistance->set_val_function( tConstValFunc );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterSATurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderSATurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
-    tCMMasterSATurbulence->set_dof_type_list( tDofTypes );
-    tCMMasterSATurbulence->set_property( tPropMasterWallDistance, "WallDistance" );
-    tCMMasterSATurbulence->set_property( tPropMasterViscosity, "KinViscosity" );
-    tCMMasterSATurbulence->set_local_properties();
+    tCMLeaderSATurbulence->set_dof_type_list( tDofTypes );
+    tCMLeaderSATurbulence->set_property( tPropLeaderWallDistance, "WallDistance" );
+    tCMLeaderSATurbulence->set_property( tPropLeaderViscosity, "KinViscosity" );
+    tCMLeaderSATurbulence->set_local_properties();
 
-    std::shared_ptr< fem::Constitutive_Model > tCMSlaveSATurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMFollowerSATurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
-    tCMSlaveSATurbulence->set_dof_type_list( tDofTypes );
-    tCMSlaveSATurbulence->set_property( tPropSlaveWallDistance, "WallDistance" );
-    tCMSlaveSATurbulence->set_property( tPropSlaveViscosity, "KinViscosity" );
-    tCMSlaveSATurbulence->set_local_properties();
+    tCMFollowerSATurbulence->set_dof_type_list( tDofTypes );
+    tCMFollowerSATurbulence->set_property( tPropFollowerWallDistance, "WallDistance" );
+    tCMFollowerSATurbulence->set_property( tPropFollowerViscosity, "KinViscosity" );
+    tCMFollowerSATurbulence->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -863,8 +863,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::SPALART_ALLMARAS_NITSCHE_INTERFACE );
     tSPNitsche->set_parameters( { { { 1.0 } } } );
-    tSPNitsche->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_constitutive_model( tCMSlaveSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::SLAVE );
+    tSPNitsche->set_constitutive_model( tCMLeaderSATurbulence, "SpalartAllmarasTurbulence", mtk::Leader_Follower::LEADER );
+    tSPNitsche->set_constitutive_model( tCMFollowerSATurbulence, "SpalartAllmarasTurbulence", mtk::Leader_Follower::FOLLOWER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster* tCluster = new fem::Cluster();
@@ -876,10 +876,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_INTERFACE_UNSYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( tVisDofTypes );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
-    tIWG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMSlaveSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::SLAVE );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::FOLLOWER );
+    tIWG->set_constitutive_model( tCMLeaderSATurbulence, "SpalartAllmarasTurbulence", mtk::Leader_Follower::LEADER );
+    tIWG->set_constitutive_model( tCMFollowerSATurbulence, "SpalartAllmarasTurbulence", mtk::Leader_Follower::FOLLOWER );
     tIWG->set_stabilization_parameter( tSPNitsche, "NitscheInterface" );
 
     // init set info
@@ -896,13 +896,13 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
 
-    // set size and populate the set slave dof type map
-    tIWG->mSet->mSlaveDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mSlaveDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
+    // set size and populate the set follower dof type map
+    tIWG->mSet->mFollowerDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mFollowerDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
 
     // loop on the space dimension
     for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -1015,27 +1015,27 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVis;
-            fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVis;
+            fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVis );
+            tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVis );
 
-            // fill random coefficients for slave FI
-            Matrix< DDRMat > tSlaveDOFHatVis;
-            fill_phat( tSlaveDOFHatVis, iSpaceDim, iInterpOrder );
+            // fill random coefficients for follower FI
+            Matrix< DDRMat > tFollowerDOFHatVis;
+            fill_phat( tFollowerDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tSlaveFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
-            tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatVis );
+            tFollowerFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
+            tFollowerFIs( 0 )->set_coeff( tFollowerDOFHatVis );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 2 * tDofTypes.size() );
@@ -1059,31 +1059,31 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
-            tIWG->mRequestedSlaveGlobalDofTypes  = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
+            tIWG->mRequestedFollowerGlobalDofTypes  = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager                         tMasterFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
-            Field_Interpolator_Manager                         tSlaveFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tLeaderFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tFollowerFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tMasterFIManager.mFI                     = tMasterFIs;
-            tMasterFIManager.mIPGeometryInterpolator = &tGI;
-            tMasterFIManager.mIGGeometryInterpolator = &tGI;
-            tSlaveFIManager.mFI                      = tSlaveFIs;
-            tSlaveFIManager.mIPGeometryInterpolator  = &tGI;
-            tSlaveFIManager.mIGGeometryInterpolator  = &tGI;
+            tLeaderFIManager.mFI                     = tLeaderFIs;
+            tLeaderFIManager.mIPGeometryInterpolator = &tGI;
+            tLeaderFIManager.mIGGeometryInterpolator = &tGI;
+            tFollowerFIManager.mFI                      = tFollowerFIs;
+            tFollowerFIManager.mIPGeometryInterpolator  = &tGI;
+            tFollowerFIManager.mIGGeometryInterpolator  = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tMasterFIManager;
-            tIWG->mSet->mSlaveFIManager  = &tSlaveFIManager;
+            tIWG->mSet->mLeaderFIManager = &tLeaderFIManager;
+            tIWG->mSet->mFollowerFIManager  = &tFollowerFIManager;
 
             // set IWG field interpolator manager
-            tIWG->set_field_interpolator_manager( &tMasterFIManager, mtk::Master_Slave::MASTER );
-            tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
+            tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
+            tIWG->set_field_interpolator_manager( &tFollowerFIManager, mtk::Leader_Follower::FOLLOWER );
 
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
@@ -1096,8 +1096,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
-                tIWG->mSet->mSlaveFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mFollowerFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -1136,8 +1136,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche",
             }
 
             // clean up
-            tMasterFIs.clear();
-            tSlaveFIs.clear();
+            tLeaderFIs.clear();
+            tFollowerFIs.clear();
         }
     }
 } /*END_TEST_CASE*/
@@ -1181,46 +1181,46 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negati
 
     // init IWG
     //------------------------------------------------------------------------------
-    // create the master properties
-    std::shared_ptr< fem::Property > tPropMasterViscosity = std::make_shared< fem::Property >();
-    tPropMasterViscosity->set_parameters( { { { 2.0 } } } );
-    tPropMasterViscosity->set_val_function( tConstValFunc );
-    // tPropMasterViscosity->set_dof_type_list( { tVisDofTypes } );
-    // tPropMasterViscosity->set_val_function( tVISCOSITYFIValFunc );
-    // tPropMasterViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
+    // create the leader properties
+    std::shared_ptr< fem::Property > tPropLeaderViscosity = std::make_shared< fem::Property >();
+    tPropLeaderViscosity->set_parameters( { { { 2.0 } } } );
+    tPropLeaderViscosity->set_val_function( tConstValFunc );
+    // tPropLeaderViscosity->set_dof_type_list( { tVisDofTypes } );
+    // tPropLeaderViscosity->set_val_function( tVISCOSITYFIValFunc );
+    // tPropLeaderViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropMasterWallDistance = std::make_shared< fem::Property >();
-    tPropMasterWallDistance->set_parameters( { {{ 1.0 }} } );
-    tPropMasterWallDistance->set_val_function( tConstValFunc );
+    std::shared_ptr< fem::Property > tPropLeaderWallDistance = std::make_shared< fem::Property >();
+    tPropLeaderWallDistance->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderWallDistance->set_val_function( tConstValFunc );
 
-    // create the slave properties
-    std::shared_ptr< fem::Property > tPropSlaveViscosity = std::make_shared< fem::Property >();
-    tPropSlaveViscosity->set_parameters( { { { 1.0 } } } );
-    tPropSlaveViscosity->set_val_function( tConstValFunc );
-    // tPropSlaveViscosity->set_dof_type_list( { tVisDofTypes } );
-    // tPropSlaveViscosity->set_val_function( tVISCOSITYFIValFunc );
-    // tPropSlaveViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
+    // create the follower properties
+    std::shared_ptr< fem::Property > tPropFollowerViscosity = std::make_shared< fem::Property >();
+    tPropFollowerViscosity->set_parameters( { { { 1.0 } } } );
+    tPropFollowerViscosity->set_val_function( tConstValFunc );
+    // tPropFollowerViscosity->set_dof_type_list( { tVisDofTypes } );
+    // tPropFollowerViscosity->set_val_function( tVISCOSITYFIValFunc );
+    // tPropFollowerViscosity->set_dof_derivative_functions( { tVISCOSITYFIDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropSlaveWallDistance = std::make_shared< fem::Property >();
-    tPropSlaveWallDistance->set_parameters( { {{ 1.0 }} } );
-    tPropSlaveWallDistance->set_val_function( tConstValFunc );
+    std::shared_ptr< fem::Property > tPropFollowerWallDistance = std::make_shared< fem::Property >();
+    tPropFollowerWallDistance->set_parameters( { {{ 1.0 }} } );
+    tPropFollowerWallDistance->set_val_function( tConstValFunc );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterSATurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderSATurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
-    tCMMasterSATurbulence->set_dof_type_list( tDofTypes );
-    tCMMasterSATurbulence->set_property( tPropMasterWallDistance, "WallDistance" );
-    tCMMasterSATurbulence->set_property( tPropMasterViscosity, "KinViscosity" );
-    tCMMasterSATurbulence->set_local_properties();
+    tCMLeaderSATurbulence->set_dof_type_list( tDofTypes );
+    tCMLeaderSATurbulence->set_property( tPropLeaderWallDistance, "WallDistance" );
+    tCMLeaderSATurbulence->set_property( tPropLeaderViscosity, "KinViscosity" );
+    tCMLeaderSATurbulence->set_local_properties();
 
-    std::shared_ptr< fem::Constitutive_Model > tCMSlaveSATurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMFollowerSATurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
-    tCMSlaveSATurbulence->set_dof_type_list( tDofTypes );
-    tCMSlaveSATurbulence->set_property( tPropSlaveWallDistance, "WallDistance" );
-    tCMSlaveSATurbulence->set_property( tPropSlaveViscosity, "KinViscosity" );
-    tCMSlaveSATurbulence->set_local_properties();
+    tCMFollowerSATurbulence->set_dof_type_list( tDofTypes );
+    tCMFollowerSATurbulence->set_property( tPropFollowerWallDistance, "WallDistance" );
+    tCMFollowerSATurbulence->set_property( tPropFollowerViscosity, "KinViscosity" );
+    tCMFollowerSATurbulence->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -1228,8 +1228,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negati
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::SPALART_ALLMARAS_NITSCHE_INTERFACE );
     tSPNitsche->set_parameters( { { { 1.0 } } } );
-    tSPNitsche->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_constitutive_model( tCMSlaveSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::SLAVE );
+    tSPNitsche->set_constitutive_model( tCMLeaderSATurbulence, "SpalartAllmarasTurbulence", mtk::Leader_Follower::LEADER );
+    tSPNitsche->set_constitutive_model( tCMFollowerSATurbulence, "SpalartAllmarasTurbulence", mtk::Leader_Follower::FOLLOWER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster* tCluster = new fem::Cluster();
@@ -1241,10 +1241,10 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negati
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::SPALART_ALLMARAS_TURBULENCE_INTERFACE_UNSYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( tVisDofTypes );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
-    tIWG->set_constitutive_model( tCMMasterSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMSlaveSATurbulence, "SpalartAllmarasTurbulence", mtk::Master_Slave::SLAVE );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::FOLLOWER );
+    tIWG->set_constitutive_model( tCMLeaderSATurbulence, "SpalartAllmarasTurbulence", mtk::Leader_Follower::LEADER );
+    tIWG->set_constitutive_model( tCMFollowerSATurbulence, "SpalartAllmarasTurbulence", mtk::Leader_Follower::FOLLOWER );
     tIWG->set_stabilization_parameter( tSPNitsche, "NitscheInterface" );
 
     // init set info
@@ -1261,13 +1261,13 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negati
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
 
-    // set size and populate the set slave dof type map
-    tIWG->mSet->mSlaveDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mSlaveDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
+    // set size and populate the set follower dof type map
+    tIWG->mSet->mFollowerDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mFollowerDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 0;
 
     // loop on the space dimension
     for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -1380,29 +1380,29 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negati
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVis;
-            fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
-            tMasterDOFHatVis = -1.0 * tMasterDOFHatVis;
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVis;
+            fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
+            tLeaderDOFHatVis = -1.0 * tLeaderDOFHatVis;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVis );
+            tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVis );
 
-            // fill random coefficients for slave FI
-            Matrix< DDRMat > tSlaveDOFHatVis;
-            fill_phat( tSlaveDOFHatVis, iSpaceDim, iInterpOrder );
-            tSlaveDOFHatVis = -1.0 * tSlaveDOFHatVis;
+            // fill random coefficients for follower FI
+            Matrix< DDRMat > tFollowerDOFHatVis;
+            fill_phat( tFollowerDOFHatVis, iSpaceDim, iInterpOrder );
+            tFollowerDOFHatVis = -1.0 * tFollowerDOFHatVis;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tSlaveFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
-            tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatVis );
+            tFollowerFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes( 0 ) );
+            tFollowerFIs( 0 )->set_coeff( tFollowerDOFHatVis );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 2 * tDofTypes.size() );
@@ -1426,31 +1426,31 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negati
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
-            tIWG->mRequestedSlaveGlobalDofTypes  = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
+            tIWG->mRequestedFollowerGlobalDofTypes  = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager                         tMasterFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
-            Field_Interpolator_Manager                         tSlaveFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tLeaderFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager                         tFollowerFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tMasterFIManager.mFI                     = tMasterFIs;
-            tMasterFIManager.mIPGeometryInterpolator = &tGI;
-            tMasterFIManager.mIGGeometryInterpolator = &tGI;
-            tSlaveFIManager.mFI                      = tSlaveFIs;
-            tSlaveFIManager.mIPGeometryInterpolator  = &tGI;
-            tSlaveFIManager.mIGGeometryInterpolator  = &tGI;
+            tLeaderFIManager.mFI                     = tLeaderFIs;
+            tLeaderFIManager.mIPGeometryInterpolator = &tGI;
+            tLeaderFIManager.mIGGeometryInterpolator = &tGI;
+            tFollowerFIManager.mFI                      = tFollowerFIs;
+            tFollowerFIManager.mIPGeometryInterpolator  = &tGI;
+            tFollowerFIManager.mIGGeometryInterpolator  = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tMasterFIManager;
-            tIWG->mSet->mSlaveFIManager  = &tSlaveFIManager;
+            tIWG->mSet->mLeaderFIManager = &tLeaderFIManager;
+            tIWG->mSet->mFollowerFIManager  = &tFollowerFIManager;
 
             // set IWG field interpolator manager
-            tIWG->set_field_interpolator_manager( &tMasterFIManager, mtk::Master_Slave::MASTER );
-            tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
+            tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
+            tIWG->set_field_interpolator_manager( &tFollowerFIManager, mtk::Leader_Follower::FOLLOWER );
 
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
@@ -1463,8 +1463,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negati
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
-                tIWG->mSet->mSlaveFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mFollowerFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -1503,8 +1503,8 @@ TEST_CASE( "IWG_Spalart_Allmaras_Turbulence_Interface_Unsymmetric_Nitsche_Negati
             }
 
             // clean up
-            tMasterFIs.clear();
-            tSlaveFIs.clear();
+            tLeaderFIs.clear();
+            tFollowerFIs.clear();
         }
     }
 } /*END_TEST_CASE*/

@@ -45,7 +45,7 @@ namespace moris
                 // enum storage
                 fem::Measure_Type mMeasureType = fem::Measure_Type::UNDEFINED;
                 mtk::Primary_Void mIsPrimary = mtk::Primary_Void::UNDEFINED;
-                mtk::Master_Slave mIsMaster = mtk::Master_Slave::UNDEFINED;
+                mtk::Leader_Follower mIsLeader = mtk::Leader_Follower::UNDEFINED;
 
                 // storage
                 Matrix< DDRMat > mMEAVal;
@@ -65,12 +65,12 @@ namespace moris
                 Cluster_Measure(
                         fem::Measure_Type aMeasureType,
                         mtk::Primary_Void aIsPrimary,
-                        mtk::Master_Slave aIsMaster,
+                        mtk::Leader_Follower aIsLeader,
                         fem::Cluster * aCluster )
                 : mCluster( aCluster ),
                   mMeasureType( aMeasureType ),
                   mIsPrimary( aIsPrimary ),
-                  mIsMaster( aIsMaster )
+                  mIsLeader( aIsLeader )
                 {};
 
                 /**
@@ -124,12 +124,12 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * get master type
-                 * @return mtk::Master_Slave describing the cluster measure
+                 * get leader type
+                 * @return mtk::Leader_Follower describing the cluster measure
                  */
-                mtk::Master_Slave & get_master_type()
+                mtk::Leader_Follower & get_leader_type()
                 {
-                    return  mIsMaster;
+                    return  mIsLeader;
                 }
 
                 //------------------------------------------------------------------------------
@@ -155,7 +155,7 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * get the cluster measure derivative wrt pdv
-                 * @return mdMEAdPDV cluster measure derivative wrt master dv
+                 * @return mdMEAdPDV cluster measure derivative wrt leader dv
                  */
                 const Matrix< DDRMat > & dMEAdPDV();
 

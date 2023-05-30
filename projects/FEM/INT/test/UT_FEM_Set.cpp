@@ -35,8 +35,8 @@ void tConstValFunction_UTFEMSET
 }
 
         // This test check all the member functions of the FEM Set in the particular case where
-        // there is only a master.
-        TEST_CASE( "Set", "[moris],[fem],[FEMSet_Master]" )
+        // there is only a leader.
+        TEST_CASE( "Set", "[moris],[fem],[FEMSet_Leader]" )
         {
 //            //create a set
 //            Set tSet;
@@ -61,23 +61,23 @@ void tConstValFunction_UTFEMSET
 //            aResidualDofType( 3 ) = { MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY, MSI::Dof_Type::NLSZ };
 //
 //            // list of active dof type
-//            moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > aMasterDofTypes( tNumOfIWGs );
-//            aMasterDofTypes( 0 ) = {{ MSI::Dof_Type::TEMP }};
-//            aMasterDofTypes( 1 ) = {{ MSI::Dof_Type::TEMP }};
-//            aMasterDofTypes( 2 ) = {{ MSI::Dof_Type::VX }};
-//            aMasterDofTypes( 3 ) = {{ MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY, MSI::Dof_Type::NLSZ },
+//            moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > aLeaderDofTypes( tNumOfIWGs );
+//            aLeaderDofTypes( 0 ) = {{ MSI::Dof_Type::TEMP }};
+//            aLeaderDofTypes( 1 ) = {{ MSI::Dof_Type::TEMP }};
+//            aLeaderDofTypes( 2 ) = {{ MSI::Dof_Type::VX }};
+//            aLeaderDofTypes( 3 ) = {{ MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY, MSI::Dof_Type::NLSZ },
 //                                    { MSI::Dof_Type::LS1}};
 //
 //            // list of active property type
-//            moris::Cell< moris::Cell< fem::Property_Type > > aMasterPropTypes( tNumOfIWGs );
-//            aMasterPropTypes( 0 ) = { fem::Property_Type::CONDUCTIVITY };
-//            aMasterPropTypes( 1 ) = { fem::Property_Type::CONDUCTIVITY,
+//            moris::Cell< moris::Cell< fem::Property_Type > > aLeaderPropTypes( tNumOfIWGs );
+//            aLeaderPropTypes( 0 ) = { fem::Property_Type::CONDUCTIVITY };
+//            aLeaderPropTypes( 1 ) = { fem::Property_Type::CONDUCTIVITY,
 //                                      fem::Property_Type::TEMP_DIRICHLET };
 //
 //            // list of active constitutive type
-//            moris::Cell< moris::Cell< fem::Constitutive_Type > > aMasterConstitutiveTypes( tNumOfIWGs );
-//            aMasterConstitutiveTypes( 0 ) = { fem::Constitutive_Type::DIFF_LIN_ISO };
-//            aMasterConstitutiveTypes( 1 ) = { fem::Constitutive_Type::DIFF_LIN_ISO  };
+//            moris::Cell< moris::Cell< fem::Constitutive_Type > > aLeaderConstitutiveTypes( tNumOfIWGs );
+//            aLeaderConstitutiveTypes( 0 ) = { fem::Constitutive_Type::DIFF_LIN_ISO };
+//            aLeaderConstitutiveTypes( 1 ) = { fem::Constitutive_Type::DIFF_LIN_ISO  };
 //
 //            // a factory to create the IWGs
 //            fem::IWG_Factory tIWGFactory;
@@ -95,13 +95,13 @@ void tConstValFunction_UTFEMSET
 //               tIWGs( i )->set_residual_dof_type( aResidualDofType( i ) );
 //
 //               // set active dof type
-//               tIWGs( i )->set_dof_type_list( aMasterDofTypes( i ) );
+//               tIWGs( i )->set_dof_type_list( aLeaderDofTypes( i ) );
 //
 //               // set active property type
-//               tIWGs( i )->set_property_type_list( aMasterPropTypes( i ) );
+//               tIWGs( i )->set_property_type_list( aLeaderPropTypes( i ) );
 //
 //               // set active constitutive type
-//               tIWGs( i )->set_constitutive_type_list( aMasterConstitutiveTypes( i ) );
+//               tIWGs( i )->set_constitutive_type_list( aLeaderConstitutiveTypes( i ) );
 //           }
 //
 //           // pass in the cell of IWG pointers to the element block
@@ -112,24 +112,24 @@ void tConstValFunction_UTFEMSET
 //                // create unique list of constitutive type
 //                tSet.create_constitutive_type_list();
 //
-//                // check mMasterConstitutiveTypes size
-//                CHECK( equal_to( tSet.mMasterConstitutiveTypes.size(), 1 ) );
+//                // check mLeaderConstitutiveTypes size
+//                CHECK( equal_to( tSet.mLeaderConstitutiveTypes.size(), 1 ) );
 //
-//                // check mMasterConstitutiveTypes content
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterConstitutiveTypes( 0 ) ), 1 ) ); // DIFF_LIN_ISO
+//                // check mLeaderConstitutiveTypes content
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderConstitutiveTypes( 0 ) ), 1 ) ); // DIFF_LIN_ISO
 //
 //            //std::cout<<"Test create_constitutive_type_map"<<std::endl;
 //            //------------------------------------------------------------------------------
 //                // create a constitutive type map for the set
 //                tSet.create_constitutive_type_map();
 //
-//                // check mMasterConstitutiveTypeMap size
-//                CHECK( equal_to( tSet.mMasterConstitutiveTypeMap.n_cols(), 1 ) );
-//                CHECK( equal_to( tSet.mMasterConstitutiveTypeMap.n_rows(), 2 ) );
+//                // check mLeaderConstitutiveTypeMap size
+//                CHECK( equal_to( tSet.mLeaderConstitutiveTypeMap.n_cols(), 1 ) );
+//                CHECK( equal_to( tSet.mLeaderConstitutiveTypeMap.n_rows(), 2 ) );
 //
-//                // check mMasterConstitutiveTypeMap content
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterConstitutiveTypeMap( 0, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterConstitutiveTypeMap( 1, 0 ) ),  0 ) );
+//                // check mLeaderConstitutiveTypeMap content
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderConstitutiveTypeMap( 0, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderConstitutiveTypeMap( 1, 0 ) ),  0 ) );
 //
 //            //std::cout<<"Test create_constitutive_models"<<std::endl;
 //            //------------------------------------------------------------------------------
@@ -143,11 +143,11 @@ void tConstValFunction_UTFEMSET
 //                // create the properties for the set
 //                tSet.create_constitutive_models( tConstitutiveUserDefinedInfo );
 //
-//                // check mMasterProperties size
-//                CHECK( equal_to( tSet.mMasterCM.size(), 1 ) );
+//                // check mLeaderProperties size
+//                CHECK( equal_to( tSet.mLeaderCM.size(), 1 ) );
 //
-//                // check mMasterProperties content
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterCM( 0 )->get_constitutive_type() ), 1 ) );
+//                // check mLeaderProperties content
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderCM( 0 )->get_constitutive_type() ), 1 ) );
 //
 //                tSet.set_IWG_constitutive_models();
 //
@@ -157,26 +157,26 @@ void tConstValFunction_UTFEMSET
 //                tSet.create_property_type_list();
 //
 //                // check mPropertyTypeList size
-//                CHECK( equal_to( tSet.mMasterPropTypes.size(), 2 ) );
+//                CHECK( equal_to( tSet.mLeaderPropTypes.size(), 2 ) );
 //
 //                // check mInterpDofAssemblyMap content
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterPropTypes( 0 ) ), 1 ) ); // CONDUCTIVITY
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterPropTypes( 1 ) ), 3 ) ); // TEMP_DIRICHLET
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderPropTypes( 0 ) ), 1 ) ); // CONDUCTIVITY
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderPropTypes( 1 ) ), 3 ) ); // TEMP_DIRICHLET
 //
 //            //std::cout<<"Test create_property_type_map"<<std::endl;
 //            //------------------------------------------------------------------------------
 //                // create a property type map for the set
 //                tSet.create_property_type_map();
 //
-//                // check mMasterPropTypeMap size
-//                CHECK( equal_to( tSet.mMasterPropTypeMap.n_cols(), 1 ) );
-//                CHECK( equal_to( tSet.mMasterPropTypeMap.n_rows(), 4 ) );
+//                // check mLeaderPropTypeMap size
+//                CHECK( equal_to( tSet.mLeaderPropTypeMap.n_cols(), 1 ) );
+//                CHECK( equal_to( tSet.mLeaderPropTypeMap.n_rows(), 4 ) );
 //
-//                // check mMasterPropTypeMap content
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterPropTypeMap( 0, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterPropTypeMap( 1, 0 ) ),  0 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterPropTypeMap( 2, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterPropTypeMap( 3, 0 ) ),  1 ) );
+//                // check mLeaderPropTypeMap content
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderPropTypeMap( 0, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderPropTypeMap( 1, 0 ) ),  0 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderPropTypeMap( 2, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderPropTypeMap( 3, 0 ) ),  1 ) );
 //
 //            //std::cout<<"Test create_properties"<<std::endl;
 //            //------------------------------------------------------------------------------
@@ -197,12 +197,12 @@ void tConstValFunction_UTFEMSET
 //                // create the properties for the set
 //                tSet.create_properties( tPropertyUserDefinedInfo );
 //
-//                // check mMasterProperties size
-//                CHECK( equal_to( tSet.mMasterProperties.size(), 2 ) );
+//                // check mLeaderProperties size
+//                CHECK( equal_to( tSet.mLeaderProperties.size(), 2 ) );
 //
-//                // check mMasterProperties content
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterProperties( 0 )->get_property_type() ), 1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterProperties( 1 )->get_property_type() ), 3 ) );
+//                // check mLeaderProperties content
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderProperties( 0 )->get_property_type() ), 1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderProperties( 1 )->get_property_type() ), 3 ) );
 //
 //            //std::cout<<"Test set_IWG_properties"<<std::endl;
 //            //------------------------------------------------------------------------------
@@ -243,39 +243,39 @@ void tConstValFunction_UTFEMSET
 //                tSet.create_dof_and_dv_type_lists();
 //
 //                // check the size of mInterpDofTypeList
-//                CHECK( equal_to( tSet.mMasterDofTypes.size(), 5 ) );
+//                CHECK( equal_to( tSet.mLeaderDofTypes.size(), 5 ) );
 //
 //                // check the content of mInterpDofTypeList
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypes( 0 )( 0 ) ),  3 ) ); //TEMP
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypes( 1 )( 0 ) ),  0 ) ); //UX
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypes( 2 )( 0 ) ), 11 ) ); //VX
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypes( 3 )( 0 ) ),  8 ) ); //NLSX
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypes( 3 )( 1 ) ),  9 ) ); //NLSY
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypes( 3 )( 2 ) ), 10 ) ); //NLSZ
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypes( 4 )( 0 ) ),  6 ) ); //LS1
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypes( 0 )( 0 ) ),  3 ) ); //TEMP
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypes( 1 )( 0 ) ),  0 ) ); //UX
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypes( 2 )( 0 ) ), 11 ) ); //VX
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypes( 3 )( 0 ) ),  8 ) ); //NLSX
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypes( 3 )( 1 ) ),  9 ) ); //NLSY
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypes( 3 )( 2 ) ), 10 ) ); //NLSZ
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypes( 4 )( 0 ) ),  6 ) ); //LS1
 //
 //            //std::cout<<"Test create_dof_and_dv_type_maps"<<std::endl;
 //            //------------------------------------------------------------------------------
 //                // create a dof type map
 //                tSet.create_dof_and_dv_type_maps();
 //
-//                // check mMasterDofTypeMap size
-//                CHECK( equal_to( tSet.mMasterDofTypeMap.n_cols(), 1 ) );
-//                CHECK( equal_to( tSet.mMasterDofTypeMap.n_rows(), 12 ) );
+//                // check mLeaderDofTypeMap size
+//                CHECK( equal_to( tSet.mLeaderDofTypeMap.n_cols(), 1 ) );
+//                CHECK( equal_to( tSet.mLeaderDofTypeMap.n_rows(), 12 ) );
 //
 //                // check the content of mInterpDofTypeMap
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap(  0, 0 ) ),  1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap(  1, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap(  2, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap(  3, 0 ) ),  0 ) ); //TEMP
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap(  4, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap(  5, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap(  6, 0 ) ),  4 ) ); //LS1
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap(  7, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap(  8, 0 ) ),  3 ) ); //NLSX, NLSY, NLSZ
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap(  9, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap( 10, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap( 11, 0 ) ),  2 ) ); //VX
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap(  0, 0 ) ),  1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap(  1, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap(  2, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap(  3, 0 ) ),  0 ) ); //TEMP
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap(  4, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap(  5, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap(  6, 0 ) ),  4 ) ); //LS1
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap(  7, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap(  8, 0 ) ),  3 ) ); //NLSX, NLSY, NLSZ
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap(  9, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap( 10, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap( 11, 0 ) ),  2 ) ); //VX
 //
 //            //std::cout<<"Mimic create_field_interpolators"<<std::endl;
 //            //------------------------------------------------------------------------------
@@ -292,7 +292,7 @@ void tConstValFunction_UTFEMSET
 //                tFieldInterpolators( 4 ) = new Field_Interpolator( 1, { MSI::Dof_Type::LS1 } );
 //
 //                // pass in the cell of FI pointers to the element block
-//                tSet.mMasterFI = tFieldInterpolators;
+//                tSet.mLeaderFI = tFieldInterpolators;
 //
 //            //std::cout<<"Test create_dof_assembly_map"<<std::endl;
 //            //------------------------------------------------------------------------------
@@ -400,14 +400,14 @@ void tConstValFunction_UTFEMSET
 //                tSet.set_properties_field_interpolators();
 //
 //                // check each IWG received right number of field interpolators
-//                CHECK( equal_to( tSet.mMasterProperties( 0 )->get_dof_field_interpolators().size(), 0 ) );
-//                CHECK( equal_to( tSet.mMasterProperties( 1 )->get_dof_field_interpolators().size(), 2 ) );
+//                CHECK( equal_to( tSet.mLeaderProperties( 0 )->get_dof_field_interpolators().size(), 0 ) );
+//                CHECK( equal_to( tSet.mLeaderProperties( 1 )->get_dof_field_interpolators().size(), 2 ) );
 
         }/* TEST_CASE */
 
         // This test check all the member functions of the FEM Set in the case where
-        // there is a master and a slave.
-        TEST_CASE( "FEMSet_Slave", "[moris],[fem],[FEMSet_Slave]" )
+        // there is a leader and a follower.
+        TEST_CASE( "FEMSet_Follower", "[moris],[fem],[FEMSet_Follower]" )
         {
 //            //create a set
 //            Set tSet;
@@ -425,19 +425,19 @@ void tConstValFunction_UTFEMSET
 //            aResidualDofType( 1 ) = { MSI::Dof_Type::VX };
 //
 //            // list of active dof type
-//            moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > aMasterDofTypes( tNumOfIWGs );
-//            aMasterDofTypes( 0 ) = {{ MSI::Dof_Type::TEMP }};
-//            aMasterDofTypes( 1 ) = {{ MSI::Dof_Type::VX }};
-//            moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > aSlaveDofTypes( tNumOfIWGs );
-//            aSlaveDofTypes( 0 ) = {{ MSI::Dof_Type::TEMP }};
+//            moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > aLeaderDofTypes( tNumOfIWGs );
+//            aLeaderDofTypes( 0 ) = {{ MSI::Dof_Type::TEMP }};
+//            aLeaderDofTypes( 1 ) = {{ MSI::Dof_Type::VX }};
+//            moris::Cell< moris::Cell< moris::Cell< MSI::Dof_Type > > > aFollowerDofTypes( tNumOfIWGs );
+//            aFollowerDofTypes( 0 ) = {{ MSI::Dof_Type::TEMP }};
 //
 //            // list of active property type
-//            moris::Cell< moris::Cell< fem::Property_Type > > aMasterPropTypes( tNumOfIWGs );
-//            aMasterPropTypes( 0 ) = { fem::Property_Type::CONDUCTIVITY };
-//            moris::Cell< moris::Cell< fem::Property_Type > > aSlavePropTypes( tNumOfIWGs );
-//            aSlavePropTypes( 0 ) = { fem::Property_Type::CONDUCTIVITY };
+//            moris::Cell< moris::Cell< fem::Property_Type > > aLeaderPropTypes( tNumOfIWGs );
+//            aLeaderPropTypes( 0 ) = { fem::Property_Type::CONDUCTIVITY };
+//            moris::Cell< moris::Cell< fem::Property_Type > > aFollowerPropTypes( tNumOfIWGs );
+//            aFollowerPropTypes( 0 ) = { fem::Property_Type::CONDUCTIVITY };
 //
-//            moris::Cell< moris::Cell< fem::Constitutive_Type > > aMasterConstitutiveTypes( tNumOfIWGs );
+//            moris::Cell< moris::Cell< fem::Constitutive_Type > > aLeaderConstitutiveTypes( tNumOfIWGs );
 //
 //            // create a cell of IWGs for the problem considered
 //            moris::Cell< fem::IWG* > tIWGs( tNumOfIWGs , nullptr );
@@ -454,17 +454,17 @@ void tConstValFunction_UTFEMSET
 //                // set residual dof type
 //                tIWGs( i )->set_residual_dof_type( aResidualDofType( i ) );
 //
-//                // set active master and slave dof type
-//                tIWGs( i )->set_dof_type_list( aMasterDofTypes( i ) );
-//                tIWGs( i )->set_dof_type_list( aSlaveDofTypes( i ), mtk::Master_Slave::SLAVE );
+//                // set active leader and follower dof type
+//                tIWGs( i )->set_dof_type_list( aLeaderDofTypes( i ) );
+//                tIWGs( i )->set_dof_type_list( aFollowerDofTypes( i ), mtk::Leader_Follower::FOLLOWER );
 //
-//                // set active master and slave property type
-//                tIWGs( i )->set_property_type_list( aMasterPropTypes( i ) );
-//                tIWGs( i )->set_property_type_list( aSlavePropTypes( i ), mtk::Master_Slave::SLAVE );
+//                // set active leader and follower property type
+//                tIWGs( i )->set_property_type_list( aLeaderPropTypes( i ) );
+//                tIWGs( i )->set_property_type_list( aFollowerPropTypes( i ), mtk::Leader_Follower::FOLLOWER );
 //
 //                // set active constitutive type
-//                tIWGs( i )->set_constitutive_type_list( aMasterConstitutiveTypes( i ) );
-//                tIWGs( i )->set_constitutive_type_list( aMasterConstitutiveTypes( i ), mtk::Master_Slave::SLAVE );
+//                tIWGs( i )->set_constitutive_type_list( aLeaderConstitutiveTypes( i ) );
+//                tIWGs( i )->set_constitutive_type_list( aLeaderConstitutiveTypes( i ), mtk::Leader_Follower::FOLLOWER );
 //            }
 //
 //            // pass in the cell of IWG pointers to the element block
@@ -475,18 +475,18 @@ void tConstValFunction_UTFEMSET
 //                // create unique list of constitutive type
 //                tSet.create_constitutive_type_list();
 //
-//                // check mMasterConstitutiveTypes size
-//                CHECK( equal_to( tSet.mMasterConstitutiveTypes.size(), 0 ) );
-//                CHECK( equal_to( tSet.mSlaveConstitutiveTypes.size(), 0 ) );
+//                // check mLeaderConstitutiveTypes size
+//                CHECK( equal_to( tSet.mLeaderConstitutiveTypes.size(), 0 ) );
+//                CHECK( equal_to( tSet.mFollowerConstitutiveTypes.size(), 0 ) );
 //
 //            //std::cout<<"Test create_constitutive_type_map"<<std::endl;
 //            //------------------------------------------------------------------------------
 //                // create a constitutive type map for the set
 //                tSet.create_constitutive_type_map();
 //
-//                // check mMasterConstitutiveTypeMap size
-//                CHECK( equal_to( tSet.mMasterConstitutiveTypeMap.n_cols(), 1 ) );
-//                CHECK( equal_to( tSet.mMasterConstitutiveTypeMap.n_rows(), 0 ) );
+//                // check mLeaderConstitutiveTypeMap size
+//                CHECK( equal_to( tSet.mLeaderConstitutiveTypeMap.n_cols(), 1 ) );
+//                CHECK( equal_to( tSet.mLeaderConstitutiveTypeMap.n_rows(), 0 ) );
 //
 //            //std::cout<<"Test create_constitutive_models"<<std::endl;
 //            //------------------------------------------------------------------------------
@@ -496,9 +496,9 @@ void tConstValFunction_UTFEMSET
 //                // create the properties for the set
 //                tSet.create_constitutive_models( tConstitutiveUserDefinedInfo );
 //
-//                // check mMasterProperties size
-//                CHECK( equal_to( tSet.mMasterCM.size(), 0 ) );
-//                CHECK( equal_to( tSet.mSlaveCM.size(), 0 ) );
+//                // check mLeaderProperties size
+//                CHECK( equal_to( tSet.mLeaderCM.size(), 0 ) );
+//                CHECK( equal_to( tSet.mFollowerCM.size(), 0 ) );
 //
 //                tSet.set_IWG_constitutive_models();
 //
@@ -507,42 +507,42 @@ void tConstValFunction_UTFEMSET
 //                // create unique list of property type
 //                tSet.create_property_type_list();
 //
-//                // check mMasterPropTypes size
-//                CHECK( equal_to( tSet.mMasterPropTypes.size(), 1 ) );
+//                // check mLeaderPropTypes size
+//                CHECK( equal_to( tSet.mLeaderPropTypes.size(), 1 ) );
 //
-//                // check mMasterPropTypes content
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterPropTypes( 0 ) ), 3 ) );
+//                // check mLeaderPropTypes content
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderPropTypes( 0 ) ), 3 ) );
 //
-//                // check mSlavePropTypes size
-//                CHECK( equal_to( tSet.mSlavePropTypes.size(), 1 ) );
+//                // check mFollowerPropTypes size
+//                CHECK( equal_to( tSet.mFollowerPropTypes.size(), 1 ) );
 //
-//                // check mMasterPropTypes content
-//                CHECK( equal_to( static_cast< uint >( tSet.mSlavePropTypes( 0 ) ), 3 ) );
+//                // check mLeaderPropTypes content
+//                CHECK( equal_to( static_cast< uint >( tSet.mFollowerPropTypes( 0 ) ), 3 ) );
 //
 //            //std::cout<<"Test create_property_type_map"<<std::endl;
 //            //------------------------------------------------------------------------------
 //                // create a property type map for the set
 //                tSet.create_property_type_map();
 //
-//                // check mMasterPropTypeMap size
-//                CHECK( equal_to( tSet.mMasterPropTypeMap.n_cols(), 1 ) );
-//                CHECK( equal_to( tSet.mMasterPropTypeMap.n_rows(), 4 ) );
+//                // check mLeaderPropTypeMap size
+//                CHECK( equal_to( tSet.mLeaderPropTypeMap.n_cols(), 1 ) );
+//                CHECK( equal_to( tSet.mLeaderPropTypeMap.n_rows(), 4 ) );
 //
-//                // check mMasterPropTypeMap content
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterPropTypeMap( 0, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterPropTypeMap( 1, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterPropTypeMap( 2, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterPropTypeMap( 3, 0 ) ),  0 ) );
+//                // check mLeaderPropTypeMap content
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderPropTypeMap( 0, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderPropTypeMap( 1, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderPropTypeMap( 2, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderPropTypeMap( 3, 0 ) ),  0 ) );
 //
-//                // check mSlavePropTypeMap size
-//                CHECK( equal_to( tSet.mSlavePropTypeMap.n_cols(), 1 ) );
-//                CHECK( equal_to( tSet.mSlavePropTypeMap.n_rows(), 4 ) );
+//                // check mFollowerPropTypeMap size
+//                CHECK( equal_to( tSet.mFollowerPropTypeMap.n_cols(), 1 ) );
+//                CHECK( equal_to( tSet.mFollowerPropTypeMap.n_rows(), 4 ) );
 //
-//                // check mSlavePropTypeMap content
-//                CHECK( equal_to( static_cast< uint >( tSet.mSlavePropTypeMap( 0, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mSlavePropTypeMap( 1, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mSlavePropTypeMap( 2, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mSlavePropTypeMap( 3, 0 ) ),  0 ) );
+//                // check mFollowerPropTypeMap content
+//                CHECK( equal_to( static_cast< uint >( tSet.mFollowerPropTypeMap( 0, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mFollowerPropTypeMap( 1, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mFollowerPropTypeMap( 2, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mFollowerPropTypeMap( 3, 0 ) ),  0 ) );
 //
 //            //std::cout<<"Test create_properties"<<std::endl;
 //            //------------------------------------------------------------------------------
@@ -550,14 +550,14 @@ void tConstValFunction_UTFEMSET
 //                // create a property user defined info container
 //                Cell< Cell< fem::Property_User_Defined_Info > > tPropertyUserDefinedInfo( 2 );
 //
-//                // fill the master property user defined info container
+//                // fill the leader property user defined info container
 //                tPropertyUserDefinedInfo( 0 ).resize( 1 );
 //                tPropertyUserDefinedInfo( 0 )( 0 ) = Property_User_Defined_Info( { fem::Property_Type::CONDUCTIVITY },
 //                                                                                 {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::UX }},
 //                                                                                 {{{ 1.0 }}},
 //                                                                                 tConstValFunction_UTFEMSET,
 //                                                                                 { tConstValFunction_UTFEMSET, tConstValFunction_UTFEMSET } );
-//                // fill the slave property user defined info container
+//                // fill the follower property user defined info container
 //                tPropertyUserDefinedInfo( 1 ).resize( 1 );
 //                tPropertyUserDefinedInfo( 1 )( 0 ) = Property_User_Defined_Info( { fem::Property_Type::CONDUCTIVITY },
 //                                                                                 {{ MSI::Dof_Type::TEMP }, { MSI::Dof_Type::UX }},
@@ -568,35 +568,35 @@ void tConstValFunction_UTFEMSET
 //                // create the properties for the set
 //                tSet.create_properties( tPropertyUserDefinedInfo );
 //
-//                // check mMasterProperties size
-//                CHECK( equal_to( tSet.mMasterProperties.size(), 1 ) );
+//                // check mLeaderProperties size
+//                CHECK( equal_to( tSet.mLeaderProperties.size(), 1 ) );
 //
-//                // check mMasterProperties content
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterProperties( 0 )->get_property_type() ), 3 ) );
+//                // check mLeaderProperties content
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderProperties( 0 )->get_property_type() ), 3 ) );
 //
-//                // check mSlaveProperties size
-//                CHECK( equal_to( tSet.mSlaveProperties.size(), 1 ) );
+//                // check mFollowerProperties size
+//                CHECK( equal_to( tSet.mFollowerProperties.size(), 1 ) );
 //
-//                // check mMasterProperties content
-//                CHECK( equal_to( static_cast< uint >( tSet.mSlaveProperties( 0 )->get_property_type() ), 3 ) );
+//                // check mLeaderProperties content
+//                CHECK( equal_to( static_cast< uint >( tSet.mFollowerProperties( 0 )->get_property_type() ), 3 ) );
 //
 //            //std::cout<<"Test set_IWG_properties"<<std::endl;
 //            //------------------------------------------------------------------------------
 //                // set properties for each IWG
 //                tSet.set_IWG_properties();
 //
-//                // check each IWG received right number of master properties
+//                // check each IWG received right number of leader properties
 //                CHECK( equal_to( tSet.mIWGs( 0 )->get_properties().size(), 1 ) );
 //                CHECK( equal_to( tSet.mIWGs( 1 )->get_properties().size(), 0 ) );
 //
-//                // check each IWG received the right master property type
+//                // check each IWG received the right leader property type
 //                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_properties()( 0 )->get_property_type() ), 3 ) ); // CONDUCTIVITY
 //
-//                // check each IWG received right number of slave properties
-//                CHECK( equal_to( tSet.mIWGs( 0 )->get_properties( mtk::Master_Slave::SLAVE ).size(), 1 ) );
+//                // check each IWG received right number of follower properties
+//                CHECK( equal_to( tSet.mIWGs( 0 )->get_properties( mtk::Leader_Follower::FOLLOWER ).size(), 1 ) );
 //
-//                // check each IWG received the right slave property type
-//                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_properties( mtk::Master_Slave::SLAVE )( 0 )->get_property_type() ), 3 ) ); // CONDUCTIVITY
+//                // check each IWG received the right follower property type
+//                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_properties( mtk::Leader_Follower::FOLLOWER )( 0 )->get_property_type() ), 3 ) ); // CONDUCTIVITY
 //
 //            //std::cout<<"Test create_unique_dof_type_list"<<std::endl;
 //            //------------------------------------------------------------------------------
@@ -616,78 +616,78 @@ void tConstValFunction_UTFEMSET
 //                // create dof type list
 //                tSet.create_dof_and_dv_type_lists();
 //
-//                // check the size of mMasterDofTypes
-//                CHECK( equal_to( tSet.mMasterDofTypes.size(), 3 ) );
+//                // check the size of mLeaderDofTypes
+//                CHECK( equal_to( tSet.mLeaderDofTypes.size(), 3 ) );
 //
-//                // check the content of mMasterDofTypes
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypes( 0 )( 0 ) ),  3 ) ); //TEMP
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypes( 1 )( 0 ) ),  0 ) ); //UX
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypes( 2 )( 0 ) ), 11 ) ); //VX
+//                // check the content of mLeaderDofTypes
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypes( 0 )( 0 ) ),  3 ) ); //TEMP
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypes( 1 )( 0 ) ),  0 ) ); //UX
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypes( 2 )( 0 ) ), 11 ) ); //VX
 //
-//                // check the size of mSlaveDofTypes
-//                CHECK( equal_to( tSet.mSlaveDofTypes.size(), 2 ) );
+//                // check the size of mFollowerDofTypes
+//                CHECK( equal_to( tSet.mFollowerDofTypes.size(), 2 ) );
 //
-//                // check the content of mSlaveDofTypes
-//                CHECK( equal_to( static_cast< uint >( tSet.mSlaveDofTypes( 0 )( 0 ) ),  3 ) ); //TEMP
-//                CHECK( equal_to( static_cast< uint >( tSet.mSlaveDofTypes( 1 )( 0 ) ),  0 ) ); //UX
+//                // check the content of mFollowerDofTypes
+//                CHECK( equal_to( static_cast< uint >( tSet.mFollowerDofTypes( 0 )( 0 ) ),  3 ) ); //TEMP
+//                CHECK( equal_to( static_cast< uint >( tSet.mFollowerDofTypes( 1 )( 0 ) ),  0 ) ); //UX
 //
 //            //std::cout<<"Test create_dof_and_dv_type_maps"<<std::endl;
 //            //------------------------------------------------------------------------------
 //                // create a dof type map
 //                tSet.create_dof_and_dv_type_maps();
 //
-//                // check mMasterDofTypeMap size
-//                CHECK( equal_to( tSet.mMasterDofTypeMap.n_cols(), 1 ) );
-//                CHECK( equal_to( tSet.mMasterDofTypeMap.n_rows(), 12 ) );
+//                // check mLeaderDofTypeMap size
+//                CHECK( equal_to( tSet.mLeaderDofTypeMap.n_cols(), 1 ) );
+//                CHECK( equal_to( tSet.mLeaderDofTypeMap.n_rows(), 12 ) );
 //
 //                // check the content of mInterpDofTypeMap
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap(  0, 0 ) ),  1 ) ); //UX
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap(  1, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap(  2, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap(  3, 0 ) ),  0 ) ); //TEMP
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap(  4, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap(  5, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap(  6, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap(  7, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap(  8, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap(  9, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap( 10, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterDofTypeMap( 11, 0 ) ),  2 ) ); //VX
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap(  0, 0 ) ),  1 ) ); //UX
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap(  1, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap(  2, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap(  3, 0 ) ),  0 ) ); //TEMP
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap(  4, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap(  5, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap(  6, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap(  7, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap(  8, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap(  9, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap( 10, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderDofTypeMap( 11, 0 ) ),  2 ) ); //VX
 //
-//                // check mSlaveDofTypeMap size
-//                CHECK( equal_to( tSet.mSlaveDofTypeMap.n_cols(), 1 ) );
-//                CHECK( equal_to( tSet.mSlaveDofTypeMap.n_rows(), 4 ) );
+//                // check mFollowerDofTypeMap size
+//                CHECK( equal_to( tSet.mFollowerDofTypeMap.n_cols(), 1 ) );
+//                CHECK( equal_to( tSet.mFollowerDofTypeMap.n_rows(), 4 ) );
 //
-//                // check the content of mSlaveDofTypeMap
-//                CHECK( equal_to( static_cast< uint >( tSet.mSlaveDofTypeMap(  0, 0 ) ),  1 ) ); //UX
-//                CHECK( equal_to( static_cast< uint >( tSet.mSlaveDofTypeMap(  1, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mSlaveDofTypeMap(  2, 0 ) ), -1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mSlaveDofTypeMap(  3, 0 ) ),  0 ) ); //TEMP
+//                // check the content of mFollowerDofTypeMap
+//                CHECK( equal_to( static_cast< uint >( tSet.mFollowerDofTypeMap(  0, 0 ) ),  1 ) ); //UX
+//                CHECK( equal_to( static_cast< uint >( tSet.mFollowerDofTypeMap(  1, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mFollowerDofTypeMap(  2, 0 ) ), -1 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mFollowerDofTypeMap(  3, 0 ) ),  0 ) ); //TEMP
 //
 //
 //            //std::cout<<"Mimic create_field_interpolators"<<std::endl;
 //            //------------------------------------------------------------------------------
-//                // create a cell of master field interpolator pointers
-//                moris::Cell< Field_Interpolator* > tMasterFI( tSet.get_number_of_field_interpolators(), nullptr );
+//                // create a cell of leader field interpolator pointers
+//                moris::Cell< Field_Interpolator* > tLeaderFI( tSet.get_number_of_field_interpolators(), nullptr );
 //
 //                // set the number of coefficients for each field interpolator
-//                tMasterFI( 0 ) = new Field_Interpolator( 1, { MSI::Dof_Type::TEMP } );
-//                tMasterFI( 1 ) = new Field_Interpolator( 1, { MSI::Dof_Type::UX } );
-//                tMasterFI( 2 ) = new Field_Interpolator( 1, { MSI::Dof_Type::VX } );
+//                tLeaderFI( 0 ) = new Field_Interpolator( 1, { MSI::Dof_Type::TEMP } );
+//                tLeaderFI( 1 ) = new Field_Interpolator( 1, { MSI::Dof_Type::UX } );
+//                tLeaderFI( 2 ) = new Field_Interpolator( 1, { MSI::Dof_Type::VX } );
 //
 //                // pass in the cell of FI pointers to the element block                print(tSet.mIWGDofAssemblyMap( 1 ),"mIWGDofAssemblyMap( 1 )");
 //
-//                tSet.mMasterFI = tMasterFI;
+//                tSet.mLeaderFI = tLeaderFI;
 //
-//                // create a cell of master field interpolator pointers
-//                moris::Cell< Field_Interpolator* > tSlaveFI( tSet.get_number_of_field_interpolators( mtk::Master_Slave::SLAVE ), nullptr );
+//                // create a cell of leader field interpolator pointers
+//                moris::Cell< Field_Interpolator* > tFollowerFI( tSet.get_number_of_field_interpolators( mtk::Leader_Follower::FOLLOWER ), nullptr );
 //
 //                // set the number of coefficients for each field interpolator
-//                tSlaveFI( 0 ) = new Field_Interpolator( 1, { MSI::Dof_Type::TEMP } );
-//                tSlaveFI( 1 ) = new Field_Interpolator( 1, { MSI::Dof_Type::UX } );
+//                tFollowerFI( 0 ) = new Field_Interpolator( 1, { MSI::Dof_Type::TEMP } );
+//                tFollowerFI( 1 ) = new Field_Interpolator( 1, { MSI::Dof_Type::UX } );
 //
 //                // pass in the cell of FI pointers to the element block
-//                tSet.mSlaveFI = tSlaveFI;
+//                tSet.mFollowerFI = tFollowerFI;
 //
 //            //std::cout<<"Test create_dof_assembly_map"<<std::endl;
 //            //------------------------------------------------------------------------------
@@ -699,15 +699,15 @@ void tConstValFunction_UTFEMSET
 //                CHECK( equal_to( tSet.mDofAssemblyMap.n_rows(), 5 ) );
 //
 //                // check mInterpDofAssemblyMap content
-//                CHECK( equal_to( static_cast< uint >( tSet.mDofAssemblyMap( 0, 0 ) ), 0 ) ); //TEMP MASTER
+//                CHECK( equal_to( static_cast< uint >( tSet.mDofAssemblyMap( 0, 0 ) ), 0 ) ); //TEMP LEADER
 //                CHECK( equal_to( static_cast< uint >( tSet.mDofAssemblyMap( 0, 1 ) ), 0 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mDofAssemblyMap( 1, 0 ) ), 1 ) ); //UX MASTER
+//                CHECK( equal_to( static_cast< uint >( tSet.mDofAssemblyMap( 1, 0 ) ), 1 ) ); //UX LEADER
 //                CHECK( equal_to( static_cast< uint >( tSet.mDofAssemblyMap( 1, 1 ) ), 1 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mDofAssemblyMap( 2, 0 ) ), 2 ) ); //VX MASTER
+//                CHECK( equal_to( static_cast< uint >( tSet.mDofAssemblyMap( 2, 0 ) ), 2 ) ); //VX LEADER
 //                CHECK( equal_to( static_cast< uint >( tSet.mDofAssemblyMap( 2, 1 ) ), 2 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mDofAssemblyMap( 3, 0 ) ), 3 ) ); //TEMP SLAVE
+//                CHECK( equal_to( static_cast< uint >( tSet.mDofAssemblyMap( 3, 0 ) ), 3 ) ); //TEMP FOLLOWER
 //                CHECK( equal_to( static_cast< uint >( tSet.mDofAssemblyMap( 3, 1 ) ), 3 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mDofAssemblyMap( 4, 0 ) ), 4 ) ); //UX SLAVE
+//                CHECK( equal_to( static_cast< uint >( tSet.mDofAssemblyMap( 4, 0 ) ), 4 ) ); //UX FOLLOWER
 //                CHECK( equal_to( static_cast< uint >( tSet.mDofAssemblyMap( 4, 1 ) ), 4 ) );
 //
 //            //std::cout<<"Test set_IWG_field_interpolators"<<std::endl;
@@ -715,22 +715,22 @@ void tConstValFunction_UTFEMSET
 //                // set the IWG field inerpolators
 //                tSet.set_IWG_field_interpolators();
 //
-//                // check each IWG received right number of master field interpolators
+//                // check each IWG received right number of leader field interpolators
 //                CHECK( equal_to( tSet.mIWGs( 0 )->get_dof_field_interpolators().size(), 2 ) );
 //                CHECK( equal_to( tSet.mIWGs( 1 )->get_dof_field_interpolators().size(), 1 ) );
 //
-//                // check each IWG received the right master dof type
+//                // check each IWG received the right leader dof type
 //                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_dof_field_interpolators()( 0 )->get_dof_type()( 0 ) ),  3 ) ); // TEMP
 //                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_dof_field_interpolators()( 1 )->get_dof_type()( 0 ) ),  0 ) ); // UX
 //                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 1 )->get_dof_field_interpolators()( 0 )->get_dof_type()( 0 ) ), 11 ) ); // VX
 //
-//                // check each IWG received right number of slave field interpolators
-//                CHECK( equal_to( tSet.mIWGs( 0 )->get_dof_field_interpolators( mtk::Master_Slave::SLAVE ).size(), 2 ) );
-//                CHECK( equal_to( tSet.mIWGs( 1 )->get_dof_field_interpolators( mtk::Master_Slave::SLAVE ).size(), 0 ) );
+//                // check each IWG received right number of follower field interpolators
+//                CHECK( equal_to( tSet.mIWGs( 0 )->get_dof_field_interpolators( mtk::Leader_Follower::FOLLOWER ).size(), 2 ) );
+//                CHECK( equal_to( tSet.mIWGs( 1 )->get_dof_field_interpolators( mtk::Leader_Follower::FOLLOWER ).size(), 0 ) );
 //
-//                // check each IWG received the right slave dof type
-//                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_dof_field_interpolators( mtk::Master_Slave::SLAVE )( 0 )->get_dof_type()( 0 ) ),  3 ) ); // TEMP
-//                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_dof_field_interpolators( mtk::Master_Slave::SLAVE )( 1 )->get_dof_type()( 0 ) ),  0 ) ); // UX
+//                // check each IWG received the right follower dof type
+//                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_dof_field_interpolators( mtk::Leader_Follower::FOLLOWER )( 0 )->get_dof_type()( 0 ) ),  3 ) ); // TEMP
+//                CHECK( equal_to( static_cast< uint >( tSet.mIWGs( 0 )->get_dof_field_interpolators( mtk::Leader_Follower::FOLLOWER )( 1 )->get_dof_type()( 0 ) ),  0 ) ); // UX
 //
 //            //std::cout<<"Test create_IWG_dof_assembly_map"<<std::endl;
 //            //------------------------------------------------------------------------------
@@ -778,19 +778,19 @@ void tConstValFunction_UTFEMSET
 //                // create IWG dof assembly map
 //                tSet.set_properties_field_interpolators();
 //
-//                // check each IWG received right number of master field interpolators
-//                CHECK( equal_to( tSet.mMasterProperties( 0 )->get_dof_field_interpolators().size(), 2 ) );
+//                // check each IWG received right number of leader field interpolators
+//                CHECK( equal_to( tSet.mLeaderProperties( 0 )->get_dof_field_interpolators().size(), 2 ) );
 //
-//                // check each IWG received right master dof types
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterProperties( 0 )->get_dof_field_interpolators()( 0 )->get_dof_type()( 0 ) ), 3 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mMasterProperties( 0 )->get_dof_field_interpolators()( 1 )->get_dof_type()( 0 ) ), 0 ) );
+//                // check each IWG received right leader dof types
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderProperties( 0 )->get_dof_field_interpolators()( 0 )->get_dof_type()( 0 ) ), 3 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mLeaderProperties( 0 )->get_dof_field_interpolators()( 1 )->get_dof_type()( 0 ) ), 0 ) );
 //
-//                // check each IWG received right number of slave field interpolators
-//                CHECK( equal_to( tSet.mSlaveProperties( 0 )->get_dof_field_interpolators().size(), 2 ) );
+//                // check each IWG received right number of follower field interpolators
+//                CHECK( equal_to( tSet.mFollowerProperties( 0 )->get_dof_field_interpolators().size(), 2 ) );
 //
-//                // check each IWG received right slave dof types
-//                CHECK( equal_to( static_cast< uint >( tSet.mSlaveProperties( 0 )->get_dof_field_interpolators()( 0 )->get_dof_type()( 0 ) ), 3 ) );
-//                CHECK( equal_to( static_cast< uint >( tSet.mSlaveProperties( 0 )->get_dof_field_interpolators()( 1 )->get_dof_type()( 0 ) ), 0 ) );
+//                // check each IWG received right follower dof types
+//                CHECK( equal_to( static_cast< uint >( tSet.mFollowerProperties( 0 )->get_dof_field_interpolators()( 0 )->get_dof_type()( 0 ) ), 3 ) );
+//                CHECK( equal_to( static_cast< uint >( tSet.mFollowerProperties( 0 )->get_dof_field_interpolators()( 1 )->get_dof_type()( 0 ) ), 0 ) );
 
         }/* TEST_CASE */
 

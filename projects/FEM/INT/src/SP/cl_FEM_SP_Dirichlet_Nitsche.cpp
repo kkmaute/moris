@@ -27,7 +27,7 @@ namespace moris
         SP_Dirichlet_Nitsche::SP_Dirichlet_Nitsche()
         {
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Material" ] = static_cast< uint >( SP_Property_Type::MATERIAL );
@@ -60,12 +60,12 @@ namespace moris
         moris::Cell< std::tuple<
                 fem::Measure_Type,
                 mtk::Primary_Void,
-                mtk::Master_Slave > >
+                mtk::Leader_Follower > >
         SP_Dirichlet_Nitsche::get_cluster_measure_tuple_list()
         {
             if ( mGeometryFormulation == 1 )
             {
-                return { mMasterVolumeTuple, mInterfaceSurfaceTuple };
+                return { mLeaderVolumeTuple, mInterfaceSurfaceTuple };
             }
 
             return { mElementSizeTuple };
@@ -80,12 +80,12 @@ namespace moris
 
             if ( mGeometryFormulation == 1 )
             {
-                // get master volume cluster measure value
-                const real tMasterVolume =    //
+                // get leader volume cluster measure value
+                const real tLeaderVolume =    //
                         mCluster->get_cluster_measure(
-                                        std::get< 0 >( mMasterVolumeTuple ),
-                                        std::get< 1 >( mMasterVolumeTuple ),
-                                        std::get< 2 >( mMasterVolumeTuple ) )
+                                        std::get< 0 >( mLeaderVolumeTuple ),
+                                        std::get< 1 >( mLeaderVolumeTuple ),
+                                        std::get< 2 >( mLeaderVolumeTuple ) )
                                 ->val()( 0 );
 
                 // get interface surface cluster measure value
@@ -96,7 +96,7 @@ namespace moris
                                         std::get< 2 >( mInterfaceSurfaceTuple ) )
                                 ->val()( 0 );
 
-                tElementSize = tMasterVolume / tInterfaceSurface;
+                tElementSize = tLeaderVolume / tInterfaceSurface;
             }
             else
             {
@@ -111,7 +111,7 @@ namespace moris
 
             // get the material property
             const std::shared_ptr< Property >& tPropMaterial =
-                    mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
+                    mLeaderProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
             // compute stabilization parameter value
             mPPVal = mParameters( 0 ) * tPropMaterial->val() / tElementSize;
@@ -120,19 +120,19 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        SP_Dirichlet_Nitsche::eval_dSPdMasterDOF(
+        SP_Dirichlet_Nitsche::eval_dSPdLeaderDOF(
                 const moris::Cell< MSI::Dof_Type >& aDofTypes )
         {
             real tElementSize = 0;
 
             if ( mGeometryFormulation == 1 )
             {
-                // get master volume cluster measure value
-                const real tMasterVolume =    //
+                // get leader volume cluster measure value
+                const real tLeaderVolume =    //
                         mCluster->get_cluster_measure(
-                                        std::get< 0 >( mMasterVolumeTuple ),
-                                        std::get< 1 >( mMasterVolumeTuple ),
-                                        std::get< 2 >( mMasterVolumeTuple ) )
+                                        std::get< 0 >( mLeaderVolumeTuple ),
+                                        std::get< 1 >( mLeaderVolumeTuple ),
+                                        std::get< 2 >( mLeaderVolumeTuple ) )
                                 ->val()( 0 );
 
                 // get interface surface cluster measure value
@@ -143,7 +143,7 @@ namespace moris
                                         std::get< 2 >( mInterfaceSurfaceTuple ) )
                                 ->val()( 0 );
 
-                tElementSize = tMasterVolume / tInterfaceSurface;
+                tElementSize = tLeaderVolume / tInterfaceSurface;
             }
             else
             {
@@ -160,29 +160,29 @@ namespace moris
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
 
             // get the dof type index
-            uint tDofIndex = mMasterGlobalDofTypeMap( tDofType );
+            uint tDofIndex = mLeaderGlobalDofTypeMap( tDofType );
 
             // get FI for derivative dof type
             Field_Interpolator* tFIDer =
-                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // reset the matrix
-            mdPPdMasterDof( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients() );
+            mdPPdLeaderDof( tDofIndex ).set_size( 1, tFIDer->get_number_of_space_time_coefficients() );
 
             // get the material property
             const std::shared_ptr< Property >& tPropMaterial =
-                    mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
+                    mLeaderProp( static_cast< uint >( SP_Property_Type::MATERIAL ) );
 
             // if material property depends on the dof type
             if ( tPropMaterial->check_dof_dependency( aDofTypes ) )
             {
                 // compute derivative with indirect dependency through properties
-                mdPPdMasterDof( tDofIndex ) =
+                mdPPdLeaderDof( tDofIndex ) =
                         mParameters( 0 ) * tPropMaterial->dPropdDOF( aDofTypes ) / tElementSize;
             }
             else
             {
-                mdPPdMasterDof( tDofIndex ).fill( 0.0 );
+                mdPPdLeaderDof( tDofIndex ).fill( 0.0 );
             }
         }
 

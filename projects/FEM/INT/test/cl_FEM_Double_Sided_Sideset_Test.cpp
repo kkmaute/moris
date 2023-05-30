@@ -92,15 +92,15 @@ TEST_CASE( "Double sided side-set QUAD ", "[moris],[fem],[DoubleSidedQUAD]" )
     Matrix< DDRMat > tIntegWeights;
     tSideIntegrator.get_weights( tIntegWeights );
 
-    // loop over master side ordinals
-    for ( uint iMasterOrd = 0; iMasterOrd < 4; iMasterOrd++ )
+    // loop over leader side ordinals
+    for ( uint iLeaderOrd = 0; iLeaderOrd < 4; iLeaderOrd++ )
     {
-        // side ordinal for master integration mesh
-        moris_index tMasterSideOrd = iMasterOrd;
+        // side ordinal for leader integration mesh
+        moris_index tLeaderSideOrd = iLeaderOrd;
 
-        // define an interpolation master element in the phys space
+        // define an interpolation leader element in the phys space
         Matrix< DDRMat > tXHatIP_M;
-        switch ( iMasterOrd )
+        switch ( iLeaderOrd )
         {
             case ( 0 ):
                 tXHatIP_M = { //
@@ -136,42 +136,42 @@ TEST_CASE( "Double sided side-set QUAD ", "[moris],[fem],[DoubleSidedQUAD]" )
                 break;
             default:
             {
-                MORIS_ERROR( false, " wrong master side ordinal " );
+                MORIS_ERROR( false, " wrong leader side ordinal " );
                 break;
             }
         }
 
-        // define an integration master element in the phys space
+        // define an integration leader element in the phys space
         Matrix< DDRMat > tXHatIG_M = tXHatIP_M;
 
-        // define the master integration element in param space
+        // define the leader integration element in param space
         Matrix< DDRMat > tXiHatIG_M = tParamCoords;
 
-        // get the node ids associated to the master side ordinal
-        Matrix< DDSMat > tMasterSideNodes = tSideNodes.get_row( tMasterSideOrd );
+        // get the node ids associated to the leader side ordinal
+        Matrix< DDSMat > tLeaderSideNodes = tSideNodes.get_row( tLeaderSideOrd );
 
         // phys coords amd parm coords in IP param space for the side
-        uint             tNumSideNodes = tMasterSideNodes.numel();
-        Matrix< DDRMat > tMasterSidePhysCoords( tNumSideNodes, 2 );
-        Matrix< DDRMat > tMasterSideParamCoords( tNumSideNodes, 2 );
+        uint             tNumSideNodes = tLeaderSideNodes.numel();
+        Matrix< DDRMat > tLeaderSidePhysCoords( tNumSideNodes, 2 );
+        Matrix< DDRMat > tLeaderSideParamCoords( tNumSideNodes, 2 );
         for ( uint iNode = 0; iNode < tNumSideNodes; iNode++ )
         {
-            tMasterSidePhysCoords.get_row( iNode ) =
-                    tXHatIG_M.get_row( tMasterSideNodes( iNode ) );
+            tLeaderSidePhysCoords.get_row( iNode ) =
+                    tXHatIG_M.get_row( tLeaderSideNodes( iNode ) );
 
-            tMasterSideParamCoords.get_row( iNode ) =
-                    tXiHatIG_M.get_row( tMasterSideNodes( iNode ) );
+            tLeaderSideParamCoords.get_row( iNode ) =
+                    tXiHatIG_M.get_row( tLeaderSideNodes( iNode ) );
         }
 
-        // loop over slave side ordinals
-        for ( uint iSlaveOrd = 0; iSlaveOrd < 4; iSlaveOrd++ )
+        // loop over follower side ordinals
+        for ( uint iFollowerOrd = 0; iFollowerOrd < 4; iFollowerOrd++ )
         {
-            // side ordinal for master integration mesh
-            moris_index tSlaveSideOrd = iSlaveOrd;
+            // side ordinal for leader integration mesh
+            moris_index tFollowerSideOrd = iFollowerOrd;
 
-            // define an interpolation slave element in the phys space
+            // define an interpolation follower element in the phys space
             Matrix< DDRMat > tXHatIP;
-            switch ( iSlaveOrd )
+            switch ( iFollowerOrd )
             {
                 case ( 0 ):
                     tXHatIP = { //
@@ -206,36 +206,36 @@ TEST_CASE( "Double sided side-set QUAD ", "[moris],[fem],[DoubleSidedQUAD]" )
                     };
                     break;
                 default:
-                    MORIS_ERROR( false, " wrong slave side ordinal " );
+                    MORIS_ERROR( false, " wrong follower side ordinal " );
                     break;
             }
 
-            // for a master slave pair
-            moris_index tSlaveNode = 0;
+            // for a leader follower pair
+            moris_index tFollowerNode = 0;
 
-            // define an interpolation slave element in the phys space
+            // define an interpolation follower element in the phys space
             Matrix< DDRMat > tXHatIP_S = tXHatIP;
 
-            // define an integration slave element in the phys space
+            // define an integration follower element in the phys space
             Matrix< DDRMat > tXHatIG_S = tXHatIP_S;
 
-            // define the slave integration element in param space
+            // define the follower integration element in param space
             Matrix< DDRMat > tXiHatIG_S = tParamCoords;
 
-            // get the node ids associated to the slave side ordinal
-            Matrix< DDSMat > tSlaveSideNodes = tSideNodes.get_row( tSlaveSideOrd );
+            // get the node ids associated to the follower side ordinal
+            Matrix< DDSMat > tFollowerSideNodes = tSideNodes.get_row( tFollowerSideOrd );
 
-            // phys coords and param coords in IP param space for the slave side
-            Matrix< DDRMat > tSlaveSidePhysCoords( tNumSideNodes, 2 );
-            Matrix< DDRMat > tSlaveSideParamCoords( tNumSideNodes, 2 );
+            // phys coords and param coords in IP param space for the follower side
+            Matrix< DDRMat > tFollowerSidePhysCoords( tNumSideNodes, 2 );
+            Matrix< DDRMat > tFollowerSideParamCoords( tNumSideNodes, 2 );
 
             for ( uint iNode = 0; iNode < tNumSideNodes; iNode++ )
             {
-                tSlaveSidePhysCoords.get_row( iNode ) =
-                        tXHatIG_S.get_row( tSlaveSideNodes( iNode ) );
+                tFollowerSidePhysCoords.get_row( iNode ) =
+                        tXHatIG_S.get_row( tFollowerSideNodes( iNode ) );
 
-                tSlaveSideParamCoords.get_row( iNode ) =
-                        tXiHatIG_S.get_row( tSlaveSideNodes( iNode ) );
+                tFollowerSideParamCoords.get_row( iNode ) =
+                        tXiHatIG_S.get_row( tFollowerSideNodes( iNode ) );
             }
 
             // bool for integration point check
@@ -245,46 +245,46 @@ TEST_CASE( "Double sided side-set QUAD ", "[moris],[fem],[DoubleSidedQUAD]" )
             for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
             {
                 // get the treated integration point location in integration space
-                Matrix< DDRMat > tMasterIntegPointI = tIntegPoints.get_column( iGP );
+                Matrix< DDRMat > tLeaderIntegPointI = tIntegPoints.get_column( iGP );
 
                 // get the treated integration point location in integration space
-                Matrix< DDRMat > tSlaveIntegPointI =
+                Matrix< DDRMat > tFollowerIntegPointI =
                         side_coordinate_map(
                                 tSideGeoTypeIG,
-                                tSlaveNode,
-                                tMasterIntegPointI );
+                                tFollowerNode,
+                                tLeaderIntegPointI );
 
                 // get the integration point in the IP parametric space
-                // via the side shape functions for the master side
+                // via the side shape functions for the leader side
                 Matrix< DDRMat > tN1;
                 Matrix< DDRMat > tN2;
                 Matrix< DDRMat > tN3;
                 Matrix< DDRMat > tN4;
 
-                tSideSpaceInterp->eval_N( tMasterIntegPointI( { 0, 0 }, { 0, 0 } ), tN1 );
-                tSideSpaceInterp->eval_N( tSlaveIntegPointI( { 0, 0 }, { 0, 0 } ), tN2 );
+                tSideSpaceInterp->eval_N( tLeaderIntegPointI( { 0, 0 }, { 0, 0 } ), tN1 );
+                tSideSpaceInterp->eval_N( tFollowerIntegPointI( { 0, 0 }, { 0, 0 } ), tN2 );
 
-                Matrix< DDRMat > tMasterRefIntegPointI = trans( tN1 * tMasterSideParamCoords );
+                Matrix< DDRMat > tLeaderRefIntegPointI = trans( tN1 * tLeaderSideParamCoords );
 
                 // get the integration point in the IP parametric space
-                // via the rotation matrix for the slave side
-                Matrix< DDRMat > tSlaveRefIntegPointI = trans( tN2 * tSlaveSideParamCoords );
+                // via the rotation matrix for the follower side
+                Matrix< DDRMat > tFollowerRefIntegPointI = trans( tN2 * tFollowerSideParamCoords );
 
-                tSpaceInterp->eval_N( tMasterRefIntegPointI, tN3 );
-                tSpaceInterp->eval_N( tSlaveRefIntegPointI, tN4 );
-
-                // to check only
-                Matrix< DDRMat > tMasterPhysIntegPointI = trans( tN3 * tXHatIP_M );
+                tSpaceInterp->eval_N( tLeaderRefIntegPointI, tN3 );
+                tSpaceInterp->eval_N( tFollowerRefIntegPointI, tN4 );
 
                 // to check only
-                Matrix< DDRMat > tSlavePhysIntegPointI = trans( tN4 * tXHatIP_S );
+                Matrix< DDRMat > tLeaderPhysIntegPointI = trans( tN3 * tXHatIP_M );
+
+                // to check only
+                Matrix< DDRMat > tFollowerPhysIntegPointI = trans( tN4 * tXHatIP_S );
 
                 // check the integration point in the IP parametric space
                 for ( uint iCoords = 0; iCoords < 2; iCoords++ )
                 {
                     tIntegPointCheck =
                             tIntegPointCheck &&    //
-                            ( std::abs( tMasterPhysIntegPointI( iCoords ) - tSlavePhysIntegPointI( iCoords ) ) < tEpsilon );
+                            ( std::abs( tLeaderPhysIntegPointI( iCoords ) - tFollowerPhysIntegPointI( iCoords ) ) < tEpsilon );
                 }
                 REQUIRE( tIntegPointCheck );
             }
@@ -355,15 +355,15 @@ TEST_CASE( "Double sided side-set TRI ", "[moris],[fem],[DoubleSidedTRI]" )
     Matrix< DDRMat > tIntegWeights;
     tSideIntegrator.get_weights( tIntegWeights );
 
-    // loop over master side ordinals
-    for ( uint iMasterOrd = 0; iMasterOrd < 3; iMasterOrd++ )
+    // loop over leader side ordinals
+    for ( uint iLeaderOrd = 0; iLeaderOrd < 3; iLeaderOrd++ )
     {
-        // side ordinal for master integration mesh
-        moris_index tMasterSideOrd = iMasterOrd;
+        // side ordinal for leader integration mesh
+        moris_index tLeaderSideOrd = iLeaderOrd;
 
-        // define an interpolation master element in the phys space
+        // define an interpolation leader element in the phys space
         Matrix< DDRMat > tXHatIP_M;
-        switch ( iMasterOrd )
+        switch ( iLeaderOrd )
         {
             case ( 0 ):
                 tXHatIP_M = { { 1.0, 0.0 }, { 0.0, 1.0 }, { 0.0, 0.0 } };
@@ -376,45 +376,45 @@ TEST_CASE( "Double sided side-set TRI ", "[moris],[fem],[DoubleSidedTRI]" )
                 break;
             default:
             {
-                MORIS_ERROR( false, " wrong master side ordinal " );
+                MORIS_ERROR( false, " wrong leader side ordinal " );
                 break;
             }
         }
 
-        // define an integration master element in the phys space
+        // define an integration leader element in the phys space
         Matrix< DDRMat > tXHatIG_M = tXHatIP_M;
 
-        // define the master integration element in param space
+        // define the leader integration element in param space
         Matrix< DDRMat > tXiHatIG_M = tParamCoords;
 
-        // get the node ids associated to the master side ordinal
-        Matrix< DDSMat > tMasterSideNodes = tSideNodes.get_row( tMasterSideOrd );
+        // get the node ids associated to the leader side ordinal
+        Matrix< DDSMat > tLeaderSideNodes = tSideNodes.get_row( tLeaderSideOrd );
 
         // phys coords amd parm coords in IP param space for the side
-        uint tNumSideNodes = tMasterSideNodes.numel();
+        uint tNumSideNodes = tLeaderSideNodes.numel();
 
-        Matrix< DDRMat > tMasterSidePhysCoords( tNumSideNodes, 2 );
-        Matrix< DDRMat > tMasterSideParamCoords( tNumSideNodes, 3 );
+        Matrix< DDRMat > tLeaderSidePhysCoords( tNumSideNodes, 2 );
+        Matrix< DDRMat > tLeaderSideParamCoords( tNumSideNodes, 3 );
 
         for ( uint iNode = 0; iNode < tNumSideNodes; iNode++ )
         {
-            tMasterSidePhysCoords.get_row( iNode ) =
-                    tXHatIG_M.get_row( tMasterSideNodes( iNode ) );
+            tLeaderSidePhysCoords.get_row( iNode ) =
+                    tXHatIG_M.get_row( tLeaderSideNodes( iNode ) );
 
-            tMasterSideParamCoords.get_row( iNode ) =
-                    tXiHatIG_M.get_row( tMasterSideNodes( iNode ) );
+            tLeaderSideParamCoords.get_row( iNode ) =
+                    tXiHatIG_M.get_row( tLeaderSideNodes( iNode ) );
         }
 
-        // loop over slave side ordinals
-        for ( uint iSlaveOrd = iMasterOrd; iSlaveOrd < 3; iSlaveOrd++ )
-            for ( uint iSlaveOrd = 0; iSlaveOrd < 3; iSlaveOrd++ )
+        // loop over follower side ordinals
+        for ( uint iFollowerOrd = iLeaderOrd; iFollowerOrd < 3; iFollowerOrd++ )
+            for ( uint iFollowerOrd = 0; iFollowerOrd < 3; iFollowerOrd++ )
             {
-                // side ordinal for master integration mesh
-                moris_index tSlaveSideOrd = iSlaveOrd;
+                // side ordinal for leader integration mesh
+                moris_index tFollowerSideOrd = iFollowerOrd;
 
-                // define an interpolation slave element in the phys space
+                // define an interpolation follower element in the phys space
                 Matrix< DDRMat > tXHatIP;
-                switch ( iSlaveOrd )
+                switch ( iFollowerOrd )
                 {
                     case ( 0 ):
                         tXHatIP = { { 0.0, 1.0 }, { 1.0, 0.0 }, { 1.0, 1.0 } };
@@ -426,36 +426,36 @@ TEST_CASE( "Double sided side-set TRI ", "[moris],[fem],[DoubleSidedTRI]" )
                         tXHatIP = { { 1.0, 0.0 }, { 1.0, 1.0 }, { 0.0, 1.0 } };
                         break;
                     default:
-                        MORIS_ERROR( false, " wrong slave side ordinal " );
+                        MORIS_ERROR( false, " wrong follower side ordinal " );
                         break;
                 }
 
-                // for a master slave pair
-                moris_index tSlaveNode = 0;
+                // for a leader follower pair
+                moris_index tFollowerNode = 0;
 
-                // define an interpolation slave element in the phys space
+                // define an interpolation follower element in the phys space
                 Matrix< DDRMat > tXHatIP_S = tXHatIP;
 
-                // define an integration slave element in the phys space
+                // define an integration follower element in the phys space
                 Matrix< DDRMat > tXHatIG_S = tXHatIP_S;
 
-                // define the slave integration element in param space
+                // define the follower integration element in param space
                 Matrix< DDRMat > tXiHatIG_S = tParamCoords;
 
-                // get the node ids associated to the slave side ordinal
-                Matrix< DDSMat > tSlaveSideNodes = tSideNodes.get_row( tSlaveSideOrd );
+                // get the node ids associated to the follower side ordinal
+                Matrix< DDSMat > tFollowerSideNodes = tSideNodes.get_row( tFollowerSideOrd );
 
                 // phys coords amd parm coords in IP param space for the side
-                Matrix< DDRMat > tSlaveSidePhysCoords( tNumSideNodes, 2 );
-                Matrix< DDRMat > tSlaveSideParamCoords( tNumSideNodes, 3 );
+                Matrix< DDRMat > tFollowerSidePhysCoords( tNumSideNodes, 2 );
+                Matrix< DDRMat > tFollowerSideParamCoords( tNumSideNodes, 3 );
 
                 for ( uint iNode = 0; iNode < tNumSideNodes; iNode++ )
                 {
-                    tSlaveSidePhysCoords.get_row( iNode ) =
-                            tXHatIG_S.get_row( tSlaveSideNodes( iNode ) );
+                    tFollowerSidePhysCoords.get_row( iNode ) =
+                            tXHatIG_S.get_row( tFollowerSideNodes( iNode ) );
 
-                    tSlaveSideParamCoords.get_row( iNode ) =
-                            tXiHatIG_S.get_row( tSlaveSideNodes( iNode ) );
+                    tFollowerSideParamCoords.get_row( iNode ) =
+                            tXiHatIG_S.get_row( tFollowerSideNodes( iNode ) );
                 }
 
                 // bool for integration point check
@@ -465,51 +465,51 @@ TEST_CASE( "Double sided side-set TRI ", "[moris],[fem],[DoubleSidedTRI]" )
                 for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
                 {
                     // get the treated integration point location in integration space
-                    Matrix< DDRMat > tMasterIntegPointI = tIntegPoints.get_column( iGP );
+                    Matrix< DDRMat > tLeaderIntegPointI = tIntegPoints.get_column( iGP );
 
                     // get the treated integration point location in integration space
-                    Matrix< DDRMat > tSlaveIntegPointI =
+                    Matrix< DDRMat > tFollowerIntegPointI =
                             side_coordinate_map(
                                     tSideGeoTypeIG,
-                                    tSlaveNode,
-                                    tMasterIntegPointI );
+                                    tFollowerNode,
+                                    tLeaderIntegPointI );
 
                     // get the integration point in the IP parametric space
-                    // via the side shape functions for the master side
-                    Matrix< DDRMat > tMasterRefIntegPointI( 4, 1, 0.0 );
+                    // via the side shape functions for the leader side
+                    Matrix< DDRMat > tLeaderRefIntegPointI( 4, 1, 0.0 );
                     Matrix< DDRMat > tN1;
 
-                    tSideSpaceInterp->eval_N( tMasterIntegPointI( { 0, 0 }, { 0, 0 } ), tN1 );
+                    tSideSpaceInterp->eval_N( tLeaderIntegPointI( { 0, 0 }, { 0, 0 } ), tN1 );
 
-                    tMasterRefIntegPointI( { 0, 2 }, { 0, 0 } ) = trans( tN1 * tMasterSideParamCoords );
-                    tMasterRefIntegPointI( 3 )                  = tMasterIntegPointI( 1 );
+                    tLeaderRefIntegPointI( { 0, 2 }, { 0, 0 } ) = trans( tN1 * tLeaderSideParamCoords );
+                    tLeaderRefIntegPointI( 3 )                  = tLeaderIntegPointI( 1 );
 
                     // get the integration point in the IP parametric space
-                    // via the rotation matrix for the slave side
-                    Matrix< DDRMat > tSlaveRefIntegPointI( 4, 1, 0.0 );
+                    // via the rotation matrix for the follower side
+                    Matrix< DDRMat > tFollowerRefIntegPointI( 4, 1, 0.0 );
                     Matrix< DDRMat > tN2;
 
-                    tSideSpaceInterp->eval_N( tSlaveIntegPointI( { 0, 0 }, { 0, 0 } ), tN2 );
+                    tSideSpaceInterp->eval_N( tFollowerIntegPointI( { 0, 0 }, { 0, 0 } ), tN2 );
 
-                    tSlaveRefIntegPointI( { 0, 2 }, { 0, 0 } ) = trans( tN2 * tSlaveSideParamCoords );
-                    tSlaveRefIntegPointI( 3 )                  = tSlaveIntegPointI( 1 );
+                    tFollowerRefIntegPointI( { 0, 2 }, { 0, 0 } ) = trans( tN2 * tFollowerSideParamCoords );
+                    tFollowerRefIntegPointI( 3 )                  = tFollowerIntegPointI( 1 );
 
                     // to check only
                     Matrix< DDRMat > tN3;
-                    tSpaceInterp->eval_N( tMasterRefIntegPointI, tN3 );
-                    Matrix< DDRMat > tMasterPhysIntegPointI = trans( tN3 * tXHatIP_M );
+                    tSpaceInterp->eval_N( tLeaderRefIntegPointI, tN3 );
+                    Matrix< DDRMat > tLeaderPhysIntegPointI = trans( tN3 * tXHatIP_M );
 
                     // to check only
                     Matrix< DDRMat > tN4;
-                    tSpaceInterp->eval_N( tSlaveRefIntegPointI, tN4 );
-                    Matrix< DDRMat > tSlavePhysIntegPointI = trans( tN4 * tXHatIP_S );
+                    tSpaceInterp->eval_N( tFollowerRefIntegPointI, tN4 );
+                    Matrix< DDRMat > tFollowerPhysIntegPointI = trans( tN4 * tXHatIP_S );
 
                     // check the integration point in the IP parametric space
                     for ( uint iCoords = 0; iCoords < 2; iCoords++ )
                     {
                         tIntegPointCheck =
                                 tIntegPointCheck &&    //
-                                ( std::abs( tMasterPhysIntegPointI( iCoords ) - tSlavePhysIntegPointI( iCoords ) ) < tEpsilon );
+                                ( std::abs( tLeaderPhysIntegPointI( iCoords ) - tFollowerPhysIntegPointI( iCoords ) ) < tEpsilon );
                     }
                     REQUIRE( tIntegPointCheck );
                 }
@@ -603,16 +603,16 @@ TEST_CASE( "Double sided side-set TET ", "[moris],[fem],[DoubleSidedTET]" )
     Matrix< DDRMat > tIntegWeights;
     tSideIntegrator.get_weights( tIntegWeights );
 
-    // loop over master side ordinals
-    for ( uint iMasterOrd = 0; iMasterOrd < 4; iMasterOrd++ )
+    // loop over leader side ordinals
+    for ( uint iLeaderOrd = 0; iLeaderOrd < 4; iLeaderOrd++ )
     {
-        // side ordinal for master integration mesh
-        moris_index tMasterSideOrd = iMasterOrd;
+        // side ordinal for leader integration mesh
+        moris_index tLeaderSideOrd = iLeaderOrd;
 
-        // define an interpolation master element in the phys space
+        // define an interpolation leader element in the phys space
         Matrix< DDRMat > tXHatIP_M;
 
-        switch ( tMasterSideOrd )
+        switch ( tLeaderSideOrd )
         {
             case ( 0 ):
             {
@@ -656,49 +656,49 @@ TEST_CASE( "Double sided side-set TET ", "[moris],[fem],[DoubleSidedTET]" )
             }
             default:
             {
-                MORIS_ERROR( false, " wrong master side ordinal " );
+                MORIS_ERROR( false, " wrong leader side ordinal " );
                 break;
             }
         }
 
-        // define an integration master element in the phys space
+        // define an integration leader element in the phys space
         Matrix< DDRMat > tXHatIG_M = tXHatIP_M;
 
-        // define the master integration element in param space
+        // define the leader integration element in param space
         Matrix< DDRMat > tXiHatIG_M = tParamCoords;
 
-        // get the node ids associated to the master side ordinal
-        Matrix< DDSMat > tMasterSideNodes = tSideNodes.get_row( tMasterSideOrd );
+        // get the node ids associated to the leader side ordinal
+        Matrix< DDSMat > tLeaderSideNodes = tSideNodes.get_row( tLeaderSideOrd );
 
         // phys coords amd parm coords in IP param space for the side
-        uint tNumSideNodes = tMasterSideNodes.numel();
+        uint tNumSideNodes = tLeaderSideNodes.numel();
 
-        Matrix< DDRMat > tMasterSidePhysCoords( tNumSideNodes, 3 );
-        Matrix< DDRMat > tMasterSideParamCoords( tNumSideNodes, 3 );
+        Matrix< DDRMat > tLeaderSidePhysCoords( tNumSideNodes, 3 );
+        Matrix< DDRMat > tLeaderSideParamCoords( tNumSideNodes, 3 );
 
         for ( uint iNode = 0; iNode < tNumSideNodes; iNode++ )
         {
-            tMasterSidePhysCoords.get_row( iNode ) =    //
-                    tXHatIG_M.get_row( tMasterSideNodes( iNode ) );
+            tLeaderSidePhysCoords.get_row( iNode ) =    //
+                    tXHatIG_M.get_row( tLeaderSideNodes( iNode ) );
 
-            tMasterSideParamCoords.get_row( iNode ) =    //
-                    tXiHatIG_M.get_row( tMasterSideNodes( iNode ) );
+            tLeaderSideParamCoords.get_row( iNode ) =    //
+                    tXiHatIG_M.get_row( tLeaderSideNodes( iNode ) );
         }
 
-        // loop over slave side ordinals
-        for ( uint iSlaveOrd = 0; iSlaveOrd < 4; iSlaveOrd++ )
+        // loop over follower side ordinals
+        for ( uint iFollowerOrd = 0; iFollowerOrd < 4; iFollowerOrd++ )
         {
-            // side ordinal for master integration mesh
-            moris_index tSlaveSideOrd = iSlaveOrd;
+            // side ordinal for leader integration mesh
+            moris_index tFollowerSideOrd = iFollowerOrd;
 
             // sort the nodes on side or not
-            Matrix< DDSMat > tNodesOnSlaveSide    = tSideNodes.get_row( iSlaveOrd );
-            Matrix< DDSMat > tNodesNotOnSlaveSide = tFacingSideNodes.get_row( iSlaveOrd );
+            Matrix< DDSMat > tNodesOnFollowerSide    = tSideNodes.get_row( iFollowerOrd );
+            Matrix< DDSMat > tNodesNotOnFollowerSide = tFacingSideNodes.get_row( iFollowerOrd );
 
-            // define an interpolation slave element in the phys space
+            // define an interpolation follower element in the phys space
             Matrix< DDRMat > tXHatIP;
 
-            switch ( tSlaveSideOrd )
+            switch ( tFollowerSideOrd )
             {
                 case ( 0 ):
                 {
@@ -742,7 +742,7 @@ TEST_CASE( "Double sided side-set TET ", "[moris],[fem],[DoubleSidedTET]" )
                 }
                 default:
                 {
-                    MORIS_ERROR( false, " wrong slave side ordinal " );
+                    MORIS_ERROR( false, " wrong follower side ordinal " );
                     break;
                 }
             }
@@ -750,42 +750,42 @@ TEST_CASE( "Double sided side-set TET ", "[moris],[fem],[DoubleSidedTET]" )
             // node permutation for $ rotation in plane
             for ( uint iPermute = 0; iPermute < tPermuteCases.n_rows(); iPermute++ )
             {
-                // get the first corresponding node on the slave side
-                moris_index tSlaveNode = iPermute;
+                // get the first corresponding node on the follower side
+                moris_index tFollowerNode = iPermute;
 
-                // for a master slave pair
+                // for a leader follower pair
 
-                // define an interpolation slave element in the phys space
+                // define an interpolation follower element in the phys space
                 Matrix< DDRMat > tXHatIP_S( 4, 3, 0.0 );
 
                 // fill the phys coords
                 for ( uint i = 0; i < 3; i++ )
                 {
-                    moris_index tNodeSide    = tNodesOnSlaveSide( tPermuteCases( iPermute, i ) );
-                    moris_index tNodeNotSide = tNodesNotOnSlaveSide( 0 );
+                    moris_index tNodeSide    = tNodesOnFollowerSide( tPermuteCases( iPermute, i ) );
+                    moris_index tNodeNotSide = tNodesNotOnFollowerSide( 0 );
 
                     // place the interface nodes
-                    tXHatIP_S.get_row( tNodeSide )    = tXHatIP.get_row( tNodesOnSlaveSide( i ) );
-                    tXHatIP_S.get_row( tNodeNotSide ) = tXHatIP.get_row( tNodesNotOnSlaveSide( 0 ) );
+                    tXHatIP_S.get_row( tNodeSide )    = tXHatIP.get_row( tNodesOnFollowerSide( i ) );
+                    tXHatIP_S.get_row( tNodeNotSide ) = tXHatIP.get_row( tNodesNotOnFollowerSide( 0 ) );
                 }
 
-                // define an integration slave element in the phys space
+                // define an integration follower element in the phys space
                 Matrix< DDRMat > tXHatIG_S = tXHatIP_S;
 
-                // define the slave integration element in param space
+                // define the follower integration element in param space
                 Matrix< DDRMat > tXiHatIG_S = tParamCoords;
 
-                // get the node ids associated to the master side ordinal
-                Matrix< DDSMat > tSlaveSideNodes = tSideNodes.get_row( tSlaveSideOrd );
+                // get the node ids associated to the leader side ordinal
+                Matrix< DDSMat > tFollowerSideNodes = tSideNodes.get_row( tFollowerSideOrd );
 
                 // phys coords amd parm coords in IP param space for the side
-                Matrix< DDRMat > tSlaveSidePhysCoords( tNumSideNodes, 3 );
-                Matrix< DDRMat > tSlaveSideParamCoords( tNumSideNodes, 3 );
+                Matrix< DDRMat > tFollowerSidePhysCoords( tNumSideNodes, 3 );
+                Matrix< DDRMat > tFollowerSideParamCoords( tNumSideNodes, 3 );
 
                 for ( uint iNode = 0; iNode < tNumSideNodes; iNode++ )
                 {
-                    tSlaveSidePhysCoords.get_row( iNode )  = tXHatIG_S.get_row( tSlaveSideNodes( iNode ) );
-                    tSlaveSideParamCoords.get_row( iNode ) = tXiHatIG_S.get_row( tSlaveSideNodes( iNode ) );
+                    tFollowerSidePhysCoords.get_row( iNode )  = tXHatIG_S.get_row( tFollowerSideNodes( iNode ) );
+                    tFollowerSideParamCoords.get_row( iNode ) = tXiHatIG_S.get_row( tFollowerSideNodes( iNode ) );
                 }
 
                 // bool for integration point check
@@ -795,43 +795,43 @@ TEST_CASE( "Double sided side-set TET ", "[moris],[fem],[DoubleSidedTET]" )
                 for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
                 {
                     // get the treated integration point location in integration space
-                    Matrix< DDRMat > tMasterIntegPointI = tIntegPoints.get_column( iGP );
+                    Matrix< DDRMat > tLeaderIntegPointI = tIntegPoints.get_column( iGP );
 
                     // get the treated integration point location in integration space
-                    Matrix< DDRMat > tSlaveIntegPointI =
+                    Matrix< DDRMat > tFollowerIntegPointI =
                             side_coordinate_map(
                                     tSideGeoTypeIG,
-                                    tSlaveNode,
-                                    tMasterIntegPointI );
+                                    tFollowerNode,
+                                    tLeaderIntegPointI );
 
                     // get the integration point in the IP parametric space
-                    // via the side shape functions for the master side
+                    // via the side shape functions for the leader side
                     Matrix< DDRMat > tN1;
-                    tSideSpaceInterp->eval_N( tMasterIntegPointI( { 0, 1 }, { 0, 0 } ), tN1 );
-                    Matrix< DDRMat > tMasterRefIntegPointI = trans( tN1 * tMasterSideParamCoords );
+                    tSideSpaceInterp->eval_N( tLeaderIntegPointI( { 0, 1 }, { 0, 0 } ), tN1 );
+                    Matrix< DDRMat > tLeaderRefIntegPointI = trans( tN1 * tLeaderSideParamCoords );
 
                     // get the integration point in the IP parametric space
-                    // via the rotation matrix for the slave side
+                    // via the rotation matrix for the follower side
                     Matrix< DDRMat > tN2;
-                    tSideSpaceInterp->eval_N( tSlaveIntegPointI( { 0, 1 }, { 0, 0 } ), tN2 );
-                    Matrix< DDRMat > tSlaveRefIntegPointI = trans( tN2 * tSlaveSideParamCoords );
+                    tSideSpaceInterp->eval_N( tFollowerIntegPointI( { 0, 1 }, { 0, 0 } ), tN2 );
+                    Matrix< DDRMat > tFollowerRefIntegPointI = trans( tN2 * tFollowerSideParamCoords );
 
                     // to check only
                     Matrix< DDRMat > tN3;
-                    tSpaceInterp->eval_N( tMasterRefIntegPointI, tN3 );
-                    Matrix< DDRMat > tMasterPhysIntegPointI = trans( tN3 * tXHatIP_M );
+                    tSpaceInterp->eval_N( tLeaderRefIntegPointI, tN3 );
+                    Matrix< DDRMat > tLeaderPhysIntegPointI = trans( tN3 * tXHatIP_M );
 
                     // to check only
                     Matrix< DDRMat > tN4;
-                    tSpaceInterp->eval_N( tSlaveRefIntegPointI, tN4 );
-                    Matrix< DDRMat > tSlavePhysIntegPointI = trans( tN4 * tXHatIP_S );
+                    tSpaceInterp->eval_N( tFollowerRefIntegPointI, tN4 );
+                    Matrix< DDRMat > tFollowerPhysIntegPointI = trans( tN4 * tXHatIP_S );
 
                     // check the integration point in the IP parametric space
                     for ( uint iCoords = 0; iCoords < 3; iCoords++ )
                     {
                         tIntegPointCheck =
                                 tIntegPointCheck &&    //
-                                ( std::abs( tMasterPhysIntegPointI( iCoords ) - tSlavePhysIntegPointI( iCoords ) ) < tEpsilon );
+                                ( std::abs( tLeaderPhysIntegPointI( iCoords ) - tFollowerPhysIntegPointI( iCoords ) ) < tEpsilon );
                     }
                     REQUIRE( tIntegPointCheck );
                 }
@@ -934,15 +934,15 @@ TEST_CASE( "Double sided side-set HEX ", "[moris],[fem],[DoubleSidedHEX]" )
     Matrix< DDRMat > tIntegWeights;
     tSideIntegrator.get_weights( tIntegWeights );
 
-    // loop over master side ordinals
-    for ( uint iMasterOrd = 0; iMasterOrd < 6; iMasterOrd++ )
+    // loop over leader side ordinals
+    for ( uint iLeaderOrd = 0; iLeaderOrd < 6; iLeaderOrd++ )
     {
-        // side ordinal for master integration mesh
-        moris_index tMasterSideOrd = iMasterOrd;
+        // side ordinal for leader integration mesh
+        moris_index tLeaderSideOrd = iLeaderOrd;
 
-        // define an interpolation master element in the phys space
+        // define an interpolation leader element in the phys space
         Matrix< DDRMat > tXHatIP_M;
-        switch ( iMasterOrd )
+        switch ( iLeaderOrd )
         {
             case ( 0 ):
                 tXHatIP_M = { //
@@ -1018,46 +1018,46 @@ TEST_CASE( "Double sided side-set HEX ", "[moris],[fem],[DoubleSidedHEX]" )
                 break;
             default:
             {
-                MORIS_ERROR( false, " wrong master side ordinal " );
+                MORIS_ERROR( false, " wrong leader side ordinal " );
                 break;
             }
         }
 
-        // define an integration master element in the phys space
+        // define an integration leader element in the phys space
         Matrix< DDRMat > tXHatIG_M = tXHatIP_M;
 
-        // define the master integration element in param space
+        // define the leader integration element in param space
         Matrix< DDRMat > tXiHatIG_M = tHexParamCoords;
 
-        // get the node ids associated to the master side ordinal
-        Matrix< DDSMat > tMasterSideNodes = tSideNodes.get_row( tMasterSideOrd );
+        // get the node ids associated to the leader side ordinal
+        Matrix< DDSMat > tLeaderSideNodes = tSideNodes.get_row( tLeaderSideOrd );
 
         // phys coords amd parm coords in IP param space for the side
-        uint tNumSideNodes = tMasterSideNodes.numel();
+        uint tNumSideNodes = tLeaderSideNodes.numel();
 
-        Matrix< DDRMat > tMasterSidePhysCoords( tNumSideNodes, 3 );
-        Matrix< DDRMat > tMasterSideParamCoords( tNumSideNodes, 3 );
+        Matrix< DDRMat > tLeaderSidePhysCoords( tNumSideNodes, 3 );
+        Matrix< DDRMat > tLeaderSideParamCoords( tNumSideNodes, 3 );
 
         for ( uint iNode = 0; iNode < tNumSideNodes; iNode++ )
         {
-            tMasterSidePhysCoords.get_row( iNode )  = tXHatIG_M.get_row( tMasterSideNodes( iNode ) );
-            tMasterSideParamCoords.get_row( iNode ) = tXiHatIG_M.get_row( tMasterSideNodes( iNode ) );
+            tLeaderSidePhysCoords.get_row( iNode )  = tXHatIG_M.get_row( tLeaderSideNodes( iNode ) );
+            tLeaderSideParamCoords.get_row( iNode ) = tXiHatIG_M.get_row( tLeaderSideNodes( iNode ) );
         }
 
-        // loop over slave side ordinals
-        // for ( uint iSlaveOrd = iMasterOrd; iSlaveOrd < 6; iSlaveOrd++ )
-        for ( uint iSlaveOrd = 0; iSlaveOrd < 6; iSlaveOrd++ )
+        // loop over follower side ordinals
+        // for ( uint iFollowerOrd = iLeaderOrd; iFollowerOrd < 6; iFollowerOrd++ )
+        for ( uint iFollowerOrd = 0; iFollowerOrd < 6; iFollowerOrd++ )
         {
-            // side ordinal for master integration mesh
-            moris_index tSlaveSideOrd = iSlaveOrd;
+            // side ordinal for leader integration mesh
+            moris_index tFollowerSideOrd = iFollowerOrd;
 
             // sort the nodes on side or not
-            Matrix< DDSMat > tNodesOnSlaveSide   = tSideNodes.get_row( iSlaveOrd );
-            Matrix< DDSMat > tNodeNotOnSlaveSide = tFacingSideNodes.get_row( iSlaveOrd );
+            Matrix< DDSMat > tNodesOnFollowerSide   = tSideNodes.get_row( iFollowerOrd );
+            Matrix< DDSMat > tNodeNotOnFollowerSide = tFacingSideNodes.get_row( iFollowerOrd );
 
-            // define an interpolation slave element in the phys space
+            // define an interpolation follower element in the phys space
             Matrix< DDRMat > tXHatIP;
-            switch ( iSlaveOrd )
+            switch ( iFollowerOrd )
             {
                 case ( 0 ):
                     tXHatIP = { //
@@ -1132,49 +1132,49 @@ TEST_CASE( "Double sided side-set HEX ", "[moris],[fem],[DoubleSidedHEX]" )
                     };
                     break;
                 default:
-                    MORIS_ERROR( false, " wrong slave side ordinal " );
+                    MORIS_ERROR( false, " wrong follower side ordinal " );
                     break;
             }
 
             // node permutation for $ rotation in plane
             for ( uint iPermute = 0; iPermute < tPermuteCases.n_rows(); iPermute++ )
             {
-                // get the first corresponding node on the slave side
-                moris_index tSlaveNode = iPermute;
+                // get the first corresponding node on the follower side
+                moris_index tFollowerNode = iPermute;
 
-                // for a master slave pair
+                // for a leader follower pair
 
-                // define an interpolation slave element in the phys space
+                // define an interpolation follower element in the phys space
                 Matrix< DDRMat > tXHatIP_S( 8, 3, 0.0 );
 
                 // fill the phys coords
                 for ( uint i = 0; i < 4; i++ )
                 {
-                    moris_index tNodeSide    = tNodesOnSlaveSide( tPermuteCases( iPermute, i ) );
-                    moris_index tNodeNotSide = tNodeNotOnSlaveSide( tPermuteCases( iPermute, i ) );
+                    moris_index tNodeSide    = tNodesOnFollowerSide( tPermuteCases( iPermute, i ) );
+                    moris_index tNodeNotSide = tNodeNotOnFollowerSide( tPermuteCases( iPermute, i ) );
 
                     // place the interface nodes
-                    tXHatIP_S.get_row( tNodeSide )    = tXHatIP.get_row( tNodesOnSlaveSide( i ) );
-                    tXHatIP_S.get_row( tNodeNotSide ) = tXHatIP.get_row( tNodeNotOnSlaveSide( i ) );
+                    tXHatIP_S.get_row( tNodeSide )    = tXHatIP.get_row( tNodesOnFollowerSide( i ) );
+                    tXHatIP_S.get_row( tNodeNotSide ) = tXHatIP.get_row( tNodeNotOnFollowerSide( i ) );
                 }
 
-                // define an integration slave element in the phys space
+                // define an integration follower element in the phys space
                 Matrix< DDRMat > tXHatIG_S = tXHatIP_S;
 
-                // define the slave integration element in param space
+                // define the follower integration element in param space
                 Matrix< DDRMat > tXiHatIG_S = tHexParamCoords;
 
-                // get the node ids associated to the master side ordinal
-                Matrix< DDSMat > tSlaveSideNodes = tSideNodes.get_row( tSlaveSideOrd );
+                // get the node ids associated to the leader side ordinal
+                Matrix< DDSMat > tFollowerSideNodes = tSideNodes.get_row( tFollowerSideOrd );
 
                 // phys coords and parm coords in IP param space for the side
-                Matrix< DDRMat > tSlaveSidePhysCoords( tNumSideNodes, 3 );
-                Matrix< DDRMat > tSlaveSideParamCoords( tNumSideNodes, 3 );
+                Matrix< DDRMat > tFollowerSidePhysCoords( tNumSideNodes, 3 );
+                Matrix< DDRMat > tFollowerSideParamCoords( tNumSideNodes, 3 );
 
                 for ( uint iNode = 0; iNode < tNumSideNodes; iNode++ )
                 {
-                    tSlaveSidePhysCoords.get_row( iNode )  = tXHatIG_S.get_row( tSlaveSideNodes( iNode ) );
-                    tSlaveSideParamCoords.get_row( iNode ) = tXiHatIG_S.get_row( tSlaveSideNodes( iNode ) );
+                    tFollowerSidePhysCoords.get_row( iNode )  = tXHatIG_S.get_row( tFollowerSideNodes( iNode ) );
+                    tFollowerSideParamCoords.get_row( iNode ) = tXiHatIG_S.get_row( tFollowerSideNodes( iNode ) );
                 }
 
                 // bool for integration point check
@@ -1184,41 +1184,41 @@ TEST_CASE( "Double sided side-set HEX ", "[moris],[fem],[DoubleSidedHEX]" )
                 for ( uint iGP = 0; iGP < tNumOfIntegPoints; iGP++ )
                 {
                     // get the treated integration point location in integration space
-                    Matrix< DDRMat > tMasterIntegPointI = tIntegPoints.get_column( iGP );
+                    Matrix< DDRMat > tLeaderIntegPointI = tIntegPoints.get_column( iGP );
 
                     // get the treated integration point location in integration space
-                    Matrix< DDRMat > tSlaveIntegPointI =
+                    Matrix< DDRMat > tFollowerIntegPointI =
                             side_coordinate_map(
                                     tSideGeoTypeIG,
-                                    tSlaveNode,
-                                    tMasterIntegPointI );
+                                    tFollowerNode,
+                                    tLeaderIntegPointI );
 
                     // get the integration point in the IP parametric space
-                    // via the side shape functions for the master side
+                    // via the side shape functions for the leader side
                     Matrix< DDRMat > tN1;
-                    tSideSpaceInterp->eval_N( tMasterIntegPointI( { 0, 1 }, { 0, 0 } ), tN1 );
-                    Matrix< DDRMat > tMasterRefIntegPointI = trans( tN1 * tMasterSideParamCoords );
+                    tSideSpaceInterp->eval_N( tLeaderIntegPointI( { 0, 1 }, { 0, 0 } ), tN1 );
+                    Matrix< DDRMat > tLeaderRefIntegPointI = trans( tN1 * tLeaderSideParamCoords );
 
                     // get the integration point in the IP parametric space
-                    // via the rotation matrix for the slave side
+                    // via the rotation matrix for the follower side
                     Matrix< DDRMat > tN2;
-                    tSideSpaceInterp->eval_N( tSlaveIntegPointI( { 0, 1 }, { 0, 0 } ), tN2 );
-                    Matrix< DDRMat > tSlaveRefIntegPointI = trans( tN2 * tSlaveSideParamCoords );
+                    tSideSpaceInterp->eval_N( tFollowerIntegPointI( { 0, 1 }, { 0, 0 } ), tN2 );
+                    Matrix< DDRMat > tFollowerRefIntegPointI = trans( tN2 * tFollowerSideParamCoords );
 
                     // to check only
                     Matrix< DDRMat > tN3;
-                    tSpaceInterp->eval_N( tMasterRefIntegPointI, tN3 );
-                    Matrix< DDRMat > tMasterPhysIntegPointI = trans( tN3 * tXHatIP_M );
+                    tSpaceInterp->eval_N( tLeaderRefIntegPointI, tN3 );
+                    Matrix< DDRMat > tLeaderPhysIntegPointI = trans( tN3 * tXHatIP_M );
 
                     // to check only
                     Matrix< DDRMat > tN4;
-                    tSpaceInterp->eval_N( tSlaveRefIntegPointI, tN4 );
-                    Matrix< DDRMat > tSlavePhysIntegPointI = trans( tN4 * tXHatIP_S );
+                    tSpaceInterp->eval_N( tFollowerRefIntegPointI, tN4 );
+                    Matrix< DDRMat > tFollowerPhysIntegPointI = trans( tN4 * tXHatIP_S );
 
                     // check the integration point in the IP parametric space
                     for ( uint iCoords = 0; iCoords < 3; iCoords++ )
                     {
-                        tIntegPointCheck = tIntegPointCheck && ( std::abs( tMasterPhysIntegPointI( iCoords ) - tSlavePhysIntegPointI( iCoords ) ) < tEpsilon );
+                        tIntegPointCheck = tIntegPointCheck && ( std::abs( tLeaderPhysIntegPointI( iCoords ) - tFollowerPhysIntegPointI( iCoords ) ) < tEpsilon );
                     }
                     REQUIRE( tIntegPointCheck );
                 }

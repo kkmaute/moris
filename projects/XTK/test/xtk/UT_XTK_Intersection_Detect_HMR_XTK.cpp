@@ -171,13 +171,13 @@ namespace xtk
             //loop over all double sided clusters
             for(uint i = 0 ; i < 12 ; i++)
             {
-                // master side measures
-                real tVolumeM = tClusters(i)->compute_cluster_cell_measure(mtk::Primary_Void::PRIMARY , mtk::Master_Slave::MASTER) ;
-                real tLengthM = tClusters(i)->compute_cluster_cell_side_measure(mtk::Primary_Void::PRIMARY , mtk::Master_Slave::MASTER);
+                // leader side measures
+                real tVolumeM = tClusters(i)->compute_cluster_cell_measure(mtk::Primary_Void::PRIMARY , mtk::Leader_Follower::LEADER) ;
+                real tLengthM = tClusters(i)->compute_cluster_cell_side_measure(mtk::Primary_Void::PRIMARY , mtk::Leader_Follower::LEADER);
 
-                //slave side measure
-                moris::real tVolumeS = tClusters(i)->compute_cluster_cell_measure(mtk::Primary_Void::PRIMARY , mtk::Master_Slave::SLAVE) ;
-                moris::real tLengthS = tClusters(i)->compute_cluster_cell_side_measure(mtk::Primary_Void::PRIMARY , mtk::Master_Slave::SLAVE);
+                //follower side measure
+                moris::real tVolumeS = tClusters(i)->compute_cluster_cell_measure(mtk::Primary_Void::PRIMARY , mtk::Leader_Follower::FOLLOWER) ;
+                moris::real tLengthS = tClusters(i)->compute_cluster_cell_side_measure(mtk::Primary_Void::PRIMARY , mtk::Leader_Follower::FOLLOWER);
 
                 // Measures should be the same
                 REQUIRE( tVolumeM == tVolumeS );
@@ -186,15 +186,15 @@ namespace xtk
                 //loop over the integration cells in each double sided cluster
                 for( uint k = 0; k < 4 ; k++ )
                 {
-                    // Get Vertices on the master and slave
-                    moris::Cell< moris::mtk::Vertex const * > tVertex1 = tPeriodicSet->get_clusters_by_index( i )->get_primary_cells_in_cluster( mtk::Master_Slave::MASTER )( k )->get_vertices_on_side_ordinal( 3 );
-                    moris::Cell< moris::mtk::Vertex const * > tVertex2 = tPeriodicSet->get_clusters_by_index( i )->get_primary_cells_in_cluster( mtk::Master_Slave::SLAVE )( k )->get_vertices_on_side_ordinal( 3 );
+                    // Get Vertices on the leader and follower
+                    moris::Cell< moris::mtk::Vertex const * > tVertex1 = tPeriodicSet->get_clusters_by_index( i )->get_primary_cells_in_cluster( mtk::Leader_Follower::LEADER )( k )->get_vertices_on_side_ordinal( 3 );
+                    moris::Cell< moris::mtk::Vertex const * > tVertex2 = tPeriodicSet->get_clusters_by_index( i )->get_primary_cells_in_cluster( mtk::Leader_Follower::FOLLOWER )( k )->get_vertices_on_side_ordinal( 3 );
 
-                    // Side ordinal  of the master and slave cell
-                    Matrix< IndexMat > tSideOrdinal2 = tPeriodicSet->get_clusters_by_index( i )->get_cell_side_ordinals(mtk::Master_Slave::SLAVE);
-                    Matrix< IndexMat > tSideOrdinal1 = tPeriodicSet->get_clusters_by_index( i )->get_cell_side_ordinals(mtk::Master_Slave::MASTER);
+                    // Side ordinal  of the leader and follower cell
+                    Matrix< IndexMat > tSideOrdinal2 = tPeriodicSet->get_clusters_by_index( i )->get_cell_side_ordinals(mtk::Leader_Follower::FOLLOWER);
+                    Matrix< IndexMat > tSideOrdinal1 = tPeriodicSet->get_clusters_by_index( i )->get_cell_side_ordinals(mtk::Leader_Follower::LEADER);
 
-                    //matrix to store IDs of master side set
+                    //matrix to store IDs of leader side set
                     Matrix<IdMat> tVertex1ID = Matrix<IdMat> ( 1, 3);
                     Matrix<IdMat> tVertex2ID = Matrix<IdMat> ( 1, 3);
 
@@ -209,12 +209,12 @@ namespace xtk
                     for(uint j = 0 ; j < 3 ; j++ )
                     {
                         moris::mtk::Vertex const *
-                        tMaster_Vertex = tClusters(i)->get_master_vertex_pair(tVertex1(j));
+                        tLeader_Vertex = tClusters(i)->get_leader_vertex_pair(tVertex1(j));
 
-                        moris_id tIdDiff  = tMaster_Vertex->get_id() -  tVertex1(j)->get_id();
+                        moris_id tIdDiff  = tLeader_Vertex->get_id() -  tVertex1(j)->get_id();
                         tMorisIdCellDiff.push_back(tIdDiff);
 
-                        moris_index tVertexOrd = tClusters(i)->get_slave_vertex_ord_on_facet(k,tVertex2(j));
+                        moris_index tVertexOrd = tClusters(i)->get_follower_vertex_ord_on_facet(k,tVertex2(j));
 
                         if( j == 0 )
                         {

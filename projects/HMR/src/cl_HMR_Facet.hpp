@@ -45,13 +45,13 @@ namespace moris
             // id of this face
             moris_index mIndex = gNoIndex;
 
-            // pointer to master element
-            Element* mMaster = nullptr;
+            // pointer to leader element
+            Element* mLeader = nullptr;
 
-            // pointer to slave element
-            Element* mSlave = nullptr;
+            // pointer to follower element
+            Element* mFollower = nullptr;
 
-            uint mIndexOnMaster = MORIS_UINT_MAX;
+            uint mIndexOnLeader = MORIS_UINT_MAX;
 
             // pointer to parent
             // Facet * mParent = nullptr;
@@ -159,27 +159,27 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            mtk::Cell* get_master();
+            mtk::Cell* get_leader();
 
             //------------------------------------------------------------------------------
 
-            const mtk::Cell* get_master() const;
+            const mtk::Cell* get_leader() const;
 
             //------------------------------------------------------------------------------
 
-            mtk::Cell* get_slave();
+            mtk::Cell* get_follower();
 
             //------------------------------------------------------------------------------
 
-            const mtk::Cell* get_slave() const;
+            const mtk::Cell* get_follower() const;
 
             //-----------------------------------------------------------------------------
 
-            uint get_index_on_master() const;
+            uint get_index_on_leader() const;
 
             //-----------------------------------------------------------------------------
 
-            uint get_index_on_slave() const;
+            uint get_index_on_follower() const;
 
             // ----------------------------------------------------------------------------
 
@@ -216,11 +216,11 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            Element* get_hmr_master();
+            Element* get_hmr_leader();
 
             // ----------------------------------------------------------------------------
 
-            Element* get_hmr_slave();
+            Element* get_hmr_follower();
 
             // ----------------------------------------------------------------------------
 
@@ -240,7 +240,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            void swap_master_and_slave();
+            void swap_leader_and_follower();
 
             // ----------------------------------------------------------------------------
 

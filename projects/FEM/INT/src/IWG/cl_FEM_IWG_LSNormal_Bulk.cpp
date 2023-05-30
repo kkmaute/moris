@@ -30,20 +30,20 @@ namespace moris
 //                                 MSI::Dof_Type::NLSZ };
 //
 //            // set the active dof type
-//            mMasterDofTypes = {{ MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY, MSI::Dof_Type::NLSZ },
+//            mLeaderDofTypes = {{ MSI::Dof_Type::NLSX, MSI::Dof_Type::NLSY, MSI::Dof_Type::NLSZ },
 //                               { MSI::Dof_Type::LS1 }};
         }
 
 //------------------------------------------------------------------------------
         void IWG_LSNormal_Bulk::compute_residual( real tWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
 
             // set field interpolators
-            Field_Interpolator* nPhi = mMasterFI( 0 );
-            Field_Interpolator* phi  = mMasterFI( 1 );
+            Field_Interpolator* nPhi = mLeaderFI( 0 );
+            Field_Interpolator* phi  = mLeaderFI( 1 );
 
             // build the global shape functions matrix for vectorial field nPhi
             uint tNBasesNPhi  = nPhi->get_number_of_space_time_bases();
@@ -61,7 +61,7 @@ namespace moris
                 tNormPhi = 1.0e-12;
             }
 
-            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
+            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
 
             // compute residual
             mSet->get_residual()( 0 )( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
@@ -71,13 +71,13 @@ namespace moris
 //------------------------------------------------------------------------------
         void IWG_LSNormal_Bulk::compute_jacobian( real tWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
             this->check_dof_field_interpolators();
             this->check_dv_field_interpolators();
 
             // set field interpolators
-            Field_Interpolator* nPhi = mMasterFI( 0 );
-            Field_Interpolator* phi  = mMasterFI( 1 );
+            Field_Interpolator* nPhi = mLeaderFI( 0 );
+            Field_Interpolator* phi  = mLeaderFI( 1 );
 
             // build the global shape functions matrix for vectorial field nPhi
             uint tNBasesNPhi  = nPhi->get_number_of_space_time_bases();
@@ -102,7 +102,7 @@ namespace moris
             }
 
             // set the jacobian size
-            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
+            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
 
             // compute j_nPhi_nPhi
             mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
@@ -117,13 +117,13 @@ namespace moris
         void IWG_LSNormal_Bulk::compute_jacobian_and_residual( moris::Cell< moris::Cell< Matrix< DDRMat > > > & aJacobians,
                                                                moris::Cell< Matrix< DDRMat > >                & aResidual )
         {
-//            // check master field interpolators
+//            // check leader field interpolators
 //            this->check_dof_field_interpolators();
 //            this->check_dv_field_interpolators();
 //
 //            // set field interpolators
-//            Field_Interpolator* nPhi = mMasterFI( 0 );
-//            Field_Interpolator* phi  = mMasterFI( 1 );
+//            Field_Interpolator* nPhi = mLeaderFI( 0 );
+//            Field_Interpolator* phi  = mLeaderFI( 1 );
 //
 //            // build the global shape functions matrix for vectorial field nPhi
 //            uint tNBasesNPhi  = nPhi->get_number_of_space_time_bases();

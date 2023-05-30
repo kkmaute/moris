@@ -25,7 +25,7 @@ namespace moris
             mFEMIQIType = fem::IQI_Type::EFFECTIVE_CONDUCTIVITY;
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "Diffusion_Turbulence" ] =
@@ -38,7 +38,7 @@ namespace moris
         {
             // get the diffusion CM
             const std::shared_ptr< Constitutive_Model > & tCMDiffusionTurbulence =
-                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::DIFFUSION_TURBULENCE ) );
+                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::DIFFUSION_TURBULENCE ) );
 
             // compute turbulent dynamic viscosity
             aQI = tCMDiffusionTurbulence->effective_conductivity();
@@ -53,7 +53,7 @@ namespace moris
 
             // get the diffusion CM
             const std::shared_ptr< Constitutive_Model > & tCMDiffusionTurbulence =
-                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::DIFFUSION_TURBULENCE ) );
+                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::DIFFUSION_TURBULENCE ) );
 
             // compute turbulent dynamic viscosity
             mSet->get_QI()( tQIIndex ) += aWStar * ( tCMDiffusionTurbulence->effective_conductivity() );

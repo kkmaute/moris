@@ -50,26 +50,26 @@ namespace moris
             {
                 case( 0 ) :
                 {
-                    mVertices[ 0 ] = mMaster->get_basis( 0 );
-                    mVertices[ 1 ] = mMaster->get_basis( 1 );
+                    mVertices[ 0 ] = mLeader->get_basis( 0 );
+                    mVertices[ 1 ] = mLeader->get_basis( 1 );
                     break;
                 }
                 case( 1 ) :
                 {
-                    mVertices[ 0 ] = mMaster->get_basis( 1 );
-                    mVertices[ 1 ] = mMaster->get_basis( 2 );
+                    mVertices[ 0 ] = mLeader->get_basis( 1 );
+                    mVertices[ 1 ] = mLeader->get_basis( 2 );
                     break;
                 }
                 case( 2 ) :
                 {
-                    mVertices[ 0 ] = mMaster->get_basis( 2 );
-                    mVertices[ 1 ] = mMaster->get_basis( 3 );
+                    mVertices[ 0 ] = mLeader->get_basis( 2 );
+                    mVertices[ 1 ] = mLeader->get_basis( 3 );
                     break;
                 }
                 case( 3 ) :
                 {
-                    mVertices[ 0 ] = mMaster->get_basis( 3 );
-                    mVertices[ 1 ] = mMaster->get_basis( 0 );
+                    mVertices[ 0 ] = mLeader->get_basis( 3 );
+                    mVertices[ 1 ] = mLeader->get_basis( 0 );
                     break;
                 }
             }

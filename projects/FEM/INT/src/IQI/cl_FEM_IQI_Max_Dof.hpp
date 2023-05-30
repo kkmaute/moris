@@ -54,7 +54,7 @@ namespace moris
             IQI_Max_Dof()
             {
                 // set size for the property pointer cell
-                mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
+                mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 
                 // populate the property map
                 mPropertyMap[ "Weight" ] = static_cast< uint >( IQI_Property_Type::WEIGHT );

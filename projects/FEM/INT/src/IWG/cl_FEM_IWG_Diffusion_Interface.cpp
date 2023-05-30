@@ -28,11 +28,11 @@ namespace moris
             mBeta = aBeta;
 
             // set size for the constitutive model pointer cell
-            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
-            mSlaveProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+            mFollowerProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
-            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-            mSlaveCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mFollowerCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Thickness" ] = static_cast< uint >( IWG_Property_Type::THICKNESS );
@@ -54,103 +54,103 @@ namespace moris
         IWG_Diffusion_Interface::compute_residual( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master and slave field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
+            // check leader and follower field interpolators
+            this->check_field_interpolators( mtk::Leader_Follower::LEADER );
+            this->check_field_interpolators( mtk::Leader_Follower::FOLLOWER );
 #endif
 
-            // Check that master and slave CMs are different
-            MORIS_ASSERT( &mMasterCM( 0 ) != &mSlaveCM( 0 ), "Master and Slave constitutive model are the same. This will cause problems " );
+            // Check that leader and follower CMs are different
+            MORIS_ASSERT( &mLeaderCM( 0 ) != &mFollowerCM( 0 ), "Leader and Follower constitutive model are the same. This will cause problems " );
 
-            // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type, indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
-            // get slave index for residual dof type, indices for assembly
-            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
-            uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
-            uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
+            // get follower index for residual dof type, indices for assembly
+            uint tFollowerDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
+            uint tFollowerResStartIndex = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
+            uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
-            // get the master field interpolator for the residual dof type
-            Field_Interpolator* tFIMaster =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            // get the leader field interpolator for the residual dof type
+            Field_Interpolator* tFILeader =
+                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
-            // get the slave field interpolator for the residual dof type
-            Field_Interpolator* tFISlave =
-                    mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            // get the follower field interpolator for the residual dof type
+            Field_Interpolator* tFIFollower =
+                    mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the elasticity constitutive model
-            const std::shared_ptr< Constitutive_Model >& tCMMasterDiffusion =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model >& tCMLeaderDiffusion =
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
 
-            const std::shared_ptr< Constitutive_Model >& tCMSlaveDiffusion =
-                    mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model >& tCMFollowerDiffusion =
+                    mFollowerCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
 
             // get the Nitsche stabilization parameter
             const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
 
             real tNitsche      = tSPNitsche->val()( 0 );
-            real tMasterWeight = tSPNitsche->val()( 1 );
-            real tSlaveWeight  = tSPNitsche->val()( 2 );
+            real tLeaderWeight = tSPNitsche->val()( 1 );
+            real tFollowerWeight  = tSPNitsche->val()( 2 );
 
             // get thickness property
             const std::shared_ptr< Property >& tPropThickness =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // get the selection matrix property
-            const std::shared_ptr< Property >& tPropSelectMaster =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+            const std::shared_ptr< Property >& tPropSelectLeader =
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
-            const std::shared_ptr< Property >& tPropSelectSlave =
-                    mSlaveProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+            const std::shared_ptr< Property >& tPropSelectFollower =
+                    mFollowerProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
-            // get selection property from master and slave
-            real tMMaster = 1.0;
-            if ( tPropSelectMaster != nullptr )
+            // get selection property from leader and follower
+            real tMLeader = 1.0;
+            if ( tPropSelectLeader != nullptr )
             {
-                tMMaster = tPropSelectMaster->val()( 0 );
+                tMLeader = tPropSelectLeader->val()( 0 );
             }
 
-            real tMSlave = 1.0;
-            if ( tPropSelectSlave != nullptr )
+            real tMFollower = 1.0;
+            if ( tPropSelectFollower != nullptr )
             {
-                tMSlave = tPropSelectSlave->val()( 0 );
+                tMFollower = tPropSelectFollower->val()( 0 );
             }
 
             // compute effective selection property
-            real tM = tMMaster * tMSlave;
+            real tM = tMLeader * tMFollower;
 
             // skip computing residual if selection property is zero
             if ( std::abs( tM ) < MORIS_REAL_EPS ) return;
 
             // evaluate average traction
             real tTraction =
-                    tMasterWeight * tCMMasterDiffusion->traction( mNormal )( 0 ) +    //
-                    tSlaveWeight * tCMSlaveDiffusion->traction( mNormal )( 0 );
+                    tLeaderWeight * tCMLeaderDiffusion->traction( mNormal )( 0 ) +    //
+                    tFollowerWeight * tCMFollowerDiffusion->traction( mNormal )( 0 );
 
             // evaluate temperature jump
-            real tJump = tFIMaster->val()( 0 ) - tFISlave->val()( 0 );
+            real tJump = tFILeader->val()( 0 ) - tFIFollower->val()( 0 );
 
-            // compute master residual
+            // compute leader residual
             mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex } ) +=
+                    { tLeaderResStartIndex, tLeaderResStopIndex } ) +=
                     aWStar * (                                                                                                           //
-                            -tFIMaster->N_trans() * tM * tTraction                                                                       //
-                            + mBeta * tMasterWeight * tCMMasterDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tJump    //
-                            + tNitsche * tFIMaster->N_trans() * tM * tJump );
+                            -tFILeader->N_trans() * tM * tTraction                                                                       //
+                            + mBeta * tLeaderWeight * tCMLeaderDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tJump    //
+                            + tNitsche * tFILeader->N_trans() * tM * tJump );
 
-            // compute slave residual
+            // compute follower residual
             mSet->get_residual()( 0 )(
-                    { tSlaveResStartIndex, tSlaveResStopIndex } ) +=
+                    { tFollowerResStartIndex, tFollowerResStopIndex } ) +=
                     aWStar * (                                                                                                         //
-                            +tFISlave->N_trans() * tM * tTraction                                                                      //
-                            + mBeta * tSlaveWeight * tCMSlaveDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tJump    //
-                            - tNitsche * tFISlave->N_trans() * tM * tJump );
+                            +tFIFollower->N_trans() * tM * tTraction                                                                      //
+                            + mBeta * tFollowerWeight * tCMFollowerDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tJump    //
+                            - tNitsche * tFIFollower->N_trans() * tM * tJump );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -163,53 +163,53 @@ namespace moris
         IWG_Diffusion_Interface::compute_jacobian( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master and slave field interpolators
-            this->check_field_interpolators( mtk::Master_Slave::MASTER );
-            this->check_field_interpolators( mtk::Master_Slave::SLAVE );
+            // check leader and follower field interpolators
+            this->check_field_interpolators( mtk::Leader_Follower::LEADER );
+            this->check_field_interpolators( mtk::Leader_Follower::FOLLOWER );
 #endif
 
-            // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type, indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
-            // get slave index for residual dof type, indices for assembly
-            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
-            uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
-            uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
+            // get follower index for residual dof type, indices for assembly
+            uint tFollowerDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
+            uint tFollowerResStartIndex = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
+            uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
-            // get master field interpolator for the residual dof type
-            Field_Interpolator* tFIMaster =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            // get leader field interpolator for the residual dof type
+            Field_Interpolator* tFILeader =
+                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
-            // get slave field interpolator for the residual dof type
-            Field_Interpolator* tFISlave =
-                    mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            // get follower field interpolator for the residual dof type
+            Field_Interpolator* tFIFollower =
+                    mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the elasticity constitutive model
-            const std::shared_ptr< Constitutive_Model >& tCMMasterDiffusion =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
-            const std::shared_ptr< Constitutive_Model >& tCMSlaveDiffusion =
-                    mSlaveCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model >& tCMLeaderDiffusion =
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model >& tCMFollowerDiffusion =
+                    mFollowerCM( static_cast< uint >( IWG_Constitutive_Type::DIFF_LIN_ISO ) );
 
             // get the Nitsche stabilization parameter
             const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::NITSCHE_INTERFACE ) );
 
             real tNitsche      = tSPNitsche->val()( 0 );
-            real tMasterWeight = tSPNitsche->val()( 1 );
-            real tSlaveWeight  = tSPNitsche->val()( 2 );
+            real tLeaderWeight = tSPNitsche->val()( 1 );
+            real tFollowerWeight  = tSPNitsche->val()( 2 );
 
             // get thickness property
             const std::shared_ptr< Property >& tPropThickness =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THICKNESS ) );
 
             // multiplying aWStar by user defined thickness (2*pi*r for axisymmetric)
             aWStar *= ( tPropThickness != nullptr ) ? tPropThickness->val()( 0 ) : 1;
 
             // get the selection matrix property
             const std::shared_ptr< Property >& tPropSelect =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
             real tM = 1.0;
@@ -222,163 +222,163 @@ namespace moris
             }
 
             // evaluate temperature jump
-            real tJump = tFIMaster->val()( 0 ) - tFISlave->val()( 0 );
+            real tJump = tFILeader->val()( 0 ) - tFIFollower->val()( 0 );
 
-            // get number of master dof dependencies
-            uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+            // get number of leader dof dependencies
+            uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
-            // loop over master dof dependencies
-            for ( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
+            // loop over leader dof dependencies
+            for ( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                const Cell< MSI::Dof_Type >& tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for the dof type
-                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 0 );
+                uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
 
                 // get sub-matrices
-                auto tJacMaster = mSet->get_jacobian()(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } );
+                auto tJacLeader = mSet->get_jacobian()(
+                        { tLeaderResStartIndex, tLeaderResStopIndex },
+                        { tLeaderDepStartIndex, tLeaderDepStopIndex } );
 
-                auto tJacSlave = mSet->get_jacobian()(
-                        { tSlaveResStartIndex, tSlaveResStopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } );
+                auto tJacFollower = mSet->get_jacobian()(
+                        { tFollowerResStartIndex, tFollowerResStopIndex },
+                        { tLeaderDepStartIndex, tLeaderDepStopIndex } );
 
                 // compute Jacobian direct dependencies
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
-                    tJacMaster +=                                                                                                                        //
+                    tJacLeader +=                                                                                                                        //
                             aWStar * (                                                                                                                   //
-                                    +mBeta * tMasterWeight * tCMMasterDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tFIMaster->N()    //
-                                    + tNitsche * tFIMaster->N_trans() * tM * tFIMaster->N() );
+                                    +mBeta * tLeaderWeight * tCMLeaderDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tFILeader->N()    //
+                                    + tNitsche * tFILeader->N_trans() * tM * tFILeader->N() );
 
-                    tJacSlave +=                                                                                                                       //
+                    tJacFollower +=                                                                                                                       //
                             aWStar * (                                                                                                                 //
-                                    +mBeta * tSlaveWeight * tCMSlaveDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tFIMaster->N()    //
-                                    - tNitsche * tFISlave->N_trans() * tM * tFIMaster->N() );
+                                    +mBeta * tFollowerWeight * tCMFollowerDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tFILeader->N()    //
+                                    - tNitsche * tFIFollower->N_trans() * tM * tFILeader->N() );
                 }
 
                 // if dependency of constitutive models on the dof type
-                if ( tCMMasterDiffusion->check_dof_dependency( tDofType ) )
+                if ( tCMLeaderDiffusion->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to Jacobian
-                    tJacMaster +=                                                                                                          //
+                    tJacLeader +=                                                                                                          //
                             aWStar * (                                                                                                     //
-                                    -tFIMaster->N_trans() * tMasterWeight * tM * tCMMasterDiffusion->dTractiondDOF( tDofType, mNormal )    //
-                                    + mBeta * tMasterWeight * tCMMasterDiffusion->dTestTractiondDOF( tDofType, mNormal, mResidualDofType( 0 ) ) * tM * tJump );
+                                    -tFILeader->N_trans() * tLeaderWeight * tM * tCMLeaderDiffusion->dTractiondDOF( tDofType, mNormal )    //
+                                    + mBeta * tLeaderWeight * tCMLeaderDiffusion->dTestTractiondDOF( tDofType, mNormal, mResidualDofType( 0 ) ) * tM * tJump );
 
-                    tJacSlave +=          //
+                    tJacFollower +=          //
                             aWStar * (    //
-                                    +tFISlave->N_trans() * tMasterWeight * tM * tCMMasterDiffusion->dTractiondDOF( tDofType, mNormal ) );
+                                    +tFIFollower->N_trans() * tLeaderWeight * tM * tCMLeaderDiffusion->dTractiondDOF( tDofType, mNormal ) );
                 }
 
                 // if dependency of stabilization parameters on the dof type
-                if ( tSPNitsche->check_dof_dependency( tDofType, mtk::Master_Slave::MASTER ) )
+                if ( tSPNitsche->check_dof_dependency( tDofType, mtk::Leader_Follower::LEADER ) )
                 {
                     // get the derivatives of the SPs
-                    Matrix< DDRMat > tNitscheDer      = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 0 );
-                    Matrix< DDRMat > tMasterWeightDer = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 1 );
-                    Matrix< DDRMat > tSlaveWeightDer  = tSPNitsche->dSPdMasterDOF( tDofType ).get_row( 2 );
+                    Matrix< DDRMat > tNitscheDer      = tSPNitsche->dSPdLeaderDOF( tDofType ).get_row( 0 );
+                    Matrix< DDRMat > tLeaderWeightDer = tSPNitsche->dSPdLeaderDOF( tDofType ).get_row( 1 );
+                    Matrix< DDRMat > tFollowerWeightDer  = tSPNitsche->dSPdLeaderDOF( tDofType ).get_row( 2 );
 
                     // get traction derivative
                     Matrix< DDRMat > tTractionDer =
-                            tCMMasterDiffusion->traction( mNormal )( 0 ) * tMasterWeightDer    //
-                            + tCMSlaveDiffusion->traction( mNormal )( 0 ) * tSlaveWeightDer;
+                            tCMLeaderDiffusion->traction( mNormal )( 0 ) * tLeaderWeightDer    //
+                            + tCMFollowerDiffusion->traction( mNormal )( 0 ) * tFollowerWeightDer;
 
                     // add contribution to Jacobian
-                    tJacMaster +=                                                                                                                   //
+                    tJacLeader +=                                                                                                                   //
                             aWStar * (                                                                                                              //
-                                    -tFIMaster->N_trans() * tTractionDer                                                                            //
-                                    + mBeta * tCMMasterDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tJump * tMasterWeightDer    //
-                                    + tFIMaster->N_trans() * tM * tJump * tNitscheDer );
+                                    -tFILeader->N_trans() * tTractionDer                                                                            //
+                                    + mBeta * tCMLeaderDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tJump * tLeaderWeightDer    //
+                                    + tFILeader->N_trans() * tM * tJump * tNitscheDer );
 
-                    tJacSlave +=                                                                                                                  //
+                    tJacFollower +=                                                                                                                  //
                             aWStar * (                                                                                                            //
-                                    +tFISlave->N_trans() * tTractionDer                                                                           //
-                                    + mBeta * tCMSlaveDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tJump * tSlaveWeightDer    //
-                                    - tFISlave->N_trans() * tM * tJump * tNitscheDer );
+                                    +tFIFollower->N_trans() * tTractionDer                                                                           //
+                                    + mBeta * tCMFollowerDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tJump * tFollowerWeightDer    //
+                                    - tFIFollower->N_trans() * tM * tJump * tNitscheDer );
                 }
             }
 
-            // get number of slave dof dependencies
-            uint tSlaveNumDofDependencies = mRequestedSlaveGlobalDofTypes.size();
+            // get number of follower dof dependencies
+            uint tFollowerNumDofDependencies = mRequestedFollowerGlobalDofTypes.size();
 
-            // loop over slave dof dependencies
-            for ( uint iDOF = 0; iDOF < tSlaveNumDofDependencies; iDOF++ )
+            // loop over follower dof dependencies
+            for ( uint iDOF = 0; iDOF < tFollowerNumDofDependencies; iDOF++ )
             {
                 // get dof type
-                const Cell< MSI::Dof_Type > tDofType = mRequestedSlaveGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type > tDofType = mRequestedFollowerGlobalDofTypes( iDOF );
 
                 // get the index for the dof type
-                sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::SLAVE );
-                uint tSlaveDepStartIndex = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 0 );
-                uint tSlaveDepStopIndex  = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 1 );
+                sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );
+                uint tFollowerDepStartIndex = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tDofDepIndex, 0 );
+                uint tFollowerDepStopIndex  = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tDofDepIndex, 1 );
 
                 // get sub-matrices
-                auto tJacMaster = mSet->get_jacobian()(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { tSlaveDepStartIndex, tSlaveDepStopIndex } );
+                auto tJacLeader = mSet->get_jacobian()(
+                        { tLeaderResStartIndex, tLeaderResStopIndex },
+                        { tFollowerDepStartIndex, tFollowerDepStopIndex } );
 
-                auto tJacSlave = mSet->get_jacobian()(
-                        { tSlaveResStartIndex, tSlaveResStopIndex },
-                        { tSlaveDepStartIndex, tSlaveDepStopIndex } );
+                auto tJacFollower = mSet->get_jacobian()(
+                        { tFollowerResStartIndex, tFollowerResStopIndex },
+                        { tFollowerDepStartIndex, tFollowerDepStopIndex } );
 
                 // compute Jacobian direct dependencies
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
-                    tJacMaster +=                                                                                                                       //
+                    tJacLeader +=                                                                                                                       //
                             aWStar * (                                                                                                                  //
-                                    -mBeta * tMasterWeight * tCMMasterDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tFISlave->N()    //
-                                    - tNitsche * tFIMaster->N_trans() * tM * tFISlave->N() );
+                                    -mBeta * tLeaderWeight * tCMLeaderDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tFIFollower->N()    //
+                                    - tNitsche * tFILeader->N_trans() * tM * tFIFollower->N() );
 
-                    tJacSlave +=                                                                                                                      //
+                    tJacFollower +=                                                                                                                      //
                             aWStar * (                                                                                                                //
-                                    -mBeta * tSlaveWeight * tCMSlaveDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tFISlave->N()    //
-                                    + tNitsche * tFISlave->N_trans() * tM * tFISlave->N() );
+                                    -mBeta * tFollowerWeight * tCMFollowerDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tFIFollower->N()    //
+                                    + tNitsche * tFIFollower->N_trans() * tM * tFIFollower->N() );
                 }
 
                 // if dependency on the dof type
-                if ( tCMSlaveDiffusion->check_dof_dependency( tDofType ) )
+                if ( tCMFollowerDiffusion->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to Jacobian
-                    tJacMaster +=         //
+                    tJacLeader +=         //
                             aWStar * (    //
-                                    -tFIMaster->N_trans() * tSlaveWeight * tM * tCMSlaveDiffusion->dTractiondDOF( tDofType, mNormal ) );
+                                    -tFILeader->N_trans() * tFollowerWeight * tM * tCMFollowerDiffusion->dTractiondDOF( tDofType, mNormal ) );
 
-                    tJacSlave +=                                                                                                        //
+                    tJacFollower +=                                                                                                        //
                             aWStar * (                                                                                                  //
-                                    +tFISlave->N_trans() * tSlaveWeight * tM * tCMSlaveDiffusion->dTractiondDOF( tDofType, mNormal )    //
-                                    + mBeta * tSlaveWeight * tCMSlaveDiffusion->dTestTractiondDOF( tDofType, mNormal, mResidualDofType( 0 ) ) * tM * tJump );
+                                    +tFIFollower->N_trans() * tFollowerWeight * tM * tCMFollowerDiffusion->dTractiondDOF( tDofType, mNormal )    //
+                                    + mBeta * tFollowerWeight * tCMFollowerDiffusion->dTestTractiondDOF( tDofType, mNormal, mResidualDofType( 0 ) ) * tM * tJump );
                 }
 
                 // if dependency of stabilization parameters on the dof type
-                if ( tSPNitsche->check_dof_dependency( tDofType, mtk::Master_Slave::SLAVE ) )
+                if ( tSPNitsche->check_dof_dependency( tDofType, mtk::Leader_Follower::FOLLOWER ) )
                 {
                     // get the derivatives of the SPs
-                    Matrix< DDRMat > tNitscheDer      = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 0 );
-                    Matrix< DDRMat > tMasterWeightDer = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 1 );
-                    Matrix< DDRMat > tSlaveWeightDer  = tSPNitsche->dSPdSlaveDOF( tDofType ).get_row( 2 );
+                    Matrix< DDRMat > tNitscheDer      = tSPNitsche->dSPdFollowerDOF( tDofType ).get_row( 0 );
+                    Matrix< DDRMat > tLeaderWeightDer = tSPNitsche->dSPdFollowerDOF( tDofType ).get_row( 1 );
+                    Matrix< DDRMat > tFollowerWeightDer  = tSPNitsche->dSPdFollowerDOF( tDofType ).get_row( 2 );
 
                     // get traction derivative
                     Matrix< DDRMat > tTractionDer =                                            //
-                            tCMMasterDiffusion->traction( mNormal )( 0 ) * tMasterWeightDer    //
-                            + tCMSlaveDiffusion->traction( mNormal )( 0 ) * tSlaveWeightDer;
+                            tCMLeaderDiffusion->traction( mNormal )( 0 ) * tLeaderWeightDer    //
+                            + tCMFollowerDiffusion->traction( mNormal )( 0 ) * tFollowerWeightDer;
 
                     // add contribution to Jacobian
-                    tJacMaster +=                                                                                                                   //
+                    tJacLeader +=                                                                                                                   //
                             aWStar * (                                                                                                              //
-                                    -tFIMaster->N_trans() * tTractionDer                                                                            //
-                                    + mBeta * tCMMasterDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tJump * tMasterWeightDer    //
-                                    + tFIMaster->N_trans() * tM * tJump * tNitscheDer );
+                                    -tFILeader->N_trans() * tTractionDer                                                                            //
+                                    + mBeta * tCMLeaderDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tJump * tLeaderWeightDer    //
+                                    + tFILeader->N_trans() * tM * tJump * tNitscheDer );
 
-                    tJacSlave +=                                                                                                                  //
+                    tJacFollower +=                                                                                                                  //
                             aWStar * (                                                                                                            //
-                                    +tFISlave->N_trans() * tTractionDer                                                                           //
-                                    + mBeta * tCMSlaveDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tJump * tSlaveWeightDer    //
-                                    - tFISlave->N_trans() * tM * tJump * tNitscheDer );
+                                    +tFIFollower->N_trans() * tTractionDer                                                                           //
+                                    + mBeta * tCMFollowerDiffusion->testTraction( mNormal, mResidualDofType( 0 ) ) * tM * tJump * tFollowerWeightDer    //
+                                    - tFIFollower->N_trans() * tM * tJump * tNitscheDer );
                 }
             }
 

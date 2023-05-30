@@ -21,9 +21,9 @@ The following is a list of all Errors and Asserts addressed.
 @subsection Error_FEM_Model001 FEM_Model::create_stabilization_parameters - Unkown phase name:
 Error: <code>FEM_Model::create_stabilization_parameters - Unkown phase name:</code>
 
-<b>Solution 1: Missing slave phase name for ghost.</b>
+<b>Solution 1: Missing follower phase name for ghost.</b>
 If using the Phase Name Style (TODO:add ref) for input files,
-this error can occur if there is no slave phase name stipulated in the GHOST_DISPL stabilization parameter
+this error can occur if there is no follower phase name stipulated in the GHOST_DISPL stabilization parameter
 or the GHOST_NORMAL_FIELD IWG, as shown below.
 
 \anchor ErrorAssert001

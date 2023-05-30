@@ -163,7 +163,7 @@ Map_Epetra::build_dof_translator(
     // Initialize every point as constrained
     mFullToFreePoint->PutScalar( -1 );
 
-    //    Epetra_BlockMap* masterMap     = aModel->GetDofHandler()->GetMasterDofMap()->GetEpetraMap();
+    //    Epetra_BlockMap* leaderMap     = aModel->GetDofHandler()->GetLeaderDofMap()->GetEpetraMap();
     Epetra_MultiVector* tTempVec = new Epetra_MultiVector( *mEpetraMap, 1 );
 
     // Initialize every point as constrained
@@ -190,7 +190,7 @@ Map_Epetra::build_dof_translator(
 
     Epetra_Import* tImporter = new Epetra_Import( *mFullOverlappingMap, *mEpetraMap );
 
-    // Update mFullToFreePoint by importing the local master masterTemp into the global mFullToFreePoint
+    // Update mFullToFreePoint by importing the local leader leaderTemp into the global mFullToFreePoint
     sint tStatus = mFullToFreePoint->Import( *tTempVec, *tImporter, Insert );
 
     // std::cout<<*mFullToFreePoint<<std::endl;

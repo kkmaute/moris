@@ -25,28 +25,28 @@ namespace moris
                 Background_Facet* aBackgroundFacet )
                 : mFacet( aBackgroundFacet )
         {
-            // set pointer to master element
-            MORIS_ASSERT( aBackgroundFacet->get_master() != nullptr, "Background master facet is nullptr" );
+            // set pointer to leader element
+            MORIS_ASSERT( aBackgroundFacet->get_leader() != nullptr, "Background leader facet is nullptr" );
 
-            mMaster = aMesh->get_element_by_memory_index( aBackgroundFacet->get_master()->get_memory_index() );
+            mLeader = aMesh->get_element_by_memory_index( aBackgroundFacet->get_leader()->get_memory_index() );
 
-            mIndexOnMaster = aBackgroundFacet->get_index_on_master();
+            mIndexOnLeader = aBackgroundFacet->get_index_on_leader();
 
-            // set pointer to slave if background slave exists
-            if ( aBackgroundFacet->get_slave() != NULL )
+            // set pointer to follower if background follower exists
+            if ( aBackgroundFacet->get_follower() != NULL )
             {
-                mSlave = aMesh->get_element_by_memory_index( aBackgroundFacet->get_slave()->get_memory_index() );
+                mFollower = aMesh->get_element_by_memory_index( aBackgroundFacet->get_follower()->get_memory_index() );
 
                 // fixme: this is not clean
-                if ( mMaster->get_basis( 0 ) == nullptr )
+                if ( mLeader->get_basis( 0 ) == nullptr )
                 {
-                    this->swap_master_and_slave();
+                    this->swap_leader_and_follower();
                 }
-                MORIS_ASSERT( mMaster->get_basis( 0 ) != nullptr, "Tried to create a facet without nodes" );
+                MORIS_ASSERT( mLeader->get_basis( 0 ) != nullptr, "Tried to create a facet without nodes" );
             }
             else
             {
-                mSlave = nullptr;
+                mFollower = nullptr;
             }
         }
 
@@ -79,9 +79,9 @@ namespace moris
         moris_id
         Facet::get_owner() const
         {
-            MORIS_ASSERT( mMaster->get_owner() != gNoID, "Faceted ownership not initialized" );
+            MORIS_ASSERT( mLeader->get_owner() != gNoID, "Faceted ownership not initialized" );
 
-            return mMaster->get_owner();
+            return mLeader->get_owner();
         }
 
         // ----------------------------------------------------------------------------
@@ -148,13 +148,13 @@ namespace moris
         bool
         Facet::is_active() const
         {
-            if ( mSlave == NULL )
+            if ( mFollower == NULL )
             {
-                return mMaster->is_active();
+                return mLeader->is_active();
             }
             else
             {
-                return mMaster->is_active() || mSlave->is_active();
+                return mLeader->is_active() || mFollower->is_active();
             }
         }
 
@@ -187,17 +187,17 @@ namespace moris
         // ----------------------------------------------------------------------------
 
         uint
-        Facet::get_index_on_master() const
+        Facet::get_index_on_leader() const
         {
-            return mIndexOnMaster;
+            return mIndexOnLeader;
         }
 
         // ----------------------------------------------------------------------------
 
         uint
-        Facet::get_index_on_slave() const
+        Facet::get_index_on_follower() const
         {
-            return mFacet->get_index_on_other( mIndexOnMaster );
+            return mFacet->get_index_on_other( mIndexOnLeader );
         }
 
         // ----------------------------------------------------------------------------
@@ -207,65 +207,65 @@ namespace moris
         uint
         Facet::get_level() const
         {
-            return mMaster->get_level();
+            return mLeader->get_level();
         }
 
         // ----------------------------------------------------------------------------
 
         Element*
-        Facet::get_hmr_master()
+        Facet::get_hmr_leader()
         {
-            return mMaster;
+            return mLeader;
         }
 
         // ----------------------------------------------------------------------------
 
         Element*
-        Facet::get_hmr_slave()
+        Facet::get_hmr_follower()
         {
-            return mSlave;
+            return mFollower;
         }
 
         // ----------------------------------------------------------------------------
         mtk::Cell*
-        Facet::get_master()
+        Facet::get_leader()
         {
-            return mMaster;
+            return mLeader;
         }
 
         // ----------------------------------------------------------------------------
 
         const mtk::Cell*
-        Facet::get_master() const
+        Facet::get_leader() const
         {
-            return mMaster;
+            return mLeader;
         }
 
         // ----------------------------------------------------------------------------
 
         mtk::Cell*
-        Facet::get_slave()
+        Facet::get_follower()
         {
-            return mSlave;
+            return mFollower;
         }
 
         // ----------------------------------------------------------------------------
 
         const mtk::Cell*
-        Facet::get_slave() const
+        Facet::get_follower() const
         {
-            return mSlave;
+            return mFollower;
         }
 
         // ----------------------------------------------------------------------------
 
         void
-        Facet::swap_master_and_slave()
+        Facet::swap_leader_and_follower()
         {
-            mIndexOnMaster = mFacet->get_index_on_other( mIndexOnMaster );
-            Element* tSwap = mMaster;
-            mMaster        = mSlave;
-            mSlave         = tSwap;
+            mIndexOnLeader = mFacet->get_index_on_other( mIndexOnLeader );
+            Element* tSwap = mLeader;
+            mLeader        = mFollower;
+            mFollower         = tSwap;
         }
 
         // ----------------------------------------------------------------------------

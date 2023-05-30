@@ -62,35 +62,35 @@ namespace moris
             moris::Cell< Matrix< DDRMat > >                mdRdp;
             moris::Cell< moris::Cell< Matrix< DDRMat > > > mdQIdp;
 
-            // lists of master and slave groups of dof types
-            moris::Cell< moris::Cell< enum MSI::Dof_Type > > mMasterDofTypes;
-            moris::Cell< moris::Cell< enum MSI::Dof_Type > > mSlaveDofTypes;
+            // lists of leader and follower groups of dof types
+            moris::Cell< moris::Cell< enum MSI::Dof_Type > > mLeaderDofTypes;
+            moris::Cell< moris::Cell< enum MSI::Dof_Type > > mFollowerDofTypes;
 
-            // maps for the master and slave dof type
-            moris::Matrix< DDSMat > mMasterDofTypeMap;
-            moris::Matrix< DDSMat > mSlaveDofTypeMap;
+            // maps for the leader and follower dof type
+            moris::Matrix< DDSMat > mLeaderDofTypeMap;
+            moris::Matrix< DDSMat > mFollowerDofTypeMap;
 
-            // map of master and slave dof types for assembly
+            // map of leader and follower dof types for assembly
             Cell< moris::Matrix< DDSMat > > mResDofAssemblyMap;
             Cell< moris::Matrix< DDSMat > > mJacDofAssemblyMap;
 
-            // lists of master and slave groups of dv types
-            moris::Cell< moris::Cell< enum PDV_Type > > mMasterDvTypes;
-            moris::Cell< moris::Cell< enum PDV_Type > > mSlaveDvTypes;
+            // lists of leader and follower groups of dv types
+            moris::Cell< moris::Cell< enum PDV_Type > > mLeaderDvTypes;
+            moris::Cell< moris::Cell< enum PDV_Type > > mFollowerDvTypes;
 
-            // maps for the master and slave dv type
-            moris::Matrix< DDSMat > mMasterDvTypeMap;
-            moris::Matrix< DDSMat > mSlaveDvTypeMap;
+            // maps for the leader and follower dv type
+            moris::Matrix< DDSMat > mLeaderDvTypeMap;
+            moris::Matrix< DDSMat > mFollowerDvTypeMap;
 
-            // lists of master and slave groups of field types
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > mMasterFieldTypes;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > mSlaveFieldTypes;
+            // lists of leader and follower groups of field types
+            moris::Cell< moris::Cell< enum mtk::Field_Type > > mLeaderFieldTypes;
+            moris::Cell< moris::Cell< enum mtk::Field_Type > > mFollowerFieldTypes;
 
-            // maps for the master and slave field type
-            moris::Matrix< DDSMat > mMasterFieldTypeMap;
-            moris::Matrix< DDSMat > mSlaveFieldTypeMap;
+            // maps for the leader and follower field type
+            moris::Matrix< DDSMat > mLeaderFieldTypeMap;
+            moris::Matrix< DDSMat > mFollowerFieldTypeMap;
 
-            // map of master and slave mat pdv types for assembly
+            // map of leader and follower mat pdv types for assembly
             Cell< moris::Matrix< DDSMat > >                      mPdvMatAssemblyMap;
             moris::Matrix< DDSMat >                              mPdvMatAssemblyVector;
             std::map< std::pair< moris_index, PDV_Type >, uint > mPdvGeoAssemblyMap;
@@ -115,11 +115,11 @@ namespace moris
             Matrix< DDRMat > mTime;
 
             // unique list of dof and dv types
-            moris::Cell< moris::Cell< enum MSI::Dof_Type > >   mUniqueDofTypeListMasterSlave;
-            moris::Cell< moris::Cell< enum PDV_Type > >        mUniqueDvTypeListMasterSlave;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > mUniqueFieldTypeListMasterSlave;
+            moris::Cell< moris::Cell< enum MSI::Dof_Type > >   mUniqueDofTypeListLeaderFollower;
+            moris::Cell< moris::Cell< enum PDV_Type > >        mUniqueDvTypeListLeaderFollower;
+            moris::Cell< moris::Cell< enum mtk::Field_Type > > mUniqueFieldTypeListLeaderFollower;
 
-            // unique list of dof and dv types. Master and Slave are combined
+            // unique list of dof and dv types. Leader and Follower are combined
             moris::Cell< enum MSI::Dof_Type >   mUniqueDofTypeList;
             moris::Cell< enum PDV_Type >        mUniqueDvTypeList;
             moris::Cell< enum mtk::Field_Type > mUniqueFieldTypeList;
@@ -193,115 +193,115 @@ namespace moris
             //------------------------------------------------------------------------------
             /**
              * get dof type list
-             * @param[ in ] aIsMaster enum for master or slave
+             * @param[ in ] aIsLeader enum for leader or follower
              */
             moris::Cell< moris::Cell< MSI::Dof_Type > >& get_dof_type_list(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * get dof type map
-             * @param[ in ] aIsMaster enum for master or slave
+             * @param[ in ] aIsLeader enum for leader or follower
              */
             Matrix< DDSMat >& get_dof_type_map(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * get dof index for type
-             * (return consecutive indices for master/slave,
-             * i.e. index for slave starts at max index for master)
+             * (return consecutive indices for leader/follower,
+             * i.e. index for follower starts at max index for leader)
              * @param[ in ] aDofType  enum for dof type
-             * @param[ in ] aIsMaster enum for master or slave
+             * @param[ in ] aIsLeader enum for leader or follower
              * @param[ out ] sint     consecutive index for dof type
              */
             sint get_dof_index_for_type(
                     enum MSI::Dof_Type aDofType,
-                    mtk::Master_Slave  aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower  aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * get dof index for type 1
-             * (return non-consecutive indices for master/slave,
-             *  i.e. index for slave restarts at 0)
+             * (return non-consecutive indices for leader/follower,
+             *  i.e. index for follower restarts at 0)
              * @param[ in ]  aDofType  enum for dof type
-             * @param[ in ]  aIsMaster enum for master or slave
+             * @param[ in ]  aIsLeader enum for leader or follower
              * @param[ out ] sint      non-consecutive index for dof type
              */
             sint get_dof_index_for_type_1(
                     enum MSI::Dof_Type aDofType,
-                    mtk::Master_Slave  aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower  aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * get dv type list
-             * @param[ in ] aIsMaster enum for master or slave
+             * @param[ in ] aIsLeader enum for leader or follower
              */
             const moris::Cell< moris::Cell< PDV_Type > >& get_dv_type_list(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * get dv type map
-             * @param[ in ] aIsMaster enum for master or slave
+             * @param[ in ] aIsLeader enum for leader or follower
              */
             const Matrix< DDSMat >& get_dv_type_map(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * get dv index for type
-             * (return consecutive indices for master/slave,
-             * i.e. index for slave starts at max index for master)
+             * (return consecutive indices for leader/follower,
+             * i.e. index for follower starts at max index for leader)
              * @param[ in ] aDvType   enum for dv type
-             * @param[ in ] aIsMaster enum for master or slave
+             * @param[ in ] aIsLeader enum for leader or follower
              * @param[ out ] sint     consecutive index for dv type
              */
             sint get_dv_index_for_type(
                     enum PDV_Type     aDvType,
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * get dv index for type 1
-             * (return non-consecutive indices for master/slave,
-             *  i.e. index for slave restarts at 0)
+             * (return non-consecutive indices for leader/follower,
+             *  i.e. index for follower restarts at 0)
              * @param[ in ]  aDvType   enum for dv type
-             * @param[ in ]  aIsMaster enum for master or slave
+             * @param[ in ]  aIsLeader enum for leader or follower
              * @param[ out ] sint      non-consecutive index for dv type
              */
             sint get_dv_index_for_type_1(
                     enum PDV_Type     aDvType,
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * get field type list
-             * @param[ in ] aIsMaster enum for master or slave
+             * @param[ in ] aIsLeader enum for leader or follower
              */
             const moris::Cell< moris::Cell< mtk::Field_Type > >& get_field_type_list(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * get fieldtype map
-             * @param[ in ] aIsMaster enum for master or slave
+             * @param[ in ] aIsLeader enum for leader or follower
              */
             const Matrix< DDSMat >& get_field_type_map(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
              * get field index for type 1
-             * (return non-consecutive indices for master/slave,
-             *  i.e. index for slave restarts at 0)
+             * (return non-consecutive indices for leader/follower,
+             *  i.e. index for follower restarts at 0)
              * @param[ in ]  aFieldType   enum for field type
-             * @param[ in ]  aIsMaster enum for master or slave
+             * @param[ in ]  aIsLeader enum for leader or follower
              * @param[ out ] sint      non-consecutive index for field type
              */
             sint get_field_index_for_type_1(
                     enum mtk::Field_Type aFieldType,
-                    mtk::Master_Slave    aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower    aIsLeader = mtk::Leader_Follower::LEADER );
 
             //-------------------------------------------------------------------------------------------------
             /**
@@ -612,9 +612,9 @@ namespace moris
              * @param[ out ] mUniqueDofTypeList a unique list of dof type
              */
             const moris::Cell< moris::Cell< enum MSI::Dof_Type > >&
-            get_unique_master_slave_dof_type_list()
+            get_unique_leader_follower_dof_type_list()
             {
-                return mUniqueDofTypeListMasterSlave;
+                return mUniqueDofTypeListLeaderFollower;
             }
 
             //------------------------------------------------------------------------------

@@ -48,9 +48,9 @@ namespace moris
             // NOTE: first cluster in list is the one that gets built in XTK
             moris::Cell< std::shared_ptr< fem::Cluster > > mFemCluster;
 
-            // pointer to the master and slave mesh interpolation cell
-            const mtk::Cell* mMasterInterpolationCell;
-            const mtk::Cell* mSlaveInterpolationCell;
+            // pointer to the leader and follower mesh interpolation cell
+            const mtk::Cell* mLeaderInterpolationCell;
+            const mtk::Cell* mFollowerInterpolationCell;
 
             // pointer to the fem set
             Set* mSet;
@@ -97,21 +97,21 @@ namespace moris
              * get ip cell
              */
             const mtk::Cell*
-            get_ip_cell( mtk::Master_Slave aIsMaster )
+            get_ip_cell( mtk::Leader_Follower aIsLeader )
             {
-                switch ( aIsMaster )
+                switch ( aIsLeader )
                 {
-                    case mtk::Master_Slave::MASTER:
+                    case mtk::Leader_Follower::LEADER:
                     {
-                        return mMasterInterpolationCell;
+                        return mLeaderInterpolationCell;
                     }
-                    case mtk::Master_Slave::SLAVE:
+                    case mtk::Leader_Follower::FOLLOWER:
                     {
-                        return mSlaveInterpolationCell;
+                        return mFollowerInterpolationCell;
                     }
                     default:
-                        MORIS_ERROR( false, "aIsMaster can only be master or slave" );
-                        return mMasterInterpolationCell;
+                        MORIS_ERROR( false, "aIsLeader can only be leader or follower" );
+                        return mLeaderInterpolationCell;
                 }
             }
 

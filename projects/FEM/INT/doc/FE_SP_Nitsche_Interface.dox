@@ -17,10 +17,10 @@ The Nitsche stabilization parameter for interface condition is given as:
 where
 - \f$ \alpha_{N} \f$ is a scalar constant ranging in \f$ [  ] \f$,
 - \f$ measure(\Gamma_{MS}) \f$ is a measure of the interface surface/length,
-- \f$ measure(\Omega_{M}) \f$ is a measure of the volume/surface of the master phase,
-- \f$ measure(\Omega_{S}) \f$ is a measure of the volume/surface of the slave phase ,
-- \f$ \kappa_{M} \f$ is a material property of the master phase,
-- \f$ \kappa_{S} \f$ is a material property of the slave phase.
+- \f$ measure(\Omega_{M}) \f$ is a measure of the volume/surface of the leader phase,
+- \f$ measure(\Omega_{S}) \f$ is a measure of the volume/surface of the follower phase ,
+- \f$ \kappa_{M} \f$ is a material property of the leader phase,
+- \f$ \kappa_{S} \f$ is a material property of the follower phase.
 
 The stabilization parameter \f$ \gamma_{N} \f$ is implemented in SP_Nitsche_Interface and 
 is build using the enum SP_Type::NITSCHE_INTERFACE.

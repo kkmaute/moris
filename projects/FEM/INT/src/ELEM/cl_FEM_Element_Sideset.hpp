@@ -113,7 +113,7 @@ namespace moris
                 /**
                  * compute volume over the element
                  */
-                real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                real compute_volume( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
                 //------------------------------------------------------------------------------
             protected:
@@ -121,14 +121,14 @@ namespace moris
                 //------------------------------------------------------------------------------
                 /**
                  * initialize the geometry interpolator for the IG element
-                 * @param[ in ] aSideOrdinal side ordinal for the master element
+                 * @param[ in ] aSideOrdinal side ordinal for the leader element
                  */
                 void init_ig_geometry_interpolator( uint aSideOrdinal );
 
                 //------------------------------------------------------------------------------
                 /**
                  * initialize the geometry interpolator for the IG element
-                 * @param[ in ] aSideOrdinal      side ordinal for the master element
+                 * @param[ in ] aSideOrdinal      side ordinal for the leader element
                  * @param[ in ] aGeoLocalAssembly matrix with pdv local assembly indices
                  *                                ( NumVertexIndices x NumPdvTypes )
                  */

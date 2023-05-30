@@ -225,11 +225,11 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
         fem::SP_Factory                                 tSPFactory;
         std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
         tSPDirichletNitsche->set_parameters( { { { 100.0 } } } );
-        tSPDirichletNitsche->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
+        tSPDirichletNitsche->set_property( tPropConductivity1, "Material", mtk::Leader_Follower::LEADER );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPGhost = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
         tSPGhost->set_parameters( { { { 0.1 } } } );
-        tSPGhost->set_property( tPropConductivity1, "Material", mtk::Master_Slave::MASTER );
+        tSPGhost->set_property( tPropConductivity1, "Material", mtk::Leader_Follower::LEADER );
 
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
@@ -237,25 +237,25 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
         std::shared_ptr< fem::IWG > tIWGBulk1 = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGBulk1->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGBulk1->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-        tIWGBulk1->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Master_Slave::MASTER );
-        tIWGBulk1->set_property( tPropTempLoad1, "Load", mtk::Master_Slave::MASTER );
+        tIWGBulk1->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Leader_Follower::LEADER );
+        tIWGBulk1->set_property( tPropTempLoad1, "Load", mtk::Leader_Follower::LEADER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGDirichlet->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-        tIWGDirichlet->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Master_Slave::MASTER );
-        tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_constitutive_model( tCMDiffLinIso1, "Diffusion", mtk::Leader_Follower::LEADER );
+        tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Leader_Follower::LEADER );
 
         std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
         tIWGNeumann->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGNeumann->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-        tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+        tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Leader_Follower::LEADER );
 
         std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
         tIWGGhost->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGGhost->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-        tIWGGhost->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::SLAVE );
+        tIWGGhost->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Leader_Follower::FOLLOWER );
         tIWGGhost->set_stabilization_parameter( tSPGhost, "GhostSP" );
 
         // define set info

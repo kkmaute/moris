@@ -38,52 +38,52 @@ namespace moris
 
         void IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_residual( real aWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type, indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
-            // get slave index for residual dof type, indices for assembly
-            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
-            uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
-            uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
+            // get follower index for residual dof type, indices for assembly
+            uint tFollowerDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
+            uint tFollowerResStartIndex = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
+            uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
-            // get the master field interpolator for the residual dof type
-            Field_Interpolator * tFIMaster = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            // get the leader field interpolator for the residual dof type
+            Field_Interpolator * tFILeader = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
-            // get the slave field interpolator for the residual dof type
-            Field_Interpolator * tFISlave  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            // get the follower field interpolator for the residual dof type
+            Field_Interpolator * tFIFollower  = mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the convective stabilization parameter
             const std::shared_ptr< Stabilization_Parameter > & tSPConvective =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::CONVECTIVE_GHOST ) );
 
-            // get flattened derivatives dnNdxn for master and slave
-            Matrix< DDRMat > tMasterdNdx;
-            this->compute_dnNdxn( tMasterdNdx, mtk::Master_Slave::MASTER );
-            Matrix< DDRMat > tSlavedNdx;
-            this->compute_dnNdxn( tSlavedNdx, mtk::Master_Slave::SLAVE );
+            // get flattened derivatives dnNdxn for leader and follower
+            Matrix< DDRMat > tLeaderdNdx;
+            this->compute_dnNdxn( tLeaderdNdx, mtk::Leader_Follower::LEADER );
+            Matrix< DDRMat > tFollowerdNdx;
+            this->compute_dnNdxn( tFollowerdNdx, mtk::Leader_Follower::FOLLOWER );
 
             // premultiply common terms
             Matrix< DDRMat > tConvectivePreMultiply = vectorize(
-                    tSPConvective->val()( 0 ) * ( tFIMaster->gradx( 1 ) - tFISlave->gradx( 1 ) ) );
+                    tSPConvective->val()( 0 ) * ( tFILeader->gradx( 1 ) - tFIFollower->gradx( 1 ) ) );
 
-            // compute master residual
+            // compute leader residual
             mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex },
+                    { tLeaderResStartIndex, tLeaderResStopIndex },
                     { 0, 0 } ) += aWStar * (
-                            trans( tMasterdNdx ) * tConvectivePreMultiply );
+                            trans( tLeaderdNdx ) * tConvectivePreMultiply );
 
-            // compute slave residual
+            // compute follower residual
             mSet->get_residual()( 0 )(
-                    { tSlaveResStartIndex, tSlaveResStopIndex },
+                    { tFollowerResStartIndex, tFollowerResStopIndex },
                     { 0, 0 } ) -= aWStar * (
-                            trans( tSlavedNdx ) * tConvectivePreMultiply );
+                            trans( tFollowerdNdx ) * tConvectivePreMultiply );
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),
@@ -95,65 +95,65 @@ namespace moris
         void IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_jacobian( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators
+            // check leader field interpolators
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type, indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
-            // get slave index for residual dof type, indices for assembly
-            uint tSlaveDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::SLAVE );
-            uint tSlaveResStartIndex = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 0 );
-            uint tSlaveResStopIndex  = mSet->get_res_dof_assembly_map()( tSlaveDofIndex )( 0, 1 );
+            // get follower index for residual dof type, indices for assembly
+            uint tFollowerDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::FOLLOWER );
+            uint tFollowerResStartIndex = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 0 );
+            uint tFollowerResStopIndex  = mSet->get_res_dof_assembly_map()( tFollowerDofIndex )( 0, 1 );
 
-            // get the master field interpolator for residual dof type
-            Field_Interpolator * tFIMaster = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            // get the leader field interpolator for residual dof type
+            Field_Interpolator * tFILeader = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
-            // get the slave field interpolator for residual dof type
-            Field_Interpolator * tFISlave  = mSlaveFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            // get the follower field interpolator for residual dof type
+            Field_Interpolator * tFIFollower  = mFollowerFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the convective stabilization parameter
             const std::shared_ptr< Stabilization_Parameter > & tSPConvective =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::CONVECTIVE_GHOST ) );
 
-            // get flattened derivatives dnNdxn for master and slave
-            Matrix< DDRMat > tMasterdNdx;
-            this->compute_dnNdxn( tMasterdNdx, mtk::Master_Slave::MASTER );
-            Matrix< DDRMat > tSlavedNdx;
-            this->compute_dnNdxn( tSlavedNdx, mtk::Master_Slave::SLAVE );
+            // get flattened derivatives dnNdxn for leader and follower
+            Matrix< DDRMat > tLeaderdNdx;
+            this->compute_dnNdxn( tLeaderdNdx, mtk::Leader_Follower::LEADER );
+            Matrix< DDRMat > tFollowerdNdx;
+            this->compute_dnNdxn( tFollowerdNdx, mtk::Leader_Follower::FOLLOWER );
 
-            // get number of master dependencies
-            uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
-            uint tSlaveNumDofDependencies  = mRequestedSlaveGlobalDofTypes.size();
+            // get number of leader dependencies
+            uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
+            uint tFollowerNumDofDependencies  = mRequestedFollowerGlobalDofTypes.size();
 
-            // compute the jacobian for indirect dof dependencies through master
-            for( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
+            // compute the jacobian for indirect dof dependencies through leader
+            for( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for the dof type
-                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 0 );
+                uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
 
                 // compute jacobian direct dependencies
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // dRM/dM
                     mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    tSPConvective->val()( 0 ) * trans( tMasterdNdx ) * tMasterdNdx );
+                            { tLeaderResStartIndex, tLeaderResStopIndex },
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * (
+                                    tSPConvective->val()( 0 ) * trans( tLeaderdNdx ) * tLeaderdNdx );
 
                     // dRS/dM
                     mSet->get_jacobian()(
-                            { tSlaveResStartIndex,  tSlaveResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                    tSPConvective->val()( 0 ) * trans( tSlavedNdx ) * tMasterdNdx );
+                            { tFollowerResStartIndex,  tFollowerResStopIndex },
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * (
+                                    tSPConvective->val()( 0 ) * trans( tFollowerdNdx ) * tLeaderdNdx );
                 }
 
                 // if stabilization parameter dependency on the dof type
@@ -161,48 +161,48 @@ namespace moris
                 {
                     // premultiply common terms
                     Matrix< DDRMat > tConvectivePreMultiply = vectorize(
-                            tFIMaster->gradx( 1 ) - tFISlave->gradx( 1 ) ) ;
+                            tFILeader->gradx( 1 ) - tFIFollower->gradx( 1 ) ) ;
 
-                    tConvectivePreMultiply = tConvectivePreMultiply * tSPConvective->dSPdMasterDOF( tDofType );
+                    tConvectivePreMultiply = tConvectivePreMultiply * tSPConvective->dSPdLeaderDOF( tDofType );
 
                     // add contribution to jacobian
                     mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
-                                    trans( tMasterdNdx ) * tConvectivePreMultiply );
+                            { tLeaderResStartIndex, tLeaderResStopIndex },
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * (
+                                    trans( tLeaderdNdx ) * tConvectivePreMultiply );
 
                     mSet->get_jacobian()(
-                            { tSlaveResStartIndex,  tSlaveResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -= aWStar * (
-                                    trans( tSlavedNdx ) * tConvectivePreMultiply );
+                            { tFollowerResStartIndex,  tFollowerResStopIndex },
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -= aWStar * (
+                                    trans( tFollowerdNdx ) * tConvectivePreMultiply );
                 }
             }
 
-            // compute the jacobian for indirect dof dependencies through slave
-            for( uint iDOF = 0; iDOF < tSlaveNumDofDependencies; iDOF++ )
+            // compute the jacobian for indirect dof dependencies through follower
+            for( uint iDOF = 0; iDOF < tFollowerNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                Cell< MSI::Dof_Type > tDofType = mRequestedSlaveGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > tDofType = mRequestedFollowerGlobalDofTypes( iDOF );
 
                 // get the index for the dof type
-                sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::SLAVE );
-                uint tSlaveDepStartIndex = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 0 );
-                uint tSlaveDepStopIndex  = mSet->get_jac_dof_assembly_map()( tSlaveDofIndex )( tDofDepIndex, 1 );
+                sint tDofDepIndex        = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::FOLLOWER );
+                uint tFollowerDepStartIndex = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tDofDepIndex, 0 );
+                uint tFollowerDepStopIndex  = mSet->get_jac_dof_assembly_map()( tFollowerDofIndex )( tDofDepIndex, 1 );
 
                 // compute jacobian direct dependencies
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // dRM/dS
                     mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tSlaveDepStartIndex,  tSlaveDepStopIndex } ) -= aWStar * (
-                                    tSPConvective->val()( 0 ) * trans( tMasterdNdx ) * tSlavedNdx );
+                            { tLeaderResStartIndex, tLeaderResStopIndex },
+                            { tFollowerDepStartIndex,  tFollowerDepStopIndex } ) -= aWStar * (
+                                    tSPConvective->val()( 0 ) * trans( tLeaderdNdx ) * tFollowerdNdx );
 
                     // dRS/dS
                     mSet->get_jacobian()(
-                            { tSlaveResStartIndex, tSlaveResStopIndex },
-                            { tSlaveDepStartIndex, tSlaveDepStopIndex } ) += aWStar * (
-                                    tSPConvective->val()( 0 ) * trans( tSlavedNdx ) * tSlavedNdx );
+                            { tFollowerResStartIndex, tFollowerResStopIndex },
+                            { tFollowerDepStartIndex, tFollowerDepStopIndex } ) += aWStar * (
+                                    tSPConvective->val()( 0 ) * trans( tFollowerdNdx ) * tFollowerdNdx );
                 }
             }
 
@@ -216,7 +216,7 @@ namespace moris
         void IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators
+            // check leader field interpolators
             this->check_field_interpolators();
 #endif
 
@@ -228,7 +228,7 @@ namespace moris
         void IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_dRdp( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators, properties and constitutive models
+            // check leader field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 
@@ -239,11 +239,11 @@ namespace moris
 
         void IWG_Incompressible_NS_Convective_Velocity_Ghost::compute_dnNdxn(
                 Matrix< DDRMat >  & adNdx,
-                mtk::Master_Slave   aIsMaster )
+                mtk::Leader_Follower   aIsLeader )
         {
             // get the field interpolator for residual dof type
             Field_Interpolator * tFIVelocity =
-                    this->get_field_interpolator_manager( aIsMaster )->
+                    this->get_field_interpolator_manager( aIsLeader )->
                     get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // init size for dnNdtn

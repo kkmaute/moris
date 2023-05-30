@@ -232,8 +232,8 @@ namespace moris
 
         Equation_Set tEqnBlock;
         tEqnBlock.mUniqueDofTypeList.resize( 1, MSI::Dof_Type::TEMP );
-        tEqnBlock.mUniqueDofTypeListMasterSlave.resize( 1 );
-        tEqnBlock.mUniqueDofTypeListMasterSlave(0).resize( 1, MSI::Dof_Type::TEMP );
+        tEqnBlock.mUniqueDofTypeListLeaderFollower.resize( 1 );
+        tEqnBlock.mUniqueDofTypeListLeaderFollower(0).resize( 1, MSI::Dof_Type::TEMP );
         EquObj_1.mEquationSet = &tEqnBlock;
         EquObj_2.mEquationSet = &tEqnBlock;
 

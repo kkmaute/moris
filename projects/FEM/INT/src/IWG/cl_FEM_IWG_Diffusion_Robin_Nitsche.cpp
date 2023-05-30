@@ -30,7 +30,7 @@ namespace moris
             mBeta = aBeta;
 
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Dirichlet" ]      = static_cast< uint >( IWG_Property_Type::DIRICHLET );
@@ -38,7 +38,7 @@ namespace moris
             mPropertyMap[ "Traction" ]       = static_cast< uint >( IWG_Property_Type::TRACTION );
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "Diffusion" ] = static_cast< uint >( IWG_Constitutive_Type::DIFFUSION );
@@ -55,35 +55,35 @@ namespace moris
         void
         IWG_Diffusion_Robin_Nitsche::compute_residual( real aWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type, indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
-            // get the master field interpolator for the residual dof type
+            // get the leader field interpolator for the residual dof type
             Field_Interpolator* tFITemp =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the imposed velocity property
             const std::shared_ptr< Property >& tPropDirichlet =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get the slip length property
             const std::shared_ptr< Property >& tPropNeumannPen =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::NEUMANN_PENALTY ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::NEUMANN_PENALTY ) );
 
             // get the traction property
             const std::shared_ptr< Property >& tPropTraction =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
 
             // get the fluid constitutive model
             const std::shared_ptr< Constitutive_Model >& tCMDiffusion =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // get the dynamic viscosity property
             const std::shared_ptr< Property >& tPropConductivity = tCMDiffusion->get_property( "Conductivity" );
@@ -121,9 +121,9 @@ namespace moris
 
             // get sub-matrix
             auto tRes = mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex } );
+                    { tLeaderResStartIndex, tLeaderResStopIndex } );
 
-            // compute master residual
+            // compute leader residual
             tRes += aWStar * (                                                                            //
                             tFITemp->N_trans() * (                                                        //
                                     -tCMDiffusion->traction( mNormal )                                    //                                     //
@@ -142,34 +142,34 @@ namespace moris
         IWG_Diffusion_Robin_Nitsche::compute_jacobian( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators
+            // check leader field interpolators
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type, indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
-            // get the master field interpolator for the residual dof type
+            // get the leader field interpolator for the residual dof type
             Field_Interpolator* tFITemp =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the imposed velocity property
             const std::shared_ptr< Property >& tPropDirichlet =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get the slip length property
             const std::shared_ptr< Property >& tPropNeumannPen =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::NEUMANN_PENALTY ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::NEUMANN_PENALTY ) );
 
             // get the traction property
             const std::shared_ptr< Property >& tPropTraction =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
 
             // get the fluid constitutive model
             const std::shared_ptr< Constitutive_Model >& tCMDiffusion =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::DIFFUSION ) );
 
             // get the dynamic viscosity property
             const std::shared_ptr< Property >& tPropConductivity = tCMDiffusion->get_property( "Conductivity" );
@@ -205,24 +205,24 @@ namespace moris
             const real tStabilityPenalty = tSPNitsche->val()( 0 );
             const real tAdjointPenalty   = tSPNitsche->val()( 1 );
 
-            // get number of master dependencies
-            const uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+            // get number of leader dependencies
+            const uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
-            // compute the Jacobian for indirect dof dependencies through master
-            for ( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
+            // compute the Jacobian for indirect dof dependencies through leader
+            for ( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                const Cell< MSI::Dof_Type >& tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for the dof type
-                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 0 );
+                uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
 
                 // get sub-matrix
                 auto tJac = mSet->get_jacobian()(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } );
+                        { tLeaderResStartIndex, tLeaderResStopIndex },
+                        { tLeaderDepStartIndex, tLeaderDepStopIndex } );
 
                 // if dof type is residual dof type
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
@@ -294,7 +294,7 @@ namespace moris
         IWG_Diffusion_Robin_Nitsche::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators
+            // check leader field interpolators
             this->check_field_interpolators();
 #endif
 
@@ -307,7 +307,7 @@ namespace moris
         IWG_Diffusion_Robin_Nitsche::compute_dRdp( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators, properties and constitutive models
+            // check leader field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 

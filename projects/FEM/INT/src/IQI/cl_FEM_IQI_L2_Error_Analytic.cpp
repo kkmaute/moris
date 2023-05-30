@@ -27,7 +27,7 @@ namespace moris
             mFEMIQIType = fem::IQI_Type::L2_ERROR_ANALYTIC;
 
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "L2Check" ] = static_cast< uint >( IQI_Property_Type::L2_CHECK );
@@ -44,14 +44,14 @@ namespace moris
 
             // get field interpolator
             Field_Interpolator* tFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             real tJumpNorm;
 
             Field_Interpolator* tFIField = nullptr;
-            if ( mMasterFieldTypes.size() != 0 )
+            if ( mLeaderFieldTypes.size() != 0 )
             {
-                tFIField = mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+                tFIField = mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
                 tJumpNorm = norm( tFI->val() - tFIField->val() );
             }
@@ -59,7 +59,7 @@ namespace moris
             {
                 // get analytical solution property
                 std::shared_ptr< Property >& tPropL2Check =
-                        mMasterProp( static_cast< uint >( IQI_Property_Type::L2_CHECK ) );
+                        mLeaderProp( static_cast< uint >( IQI_Property_Type::L2_CHECK ) );
                 tJumpNorm = norm( tFI->val() - tPropL2Check->val() );
             }
 
@@ -81,11 +81,11 @@ namespace moris
 
             // get field interpolator
             Field_Interpolator* tFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // get analytical solution property
             std::shared_ptr< Property >& tPropL2Check =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::L2_CHECK ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::L2_CHECK ) );
 
             // compute jump
             real tJumpNorm = norm( tFI->val() - tPropL2Check->val() );

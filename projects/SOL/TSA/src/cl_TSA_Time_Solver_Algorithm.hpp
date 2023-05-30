@@ -64,8 +64,8 @@ namespace moris
             //!  Nonlinear Solver for adjoint solve. Can be the same than mNonlinearSolver
             NLA::Nonlinear_Solver* mNonlinearSolverForAdjoint = nullptr;
 
-            //!  flag indicating if this is the master time solver
-            bool mIsMasterTimeSolver = false;
+            //!  flag indicating if this is the leader time solver
+            bool mIsLeaderTimeSolver = false;
 
             sol::Dist_Map* mFullMap = nullptr;
 

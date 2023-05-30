@@ -1492,13 +1492,13 @@ namespace moris
             // if dof type is velocity
             if ( aDofTypes( 0 ) == mDofVelocity )
             {
-                // add contribution to mdPPdMasterDof
+                // add contribution to mdPPdLeaderDof
                 mdModVelocitydu( tDofIndex ) = tFIVelocity->N();
             }
             // if dof type is viscosity
             else if ( aDofTypes( 0 ) == mDofViscosity )
             {
-                // add contribution to mdPPdMasterDof
+                // add contribution to mdPPdLeaderDof
                 mdModVelocitydu( tDofIndex ) = -mCb2 * tFIModViscosity->dnNdxn( 1 ) / mSigma;
             }
             else
@@ -1613,13 +1613,13 @@ namespace moris
             // if dof type is velocity
             if ( aDofTypes( 0 ) == mDofVelocity )
             {
-                // add contribution to mdPPdMasterDof
+                // add contribution to mdPPdLeaderDof
                 mdModVelocityLinearizeddu( tDofIndex ) = tFIVelocity->N();
             }
             // if dof type is viscosity
             else if ( aDofTypes( 0 ) == mDofViscosity )
             {
-                // add contribution to mdPPdMasterDof
+                // add contribution to mdPPdLeaderDof
                 mdModVelocityLinearizeddu( tDofIndex ) = -2.0 * mCb2 * tFIModViscosity->dnNdxn( 1 ) / mSigma;
             }
             else

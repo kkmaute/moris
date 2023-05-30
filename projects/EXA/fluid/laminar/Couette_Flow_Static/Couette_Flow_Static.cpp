@@ -288,8 +288,8 @@ namespace moris
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPIncFlow" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "36.0" );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties", "PropViscosity,Viscosity;PropDensity,Density" );
-        tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
+        tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropViscosity,Viscosity;PropDensity,Density" );
+        tParameterList( 2 )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
         tSPCounter++;
 
         // create parameter list for stabilization parameter 2
@@ -297,8 +297,8 @@ namespace moris
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPDirichletNitscheU" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0/1.0" );
-        tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties", "PropViscosity,Viscosity;PropDensity,Density" );
+        tParameterList( 2 )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
+        tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropViscosity,Viscosity;PropDensity,Density" );
         tSPCounter++;
 
         // create parameter list for stabilization parameter 3
@@ -306,7 +306,7 @@ namespace moris
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPGPViscosity" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::VISCOUS_GHOST ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "0.05" );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties", "PropViscosity,Viscosity" );
+        tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropViscosity,Viscosity" );
         tSPCounter++;
 
         // create parameter list for stabilization parameter 4
@@ -314,8 +314,8 @@ namespace moris
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPGPVelocity" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::CONVECTIVE_GHOST ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "0.05" );
-        tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties", "PropDensity,Density" );
+        tParameterList( 2 )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
+        tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropDensity,Density" );
         tSPCounter++;
 
         // create parameter list for stabilization parameter 5
@@ -323,8 +323,8 @@ namespace moris
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPGPPressure" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::PRESSURE_GHOST ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "0.005/1.0" );
-        tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties", "PropViscosity,Viscosity;PropDensity,Density" );
+        tParameterList( 2 )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
+        tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropViscosity,Viscosity;PropDensity,Density" );
         tSPCounter++;
 
         //------------------------------------------------------------------------------
@@ -338,8 +338,8 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGVelocityBulk" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "VX,VY" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "VX,VY;P" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPIncFlow,IncompressibleFlow" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", sFluid );
         tIWGCounter++;
@@ -349,8 +349,8 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGPressureBulk" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "P" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "VX,VY;P" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPIncFlow,IncompressibleFlow" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", sFluid );
         tIWGCounter++;
@@ -360,9 +360,9 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGInVelocity" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "VX,VY" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropDirichletInU,Dirichlet" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "VX,VY;P" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropDirichletInU,Dirichlet" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPDirichletNitscheU,DirichletNitsche" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", sIn );
         tIWGCounter++;
@@ -372,9 +372,9 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGInPressure" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "P" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropDirichletInU,Dirichlet" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "VX,VY;P" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropDirichletInU,Dirichlet" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", sIn );
         tIWGCounter++;
 
@@ -383,9 +383,9 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGOutVelocity" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "VX,VY" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropDirichletOutU,Dirichlet" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "VX,VY;P" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropDirichletOutU,Dirichlet" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPDirichletNitscheU,DirichletNitsche" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", sOut );
         tIWGCounter++;
@@ -395,9 +395,9 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGOutPressure" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "P" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropDirichletOutU,Dirichlet" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "VX,VY;P" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropDirichletOutU,Dirichlet" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", sOut );
         tIWGCounter++;
 
@@ -406,8 +406,8 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGGPViscous" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "VX,VY" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies", "VX,VY;P" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "VX,VY;P" );
+        tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "VX,VY;P" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPGPViscosity,GhostSP" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", sFluidGhost );
         tIWGCounter++;
@@ -417,8 +417,8 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGGPConvective" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "VX,VY" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies", "VX,VY;P" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "VX,VY;P" );
+        tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "VX,VY;P" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPGPVelocity,GhostSP" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", sFluidGhost );
         tIWGCounter++;
@@ -428,8 +428,8 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGGPPressure" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "P" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "VX,VY;P" );
-        tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies", "VX,VY;P" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "VX,VY;P" );
+        tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies", "VX,VY;P" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPGPPressure,GhostSP" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", sFluidGhost );
         tIWGCounter++;
@@ -445,7 +445,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkVX" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "VX,VY" );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "VX,VY" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "VX,VY" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", sFluid );
         tIQICounter++;
@@ -455,7 +455,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkVY" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "VX,VY" );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "VX,VY" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "VX,VY" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 1 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", sFluid );
         tIQICounter++;
@@ -465,7 +465,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkP" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "P" );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "P" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "P" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", sFluid );
         tIQICounter++;
@@ -475,8 +475,8 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkL2Error" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::L2_ERROR_ANALYTIC ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "VX,VY" );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "VX,VY" );
-        tParameterList( 4 )( tIQICounter ).set( "master_properties", "PropDirichletInU,L2Check" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "VX,VY" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropDirichletInU,L2Check" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", sFluid );
         tIQICounter++;
 
@@ -485,8 +485,8 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkH1Error" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::H1_ERROR_ANALYTIC ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "VX,VY" );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "VX,VY" );
-        tParameterList( 4 )( tIQICounter ).set( "master_properties", "PropdUdx,H1Check" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "VX,VY" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropdUdx,H1Check" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", sFluid );
         tIQICounter++;
 

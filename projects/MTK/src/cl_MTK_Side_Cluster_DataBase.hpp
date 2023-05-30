@@ -69,18 +69,18 @@ namespace moris
              */
 
             virtual bool
-            is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const override;
+            is_trivial( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
             // ----------------------------------------------------------------------------------
 
             /*!
              * Get interpolation cell interpolating into this side cluster
-             * @param[in] aIsMaster  Master or Slave Selector Enum (for Double side clusters only)
+             * @param[in] aIsLeader  Leader or Follower Selector Enum (for Double side clusters only)
              * @return Interpolation cell related to cluster
              */
 
             virtual moris::mtk::Cell const &
-            get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const override;
+            get_interpolation_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
             // ----------------------------------------------------------------------------------
 
@@ -94,12 +94,12 @@ namespace moris
             // ----------------------------------------------------------------------------------
 
             /*!
-             * @param[in] aIsMaster  Master or Slave Selector Enum (for Double side clusters only)
+             * @param[in] aIsLeader  Leader or Follower Selector Enum (for Double side clusters only)
              * @return all integration cell side ordinals
              */
 
             virtual moris::Matrix< moris::IndexMat >
-            get_cell_side_ordinals( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const override;
+            get_cell_side_ordinals( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
             // ----------------------------------------------------------------------------------
 
@@ -111,7 +111,7 @@ namespace moris
              */
             virtual moris_index
             get_cell_side_ordinal( moris::moris_index aCellIndexInCluster,
-                    const mtk::Master_Slave           aIsMaster = mtk::Master_Slave::MASTER ) const override;
+                    const mtk::Leader_Follower           aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
             // ----------------------------------------------------------------------------------
 
@@ -120,7 +120,7 @@ namespace moris
              */
 
             virtual moris::Cell< moris::mtk::Vertex const * >
-            get_vertices_in_cluster( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const override;
+            get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
 
             // ----------------------------------------------------------------------------------
@@ -129,24 +129,24 @@ namespace moris
 
             /*!
              * Access the full array of local coordinates
-             * @param[in] aIsMaster - Master or Slave Selector Enum (for Double side clusters only)
+             * @param[in] aIsLeader - Leader or Follower Selector Enum (for Double side clusters only)
              * @return All vertex local coordinates
              */
 
             virtual moris::Matrix< moris::DDRMat >
-            get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const override;
+            get_vertices_local_coordinates_wrt_interp_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
             // ----------------------------------------------------------------------------------
 
             /*!
              * Access a single local coordinate of a vertex
-             * @param[in] aIsMaster - Master or Slave Selector Enum (for Double side clusters only)
+             * @param[in] aIsLeader - Leader or Follower Selector Enum (for Double side clusters only)
              * @return Single vertex local coordinates
              */
             virtual moris::Matrix< moris::DDRMat >
             get_vertex_local_coordinate_wrt_interp_cell(
                     moris::mtk::Vertex const * aVertex,
-                    const mtk::Master_Slave    aIsMaster = mtk::Master_Slave::MASTER ) const override;
+                    const mtk::Leader_Follower    aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
             // ----------------------------------------------------------------------------------
 
@@ -155,7 +155,7 @@ namespace moris
              */
 
             virtual moris_index
-            get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const override;
+            get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
 
             // ----------------------------------------------------------------------------------
@@ -174,13 +174,13 @@ namespace moris
              * @brief Get the vertex cluster index
              *
              * @param aVertex
-             * @param aIsMaster
+             * @param aIsLeader
              * @return moris_index
              */
 
             virtual moris_index
             get_vertex_cluster_index( const Vertex* aVertex,
-                    const mtk::Master_Slave         aIsMaster = mtk::Master_Slave::MASTER ) const override;
+                    const mtk::Leader_Follower         aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
             // ----------------------------------------------------------------------------------
 
@@ -204,14 +204,14 @@ namespace moris
              * @brief compute cluster cell measure
              *
              * @param aPrimaryOrVoid
-             * @param aIsMaster
+             * @param aIsLeader
              * @return moris::real
              */
 
             virtual moris::real
             compute_cluster_cell_measure(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const override;
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const override;
 
             //---------------------------------------------------------------------------------------
 
@@ -219,14 +219,14 @@ namespace moris
              * @brief volume of the ig cells in matrix
              *
              * @param aPrimaryOrVoid
-             * @param aIsMaster
+             * @param aIsLeader
              * @return Matrix< DDRMat >
              */
 
             virtual Matrix< DDRMat >
             compute_cluster_ig_cell_measures(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const override;
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const override;
 
             //---------------------------------------------------------------------------------------
 
@@ -236,7 +236,7 @@ namespace moris
              * @param aPerturbedVertexCoords
              * @param aDirection
              * @param aPrimaryOrVoid
-             * @param aIsMaster
+             * @param aIsLeader
              * @return moris::real
              */
 
@@ -245,7 +245,7 @@ namespace moris
                     const Matrix< DDRMat >& aPerturbedVertexCoords,
                     uint                    aDirection,
                     const mtk::Primary_Void aPrimaryOrVoid,
-                    const mtk::Master_Slave aIsMaster ) const override;
+                    const mtk::Leader_Follower aIsLeader ) const override;
 
             //------------------------------------------------------------------------------
 
@@ -253,7 +253,7 @@ namespace moris
             compute_cluster_group_cell_measure(
                     const moris_index       aDiscretizationMeshIndex,
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const override
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const override
             {
                 MORIS_ERROR( false, "mtk::Side_Cluster_DataBase::compute_cluster_group_cell_measure() - Not implemented in this child class." );
                 return 0.0;
@@ -267,7 +267,7 @@ namespace moris
                     const Matrix< DDRMat >& aPerturbedVertexCoords,
                     uint                    aDirection,
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const override
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const override
             {
                 MORIS_ERROR( false, "mtk::Side_Cluster_DataBase::compute_cluster_group_cell_measure_derivative() - Not implemented in this child class." );
                 return 0.0;
@@ -279,7 +279,7 @@ namespace moris
             compute_cluster_group_cell_side_measure(
                     const moris_index       aDiscretizationMeshIndex,
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const override
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const override
             {
                 MORIS_ERROR( false, "mtk::Cell_Cluster_DataBase::compute_cluster_group_cell_side_measure() - Not implemented in this child class." );
                 return 0.0;
@@ -293,7 +293,7 @@ namespace moris
                     const Matrix< DDRMat >& aPerturbedVertexCoords,
                     uint                    aDirection,
                     const mtk::Primary_Void aPrimaryOrVoid,
-                    const mtk::Master_Slave aIsMaster ) const override
+                    const mtk::Leader_Follower aIsLeader ) const override
             {
                 MORIS_ERROR( false, "mtk::Cell_Cluster_DataBase::compute_cluster_group_cell_side_measure_derivative() - Not implemented in this child class." );
                 return 0.0;

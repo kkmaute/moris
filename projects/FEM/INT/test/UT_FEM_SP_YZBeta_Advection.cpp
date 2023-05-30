@@ -126,8 +126,8 @@ void UT_FEM_SP_YZBETA_Advection_Core( real aBeta )
             tSPFactory.create_SP( fem::Stabilization_Type::YZBETA_ADVECTION );
     tSPYZBeta->set_dof_type_list( { tTempDofTypes } );
     tSPYZBeta->set_constitutive_model( tCMDiffusion, "Diffusion" );
-    tSPYZBeta->set_property( tPropBeta,      "Beta",           mtk::Master_Slave::MASTER );
-    tSPYZBeta->set_property( tPropRefState,  "ReferenceState", mtk::Master_Slave::MASTER );
+    tSPYZBeta->set_property( tPropBeta,      "Beta",           mtk::Leader_Follower::LEADER );
+    tSPYZBeta->set_property( tPropRefState,  "ReferenceState", mtk::Leader_Follower::LEADER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -146,10 +146,10 @@ void UT_FEM_SP_YZBETA_Advection_Core( real aBeta )
     tSPYZBeta->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
     tSPYZBeta->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
-    // set size and populate the set master dof type map
-    tSPYZBeta->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tSPYZBeta->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
-    tSPYZBeta->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
+    // set size and populate the set leader dof type map
+    tSPYZBeta->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tSPYZBeta->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
+    tSPYZBeta->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 1;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -261,22 +261,22 @@ void UT_FEM_SP_YZBETA_Advection_Core( real aBeta )
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatTEMP;
-            fill_phat( tMasterDOFHatTEMP, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatTEMP;
+            fill_phat( tLeaderDOFHatTEMP, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator temperature
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatTEMP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatTEMP );
 
             // build global dof type list
             tSPYZBeta->get_global_dof_type_list();
@@ -290,12 +290,12 @@ void UT_FEM_SP_YZBETA_Advection_Core( real aBeta )
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI = tMasterFIs;
+            tFIManager.mFI = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tSPYZBeta->mSet->mMasterFIManager = &tFIManager;
+            tSPYZBeta->mSet->mLeaderFIManager = &tFIManager;
 
             // set SP field interpolator manager
             tSPYZBeta->set_field_interpolator_manager( &tFIManager );
@@ -312,24 +312,24 @@ void UT_FEM_SP_YZBETA_Advection_Core( real aBeta )
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tSPYZBeta->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tSPYZBeta->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
-                // populate the requested master dof type for SP
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tMasterDofTypes =
+                // populate the requested leader dof type for SP
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tLeaderDofTypes =
                         tSPYZBeta->get_global_dof_type_list();
 
                 // loop over requested dof type
-                for( uint iRequestedDof = 0; iRequestedDof < tMasterDofTypes.size(); iRequestedDof++ )
+                for( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                 {
                     // derivative dof type
-                    Cell< MSI::Dof_Type > tDofDerivative = tMasterDofTypes( iRequestedDof );
+                    Cell< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                     // evaluate dspdu
-                    Matrix< DDRMat > tdspdu = tSPYZBeta->dSPdMasterDOF( tDofDerivative );
+                    Matrix< DDRMat > tdspdu = tSPYZBeta->dSPdLeaderDOF( tDofDerivative );
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdspduFD;
-                    tSPYZBeta->eval_dSPdMasterDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
+                    tSPYZBeta->eval_dSPdLeaderDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
 
                     // check that analytical and FD match
                     bool tCheckYZBeta = fem::check( tdspdu, tdspduFD, tEpsilon );
@@ -338,7 +338,7 @@ void UT_FEM_SP_YZBETA_Advection_Core( real aBeta )
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }

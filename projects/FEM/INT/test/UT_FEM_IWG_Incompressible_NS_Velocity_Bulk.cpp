@@ -127,21 +127,21 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterIncFluid =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderIncFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_INCOMPRESSIBLE );
-    tCMMasterIncFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) } );
-    tCMMasterIncFluid->set_property( tPropViscosity, "Viscosity" );
-    tCMMasterIncFluid->set_property( tPropDensity, "Density" );
-    tCMMasterIncFluid->set_local_properties();
+    tCMLeaderIncFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) } );
+    tCMLeaderIncFluid->set_property( tPropViscosity, "Viscosity" );
+    tCMLeaderIncFluid->set_property( tPropDensity, "Density" );
+    tCMLeaderIncFluid->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow =
             tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
-    tSPIncFlow->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) }, mtk::Master_Slave::MASTER );
-    tSPIncFlow->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
-    tSPIncFlow->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+    tSPIncFlow->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) }, mtk::Leader_Follower::LEADER );
+    tSPIncFlow->set_property( tPropDensity, "Density", mtk::Leader_Follower::LEADER );
+    tSPIncFlow->set_property( tPropViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
     tSPIncFlow->set_parameters( { { { 36.0 } }, { { 1.0 } } } );
 
     // create a dummy fem cluster and set it to SP
@@ -154,13 +154,13 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
     tIWG->set_residual_dof_type( tVelDofTypes );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
     tIWG->set_property( tPropGravity, "Gravity" );
     tIWG->set_property( tPropThermalExp, "ThermalExpansion" );
     tIWG->set_property( tPropRefTemp, "ReferenceTemp" );
     tIWG->set_property( tPropMassSource, "MassSource" );
     tIWG->set_property( tPropBodyLoad, "Load" );
-    tIWG->set_constitutive_model( tCMMasterIncFluid, "IncompressibleFluid" );
+    tIWG->set_constitutive_model( tCMLeaderIncFluid, "IncompressibleFluid" );
     tIWG->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
     // init set info
@@ -179,11 +179,11 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )    = 1;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 2;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )    = 1;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 2;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )   = 0;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )    = 1;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 2;
 
     // loop on the space dimension
     for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -228,7 +228,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
 
         // set space dimension to CM, SP
         tPropGravity->set_parameters( { tGravity } );
-        tCMMasterIncFluid->set_space_dim( iSpaceDim );
+        tCMLeaderIncFluid->set_space_dim( iSpaceDim );
         tSPIncFlow->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
@@ -299,30 +299,30 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
 
-            Matrix< DDRMat > tMasterDOFHatP;
-            fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatP;
+            fill_phat( tLeaderDOFHatP, iSpaceDim, iInterpOrder );
 
-            Matrix< DDRMat > tMasterDOFHatTEMP;
-            fill_phat( tMasterDOFHatTEMP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatTEMP;
+            fill_phat( tLeaderDOFHatTEMP, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatP );
 
             // create the field interpolator temperature
-            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTEMPDofTypes( 0 ) );
-            tMasterFIs( 2 )->set_coeff( tMasterDOFHatTEMP );
+            tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTEMPDofTypes( 0 ) );
+            tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatTEMP );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -356,8 +356,8 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
@@ -365,12 +365,12 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI                     = tMasterFIs;
+            tFIManager.mFI                     = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tFIManager;
+            tIWG->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tFIManager );
@@ -386,7 +386,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -425,7 +425,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_No_Turbulence",
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 } /*END_TEST_CASE*/
@@ -526,22 +526,22 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
-    tCMMasterTurbulence->set_property( tPropViscosity, "Viscosity" );
-    tCMMasterTurbulence->set_property( tPropKinViscosity, "KinViscosity" );
-    tCMMasterTurbulence->set_property( tPropDensity, "Density" );
-    tCMMasterTurbulence->set_local_properties();
+    tCMLeaderTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
+    tCMLeaderTurbulence->set_property( tPropViscosity, "Viscosity" );
+    tCMLeaderTurbulence->set_property( tPropKinViscosity, "KinViscosity" );
+    tCMLeaderTurbulence->set_property( tPropDensity, "Density" );
+    tCMLeaderTurbulence->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow =
             tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
-    tSPIncFlow->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) }, mtk::Master_Slave::MASTER );
-    tSPIncFlow->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
-    tSPIncFlow->set_property( tPropViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+    tSPIncFlow->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ) }, mtk::Leader_Follower::LEADER );
+    tSPIncFlow->set_property( tPropDensity, "Density", mtk::Leader_Follower::LEADER );
+    tSPIncFlow->set_property( tPropViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
     tSPIncFlow->set_parameters( { { { 36.0 } }, { { 1.0 } } } );
 
     // create a dummy fem cluster and set it to SP
@@ -554,13 +554,13 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
     tIWG->set_residual_dof_type( tVelDofTypes );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
     tIWG->set_property( tPropGravity, "Gravity" );
     tIWG->set_property( tPropThermalExp, "ThermalExpansion" );
     tIWG->set_property( tPropRefTemp, "ReferenceTemp" );
     tIWG->set_property( tPropMassSource, "MassSource" );
     tIWG->set_property( tPropBodyLoad, "Load" );
-    tIWG->set_constitutive_model( tCMMasterTurbulence, "IncompressibleFluid" );
+    tIWG->set_constitutive_model( tCMLeaderTurbulence, "IncompressibleFluid" );
     tIWG->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
     // init set info
@@ -580,12 +580,12 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )      = 2;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 3;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )      = 2;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 3;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )      = 2;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 3;
 
     // loop on the space dimension
     for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -640,7 +640,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
 
         // set space dimension to CM, SP
         tPropGravity->set_parameters( { tGravity } );
-        tCMMasterTurbulence->set_space_dim( iSpaceDim );
+        tCMLeaderTurbulence->set_space_dim( iSpaceDim );
         tSPIncFlow->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
@@ -712,37 +712,37 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
 
-            Matrix< DDRMat > tMasterDOFHatP;
-            fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatP;
+            fill_phat( tLeaderDOFHatP, iSpaceDim, iInterpOrder );
 
-            Matrix< DDRMat > tMasterDOFHatTEMP;
-            fill_phat( tMasterDOFHatTEMP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatTEMP;
+            fill_phat( tLeaderDOFHatTEMP, iSpaceDim, iInterpOrder );
 
-            Matrix< DDRMat > tMasterDOFHatVis;
-            fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatVis;
+            fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatP );
 
             // create the field interpolator temperature
-            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTEMPDofTypes );
-            tMasterFIs( 2 )->set_coeff( tMasterDOFHatTEMP );
+            tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTEMPDofTypes );
+            tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatTEMP );
 
             // create the field interpolator viscosity
-            tMasterFIs( 3 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
-            tMasterFIs( 3 )->set_coeff( tMasterDOFHatVis );
+            tLeaderFIs( 3 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tLeaderFIs( 3 )->set_coeff( tLeaderDOFHatVis );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -779,8 +779,8 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
@@ -788,12 +788,12 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI                     = tMasterFIs;
+            tFIManager.mFI                     = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tFIManager;
+            tIWG->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tFIManager );
@@ -809,7 +809,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -848,7 +848,7 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Bulk_With_Turbulence",
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 } /*END_TEST_CASE*/

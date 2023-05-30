@@ -41,25 +41,25 @@ namespace moris
 
             virtual
             mtk::Cell *
-            get_master() = 0;
+            get_leader() = 0;
 
 //------------------------------------------------------------------------------
 
             virtual
             const mtk::Cell *
-            get_master() const = 0;
+            get_leader() const = 0;
 
 //------------------------------------------------------------------------------
 
             virtual
             mtk::Cell *
-            get_slave() = 0;
+            get_follower() = 0;
 
 //------------------------------------------------------------------------------
 
             virtual
             const mtk::Cell *
-            get_slave() const = 0;
+            get_follower() const = 0;
 
 //-----------------------------------------------------------------------------
 

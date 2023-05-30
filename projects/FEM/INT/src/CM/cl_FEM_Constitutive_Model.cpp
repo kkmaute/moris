@@ -2438,7 +2438,7 @@ namespace moris
             // get the field interpolator for type
             Field_Interpolator* tFI = mFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
-            // get number of master dofs wrt which derivative is computed
+            // get number of leader dofs wrt which derivative is computed
             uint tDerNumDof    = tFI->get_number_of_space_time_coefficients();
             uint tDerNumBases  = tFI->get_number_of_space_time_bases();
             uint tDerNumFields = tFI->get_number_of_fields();

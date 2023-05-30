@@ -462,9 +462,9 @@ namespace moris::mig
             tUniqueIntersectedPoints = join_horiz( tUniqueIntersectedPoints, tP( aIndicesInCutCell( i ) ) );
         }
 
-        // create master and slave side vertices
-        this->create_master_vertices( tUniqueIntersectedPoints, aInterpCell1, aPairCount );
-        this->create_slave_vertices( tUniqueIntersectedPoints, aInterpCell2, aPairCount );
+        // create leader and follower side vertices
+        this->create_leader_vertices( tUniqueIntersectedPoints, aInterpCell1, aPairCount );
+        this->create_follower_vertices( tUniqueIntersectedPoints, aInterpCell2, aPairCount );
 
         // the outer cell is the side cluster number
         mSideClusterToCells( mNumSideClusters ).resize( tP.size() );
@@ -481,35 +481,35 @@ namespace moris::mig
         // loop over the side clusters needs to be created( It is 1 in 2D)
         for ( size_t tClusterNum = 0; tClusterNum < tP.size(); tClusterNum++ )
         {
-            // create master IG cell
-            this->create_master_ig_cell( aInterpCell1, aPairCount );
+            // create leader IG cell
+            this->create_leader_ig_cell( aInterpCell1, aPairCount );
 
-            // create slave IG cell
-            this->create_slave_ig_cell( aInterpCell2, aPairCount );
+            // create follower IG cell
+            this->create_follower_ig_cell( aInterpCell2, aPairCount );
         }
 
-        // create a matrix for ordinals for slave and master cells
-        moris::Matrix< moris::IndexMat > tMasterIntegrationCellSideOrdinals( 1, tP.size(), 0 );
-        moris::Matrix< moris::IndexMat > tSlaveIntegrationCellSideOrdinals( 1, tP.size(), 0 );
+        // create a matrix for ordinals for follower and leader cells
+        moris::Matrix< moris::IndexMat > tLeaderIntegrationCellSideOrdinals( 1, tP.size(), 0 );
+        moris::Matrix< moris::IndexMat > tFollowerIntegrationCellSideOrdinals( 1, tP.size(), 0 );
 
-        // parametric coords of master and slave vertices
-        moris::Matrix< DDRMat > tMasterParamCoords( tUniqueIntersectedPoints.n_cols(), 2 );
-        moris::Matrix< DDRMat > tSlaveParamCoords( tUniqueIntersectedPoints.n_cols(), 2 );
+        // parametric coords of leader and follower vertices
+        moris::Matrix< DDRMat > tLeaderParamCoords( tUniqueIntersectedPoints.n_cols(), 2 );
+        moris::Matrix< DDRMat > tFollowerParamCoords( tUniqueIntersectedPoints.n_cols(), 2 );
 
         // loop through the
         for ( uint i = 0; i < tUniqueIntersectedPoints.n_cols(); i++ )
         {
-            moris::Matrix< DDRMat > tMasterParamCoord = { { -1, tUniqueIntersectedPoints( 0, i ) } };
-            moris::Matrix< DDRMat > tSlaveParamCoord  = { { +1, tUniqueIntersectedPoints( 0, i ) } };
-            tMasterParamCoord                         = tMasterParamCoord * tRotation;
-            tSlaveParamCoord                          = tSlaveParamCoord * tRotation;
-            tMasterParamCoords.get_row( i )           = tMasterParamCoord.get_row( 0 );
-            tSlaveParamCoords.get_row( i )            = tSlaveParamCoord.get_row( 0 );
+            moris::Matrix< DDRMat > tLeaderParamCoord = { { -1, tUniqueIntersectedPoints( 0, i ) } };
+            moris::Matrix< DDRMat > tFollowerParamCoord  = { { +1, tUniqueIntersectedPoints( 0, i ) } };
+            tLeaderParamCoord                         = tLeaderParamCoord * tRotation;
+            tFollowerParamCoord                          = tFollowerParamCoord * tRotation;
+            tLeaderParamCoords.get_row( i )           = tLeaderParamCoord.get_row( 0 );
+            tFollowerParamCoords.get_row( i )            = tFollowerParamCoord.get_row( 0 );
         }
 
         // put the coordinate matrix in the right spot
-        mVertexParametricCoords( { mNumParamCoords, mNumParamCoords + tUniqueIntersectedPoints.n_cols() - 1 }, { 0, 1 } )                                         = tMasterParamCoords.matrix_data();
-        mVertexParametricCoords( { mNumParamCoords + tUniqueIntersectedPoints.n_cols(), mNumParamCoords + 2 * tUniqueIntersectedPoints.n_cols() - 1 }, { 0, 1 } ) = tSlaveParamCoords.matrix_data();
+        mVertexParametricCoords( { mNumParamCoords, mNumParamCoords + tUniqueIntersectedPoints.n_cols() - 1 }, { 0, 1 } )                                         = tLeaderParamCoords.matrix_data();
+        mVertexParametricCoords( { mNumParamCoords + tUniqueIntersectedPoints.n_cols(), mNumParamCoords + 2 * tUniqueIntersectedPoints.n_cols() - 1 }, { 0, 1 } ) = tFollowerParamCoords.matrix_data();
 
         // increment number of double sided clusters
         mNumParamCoords += 2 * tUniqueIntersectedPoints.n_cols();
@@ -517,10 +517,10 @@ namespace moris::mig
         // save the double sided cluster phase index
         mDoubleSidedClustersIndex( mNumDblSideCluster ) = aPhaseToPhase;
 
-        // increase the count of double sided cluster by 2, 1 for master and 1 for slave
+        // increase the count of double sided cluster by 2, 1 for leader and 1 for follower
         mNumSideClusters += 2;
 
-        // increase the count of double sided cluster by 2, 1 for master and 1 for slave
+        // increase the count of double sided cluster by 2, 1 for leader and 1 for follower
         mNumCells += 2;
 
         // increase the count of double sided cluster
@@ -530,7 +530,7 @@ namespace moris::mig
     //------------------------------------------------------------------------------------------------------------
 
     void
-    Periodic_2D::create_master_ig_cell( moris::mtk::Cell const &aMasterInterpCell, uint aPairCount )
+    Periodic_2D::create_leader_ig_cell( moris::mtk::Cell const &aLeaderInterpCell, uint aPairCount )
     {
         // define the permutation of the vertices
         moris::Cell< moris_index > tPermutation;
@@ -554,13 +554,13 @@ namespace moris::mig
             [this]( moris_index aIndex ) { return mSideClusterToVertexIndices( mNumSideClusters )( aIndex ); } );
 
         // store the IP cell( cell cluster ) corresponding to the side cluster
-        mSideClusterToIPCell( mNumSideClusters ) = aMasterInterpCell.get_index();
+        mSideClusterToIPCell( mNumSideClusters ) = aLeaderInterpCell.get_index();
     }
 
     //------------------------------------------------------------------------------------------------------------
 
     void
-    Periodic_2D::create_slave_ig_cell( moris::mtk::Cell const &aSlaveInterpCell, uint aPairCount )
+    Periodic_2D::create_follower_ig_cell( moris::mtk::Cell const &aFollowerInterpCell, uint aPairCount )
     {
         // define the permutation of the vertices
         moris::Cell< moris_index > tPermutation;
@@ -584,7 +584,7 @@ namespace moris::mig
             [this]( moris_index aIndex ) { return mSideClusterToVertexIndices( mNumSideClusters + 1 )( aIndex ); } );
 
         // store the IP cell( cell cluster ) corresponding to the side cluster
-        mSideClusterToIPCell( mNumSideClusters + 1 ) = aSlaveInterpCell.get_index();
+        mSideClusterToIPCell( mNumSideClusters + 1 ) = aFollowerInterpCell.get_index();
     }
 
     //------------------------------------------------------------------------------------------------------------
@@ -711,7 +711,7 @@ namespace moris::mig
     // ----------------------------------------------------------------------------
 
     void
-    Periodic_2D::create_master_vertices( Matrix< DDRMat > tUniqueIntersectedPoints, moris::mtk::Cell const &aMasterInterpCell, uint aPairCount )
+    Periodic_2D::create_leader_vertices( Matrix< DDRMat > tUniqueIntersectedPoints, moris::mtk::Cell const &aLeaderInterpCell, uint aPairCount )
     {
         moris::Matrix< DDRMat > tRotation;
         moris::Matrix< DDRMat > tInverseRotation;
@@ -727,7 +727,7 @@ namespace moris::mig
             mNumVertices );
 
         // coordinates of nodes attached to element to interpolate for physical coordinates
-        moris::Matrix< moris::DDRMat > tCoordinates = aMasterInterpCell.get_vertex_coords();
+        moris::Matrix< moris::DDRMat > tCoordinates = aLeaderInterpCell.get_vertex_coords();
 
         // loop over surface nodes
         for ( uint i = 0; i < tNumSurfaceNodes; i++ )
@@ -765,7 +765,7 @@ namespace moris::mig
     // ----------------------------------------------------------------------------
 
     void
-    Periodic_2D::create_slave_vertices( Matrix< DDRMat > tUniqueIntersectedPoints, moris::mtk::Cell const &aSlaveInterpCell, uint aPairCount )
+    Periodic_2D::create_follower_vertices( Matrix< DDRMat > tUniqueIntersectedPoints, moris::mtk::Cell const &aFollowerInterpCell, uint aPairCount )
     {
 
         moris::Matrix< DDRMat > tRotation;
@@ -782,7 +782,7 @@ namespace moris::mig
             mNumVertices );
 
         // coordinates of nodes attached to element to interpolate for physical coordinates
-        moris::Matrix< moris::DDRMat > tCoordinates = aSlaveInterpCell.get_vertex_coords();
+        moris::Matrix< moris::DDRMat > tCoordinates = aFollowerInterpCell.get_vertex_coords();
 
         for ( uint i = 0; i < tNumSurfaceNodes; i++ )
         {

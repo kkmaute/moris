@@ -1,5 +1,5 @@
 /*
- *  CATCH v1.0 build 53 (master branch)
+ *  CATCH v1.0 build 53 (leader branch)
  *  Generated: 2014-08-20 08:08:19.533804
  *  ----------------------------------------------------------
  *  This file has been merged from multiple headers. Please don't edit it directly
@@ -5337,7 +5337,7 @@ namespace Catch {
             std::cout << "\nCatch v"    << libraryVersion.majorVersion << "."
                                         << libraryVersion.minorVersion << " build "
                                         << libraryVersion.buildNumber;
-            if( libraryVersion.branchName != std::string( "master" ) )
+            if( libraryVersion.branchName != std::string( "leader" ) )
                 std::cout << " (" << libraryVersion.branchName << " branch)";
             std::cout << "\n";
 
@@ -6417,7 +6417,7 @@ namespace Catch {
 namespace Catch {
 
     // These numbers are maintained by a script
-    Version libraryVersion( 1, 0, 53, "master" );
+    Version libraryVersion( 1, 0, 53, "leader" );
 }
 
 // #included from: catch_message.hpp
@@ -8276,7 +8276,7 @@ namespace Catch {
                     << " is a Catch v"  << libraryVersion.majorVersion << "."
                     << libraryVersion.minorVersion << " b"
                     << libraryVersion.buildNumber;
-            if( libraryVersion.branchName != std::string( "master" ) )
+            if( libraryVersion.branchName != std::string( "leader" ) )
                 stream << " (" << libraryVersion.branchName << ")";
             stream  << " host application.\n"
                     << "Run with -? for options\n\n";

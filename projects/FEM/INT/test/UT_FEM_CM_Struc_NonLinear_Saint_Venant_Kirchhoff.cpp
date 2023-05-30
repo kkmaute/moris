@@ -82,30 +82,30 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterStrucLinIso =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderStrucLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::STRUC_NON_LIN_ISO_SAINT_VENANT_KIRCHHOFF );
-    tCMMasterStrucLinIso->set_dof_type_list( { tDispDofTypes } );
-    tCMMasterStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
-    tCMMasterStrucLinIso->set_property( tPropNu, "PoissonRatio" );
-    tCMMasterStrucLinIso->set_local_properties();
+    tCMLeaderStrucLinIso->set_dof_type_list( { tDispDofTypes } );
+    tCMLeaderStrucLinIso->set_property( tPropEMod, "YoungsModulus" );
+    tCMLeaderStrucLinIso->set_property( tPropNu, "PoissonRatio" );
+    tCMLeaderStrucLinIso->set_local_properties();
 
     // set a fem set pointer
     MSI::Equation_Set* tSet = new fem::Set();
-    tCMMasterStrucLinIso->set_set_pointer( static_cast< fem::Set* >( tSet ) );
+    tCMLeaderStrucLinIso->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    tCMMasterStrucLinIso->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
+    tCMLeaderStrucLinIso->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
-    tCMMasterStrucLinIso->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMMasterStrucLinIso->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    tCMLeaderStrucLinIso->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tCMLeaderStrucLinIso->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
-    // set size and populate the set master dof type map
-    tCMMasterStrucLinIso->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tCMMasterStrucLinIso->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
+    // set size and populate the set leader dof type map
+    tCMLeaderStrucLinIso->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tCMLeaderStrucLinIso->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) ) = 0;
 
     // build global dof type list
-    tCMMasterStrucLinIso->get_global_dof_type_list();
+    tCMLeaderStrucLinIso->get_global_dof_type_list();
 
     // loop on the space dimension
     for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -183,8 +183,8 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimensions for property, CM and SP
-        tCMMasterStrucLinIso->set_space_dim( iSpaceDim );
-        tCMMasterStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRAIN );
+        tCMLeaderStrucLinIso->set_space_dim( iSpaceDim );
+        tCMLeaderStrucLinIso->set_model_type( fem::Model_Type::PLANE_STRAIN );
 
         // loop on the interpolation order
         for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -223,18 +223,18 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_uhat_Elast( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_uhat_Elast( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
 
-            tMasterDOFHatVel = tMasterDOFHatVel * 0.01;
+            tLeaderDOFHatVel = tLeaderDOFHatVel * 0.01;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( 0.1 * tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tDispDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( 0.1 * tLeaderDOFHatVel );
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
@@ -242,61 +242,61 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI                     = tMasterFIs;
+            tFIManager.mFI                     = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tCMMasterStrucLinIso->mSet->mMasterFIManager = &tFIManager;
+            tCMLeaderStrucLinIso->mSet->mLeaderFIManager = &tFIManager;
 
             // set CM field interpolator manager
-            tCMMasterStrucLinIso->set_field_interpolator_manager( &tFIManager );
+            tCMLeaderStrucLinIso->set_field_interpolator_manager( &tFIManager );
 
             uint tNumGPs = tIntegPoints.n_cols();
             for ( uint iGP = 0; iGP < tNumGPs; iGP++ )
             {
                 // reset CM evaluation flags
-                tCMMasterStrucLinIso->reset_eval_flags();
+                tCMLeaderStrucLinIso->reset_eval_flags();
 
                 // create evaluation point xi, tau
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tCMMasterStrucLinIso->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tCMLeaderStrucLinIso->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
-                // populate the requested master dof type for CM
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tRequestedMasterGlobalDofTypes =
-                        tCMMasterStrucLinIso->get_global_dof_type_list();
+                // populate the requested leader dof type for CM
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tRequestedLeaderGlobalDofTypes =
+                        tCMLeaderStrucLinIso->get_global_dof_type_list();
 
-                // populate the test master dof type for CM
-                moris::Cell< moris::Cell< MSI::Dof_Type > > tMasterDofTypes =
-                        tCMMasterStrucLinIso->get_dof_type_list();
+                // populate the test leader dof type for CM
+                moris::Cell< moris::Cell< MSI::Dof_Type > > tLeaderDofTypes =
+                        tCMLeaderStrucLinIso->get_dof_type_list();
 
                 // loop over requested dof type
-                for ( uint iRequestedDof = 0; iRequestedDof < tRequestedMasterGlobalDofTypes.size(); iRequestedDof++ )
+                for ( uint iRequestedDof = 0; iRequestedDof < tRequestedLeaderGlobalDofTypes.size(); iRequestedDof++ )
                 {
                     // derivative dof type
-                    Cell< MSI::Dof_Type > tDofDerivative = tRequestedMasterGlobalDofTypes( iRequestedDof );
+                    Cell< MSI::Dof_Type > tDofDerivative = tRequestedLeaderGlobalDofTypes( iRequestedDof );
 
                     // strain
                     //------------------------------------------------------------------------------
                     // evaluate Lagrange Green strain
                     //                    const Matrix< DDRMat > & tLGStrain =
-                    //                            tCMMasterStrucLinIso->strain( CM_Function_Type::LAGRANGIAN );
+                    //                            tCMLeaderStrucLinIso->strain( CM_Function_Type::LAGRANGIAN );
 
                     // evaluate dLGStraindu
                     Matrix< DDRMat > tdLGStraindu =
-                            tCMMasterStrucLinIso->dStraindDOF(
+                            tCMLeaderStrucLinIso->dStraindDOF(
                                     tDofDerivative,
                                     CM_Function_Type::LAGRANGIAN );
 
                     //                    const Matrix< DDRMat > & tLGTestStrain =
-                    //                            tCMMasterStrucLinIso->testStrain( CM_Function_Type::LAGRANGIAN );
+                    //                            tCMLeaderStrucLinIso->testStrain( CM_Function_Type::LAGRANGIAN );
                     //                    print(tLGTestStrain,"tLGTestStrain");
 
                     // evaluate dLGStraindu by FD
                     Matrix< DDRMat > tdLGStrainduFD;
-                    tCMMasterStrucLinIso->eval_dStraindDOF_FD(
+                    tCMLeaderStrucLinIso->eval_dStraindDOF_FD(
                             tDofDerivative,
                             tdLGStrainduFD,
                             tPerturbation,
@@ -311,29 +311,29 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
                     //------------------------------------------------------------------------------
                     // evaluate PK1
                     //                    const Matrix< DDRMat > & tPK1Stress =
-                    //                            tCMMasterStrucLinIso->flux( CM_Function_Type::PK1 );
+                    //                            tCMLeaderStrucLinIso->flux( CM_Function_Type::PK1 );
                     //                    print( tPK1Stress, "tPK1Stress" );
 
                     // evaluate PK2
                     //                    const Matrix< DDRMat > & tPK2Stress =
-                    //                            tCMMasterStrucLinIso->flux( CM_Function_Type::PK2 );
+                    //                            tCMLeaderStrucLinIso->flux( CM_Function_Type::PK2 );
                     //                    print( tPK2Stress, "tPK2Stress" );
 
                     // evaluate Cauchy
                     //                    const Matrix< DDRMat > & tCauchyStress =
-                    //                            tCMMasterStrucLinIso->flux( CM_Function_Type::CAUCHY );
+                    //                            tCMLeaderStrucLinIso->flux( CM_Function_Type::CAUCHY );
                     //                    print( tCauchyStress, "tCauchyStress" );
 
                     // evaluate dPK2du
                     Matrix< DDRMat > tdPK2Stressdu =
-                            tCMMasterStrucLinIso->dFluxdDOF(
+                            tCMLeaderStrucLinIso->dFluxdDOF(
                                     tDofDerivative,
                                     CM_Function_Type::PK2 );
                     //                    print(tdPK2Stressdu,"tdPK2Stressdu");
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdPK2StressduFD;
-                    tCMMasterStrucLinIso->eval_dFluxdDOF_FD(
+                    tCMLeaderStrucLinIso->eval_dFluxdDOF_FD(
                             tDofDerivative,
                             tdPK2StressduFD,
                             tPerturbation,
@@ -347,14 +347,14 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
 
                     // evaluate dPK1du
                     Matrix< DDRMat > tdPK1Stressdu =
-                            tCMMasterStrucLinIso->dFluxdDOF(
+                            tCMLeaderStrucLinIso->dFluxdDOF(
                                     tDofDerivative,
                                     CM_Function_Type::PK1 );
                     //                    print(tdPK1Stressdu,"tdPK1Stressdu");
 
                     // evaluate dfluxdu by FD
                     Matrix< DDRMat > tdPK1StressduFD;
-                    tCMMasterStrucLinIso->eval_dFluxdDOF_FD(
+                    tCMLeaderStrucLinIso->eval_dFluxdDOF_FD(
                             tDofDerivative,
                             tdPK1StressduFD,
                             tPerturbation,
@@ -370,26 +370,26 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
                     //------------------------------------------------------------------------------
                     // evaluate PK1 traction
                     //                    const Matrix< DDRMat > & tPK1Traction =
-                    //                            tCMMasterStrucLinIso->traction( tNormal, CM_Function_Type::PK1 );
+                    //                            tCMLeaderStrucLinIso->traction( tNormal, CM_Function_Type::PK1 );
                     //                    print( tPK1Traction, "tPK1Traction" );
 
                     // evaluate PK2 traction
                     //                    const Matrix< DDRMat > & tPK2Traction =
-                    //                            tCMMasterStrucLinIso->traction( tNormal, CM_Function_Type::PK2 );
+                    //                            tCMLeaderStrucLinIso->traction( tNormal, CM_Function_Type::PK2 );
                     //                    print( tPK2Traction, "tPK2Traction" );
 
                     //                    // evaluate Cauchy
                     //                    const Matrix< DDRMat > & tCauchyTraction =
-                    //                            tCMMasterStrucLinIso->traction( tNormal, CM_Function_Type::CAUCHY );
+                    //                            tCMLeaderStrucLinIso->traction( tNormal, CM_Function_Type::CAUCHY );
                     ////                    print( tCauchyTraction, "tCauchyTraction" );
 
                     //                    // evaluate dPK2Tractiondu
                     Matrix< DDRMat > tdPK2Tractiondu =
-                            tCMMasterStrucLinIso->dTractiondDOF( tDofDerivative, tNormal, CM_Function_Type::PK2 );
+                            tCMLeaderStrucLinIso->dTractiondDOF( tDofDerivative, tNormal, CM_Function_Type::PK2 );
 
                     // evaluate dPK2Tractiondu by FD
                     Matrix< DDRMat > tdPK2TractionduFD;
-                    tCMMasterStrucLinIso->eval_dtractiondu_FD(
+                    tCMLeaderStrucLinIso->eval_dtractiondu_FD(
                             tDofDerivative,
                             tdPK2TractionduFD,
                             tPerturbation,
@@ -403,11 +403,11 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
 
                     // evaluate dPK1Tractiondu
                     Matrix< DDRMat > tdPK1Tractiondu =
-                            tCMMasterStrucLinIso->dTractiondDOF( tDofDerivative, tNormal, CM_Function_Type::PK1 );
+                            tCMLeaderStrucLinIso->dTractiondDOF( tDofDerivative, tNormal, CM_Function_Type::PK1 );
 
                     // evaluate dPK1Tractiondu by FD
                     Matrix< DDRMat > tdPK1TractionduFD;
-                    tCMMasterStrucLinIso->eval_dtractiondu_FD(
+                    tCMLeaderStrucLinIso->eval_dtractiondu_FD(
                             tDofDerivative,
                             tdPK1TractionduFD,
                             tPerturbation,
@@ -415,10 +415,10 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
                             fem::FDScheme_Type::POINT_5,
                             CM_Function_Type::PK1 );
 
-                    Cell< MSI::Dof_Type > tDofTest = tMasterDofTypes( 0 );
+                    Cell< MSI::Dof_Type > tDofTest = tLeaderDofTypes( 0 );
 
                     //                    const Matrix< DDRMat > & tPK1TestTraction =
-                    //                            tCMMasterStrucLinIso->testTraction( tNormal, tDofTest, CM_Function_Type::PK1 );
+                    //                            tCMLeaderStrucLinIso->testTraction( tNormal, tDofTest, CM_Function_Type::PK1 );
 
                     // check that analytical and FD match
                     bool tCheckPK1Traction = fem::check( tdPK1Tractiondu, tdPK1TractionduFD, tEpsilon );
@@ -428,29 +428,29 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
                     //                    //------------------------------------------------------------------------------
                     //
                     //                    // loop over test dof type
-                    for ( uint iTestDof = 0; iTestDof < tMasterDofTypes.size(); iTestDof++ )
+                    for ( uint iTestDof = 0; iTestDof < tLeaderDofTypes.size(); iTestDof++ )
                     {
                         //                        // get the test dof type
-                        Cell< MSI::Dof_Type > tDofTest = tMasterDofTypes( iTestDof );
+                        Cell< MSI::Dof_Type > tDofTest = tLeaderDofTypes( iTestDof );
                         //
                         //                        // evaluate PK1 test traction
                         //                        const Matrix< DDRMat > & tPK1TestTraction =
-                        //                                tCMMasterStrucLinIso->testTraction( tNormal, tDofTest, CM_Function_Type::PK1 );
+                        //                                tCMLeaderStrucLinIso->testTraction( tNormal, tDofTest, CM_Function_Type::PK1 );
                         //                        print( tPK1TestTraction, "tPK1TestTraction" );
                         //
                         //                        // evaluate PK2 test traction
                         //                        const Matrix< DDRMat > & tPK2TestTraction =
-                        //                                tCMMasterStrucLinIso->testTraction( tNormal, tDofTest, CM_Function_Type::PK2 );
+                        //                                tCMLeaderStrucLinIso->testTraction( tNormal, tDofTest, CM_Function_Type::PK2 );
                         //                        print( tPK2TestTraction, "tPK2TestTraction" );
                         //
                         ////                        // evaluate Cauchy test traction
                         ////                        const Matrix< DDRMat > & tCauchyTestTraction =
-                        ////                                tCMMasterStrucLinIso->testTraction( tDofTest, tNormal, CM_Function_Type::CAUCHY );
+                        ////                                tCMLeaderStrucLinIso->testTraction( tDofTest, tNormal, CM_Function_Type::CAUCHY );
                         ////                        print( tCauchyTestTraction, "tCauchyTestTraction" );
 
                         // evaluate dPK2testtractiondu
                         Matrix< DDRMat > tdPK2testtractiondu =
-                                tCMMasterStrucLinIso->dTestTractiondDOF(
+                                tCMLeaderStrucLinIso->dTestTractiondDOF(
                                         tDofDerivative,
                                         tNormal,
                                         tJump,
@@ -459,7 +459,7 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
                         //
                         //                        // evaluate dPK2testtractiondu by FD
                         Matrix< DDRMat > dPK2testtractionduFD;
-                        tCMMasterStrucLinIso->eval_dtesttractiondu_FD(
+                        tCMLeaderStrucLinIso->eval_dtesttractiondu_FD(
                                 tDofDerivative,
                                 tDofTest,
                                 dPK2testtractionduFD,
@@ -477,7 +477,7 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
                         //
                         //                        // evaluate dPK1testtractiondu
                         //                        Matrix< DDRMat > tdPK1testtractiondu =
-                        //                                tCMMasterStrucLinIso->dTestTractiondDOF(
+                        //                                tCMLeaderStrucLinIso->dTestTractiondDOF(
                         //                                tDofDerivative,
                         //                                tNormal,
                         //                                tJump,
@@ -487,7 +487,7 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
                         //
                         //                        // evaluate dPK1testtractiondu by FD
                         Matrix< DDRMat > dPK1testtractionduFD;
-                        tCMMasterStrucLinIso->eval_dtesttractiondu_FD(
+                        tCMLeaderStrucLinIso->eval_dtesttractiondu_FD(
                                 tDofDerivative,
                                 tDofTest,
                                 dPK1testtractionduFD,
@@ -507,7 +507,7 @@ TEST_CASE( "CM_Struc_NonLinear_Saint_Venant_Kirchhoff",
                 }
             }
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 } /*END_TEST_CASE*/

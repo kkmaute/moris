@@ -574,7 +574,7 @@ namespace moris
                 fem::IWG_Factory            tIWGFactory;
                 std::shared_ptr< fem::IWG > tIWGL2 = tIWGFactory.create_IWG( fem::IWG_Type::L2 );
                 tIWGL2->set_residual_dof_type( { { MSI::Dof_Type::L2 } } );
-                tIWGL2->set_dof_type_list( { { MSI::Dof_Type::L2 } }, mtk::Master_Slave::MASTER );
+                tIWGL2->set_dof_type_list( { { MSI::Dof_Type::L2 } }, mtk::Leader_Follower::LEADER );
 
                 // define set info
                 // FIXME should be provided to the function

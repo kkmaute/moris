@@ -74,27 +74,27 @@ namespace moris
             {
                 delete p;
             }
-            for(auto p : mMasterSidedClusters)
+            for(auto p : mLeaderSidedClusters)
             {
                 delete p;
             }
-            for(auto p : mSlaveSidedClusters)
+            for(auto p : mFollowerSidedClusters)
             {
                 delete p;
             }
-            for(auto p : mMasterSideCells)
+            for(auto p : mLeaderSideCells)
             {
                 delete p;
             }
-            for(auto p : mSlaveSideCells)
+            for(auto p : mFollowerSideCells)
             {
                 delete p;
             }
-            for(auto p : mMasterVertices)
+            for(auto p : mLeaderVertices)
             {
                 delete p;
             }
-            for(auto p : mSlaveVertices)
+            for(auto p : mFollowerVertices)
             {
                 delete p;
             }
@@ -844,7 +844,7 @@ namespace moris
             //number of nodes at the surface
             uint tNumSurfaceNodes = tUniqueIntersectedPoints.n_cols();
 
-            //paramteric coordinates master side 3D
+            //paramteric coordinates leader side 3D
             Matrix <DDRMat> tParametricCoordinates3D(tNumSurfaceNodes,3);
 
             //permutation of the 2D coordinates to 3D
@@ -869,11 +869,11 @@ namespace moris
             Matrix< DDRMat > tHeadnodeCoords(1,3,0);
             moris::mtk::Interpolation::trilinear_interpolation(tIPCellCoordinates, tHeadnodeCoords, tCoordinatesTop);
 
-            //create master and slave vertices
-            moris::Cell<moris::mtk::Vertex* > tMasterVerticesCell;
-            this->create_master_vertices(tMasterVerticesCell, tPhysicalCoordinates3D,aInterpCell1, aPairCount,tCoordinatesTop);
+            //create leader and follower vertices
+            moris::Cell<moris::mtk::Vertex* > tLeaderVerticesCell;
+            this->create_leader_vertices(tLeaderVerticesCell, tPhysicalCoordinates3D,aInterpCell1, aPairCount,tCoordinatesTop);
 
-            //Slave Side Vertices
+            //Follower Side Vertices
             //get the indices of the interpolation cell nodes
             tElementNodes =
                     tInterpMesh->get_entity_connected_to_entity_loc_inds(
@@ -889,40 +889,40 @@ namespace moris
             }
 
             //Duplicate the parametric coordinates for the salve side
-            Matrix <DDRMat> tSlaveParametricCoordinates3D = tParametricCoordinates3D.copy();
+            Matrix <DDRMat> tFollowerParametricCoordinates3D = tParametricCoordinates3D.copy();
 
             // Use the same matrices and change the 3rd dimension coordinates
             tDummyCoords.fill( 1.0 );
-            tSlaveParametricCoordinates3D.get_column( 3 - tCoordOrder.first - tCoordOrder.second ) = tDummyCoords.get_column( 0 );
+            tFollowerParametricCoordinates3D.get_column( 3 - tCoordOrder.first - tCoordOrder.second ) = tDummyCoords.get_column( 0 );
 
-            // get physical coordinates of the slave side
-            moris::mtk::Interpolation::trilinear_interpolation_multivalue( tIPCellCoordinates, tSlaveParametricCoordinates3D, tPhysicalCoordinates3D );
+            // get physical coordinates of the follower side
+            moris::mtk::Interpolation::trilinear_interpolation_multivalue( tIPCellCoordinates, tFollowerParametricCoordinates3D, tPhysicalCoordinates3D );
 
             // physcal coordinates of the
             moris::mtk::Interpolation::trilinear_interpolation( tIPCellCoordinates, tHeadnodeCoords, tCoordinatesTop );
 
-            moris::Cell<moris::mtk::Vertex* > tSlaveVerticesCell;
-            this->create_slave_vertices(tSlaveVerticesCell, tPhysicalCoordinates3D,aInterpCell2, aPairCount,tCoordinatesTop);
+            moris::Cell<moris::mtk::Vertex* > tFollowerVerticesCell;
+            this->create_follower_vertices(tFollowerVerticesCell, tPhysicalCoordinates3D,aInterpCell2, aPairCount,tCoordinatesTop);
 
             //create constant version of the vertices on cluster
-            moris::Cell< moris::mtk::Vertex const *> tMasterVerticesConst( tMasterVerticesCell.size() - 1,nullptr);
-            moris::Cell< moris::mtk::Vertex const *> tSlaveVerticesConst( tMasterVerticesCell.size() - 1,nullptr);
+            moris::Cell< moris::mtk::Vertex const *> tLeaderVerticesConst( tLeaderVerticesCell.size() - 1,nullptr);
+            moris::Cell< moris::mtk::Vertex const *> tFollowerVerticesConst( tLeaderVerticesCell.size() - 1,nullptr);
 
-            for(uint i = 0 ; i < tMasterVerticesCell.size() - 1 ; i++)
+            for(uint i = 0 ; i < tLeaderVerticesCell.size() - 1 ; i++)
             {
-                tMasterVerticesConst( i ) = tMasterVerticesCell( i ) ;
-                tSlaveVerticesConst( i ) = tSlaveVerticesCell( i ) ;
+                tLeaderVerticesConst( i ) = tLeaderVerticesCell( i ) ;
+                tFollowerVerticesConst( i ) = tFollowerVerticesCell( i ) ;
             }
 
             //store the vertices to prevent memory leak
-            mMasterVertices.append(tMasterVerticesConst);
-            mSlaveVertices.append(tSlaveVerticesConst);
+            mLeaderVertices.append(tLeaderVerticesConst);
+            mFollowerVertices.append(tFollowerVerticesConst);
 
             tic tTimerCell;
 
-            //initialize master,slave side IG cells
-            moris::Cell<moris::mtk::Cell const *> tMasterIntegCells;
-            moris::Cell<moris::mtk::Cell const *> tSlaveIntegCells;
+            //initialize leader,follower side IG cells
+            moris::Cell<moris::mtk::Cell const *> tLeaderIntegCells;
+            moris::Cell<moris::mtk::Cell const *> tFollowerIntegCells;
 
             //Added surfaces if intersection area is a polygon
             uint tAddedSurafceNum = 0 ;
@@ -946,73 +946,73 @@ namespace moris
                         // vertex Index of the cretae sub triangles
                         Matrix< IndexMat > tTmpVertexIndex = { {tPVertexIndex(tClusterNum)(0),tPVertexIndex(tClusterNum)(tTRI+1),tPVertexIndex(tClusterNum)(tTRI+2) } };
 
-                        //master IG cell
-                        moris::mtk::Cell const * tMasterIgCell = this->create_master_ig_cell( tMasterVerticesCell, tTmpVertexIndex, aInterpCell1,aPairCount ) ;
-                        tMasterIntegCells.push_back( tMasterIgCell );
+                        //leader IG cell
+                        moris::mtk::Cell const * tLeaderIgCell = this->create_leader_ig_cell( tLeaderVerticesCell, tTmpVertexIndex, aInterpCell1,aPairCount ) ;
+                        tLeaderIntegCells.push_back( tLeaderIgCell );
 
-                        //slave IG cell
-                        moris::mtk::Cell const * tSlaveIgCell = this->create_slave_ig_cell( tSlaveVerticesCell, tTmpVertexIndex, aInterpCell2,aPairCount ) ;
-                        tSlaveIntegCells.push_back( tSlaveIgCell );
+                        //follower IG cell
+                        moris::mtk::Cell const * tFollowerIgCell = this->create_follower_ig_cell( tFollowerVerticesCell, tTmpVertexIndex, aInterpCell2,aPairCount ) ;
+                        tFollowerIntegCells.push_back( tFollowerIgCell );
                     }
                 }
                 else
                 {
-                    //master IG cells
-                    moris::mtk::Cell const * tMasterIgCell = this->create_master_ig_cell( tMasterVerticesCell, tPVertexIndex(tClusterNum), aInterpCell1, aPairCount ) ;
-                    tMasterIntegCells.push_back( tMasterIgCell );
+                    //leader IG cells
+                    moris::mtk::Cell const * tLeaderIgCell = this->create_leader_ig_cell( tLeaderVerticesCell, tPVertexIndex(tClusterNum), aInterpCell1, aPairCount ) ;
+                    tLeaderIntegCells.push_back( tLeaderIgCell );
 
-                    //slave IG cells
-                    moris::mtk::Cell const * tSlaveIgCell = this->create_slave_ig_cell( tSlaveVerticesCell, tPVertexIndex(tClusterNum), aInterpCell2 ,aPairCount) ;
-                    tSlaveIntegCells.push_back( tSlaveIgCell );
+                    //follower IG cells
+                    moris::mtk::Cell const * tFollowerIgCell = this->create_follower_ig_cell( tFollowerVerticesCell, tPVertexIndex(tClusterNum), aInterpCell2 ,aPairCount) ;
+                    tFollowerIntegCells.push_back( tFollowerIgCell );
                 }
             }
 
             //create side ordinal matrices, the entry is always 3
-            moris::Matrix<moris::IndexMat>          tMasterIntegrationCellSideOrdinals( 1, aIndicesinCutCell.size() + tAddedSurafceNum, 3);
-            moris::Matrix<moris::IndexMat>          tSlaveIntegrationCellSideOrdinals( 1, aIndicesinCutCell.size() + tAddedSurafceNum, 3);
+            moris::Matrix<moris::IndexMat>          tLeaderIntegrationCellSideOrdinals( 1, aIndicesinCutCell.size() + tAddedSurafceNum, 3);
+            moris::Matrix<moris::IndexMat>          tFollowerIntegrationCellSideOrdinals( 1, aIndicesinCutCell.size() + tAddedSurafceNum, 3);
 
-            //create the master side cluster
-            moris::mtk::Side_Cluster_ISC* tMasterSideCluster = new moris::mtk::Side_Cluster_ISC(false,
+            //create the leader side cluster
+            moris::mtk::Side_Cluster_ISC* tLeaderSideCluster = new moris::mtk::Side_Cluster_ISC(false,
                     & aInterpCell1,
-                    tMasterIntegCells,
-                    tMasterIntegrationCellSideOrdinals,
-                    tMasterVerticesConst,
+                    tLeaderIntegCells,
+                    tLeaderIntegrationCellSideOrdinals,
+                    tLeaderVerticesConst,
                     tParametricCoordinates3D);
 
-            //create the slave side cluster
-            moris::mtk::Side_Cluster_ISC* tSlaveSideCluster  = new moris::mtk::Side_Cluster_ISC(false,
+            //create the follower side cluster
+            moris::mtk::Side_Cluster_ISC* tFollowerSideCluster  = new moris::mtk::Side_Cluster_ISC(false,
                     & aInterpCell2,
-                    tSlaveIntegCells,
-                    tSlaveIntegrationCellSideOrdinals,
-                    tSlaveVerticesConst,
-                    tSlaveParametricCoordinates3D);
+                    tFollowerIntegCells,
+                    tFollowerIntegrationCellSideOrdinals,
+                    tFollowerVerticesConst,
+                    tFollowerParametricCoordinates3D);
 
             // create double side cluster
             mtk::Double_Side_Cluster* tDblSideCluster = new mtk::Double_Side_Cluster(
-                    tMasterSideCluster,
-                    tSlaveSideCluster,
-                    tSlaveSideCluster->mVerticesInCluster);
+                    tLeaderSideCluster,
+                    tFollowerSideCluster,
+                    tFollowerSideCluster->mVerticesInCluster);
 
             //store data to be used further
             mDoubleSidedClusters.push_back(tDblSideCluster);
             mDoubleSidedClustersIndex.push_back(aPhaseToPhase);
 
-            //master
-            mMasterSidedClusters.push_back(tMasterSideCluster);
+            //leader
+            mLeaderSidedClusters.push_back(tLeaderSideCluster);
 
-            //slave
-            mSlaveSidedClusters.push_back(tSlaveSideCluster);
+            //follower
+            mFollowerSidedClusters.push_back(tFollowerSideCluster);
 
             // Offset due to addition of new mtk cells at each loop
-            uint tOffsetCells  = mMasterSideCells.size();
+            uint tOffsetCells  = mLeaderSideCells.size();
 
             // Append the integration cells
-            mMasterSideCells.append(tMasterIntegCells);
-            mSlaveSideCells.append(tSlaveIntegCells);
+            mLeaderSideCells.append(tLeaderIntegCells);
+            mFollowerSideCells.append(tFollowerIntegCells);
 
             //Determine the size of the elements local to global entity map
             uint tNumExistingElem = mEntityLocaltoGlobalMap(0).size() ;
-            uint tNewElem =  tMasterIntegCells.size() + tSlaveIntegCells.size()+ mMasterSideCells.size()*2 ;
+            uint tNewElem =  tLeaderIntegCells.size() + tFollowerIntegCells.size()+ mLeaderSideCells.size()*2 ;
 
             // Resize number of elements
             mEntityLocaltoGlobalMap(3).resize(tNumExistingElem + tNewElem);
@@ -1022,42 +1022,42 @@ namespace moris
             {
 
                 // Create the maps for cell
-                for(uint Ii = 0 ; Ii < tMasterIntegCells.size() ; Ii++)
+                for(uint Ii = 0 ; Ii < tLeaderIntegCells.size() ; Ii++)
                 {
-                    mMasterCellIndextoCellMap[ tMasterIntegCells(Ii)->get_index() ] = Ii+ tOffsetCells ;
+                    mLeaderCellIndextoCellMap[ tLeaderIntegCells(Ii)->get_index() ] = Ii+ tOffsetCells ;
 
-                    mEntityLocaltoGlobalMap(3) ( Ii+ tOffsetCells)  =  tMasterIntegCells(Ii)->get_id();
+                    mEntityLocaltoGlobalMap(3) ( Ii+ tOffsetCells)  =  tLeaderIntegCells(Ii)->get_id();
                 }
 
                 //Determine the size of the local to global map for nodes
                 uint tNumExistingNodes = mEntityLocaltoGlobalMap(0).size();
-                uint tNewNodes = tMasterVerticesCell.size()+ tSlaveVerticesCell.size()+ mNewNodeCoords.size();
+                uint tNewNodes = tLeaderVerticesCell.size()+ tFollowerVerticesCell.size()+ mNewNodeCoords.size();
 
                 // Resize the local to global map for the vertices
                 mEntityLocaltoGlobalMap(0).resize(tNumExistingNodes + tNewNodes);
 
                 // Offset due to addition of vertices at each loop
-                uint tMasterOffset  = mNewNodeCoords.size();
-                uint tSlaveOffset  = mNewNodeCoords.size() + tMasterVerticesCell.size();
+                uint tLeaderOffset  = mNewNodeCoords.size();
+                uint tFollowerOffset  = mNewNodeCoords.size() + tLeaderVerticesCell.size();
 
                 // Assign ids and indices to the maps
-                for( uint Ii = 0 ; Ii < tMasterVerticesCell.size() ; Ii++ )
+                for( uint Ii = 0 ; Ii < tLeaderVerticesCell.size() ; Ii++ )
                 {
                     // Assign Coordinates
-                    Matrix<DDRMat> tCoords = tMasterVerticesCell(Ii)->get_coords();
+                    Matrix<DDRMat> tCoords = tLeaderVerticesCell(Ii)->get_coords();
                     mNewNodeCoords.push_back(tCoords);
 
-                    mEntityLocaltoGlobalMap(0)(Ii + tMasterOffset)  = tMasterVerticesCell(Ii)->get_id();
+                    mEntityLocaltoGlobalMap(0)(Ii + tLeaderOffset)  = tLeaderVerticesCell(Ii)->get_id();
 
                 }
 
                 // Assign ids and indices to the maps
-                for( uint Ii = 0 ; Ii < tSlaveVerticesCell.size() ; Ii++ )
+                for( uint Ii = 0 ; Ii < tFollowerVerticesCell.size() ; Ii++ )
                 {
                     // Assign Coordinates
-                    mNewNodeCoords.push_back(tSlaveVerticesCell(Ii)->get_coords());
+                    mNewNodeCoords.push_back(tFollowerVerticesCell(Ii)->get_coords());
 
-                    mEntityLocaltoGlobalMap(0)(Ii + tSlaveOffset) = tSlaveVerticesCell(Ii)->get_id();
+                    mEntityLocaltoGlobalMap(0)(Ii + tFollowerOffset) = tFollowerVerticesCell(Ii)->get_id();
                 }
             }
         }
@@ -1065,7 +1065,7 @@ namespace moris
         //------------------------------------------------------------------------------------------------------------
 
         moris::mtk::Cell const *
-        Intersection_Detect::create_master_ig_cell( moris::Cell<moris::mtk::Vertex *> tMasterVertices, Matrix<IndexMat> tVertexIndex ,  moris::mtk::Cell const & aMasterInterpCell,uint aPairCount)
+        Intersection_Detect::create_leader_ig_cell( moris::Cell<moris::mtk::Vertex *> tLeaderVertices, Matrix<IndexMat> tVertexIndex ,  moris::mtk::Cell const & aLeaderInterpCell,uint aPairCount)
         {
             // Sort the nodes such that it is consistent with Exodus convention
             Matrix<IndexMat> tVertexIndexCounterClockWise ;
@@ -1085,11 +1085,11 @@ namespace moris
             //surface vertices
             for(uint i = 0 ; i < tVertexIndex.n_cols() ; i++ )
             {
-                tIgCellVertices( i ) =  tMasterVertices( tVertexIndexCounterClockWise ( i ) ) ;
+                tIgCellVertices( i ) =  tLeaderVertices( tVertexIndexCounterClockWise ( i ) ) ;
             }
 
             //head node of tet4
-            tIgCellVertices( 3 ) =  tMasterVertices( tMasterVertices.size() - 1 ) ;
+            tIgCellVertices( 3 ) =  tLeaderVertices( tLeaderVertices.size() - 1 ) ;
 
             //allocate id and index
             moris_index tCellIndex = mIntersectedMeshData.get_first_available_index_external_data( EntityRank::ELEMENT) ;
@@ -1103,7 +1103,7 @@ namespace moris
             moris::mtk::Cell* tIgCell = new Cell_ISC(
                     tCellId,
                     tCellIndex,
-                    aMasterInterpCell.get_owner(),
+                    aLeaderInterpCell.get_owner(),
                     tLinearCellInfo,
                     tIgCellVertices);
 
@@ -1115,7 +1115,7 @@ namespace moris
         //------------------------------------------------------------------------------------------------------------
 
         moris::mtk::Cell const *
-        Intersection_Detect::create_slave_ig_cell( moris::Cell<moris::mtk::Vertex *> tSlaveVertices, Matrix<IndexMat> tVertexIndex ,  moris::mtk::Cell const & aSlaveInterpCell, uint aPairCount)
+        Intersection_Detect::create_follower_ig_cell( moris::Cell<moris::mtk::Vertex *> tFollowerVertices, Matrix<IndexMat> tVertexIndex ,  moris::mtk::Cell const & aFollowerInterpCell, uint aPairCount)
         {
             // Sort the nodes such that it is consistent with Exodus convention
             Matrix<IndexMat> tVertexIndexCounterClockWise ;
@@ -1136,11 +1136,11 @@ namespace moris
             //surface vertices
             for(uint i = 0 ; i < tVertexIndex.n_cols() ; i++ )
             {
-                tIgCellVertices( i ) = tSlaveVertices( tVertexIndexCounterClockWise ( i ) ) ;
+                tIgCellVertices( i ) = tFollowerVertices( tVertexIndexCounterClockWise ( i ) ) ;
             }
 
             //head node of tet4
-            tIgCellVertices( 3 ) = tSlaveVertices( tSlaveVertices.size() - 1 ) ;
+            tIgCellVertices( 3 ) = tFollowerVertices( tFollowerVertices.size() - 1 ) ;
 
             //allocate id and index
             moris_index tCellIndex = mIntersectedMeshData.get_first_available_index_external_data( EntityRank::ELEMENT) ;
@@ -1154,7 +1154,7 @@ namespace moris
             moris::mtk::Cell* tIgCell = new Cell_ISC(
                     tCellId,
                     tCellIndex,
-                    aSlaveInterpCell.get_owner(),
+                    aFollowerInterpCell.get_owner(),
                     tLinearCellInfo,
                     tIgCellVertices);
 
@@ -1171,7 +1171,7 @@ namespace moris
 
             //initialize all the double sided sets
             mDoubleSideSets.resize( tPhaseInteractionTable.numel() );
-            mMasterSideSets.resize( tPhaseInteractionTable.numel() );
+            mLeaderSideSets.resize( tPhaseInteractionTable.numel() );
 
             //get the integration mesh
             moris::mtk::Integration_Mesh*  tIntegMesh  = mMeshManager->get_integration_mesh( mMeshIndex );
@@ -1183,7 +1183,7 @@ namespace moris
             {
                 mDoubleSideSets(mDoubleSidedClustersIndex(i)).push_back(mDoubleSidedClusters(i));
 
-                mMasterSideSets(mDoubleSidedClustersIndex(i)).push_back(mMasterSidedClusters(i));
+                mLeaderSideSets(mDoubleSidedClustersIndex(i)).push_back(mLeaderSidedClusters(i));
             }
 
             //add double sided set to the mesh and name them
@@ -1217,7 +1217,7 @@ namespace moris
 
                 }
             }
-            //assign an name and index to the bulk elements (cells on the master side)
+            //assign an name and index to the bulk elements (cells on the leader side)
             mBlockSetLabelToOrd["Dummy"] = 0;
             mBlockSetLabels.push_back("Dummy");
         }
@@ -1324,12 +1324,12 @@ namespace moris
         // ----------------------------------------------------------------------------
 
         void
-        Intersection_Detect::create_master_vertices(moris::Cell< moris::mtk::Vertex *> & aMasterVertices, Matrix < DDRMat> & tPhysicalCoordinates3D,moris::mtk::Cell const & aMasterInterpCell, uint aPairCount, Matrix < DDRMat> & tNewNodeCoordinates)
+        Intersection_Detect::create_leader_vertices(moris::Cell< moris::mtk::Vertex *> & aLeaderVertices, Matrix < DDRMat> & tPhysicalCoordinates3D,moris::mtk::Cell const & aLeaderInterpCell, uint aPairCount, Matrix < DDRMat> & tNewNodeCoordinates)
         {
             uint tNumSurfaceNodes = tPhysicalCoordinates3D.n_rows();
 
             //initialize the vertices of the cell ( +1 for the head of the tet4 )
-            aMasterVertices.resize( tNumSurfaceNodes+1,nullptr ) ;
+            aLeaderVertices.resize( tNumSurfaceNodes+1,nullptr ) ;
 
             // allocate ids for all the vertices
             moris_id tVertexId = mIntersectedMeshData.allocate_entity_ids_external_entity_data( tNumSurfaceNodes+1,  EntityRank::NODE);
@@ -1340,7 +1340,7 @@ namespace moris
                 moris_index tVertexIndex = mIntersectedMeshData.get_first_available_index_external_data( EntityRank::NODE) ;
 
                 //construct the new vertex
-                aMasterVertices ( i ) = new moris::mtk::Vertex_ISC( tVertexId, tVertexIndex, tPhysicalCoordinates3D.get_row(i) ) ;
+                aLeaderVertices ( i ) = new moris::mtk::Vertex_ISC( tVertexId, tVertexIndex, tPhysicalCoordinates3D.get_row(i) ) ;
 
                 // Update the index and id
                 mIntersectedMeshData.update_first_available_index_external_data( tVertexIndex+1, EntityRank::NODE );
@@ -1351,19 +1351,19 @@ namespace moris
             mIntersectedMeshData.update_first_available_index_external_data( tVertexIndex+1, EntityRank::NODE );
 
             //add the top vertex of tet4
-            aMasterVertices( tNumSurfaceNodes ) = new moris::mtk::Vertex_ISC( tVertexId, tVertexIndex, tNewNodeCoordinates) ;
+            aLeaderVertices( tNumSurfaceNodes ) = new moris::mtk::Vertex_ISC( tVertexId, tVertexIndex, tNewNodeCoordinates) ;
 
         }
 
         // ----------------------------------------------------------------------------
 
         void
-        Intersection_Detect::create_slave_vertices(moris::Cell< moris::mtk::Vertex *> & aSlaveVertices, Matrix < DDRMat> & tPhysicalCoordinates3D,moris::mtk::Cell const & aSlaveInterpCell, uint aPairCount,Matrix < DDRMat> & tNewNodeCoordinates)
+        Intersection_Detect::create_follower_vertices(moris::Cell< moris::mtk::Vertex *> & aFollowerVertices, Matrix < DDRMat> & tPhysicalCoordinates3D,moris::mtk::Cell const & aFollowerInterpCell, uint aPairCount,Matrix < DDRMat> & tNewNodeCoordinates)
         {
             uint tNumSurfaceNodes = tPhysicalCoordinates3D.n_rows();
 
             //initialize the vertices of the cell ( +1 for the head of the tet4 )
-            aSlaveVertices.resize( tNumSurfaceNodes+1,nullptr ) ;
+            aFollowerVertices.resize( tNumSurfaceNodes+1,nullptr ) ;
 
             // allocate ids for all the vertices
             moris_id tVertexId = mIntersectedMeshData.allocate_entity_ids_external_entity_data( tNumSurfaceNodes+1,  EntityRank::NODE);
@@ -1374,7 +1374,7 @@ namespace moris
                 moris_index tVertexIndex = mIntersectedMeshData.get_first_available_index_external_data( EntityRank::NODE) ;
 
                 //construct the new vertex
-                aSlaveVertices ( i ) = new moris::mtk::Vertex_ISC( tVertexId, tVertexIndex,tPhysicalCoordinates3D.get_row(i)) ;
+                aFollowerVertices ( i ) = new moris::mtk::Vertex_ISC( tVertexId, tVertexIndex,tPhysicalCoordinates3D.get_row(i)) ;
 
                 mIntersectedMeshData.update_first_available_index_external_data( tVertexIndex+1, EntityRank::NODE );
                 tVertexId++;
@@ -1384,7 +1384,7 @@ namespace moris
             mIntersectedMeshData.update_first_available_index_external_data( tVertexIndex+1, EntityRank::NODE );
 
             //add the top vertex of tet4
-            aSlaveVertices( tNumSurfaceNodes ) = new moris::mtk::Vertex_ISC( tVertexId, tVertexIndex, tNewNodeCoordinates) ;
+            aFollowerVertices( tNumSurfaceNodes ) = new moris::mtk::Vertex_ISC( tVertexId, tVertexIndex, tNewNodeCoordinates) ;
         }
 
         // ----------------------------------------------------------------------------

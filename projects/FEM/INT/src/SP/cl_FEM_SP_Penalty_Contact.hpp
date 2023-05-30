@@ -35,8 +35,8 @@ namespace moris
 
                 //------------------------------------------------------------------------------
             private:
-                real mMasterVolume     = 0.5; // volume on master
-                real mSlaveVolume      = 0.5; // volume on slave
+                real mLeaderVolume     = 0.5; // volume on leader
+                real mFollowerVolume      = 0.5; // volume on follower
                 real mElementSize = 1.0;
 
                 enum class SP_Property_Type
@@ -67,11 +67,11 @@ namespace moris
                 //             {
                 //                 // evaluate element size from the cluster
                 //                 mElementSize = mCluster->compute_cluster_cell_length_measure( mtk::Primary_Void::PRIMARY,
-                //                                                                               mtk::Master_Slave::MASTER );
+                //                                                                               mtk::Leader_Follower::LEADER );
                 //
                 //                 // evaluate cluster measures from the cluster
-                //                 mMasterVolume = mCluster->compute_cluster_cell_measure( mtk::Primary_Void::INTERP, mtk::Master_Slave::MASTER );
-                //                 mSlaveVolume  = mCluster->compute_cluster_cell_measure( mtk::Primary_Void::INTERP, mtk::Master_Slave::SLAVE );
+                //                 mLeaderVolume = mCluster->compute_cluster_cell_measure( mtk::Primary_Void::INTERP, mtk::Leader_Follower::LEADER );
+                //                 mFollowerVolume  = mCluster->compute_cluster_cell_measure( mtk::Primary_Void::INTERP, mtk::Leader_Follower::FOLLOWER );
                 //
                 //             }
 
@@ -80,14 +80,14 @@ namespace moris
                  * set dof types
                  * @param[ in ] aDofTypes a cell of cell of dof types
                  * @param[ in ] aDofStrings list of strings describing the dof types
-                 * @param[ in ] aIsMaster enum for master or slave
+                 * @param[ in ] aIsLeader enum for leader or follower
                  */
                 void set_dof_type_list(
                         moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                         moris::Cell< std::string >                  & aDofStrings,
-                        mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER )
+                        mtk::Leader_Follower                             aIsLeader = mtk::Leader_Follower::LEADER )
                 {
-                    Stabilization_Parameter::set_dof_type_list( aDofTypes, aIsMaster );
+                    Stabilization_Parameter::set_dof_type_list( aDofTypes, aIsLeader );
                 }
 
                 //------------------------------------------------------------------------------
@@ -95,14 +95,14 @@ namespace moris
                  * set dv types
                  * @param[ in ] aDvTypes   a cell of group of dv types
                  * @param[ in ] aDvStrings list of strings describing the dv types
-                 * @param[ in ] aIsMaster enum for master or slave
+                 * @param[ in ] aIsLeader enum for leader or follower
                  */
                 void set_dv_type_list(
                         moris::Cell< moris::Cell< PDV_Type > > & aDvTypes,
                         moris::Cell< std::string >             & aDvStrings,
-                        mtk::Master_Slave                        aIsMaster = mtk::Master_Slave::MASTER )
+                        mtk::Leader_Follower                        aIsLeader = mtk::Leader_Follower::LEADER )
                 {
-                    Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsMaster );
+                    Stabilization_Parameter::set_dv_type_list( aDvTypes, aIsLeader );
                 }
 
                 //------------------------------------------------------------------------------
@@ -113,46 +113,46 @@ namespace moris
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the stabilization parameter derivative wrt to a master dof type
+                 * evaluate the stabilization parameter derivative wrt to a leader dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-                 * dSPdMasterDOF ( 1 x numDerDof )
+                 * dSPdLeaderDOF ( 1 x numDerDof )
                  */
-                void eval_dSPdMasterDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                void eval_dSPdLeaderDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
                 {
-                    MORIS_ERROR( false, "SP_Penalty_Contact::eval_dSPdMasterDOF: not implemented." );
+                    MORIS_ERROR( false, "SP_Penalty_Contact::eval_dSPdLeaderDOF: not implemented." );
                 }
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the stabilization parameter derivative wrt to a slave dof type
+                 * evaluate the stabilization parameter derivative wrt to a follower dof type
                  * @param[ in ] aDofTypes a dof type wrt which the derivative is evaluated
-                 * dSPdSlaveDOF ( 1 x numDerDof )
+                 * dSPdFollowerDOF ( 1 x numDerDof )
                  */
-                void eval_dSPdSlaveDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
+                void eval_dSPdFollowerDOF( const moris::Cell< MSI::Dof_Type > & aDofTypes )
                 {
-                    MORIS_ERROR( false, "SP_Penalty_Contact::eval_dSPdSlaveDOF: not implemented." );
+                    MORIS_ERROR( false, "SP_Penalty_Contact::eval_dSPdFollowerDOF: not implemented." );
                 }
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the penalty parameter derivative wrt to a master dv type
+                 * evaluate the penalty parameter derivative wrt to a leader dv type
                  * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
-                 * dPPdMasterDV ( 1 x numDerDv )
+                 * dPPdLeaderDV ( 1 x numDerDv )
                  */
-                void eval_dSPdMasterDV( const moris::Cell< PDV_Type > & aDvTypes )
+                void eval_dSPdLeaderDV( const moris::Cell< PDV_Type > & aDvTypes )
                 {
-                    MORIS_ERROR( false, "SP_Penalty_Contact::eval_dSPdMasterDV: not implemented." );
+                    MORIS_ERROR( false, "SP_Penalty_Contact::eval_dSPdLeaderDV: not implemented." );
                 }
 
                 //------------------------------------------------------------------------------
                 /**
-                 * evaluate the penalty parameter derivative wrt to a slave dv type
+                 * evaluate the penalty parameter derivative wrt to a follower dv type
                  * @param[ in ] aDvTypes a dv type wrt which the derivative is evaluated
-                 * dSPdSlaveDV ( 1 x numDerDv )
+                 * dSPdFollowerDV ( 1 x numDerDv )
                  */
-                void eval_dSPdSlaveDV( const moris::Cell< PDV_Type > & aDvTypes )
+                void eval_dSPdFollowerDV( const moris::Cell< PDV_Type > & aDvTypes )
                 {
-                    MORIS_ERROR( false, "SP_Penalty_Contact::eval_dSPdSlaveDV: not implemented." );
+                    MORIS_ERROR( false, "SP_Penalty_Contact::eval_dSPdFollowerDV: not implemented." );
                 }
 
                 //------------------------------------------------------------------------------

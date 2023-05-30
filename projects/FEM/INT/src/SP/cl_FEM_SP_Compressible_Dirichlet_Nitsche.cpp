@@ -22,7 +22,7 @@ namespace moris
         SP_Compressible_Dirichlet_Nitsche::SP_Compressible_Dirichlet_Nitsche()
         {
             // set the property pointer cell size
-            mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
             mPropertyMap[ "DynamicViscosity" ] = static_cast< uint >( Property_Type::VISCOSITY );
@@ -36,7 +36,7 @@ namespace moris
             // evaluate element size from the cluster
             mElementSize = mCluster->compute_cluster_cell_length_measure(
                     mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower::LEADER );
         }
 
         //------------------------------------------------------------------------------
@@ -44,15 +44,15 @@ namespace moris
         void SP_Compressible_Dirichlet_Nitsche::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 moris::Cell< std::string >                  & aDofStrings,
-                mtk::Master_Slave                             aIsMaster )
+                mtk::Leader_Follower                             aIsLeader )
         {
-            // switch on master slave
-            switch ( aIsMaster )
+            // switch on leader follower
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER :
+                case mtk::Leader_Follower::LEADER :
                 {
                     // set dof type list
-                    mMasterDofTypes = aDofTypes;
+                    mLeaderDofTypes = aDofTypes;
 
                     // loop on dof type
                     for( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
@@ -66,7 +66,7 @@ namespace moris
                         // if velocity
                         if( tDofString == "Velocity" )
                         {
-                            mMasterDofVelocity = tDofType;
+                            mLeaderDofVelocity = tDofType;
                         }
                         else
                         {
@@ -80,15 +80,15 @@ namespace moris
                     break;
                 }
 
-                case mtk::Master_Slave::SLAVE :
+                case mtk::Leader_Follower::FOLLOWER :
                 {
                     // set dof type list
-                    mSlaveDofTypes = aDofTypes;
+                    mFollowerDofTypes = aDofTypes;
                     break;
                 }
 
                 default:
-                    MORIS_ERROR( false, "SP_Compressible_Dirichlet_Nitsche::set_dof_type_list - unknown master slave type." );
+                    MORIS_ERROR( false, "SP_Compressible_Dirichlet_Nitsche::set_dof_type_list - unknown leader follower type." );
             }
         }
 
@@ -97,11 +97,11 @@ namespace moris
         void SP_Compressible_Dirichlet_Nitsche::eval_SP()
         {
             // get the viscosity and density property
-            std::shared_ptr< Property > & tPropViscosity    = mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
-            std::shared_ptr< Property > & tPropThermConduct = mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
+            std::shared_ptr< Property > & tPropViscosity    = mLeaderProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+            std::shared_ptr< Property > & tPropThermConduct = mLeaderProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
 
             // time step size
-            real tDeltat = mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+            real tDeltat = mLeaderFIManager->get_IP_geometry_interpolator()->get_time_step();
 
             // set correct size for the vector of values
             mPPVal.set_size( mSpaceDim + 2, 1, 0.0 );
@@ -125,30 +125,30 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_Compressible_Dirichlet_Nitsche::eval_dSPdMasterDOF(
+        void SP_Compressible_Dirichlet_Nitsche::eval_dSPdLeaderDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get the dof type index
-            uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+            uint tDofIndex = mLeaderGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // get the dof type FI
             Field_Interpolator * tFIDerivative =
-                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // get number of space time basis functions
             uint tNumBases = tFIDerivative->get_number_of_space_time_coefficients();
 
-            // set size for dSPdMasterDof
-            mdPPdMasterDof( tDofIndex ).set_size( mSpaceDim + 2, tNumBases, 0.0 );
+            // set size for dSPdLeaderDof
+            mdPPdLeaderDof( tDofIndex ).set_size( mSpaceDim + 2, tNumBases, 0.0 );
 
             // get the viscosity and density property
-            std::shared_ptr< Property > & tPropViscosity    = mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
-            std::shared_ptr< Property > & tPropThermConduct = mMasterProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
+            std::shared_ptr< Property > & tPropViscosity    = mLeaderProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+            std::shared_ptr< Property > & tPropThermConduct = mLeaderProp( static_cast< uint >( Property_Type::CONDUCTIVITY ) );
 
             // compute stabilization parameter deriviative value for velocity residual
             for ( uint iDim = 0; iDim < mSpaceDim; iDim++ )
             {
-                mdPPdMasterDof( tDofIndex )( { iDim + 1, iDim + 1 }, { 0, tNumBases } ) +=
+                mdPPdLeaderDof( tDofIndex )( { iDim + 1, iDim + 1 }, { 0, tNumBases } ) +=
                         mParameters( 0 )( iDim + 1 ) * tPropViscosity->dPropdDOF( aDofTypes ) / mElementSize;
             }
 
@@ -156,7 +156,7 @@ namespace moris
             if( tPropThermConduct->check_dof_dependency( aDofTypes ) )
             {
                 // compute contribution from thermal conductivity
-                mdPPdMasterDof( tDofIndex )( { mSpaceDim + 1, mSpaceDim + 1 }, { 0, tNumBases } ) +=
+                mdPPdLeaderDof( tDofIndex )( { mSpaceDim + 1, mSpaceDim + 1 }, { 0, tNumBases } ) +=
                         mParameters( 0 )( mSpaceDim + 1 ) * tPropThermConduct->dPropdDOF( aDofTypes ) / mElementSize;
             }
         }

@@ -466,11 +466,11 @@ Eigen_Solver::solve_block_davidson_system( Linear_Problem* aLinearSystem )
     // print eigenVector
     for ( int m = 0; m < mNumReturnedEigVals; m++ )
     {
-        // set master solution vector to free solution vector
-        Vector_Epetra* aMasterSolVec = mFreeSolVec;
+        // set leader solution vector to free solution vector
+        Vector_Epetra* aLeaderSolVec = mFreeSolVec;
 
         // get solution for eigen vectors
-        this->get_solution( m, mFreeSolVec, aMasterSolVec, evals[ m ].realpart, evals[ m ].imagpart );
+        this->get_solution( m, mFreeSolVec, aLeaderSolVec, evals[ m ].realpart, evals[ m ].imagpart );
     }
 
     return 0;
@@ -775,11 +775,11 @@ Eigen_Solver::solve_generalized_davidson_system( Linear_Problem* aLinearSystem )
     // print eigenvector
     for ( int m = 0; m < mNumReturnedEigVals; m++ )
     {
-        // set master solution vector to free solution vector
-        Vector_Epetra* aMasterSolVec = mFreeSolVec;
+        // set leader solution vector to free solution vector
+        Vector_Epetra* aLeaderSolVec = mFreeSolVec;
 
         // get solution for eigen vectors
-        this->get_solution( m, mFreeSolVec, aMasterSolVec, evals[ m ].realpart, evals[ m ].imagpart );
+        this->get_solution( m, mFreeSolVec, aLeaderSolVec, evals[ m ].realpart, evals[ m ].imagpart );
     }
 
     if ( MyPID == 0 )
@@ -1045,11 +1045,11 @@ Eigen_Solver::solve_block_krylov_schur_system( Linear_Problem* aLinearSystem )
     // print eigen vector
     for ( int m = 0; m < mNumReturnedEigVals; m++ )
     {
-        // set master solution vector to free solution vector
-        Vector_Epetra* aMasterSolVec = mFreeSolVec;
+        // set leader solution vector to free solution vector
+        Vector_Epetra* aLeaderSolVec = mFreeSolVec;
 
         // get solution for eigen vector
-        this->get_solution( m, mFreeSolVec, aMasterSolVec, evals[ m ].realpart, evals[ m ].imagpart );
+        this->get_solution( m, mFreeSolVec, aLeaderSolVec, evals[ m ].realpart, evals[ m ].imagpart );
     }
 
     if ( MyPID == 0 )
@@ -1289,11 +1289,11 @@ Eigen_Solver::solve_block_krylov_schur_amesos_system( Linear_Problem* aLinearSys
     // print eigen vector
     for ( int m = 0; m < mNumReturnedEigVals; m++ )
     {
-        // set master solution vector to free solution vector
-        Vector_Epetra* aMasterSolVec = mFreeSolVec;
+        // set leader solution vector to free solution vector
+        Vector_Epetra* aLeaderSolVec = mFreeSolVec;
 
         // get solution for eigen vector
-        this->get_solution( m, mFreeSolVec, aMasterSolVec, evals[ m ].realpart, evals[ m ].imagpart );
+        this->get_solution( m, mFreeSolVec, aLeaderSolVec, evals[ m ].realpart, evals[ m ].imagpart );
     }
 
     if ( MyPID == 0 )
@@ -1310,7 +1310,7 @@ int
 Eigen_Solver::get_solution(
         uint           aEigValIndex,
         Vector_Epetra* aSolVec,
-        Vector_Epetra* aMasterSolVec,
+        Vector_Epetra* aLeaderSolVec,
         real&          aEigValReal,
         real&          aEigValImag )
 {

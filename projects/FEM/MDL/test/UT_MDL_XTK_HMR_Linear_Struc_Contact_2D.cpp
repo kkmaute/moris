@@ -371,13 +371,13 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche =
                 tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
         tSPDirichletNitsche->set_parameters( { {{ tDBCGamma }} } );
-        tSPDirichletNitsche->set_property( tPropEModB, "Material", mtk::Master_Slave::MASTER );
+        tSPDirichletNitsche->set_property( tPropEModB, "Material", mtk::Leader_Follower::LEADER );
 
         std::shared_ptr< fem::Stabilization_Parameter > tSPNitscheInterface =
                 tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
         tSPNitscheInterface->set_parameters( { {{ 1.0 }} } );
-        tSPNitscheInterface->set_property( tPropEModB, "Material", mtk::Master_Slave::MASTER );
-        tSPNitscheInterface->set_property( tPropEModA, "Material", mtk::Master_Slave::SLAVE );
+        tSPNitscheInterface->set_property( tPropEModB, "Material", mtk::Leader_Follower::LEADER );
+        tSPNitscheInterface->set_property( tPropEModA, "Material", mtk::Leader_Follower::FOLLOWER );
 
         // define the IWGs
         fem::IWG_Factory tIWGFactory;
@@ -386,37 +386,37 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
                 tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
         tIWGBulkA->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
         tIWGBulkA->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-        tIWGBulkA->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulkA->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Leader_Follower::LEADER );
 
         std::shared_ptr< fem::IWG > tIWGBulkB =
                 tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
         tIWGBulkB->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
         tIWGBulkB->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-        tIWGBulkB->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::MASTER );
+        tIWGBulkB->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Leader_Follower::LEADER );
 
         std::shared_ptr< fem::IWG > tIWGDirichlet =
                 tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
         tIWGDirichlet->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
         tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
         tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-        tIWGDirichlet->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
-        tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
-        tIWGDirichlet->set_property( tPropDirichlet2, "Select", mtk::Master_Slave::MASTER );
+        tIWGDirichlet->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Leader_Follower::LEADER );
+        tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Leader_Follower::LEADER );
+        tIWGDirichlet->set_property( tPropDirichlet2, "Select", mtk::Leader_Follower::LEADER );
 
         std::shared_ptr< fem::IWG > tIWGNeumann =
                 tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
         tIWGNeumann->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
         tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-        tIWGNeumann->set_property( tPropTraction, "Traction", mtk::Master_Slave::MASTER );
+        tIWGNeumann->set_property( tPropTraction, "Traction", mtk::Leader_Follower::LEADER );
 
         std::shared_ptr< fem::IWG > tIWGInterface =
                 tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_INTERFACE_SYMMETRIC_NITSCHE );
         tIWGInterface->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
         tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-        tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},mtk::Master_Slave::SLAVE );
+        tIWGInterface->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }},mtk::Leader_Follower::FOLLOWER );
         tIWGInterface->set_stabilization_parameter( tSPNitscheInterface, "NitscheInterface" );
-        tIWGInterface->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Master_Slave::MASTER );
-        tIWGInterface->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::SLAVE );
+        tIWGInterface->set_constitutive_model( tCMStrucLinIso2, "ElastLinIso", mtk::Leader_Follower::LEADER );
+        tIWGInterface->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Leader_Follower::FOLLOWER );
 
         // define set info
         fem::Set_User_Info tSetBulk1;

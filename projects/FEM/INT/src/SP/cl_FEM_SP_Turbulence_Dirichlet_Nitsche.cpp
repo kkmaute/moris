@@ -23,7 +23,7 @@ namespace moris
         SP_Turbulence_Dirichlet_Nitsche::SP_Turbulence_Dirichlet_Nitsche()
         {
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "SpalartAllmarasTurbulence" ] = static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE );
@@ -34,9 +34,9 @@ namespace moris
         void SP_Turbulence_Dirichlet_Nitsche::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                 moris::Cell< std::string >                  & aDofStrings,
-                mtk::Master_Slave                             aIsMaster )
+                mtk::Leader_Follower                             aIsLeader )
         {
-            Stabilization_Parameter::set_dof_type_list( aDofTypes, aIsMaster );
+            Stabilization_Parameter::set_dof_type_list( aDofTypes, aIsLeader );
         }
 
         //------------------------------------------------------------------------------
@@ -44,7 +44,7 @@ namespace moris
         moris::Cell< std::tuple<
         fem::Measure_Type,
         mtk::Primary_Void,
-        mtk::Master_Slave > > SP_Turbulence_Dirichlet_Nitsche::get_cluster_measure_tuple_list()
+        mtk::Leader_Follower > > SP_Turbulence_Dirichlet_Nitsche::get_cluster_measure_tuple_list()
         {
             return { mElementSizeTuple };
         }
@@ -61,7 +61,7 @@ namespace moris
 
             // get the SA turbulence CM
             const std::shared_ptr< Constitutive_Model > & tCMSATurbulence =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
 
             // compute stabilization parameter value
             mPPVal = mParameters( 0 ) * tCMSATurbulence->diffusion_coefficient() / tElementSize;
@@ -69,7 +69,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void SP_Turbulence_Dirichlet_Nitsche::eval_dSPdMasterDOF(
+        void SP_Turbulence_Dirichlet_Nitsche::eval_dSPdLeaderDOF(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes )
         {
             // get element size cluster measure value
@@ -82,31 +82,31 @@ namespace moris
             uint tDofType = static_cast< uint >( aDofTypes( 0 ) );
 
             // get the dof type index
-            uint tDofIndex = mMasterGlobalDofTypeMap( tDofType );
+            uint tDofIndex = mLeaderGlobalDofTypeMap( tDofType );
 
             // get FI for derivative dof type
             Field_Interpolator * tFIDer =
-                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // reset the matrix
-            mdPPdMasterDof( tDofIndex ).set_size(
+            mdPPdLeaderDof( tDofIndex ).set_size(
                     1,
                     tFIDer->get_number_of_space_time_coefficients() );
 
             // get the SA turbulence CM
             const std::shared_ptr< Constitutive_Model > & tCMSATurbulence =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::SPALART_ALLMARAS_TURBULENCE ) );
 
             // if turbulence CM depends on dof
             if( tCMSATurbulence->check_dof_dependency( aDofTypes ) )
             {
                 // add contribution from diffusion coefficient
-                mdPPdMasterDof( tDofIndex ) =
+                mdPPdLeaderDof( tDofIndex ) =
                         mParameters( 0 ) * tCMSATurbulence->ddiffusioncoeffdu( aDofTypes ) / tElementSize;
             }
             else
             {
-                mdPPdMasterDof( tDofIndex ).fill( 0.0 );
+                mdPPdLeaderDof( tDofIndex ).fill( 0.0 );
             }
         }
 

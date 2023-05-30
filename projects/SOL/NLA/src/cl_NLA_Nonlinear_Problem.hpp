@@ -60,7 +60,7 @@ namespace moris
             //! Pointer to my nonlinear solver
             Nonlinear_Solver* mMyNonLinSolver = nullptr;
 
-            bool mIsMasterSystem = false;
+            bool mIsLeaderSystem = false;
 
             bool mBuildLinerSystemFlag = true;
 

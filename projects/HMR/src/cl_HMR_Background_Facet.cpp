@@ -24,30 +24,30 @@ namespace moris
         {
             if ( aElementA->is_padding() )
             {
-                mMasterElement = aElementB;
-                mSlaveElement  = aElementA;
-                mIndexOnMaster = this->get_index_on_other( aIndexOnElementA );
+                mLeaderElement = aElementB;
+                mFollowerElement  = aElementA;
+                mIndexOnLeader = this->get_index_on_other( aIndexOnElementA );
             }
             else if ( aElementB->is_padding() )
             {
-                mMasterElement = aElementA;
-                mSlaveElement  = aElementB;
-                mIndexOnMaster = aIndexOnElementA;
+                mLeaderElement = aElementA;
+                mFollowerElement  = aElementB;
+                mIndexOnLeader = aIndexOnElementA;
             }
             else if( aElementA->get_hmr_id() < aElementB->get_hmr_id() )
             {
-                mMasterElement = aElementA;
-                mSlaveElement  = aElementB;
-                mIndexOnMaster = aIndexOnElementA;
+                mLeaderElement = aElementA;
+                mFollowerElement  = aElementB;
+                mIndexOnLeader = aIndexOnElementA;
             }
             else
             {
-                mMasterElement = aElementB;
-                mSlaveElement  = aElementA;
-                mIndexOnMaster = this->get_index_on_other( aIndexOnElementA );
+                mLeaderElement = aElementB;
+                mFollowerElement  = aElementA;
+                mIndexOnLeader = this->get_index_on_other( aIndexOnElementA );
             }
 
-            // set owner flags of master and slave
+            // set owner flags of leader and follower
         }
 
 //-------------------------------------------------------------------------------
@@ -55,9 +55,9 @@ namespace moris
         Background_Facet::Background_Facet(       Background_Element_Base * aElement,
                                             const uint                    & aIndexOnElement )
         {
-            mMasterElement = aElement;
-            mSlaveElement  = nullptr;
-            mIndexOnMaster = aIndexOnElement;
+            mLeaderElement = aElement;
+            mFollowerElement  = nullptr;
+            mIndexOnLeader = aIndexOnElement;
         }
 
 //-------------------------------------------------------------------------------
@@ -83,30 +83,30 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        Background_Element_Base * Background_Facet::get_master()
+        Background_Element_Base * Background_Facet::get_leader()
         {
-            return mMasterElement;
+            return mLeaderElement;
         }
 
 //-------------------------------------------------------------------------------
 
-        Background_Element_Base * Background_Facet::get_slave()
+        Background_Element_Base * Background_Facet::get_follower()
         {
-            return mSlaveElement;
+            return mFollowerElement;
         }
 
 //-------------------------------------------------------------------------------
 
-        void Background_Facet::set_slave( Background_Element_Base * aElement )
+        void Background_Facet::set_follower( Background_Element_Base * aElement )
         {
-            mSlaveElement = aElement;
+            mFollowerElement = aElement;
         }
 
 //-------------------------------------------------------------------------------
 
-        uint Background_Facet::get_index_on_master() const
+        uint Background_Facet::get_index_on_leader() const
         {
-            return mIndexOnMaster;
+            return mIndexOnLeader;
         }
 
 //-------------------------------------------------------------------------------
@@ -119,9 +119,9 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        uint Background_Facet::get_index_on_slave() const
+        uint Background_Facet::get_index_on_follower() const
         {
-            return this->get_index_on_other( mIndexOnMaster );
+            return this->get_index_on_other( mIndexOnLeader );
         }
 
 //-------------------------------------------------------------------------------

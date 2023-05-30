@@ -72,7 +72,7 @@ namespace moris
             tGeoInterpIG->set_time_param_coeff(  tTauHatIG );
 
             tFIManager.mIGGeometryInterpolator = tGeoInterpIG;
-            reinterpret_cast< Set* >( tFEMSet )->mMasterFIManager = &tFIManager;
+            reinterpret_cast< Set* >( tFEMSet )->mLeaderFIManager = &tFIManager;
 
             // create a integration rule
             mtk::Integration_Rule tIntegrationRule( tGeoTypeIG,
@@ -153,7 +153,7 @@ namespace moris
             tGeoInterpIG->set_time_param_coeff(  tTauHatIG );
 
             tFIManager.mIGGeometryInterpolator = tGeoInterpIG;
-            reinterpret_cast< Set* >( tFEMSet )->mMasterFIManager = &tFIManager;
+            reinterpret_cast< Set* >( tFEMSet )->mLeaderFIManager = &tFIManager;
 
             // create a integration rule
             mtk::Integration_Rule tIntegrationRule( tGeoTypeIG,

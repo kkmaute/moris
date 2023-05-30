@@ -226,27 +226,27 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         // FEM inputs
         //------------------------------------------------------------------------------
         // create the properties
-        std::shared_ptr< fem::Property > tPropMasterConductivity =
+        std::shared_ptr< fem::Property > tPropLeaderConductivity =
                 std::make_shared< fem::Property > ();
-        tPropMasterConductivity->set_parameters( { {{ 1.0 }} } );
-        tPropMasterConductivity->set_dv_type_list( {{ PDV_Type::DENSITY }} );
-        tPropMasterConductivity->set_val_function( tFIValDvFunction_FDTest );
-        tPropMasterConductivity->set_dv_derivative_functions( { tFIDerDvFunction_FDTest } );
+        tPropLeaderConductivity->set_parameters( { {{ 1.0 }} } );
+        tPropLeaderConductivity->set_dv_type_list( {{ PDV_Type::DENSITY }} );
+        tPropLeaderConductivity->set_val_function( tFIValDvFunction_FDTest );
+        tPropLeaderConductivity->set_dv_derivative_functions( { tFIDerDvFunction_FDTest } );
 
-        std::shared_ptr< fem::Property > tPropMasterTempLoad =
+        std::shared_ptr< fem::Property > tPropLeaderTempLoad =
                 std::make_shared< fem::Property > ();
-        tPropMasterTempLoad->set_parameters( { {{ 1.0 }} } );
-        tPropMasterTempLoad->set_val_function( tConstValFunction_FDTest );
+        tPropLeaderTempLoad->set_parameters( { {{ 1.0 }} } );
+        tPropLeaderTempLoad->set_val_function( tConstValFunction_FDTest );
 
         // define constitutive models
         fem::CM_Factory tCMFactory;
 
-        std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso =
+        std::shared_ptr< fem::Constitutive_Model > tCMLeaderDiffLinIso =
                 tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-        tCMMasterDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-        tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
-        tCMMasterDiffLinIso->set_space_dim( 2 );
-        tCMMasterDiffLinIso->set_local_properties();
+        tCMLeaderDiffLinIso->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+        tCMLeaderDiffLinIso->set_property( tPropLeaderConductivity, "Conductivity" );
+        tCMLeaderDiffLinIso->set_space_dim( 2 );
+        tCMLeaderDiffLinIso->set_local_properties();
 
         // define an IWG
         fem::IWG_Factory tIWGFactory;
@@ -254,16 +254,16 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         std::shared_ptr< fem::IWG > tIWG =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWG->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-        tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-        tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
-        tIWG->set_property( tPropMasterTempLoad, "Load", mtk::Master_Slave::MASTER );
+        tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Leader_Follower::LEADER );
+        tIWG->set_constitutive_model( tCMLeaderDiffLinIso, "Diffusion", mtk::Leader_Follower::LEADER );
+        tIWG->set_property( tPropLeaderTempLoad, "Load", mtk::Leader_Follower::LEADER );
 
         // define an IQI
         fem::IQI_Factory tIQIFactory;
         std::shared_ptr< fem::IQI > tIQI =
                 tIQIFactory.create_IQI( fem::IQI_Type::STRAIN_ENERGY );
-        tIQI->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-        tIQI->set_constitutive_model( tCMMasterDiffLinIso, "Elast", mtk::Master_Slave::MASTER );
+        tIQI->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Leader_Follower::LEADER );
+        tIQI->set_constitutive_model( tCMLeaderDiffLinIso, "Elast", mtk::Leader_Follower::LEADER );
         tIQI->set_name("IQI_1");
 
         // define set info
@@ -344,13 +344,13 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         reinterpret_cast< fem::Set * >( tWorkSet )->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
         reinterpret_cast< fem::Set * >( tWorkSet )->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
-        // set size and populate the set master dof type map
-        reinterpret_cast< fem::Set * >( tWorkSet )->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-        reinterpret_cast< fem::Set * >( tWorkSet )->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+        // set size and populate the set leader dof type map
+        reinterpret_cast< fem::Set * >( tWorkSet )->mLeaderDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+        reinterpret_cast< fem::Set * >( tWorkSet )->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
-        // set size and populate the set master dof type map
-        reinterpret_cast< fem::Set * >( tWorkSet )->mMasterDvTypeMap.set_size( static_cast< int >( PDV_Type::UNDEFINED ) + 1, 1, -1 );
-        reinterpret_cast< fem::Set * >( tWorkSet )->mMasterDvTypeMap( static_cast< int >( PDV_Type::DENSITY ) ) = 0;
+        // set size and populate the set leader dof type map
+        reinterpret_cast< fem::Set * >( tWorkSet )->mLeaderDvTypeMap.set_size( static_cast< int >( PDV_Type::UNDEFINED ) + 1, 1, -1 );
+        reinterpret_cast< fem::Set * >( tWorkSet )->mLeaderDvTypeMap( static_cast< int >( PDV_Type::DENSITY ) ) = 0;
 
         // MSI Equation object
         //------------------------------------------------------------------------------
@@ -381,8 +381,8 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         tIWG->get_global_dof_type_list();
         tIWG->get_global_dv_type_list();
 
-        // populate the requested master dof type
-        tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
+        // populate the requested leader dof type
+        tIWG->mRequestedLeaderGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
 
         // compute residual
         tWorkSet->mResidual.resize( 1 );

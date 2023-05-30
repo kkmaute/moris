@@ -39,17 +39,17 @@ namespace moris
             // fill the cell cluster pointer
             mMeshCluster = aMeshCluster;
 
-            // fill the master integration cells
-            mMasterIntegrationCells = aMeshCluster->get_primary_cells_in_cluster();
+            // fill the leader integration cells
+            mLeaderIntegrationCells = aMeshCluster->get_primary_cells_in_cluster();
 
             // get number of subelements (IG cells)
-            uint tNumMasterIGCells = mMasterIntegrationCells.size();
+            uint tNumLeaderIGCells = mLeaderIntegrationCells.size();
 
             // element factory
             fem::Element_Factory tElementFactory;
 
             // set size for the number of IG cells
-            mElements.resize( tNumMasterIGCells, nullptr );
+            mElements.resize( tNumLeaderIGCells, nullptr );
 
             // switch on the element type
             switch ( mElementType )
@@ -58,12 +58,12 @@ namespace moris
                 case fem::Element_Type::TIME_SIDESET:
                 {
                     // loop over the IG cells
-                    for ( uint iIGCell = 0; iIGCell < tNumMasterIGCells; iIGCell++ )
+                    for ( uint iIGCell = 0; iIGCell < tNumLeaderIGCells; iIGCell++ )
                     {
                         // create an element
                         mElements( iIGCell ) = tElementFactory.create_element(
                                 mElementType,
-                                mMasterIntegrationCells( iIGCell ),
+                                mLeaderIntegrationCells( iIGCell ),
                                 mSet,
                                 this,
                                 iIGCell );
@@ -73,15 +73,15 @@ namespace moris
                 case fem::Element_Type::SIDESET:
                 {
                     // set the side ordinals for the IG cells in the cluster
-                    mMasterListOfSideOrdinals = aMeshCluster->get_cell_side_ordinals();
+                    mLeaderListOfSideOrdinals = aMeshCluster->get_cell_side_ordinals();
 
                     // loop over the IG cells
-                    for ( uint iIGCell = 0; iIGCell < tNumMasterIGCells; iIGCell++ )
+                    for ( uint iIGCell = 0; iIGCell < tNumLeaderIGCells; iIGCell++ )
                     {
                         // create an element
                         mElements( iIGCell ) = tElementFactory.create_element(
                                 mElementType,
-                                mMasterIntegrationCells( iIGCell ),
+                                mLeaderIntegrationCells( iIGCell ),
                                 mSet,
                                 this,
                                 iIGCell );
@@ -90,21 +90,21 @@ namespace moris
                 }
                 case fem::Element_Type::DOUBLE_SIDESET:
                 {
-                    // fill the slave integration cells
-                    mSlaveIntegrationCells = aMeshCluster->get_primary_cells_in_cluster( mtk::Master_Slave::SLAVE );
+                    // fill the follower integration cells
+                    mFollowerIntegrationCells = aMeshCluster->get_primary_cells_in_cluster( mtk::Leader_Follower::FOLLOWER );
 
-                    // set the side ordinals for the master and slave IG cells
-                    mMasterListOfSideOrdinals = aMeshCluster->get_cell_side_ordinals( mtk::Master_Slave::MASTER );
-                    mSlaveListOfSideOrdinals  = aMeshCluster->get_cell_side_ordinals( mtk::Master_Slave::SLAVE );
+                    // set the side ordinals for the leader and follower IG cells
+                    mLeaderListOfSideOrdinals = aMeshCluster->get_cell_side_ordinals( mtk::Leader_Follower::LEADER );
+                    mFollowerListOfSideOrdinals  = aMeshCluster->get_cell_side_ordinals( mtk::Leader_Follower::FOLLOWER );
 
                     // loop over the IG cells
-                    for ( moris::uint iIGCell = 0; iIGCell < tNumMasterIGCells; iIGCell++ )
+                    for ( moris::uint iIGCell = 0; iIGCell < tNumLeaderIGCells; iIGCell++ )
                     {
                         // create element
                         mElements( iIGCell ) = tElementFactory.create_element(
                                 mElementType,
-                                mMasterIntegrationCells( iIGCell ),
-                                mSlaveIntegrationCells( iIGCell ),
+                                mLeaderIntegrationCells( iIGCell ),
+                                mFollowerIntegrationCells( iIGCell ),
                                 mSet,
                                 this,
                                 iIGCell );
@@ -126,7 +126,7 @@ namespace moris
             moris::Cell< std::tuple<
                     fem::Measure_Type,
                     mtk::Primary_Void,
-                    mtk::Master_Slave > >
+                    mtk::Leader_Follower > >
                     tClusterMEATuples = mSet->get_cluster_measure_tuples();
 
             // build the cluster measures from tuples
@@ -158,22 +158,22 @@ namespace moris
             mClusterMEAMap[ std::make_tuple(
                     fem::Measure_Type::CELL_SIDE_MEASURE,
                     mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::MASTER ) ] = 0;
+                    mtk::Leader_Follower::LEADER ) ] = 0;
 
             mClusterMEAMap[ std::make_tuple(
                     fem::Measure_Type::CELL_MEASURE,
                     mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::MASTER ) ] = 1;
+                    mtk::Leader_Follower::LEADER ) ] = 1;
 
             mClusterMEAMap[ std::make_tuple(
                     fem::Measure_Type::CELL_MEASURE,
                     mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::SLAVE ) ] = 2;
+                    mtk::Leader_Follower::FOLLOWER ) ] = 2;
 
             mClusterMEAMap[ std::make_tuple(
                     fem::Measure_Type::CELL_LENGTH_MEASURE,
                     mtk::Primary_Void::PRIMARY,
-                    mtk::Master_Slave::MASTER ) ] = 3;
+                    mtk::Leader_Follower::LEADER ) ] = 3;
         }
 
         //------------------------------------------------------------------------------
@@ -191,19 +191,19 @@ namespace moris
 
         Matrix< IndexMat > &
         Cluster::get_side_ordinal_info(
-                mtk::Master_Slave aIsMaster )
+                mtk::Leader_Follower aIsLeader )
         {
-            switch ( aIsMaster )
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
-                    return mMasterListOfSideOrdinals;
+                case mtk::Leader_Follower::LEADER:
+                    return mLeaderListOfSideOrdinals;
 
-                case mtk::Master_Slave::SLAVE:
-                    return mSlaveListOfSideOrdinals;
+                case mtk::Leader_Follower::FOLLOWER:
+                    return mFollowerListOfSideOrdinals;
 
                 default:
-                    MORIS_ERROR( false, "Cluster::get_side_ordinal_info - can only be master or slave." );
-                    return mMasterListOfSideOrdinals;
+                    MORIS_ERROR( false, "Cluster::get_side_ordinal_info - can only be leader or follower." );
+                    return mLeaderListOfSideOrdinals;
             }
         }
 
@@ -231,7 +231,7 @@ namespace moris
                 moris::Matrix< moris::IndexMat > &aVerticesIndices )
         {
             // if mesh cluster is not trivial
-            if ( !mMeshCluster->is_trivial( mtk::Master_Slave::MASTER ) )
+            if ( !mMeshCluster->is_trivial( mtk::Leader_Follower::LEADER ) )
             {
                 // get vertices indices on cluster
                 aVerticesIndices = mMeshCluster->get_vertex_indices_in_cluster();
@@ -262,7 +262,7 @@ namespace moris
         Cluster::get_cell_local_coords_on_side_wrt_interp_cell(
                 moris::moris_index aCellIndexInCluster,
                 moris::moris_index aSideOrdinal,
-                mtk::Master_Slave  aIsMaster )
+                mtk::Leader_Follower  aIsLeader )
         {
             // check that side cluster
             MORIS_ASSERT( ( mElementType == fem::Element_Type::DOUBLE_SIDESET ) || ( mElementType == fem::Element_Type::SIDESET ),
@@ -273,7 +273,7 @@ namespace moris
                     "Cluster::get_cell_local_coords_on_side_wrt_interp_cell - empty cluster." );
 
             // get the side param coords from the side cluster
-            return mMeshCluster->get_cell_local_coords_on_side_wrt_interp_cell( aCellIndexInCluster, aIsMaster );
+            return mMeshCluster->get_cell_local_coords_on_side_wrt_interp_cell( aCellIndexInCluster, aIsLeader );
         }
 
         //------------------------------------------------------------------------------
@@ -335,7 +335,7 @@ namespace moris
                     "Cluster::get_left_vertex_pair - empty cluster." );
 
             // get the paired vertex on the right
-            return mMeshCluster->get_master_vertex_pair( aLeftVertex );
+            return mMeshCluster->get_leader_vertex_pair( aLeftVertex );
         }
 
         //------------------------------------------------------------------------------
@@ -354,7 +354,7 @@ namespace moris
                     "Cluster::get_right_vertex_ordinal_on_facet - empty cluster." );
 
             // return the index of the paired vertex on the right
-            return mMeshCluster->get_slave_vertex_ord_on_facet( aCellIndexInCluster, aVertex );
+            return mMeshCluster->get_follower_vertex_ord_on_facet( aCellIndexInCluster, aVertex );
         }
 
         //------------------------------------------------------------------------------
@@ -582,7 +582,7 @@ namespace moris
         Cluster::get_cluster_measure(
                 fem::Measure_Type aMeasureType,
                 mtk::Primary_Void aIsPrimary,
-                mtk::Master_Slave aIsMaster )
+                mtk::Leader_Follower aIsLeader )
         {
             // init cluster index
             uint tClusterMEAIndex = UINT_MAX;
@@ -591,14 +591,14 @@ namespace moris
             if ( mClusterMEAMap.find( std::make_tuple(
                          aMeasureType,
                          aIsPrimary,
-                         aIsMaster ) )
+                         aIsLeader ) )
                     != mClusterMEAMap.end() )
             {
                 // add the mesh set name map
                 tClusterMEAIndex = mClusterMEAMap[ std::make_tuple(
                         aMeasureType,
                         aIsPrimary,
-                        aIsMaster ) ];
+                        aIsLeader ) ];
             }
 
             MORIS_ERROR( tClusterMEAIndex != UINT_MAX, "Cluster measure not found!" );
@@ -637,13 +637,13 @@ namespace moris
         moris::real
         Cluster::compute_cluster_cell_measure(
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
             // check that the mesh cluster was set
             MORIS_ASSERT( mMeshCluster != NULL,
                     "Cluster::compute_cluster_cell_measure - empty cluster." );
 
-            return mMeshCluster->compute_cluster_cell_measure( aPrimaryOrVoid, aIsMaster );
+            return mMeshCluster->compute_cluster_cell_measure( aPrimaryOrVoid, aIsLeader );
         }
 
         //------------------------------------------------------------------------------
@@ -651,7 +651,7 @@ namespace moris
         moris::Matrix< DDRMat >
         Cluster::compute_cluster_cell_measure_derivative(
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster )
+                const mtk::Leader_Follower aIsLeader )
         {
             // check that the mesh cluster was set
             MORIS_ASSERT( mMeshCluster != NULL,
@@ -659,7 +659,7 @@ namespace moris
 
             // get the vertex pointers in cluster
             moris::Cell< moris::mtk::Vertex const * > tVertices =
-                    mMeshCluster->get_vertices_in_cluster( aIsMaster );
+                    mMeshCluster->get_vertices_in_cluster( aIsLeader );
 
             // get the requested geo pdv types
             moris::Cell< enum PDV_Type > tGeoPdvType;
@@ -709,7 +709,7 @@ namespace moris
                                             tPerturbedNodeCoords,
                                             iSpace,
                                             aPrimaryOrVoid,
-                                            aIsMaster );
+                                            aIsLeader );
                         }
                     }
                 }
@@ -722,13 +722,13 @@ namespace moris
         moris::real
         Cluster::compute_cluster_cell_side_measure(
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
             // check that the mesh cluster was set
             MORIS_ASSERT( mMeshCluster != NULL,
                     "Cluster::compute_cluster_cell_side_measure - empty cluster." );
 
-            return mMeshCluster->compute_cluster_cell_side_measure( aPrimaryOrVoid, aIsMaster );
+            return mMeshCluster->compute_cluster_cell_side_measure( aPrimaryOrVoid, aIsLeader );
         }
 
         //------------------------------------------------------------------------------
@@ -736,7 +736,7 @@ namespace moris
         moris::Matrix< DDRMat >
         Cluster::compute_cluster_cell_side_measure_derivative(
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster )
+                const mtk::Leader_Follower aIsLeader )
         {
             // check that the mesh cluster was set
             MORIS_ASSERT( mMeshCluster != NULL,
@@ -744,7 +744,7 @@ namespace moris
 
             // get the vertex pointers in cluster
             moris::Cell< moris::mtk::Vertex const * > tVertices =
-                    mMeshCluster->get_vertices_in_cluster( aIsMaster );
+                    mMeshCluster->get_vertices_in_cluster( aIsLeader );
 
             // get the requested geo pdv types
             moris::Cell< enum PDV_Type > tGeoPdvType;
@@ -794,7 +794,7 @@ namespace moris
                                             tPerturbedNodeCoords,
                                             iSpace,
                                             aPrimaryOrVoid,
-                                            aIsMaster );
+                                            aIsLeader );
                         }
                     }
                 }
@@ -807,7 +807,7 @@ namespace moris
         moris::real
         Cluster::compute_cluster_cell_length_measure(
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
             // check that the mesh cluster was set
             MORIS_ASSERT( mMeshCluster != NULL,
@@ -817,7 +817,7 @@ namespace moris
             real tVolume = 0.0;
 
             // get spatial dimension from IP geometry interpolator
-            uint tSpaceDim = mSet->get_field_interpolator_manager( aIsMaster )->get_IP_geometry_interpolator()->get_number_of_space_dimensions();
+            uint tSpaceDim = mSet->get_field_interpolator_manager( aIsLeader )->get_IP_geometry_interpolator()->get_number_of_space_dimensions();
 
             // switch on set type
             fem::Element_Type tElementType = mSet->get_element_type();
@@ -827,13 +827,13 @@ namespace moris
                 case fem::Element_Type::TIME_SIDESET:
                 case fem::Element_Type::TIME_BOUNDARY:
                 {
-                    tVolume = mMeshCluster->compute_cluster_cell_measure( aPrimaryOrVoid, aIsMaster );
+                    tVolume = mMeshCluster->compute_cluster_cell_measure( aPrimaryOrVoid, aIsLeader );
                     break;
                 }
                 case fem::Element_Type::SIDESET:
                 case fem::Element_Type::DOUBLE_SIDESET:
                 {
-                    tVolume   = mMeshCluster->compute_cluster_cell_side_measure( aPrimaryOrVoid, aIsMaster );
+                    tVolume   = mMeshCluster->compute_cluster_cell_side_measure( aPrimaryOrVoid, aIsLeader );
                     tSpaceDim = tSpaceDim - 1;
                     break;
                 }
@@ -872,14 +872,14 @@ namespace moris
         moris::Matrix< DDRMat >
         Cluster::compute_cluster_cell_length_measure_derivative(
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster )
+                const mtk::Leader_Follower aIsLeader )
         {
             // check that the mesh cluster was set
             MORIS_ASSERT( mMeshCluster != NULL,
                     "Cluster::compute_cluster_cell_length_measure_derivative - empty cluster." );
 
             // get spatial dimension from IP geometry interpolator
-            uint tSpaceDim = mSet->get_field_interpolator_manager( aIsMaster )->get_IP_geometry_interpolator()->get_number_of_space_dimensions();
+            uint tSpaceDim = mSet->get_field_interpolator_manager( aIsLeader )->get_IP_geometry_interpolator()->get_number_of_space_dimensions();
 
             // initialize volume of the cluster
             real tVolume = 0.0;
@@ -895,15 +895,15 @@ namespace moris
                 case fem::Element_Type::TIME_SIDESET:
                 case fem::Element_Type::TIME_BOUNDARY:
                 {
-                    tVolume      = mMeshCluster->compute_cluster_cell_measure( aPrimaryOrVoid, aIsMaster );
-                    tDerivatives = this->compute_cluster_cell_measure_derivative( aPrimaryOrVoid, aIsMaster );
+                    tVolume      = mMeshCluster->compute_cluster_cell_measure( aPrimaryOrVoid, aIsLeader );
+                    tDerivatives = this->compute_cluster_cell_measure_derivative( aPrimaryOrVoid, aIsLeader );
                     break;
                 }
                 case fem::Element_Type::SIDESET:
                 case fem::Element_Type::DOUBLE_SIDESET:
                 {
-                    tVolume      = mMeshCluster->compute_cluster_cell_side_measure( aPrimaryOrVoid, aIsMaster );
-                    tDerivatives = this->compute_cluster_cell_side_measure_derivative( aPrimaryOrVoid, aIsMaster );
+                    tVolume      = mMeshCluster->compute_cluster_cell_side_measure( aPrimaryOrVoid, aIsLeader );
+                    tDerivatives = this->compute_cluster_cell_side_measure_derivative( aPrimaryOrVoid, aIsLeader );
                     tSpaceDim    = tSpaceDim - 1;
                     break;
                 }
@@ -943,17 +943,17 @@ namespace moris
 
         moris::real
         Cluster::compute_ip_cell_length_measure(
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
             // check that the mesh cluster was set
             MORIS_ASSERT( mInterpolationElement != NULL,
                     "Cluster::compute_ip_cell_length_measure - empty interpolation element." );
 
-            // compute the volume of the master IP cell
-            real tVolume = reinterpret_cast< fem::Interpolation_Element * >( mInterpolationElement )->get_ip_cell( mtk::Master_Slave::MASTER )->compute_cell_measure();
+            // compute the volume of the leader IP cell
+            real tVolume = reinterpret_cast< fem::Interpolation_Element * >( mInterpolationElement )->get_ip_cell( mtk::Leader_Follower::LEADER )->compute_cell_measure();
 
             // get spatial dimension from IP geometry interpolator
-            uint tSpaceDim = mSet->get_field_interpolator_manager( aIsMaster )->get_IP_geometry_interpolator()->get_number_of_space_dimensions();
+            uint tSpaceDim = mSet->get_field_interpolator_manager( aIsLeader )->get_IP_geometry_interpolator()->get_number_of_space_dimensions();
 
             // compute element size
             switch ( tSpaceDim )
@@ -988,7 +988,7 @@ namespace moris
             // new way to compute cluster volume
 
             const mtk::Primary_Void tPrimaryOrVoid = mtk::Primary_Void::PRIMARY;
-            const mtk::Master_Slave tIsMaster      = mtk::Master_Slave::MASTER;
+            const mtk::Leader_Follower tIsLeader      = mtk::Leader_Follower::LEADER;
 
             real tClusterVolume = 0.0;
 
@@ -1001,13 +1001,13 @@ namespace moris
                 case fem::Element_Type::TIME_SIDESET:
                 case fem::Element_Type::TIME_BOUNDARY:
                 {
-                    tClusterVolume = mMeshCluster->compute_cluster_cell_measure( tPrimaryOrVoid, tIsMaster );
+                    tClusterVolume = mMeshCluster->compute_cluster_cell_measure( tPrimaryOrVoid, tIsLeader );
                     break;
                 }
                 case fem::Element_Type::SIDESET:
                 case fem::Element_Type::DOUBLE_SIDESET:
                 {
-                    tClusterVolume = mMeshCluster->compute_cluster_cell_side_measure( tPrimaryOrVoid, tIsMaster );
+                    tClusterVolume = mMeshCluster->compute_cluster_cell_side_measure( tPrimaryOrVoid, tIsLeader );
                     break;
                 }
                 default:
@@ -1030,7 +1030,7 @@ namespace moris
             // new way to compute cluster volume
 
             const mtk::Primary_Void tPrimaryOrVoid = mtk::Primary_Void::PRIMARY;
-            const mtk::Master_Slave tIsMaster      = mtk::Master_Slave::MASTER;
+            const mtk::Leader_Follower tIsLeader      = mtk::Leader_Follower::LEADER;
 
             // switch on set type
             fem::Element_Type tElementType = mSet->get_element_type();
@@ -1041,13 +1041,13 @@ namespace moris
                 case fem::Element_Type::TIME_SIDESET:
                 case fem::Element_Type::TIME_BOUNDARY:
                 {
-                    return mMeshCluster->compute_cluster_ig_cell_measures( tPrimaryOrVoid, tIsMaster );
+                    return mMeshCluster->compute_cluster_ig_cell_measures( tPrimaryOrVoid, tIsLeader );
                     break;
                 }
                 case fem::Element_Type::SIDESET:
                 case fem::Element_Type::DOUBLE_SIDESET:
                 {
-                    return mMeshCluster->compute_cluster_ig_cell_side_measures( tPrimaryOrVoid, tIsMaster );
+                    return mMeshCluster->compute_cluster_ig_cell_side_measures( tPrimaryOrVoid, tIsLeader );
                     break;
                 }
                 default:

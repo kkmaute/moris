@@ -85,15 +85,15 @@ namespace xtk
         std::unordered_map< std::string, moris_index >                            mDoubleSideSetLabelToOrd;
         moris::Cell< std::string >                                                mDoubleSideSetLabels;
         moris::Cell< moris::Cell< std::shared_ptr< mtk::Double_Side_Cluster > > > mDoubleSideSets;    // outer cell: index of the dbl-side set || inner cell: all dbl-side clusters that live on this dbl-side set
-        moris::Cell< moris::Cell< moris_index > >                                 mDoubleSideSetsMasterIndex;
-        moris::Cell< moris::Cell< moris_index > >                                 mDoubleSideSetsSlaveIndex;
+        moris::Cell< moris::Cell< moris_index > >                                 mDoubleSideSetsLeaderIndex;
+        moris::Cell< moris::Cell< moris_index > >                                 mDoubleSideSetsFollowerIndex;
         moris::Cell< std::shared_ptr< mtk::Double_Side_Cluster > >                mDoubleSideClusters;
         moris::Cell< std::shared_ptr< xtk::Side_Cluster > >                       mDoubleSideSingleSideClusters; /*lefts and rights of the double side sets*/
         Matrix< IndexMat >                                                        mBulkPhaseToDblSideIndex;
-        moris::Cell< Matrix< IndexMat > >                                         mMasterDoubleSideSetColor;
-        moris::Cell< Matrix< IndexMat > >                                         mSlaveDoubleSideSetColor;
-        moris::Cell< moris::Cell< moris_index > >                                 mColorMasterDoubleSideSet; /*transpose of mMasterDoubleSideSetColor*/
-        moris::Cell< moris::Cell< moris_index > >                                 mColorSlaveDoubleSideSet;  /*transpose of mSlaveDoubleSideSetColor*/
+        moris::Cell< Matrix< IndexMat > >                                         mLeaderDoubleSideSetColor;
+        moris::Cell< Matrix< IndexMat > >                                         mFollowerDoubleSideSetColor;
+        moris::Cell< moris::Cell< moris_index > >                                 mColorLeaderDoubleSideSet; /*transpose of mLeaderDoubleSideSetColor*/
+        moris::Cell< moris::Cell< moris_index > >                                 mColorFollowerDoubleSideSet;  /*transpose of mFollowerDoubleSideSetColor*/
 
         // Fields
         moris::Cell< xtk::Field >                                                    mFields; // list of global fields
@@ -230,16 +230,16 @@ namespace xtk
         /**
          * @brief Creates a double sided interface between the two bulk phases.
          * This function creates additional dbl sided interfaces. By default,
-         * the enriched integration mesh creates only the low-master high-slave
-         * dbl sided interfaces. This functions allows creation of  low-slave high-master
+         * the enriched integration mesh creates only the low-leader high-follower
+         * dbl sided interfaces. This functions allows creation of  low-follower high-leader
          * interfaces.
-         * @param[in] aMasterBulkPhaseIndex Master bulk phase index
-         * @param[in] aSlaveBulkPhaseIndex Slave bulk phase index
+         * @param[in] aLeaderBulkPhaseIndex Leader bulk phase index
+         * @param[in] aFollowerBulkPhaseIndex Follower bulk phase index
          */
         void
         create_dbl_sided_interface_set(
-                moris_index aMasterBulkPhaseIndex,
-                moris_index aSlaveBulkPhaseIndex );
+                moris_index aLeaderBulkPhaseIndex,
+                moris_index aFollowerBulkPhaseIndex );
 
 
         //------------------------------------------------------------------------------
@@ -705,8 +705,8 @@ namespace xtk
 
         void
         set_double_side_set_colors( moris_index const &aDblSideSetIndex,
-                Matrix< IndexMat > const              &aMasterSideColors,
-                Matrix< IndexMat > const              &aSlaveSideColors );
+                Matrix< IndexMat > const              &aLeaderSideColors,
+                Matrix< IndexMat > const              &aFollowerSideColors );
 
         //------------------------------------------------------------------------------
 

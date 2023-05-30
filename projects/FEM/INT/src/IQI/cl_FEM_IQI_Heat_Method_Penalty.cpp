@@ -27,7 +27,7 @@ namespace moris
             mFEMIQIType = fem::IQI_Type::H1_ERROR;
 
             // set the property pointer cell size
-            mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "L2_Reference" ]  = static_cast< uint >( IQI_Property_Type::L2_REFERENCE_VALUE );
@@ -79,7 +79,7 @@ namespace moris
 
             // get select property
             const std::shared_ptr< Property >& tPropSelect =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::SELECT ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::SELECT ) );
 
             // check if Heat Penalty is used
             if ( tPropSelect != nullptr && tPropSelect->val()( 0 ) < MORIS_REAL_EPS )
@@ -92,7 +92,7 @@ namespace moris
 
             // get field interpolator
             Field_Interpolator* tFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // project level set field
             real tVal = std::exp( -2.0 * mPhiGradient * mLevelSetSign * tFI->val()( 0 ) / mPhiBound );
@@ -109,7 +109,7 @@ namespace moris
             moris::real tWDelPhi = mWeightDelPhi1 * tAlpha + mWeightDelPhi2 * ( 1.0 - tAlpha );
 
             const std::shared_ptr< Property >& tPropL2Value =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::L2_REFERENCE_VALUE ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::L2_REFERENCE_VALUE ) );
 
             // compute difference between dof value and reference value
             auto tL2error = tPropL2Value->val() - tPhiTilde;
@@ -118,7 +118,7 @@ namespace moris
             real tL2Contribution = tWPhi * dot( tL2error, tL2error );
 
             const std::shared_ptr< Property >& tPropH1SValue =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::H1S_REFERENCE_VALUE ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::H1S_REFERENCE_VALUE ) );
 
             // compute difference between dof spatial gradient and reference value and flatten it
             Matrix< DDRMat > tH1Serror = vectorize( tPropH1SValue->val() - tPhiTildeDx );

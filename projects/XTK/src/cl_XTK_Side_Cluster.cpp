@@ -32,7 +32,7 @@ namespace xtk
     //----------------------------------------------------------------
     
     bool
-    Side_Cluster::is_trivial( const mtk::Master_Slave aIsMaster ) const
+    Side_Cluster::is_trivial( const mtk::Leader_Follower aIsLeader ) const
     {
         return mTrivial;
     }
@@ -40,7 +40,7 @@ namespace xtk
     //----------------------------------------------------------------
     
     moris::mtk::Cell const &
-    Side_Cluster::get_interpolation_cell(const mtk::Master_Slave aIsMaster ) const
+    Side_Cluster::get_interpolation_cell(const mtk::Leader_Follower aIsLeader ) const
     {
         return *mInterpolationCell;
     }
@@ -56,7 +56,7 @@ namespace xtk
     //----------------------------------------------------------------
     
     moris::Matrix<moris::IndexMat>
-    Side_Cluster::get_cell_side_ordinals( const mtk::Master_Slave aIsMaster ) const
+    Side_Cluster::get_cell_side_ordinals( const mtk::Leader_Follower aIsLeader ) const
     {
         return mIntegrationCellSideOrdinals;
     }
@@ -66,7 +66,7 @@ namespace xtk
     moris_index
     Side_Cluster::get_cell_side_ordinal(
             moris::moris_index      aCellIndexInCluster,
-            const mtk::Master_Slave aIsMaster  ) const
+            const mtk::Leader_Follower aIsLeader  ) const
     {
         MORIS_ASSERT(aCellIndexInCluster<(moris_index)mIntegrationCellSideOrdinals.numel(),"Cell index in cluster out of bounds");
 
@@ -76,7 +76,7 @@ namespace xtk
     //----------------------------------------------------------------
     
     moris::Cell<moris::mtk::Vertex const *>
-    Side_Cluster::get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
+    Side_Cluster::get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader ) const
     {
         return mVerticesInCluster;
     }
@@ -84,7 +84,7 @@ namespace xtk
     //----------------------------------------------------------------
     
     moris::Matrix<moris::DDRMat>
-    Side_Cluster::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster )  const
+    Side_Cluster::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Leader_Follower aIsLeader )  const
     {
         if(!mTrivial)
         {
@@ -113,7 +113,7 @@ namespace xtk
     moris::Matrix<moris::DDRMat>
     Side_Cluster::get_vertex_local_coordinate_wrt_interp_cell(
             moris::mtk::Vertex const * aVertex,
-            const mtk::Master_Slave    aIsMaster ) const
+            const mtk::Leader_Follower    aIsLeader ) const
     {
         if(!mTrivial)
         {
@@ -139,7 +139,7 @@ namespace xtk
 
     moris::moris_index
     Side_Cluster::get_vertex_cluster_index( moris::mtk::Vertex const * aVertex,
-                                            const mtk::Master_Slave aIsMaster) const
+                                            const mtk::Leader_Follower aIsLeader) const
     {
         return mVertexGroup->get_vertex_group_ordinal(aVertex->get_index());
     }
@@ -173,9 +173,9 @@ namespace xtk
     //----------------------------------------------------------------
     
     moris_index
-    Side_Cluster::get_dim_of_param_coord( const mtk::Master_Slave aIsMaster) const
+    Side_Cluster::get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader) const
     {
-        return this->get_vertices_local_coordinates_wrt_interp_cell(aIsMaster).n_cols();
+        return this->get_vertices_local_coordinates_wrt_interp_cell(aIsLeader).n_cols();
     }
 
     //------------------------------------------------------------------------------
@@ -183,14 +183,14 @@ namespace xtk
     moris::real
     Side_Cluster::compute_cluster_cell_measure(
             const mtk::Primary_Void aPrimaryOrVoid,
-            const mtk::Master_Slave aIsMaster) const
+            const mtk::Leader_Follower aIsLeader) const
     {
         if( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY ||  aPrimaryOrVoid == mtk::Primary_Void::VOID )
         {
             MORIS_ASSERT( mAssociatedCellCluster,
                     "Side_Cluster::compute_cluster_cell_measure - Associated cell cluster not set.\n");
 
-            return mAssociatedCellCluster->compute_cluster_cell_measure(aPrimaryOrVoid,aIsMaster);
+            return mAssociatedCellCluster->compute_cluster_cell_measure(aPrimaryOrVoid,aIsLeader);
         }
         else
         {
@@ -207,14 +207,14 @@ namespace xtk
     Side_Cluster::compute_cluster_group_cell_measure(
             const moris_index       aDiscretizationMeshIndex,
             const mtk::Primary_Void aPrimaryOrVoid,
-            const mtk::Master_Slave aIsMaster ) const
+            const mtk::Leader_Follower aIsLeader ) const
     {
         // check that the cluster group exists and is set
         MORIS_ASSERT( this->has_cluster_group( aDiscretizationMeshIndex ),
             "xtk::Side_Cluster::compute_cluster_group_cell_measure() - Cluster group is not set or does not exist." );
 
         // compute the group measure derivative and return it
-        return mClusterGroups( aDiscretizationMeshIndex ).lock()->compute_cluster_group_cell_measure( aPrimaryOrVoid, aIsMaster );
+        return mClusterGroups( aDiscretizationMeshIndex ).lock()->compute_cluster_group_cell_measure( aPrimaryOrVoid, aIsLeader );
     }
 
     //----------------------------------------------------------------
@@ -222,14 +222,14 @@ namespace xtk
     Matrix<DDRMat>
     Side_Cluster::compute_cluster_ig_cell_measures(
             const mtk::Primary_Void aPrimaryOrVoid,
-            const mtk::Master_Slave aIsMaster) const
+            const mtk::Leader_Follower aIsLeader) const
     {
         if( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY ||  aPrimaryOrVoid == mtk::Primary_Void::VOID )
         {
             MORIS_ASSERT( mAssociatedCellCluster,
                     "Side_Cluster::compute_cluster_ig_cell_measures - Associated cell cluster not set.\n");
 
-            return mAssociatedCellCluster->compute_cluster_ig_cell_measures(aPrimaryOrVoid,aIsMaster);
+            return mAssociatedCellCluster->compute_cluster_ig_cell_measures(aPrimaryOrVoid,aIsLeader);
         }
         else
         {
@@ -247,7 +247,7 @@ namespace xtk
             const Matrix< DDRMat > & aPerturbedVertexCoords,
             uint aDirection,
             const mtk::Primary_Void aPrimaryOrVoid,
-            const mtk::Master_Slave aIsMaster) const
+            const mtk::Leader_Follower aIsLeader) const
     {
         if( aPrimaryOrVoid == mtk::Primary_Void::PRIMARY ||  aPrimaryOrVoid == mtk::Primary_Void::VOID )
         {
@@ -255,7 +255,7 @@ namespace xtk
                     aPerturbedVertexCoords,
                     aDirection,
                     aPrimaryOrVoid,
-                    aIsMaster);
+                    aIsLeader);
         }
         else
         {
@@ -272,14 +272,14 @@ namespace xtk
             const Matrix< DDRMat >& aPerturbedVertexCoords,
             uint aDirection,
             const mtk::Primary_Void aPrimaryOrVoid,
-            const mtk::Master_Slave aIsMaster ) const
+            const mtk::Leader_Follower aIsLeader ) const
     {
         // check that the cluster group exists and is set
         MORIS_ASSERT( this->has_cluster_group( aDiscretizationMeshIndex ),
             "xtk::Side_Cluster::compute_cluster_group_cell_measure_derivative() - Cluster group is not set or does not exist." );
 
         // compute the group measure derivative and return it
-        return mClusterGroups( aDiscretizationMeshIndex ).lock()->compute_cluster_group_cell_measure_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsMaster );
+        return mClusterGroups( aDiscretizationMeshIndex ).lock()->compute_cluster_group_cell_measure_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsLeader );
     }
 
     //------------------------------------------------------------------------------
@@ -305,14 +305,14 @@ namespace xtk
     Side_Cluster::compute_cluster_group_cell_side_measure(
             const moris_index       aDiscretizationMeshIndex,
             const mtk::Primary_Void aPrimaryOrVoid,
-            const mtk::Master_Slave aIsMaster ) const
+            const mtk::Leader_Follower aIsLeader ) const
     {
         // check that the cluster group exists and is set
         MORIS_ASSERT( this->has_cluster_group( aDiscretizationMeshIndex ),
             "xtk::Side_Cluster::compute_cluster_group_cell_side_measure() - Cluster group is not set or does not exist." );
 
         // compute the group measure and return it
-        return mClusterGroups( aDiscretizationMeshIndex ).lock()->compute_cluster_group_side_measure( aPrimaryOrVoid, aIsMaster );
+        return mClusterGroups( aDiscretizationMeshIndex ).lock()->compute_cluster_group_side_measure( aPrimaryOrVoid, aIsLeader );
     }
 
     //------------------------------------------------------------------------------
@@ -383,14 +383,14 @@ namespace xtk
             const Matrix< DDRMat >& aPerturbedVertexCoords,
             uint aDirection,
             const mtk::Primary_Void aPrimaryOrVoid,
-            const mtk::Master_Slave aIsMaster ) const
+            const mtk::Leader_Follower aIsLeader ) const
     {
         // check that the cluster group exists and is set
         MORIS_ASSERT( this->has_cluster_group( aDiscretizationMeshIndex ),
             "xtk::Side_Cluster::compute_cluster_group_cell_side_measure_derivative() - Cluster group is not set or does not exist." );
 
         // compute the group measure derivative and return it
-        return mClusterGroups( aDiscretizationMeshIndex ).lock()->compute_cluster_group_side_measure_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsMaster );
+        return mClusterGroups( aDiscretizationMeshIndex ).lock()->compute_cluster_group_side_measure_derivative( aPerturbedVertexCoords, aDirection, aPrimaryOrVoid, aIsLeader );
     }
 
     //------------------------------------------------------------------------------

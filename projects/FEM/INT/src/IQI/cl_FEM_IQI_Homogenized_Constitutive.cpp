@@ -25,13 +25,13 @@ namespace moris
             mFEMIQIType = fem::IQI_Type::HOMOGENIZED_CONSTITUTIVE;
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "Elast" ] = static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO );
 
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "EigenStrain" ] = static_cast< uint >( IQI_Property_Type::EIGEN_STRAIN );
@@ -44,7 +44,7 @@ namespace moris
         {
             // get the const. model pointer element corresponding to elasticity from the cell
             std::shared_ptr< fem::Constitutive_Model >& tCMElasticity =
-                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) );
+                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // Jacob Fish 2014, Practical Multiscaling, 2.2.1 Tow-Scale Formulation
             // note: strain = elastic strain
@@ -63,7 +63,7 @@ namespace moris
 
             // get the const. model pointer element corresponding to elasticity from the cell
             std::shared_ptr< fem::Constitutive_Model >& tCMElasticity =
-                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) );
+                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // Jacob Fish 2014, Practical Multiscaling, 2.2.1 Tow-Scale Formulation
             // note: strain = elastic strain

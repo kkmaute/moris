@@ -24,7 +24,7 @@ namespace moris
             mFEMIQIType = fem::IQI_Type::VOLUME_FRACTION;
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IQI_Stabilization_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IQI_Stabilization_Type::MAX_ENUM ), nullptr );
 
             // set size for the stabilization parameter pointer cell
             mStabilizationParam.resize( static_cast< uint >( IQI_Stabilization_Type::MAX_ENUM ), nullptr );

@@ -274,37 +274,37 @@ namespace moris
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow =
                     tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
-            tSPIncFlow->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
-            tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
-            tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+            tSPIncFlow->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
+            tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
+            tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
             tSPIncFlow->set_parameters( { { { 36.0 } } } );
             tSPIncFlow->set_space_dim( 2 );
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
                     tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
-            tSPNitsche->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
-            tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
-            tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+            tSPNitsche->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
+            tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
+            tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
             tSPNitsche->set_parameters( { { { tGammaNitsche } }, { { 1.0 } } } );
             tSPNitsche->set_space_dim( 2 );
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost =
                     tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
             tSPViscousGhost->set_parameters( { { { tGammaGPmu } } } );
-            tSPViscousGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+            tSPViscousGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPConvectiveGhost =
                     tSPFactory.create_SP( fem::Stabilization_Type::CONVECTIVE_GHOST );
-            tSPConvectiveGhost->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+            tSPConvectiveGhost->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
             tSPConvectiveGhost->set_parameters( { { { tGammaGPu } } } );
-            tSPConvectiveGhost->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
+            tSPConvectiveGhost->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPPressureGhost =
                     tSPFactory.create_SP( fem::Stabilization_Type::PRESSURE_GHOST );
-            tSPPressureGhost->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+            tSPPressureGhost->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
             tSPPressureGhost->set_parameters( { { { tGammaGPp } }, { { 1.0 } } } );
-            tSPPressureGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-            tSPPressureGhost->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
+            tSPPressureGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
+            tSPPressureGhost->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
 
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
@@ -312,21 +312,21 @@ namespace moris
             std::shared_ptr< fem::IWG > tIWGVelocityBulk =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
             tIWGVelocityBulk->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
-            tIWGVelocityBulk->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+            tIWGVelocityBulk->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
             tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
             std::shared_ptr< fem::IWG > tIWGPressureBulk =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
             tIWGPressureBulk->set_residual_dof_type( { { MSI::Dof_Type::P } } );
-            tIWGPressureBulk->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+            tIWGPressureBulk->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
             tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
             std::shared_ptr< fem::IWG > tIWGInletVelocity =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
             tIWGInletVelocity->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
-            tIWGInletVelocity->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+            tIWGInletVelocity->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
             tIWGInletVelocity->set_property( tPropInletVelocity, "Dirichlet" );
             tIWGInletVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGInletVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
@@ -334,14 +334,14 @@ namespace moris
             std::shared_ptr< fem::IWG > tIWGInletPressure =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
             tIWGInletPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
-            tIWGInletPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+            tIWGInletPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
             tIWGInletPressure->set_property( tPropInletVelocity, "Dirichlet" );
             tIWGInletPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
 
             std::shared_ptr< fem::IWG > tIWGFSVelocity =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
             tIWGFSVelocity->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
-            tIWGFSVelocity->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+            tIWGFSVelocity->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
             tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
             tIWGFSVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
@@ -349,29 +349,29 @@ namespace moris
             std::shared_ptr< fem::IWG > tIWGFSPressure =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
             tIWGFSPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
-            tIWGFSPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+            tIWGFSPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
             tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
             tIWGFSPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
 
             std::shared_ptr< fem::IWG > tIWGGPViscous =
                     tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
             tIWGGPViscous->set_residual_dof_type( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } } );
-            tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
-            tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
+            tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
+            tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::FOLLOWER );
             tIWGGPViscous->set_stabilization_parameter( tSPViscousGhost, "GhostSP" );
 
             std::shared_ptr< fem::IWG > tIWGGPConvective =
                     tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
             tIWGGPConvective->set_residual_dof_type( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } } );
-            tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
-            tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
+            tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
+            tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::FOLLOWER );
             tIWGGPConvective->set_stabilization_parameter( tSPConvectiveGhost, "GhostSP" );
 
             std::shared_ptr< fem::IWG > tIWGGPPressure =
                     tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
             tIWGGPPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
-            tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
-            tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
+            tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
+            tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::FOLLOWER );
             tIWGGPPressure->set_stabilization_parameter( tSPPressureGhost, "GhostSP" );
 
             // create the IQIs
@@ -380,19 +380,19 @@ namespace moris
 
             std::shared_ptr< fem::IQI > tIQIVX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
             tIQIVX->set_quantity_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
-            tIQIVX->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+            tIQIVX->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
             tIQIVX->set_output_type_index( 0 );
             tIQIVX->set_name( "IQI_VX" );
 
             std::shared_ptr< fem::IQI > tIQIVY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
             tIQIVY->set_quantity_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
-            tIQIVY->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+            tIQIVY->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
             tIQIVY->set_output_type_index( 1 );
             tIQIVY->set_name( "IQI_VY" );
 
             std::shared_ptr< fem::IQI > tIQIP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
             tIQIP->set_quantity_dof_type( { MSI::Dof_Type::P } );
-            tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+            tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
             tIQIP->set_output_type_index( 0 );
             tIQIP->set_name( "IQI_P" );
 
@@ -638,37 +638,37 @@ namespace moris
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow =
                     tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
-            tSPIncFlow->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
-            tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
-            tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+            tSPIncFlow->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
+            tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
+            tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
             tSPIncFlow->set_parameters( { { { 36.0 } } } );
             tSPIncFlow->set_space_dim( 2 );
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
                     tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
-            tSPNitsche->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
-            tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
-            tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+            tSPNitsche->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
+            tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
+            tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
             tSPNitsche->set_parameters( { { { tGammaNitsche } }, { { 1.0 } } } );
             tSPNitsche->set_space_dim( 2 );
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost =
                     tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
             tSPViscousGhost->set_parameters( { { { tGammaGPmu } } } );
-            tSPViscousGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+            tSPViscousGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPConvectiveGhost =
                     tSPFactory.create_SP( fem::Stabilization_Type::CONVECTIVE_GHOST );
-            tSPConvectiveGhost->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+            tSPConvectiveGhost->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
             tSPConvectiveGhost->set_parameters( { { { tGammaGPu } } } );
-            tSPConvectiveGhost->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
+            tSPConvectiveGhost->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPPressureGhost =
                     tSPFactory.create_SP( fem::Stabilization_Type::PRESSURE_GHOST );
-            tSPPressureGhost->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+            tSPPressureGhost->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
             tSPPressureGhost->set_parameters( { { { tGammaGPp } }, { { 1.0 } } } );
-            tSPPressureGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-            tSPPressureGhost->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
+            tSPPressureGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
+            tSPPressureGhost->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
 
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
@@ -676,27 +676,27 @@ namespace moris
             std::shared_ptr< fem::IWG > tIWGVelocityBulk =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
             tIWGVelocityBulk->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
-            tIWGVelocityBulk->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+            tIWGVelocityBulk->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
             tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
             std::shared_ptr< fem::IWG > tIWGPressureBulk =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
             tIWGPressureBulk->set_residual_dof_type( { { MSI::Dof_Type::P } } );
-            tIWGPressureBulk->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+            tIWGPressureBulk->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
             tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
             std::shared_ptr< fem::IWG > tIWGInletPressure =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE );
             tIWGInletPressure->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
-            tIWGInletPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+            tIWGInletPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
             tIWGInletPressure->set_property( tPropInletPressure, "Pressure" );
 
             std::shared_ptr< fem::IWG > tIWGFSVelocity =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
             tIWGFSVelocity->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
-            tIWGFSVelocity->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+            tIWGFSVelocity->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
             tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
             tIWGFSVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
@@ -704,29 +704,29 @@ namespace moris
             std::shared_ptr< fem::IWG > tIWGFSPressure =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
             tIWGFSPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
-            tIWGFSPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+            tIWGFSPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
             tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
             tIWGFSPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
 
             std::shared_ptr< fem::IWG > tIWGGPViscous =
                     tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
             tIWGGPViscous->set_residual_dof_type( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } } );
-            tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
-            tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
+            tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
+            tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::FOLLOWER );
             tIWGGPViscous->set_stabilization_parameter( tSPViscousGhost, "GhostSP" );
 
             std::shared_ptr< fem::IWG > tIWGGPConvective =
                     tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
             tIWGGPConvective->set_residual_dof_type( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } } );
-            tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
-            tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
+            tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
+            tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::FOLLOWER );
             tIWGGPConvective->set_stabilization_parameter( tSPConvectiveGhost, "GhostSP" );
 
             std::shared_ptr< fem::IWG > tIWGGPPressure =
                     tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
             tIWGGPPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
-            tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
-            tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
+            tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
+            tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::FOLLOWER );
             tIWGGPPressure->set_stabilization_parameter( tSPPressureGhost, "GhostSP" );
 
             // create the IQIs
@@ -735,19 +735,19 @@ namespace moris
 
             std::shared_ptr< fem::IQI > tIQIVX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
             tIQIVX->set_quantity_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
-            tIQIVX->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+            tIQIVX->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
             tIQIVX->set_output_type_index( 0 );
             tIQIVX->set_name( "IQI_VX" );
 
             std::shared_ptr< fem::IQI > tIQIVY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
             tIQIVY->set_quantity_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
-            tIQIVY->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+            tIQIVY->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
             tIQIVY->set_output_type_index( 1 );
             tIQIVY->set_name( "IQI_VY" );
 
             std::shared_ptr< fem::IQI > tIQIP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
             tIQIP->set_quantity_dof_type( { MSI::Dof_Type::P } );
-            tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+            tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
             tIQIP->set_output_type_index( 0 );
             tIQIP->set_name( "IQI_P" );
 
@@ -1058,35 +1058,35 @@ namespace moris
     //
     //        std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow
     //        = tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
-    //        tSPIncFlow->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
-    //        tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
-    //        tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+    //        tSPIncFlow->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
+    //        tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
+    //        tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
     //        tSPIncFlow->set_parameters( { {{ 36.0 }} } );
     //
     //        std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche
     //        = tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
-    //        tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }}, mtk::Master_Slave::MASTER );
-    //        tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
-    //        tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+    //        tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }}, mtk::Leader_Follower::LEADER );
+    //        tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
+    //        tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
     //        tSPNitsche->set_parameters( { {{ tGammaNitsche }} } );
     //
     //        std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost
     //        = tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
     //        tSPViscousGhost->set_parameters( {{{ tGammaGPmu }} });
-    //        tSPViscousGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+    //        tSPViscousGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
     //
     //        std::shared_ptr< fem::Stabilization_Parameter > tSPConvectiveGhost
     //        = tSPFactory.create_SP( fem::Stabilization_Type::CONVECTIVE_GHOST );
-    //        tSPConvectiveGhost->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }}, mtk::Master_Slave::MASTER );
+    //        tSPConvectiveGhost->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }}, mtk::Leader_Follower::LEADER );
     //        tSPConvectiveGhost->set_parameters( {{{ tGammaGPu }} });
-    //        tSPConvectiveGhost->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
+    //        tSPConvectiveGhost->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
     //
     //        std::shared_ptr< fem::Stabilization_Parameter > tSPPressureGhost
     //        = tSPFactory.create_SP( fem::Stabilization_Type::PRESSURE_GHOST );
-    //        tSPPressureGhost->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }}, mtk::Master_Slave::MASTER );
+    //        tSPPressureGhost->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }}, mtk::Leader_Follower::LEADER );
     //        tSPPressureGhost->set_parameters( { {{ tGammaGPp }}, {{ 1.0 }} });
-    //        tSPPressureGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    //        tSPPressureGhost->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
+    //        tSPPressureGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
+    //        tSPPressureGhost->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
     //
     //        // define the IWGs
     //        fem::IWG_Factory tIWGFactory;
@@ -1094,27 +1094,27 @@ namespace moris
     //        std::shared_ptr< fem::IWG > tIWGVelocityBulk
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
     //        tIWGVelocityBulk->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
-    //        tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+    //        tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
     //        tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //        tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
     //
     //        std::shared_ptr< fem::IWG > tIWGPressureBulk
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
     //        tIWGPressureBulk->set_residual_dof_type( { { MSI::Dof_Type::P } } );
-    //        tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+    //        tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
     //        tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //        tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
     //
     //        std::shared_ptr< fem::IWG > tIWGInletPressure
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE );
     //        tIWGInletPressure->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
-    //        tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+    //        tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
     //        tIWGInletPressure->set_property( tPropInletPressure, "Pressure" );
     //
     //        std::shared_ptr< fem::IWG > tIWGFSVelocity
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
     //        tIWGFSVelocity->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
-    //        tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+    //        tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
     //        tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
     //        tIWGFSVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //        tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
@@ -1122,29 +1122,29 @@ namespace moris
     //        std::shared_ptr< fem::IWG > tIWGFSPressure
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
     //        tIWGFSPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
-    //        tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+    //        tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
     //        tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
     //        tIWGFSPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //
     //        std::shared_ptr< fem::IWG > tIWGGPViscous
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VISCOUS_VELOCITY_GHOST );
     //        tIWGGPViscous->set_residual_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } );
-    //        tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
-    //        tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
+    //        tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
+    //        tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::FOLLOWER );
     //        tIWGGPViscous->set_stabilization_parameter( tSPViscousGhost, "ViscousGhost" );
     //
     //        std::shared_ptr< fem::IWG > tIWGGPConvective
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST );
     //        tIWGGPConvective->set_residual_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } );
-    //        tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
-    //        tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
+    //        tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
+    //        tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::FOLLOWER );
     //        tIWGGPConvective->set_stabilization_parameter( tSPConvectiveGhost, "ConvectiveGhost" );
     //
     //        std::shared_ptr< fem::IWG > tIWGGPPressure
     //        = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_GHOST );
     //        tIWGGPPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
-    //        tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
-    //        tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
+    //        tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
+    //        tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::FOLLOWER );
     //        tIWGGPPressure->set_stabilization_parameter( tSPPressureGhost, "PressureGhost" );
     //
     //        // create the IQIs
@@ -1153,22 +1153,22 @@ namespace moris
     //
     //        std::shared_ptr< fem::IQI > tIQIVX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
     //        tIQIVX->set_output_type( vis::Output_Type::VX );
-    //        tIQIVX->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } }, mtk::Master_Slave::MASTER );
+    //        tIQIVX->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } }, mtk::Leader_Follower::LEADER );
     //        tIQIVX->set_output_type_index( 0 );
     //
     //        std::shared_ptr< fem::IQI > tIQIVY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
     //        tIQIVY->set_output_type( vis::Output_Type::VY );
-    //        tIQIVY->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } }, mtk::Master_Slave::MASTER );
+    //        tIQIVY->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } }, mtk::Leader_Follower::LEADER );
     //        tIQIVY->set_output_type_index( 1 );
     //
     //        std::shared_ptr< fem::IQI > tIQIVZ = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
     //        tIQIVZ->set_output_type( vis::Output_Type::VZ );
-    //        tIQIVZ->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } }, mtk::Master_Slave::MASTER );
+    //        tIQIVZ->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } }, mtk::Leader_Follower::LEADER );
     //        tIQIVZ->set_output_type_index( 2 );
     //
     //        std::shared_ptr< fem::IQI > tIQIP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
     //        tIQIP->set_output_type( vis::Output_Type::P );
-    //        tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+    //        tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
     //        tIQIP->set_output_type_index( 0 );
     //
     //        // create set info
@@ -1391,16 +1391,16 @@ namespace moris
     //
     //         std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow
     //         = tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
-    //         tSPIncFlow->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
-    //         tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
-    //         tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+    //         tSPIncFlow->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
+    //         tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
+    //         tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
     //         tSPIncFlow->set_parameters( { {{ 36.0 }} } );
     //
     //         std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche
     //         = tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
-    //         tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
-    //         tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
-    //         tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+    //         tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Leader_Follower::LEADER );
+    //         tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
+    //         tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
     //         tSPNitsche->set_parameters( { {{ tGammaNitsche }} } );
     //
     //         // define the IWGs
@@ -1409,21 +1409,21 @@ namespace moris
     //         std::shared_ptr< fem::IWG > tIWGVelocityBulk
     //         = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
     //         tIWGVelocityBulk->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
-    //         tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+    //         tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
     //         tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //         tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
     //
     //         std::shared_ptr< fem::IWG > tIWGPressureBulk
     //         = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
     //         tIWGPressureBulk->set_residual_dof_type( { { MSI::Dof_Type::P } } );
-    //         tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+    //         tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
     //         tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //         tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
     //
     //         std::shared_ptr< fem::IWG > tIWGInletVelocity
     //         = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
     //         tIWGInletVelocity->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
-    //         tIWGInletVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+    //         tIWGInletVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
     //         tIWGInletVelocity->set_property( tPropInletVelocity, "Dirichlet" );
     //         tIWGInletVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //         tIWGInletVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
@@ -1431,7 +1431,7 @@ namespace moris
     //         std::shared_ptr< fem::IWG > tIWGFSVelocity
     //         = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
     //         tIWGFSVelocity->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
-    //         tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+    //         tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
     //         tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
     //         tIWGFSVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //         tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
@@ -1439,14 +1439,14 @@ namespace moris
     //         std::shared_ptr< fem::IWG > tIWGInletPressure
     //         = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
     //         tIWGInletPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
-    //         tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+    //         tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
     //         tIWGInletPressure->set_property( tPropInletVelocity, "Dirichlet" );
     //         tIWGInletPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //
     //         std::shared_ptr< fem::IWG > tIWGFSPressure
     //         = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
     //         tIWGFSPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
-    //         tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+    //         tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
     //         tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
     //         tIWGFSPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //
@@ -1456,17 +1456,17 @@ namespace moris
     //
     //         std::shared_ptr< fem::IQI > tIQIVX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
     //         tIQIVX->set_output_type( vis::Output_Type::VX );
-    //         tIQIVX->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+    //         tIQIVX->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
     //         tIQIVX->set_output_type_index( 0 );
     //
     //         std::shared_ptr< fem::IQI > tIQIVY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
     //         tIQIVY->set_output_type( vis::Output_Type::VY );
-    //         tIQIVY->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+    //         tIQIVY->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
     //         tIQIVY->set_output_type_index( 1 );
     //
     //         std::shared_ptr< fem::IQI > tIQIP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
     //         tIQIP->set_output_type( vis::Output_Type::P );
-    //         tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+    //         tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
     //         tIQIP->set_output_type_index( 0 );
     //
     //         // create set info
@@ -1659,16 +1659,16 @@ namespace moris
     //
     //         std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow
     //         = tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
-    //         tSPIncFlow->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
-    //         tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
-    //         tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+    //         tSPIncFlow->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
+    //         tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
+    //         tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
     //         tSPIncFlow->set_parameters( { {{ 36.0 }} } );
     //
     //         std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche
     //         = tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
-    //         tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
-    //         tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
-    //         tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+    //         tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Leader_Follower::LEADER );
+    //         tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
+    //         tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
     //         tSPNitsche->set_parameters( { {{ tGammaNitsche }} } );
     //
     //         // define the IWGs
@@ -1677,27 +1677,27 @@ namespace moris
     //         std::shared_ptr< fem::IWG > tIWGVelocityBulk
     //         = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
     //         tIWGVelocityBulk->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
-    //         tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+    //         tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
     //         tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //         tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
     //
     //         std::shared_ptr< fem::IWG > tIWGPressureBulk
     //         = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
     //         tIWGPressureBulk->set_residual_dof_type( { { MSI::Dof_Type::P } } );
-    //         tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::P }, { MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
+    //         tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::P }, { MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Leader_Follower::LEADER );
     //         tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //         tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
     //
     //         std::shared_ptr< fem::IWG > tIWGInletPressure
     //         = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE );
     //         tIWGInletPressure->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
-    //         tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+    //         tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
     //         tIWGInletPressure->set_property( tPropInletPressure, "Pressure" );
     //
     //         std::shared_ptr< fem::IWG > tIWGFSVelocity
     //         = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
     //         tIWGFSVelocity->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
-    //         tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+    //         tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
     //         tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
     //         tIWGFSVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //         tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
@@ -1705,7 +1705,7 @@ namespace moris
     //         std::shared_ptr< fem::IWG > tIWGFSPressure
     //         = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
     //         tIWGFSPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
-    //         tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::P }, { MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Master_Slave::MASTER );
+    //         tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::P }, { MSI::Dof_Type::VX, MSI::Dof_Type::VY }}, mtk::Leader_Follower::LEADER );
     //         tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
     //         tIWGFSPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //
@@ -1715,17 +1715,17 @@ namespace moris
     //
     //         std::shared_ptr< fem::IQI > tIQIVX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
     //         tIQIVX->set_output_type( vis::Output_Type::VX );
-    //         tIQIVX->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+    //         tIQIVX->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
     //         tIQIVX->set_output_type_index( 0 );
     //
     //         std::shared_ptr< fem::IQI > tIQIVY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
     //         tIQIVY->set_output_type( vis::Output_Type::VY );
-    //         tIQIVY->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+    //         tIQIVY->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
     //         tIQIVY->set_output_type_index( 1 );
     //
     //         std::shared_ptr< fem::IQI > tIQIP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
     //         tIQIP->set_output_type( vis::Output_Type::P );
-    //         tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+    //         tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
     //         tIQIP->set_output_type_index( 0 );
     //
     //         // create set info
@@ -1924,16 +1924,16 @@ namespace moris
     //
     //         std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow
     //         = tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
-    //         tSPIncFlow->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
-    //         tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
-    //         tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+    //         tSPIncFlow->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
+    //         tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
+    //         tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
     //         tSPIncFlow->set_parameters( { {{ 36.0 }} } );
     //
     //         std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche
     //         = tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
-    //         tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }}, mtk::Master_Slave::MASTER );
-    //         tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
-    //         tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+    //         tSPNitsche->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }}, mtk::Leader_Follower::LEADER );
+    //         tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
+    //         tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
     //         tSPNitsche->set_parameters( { {{ tGammaNitsche }} } );
     //
     //         // define the IWGs
@@ -1942,27 +1942,27 @@ namespace moris
     //         std::shared_ptr< fem::IWG > tIWGVelocityBulk
     //         = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
     //         tIWGVelocityBulk->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
-    //         tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+    //         tIWGVelocityBulk->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
     //         tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //         tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
     //
     //         std::shared_ptr< fem::IWG > tIWGPressureBulk
     //         = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
     //         tIWGPressureBulk->set_residual_dof_type( { { MSI::Dof_Type::P } } );
-    //         tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::P }, { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }}, mtk::Master_Slave::MASTER );
+    //         tIWGPressureBulk->set_dof_type_list( {{ MSI::Dof_Type::P }, { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }}, mtk::Leader_Follower::LEADER );
     //         tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //         tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
     //
     //         std::shared_ptr< fem::IWG > tIWGInletPressure
     //         = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_IMPOSED_PRESSURE );
     //         tIWGInletPressure->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
-    //         tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+    //         tIWGInletPressure->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
     //         tIWGInletPressure->set_property( tPropInletPressure, "Pressure" );
     //
     //         std::shared_ptr< fem::IWG > tIWGFSVelocity
     //         = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE );
     //         tIWGFSVelocity->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
-    //         tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Master_Slave::MASTER );
+    //         tIWGFSVelocity->set_dof_type_list( {{ MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }, { MSI::Dof_Type::P }}, mtk::Leader_Follower::LEADER );
     //         tIWGFSVelocity->set_property( tPropFSVelocity, "Dirichlet" );
     //         tIWGFSVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //         tIWGFSVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
@@ -1970,7 +1970,7 @@ namespace moris
     //         std::shared_ptr< fem::IWG > tIWGFSPressure
     //         = tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE );
     //         tIWGFSPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
-    //         tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::P }, { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }}, mtk::Master_Slave::MASTER );
+    //         tIWGFSPressure->set_dof_type_list( {{ MSI::Dof_Type::P }, { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ }}, mtk::Leader_Follower::LEADER );
     //         tIWGFSPressure->set_property( tPropFSVelocity, "Dirichlet" );
     //         tIWGFSPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
     //
@@ -1980,22 +1980,22 @@ namespace moris
     //
     //         std::shared_ptr< fem::IQI > tIQIVX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
     //         tIQIVX->set_output_type( vis::Output_Type::VX );
-    //         tIQIVX->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } }, mtk::Master_Slave::MASTER );
+    //         tIQIVX->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } }, mtk::Leader_Follower::LEADER );
     //         tIQIVX->set_output_type_index( 0 );
     //
     //         std::shared_ptr< fem::IQI > tIQIVY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
     //         tIQIVY->set_output_type( vis::Output_Type::VY );
-    //         tIQIVY->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } }, mtk::Master_Slave::MASTER );
+    //         tIQIVY->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } }, mtk::Leader_Follower::LEADER );
     //         tIQIVY->set_output_type_index( 1 );
     //
     //         std::shared_ptr< fem::IQI > tIQIVZ = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
     //         tIQIVZ->set_output_type( vis::Output_Type::VZ );
-    //         tIQIVZ->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } }, mtk::Master_Slave::MASTER );
+    //         tIQIVZ->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } }, mtk::Leader_Follower::LEADER );
     //         tIQIVZ->set_output_type_index( 2 );
     //
     //         std::shared_ptr< fem::IQI > tIQIP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
     //         tIQIP->set_output_type( vis::Output_Type::P );
-    //         tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+    //         tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
     //         tIQIP->set_output_type_index( 0 );
     //
     //         // create set info
@@ -2324,39 +2324,39 @@ namespace moris
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow =
                     tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
-            tSPIncFlow->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
-            tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
-            tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+            tSPIncFlow->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
+            tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
+            tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
             tSPIncFlow->set_parameters( { { { 36.0 } } } );
             tSPIncFlow->set_space_dim( 2 );
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
                     tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
-            tSPNitsche->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
-            tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
-            tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+            tSPNitsche->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
+            tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
+            tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
             tSPNitsche->set_parameters( { { { tGammaNitsche } }, { { 1.0 } } } );
             tSPNitsche->set_space_dim( 2 );
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost =
                     tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
             tSPViscousGhost->set_parameters( { { { tGammaGPmu } } } );
-            tSPViscousGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+            tSPViscousGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
             tSPViscousGhost->set_space_dim( 2 );
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPConvectiveGhost =
                     tSPFactory.create_SP( fem::Stabilization_Type::CONVECTIVE_GHOST );
-            tSPConvectiveGhost->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+            tSPConvectiveGhost->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
             tSPConvectiveGhost->set_parameters( { { { tGammaGPu } } } );
-            tSPConvectiveGhost->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
+            tSPConvectiveGhost->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
             tSPConvectiveGhost->set_space_dim( 2 );
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPPressureGhost =
                     tSPFactory.create_SP( fem::Stabilization_Type::PRESSURE_GHOST );
-            tSPPressureGhost->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+            tSPPressureGhost->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
             tSPPressureGhost->set_parameters( { { { tGammaGPp } }, { { 1.0 } } } );
-            tSPPressureGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-            tSPPressureGhost->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
+            tSPPressureGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
+            tSPPressureGhost->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
             tSPPressureGhost->set_space_dim( 2 );
 
             // define the IWGs
@@ -2365,21 +2365,21 @@ namespace moris
             std::shared_ptr< fem::IWG > tIWGVelocityBulk =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK );
             tIWGVelocityBulk->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
-            tIWGVelocityBulk->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+            tIWGVelocityBulk->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
             tIWGVelocityBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGVelocityBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
             std::shared_ptr< fem::IWG > tIWGPressureBulk =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK );
             tIWGPressureBulk->set_residual_dof_type( { { MSI::Dof_Type::P } } );
-            tIWGPressureBulk->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+            tIWGPressureBulk->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
             tIWGPressureBulk->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGPressureBulk->set_stabilization_parameter( tSPIncFlow, "IncompressibleFlow" );
 
             std::shared_ptr< fem::IWG > tIWGDirichletVelocity =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_UNSYMMETRIC_NITSCHE );
             tIWGDirichletVelocity->set_residual_dof_type( { { MSI::Dof_Type::VX } } );
-            tIWGDirichletVelocity->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+            tIWGDirichletVelocity->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
             tIWGDirichletVelocity->set_property( tPropImposedVelocity, "Dirichlet" );
             tIWGDirichletVelocity->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
             tIWGDirichletVelocity->set_stabilization_parameter( tSPNitsche, "DirichletNitsche" );
@@ -2387,29 +2387,29 @@ namespace moris
             std::shared_ptr< fem::IWG > tIWGDirichletPressure =
                     tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_UNSYMMETRIC_NITSCHE );
             tIWGDirichletPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
-            tIWGDirichletPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+            tIWGDirichletPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
             tIWGDirichletPressure->set_property( tPropImposedVelocity, "Dirichlet" );
             tIWGDirichletPressure->set_constitutive_model( tCMFluid, "IncompressibleFluid" );
 
             std::shared_ptr< fem::IWG > tIWGGPViscous =
                     tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
             tIWGGPViscous->set_residual_dof_type( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } } );
-            tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
-            tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
+            tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
+            tIWGGPViscous->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::FOLLOWER );
             tIWGGPViscous->set_stabilization_parameter( tSPViscousGhost, "GhostSP" );
 
             std::shared_ptr< fem::IWG > tIWGGPConvective =
                     tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
             tIWGGPConvective->set_residual_dof_type( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } } );
-            tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
-            tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
+            tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
+            tIWGGPConvective->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::FOLLOWER );
             tIWGGPConvective->set_stabilization_parameter( tSPConvectiveGhost, "GhostSP" );
 
             std::shared_ptr< fem::IWG > tIWGGPPressure =
                     tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
             tIWGGPPressure->set_residual_dof_type( { { MSI::Dof_Type::P } } );
-            tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
-            tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::SLAVE );
+            tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
+            tIWGGPPressure->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::FOLLOWER );
             tIWGGPPressure->set_stabilization_parameter( tSPPressureGhost, "GhostSP" );
 
             // create the IQIs
@@ -2418,32 +2418,32 @@ namespace moris
 
             std::shared_ptr< fem::IQI > tIQIVX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
             tIQIVX->set_quantity_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
-            tIQIVX->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+            tIQIVX->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
             tIQIVX->set_output_type_index( 0 );
             tIQIVX->set_name( "IQI_VX" );
 
             std::shared_ptr< fem::IQI > tIQIVY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
             tIQIVY->set_quantity_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
-            tIQIVY->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+            tIQIVY->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
             tIQIVY->set_output_type_index( 1 );
             tIQIVY->set_name( "IQI_VY" );
 
             std::shared_ptr< fem::IQI > tIQIP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
             tIQIP->set_quantity_dof_type( { MSI::Dof_Type::P } );
-            tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
+            tIQIP->set_dof_type_list( { { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
             tIQIP->set_output_type_index( 0 );
             tIQIP->set_name( "IQI_P" );
 
             std::shared_ptr< fem::IQI > tIQIL2 = tIQIFactory.create_IQI( fem::IQI_Type::L2_ERROR_ANALYTIC );
             tIQIL2->set_quantity_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
-            tIQIL2->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
-            tIQIL2->set_property( tPropImposedVelocity, "L2Check", mtk::Master_Slave::MASTER );
+            tIQIL2->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
+            tIQIL2->set_property( tPropImposedVelocity, "L2Check", mtk::Leader_Follower::LEADER );
             tIQIL2->set_name( "IQI_L2" );
 
             std::shared_ptr< fem::IQI > tIQIH1 = tIQIFactory.create_IQI( fem::IQI_Type::H1_ERROR_ANALYTIC );
             tIQIH1->set_quantity_dof_type( { MSI::Dof_Type::VX, MSI::Dof_Type::VY } );
-            tIQIH1->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
-            tIQIH1->set_property( tPropAnalyticdVelocitydx, "H1Check", mtk::Master_Slave::MASTER );
+            tIQIH1->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
+            tIQIH1->set_property( tPropAnalyticdVelocitydx, "H1Check", mtk::Leader_Follower::LEADER );
             tIQIH1->set_name( "IQI_H1" );
 
             // create set info

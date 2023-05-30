@@ -218,23 +218,23 @@ namespace moris
                     tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
             tIWGDiffusionBulk->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
             tIWGDiffusionBulk->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-            tIWGDiffusionBulk->set_constitutive_model( tCMDiffusion, "Diffusion", mtk::Master_Slave::MASTER );
-            tIWGDiffusionBulk->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
-            tIWGDiffusionBulk->set_property( tPropHeatCapacity, "HeatCapacity", mtk::Master_Slave::MASTER );
+            tIWGDiffusionBulk->set_constitutive_model( tCMDiffusion, "Diffusion", mtk::Leader_Follower::LEADER );
+            tIWGDiffusionBulk->set_property( tPropDensity, "Density", mtk::Leader_Follower::LEADER );
+            tIWGDiffusionBulk->set_property( tPropHeatCapacity, "HeatCapacity", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::IWG > tIWGNeumann =
                     tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
             tIWGNeumann->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
             tIWGNeumann->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-            tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+            tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::IWG > tIWGTimeContinuity =
                     tIWGFactory.create_IWG( fem::IWG_Type::TIME_CONTINUITY_DOF );
             tIWGTimeContinuity->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
             tIWGTimeContinuity->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-            tIWGTimeContinuity->set_property( tPropWeightCurrent, "WeightCurrent", mtk::Master_Slave::MASTER );
-            tIWGTimeContinuity->set_property( tPropWeightPrevious, "WeightPrevious", mtk::Master_Slave::MASTER );
-            tIWGTimeContinuity->set_property( tPropInitCondition, "InitialCondition", mtk::Master_Slave::MASTER );
+            tIWGTimeContinuity->set_property( tPropWeightCurrent, "WeightCurrent", mtk::Leader_Follower::LEADER );
+            tIWGTimeContinuity->set_property( tPropWeightPrevious, "WeightPrevious", mtk::Leader_Follower::LEADER );
+            tIWGTimeContinuity->set_property( tPropInitCondition, "InitialCondition", mtk::Leader_Follower::LEADER );
 
             // define the IQIs
             fem::IQI_Factory tIQIFactory;
@@ -242,7 +242,7 @@ namespace moris
             std::shared_ptr< fem::IQI > tIQITEMP =
                     tIQIFactory.create_IQI( fem::IQI_Type::DOF );
             tIQITEMP->set_quantity_dof_type( { MSI::Dof_Type::TEMP } );
-            tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
+            tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Leader_Follower::LEADER );
             tIQITEMP->set_output_type_index( 0 );
 
             // define set info
@@ -504,30 +504,30 @@ namespace moris
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
         tIWGDiffusionBulk->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGDiffusionBulk->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-        tIWGDiffusionBulk->set_constitutive_model( tCMDiffusion, "Diffusion", mtk::Master_Slave::MASTER );
-        tIWGDiffusionBulk->set_property( tPropDensity, "Density", mtk::Master_Slave::MASTER );
-        tIWGDiffusionBulk->set_property( tPropHeatCapacity, "HeatCapacity", mtk::Master_Slave::MASTER );
+        tIWGDiffusionBulk->set_constitutive_model( tCMDiffusion, "Diffusion", mtk::Leader_Follower::LEADER );
+        tIWGDiffusionBulk->set_property( tPropDensity, "Density", mtk::Leader_Follower::LEADER );
+        tIWGDiffusionBulk->set_property( tPropHeatCapacity, "HeatCapacity", mtk::Leader_Follower::LEADER );
 
         std::shared_ptr< fem::IWG > tIWGNeumann =
                 tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
         tIWGNeumann->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGNeumann->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-        tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+        tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Leader_Follower::LEADER );
 
         std::shared_ptr< fem::IWG > tIWGTimeContinuity =
                 tIWGFactory.create_IWG( fem::IWG_Type::TIME_CONTINUITY_DOF );
         tIWGTimeContinuity->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
         tIWGTimeContinuity->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-        tIWGTimeContinuity->set_property( tPropWeightCurrent, "WeightCurrent", mtk::Master_Slave::MASTER );
-        tIWGTimeContinuity->set_property( tPropWeightPrevious, "WeightPrevious", mtk::Master_Slave::MASTER );
-        tIWGTimeContinuity->set_property( tPropInitCondition, "InitialCondition", mtk::Master_Slave::MASTER );
+        tIWGTimeContinuity->set_property( tPropWeightCurrent, "WeightCurrent", mtk::Leader_Follower::LEADER );
+        tIWGTimeContinuity->set_property( tPropWeightPrevious, "WeightPrevious", mtk::Leader_Follower::LEADER );
+        tIWGTimeContinuity->set_property( tPropInitCondition, "InitialCondition", mtk::Leader_Follower::LEADER );
 
         // define the IQIs
         fem::IQI_Factory tIQIFactory;
 
         std::shared_ptr< fem::IQI > tIQITEMP = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
         tIQITEMP->set_quantity_dof_type( { MSI::Dof_Type::TEMP } );
-        tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
+        tIQITEMP->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Leader_Follower::LEADER );
         tIQITEMP->set_output_type_index( 0 );
 
         // define set info

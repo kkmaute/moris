@@ -12,15 +12,15 @@
 
 //------------------------------------------------------------------------------
 
-moris::map< std::string, moris::mtk::Master_Slave >
-moris::mtk::get_master_type_map()
+moris::map< std::string, moris::mtk::Leader_Follower >
+moris::mtk::get_leader_type_map()
 {
-    moris::map< std::string, moris::mtk::Master_Slave > tMasterTypeMap;
+    moris::map< std::string, moris::mtk::Leader_Follower > tLeaderTypeMap;
 
-    tMasterTypeMap[ "MASTER" ]    = Master_Slave::MASTER;
-    tMasterTypeMap[ "SLAVE" ]     = Master_Slave::SLAVE;
-    tMasterTypeMap[ "UNDEFINED" ] = Master_Slave::UNDEFINED;
-    return tMasterTypeMap;
+    tLeaderTypeMap[ "LEADER" ]    = Leader_Follower::LEADER;
+    tLeaderTypeMap[ "FOLLOWER" ]     = Leader_Follower::FOLLOWER;
+    tLeaderTypeMap[ "UNDEFINED" ] = Leader_Follower::UNDEFINED;
+    return tLeaderTypeMap;
 }
 
 //------------------------------------------------------------------------------

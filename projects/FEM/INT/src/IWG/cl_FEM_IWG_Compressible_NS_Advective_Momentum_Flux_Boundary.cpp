@@ -26,7 +26,7 @@ namespace moris
         IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::IWG_Compressible_NS_Advective_Momentum_Flux_Boundary()
         {
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "Fluid" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID );
@@ -36,19 +36,19 @@ namespace moris
 
         void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_residual( real aWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type (here velocity), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type (here velocity), indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the field interpolators
-            Field_Interpolator * tDensityFI = mMasterFIManager->get_field_interpolators_for_type( mDofDensity );
-            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tDensityFI = mLeaderFIManager->get_field_interpolators_for_type( mDofDensity );
+            Field_Interpolator * tVelocityFI = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // build dyadic product of velocity vectors
             Matrix< DDRMat > tUiUj;
@@ -59,7 +59,7 @@ namespace moris
             this->compute_normal_matrix( tNormalMatrix );
 
             // compute the residual weak form
-            mSet->get_residual()( 0 )( { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) += aWStar * (
+            mSet->get_residual()( 0 )( { tLeaderResStartIndex, tLeaderResStopIndex }, { 0, 0 } ) += aWStar * (
                     tDensityFI->val()( 0 ) * tVelocityFI->N_trans() * tNormalMatrix * tUiUj );
 
             // check for nan, infinity
@@ -70,31 +70,31 @@ namespace moris
         //------------------------------------------------------------------------------
         void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian( real aWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type (here velocity), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type (here velocity), indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the FIs
-            Field_Interpolator * tFIDensity =  mMasterFIManager->get_field_interpolators_for_type( mDofDensity );
-            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tFIDensity =  mLeaderFIManager->get_field_interpolators_for_type( mDofDensity );
+            Field_Interpolator * tFIVelocity =  mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // compute the jacobian for dof dependencies
-            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
-                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 0 );
+                uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
 
                 // if dof type is velocity, add diagonal term (velocity-velocity DoF types)
                 if( tDofType( 0 ) == mDofDensity )
@@ -109,8 +109,8 @@ namespace moris
 
                     // add contribution
                     mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                            { tLeaderResStartIndex, tLeaderResStopIndex },
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * (
                                     tFIVelocity->N_trans() * tNormalMatrix * tUiUj * tFIDensity->N() );
                 }
 
@@ -127,8 +127,8 @@ namespace moris
 
                     // add contribution
                     mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) += aWStar * (
+                            { tLeaderResStartIndex, tLeaderResStopIndex },
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) += aWStar * (
                                     tFIDensity->val()( 0 ) * tFIVelocity->N_trans() * tNormalMatrix * tdUiUjdDOF );
                 }
             }
@@ -143,7 +143,7 @@ namespace moris
         void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators
+            // check leader field interpolators
             this->check_field_interpolators();
 #endif
 
@@ -155,7 +155,7 @@ namespace moris
         void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_dRdp( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators, properties and constitutive models
+            // check leader field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 
@@ -186,7 +186,7 @@ namespace moris
         void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_uiuj(Matrix< DDRMat > & auiuj)
         {
             // get the velocity vector
-            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
+            Field_Interpolator * tFIVelocity =  mLeaderFIManager->get_field_interpolators_for_type( mDofVelocity );
 
             // get the velocity vector
             Matrix< DDRMat > tVelocityVec = tFIVelocity->val();
@@ -221,14 +221,14 @@ namespace moris
         void IWG_Compressible_NS_Advective_Momentum_Flux_Boundary::compute_duiujdDOF(Matrix< DDRMat > & aduiujdDOF)
         {
             // get the velocity vector
-            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( mDofVelocity );
+            Field_Interpolator * tFIVelocity =  mLeaderFIManager->get_field_interpolators_for_type( mDofVelocity );
 
             // get the velocity vector and shape functions
             Matrix< DDRMat > tUvec = tFIVelocity->val();
             Matrix< DDRMat > tNmat = tFIVelocity->N();
 
             // get number of bases
-            uint tNumBases = mMasterFIManager->get_field_interpolators_for_type( mDofVelocity )->get_number_of_space_time_bases();
+            uint tNumBases = mLeaderFIManager->get_field_interpolators_for_type( mDofVelocity )->get_number_of_space_time_bases();
 
             // assembly
             // for 2D
@@ -272,7 +272,7 @@ namespace moris
             // clang-format off
             // assembly into matrix
             // for 2D
-            if( mMasterFIManager->get_field_interpolators_for_type( mDofVelocity )->get_number_of_fields() == 2 )
+            if( mLeaderFIManager->get_field_interpolators_for_type( mDofVelocity )->get_number_of_fields() == 2 )
             {
                 aNormalMatrix = {
                         { mNormal( 0 ),         0.0 , mNormal( 1 ) },

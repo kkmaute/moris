@@ -24,7 +24,7 @@ namespace moris
         IWG_Incompressible_NS_Pressure_Bulk::IWG_Incompressible_NS_Pressure_Bulk()
         {
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Gravity" ]          = static_cast< uint >( IWG_Property_Type::GRAVITY );
@@ -36,7 +36,7 @@ namespace moris
             mPropertyMap[ "PressureSpring" ]   = static_cast< uint >( IWG_Property_Type::PRESSURE_SPRING );
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "IncompressibleFluid" ] = static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID );
@@ -52,31 +52,31 @@ namespace moris
 
         void IWG_Incompressible_NS_Pressure_Bulk::compute_residual( real aWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type (here pressure), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type (here pressure), indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the pressure and velocity FIs
-            Field_Interpolator * tPressureFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
-            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX ); //FIXME this need to be protected
+            Field_Interpolator * tPressureFI = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+            Field_Interpolator * tVelocityFI = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX ); //FIXME this need to be protected
 
             // get the mass source property
             const std::shared_ptr< Property > & tMassSourceProp =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
 
             // get the incompressible fluid constitutive model
             const std::shared_ptr< Constitutive_Model > & tIncFluidCM =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
 
             // get the pressure spring property
             const std::shared_ptr< Property > & tPressureSpringProp =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE_SPRING ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESSURE_SPRING ) );
 
             // get the incompressible flow stabilization parameter
             const std::shared_ptr< Stabilization_Parameter > & tIncFlowSP =
@@ -91,7 +91,7 @@ namespace moris
 
             // get residual vector
             auto tRes = mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex } );
+                    { tLeaderResStartIndex, tLeaderResStopIndex } );
 
             // compute the residual weak form
             tRes += aWStar * (
@@ -123,30 +123,30 @@ namespace moris
         void IWG_Incompressible_NS_Pressure_Bulk::compute_jacobian( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators
+            // check leader field interpolators
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type (here pressure), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type (here pressure), indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the pressure FIs
             Field_Interpolator * tPressureFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
+                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 ) ( 0 ));
 
             // get the source property
             const std::shared_ptr< Property > & tMassSourceProp =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
 
             // get the pressure spring property
             const std::shared_ptr< Property > & tPressureSpringProp =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE_SPRING ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESSURE_SPRING ) );
 
             // get the incompressible fluid constitutive model
             const std::shared_ptr< Constitutive_Model > & tIncFluidCM =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
 
             // get the density property
             const std::shared_ptr< Property > & tDensityProp = tIncFluidCM->get_property( "Density" );
@@ -163,27 +163,27 @@ namespace moris
             compute_residual_strong_form( tRM );
 
             // compute the Jacobian for dof dependencies
-            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
             for( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                const Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
-                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 0 );
+                uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
 
                 // get sub-matrix
                 auto tJac = mSet->get_jacobian()(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } );
+                        { tLeaderResStartIndex, tLeaderResStopIndex },
+                        { tLeaderDepStartIndex, tLeaderDepStopIndex } );
 
                 // if dof type is velocity
                 // FIXME protect velocity dof type
                 if( tDofType( 0 ) == MSI::Dof_Type::VX )
                 {
-                    Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+                    Field_Interpolator * tVelocityFI = mLeaderFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
 
                     // compute the Jacobian
                     tJac += aWStar * (
@@ -243,7 +243,7 @@ namespace moris
                 {
                     // compute the Jacobian
                     tJac += aWStar * (
-                            trans( tPressureFI->dnNdxn( 1 ) ) * tRM * tIncFlowSP->dSPdMasterDOF( tDofType ).get_row( 0 ) );
+                            trans( tPressureFI->dnNdxn( 1 ) ) * tRM * tIncFlowSP->dSPdLeaderDOF( tDofType ).get_row( 0 ) );
                 }
             }
 
@@ -257,7 +257,7 @@ namespace moris
         void IWG_Incompressible_NS_Pressure_Bulk::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators
+            // check leader field interpolators
             this->check_field_interpolators();
 #endif
 
@@ -269,7 +269,7 @@ namespace moris
         void IWG_Incompressible_NS_Pressure_Bulk::compute_dRdp( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators, properties and constitutive models
+            // check leader field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 
@@ -282,29 +282,29 @@ namespace moris
                 Matrix< DDRMat > & aRM )
         {
             // get the velocity and pressure FIs
-            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX ); //FIXME
+            Field_Interpolator * tVelocityFI = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX ); //FIXME
 
             // get the density and gravity properties
             const std::shared_ptr< Property > & tGravityProp =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
 
             const std::shared_ptr< Property > & tThermalExpProp =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
 
             const std::shared_ptr< Property > & tRefTempProp =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
 
             // get the inverted permeability (porosity) property
             const std::shared_ptr< Property > & tInvPermeabProp =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
 
             // get the body load property
             const std::shared_ptr< Property > & tLoadProp =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
 
             // get the incompressible fluid constitutive model
             const std::shared_ptr< Constitutive_Model > & tIncFluidCM =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
 
             // get the density property from CM
             const std::shared_ptr< Property > & tDensityProp = tIncFluidCM->get_property( "Density" );
@@ -343,7 +343,7 @@ namespace moris
                     // get the temperature field interpolator
                     // FIXME protect FI
                     Field_Interpolator * tTempFI =
-                            mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
+                            mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
                     // add contribution to residual
                     aRM -= tDensity * tGravityProp->val() * tThermalExpProp->val() *
@@ -359,8 +359,8 @@ namespace moris
                 Matrix< DDRMat >                   & aJM )
         {
             // get the velocity dof and the derivative dof FIs
-            Field_Interpolator * tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX ); //FIXME
-            Field_Interpolator * tDerFI      = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+            Field_Interpolator * tVelocityFI = mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX ); //FIXME
+            Field_Interpolator * tDerFI      = mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // initialize aJMC
             aJM.set_size(
@@ -369,25 +369,25 @@ namespace moris
 
             // get the gravity properties
             const std::shared_ptr< Property > & tGravityProp =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::GRAVITY ) );
 
             const std::shared_ptr< Property > & tThermalExpProp =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::THERMAL_EXPANSION ) );
 
             const std::shared_ptr< Property > & tRefTempProp =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::REF_TEMP ) );
 
             // get the inverted permeability (porosity) property
             const std::shared_ptr< Property > & tInvPermeabProp =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
 
             // get the body load property
             const std::shared_ptr< Property > & tLoadProp =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
 
             // get the incompressible fluid constitutive model
             const std::shared_ptr< Constitutive_Model > & tIncFluidCM =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
 
             // get the density property from CM
             const std::shared_ptr< Property > & tDensityProp = tIncFluidCM->get_property( "Density" );
@@ -484,7 +484,7 @@ namespace moris
                     // get the temperature field interpolator
                     // FIXME protect FI
                     Field_Interpolator * tTempFI =
-                            mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
+                            mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
                     // if dof type is temperature
                     if( aDofTypes( 0 ) == MSI::Dof_Type::TEMP )
@@ -538,7 +538,7 @@ namespace moris
             // get the velocity dof type FI
             // FIXME protect velocity dof type
             Field_Interpolator * tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // init size for uj vij
             uint tNumRow = tVelocityFI->dnNdxn( 1 ).n_rows();
@@ -563,7 +563,7 @@ namespace moris
             // get the velocity dof type FI
             // FIXME protect velocity dof type
             Field_Interpolator * tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // set size for uj vij rM
             uint tNumField = tVelocityFI->get_number_of_fields();
@@ -592,7 +592,7 @@ namespace moris
         {
             // get the velocity dof type FI
             Field_Interpolator * tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // init size for dnNdtn
             uint tNumRowt = tVelocityFI->get_number_of_fields();

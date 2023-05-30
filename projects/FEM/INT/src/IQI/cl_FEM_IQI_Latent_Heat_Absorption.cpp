@@ -26,7 +26,7 @@ namespace moris
             mFEMIQIType = fem::IQI_Type::LATENT_HEAT_ABSORPTION;
 
             // set the property pointer cell size
-            mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Density" ]             = static_cast< uint >( IQI_Property_Type::DENSITY );
@@ -40,19 +40,19 @@ namespace moris
 
         void IQI_Latent_Heat_Absorption::compute_QI( Matrix< DDRMat > & aQI )
         {
-            moris::real tDensity = mMasterProp( static_cast< uint >( IQI_Property_Type::DENSITY ) )->val()( 0 );
-            moris::real tLatHeat = mMasterProp( static_cast< uint >( IQI_Property_Type::LATENT_HEAT ) )->val()( 0 );
+            moris::real tDensity = mLeaderProp( static_cast< uint >( IQI_Property_Type::DENSITY ) )->val()( 0 );
+            moris::real tLatHeat = mLeaderProp( static_cast< uint >( IQI_Property_Type::LATENT_HEAT ) )->val()( 0 );
 
             // get the temperature FI
             Field_Interpolator * tFITemp =
-                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
+                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
             // compute derivative of Phase State Function
             // real tdfdT = this->eval_dFdTemp();
             real tdfdT = eval_dFdTemp(
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::PC_TEMP ) )->val()( 0 ),
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 ),
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::PHASE_STATE_FUNCTION ) )->val()( 0 ),
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::PC_TEMP ) )->val()( 0 ),
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 ),
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::PHASE_STATE_FUNCTION ) )->val()( 0 ),
                     tFITemp );
 
             // evaluate the QI
@@ -66,19 +66,19 @@ namespace moris
             // get index for QI
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
-            moris::real tDensity = mMasterProp( static_cast< uint >( IQI_Property_Type::DENSITY ) )->val()( 0 );
-            moris::real tLatHeat = mMasterProp( static_cast< uint >( IQI_Property_Type::LATENT_HEAT ) )->val()( 0 );
+            moris::real tDensity = mLeaderProp( static_cast< uint >( IQI_Property_Type::DENSITY ) )->val()( 0 );
+            moris::real tLatHeat = mLeaderProp( static_cast< uint >( IQI_Property_Type::LATENT_HEAT ) )->val()( 0 );
 
             // get the temperature FI
             Field_Interpolator * tFITemp =
-                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
+                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
             // compute derivative of Phase State Function
             // real tdfdT = this->eval_dFdTemp();
             real tdfdT = eval_dFdTemp(
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::PC_TEMP ) )->val()( 0 ),
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 ),
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::PHASE_STATE_FUNCTION ) )->val()( 0 ),
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::PC_TEMP ) )->val()( 0 ),
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::PHASE_CHANGE_CONST ) )->val()( 0 ),
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::PHASE_STATE_FUNCTION ) )->val()( 0 ),
                     tFITemp );
 
             // evaluate the QI
@@ -93,15 +93,15 @@ namespace moris
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
             // get properties
-            std::shared_ptr< Property > & tPropDensity = mMasterProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
-            std::shared_ptr< Property > & tPropLatHeat = mMasterProp( static_cast< uint >( IQI_Property_Type::LATENT_HEAT ) );
-            std::shared_ptr< Property > & tPropPCtemp  = mMasterProp( static_cast< uint >( IQI_Property_Type::PC_TEMP ) );
-            std::shared_ptr< Property > & tPropPCconst = mMasterProp( static_cast< uint >( IQI_Property_Type::PHASE_CHANGE_CONST ) );
-            std::shared_ptr< Property > & tPropPSfunct = mMasterProp( static_cast< uint >( IQI_Property_Type::PHASE_STATE_FUNCTION ) );
+            std::shared_ptr< Property > & tPropDensity = mLeaderProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
+            std::shared_ptr< Property > & tPropLatHeat = mLeaderProp( static_cast< uint >( IQI_Property_Type::LATENT_HEAT ) );
+            std::shared_ptr< Property > & tPropPCtemp  = mLeaderProp( static_cast< uint >( IQI_Property_Type::PC_TEMP ) );
+            std::shared_ptr< Property > & tPropPCconst = mLeaderProp( static_cast< uint >( IQI_Property_Type::PHASE_CHANGE_CONST ) );
+            std::shared_ptr< Property > & tPropPSfunct = mLeaderProp( static_cast< uint >( IQI_Property_Type::PHASE_STATE_FUNCTION ) );
 
             // get the temperature FI
             Field_Interpolator * tFITemp =
-                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
+                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
             // compute derivative of Phase State Function
             // real tdfdT = this->eval_dFdTemp();
@@ -111,19 +111,19 @@ namespace moris
                     tPropPSfunct->val()( 0 ),
                     tFITemp );
 
-            // get the number of master dof type dependencies
-            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+            // get the number of leader dof type dependencies
+            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
             // compute dQIdu for indirect dof dependencies
             for( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type > & tDofType = mRequestedMasterGlobalDofTypes( iDof );
+                Cell< MSI::Dof_Type > & tDofType = mRequestedLeaderGlobalDofTypes( iDof );
 
-                // get master index for residual dof type, indices for assembly
-                uint tMasterDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-                uint tMasterDepStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+                // get leader index for residual dof type, indices for assembly
+                uint tLeaderDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                uint tLeaderDepStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+                uint tLeaderDepStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
                 // if direct dependency on the dof type
                 if( tDofType( 0 ) == MSI::Dof_Type::TEMP )
@@ -137,7 +137,7 @@ namespace moris
 
                     // compute derivative with direct dependency
                     mSet->get_residual()( tQIIndex )(
-                            { tMasterDepStartIndex, tMasterDepStopIndex },
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex },
                             { 0, 0 } ) += aWStar * (
                                     tPropDensity->val()(0) * tPropLatHeat->val()(0) * tdfdT * tFITemp->dnNdtn(1) +
                                     tPropDensity->val()(0) * tPropLatHeat->val()(0) * tFITemp->gradt(1) * dfdDof );
@@ -148,7 +148,7 @@ namespace moris
                 {
                     // compute derivative with indirect dependency through properties
                     mSet->get_residual()( tQIIndex )(
-                            { tMasterDepStartIndex, tMasterDepStopIndex },
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex },
                             { 0, 0 } ) += aWStar * (
                                     tPropLatHeat->val()(0) * tdfdT * tFITemp->gradt(1) * tPropDensity->dPropdDOF( tDofType ) );
                 }
@@ -162,15 +162,15 @@ namespace moris
                 Matrix< DDRMat >             & adQIdu )
         {
             // get properties
-            std::shared_ptr< Property > & tPropDensity = mMasterProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
-            std::shared_ptr< Property > & tPropLatHeat = mMasterProp( static_cast< uint >( IQI_Property_Type::LATENT_HEAT ) );
-            std::shared_ptr< Property > & tPropPCtemp  = mMasterProp( static_cast< uint >( IQI_Property_Type::PC_TEMP ) );
-            std::shared_ptr< Property > & tPropPCconst = mMasterProp( static_cast< uint >( IQI_Property_Type::PHASE_CHANGE_CONST ) );
-            std::shared_ptr< Property > & tPropPSfunct = mMasterProp( static_cast< uint >( IQI_Property_Type::PHASE_STATE_FUNCTION ) );
+            std::shared_ptr< Property > & tPropDensity = mLeaderProp( static_cast< uint >( IQI_Property_Type::DENSITY ) );
+            std::shared_ptr< Property > & tPropLatHeat = mLeaderProp( static_cast< uint >( IQI_Property_Type::LATENT_HEAT ) );
+            std::shared_ptr< Property > & tPropPCtemp  = mLeaderProp( static_cast< uint >( IQI_Property_Type::PC_TEMP ) );
+            std::shared_ptr< Property > & tPropPCconst = mLeaderProp( static_cast< uint >( IQI_Property_Type::PHASE_CHANGE_CONST ) );
+            std::shared_ptr< Property > & tPropPSfunct = mLeaderProp( static_cast< uint >( IQI_Property_Type::PHASE_STATE_FUNCTION ) );
 
             // get the temperature FI
             Field_Interpolator * tFITemp =
-                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
+                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
             // compute derivative of Phase State Function
             // real tdfdT = this->eval_dFdTemp();

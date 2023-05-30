@@ -511,7 +511,7 @@ namespace moris::mig
         // number of nodes at the surface
         uint tNumSurfaceNodes = tUniqueIntersectedPoints.n_cols();
 
-        // paramteric coordinates master side 3D
+        // paramteric coordinates leader side 3D
         Matrix< DDRMat > tParametricCoordinates3D( tNumSurfaceNodes, 3 );
 
         // permutation of the 2D coordinates to 3D
@@ -536,27 +536,27 @@ namespace moris::mig
         Matrix< DDRMat > tHeadnodeCoords( 1, 3, 0 );
         moris::mtk::Interpolation::trilinear_interpolation( tIPCellCoordinates, tHeadnodeCoords, tCoordinatesTop );
 
-        // geerate the master vertex data
-        this->create_master_vertices( tPhysicalCoordinates3D, aInterpCell1, aPairCount, tCoordinatesTop );
+        // geerate the leader vertex data
+        this->create_leader_vertices( tPhysicalCoordinates3D, aInterpCell1, aPairCount, tCoordinatesTop );
 
         // extract the corner coordinates of the IP cell
         tIPCellCoordinates = aInterpCell2.get_vertex_coords();
 
         // Duplicate the parametric coordinates for the salve side
-        Matrix< DDRMat > tSlaveParametricCoordinates3D = tParametricCoordinates3D.copy();
+        Matrix< DDRMat > tFollowerParametricCoordinates3D = tParametricCoordinates3D.copy();
 
         // Use the same matrices and change the 3rd dimension coordinates
         tDummyCoords.fill( 1.0 );
-        tSlaveParametricCoordinates3D.get_column( 3 - tCoordOrder.first - tCoordOrder.second ) = tDummyCoords.get_column( 0 );
+        tFollowerParametricCoordinates3D.get_column( 3 - tCoordOrder.first - tCoordOrder.second ) = tDummyCoords.get_column( 0 );
 
-        // get physical coordinates of the slave side
-        moris::mtk::Interpolation::trilinear_interpolation_multivalue( tIPCellCoordinates, tSlaveParametricCoordinates3D, tPhysicalCoordinates3D );
+        // get physical coordinates of the follower side
+        moris::mtk::Interpolation::trilinear_interpolation_multivalue( tIPCellCoordinates, tFollowerParametricCoordinates3D, tPhysicalCoordinates3D );
 
         // physcal coordinates of the
         moris::mtk::Interpolation::trilinear_interpolation( tIPCellCoordinates, tHeadnodeCoords, tCoordinatesTop );
 
-        // generate the slave vertex data
-        this->create_slave_vertices( tPhysicalCoordinates3D, aInterpCell2, aPairCount, tCoordinatesTop );
+        // generate the follower vertex data
+        this->create_follower_vertices( tPhysicalCoordinates3D, aInterpCell2, aPairCount, tCoordinatesTop );
 
         tic tTimerCell;
 
@@ -593,9 +593,9 @@ namespace moris::mig
         mCellToVertexIndices( mNumSideClusters ).reserve( tNumCellsOnOneSide * 4 );
         mCellToVertexIndices( mNumSideClusters + 1 ).reserve( tNumCellsOnOneSide * 4 );
 
-        // initialize master,slave side IG cells
-        // moris::Cell< moris::mtk::Cell const * > tMasterIntegCells;
-        // moris::Cell< moris::mtk::Cell const * > tSlaveIntegCells;
+        // initialize leader,follower side IG cells
+        // moris::Cell< moris::mtk::Cell const * > tLeaderIntegCells;
+        // moris::Cell< moris::mtk::Cell const * > tFollowerIntegCells;
 
         // Added surfaces if intersection area is a polygon
         uint tAddedSurafceNum = 0;
@@ -619,25 +619,25 @@ namespace moris::mig
                     // vertex Index of the cretae sub triangles
                     Matrix< IndexMat > tTmpVertexIndex = { { tPVertexIndex( tClusterNum )( 0 ), tPVertexIndex( tClusterNum )( tTRI + 1 ), tPVertexIndex( tClusterNum )( tTRI + 2 ) } };
 
-                    // master IG cell
-                    this->create_master_ig_cell( tTmpVertexIndex, aInterpCell1, aPairCount );
+                    // leader IG cell
+                    this->create_leader_ig_cell( tTmpVertexIndex, aInterpCell1, aPairCount );
 
-                    // slave IG cell
-                    this->create_slave_ig_cell( tTmpVertexIndex, aInterpCell2, aPairCount );
+                    // follower IG cell
+                    this->create_follower_ig_cell( tTmpVertexIndex, aInterpCell2, aPairCount );
                 }
             }
             else
             {
-                // master IG cells
-                this->create_master_ig_cell( tPVertexIndex( tClusterNum ), aInterpCell1, aPairCount );
+                // leader IG cells
+                this->create_leader_ig_cell( tPVertexIndex( tClusterNum ), aInterpCell1, aPairCount );
 
-                // slave IG cells
-                this->create_slave_ig_cell( tPVertexIndex( tClusterNum ), aInterpCell2, aPairCount );
+                // follower IG cells
+                this->create_follower_ig_cell( tPVertexIndex( tClusterNum ), aInterpCell2, aPairCount );
             }
         }
 
         mVertexParametricCoords( { mNumParamCoords, mNumParamCoords + tUniqueIntersectedPoints.n_cols() - 1 }, { 0, 2 } )                                         = tParametricCoordinates3D.matrix_data();
-        mVertexParametricCoords( { mNumParamCoords + tUniqueIntersectedPoints.n_cols(), mNumParamCoords + 2 * tUniqueIntersectedPoints.n_cols() - 1 }, { 0, 2 } ) = tSlaveParametricCoordinates3D.matrix_data();
+        mVertexParametricCoords( { mNumParamCoords + tUniqueIntersectedPoints.n_cols(), mNumParamCoords + 2 * tUniqueIntersectedPoints.n_cols() - 1 }, { 0, 2 } ) = tFollowerParametricCoordinates3D.matrix_data();
 
         mSideClusterToIPCell( mNumSideClusters )     = aInterpCell1.get_index();
         mSideClusterToIPCell( mNumSideClusters + 1 ) = aInterpCell2.get_index();
@@ -647,10 +647,10 @@ namespace moris::mig
         // save the double sided cluster phase index
         mDoubleSidedClustersIndex( mNumDblSideCluster ) = aPhaseToPhase;
 
-        // increase the count of double sided cluster by 2, 1 for master and 1 for slave
+        // increase the count of double sided cluster by 2, 1 for leader and 1 for follower
         mNumSideClusters += 2;
 
-        // increase the count of double sided cluster by 2, 1 for master and 1 for slave
+        // increase the count of double sided cluster by 2, 1 for leader and 1 for follower
         mNumCells += 2 * tNumCellsOnOneSide;
 
         // increase the count of double sided cluster
@@ -660,7 +660,7 @@ namespace moris::mig
     //------------------------------------------------------------------------------------------------------------
 
     void
-    Periodic_3D::create_master_ig_cell( Matrix< IndexMat > const &tVertexIndex, moris::mtk::Cell const &aMasterInterpCell, uint aPairCount )
+    Periodic_3D::create_leader_ig_cell( Matrix< IndexMat > const &tVertexIndex, moris::mtk::Cell const &aLeaderInterpCell, uint aPairCount )
     {
         // Sort the nodes such that it is consistent with Exodus convention
         Matrix< IndexMat > tVertexIndexCounterClockWise;
@@ -692,7 +692,7 @@ namespace moris::mig
     //------------------------------------------------------------------------------------------------------------
 
     void
-    Periodic_3D::create_slave_ig_cell( Matrix< IndexMat > const &tVertexIndex, moris::mtk::Cell const &aSlaveInterpCell, uint aPairCount )
+    Periodic_3D::create_follower_ig_cell( Matrix< IndexMat > const &tVertexIndex, moris::mtk::Cell const &aFollowerInterpCell, uint aPairCount )
     {
         // Sort the nodes such that it is consistent with Exodus convention
         Matrix< IndexMat > tVertexIndexCounterClockWise;
@@ -846,7 +846,7 @@ namespace moris::mig
     // ----------------------------------------------------------------------------
 
     void
-    Periodic_3D::create_master_vertices( Matrix< DDRMat > &tPhysicalCoordinates3D, moris::mtk::Cell const &aMasterInterpCell, uint aPairCount, Matrix< DDRMat > &tNewNodeCoordinates )
+    Periodic_3D::create_leader_vertices( Matrix< DDRMat > &tPhysicalCoordinates3D, moris::mtk::Cell const &aLeaderInterpCell, uint aPairCount, Matrix< DDRMat > &tNewNodeCoordinates )
     {
 
         uint tNumSurfaceNodes = tPhysicalCoordinates3D.n_rows();
@@ -886,7 +886,7 @@ namespace moris::mig
     // ----------------------------------------------------------------------------
 
     void
-    Periodic_3D::create_slave_vertices( Matrix< DDRMat > &tPhysicalCoordinates3D, moris::mtk::Cell const &aSlaveInterpCell, uint aPairCount, Matrix< DDRMat > &tNewNodeCoordinates )
+    Periodic_3D::create_follower_vertices( Matrix< DDRMat > &tPhysicalCoordinates3D, moris::mtk::Cell const &aFollowerInterpCell, uint aPairCount, Matrix< DDRMat > &tNewNodeCoordinates )
     {
 
         uint tNumSurfaceNodes = tPhysicalCoordinates3D.n_rows();

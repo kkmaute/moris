@@ -28,7 +28,7 @@ namespace moris::mig
         moris::uint                                 mNumBulkPhases;
 
         // Index of double sided cluster ( relevant indices of each cluster )
-        // Each index shows a distinct interaction between master phases and salve phases
+        // Each index shows a distinct interaction between leader phases and salve phases
         moris::Cell< moris_index > mDoubleSidedClustersIndex;
 
         // the outer cell is the side cluster number
@@ -89,10 +89,10 @@ namespace moris::mig
         /**
          * @ makes new pairs of side cluster and associated double sided cluster
          * @param[in] tP cell containing vertices of lines created
-         * @param[in] aRightInterpCell slave interpolation cell
-         * @param[in] aLeftInterpCell master interpolation cell
+         * @param[in] aRightInterpCell follower interpolation cell
+         * @param[in] aLeftInterpCell leader interpolation cell
          * @param[in] aPairCount number of the pair in the periodic side set pair
-         * @param[in] tPhaseToPhaseIndex a index showing interaction of master-side and slave-side phases
+         * @param[in] tPhaseToPhaseIndex a index showing interaction of leader-side and follower-side phases
          */
         void create_dbl_sided_cluster(
             moris::Cell< Matrix< DDRMat > > tP,
@@ -104,26 +104,26 @@ namespace moris::mig
 
         // ----------------------------------------------------------------------------
         /**
-         * @ creates a master Integration cell
-         * @param [ in ] tMasterVertices all the master vertices created from intersection of two side clusters
-         * @param [ in ] aMasterInterpCell interpolation cell of the master side cluster
+         * @ creates a leader Integration cell
+         * @param [ in ] tLeaderVertices all the leader vertices created from intersection of two side clusters
+         * @param [ in ] aLeaderInterpCell interpolation cell of the leader side cluster
          * @param[in] aPairCount number of the pair in the periodic side set pair
          */
         void
-        create_master_ig_cell( Matrix< IndexMat > const & tVertexIndex,
-            moris::mtk::Cell const               &aMasterInterpCell,
+        create_leader_ig_cell( Matrix< IndexMat > const & tVertexIndex,
+            moris::mtk::Cell const               &aLeaderInterpCell,
             uint                                  aPairCount );
 
         // ----------------------------------------------------------------------------
         /**
-         * @ creates a master Integration cell
-         * @param [ in ] tSlaveVertices all the master vertices created from intersection of two side clusters
-         * @param [ in ] aSlaveInterpCell interpolation cell of the master side cluster
+         * @ creates a leader Integration cell
+         * @param [ in ] tFollowerVertices all the leader vertices created from intersection of two side clusters
+         * @param [ in ] aFollowerInterpCell interpolation cell of the leader side cluster
          * @param[in] aPairCount number of the pair in the periodic side set pair
          */
         void
-        create_slave_ig_cell( Matrix< IndexMat > const & tVertexIndex,
-            moris::mtk::Cell const              &aSlaveInterpCell,
+        create_follower_ig_cell( Matrix< IndexMat > const & tVertexIndex,
+            moris::mtk::Cell const              &aFollowerInterpCell,
             uint                                 aPairCount );
 
         // ----------------------------------------------------------------------------
@@ -151,22 +151,22 @@ namespace moris::mig
         /**
          * construct vertices based on the given coordinates
          * @param[ in ] tUniqueIntersectedPoints Unique coordinates obtained from intersecting two side clusters
-         * @param[ in ] aMasterInterpCell Master interpolation cell
+         * @param[ in ] aLeaderInterpCell Leader interpolation cell
          * @param[ in ] aPairCount Number of the pair in the periodic side set pair
          */
         void
-        create_master_vertices( Matrix< DDRMat > &tPhysicalCoordinates3D, moris::mtk::Cell const &aMasterInterpCell, uint aPairCount, Matrix< DDRMat > &tNewNodeCoordinates );
+        create_leader_vertices( Matrix< DDRMat > &tPhysicalCoordinates3D, moris::mtk::Cell const &aLeaderInterpCell, uint aPairCount, Matrix< DDRMat > &tNewNodeCoordinates );
 
         // ----------------------------------------------------------------------------
         /**
          * construct vertices based on the given coordinates
          * @param[ in ] aSurfaceNodesCoordinates Unique coordinates obtained from intersecting two side clusters
-         * @param[ in ] aSlaveInterpCell Slave interpolation cell
+         * @param[ in ] aFollowerInterpCell Follower interpolation cell
          * @param[ in ] aPairCount Number of the pair in the periodic side set pair
          * @param[ in ] tTopNodeCoordinates head node of tetrahedran physical coordinates
          */
         void
-        create_slave_vertices( Matrix< DDRMat > &tPhysicalCoordinates3D, moris::mtk::Cell const &aSlaveInterpCell, uint aPairCount, Matrix< DDRMat > &tNewNodeCoordinates );
+        create_follower_vertices( Matrix< DDRMat > &tPhysicalCoordinates3D, moris::mtk::Cell const &aFollowerInterpCell, uint aPairCount, Matrix< DDRMat > &tNewNodeCoordinates );
 
         // ----------------------------------------------------------------------------
         /*

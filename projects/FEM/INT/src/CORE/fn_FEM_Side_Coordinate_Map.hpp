@@ -22,7 +22,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
         // function that maps local coordinates on sides of hex (side is quad) and
-        // tets (side is tri) from master to slave side
+        // tets (side is tri) from leader to follower side
         //
         // function overwrites only spatial coordinates assuming that spatial coordinates
         // are first entries of vector
@@ -30,21 +30,21 @@ namespace moris
         inline void
         side_coordinate_map(
                 const mtk::Geometry_Type       aGeometryType,
-                const moris_index              aSlaveNode,
-                const moris::Matrix< DDRMat >& aMasterCoordinates,
-                moris::Matrix< DDRMat >&       aSlaveCoordinates )
+                const moris_index              aFollowerNode,
+                const moris::Matrix< DDRMat >& aLeaderCoordinates,
+                moris::Matrix< DDRMat >&       aFollowerCoordinates )
         {
             // switch on geometry type
             switch ( aGeometryType )
             {
                 case mtk::Geometry_Type::QUAD:
                 {
-                    MORIS_ASSERT( aMasterCoordinates.n_rows() > 1,
-                            "side_coordinate_map - master coordinate vector has insufficient number of rows." );
+                    MORIS_ASSERT( aLeaderCoordinates.n_rows() > 1,
+                            "side_coordinate_map - leader coordinate vector has insufficient number of rows." );
 
                     moris::Matrix< DDRMat > tRotationMatrix;
 
-                    switch ( aSlaveNode )
+                    switch ( aFollowerNode )
                     {
                         case 0:
                             tRotationMatrix = { { 0.0, 1.0 }, { 1.0, 0.0 } };
@@ -59,24 +59,24 @@ namespace moris
                             tRotationMatrix = { { 1.0, 0.0 }, { 0.0, -1.0 } };
                             break;
                         default:
-                            MORIS_ERROR( false, " side_coordinate_map - unknown slave node " );
+                            MORIS_ERROR( false, " side_coordinate_map - unknown follower node " );
                     }
 
                     // write mapped coordinates onto first two rows
-                    aSlaveCoordinates( { 0, 1 } ) = tRotationMatrix * aMasterCoordinates( { 0, 1 } );
+                    aFollowerCoordinates( { 0, 1 } ) = tRotationMatrix * aLeaderCoordinates( { 0, 1 } );
 
                     break;
                 }
 
                 case mtk::Geometry_Type::TRI:
                 {
-                    MORIS_ASSERT( aMasterCoordinates.n_rows() > 1,
-                            "side_coordinate_map - master coordinate vector has insufficient number of rows." );
+                    MORIS_ASSERT( aLeaderCoordinates.n_rows() > 1,
+                            "side_coordinate_map - leader coordinate vector has insufficient number of rows." );
 
                     moris::Matrix< DDRMat > tRotationMatrix;
                     moris::Matrix< DDRMat > tOffsetVecor;
 
-                    switch ( aSlaveNode )
+                    switch ( aFollowerNode )
                     {
                         case 0:
                             tRotationMatrix = { { 1.0, 0.0 }, { -1.0, -1.0 } };
@@ -91,11 +91,11 @@ namespace moris
                             tOffsetVecor    = { { 1.0 }, { 0.0 } };
                             break;
                         default:
-                            MORIS_ASSERT( false, " side_coordinate_map - unknown slave node " );
+                            MORIS_ASSERT( false, " side_coordinate_map - unknown follower node " );
                     }
 
                     // write mapped coordinates onto first two rows
-                    aSlaveCoordinates( { 0, 1 } ) = tOffsetVecor + tRotationMatrix * aMasterCoordinates( { 0, 1 } );
+                    aFollowerCoordinates( { 0, 1 } ) = tOffsetVecor + tRotationMatrix * aLeaderCoordinates( { 0, 1 } );
 
                     break;
                 }
@@ -103,7 +103,7 @@ namespace moris
                 case mtk::Geometry_Type::LINE:
                 {
                     // write mapped coordinate onto first row
-                    aSlaveCoordinates( 0 ) = -aMasterCoordinates( 0 );
+                    aFollowerCoordinates( 0 ) = -aLeaderCoordinates( 0 );
                     ;
                     break;
                 }
@@ -119,21 +119,21 @@ namespace moris
         inline moris::Matrix< DDRMat >
         side_coordinate_map(
                 const mtk::Geometry_Type       aGeometryType,
-                const moris_index              aSlaveNode,
-                const moris::Matrix< DDRMat >& aMasterCoordinates )
+                const moris_index              aFollowerNode,
+                const moris::Matrix< DDRMat >& aLeaderCoordinates )
         {
-            // check for proper dimensions of master coordinate vector
-            MORIS_ASSERT( aMasterCoordinates.n_cols() == 1,
-                    "side_coordinate_map - master coordinate vector is not column vector." );
+            // check for proper dimensions of leader coordinate vector
+            MORIS_ASSERT( aLeaderCoordinates.n_cols() == 1,
+                    "side_coordinate_map - leader coordinate vector is not column vector." );
 
-            // initialize slave coordinate vector with master coordinate vector,
-            moris::Matrix< DDRMat > tSlaveCoordinates = aMasterCoordinates;
+            // initialize follower coordinate vector with leader coordinate vector,
+            moris::Matrix< DDRMat > tFollowerCoordinates = aLeaderCoordinates;
 
             // evaluate map
-            side_coordinate_map( aGeometryType, aSlaveNode, aMasterCoordinates, tSlaveCoordinates );
+            side_coordinate_map( aGeometryType, aFollowerNode, aLeaderCoordinates, tFollowerCoordinates );
 
-            // return slave coordinate vector
-            return tSlaveCoordinates;
+            // return follower coordinate vector
+            return tFollowerCoordinates;
         }
 
         //------------------------------------------------------------------------------

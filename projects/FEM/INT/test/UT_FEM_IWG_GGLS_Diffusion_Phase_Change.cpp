@@ -100,80 +100,80 @@ namespace moris
 
             // create the properties ------------------------------------------------------------------- //
 
-            std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property > ();
-            tPropMasterConductivity->set_parameters( {{{ 1.1 }}, {{ 1.1 }}} );
-            //    tPropMasterConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            //    tPropMasterConductivity->set_val_function( tFIValFunction_UTIWGDIFFBULK );
-            //    tPropMasterConductivity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
-            tPropMasterConductivity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
+            std::shared_ptr< fem::Property > tPropLeaderConductivity = std::make_shared< fem::Property > ();
+            tPropLeaderConductivity->set_parameters( {{{ 1.1 }}, {{ 1.1 }}} );
+            //    tPropLeaderConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            //    tPropLeaderConductivity->set_val_function( tFIValFunction_UTIWGDIFFBULK );
+            //    tPropLeaderConductivity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
+            tPropLeaderConductivity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
 
-            std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property > ();
-            tPropMasterDensity->set_parameters( { {{ 1.2 }} } );
-            tPropMasterDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tPropMasterDensity->set_val_function( tFIValFunction_UTIWGGGLSDIFFBULK );
-            tPropMasterDensity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
-//            tPropMasterDensity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
-//            tPropMasterDensity->set_dof_derivative_functions( { tFIDer0Function_UTIWGGGLSDIFFBULK } );
+            std::shared_ptr< fem::Property > tPropLeaderDensity = std::make_shared< fem::Property > ();
+            tPropLeaderDensity->set_parameters( { {{ 1.2 }} } );
+            tPropLeaderDensity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tPropLeaderDensity->set_val_function( tFIValFunction_UTIWGGGLSDIFFBULK );
+            tPropLeaderDensity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
+//            tPropLeaderDensity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
+//            tPropLeaderDensity->set_dof_derivative_functions( { tFIDer0Function_UTIWGGGLSDIFFBULK } );
 
-            std::shared_ptr< fem::Property > tPropMasterHeatCapacity = std::make_shared< fem::Property > ();
-            tPropMasterHeatCapacity->set_parameters( { {{ 0.3 }} } );
-            tPropMasterHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tPropMasterHeatCapacity->set_val_function( tFIValFunction_UTIWGGGLSDIFFBULK );
-            tPropMasterHeatCapacity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
-//            tPropMasterHeatCapacity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
-//            tPropMasterHeatCapacity->set_dof_derivative_functions( { tFIDer0Function_UTIWGGGLSDIFFBULK } );
+            std::shared_ptr< fem::Property > tPropLeaderHeatCapacity = std::make_shared< fem::Property > ();
+            tPropLeaderHeatCapacity->set_parameters( { {{ 0.3 }} } );
+            tPropLeaderHeatCapacity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tPropLeaderHeatCapacity->set_val_function( tFIValFunction_UTIWGGGLSDIFFBULK );
+            tPropLeaderHeatCapacity->set_dof_derivative_functions( { tFIDerFunction_UTIWGGGLSDIFFBULK } );
+//            tPropLeaderHeatCapacity->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
+//            tPropLeaderHeatCapacity->set_dof_derivative_functions( { tFIDer0Function_UTIWGGGLSDIFFBULK } );
 
             // latent heat
-            std::shared_ptr< fem::Property > tPropMasterLatentHeat = std::make_shared< fem::Property >();
-            tPropMasterLatentHeat->set_parameters( {{{ 100.0}}} );
-            //tPropMasterLatentHeat->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tPropMasterLatentHeat->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
+            std::shared_ptr< fem::Property > tPropLeaderLatentHeat = std::make_shared< fem::Property >();
+            tPropLeaderLatentHeat->set_parameters( {{{ 100.0}}} );
+            //tPropLeaderLatentHeat->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tPropLeaderLatentHeat->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
 
             // phase change temp
-            std::shared_ptr< fem::Property > tPropMasterTmelt = std::make_shared< fem::Property >();
-            tPropMasterTmelt->set_parameters( {{{ 5.2 }}} );
-            //tPropMasterTupper->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tPropMasterTmelt->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
+            std::shared_ptr< fem::Property > tPropLeaderTmelt = std::make_shared< fem::Property >();
+            tPropLeaderTmelt->set_parameters( {{{ 5.2 }}} );
+            //tPropLeaderTupper->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tPropLeaderTmelt->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
 
             // phase change constant
-            std::shared_ptr< fem::Property > tPropMasterPCconst = std::make_shared< fem::Property >();
-            tPropMasterPCconst->set_parameters( {{{ 2.2 }}} );
-            //tPropMasterPCconst->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tPropMasterPCconst->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
+            std::shared_ptr< fem::Property > tPropLeaderPCconst = std::make_shared< fem::Property >();
+            tPropLeaderPCconst->set_parameters( {{{ 2.2 }}} );
+            //tPropLeaderPCconst->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tPropLeaderPCconst->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
 
             // phase state function type
-            std::shared_ptr< fem::Property > tPropMasterPCfunction = std::make_shared< fem::Property >();
-            tPropMasterPCfunction->set_parameters( {{{ 2 }}} );
-            //tPropMasterPCfunction->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tPropMasterPCfunction->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
+            std::shared_ptr< fem::Property > tPropLeaderPCfunction = std::make_shared< fem::Property >();
+            tPropLeaderPCfunction->set_parameters( {{{ 2 }}} );
+            //tPropLeaderPCfunction->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tPropLeaderPCfunction->set_val_function( tConstValFunction_UTIWGGGLSDIFFBULK );
 
             // temperature load
-            std::shared_ptr< fem::Property > tPropMasterBodyLoad = nullptr;
+            std::shared_ptr< fem::Property > tPropLeaderBodyLoad = nullptr;
 
             // define constitutive model ---------------------------------------------------------------- //
             fem::CM_Factory tCMFactory;
 
-            std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIsoPC = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO_PC );
-            tCMMasterDiffLinIsoPC->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tCMMasterDiffLinIsoPC->set_property( tPropMasterConductivity, "Conductivity" );
-            tCMMasterDiffLinIsoPC->set_property( tPropMasterDensity     , "Density" );
-            tCMMasterDiffLinIsoPC->set_property( tPropMasterHeatCapacity, "HeatCapacity" );
-            tCMMasterDiffLinIsoPC->set_property( tPropMasterLatentHeat  , "LatentHeat" );
-            tCMMasterDiffLinIsoPC->set_property( tPropMasterTmelt       , "PCTemp" );
-            tCMMasterDiffLinIsoPC->set_property( tPropMasterPCfunction  , "PhaseStateFunction" );
-            tCMMasterDiffLinIsoPC->set_property( tPropMasterPCconst     , "PhaseChangeConst" );
-            tCMMasterDiffLinIsoPC->set_space_dim( 3 );
-            tCMMasterDiffLinIsoPC->set_local_properties();
+            std::shared_ptr< fem::Constitutive_Model > tCMLeaderDiffLinIsoPC = tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO_PC );
+            tCMLeaderDiffLinIsoPC->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+            tCMLeaderDiffLinIsoPC->set_property( tPropLeaderConductivity, "Conductivity" );
+            tCMLeaderDiffLinIsoPC->set_property( tPropLeaderDensity     , "Density" );
+            tCMLeaderDiffLinIsoPC->set_property( tPropLeaderHeatCapacity, "HeatCapacity" );
+            tCMLeaderDiffLinIsoPC->set_property( tPropLeaderLatentHeat  , "LatentHeat" );
+            tCMLeaderDiffLinIsoPC->set_property( tPropLeaderTmelt       , "PCTemp" );
+            tCMLeaderDiffLinIsoPC->set_property( tPropLeaderPCfunction  , "PhaseStateFunction" );
+            tCMLeaderDiffLinIsoPC->set_property( tPropLeaderPCconst     , "PhaseChangeConst" );
+            tCMLeaderDiffLinIsoPC->set_space_dim( 3 );
+            tCMLeaderDiffLinIsoPC->set_local_properties();
 
             // define stabilization parameter ----------------------------------------------------------- //
             fem::SP_Factory tSPFactory;
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPGGLSParam = tSPFactory.create_SP( fem::Stabilization_Type::GGLS_DIFFUSION );
-            tSPGGLSParam->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
+            tSPGGLSParam->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Leader_Follower::LEADER );
             tSPGGLSParam->set_parameters( { {{ 1.0 }} });
-            tSPGGLSParam->set_property( tPropMasterConductivity, "Conductivity", mtk::Master_Slave::MASTER );
-            tSPGGLSParam->set_property( tPropMasterDensity, "Density", mtk::Master_Slave::MASTER );
-            tSPGGLSParam->set_property( tPropMasterHeatCapacity, "HeatCapacity", mtk::Master_Slave::MASTER );
+            tSPGGLSParam->set_property( tPropLeaderConductivity, "Conductivity", mtk::Leader_Follower::LEADER );
+            tSPGGLSParam->set_property( tPropLeaderDensity, "Density", mtk::Leader_Follower::LEADER );
+            tSPGGLSParam->set_property( tPropLeaderHeatCapacity, "HeatCapacity", mtk::Leader_Follower::LEADER );
 
             // create a dummy fem cluster and set it to SP
             fem::Cluster * tCluster = new fem::Cluster();
@@ -184,10 +184,10 @@ namespace moris
 
             std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
             tIWG->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-            tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::MASTER );
-            tIWG->set_constitutive_model( tCMMasterDiffLinIsoPC, "Diffusion", mtk::Master_Slave::MASTER );
+            tIWG->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Leader_Follower::LEADER );
+            tIWG->set_constitutive_model( tCMLeaderDiffLinIsoPC, "Diffusion", mtk::Leader_Follower::LEADER );
             tIWG->set_stabilization_parameter( tSPGGLSParam, "GGLSParam");
-            tIWG->set_property( tPropMasterBodyLoad, "Load", mtk::Master_Slave::MASTER );
+            tIWG->set_property( tPropLeaderBodyLoad, "Load", mtk::Leader_Follower::LEADER );
 
             // space and time geometry interpolators
             //------------------------------------------------------------------------------
@@ -228,9 +228,9 @@ namespace moris
             tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
             tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
-            // set size and populate the set master dof type map
-            tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
-            tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+            // set size and populate the set leader dof type map
+            tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+            tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
             int aInt = (aNumDOFs-1);
 
@@ -250,8 +250,8 @@ namespace moris
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = {{ MSI::Dof_Type::TEMP }};
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;

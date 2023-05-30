@@ -107,8 +107,8 @@ where
 - \f$ [[ \bullet ]] \f$ is a jump and is defined as \f$ [[ \bullet ]]  = \bullet_M - \bullet_S \f$,
 - \f$ \{ \bullet \} \f$ is a mean and is defined as \f$ \{ \bullet \}  = ( w_M\ \bullet_M + w_S\ \bullet_S ) \f$,
 - \f$ \gamma_N \f$ is described in \ref FE_SP_Nitsche_Interface using the conductivity \f$ \kappa \f$ as material property,
-- \f$ w_M \f$ is described in \ref FE_SP_Master_Weight_Interface using the conductivity \f$ \kappa \f$ as material property,
-- \f$ w_S \f$ is described in \ref FE_SP_Master_Weight_Interface using the conductivity \f$ \kappa \f$ as material property.
+- \f$ w_M \f$ is described in \ref FE_SP_Leader_Weight_Interface using the conductivity \f$ \kappa \f$ as material property,
+- \f$ w_S \f$ is described in \ref FE_SP_Leader_Weight_Interface using the conductivity \f$ \kappa \f$ as material property.
 
 \section Ghost Face-oriented Ghost Stabilization
 Face-oriented ghost stabilization for the diffusion-advection-reaction is given as:

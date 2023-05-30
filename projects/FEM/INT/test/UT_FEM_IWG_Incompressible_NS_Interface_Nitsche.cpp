@@ -81,62 +81,62 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
 
     // init IWG
     //------------------------------------------------------------------------------
-    // create the master properties
-    std::shared_ptr< fem::Property > tPropMasterViscosity = std::make_shared< fem::Property >();
-    tPropMasterViscosity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterViscosity->set_val_function( tConstValFunc );
-    //tPropMasterViscosity->set_dof_type_list( { tVelDofTypes } );
-    //tPropMasterViscosity->set_val_function( tVXFIValFunc );
-    //tPropMasterViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
+    // create the leader properties
+    std::shared_ptr< fem::Property > tPropLeaderViscosity = std::make_shared< fem::Property >();
+    tPropLeaderViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderViscosity->set_val_function( tConstValFunc );
+    //tPropLeaderViscosity->set_dof_type_list( { tVelDofTypes } );
+    //tPropLeaderViscosity->set_val_function( tVXFIValFunc );
+    //tPropLeaderViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropMasterKinViscosity = std::make_shared< fem::Property >();
-    tPropMasterKinViscosity->set_val_function( tConstValFunc );
-    tPropMasterKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
+    std::shared_ptr< fem::Property > tPropLeaderKinViscosity = std::make_shared< fem::Property >();
+    tPropLeaderKinViscosity->set_val_function( tConstValFunc );
+    tPropLeaderKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
-    tPropMasterDensity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterDensity->set_val_function( tConstValFunc );
-    //tPropMasterViscosity->set_dof_type_list( { tVelDofTypes } );
-    //tPropMasterViscosity->set_val_function( tVXFIValFunc );
-    //tPropMasterViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
+    std::shared_ptr< fem::Property > tPropLeaderDensity = std::make_shared< fem::Property >();
+    tPropLeaderDensity->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderDensity->set_val_function( tConstValFunc );
+    //tPropLeaderViscosity->set_dof_type_list( { tVelDofTypes } );
+    //tPropLeaderViscosity->set_val_function( tVXFIValFunc );
+    //tPropLeaderViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
-    // create the slave properties
-    std::shared_ptr< fem::Property > tPropSlaveViscosity = std::make_shared< fem::Property >();
-    tPropSlaveViscosity->set_parameters( { {{ 1.0 }} } );
-    tPropSlaveViscosity->set_val_function( tConstValFunc );
-    //tPropSlaveViscosity->set_dof_type_list( { tVelDofTypes } );
-    //tPropSlaveViscosity->set_val_function( tVXFIValFunc );
-    //tPropSlaveViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
+    // create the follower properties
+    std::shared_ptr< fem::Property > tPropFollowerViscosity = std::make_shared< fem::Property >();
+    tPropFollowerViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropFollowerViscosity->set_val_function( tConstValFunc );
+    //tPropFollowerViscosity->set_dof_type_list( { tVelDofTypes } );
+    //tPropFollowerViscosity->set_val_function( tVXFIValFunc );
+    //tPropFollowerViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropSlaveKinViscosity = std::make_shared< fem::Property >();
-    tPropSlaveKinViscosity->set_val_function( tConstValFunc );
-    tPropSlaveKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
+    std::shared_ptr< fem::Property > tPropFollowerKinViscosity = std::make_shared< fem::Property >();
+    tPropFollowerKinViscosity->set_val_function( tConstValFunc );
+    tPropFollowerKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropSlaveDensity = std::make_shared< fem::Property >();
-    tPropSlaveDensity->set_parameters( { {{ 1.0 }} } );
-    tPropSlaveDensity->set_val_function( tConstValFunc );
-    //tPropSlaveDensity->set_dof_type_list( { tVelDofTypes } );
-    //tPropSlaveDensity->set_val_function( tVXFIValFunc );
-    //tPropSlaveDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
+    std::shared_ptr< fem::Property > tPropFollowerDensity = std::make_shared< fem::Property >();
+    tPropFollowerDensity->set_parameters( { {{ 1.0 }} } );
+    tPropFollowerDensity->set_val_function( tConstValFunc );
+    //tPropFollowerDensity->set_dof_type_list( { tVelDofTypes } );
+    //tPropFollowerDensity->set_val_function( tVXFIValFunc );
+    //tPropFollowerDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
-    tCMMasterTurbulence->set_property( tPropMasterViscosity, "Viscosity" );
-    tCMMasterTurbulence->set_property( tPropMasterKinViscosity, "KinViscosity" );
-    tCMMasterTurbulence->set_property( tPropMasterDensity, "Density" );
-    tCMMasterTurbulence->set_local_properties();
+    tCMLeaderTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
+    tCMLeaderTurbulence->set_property( tPropLeaderViscosity, "Viscosity" );
+    tCMLeaderTurbulence->set_property( tPropLeaderKinViscosity, "KinViscosity" );
+    tCMLeaderTurbulence->set_property( tPropLeaderDensity, "Density" );
+    tCMLeaderTurbulence->set_local_properties();
 
-    std::shared_ptr< fem::Constitutive_Model > tCMSlaveTurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMFollowerTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMSlaveTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
-    tCMSlaveTurbulence->set_property( tPropSlaveViscosity, "Viscosity" );
-    tCMSlaveTurbulence->set_property( tPropSlaveKinViscosity, "KinViscosity" );
-    tCMSlaveTurbulence->set_property( tPropSlaveDensity, "Density" );
-    tCMSlaveTurbulence->set_local_properties();
+    tCMFollowerTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
+    tCMFollowerTurbulence->set_property( tPropFollowerViscosity, "Viscosity" );
+    tCMFollowerTurbulence->set_property( tPropFollowerKinViscosity, "KinViscosity" );
+    tCMFollowerTurbulence->set_property( tPropFollowerDensity, "Density" );
+    tCMFollowerTurbulence->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -144,8 +144,8 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
     tSPNitsche->set_parameters( { {{ 1.0 }} } );
-    tSPNitsche->set_property( tPropMasterViscosity, "Material", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropSlaveViscosity, "Material", mtk::Master_Slave::SLAVE );
+    tSPNitsche->set_property( tPropLeaderViscosity, "Material", mtk::Leader_Follower::LEADER );
+    tSPNitsche->set_property( tPropFollowerViscosity, "Material", mtk::Leader_Follower::FOLLOWER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -157,10 +157,10 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_INTERFACE_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( tVelDofTypes );
-    tIWG->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes }, mtk::Master_Slave::MASTER );
-    tIWG->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes }, mtk::Master_Slave::SLAVE );
-    tIWG->set_constitutive_model( tCMMasterTurbulence, "IncompressibleFluid", mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMSlaveTurbulence, "IncompressibleFluid", mtk::Master_Slave::SLAVE );
+    tIWG->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes }, mtk::Leader_Follower::LEADER );
+    tIWG->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes }, mtk::Leader_Follower::FOLLOWER );
+    tIWG->set_constitutive_model( tCMLeaderTurbulence, "IncompressibleFluid", mtk::Leader_Follower::LEADER );
+    tIWG->set_constitutive_model( tCMFollowerTurbulence, "IncompressibleFluid", mtk::Leader_Follower::FOLLOWER );
     tIWG->set_stabilization_parameter( tSPNitsche, "NitscheInterface" );
 
     // init set info
@@ -179,17 +179,17 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
-    // set size and populate the set slave dof type map
-    tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::VX ) )       = 0;
-    tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::P ) )        = 1;
-    tIWG->mSet->mSlaveDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    // set size and populate the set follower dof type map
+    tIWG->mSet->mFollowerDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mFollowerDofTypeMap ( static_cast< int >( MSI::Dof_Type::VX ) )       = 0;
+    tIWG->mSet->mFollowerDofTypeMap ( static_cast< int >( MSI::Dof_Type::P ) )        = 1;
+    tIWG->mSet->mFollowerDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -219,8 +219,8 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
 
                // set viscosity property parameters
-               tPropMasterKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
-               tPropSlaveKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+               tPropLeaderKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+               tPropFollowerKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
                break;
             }
             case 3 :
@@ -242,8 +242,8 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
 
                 // set viscosity property parameters
-                tPropMasterKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
-                tPropSlaveKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropLeaderKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropFollowerKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
                 break;
             }
             default:
@@ -272,8 +272,8 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimension to CM, SP
-        tCMMasterTurbulence->set_space_dim( iSpaceDim );
-        tCMSlaveTurbulence->set_space_dim( iSpaceDim );
+        tCMLeaderTurbulence->set_space_dim( iSpaceDim );
+        tCMFollowerTurbulence->set_space_dim( iSpaceDim );
         tSPNitsche->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
@@ -320,51 +320,51 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
                                          mtk::Interpolation_Type::LAGRANGE,
                                          mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatP;
-            fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatVis;
-            fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatP;
+            fill_phat( tLeaderDOFHatP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatVis;
+            fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatP );
 
             // create the field interpolator viscosity
-            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
-            tMasterFIs( 2 )->set_coeff( tMasterDOFHatVis );
+            tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatVis );
 
-            // fill coefficients for slave FI
-            Matrix< DDRMat > tSlaveDOFHatVel;
-            fill_uhat( tSlaveDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tSlaveDOFHatP;
-            fill_phat( tSlaveDOFHatP, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tSlaveDOFHatVis;
-            fill_phat( tSlaveDOFHatVis, iSpaceDim, iInterpOrder );
+            // fill coefficients for follower FI
+            Matrix< DDRMat > tFollowerDOFHatVel;
+            fill_uhat( tFollowerDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tFollowerDOFHatP;
+            fill_phat( tFollowerDOFHatP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tFollowerDOFHatVis;
+            fill_phat( tFollowerDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tSlaveFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatVel );
+            tFollowerFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tFollowerFIs( 0 )->set_coeff( tFollowerDOFHatVel );
 
             // create the field interpolator pressure
-            tSlaveFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-            tSlaveFIs( 1 )->set_coeff( tSlaveDOFHatP );
+            tFollowerFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+            tFollowerFIs( 1 )->set_coeff( tFollowerDOFHatP );
 
             // create the field interpolator pressure
-            tSlaveFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
-            tSlaveFIs( 2 )->set_coeff( tSlaveDOFHatVis );
+            tFollowerFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tFollowerFIs( 2 )->set_coeff( tFollowerDOFHatVis );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 2 * tDofTypes.size() );
@@ -405,31 +405,31 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
-            tIWG->mRequestedSlaveGlobalDofTypes  = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
+            tIWG->mRequestedFollowerGlobalDofTypes  = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tMasterFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
-            Field_Interpolator_Manager tSlaveFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tLeaderFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tFollowerFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tMasterFIManager.mFI = tMasterFIs;
-            tMasterFIManager.mIPGeometryInterpolator = &tGI;
-            tMasterFIManager.mIGGeometryInterpolator = &tGI;
-            tSlaveFIManager.mFI = tSlaveFIs;
-            tSlaveFIManager.mIPGeometryInterpolator = &tGI;
-            tSlaveFIManager.mIGGeometryInterpolator = &tGI;
+            tLeaderFIManager.mFI = tLeaderFIs;
+            tLeaderFIManager.mIPGeometryInterpolator = &tGI;
+            tLeaderFIManager.mIGGeometryInterpolator = &tGI;
+            tFollowerFIManager.mFI = tFollowerFIs;
+            tFollowerFIManager.mIPGeometryInterpolator = &tGI;
+            tFollowerFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tMasterFIManager;
-            tIWG->mSet->mSlaveFIManager = &tSlaveFIManager;
+            tIWG->mSet->mLeaderFIManager = &tLeaderFIManager;
+            tIWG->mSet->mFollowerFIManager = &tFollowerFIManager;
 
             // set IWG field interpolator manager
-            tIWG->set_field_interpolator_manager( &tMasterFIManager, mtk::Master_Slave::MASTER );
-            tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
+            tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
+            tIWG->set_field_interpolator_manager( &tFollowerFIManager, mtk::Leader_Follower::FOLLOWER );
 
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
@@ -442,8 +442,8 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
-                tIWG->mSet->mSlaveFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mFollowerFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -489,8 +489,8 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Symmetric_Nitsche",
             }
 
             // clean up
-            tMasterFIs.clear();
-            tSlaveFIs.clear();
+            tLeaderFIs.clear();
+            tFollowerFIs.clear();
         }
     }
 }/*END_TEST_CASE*/
@@ -535,62 +535,62 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
 
     // init IWG
     //------------------------------------------------------------------------------
-    // create the master properties
-    std::shared_ptr< fem::Property > tPropMasterViscosity = std::make_shared< fem::Property >();
-    tPropMasterViscosity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterViscosity->set_val_function( tConstValFunc );
-    //tPropMasterViscosity->set_dof_type_list( { tVelDofTypes } );
-    //tPropMasterViscosity->set_val_function( tVXFIValFunc );
-    //tPropMasterViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
+    // create the leader properties
+    std::shared_ptr< fem::Property > tPropLeaderViscosity = std::make_shared< fem::Property >();
+    tPropLeaderViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderViscosity->set_val_function( tConstValFunc );
+    //tPropLeaderViscosity->set_dof_type_list( { tVelDofTypes } );
+    //tPropLeaderViscosity->set_val_function( tVXFIValFunc );
+    //tPropLeaderViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropMasterKinViscosity = std::make_shared< fem::Property >();
-    tPropMasterKinViscosity->set_val_function( tConstValFunc );
-    tPropMasterKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
+    std::shared_ptr< fem::Property > tPropLeaderKinViscosity = std::make_shared< fem::Property >();
+    tPropLeaderKinViscosity->set_val_function( tConstValFunc );
+    tPropLeaderKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
-    tPropMasterDensity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterDensity->set_val_function( tConstValFunc );
-    //tPropMasterViscosity->set_dof_type_list( { tVelDofTypes } );
-    //tPropMasterViscosity->set_val_function( tVXFIValFunc );
-    //tPropMasterViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
+    std::shared_ptr< fem::Property > tPropLeaderDensity = std::make_shared< fem::Property >();
+    tPropLeaderDensity->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderDensity->set_val_function( tConstValFunc );
+    //tPropLeaderViscosity->set_dof_type_list( { tVelDofTypes } );
+    //tPropLeaderViscosity->set_val_function( tVXFIValFunc );
+    //tPropLeaderViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
-    // create the slave properties
-    std::shared_ptr< fem::Property > tPropSlaveViscosity = std::make_shared< fem::Property >();
-    tPropSlaveViscosity->set_parameters( { {{ 1.0 }} } );
-    tPropSlaveViscosity->set_val_function( tConstValFunc );
-    //tPropSlaveViscosity->set_dof_type_list( { tVelDofTypes } );
-    //tPropSlaveViscosity->set_val_function( tVXFIValFunc );
-    //tPropSlaveViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
+    // create the follower properties
+    std::shared_ptr< fem::Property > tPropFollowerViscosity = std::make_shared< fem::Property >();
+    tPropFollowerViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropFollowerViscosity->set_val_function( tConstValFunc );
+    //tPropFollowerViscosity->set_dof_type_list( { tVelDofTypes } );
+    //tPropFollowerViscosity->set_val_function( tVXFIValFunc );
+    //tPropFollowerViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropSlaveKinViscosity = std::make_shared< fem::Property >();
-    tPropSlaveKinViscosity->set_val_function( tConstValFunc );
-    tPropSlaveKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
+    std::shared_ptr< fem::Property > tPropFollowerKinViscosity = std::make_shared< fem::Property >();
+    tPropFollowerKinViscosity->set_val_function( tConstValFunc );
+    tPropFollowerKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropSlaveDensity = std::make_shared< fem::Property >();
-    tPropSlaveDensity->set_parameters( { {{ 1.0 }} } );
-    tPropSlaveDensity->set_val_function( tConstValFunc );
-    //tPropSlaveDensity->set_dof_type_list( { tVelDofTypes } );
-    //tPropSlaveDensity->set_val_function( tVXFIValFunc );
-    //tPropSlaveDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
+    std::shared_ptr< fem::Property > tPropFollowerDensity = std::make_shared< fem::Property >();
+    tPropFollowerDensity->set_parameters( { {{ 1.0 }} } );
+    tPropFollowerDensity->set_val_function( tConstValFunc );
+    //tPropFollowerDensity->set_dof_type_list( { tVelDofTypes } );
+    //tPropFollowerDensity->set_val_function( tVXFIValFunc );
+    //tPropFollowerDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterTurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMMasterTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
-    tCMMasterTurbulence->set_property( tPropMasterViscosity, "Viscosity" );
-    tCMMasterTurbulence->set_property( tPropMasterKinViscosity, "KinViscosity" );
-    tCMMasterTurbulence->set_property( tPropMasterDensity, "Density" );
-    tCMMasterTurbulence->set_local_properties();
+    tCMLeaderTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
+    tCMLeaderTurbulence->set_property( tPropLeaderViscosity, "Viscosity" );
+    tCMLeaderTurbulence->set_property( tPropLeaderKinViscosity, "KinViscosity" );
+    tCMLeaderTurbulence->set_property( tPropLeaderDensity, "Density" );
+    tCMLeaderTurbulence->set_local_properties();
 
-    std::shared_ptr< fem::Constitutive_Model > tCMSlaveTurbulence =
+    std::shared_ptr< fem::Constitutive_Model > tCMFollowerTurbulence =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMSlaveTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
-    tCMSlaveTurbulence->set_property( tPropSlaveViscosity, "Viscosity" );
-    tCMSlaveTurbulence->set_property( tPropSlaveKinViscosity, "KinViscosity" );
-    tCMSlaveTurbulence->set_property( tPropSlaveDensity, "Density" );
-    tCMSlaveTurbulence->set_local_properties();
+    tCMFollowerTurbulence->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
+    tCMFollowerTurbulence->set_property( tPropFollowerViscosity, "Viscosity" );
+    tCMFollowerTurbulence->set_property( tPropFollowerKinViscosity, "KinViscosity" );
+    tCMFollowerTurbulence->set_property( tPropFollowerDensity, "Density" );
+    tCMFollowerTurbulence->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -598,8 +598,8 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
     tSPNitsche->set_parameters( { {{ 1.0 }} } );
-    tSPNitsche->set_property( tPropMasterViscosity, "Material", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropSlaveViscosity, "Material", mtk::Master_Slave::SLAVE );
+    tSPNitsche->set_property( tPropLeaderViscosity, "Material", mtk::Leader_Follower::LEADER );
+    tSPNitsche->set_property( tPropFollowerViscosity, "Material", mtk::Leader_Follower::FOLLOWER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -611,10 +611,10 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_INTERFACE_UNSYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( tVelDofTypes );
-    tIWG->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes }, mtk::Master_Slave::MASTER );
-    tIWG->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes }, mtk::Master_Slave::SLAVE );
-    tIWG->set_constitutive_model( tCMMasterTurbulence, "IncompressibleFluid", mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMSlaveTurbulence, "IncompressibleFluid", mtk::Master_Slave::SLAVE );
+    tIWG->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes }, mtk::Leader_Follower::LEADER );
+    tIWG->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes }, mtk::Leader_Follower::FOLLOWER );
+    tIWG->set_constitutive_model( tCMLeaderTurbulence, "IncompressibleFluid", mtk::Leader_Follower::LEADER );
+    tIWG->set_constitutive_model( tCMFollowerTurbulence, "IncompressibleFluid", mtk::Leader_Follower::FOLLOWER );
     tIWG->set_stabilization_parameter( tSPNitsche, "NitscheInterface" );
 
     // init set info
@@ -633,17 +633,17 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
-    // set size and populate the set slave dof type map
-    tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::VX ) )       = 0;
-    tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::P ) )        = 1;
-    tIWG->mSet->mSlaveDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    // set size and populate the set follower dof type map
+    tIWG->mSet->mFollowerDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mFollowerDofTypeMap ( static_cast< int >( MSI::Dof_Type::VX ) )       = 0;
+    tIWG->mSet->mFollowerDofTypeMap ( static_cast< int >( MSI::Dof_Type::P ) )        = 1;
+    tIWG->mSet->mFollowerDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -673,8 +673,8 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
 
                // set viscosity property parameters
-               tPropMasterKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
-               tPropSlaveKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+               tPropLeaderKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+               tPropFollowerKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
                break;
             }
             case 3 :
@@ -696,8 +696,8 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
 
                 // set viscosity property parameters
-                tPropMasterKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
-                tPropSlaveKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropLeaderKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropFollowerKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
                 break;
             }
             default:
@@ -726,8 +726,8 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimension to CM, SP
-        tCMMasterTurbulence->set_space_dim( iSpaceDim );
-        tCMSlaveTurbulence->set_space_dim( iSpaceDim );
+        tCMLeaderTurbulence->set_space_dim( iSpaceDim );
+        tCMFollowerTurbulence->set_space_dim( iSpaceDim );
         tSPNitsche->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
@@ -774,51 +774,51 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
                                          mtk::Interpolation_Type::LAGRANGE,
                                          mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatP;
-            fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatVis;
-            fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatP;
+            fill_phat( tLeaderDOFHatP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatVis;
+            fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatP );
 
             // create the field interpolator viscosity
-            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
-            tMasterFIs( 2 )->set_coeff( tMasterDOFHatVis );
+            tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatVis );
 
-            // fill coefficients for slave FI
-            Matrix< DDRMat > tSlaveDOFHatVel;
-            fill_uhat( tSlaveDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tSlaveDOFHatP;
-            fill_phat( tSlaveDOFHatP, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tSlaveDOFHatVis;
-            fill_phat( tSlaveDOFHatVis, iSpaceDim, iInterpOrder );
+            // fill coefficients for follower FI
+            Matrix< DDRMat > tFollowerDOFHatVel;
+            fill_uhat( tFollowerDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tFollowerDOFHatP;
+            fill_phat( tFollowerDOFHatP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tFollowerDOFHatVis;
+            fill_phat( tFollowerDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tSlaveFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatVel );
+            tFollowerFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tFollowerFIs( 0 )->set_coeff( tFollowerDOFHatVel );
 
             // create the field interpolator pressure
-            tSlaveFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-            tSlaveFIs( 1 )->set_coeff( tSlaveDOFHatP );
+            tFollowerFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+            tFollowerFIs( 1 )->set_coeff( tFollowerDOFHatP );
 
             // create the field interpolator pressure
-            tSlaveFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
-            tSlaveFIs( 2 )->set_coeff( tSlaveDOFHatVis );
+            tFollowerFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tFollowerFIs( 2 )->set_coeff( tFollowerDOFHatVis );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 2 * tDofTypes.size() );
@@ -859,31 +859,31 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
-            tIWG->mRequestedSlaveGlobalDofTypes  = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
+            tIWG->mRequestedFollowerGlobalDofTypes  = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tMasterFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
-            Field_Interpolator_Manager tSlaveFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tLeaderFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tFollowerFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tMasterFIManager.mFI = tMasterFIs;
-            tMasterFIManager.mIPGeometryInterpolator = &tGI;
-            tMasterFIManager.mIGGeometryInterpolator = &tGI;
-            tSlaveFIManager.mFI = tSlaveFIs;
-            tSlaveFIManager.mIPGeometryInterpolator = &tGI;
-            tSlaveFIManager.mIGGeometryInterpolator = &tGI;
+            tLeaderFIManager.mFI = tLeaderFIs;
+            tLeaderFIManager.mIPGeometryInterpolator = &tGI;
+            tLeaderFIManager.mIGGeometryInterpolator = &tGI;
+            tFollowerFIManager.mFI = tFollowerFIs;
+            tFollowerFIManager.mIPGeometryInterpolator = &tGI;
+            tFollowerFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tMasterFIManager;
-            tIWG->mSet->mSlaveFIManager = &tSlaveFIManager;
+            tIWG->mSet->mLeaderFIManager = &tLeaderFIManager;
+            tIWG->mSet->mFollowerFIManager = &tFollowerFIManager;
 
             // set IWG field interpolator manager
-            tIWG->set_field_interpolator_manager( &tMasterFIManager, mtk::Master_Slave::MASTER );
-            tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
+            tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
+            tIWG->set_field_interpolator_manager( &tFollowerFIManager, mtk::Leader_Follower::FOLLOWER );
 
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
@@ -896,8 +896,8 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
-                tIWG->mSet->mSlaveFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mFollowerFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -936,8 +936,8 @@ TEST_CASE( "IWG_Incompressible_NS_Velocity_Interface_Unsymmetric_Nitsche",
             }
 
             // clean up
-            tMasterFIs.clear();
-            tSlaveFIs.clear();
+            tLeaderFIs.clear();
+            tFollowerFIs.clear();
         }
     }
 }/*END_TEST_CASE*/
@@ -985,63 +985,63 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
 
     // init IWG
     //------------------------------------------------------------------------------
-    // create the master properties
-    std::shared_ptr< fem::Property > tPropMasterViscosity = std::make_shared< fem::Property >();
-    tPropMasterViscosity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterViscosity->set_val_function( tConstValFunc );
-//    tPropMasterViscosity->set_dof_type_list( { tVelDofTypes } );
-//    tPropMasterViscosity->set_val_function( tVXFIValFunc );
-//    tPropMasterViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
+    // create the leader properties
+    std::shared_ptr< fem::Property > tPropLeaderViscosity = std::make_shared< fem::Property >();
+    tPropLeaderViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderViscosity->set_val_function( tConstValFunc );
+//    tPropLeaderViscosity->set_dof_type_list( { tVelDofTypes } );
+//    tPropLeaderViscosity->set_val_function( tVXFIValFunc );
+//    tPropLeaderViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropMasterKinViscosity = std::make_shared< fem::Property >();
-    tPropMasterKinViscosity->set_val_function( tConstValFunc );
-    tPropMasterKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
+    std::shared_ptr< fem::Property > tPropLeaderKinViscosity = std::make_shared< fem::Property >();
+    tPropLeaderKinViscosity->set_val_function( tConstValFunc );
+    tPropLeaderKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
-    tPropMasterDensity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterDensity->set_val_function( tConstValFunc );
+    std::shared_ptr< fem::Property > tPropLeaderDensity = std::make_shared< fem::Property >();
+    tPropLeaderDensity->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderDensity->set_val_function( tConstValFunc );
 
-//    tPropMasterDensity->set_dof_type_list( { tVelDofTypes } );
-//    tPropMasterDensity->set_val_function( tVXFIValFunc );
-//    tPropMasterDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
+//    tPropLeaderDensity->set_dof_type_list( { tVelDofTypes } );
+//    tPropLeaderDensity->set_val_function( tVXFIValFunc );
+//    tPropLeaderDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
-    // create the slave properties
-    std::shared_ptr< fem::Property > tPropSlaveViscosity = std::make_shared< fem::Property >();
-    tPropSlaveViscosity->set_parameters( { {{ 1.0 }} } );
-    tPropSlaveViscosity->set_val_function( tConstValFunc );
-//    tPropSlaveViscosity->set_dof_type_list( { tVelDofTypes } );
-//    tPropSlaveViscosity->set_val_function( tVXFIValFunc );
-//    tPropSlaveViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
+    // create the follower properties
+    std::shared_ptr< fem::Property > tPropFollowerViscosity = std::make_shared< fem::Property >();
+    tPropFollowerViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropFollowerViscosity->set_val_function( tConstValFunc );
+//    tPropFollowerViscosity->set_dof_type_list( { tVelDofTypes } );
+//    tPropFollowerViscosity->set_val_function( tVXFIValFunc );
+//    tPropFollowerViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropSlaveKinViscosity = std::make_shared< fem::Property >();
-    tPropSlaveKinViscosity->set_val_function( tConstValFunc );
-    tPropSlaveKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
+    std::shared_ptr< fem::Property > tPropFollowerKinViscosity = std::make_shared< fem::Property >();
+    tPropFollowerKinViscosity->set_val_function( tConstValFunc );
+    tPropFollowerKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropSlaveDensity = std::make_shared< fem::Property >();
-    tPropSlaveDensity->set_parameters( { {{ 1.0 }} } );
-    tPropSlaveDensity->set_val_function( tConstValFunc );
-//    tPropSlaveDensity->set_dof_type_list( { tVelDofTypes } );
-//    tPropSlaveDensity->set_val_function( tVXFIValFunc );
-//    tPropSlaveDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
+    std::shared_ptr< fem::Property > tPropFollowerDensity = std::make_shared< fem::Property >();
+    tPropFollowerDensity->set_parameters( { {{ 1.0 }} } );
+    tPropFollowerDensity->set_val_function( tConstValFunc );
+//    tPropFollowerDensity->set_dof_type_list( { tVelDofTypes } );
+//    tPropFollowerDensity->set_val_function( tVXFIValFunc );
+//    tPropFollowerDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterFluid =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMMasterFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
-    tCMMasterFluid->set_property( tPropMasterViscosity, "Viscosity" );
-    tCMMasterFluid->set_property( tPropMasterKinViscosity, "KinViscosity" );
-    tCMMasterFluid->set_property( tPropMasterDensity, "Density" );
-    tCMMasterFluid->set_local_properties();
+    tCMLeaderFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
+    tCMLeaderFluid->set_property( tPropLeaderViscosity, "Viscosity" );
+    tCMLeaderFluid->set_property( tPropLeaderKinViscosity, "KinViscosity" );
+    tCMLeaderFluid->set_property( tPropLeaderDensity, "Density" );
+    tCMLeaderFluid->set_local_properties();
 
-    std::shared_ptr< fem::Constitutive_Model > tCMSlaveFluid =
+    std::shared_ptr< fem::Constitutive_Model > tCMFollowerFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMSlaveFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
-    tCMSlaveFluid->set_property( tPropSlaveViscosity, "Viscosity" );
-    tCMSlaveFluid->set_property( tPropSlaveKinViscosity, "KinViscosity" );
-    tCMSlaveFluid->set_property( tPropSlaveDensity, "Density" );
-    tCMSlaveFluid->set_local_properties();
+    tCMFollowerFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
+    tCMFollowerFluid->set_property( tPropFollowerViscosity, "Viscosity" );
+    tCMFollowerFluid->set_property( tPropFollowerKinViscosity, "KinViscosity" );
+    tCMFollowerFluid->set_property( tPropFollowerDensity, "Density" );
+    tCMFollowerFluid->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -1049,8 +1049,8 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
     tSPNitsche->set_parameters( { {{ 1.0 }} } );
-    tSPNitsche->set_property( tPropMasterViscosity, "Material", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropSlaveViscosity, "Material", mtk::Master_Slave::SLAVE );
+    tSPNitsche->set_property( tPropLeaderViscosity, "Material", mtk::Leader_Follower::LEADER );
+    tSPNitsche->set_property( tPropFollowerViscosity, "Material", mtk::Leader_Follower::FOLLOWER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -1062,10 +1062,10 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( tPDofTypes );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
-    tIWG->set_constitutive_model( tCMMasterFluid, "IncompressibleFluid", mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMSlaveFluid, "IncompressibleFluid", mtk::Master_Slave::SLAVE );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::FOLLOWER );
+    tIWG->set_constitutive_model( tCMLeaderFluid, "IncompressibleFluid", mtk::Leader_Follower::LEADER );
+    tIWG->set_constitutive_model( tCMFollowerFluid, "IncompressibleFluid", mtk::Leader_Follower::FOLLOWER );
     tIWG->set_stabilization_parameter( tSPNitsche, "NitscheInterface" );
 
     // init set info
@@ -1084,17 +1084,17 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
-    // set size and populate the set slave dof type map
-    tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-    tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
-    tIWG->mSet->mSlaveDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    // set size and populate the set follower dof type map
+    tIWG->mSet->mFollowerDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mFollowerDofTypeMap ( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+    tIWG->mSet->mFollowerDofTypeMap ( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
+    tIWG->mSet->mFollowerDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -1124,8 +1124,8 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
 
                 // set viscosity property parameters
-                tPropMasterKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
-                tPropSlaveKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+                tPropLeaderKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+                tPropFollowerKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
                break;
             }
             case 3 :
@@ -1147,8 +1147,8 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
 
                 // set viscosity property parameters
-                tPropMasterKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
-                tPropSlaveKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropLeaderKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropFollowerKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
                 break;
             }
             default:
@@ -1177,8 +1177,8 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimension to CM, SP
-        tCMMasterFluid->set_space_dim( iSpaceDim );
-        tCMSlaveFluid->set_space_dim( iSpaceDim );
+        tCMLeaderFluid->set_space_dim( iSpaceDim );
+        tCMFollowerFluid->set_space_dim( iSpaceDim );
         tSPNitsche->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
@@ -1225,51 +1225,51 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
                                          mtk::Interpolation_Type::LAGRANGE,
                                          mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatP;
-            fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatVis;
-            fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatP;
+            fill_phat( tLeaderDOFHatP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatVis;
+            fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatP );
 
             // create the field interpolator viscosity
-            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
-            tMasterFIs( 2 )->set_coeff( tMasterDOFHatVis );
+            tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatVis );
 
-            // fill coefficients for slave FI
-            Matrix< DDRMat > tSlaveDOFHatVel;
-            fill_uhat( tSlaveDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tSlaveDOFHatP;
-            fill_phat( tSlaveDOFHatP, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tSlaveDOFHatVis;
-            fill_phat( tSlaveDOFHatVis, iSpaceDim, iInterpOrder );
+            // fill coefficients for follower FI
+            Matrix< DDRMat > tFollowerDOFHatVel;
+            fill_uhat( tFollowerDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tFollowerDOFHatP;
+            fill_phat( tFollowerDOFHatP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tFollowerDOFHatVis;
+            fill_phat( tFollowerDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tSlaveFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatVel );
+            tFollowerFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tFollowerFIs( 0 )->set_coeff( tFollowerDOFHatVel );
 
             // create the field interpolator pressure
-            tSlaveFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-            tSlaveFIs( 1 )->set_coeff( tSlaveDOFHatP );
+            tFollowerFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+            tFollowerFIs( 1 )->set_coeff( tFollowerDOFHatP );
 
             // create the field interpolator pressure
-            tSlaveFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
-            tSlaveFIs( 2 )->set_coeff( tSlaveDOFHatVis );
+            tFollowerFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tFollowerFIs( 2 )->set_coeff( tFollowerDOFHatVis );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 2 * tDofTypes.size() );
@@ -1310,31 +1310,31 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
-            tIWG->mRequestedSlaveGlobalDofTypes  = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
+            tIWG->mRequestedFollowerGlobalDofTypes  = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tMasterFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
-            Field_Interpolator_Manager tSlaveFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tLeaderFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tFollowerFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tMasterFIManager.mFI = tMasterFIs;
-            tMasterFIManager.mIPGeometryInterpolator = &tGI;
-            tMasterFIManager.mIGGeometryInterpolator = &tGI;
-            tSlaveFIManager.mFI = tSlaveFIs;
-            tSlaveFIManager.mIPGeometryInterpolator = &tGI;
-            tSlaveFIManager.mIGGeometryInterpolator = &tGI;
+            tLeaderFIManager.mFI = tLeaderFIs;
+            tLeaderFIManager.mIPGeometryInterpolator = &tGI;
+            tLeaderFIManager.mIGGeometryInterpolator = &tGI;
+            tFollowerFIManager.mFI = tFollowerFIs;
+            tFollowerFIManager.mIPGeometryInterpolator = &tGI;
+            tFollowerFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tMasterFIManager;
-            tIWG->mSet->mSlaveFIManager = &tSlaveFIManager;
+            tIWG->mSet->mLeaderFIManager = &tLeaderFIManager;
+            tIWG->mSet->mFollowerFIManager = &tFollowerFIManager;
 
             // set IWG field interpolator manager
-            tIWG->set_field_interpolator_manager( &tMasterFIManager, mtk::Master_Slave::MASTER );
-            tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
+            tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
+            tIWG->set_field_interpolator_manager( &tFollowerFIManager, mtk::Leader_Follower::FOLLOWER );
 
             // loop iver integration points
             uint tNumGPs = tIntegPoints.n_cols();
@@ -1347,8 +1347,8 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
-                tIWG->mSet->mSlaveFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mFollowerFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -1387,8 +1387,8 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Symmetric_Nitsche",
             }
 
             // clean up
-            tMasterFIs.clear();
-            tSlaveFIs.clear();
+            tLeaderFIs.clear();
+            tFollowerFIs.clear();
         }
     }
 }/*END_TEST_CASE*/
@@ -1433,63 +1433,63 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
 
     // init IWG
     //------------------------------------------------------------------------------
-    // create the master properties
-    std::shared_ptr< fem::Property > tPropMasterViscosity = std::make_shared< fem::Property >();
-    tPropMasterViscosity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterViscosity->set_val_function( tConstValFunc );
-//    tPropMasterViscosity->set_dof_type_list( { tVelDofTypes } );
-//    tPropMasterViscosity->set_val_function( tVXFIValFunc );
-//    tPropMasterViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
+    // create the leader properties
+    std::shared_ptr< fem::Property > tPropLeaderViscosity = std::make_shared< fem::Property >();
+    tPropLeaderViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderViscosity->set_val_function( tConstValFunc );
+//    tPropLeaderViscosity->set_dof_type_list( { tVelDofTypes } );
+//    tPropLeaderViscosity->set_val_function( tVXFIValFunc );
+//    tPropLeaderViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropMasterKinViscosity = std::make_shared< fem::Property >();
-    tPropMasterKinViscosity->set_val_function( tConstValFunc );
-    tPropMasterKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
+    std::shared_ptr< fem::Property > tPropLeaderKinViscosity = std::make_shared< fem::Property >();
+    tPropLeaderKinViscosity->set_val_function( tConstValFunc );
+    tPropLeaderKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
-    tPropMasterDensity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterDensity->set_val_function( tConstValFunc );
+    std::shared_ptr< fem::Property > tPropLeaderDensity = std::make_shared< fem::Property >();
+    tPropLeaderDensity->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderDensity->set_val_function( tConstValFunc );
 
-//    tPropMasterDensity->set_dof_type_list( { tVelDofTypes } );
-//    tPropMasterDensity->set_val_function( tVXFIValFunc );
-//    tPropMasterDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
+//    tPropLeaderDensity->set_dof_type_list( { tVelDofTypes } );
+//    tPropLeaderDensity->set_val_function( tVXFIValFunc );
+//    tPropLeaderDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
-    // create the slave properties
-    std::shared_ptr< fem::Property > tPropSlaveViscosity = std::make_shared< fem::Property >();
-    tPropSlaveViscosity->set_parameters( { {{ 1.0 }} } );
-    tPropSlaveViscosity->set_val_function( tConstValFunc );
-//    tPropSlaveViscosity->set_dof_type_list( { tVelDofTypes } );
-//    tPropSlaveViscosity->set_val_function( tVXFIValFunc );
-//    tPropSlaveViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
+    // create the follower properties
+    std::shared_ptr< fem::Property > tPropFollowerViscosity = std::make_shared< fem::Property >();
+    tPropFollowerViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropFollowerViscosity->set_val_function( tConstValFunc );
+//    tPropFollowerViscosity->set_dof_type_list( { tVelDofTypes } );
+//    tPropFollowerViscosity->set_val_function( tVXFIValFunc );
+//    tPropFollowerViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropSlaveKinViscosity = std::make_shared< fem::Property >();
-    tPropSlaveKinViscosity->set_val_function( tConstValFunc );
-    tPropSlaveKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
+    std::shared_ptr< fem::Property > tPropFollowerKinViscosity = std::make_shared< fem::Property >();
+    tPropFollowerKinViscosity->set_val_function( tConstValFunc );
+    tPropFollowerKinViscosity->set_space_der_functions( { tVISCOSITYFISpaceDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropSlaveDensity = std::make_shared< fem::Property >();
-    tPropSlaveDensity->set_parameters( { {{ 1.0 }} } );
-    tPropSlaveDensity->set_val_function( tConstValFunc );
-//    tPropSlaveDensity->set_dof_type_list( { tVelDofTypes } );
-//    tPropSlaveDensity->set_val_function( tVXFIValFunc );
-//    tPropSlaveDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
+    std::shared_ptr< fem::Property > tPropFollowerDensity = std::make_shared< fem::Property >();
+    tPropFollowerDensity->set_parameters( { {{ 1.0 }} } );
+    tPropFollowerDensity->set_val_function( tConstValFunc );
+//    tPropFollowerDensity->set_dof_type_list( { tVelDofTypes } );
+//    tPropFollowerDensity->set_val_function( tVXFIValFunc );
+//    tPropFollowerDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterFluid =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMMasterFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
-    tCMMasterFluid->set_property( tPropMasterViscosity, "Viscosity" );
-    tCMMasterFluid->set_property( tPropMasterKinViscosity, "KinViscosity" );
-    tCMMasterFluid->set_property( tPropMasterDensity, "Density" );
-    tCMMasterFluid->set_local_properties();
+    tCMLeaderFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
+    tCMLeaderFluid->set_property( tPropLeaderViscosity, "Viscosity" );
+    tCMLeaderFluid->set_property( tPropLeaderKinViscosity, "KinViscosity" );
+    tCMLeaderFluid->set_property( tPropLeaderDensity, "Density" );
+    tCMLeaderFluid->set_local_properties();
 
-    std::shared_ptr< fem::Constitutive_Model > tCMSlaveFluid =
+    std::shared_ptr< fem::Constitutive_Model > tCMFollowerFluid =
             tCMFactory.create_CM( fem::Constitutive_Type::FLUID_TURBULENCE );
-    tCMSlaveFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
-    tCMSlaveFluid->set_property( tPropSlaveViscosity, "Viscosity" );
-    tCMSlaveFluid->set_property( tPropSlaveKinViscosity, "KinViscosity" );
-    tCMSlaveFluid->set_property( tPropSlaveDensity, "Density" );
-    tCMSlaveFluid->set_local_properties();
+    tCMFollowerFluid->set_dof_type_list( { tVelDofTypes( 0 ), tPDofTypes( 0 ), tVisDofTypes } );
+    tCMFollowerFluid->set_property( tPropFollowerViscosity, "Viscosity" );
+    tCMFollowerFluid->set_property( tPropFollowerKinViscosity, "KinViscosity" );
+    tCMFollowerFluid->set_property( tPropFollowerDensity, "Density" );
+    tCMFollowerFluid->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -1497,8 +1497,8 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::NITSCHE_INTERFACE );
     tSPNitsche->set_parameters( { {{ 1.0 }} } );
-    tSPNitsche->set_property( tPropMasterViscosity, "Material", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropSlaveViscosity, "Material", mtk::Master_Slave::SLAVE );
+    tSPNitsche->set_property( tPropLeaderViscosity, "Material", mtk::Leader_Follower::LEADER );
+    tSPNitsche->set_property( tPropFollowerViscosity, "Material", mtk::Leader_Follower::FOLLOWER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -1510,10 +1510,10 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_INTERFACE_UNSYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( tPDofTypes );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
-    tIWG->set_dof_type_list( tDofTypes, mtk::Master_Slave::SLAVE );
-    tIWG->set_constitutive_model( tCMMasterFluid, "IncompressibleFluid", mtk::Master_Slave::MASTER );
-    tIWG->set_constitutive_model( tCMSlaveFluid, "IncompressibleFluid", mtk::Master_Slave::SLAVE );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
+    tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::FOLLOWER );
+    tIWG->set_constitutive_model( tCMLeaderFluid, "IncompressibleFluid", mtk::Leader_Follower::LEADER );
+    tIWG->set_constitutive_model( tCMFollowerFluid, "IncompressibleFluid", mtk::Leader_Follower::FOLLOWER );
     tIWG->set_stabilization_parameter( tSPNitsche, "NitscheInterface" );
 
     // init set info
@@ -1532,17 +1532,17 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
-    // set size and populate the set slave dof type map
-    tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-    tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
-    tIWG->mSet->mSlaveDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    // set size and populate the set follower dof type map
+    tIWG->mSet->mFollowerDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mFollowerDofTypeMap ( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+    tIWG->mSet->mFollowerDofTypeMap ( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
+    tIWG->mSet->mFollowerDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -1572,8 +1572,8 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
                tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } };
 
                // set viscosity property parameters
-               tPropMasterKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
-               tPropSlaveKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+               tPropLeaderKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
+               tPropFollowerKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0}} } );
                break;
             }
             case 3 :
@@ -1595,8 +1595,8 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
                 tVelDofTypes = { { MSI::Dof_Type::VX, MSI::Dof_Type::VY, MSI::Dof_Type::VZ } };
 
                 // set viscosity property parameters
-                tPropMasterKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
-                tPropSlaveKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropLeaderKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
+                tPropFollowerKinViscosity->set_parameters( { {{ 1.0 }}, {{0.0},{0.0},{0.0}} } );
                 break;
             }
             default:
@@ -1625,8 +1625,8 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimension to CM, SP
-        tCMMasterFluid->set_space_dim( iSpaceDim );
-        tCMSlaveFluid->set_space_dim( iSpaceDim );
+        tCMLeaderFluid->set_space_dim( iSpaceDim );
+        tCMFollowerFluid->set_space_dim( iSpaceDim );
         tSPNitsche->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
@@ -1673,51 +1673,51 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
                                          mtk::Interpolation_Type::LAGRANGE,
                                          mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatP;
-            fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatVis;
-            fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatP;
+            fill_phat( tLeaderDOFHatP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatVis;
+            fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatP );
 
             // create the field interpolator viscosity
-            tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
-            tMasterFIs( 2 )->set_coeff( tMasterDOFHatVis );
+            tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatVis );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tSlaveDOFHatVel;;
-            fill_uhat( tSlaveDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tSlaveDOFHatP;
-            fill_phat( tSlaveDOFHatP, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tSlaveDOFHatVis;
-            fill_phat( tSlaveDOFHatVis, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tFollowerDOFHatVel;;
+            fill_uhat( tFollowerDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tFollowerDOFHatP;
+            fill_phat( tFollowerDOFHatP, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tFollowerDOFHatVis;
+            fill_phat( tFollowerDOFHatVis, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tSlaveFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatVel );
+            tFollowerFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tFollowerFIs( 0 )->set_coeff( tFollowerDOFHatVel );
 
             // create the field interpolator pressure
-            tSlaveFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-            tSlaveFIs( 1 )->set_coeff( tSlaveDOFHatP );
+            tFollowerFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+            tFollowerFIs( 1 )->set_coeff( tFollowerDOFHatP );
 
             // create the field interpolator pressure
-            tSlaveFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
-            tSlaveFIs( 2 )->set_coeff( tSlaveDOFHatVis );
+            tFollowerFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+            tFollowerFIs( 2 )->set_coeff( tFollowerDOFHatVis );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 2 * tDofTypes.size() );
@@ -1758,31 +1758,31 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
-            tIWG->mRequestedSlaveGlobalDofTypes  = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
+            tIWG->mRequestedFollowerGlobalDofTypes  = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tMasterFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
-            Field_Interpolator_Manager tSlaveFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tLeaderFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tFollowerFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tMasterFIManager.mFI = tMasterFIs;
-            tMasterFIManager.mIPGeometryInterpolator = &tGI;
-            tMasterFIManager.mIGGeometryInterpolator = &tGI;
-            tSlaveFIManager.mFI = tSlaveFIs;
-            tSlaveFIManager.mIPGeometryInterpolator = &tGI;
-            tSlaveFIManager.mIGGeometryInterpolator = &tGI;
+            tLeaderFIManager.mFI = tLeaderFIs;
+            tLeaderFIManager.mIPGeometryInterpolator = &tGI;
+            tLeaderFIManager.mIGGeometryInterpolator = &tGI;
+            tFollowerFIManager.mFI = tFollowerFIs;
+            tFollowerFIManager.mIPGeometryInterpolator = &tGI;
+            tFollowerFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tMasterFIManager;
-            tIWG->mSet->mSlaveFIManager = &tSlaveFIManager;
+            tIWG->mSet->mLeaderFIManager = &tLeaderFIManager;
+            tIWG->mSet->mFollowerFIManager = &tFollowerFIManager;
 
             // set IWG field interpolator manager
-            tIWG->set_field_interpolator_manager( &tMasterFIManager, mtk::Master_Slave::MASTER );
-            tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
+            tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
+            tIWG->set_field_interpolator_manager( &tFollowerFIManager, mtk::Leader_Follower::FOLLOWER );
 
             // loop iver integration points
             uint tNumGPs = tIntegPoints.n_cols();
@@ -1795,8 +1795,8 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
-                tIWG->mSet->mSlaveFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mFollowerFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -1835,8 +1835,8 @@ TEST_CASE( "IWG_Incompressible_NS_Pressure_Interface_Unsymmetric_Nitsche",
             }
 
             // clean up
-            tMasterFIs.clear();
-            tSlaveFIs.clear();
+            tLeaderFIs.clear();
+            tFollowerFIs.clear();
         }
     }
 }/*END_TEST_CASE*/

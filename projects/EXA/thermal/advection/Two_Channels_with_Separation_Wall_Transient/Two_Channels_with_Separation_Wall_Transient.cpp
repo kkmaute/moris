@@ -350,16 +350,16 @@ extern "C"
             tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPSUPGVelocity") ;
             tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
             tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "36.0") ;
-            tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropFluidViscosity,Viscosity;PropFluidDensity,Density") ;
-            tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
+            tParameterList( 2 )( tSPCounter ).set( "leader_properties",       "PropFluidViscosity,Viscosity;PropFluidDensity,Density") ;
+            tParameterList( 2 )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY;P", "Velocity,Pressure" ) );
             tSPCounter++;
 
             // advection SUPG stabilization parameter
             tParameterList( 2 ).push_back( prm::create_stabilization_parameter_parameter_list() );
             tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPSUPGTemp") ;
             tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::SUPG_ADVECTION ) );
-            tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-            tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropFluidConductivity,Conductivity") ;
+            tParameterList( 2 )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
+            tParameterList( 2 )( tSPCounter ).set( "leader_properties",       "PropFluidConductivity,Conductivity") ;
             tSPCounter++;
 
             // nitsche for fluid velocity stabilization parameter
@@ -367,8 +367,8 @@ extern "C"
             tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPNitscheVelocity") ;
             tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE ) );
             tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "100.0/1.0") ;
-            tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-            tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropFluidViscosity,Viscosity;PropFluidDensity,Density") ;
+            tParameterList( 2 )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
+            tParameterList( 2 )( tSPCounter ).set( "leader_properties",       "PropFluidViscosity,Viscosity;PropFluidDensity,Density") ;
             tSPCounter++;
 
             // nitsche for fluid temperature stabilization parameter 4
@@ -376,7 +376,7 @@ extern "C"
             tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPNitscheFluidTemp") ;
             tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
             tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "100.0") ;
-            tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropFluidConductivity,Material") ;
+            tParameterList( 2 )( tSPCounter ).set( "leader_properties",       "PropFluidConductivity,Material") ;
             tSPCounter++;
 
             // nitsche thermal interface stabilization parameter
@@ -384,8 +384,8 @@ extern "C"
             tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPInterfaceNitsche") ;
             tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::NITSCHE_INTERFACE ) );
             tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0") ;
-            tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropFluidConductivity,Material") ;
-            tParameterList( 2 )( tSPCounter ).set( "slave_properties",    "PropSolidConductivity,Material") ;
+            tParameterList( 2 )( tSPCounter ).set( "leader_properties",   "PropFluidConductivity,Material") ;
+            tParameterList( 2 )( tSPCounter ).set( "follower_properties",    "PropSolidConductivity,Material") ;
             tSPCounter++;
 
             // ghost viscous stabilization parameter
@@ -393,7 +393,7 @@ extern "C"
             tParameterList( 2 )( tSPCounter ).set( "stabilization_name",  "SPGPViscous") ;
             tParameterList( 2 )( tSPCounter ).set( "stabilization_type",  static_cast< uint >( fem::Stabilization_Type::VISCOUS_GHOST ) );
             tParameterList( 2 )( tSPCounter ).set( "function_parameters", "0.05") ;
-            tParameterList( 2 )( tSPCounter ).set( "master_properties",   "PropFluidViscosity,Viscosity") ;
+            tParameterList( 2 )( tSPCounter ).set( "leader_properties",   "PropFluidViscosity,Viscosity") ;
             tSPCounter++;
 
             // ghost convective stabilization parameter
@@ -401,8 +401,8 @@ extern "C"
             tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGPVelocity") ;
             tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::CONVECTIVE_GHOST ) );
             tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "0.05") ;
-            tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-            tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropFluidDensity,Density") ;
+            tParameterList( 2 )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
+            tParameterList( 2 )( tSPCounter ).set( "leader_properties",       "PropFluidDensity,Density") ;
             tSPCounter++;
 
             // ghost fluid pressure stabilization parameter
@@ -410,8 +410,8 @@ extern "C"
             tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGPPressure") ;
             tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::PRESSURE_GHOST ) );
             tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "0.05/1.0") ;
-            tParameterList( 2 )( tSPCounter ).set( "master_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
-            tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropFluidViscosity,Viscosity;PropFluidDensity,Density") ;
+            tParameterList( 2 )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
+            tParameterList( 2 )( tSPCounter ).set( "leader_properties",       "PropFluidViscosity,Viscosity;PropFluidDensity,Density") ;
             tSPCounter++;
 
             // ghost fluid temperature stabilization parameter
@@ -419,7 +419,7 @@ extern "C"
             tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGPFluidTemp") ;
             tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
             tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "0.05") ;
-            tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropFluidConductivity,Material") ;
+            tParameterList( 2 )( tSPCounter ).set( "leader_properties",       "PropFluidConductivity,Material") ;
             tSPCounter++;
 
             // ghost solid temperature stabilization parameter
@@ -427,7 +427,7 @@ extern "C"
             tParameterList( 2 )( tSPCounter ).set( "stabilization_name",      "SPGPSolidTemp") ;
             tParameterList( 2 )( tSPCounter ).set( "stabilization_type",      static_cast< uint >( fem::Stabilization_Type::GHOST_DISPL ) );
             tParameterList( 2 )( tSPCounter ).set( "function_parameters",     "0.05") ;
-            tParameterList( 2 )( tSPCounter ).set( "master_properties",       "PropSolidConductivity,Material") ;
+            tParameterList( 2 )( tSPCounter ).set( "leader_properties",       "PropSolidConductivity,Material") ;
             tSPCounter++;
 
             //------------------------------------------------------------------------------
@@ -441,8 +441,8 @@ extern "C"
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGVelocityBulk") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_BULK ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "VX,VY") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P;TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid") ;
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPSUPGVelocity,IncompressibleFlow") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46") ;
             tIWGCounter++;
@@ -452,8 +452,8 @@ extern "C"
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGPressureBulk") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_BULK ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "P") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P;TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid") ;
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPSUPGVelocity,IncompressibleFlow") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46") ;
             tIWGCounter++;
@@ -463,8 +463,8 @@ extern "C"
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGFluidDiffusionBulk") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P;TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluidDiffusion,Diffusion") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46") ;
             tIWGCounter++;
 
@@ -473,8 +473,8 @@ extern "C"
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGSolidDiffusionBulk") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_BULK ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P;TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMSolidDiffusion,Diffusion") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMSolidDiffusion,Diffusion") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "HMR_dummy_n_p42,HMR_dummy_c_p42") ;
             tIWGCounter++;
 
@@ -483,8 +483,8 @@ extern "C"
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGAdvectionBulk") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::ADVECTION_BULK ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P;TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluidDiffusion,Diffusion") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion") ;
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPSUPGTemp,SUPG") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",           "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46") ;
             tIWGCounter++;
@@ -494,9 +494,9 @@ extern "C"
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInVelocityTop") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "VX,VY") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P;TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropInletVelocityTop,Dirichlet") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_properties",          "PropInletVelocityTop,Dirichlet") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid") ;
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPNitscheVelocity,DirichletNitsche") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "iside_b0_46_b1_47") ;
             tIWGCounter++;
@@ -506,9 +506,9 @@ extern "C"
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInPressureTop") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "P") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P;TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropInletVelocityTop,Dirichlet") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_properties",          "PropInletVelocityTop,Dirichlet") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "iside_b0_46_b1_47") ;
             tIWGCounter++;
 
@@ -517,9 +517,9 @@ extern "C"
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInVelocityBottom") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "VX,VY") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P;TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropInletVelocityBottom,Dirichlet") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_properties",          "PropInletVelocityBottom,Dirichlet") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid") ;
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPNitscheVelocity,DirichletNitsche") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "iside_b0_34_b1_32") ;
             tIWGCounter++;
@@ -529,9 +529,9 @@ extern "C"
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInPressureBottom") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "P") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P;TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropInletVelocityBottom,Dirichlet") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_properties",          "PropInletVelocityBottom,Dirichlet") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "iside_b0_34_b1_32") ;
             tIWGCounter++;
 
@@ -540,9 +540,9 @@ extern "C"
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGWallVelocity") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_VELOCITY_DIRICHLET_SYMMETRIC_NITSCHE ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "VX,VY") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P;TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropZeroVelocity,Dirichlet") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_properties",          "PropZeroVelocity,Dirichlet") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid") ;
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPNitscheVelocity,DirichletNitsche") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "iside_b0_34_b1_2,iside_b0_34_b1_42,iside_b0_46_b1_42,iside_b0_46_b1_62") ;
             tIWGCounter++;
@@ -552,9 +552,9 @@ extern "C"
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGWallPressure") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::INCOMPRESSIBLE_NS_PRESSURE_DIRICHLET_SYMMETRIC_NITSCHE ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "P") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P;TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropZeroVelocity,Dirichlet") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluid,IncompressibleFluid") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_properties",          "PropZeroVelocity,Dirichlet") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMFluid,IncompressibleFluid") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "iside_b0_34_b1_2,iside_b0_34_b1_42,iside_b0_46_b1_42,iside_b0_46_b1_62") ;
             tIWGCounter++;
 
@@ -563,9 +563,9 @@ extern "C"
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInletTempTop") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P;TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropInletTempTop,Dirichlet") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluidDiffusion,Diffusion") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_properties",          "PropInletTempTop,Dirichlet") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion") ;
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPNitscheFluidTemp,DirichletNitsche") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "iside_b0_46_b1_47") ;
             tIWGCounter++;
@@ -575,9 +575,9 @@ extern "C"
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGInletTempBottom") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::SPATIALDIFF_DIRICHLET_SYMMETRIC_NITSCHE ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P;TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_properties",          "PropInletTempBottom,Dirichlet") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMFluidDiffusion,Diffusion") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_properties",          "PropInletTempBottom,Dirichlet") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMFluidDiffusion,Diffusion") ;
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPNitscheFluidTemp,DirichletNitsche") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "iside_b0_34_b1_32") ;
             tIWGCounter++;
@@ -587,10 +587,10 @@ extern "C"
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                        "IWGInterfaceFluidSolid") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                        static_cast< uint >( fem::IWG_Type::SPATIALDIFF_INTERFACE_SYMMETRIC_NITSCHE ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",                    "TEMP");
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",         "VX,VY;P;TEMP");
-            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",          "VX,VY;P;TEMP");
-            tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models",      "CMFluidDiffusion,Diffusion");
-            tParameterList( 3 )( tIWGCounter ).set( "slave_constitutive_models",       "CMSolidDiffusion,Diffusion");
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",         "VX,VY;P;TEMP");
+            tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies",          "VX,VY;P;TEMP");
+            tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models",      "CMFluidDiffusion,Diffusion");
+            tParameterList( 3 )( tIWGCounter ).set( "follower_constitutive_models",       "CMSolidDiffusion,Diffusion");
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",        "SPInterfaceNitsche,NitscheInterface");
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",                  "dbl_iside_p0_34_p1_42,dbl_iside_p0_46_p1_42");
             tIWGCounter++;
@@ -600,8 +600,8 @@ extern "C"
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGGPViscous") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "VX,VY") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P;TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies",     "VX,VY;P;TEMP") ;
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGPViscous,GhostSP") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "ghost_p34,ghost_p46") ;
             tIWGCounter++;
@@ -611,8 +611,8 @@ extern "C"
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGGPConvective") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "VX,VY") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P;TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies",     "VX,VY;P;TEMP") ;
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGPVelocity,GhostSP") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "ghost_p34,ghost_p46") ;
             tIWGCounter++;
@@ -622,8 +622,8 @@ extern "C"
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGGPPressure") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "P") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P;TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies",     "VX,VY;P;TEMP") ;
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGPPressure,GhostSP") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "ghost_p34,ghost_p46") ;
             tIWGCounter++;
@@ -633,8 +633,8 @@ extern "C"
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGGPFluidTemp") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P;TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies",     "VX,VY;P;TEMP") ;
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGPFluidTemp,GhostSP") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "ghost_p34,ghost_p46") ;
             tIWGCounter++;
@@ -644,8 +644,8 @@ extern "C"
             tParameterList( 3 )( tIWGCounter ).set( "IWG_name",                   "IWGGPSolidTemp") ;
             tParameterList( 3 )( tIWGCounter ).set( "IWG_type",                   static_cast< uint >( fem::IWG_Type::GHOST_NORMAL_FIELD ) );
             tParameterList( 3 )( tIWGCounter ).set( "dof_residual",               "TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies",    "VX,VY;P;TEMP") ;
-            tParameterList( 3 )( tIWGCounter ).set( "slave_dof_dependencies",     "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies",    "VX,VY;P;TEMP") ;
+            tParameterList( 3 )( tIWGCounter ).set( "follower_dof_dependencies",     "VX,VY;P;TEMP") ;
             tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters",   "SPGPSolidTemp,GhostSP") ;
             tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names",             "ghost_p42") ;
             tIWGCounter++;
@@ -661,7 +661,7 @@ extern "C"
             tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkVX") ;
             tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
             tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "VX,VY");
-            tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "VX,VY") ;
+            tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies",    "VX,VY") ;
             tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
             tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46,HMR_dummy_n_p42,HMR_dummy_c_p42") ;
             tIQICounter++;
@@ -671,7 +671,7 @@ extern "C"
             tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkVY") ;
             tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
             tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "VX,VY");
-            tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "VX,VY") ;
+            tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies",    "VX,VY") ;
             tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      1 );
             tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46,HMR_dummy_n_p42,HMR_dummy_c_p42") ;
             tIQICounter++;
@@ -681,7 +681,7 @@ extern "C"
             tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkP") ;
             tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
             tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "P");
-            tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "P") ;
+            tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies",    "P") ;
             tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
             tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46,HMR_dummy_n_p42,HMR_dummy_c_p42") ;
             tIQICounter++;
@@ -691,7 +691,7 @@ extern "C"
             tParameterList( 4 )( tIQICounter ).set( "IQI_name",                   "IQIBulkTEMP") ;
             tParameterList( 4 )( tIQICounter ).set( "IQI_type",                   static_cast< uint >( fem::IQI_Type::DOF ) );
             tParameterList( 4 )( tIQICounter ).set( "dof_quantity",               "TEMP");
-            tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies",    "TEMP") ;
+            tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies",    "TEMP") ;
             tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index",      0 );
             tParameterList( 4 )( tIQICounter ).set( "mesh_set_names",             "HMR_dummy_n_p34,HMR_dummy_c_p34,HMR_dummy_n_p46,HMR_dummy_c_p46,HMR_dummy_n_p42,HMR_dummy_c_p42") ;
             tIQICounter++;

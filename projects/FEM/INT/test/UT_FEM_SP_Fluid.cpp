@@ -115,43 +115,43 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPIncFlow =
             tSPFactory.create_SP( fem::Stabilization_Type::INCOMPRESSIBLE_FLOW );
-    tSPIncFlow->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Master_Slave::MASTER );
-    tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
-    tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    tSPIncFlow->set_property( tPropFluidInvPermeability, "InvPermeability", mtk::Master_Slave::MASTER );
+    tSPIncFlow->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::P } }, mtk::Leader_Follower::LEADER );
+    tSPIncFlow->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
+    tSPIncFlow->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
+    tSPIncFlow->set_property( tPropFluidInvPermeability, "InvPermeability", mtk::Leader_Follower::LEADER );
     tSPIncFlow->set_parameters( { { { 36.0 } } } );
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::VELOCITY_DIRICHLET_NITSCHE );
-    tSPNitsche->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    tSPNitsche->set_property( tPropFluidInvPermeability, "InvPermeability", mtk::Master_Slave::MASTER );
+    tSPNitsche->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
+    tSPNitsche->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
+    tSPNitsche->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
+    tSPNitsche->set_property( tPropFluidInvPermeability, "InvPermeability", mtk::Leader_Follower::LEADER );
     tSPNitsche->set_parameters( { { { tGammaNitsche } }, { { 1.0 } } } );
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost =
             tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
     tSPViscousGhost->set_parameters( { { { tGammaGPmu } } } );
-    tSPViscousGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    tSPViscousGhost->set_property( tPropFluidInvPermeability, "InvPermeability", mtk::Master_Slave::MASTER );
+    tSPViscousGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
+    tSPViscousGhost->set_property( tPropFluidInvPermeability, "InvPermeability", mtk::Leader_Follower::LEADER );
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPConvectiveGhost =
             tSPFactory.create_SP( fem::Stabilization_Type::CONVECTIVE_GHOST );
-    tSPConvectiveGhost->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+    tSPConvectiveGhost->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
     tSPConvectiveGhost->set_parameters( { { { tGammaGPu } } } );
-    tSPConvectiveGhost->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
+    tSPConvectiveGhost->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPPressureGhost =
             tSPFactory.create_SP( fem::Stabilization_Type::PRESSURE_GHOST );
-    tSPPressureGhost->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Master_Slave::MASTER );
+    tSPPressureGhost->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } }, mtk::Leader_Follower::LEADER );
     tSPPressureGhost->set_parameters( { { { tGammaGPp } }, { { 1.0 } } } );
-    tSPPressureGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Master_Slave::MASTER );
-    tSPPressureGhost->set_property( tPropFluidDensity, "Density", mtk::Master_Slave::MASTER );
-    tSPPressureGhost->set_property( tPropFluidInvPermeability, "InvPermeability", mtk::Master_Slave::MASTER );
+    tSPPressureGhost->set_property( tPropFluidViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
+    tSPPressureGhost->set_property( tPropFluidDensity, "Density", mtk::Leader_Follower::LEADER );
+    tSPPressureGhost->set_property( tPropFluidInvPermeability, "InvPermeability", mtk::Leader_Follower::LEADER );
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPSUPGSA =
             tSPFactory.create_SP( fem::Stabilization_Type::SUPG_SPALART_ALLMARAS_TURBULENCE );
-    tSPSUPGSA->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::VISCOSITY } }, mtk::Master_Slave::MASTER );
+    tSPSUPGSA->set_dof_type_list( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY }, { MSI::Dof_Type::VISCOSITY } }, mtk::Leader_Follower::LEADER );
     tSPSUPGSA->set_constitutive_model( tCMSATurbulence, "SpalartAllmarasTurbulence" );
     tSPSUPGSA->set_parameters( { { { 3.0 } }, { { 1.0 } } } );
 
@@ -182,11 +182,11 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
     tSPIncFlow->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
     tSPIncFlow->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
-    // set size and populate the set master dof type map
-    tSPIncFlow->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tSPIncFlow->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
-    tSPIncFlow->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
-    tSPIncFlow->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
+    // set size and populate the set leader dof type map
+    tSPIncFlow->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tSPIncFlow->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) )        = 0;
+    tSPIncFlow->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )         = 1;
+    tSPIncFlow->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VISCOSITY ) ) = 2;
 
     // loop on the space dimension
     for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -313,28 +313,28 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
             {
                 for ( uint iCp = 0; iCp < 3; ++iCp )
                 {
-                    // fill coefficients for master FI
-                    Matrix< DDRMat > tMasterDOFHatVel;
-                    fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-                    Matrix< DDRMat > tMasterDOFHatP;
-                    fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
-                    Matrix< DDRMat > tMasterDOFHatVis;
-                    fill_phat( tMasterDOFHatVis, iSpaceDim, iInterpOrder );
+                    // fill coefficients for leader FI
+                    Matrix< DDRMat > tLeaderDOFHatVel;
+                    fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+                    Matrix< DDRMat > tLeaderDOFHatP;
+                    fill_phat( tLeaderDOFHatP, iSpaceDim, iInterpOrder );
+                    Matrix< DDRMat > tLeaderDOFHatVis;
+                    fill_phat( tLeaderDOFHatVis, iSpaceDim, iInterpOrder );
 
                     // create a cell of field interpolators
-                    Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+                    Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
                     // create the field interpolator velocity
-                    tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-                    tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+                    tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+                    tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
                     // create the field interpolator pressure
-                    tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-                    tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
+                    tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+                    tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatP );
 
                     // create the field interpolator viscosity
-                    tMasterFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
-                    tMasterFIs( 2 )->set_coeff( tMasterDOFHatVis );
+                    tLeaderFIs( 2 ) = new Field_Interpolator( 1, tFIRule, &tGI, tVisDofTypes );
+                    tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatVis );
 
                     // build global dof type list
                     tSPIncFlow->get_global_dof_type_list();
@@ -358,12 +358,12 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
                     Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
                     // populate the field interpolator manager
-                    tFIManager.mFI                     = tMasterFIs;
+                    tFIManager.mFI                     = tLeaderFIs;
                     tFIManager.mIPGeometryInterpolator = &tGI;
                     tFIManager.mIGGeometryInterpolator = &tGI;
 
                     // set the interpolator manager to the set
-                    tSPIncFlow->mSet->mMasterFIManager = &tFIManager;
+                    tSPIncFlow->mSet->mLeaderFIManager = &tFIManager;
 
                     // set SP field interpolator manager
                     tSPIncFlow->set_field_interpolator_manager( &tFIManager );
@@ -389,129 +389,129 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
                         Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                         // set integration point
-                        tSPIncFlow->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                        tSPIncFlow->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
-                        // populate the requested master dof type for SP
-                        moris::Cell< moris::Cell< MSI::Dof_Type > > tMasterDofTypes =
+                        // populate the requested leader dof type for SP
+                        moris::Cell< moris::Cell< MSI::Dof_Type > > tLeaderDofTypes =
                                 tSPIncFlow->get_global_dof_type_list();
 
                         // loop over requested dof type
-                        for ( uint iRequestedDof = 0; iRequestedDof < tMasterDofTypes.size(); iRequestedDof++ )
+                        for ( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                         {
                             // derivative dof type
-                            Cell< MSI::Dof_Type > tDofDerivative = tMasterDofTypes( iRequestedDof );
+                            Cell< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                             // evaluate dspdu
-                            Matrix< DDRMat > tdspdu = tSPIncFlow->dSPdMasterDOF( tDofDerivative );
+                            Matrix< DDRMat > tdspdu = tSPIncFlow->dSPdLeaderDOF( tDofDerivative );
 
                             // evaluate dfluxdu by FD
                             Matrix< DDRMat > tdspduFD;
-                            tSPIncFlow->eval_dSPdMasterDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
+                            tSPIncFlow->eval_dSPdLeaderDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
 
                             // check that analytical and FD match
                             bool tCheckSPSUPGPSPG = fem::check( tdspdu, tdspduFD, tEpsilon );
                             REQUIRE( tCheckSPSUPGPSPG );
                         }
 
-                        // populate the requested master dof type for SP
-                        tMasterDofTypes = tSPNitsche->get_global_dof_type_list();
+                        // populate the requested leader dof type for SP
+                        tLeaderDofTypes = tSPNitsche->get_global_dof_type_list();
 
                         // loop over requested dof type
-                        for ( uint iRequestedDof = 0; iRequestedDof < tMasterDofTypes.size(); iRequestedDof++ )
+                        for ( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                         {
                             // derivative dof type
-                            Cell< MSI::Dof_Type > tDofDerivative = tMasterDofTypes( iRequestedDof );
+                            Cell< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                             // evaluate dspdu
-                            Matrix< DDRMat > tdspdu = tSPNitsche->dSPdMasterDOF( tDofDerivative );
+                            Matrix< DDRMat > tdspdu = tSPNitsche->dSPdLeaderDOF( tDofDerivative );
 
                             // evaluate dfluxdu by FD
                             Matrix< DDRMat > tdspduFD;
-                            tSPNitsche->eval_dSPdMasterDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
+                            tSPNitsche->eval_dSPdLeaderDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
 
                             // check that analytical and FD match
                             bool tCheckSPNitsche = fem::check( tdspdu, tdspduFD, tEpsilon );
                             REQUIRE( tCheckSPNitsche );
                         }
 
-                        // populate the requested master dof type for SP
-                        tMasterDofTypes = tSPViscousGhost->get_global_dof_type_list();
+                        // populate the requested leader dof type for SP
+                        tLeaderDofTypes = tSPViscousGhost->get_global_dof_type_list();
 
                         // loop over requested dof type
-                        for ( uint iRequestedDof = 0; iRequestedDof < tMasterDofTypes.size(); iRequestedDof++ )
+                        for ( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                         {
                             // derivative dof type
-                            Cell< MSI::Dof_Type > tDofDerivative = tMasterDofTypes( iRequestedDof );
+                            Cell< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                             // evaluate dspdu
-                            Matrix< DDRMat > tdspdu = tSPViscousGhost->dSPdMasterDOF( tDofDerivative );
+                            Matrix< DDRMat > tdspdu = tSPViscousGhost->dSPdLeaderDOF( tDofDerivative );
 
                             // evaluate dfluxdu by FD
                             Matrix< DDRMat > tdspduFD;
-                            tSPViscousGhost->eval_dSPdMasterDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
+                            tSPViscousGhost->eval_dSPdLeaderDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
 
                             // check that analytical and FD match
                             bool tCheckSPViscousGhost = fem::check( tdspdu, tdspduFD, tEpsilon );
                             REQUIRE( tCheckSPViscousGhost );
                         }
 
-                        // populate the requested master dof type for SP
-                        tMasterDofTypes = tSPConvectiveGhost->get_global_dof_type_list();
+                        // populate the requested leader dof type for SP
+                        tLeaderDofTypes = tSPConvectiveGhost->get_global_dof_type_list();
 
                         // loop over requested dof type
-                        for ( uint iRequestedDof = 0; iRequestedDof < tMasterDofTypes.size(); iRequestedDof++ )
+                        for ( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                         {
                             // derivative dof type
-                            Cell< MSI::Dof_Type > tDofDerivative = tMasterDofTypes( iRequestedDof );
+                            Cell< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                             // evaluate dspdu
-                            Matrix< DDRMat > tdspdu = tSPConvectiveGhost->dSPdMasterDOF( tDofDerivative );
+                            Matrix< DDRMat > tdspdu = tSPConvectiveGhost->dSPdLeaderDOF( tDofDerivative );
 
                             // evaluate dfluxdu by FD
                             Matrix< DDRMat > tdspduFD;
-                            tSPConvectiveGhost->eval_dSPdMasterDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
+                            tSPConvectiveGhost->eval_dSPdLeaderDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
 
                             // check that analytical and FD match
                             bool tCheckSPConvectiveGhost = fem::check( tdspdu, tdspduFD, tEpsilon );
                             REQUIRE( tCheckSPConvectiveGhost );
                         }
 
-                        // populate the requested master dof type for SP
-                        tMasterDofTypes = tSPPressureGhost->get_global_dof_type_list();
+                        // populate the requested leader dof type for SP
+                        tLeaderDofTypes = tSPPressureGhost->get_global_dof_type_list();
 
                         // loop over requested dof type
-                        for ( uint iRequestedDof = 0; iRequestedDof < tMasterDofTypes.size(); iRequestedDof++ )
+                        for ( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                         {
                             // derivative dof type
-                            Cell< MSI::Dof_Type > tDofDerivative = tMasterDofTypes( iRequestedDof );
+                            Cell< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                             // evaluate dspdu
-                            Matrix< DDRMat > tdspdu = tSPPressureGhost->dSPdMasterDOF( tDofDerivative );
+                            Matrix< DDRMat > tdspdu = tSPPressureGhost->dSPdLeaderDOF( tDofDerivative );
 
                             // evaluate dfluxdu by FD
                             Matrix< DDRMat > tdspduFD;
-                            tSPPressureGhost->eval_dSPdMasterDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
+                            tSPPressureGhost->eval_dSPdLeaderDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
 
                             // check that analytical and FD match
                             bool tCheckSPPressureGhost = fem::check( tdspdu, tdspduFD, tEpsilon );
                             REQUIRE( tCheckSPPressureGhost );
                         }
 
-                        // populate the requested master dof type for SP
-                        tMasterDofTypes = tSPSUPGSA->get_global_dof_type_list();
+                        // populate the requested leader dof type for SP
+                        tLeaderDofTypes = tSPSUPGSA->get_global_dof_type_list();
 
                         // loop over requested dof type
-                        for ( uint iRequestedDof = 0; iRequestedDof < tMasterDofTypes.size(); iRequestedDof++ )
+                        for ( uint iRequestedDof = 0; iRequestedDof < tLeaderDofTypes.size(); iRequestedDof++ )
                         {
                             // derivative dof type
-                            Cell< MSI::Dof_Type > tDofDerivative = tMasterDofTypes( iRequestedDof );
+                            Cell< MSI::Dof_Type > tDofDerivative = tLeaderDofTypes( iRequestedDof );
 
                             // evaluate dspdu
-                            Matrix< DDRMat > tdspdu = tSPSUPGSA->dSPdMasterDOF( tDofDerivative );
+                            Matrix< DDRMat > tdspdu = tSPSUPGSA->dSPdLeaderDOF( tDofDerivative );
 
                             // evaluate dfluxdu by FD
                             Matrix< DDRMat > tdspduFD;
-                            tSPSUPGSA->eval_dSPdMasterDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
+                            tSPSUPGSA->eval_dSPdLeaderDOF_FD( tDofDerivative, tdspduFD, tPerturbation );
 
                             // check that analytical and FD match
                             bool tCheckSPSUPGSA = fem::check( tdspdu, tdspduFD, tEpsilon );
@@ -520,7 +520,7 @@ TEST_CASE( "SP_Fluid", "[SP_Fluid]" )
                     }
 
                     // clean up
-                    tMasterFIs.clear();
+                    tLeaderFIs.clear();
                 }
             }
         }

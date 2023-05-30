@@ -143,8 +143,8 @@ Fluid/fluid interface conditions are also imposed weakly via Nitsche's formulati
 where 
 - \f$ \beta = 1 \f$ for symmetric version and \f$ \beta = -1 \f$ for skew symmetric version,
 - \f$ \gamma_N \f$ is a stabilization parameter and is described in \ref FE_SP_Nitsche_Interface,
-- \f$ w_M \f$ is described in \ref FE_SP_Master_Weight_Interface,
-- \f$ w_S \f$ is described in \ref FE_SP_Slave_Weight_Interface.
+- \f$ w_M \f$ is described in \ref FE_SP_Leader_Weight_Interface,
+- \f$ w_S \f$ is described in \ref FE_SP_Follower_Weight_Interface.
 
 The velocity part of the residual \f$ \mathbf{R}_{u}^{\Gamma_{ifc}} \f$ is implemented in 
 IWG_Incompressible_NS_Velocity_Interface,

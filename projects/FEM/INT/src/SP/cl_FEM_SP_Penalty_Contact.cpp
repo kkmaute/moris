@@ -26,8 +26,8 @@ namespace moris
         SP_Penalty_Contact::SP_Penalty_Contact()
         {
             // set size for the property pointer cells
-            mMasterProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
-            mSlaveProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
+            mFollowerProp.resize( static_cast< uint >( SP_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Material" ] = static_cast< uint >( SP_Property_Type::MATERIAL );
@@ -38,23 +38,23 @@ namespace moris
         void SP_Penalty_Contact::reset_cluster_measures()
         {
             // evaluate cluster measures from the cluster
-            mMasterVolume = mCluster->compute_cluster_cell_measure(
+            mLeaderVolume = mCluster->compute_cluster_cell_measure(
                     mtk::Primary_Void::INTERP,
-                    mtk::Master_Slave::MASTER );
-            mSlaveVolume  = mCluster->compute_cluster_cell_measure(
+                    mtk::Leader_Follower::LEADER );
+            mFollowerVolume  = mCluster->compute_cluster_cell_measure(
                     mtk::Primary_Void::INTERP,
-                    mtk::Master_Slave::SLAVE );
+                    mtk::Leader_Follower::FOLLOWER );
         }
 
         //------------------------------------------------------------------------------
 
         void SP_Penalty_Contact::eval_SP()
         {
-            moris::real tEMaster = mMasterProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 );
-            moris::real tESlave = mSlaveProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 );
+            moris::real tELeader = mLeaderProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 );
+            moris::real tEFollower = mFollowerProp( static_cast< uint >( SP_Property_Type::MATERIAL ) )->val()( 0 );
 
-            mPPVal = mParameters( 0 ) * (mMasterVolume /( mMasterVolume / tEMaster + mSlaveVolume / tESlave)
-                    + mSlaveVolume /( mMasterVolume / tEMaster + mSlaveVolume / tESlave)) / mElementSize;
+            mPPVal = mParameters( 0 ) * (mLeaderVolume /( mLeaderVolume / tELeader + mFollowerVolume / tEFollower)
+                    + mFollowerVolume /( mLeaderVolume / tELeader + mFollowerVolume / tEFollower)) / mElementSize;
         }
 
         //------------------------------------------------------------------------------

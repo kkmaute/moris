@@ -22,7 +22,7 @@ namespace moris
         IQI_ALM_Dof::IQI_ALM_Dof()
         {
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "LagrangeMultiplier" ] = static_cast< uint >( IQI_Property_Type::LAGRANGE_MULTIPLIER );
@@ -72,10 +72,10 @@ namespace moris
 
                 // check that Lagrange multiplier and penalty factor are defined
                 const std::shared_ptr< Property >& tPropLagrangeMultiplier =
-                        mMasterProp( static_cast< uint >( IQI_Property_Type::LAGRANGE_MULTIPLIER ) );
+                        mLeaderProp( static_cast< uint >( IQI_Property_Type::LAGRANGE_MULTIPLIER ) );
 
                 const std::shared_ptr< Property >& tPropPenaltyFactor =
-                        mMasterProp( static_cast< uint >( IQI_Property_Type::PENALTY_FACTOR ) );
+                        mLeaderProp( static_cast< uint >( IQI_Property_Type::PENALTY_FACTOR ) );
 
                 MORIS_ERROR( tPropLagrangeMultiplier && tPropPenaltyFactor,
                         "IQI_ALM_Dof::initialize - properties for Lagrange multiplier and penalty factor need to be defined." );
@@ -95,14 +95,14 @@ namespace moris
 
             // get Lagrange multiplier and penalty factor
             const std::shared_ptr< Property >& tPropLagrangeMultiplier =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::LAGRANGE_MULTIPLIER ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::LAGRANGE_MULTIPLIER ) );
 
             const std::shared_ptr< Property >& tPropPenaltyFactor =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::PENALTY_FACTOR ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::PENALTY_FACTOR ) );
 
             // get field interpolator for a given dof type
             Field_Interpolator* tFIMaxDof =
-                    mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // evaluate Lagrange multiplier and penalty factor
             real tLagrangeMultplier = tPropLagrangeMultiplier->val()( 0 );
@@ -149,31 +149,31 @@ namespace moris
         {
             // get Lagrange multiplier and penalty factor
             const std::shared_ptr< Property >& tPropLagrangeMultiplier =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::LAGRANGE_MULTIPLIER ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::LAGRANGE_MULTIPLIER ) );
 
             const std::shared_ptr< Property >& tPropPenaltyFactor =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::PENALTY_FACTOR ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::PENALTY_FACTOR ) );
 
             // get field interpolator for max dof type
             Field_Interpolator* tFIMaxDof =
-                    mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // get the column index to assemble in residual
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
-            // get the number of master dof type dependencies
-            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+            // get the number of leader dof type dependencies
+            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
             // compute dQIdu for indirect dof dependencies
             for ( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type >& tDofType = mRequestedMasterGlobalDofTypes( iDof );
+                Cell< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDof );
 
-                // get master index for residual dof type, indices for assembly
-                uint tMasterDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-                uint tMasterDepStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+                // get leader index for residual dof type, indices for assembly
+                uint tLeaderDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                uint tLeaderDepStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+                uint tLeaderDepStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
                 // if derivative dof type is max dof type
                 if ( tDofType( 0 ) == mQuantityDofType( 0 ) )
@@ -200,7 +200,7 @@ namespace moris
 
                         // evaluate derivative of IQI wrt dof
                         mSet->get_residual()( tQIIndex )(
-                                { tMasterDepStartIndex, tMasterDepStopIndex }, { 0, 0 } ) +=
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex }, { 0, 0 } ) +=
                                 aWStar * ( tdQI * tFIMaxDof->N_trans() * tSelect / mRefValue );
                     }
                 }
@@ -216,14 +216,14 @@ namespace moris
         {
             // get Lagrange multiplier and penalty factor
             const std::shared_ptr< Property >& tPropLagrangeMultiplier =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::LAGRANGE_MULTIPLIER ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::LAGRANGE_MULTIPLIER ) );
 
             const std::shared_ptr< Property >& tPropPenaltyFactor =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::PENALTY_FACTOR ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::PENALTY_FACTOR ) );
 
             // get field interpolator for max dof type
             Field_Interpolator* tFIMaxDof =
-                    mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // if derivative dof type is max dof type
             if ( aDofType( 0 ) == mQuantityDofType( 0 ) )

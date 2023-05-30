@@ -31,7 +31,7 @@ namespace moris::mtk
     //------------------------------------------------------------------------------
 
     bool
-    Cell_Cluster_DataBase::is_trivial( const mtk::Master_Slave aIsMaster ) const
+    Cell_Cluster_DataBase::is_trivial( const mtk::Leader_Follower aIsLeader ) const
     {
         return mMesh->cluster_is_trivial( ClusterType::CELL_CLUSTER, mCellClusterIndex );
     }
@@ -39,7 +39,7 @@ namespace moris::mtk
     //------------------------------------------------------------------------------
 
     moris::Cell< moris::mtk::Cell const* > const&
-    Cell_Cluster_DataBase::get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster ) const
+    Cell_Cluster_DataBase::get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader ) const
     {
         return mPrimaryIntegrationCells;
     }
@@ -55,7 +55,7 @@ namespace moris::mtk
     //------------------------------------------------------------------------------
 
     moris::mtk::Cell const&
-    Cell_Cluster_DataBase::get_interpolation_cell( const mtk::Master_Slave aIsMaster ) const
+    Cell_Cluster_DataBase::get_interpolation_cell( const mtk::Leader_Follower aIsLeader ) const
     {
         // defer the call to the mesh
         moris::mtk::Cell* tInterpolationCell = mMesh->get_ip_cell_in_cluster( ClusterType::CELL_CLUSTER, mCellClusterIndex );
@@ -67,7 +67,7 @@ namespace moris::mtk
     //------------------------------------------------------------------------------
 
     moris::Cell< moris::mtk::Vertex const* >
-    Cell_Cluster_DataBase::get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const
+    Cell_Cluster_DataBase::get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader ) const
     {
         // extract the vertices and number of them
         Vertex* const* tVertices  = mMesh->get_vertices_in_cluster( ClusterType::CELL_CLUSTER, mCellClusterIndex );
@@ -86,7 +86,7 @@ namespace moris::mtk
     //------------------------------------------------------------------------------
 
     moris::Matrix< moris::DDRMat >
-    Cell_Cluster_DataBase::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster ) const
+    Cell_Cluster_DataBase::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Leader_Follower aIsLeader ) const
     {
         // determine if the cluster is trivial, coordinates for trivial is hard-coded and should not be stored
         bool tTrivial = mMesh->cluster_is_trivial( ClusterType::CELL_CLUSTER, mCellClusterIndex );
@@ -122,7 +122,7 @@ namespace moris::mtk
 
     moris::Matrix< moris::DDRMat >
     Cell_Cluster_DataBase::get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const* aVertex,
-        const mtk::Master_Slave                                                                   aIsMaster ) const
+        const mtk::Leader_Follower                                                                   aIsLeader ) const
     {
         // get list of vertices and number of them
         Vertex* const* tVertices  = mMesh->get_vertices_in_cluster( ClusterType::CELL_CLUSTER, mCellClusterIndex );
@@ -154,7 +154,7 @@ namespace moris::mtk
     //------------------------------------------------------------------------------
 
     moris_index
-    Cell_Cluster_DataBase::get_dim_of_param_coord( const mtk::Master_Slave aIsMaster ) const
+    Cell_Cluster_DataBase::get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader ) const
     {
         return (moris_index)mMesh->get_spatial_dim();
     }

@@ -88,75 +88,75 @@ test_phase_change_constitutive_model(
     // create the properties --------------------------------------------------------------------- //
 
     // conductivity
-    std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property >();
-    tPropMasterConductivity->set_parameters( { { { 1.1 } }, { { 1.1 } } } );
-    //            tPropMasterConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    //            tPropMasterConductivity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
-    //            tPropMasterConductivity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
-    tPropMasterConductivity->set_val_function( tConstValFunction_UT_CM_Diff_PC );
+    std::shared_ptr< fem::Property > tPropLeaderConductivity = std::make_shared< fem::Property >();
+    tPropLeaderConductivity->set_parameters( { { { 1.1 } }, { { 1.1 } } } );
+    //            tPropLeaderConductivity->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    //            tPropLeaderConductivity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
+    //            tPropLeaderConductivity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
+    tPropLeaderConductivity->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
     // density
-    std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
-    tPropMasterDensity->set_parameters( { { { 1.2 } } } );
-    tPropMasterDensity->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-    tPropMasterDensity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
-    tPropMasterDensity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
-    //            tPropMasterDensity->set_val_function( tConstValFunction_UT_CM_Diff_PC );
+    std::shared_ptr< fem::Property > tPropLeaderDensity = std::make_shared< fem::Property >();
+    tPropLeaderDensity->set_parameters( { { { 1.2 } } } );
+    tPropLeaderDensity->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
+    tPropLeaderDensity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
+    tPropLeaderDensity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
+    //            tPropLeaderDensity->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
     // heat capacity
-    std::shared_ptr< fem::Property > tPropMasterHeatCapacity = std::make_shared< fem::Property >();
-    tPropMasterHeatCapacity->set_parameters( { { { 1.3 } } } );
-    tPropMasterHeatCapacity->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-    tPropMasterHeatCapacity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
-    tPropMasterHeatCapacity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
-    //            tPropMasterHeatCapacity->set_val_function( tConstValFunction_UT_CM_Diff_PC );
+    std::shared_ptr< fem::Property > tPropLeaderHeatCapacity = std::make_shared< fem::Property >();
+    tPropLeaderHeatCapacity->set_parameters( { { { 1.3 } } } );
+    tPropLeaderHeatCapacity->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
+    tPropLeaderHeatCapacity->set_val_function( tValFunctionCM_Diff_Lin_Iso );
+    tPropLeaderHeatCapacity->set_dof_derivative_functions( { tDerFunctionCM_Diff_Lin_Iso } );
+    //            tPropLeaderHeatCapacity->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
     // latent heat
-    std::shared_ptr< fem::Property > tPropMasterLatentHeat = std::make_shared< fem::Property >();
-    tPropMasterLatentHeat->set_parameters( { { { 100.0 } } } );
-    // tPropMasterLatentHeat->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    tPropMasterLatentHeat->set_val_function( tConstValFunction_UT_CM_Diff_PC );
+    std::shared_ptr< fem::Property > tPropLeaderLatentHeat = std::make_shared< fem::Property >();
+    tPropLeaderLatentHeat->set_parameters( { { { 100.0 } } } );
+    // tPropLeaderLatentHeat->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tPropLeaderLatentHeat->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
     // phase change temp
-    std::shared_ptr< fem::Property > tPropMasterTmelt = std::make_shared< fem::Property >();
-    tPropMasterTmelt->set_parameters( { { { 5.2 } } } );
-    // tPropMasterTupper->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    tPropMasterTmelt->set_val_function( tConstValFunction_UT_CM_Diff_PC );
+    std::shared_ptr< fem::Property > tPropLeaderTmelt = std::make_shared< fem::Property >();
+    tPropLeaderTmelt->set_parameters( { { { 5.2 } } } );
+    // tPropLeaderTupper->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tPropLeaderTmelt->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
     // phase change constant
-    std::shared_ptr< fem::Property > tPropMasterPCconst = std::make_shared< fem::Property >();
-    tPropMasterPCconst->set_parameters( { { { 1.8 } } } );
-    // tPropMasterPCconst->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    tPropMasterPCconst->set_val_function( tConstValFunction_UT_CM_Diff_PC );
+    std::shared_ptr< fem::Property > tPropLeaderPCconst = std::make_shared< fem::Property >();
+    tPropLeaderPCconst->set_parameters( { { { 1.8 } } } );
+    // tPropLeaderPCconst->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tPropLeaderPCconst->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
     // phase state function type
-    std::shared_ptr< fem::Property > tPropMasterPCfunction = std::make_shared< fem::Property >();
-    tPropMasterPCfunction->set_parameters( { { { 2 } } } );
-    // tPropMasterPCfunction->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-    tPropMasterPCfunction->set_val_function( tConstValFunction_UT_CM_Diff_PC );
+    std::shared_ptr< fem::Property > tPropLeaderPCfunction = std::make_shared< fem::Property >();
+    tPropLeaderPCfunction->set_parameters( { { { 2 } } } );
+    // tPropLeaderPCfunction->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
+    tPropLeaderPCfunction->set_val_function( tConstValFunction_UT_CM_Diff_PC );
 
     // temperature load
-    std::shared_ptr< fem::Property > tPropMasterBodyLoad = nullptr;
+    std::shared_ptr< fem::Property > tPropLeaderBodyLoad = nullptr;
 
     // define constitutive models ---------------------------------------------------------------- //
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIsoPC =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderDiffLinIsoPC =
             tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO_PC );
 
-    tCMMasterDiffLinIsoPC->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
+    tCMLeaderDiffLinIsoPC->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
 
-    tCMMasterDiffLinIsoPC->set_property( tPropMasterConductivity, "Conductivity" );
-    tCMMasterDiffLinIsoPC->set_property( tPropMasterDensity, "Density" );
-    tCMMasterDiffLinIsoPC->set_property( tPropMasterHeatCapacity, "HeatCapacity" );
-    tCMMasterDiffLinIsoPC->set_property( tPropMasterLatentHeat, "LatentHeat" );
-    tCMMasterDiffLinIsoPC->set_property( tPropMasterTmelt, "PCTemp" );
-    tCMMasterDiffLinIsoPC->set_property( tPropMasterPCfunction, "PhaseStateFunction" );
-    tCMMasterDiffLinIsoPC->set_property( tPropMasterPCconst, "PhaseChangeConst" );
+    tCMLeaderDiffLinIsoPC->set_property( tPropLeaderConductivity, "Conductivity" );
+    tCMLeaderDiffLinIsoPC->set_property( tPropLeaderDensity, "Density" );
+    tCMLeaderDiffLinIsoPC->set_property( tPropLeaderHeatCapacity, "HeatCapacity" );
+    tCMLeaderDiffLinIsoPC->set_property( tPropLeaderLatentHeat, "LatentHeat" );
+    tCMLeaderDiffLinIsoPC->set_property( tPropLeaderTmelt, "PCTemp" );
+    tCMLeaderDiffLinIsoPC->set_property( tPropLeaderPCfunction, "PhaseStateFunction" );
+    tCMLeaderDiffLinIsoPC->set_property( tPropLeaderPCconst, "PhaseChangeConst" );
 
-    tCMMasterDiffLinIsoPC->set_space_dim( aSpatialDim );
+    tCMLeaderDiffLinIsoPC->set_space_dim( aSpatialDim );
 
-    tCMMasterDiffLinIsoPC->set_local_properties();
+    tCMLeaderDiffLinIsoPC->set_local_properties();
 
     // create a space and a time geometry interpolator
     Geometry_Interpolator tGI( aGeomInterpRule );
@@ -184,9 +184,9 @@ test_phase_change_constitutive_model(
     tSet.mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tSet.mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
-    // set size and populate the set master dof type map
-    tSet.mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tSet.mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+    // set size and populate the set leader dof type map
+    tSet.mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tSet.mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
     // create a field interpolator manager
     Cell< Cell< MSI::Dof_Type > > tDofTypes = { { MSI::Dof_Type::TEMP } };
@@ -195,18 +195,18 @@ test_phase_change_constitutive_model(
     tFIManager.mIPGeometryInterpolator = &tGI;
 
     // set field interpolator manager
-    tCMMasterDiffLinIsoPC->set_field_interpolator_manager( &tFIManager );
+    tCMLeaderDiffLinIsoPC->set_field_interpolator_manager( &tFIManager );
 
     // check Energy ------------------------------------------------------------------
     //------------------------------------------------------------------------------
 
     // evaluate the constitutive model enthalpy
-    Matrix< DDRMat > tdEnergydDOF = tCMMasterDiffLinIsoPC->dEnergydDOF( { MSI::Dof_Type::TEMP } );
+    Matrix< DDRMat > tdEnergydDOF = tCMLeaderDiffLinIsoPC->dEnergydDOF( { MSI::Dof_Type::TEMP } );
     // print( tdEnergydDOF, "tdEnergydDOF");
 
     // evaluate the constitutive model stress derivative by FD
     Matrix< DDRMat > tdEnergydDOF_FD;
-    tCMMasterDiffLinIsoPC->eval_dEnergydDOF_FD( { MSI::Dof_Type::TEMP }, tdEnergydDOF_FD, 1E-5 );
+    tCMLeaderDiffLinIsoPC->eval_dEnergydDOF_FD( { MSI::Dof_Type::TEMP }, tdEnergydDOF_FD, 1E-5 );
 
     // check stress derivative
     bool tCheckEnergy = fem::check( tdEnergydDOF, tdEnergydDOF_FD, tEpsilonRel );
@@ -218,12 +218,12 @@ test_phase_change_constitutive_model(
     //------------------------------------------------------------------------------
 
     // evaluate the constitutive model flux derivative
-    Matrix< DDRMat > tdEnergyDotdDOF = tCMMasterDiffLinIsoPC->dEnergyDotdDOF( { MSI::Dof_Type::TEMP } );
+    Matrix< DDRMat > tdEnergyDotdDOF = tCMLeaderDiffLinIsoPC->dEnergyDotdDOF( { MSI::Dof_Type::TEMP } );
     // print( tdFluxdDOF, "tdFluxdDOF");
 
     // evaluate the constitutive model stress derivative by FD
     Matrix< DDRMat > tdEnergyDotdDOF_FD;
-    tCMMasterDiffLinIsoPC->eval_dEnergyDotdDOF_FD( { MSI::Dof_Type::TEMP }, tdEnergyDotdDOF_FD, 1E-5 );
+    tCMLeaderDiffLinIsoPC->eval_dEnergyDotdDOF_FD( { MSI::Dof_Type::TEMP }, tdEnergyDotdDOF_FD, 1E-5 );
 
     // check stress derivative
     bool tCheckEnergyDot = fem::check( tdEnergyDotdDOF, tdEnergyDotdDOF_FD, tEpsilonRel );
@@ -239,12 +239,12 @@ test_phase_change_constitutive_model(
     //------------------------------------------------------------------------------
 
     // evaluate the constitutive model flux derivative
-    Matrix< DDRMat > tdGradEnergydDOF = tCMMasterDiffLinIsoPC->dGradEnergydDOF( { MSI::Dof_Type::TEMP } );
+    Matrix< DDRMat > tdGradEnergydDOF = tCMLeaderDiffLinIsoPC->dGradEnergydDOF( { MSI::Dof_Type::TEMP } );
     // print( tdFluxdDOF, "tdFluxdDOF");
 
     // evaluate the constitutive model stress derivative by FD
     Matrix< DDRMat > tdGradEnergydDOF_FD;
-    tCMMasterDiffLinIsoPC->eval_dGradEnergydDOF_FD( { MSI::Dof_Type::TEMP }, tdGradEnergydDOF_FD, tPertubationSize );
+    tCMLeaderDiffLinIsoPC->eval_dGradEnergydDOF_FD( { MSI::Dof_Type::TEMP }, tdGradEnergydDOF_FD, tPertubationSize );
 
     // check stress derivative
     bool tCheckGradH = fem::check( tdGradEnergydDOF, tdGradEnergydDOF_FD, tEpsilonRel );
@@ -260,12 +260,12 @@ test_phase_change_constitutive_model(
     //------------------------------------------------------------------------------
 
     // evaluate the constitutive model flux derivative
-    Matrix< DDRMat > tdGradEnergyDotdDOF = tCMMasterDiffLinIsoPC->dGradEnergyDotdDOF( { MSI::Dof_Type::TEMP } );
+    Matrix< DDRMat > tdGradEnergyDotdDOF = tCMLeaderDiffLinIsoPC->dGradEnergyDotdDOF( { MSI::Dof_Type::TEMP } );
     // print( tdFluxdDOF, "tdFluxdDOF");
 
     // evaluate the constitutive model stress derivative by FD
     Matrix< DDRMat > tdGradEnergyDotdDOF_FD;
-    tCMMasterDiffLinIsoPC->eval_dGradEnergyDotdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradEnergyDotdDOF_FD, tPertubationSize );
+    tCMLeaderDiffLinIsoPC->eval_dGradEnergyDotdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradEnergyDotdDOF_FD, tPertubationSize );
 
     // check stress derivative
     bool tCheckGradEnergyDot = fem::check( tdGradEnergyDotdDOF, tdGradEnergyDotdDOF_FD, tEpsilonRel );
@@ -281,12 +281,12 @@ test_phase_change_constitutive_model(
     //------------------------------------------------------------------------------
 
     // evaluate the constitutive model strain derivative
-    Matrix< DDRMat > tdGradDivFluxdDOF = tCMMasterDiffLinIsoPC->dGradDivFluxdDOF( { MSI::Dof_Type::TEMP } );
+    Matrix< DDRMat > tdGradDivFluxdDOF = tCMLeaderDiffLinIsoPC->dGradDivFluxdDOF( { MSI::Dof_Type::TEMP } );
     // print( tdStraindDOF, "tdStraindDOF" );
 
     // evaluate the constitutive model strain derivative by FD
     Matrix< DDRMat > tdGradDivFluxdDOF_FD;
-    tCMMasterDiffLinIsoPC->eval_dGradDivFluxdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradDivFluxdDOF_FD, tPertubationSize );
+    tCMLeaderDiffLinIsoPC->eval_dGradDivFluxdDOF_FD( { MSI::Dof_Type::TEMP }, tdGradDivFluxdDOF_FD, tPertubationSize );
 
     // check strain derivative
     bool tCheckGradDivFlux = fem::check( tdGradDivFluxdDOF, tdGradDivFluxdDOF_FD, tEpsilonRel );

@@ -30,7 +30,7 @@ namespace moris
         SP_Incompressible_Flow::SP_Incompressible_Flow()
         {
             // set the property pointer cell size
-            mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
             mPropertyMap[ "Density" ]         = static_cast< uint >( Property_Type::DENSITY );
@@ -132,15 +132,15 @@ namespace moris
         SP_Incompressible_Flow::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
                 moris::Cell< std::string >&                  aDofStrings,
-                mtk::Master_Slave                            aIsMaster )
+                mtk::Leader_Follower                            aIsLeader )
         {
-            // switch on master slave
-            switch ( aIsMaster )
+            // switch on leader follower
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
+                case mtk::Leader_Follower::LEADER:
                 {
                     // set dof type list
-                    mMasterDofTypes = aDofTypes;
+                    mLeaderDofTypes = aDofTypes;
 
                     // loop on dof type
                     for ( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
@@ -154,11 +154,11 @@ namespace moris
                         // if velocity
                         if ( tDofString == "Velocity" )
                         {
-                            mMasterDofVelocity = tDofType;
+                            mLeaderDofVelocity = tDofType;
                         }
                         else if ( tDofString == "Pressure" )
                         {
-                            mMasterDofPressure = tDofType;
+                            mLeaderDofPressure = tDofType;
                         }
                         else
                         {
@@ -171,15 +171,15 @@ namespace moris
                     break;
                 }
 
-                case mtk::Master_Slave::SLAVE:
+                case mtk::Leader_Follower::FOLLOWER:
                 {
                     // set dof type list
-                    mSlaveDofTypes = aDofTypes;
+                    mFollowerDofTypes = aDofTypes;
                     break;
                 }
 
                 default:
-                    MORIS_ERROR( false, "SP_Incompressible_Flow::set_dof_type_list - unknown master slave type." );
+                    MORIS_ERROR( false, "SP_Incompressible_Flow::set_dof_type_list - unknown leader follower type." );
                     break;
             }
         }
@@ -194,17 +194,17 @@ namespace moris
 
             // get the velocity and pressure FIs
             Field_Interpolator* tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
+                    mLeaderFIManager->get_field_interpolators_for_type( mLeaderDofVelocity );
 
             // get the density and viscosity properties
             const std::shared_ptr< Property >& tDensityProp =
-                    mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             const std::shared_ptr< Property >& tViscosityProp =
-                    mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::VISCOSITY ) );
 
             const std::shared_ptr< Property >& tInvPermeabProp =
-                    mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
 
             // get the density and viscosity value
             real tDensity   = tDensityProp->val()( 0 );
@@ -241,7 +241,7 @@ namespace moris
             if ( mSetBetaTime )
             {
                 // get the time step
-                real tDeltaT = mBetaTime * mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+                real tDeltaT = mBetaTime * mLeaderFIManager->get_IP_geometry_interpolator()->get_time_step();
 
                 // add time contribution
                 tPPVal += std::pow( 2.0 * tDensity / tDeltaT, 2.0 );
@@ -263,31 +263,31 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        SP_Incompressible_Flow::eval_dSPdMasterDOF(
+        SP_Incompressible_Flow::eval_dSPdLeaderDOF(
                 const moris::Cell< MSI::Dof_Type >& aDofTypes )
         {
             // get the dof type index
-            uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+            uint tDofIndex = mLeaderGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
 
             // get the dof type FI
-            Field_Interpolator* tFI = mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+            Field_Interpolator* tFI = mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // set matrix size and initialize
-            mdPPdMasterDof( tDofIndex ).set_size( 2, tFI->get_number_of_space_time_coefficients() );
+            mdPPdLeaderDof( tDofIndex ).set_size( 2, tFI->get_number_of_space_time_coefficients() );
 
             // get the velocity FI
             Field_Interpolator* tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( mMasterDofVelocity );
+                    mLeaderFIManager->get_field_interpolators_for_type( mLeaderDofVelocity );
 
             // get the density and viscosity properties
             const std::shared_ptr< Property >& tDensityProp =
-                    mMasterProp( static_cast< uint >( Property_Type::DENSITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             const std::shared_ptr< Property >& tViscosityProp =
-                    mMasterProp( static_cast< uint >( Property_Type::VISCOSITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::VISCOSITY ) );
 
             const std::shared_ptr< Property >& tInvPermeabProp =
-                    mMasterProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::INV_PERMEABILITY ) );
 
             // get the density and viscosity value
             real tDensity   = tDensityProp->val()( 0 );
@@ -324,7 +324,7 @@ namespace moris
             if ( mSetBetaTime )
             {
                 // get the time step
-                real tDeltaT = mBetaTime * mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+                real tDeltaT = mBetaTime * mLeaderFIManager->get_IP_geometry_interpolator()->get_time_step();
 
                 // add time contribution
                 tPPVal += std::pow( 2.0 * tDensity / tDeltaT, 2.0 );
@@ -337,30 +337,30 @@ namespace moris
                 real tPreFactor = -0.5 * std::pow( tPPVal, -1.5 );
 
                 // if velocity
-                if ( aDofTypes( 0 ) == mMasterDofVelocity )
+                if ( aDofTypes( 0 ) == mLeaderDofVelocity )
                 {
-                    mdPPdMasterDof( tDofIndex ).get_row( 0 ) =
+                    mdPPdLeaderDof( tDofIndex ).get_row( 0 ) =
                             tPreFactor * std::pow( tDensity, 2.0 ) * ( 2.0 * trans( tFI->val() ) * tG * tFI->N() );
                 }
                 else
                 {
-                    mdPPdMasterDof( tDofIndex ).fill( 0.0 );
+                    mdPPdLeaderDof( tDofIndex ).fill( 0.0 );
                 }
 
                 // if density
                 if ( tDensityProp->check_dof_dependency( aDofTypes ) )
                 {
-                    mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
+                    mdPPdLeaderDof( tDofIndex ).get_row( 0 ) +=
                             tPreFactor * ( 2.0 * tDensity * tvivjGij( 0 ) ) * tDensityProp->dPropdDOF( aDofTypes );
 
                     // if time solve
                     if ( mSetBetaTime )
                     {
                         // get the time step
-                        real tDeltaT = mBetaTime * mMasterFIManager->get_IP_geometry_interpolator()->get_time_step();
+                        real tDeltaT = mBetaTime * mLeaderFIManager->get_IP_geometry_interpolator()->get_time_step();
 
                         // add time contribution
-                        mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
+                        mdPPdLeaderDof( tDofIndex ).get_row( 0 ) +=
                                 tPreFactor * ( 8.0 * tDensity / tDeltaT / tDeltaT ) * tDensityProp->dPropdDOF( aDofTypes );
                     }
                 }
@@ -368,7 +368,7 @@ namespace moris
                 // if viscosity
                 if ( tViscosityProp->check_dof_dependency( aDofTypes ) )
                 {
-                    mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
+                    mdPPdLeaderDof( tDofIndex ).get_row( 0 ) +=
                             tPreFactor * ( 2.0 * mCI * tViscosity * tGijGij * tViscosityProp->dPropdDOF( aDofTypes ) );
                 }
 
@@ -377,7 +377,7 @@ namespace moris
                 {
                     if ( tInvPermeabProp->check_dof_dependency( aDofTypes ) )
                     {
-                        mdPPdMasterDof( tDofIndex ).get_row( 0 ) +=
+                        mdPPdLeaderDof( tDofIndex ).get_row( 0 ) +=
                                 tPreFactor * ( 2.0 * tInvPermeabProp->val()( 0 ) * tInvPermeabProp->dPropdDOF( aDofTypes ) );
                     }
                 }
@@ -388,13 +388,13 @@ namespace moris
                 // dtauCdDOF
                 if ( tTauM > mEpsilon )
                 {
-                    mdPPdMasterDof( tDofIndex ).get_row( 1 ) =
-                            -mdPPdMasterDof( tDofIndex ).get_row( 0 ) / ( tTrG * std::pow( tTauM, 2.0 ) );
+                    mdPPdLeaderDof( tDofIndex ).get_row( 1 ) =
+                            -mdPPdLeaderDof( tDofIndex ).get_row( 0 ) / ( tTrG * std::pow( tTauM, 2.0 ) );
                 }
             }
             else
             {
-                mdPPdMasterDof( tDofIndex ).fill( 0.0 );
+                mdPPdLeaderDof( tDofIndex ).fill( 0.0 );
             }
         }
 
@@ -405,7 +405,7 @@ namespace moris
         {
             // get the space jacobian from IP geometry interpolator
             const Matrix< DDRMat >& tInvSpaceJacobian =
-                    mMasterFIManager->get_IP_geometry_interpolator()->inverse_space_jacobian();
+                    mLeaderFIManager->get_IP_geometry_interpolator()->inverse_space_jacobian();
 
             // evaluate Gij = sum_d dxi_d/dx_i dxi_d/dx_j
             this->mEvalGFunc( aG, tInvSpaceJacobian );

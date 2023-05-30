@@ -29,12 +29,12 @@ namespace moris
         real
         compute_chi(
                 const moris::Cell< MSI::Dof_Type >& aViscosityDofGroup,
-                Field_Interpolator_Manager*         aMasterFIManager,
+                Field_Interpolator_Manager*         aLeaderFIManager,
                 const std::shared_ptr< Property >&  aPropKinViscosity )
         {
             // get the viscosity dof FI
             Field_Interpolator* tFIViscosity =
-                    aMasterFIManager->get_field_interpolators_for_type( aViscosityDofGroup( 0 ) );
+                    aLeaderFIManager->get_field_interpolators_for_type( aViscosityDofGroup( 0 ) );
 
             // compute chi
             return tFIViscosity->val()( 0 ) / aPropKinViscosity->val()( 0 );
@@ -45,14 +45,14 @@ namespace moris
         void
         compute_dchidu(
                 const moris::Cell< MSI::Dof_Type >& aViscosityDofGroup,
-                Field_Interpolator_Manager*         aMasterFIManager,
+                Field_Interpolator_Manager*         aLeaderFIManager,
                 const std::shared_ptr< Property >&  aPropKinViscosity,
                 const moris::Cell< MSI::Dof_Type >& aDofTypes,
                 Matrix< DDRMat >&                   adchidu )
         {
             // get the derivative dof FIs
             Field_Interpolator* tDerFI =
-                    aMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+                    aLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init adchidu
             adchidu.set_size( 1, tDerFI->get_number_of_space_time_coefficients(), 0.0 );
@@ -69,7 +69,7 @@ namespace moris
                 // compute chi
                 real tChi = compute_chi(
                         aViscosityDofGroup,
-                        aMasterFIManager,
+                        aLeaderFIManager,
                         aPropKinViscosity );
 
                 // add contribution to derivative
@@ -83,18 +83,18 @@ namespace moris
         void
         compute_dchidx(
                 const moris::Cell< MSI::Dof_Type >& aViscosityDofGroup,
-                Field_Interpolator_Manager*         aMasterFIManager,
+                Field_Interpolator_Manager*         aLeaderFIManager,
                 const std::shared_ptr< Property >&  aPropKinViscosity,
                 Matrix< DDRMat >&                   adchidx )
         {
             // get the viscosity dof FI
             Field_Interpolator* tFIViscosity =
-                    aMasterFIManager->get_field_interpolators_for_type( aViscosityDofGroup( 0 ) );
+                    aLeaderFIManager->get_field_interpolators_for_type( aViscosityDofGroup( 0 ) );
 
             // compute chi
             real tChi = compute_chi(
                     aViscosityDofGroup,
-                    aMasterFIManager,
+                    aLeaderFIManager,
                     aPropKinViscosity );
 
             // compute dchidx
@@ -113,14 +113,14 @@ namespace moris
         void
         compute_dchidxdu(
                 const moris::Cell< MSI::Dof_Type >& aViscosityDofGroup,
-                Field_Interpolator_Manager*         aMasterFIManager,
+                Field_Interpolator_Manager*         aLeaderFIManager,
                 const std::shared_ptr< Property >&  aPropKinViscosity,
                 const moris::Cell< MSI::Dof_Type >& aDofTypes,
                 Matrix< DDRMat >&                   adchidxdu )
         {
             // get the derivative dof FIs
             Field_Interpolator* tDerFI =
-                    aMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+                    aLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // init adchidxdu
             adchidxdu.set_size(
@@ -134,7 +134,7 @@ namespace moris
                 Matrix< DDRMat > tdChidu;
                 compute_dchidu(
                         aViscosityDofGroup,
-                        aMasterFIManager,
+                        aLeaderFIManager,
                         aPropKinViscosity,
                         aDofTypes,
                         tdChidu );
@@ -149,7 +149,7 @@ namespace moris
 
             // get the residual dof FI (here viscosity)
             Field_Interpolator* tFIViscosity =
-                    aMasterFIManager->get_field_interpolators_for_type( aViscosityDofGroup( 0 ) );
+                    aLeaderFIManager->get_field_interpolators_for_type( aViscosityDofGroup( 0 ) );
 
             // if dof type is viscosity
             if ( aDofTypes( 0 ) == aViscosityDofGroup( 0 ) )
@@ -163,7 +163,7 @@ namespace moris
                 // compute chi
                 real tChi = compute_chi(
                         aViscosityDofGroup,
-                        aMasterFIManager,
+                        aLeaderFIManager,
                         aPropKinViscosity );
 
                 adchidxdu -=
@@ -187,13 +187,13 @@ namespace moris
         real
         compute_fv1(
                 const moris::Cell< MSI::Dof_Type >& aViscosityDofGroup,
-                Field_Interpolator_Manager*         aMasterFIManager,
+                Field_Interpolator_Manager*         aLeaderFIManager,
                 const std::shared_ptr< Property >&  aPropKinViscosity )
         {
             // compute chi, chi³
             real tChi = compute_chi(
                     aViscosityDofGroup,
-                    aMasterFIManager,
+                    aLeaderFIManager,
                     aPropKinViscosity );
 
             // compute chi³
@@ -211,7 +211,7 @@ namespace moris
         void
         compute_dfv1du(
                 const moris::Cell< MSI::Dof_Type >& aViscosityDofGroup,
-                Field_Interpolator_Manager*         aMasterFIManager,
+                Field_Interpolator_Manager*         aLeaderFIManager,
                 const std::shared_ptr< Property >&  aPropKinViscosity,
                 const moris::Cell< MSI::Dof_Type >& aDofTypes,
                 Matrix< DDRMat >&                   adfv1du )
@@ -219,14 +219,14 @@ namespace moris
             // compute chi
             real tChi = compute_chi(
                     aViscosityDofGroup,
-                    aMasterFIManager,
+                    aLeaderFIManager,
                     aPropKinViscosity );
 
             // compute dchidu
             Matrix< DDRMat > tdchidu;
             compute_dchidu(
                     aViscosityDofGroup,
-                    aMasterFIManager,
+                    aLeaderFIManager,
                     aPropKinViscosity,
                     aDofTypes,
                     tdchidu );
@@ -253,21 +253,21 @@ namespace moris
         void
         compute_dfv1dx(
                 const moris::Cell< MSI::Dof_Type >& aViscosityDofGroup,
-                Field_Interpolator_Manager*         aMasterFIManager,
+                Field_Interpolator_Manager*         aLeaderFIManager,
                 const std::shared_ptr< Property >&  aPropKinViscosity,
                 Matrix< DDRMat >&                   adfv1dx )
         {
             // compute chi
             real tChi = compute_chi(
                     aViscosityDofGroup,
-                    aMasterFIManager,
+                    aLeaderFIManager,
                     aPropKinViscosity );
 
             // compute dchidx
             Matrix< DDRMat > tdchidx;
             compute_dchidx(
                     aViscosityDofGroup,
-                    aMasterFIManager,
+                    aLeaderFIManager,
                     aPropKinViscosity,
                     tdchidx );
 
@@ -294,7 +294,7 @@ namespace moris
         void
         compute_dfv1dxdu(
                 const moris::Cell< MSI::Dof_Type >& aViscosityDofGroup,
-                Field_Interpolator_Manager*         aMasterFIManager,
+                Field_Interpolator_Manager*         aLeaderFIManager,
                 const std::shared_ptr< Property >&  aPropKinViscosity,
                 const moris::Cell< MSI::Dof_Type >& aDofTypes,
                 Matrix< DDRMat >&                   adfv1dxdu )
@@ -302,7 +302,7 @@ namespace moris
             // compute chi
             real tChi = compute_chi(
                     aViscosityDofGroup,
-                    aMasterFIManager,
+                    aLeaderFIManager,
                     aPropKinViscosity );
 
             // compute chi^2
@@ -318,7 +318,7 @@ namespace moris
             Matrix< DDRMat > tdchidx;
             compute_dchidx(
                     aViscosityDofGroup,
-                    aMasterFIManager,
+                    aLeaderFIManager,
                     aPropKinViscosity,
                     tdchidx );
 
@@ -326,7 +326,7 @@ namespace moris
             Matrix< DDRMat > tdchidu;
             compute_dchidu(
                     aViscosityDofGroup,
-                    aMasterFIManager,
+                    aLeaderFIManager,
                     aPropKinViscosity,
                     aDofTypes,
                     tdchidu );
@@ -335,7 +335,7 @@ namespace moris
             Matrix< DDRMat > tdchidxdu;
             compute_dchidxdu(
                     aViscosityDofGroup,
-                    aMasterFIManager,
+                    aLeaderFIManager,
                     aPropKinViscosity,
                     aDofTypes,
                     tdchidxdu );

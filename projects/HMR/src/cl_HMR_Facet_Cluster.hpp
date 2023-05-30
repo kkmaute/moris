@@ -21,13 +21,13 @@ class Facet;
 
 class Facet_Cluster
 {
-    bool mTrivial; /*! This indicates that the master facet contains all the information (i.e. slave = master)*/
-    Facet const *              mMasterFacet; /*Facet from coarser refinement level*/
-    moris::Cell<Facet const *> mSlaveFacets; /*Facet from finer refinement level*/
+    bool mTrivial; /*! This indicates that the leader facet contains all the information (i.e. follower = leader)*/
+    Facet const *              mLeaderFacet; /*Facet from coarser refinement level*/
+    moris::Cell<Facet const *> mFollowerFacets; /*Facet from finer refinement level*/
     // ----------------------------------------------------------------------------
 public:
     // ----------------------------------------------------------------------------
-    Facet_Cluster():mTrivial(false),mMasterFacet(nullptr),mSlaveFacets(0,nullptr)
+    Facet_Cluster():mTrivial(false),mLeaderFacet(nullptr),mFollowerFacets(0,nullptr)
     {};
     // ----------------------------------------------------------------------------
     /*!
@@ -37,34 +37,34 @@ public:
     mark_trivial(){ mTrivial = true;};
     // ----------------------------------------------------------------------------
     /*!
-     * Add the master facet to cluster
+     * Add the leader facet to cluster
      */
     void
-    add_master_facet(Facet const * aNewMasterFacet)
+    add_leader_facet(Facet const * aNewLeaderFacet)
     {
-        mMasterFacet = aNewMasterFacet;
+        mLeaderFacet = aNewLeaderFacet;
     }
     // ----------------------------------------------------------------------------
     /*!
-     * Add a new slave facet to the cluster
+     * Add a new follower facet to the cluster
      */
     void
-    add_slave_facet(Facet const * aNewSlaveFacet)
+    add_follower_facet(Facet const * aNewFollowerFacet)
     {
-        mSlaveFacets.push_back(aNewSlaveFacet);
+        mFollowerFacets.push_back(aNewFollowerFacet);
     };
     // ----------------------------------------------------------------------------
     /*!
-     * returns the master facet
+     * returns the leader facet
      */
     Facet const *
-    get_hmr_master_facet() { return mMasterFacet; };
+    get_hmr_leader_facet() { return mLeaderFacet; };
     // ----------------------------------------------------------------------------
     /*!
-     * Retrieve the hmr slave facets
+     * Retrieve the hmr follower facets
      */
     moris::Cell<Facet const *> const &
-    get_hmr_slave_facets(){ return mSlaveFacets; };
+    get_hmr_follower_facets(){ return mFollowerFacets; };
     // ----------------------------------------------------------------------------
 };
 }

@@ -958,34 +958,34 @@ namespace moris
 
             Matrix< IndexMat > aIndices;
 
-            if ( tFacet->get_slave() == NULL )
+            if ( tFacet->get_follower() == NULL )
             {
-                if ( tFacet->get_hmr_master()->is_active() )
+                if ( tFacet->get_hmr_leader()->is_active() )
                 {
                     aIndices.set_size( 1, 1 );
-                    aIndices( 0 ) = tFacet->get_hmr_master()->get_index();
+                    aIndices( 0 ) = tFacet->get_hmr_leader()->get_index();
                 }
             }
             else
             {
-                Element* tMaster = tFacet->get_hmr_master();
-                Element* tSlave  = tFacet->get_hmr_slave();
+                Element* tLeader = tFacet->get_hmr_leader();
+                Element* tFollower  = tFacet->get_hmr_follower();
 
-                if ( tMaster->is_active() && tSlave->is_active() )
+                if ( tLeader->is_active() && tFollower->is_active() )
                 {
                     aIndices.set_size( 2, 1 );
-                    aIndices( 0 ) = tMaster->get_index();
-                    aIndices( 1 ) = tSlave->get_index();
+                    aIndices( 0 ) = tLeader->get_index();
+                    aIndices( 1 ) = tFollower->get_index();
                 }
-                else if ( tMaster->is_active() )
+                else if ( tLeader->is_active() )
                 {
                     aIndices.set_size( 1, 1 );
-                    aIndices( 0 ) = tMaster->get_index();
+                    aIndices( 0 ) = tLeader->get_index();
                 }
-                else if ( tSlave->is_active() )
+                else if ( tFollower->is_active() )
                 {
                     aIndices.set_size( 1, 1 );
-                    aIndices( 0 ) = tSlave->get_index();
+                    aIndices( 0 ) = tFollower->get_index();
                 }
             }
 

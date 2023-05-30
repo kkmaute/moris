@@ -30,7 +30,7 @@ namespace moris
             mBeta = aBeta;
 
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Dirichlet" ] = static_cast< uint >( IWG_Property_Type::DIRICHLET );
@@ -38,7 +38,7 @@ namespace moris
             mPropertyMap[ "Upwind" ]    = static_cast< uint >( IWG_Property_Type::UPWIND );
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "IncompressibleFluid" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE );
@@ -55,23 +55,23 @@ namespace moris
         void
         IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::compute_residual( real aWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type, indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
-            // get the master field interpolator for the residual dof type
+            // get the leader field interpolator for the residual dof type
             Field_Interpolator* tFIVelocity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the selection matrix property
             const std::shared_ptr< Property >& tPropSelect =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
             Matrix< DDRMat > tM;
@@ -93,15 +93,15 @@ namespace moris
 
             // get the imposed velocity property
             const std::shared_ptr< Property >& tPropVelocity =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get the upwind property
             const std::shared_ptr< Property >& tPropUpwind =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::UPWIND ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::UPWIND ) );
 
             // get the fluid constitutive model
             const std::shared_ptr< Constitutive_Model >& tCMFluid =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
 
             // get the Nitsche stabilization parameter
             const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
@@ -114,9 +114,9 @@ namespace moris
             // compute the jump
             const auto tVelocityJump = tFIVelocity->val() - tPropVelocity->val();
 
-            // compute master residual
+            // compute leader residual
             mSet->get_residual()( 0 )(
-                    { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) +=                                                //
+                    { tLeaderResStartIndex, tLeaderResStopIndex }, { 0, 0 } ) +=                                                //
                     aWStar * (                                                                                                  //
                             -tFIVelocity->N_trans() * tM * tCMFluid->traction( mNormal )                                        //
                             - mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tVelocityJump    //
@@ -132,7 +132,7 @@ namespace moris
                 const real tDensity = tDensityProp->val()( 0 );
 
                 mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) -=    //
+                        { tLeaderResStartIndex, tLeaderResStopIndex }, { 0, 0 } ) -=    //
                         aWStar * (                                                      //
                                 tPropUpwind->val()( 0 ) * tDensity * tFIVelocity->N_trans() * dot( tFIVelocity->val(), mNormal ) * tM * tVelocityJump );
             }
@@ -148,22 +148,22 @@ namespace moris
         IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::compute_jacobian( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators
+            // check leader field interpolators
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type, indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type, indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
-            // get the master field interpolator for residual dof type
+            // get the leader field interpolator for residual dof type
             Field_Interpolator* tFIVelocity =
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the selection matrix property
             const std::shared_ptr< Property >& tPropSelect =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
             Matrix< DDRMat > tM;
@@ -185,15 +185,15 @@ namespace moris
 
             // get the imposed velocity property
             const std::shared_ptr< Property >& tPropVelocity =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DIRICHLET ) );
 
             // get the upwind property
             const std::shared_ptr< Property >& tPropUpwind =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::UPWIND ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::UPWIND ) );
 
             // get the fluid constitutive model
             const std::shared_ptr< Constitutive_Model >& tCMFluid =
-                    mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_INCOMPRESSIBLE ) );
 
             // get the Nitsche stabilization parameter
             const std::shared_ptr< Stabilization_Parameter >& tSPNitsche =
@@ -202,27 +202,27 @@ namespace moris
             // compute the jump
             const auto tVelocityJump = tFIVelocity->val() - tPropVelocity->val();
 
-            // get number of master dependencies
-            uint tMasterNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+            // get number of leader dependencies
+            uint tLeaderNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
-            // compute the jacobian for indirect dof dependencies through master
-            for ( uint iDOF = 0; iDOF < tMasterNumDofDependencies; iDOF++ )
+            // compute the jacobian for indirect dof dependencies through leader
+            for ( uint iDOF = 0; iDOF < tLeaderNumDofDependencies; iDOF++ )
             {
                 // get the dof type
-                const Cell< MSI::Dof_Type >& tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                const Cell< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for the dof type
-                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 0 );
+                uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
 
                 // if dof type is residual dof type
                 if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                 {
                     // compute jacobian direct dependencies
                     mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=                                                            //
+                            { tLeaderResStartIndex, tLeaderResStopIndex },
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=                                                            //
                             aWStar * (                                                                                                    //
                                     -mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tFIVelocity->N()    //
                                     + tSPNitsche->val()( 0 ) * tFIVelocity->N_trans() * tM * tFIVelocity->N() );
@@ -233,8 +233,8 @@ namespace moris
                 {
                     // add contribution from property to jacobian
                     mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) -=                                                                                //
+                            { tLeaderResStartIndex, tLeaderResStopIndex },
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -=                                                                                //
                             aWStar * (                                                                                                                        //
                                     -mBeta * trans( tCMFluid->testTraction( mNormal, mResidualDofType( 0 ) ) ) * tM * tPropVelocity->dPropdDOF( tDofType )    //
                                     + tSPNitsche->val()( 0 ) * tFIVelocity->N_trans() * tM * tPropVelocity->dPropdDOF( tDofType ) );
@@ -245,8 +245,8 @@ namespace moris
                 {
                     // add contribution of CM to jacobian
                     mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=                                     //
+                            { tLeaderResStartIndex, tLeaderResStopIndex },
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=                                     //
                             aWStar * (                                                                             //
                                     -tFIVelocity->N_trans() * tM * tCMFluid->dTractiondDOF( tDofType, mNormal )    //
                                     - mBeta * tCMFluid->dTestTractiondDOF( tDofType, mNormal, tM * tVelocityJump, mResidualDofType( 0 ) ) );
@@ -257,10 +257,10 @@ namespace moris
                 {
                     // add contribution of SP to jacobian
                     mSet->get_jacobian()(
-                            { tMasterResStartIndex, tMasterResStopIndex },
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=    //
+                            { tLeaderResStartIndex, tLeaderResStopIndex },
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=    //
                             aWStar * (                                            //
-                                    tFIVelocity->N_trans() * tM * tVelocityJump * tSPNitsche->dSPdMasterDOF( tDofType ) );
+                                    tFIVelocity->N_trans() * tM * tVelocityJump * tSPNitsche->dSPdLeaderDOF( tDofType ) );
                 }
 
                 // if upwind
@@ -276,8 +276,8 @@ namespace moris
                     if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
                     {
                         mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -=                            //
+                                { tLeaderResStartIndex, tLeaderResStopIndex },
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -=                            //
                                 aWStar * (                                                                    //
                                         tPropUpwind->val()( 0 ) * tDensity * tFIVelocity->N_trans() * (       //
                                                 dot( tFIVelocity->val(), mNormal ) * tM * tFIVelocity->N()    //
@@ -288,8 +288,8 @@ namespace moris
                     if ( tPropVelocity->check_dof_dependency( tDofType ) )
                     {
                         mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) +=                       //
+                                { tLeaderResStartIndex, tLeaderResStopIndex },
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=                       //
                                 aWStar * (                                                               //
                                         tPropUpwind->val()( 0 ) * tDensity * tFIVelocity->N_trans() *    //
                                         dot( tFIVelocity->val(), mNormal ) * tM * tPropVelocity->dPropdDOF( tDofType ) );
@@ -300,8 +300,8 @@ namespace moris
                     {
                         // add contribution of SP to jacobian
                         mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -=                                  //
+                                { tLeaderResStartIndex, tLeaderResStopIndex },
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -=                                  //
                                 aWStar * (                                                                          //
                                         tFIVelocity->N_trans() * tDensity * dot( tFIVelocity->val(), mNormal ) *    //
                                         tM * tVelocityJump * tPropUpwind->dPropdDOF( tDofType ) );
@@ -311,8 +311,8 @@ namespace moris
                     if ( tDensityProp->check_dof_dependency( tDofType ) )
                     {
                         mSet->get_jacobian()(
-                                { tMasterResStartIndex, tMasterResStopIndex },
-                                { tMasterDepStartIndex, tMasterDepStopIndex } ) -=                                                 //
+                                { tLeaderResStartIndex, tLeaderResStopIndex },
+                                { tLeaderDepStartIndex, tLeaderDepStopIndex } ) -=                                                 //
                                 aWStar * (                                                                                         //
                                         tFIVelocity->N_trans() * tPropUpwind->val()( 0 ) * dot( tFIVelocity->val(), mNormal ) *    //
                                         tM * tVelocityJump * tDensityProp->dPropdDOF( tDofType ) );
@@ -331,7 +331,7 @@ namespace moris
         IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators
+            // check leader field interpolators
             this->check_field_interpolators();
 #endif
 
@@ -344,7 +344,7 @@ namespace moris
         IWG_Incompressible_NS_Velocity_Dirichlet_Nitsche::compute_dRdp( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators, properties and constitutive models
+            // check leader field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 

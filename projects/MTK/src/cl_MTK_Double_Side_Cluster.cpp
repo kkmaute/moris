@@ -17,8 +17,8 @@ namespace moris
     namespace mtk
     {
         Double_Side_Cluster::Double_Side_Cluster()
-        :mMasterSideCluster(nullptr),
-         mSlaveSideCluster(nullptr)
+        :mLeaderSideCluster(nullptr),
+         mFollowerSideCluster(nullptr)
         {
 
         }
@@ -30,38 +30,38 @@ namespace moris
         //----------------------------------------------------------------------------------
 
         Double_Side_Cluster::Double_Side_Cluster(
-                moris::mtk::Cluster const *                      aMasterSideCluster,
-                moris::mtk::Cluster const *                      aSlaveSideCluster,
+                moris::mtk::Cluster const *                      aLeaderSideCluster,
+                moris::mtk::Cluster const *                      aFollowerSideCluster,
                 moris::Cell<moris::mtk::Vertex const *> const & aLeftToRightVertexPair )
-        : mMasterSideCluster(aMasterSideCluster),
-          mSlaveSideCluster(aSlaveSideCluster)
+        : mLeaderSideCluster(aLeaderSideCluster),
+          mFollowerSideCluster(aFollowerSideCluster)
         {
             // This check prohibits the construction of double side interfaces between child meshes therefore it is being removed.
-            // if(!this->is_master_trivial())
+            // if(!this->is_leader_trivial())
             // {
-                // MORIS_ASSERT(this->get_master_num_vertices_in_cluster() == this->get_slave_num_vertices_in_cluster(),"Number of vertices mismatch in double cluster");
+                // MORIS_ASSERT(this->get_leader_num_vertices_in_cluster() == this->get_follower_num_vertices_in_cluster(),"Number of vertices mismatch in double cluster");
             // }
 
-            mMasterToSlaveVertexPairs.append(aLeftToRightVertexPair);
+            mLeaderToFollowerVertexPairs.append(aLeftToRightVertexPair);
         }
 
         //----------------------------------------------------------------------------------
 
         bool
         Double_Side_Cluster::is_trivial(
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
-            if ( aIsMaster == mtk::Master_Slave::MASTER )
+            if ( aIsLeader == mtk::Leader_Follower::LEADER )
             {
-                return this->get_master_side_cluster().is_trivial();
+                return this->get_leader_side_cluster().is_trivial();
             }
-            else if( aIsMaster == mtk::Master_Slave::SLAVE )
+            else if( aIsLeader == mtk::Leader_Follower::FOLLOWER )
             {
-                return this->get_slave_side_cluster().is_trivial();
+                return this->get_follower_side_cluster().is_trivial();
             }
             else
             {
-                MORIS_ERROR(false, "is_trivial(): can only be MASTER or SLAVE");
+                MORIS_ERROR(false, "is_trivial(): can only be LEADER or FOLLOWER");
                 return false;
             }
         }
@@ -69,49 +69,49 @@ namespace moris
         //----------------------------------------------------------------------------------
 
         bool
-        Double_Side_Cluster::is_master_trivial() const
+        Double_Side_Cluster::is_leader_trivial() const
         {
-            return this->get_master_side_cluster().is_trivial();
+            return this->get_leader_side_cluster().is_trivial();
         }
 
         //----------------------------------------------------------------------------------
 
         bool
-        Double_Side_Cluster::is_slave_trivial() const
+        Double_Side_Cluster::is_follower_trivial() const
         {
-            return this->get_slave_side_cluster().is_trivial();
+            return this->get_follower_side_cluster().is_trivial();
 
         }
 
         //----------------------------------------------------------------------------------
 
         moris::mtk::Cluster const &
-        Double_Side_Cluster::get_master_side_cluster() const
+        Double_Side_Cluster::get_leader_side_cluster() const
         {
-            return *mMasterSideCluster;
+            return *mLeaderSideCluster;
         }
 
         //----------------------------------------------------------------------------------
 
         moris::mtk::Cluster const &
-        Double_Side_Cluster::get_slave_side_cluster() const
+        Double_Side_Cluster::get_follower_side_cluster() const
         {
-            return *mSlaveSideCluster;
+            return *mFollowerSideCluster;
         }
 
         //----------------------------------------------------------------------------------
 
         moris::mtk::Cluster const &
         Double_Side_Cluster::get_cluster(
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
-            if(aIsMaster == mtk::Master_Slave::MASTER)
+            if(aIsLeader == mtk::Leader_Follower::LEADER)
             {
-                return this->get_master_side_cluster();
+                return this->get_leader_side_cluster();
             }
             else
             {
-                return this->get_slave_side_cluster();
+                return this->get_follower_side_cluster();
             }
         }
 
@@ -119,22 +119,22 @@ namespace moris
         //----------------------------------------------------------------------------------
 
         moris::mtk::Vertex const *
-        Double_Side_Cluster::get_master_vertex_pair(
-                moris::mtk::Vertex const * aMasterVertex) const
+        Double_Side_Cluster::get_leader_vertex_pair(
+                moris::mtk::Vertex const * aLeaderVertex) const
         {
-            moris_index tMasterClusterIndex = this->get_master_side_cluster().get_vertex_cluster_index(aMasterVertex);
+            moris_index tLeaderClusterIndex = this->get_leader_side_cluster().get_vertex_cluster_index(aLeaderVertex);
 
-            MORIS_ASSERT(tMasterClusterIndex < (moris_index)mMasterToSlaveVertexPairs.size(),"Vertex index out of bounds in pairing.");
+            MORIS_ASSERT(tLeaderClusterIndex < (moris_index)mLeaderToFollowerVertexPairs.size(),"Vertex index out of bounds in pairing.");
 
-            return mMasterToSlaveVertexPairs(tMasterClusterIndex);
+            return mLeaderToFollowerVertexPairs(tLeaderClusterIndex);
         }
 
         //----------------------------------------------------------------------------------
 
         moris::Cell<moris::mtk::Vertex const *> const &
-        Double_Side_Cluster::get_master_vertex_pairs() const
+        Double_Side_Cluster::get_leader_vertex_pairs() const
         {
-             return mMasterToSlaveVertexPairs;
+             return mLeaderToFollowerVertexPairs;
         }
 
 
@@ -144,19 +144,19 @@ namespace moris
         moris_index
         Double_Side_Cluster::get_vertex_cluster_index(
                 const Vertex * aVertex,
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
-            if ( aIsMaster == mtk::Master_Slave::MASTER )
+            if ( aIsLeader == mtk::Leader_Follower::LEADER )
             {
-                return this->get_master_side_cluster().get_vertex_cluster_index( aVertex );
+                return this->get_leader_side_cluster().get_vertex_cluster_index( aVertex );
             }
-            else if( aIsMaster == mtk::Master_Slave::SLAVE )
+            else if( aIsLeader == mtk::Leader_Follower::FOLLOWER )
             {
-                return this->get_slave_side_cluster().get_vertex_cluster_index( aVertex );
+                return this->get_follower_side_cluster().get_vertex_cluster_index( aVertex );
             }
             else
             {
-                MORIS_ERROR(false, "get_vertex_cluster_index(): can only be MASTER and SLAVE");
+                MORIS_ERROR(false, "get_vertex_cluster_index(): can only be LEADER and FOLLOWER");
                 return 0;
             }
         }
@@ -166,59 +166,59 @@ namespace moris
 
         moris::mtk::Cell const &
         Double_Side_Cluster::get_interpolation_cell(
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
-            if ( aIsMaster == mtk::Master_Slave::MASTER )
+            if ( aIsLeader == mtk::Leader_Follower::LEADER )
             {
-                return this->get_master_side_cluster().get_interpolation_cell();
+                return this->get_leader_side_cluster().get_interpolation_cell();
             }
-            else if( aIsMaster == mtk::Master_Slave::SLAVE )
+            else if( aIsLeader == mtk::Leader_Follower::FOLLOWER )
             {
-                return this->get_slave_side_cluster().get_interpolation_cell();
+                return this->get_follower_side_cluster().get_interpolation_cell();
             }
             else
             {
                 MORIS_ERROR(false, "get_interpolation_cell(): can only be 0 and 1");
                 
                 //This function will be never be used
-                return this->get_master_side_cluster().get_interpolation_cell();
+                return this->get_leader_side_cluster().get_interpolation_cell();
             }
         }
 
         //----------------------------------------------------------------------------------
 
         moris::mtk::Cell const &
-        Double_Side_Cluster::get_master_interpolation_cell() const
+        Double_Side_Cluster::get_leader_interpolation_cell() const
         {
-            return this->get_master_side_cluster().get_interpolation_cell();
+            return this->get_leader_side_cluster().get_interpolation_cell();
         }
 
 
         //----------------------------------------------------------------------------------
 
         moris::mtk::Cell const &
-        Double_Side_Cluster::get_slave_interpolation_cell() const
+        Double_Side_Cluster::get_follower_interpolation_cell() const
         {
-            return this->get_slave_side_cluster().get_interpolation_cell();
+            return this->get_follower_side_cluster().get_interpolation_cell();
         }
 
         //----------------------------------------------------------------------------------
 
         moris::Cell<mtk::Cell const *> const &
         Double_Side_Cluster::get_primary_cells_in_cluster(
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
-            if ( aIsMaster == mtk::Master_Slave::MASTER )
+            if ( aIsLeader == mtk::Leader_Follower::LEADER )
             {
-                return this->get_master_side_cluster().get_primary_cells_in_cluster();
+                return this->get_leader_side_cluster().get_primary_cells_in_cluster();
             }
-            else if( aIsMaster ==  mtk::Master_Slave::SLAVE )
+            else if( aIsLeader ==  mtk::Leader_Follower::FOLLOWER )
             {
-                return this->get_slave_side_cluster().get_primary_cells_in_cluster();
+                return this->get_follower_side_cluster().get_primary_cells_in_cluster();
             }
             else
             {
-                MORIS_ERROR(false, "get_primary_cells_in_cluster(): can only be MASTER and SLAVE");
+                MORIS_ERROR(false, "get_primary_cells_in_cluster(): can only be LEADER and FOLLOWER");
                 
                 //create a dummy cell that never will be generated
                 moris::Cell< mtk::Cell const * > *tDummyCell = new moris::Cell< mtk::Cell const * >( 0 );
@@ -229,36 +229,36 @@ namespace moris
         //----------------------------------------------------------------------------------
 
         moris::Cell<mtk::Cell const *> const &
-        Double_Side_Cluster::get_master_integration_cells() const
+        Double_Side_Cluster::get_leader_integration_cells() const
         {
-            return this->get_master_side_cluster().get_primary_cells_in_cluster();
+            return this->get_leader_side_cluster().get_primary_cells_in_cluster();
         }
 
         //----------------------------------------------------------------------------------
 
         moris::Cell<mtk::Cell const *> const &
-        Double_Side_Cluster::get_slave_integration_cells() const
+        Double_Side_Cluster::get_follower_integration_cells() const
         {
-            return this->get_slave_side_cluster().get_primary_cells_in_cluster();
+            return this->get_follower_side_cluster().get_primary_cells_in_cluster();
         }
 
         //----------------------------------------------------------------------------------
 
         moris::Matrix<moris::IndexMat>
         Double_Side_Cluster::get_cell_side_ordinals(
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
-            if ( aIsMaster == mtk::Master_Slave::MASTER )
+            if ( aIsLeader == mtk::Leader_Follower::LEADER )
             {
-                return this->get_master_side_cluster().get_cell_side_ordinals();
+                return this->get_leader_side_cluster().get_cell_side_ordinals();
             }
-            else if( aIsMaster == mtk::Master_Slave::SLAVE )
+            else if( aIsLeader == mtk::Leader_Follower::FOLLOWER )
             {
-                return this->get_slave_side_cluster().get_cell_side_ordinals();
+                return this->get_follower_side_cluster().get_cell_side_ordinals();
             }
             else
             {
-                MORIS_ERROR(false, "get_cell_side_ordinals(): can only be MASTER and SLAVE");
+                MORIS_ERROR(false, "get_cell_side_ordinals(): can only be LEADER and FOLLOWER");
                 return moris::Matrix<moris::IndexMat>(0,0);
             }
         }
@@ -268,19 +268,19 @@ namespace moris
         moris_index
         Double_Side_Cluster::get_cell_side_ordinal(
                 moris::moris_index aCellIndexInCluster,
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
-            if ( aIsMaster == mtk::Master_Slave::MASTER )
+            if ( aIsLeader == mtk::Leader_Follower::LEADER )
             {
-                return this->get_master_side_cluster().get_cell_side_ordinal(aCellIndexInCluster);
+                return this->get_leader_side_cluster().get_cell_side_ordinal(aCellIndexInCluster);
             }
-            else if( aIsMaster == mtk::Master_Slave::SLAVE )
+            else if( aIsLeader == mtk::Leader_Follower::FOLLOWER )
             {
-                return this->get_slave_side_cluster().get_cell_side_ordinal(aCellIndexInCluster);
+                return this->get_follower_side_cluster().get_cell_side_ordinal(aCellIndexInCluster);
             }
             else
             {
-                MORIS_ERROR(false, "get_cell_side_ordinal(): can only be MASTER and SLAVE");
+                MORIS_ERROR(false, "get_cell_side_ordinal(): can only be LEADER and FOLLOWER");
                 return 0;
             }
         }
@@ -288,55 +288,55 @@ namespace moris
         //----------------------------------------------------------------------------------
 
         moris::Matrix<moris::IndexMat>
-        Double_Side_Cluster::get_master_integration_cell_side_ordinals() const
+        Double_Side_Cluster::get_leader_integration_cell_side_ordinals() const
         {
-            return this->get_master_side_cluster().get_cell_side_ordinals();
+            return this->get_leader_side_cluster().get_cell_side_ordinals();
         }
 
         //----------------------------------------------------------------------------------
 
         moris_index
-        Double_Side_Cluster::get_master_cell_side_ordinal(
-                moris::moris_index aMasterCellIndexInCluster ) const
+        Double_Side_Cluster::get_leader_cell_side_ordinal(
+                moris::moris_index aLeaderCellIndexInCluster ) const
         {
-            return this->get_master_side_cluster().get_cell_side_ordinal(aMasterCellIndexInCluster);
+            return this->get_leader_side_cluster().get_cell_side_ordinal(aLeaderCellIndexInCluster);
         }
 
         //----------------------------------------------------------------------------------
 
         moris::Matrix<moris::IndexMat>
-        Double_Side_Cluster::get_slave_integration_cell_side_ordinals() const
+        Double_Side_Cluster::get_follower_integration_cell_side_ordinals() const
         {
-            return this->get_slave_side_cluster().get_cell_side_ordinals();
+            return this->get_follower_side_cluster().get_cell_side_ordinals();
         }
 
 
         //----------------------------------------------------------------------------------
 
         moris_index
-        Double_Side_Cluster::get_slave_cell_side_ordinal(
-                moris::moris_index aSlaveCellIndexInCluster ) const
+        Double_Side_Cluster::get_follower_cell_side_ordinal(
+                moris::moris_index aFollowerCellIndexInCluster ) const
         {
-            return this->get_slave_side_cluster().get_cell_side_ordinal(aSlaveCellIndexInCluster);
+            return this->get_follower_side_cluster().get_cell_side_ordinal(aFollowerCellIndexInCluster);
         }
 
         //----------------------------------------------------------------------------------
 
         moris::Cell<moris::mtk::Vertex const *>
         Double_Side_Cluster::get_vertices_in_cluster(
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
-            if ( aIsMaster == mtk::Master_Slave::MASTER )
+            if ( aIsLeader == mtk::Leader_Follower::LEADER )
             {
-                return this->get_master_side_cluster().get_vertices_in_cluster();
+                return this->get_leader_side_cluster().get_vertices_in_cluster();
             }
-            else if( aIsMaster == mtk::Master_Slave::SLAVE )
+            else if( aIsLeader == mtk::Leader_Follower::FOLLOWER )
             {
-                return this->get_slave_side_cluster().get_vertices_in_cluster();
+                return this->get_follower_side_cluster().get_vertices_in_cluster();
             }
             else
             {
-                MORIS_ERROR(false, "get_vertices_in_cluster(): can only be MASTER and SLAVE");
+                MORIS_ERROR(false, "get_vertices_in_cluster(): can only be LEADER and FOLLOWER");
                 
                 return moris::Cell<moris::mtk::Vertex const *>(0);
             }
@@ -345,43 +345,43 @@ namespace moris
         //----------------------------------------------------------------------------------
 
         moris::Cell<moris::mtk::Vertex const *>
-        Double_Side_Cluster::get_master_vertices_in_cluster() const
+        Double_Side_Cluster::get_leader_vertices_in_cluster() const
         {
-            return this->get_master_side_cluster().get_vertices_in_cluster();
+            return this->get_leader_side_cluster().get_vertices_in_cluster();
         }
 
         //----------------------------------------------------------------------------------
 
         moris::Cell<moris::mtk::Vertex const *>
-        Double_Side_Cluster::get_slave_vertices_in_cluster() const
+        Double_Side_Cluster::get_follower_vertices_in_cluster() const
         {
-            return this->get_slave_side_cluster().get_vertices_in_cluster();
+            return this->get_follower_side_cluster().get_vertices_in_cluster();
         }
 
         //----------------------------------------------------------------------------------
 
         moris_index
-        Double_Side_Cluster::get_slave_vertex_ord_on_facet(
+        Double_Side_Cluster::get_follower_vertex_ord_on_facet(
                 moris_index                aCellClusterIndex,
-                moris::mtk::Vertex const * aSlaveVertex       ) const
+                moris::mtk::Vertex const * aFollowerVertex       ) const
         {
-            return mSlaveSideCluster->get_vertex_ordinal_on_facet(aCellClusterIndex,aSlaveVertex);
+            return mFollowerSideCluster->get_vertex_ordinal_on_facet(aCellClusterIndex,aFollowerVertex);
         }
 
         //----------------------------------------------------------------------------------
 
         moris::Matrix<moris::IndexMat>
-        Double_Side_Cluster::get_master_vertex_indices_in_cluster() const
+        Double_Side_Cluster::get_leader_vertex_indices_in_cluster() const
         {
-            return this->get_master_side_cluster().get_vertex_indices_in_cluster();
+            return this->get_leader_side_cluster().get_vertex_indices_in_cluster();
         }
 
         //----------------------------------------------------------------------------------
 
         moris::Matrix<moris::IndexMat>
-        Double_Side_Cluster::get_slave_vertex_indices_in_cluster() const
+        Double_Side_Cluster::get_follower_vertex_indices_in_cluster() const
         {
-            return this->get_slave_side_cluster().get_vertex_indices_in_cluster();
+            return this->get_follower_side_cluster().get_vertex_indices_in_cluster();
         }
 
         //----------------------------------------------------------------------------------
@@ -391,24 +391,24 @@ namespace moris
         {
 
             // number of cells in cluster
-            moris::uint tMasterNumVertices = mMasterSideCluster->get_num_vertices_in_cluster();
-            moris::uint tSlaveNumVertices = mSlaveSideCluster->get_num_vertices_in_cluster();
+            moris::uint tLeaderNumVertices = mLeaderSideCluster->get_num_vertices_in_cluster();
+            moris::uint tFollowerNumVertices = mFollowerSideCluster->get_num_vertices_in_cluster();
 
             // access the vertices in a side cluster
-            moris::Cell<moris::mtk::Vertex const *> tMasterVertices = mMasterSideCluster->get_vertices_in_cluster();
-            moris::Cell<moris::mtk::Vertex const *> const & tSlaveVertices = mSlaveSideCluster->get_vertices_in_cluster();
+            moris::Cell<moris::mtk::Vertex const *> tLeaderVertices = mLeaderSideCluster->get_vertices_in_cluster();
+            moris::Cell<moris::mtk::Vertex const *> const & tFollowerVertices = mFollowerSideCluster->get_vertices_in_cluster();
 
             // initialize output
-            moris::Matrix<moris::IndexMat> tVertexIndices(1,tMasterNumVertices+tSlaveNumVertices);
+            moris::Matrix<moris::IndexMat> tVertexIndices(1,tLeaderNumVertices+tFollowerNumVertices);
 
             // get cell indices and store
-            for(moris::uint i = 0 ; i < tMasterNumVertices; i++)
+            for(moris::uint i = 0 ; i < tLeaderNumVertices; i++)
             {
-                tVertexIndices(i) = tMasterVertices(i)->get_index();
+                tVertexIndices(i) = tLeaderVertices(i)->get_index();
             }
-            for(moris::uint i = 0 ; i < tSlaveNumVertices; i++)
+            for(moris::uint i = 0 ; i < tFollowerNumVertices; i++)
             {
-                tVertexIndices(tMasterNumVertices + i) = tSlaveVertices(i)->get_index();
+                tVertexIndices(tLeaderNumVertices + i) = tFollowerVertices(i)->get_index();
             }
 
             return tVertexIndices;
@@ -418,19 +418,19 @@ namespace moris
         //----------------------------------------------------------------------------------
 
         moris::Matrix<moris::DDRMat>
-        Double_Side_Cluster::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster ) const
+        Double_Side_Cluster::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Leader_Follower aIsLeader ) const
         {
-            if ( aIsMaster == mtk::Master_Slave::MASTER )
+            if ( aIsLeader == mtk::Leader_Follower::LEADER )
             {
-                return this->get_master_side_cluster().get_vertices_local_coordinates_wrt_interp_cell();
+                return this->get_leader_side_cluster().get_vertices_local_coordinates_wrt_interp_cell();
             }
-            else if( aIsMaster == mtk::Master_Slave::SLAVE )
+            else if( aIsLeader == mtk::Leader_Follower::FOLLOWER )
             {
-                return this->get_slave_side_cluster().get_vertices_local_coordinates_wrt_interp_cell();
+                return this->get_follower_side_cluster().get_vertices_local_coordinates_wrt_interp_cell();
             }
             else
             {
-                MORIS_ERROR(false, "get_vertices_local_coordinates_wrt_interp_cell(): can only be MASTER and SLAVE");
+                MORIS_ERROR(false, "get_vertices_local_coordinates_wrt_interp_cell(): can only be LEADER and FOLLOWER");
                 
                 return {{}};
             }
@@ -440,17 +440,17 @@ namespace moris
         //----------------------------------------------------------------------------------
 
         moris::Matrix<moris::DDRMat>
-        Double_Side_Cluster::get_master_vertices_local_coordinates_wrt_interp_cell() const
+        Double_Side_Cluster::get_leader_vertices_local_coordinates_wrt_interp_cell() const
         {
-            return this->get_master_side_cluster().get_vertices_local_coordinates_wrt_interp_cell();
+            return this->get_leader_side_cluster().get_vertices_local_coordinates_wrt_interp_cell();
         }
 
         //----------------------------------------------------------------------------------
 
         moris::Matrix<moris::DDRMat>
-        Double_Side_Cluster::get_slave_vertices_local_coordinates_wrt_interp_cell() const
+        Double_Side_Cluster::get_follower_vertices_local_coordinates_wrt_interp_cell() const
         {
-            return this->get_slave_side_cluster().get_vertices_local_coordinates_wrt_interp_cell();
+            return this->get_follower_side_cluster().get_vertices_local_coordinates_wrt_interp_cell();
         }
 
 
@@ -458,19 +458,19 @@ namespace moris
 
         moris::Matrix<moris::DDRMat>
         Double_Side_Cluster::get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
-            if ( aIsMaster == mtk::Master_Slave::MASTER )
+            if ( aIsLeader == mtk::Leader_Follower::LEADER )
             {
-                return this->get_master_side_cluster().get_vertex_local_coordinate_wrt_interp_cell(aVertex);
+                return this->get_leader_side_cluster().get_vertex_local_coordinate_wrt_interp_cell(aVertex);
             }
-            else if( aIsMaster == mtk::Master_Slave::SLAVE )
+            else if( aIsLeader == mtk::Leader_Follower::FOLLOWER )
             {
-                return this->get_slave_side_cluster().get_vertex_local_coordinate_wrt_interp_cell(aVertex);
+                return this->get_follower_side_cluster().get_vertex_local_coordinate_wrt_interp_cell(aVertex);
             }
             else
             {
-                MORIS_ERROR(false, "get_vertex_local_coordinate_wrt_interp_cell(): can only be MASTER and SLAVE");
+                MORIS_ERROR(false, "get_vertex_local_coordinate_wrt_interp_cell(): can only be LEADER and FOLLOWER");
                 return moris::Matrix<moris::DDRMat>(0,0);
             }
         }
@@ -478,19 +478,19 @@ namespace moris
         //----------------------------------------------------------------------------------
 
         moris::Matrix<moris::DDRMat>
-        Double_Side_Cluster::get_master_vertex_local_coordinate_wrt_interp_cell(
+        Double_Side_Cluster::get_leader_vertex_local_coordinate_wrt_interp_cell(
                 moris::mtk::Vertex const * aVertex ) const
         {
-            return this->get_master_side_cluster().get_vertex_local_coordinate_wrt_interp_cell(aVertex);
+            return this->get_leader_side_cluster().get_vertex_local_coordinate_wrt_interp_cell(aVertex);
         }
 
         //----------------------------------------------------------------------------------
 
         moris::Matrix<moris::DDRMat>
-        Double_Side_Cluster::get_slave_vertex_local_coordinate_wrt_interp_cell(
+        Double_Side_Cluster::get_follower_vertex_local_coordinate_wrt_interp_cell(
                 moris::mtk::Vertex const * aVertex ) const
         {
-            return this->get_slave_side_cluster().get_vertex_local_coordinate_wrt_interp_cell(aVertex);
+            return this->get_follower_side_cluster().get_vertex_local_coordinate_wrt_interp_cell(aVertex);
         }
 
         //----------------------------------------------------------------------------------
@@ -498,19 +498,19 @@ namespace moris
         moris::Matrix<moris::DDRMat>
         Double_Side_Cluster::get_cell_local_coords_on_side_wrt_interp_cell(
                 moris::moris_index      aClusterLocalIndex,
-                const mtk::Master_Slave aIsMaster           ) const
+                const mtk::Leader_Follower aIsLeader           ) const
         {
-            if ( aIsMaster == mtk::Master_Slave::MASTER )
+            if ( aIsLeader == mtk::Leader_Follower::LEADER )
             {
-                return this->get_master_side_cluster().get_cell_local_coords_on_side_wrt_interp_cell(aClusterLocalIndex);
+                return this->get_leader_side_cluster().get_cell_local_coords_on_side_wrt_interp_cell(aClusterLocalIndex);
             }
-            else if( aIsMaster == mtk::Master_Slave::SLAVE )
+            else if( aIsLeader == mtk::Leader_Follower::FOLLOWER )
             {
-                return this->get_slave_side_cluster().get_cell_local_coords_on_side_wrt_interp_cell(aClusterLocalIndex);
+                return this->get_follower_side_cluster().get_cell_local_coords_on_side_wrt_interp_cell(aClusterLocalIndex);
             }
             else
             {
-                MORIS_ERROR(false, "get_cell_local_coords_on_side_wrt_interp_cell(): can only be MASTER and SLAVE");
+                MORIS_ERROR(false, "get_cell_local_coords_on_side_wrt_interp_cell(): can only be LEADER and FOLLOWER");
                 return moris::Matrix<moris::DDRMat>(0,0);
             }
         }
@@ -518,38 +518,38 @@ namespace moris
         //----------------------------------------------------------------------------------
 
         moris::Matrix<moris::DDRMat>
-        Double_Side_Cluster::get_master_cell_local_coords_on_side_wrt_interp_cell(
-                moris::moris_index aMasterClusterLocalIndex) const
+        Double_Side_Cluster::get_leader_cell_local_coords_on_side_wrt_interp_cell(
+                moris::moris_index aLeaderClusterLocalIndex) const
         {
-            return this->get_master_side_cluster().get_cell_local_coords_on_side_wrt_interp_cell(aMasterClusterLocalIndex);
+            return this->get_leader_side_cluster().get_cell_local_coords_on_side_wrt_interp_cell(aLeaderClusterLocalIndex);
         }
 
         //----------------------------------------------------------------------------------
 
         moris::Matrix<moris::DDRMat>
-        Double_Side_Cluster::get_slave_cell_local_coords_on_side_wrt_interp_cell(
-                moris::moris_index aSlaveClusterLocalIndex) const
+        Double_Side_Cluster::get_follower_cell_local_coords_on_side_wrt_interp_cell(
+                moris::moris_index aFollowerClusterLocalIndex) const
         {
-            return this->get_slave_side_cluster().get_cell_local_coords_on_side_wrt_interp_cell(aSlaveClusterLocalIndex);
+            return this->get_follower_side_cluster().get_cell_local_coords_on_side_wrt_interp_cell(aFollowerClusterLocalIndex);
         }
 
         //----------------------------------------------------------------------------------
 
         moris_index
         Double_Side_Cluster::get_dim_of_param_coord(
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
-            if ( aIsMaster == mtk::Master_Slave::MASTER )
+            if ( aIsLeader == mtk::Leader_Follower::LEADER )
             {
-                return this->get_master_side_cluster().get_dim_of_param_coord();
+                return this->get_leader_side_cluster().get_dim_of_param_coord();
             }
-            else if( aIsMaster == mtk::Master_Slave::SLAVE )
+            else if( aIsLeader == mtk::Leader_Follower::FOLLOWER )
             {
-                return this->get_slave_side_cluster().get_dim_of_param_coord();
+                return this->get_follower_side_cluster().get_dim_of_param_coord();
             }
             else
             {
-                MORIS_ERROR(false, "get_dim_of_param_coord(): can only be MASTER and SLAVE");
+                MORIS_ERROR(false, "get_dim_of_param_coord(): can only be LEADER and FOLLOWER");
                 return 0;
             }
         }
@@ -559,11 +559,11 @@ namespace moris
         moris::real
         Double_Side_Cluster::compute_cluster_cell_measure(
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster       ) const
+                const mtk::Leader_Follower aIsLeader       ) const
         {
-            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsMaster);
+            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsLeader);
 
-            return tCluster.compute_cluster_cell_measure(aPrimaryOrVoid,aIsMaster);
+            return tCluster.compute_cluster_cell_measure(aPrimaryOrVoid,aIsLeader);
         }
 
         //----------------------------------------------------------------------------------
@@ -572,11 +572,11 @@ namespace moris
         Double_Side_Cluster::compute_cluster_group_cell_measure(
                 const moris_index       aDiscretizationMeshIndex,
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster       ) const
+                const mtk::Leader_Follower aIsLeader       ) const
         {
-            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsMaster);
+            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsLeader);
 
-            return tCluster.compute_cluster_group_cell_measure( aDiscretizationMeshIndex, aPrimaryOrVoid, aIsMaster );
+            return tCluster.compute_cluster_group_cell_measure( aDiscretizationMeshIndex, aPrimaryOrVoid, aIsLeader );
         }
 
         //----------------------------------------------------------------------------------
@@ -584,11 +584,11 @@ namespace moris
         Matrix<DDRMat>
         Double_Side_Cluster::compute_cluster_ig_cell_measures(
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster       ) const
+                const mtk::Leader_Follower aIsLeader       ) const
         {
-            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsMaster);
+            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsLeader);
 
-            return tCluster.compute_cluster_ig_cell_measures(aPrimaryOrVoid,aIsMaster);
+            return tCluster.compute_cluster_ig_cell_measures(aPrimaryOrVoid,aIsLeader);
         }
 
         //----------------------------------------------------------------------------------
@@ -598,14 +598,14 @@ namespace moris
                 const Matrix< DDRMat > & aPerturbedVertexCoords,
                 uint aDirection,
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
-            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsMaster);
+            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsLeader);
             return tCluster.compute_cluster_cell_measure_derivative(
                     aPerturbedVertexCoords,
                     aDirection,
                     aPrimaryOrVoid,
-                    aIsMaster );
+                    aIsLeader );
         }
 
         //----------------------------------------------------------------------------------
@@ -616,15 +616,15 @@ namespace moris
                 const Matrix< DDRMat >& aPerturbedVertexCoords,
                 uint aDirection,
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
-            moris::mtk::Cluster const& tCluster = this->get_cluster(aIsMaster);
+            moris::mtk::Cluster const& tCluster = this->get_cluster(aIsLeader);
             return tCluster.compute_cluster_group_cell_measure_derivative(
                     aDiscretizationMeshIndex,
                     aPerturbedVertexCoords,
                     aDirection,
                     aPrimaryOrVoid,
-                    aIsMaster );
+                    aIsLeader );
         }
 
         //----------------------------------------------------------------------------------
@@ -632,11 +632,11 @@ namespace moris
         moris::real
         Double_Side_Cluster::compute_cluster_cell_side_measure(
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster       ) const
+                const mtk::Leader_Follower aIsLeader       ) const
         {
-            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsMaster);
+            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsLeader);
 
-            return tCluster.compute_cluster_cell_side_measure(aPrimaryOrVoid,aIsMaster);
+            return tCluster.compute_cluster_cell_side_measure(aPrimaryOrVoid,aIsLeader);
         }
 
         //----------------------------------------------------------------------------------
@@ -645,11 +645,11 @@ namespace moris
         Double_Side_Cluster::compute_cluster_group_cell_side_measure(
                 const moris_index       aDiscretizationMeshIndex,
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster       ) const
+                const mtk::Leader_Follower aIsLeader       ) const
         {
-            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsMaster);
+            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsLeader);
 
-            return tCluster.compute_cluster_group_cell_side_measure( aDiscretizationMeshIndex, aPrimaryOrVoid, aIsMaster );
+            return tCluster.compute_cluster_group_cell_side_measure( aDiscretizationMeshIndex, aPrimaryOrVoid, aIsLeader );
         }
 
         //----------------------------------------------------------------------------------
@@ -657,11 +657,11 @@ namespace moris
         Matrix<DDRMat>
         Double_Side_Cluster::compute_cluster_ig_cell_side_measures(
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster       ) const
+                const mtk::Leader_Follower aIsLeader       ) const
         {
-            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsMaster);
+            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsLeader);
 
-            return tCluster.compute_cluster_ig_cell_side_measures(aPrimaryOrVoid,aIsMaster);
+            return tCluster.compute_cluster_ig_cell_side_measures(aPrimaryOrVoid,aIsLeader);
         }
 
         //----------------------------------------------------------------
@@ -671,14 +671,14 @@ namespace moris
                 const Matrix< DDRMat > & aPerturbedVertexCoords,
                 uint aDirection,
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
-            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsMaster);
+            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsLeader);
             return tCluster.compute_cluster_cell_side_measure_derivative(
                     aPerturbedVertexCoords,
                     aDirection,
                     aPrimaryOrVoid,
-                    aIsMaster );
+                    aIsLeader );
         }
 
         //----------------------------------------------------------------
@@ -689,31 +689,31 @@ namespace moris
                 const Matrix< DDRMat >& aPerturbedVertexCoords,
                 uint aDirection,
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster ) const
+                const mtk::Leader_Follower aIsLeader ) const
         {
-            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsMaster);
+            moris::mtk::Cluster const & tCluster = this->get_cluster(aIsLeader);
             return tCluster.compute_cluster_group_cell_side_measure_derivative(
                     aDiscretizationMeshIndex,
                     aPerturbedVertexCoords,
                     aDirection,
                     aPrimaryOrVoid,
-                    aIsMaster );
+                    aIsLeader );
         }
 
         //----------------------------------------------------------------------------------
 
         moris_index
-        Double_Side_Cluster::get_master_dim_of_param_coord() const
+        Double_Side_Cluster::get_leader_dim_of_param_coord() const
         {
-            return this->get_master_side_cluster().get_dim_of_param_coord();
+            return this->get_leader_side_cluster().get_dim_of_param_coord();
         }
 
         //----------------------------------------------------------------------------------
 
         moris_index
-        Double_Side_Cluster::get_slave_dim_of_param_coord() const
+        Double_Side_Cluster::get_follower_dim_of_param_coord() const
         {
-            return this->get_slave_side_cluster().get_dim_of_param_coord();
+            return this->get_follower_side_cluster().get_dim_of_param_coord();
         }
 
 
@@ -721,17 +721,17 @@ namespace moris
 
 
         moris::uint
-        Double_Side_Cluster::get_master_num_vertices_in_cluster() const
+        Double_Side_Cluster::get_leader_num_vertices_in_cluster() const
         {
-            return this->get_master_side_cluster().get_num_vertices_in_cluster();
+            return this->get_leader_side_cluster().get_num_vertices_in_cluster();
         }
 
         //----------------------------------------------------------------------------------
 
         moris::uint
-        Double_Side_Cluster::get_slave_num_vertices_in_cluster() const
+        Double_Side_Cluster::get_follower_num_vertices_in_cluster() const
         {
-            return this->get_slave_side_cluster().get_num_vertices_in_cluster();
+            return this->get_follower_side_cluster().get_num_vertices_in_cluster();
         }
 
         //----------------------------------------------------------------------------------
@@ -742,9 +742,9 @@ namespace moris
             size_t tCapacity = 0;
 
             //sum up the member data size
-            tCapacity += sizeof( mMasterSideCluster );
-            tCapacity += sizeof( mSlaveSideCluster );
-            tCapacity += mMasterToSlaveVertexPairs.capacity() * ( ( sizeof( void * ) ) + 1 );
+            tCapacity += sizeof( mLeaderSideCluster );
+            tCapacity += sizeof( mFollowerSideCluster );
+            tCapacity += mLeaderToFollowerVertexPairs.capacity() * ( ( sizeof( void * ) ) + 1 );
 
             return tCapacity;
         }

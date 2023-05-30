@@ -114,22 +114,22 @@ namespace moris
         void
         IQI_Jump_Dof::evaluate_QI( Matrix< DDRMat >& aMat )
         {
-            // get field interpolator for master side
-            Field_Interpolator* tFIMaster =
-                    mMasterFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+            // get field interpolator for leader side
+            Field_Interpolator* tFILeader =
+                    mLeaderFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
-            // get field interpolator for slave side
-            Field_Interpolator* tFISlave =
-                    mSlaveFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
+            // get field interpolator for follower side
+            Field_Interpolator* tFIFollower =
+                    mFollowerFIManager->get_field_interpolators_for_type( mQuantityDofType( 0 ) );
 
             // check that field interpolater exists
-            MORIS_ASSERT( tFIMaster != nullptr and tFISlave != nullptr,
+            MORIS_ASSERT( tFILeader != nullptr and tFIFollower != nullptr,
                     "IQI_Jump_Dof::compute_QI - field interpolator does not exist." );
 
             // evaluate spatial derivative of dof
             if ( mSpatialDerivativeOrder > 0 )
             {
-                const Matrix< DDRMat >& tSpatialGradient = tFIMaster->gradx( mSpatialDerivativeOrder ) - tFISlave->gradx( mSpatialDerivativeOrder ) ;
+                const Matrix< DDRMat >& tSpatialGradient = tFILeader->gradx( mSpatialDerivativeOrder ) - tFIFollower->gradx( mSpatialDerivativeOrder ) ;
 
                 aMat = { tSpatialGradient( mSpatialDerivativeDirection, mIQITypeIndex ) };
             }
@@ -137,14 +137,14 @@ namespace moris
             // evaluate time derivative of dof
             else if ( mTimeDerivativeOrder > 0 )
             {
-                const Matrix< DDRMat >& tTemporalGradient = tFIMaster->gradt( mTimeDerivativeOrder ) - tFISlave->gradt( mTimeDerivativeOrder ) ;
+                const Matrix< DDRMat >& tTemporalGradient = tFILeader->gradt( mTimeDerivativeOrder ) - tFIFollower->gradt( mTimeDerivativeOrder ) ;
 
                 aMat = { tTemporalGradient( mIQITypeIndex ) };
             }
             else if ( mQuantityDofType.size() > 1 && mIQITypeIndex != -1 )
             {
                 // Jump
-                moris::real tJump = tFIMaster->val()( mIQITypeIndex ) - tFISlave->val()( mIQITypeIndex );
+                moris::real tJump = tFILeader->val()( mIQITypeIndex ) - tFIFollower->val()( mIQITypeIndex );
 
                 // evaluate DOF value
                 aMat = { tJump * tJump };
@@ -153,7 +153,7 @@ namespace moris
             else
             {
                 // Find the jump
-                Matrix< DDRMat > tJump = tFIMaster->val() - tFISlave->val();
+                Matrix< DDRMat > tJump = tFILeader->val() - tFIFollower->val();
 
                 // dot the product
                 aMat = dot( tJump, tJump );

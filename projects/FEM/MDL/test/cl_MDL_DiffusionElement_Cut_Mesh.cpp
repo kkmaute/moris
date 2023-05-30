@@ -310,11 +310,11 @@ void tConstValFunction_MDLCUT
             fem::SP_Factory tSPFactory;
             std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
             tSPDirichletNitsche->set_parameters( { {{ 1.0 }} } );
-            tSPDirichletNitsche->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
+            tSPDirichletNitsche->set_property( tPropConductivity, "Material", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::Stabilization_Parameter > tSPGhost = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
             tSPGhost->set_parameters( {{{ 1.0 }} });
-            tSPGhost->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
+            tSPGhost->set_property( tPropConductivity, "Material", mtk::Leader_Follower::LEADER );
 
             // define the IWGs
             fem::IWG_Factory tIWGFactory;
@@ -322,25 +322,25 @@ void tConstValFunction_MDLCUT
             std::shared_ptr< fem::IWG > tIWGBulk = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_BULK );
             tIWGBulk->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
             tIWGBulk->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tIWGBulk->set_constitutive_model( tCMDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
-            tIWGBulk->set_property( tPropTempLoad, "Load", mtk::Master_Slave::MASTER );
+            tIWGBulk->set_constitutive_model( tCMDiffLinIso, "Diffusion", mtk::Leader_Follower::LEADER );
+            tIWGBulk->set_property( tPropTempLoad, "Load", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::IWG > tIWGDirichlet = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_DIRICHLET_UNSYMMETRIC_NITSCHE );
             tIWGDirichlet->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
             tIWGDirichlet->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
             tIWGDirichlet->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-            tIWGDirichlet->set_constitutive_model( tCMDiffLinIso, "Diffusion", mtk::Master_Slave::MASTER );
-            tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
+            tIWGDirichlet->set_constitutive_model( tCMDiffLinIso, "Diffusion", mtk::Leader_Follower::LEADER );
+            tIWGDirichlet->set_property( tPropDirichlet, "Dirichlet", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_NEUMANN );
             tIWGNeumann->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
             tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+            tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Leader_Follower::LEADER );
 
             std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
             tIWGGhost->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
             tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }} );
-            tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Master_Slave::SLAVE );
+            tIWGGhost->set_dof_type_list( {{ MSI::Dof_Type::TEMP }}, mtk::Leader_Follower::FOLLOWER );
             tIWGGhost->set_stabilization_parameter( tSPGhost, "GhostSP" );
 
 //            uint iInterpOrder = 1;
@@ -348,21 +348,21 @@ void tConstValFunction_MDLCUT
 //            {
 //                std::shared_ptr< fem::Stabilization_Parameter > tSP1 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
 //                tSP1->set_parameters( {{{ 1.0 }}, {{ 1.0 }} });
-//                tSP1->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
+//                tSP1->set_property( tPropConductivity, "Material", mtk::Leader_Follower::LEADER );
 //                tIWGGhost->set_stabilization_parameter( tSP1, "GhostDisplOrder1" );
 //            }
 //            if ( iInterpOrder > 1 )
 //            {
 //                std::shared_ptr< fem::Stabilization_Parameter > tSP2 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
 //                tSP2->set_parameters( {{{ 1.0 }}, {{ 2.0 }} });
-//                tSP2->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
+//                tSP2->set_property( tPropConductivity, "Material", mtk::Leader_Follower::LEADER );
 //                tIWGGhost->set_stabilization_parameter( tSP2, "GhostDisplOrder2" );
 //            }
 //            if ( iInterpOrder > 2 )
 //            {
 //                std::shared_ptr< fem::Stabilization_Parameter > tSP3 = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
 //                tSP3->set_parameters( {{{ 1.0 }}, {{ 3.0 }} });
-//                tSP3->set_property( tPropConductivity, "Material", mtk::Master_Slave::MASTER );
+//                tSP3->set_property( tPropConductivity, "Material", mtk::Leader_Follower::LEADER );
 //                tIWGGhost->set_stabilization_parameter( tSP3, "GhostDisplOrder3" );
 //            }
 

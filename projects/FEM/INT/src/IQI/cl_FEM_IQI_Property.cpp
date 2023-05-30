@@ -21,7 +21,7 @@ namespace moris
         IQI_Property::IQI_Property()
         {
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Property" ] = static_cast< uint >( IQI_Property_Type::PROPERTY );
@@ -39,7 +39,7 @@ namespace moris
             uint tTypeIndex = mIQITypeIndex != -1 ? mIQITypeIndex : 0;
 
             // evaluate the QI
-            aQI = mMasterProp( tPropertyIndex )->val()( tTypeIndex );
+            aQI = mLeaderProp( tPropertyIndex )->val()( tTypeIndex );
         }
 
         //------------------------------------------------------------------------------
@@ -52,7 +52,7 @@ namespace moris
 
             // get the property
             std::shared_ptr< Property >& tProperty =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::PROPERTY ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::PROPERTY ) );
 
             // check that pointer to property exists
             MORIS_ASSERT( tProperty,
@@ -75,21 +75,21 @@ namespace moris
 
             // get the property
             std::shared_ptr< Property >& tProperty =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::PROPERTY ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::PROPERTY ) );
 
-            // get the number of master dof type dependencies
-            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+            // get the number of leader dof type dependencies
+            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
             // compute dQIdu for indirect dof dependencies
             for ( uint iDof = 0; iDof < tNumDofDependencies; iDof++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type >& tDofType = mRequestedMasterGlobalDofTypes( iDof );
+                Cell< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDof );
 
-                // get master index for residual dof type, indices for assembly
-                uint tMasterDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-                uint tMasterDepStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+                // get leader index for residual dof type, indices for assembly
+                uint tLeaderDofIndex      = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                uint tLeaderDepStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+                uint tLeaderDepStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
                 // if property depends on dof type
                 if ( tProperty->check_dof_dependency( tDofType ) )
@@ -110,12 +110,12 @@ namespace moris
                         tSelect( mIQITypeIndex, 0 ) = 1.0;
                     }
 
-                    MORIS_ASSERT( tProperty->dPropdDOF( tDofType ).n_cols() == tMasterDepStopIndex - tMasterDepStartIndex + 1,
+                    MORIS_ASSERT( tProperty->dPropdDOF( tDofType ).n_cols() == tLeaderDepStopIndex - tLeaderDepStartIndex + 1,
                             "IQI_Property::compute_dQIdu - Incorrect size of dof derivative of property" );
 
                     // compute dQIdu
                     mSet->get_residual()( tQIIndex )(
-                            { tMasterDepStartIndex, tMasterDepStopIndex } ) +=
+                            { tLeaderDepStartIndex, tLeaderDepStopIndex } ) +=
                             aWStar * trans( tProperty->dPropdDOF( tDofType ) ) * tSelect;
                 }
             }
@@ -130,7 +130,7 @@ namespace moris
         {
             // get the property
             std::shared_ptr< Property >& tProperty =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::PROPERTY ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::PROPERTY ) );
 
             // if property depends on dof type
             if ( tProperty->check_dof_dependency( aDofType ) )

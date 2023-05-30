@@ -526,7 +526,7 @@ namespace moris::mtk
                 }
                 else
                 {
-                    return &mIPMesh->get_mtk_cell( mGhostMasterSlaveIPCellList( aClusterIndex - mSideClusters.size() ) );
+                    return &mIPMesh->get_mtk_cell( mGhostLeaderFollowerIPCellList( aClusterIndex - mSideClusters.size() ) );
                 }
                 break;
             }
@@ -576,7 +576,7 @@ namespace moris::mtk
                 }
                 else
                 {
-                    return mGhostMasterSlaveIGCellList.memptr() + aClusterIndex - mSideClusters.size();
+                    return mGhostLeaderFollowerIGCellList.memptr() + aClusterIndex - mSideClusters.size();
                 }
                 break;
             }
@@ -651,7 +651,7 @@ namespace moris::mtk
         }
         else
         {
-            return const_cast< moris_index* >( mGhostMasterSlaveOrd.memptr() + aClusterIndex - mSideClusters.size() );
+            return const_cast< moris_index* >( mGhostLeaderFollowerOrd.memptr() + aClusterIndex - mSideClusters.size() );
         }
     }
 
@@ -674,7 +674,7 @@ namespace moris::mtk
                 }
                 else
                 {
-                    return mGhostMasterSlaveIsTrivial( aClusterIndex - mSideClusters.size() );
+                    return mGhostLeaderFollowerIsTrivial( aClusterIndex - mSideClusters.size() );
                 }
                 break;
             }
@@ -707,7 +707,7 @@ namespace moris::mtk
                 }
                 else
                 {
-                    return mGhostMasterSlaveToVertex.memptr() + mGhostMasterSlaveVertexOffSet( aClusterIndex - mSideClusters.size() );
+                    return mGhostLeaderFollowerToVertex.memptr() + mGhostLeaderFollowerVertexOffSet( aClusterIndex - mSideClusters.size() );
                 }
                 break;
             }
@@ -740,7 +740,7 @@ namespace moris::mtk
                 }
                 else
                 {
-                    return mGhostMasterSlaveVertexOffSet( aClusterIndex - mSideClusters.size() + 1 ) - mGhostMasterSlaveVertexOffSet( aClusterIndex - mSideClusters.size() );
+                    return mGhostLeaderFollowerVertexOffSet( aClusterIndex - mSideClusters.size() + 1 ) - mGhostLeaderFollowerVertexOffSet( aClusterIndex - mSideClusters.size() );
                 }
                 break;
             }
@@ -839,7 +839,7 @@ namespace moris::mtk
         }
         else
         {
-            return &mCellClusters( mGhostMasterSlaveIPCellList( aClusterIndex ) );
+            return &mCellClusters( mGhostLeaderFollowerIPCellList( aClusterIndex ) );
         }
     }
 
@@ -876,8 +876,8 @@ namespace moris::mtk
         //                                        + moris::internal_capacity( mCellClusters )
         //                                        + moris::internal_capacity( mSideClusters )
         //                                        + moris::internal_capacity( mDblSideClusters )
-        //                                        + moris::internal_capacity( mGhostMaster )
-        //                                        + moris::internal_capacity( mGhostSlave )
+        //                                        + moris::internal_capacity( mGhostLeader )
+        //                                        + moris::internal_capacity( mGhostFollower )
         //                                        + moris::internal_capacity( mGhostDblSidedSet );
 
         // // connectivity pointers
@@ -888,8 +888,8 @@ namespace moris::mtk
         //                                             + mSideClusterToPrimaryIGCell.capacity() * ( 1 + sizeof( void* ) )
         //                                             + mSideClusterToVoidIGCell.capacity() * ( 1 + sizeof( void* ) )
         //                                             + mSideClusterToVeretx.capacity() * ( 1 + sizeof( void* ) )
-        //                                             + mGhostMasterSlaveIGCellList.capacity() * ( 1 + sizeof( void* ) )
-        //                                             + mGhostMasterSlaveToVertex.capacity() * ( 1 + sizeof( void* ) );
+        //                                             + mGhostLeaderFollowerIGCellList.capacity() * ( 1 + sizeof( void* ) )
+        //                                             + mGhostLeaderFollowerToVertex.capacity() * ( 1 + sizeof( void* ) );
 
         // // listed memebr data
         // tMemoryMap.mMemoryMapData["Indexed cells"] = mVertexIdList.capacity() * ( 1 + sizeof( moris_id ) )
@@ -897,7 +897,7 @@ namespace moris::mtk
         //                                              + mVertexOwnerList.capacity() * ( 1 + sizeof( moris_id ) )
         //                                              + mVertexIdList.capacity() * ( 1 + sizeof( moris_id ) )
         //                                              + mCellOwnerList.capacity() * ( 1 + sizeof( moris_id ) )
-        //                                              + mGhostMasterSlaveIPCellList.capacity() * ( 1 + sizeof( moris_index ) )
+        //                                              + mGhostLeaderFollowerIPCellList.capacity() * ( 1 + sizeof( moris_index ) )
         //                                              + mCellClusterIsTrivial.capacity() * ( 1 + sizeof( bool ) )
         //                                              + mCellClusterIsTrivial.capacity() * ( 1 + sizeof( bool ) );
 

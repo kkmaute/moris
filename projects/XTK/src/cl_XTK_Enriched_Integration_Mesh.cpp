@@ -687,47 +687,47 @@ namespace xtk
 
     void
     Enriched_Integration_Mesh::create_dbl_sided_interface_set(
-            moris_index aMasterBulkPhaseIndex,
-            moris_index aSlaveBulkPhaseIndex )
+            moris_index aLeaderBulkPhaseIndex,
+            moris_index aFollowerBulkPhaseIndex )
     {
-        MORIS_ERROR( aMasterBulkPhaseIndex > aSlaveBulkPhaseIndex,
+        MORIS_ERROR( aLeaderBulkPhaseIndex > aFollowerBulkPhaseIndex,
                 "Enriched_Integration_Mesh::create_dbl_sided_interface_set() - "
-                "The master bulk phase needs to be lower than the slave bulk phase." );
+                "The leader bulk phase needs to be lower than the follower bulk phase." );
 
         // get the name of this side set
-        std::string tInterfaceDblSideName = this->get_dbl_interface_side_set_name( aMasterBulkPhaseIndex, aSlaveBulkPhaseIndex );
+        std::string tInterfaceDblSideName = this->get_dbl_interface_side_set_name( aLeaderBulkPhaseIndex, aFollowerBulkPhaseIndex );
 
         // register it with the mesh
         Cell< moris_index > tDblSideSetOrds = this->register_double_side_set_names( { tInterfaceDblSideName } );
 
         // get the other
-        moris_index tOtherInterfaceIndex = this->get_dbl_side_set_index( aSlaveBulkPhaseIndex, aMasterBulkPhaseIndex );
+        moris_index tOtherInterfaceIndex = this->get_dbl_side_set_index( aFollowerBulkPhaseIndex, aLeaderBulkPhaseIndex );
 
         // set the colors
-        Matrix< IndexMat > tMasterColor = { { aMasterBulkPhaseIndex } };
-        Matrix< IndexMat > tSlaveColor  = { { aSlaveBulkPhaseIndex } };
-        this->set_double_side_set_colors( tDblSideSetOrds( 0 ), tMasterColor, tSlaveColor );
+        Matrix< IndexMat > tLeaderColor = { { aLeaderBulkPhaseIndex } };
+        Matrix< IndexMat > tFollowerColor  = { { aFollowerBulkPhaseIndex } };
+        this->set_double_side_set_colors( tDblSideSetOrds( 0 ), tLeaderColor, tFollowerColor );
 
         // resize member data
-        uint tNumPairsInSet = mDoubleSideSetsMasterIndex( tOtherInterfaceIndex ).size();
-        mDoubleSideSetsMasterIndex( tDblSideSetOrds( 0 ) ).resize( tNumPairsInSet );
-        mDoubleSideSetsSlaveIndex( tDblSideSetOrds( 0 ) ).resize( tNumPairsInSet );
+        uint tNumPairsInSet = mDoubleSideSetsLeaderIndex( tOtherInterfaceIndex ).size();
+        mDoubleSideSetsLeaderIndex( tDblSideSetOrds( 0 ) ).resize( tNumPairsInSet );
+        mDoubleSideSetsFollowerIndex( tDblSideSetOrds( 0 ) ).resize( tNumPairsInSet );
 
         for ( uint i = 0; i < tNumPairsInSet; i++ )
         {
-            // master is slave slave is master
-            mDoubleSideSetsMasterIndex( tDblSideSetOrds( 0 ) )( i ) = mDoubleSideSetsSlaveIndex( tOtherInterfaceIndex )( i );
-            mDoubleSideSetsSlaveIndex( tDblSideSetOrds( 0 ) )( i )  = mDoubleSideSetsMasterIndex( tOtherInterfaceIndex )( i );
+            // leader is follower follower is leader
+            mDoubleSideSetsLeaderIndex( tDblSideSetOrds( 0 ) )( i ) = mDoubleSideSetsFollowerIndex( tOtherInterfaceIndex )( i );
+            mDoubleSideSetsFollowerIndex( tDblSideSetOrds( 0 ) )( i )  = mDoubleSideSetsLeaderIndex( tOtherInterfaceIndex )( i );
 
-            // get master ans slave clusters
-            Side_Cluster *tMasterSideCluster = mDoubleSideSingleSideClusters( mDoubleSideSetsMasterIndex( tDblSideSetOrds( 0 ) )( i ) ).get();
-            Side_Cluster *tSlaveSideCluster  = mDoubleSideSingleSideClusters( mDoubleSideSetsSlaveIndex( tDblSideSetOrds( 0 ) )( i ) ).get();
+            // get leader ans follower clusters
+            Side_Cluster *tLeaderSideCluster = mDoubleSideSingleSideClusters( mDoubleSideSetsLeaderIndex( tDblSideSetOrds( 0 ) )( i ) ).get();
+            Side_Cluster *tFollowerSideCluster  = mDoubleSideSingleSideClusters( mDoubleSideSetsFollowerIndex( tDblSideSetOrds( 0 ) )( i ) ).get();
 
             // create double side set
             std::shared_ptr< mtk::Double_Side_Cluster > tDblSideCluster = std::make_shared< mtk::Double_Side_Cluster >(
-                    tMasterSideCluster,
-                    tSlaveSideCluster,
-                    tMasterSideCluster->get_vertices_in_cluster() );
+                    tLeaderSideCluster,
+                    tFollowerSideCluster,
+                    tLeaderSideCluster->get_vertices_in_cluster() );
 
             mDoubleSideClusters.push_back( tDblSideCluster );
             mDoubleSideSets( tDblSideSetOrds( 0 ) ).push_back( tDblSideCluster );
@@ -1555,16 +1555,16 @@ namespace xtk
         tMM.mMemoryMapData[ "mColorsSideSets" ]            = moris::internal_capacity( mColorsSideSets );
         tMM.mMemoryMapData[ "mDoubleSideSetLabels" ]       = moris::internal_capacity( mDoubleSideSetLabels );
         tMM.mMemoryMapData[ "mDoubleSideSets" ]            = moris::internal_capacity( mDoubleSideSets );
-        tMM.mMemoryMapData[ "mDoubleSideSetsMasterIndex" ] = moris::internal_capacity( mDoubleSideSetsMasterIndex );
-        tMM.mMemoryMapData[ "mDoubleSideSetsSlaveIndex" ]  = moris::internal_capacity( mDoubleSideSetsSlaveIndex );
+        tMM.mMemoryMapData[ "mDoubleSideSetsLeaderIndex" ] = moris::internal_capacity( mDoubleSideSetsLeaderIndex );
+        tMM.mMemoryMapData[ "mDoubleSideSetsFollowerIndex" ]  = moris::internal_capacity( mDoubleSideSetsFollowerIndex );
         // FIXME: Implement capacities down through MTK children
         //     tMM.mMemoryMapData["mDoubleSideClusters"] = moris::internal_capacity(mDoubleSideClusters);
         tMM.mMemoryMapData[ "mDoubleSideSingleSideClusters" ] = moris::internal_capacity_ptr( mDoubleSideSingleSideClusters );
         tMM.mMemoryMapData[ "mBulkPhaseToDblSideIndex" ]      = mBulkPhaseToDblSideIndex.capacity();
-        tMM.mMemoryMapData[ "mMasterDoubleSideSetColor" ]     = moris::internal_capacity( mMasterDoubleSideSetColor );
-        tMM.mMemoryMapData[ "mSlaveDoubleSideSetColor" ]      = moris::internal_capacity( mSlaveDoubleSideSetColor );
-        tMM.mMemoryMapData[ "mColorMasterDoubleSideSet" ]     = moris::internal_capacity( mColorMasterDoubleSideSet );
-        tMM.mMemoryMapData[ "mColorSlaveDoubleSideSet" ]      = moris::internal_capacity( mColorSlaveDoubleSideSet );
+        tMM.mMemoryMapData[ "mLeaderDoubleSideSetColor" ]     = moris::internal_capacity( mLeaderDoubleSideSetColor );
+        tMM.mMemoryMapData[ "mFollowerDoubleSideSetColor" ]      = moris::internal_capacity( mFollowerDoubleSideSetColor );
+        tMM.mMemoryMapData[ "mColorLeaderDoubleSideSet" ]     = moris::internal_capacity( mColorLeaderDoubleSideSet );
+        tMM.mMemoryMapData[ "mColorFollowerDoubleSideSet" ]      = moris::internal_capacity( mColorFollowerDoubleSideSet );
         return tMM;
     }
 
@@ -2047,7 +2047,7 @@ namespace xtk
     Enriched_Integration_Mesh::get_double_side_set_colors( moris_index aSideSetOrdinal ) const
     {
         MORIS_ASSERT( aSideSetOrdinal < (moris_index)mDoubleSideSetLabels.size(), "Double side set ordinal out of bounds" );
-        return mMasterDoubleSideSetColor( aSideSetOrdinal );
+        return mLeaderDoubleSideSetColor( aSideSetOrdinal );
     }
     //------------------------------------------------------------------------------
 
@@ -2221,17 +2221,17 @@ namespace xtk
             std::cout << "    Dbl Side Set Name: " << std::setw( 20 ) << mDoubleSideSetLabels( iSS ) <<       //
                     " | Dbl Side Set Ord: " << std::setw( 9 ) << iSS <<                                       //
                     " | Num Cell Clusters: " << std::setw( 9 ) << this->mDoubleSideSets( iSS ).size() <<      //
-                    " | Master Bulk Phase: " << std::setw( 9 ) << mMasterDoubleSideSetColor( iSS )( 0 ) <<    //
-                    " | Slave Bulk Phase: " << std::setw( 9 ) << mSlaveDoubleSideSetColor( iSS )( 0 );
+                    " | Leader Bulk Phase: " << std::setw( 9 ) << mLeaderDoubleSideSetColor( iSS )( 0 ) <<    //
+                    " | Follower Bulk Phase: " << std::setw( 9 ) << mFollowerDoubleSideSetColor( iSS )( 0 );
 
             if ( aVerbosityLevel > 0 )
             {
                 for ( uint i = 0; i < mDoubleSideSets( iSS ).size(); i++ )
                 {
-                    std::cout << "\n      Master Interpolation Cell: " << std::setw( 9 ) <<    //
-                            mDoubleSideSets( iSS )( i )->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_id();
-                    std::cout << " | Slave Interpolation Cell: " << std::setw( 9 ) <<    //
-                            mDoubleSideSets( iSS )( i )->get_interpolation_cell( mtk::Master_Slave::SLAVE ).get_id();
+                    std::cout << "\n      Leader Interpolation Cell: " << std::setw( 9 ) <<    //
+                            mDoubleSideSets( iSS )( i )->get_interpolation_cell( mtk::Leader_Follower::LEADER ).get_id();
+                    std::cout << " | Follower Interpolation Cell: " << std::setw( 9 ) <<    //
+                            mDoubleSideSets( iSS )( i )->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER ).get_id();
                 }
             }
 
@@ -2268,11 +2268,11 @@ namespace xtk
         for ( uint i = 0; i < tDblSideClusters.size(); i++ )
         {
             // get the index
-            moris_index tMasterIndex = mDoubleSideSetsMasterIndex( aDblSideSetIndex )( i );
-            moris_index tSlaveIndex  = mDoubleSideSetsSlaveIndex( aDblSideSetIndex )( i );
+            moris_index tLeaderIndex = mDoubleSideSetsLeaderIndex( aDblSideSetIndex )( i );
+            moris_index tFollowerIndex  = mDoubleSideSetsFollowerIndex( aDblSideSetIndex )( i );
 
-            mSideSets( tSideSetIndex( 0 ) ).push_back( mDoubleSideSingleSideClusters( tMasterIndex ) );
-            mSideSets( tSideSetIndex( 0 ) ).push_back( mDoubleSideSingleSideClusters( tSlaveIndex ) );
+            mSideSets( tSideSetIndex( 0 ) ).push_back( mDoubleSideSingleSideClusters( tLeaderIndex ) );
+            mSideSets( tSideSetIndex( 0 ) ).push_back( mDoubleSideSingleSideClusters( tFollowerIndex ) );
             tCount++;
         }
 
@@ -3111,8 +3111,8 @@ namespace xtk
     {
         this->construct_color_to_set_relationship( mBlockSetColors, mColorsBlockSets );
         this->construct_color_to_set_relationship( mSideSetColors, mColorsSideSets );
-        this->construct_color_to_set_relationship( mMasterDoubleSideSetColor, mColorMasterDoubleSideSet );
-        this->construct_color_to_set_relationship( mSlaveDoubleSideSetColor, mColorSlaveDoubleSideSet );
+        this->construct_color_to_set_relationship( mLeaderDoubleSideSetColor, mColorLeaderDoubleSideSet );
+        this->construct_color_to_set_relationship( mFollowerDoubleSideSetColor, mColorFollowerDoubleSideSet );
     }
 
     //------------------------------------------------------------------------------
@@ -3530,16 +3530,16 @@ namespace xtk
                 // initialize list of side clusters attached to every SPG in the current set 
                 // NOTE: for dbl side clusters, the cluster groups will necessarily consist of elements coming from the same dbl side set. 
                 // NOTE: Hence, we can collect clusters set-wise to reduce memory consumption and swapping
-                Cell< Cell< std::shared_ptr< mtk::Cluster > > > tMasterSideClustersAttachedToSpg( tNumSPGs );
-                Cell< Cell< std::shared_ptr< mtk::Cluster > > > tSlaveSideClustersAttachedToSpg( tNumSPGs );
-                Cell< Cell< moris_index > > tSpgsMasterSideClustersAreConnectingTo( tNumSPGs );
-                Cell< Cell< moris_index > > tSpgsSlaveSideClustersAreConnectingTo( tNumSPGs );
+                Cell< Cell< std::shared_ptr< mtk::Cluster > > > tLeaderSideClustersAttachedToSpg( tNumSPGs );
+                Cell< Cell< std::shared_ptr< mtk::Cluster > > > tFollowerSideClustersAttachedToSpg( tNumSPGs );
+                Cell< Cell< moris_index > > tSpgsLeaderSideClustersAreConnectingTo( tNumSPGs );
+                Cell< Cell< moris_index > > tSpgsFollowerSideClustersAreConnectingTo( tNumSPGs );
                 
                 // reserve memory
-                tMasterSideClustersAttachedToSpg.reserve( tNumSideClustersInSet );
-                tSlaveSideClustersAttachedToSpg.reserve( tNumSideClustersInSet );
-                tSpgsMasterSideClustersAreConnectingTo.reserve( tNumSideClustersInSet );
-                tSpgsSlaveSideClustersAreConnectingTo.reserve( tNumSideClustersInSet );
+                tLeaderSideClustersAttachedToSpg.reserve( tNumSideClustersInSet );
+                tFollowerSideClustersAttachedToSpg.reserve( tNumSideClustersInSet );
+                tSpgsLeaderSideClustersAreConnectingTo.reserve( tNumSideClustersInSet );
+                tSpgsFollowerSideClustersAreConnectingTo.reserve( tNumSideClustersInSet );
 
                 // go through the side clusters on the current set and sort into the bins
                 for ( uint iDblSideClusterInSet = 0; iDblSideClusterInSet < tNumSideClustersInSet; iDblSideClusterInSet++ )
@@ -3548,130 +3548,130 @@ namespace xtk
                     std::shared_ptr< mtk::Double_Side_Cluster > tDblSideCluster = mDoubleSideSets( iDblSideSet )( iDblSideClusterInSet );
 
                     // indices of the associated single sided clusters
-                    moris_index tCurrentDblSideMasterSideClusterIndex = mDoubleSideSetsMasterIndex( iDblSideSet )( iDblSideClusterInSet );
-                    moris_index tCurrentDblSideSlaveSideClusterIndex  = mDoubleSideSetsSlaveIndex( iDblSideSet )( iDblSideClusterInSet );
+                    moris_index tCurrentDblSideLeaderSideClusterIndex = mDoubleSideSetsLeaderIndex( iDblSideSet )( iDblSideClusterInSet );
+                    moris_index tCurrentDblSideFollowerSideClusterIndex  = mDoubleSideSetsFollowerIndex( iDblSideSet )( iDblSideClusterInSet );
 
-                    // get pointers to the master and slave single sided side clusters
-                    std::shared_ptr< mtk::Cluster > tMasterSideCluster = mDoubleSideSingleSideClusters( tCurrentDblSideMasterSideClusterIndex );
-                    std::shared_ptr< mtk::Cluster > tSlaveSideCluster =  mDoubleSideSingleSideClusters( tCurrentDblSideSlaveSideClusterIndex  );
+                    // get pointers to the leader and follower single sided side clusters
+                    std::shared_ptr< mtk::Cluster > tLeaderSideCluster = mDoubleSideSingleSideClusters( tCurrentDblSideLeaderSideClusterIndex );
+                    std::shared_ptr< mtk::Cluster > tFollowerSideCluster =  mDoubleSideSingleSideClusters( tCurrentDblSideFollowerSideClusterIndex  );
 
-                    // get the master and slave side clusters' UIPC indices
-                    moris_index tMasterUipcIndex = tMasterSideCluster->get_interpolation_cell_index();
-                    moris_index tSlaveUipcIndex = tSlaveSideCluster->get_interpolation_cell_index();
+                    // get the leader and follower side clusters' UIPC indices
+                    moris_index tLeaderUipcIndex = tLeaderSideCluster->get_interpolation_cell_index();
+                    moris_index tFollowerUipcIndex = tFollowerSideCluster->get_interpolation_cell_index();
 
                     // get the SPG indices 
-                    moris_index tMasterSpgIndex = mModel->mEnrichment->get_SPG_on_UIPC( iBspMesh, tMasterUipcIndex );
-                    moris_index tSlaveSpgIndex = mModel->mEnrichment->get_SPG_on_UIPC( iBspMesh, tSlaveUipcIndex );
+                    moris_index tLeaderSpgIndex = mModel->mEnrichment->get_SPG_on_UIPC( iBspMesh, tLeaderUipcIndex );
+                    moris_index tFollowerSpgIndex = mModel->mEnrichment->get_SPG_on_UIPC( iBspMesh, tFollowerUipcIndex );
 
                     // the UIPCs should not contain a basis extension
                     MORIS_ASSERT( 
-                            tMasterSpgIndex != -1 &&  
-                            tMasterSpgIndex != MORIS_INDEX_MAX && 
-                            tSlaveSpgIndex != -1 &&  
-                            tSlaveSpgIndex != MORIS_INDEX_MAX, 
+                            tLeaderSpgIndex != -1 &&  
+                            tLeaderSpgIndex != MORIS_INDEX_MAX && 
+                            tFollowerSpgIndex != -1 &&  
+                            tFollowerSpgIndex != MORIS_INDEX_MAX, 
                             "Enriched_Integration_Mesh::setup_dbl_side_cluster_groups() - "
                             "Side cluster attached to unzipped IP cell which only exists for basis extension purposes. This should not happen." );
                     
                     // store the clusters based on which SPG they come from and which SPG they connect to
-                    tMasterSideClustersAttachedToSpg( tMasterSpgIndex ).push_back( tMasterSideCluster );
-                    tSlaveSideClustersAttachedToSpg( tSlaveSpgIndex ).push_back( tSlaveSideCluster );
-                    tSpgsMasterSideClustersAreConnectingTo( tMasterSpgIndex ).push_back( tSlaveSpgIndex );
-                    tSpgsSlaveSideClustersAreConnectingTo( tSlaveSpgIndex ).push_back( tMasterSpgIndex );
+                    tLeaderSideClustersAttachedToSpg( tLeaderSpgIndex ).push_back( tLeaderSideCluster );
+                    tFollowerSideClustersAttachedToSpg( tFollowerSpgIndex ).push_back( tFollowerSideCluster );
+                    tSpgsLeaderSideClustersAreConnectingTo( tLeaderSpgIndex ).push_back( tFollowerSpgIndex );
+                    tSpgsFollowerSideClustersAreConnectingTo( tFollowerSpgIndex ).push_back( tLeaderSpgIndex );
 
                 } // end for: each dbl side cluster on set
 
                 // go through each SPG and group side clusters attached to them and connecting to the same neighbor SPG
                 for( uint iSPG = 0; iSPG < tNumSPGs; iSPG++ )
                 {
-                    // get the number of master and slave side clusters connected to this SPG
-                    uint tNumMasterSideClustersOnSPG = tMasterSideClustersAttachedToSpg( iSPG ).size();
-                    uint tNumSlaveSideClustersOnSPG  = tSlaveSideClustersAttachedToSpg( iSPG ).size();
+                    // get the number of leader and follower side clusters connected to this SPG
+                    uint tNumLeaderSideClustersOnSPG = tLeaderSideClustersAttachedToSpg( iSPG ).size();
+                    uint tNumFollowerSideClustersOnSPG  = tFollowerSideClustersAttachedToSpg( iSPG ).size();
 
                     // initialize maps that list neighbor SPGs for a given SPG
-                    uint tNumMasterSideClusterGroups = 0;
-                    uint tNumSlaveSideClusterGroups = 0;
-                    Cell< moris_index > tBinsForMasterClusters( tNumMasterSideClustersOnSPG, MORIS_INDEX_MAX );
-                    Cell< moris_index > tBinsForSlaveClusters( tNumSlaveSideClustersOnSPG, MORIS_INDEX_MAX );
-                    map< moris_index, moris_index > tMasterClusterGroupMap;
-                    map< moris_index, moris_index > tSlaveClusterGroupMap;
+                    uint tNumLeaderSideClusterGroups = 0;
+                    uint tNumFollowerSideClusterGroups = 0;
+                    Cell< moris_index > tBinsForLeaderClusters( tNumLeaderSideClustersOnSPG, MORIS_INDEX_MAX );
+                    Cell< moris_index > tBinsForFollowerClusters( tNumFollowerSideClustersOnSPG, MORIS_INDEX_MAX );
+                    map< moris_index, moris_index > tLeaderClusterGroupMap;
+                    map< moris_index, moris_index > tFollowerClusterGroupMap;
 
-                    // collect master side cluster groups
-                    for( uint iMasterSideClusterOnSPG = 0; iMasterSideClusterOnSPG < tNumMasterSideClustersOnSPG; iMasterSideClusterOnSPG++ )
+                    // collect leader side cluster groups
+                    for( uint iLeaderSideClusterOnSPG = 0; iLeaderSideClusterOnSPG < tNumLeaderSideClustersOnSPG; iLeaderSideClusterOnSPG++ )
                     {
                         // get the neighbor SPG for the current side cluster
-                        moris_index tNeighborSPG = tSpgsMasterSideClustersAreConnectingTo( iSPG )( iMasterSideClusterOnSPG );
+                        moris_index tNeighborSPG = tSpgsLeaderSideClustersAreConnectingTo( iSPG )( iLeaderSideClusterOnSPG );
                         
                         // check if the neighbor SPG has already been found, if not list it
-                        if ( !tMasterClusterGroupMap.key_exists( tNeighborSPG ) )
+                        if ( !tLeaderClusterGroupMap.key_exists( tNeighborSPG ) )
                         {
-                            tMasterClusterGroupMap[ tNeighborSPG ] = tNumMasterSideClusterGroups;
-                            tBinsForMasterClusters( iMasterSideClusterOnSPG ) = tNumMasterSideClusterGroups;
-                            tNumMasterSideClusterGroups++;
+                            tLeaderClusterGroupMap[ tNeighborSPG ] = tNumLeaderSideClusterGroups;
+                            tBinsForLeaderClusters( iLeaderSideClusterOnSPG ) = tNumLeaderSideClusterGroups;
+                            tNumLeaderSideClusterGroups++;
                         }
 
                         // if it has been found before just get the correct bin and associated with the cluster
                         else
                         {
-                            moris_index tBinIndex = tMasterClusterGroupMap.find( tNeighborSPG );
-                            tBinsForMasterClusters( iMasterSideClusterOnSPG ) = tBinIndex; 
+                            moris_index tBinIndex = tLeaderClusterGroupMap.find( tNeighborSPG );
+                            tBinsForLeaderClusters( iLeaderSideClusterOnSPG ) = tBinIndex; 
                         }
                     }
 
-                    // collect slave side cluster groups
-                    for( uint iSlaveSideClusterOnSPG = 0; iSlaveSideClusterOnSPG < tNumSlaveSideClustersOnSPG; iSlaveSideClusterOnSPG++ )
+                    // collect follower side cluster groups
+                    for( uint iFollowerSideClusterOnSPG = 0; iFollowerSideClusterOnSPG < tNumFollowerSideClustersOnSPG; iFollowerSideClusterOnSPG++ )
                     {
                         // get the neighbor SPG for the current side cluster
-                        moris_index tNeighborSPG = tSpgsSlaveSideClustersAreConnectingTo( iSPG )( iSlaveSideClusterOnSPG );
+                        moris_index tNeighborSPG = tSpgsFollowerSideClustersAreConnectingTo( iSPG )( iFollowerSideClusterOnSPG );
                         
                         // check if the neighbor SPG has already been found, if not list it
-                        if ( !tSlaveClusterGroupMap.key_exists( tNeighborSPG ) )
+                        if ( !tFollowerClusterGroupMap.key_exists( tNeighborSPG ) )
                         {
-                            tSlaveClusterGroupMap[ tNeighborSPG ] = tNumSlaveSideClusterGroups;
-                            tBinsForSlaveClusters( iSlaveSideClusterOnSPG ) = tNumSlaveSideClusterGroups;
-                            tNumSlaveSideClusterGroups++;
+                            tFollowerClusterGroupMap[ tNeighborSPG ] = tNumFollowerSideClusterGroups;
+                            tBinsForFollowerClusters( iFollowerSideClusterOnSPG ) = tNumFollowerSideClusterGroups;
+                            tNumFollowerSideClusterGroups++;
                         }
 
                         // if it has been found before just get the correct bin and associated with the cluster
                         else
                         {
-                            moris_index tBinIndex = tSlaveClusterGroupMap.find( tNeighborSPG );
-                            tBinsForSlaveClusters( iSlaveSideClusterOnSPG ) = tBinIndex; 
+                            moris_index tBinIndex = tFollowerClusterGroupMap.find( tNeighborSPG );
+                            tBinsForFollowerClusters( iFollowerSideClusterOnSPG ) = tBinIndex; 
                         }
                     }
 
                     // initialize bins to sort the clusters into
-                    Cell< Cell< std::shared_ptr< mtk::Cluster > > > tMasterClusterGroups( tNumMasterSideClusterGroups );
-                    Cell< Cell< std::shared_ptr< mtk::Cluster > > > tSlaveClusterGroups( tNumSlaveSideClusterGroups );
-                    tMasterClusterGroups.reserve( tNumMasterSideClustersOnSPG );
-                    tSlaveClusterGroups.reserve( tNumSlaveSideClustersOnSPG );
+                    Cell< Cell< std::shared_ptr< mtk::Cluster > > > tLeaderClusterGroups( tNumLeaderSideClusterGroups );
+                    Cell< Cell< std::shared_ptr< mtk::Cluster > > > tFollowerClusterGroups( tNumFollowerSideClusterGroups );
+                    tLeaderClusterGroups.reserve( tNumLeaderSideClustersOnSPG );
+                    tFollowerClusterGroups.reserve( tNumFollowerSideClustersOnSPG );
 
-                    // sort each of the master side clusters into their respective bins
-                    for( uint iMasterSideClusterOnSPG = 0; iMasterSideClusterOnSPG < tNumMasterSideClustersOnSPG; iMasterSideClusterOnSPG++ )
+                    // sort each of the leader side clusters into their respective bins
+                    for( uint iLeaderSideClusterOnSPG = 0; iLeaderSideClusterOnSPG < tNumLeaderSideClustersOnSPG; iLeaderSideClusterOnSPG++ )
                     {
                         // get the bin 
-                        moris_index tBinIndex = tBinsForMasterClusters( iMasterSideClusterOnSPG );
+                        moris_index tBinIndex = tBinsForLeaderClusters( iLeaderSideClusterOnSPG );
 
                         // sort side clusters into cluster groups
-                        tMasterClusterGroups( tBinIndex ).push_back( tMasterSideClustersAttachedToSpg( iSPG )( iMasterSideClusterOnSPG ) );
+                        tLeaderClusterGroups( tBinIndex ).push_back( tLeaderSideClustersAttachedToSpg( iSPG )( iLeaderSideClusterOnSPG ) );
 
-                    } // end for: sort each master cluster on the SPG into the groups
+                    } // end for: sort each leader cluster on the SPG into the groups
 
-                    // sort each of the slave side clusters into their respective bins
-                    for( uint iSlaveSideClusterOnSPG = 0; iSlaveSideClusterOnSPG < tNumSlaveSideClustersOnSPG; iSlaveSideClusterOnSPG++ )
+                    // sort each of the follower side clusters into their respective bins
+                    for( uint iFollowerSideClusterOnSPG = 0; iFollowerSideClusterOnSPG < tNumFollowerSideClustersOnSPG; iFollowerSideClusterOnSPG++ )
                     {
                         // get the bin 
-                        moris_index tBinIndex = tBinsForSlaveClusters( iSlaveSideClusterOnSPG );
+                        moris_index tBinIndex = tBinsForFollowerClusters( iFollowerSideClusterOnSPG );
 
                         // sort side clusters into cluster groups
-                        tSlaveClusterGroups( tBinIndex ).push_back( tSlaveSideClustersAttachedToSpg( iSPG )( iSlaveSideClusterOnSPG ) );
+                        tFollowerClusterGroups( tBinIndex ).push_back( tFollowerSideClustersAttachedToSpg( iSPG )( iFollowerSideClusterOnSPG ) );
 
-                    } // end for: sort each slave cluster on the SPG into the groups
+                    } // end for: sort each follower cluster on the SPG into the groups
 
-                    // create cluster groups from each of the master bins and reversely assign that cluster group to all the side clusters in it
-                    for( uint iMasterBin = 0; iMasterBin < tNumMasterSideClusterGroups; iMasterBin++ )
+                    // create cluster groups from each of the leader bins and reversely assign that cluster group to all the side clusters in it
+                    for( uint iLeaderBin = 0; iLeaderBin < tNumLeaderSideClusterGroups; iLeaderBin++ )
                     {
                         // get the corresponding bulk cluster group
-                        moris_index                           tUipcIndex                  = tMasterClusterGroups( iMasterBin )( 0 )->get_interpolation_cell_index();
+                        moris_index                           tUipcIndex                  = tLeaderClusterGroups( iLeaderBin )( 0 )->get_interpolation_cell_index();
                         std::shared_ptr< mtk::Cluster_Group > tAssociatedCellClusterGroup = mCellClusters( tUipcIndex )->get_cluster_group( tDMI );
                         MORIS_ASSERT( tAssociatedCellClusterGroup.get() != nullptr,
                                 "Enriched_Integration_Mesh::setup_dbl_side_cluster_groups() - "
@@ -3679,23 +3679,23 @@ namespace xtk
 
                         // create side cluster group
                         mDblSideClusterGroups( tDMI ).push_back(
-                                std::make_shared< xtk::Side_Cluster_Group >( tDMI, tMasterClusterGroups( iMasterBin ), tAssociatedCellClusterGroup ) );
+                                std::make_shared< xtk::Side_Cluster_Group >( tDMI, tLeaderClusterGroups( iLeaderBin ), tAssociatedCellClusterGroup ) );
 
                         // index of the newly created Cluster Group in the list
                         uint tNewSideClusterGroupIndex = mDblSideClusterGroups( tDMI ).size() - 1;
 
                         // assign the cluster group created to all cluster which it was created from
-                        for ( uint iCluster = 0; iCluster < tMasterClusterGroups( iMasterBin ).size(); iCluster++ )
+                        for ( uint iCluster = 0; iCluster < tLeaderClusterGroups( iLeaderBin ).size(); iCluster++ )
                         {
-                            tMasterClusterGroups( iMasterBin )( iCluster )->set_cluster_group( tDMI, mDblSideClusterGroups( tDMI )( tNewSideClusterGroupIndex ) );
+                            tLeaderClusterGroups( iLeaderBin )( iCluster )->set_cluster_group( tDMI, mDblSideClusterGroups( tDMI )( tNewSideClusterGroupIndex ) );
                         }
-                    } // end for: each master cluster group constructed on the current SPG
+                    } // end for: each leader cluster group constructed on the current SPG
 
-                    // create cluster groups from each of the slave bins and reversely assign that cluster group to all the side clusters in it
-                    for( uint iSlaveBin = 0; iSlaveBin < tNumSlaveSideClusterGroups; iSlaveBin++ )
+                    // create cluster groups from each of the follower bins and reversely assign that cluster group to all the side clusters in it
+                    for( uint iFollowerBin = 0; iFollowerBin < tNumFollowerSideClusterGroups; iFollowerBin++ )
                     {
                         // get the corresponding bulk cluster group
-                        moris_index                           tUipcIndex                  = tSlaveClusterGroups( iSlaveBin )( 0 )->get_interpolation_cell_index();
+                        moris_index                           tUipcIndex                  = tFollowerClusterGroups( iFollowerBin )( 0 )->get_interpolation_cell_index();
                         std::shared_ptr< mtk::Cluster_Group > tAssociatedCellClusterGroup = mCellClusters( tUipcIndex )->get_cluster_group( tDMI );
                         MORIS_ASSERT( tAssociatedCellClusterGroup.get() != nullptr,
                                 "Enriched_Integration_Mesh::setup_dbl_side_cluster_groups() - "
@@ -3703,17 +3703,17 @@ namespace xtk
 
                         // create side cluster group
                         mDblSideClusterGroups( tDMI ).push_back(
-                                std::make_shared< xtk::Side_Cluster_Group >( tDMI, tSlaveClusterGroups( iSlaveBin ), tAssociatedCellClusterGroup ) );
+                                std::make_shared< xtk::Side_Cluster_Group >( tDMI, tFollowerClusterGroups( iFollowerBin ), tAssociatedCellClusterGroup ) );
 
                         // index of the newly created Cluster Group in the list
                         uint tNewSideClusterGroupIndex = mDblSideClusterGroups( tDMI ).size() - 1;
 
                         // assign the cluster group created to all cluster which it was created from
-                        for ( uint iCluster = 0; iCluster < tSlaveClusterGroups( iSlaveBin ).size(); iCluster++ )
+                        for ( uint iCluster = 0; iCluster < tFollowerClusterGroups( iFollowerBin ).size(); iCluster++ )
                         {
-                            tSlaveClusterGroups( iSlaveBin )( iCluster )->set_cluster_group( tDMI, mDblSideClusterGroups( tDMI )( tNewSideClusterGroupIndex ) );
+                            tFollowerClusterGroups( iFollowerBin )( iCluster )->set_cluster_group( tDMI, mDblSideClusterGroups( tDMI )( tNewSideClusterGroupIndex ) );
                         }
-                    } // end for: each slave cluster group constructed on the current SPG
+                    } // end for: each follower cluster group constructed on the current SPG
 
                 }    // end for: each SPG on current B-spline mesh
 
@@ -4051,8 +4051,8 @@ namespace xtk
 
         moris_index tCount = 0;
 
-        Cell< Matrix< IndexMat > > tInterfaceMasterSideColors;
-        Cell< Matrix< IndexMat > > tInterfaceSlaveSideColors;
+        Cell< Matrix< IndexMat > > tInterfaceLeaderSideColors;
+        Cell< Matrix< IndexMat > > tInterfaceFollowerSideColors;
 
         for ( moris::moris_index iP0 = 0; iP0 < (moris_index)tNumBulkPhases; iP0++ )
         {
@@ -4062,8 +4062,8 @@ namespace xtk
                 std::string tInterfaceSideSetName = this->get_dbl_interface_side_set_name( iP0, iP1 );
 
                 tDoubleInterfaceSideNames.push_back( tInterfaceSideSetName );
-                tInterfaceMasterSideColors.push_back( { { iP0 } } );
-                tInterfaceSlaveSideColors.push_back( { { iP1 } } );
+                tInterfaceLeaderSideColors.push_back( { { iP0 } } );
+                tInterfaceFollowerSideColors.push_back( { { iP1 } } );
 
                 mBulkPhaseToDblSideIndex( iP0, iP1 ) = tCount;
                 mBulkPhaseToDblSideIndex( iP1, iP0 ) = tCount;
@@ -4076,7 +4076,7 @@ namespace xtk
         // set interface side set colors
         for ( moris_index iSS = 0; iSS < (moris_index)tDblSideSetOrds.size(); iSS++ )
         {
-            this->set_double_side_set_colors( tDblSideSetOrds( iSS ), tInterfaceMasterSideColors( iSS ), tInterfaceSlaveSideColors( iSS ) );
+            this->set_double_side_set_colors( tDblSideSetOrds( iSS ), tInterfaceLeaderSideColors( iSS ), tInterfaceFollowerSideColors( iSS ) );
         }
     }
 
@@ -4170,8 +4170,8 @@ namespace xtk
                                 tSideClusters.push_back( std::make_shared< xtk::Side_Cluster >() );
                                 tSideClusterSideOrdinals.push_back( Cell< moris_index >() );
 
-                                // add master side cluster
-                                mDoubleSideSetsMasterIndex( tDoubleSideSetIndex ).push_back( mDoubleSideSingleSideClusters.size() );
+                                // add leader side cluster
+                                mDoubleSideSetsLeaderIndex( tDoubleSideSetIndex ).push_back( mDoubleSideSingleSideClusters.size() );
                                 mDoubleSideSingleSideClusters.push_back( tSideClusters( tNewClusterIndex ) );
 
                                 tSideClusters( tNewClusterIndex )->mInterpolationCell     = tEnrIpCells( tLeaderUIPCIndex );
@@ -4192,8 +4192,8 @@ namespace xtk
                                 tSideClusters.push_back( std::make_shared< xtk::Side_Cluster >() );
                                 tSideClusterSideOrdinals.push_back( Cell< moris_index >() );
 
-                                // add master side cluster to double side set
-                                mDoubleSideSetsSlaveIndex( tDoubleSideSetIndex ).push_back( mDoubleSideSingleSideClusters.size() );
+                                // add leader side cluster to double side set
+                                mDoubleSideSetsFollowerIndex( tDoubleSideSetIndex ).push_back( mDoubleSideSingleSideClusters.size() );
                                 mDoubleSideSingleSideClusters.push_back( tSideClusters( tNewClusterIndex ) );
 
                                 tSideClusters( tNewClusterIndex )->mInterpolationCell     = tEnrIpCells( tFollowerUIPCIndex );
@@ -4451,10 +4451,10 @@ namespace xtk
 
         // update dbl. side set info in enriched integration mesh
         mDoubleSideSets.resize( mDoubleSideSets.size() + tNumSetsToRegister );
-        mDoubleSideSetsMasterIndex.resize( mDoubleSideSetsMasterIndex.size() + tNumSetsToRegister );
-        mDoubleSideSetsSlaveIndex.resize( mDoubleSideSetsSlaveIndex.size() + tNumSetsToRegister );
-        mMasterDoubleSideSetColor.resize( mMasterDoubleSideSetColor.size() + tNumSetsToRegister );
-        mSlaveDoubleSideSetColor.resize( mSlaveDoubleSideSetColor.size() + tNumSetsToRegister );
+        mDoubleSideSetsLeaderIndex.resize( mDoubleSideSetsLeaderIndex.size() + tNumSetsToRegister );
+        mDoubleSideSetsFollowerIndex.resize( mDoubleSideSetsFollowerIndex.size() + tNumSetsToRegister );
+        mLeaderDoubleSideSetColor.resize( mLeaderDoubleSideSetColor.size() + tNumSetsToRegister );
+        mFollowerDoubleSideSetColor.resize( mFollowerDoubleSideSetColor.size() + tNumSetsToRegister );
 
         // return list containing the dbl. side set indices for new ghost dbl. side sets
         return tDblSideSetOrds;
@@ -4465,17 +4465,17 @@ namespace xtk
     void
     Enriched_Integration_Mesh::set_double_side_set_colors(
             moris_index const        &aDblSideSetIndex,
-            Matrix< IndexMat > const &aMasterSideColors,
-            Matrix< IndexMat > const &aSlaveSideColors )
+            Matrix< IndexMat > const &aLeaderSideColors,
+            Matrix< IndexMat > const &aFollowerSideColors )
     {
-        MORIS_ASSERT( moris::isempty( mMasterDoubleSideSetColor( aDblSideSetIndex ) ),
-                "Attempting to overwrite colors of a master side of double side set" );
+        MORIS_ASSERT( moris::isempty( mLeaderDoubleSideSetColor( aDblSideSetIndex ) ),
+                "Attempting to overwrite colors of a leader side of double side set" );
 
-        MORIS_ASSERT( moris::isempty( mSlaveDoubleSideSetColor( aDblSideSetIndex ) ),
-                "Attempting to overwrite colors of a slave side of double side set" );
+        MORIS_ASSERT( moris::isempty( mFollowerDoubleSideSetColor( aDblSideSetIndex ) ),
+                "Attempting to overwrite colors of a follower side of double side set" );
 
-        mMasterDoubleSideSetColor( aDblSideSetIndex ) = aMasterSideColors;
-        mSlaveDoubleSideSetColor( aDblSideSetIndex )  = aSlaveSideColors;
+        mLeaderDoubleSideSetColor( aDblSideSetIndex ) = aLeaderSideColors;
+        mFollowerDoubleSideSetColor( aDblSideSetIndex )  = aFollowerSideColors;
     }
 
     //------------------------------------------------------------------------------
@@ -4589,12 +4589,12 @@ namespace xtk
             moris_index const &aBulkphase1 )
     {
         // get the side set names one going from 0->1 and another 1->0
-        std::string tISideNameMasterToSlave = this->get_interface_side_set_name( 0, aBulkphase0, aBulkphase1 );
-        std::string tISideNameSlaveToMaster = this->get_interface_side_set_name( 0, aBulkphase1, aBulkphase0 );
+        std::string tISideNameLeaderToFollower = this->get_interface_side_set_name( 0, aBulkphase0, aBulkphase1 );
+        std::string tISideNameFollowerToLeader = this->get_interface_side_set_name( 0, aBulkphase1, aBulkphase0 );
 
         // get the corresponding indices
-        moris_index tISideIndexMasterToSlave = this->get_side_set_index( tISideNameMasterToSlave );
-        moris_index tISideIndexSlaveToMaster = this->get_side_set_index( tISideNameSlaveToMaster );
+        moris_index tISideIndexLeaderToFollower = this->get_side_set_index( tISideNameLeaderToFollower );
+        moris_index tISideIndexFollowerToLeader = this->get_side_set_index( tISideNameFollowerToLeader );
 
         // get the double side set index
         moris_index tDblSideSetIndex = this->get_dbl_side_set_index( aBulkphase0, aBulkphase1 );
@@ -4605,11 +4605,11 @@ namespace xtk
         for ( uint i = 0; i < tDblSideClusters.size(); i++ )
         {
             // get the index
-            moris_index tMasterIndex = mDoubleSideSetsMasterIndex( tDblSideSetIndex )( i );
-            moris_index tSlaveIndex  = mDoubleSideSetsSlaveIndex( tDblSideSetIndex )( i );
+            moris_index tLeaderIndex = mDoubleSideSetsLeaderIndex( tDblSideSetIndex )( i );
+            moris_index tFollowerIndex  = mDoubleSideSetsFollowerIndex( tDblSideSetIndex )( i );
 
-            mSideSets( tISideIndexMasterToSlave ).push_back( mDoubleSideSingleSideClusters( tMasterIndex ) );
-            mSideSets( tISideIndexSlaveToMaster ).push_back( mDoubleSideSingleSideClusters( tSlaveIndex ) );
+            mSideSets( tISideIndexLeaderToFollower ).push_back( mDoubleSideSingleSideClusters( tLeaderIndex ) );
+            mSideSets( tISideIndexFollowerToLeader ).push_back( mDoubleSideSingleSideClusters( tFollowerIndex ) );
         }
     }
 

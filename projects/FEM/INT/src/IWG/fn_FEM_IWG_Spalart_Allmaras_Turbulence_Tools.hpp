@@ -26,7 +26,7 @@ namespace moris
          */
         real compute_chi(
                 const moris::Cell< MSI::Dof_Type > & aViscosityDofGroup,
-                Field_Interpolator_Manager         * aMasterFIManager,
+                Field_Interpolator_Manager         * aLeaderFIManager,
                 const std::shared_ptr< Property >  & aPropKinViscosity );
 
         //------------------------------------------------------------------------------
@@ -38,7 +38,7 @@ namespace moris
          */
         void compute_dchidu(
                 const moris::Cell< MSI::Dof_Type > & aViscosityDofGroup,
-                Field_Interpolator_Manager         * aMasterFIManager,
+                Field_Interpolator_Manager         * aLeaderFIManager,
                 const std::shared_ptr< Property >  & aPropKinViscosity,
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adchidu );
@@ -50,7 +50,7 @@ namespace moris
          */
         void compute_dchidx(
                 const moris::Cell< MSI::Dof_Type > & aViscosityDofGroup,
-                Field_Interpolator_Manager         * aMasterFIManager,
+                Field_Interpolator_Manager         * aLeaderFIManager,
                 const std::shared_ptr< Property >  & aPropKinViscosity,
                 Matrix< DDRMat >                   & adchidx );
 
@@ -63,7 +63,7 @@ namespace moris
          */
         void compute_dchidxdu(
                 const moris::Cell< MSI::Dof_Type > & aViscosityDofGroup,
-                Field_Interpolator_Manager         * aMasterFIManager,
+                Field_Interpolator_Manager         * aLeaderFIManager,
                 const std::shared_ptr< Property >  & aPropKinViscosity,
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adchidxdu );
@@ -75,7 +75,7 @@ namespace moris
          */
         real compute_fv1(
                 const moris::Cell< MSI::Dof_Type > & aViscosityDofGroup,
-                Field_Interpolator_Manager         * aMasterFIManager,
+                Field_Interpolator_Manager         * aLeaderFIManager,
                 const std::shared_ptr< Property >  & aPropKinViscosity );
 
         //------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ namespace moris
          */
         void compute_dfv1du(
                 const moris::Cell< MSI::Dof_Type > & aViscosityDofGroup,
-                Field_Interpolator_Manager         * aMasterFIManager,
+                Field_Interpolator_Manager         * aLeaderFIManager,
                 const std::shared_ptr< Property >  & aPropKinViscosity,
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adfv1du );
@@ -99,7 +99,7 @@ namespace moris
          */
         void compute_dfv1dx(
                 const moris::Cell< MSI::Dof_Type > & aViscosityDofGroup,
-                Field_Interpolator_Manager         * aMasterFIManager,
+                Field_Interpolator_Manager         * aLeaderFIManager,
                 const std::shared_ptr< Property >  & aPropKinViscosity,
                 Matrix< DDRMat >                   & adfv1dx );
 
@@ -112,7 +112,7 @@ namespace moris
               */
         void compute_dfv1dxdu(
                 const moris::Cell< MSI::Dof_Type > & aViscosityDofGroup,
-                Field_Interpolator_Manager         * aMasterFIManager,
+                Field_Interpolator_Manager         * aLeaderFIManager,
                 const std::shared_ptr< Property >  & aPropKinViscosity,
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & adfv1dxdu );

@@ -51,8 +51,8 @@ namespace moris
             // pointer to the equation set
             MSI::Equation_Set* mEquationSet = nullptr;
 
-            // enum for master or slave
-            mtk::Master_Slave mIsMaster;
+            // enum for leader or follower
+            mtk::Leader_Follower mIsLeader;
 
             // dof type map
             moris::Matrix< DDSMat > mDofTypeMap;
@@ -114,39 +114,39 @@ namespace moris
              * constructor
              * @param[ in ] aDofTypes    a list of group of dof types
              * @param[ in ] aEquationSet a pointer to the corresponding equation set
-             * @param[ in ] aIsMaster    enum for master or slave
+             * @param[ in ] aIsLeader    enum for leader or follower
              */
             Field_Interpolator_Manager(
                     const moris::Cell< moris::Cell< enum MSI::Dof_Type > >& aDofTypes,
                     MSI::Equation_Set*                                      aEquationSet,
-                    mtk::Master_Slave                                       aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower                                       aIsLeader = mtk::Leader_Follower::LEADER );
 
             /**
              * constructor
              * @param[ in ] aDofTypes    a list of group of dof types
              * @param[ in ] aDvTypes     a list of group of dv types
              * @param[ in ] aEquationSet a pointer to the corresponding equation set
-             * @param[ in ] aIsMaster    enum for master or slave
+             * @param[ in ] aIsLeader    enum for leader or follower
              */
             Field_Interpolator_Manager(
                     const moris::Cell< moris::Cell< enum MSI::Dof_Type > >&   aDofTypes,
                     const moris::Cell< moris::Cell< enum PDV_Type > >&        aDvTypes,
                     const moris::Cell< moris::Cell< enum mtk::Field_Type > >& aFieldTypes,
                     MSI::Equation_Set*                                        aEquationSet,
-                    mtk::Master_Slave                                         aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower                                         aIsLeader = mtk::Leader_Follower::LEADER );
 
             /**
              * constructor
              * @param[ in ] aDofTypes a list of group of dof types
              * @param[ in ] aEquationSet a pointer to the corresponding equation set
              * @param[ in ] aModelSolverInterface a pointer to the corresponding model solver interface
-             * @param[ in ] aIsMaster    enum for master or slave
+             * @param[ in ] aIsLeader    enum for leader or follower
              */
             Field_Interpolator_Manager(
                     const moris::Cell< moris::Cell< enum MSI::Dof_Type > >& aDofTypes,
                     MSI::Equation_Set*                                      aEquationSet,
                     MSI::Model_Solver_Interface*                            aModelSolverInterface,
-                    mtk::Master_Slave                                       aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower                                       aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**

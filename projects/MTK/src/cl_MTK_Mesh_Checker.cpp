@@ -120,23 +120,23 @@ namespace mtk
             // iterate through clusters in set
             for ( auto iCl : tClustersInSet )
             {
-                // verify the master
-                bool tMasterValid = this->verify_side_cluster( iCl, Master_Slave::MASTER );
+                // verify the leader
+                bool tLeaderValid = this->verify_side_cluster( iCl, Leader_Follower::LEADER );
 
-                if ( !tMasterValid )
+                if ( !tLeaderValid )
                 {
-                    MORIS_LOG_ERROR( "\nInvalid master cluster" );
+                    MORIS_LOG_ERROR( "\nInvalid leader cluster" );
                 }
 
-                // verify the slave
-                bool tSlaveValid = this->verify_side_cluster( iCl, Master_Slave::SLAVE );
+                // verify the follower
+                bool tFollowerValid = this->verify_side_cluster( iCl, Leader_Follower::FOLLOWER );
 
-                if ( !tSlaveValid )
+                if ( !tFollowerValid )
                 {
-                    MORIS_LOG_ERROR( "\nInvalid master cluster" );
+                    MORIS_LOG_ERROR( "\nInvalid leader cluster" );
                 }
 
-                if ( !tMasterValid || !tSlaveValid )
+                if ( !tLeaderValid || !tFollowerValid )
                 {
                     return false;
                 }
@@ -148,18 +148,18 @@ namespace mtk
     //--------------------------------------------------------------------------------
     bool
     Mesh_Checker::verify_side_cluster( Cluster const* aCluster,
-        enum Master_Slave                             aMasterSlave )
+        enum Leader_Follower                             aLeaderFollower )
     {
         // check if trivial
-        bool tTrivial = aCluster->is_trivial( aMasterSlave );
+        bool tTrivial = aCluster->is_trivial( aLeaderFollower );
 
         if ( tTrivial )
         {
             // get the interpolation cell
-            mtk::Cell const& tIpCell = aCluster->get_interpolation_cell( aMasterSlave );
+            mtk::Cell const& tIpCell = aCluster->get_interpolation_cell( aLeaderFollower );
 
             // get the integration primary cells
-            moris::Cell< moris::mtk::Cell const* > const& tIgCells = aCluster->get_primary_cells_in_cluster( aMasterSlave );
+            moris::Cell< moris::mtk::Cell const* > const& tIgCells = aCluster->get_primary_cells_in_cluster( aLeaderFollower );
 
             if ( tIgCells.size() != 1 )
             {
@@ -168,7 +168,7 @@ namespace mtk
             }
 
             // get the side ordinals
-            moris::Matrix< moris::IndexMat > tSideOrd = aCluster->get_cell_side_ordinals( aMasterSlave );
+            moris::Matrix< moris::IndexMat > tSideOrd = aCluster->get_cell_side_ordinals( aLeaderFollower );
 
             if ( tSideOrd.numel() != 1 )
             {
@@ -198,14 +198,14 @@ namespace mtk
         {
 
             // get the interpolation cell
-            mtk::Cell const& tIpCell = aCluster->get_interpolation_cell( aMasterSlave );
+            mtk::Cell const& tIpCell = aCluster->get_interpolation_cell( aLeaderFollower );
 
             // create cell info
             Cell_Info_Factory      tCellInfoFactory;
             moris::mtk::Cell_Info* tCellInfo = tCellInfoFactory.create_cell_info( tIpCell.get_geometry_type(), tIpCell.get_interpolation_order() );
 
             // get the vertices in the cluster
-            moris::Cell< moris::mtk::Vertex const* > tVertsInCluster = aCluster->get_vertices_in_cluster( aMasterSlave );
+            moris::Cell< moris::mtk::Vertex const* > tVertsInCluster = aCluster->get_vertices_in_cluster( aLeaderFollower );
 
             // ip verts
             Matrix< DDRMat > tIpCoords = tIpCell.get_vertex_coords();
@@ -213,7 +213,7 @@ namespace mtk
             for ( size_t i = 0; i < tVertsInCluster.size(); i++ )
             {
                 // local coordinates
-                moris::Matrix< moris::DDRMat > tLocalCoords = aCluster->get_vertex_local_coordinate_wrt_interp_cell( tVertsInCluster( i ), aMasterSlave );
+                moris::Matrix< moris::DDRMat > tLocalCoords = aCluster->get_vertex_local_coordinate_wrt_interp_cell( tVertsInCluster( i ), aLeaderFollower );
 
                 // Evalute the basis function at the point
                 moris::Matrix< moris::DDRMat > tN;

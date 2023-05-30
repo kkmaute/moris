@@ -1,0 +1,30 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
+namespace moris {
+namespace fem {
+
+/** \page FE_SP_Leader_Weight_Interface Stabilization Parameter for Leader Weight in Interface condition
+
+The leader weight stabilization parameter for interface condition is given as:
+\f[
+w_{M} = \frac{ measure(\Omega_{M}) / \kappa_{M} }{ measure(\Omega_{M}) / \kappa_{M} + measure(\Omega_{S}) / \kappa_{S} };
+\f]
+where
+- \f$ measure(\Omega_{M}) \f$ is a measure of the volume/surface of the leader phase,
+- \f$ measure(\Omega_{S}) \f$ is a measure of the volume/surface of the follower phase ,
+- \f$ \kappa_{M} \f$ is a material property of the leader phase,
+- \f$ \kappa_{S} \f$ is a material property of the follower phase.
+
+The stabilization parameter \f$ w_{M} \f$ is implemented in SP_Leader_Weight_Interface and 
+is build using the enum SP_Type::LEADER_WEIGHT_INTERFACE.
+
+*/
+
+}
+}
+

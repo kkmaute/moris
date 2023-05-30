@@ -73,19 +73,19 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
     moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes };
 
     // create the properties
-    std::shared_ptr< fem::Property > tPropMasterViscosity = std::make_shared< fem::Property >();
-    tPropMasterViscosity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterViscosity->set_val_function( tConstValFunc );
-    //tPropMasterViscosity->set_dof_type_list( { tVelDofTypes } );
-    //tPropMasterViscosity->set_val_function( tVXFIValFunc );
-    //tPropMasterViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
+    std::shared_ptr< fem::Property > tPropLeaderViscosity = std::make_shared< fem::Property >();
+    tPropLeaderViscosity->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderViscosity->set_val_function( tConstValFunc );
+    //tPropLeaderViscosity->set_dof_type_list( { tVelDofTypes } );
+    //tPropLeaderViscosity->set_val_function( tVXFIValFunc );
+    //tPropLeaderViscosity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
-    std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
-    tPropMasterDensity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterDensity->set_val_function( tConstValFunc );
-    //tPropMasterDensity->set_dof_type_list( { tVelDofTypes } );
-    //tPropMasterDensity->set_val_function( tVXFIValFunc );
-    //tPropMasterDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
+    std::shared_ptr< fem::Property > tPropLeaderDensity = std::make_shared< fem::Property >();
+    tPropLeaderDensity->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderDensity->set_val_function( tConstValFunc );
+    //tPropLeaderDensity->set_dof_type_list( { tVelDofTypes } );
+    //tPropLeaderDensity->set_val_function( tVXFIValFunc );
+    //tPropLeaderDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
@@ -93,12 +93,12 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
     std::shared_ptr< fem::Stabilization_Parameter > tSPViscousGhost =
             tSPFactory.create_SP( fem::Stabilization_Type::VISCOUS_GHOST );
     tSPViscousGhost->set_parameters( {{{ 1.0 }} });
-    tSPViscousGhost->set_property( tPropMasterViscosity, "Viscosity", mtk::Master_Slave::MASTER );
+    tSPViscousGhost->set_property( tPropLeaderViscosity, "Viscosity", mtk::Leader_Follower::LEADER );
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPTimeGhost =
             tSPFactory.create_SP( fem::Stabilization_Type::TIME_VELOCITY_GHOST );
     tSPTimeGhost->set_parameters( {{{ 1.0 }}, {{ 1.0 }} });
-    tSPTimeGhost->set_property( tPropMasterDensity, "Density", mtk::Master_Slave::MASTER );
+    tSPTimeGhost->set_property( tPropLeaderDensity, "Density", mtk::Leader_Follower::LEADER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -111,8 +111,8 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_VISCOUS_VELOCITY_GHOST );
     tIWG->set_residual_dof_type( tVelDofTypes );
-    tIWG->set_dof_type_list( { tDofTypes }, mtk::Master_Slave::MASTER );
-    tIWG->set_dof_type_list( { tDofTypes }, mtk::Master_Slave::SLAVE );
+    tIWG->set_dof_type_list( { tDofTypes }, mtk::Leader_Follower::LEADER );
+    tIWG->set_dof_type_list( { tDofTypes }, mtk::Leader_Follower::FOLLOWER );
     tIWG->set_stabilization_parameter( tSPViscousGhost, "ViscousGhost" );
     tIWG->set_stabilization_parameter( tSPTimeGhost, "TimeVelocityGhost" );
 
@@ -130,13 +130,13 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
 
-    // set size and populate the set slave dof type map
-    tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+    // set size and populate the set follower dof type map
+    tIWG->mSet->mFollowerDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mFollowerDofTypeMap ( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -257,27 +257,27 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
                                          mtk::Interpolation_Type::LAGRANGE,
                                          mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
-            // fill random coefficients for slave FI
-            Matrix< DDRMat > tSlaveDOFHatVel;
-            fill_uhat( tSlaveDOFHatVel, iSpaceDim, iInterpOrder );
+            // fill random coefficients for follower FI
+            Matrix< DDRMat > tFollowerDOFHatVel;
+            fill_uhat( tFollowerDOFHatVel, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tSlaveFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatVel );
+            tFollowerFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tFollowerFIs( 0 )->set_coeff( tFollowerDOFHatVel );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 2 * tDofTypes.size() );
@@ -300,31 +300,31 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
-            tIWG->mRequestedSlaveGlobalDofTypes  = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
+            tIWG->mRequestedFollowerGlobalDofTypes  = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tMasterFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
-            Field_Interpolator_Manager tSlaveFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tLeaderFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tFollowerFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tMasterFIManager.mFI = tMasterFIs;
-            tMasterFIManager.mIPGeometryInterpolator = &tGI;
-            tMasterFIManager.mIGGeometryInterpolator = &tGI;
-            tSlaveFIManager.mFI = tSlaveFIs;
-            tSlaveFIManager.mIPGeometryInterpolator = &tGI;
-            tSlaveFIManager.mIGGeometryInterpolator = &tGI;
+            tLeaderFIManager.mFI = tLeaderFIs;
+            tLeaderFIManager.mIPGeometryInterpolator = &tGI;
+            tLeaderFIManager.mIGGeometryInterpolator = &tGI;
+            tFollowerFIManager.mFI = tFollowerFIs;
+            tFollowerFIManager.mIPGeometryInterpolator = &tGI;
+            tFollowerFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tMasterFIManager;
-            tIWG->mSet->mSlaveFIManager = &tSlaveFIManager;
+            tIWG->mSet->mLeaderFIManager = &tLeaderFIManager;
+            tIWG->mSet->mFollowerFIManager = &tFollowerFIManager;
 
             // set IWG field interpolator manager
-            tIWG->set_field_interpolator_manager( &tMasterFIManager, mtk::Master_Slave::MASTER );
-            tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
+            tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
+            tIWG->set_field_interpolator_manager( &tFollowerFIManager, mtk::Leader_Follower::FOLLOWER );
 
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
@@ -337,8 +337,8 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
-                tIWG->mSet->mSlaveFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mFollowerFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -377,8 +377,8 @@ TEST_CASE( "IWG_Incompressible_NS_Viscous_Ghost", "[IWG_Incompressible_NS_Viscou
             }
 
             // clean up
-            tMasterFIs.clear();
-            tSlaveFIs.clear();
+            tLeaderFIs.clear();
+            tFollowerFIs.clear();
         }
     }
 }/*END_TEST_CASE*/
@@ -418,21 +418,21 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
     moris::Cell< moris::Cell< MSI::Dof_Type > > tDofTypes = { tVelDofTypes };
 
     // create the properties
-    std::shared_ptr< fem::Property > tPropMasterDensity = std::make_shared< fem::Property >();
-    tPropMasterDensity->set_parameters( { {{ 1.0 }} } );
-    tPropMasterDensity->set_val_function( tConstValFunc );
-    //tPropMasterDensity->set_dof_type_list( { tVelDofTypes } );
-    //tPropMasterDensity->set_val_function( tVXFIValFunc );
-    //tPropMasterDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
+    std::shared_ptr< fem::Property > tPropLeaderDensity = std::make_shared< fem::Property >();
+    tPropLeaderDensity->set_parameters( { {{ 1.0 }} } );
+    tPropLeaderDensity->set_val_function( tConstValFunc );
+    //tPropLeaderDensity->set_dof_type_list( { tVelDofTypes } );
+    //tPropLeaderDensity->set_val_function( tVXFIValFunc );
+    //tPropLeaderDensity->set_dof_derivative_functions( { tVXFIDerFunc } );
 
     // define stabilization parameters
     fem::SP_Factory tSPFactory;
 
     std::shared_ptr< fem::Stabilization_Parameter > tSPConvectiveGhost =
             tSPFactory.create_SP( fem::Stabilization_Type::CONVECTIVE_GHOST );
-    tSPConvectiveGhost->set_dof_type_list( { tVelDofTypes }, mtk::Master_Slave::MASTER );
+    tSPConvectiveGhost->set_dof_type_list( { tVelDofTypes }, mtk::Leader_Follower::LEADER );
     tSPConvectiveGhost->set_parameters( {{{ 1.0 }} });
-    tSPConvectiveGhost->set_property( tPropMasterDensity, "Density", mtk::Master_Slave::MASTER );
+    tSPConvectiveGhost->set_property( tPropLeaderDensity, "Density", mtk::Leader_Follower::LEADER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster * tCluster = new fem::Cluster();
@@ -444,8 +444,8 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
     std::shared_ptr< fem::IWG > tIWG =
             tIWGFactory.create_IWG( fem::IWG_Type::INCOMPRESSIBLE_NS_CONVECTIVE_VELOCITY_GHOST );
     tIWG->set_residual_dof_type( tVelDofTypes );
-    tIWG->set_dof_type_list( { tDofTypes }, mtk::Master_Slave::MASTER );
-    tIWG->set_dof_type_list( { tDofTypes }, mtk::Master_Slave::SLAVE );
+    tIWG->set_dof_type_list( { tDofTypes }, mtk::Leader_Follower::LEADER );
+    tIWG->set_dof_type_list( { tDofTypes }, mtk::Leader_Follower::FOLLOWER );
     tIWG->set_stabilization_parameter( tSPConvectiveGhost, "ConvectiveGhost" );
 
     // init set info
@@ -462,13 +462,13 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
 
-    // set size and populate the set slave dof type map
-    tIWG->mSet->mSlaveDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mSlaveDofTypeMap ( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+    // set size and populate the set follower dof type map
+    tIWG->mSet->mFollowerDofTypeMap .set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mFollowerDofTypeMap ( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
 
     // loop on the space dimension
     for( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -587,28 +587,28 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
                                          mtk::Interpolation_Type::LAGRANGE,
                                          mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
-            // fill coefficients for slave FI
-            Matrix< DDRMat > tSlaveDOFHatVel;
-            fill_uhat( tSlaveDOFHatVel, iSpaceDim, iInterpOrder );
-            tSlaveDOFHatVel = 2 * tSlaveDOFHatVel;
+            // fill coefficients for follower FI
+            Matrix< DDRMat > tFollowerDOFHatVel;
+            fill_uhat( tFollowerDOFHatVel, iSpaceDim, iInterpOrder );
+            tFollowerDOFHatVel = 2 * tFollowerDOFHatVel;
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tSlaveFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tFollowerFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tSlaveFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tSlaveFIs( 0 )->set_coeff( tSlaveDOFHatVel );
+            tFollowerFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tFollowerFIs( 0 )->set_coeff( tFollowerDOFHatVel );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( 2 * tDofTypes.size() );
@@ -631,31 +631,31 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tDofTypes;
-            tIWG->mRequestedSlaveGlobalDofTypes  = tDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
+            tIWG->mRequestedFollowerGlobalDofTypes  = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
-            Field_Interpolator_Manager tMasterFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
-            Field_Interpolator_Manager tSlaveFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tLeaderFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
+            Field_Interpolator_Manager tFollowerFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tMasterFIManager.mFI = tMasterFIs;
-            tMasterFIManager.mIPGeometryInterpolator = &tGI;
-            tMasterFIManager.mIGGeometryInterpolator = &tGI;
-            tSlaveFIManager.mFI = tSlaveFIs;
-            tSlaveFIManager.mIPGeometryInterpolator = &tGI;
-            tSlaveFIManager.mIGGeometryInterpolator = &tGI;
+            tLeaderFIManager.mFI = tLeaderFIs;
+            tLeaderFIManager.mIPGeometryInterpolator = &tGI;
+            tLeaderFIManager.mIGGeometryInterpolator = &tGI;
+            tFollowerFIManager.mFI = tFollowerFIs;
+            tFollowerFIManager.mIPGeometryInterpolator = &tGI;
+            tFollowerFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tMasterFIManager;
-            tIWG->mSet->mSlaveFIManager = &tSlaveFIManager;
+            tIWG->mSet->mLeaderFIManager = &tLeaderFIManager;
+            tIWG->mSet->mFollowerFIManager = &tFollowerFIManager;
 
             // set IWG field interpolator manager
-            tIWG->set_field_interpolator_manager( &tMasterFIManager, mtk::Master_Slave::MASTER );
-            tIWG->set_field_interpolator_manager( &tSlaveFIManager, mtk::Master_Slave::SLAVE );
+            tIWG->set_field_interpolator_manager( &tLeaderFIManager, mtk::Leader_Follower::LEADER );
+            tIWG->set_field_interpolator_manager( &tFollowerFIManager, mtk::Leader_Follower::FOLLOWER );
 
             // loop over integration points
             uint tNumGPs = tIntegPoints.n_cols();
@@ -668,8 +668,8 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
-                tIWG->mSet->mSlaveFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mFollowerFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -708,8 +708,8 @@ TEST_CASE( "IWG_Incompressible_NS_Convective_Ghost", "[IWG_Incompressible_NS_Con
             }
 
             // clean up
-            tMasterFIs.clear();
-            tSlaveFIs.clear();
+            tLeaderFIs.clear();
+            tFollowerFIs.clear();
         }
     }
 }/*END_TEST_CASE*/

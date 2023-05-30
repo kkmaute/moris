@@ -131,7 +131,7 @@ namespace moris
                 /**
                  * compute volume over the element
                  */
-                real compute_volume( mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                real compute_volume( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
                 //------------------------------------------------------------------------------
             protected:

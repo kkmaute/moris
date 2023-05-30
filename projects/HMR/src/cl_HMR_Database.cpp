@@ -763,7 +763,7 @@ namespace moris
                 // exchange matrices
                 communicate_mats( tCommTable, tSend, tRecv );
 
-                // process information on master proc
+                // process information on leader proc
                 if ( tMyRank == 0 )
                 {
                     // create communication matrix

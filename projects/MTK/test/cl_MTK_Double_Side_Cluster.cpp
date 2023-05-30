@@ -191,17 +191,17 @@ namespace moris
                 moris::Matrix< moris::IdMat >  tDummyVerts( 0, 0 );
                 moris::Matrix< moris::DDRMat > tDummyCoords( 0, 0 );
 
-                // master side cluster
-                moris_id           tMasterGhostInterpCellId  = 3;
-                moris_index        tMasterGhostInterpCellInd = tInterpMesh1->get_loc_entity_ind_from_entity_glb_id( tMasterGhostInterpCellId, EntityRank::ELEMENT );
-                moris::mtk::Cell*  tMasterInterpCell         = &tInterpMesh1->get_mtk_cell( tMasterGhostInterpCellInd );
-                Matrix< IndexMat > tMasterGhostCellIdAndOrd  = { { 3, 5 } };
-                bool               tMasterTrivial            = true;
+                // leader side cluster
+                moris_id           tLeaderGhostInterpCellId  = 3;
+                moris_index        tLeaderGhostInterpCellInd = tInterpMesh1->get_loc_entity_ind_from_entity_glb_id( tLeaderGhostInterpCellId, EntityRank::ELEMENT );
+                moris::mtk::Cell*  tLeaderInterpCell         = &tInterpMesh1->get_mtk_cell( tLeaderGhostInterpCellInd );
+                Matrix< IndexMat > tLeaderGhostCellIdAndOrd  = { { 3, 5 } };
+                bool               tLeaderTrivial            = true;
 
                 // right side cluster
-                moris::mtk::Cell*  tSlaveInterpCell        = &tInterpMesh1->get_mtk_cell( tMasterGhostInterpCellInd );
-                Matrix< IndexMat > tSlaveGhostCellIdAndOrd = { { 4, 4 } };
-                bool               tSlaveTrivial           = true;
+                moris::mtk::Cell*  tFollowerInterpCell        = &tInterpMesh1->get_mtk_cell( tLeaderGhostInterpCellInd );
+                Matrix< IndexMat > tFollowerGhostCellIdAndOrd = { { 4, 4 } };
+                bool               tFollowerTrivial           = true;
 
                 // Vertex pairing
                 Matrix< IdMat > tVertexPair = { { 13, 13 },
@@ -211,14 +211,14 @@ namespace moris
 
                 tDoubleSideClusterInput.add_cluster_data(
                         tOrd,
-                        tMasterTrivial,
-                        tMasterInterpCell,
-                        &tMasterGhostCellIdAndOrd,
+                        tLeaderTrivial,
+                        tLeaderInterpCell,
+                        &tLeaderGhostCellIdAndOrd,
                         &tDummyVerts,
                         &tDummyCoords,
-                        tSlaveTrivial,
-                        tSlaveInterpCell,
-                        &tSlaveGhostCellIdAndOrd,
+                        tFollowerTrivial,
+                        tFollowerInterpCell,
+                        &tFollowerGhostCellIdAndOrd,
                         &tDummyVerts,
                         &tDummyCoords,
                         &tVertexPair );
@@ -241,76 +241,76 @@ namespace moris
 
                 CHECK( tGhostDoubleSide.size() == 1 );
 
-                //        Side_Cluster const & tMasterCluster = tGhostDoubleSide(0).get_master_side_cluster();
+                //        Side_Cluster const & tLeaderCluster = tGhostDoubleSide(0).get_leader_side_cluster();
 
-                CHECK( tGhostDoubleSide( 0 )->is_trivial( mtk::Master_Slave::MASTER ) );
-                CHECK( tGhostDoubleSide( 0 )->get_interpolation_cell( mtk::Master_Slave::MASTER ).get_id() == tMasterInterpCell->get_id() );
+                CHECK( tGhostDoubleSide( 0 )->is_trivial( mtk::Leader_Follower::LEADER ) );
+                CHECK( tGhostDoubleSide( 0 )->get_interpolation_cell( mtk::Leader_Follower::LEADER ).get_id() == tLeaderInterpCell->get_id() );
 
-                moris::Matrix< moris::IndexMat > tMasterCellSideOrds = tGhostDoubleSide( 0 )->get_cell_side_ordinals( mtk::Master_Slave::MASTER );
-                CHECK( tMasterCellSideOrds.numel() == 1 );
-                CHECK( tMasterCellSideOrds( 0 ) == 5 );
+                moris::Matrix< moris::IndexMat > tLeaderCellSideOrds = tGhostDoubleSide( 0 )->get_cell_side_ordinals( mtk::Leader_Follower::LEADER );
+                CHECK( tLeaderCellSideOrds.numel() == 1 );
+                CHECK( tLeaderCellSideOrds( 0 ) == 5 );
 
-                //        Side_Cluster const & tSlaveCluster = tGhostDoubleSide(0).get_right_side_cluster();
-                CHECK( tGhostDoubleSide( 0 )->is_trivial( mtk::Master_Slave::SLAVE ) );
-                CHECK( tGhostDoubleSide( 0 )->get_interpolation_cell( mtk::Master_Slave::SLAVE ).get_id() == tSlaveInterpCell->get_id() );
+                //        Side_Cluster const & tFollowerCluster = tGhostDoubleSide(0).get_right_side_cluster();
+                CHECK( tGhostDoubleSide( 0 )->is_trivial( mtk::Leader_Follower::FOLLOWER ) );
+                CHECK( tGhostDoubleSide( 0 )->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER ).get_id() == tFollowerInterpCell->get_id() );
 
-                moris::Matrix< moris::IndexMat > tSlaveCellSideOrds = tGhostDoubleSide( 0 )->get_cell_side_ordinals( mtk::Master_Slave::SLAVE );
-                CHECK( tSlaveCellSideOrds.numel() == 1 );
-                CHECK( tSlaveCellSideOrds( 0 ) == 4 );
+                moris::Matrix< moris::IndexMat > tFollowerCellSideOrds = tGhostDoubleSide( 0 )->get_cell_side_ordinals( mtk::Leader_Follower::FOLLOWER );
+                CHECK( tFollowerCellSideOrds.numel() == 1 );
+                CHECK( tFollowerCellSideOrds( 0 ) == 4 );
 
                 // iterate through pairs and chekc ids of vertices (should be the same in this case)
-                moris::Cell< moris::mtk::Vertex const * > tMasterVerts = tGhostDoubleSide( 0 )->get_vertices_in_cluster( mtk::Master_Slave::MASTER );
-                for ( moris::uint i = 0; i < tMasterVerts.size(); i++ )
+                moris::Cell< moris::mtk::Vertex const * > tLeaderVerts = tGhostDoubleSide( 0 )->get_vertices_in_cluster( mtk::Leader_Follower::LEADER );
+                for ( moris::uint i = 0; i < tLeaderVerts.size(); i++ )
                 {
-                    moris::mtk::Vertex const * tSlaveVertex = tGhostDoubleSide( 0 )->get_master_vertex_pair( tMasterVerts( i ) );
+                    moris::mtk::Vertex const * tFollowerVertex = tGhostDoubleSide( 0 )->get_leader_vertex_pair( tLeaderVerts( i ) );
 
-                    CHECK( tSlaveVertex->get_id() == tMasterVerts( i )->get_id() );
+                    CHECK( tFollowerVertex->get_id() == tLeaderVerts( i )->get_id() );
                 }
 
-                // get_master_side_cluster() const;
-                // get_slave_side_cluster() const;
-                // get_master_side_cluster();
-                // get_slave_side_cluster();
+                // get_leader_side_cluster() const;
+                // get_follower_side_cluster() const;
+                // get_leader_side_cluster();
+                // get_follower_side_cluster();
                 // get_cluster(
-                // get_master_vertex_pair(moris::mtk::Vertex const * aMasterVertex) const;
+                // get_leader_vertex_pair(moris::mtk::Vertex const * aLeaderVertex) const;
                 // get_vertex_cluster_index(
-                // get_interpolation_cell( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
-                // get_master_interpolation_cell() const;
-                // get_slave_interpolation_cell() const;
-                // get_primary_cells_in_cluster( const mtk::Master_Slave aIsMaster ) const;
-                // get_master_integration_cells() const;
-                // get_slave_integration_cells() const;
-                // get_cell_side_ordinals( const mtk::Master_Slave aIsMaster ) const;
+                // get_interpolation_cell( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
+                // get_leader_interpolation_cell() const;
+                // get_follower_interpolation_cell() const;
+                // get_primary_cells_in_cluster( const mtk::Leader_Follower aIsLeader ) const;
+                // get_leader_integration_cells() const;
+                // get_follower_integration_cells() const;
+                // get_cell_side_ordinals( const mtk::Leader_Follower aIsLeader ) const;
                 // get_cell_side_ordinal(
-                // get_master_integration_cell_side_ordinals() const;
-                // get_master_cell_side_ordinal(moris::moris_index aMasterCellIndexInCluster) const;
-                // get_slave_integration_cell_side_ordinals() const;
-                // get_slave_cell_side_ordinal(moris::moris_index aSlaveCellIndexInCluster) const;
-                // get_vertices_in_cluster( const mtk::Master_Slave aIsMaster ) const;
-                // get_master_vertices_in_cluster() const;
-                // get_slave_vertices_in_cluster() const;
-                // get_slave_vertex_ord_on_facet( moris_index  aCellClusterIndex,
-                // get_master_vertex_indices_in_cluster() const;
-                // get_slave_vertex_indices_in_cluster() const;
+                // get_leader_integration_cell_side_ordinals() const;
+                // get_leader_cell_side_ordinal(moris::moris_index aLeaderCellIndexInCluster) const;
+                // get_follower_integration_cell_side_ordinals() const;
+                // get_follower_cell_side_ordinal(moris::moris_index aFollowerCellIndexInCluster) const;
+                // get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader ) const;
+                // get_leader_vertices_in_cluster() const;
+                // get_follower_vertices_in_cluster() const;
+                // get_follower_vertex_ord_on_facet( moris_index  aCellClusterIndex,
+                // get_leader_vertex_indices_in_cluster() const;
+                // get_follower_vertex_indices_in_cluster() const;
                 // get_vertex_indices_in_cluster() const;
-                // get_vertices_local_coordinates_wrt_interp_cell( const mtk::Master_Slave aIsMaster ) const;
-                // get_master_vertices_local_coordinates_wrt_interp_cell() const;
-                // get_slave_vertices_local_coordinates_wrt_interp_cell() const;
+                // get_vertices_local_coordinates_wrt_interp_cell( const mtk::Leader_Follower aIsLeader ) const;
+                // get_leader_vertices_local_coordinates_wrt_interp_cell() const;
+                // get_follower_vertices_local_coordinates_wrt_interp_cell() const;
                 // get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex,
-                // get_master_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const;
-                // get_slave_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const;
+                // get_leader_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const;
+                // get_follower_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const * aVertex ) const;
                 // get_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aClusterLocalIndex,
-                // get_master_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aMasterClusterLocalIndex) const;
-                // get_slave_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aSlaveClusterLocalIndex) const;
-                // get_dim_of_param_coord( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+                // get_leader_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aLeaderClusterLocalIndex) const;
+                // get_follower_cell_local_coords_on_side_wrt_interp_cell(moris::moris_index aFollowerClusterLocalIndex) const;
+                // get_dim_of_param_coord( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
                 // compute_cluster_cell_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                 // compute_cluster_cell_side_measure(const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                // get_master_dim_of_param_coord() const;
-                // get_slave_dim_of_param_coord() const;
-                // get_master_num_sides() const;
-                // get_slave_num_sides() const;
-                // get_master_num_vertices_in_cluster() const;
-                // get_slave_num_vertices_in_cluster() const;
+                // get_leader_dim_of_param_coord() const;
+                // get_follower_dim_of_param_coord() const;
+                // get_leader_num_sides() const;
+                // get_follower_num_sides() const;
+                // get_leader_num_vertices_in_cluster() const;
+                // get_follower_num_vertices_in_cluster() const;
 
                 // cleanup
                 delete tInterpMesh1;

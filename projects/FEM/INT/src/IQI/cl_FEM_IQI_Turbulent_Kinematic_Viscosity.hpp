@@ -33,7 +33,7 @@ namespace moris
             private:
 
                 // viscosity dof type (default)
-                MSI::Dof_Type mMasterDofViscosity = MSI::Dof_Type::VISCOSITY;
+                MSI::Dof_Type mLeaderDofViscosity = MSI::Dof_Type::VISCOSITY;
 
                 // property type for IQI
                 enum class Property_Type
@@ -70,7 +70,7 @@ namespace moris
                 void set_dof_type_list(
                         moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
                         moris::Cell< std::string >                  & aDofStrings,
-                        mtk::Master_Slave                             aIsMaster = mtk::Master_Slave::MASTER );
+                        mtk::Leader_Follower                             aIsLeader = mtk::Leader_Follower::LEADER );
 
             private:
 

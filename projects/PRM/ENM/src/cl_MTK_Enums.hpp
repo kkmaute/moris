@@ -113,14 +113,14 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        enum class Master_Slave
+        enum class Leader_Follower
         {
-                MASTER,
-                SLAVE,
+                LEADER,
+                FOLLOWER,
                 UNDEFINED
         };
 
-        moris::map< std::string, mtk::Master_Slave > get_master_type_map();
+        moris::map< std::string, mtk::Leader_Follower > get_leader_type_map();
 
         //------------------------------------------------------------------------------
 

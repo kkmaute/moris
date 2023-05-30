@@ -86,40 +86,40 @@ UT_FEM_IWG_Diffusion_Robin_Nitsche_Core( enum fem::IWG_Type tIWGType )
     // init IWG
     //------------------------------------------------------------------------------
     // create the properties
-    std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property >();
-    tPropMasterConductivity->set_parameters( { { { 2.0 } } } );
-    tPropMasterConductivity->set_val_function( tConstValFunc_Diff );
-    //         tPropMasterConductivity->set_dof_type_list( { tTempDofTypes } );
-    //         tPropMasterConductivity->set_val_function( tTEMPFIValFunc_Diff );
-    //         tPropMasterConductivity->set_dof_derivative_functions( { tTEMPFIDerFunc_Diff } );
+    std::shared_ptr< fem::Property > tPropLeaderConductivity = std::make_shared< fem::Property >();
+    tPropLeaderConductivity->set_parameters( { { { 2.0 } } } );
+    tPropLeaderConductivity->set_val_function( tConstValFunc_Diff );
+    //         tPropLeaderConductivity->set_dof_type_list( { tTempDofTypes } );
+    //         tPropLeaderConductivity->set_val_function( tTEMPFIValFunc_Diff );
+    //         tPropLeaderConductivity->set_dof_derivative_functions( { tTEMPFIDerFunc_Diff } );
 
-    std::shared_ptr< fem::Property > tPropMasterDirichlet = std::make_shared< fem::Property >();
-    tPropMasterDirichlet->set_parameters( { { { 1.0 } } } );
-    tPropMasterDirichlet->set_val_function( tConstValFunc_Diff );
-    //         tPropMasterDirichlet->set_dof_type_list( { tTempDofTypes } );
-    //         tPropMasterDirichlet->set_val_function( tTEMPFIValFunc_Diff );
-    //         tPropMasterDirichlet->set_dof_derivative_functions( { tTEMPFIDerFunc_Diff } );
+    std::shared_ptr< fem::Property > tPropLeaderDirichlet = std::make_shared< fem::Property >();
+    tPropLeaderDirichlet->set_parameters( { { { 1.0 } } } );
+    tPropLeaderDirichlet->set_val_function( tConstValFunc_Diff );
+    //         tPropLeaderDirichlet->set_dof_type_list( { tTempDofTypes } );
+    //         tPropLeaderDirichlet->set_val_function( tTEMPFIValFunc_Diff );
+    //         tPropLeaderDirichlet->set_dof_derivative_functions( { tTEMPFIDerFunc_Diff } );
 
-    std::shared_ptr< fem::Property > tPropMasterNemannPen = std::make_shared< fem::Property >();
-    tPropMasterNemannPen->set_parameters( { { { 0.1 } } } );
-    tPropMasterNemannPen->set_val_function( tConstValFunc_Diff );
+    std::shared_ptr< fem::Property > tPropLeaderNemannPen = std::make_shared< fem::Property >();
+    tPropLeaderNemannPen->set_parameters( { { { 0.1 } } } );
+    tPropLeaderNemannPen->set_val_function( tConstValFunc_Diff );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderDiffLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-    tCMMasterDiffLinIso->set_dof_type_list( { tTempDofTypes } );
+    tCMLeaderDiffLinIso->set_dof_type_list( { tTempDofTypes } );
 
-    tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
-    tCMMasterDiffLinIso->set_local_properties();
+    tCMLeaderDiffLinIso->set_property( tPropLeaderConductivity, "Conductivity" );
+    tCMLeaderDiffLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory                                 tSPFactory;
     std::shared_ptr< fem::Stabilization_Parameter > tSPRobinNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::ROBIN_NITSCHE );
     tSPRobinNitsche->set_parameters( { { { 10.0 } } } );
-    tSPRobinNitsche->set_property( tPropMasterNemannPen, "NeumannPenalty", mtk::Master_Slave::MASTER );
+    tSPRobinNitsche->set_property( tPropLeaderNemannPen, "NeumannPenalty", mtk::Leader_Follower::LEADER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster* tCluster = new fem::Cluster();
@@ -133,9 +133,9 @@ UT_FEM_IWG_Diffusion_Robin_Nitsche_Core( enum fem::IWG_Type tIWGType )
     tIWG->set_residual_dof_type( tTempDofTypes );
     tIWG->set_dof_type_list( { tTempDofTypes } );
     tIWG->set_stabilization_parameter( tSPRobinNitsche, "RobinNitsche" );
-    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion" );
-    tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
-    tIWG->set_property( tPropMasterNemannPen, "NeumannPenalty" );
+    tIWG->set_constitutive_model( tCMLeaderDiffLinIso, "Diffusion" );
+    tIWG->set_property( tPropLeaderDirichlet, "Dirichlet" );
+    tIWG->set_property( tPropLeaderNemannPen, "NeumannPenalty" );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -151,9 +151,9 @@ UT_FEM_IWG_Diffusion_Robin_Nitsche_Core( enum fem::IWG_Type tIWGType )
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
-    // set size and populate the set master dof type map
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+    // set size and populate the set leader dof type map
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
     // loop on the space dimension
     for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -222,7 +222,7 @@ UT_FEM_IWG_Diffusion_Robin_Nitsche_Core( enum fem::IWG_Type tIWGType )
         tGI.set_coeff( tXHat, tTHat );
 
         // set space dimension to CM, SP
-        tCMMasterDiffLinIso->set_space_dim( iSpaceDim );
+        tCMLeaderDiffLinIso->set_space_dim( iSpaceDim );
 
         // loop on the interpolation order
         for ( uint iInterpOrder = 1; iInterpOrder < 4; iInterpOrder++ )
@@ -266,16 +266,16 @@ UT_FEM_IWG_Diffusion_Robin_Nitsche_Core( enum fem::IWG_Type tIWGType )
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatTEMP;
-            fill_that( tMasterDOFHatTEMP, iSpaceDim, iInterpOrder );
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatTEMP;
+            fill_that( tLeaderDOFHatTEMP, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tTempDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tTempDofTypes.size() );
 
             // create the field interpolator temperature
-            tMasterFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatTEMP );
+            tLeaderFIs( 0 ) = new Field_Interpolator( 1, tFIRule, &tGI, tTempDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatTEMP );
 
             // set size and fill the set residual assembly map
             tIWG->mSet->mResDofAssemblyMap.resize( tTempDofTypes.size() );
@@ -294,8 +294,8 @@ UT_FEM_IWG_Diffusion_Robin_Nitsche_Core( enum fem::IWG_Type tIWGType )
             // build global dof type list
             tIWG->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIWG->mRequestedMasterGlobalDofTypes = tTempDofTypes;
+            // populate the requested leader dof type
+            tIWG->mRequestedLeaderGlobalDofTypes = tTempDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
@@ -303,12 +303,12 @@ UT_FEM_IWG_Diffusion_Robin_Nitsche_Core( enum fem::IWG_Type tIWGType )
             Field_Interpolator_Manager                         tFIManager( tTempDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI                     = tMasterFIs;
+            tFIManager.mFI                     = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIWG->mSet->mMasterFIManager = &tFIManager;
+            tIWG->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIWG->set_field_interpolator_manager( &tFIManager );
@@ -324,7 +324,7 @@ UT_FEM_IWG_Diffusion_Robin_Nitsche_Core( enum fem::IWG_Type tIWGType )
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIWG->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIWG->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the residual for IWG
                 //------------------------------------------------------------------------------
@@ -370,7 +370,7 @@ UT_FEM_IWG_Diffusion_Robin_Nitsche_Core( enum fem::IWG_Type tIWGType )
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }
@@ -394,34 +394,34 @@ TEST_CASE( "IWG_Diff_Robin_Geo_Prop", "[moris],[fem],[IWG_Diff_Robin_Geo_Prop]" 
     real tPerturbation = 1E-6;
 
     // create the properties
-    std::shared_ptr< fem::Property > tPropMasterConductivity = std::make_shared< fem::Property >();
-    tPropMasterConductivity->set_parameters( { { { 1.0 } } } );
-    tPropMasterConductivity->set_val_function( tGeoValFunction_UTIWGDIFFDIR );
+    std::shared_ptr< fem::Property > tPropLeaderConductivity = std::make_shared< fem::Property >();
+    tPropLeaderConductivity->set_parameters( { { { 1.0 } } } );
+    tPropLeaderConductivity->set_val_function( tGeoValFunction_UTIWGDIFFDIR );
 
-    std::shared_ptr< fem::Property > tPropMasterDirichlet = std::make_shared< fem::Property >();
-    tPropMasterDirichlet->set_parameters( { { { 1.0 } } } );
-    tPropMasterDirichlet->set_val_function( tGeoValFunction_UTIWGDIFFDIR );
+    std::shared_ptr< fem::Property > tPropLeaderDirichlet = std::make_shared< fem::Property >();
+    tPropLeaderDirichlet->set_parameters( { { { 1.0 } } } );
+    tPropLeaderDirichlet->set_val_function( tGeoValFunction_UTIWGDIFFDIR );
 
-    std::shared_ptr< fem::Property > tPropMasterNemannPen = std::make_shared< fem::Property >();
-    tPropMasterNemannPen->set_parameters( { { { 0.01 } } } );
-    tPropMasterNemannPen->set_val_function( tConstValFunc_Diff );
+    std::shared_ptr< fem::Property > tPropLeaderNemannPen = std::make_shared< fem::Property >();
+    tPropLeaderNemannPen->set_parameters( { { { 0.01 } } } );
+    tPropLeaderNemannPen->set_val_function( tConstValFunc_Diff );
 
     // define constitutive models
     fem::CM_Factory tCMFactory;
 
-    std::shared_ptr< fem::Constitutive_Model > tCMMasterDiffLinIso =
+    std::shared_ptr< fem::Constitutive_Model > tCMLeaderDiffLinIso =
             tCMFactory.create_CM( fem::Constitutive_Type::DIFF_LIN_ISO );
-    tCMMasterDiffLinIso->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
-    tCMMasterDiffLinIso->set_property( tPropMasterConductivity, "Conductivity" );
-    tCMMasterDiffLinIso->set_space_dim( 3 );
-    tCMMasterDiffLinIso->set_local_properties();
+    tCMLeaderDiffLinIso->set_dof_type_list( { { MSI::Dof_Type::TEMP } } );
+    tCMLeaderDiffLinIso->set_property( tPropLeaderConductivity, "Conductivity" );
+    tCMLeaderDiffLinIso->set_space_dim( 3 );
+    tCMLeaderDiffLinIso->set_local_properties();
 
     // define stabilization parameters
     fem::SP_Factory                                 tSPFactory;
     std::shared_ptr< fem::Stabilization_Parameter > tSPRobinNitsche =
             tSPFactory.create_SP( fem::Stabilization_Type::ROBIN_NITSCHE );
     tSPRobinNitsche->set_parameters( { { { 10.0 } } } );
-    tSPRobinNitsche->set_property( tPropMasterNemannPen, "NeumannPenalty", mtk::Master_Slave::MASTER );
+    tSPRobinNitsche->set_property( tPropLeaderNemannPen, "NeumannPenalty", mtk::Leader_Follower::LEADER );
 
     // create a dummy fem cluster and set it to SP
     fem::Cluster* tCluster = new fem::Cluster();
@@ -432,11 +432,11 @@ TEST_CASE( "IWG_Diff_Robin_Geo_Prop", "[moris],[fem],[IWG_Diff_Robin_Geo_Prop]" 
 
     std::shared_ptr< fem::IWG > tIWG = tIWGFactory.create_IWG( fem::IWG_Type::SPATIALDIFF_ROBIN_SYMMETRIC_NITSCHE );
     tIWG->set_residual_dof_type( { { MSI::Dof_Type::TEMP } } );
-    tIWG->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Master_Slave::MASTER );
+    tIWG->set_dof_type_list( { { MSI::Dof_Type::TEMP } }, mtk::Leader_Follower::LEADER );
     tIWG->set_stabilization_parameter( tSPRobinNitsche, "RobinNitsche" );
-    tIWG->set_constitutive_model( tCMMasterDiffLinIso, "Diffusion" );
-    tIWG->set_property( tPropMasterDirichlet, "Dirichlet" );
-    tIWG->set_property( tPropMasterNemannPen, "NeumannPenalty" );
+    tIWG->set_constitutive_model( tCMLeaderDiffLinIso, "Diffusion" );
+    tIWG->set_property( tPropLeaderDirichlet, "Dirichlet" );
+    tIWG->set_property( tPropLeaderNemannPen, "NeumannPenalty" );
 
     // set the normal
     //------------------------------------------------------------------------------
@@ -515,8 +515,8 @@ TEST_CASE( "IWG_Diff_Robin_Geo_Prop", "[moris],[fem],[IWG_Diff_Robin_Geo_Prop]" 
     tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
     tIWG->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
-    tIWG->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIWG->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
+    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
 
     tIWG->mSet->mResDofAssemblyMap.resize( 1 );
     tIWG->mSet->mJacDofAssemblyMap.resize( 1 );
@@ -530,7 +530,7 @@ TEST_CASE( "IWG_Diff_Robin_Geo_Prop", "[moris],[fem],[IWG_Diff_Robin_Geo_Prop]" 
     // build global dof type list
     tIWG->get_global_dof_type_list();
 
-    tIWG->mRequestedMasterGlobalDofTypes = { { MSI::Dof_Type::TEMP } };
+    tIWG->mRequestedLeaderGlobalDofTypes = { { MSI::Dof_Type::TEMP } };
 
     moris::Cell< moris::Cell< enum MSI::Dof_Type > > tDummy;
     Field_Interpolator_Manager                       tFIManager( tDummy, tSet );

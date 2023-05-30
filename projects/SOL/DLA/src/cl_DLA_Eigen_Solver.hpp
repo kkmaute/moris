@@ -197,7 +197,7 @@ namespace moris
              * @brief get eigenvector solution and save as hdf5 file
              * @param[in] aEigValIndex  Index of eigenvalue
              * @param[in] aSolVec       Current eigenvector
-             * @param[in] aMasterSolVec Master solution vector
+             * @param[in] aLeaderSolVec Leader solution vector
              * @param[in] aEigValReal   Real eigenvalue
              * @param[in] aEigValImag   Imaginary eigenvalue
              */
@@ -205,7 +205,7 @@ namespace moris
             int get_solution(
                     uint           aEigValIndex,
                     Vector_Epetra* aSolVec,
-                    Vector_Epetra* aMasterSolVec,
+                    Vector_Epetra* aLeaderSolVec,
                     real&          aEigValReal,
                     real&          aEigValImag );
 

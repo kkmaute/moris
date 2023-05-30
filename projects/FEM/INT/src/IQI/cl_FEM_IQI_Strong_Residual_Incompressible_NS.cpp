@@ -26,7 +26,7 @@ namespace moris
             mFEMIQIType = fem::IQI_Type::STRONG_RESIDUAL_INCOMPRESSIBLE_NS;
 
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IQI_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Gravity" ]          = static_cast< uint >( IQI_Property_Type::GRAVITY );
@@ -37,7 +37,7 @@ namespace moris
             mPropertyMap[ "Load" ]             = static_cast< uint >( IQI_Property_Type::BODY_LOAD );
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "IncompressibleFluid" ] =
@@ -70,31 +70,31 @@ namespace moris
 
             // get the velocity and pressure FIs
             Field_Interpolator* tVelocityFI =
-                    mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+                    mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
 
             // get the properties
             const std::shared_ptr< Property >& tGravityProp =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::GRAVITY ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::GRAVITY ) );
 
             const std::shared_ptr< Property >& tThermalExpProp =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::THERMAL_EXPANSION ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::THERMAL_EXPANSION ) );
 
             const std::shared_ptr< Property >& tRefTempProp =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::REF_TEMP ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::REF_TEMP ) );
 
             const std::shared_ptr< Property >& tInvPermeabProp =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::INV_PERMEABILITY ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::INV_PERMEABILITY ) );
 
             const std::shared_ptr< Property >& tMassSourceProp =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::MASS_SOURCE ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::MASS_SOURCE ) );
 
             // get the body load property
             const std::shared_ptr< Property >& tLoadProp =
-                    mMasterProp( static_cast< uint >( IQI_Property_Type::BODY_LOAD ) );
+                    mLeaderProp( static_cast< uint >( IQI_Property_Type::BODY_LOAD ) );
 
             // get the incompressible fluid constitutive model
             const std::shared_ptr< Constitutive_Model >& tIncFluidCM =
-                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
 
             // get the density property from CM
             const std::shared_ptr< Property >& tDensityProp =
@@ -152,7 +152,7 @@ namespace moris
                         // get the temperature field interpolator
                         // FIXME protect FI
                         Field_Interpolator* tTempFI =
-                                mMasterFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
+                                mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::TEMP );
 
                         // add contribution to residual
                         tRes -= tDensity * tGravityProp->val() * tThermalExpProp->val()

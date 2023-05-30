@@ -24,7 +24,7 @@ namespace moris
         void eval_A(
                 std::shared_ptr< Material_Model >                   aMM,
                 std::shared_ptr< Constitutive_Model >               aCM,
-                Field_Interpolator_Manager                        * aMasterFIManager,
+                Field_Interpolator_Manager                        * aLeaderFIManager,
                 const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
                 moris::Cell< Matrix< DDRMat > >                   & aAMats )
         {
@@ -33,7 +33,7 @@ namespace moris
                     "fn_FEM_IWG_Compressible_NS::eval_A_matrices - list of aResidualDofTypes not supported, see messages above." );
 
             // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
 
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
@@ -143,11 +143,11 @@ namespace moris
         void eval_K(
                 std::shared_ptr< Property >                      aPropDynamicViscosity,
                 std::shared_ptr< Property >                      aPropThermalConductivity,
-                Field_Interpolator_Manager                     * aMasterFIManager,
+                Field_Interpolator_Manager                     * aLeaderFIManager,
                 moris::Cell< moris::Cell< Matrix< DDRMat > > > & aKMats )
         {
             // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
 
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
@@ -305,7 +305,7 @@ namespace moris
 
         void eval_KijYj(
                 std::shared_ptr< Constitutive_Model >               aCM,
-                Field_Interpolator_Manager                        * aMasterFIManager,
+                Field_Interpolator_Manager                        * aLeaderFIManager,
                 const moris::Cell< moris::Cell< MSI::Dof_Type > > & aResidualDofTypes,
                 Matrix< DDRMat >                                  & aKijYj )
         {
@@ -314,7 +314,7 @@ namespace moris
                     "fn_FEM_IWG_Compressible_NS::eval_KijYj - list of aResidualDofTypes not supported, see error messages above." );
 
             // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
 
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
@@ -335,7 +335,7 @@ namespace moris
 
         void eval_KijYji(
                 std::shared_ptr< Constitutive_Model >                aCM,
-                Field_Interpolator_Manager                         * aMasterFIManager,
+                Field_Interpolator_Manager                         * aLeaderFIManager,
                 const moris::Cell< moris::Cell< MSI::Dof_Type > >  & aResidualDofTypes,
                 Matrix< DDRMat >                                   & aKijYji )
         {
@@ -344,7 +344,7 @@ namespace moris
                     "fn_FEM_IWG_Compressible_NS::eval_KijYji - list of aResidualDofTypes not supported, see error messages above." );
 
             // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
 
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();
@@ -366,11 +366,11 @@ namespace moris
         void eval_dKijdxi(
                 std::shared_ptr< Property >       aPropDynamicViscosity,
                 std::shared_ptr< Property >       aPropThermalConductivity,
-                Field_Interpolator_Manager      * aMasterFIManager,
+                Field_Interpolator_Manager      * aLeaderFIManager,
                 moris::Cell< Matrix< DDRMat > > & adKijdxi )
         {
             // get the velocity FI
-            Field_Interpolator * tFIVelocity =  aMasterFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
+            Field_Interpolator * tFIVelocity =  aLeaderFIManager->get_field_interpolators_for_type( { MSI::Dof_Type::VX } );
 
             // get number of Space dimensions
             uint tNumSpaceDims = tFIVelocity->get_number_of_fields();

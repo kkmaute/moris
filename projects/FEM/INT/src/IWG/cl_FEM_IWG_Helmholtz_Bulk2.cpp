@@ -35,7 +35,7 @@ namespace moris
             mResidualDofType = { MSI::Dof_Type::VX };
 
             // set the active dof type
-            mMasterDofTypes = { { MSI::Dof_Type::VX } ,
+            mLeaderDofTypes = { { MSI::Dof_Type::VX } ,
                                 { MSI::Dof_Type::LS1 } };
         }
 
@@ -44,8 +44,8 @@ namespace moris
         void IWG_Helmholtz_Bulk2::compute_residual( real tWStar )
         {
             // set field interpolator
-            Field_Interpolator* vN  = mMasterFI( 0 );
-            Field_Interpolator* phi = mMasterFI( 1 );
+            Field_Interpolator* vN  = mLeaderFI( 0 );
+            Field_Interpolator* phi = mLeaderFI( 1 );
 
             //FIXME set unfiltered velocity value
             uint tVNBases = vN->get_number_of_space_time_bases();
@@ -67,7 +67,7 @@ namespace moris
                 tDiracFilter = 0.5 * mSharpParam * ( 1.0 - std::pow( tTanh, 2.0 ) );
             }
 
-            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
+            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
 
             // compute the residual
             mSet->get_residual()( 0 )( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) }, { 0, 0 } )
@@ -80,8 +80,8 @@ namespace moris
         void IWG_Helmholtz_Bulk2::compute_jacobian( real tWStar )
         {
             // set field interpolator
-            Field_Interpolator* vN  = mMasterFI( 0 );
-            Field_Interpolator* phi = mMasterFI( 1 );
+            Field_Interpolator* vN  = mLeaderFI( 0 );
+            Field_Interpolator* phi = mLeaderFI( 1 );
 
             //FIXME set unfiltered velocity value
             uint tVNBases = vN->get_number_of_space_time_bases();
@@ -111,7 +111,7 @@ namespace moris
 //                tDDiracFilter = - 2 * mSharpParam * tDiracFilter * tTanh;
             }
 
-            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
+            uint tDofIndex = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
             // compute the jacobian j_vN_vN
             mSet->get_jacobian()( { mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 0 ), mSet->get_res_dof_assembly_map()( tDofIndex )( 0, 1 ) },
                                   { mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 0 ), mSet->get_jac_dof_assembly_map()( tDofIndex )( tDofIndex, 1 ) } )

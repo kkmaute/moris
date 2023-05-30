@@ -239,17 +239,17 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
 
         for ( moris::uint i = 0; i < tDoubleSideCluster.size(); i++ )
         {
-            moris::real tMasterPrimaryVolume = tDoubleSideCluster( i )->compute_cluster_cell_measure( mtk::Primary_Void::PRIMARY, mtk::Master_Slave::MASTER );
-            moris::real tSlavePrimaryVolume  = tDoubleSideCluster( i )->compute_cluster_cell_measure( mtk::Primary_Void::PRIMARY, mtk::Master_Slave::SLAVE );
-            moris::real tMasterVoidVolume    = tDoubleSideCluster( i )->compute_cluster_cell_measure( mtk::Primary_Void::VOID, mtk::Master_Slave::MASTER );
-            moris::real tSlaveVoidVolume     = tDoubleSideCluster( i )->compute_cluster_cell_measure( mtk::Primary_Void::VOID, mtk::Master_Slave::SLAVE );
-            CHECK( std::abs( tMasterPrimaryVolume + tSlavePrimaryVolume + tMasterVoidVolume + tSlaveVoidVolume - tGoldVolume ) < 1e-8 );
+            moris::real tLeaderPrimaryVolume = tDoubleSideCluster( i )->compute_cluster_cell_measure( mtk::Primary_Void::PRIMARY, mtk::Leader_Follower::LEADER );
+            moris::real tFollowerPrimaryVolume  = tDoubleSideCluster( i )->compute_cluster_cell_measure( mtk::Primary_Void::PRIMARY, mtk::Leader_Follower::FOLLOWER );
+            moris::real tLeaderVoidVolume    = tDoubleSideCluster( i )->compute_cluster_cell_measure( mtk::Primary_Void::VOID, mtk::Leader_Follower::LEADER );
+            moris::real tFollowerVoidVolume     = tDoubleSideCluster( i )->compute_cluster_cell_measure( mtk::Primary_Void::VOID, mtk::Leader_Follower::FOLLOWER );
+            CHECK( std::abs( tLeaderPrimaryVolume + tFollowerPrimaryVolume + tLeaderVoidVolume + tFollowerVoidVolume - tGoldVolume ) < 1e-8 );
 
-            moris::real tMasterSurfaceArea = tDoubleSideCluster( i )->compute_cluster_cell_side_measure( mtk::Primary_Void::PRIMARY, mtk::Master_Slave::MASTER );
-            CHECK( std::abs( tGoldSurface - tMasterSurfaceArea ) < 1e-8 );
+            moris::real tLeaderSurfaceArea = tDoubleSideCluster( i )->compute_cluster_cell_side_measure( mtk::Primary_Void::PRIMARY, mtk::Leader_Follower::LEADER );
+            CHECK( std::abs( tGoldSurface - tLeaderSurfaceArea ) < 1e-8 );
 
-            moris::real tSlaveSurfaceArea = tDoubleSideCluster( i )->compute_cluster_cell_side_measure( mtk::Primary_Void::PRIMARY, mtk::Master_Slave::SLAVE );
-            CHECK( std::abs( tGoldSurface - tSlaveSurfaceArea ) < 1e-8 );
+            moris::real tFollowerSurfaceArea = tDoubleSideCluster( i )->compute_cluster_cell_side_measure( mtk::Primary_Void::PRIMARY, mtk::Leader_Follower::FOLLOWER );
+            CHECK( std::abs( tGoldSurface - tFollowerSurfaceArea ) < 1e-8 );
         }
 
         // Enriched_Interpolation_Mesh& tEnrIpMesh    = tXTKModel.get_enriched_interp_mesh();

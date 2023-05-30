@@ -127,19 +127,19 @@ namespace moris
             tParameterList.insert( "stabilization_name", "undefined" );
             tParameterList.insert( "stabilization_type", (uint)( fem::Stabilization_Type::UNDEFINED ) );
             tParameterList.insert( "function_parameters", "" );
-            tParameterList.insert( "master_dof_dependencies", std::pair< std::string, std::string >( "", "" ) );
-            tParameterList.insert( "slave_dof_dependencies", std::pair< std::string, std::string >( "", "" ) );
-            tParameterList.insert( "master_dv_dependencies", std::pair< std::string, std::string >( "", "" ) );
-            tParameterList.insert( "slave_dv_dependencies", std::pair< std::string, std::string >( "", "" ) );
-            tParameterList.insert( "master_properties", "" );
-            tParameterList.insert( "slave_properties", "" );
-            tParameterList.insert( "master_constitutive_models", "" );
-            tParameterList.insert( "slave_constitutive_models", "" );
+            tParameterList.insert( "leader_dof_dependencies", std::pair< std::string, std::string >( "", "" ) );
+            tParameterList.insert( "follower_dof_dependencies", std::pair< std::string, std::string >( "", "" ) );
+            tParameterList.insert( "leader_dv_dependencies", std::pair< std::string, std::string >( "", "" ) );
+            tParameterList.insert( "follower_dv_dependencies", std::pair< std::string, std::string >( "", "" ) );
+            tParameterList.insert( "leader_properties", "" );
+            tParameterList.insert( "follower_properties", "" );
+            tParameterList.insert( "leader_constitutive_models", "" );
+            tParameterList.insert( "follower_constitutive_models", "" );
             tParameterList.insert( "cluster_measures", std::pair< std::string, std::string >( "", "" ) );
             tParameterList.insert( "stabilization_dof_type", "" );
 
-            tParameterList.insert( "master_phase_name", "" );
-            tParameterList.insert( "slave_phase_name", "" );
+            tParameterList.insert( "leader_phase_name", "" );
+            tParameterList.insert( "follower_phase_name", "" );
 
             return tParameterList;
         }
@@ -160,34 +160,34 @@ namespace moris
             tParameterList.insert( "IWG_type", (uint)( fem::IWG_Type::UNDEFINED ) );
             tParameterList.insert( "dof_residual", "" );
 
-            tParameterList.insert( "master_phase_name", "" );
-            tParameterList.insert( "slave_phase_name", "" );
-            tParameterList.insert( "master_dof_dependencies", "" );
-            tParameterList.insert( "slave_dof_dependencies", "" );
-            tParameterList.insert( "master_dv_dependencies", "" );
-            tParameterList.insert( "slave_dv_dependencies", "" );
-            tParameterList.insert( "master_field_types", "" );
-            tParameterList.insert( "slave_field_types", "" );
+            tParameterList.insert( "leader_phase_name", "" );
+            tParameterList.insert( "follower_phase_name", "" );
+            tParameterList.insert( "leader_dof_dependencies", "" );
+            tParameterList.insert( "follower_dof_dependencies", "" );
+            tParameterList.insert( "leader_dv_dependencies", "" );
+            tParameterList.insert( "follower_dv_dependencies", "" );
+            tParameterList.insert( "leader_field_types", "" );
+            tParameterList.insert( "follower_field_types", "" );
 
             tParameterList.insert( "function_parameters", "" );
 
-            tParameterList.insert( "master_properties", "" );
-            tParameterList.insert( "slave_properties", "" );
-            tParameterList.insert( "master_material_model", "" );
-            tParameterList.insert( "slave_material_model", "" );
-            tParameterList.insert( "master_constitutive_models", "" );
-            tParameterList.insert( "slave_constitutive_models", "" );
+            tParameterList.insert( "leader_properties", "" );
+            tParameterList.insert( "follower_properties", "" );
+            tParameterList.insert( "leader_material_model", "" );
+            tParameterList.insert( "follower_material_model", "" );
+            tParameterList.insert( "leader_constitutive_models", "" );
+            tParameterList.insert( "follower_constitutive_models", "" );
             tParameterList.insert( "stabilization_parameters", "" );
 
-            tParameterList.insert( "master_physics", "" );
-            tParameterList.insert( "slave_physics", "" );
+            tParameterList.insert( "leader_physics", "" );
+            tParameterList.insert( "follower_physics", "" );
             tParameterList.insert( "stabilizations", "" );
 
             tParameterList.insert( "ghost_order", MORIS_UINT_MAX );
 
             tParameterList.insert( "mesh_set_names", "" );
-            tParameterList.insert( "master_phase_name", "" );
-            tParameterList.insert( "slave_phase_name", "" );
+            tParameterList.insert( "leader_phase_name", "" );
+            tParameterList.insert( "follower_phase_name", "" );
             tParameterList.insert( "side_ordinals", "" );
             tParameterList.insert( "neighbor_phases", "" );
 
@@ -214,29 +214,29 @@ namespace moris
             tParameterList.insert( "dof_quantity", "" );
             tParameterList.insert( "vectorial_field_index", -1 );
 
-            tParameterList.insert( "master_phase_name", "" );
-            tParameterList.insert( "slave_phase_name", "" );
-            tParameterList.insert( "master_dof_dependencies", "" );
-            tParameterList.insert( "slave_dof_dependencies", "" );
-            tParameterList.insert( "master_dv_dependencies", "" );
-            tParameterList.insert( "slave_dv_dependencies", "" );
-            tParameterList.insert( "master_field_types", "" );
-            tParameterList.insert( "slave_field_types", "" );
+            tParameterList.insert( "leader_phase_name", "" );
+            tParameterList.insert( "follower_phase_name", "" );
+            tParameterList.insert( "leader_dof_dependencies", "" );
+            tParameterList.insert( "follower_dof_dependencies", "" );
+            tParameterList.insert( "leader_dv_dependencies", "" );
+            tParameterList.insert( "follower_dv_dependencies", "" );
+            tParameterList.insert( "leader_field_types", "" );
+            tParameterList.insert( "follower_field_types", "" );
 
             tParameterList.insert( "function_parameters", "" );
 
-            tParameterList.insert( "master_properties", "" );
-            tParameterList.insert( "slave_properties", "" );
-            tParameterList.insert( "master_constitutive_models", "" );
-            tParameterList.insert( "slave_constitutive_models", "" );
+            tParameterList.insert( "leader_properties", "" );
+            tParameterList.insert( "follower_properties", "" );
+            tParameterList.insert( "leader_constitutive_models", "" );
+            tParameterList.insert( "follower_constitutive_models", "" );
             tParameterList.insert( "stabilization_parameters", "" );
 
-            tParameterList.insert( "master_physics", "" );
-            tParameterList.insert( "slave_physics", "" );
+            tParameterList.insert( "leader_physics", "" );
+            tParameterList.insert( "follower_physics", "" );
             tParameterList.insert( "stabilizations", "" );
 
-            tParameterList.insert( "master_phase_name", "" );
-            tParameterList.insert( "slave_phase_name", "" );
+            tParameterList.insert( "leader_phase_name", "" );
+            tParameterList.insert( "follower_phase_name", "" );
             tParameterList.insert( "mesh_set_names", "" );
             tParameterList.insert( "side_ordinals", "" );
             tParameterList.insert( "neighbor_phases", "" );
@@ -245,7 +245,7 @@ namespace moris
             tParameterList.insert( "time_boundary", false );
 
             // determines on which side of the double side set information gets written to the VIS mesh
-            tParameterList.insert( "output_side", (uint)( mtk::Master_Slave::MASTER ) );
+            tParameterList.insert( "output_side", (uint)( mtk::Leader_Follower::LEADER ) );
 
             tParameterList.insert( "normalization", "none" );    // options: time, design, vector of reference values
 

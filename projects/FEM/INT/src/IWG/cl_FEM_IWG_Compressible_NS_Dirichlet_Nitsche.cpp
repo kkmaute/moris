@@ -32,7 +32,7 @@ namespace moris
             mBeta = aBeta;
 
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "PrescribedDof1" ]      = static_cast< uint >( IWG_Property_Type::PRESCRIBED_DOF_1 );
@@ -44,13 +44,13 @@ namespace moris
             mPropertyMap[ "ThermalConductivity" ] = static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY );
 
             // set size for the material model pointer cell
-            mMasterMM.resize( static_cast< uint >( IWG_Material_Type::MAX_ENUM ), nullptr );
+            mLeaderMM.resize( static_cast< uint >( IWG_Material_Type::MAX_ENUM ), nullptr );
 
             // populate the material map
             mMaterialMap[ "FluidMM" ] = static_cast< uint >( IWG_Material_Type::FLUID_MM );
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "FluidCM" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID_CM );
@@ -83,7 +83,7 @@ namespace moris
 
         void IWG_Compressible_NS_Dirichlet_Nitsche::compute_residual( real aWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
@@ -129,7 +129,7 @@ namespace moris
             }
 
             // get the upwind property
-            std::shared_ptr< Property > tPropUpwind = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSUREUPWIND ) );
+            std::shared_ptr< Property > tPropUpwind = mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESSUREUPWIND ) );
 
             // Upwind Term
             if ( tPropUpwind != nullptr )
@@ -150,7 +150,7 @@ namespace moris
 
         void IWG_Compressible_NS_Dirichlet_Nitsche::compute_jacobian( real aWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
@@ -159,7 +159,7 @@ namespace moris
                     "IWG_Compressible_NS_Dirichlet_Nitsche::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
             // check DoF dependencies
-            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ),
+            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedLeaderGlobalDofTypes ),
                     "IWG_Compressible_NS_Dirichlet_Nitsche::compute_jacobian() - Set of DoF dependencies not suppported. See error message above." );
 
             // get number of space dimensions
@@ -202,11 +202,11 @@ namespace moris
             }
 
             // get the material and constitutive models
-            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
-            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+            std::shared_ptr< Material_Model > tMM = mLeaderMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+            std::shared_ptr< Constitutive_Model > tCM = mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
 
             // get the upwind property
-            std::shared_ptr< Property > tPropUpwind = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSUREUPWIND ) );
+            std::shared_ptr< Property > tPropUpwind = mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESSUREUPWIND ) );
 
             // Upwind Term
             if ( tPropUpwind != nullptr )
@@ -229,7 +229,7 @@ namespace moris
         void IWG_Compressible_NS_Dirichlet_Nitsche::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators
+            // check leader field interpolators
             this->check_field_interpolators();
 #endif
 
@@ -241,7 +241,7 @@ namespace moris
         void IWG_Compressible_NS_Dirichlet_Nitsche::compute_dRdp( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators, properties and constitutive models
+            // check leader field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 

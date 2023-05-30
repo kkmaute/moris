@@ -448,28 +448,28 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 fem::SP_Factory tSPFactory;
                 std::shared_ptr< fem::Stabilization_Parameter > tSPDirichletNitsche = tSPFactory.create_SP( fem::Stabilization_Type::DIRICHLET_NITSCHE );
                 tSPDirichletNitsche->set_parameters( { {{ tDBCGamma }} } );
-                tSPDirichletNitsche->set_property( tPropEMod, "Material", mtk::Master_Slave::MASTER );
+                tSPDirichletNitsche->set_property( tPropEMod, "Material", mtk::Leader_Follower::LEADER );
 
                 std::shared_ptr< fem::Stabilization_Parameter > tSPGhost = tSPFactory.create_SP( fem::Stabilization_Type::GHOST_DISPL );
                 tSPGhost->set_parameters( { {{ 0.01 }} });
-                tSPGhost->set_property( tPropEMod, "Material", mtk::Master_Slave::MASTER );
+                tSPGhost->set_property( tPropEMod, "Material", mtk::Leader_Follower::LEADER );
 
                 // define the IQIs
                 fem::IQI_Factory tIQIFactory;
 
                 std::shared_ptr< fem::IQI > tIQIUrAnalytic = tIQIFactory.create_IQI( fem::IQI_Type::PROPERTY );
-                tIQIUrAnalytic->set_property( tPropUrAnalytic, "Property", mtk::Master_Slave::MASTER );
+                tIQIUrAnalytic->set_property( tPropUrAnalytic, "Property", mtk::Leader_Follower::LEADER );
 
                 std::shared_ptr< fem::IQI > tIQIUX = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
                 tIQIUX->set_quantity_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
                 tIQIUX->set_output_type( vis::Output_Type::UX );
-                tIQIUX->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
+                tIQIUX->set_dof_type_list( { tResDofTypes }, mtk::Leader_Follower::LEADER );
                 tIQIUX->set_output_type_index( 0 );
 
                 std::shared_ptr< fem::IQI > tIQIUY = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
                 tIQIUY->set_quantity_dof_type( { MSI::Dof_Type::UX, MSI::Dof_Type::UY } );
                 tIQIUY->set_output_type( vis::Output_Type::UY );
-                tIQIUY->set_dof_type_list( { tResDofTypes }, mtk::Master_Slave::MASTER );
+                tIQIUY->set_dof_type_list( { tResDofTypes }, mtk::Leader_Follower::LEADER );
                 tIQIUY->set_output_type_index( 1 );
 
                 // define the IWGs
@@ -478,34 +478,34 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 std::shared_ptr< fem::IWG > tIWGBulkA = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_BULK );
                 tIWGBulkA->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
                 tIWGBulkA->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-                tIWGBulkA->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
+                tIWGBulkA->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Leader_Follower::LEADER );
 
                 std::shared_ptr< fem::IWG > tIWGDirichletX = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
                 tIWGDirichletX->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
                 tIWGDirichletX->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
                 tIWGDirichletX->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-                tIWGDirichletX->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
-                tIWGDirichletX->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
-                tIWGDirichletX->set_property( tPropDirichletSelectX, "Select", mtk::Master_Slave::MASTER );
+                tIWGDirichletX->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Leader_Follower::LEADER );
+                tIWGDirichletX->set_property( tPropDirichlet, "Dirichlet", mtk::Leader_Follower::LEADER );
+                tIWGDirichletX->set_property( tPropDirichletSelectX, "Select", mtk::Leader_Follower::LEADER );
 
                 std::shared_ptr< fem::IWG > tIWGDirichletY = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE );
                 tIWGDirichletY->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
                 tIWGDirichletY->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
                 tIWGDirichletY->set_stabilization_parameter( tSPDirichletNitsche, "DirichletNitsche" );
-                tIWGDirichletY->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Master_Slave::MASTER );
-                tIWGDirichletY->set_property( tPropDirichlet, "Dirichlet", mtk::Master_Slave::MASTER );
-                tIWGDirichletY->set_property( tPropDirichletSelectY, "Select", mtk::Master_Slave::MASTER );
+                tIWGDirichletY->set_constitutive_model( tCMStrucLinIso1, "ElastLinIso", mtk::Leader_Follower::LEADER );
+                tIWGDirichletY->set_property( tPropDirichlet, "Dirichlet", mtk::Leader_Follower::LEADER );
+                tIWGDirichletY->set_property( tPropDirichletSelectY, "Select", mtk::Leader_Follower::LEADER );
 
                 std::shared_ptr< fem::IWG > tIWGNeumann = tIWGFactory.create_IWG( fem::IWG_Type::STRUC_LINEAR_NEUMANN );
                 tIWGNeumann->set_residual_dof_type( { { MSI::Dof_Type::UX, MSI::Dof_Type::UY } } );
                 tIWGNeumann->set_dof_type_list( {{ MSI::Dof_Type::UX, MSI::Dof_Type::UY }} );
-                tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Master_Slave::MASTER );
+                tIWGNeumann->set_property( tPropNeumann, "Neumann", mtk::Leader_Follower::LEADER );
 
                 // GHOST STABILIZATION SETUP
                 std::shared_ptr< fem::IWG > tIWGGhost = tIWGFactory.create_IWG( fem::IWG_Type::GHOST_NORMAL_FIELD );
                 tIWGGhost->set_residual_dof_type( tDofTypes );
                 tIWGGhost->set_dof_type_list( { tDofTypes } );
-                tIWGGhost->set_dof_type_list( { tDofTypes }, mtk::Master_Slave::SLAVE );
+                tIWGGhost->set_dof_type_list( { tDofTypes }, mtk::Leader_Follower::FOLLOWER );
                 tIWGGhost->set_stabilization_parameter( tSPGhost, "GhostSP" );
 
                 // define set info

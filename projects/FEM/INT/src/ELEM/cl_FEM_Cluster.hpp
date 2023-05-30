@@ -50,13 +50,13 @@ namespace moris
             // time sideset information
             Matrix< IndexMat > mListOfTimeOrdinals;
 
-            // list of pointers to the master and slave mesh integration cells
-            moris::Cell< const mtk::Cell * > mMasterIntegrationCells;
-            moris::Cell< const mtk::Cell * > mSlaveIntegrationCells;
+            // list of pointers to the leader and follower mesh integration cells
+            moris::Cell< const mtk::Cell * > mLeaderIntegrationCells;
+            moris::Cell< const mtk::Cell * > mFollowerIntegrationCells;
 
-            // master and slave side ordinal information
-            Matrix< IndexMat > mMasterListOfSideOrdinals;
-            Matrix< IndexMat > mSlaveListOfSideOrdinals;
+            // leader and follower side ordinal information
+            Matrix< IndexMat > mLeaderListOfSideOrdinals;
+            Matrix< IndexMat > mFollowerListOfSideOrdinals;
 
             // list of pointers to element
             moris::Cell< fem::Element * > mElements;
@@ -78,7 +78,7 @@ namespace moris
             moris::Cell< std::shared_ptr< Cluster_Measure > > mClusterMEA;
 
             // cluster measure map
-            std::map< std::tuple< fem::Measure_Type, mtk::Primary_Void, mtk::Master_Slave >, uint > mClusterMEAMap;
+            std::map< std::tuple< fem::Measure_Type, mtk::Primary_Void, mtk::Leader_Follower >, uint > mClusterMEAMap;
 
             friend class Element_Bulk;
             friend class Element_Sideset;
@@ -145,7 +145,7 @@ namespace moris
              * @param[ out ] mMeshCluster a mesh cluster
              */
             Matrix< IndexMat > &get_side_ordinal_info(
-                    mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
@@ -174,12 +174,12 @@ namespace moris
              * get the IG cell local coordinates on the side wrt to the IP cell
              * @param[ in ] aCellIndexInCluster index of the IG cell within the cluster
              * @param[ in ] aSideOrdinal        ordinal for the side
-             * @param[ in ] aIsMaster           enum for master or slave
+             * @param[ in ] aIsLeader           enum for leader or follower
              */
             moris::Matrix< moris::DDRMat > get_cell_local_coords_on_side_wrt_interp_cell(
                     moris::moris_index aCellIndexInCluster,
                     moris::moris_index aSideOrdinal,
-                    mtk::Master_Slave  aIsMaster = mtk::Master_Slave::MASTER );
+                    mtk::Leader_Follower  aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
@@ -201,7 +201,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
             /**
-             * get the index of the vertex associated with a given master vertex
+             * get the index of the vertex associated with a given leader vertex
              * @param[ in ] aLeftVertex mesh vertex pointer
              */
             const moris::mtk::Vertex *get_left_vertex_pair(
@@ -297,7 +297,7 @@ namespace moris
             std::shared_ptr< Cluster_Measure > &get_cluster_measure(
                     fem::Measure_Type aMeasureType,
                     mtk::Primary_Void aIsPrimary,
-                    mtk::Master_Slave aIsMaster );
+                    mtk::Leader_Follower aIsLeader );
 
             //------------------------------------------------------------------------------
             /**
@@ -327,7 +327,7 @@ namespace moris
              */
             moris::real compute_cluster_cell_measure(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
             /*
@@ -335,7 +335,7 @@ namespace moris
              */
             moris::Matrix< DDRMat > compute_cluster_cell_measure_derivative(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER );
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /*
@@ -344,7 +344,7 @@ namespace moris
              */
             moris::real compute_cluster_cell_side_measure(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
             /*
@@ -353,7 +353,7 @@ namespace moris
              */
             moris::Matrix< DDRMat > compute_cluster_cell_side_measure_derivative(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER );
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /*
@@ -361,7 +361,7 @@ namespace moris
              */
             moris::real compute_cluster_cell_length_measure(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
             /*
@@ -369,15 +369,15 @@ namespace moris
              */
             moris::Matrix< DDRMat > compute_cluster_cell_length_measure_derivative(
                     const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                    const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER );
+                    const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /*
-             * Compute the ip element size (length) master or slave
-             * @param[ in ] aIsMaster enum for master or slave
+             * Compute the ip element size (length) leader or follower
+             * @param[ in ] aIsLeader enum for leader or follower
              */
             moris::real compute_ip_cell_length_measure(
-                    const mtk::Master_Slave aIsMaster ) const;
+                    const mtk::Leader_Follower aIsLeader ) const;
 
             //------------------------------------------------------------------------------
             /**

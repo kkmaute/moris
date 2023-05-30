@@ -24,8 +24,8 @@ namespace moris
             mFEMIQIType = fem::IQI_Type::JUMP_TRACTION;
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
-            mSlaveCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
+            mFollowerCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO );
@@ -37,14 +37,14 @@ namespace moris
         IQI_Jump_Traction::compute_QI( Matrix< DDRMat >& aQI )
         {
             // get the elasticity constitutive model
-            const std::shared_ptr< Constitutive_Model >& tCMMasterElasticity =
-                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) );
-            const std::shared_ptr< Constitutive_Model >& tCMSlaveElasticity =
-                    mSlaveCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model >& tCMLeaderElasticity =
+                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model >& tCMFollowerElasticity =
+                    mFollowerCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // evaluate average traction difference
             const Matrix< DDRMat > tTractionJump =
-                    tCMMasterElasticity->traction( mNormal ) - tCMSlaveElasticity->traction( - mNormal );
+                    tCMLeaderElasticity->traction( mNormal ) - tCMFollowerElasticity->traction( - mNormal );
 
             // based on the IQI index select the norm or the individual component
             if ( mIQITypeIndex == -1 )
@@ -68,14 +68,14 @@ namespace moris
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
             // get the elasticity constitutive model
-            const std::shared_ptr< Constitutive_Model >& tCMMasterElasticity =
-                    mMasterCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) );
-            const std::shared_ptr< Constitutive_Model >& tCMSlaveElasticity =
-                    mSlaveCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model >& tCMLeaderElasticity =
+                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) );
+            const std::shared_ptr< Constitutive_Model >& tCMFollowerElasticity =
+                    mFollowerCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) );
 
             // evaluate average traction difference
             const Matrix< DDRMat > tTractionJump =
-                    tCMMasterElasticity->traction( mNormal ) - tCMSlaveElasticity->traction( mNormal );
+                    tCMLeaderElasticity->traction( mNormal ) - tCMFollowerElasticity->traction( mNormal );
 
             // initialize the matrix
             Matrix< DDRMat > tMat;

@@ -44,7 +44,7 @@ namespace moris
                                Background_Facet * aBackgroundFacet ) : Facet( aMesh, aBackgroundFacet )
                {
                    // copy vertex pointers
-                   this->copy_vertex_pointers( this->get_index_on_master() );
+                   this->copy_vertex_pointers( this->get_index_on_leader() );
                }
 
 //------------------------------------------------------------------------------

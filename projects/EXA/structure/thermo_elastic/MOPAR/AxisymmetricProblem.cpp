@@ -621,7 +621,7 @@ namespace moris
         tParameterList( 2 )( tSPCounter ).set( "stabilization_name", "SPNitsche" );
         tParameterList( 2 )( tSPCounter ).set( "stabilization_type", static_cast< uint >( fem::Stabilization_Type::DIRICHLET_NITSCHE ) );
         tParameterList( 2 )( tSPCounter ).set( "function_parameters", "100.0" );
-        tParameterList( 2 )( tSPCounter ).set( "master_properties", "PropYoungs1,Material" );
+        tParameterList( 2 )( tSPCounter ).set( "leader_properties", "PropYoungs1,Material" );
         tSPCounter++;
 
         //------------------------------------------------------------------------------
@@ -633,9 +633,9 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGBulkU_1" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropRotAxis,Thickness" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropRotAxis,Thickness" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", "block_1" );
         tIWGCounter++;
 
@@ -644,9 +644,9 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGBulkU_2" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_BULK ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso2,ElastLinIso" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropRotAxis,Thickness" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso2,ElastLinIso" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropRotAxis,Thickness" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", "block_2" );
         tIWGCounter++;
 
@@ -655,9 +655,9 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletU_1" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropDirichlet,Dirichlet;PropSelectX,Select;PropRotAxis,Thickness" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropDirichlet,Dirichlet;PropSelectX,Select;PropRotAxis,Thickness" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", "side_2" );
         tIWGCounter++;
@@ -666,9 +666,9 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGDirichletU_2" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropDirichlet,Dirichlet;PropSelectX,Select;PropRotAxis,Thickness" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso2,ElastLinIso" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropDirichlet,Dirichlet;PropSelectX,Select;PropRotAxis,Thickness" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso2,ElastLinIso" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPNitsche,DirichletNitsche" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", "side_3" );
         tIWGCounter++;
@@ -678,8 +678,8 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGNeumannFlux" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_LINEAR_NEUMANN ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropNeumann,Traction;PropRotAxis,Thickness" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties", "PropNeumann,Traction;PropRotAxis,Thickness" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", "side_1" );
         tIWGCounter++;
 
@@ -688,8 +688,8 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGStress_1" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_VON_MISES_STRESS ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "STRESS_DOF" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso1,ElastLinIso" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", "block_1" );
         tIWGCounter++;
 
@@ -698,8 +698,8 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGL2_1" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", (uint)fem::IWG_Type::L2 );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "STRESS_DOF" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties",    //
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties",    //
                 "DummySource,Source;DummyL2Coefficient,L2coefficient;DummyDiffusionCoefficient,Diffusion" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", "block_2" );
         tIWGCounter++;
@@ -709,8 +709,8 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGStress_2" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", static_cast< uint >( fem::IWG_Type::STRUC_VON_MISES_STRESS ) );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "VX" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIso2,ElastLinIso" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_constitutive_models", "CMStrucLinIso2,ElastLinIso" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", "block_2" );
         tIWGCounter++;
 
@@ -719,8 +719,8 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "IWG_name", "IWGL2_1" );
         tParameterList( 3 )( tIWGCounter ).set( "IWG_type", (uint)fem::IWG_Type::L2 );
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "VX" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
-        tParameterList( 3 )( tIWGCounter ).set( "master_properties",    //
+        tParameterList( 3 )( tIWGCounter ).set( "leader_dof_dependencies", "UX,UY;STRESS_DOF;VX" );
+        tParameterList( 3 )( tIWGCounter ).set( "leader_properties",    //
                 "DummySource,Source;DummyL2Coefficient,L2coefficient;DummyDiffusionCoefficient,Diffusion" );
         tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", "block_1" );
         tIWGCounter++;
@@ -733,7 +733,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkDISPX" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "UX,UY" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", "block_1,block_2" );
         tIQICounter++;
@@ -742,7 +742,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIBulkDISPY" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "UX,UY" );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "UX,UY" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "UX,UY" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 1 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", "block_1,block_2" );
         tIQICounter++;
@@ -752,7 +752,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIVMStress1" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "STRESS_DOF" );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "STRESS_DOF" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "STRESS_DOF" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", "block_1" );
         tIQICounter++;
@@ -762,7 +762,7 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIVMStress2" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::DOF ) );
         tParameterList( 4 )( tIQICounter ).set( "dof_quantity", "VX" );
-        tParameterList( 4 )( tIQICounter ).set( "master_dof_dependencies", "VX" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "VX" );
         tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", "block_2" );
         tIQICounter++;
@@ -771,7 +771,7 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQITempField" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::PROPERTY ) );
-        tParameterList( 4 )( tIQICounter ).set( "master_properties", "PropField,Property" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropField,Property" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", "block_1,block_2" );
         tIQICounter++;
 
@@ -779,7 +779,7 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIEmod1" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", (uint)( fem::IQI_Type::PROPERTY ) );
-        tParameterList( 4 )( tIQICounter ).set( "master_properties", "PropYoungs1,Property" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropYoungs1,Property" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", "block_1" );
         tIQICounter++;
 
@@ -787,7 +787,7 @@ namespace moris
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIEmod2" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", (uint)( fem::IQI_Type::PROPERTY ) );
-        tParameterList( 4 )( tIQICounter ).set( "master_properties", "PropYoungs2,Property" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_properties", "PropYoungs2,Property" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", "block_2" );
         tIQICounter++;
 

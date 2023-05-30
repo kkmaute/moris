@@ -49,11 +49,11 @@ namespace moris
                     mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
 
             // get physical space and current and previous time coordinates for IG element
-            Matrix< DDRMat > tIGPhysSpaceCoords = mMasterCell->get_vertex_coords();
+            Matrix< DDRMat > tIGPhysSpaceCoords = mLeaderCell->get_vertex_coords();
             Matrix< DDRMat > tIGPhysTimeCoords( 1, 1,
                     mCluster->mInterpolationElement->get_time()( aTimeOrdinal ) );
 
-            // get master parametric space and current and previous time coordinates for IG element
+            // get leader parametric space and current and previous time coordinates for IG element
             Matrix< DDRMat > tIGParamSpaceCoords =
                     mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster );
             Matrix< DDRMat > tIGParamTimeCoords( 1, 1, tTimeParamCoeff );
@@ -81,11 +81,11 @@ namespace moris
                     mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator();
 
             // get physical space and current and previous time coordinates for IG element
-            Matrix< DDRMat > tIGPhysSpaceCoords = mMasterCell->get_vertex_coords();
+            Matrix< DDRMat > tIGPhysSpaceCoords = mLeaderCell->get_vertex_coords();
             Matrix< DDRMat > tIGPhysTimeCoords( 1, 1,
                     mCluster->mInterpolationElement->get_time()( aTimeOrdinal ) );
 
-            // get master parametric space and current and previous time coordinates for IG element
+            // get leader parametric space and current and previous time coordinates for IG element
             Matrix< DDRMat > tIGParamSpaceCoords =
                     mCluster->get_primary_cell_local_coords_on_side_wrt_interp_cell( mCellIndexInCluster );
             Matrix< DDRMat > tIGParamTimeCoords( 1, 1, tTimeParamCoeff );
@@ -94,7 +94,7 @@ namespace moris
             if( mSet->get_geo_pdv_assembly_flag() )
             {
                 // get the vertices indices for IG element
-                Matrix< IndexMat > tVertexIndices = mMasterCell->get_vertex_inds();
+                Matrix< IndexMat > tVertexIndices = mLeaderCell->get_vertex_inds();
 
                 // get the requested geo pdv types
                 moris::Cell < enum PDV_Type > tGeoPdvType;

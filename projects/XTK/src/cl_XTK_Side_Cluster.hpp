@@ -62,13 +62,13 @@ namespace xtk
 
         //---------------------------------------------------------------------------------------
 
-        bool is_trivial( const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+        bool is_trivial( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
         moris::mtk::Cell const&
         get_interpolation_cell(
-                const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+                const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
@@ -79,33 +79,33 @@ namespace xtk
 
         moris::Matrix< moris::IndexMat > 
         get_cell_side_ordinals(
-                const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+                const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
         moris_index 
         get_cell_side_ordinal(
                 moris::moris_index      aCellIndexInCluster,
-                const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+                const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
         moris::Cell< moris::mtk::Vertex const* > 
         get_vertices_in_cluster(
-                const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+                const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
         moris::Matrix< moris::DDRMat > 
         get_vertices_local_coordinates_wrt_interp_cell(
-                const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+                const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
         moris::moris_index 
         get_vertex_cluster_index(
                 const moris::mtk::Vertex* aVertex,
-                const mtk::Master_Slave   aIsMaster = mtk::Master_Slave::MASTER ) const;
+                const mtk::Leader_Follower   aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
@@ -119,20 +119,20 @@ namespace xtk
         moris::Matrix< moris::DDRMat > 
         get_vertex_local_coordinate_wrt_interp_cell(
                 const moris::mtk::Vertex* aVertex,
-                const mtk::Master_Slave   aIsMaster = mtk::Master_Slave::MASTER ) const;
+                const mtk::Leader_Follower   aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
         moris_index 
         get_dim_of_param_coord(
-                const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+                const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
         moris::real 
         compute_cluster_cell_measure(
                 const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
+                const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------    
 
@@ -140,14 +140,14 @@ namespace xtk
         compute_cluster_group_cell_measure(
                 const moris_index       aDiscretizationMeshIndex,
                 const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
+                const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER) const;
 
         //---------------------------------------------------------------------------------------
 
         Matrix< DDRMat > 
         compute_cluster_ig_cell_measures(
                 const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER ) const;
+                const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
@@ -156,7 +156,7 @@ namespace xtk
                 const Matrix< DDRMat >& aPerturbedVertexCoords,
                 uint                    aDirection,
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster ) const;
+                const mtk::Leader_Follower aIsLeader ) const;
 
         //---------------------------------------------------------------------------------------
 
@@ -166,7 +166,7 @@ namespace xtk
                 const Matrix< DDRMat >& aPerturbedVertexCoords,
                 uint aDirection,
                 const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                const mtk::Master_Slave aIsMaster = mtk::Master_Slave::MASTER ) const;
+                const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
         //---------------------------------------------------------------------------------------
 
@@ -174,7 +174,7 @@ namespace xtk
         compute_cluster_group_cell_side_measure(
                 const moris_index       aDiscretizationMeshIndex,
                 const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
-                const mtk::Master_Slave aIsMaster      = mtk::Master_Slave::MASTER) const;
+                const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER) const;
 
         //---------------------------------------------------------------------------------------
 
@@ -184,7 +184,7 @@ namespace xtk
                 const Matrix< DDRMat >& aPerturbedVertexCoords,
                 uint aDirection,
                 const mtk::Primary_Void aPrimaryOrVoid,
-                const mtk::Master_Slave aIsMaster ) const;
+                const mtk::Leader_Follower aIsLeader ) const;
 
         //---------------------------------------------------------------------------------------
         

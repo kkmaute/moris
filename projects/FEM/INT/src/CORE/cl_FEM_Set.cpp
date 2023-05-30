@@ -100,8 +100,8 @@ namespace moris
                     case fem::Element_Type::DOUBLE_SIDESET:
                     {
                         tInterpolationCell.resize( 2 );
-                        tInterpolationCell( 0 ) = &tMeshClusterList( iCluster )->get_interpolation_cell( mtk::Master_Slave::MASTER );
-                        tInterpolationCell( 1 ) = &tMeshClusterList( iCluster )->get_interpolation_cell( mtk::Master_Slave::SLAVE );
+                        tInterpolationCell( 0 ) = &tMeshClusterList( iCluster )->get_interpolation_cell( mtk::Leader_Follower::LEADER );
+                        tInterpolationCell( 1 ) = &tMeshClusterList( iCluster )->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER );
                         break;
                     }
                     // if none of the above
@@ -268,25 +268,25 @@ namespace moris
         void
         Set::delete_pointers()
         {
-            if ( mMasterFIManager != nullptr )
+            if ( mLeaderFIManager != nullptr )
             {
-                delete mMasterFIManager;
-                mMasterFIManager = nullptr;
+                delete mLeaderFIManager;
+                mLeaderFIManager = nullptr;
             }
-            if ( mSlaveFIManager != nullptr )
+            if ( mFollowerFIManager != nullptr )
             {
-                delete mSlaveFIManager;
-                mSlaveFIManager = nullptr;
+                delete mFollowerFIManager;
+                mFollowerFIManager = nullptr;
             }
-            if ( mMasterPreviousFIManager != nullptr )
+            if ( mLeaderPreviousFIManager != nullptr )
             {
-                delete mMasterPreviousFIManager;
-                mMasterPreviousFIManager = nullptr;
+                delete mLeaderPreviousFIManager;
+                mLeaderPreviousFIManager = nullptr;
             }
-            if ( mMasterEigenFIManager != nullptr )
+            if ( mLeaderEigenFIManager != nullptr )
             {
-                delete mMasterEigenFIManager;
-                mMasterEigenFIManager = nullptr;
+                delete mLeaderEigenFIManager;
+                mLeaderEigenFIManager = nullptr;
             }
         }
 
@@ -362,12 +362,12 @@ namespace moris
         Set::create_unique_dof_and_dv_type_lists()
         {
             // init dof and dv type counter
-            uint tMasterDofCounter   = 0;
-            uint tMasterDvCounter    = 0;
-            uint tMasterFieldCounter = 0;
-            uint tSlaveDofCounter    = 0;
-            uint tSlaveDvCounter     = 0;
-            uint tSlaveFieldCounter  = 0;
+            uint tLeaderDofCounter   = 0;
+            uint tLeaderDvCounter    = 0;
+            uint tLeaderFieldCounter = 0;
+            uint tFollowerDofCounter    = 0;
+            uint tFollowerDvCounter     = 0;
+            uint tFollowerFieldCounter  = 0;
 
             // loop over the IWGs
             for ( const std::shared_ptr< IWG >& tIWG : mIWGs )
@@ -380,12 +380,12 @@ namespace moris
                 tIWG->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
 
                 // update dof and dv type counters
-                tMasterDofCounter += tActiveDofType( 0 ).size();
-                tMasterDvCounter += tActiveDvType( 0 ).size();
-                tMasterFieldCounter += tActiveFieldType( 0 ).size();
-                tSlaveDofCounter += tActiveDofType( 1 ).size();
-                tSlaveDvCounter += tActiveDvType( 1 ).size();
-                tSlaveFieldCounter += tActiveFieldType( 1 ).size();
+                tLeaderDofCounter += tActiveDofType( 0 ).size();
+                tLeaderDvCounter += tActiveDvType( 0 ).size();
+                tLeaderFieldCounter += tActiveFieldType( 0 ).size();
+                tFollowerDofCounter += tActiveDofType( 1 ).size();
+                tFollowerDvCounter += tActiveDvType( 1 ).size();
+                tFollowerFieldCounter += tActiveFieldType( 1 ).size();
             }
 
             // loop over the IQIs
@@ -399,29 +399,29 @@ namespace moris
                 tIQI->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
 
                 // update dof and dv type counter
-                tMasterDofCounter += tActiveDofType( 0 ).size();
-                tMasterDvCounter += tActiveDvType( 0 ).size();
-                tMasterFieldCounter += tActiveFieldType( 0 ).size();
-                tSlaveDofCounter += tActiveDofType( 1 ).size();
-                tSlaveDvCounter += tActiveDvType( 1 ).size();
-                tSlaveFieldCounter += tActiveFieldType( 1 ).size();
+                tLeaderDofCounter += tActiveDofType( 0 ).size();
+                tLeaderDvCounter += tActiveDvType( 0 ).size();
+                tLeaderFieldCounter += tActiveFieldType( 0 ).size();
+                tFollowerDofCounter += tActiveDofType( 1 ).size();
+                tFollowerDvCounter += tActiveDvType( 1 ).size();
+                tFollowerFieldCounter += tActiveFieldType( 1 ).size();
             }
 
-            mUniqueDofTypeListMasterSlave.resize( 2 );
-            mUniqueDvTypeListMasterSlave.resize( 2 );
-            mUniqueFieldTypeListMasterSlave.resize( 2 );
+            mUniqueDofTypeListLeaderFollower.resize( 2 );
+            mUniqueDvTypeListLeaderFollower.resize( 2 );
+            mUniqueFieldTypeListLeaderFollower.resize( 2 );
 
-            mUniqueDofTypeListMasterSlave( 0 ).reserve( tMasterDofCounter );
-            mUniqueDofTypeListMasterSlave( 1 ).reserve( tSlaveDofCounter );
-            mUniqueDvTypeListMasterSlave( 0 ).reserve( tMasterDvCounter );
-            mUniqueDvTypeListMasterSlave( 1 ).reserve( tSlaveDvCounter );
-            mUniqueFieldTypeListMasterSlave( 0 ).reserve( tMasterFieldCounter );
-            mUniqueFieldTypeListMasterSlave( 1 ).reserve( tSlaveFieldCounter );
+            mUniqueDofTypeListLeaderFollower( 0 ).reserve( tLeaderDofCounter );
+            mUniqueDofTypeListLeaderFollower( 1 ).reserve( tFollowerDofCounter );
+            mUniqueDvTypeListLeaderFollower( 0 ).reserve( tLeaderDvCounter );
+            mUniqueDvTypeListLeaderFollower( 1 ).reserve( tFollowerDvCounter );
+            mUniqueFieldTypeListLeaderFollower( 0 ).reserve( tLeaderFieldCounter );
+            mUniqueFieldTypeListLeaderFollower( 1 ).reserve( tFollowerFieldCounter );
 
             // set max size for the unique dof and dv type lists
-            mUniqueDofTypeList.reserve( tMasterDofCounter + tSlaveDofCounter );
-            mUniqueDvTypeList.reserve( tMasterDvCounter + tSlaveDvCounter );
-            mUniqueFieldTypeList.reserve( tMasterFieldCounter + tSlaveFieldCounter );
+            mUniqueDofTypeList.reserve( tLeaderDofCounter + tFollowerDofCounter );
+            mUniqueDvTypeList.reserve( tLeaderDvCounter + tFollowerDvCounter );
+            mUniqueFieldTypeList.reserve( tLeaderFieldCounter + tFollowerFieldCounter );
 
             // loop over the IWGs
             for ( const std::shared_ptr< IWG >& tIWG : mIWGs )
@@ -434,12 +434,12 @@ namespace moris
                 tIWG->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
 
                 // populate the corresponding unique dof and dv type lists
-                mUniqueDofTypeListMasterSlave( 0 ).append( tActiveDofType( 0 ) );
-                mUniqueDofTypeListMasterSlave( 1 ).append( tActiveDofType( 1 ) );
-                mUniqueDvTypeListMasterSlave( 0 ).append( tActiveDvType( 0 ) );
-                mUniqueDvTypeListMasterSlave( 1 ).append( tActiveDvType( 1 ) );
-                mUniqueFieldTypeListMasterSlave( 0 ).append( tActiveFieldType( 0 ) );
-                mUniqueFieldTypeListMasterSlave( 1 ).append( tActiveFieldType( 1 ) );
+                mUniqueDofTypeListLeaderFollower( 0 ).append( tActiveDofType( 0 ) );
+                mUniqueDofTypeListLeaderFollower( 1 ).append( tActiveDofType( 1 ) );
+                mUniqueDvTypeListLeaderFollower( 0 ).append( tActiveDvType( 0 ) );
+                mUniqueDvTypeListLeaderFollower( 1 ).append( tActiveDvType( 1 ) );
+                mUniqueFieldTypeListLeaderFollower( 0 ).append( tActiveFieldType( 0 ) );
+                mUniqueFieldTypeListLeaderFollower( 1 ).append( tActiveFieldType( 1 ) );
 
                 mUniqueDofTypeList.append( tActiveDofType( 0 ) );
                 mUniqueDofTypeList.append( tActiveDofType( 1 ) );
@@ -460,12 +460,12 @@ namespace moris
                 tIQI->get_non_unique_dof_dv_and_field_types( tActiveDofType, tActiveDvType, tActiveFieldType );
 
                 // populate the corresponding unique dof and dv type lists
-                mUniqueDofTypeListMasterSlave( 0 ).append( tActiveDofType( 0 ) );
-                mUniqueDofTypeListMasterSlave( 1 ).append( tActiveDofType( 1 ) );
-                mUniqueDvTypeListMasterSlave( 0 ).append( tActiveDvType( 0 ) );
-                mUniqueDvTypeListMasterSlave( 1 ).append( tActiveDvType( 1 ) );
-                mUniqueFieldTypeListMasterSlave( 0 ).append( tActiveFieldType( 0 ) );
-                mUniqueFieldTypeListMasterSlave( 1 ).append( tActiveFieldType( 1 ) );
+                mUniqueDofTypeListLeaderFollower( 0 ).append( tActiveDofType( 0 ) );
+                mUniqueDofTypeListLeaderFollower( 1 ).append( tActiveDofType( 1 ) );
+                mUniqueDvTypeListLeaderFollower( 0 ).append( tActiveDvType( 0 ) );
+                mUniqueDvTypeListLeaderFollower( 1 ).append( tActiveDvType( 1 ) );
+                mUniqueFieldTypeListLeaderFollower( 0 ).append( tActiveFieldType( 0 ) );
+                mUniqueFieldTypeListLeaderFollower( 1 ).append( tActiveFieldType( 1 ) );
 
                 mUniqueDofTypeList.append( tActiveDofType( 0 ) );
                 mUniqueDofTypeList.append( tActiveDofType( 1 ) );
@@ -477,62 +477,62 @@ namespace moris
 
             {
                 // make the dof type list unique
-                std::sort( ( mUniqueDofTypeListMasterSlave( 0 ).data() ).data(),
-                        ( mUniqueDofTypeListMasterSlave( 0 ).data() ).data() + mUniqueDofTypeListMasterSlave( 0 ).size() );
-                auto last = std::unique( ( mUniqueDofTypeListMasterSlave( 0 ).data() ).data(),
-                        ( mUniqueDofTypeListMasterSlave( 0 ).data() ).data() + mUniqueDofTypeListMasterSlave( 0 ).size() );
-                auto pos  = std::distance( ( mUniqueDofTypeListMasterSlave( 0 ).data() ).data(), last );
-                mUniqueDofTypeListMasterSlave( 0 ).resize( pos );
+                std::sort( ( mUniqueDofTypeListLeaderFollower( 0 ).data() ).data(),
+                        ( mUniqueDofTypeListLeaderFollower( 0 ).data() ).data() + mUniqueDofTypeListLeaderFollower( 0 ).size() );
+                auto last = std::unique( ( mUniqueDofTypeListLeaderFollower( 0 ).data() ).data(),
+                        ( mUniqueDofTypeListLeaderFollower( 0 ).data() ).data() + mUniqueDofTypeListLeaderFollower( 0 ).size() );
+                auto pos  = std::distance( ( mUniqueDofTypeListLeaderFollower( 0 ).data() ).data(), last );
+                mUniqueDofTypeListLeaderFollower( 0 ).resize( pos );
             }
 
             {
                 // make the dof type list unique
-                std::sort( ( mUniqueDofTypeListMasterSlave( 1 ).data() ).data(),
-                        ( mUniqueDofTypeListMasterSlave( 1 ).data() ).data() + mUniqueDofTypeListMasterSlave( 1 ).size() );
-                auto last = std::unique( ( mUniqueDofTypeListMasterSlave( 1 ).data() ).data(),
-                        ( mUniqueDofTypeListMasterSlave( 1 ).data() ).data() + mUniqueDofTypeListMasterSlave( 1 ).size() );
-                auto pos  = std::distance( ( mUniqueDofTypeListMasterSlave( 1 ).data() ).data(), last );
-                mUniqueDofTypeListMasterSlave( 1 ).resize( pos );
+                std::sort( ( mUniqueDofTypeListLeaderFollower( 1 ).data() ).data(),
+                        ( mUniqueDofTypeListLeaderFollower( 1 ).data() ).data() + mUniqueDofTypeListLeaderFollower( 1 ).size() );
+                auto last = std::unique( ( mUniqueDofTypeListLeaderFollower( 1 ).data() ).data(),
+                        ( mUniqueDofTypeListLeaderFollower( 1 ).data() ).data() + mUniqueDofTypeListLeaderFollower( 1 ).size() );
+                auto pos  = std::distance( ( mUniqueDofTypeListLeaderFollower( 1 ).data() ).data(), last );
+                mUniqueDofTypeListLeaderFollower( 1 ).resize( pos );
             }
 
             {
                 // make the dv type list unique
-                std::sort( ( mUniqueDvTypeListMasterSlave( 0 ).data() ).data(),
-                        ( mUniqueDvTypeListMasterSlave( 0 ).data() ).data() + mUniqueDvTypeListMasterSlave( 0 ).size() );
-                auto last = std::unique( ( mUniqueDvTypeListMasterSlave( 0 ).data() ).data(),
-                        ( mUniqueDvTypeListMasterSlave( 0 ).data() ).data() + mUniqueDvTypeListMasterSlave( 0 ).size() );
-                auto pos  = std::distance( ( mUniqueDvTypeListMasterSlave( 0 ).data() ).data(), last );
-                mUniqueDvTypeListMasterSlave( 0 ).resize( pos );
+                std::sort( ( mUniqueDvTypeListLeaderFollower( 0 ).data() ).data(),
+                        ( mUniqueDvTypeListLeaderFollower( 0 ).data() ).data() + mUniqueDvTypeListLeaderFollower( 0 ).size() );
+                auto last = std::unique( ( mUniqueDvTypeListLeaderFollower( 0 ).data() ).data(),
+                        ( mUniqueDvTypeListLeaderFollower( 0 ).data() ).data() + mUniqueDvTypeListLeaderFollower( 0 ).size() );
+                auto pos  = std::distance( ( mUniqueDvTypeListLeaderFollower( 0 ).data() ).data(), last );
+                mUniqueDvTypeListLeaderFollower( 0 ).resize( pos );
             }
 
             {
                 // make the dv type list unique
-                std::sort( ( mUniqueDvTypeListMasterSlave( 1 ).data() ).data(),
-                        ( mUniqueDvTypeListMasterSlave( 1 ).data() ).data() + mUniqueDvTypeListMasterSlave( 1 ).size() );
-                auto last = std::unique( ( mUniqueDvTypeListMasterSlave( 1 ).data() ).data(),
-                        ( mUniqueDvTypeListMasterSlave( 1 ).data() ).data() + mUniqueDvTypeListMasterSlave( 1 ).size() );
-                auto pos  = std::distance( ( mUniqueDvTypeListMasterSlave( 1 ).data() ).data(), last );
-                mUniqueDvTypeListMasterSlave( 1 ).resize( pos );
+                std::sort( ( mUniqueDvTypeListLeaderFollower( 1 ).data() ).data(),
+                        ( mUniqueDvTypeListLeaderFollower( 1 ).data() ).data() + mUniqueDvTypeListLeaderFollower( 1 ).size() );
+                auto last = std::unique( ( mUniqueDvTypeListLeaderFollower( 1 ).data() ).data(),
+                        ( mUniqueDvTypeListLeaderFollower( 1 ).data() ).data() + mUniqueDvTypeListLeaderFollower( 1 ).size() );
+                auto pos  = std::distance( ( mUniqueDvTypeListLeaderFollower( 1 ).data() ).data(), last );
+                mUniqueDvTypeListLeaderFollower( 1 ).resize( pos );
             }
 
             {
                 // make the field type list unique
-                std::sort( ( mUniqueFieldTypeListMasterSlave( 0 ).data() ).data(),
-                        ( mUniqueFieldTypeListMasterSlave( 0 ).data() ).data() + mUniqueFieldTypeListMasterSlave( 0 ).size() );
-                auto last = std::unique( ( mUniqueFieldTypeListMasterSlave( 0 ).data() ).data(),
-                        ( mUniqueFieldTypeListMasterSlave( 0 ).data() ).data() + mUniqueFieldTypeListMasterSlave( 0 ).size() );
-                auto pos  = std::distance( ( mUniqueFieldTypeListMasterSlave( 0 ).data() ).data(), last );
-                mUniqueFieldTypeListMasterSlave( 0 ).resize( pos );
+                std::sort( ( mUniqueFieldTypeListLeaderFollower( 0 ).data() ).data(),
+                        ( mUniqueFieldTypeListLeaderFollower( 0 ).data() ).data() + mUniqueFieldTypeListLeaderFollower( 0 ).size() );
+                auto last = std::unique( ( mUniqueFieldTypeListLeaderFollower( 0 ).data() ).data(),
+                        ( mUniqueFieldTypeListLeaderFollower( 0 ).data() ).data() + mUniqueFieldTypeListLeaderFollower( 0 ).size() );
+                auto pos  = std::distance( ( mUniqueFieldTypeListLeaderFollower( 0 ).data() ).data(), last );
+                mUniqueFieldTypeListLeaderFollower( 0 ).resize( pos );
             }
 
             {
                 // make the field type list unique
-                std::sort( ( mUniqueFieldTypeListMasterSlave( 1 ).data() ).data(),
-                        ( mUniqueFieldTypeListMasterSlave( 1 ).data() ).data() + mUniqueFieldTypeListMasterSlave( 1 ).size() );
-                auto last = std::unique( ( mUniqueFieldTypeListMasterSlave( 1 ).data() ).data(),
-                        ( mUniqueFieldTypeListMasterSlave( 1 ).data() ).data() + mUniqueFieldTypeListMasterSlave( 1 ).size() );
-                auto pos  = std::distance( ( mUniqueFieldTypeListMasterSlave( 1 ).data() ).data(), last );
-                mUniqueFieldTypeListMasterSlave( 1 ).resize( pos );
+                std::sort( ( mUniqueFieldTypeListLeaderFollower( 1 ).data() ).data(),
+                        ( mUniqueFieldTypeListLeaderFollower( 1 ).data() ).data() + mUniqueFieldTypeListLeaderFollower( 1 ).size() );
+                auto last = std::unique( ( mUniqueFieldTypeListLeaderFollower( 1 ).data() ).data(),
+                        ( mUniqueFieldTypeListLeaderFollower( 1 ).data() ).data() + mUniqueFieldTypeListLeaderFollower( 1 ).size() );
+                auto pos  = std::distance( ( mUniqueFieldTypeListLeaderFollower( 1 ).data() ).data(), last );
+                mUniqueFieldTypeListLeaderFollower( 1 ).resize( pos );
             }
 
             {
@@ -577,143 +577,143 @@ namespace moris
             uint tNumFieldTypes = this->get_num_unique_field_types();
 
             // set size for the global dof type list
-            mMasterDofTypes.reserve( tNumDofTypes );
-            mSlaveDofTypes.reserve( tNumDofTypes );
-            mMasterDvTypes.reserve( tNumDvTypes );
-            mSlaveDvTypes.reserve( tNumDvTypes );
-            mMasterFieldTypes.reserve( tNumFieldTypes );
-            mSlaveFieldTypes.reserve( tNumFieldTypes );
+            mLeaderDofTypes.reserve( tNumDofTypes );
+            mFollowerDofTypes.reserve( tNumDofTypes );
+            mLeaderDvTypes.reserve( tNumDvTypes );
+            mFollowerDvTypes.reserve( tNumDvTypes );
+            mLeaderFieldTypes.reserve( tNumFieldTypes );
+            mFollowerFieldTypes.reserve( tNumFieldTypes );
 
             // create a list to check if dof type is already in the list
-            Matrix< DDSMat > tMasterCheckList( tNumDofTypes, 1, -1 );
-            Matrix< DDSMat > tSlaveCheckList( tNumDofTypes, 1, -1 );
-            Matrix< DDSMat > tMasterDvCheckList( tNumDvTypes, 1, -1 );
-            Matrix< DDSMat > tSlaveDvCheckList( tNumDvTypes, 1, -1 );
-            Matrix< DDSMat > tMasterFieldCheckList( tNumFieldTypes, 1, -1 );
-            Matrix< DDSMat > tSlaveFieldCheckList( tNumFieldTypes, 1, -1 );
+            Matrix< DDSMat > tLeaderCheckList( tNumDofTypes, 1, -1 );
+            Matrix< DDSMat > tFollowerCheckList( tNumDofTypes, 1, -1 );
+            Matrix< DDSMat > tLeaderDvCheckList( tNumDvTypes, 1, -1 );
+            Matrix< DDSMat > tFollowerDvCheckList( tNumDvTypes, 1, -1 );
+            Matrix< DDSMat > tLeaderFieldCheckList( tNumFieldTypes, 1, -1 );
+            Matrix< DDSMat > tFollowerFieldCheckList( tNumFieldTypes, 1, -1 );
 
             // loop over the IWGs
             for ( const std::shared_ptr< IWG >& tIWG : mIWGs )
             {
-                // get master dof and dv types for the IWG
-                const moris::Cell< moris::Cell< MSI::Dof_Type > >& tDofTypeMaster =
+                // get leader dof and dv types for the IWG
+                const moris::Cell< moris::Cell< MSI::Dof_Type > >& tDofTypeLeader =
                         tIWG->get_global_dof_type_list();
 
-                const moris::Cell< moris::Cell< PDV_Type > >& tDvTypeMaster =
+                const moris::Cell< moris::Cell< PDV_Type > >& tDvTypeLeader =
                         tIWG->get_global_dv_type_list();
 
-                const moris::Cell< moris::Cell< mtk::Field_Type > >& tFieldTypeMaster =
+                const moris::Cell< moris::Cell< mtk::Field_Type > >& tFieldTypeLeader =
                         tIWG->get_global_field_type_list();
 
-                // loop over the IWG active master dof type
-                for ( uint iDOF = 0; iDOF < tDofTypeMaster.size(); iDOF++ )
+                // loop over the IWG active leader dof type
+                for ( uint iDOF = 0; iDOF < tDofTypeLeader.size(); iDOF++ )
                 {
-                    // get set index for the treated master dof type
-                    sint tDofTypeindex = this->get_index_from_unique_dof_type_map( tDofTypeMaster( iDOF )( 0 ) );
+                    // get set index for the treated leader dof type
+                    sint tDofTypeindex = this->get_index_from_unique_dof_type_map( tDofTypeLeader( iDOF )( 0 ) );
 
                     // if dof enum not in the list
-                    if ( tMasterCheckList( tDofTypeindex ) != 1 )
+                    if ( tLeaderCheckList( tDofTypeindex ) != 1 )
                     {
                         // put the dof type in the checklist
-                        tMasterCheckList( tDofTypeindex ) = 1;
+                        tLeaderCheckList( tDofTypeindex ) = 1;
 
                         // put the dof type in the global type list
-                        mMasterDofTypes.push_back( tDofTypeMaster( iDOF ) );
+                        mLeaderDofTypes.push_back( tDofTypeLeader( iDOF ) );
                     }
                 }
 
-                // loop over the IWG active master dv type
-                for ( uint iDv = 0; iDv < tDvTypeMaster.size(); iDv++ )
+                // loop over the IWG active leader dv type
+                for ( uint iDv = 0; iDv < tDvTypeLeader.size(); iDv++ )
                 {
-                    // get set index for the treated master dof type
-                    sint tDvTypeindex = this->get_index_from_unique_dv_type_map( tDvTypeMaster( iDv )( 0 ) );
+                    // get set index for the treated leader dof type
+                    sint tDvTypeindex = this->get_index_from_unique_dv_type_map( tDvTypeLeader( iDv )( 0 ) );
 
                     // if dv enum not in the list
-                    if ( tMasterDvCheckList( tDvTypeindex ) != 1 )
+                    if ( tLeaderDvCheckList( tDvTypeindex ) != 1 )
                     {
                         // put the dof type in the checklist
-                        tMasterDvCheckList( tDvTypeindex ) = 1;
+                        tLeaderDvCheckList( tDvTypeindex ) = 1;
 
                         // put the dof type in the global type list
-                        mMasterDvTypes.push_back( tDvTypeMaster( iDv ) );
+                        mLeaderDvTypes.push_back( tDvTypeLeader( iDv ) );
                     }
                 }
 
-                // loop over the IWG active master field type
-                for ( uint iFi = 0; iFi < tFieldTypeMaster.size(); iFi++ )
+                // loop over the IWG active leader field type
+                for ( uint iFi = 0; iFi < tFieldTypeLeader.size(); iFi++ )
                 {
-                    // get set index for the treated master dof type
-                    sint tFieldTypeindex = this->get_index_from_unique_field_type_map( tFieldTypeMaster( iFi )( 0 ) );
+                    // get set index for the treated leader dof type
+                    sint tFieldTypeindex = this->get_index_from_unique_field_type_map( tFieldTypeLeader( iFi )( 0 ) );
 
                     // if dv enum not in the list
-                    if ( tMasterFieldCheckList( tFieldTypeindex ) != 1 )
+                    if ( tLeaderFieldCheckList( tFieldTypeindex ) != 1 )
                     {
                         // put the dof type in the checklist
-                        tMasterFieldCheckList( tFieldTypeindex ) = 1;
+                        tLeaderFieldCheckList( tFieldTypeindex ) = 1;
 
                         // put the dof type in the global type list
-                        mMasterFieldTypes.push_back( tFieldTypeMaster( iFi ) );
+                        mLeaderFieldTypes.push_back( tFieldTypeLeader( iFi ) );
                     }
                 }
 
-                // get slave dof and dv types for the IWG
-                const moris::Cell< moris::Cell< MSI::Dof_Type > >& tDofTypeSlave =
-                        tIWG->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
+                // get follower dof and dv types for the IWG
+                const moris::Cell< moris::Cell< MSI::Dof_Type > >& tDofTypeFollower =
+                        tIWG->get_global_dof_type_list( mtk::Leader_Follower::FOLLOWER );
 
-                const moris::Cell< moris::Cell< PDV_Type > >& tDvTypeSlave =
-                        tIWG->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
+                const moris::Cell< moris::Cell< PDV_Type > >& tDvTypeFollower =
+                        tIWG->get_global_dv_type_list( mtk::Leader_Follower::FOLLOWER );
 
-                const moris::Cell< moris::Cell< mtk::Field_Type > >& tFieldTypeSlave =
-                        tIWG->get_global_field_type_list( mtk::Master_Slave::SLAVE );
+                const moris::Cell< moris::Cell< mtk::Field_Type > >& tFieldTypeFollower =
+                        tIWG->get_global_field_type_list( mtk::Leader_Follower::FOLLOWER );
 
-                // loop over the IWG active slave dof type
-                for ( uint iDOF = 0; iDOF < tDofTypeSlave.size(); iDOF++ )
+                // loop over the IWG active follower dof type
+                for ( uint iDOF = 0; iDOF < tDofTypeFollower.size(); iDOF++ )
                 {
-                    // get set index for the treated slave dof type
-                    sint tDofTypeindex = this->get_index_from_unique_dof_type_map( tDofTypeSlave( iDOF )( 0 ) );
+                    // get set index for the treated follower dof type
+                    sint tDofTypeindex = this->get_index_from_unique_dof_type_map( tDofTypeFollower( iDOF )( 0 ) );
 
                     // if dof enum not in the list
-                    if ( tSlaveCheckList( tDofTypeindex ) != 1 )
+                    if ( tFollowerCheckList( tDofTypeindex ) != 1 )
                     {
                         // put the dof type in the check list
-                        tSlaveCheckList( tDofTypeindex ) = 1;
+                        tFollowerCheckList( tDofTypeindex ) = 1;
 
                         // put the dof type in the global type list
-                        mSlaveDofTypes.push_back( tDofTypeSlave( iDOF ) );
+                        mFollowerDofTypes.push_back( tDofTypeFollower( iDOF ) );
                     }
                 }
 
-                // loop over the IWG active slave dv type
-                for ( uint iDv = 0; iDv < tDvTypeSlave.size(); iDv++ )
+                // loop over the IWG active follower dv type
+                for ( uint iDv = 0; iDv < tDvTypeFollower.size(); iDv++ )
                 {
-                    // get set index for the treated slave dv type
-                    sint tDvTypeindex = this->get_index_from_unique_dv_type_map( tDvTypeSlave( iDv )( 0 ) );
+                    // get set index for the treated follower dv type
+                    sint tDvTypeindex = this->get_index_from_unique_dv_type_map( tDvTypeFollower( iDv )( 0 ) );
 
                     // if dv enum not in the list
-                    if ( tSlaveDvCheckList( tDvTypeindex ) != 1 )
+                    if ( tFollowerDvCheckList( tDvTypeindex ) != 1 )
                     {
                         // put the dv type in the checklist
-                        tSlaveDvCheckList( tDvTypeindex ) = 1;
+                        tFollowerDvCheckList( tDvTypeindex ) = 1;
 
                         // put the dv type in the global type list
-                        mSlaveDvTypes.push_back( tDvTypeSlave( iDv ) );
+                        mFollowerDvTypes.push_back( tDvTypeFollower( iDv ) );
                     }
                 }
 
-                // loop over the IWG active master field type
-                for ( uint iFi = 0; iFi < tFieldTypeSlave.size(); iFi++ )
+                // loop over the IWG active leader field type
+                for ( uint iFi = 0; iFi < tFieldTypeFollower.size(); iFi++ )
                 {
-                    // get set index for the treated master dof type
-                    sint tFieldTypeindex = this->get_index_from_unique_field_type_map( tFieldTypeSlave( iFi )( 0 ) );
+                    // get set index for the treated leader dof type
+                    sint tFieldTypeindex = this->get_index_from_unique_field_type_map( tFieldTypeFollower( iFi )( 0 ) );
 
                     // if dv enum not in the list
-                    if ( tSlaveFieldCheckList( tFieldTypeindex ) != 1 )
+                    if ( tFollowerFieldCheckList( tFieldTypeindex ) != 1 )
                     {
                         // put the dof type in the checklist
-                        tSlaveFieldCheckList( tFieldTypeindex ) = 1;
+                        tFollowerFieldCheckList( tFieldTypeindex ) = 1;
 
                         // put the dof type in the global type list
-                        mSlaveFieldTypes.push_back( tFieldTypeSlave( iFi ) );
+                        mFollowerFieldTypes.push_back( tFieldTypeFollower( iFi ) );
                     }
                 }
             }
@@ -721,134 +721,134 @@ namespace moris
             // loop over the IQIs
             for ( const std::shared_ptr< IQI >& tIQI : mIQIs )
             {
-                // get master dof and dv types for the IWG
-                const moris::Cell< moris::Cell< MSI::Dof_Type > >& tDofTypeMaster =
+                // get leader dof and dv types for the IWG
+                const moris::Cell< moris::Cell< MSI::Dof_Type > >& tDofTypeLeader =
                         tIQI->get_global_dof_type_list();
 
-                const moris::Cell< moris::Cell< PDV_Type > >& tDvTypeMaster =
+                const moris::Cell< moris::Cell< PDV_Type > >& tDvTypeLeader =
                         tIQI->get_global_dv_type_list();
 
-                const moris::Cell< moris::Cell< mtk::Field_Type > >& tFieldTypeMaster =
+                const moris::Cell< moris::Cell< mtk::Field_Type > >& tFieldTypeLeader =
                         tIQI->get_global_field_type_list();
 
-                // loop over the IQI active master dof type
-                for ( uint iDOF = 0; iDOF < tDofTypeMaster.size(); iDOF++ )
+                // loop over the IQI active leader dof type
+                for ( uint iDOF = 0; iDOF < tDofTypeLeader.size(); iDOF++ )
                 {
-                    // get set index for the treated master dof type
-                    sint tDofTypeindex = this->get_index_from_unique_dof_type_map( tDofTypeMaster( iDOF )( 0 ) );
+                    // get set index for the treated leader dof type
+                    sint tDofTypeindex = this->get_index_from_unique_dof_type_map( tDofTypeLeader( iDOF )( 0 ) );
 
                     // if dof enum not in the list
-                    if ( tMasterCheckList( tDofTypeindex ) != 1 )
+                    if ( tLeaderCheckList( tDofTypeindex ) != 1 )
                     {
                         // put the dof type in the checklist
-                        tMasterCheckList( tDofTypeindex ) = 1;
+                        tLeaderCheckList( tDofTypeindex ) = 1;
 
                         // put the dof type in the global type list
-                        mMasterDofTypes.push_back( tDofTypeMaster( iDOF ) );
+                        mLeaderDofTypes.push_back( tDofTypeLeader( iDOF ) );
                     }
                 }
 
-                // loop over the IQI active master dv type
-                for ( uint iDv = 0; iDv < tDvTypeMaster.size(); iDv++ )
+                // loop over the IQI active leader dv type
+                for ( uint iDv = 0; iDv < tDvTypeLeader.size(); iDv++ )
                 {
-                    // get set index for the treated master dv type
-                    sint tDvTypeindex = this->get_index_from_unique_dv_type_map( tDvTypeMaster( iDv )( 0 ) );
+                    // get set index for the treated leader dv type
+                    sint tDvTypeindex = this->get_index_from_unique_dv_type_map( tDvTypeLeader( iDv )( 0 ) );
 
                     // if dv enum not in the list
-                    if ( tMasterDvCheckList( tDvTypeindex ) != 1 )
+                    if ( tLeaderDvCheckList( tDvTypeindex ) != 1 )
                     {
                         // put the dv type in the checklist
-                        tMasterDvCheckList( tDvTypeindex ) = 1;
+                        tLeaderDvCheckList( tDvTypeindex ) = 1;
 
                         // put the dv type in the global type list
-                        mMasterDvTypes.push_back( tDvTypeMaster( iDv ) );
+                        mLeaderDvTypes.push_back( tDvTypeLeader( iDv ) );
                     }
                 }
 
-                // loop over the IWG active master field type
-                for ( uint iFi = 0; iFi < tFieldTypeMaster.size(); iFi++ )
+                // loop over the IWG active leader field type
+                for ( uint iFi = 0; iFi < tFieldTypeLeader.size(); iFi++ )
                 {
-                    // get set index for the treated master dof type
-                    sint tFieldTypeindex = this->get_index_from_unique_field_type_map( tFieldTypeMaster( iFi )( 0 ) );
+                    // get set index for the treated leader dof type
+                    sint tFieldTypeindex = this->get_index_from_unique_field_type_map( tFieldTypeLeader( iFi )( 0 ) );
 
                     // if dv enum not in the list
-                    if ( tMasterFieldCheckList( tFieldTypeindex ) != 1 )
+                    if ( tLeaderFieldCheckList( tFieldTypeindex ) != 1 )
                     {
                         // put the dof type in the checklist
-                        tMasterFieldCheckList( tFieldTypeindex ) = 1;
+                        tLeaderFieldCheckList( tFieldTypeindex ) = 1;
 
                         // put the dof type in the global type list
-                        mMasterFieldTypes.push_back( tFieldTypeMaster( iFi ) );
+                        mLeaderFieldTypes.push_back( tFieldTypeLeader( iFi ) );
                     }
                 }
 
-                // get slave dof and dv types for the IWG
-                const moris::Cell< moris::Cell< MSI::Dof_Type > >& tDofTypeSlave =
-                        tIQI->get_global_dof_type_list( mtk::Master_Slave::SLAVE );
-                const moris::Cell< moris::Cell< PDV_Type > >& tDvTypeSlave =
-                        tIQI->get_global_dv_type_list( mtk::Master_Slave::SLAVE );
-                const moris::Cell< moris::Cell< mtk::Field_Type > >& tFieldTypeSlave =
-                        tIQI->get_global_field_type_list( mtk::Master_Slave::SLAVE );
+                // get follower dof and dv types for the IWG
+                const moris::Cell< moris::Cell< MSI::Dof_Type > >& tDofTypeFollower =
+                        tIQI->get_global_dof_type_list( mtk::Leader_Follower::FOLLOWER );
+                const moris::Cell< moris::Cell< PDV_Type > >& tDvTypeFollower =
+                        tIQI->get_global_dv_type_list( mtk::Leader_Follower::FOLLOWER );
+                const moris::Cell< moris::Cell< mtk::Field_Type > >& tFieldTypeFollower =
+                        tIQI->get_global_field_type_list( mtk::Leader_Follower::FOLLOWER );
 
-                // loop over the IWG active slave dof type
-                for ( uint iDOF = 0; iDOF < tDofTypeSlave.size(); iDOF++ )
+                // loop over the IWG active follower dof type
+                for ( uint iDOF = 0; iDOF < tDofTypeFollower.size(); iDOF++ )
                 {
-                    // get set index for the treated slave dof type
-                    sint tDofTypeindex = this->get_index_from_unique_dof_type_map( tDofTypeSlave( iDOF )( 0 ) );
+                    // get set index for the treated follower dof type
+                    sint tDofTypeindex = this->get_index_from_unique_dof_type_map( tDofTypeFollower( iDOF )( 0 ) );
 
                     // if dof enum not in the list
-                    if ( tSlaveCheckList( tDofTypeindex ) != 1 )
+                    if ( tFollowerCheckList( tDofTypeindex ) != 1 )
                     {
                         // put the dof type in the checklist
-                        tSlaveCheckList( tDofTypeindex ) = 1;
+                        tFollowerCheckList( tDofTypeindex ) = 1;
 
                         // put the dof type in the global type list
-                        mSlaveDofTypes.push_back( tDofTypeSlave( iDOF ) );
+                        mFollowerDofTypes.push_back( tDofTypeFollower( iDOF ) );
                     }
                 }
 
-                // loop over the IWG active slave dv type
-                for ( uint iDv = 0; iDv < tDvTypeSlave.size(); iDv++ )
+                // loop over the IWG active follower dv type
+                for ( uint iDv = 0; iDv < tDvTypeFollower.size(); iDv++ )
                 {
-                    // get set index for the treated slave dv type
-                    sint tDvTypeindex = this->get_index_from_unique_dv_type_map( tDvTypeSlave( iDv )( 0 ) );
+                    // get set index for the treated follower dv type
+                    sint tDvTypeindex = this->get_index_from_unique_dv_type_map( tDvTypeFollower( iDv )( 0 ) );
 
                     // if dv enum not in the list
-                    if ( tSlaveDvCheckList( tDvTypeindex ) != 1 )
+                    if ( tFollowerDvCheckList( tDvTypeindex ) != 1 )
                     {
                         // put the dv type in the checklist
-                        tSlaveDvCheckList( tDvTypeindex ) = 1;
+                        tFollowerDvCheckList( tDvTypeindex ) = 1;
 
                         // put the dv type in the global type list
-                        mSlaveDvTypes.push_back( tDvTypeSlave( iDv ) );
+                        mFollowerDvTypes.push_back( tDvTypeFollower( iDv ) );
                     }
                 }
 
-                // loop over the IWG active master field type
-                for ( uint iFi = 0; iFi < tFieldTypeSlave.size(); iFi++ )
+                // loop over the IWG active leader field type
+                for ( uint iFi = 0; iFi < tFieldTypeFollower.size(); iFi++ )
                 {
-                    // get set index for the treated master dof type
-                    sint tFieldTypeindex = this->get_index_from_unique_field_type_map( tFieldTypeSlave( iFi )( 0 ) );
+                    // get set index for the treated leader dof type
+                    sint tFieldTypeindex = this->get_index_from_unique_field_type_map( tFieldTypeFollower( iFi )( 0 ) );
 
                     // if dv enum not in the list
-                    if ( tSlaveFieldCheckList( tFieldTypeindex ) != 1 )
+                    if ( tFollowerFieldCheckList( tFieldTypeindex ) != 1 )
                     {
                         // put the dof type in the checklist
-                        tSlaveFieldCheckList( tFieldTypeindex ) = 1;
+                        tFollowerFieldCheckList( tFieldTypeindex ) = 1;
 
                         // put the dof type in the global type list
-                        mSlaveFieldTypes.push_back( tFieldTypeSlave( iFi ) );
+                        mFollowerFieldTypes.push_back( tFieldTypeFollower( iFi ) );
                     }
                 }
             }
 
             // shrink list to fit to number of unique dof and dv types
-            mMasterDofTypes.shrink_to_fit();
-            mSlaveDofTypes.shrink_to_fit();
-            mMasterDvTypes.shrink_to_fit();
-            mSlaveDvTypes.shrink_to_fit();
-            mMasterFieldTypes.shrink_to_fit();
-            mSlaveFieldTypes.shrink_to_fit();
+            mLeaderDofTypes.shrink_to_fit();
+            mFollowerDofTypes.shrink_to_fit();
+            mLeaderDvTypes.shrink_to_fit();
+            mFollowerDvTypes.shrink_to_fit();
+            mLeaderFieldTypes.shrink_to_fit();
+            mFollowerFieldTypes.shrink_to_fit();
         }
 
         //------------------------------------------------------------------------------
@@ -951,32 +951,32 @@ namespace moris
         void
         Set::create_dof_and_dv_type_maps()
         {
-            // get number of master dof types
-            uint tMasterNumDofs = this->get_dof_type_list().size();
+            // get number of leader dof types
+            uint tLeaderNumDofs = this->get_dof_type_list().size();
 
             // get maximal dof type enum
             sint tMaxEnum = -1;
 
             // loop over the IWGs
-            for ( uint iDOF = 0; iDOF < tMasterNumDofs; iDOF++ )
+            for ( uint iDOF = 0; iDOF < tLeaderNumDofs; iDOF++ )
             {
-                for ( uint Ik = 0; Ik < mMasterDofTypes( iDOF ).size(); Ik++ )
+                for ( uint Ik = 0; Ik < mLeaderDofTypes( iDOF ).size(); Ik++ )
                 {
                     // get the highest dof type enum
-                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( mMasterDofTypes( iDOF )( Ik ) ) );
+                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( mLeaderDofTypes( iDOF )( Ik ) ) );
                 }
             }
 
-            // get number of slave dof types
-            uint tSlaveNumDofs = this->get_dof_type_list( mtk::Master_Slave::SLAVE ).size();
+            // get number of follower dof types
+            uint tFollowerNumDofs = this->get_dof_type_list( mtk::Leader_Follower::FOLLOWER ).size();
 
             // loop over the IWGs
-            for ( uint iDOF = 0; iDOF < tSlaveNumDofs; iDOF++ )
+            for ( uint iDOF = 0; iDOF < tFollowerNumDofs; iDOF++ )
             {
-                for ( uint Ik = 0; Ik < mSlaveDofTypes( iDOF ).size(); Ik++ )
+                for ( uint Ik = 0; Ik < mFollowerDofTypes( iDOF ).size(); Ik++ )
                 {
                     // get the highest dof type enum
-                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( mSlaveDofTypes( iDOF )( Ik ) ) );
+                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( mFollowerDofTypes( iDOF )( Ik ) ) );
                 }
             }
             // +1 since start at 0
@@ -987,50 +987,50 @@ namespace moris
             tMaxEnum = static_cast< int >( MSI::Dof_Type::END_ENUM );
 
             // set size of dof type map    // FIXME replace with map
-            mMasterDofTypeMap.set_size( tMaxEnum, 1, -1 );
+            mLeaderDofTypeMap.set_size( tMaxEnum, 1, -1 );
 
             // loop over dof types
-            for ( uint iDOF = 0; iDOF < tMasterNumDofs; iDOF++ )
+            for ( uint iDOF = 0; iDOF < tLeaderNumDofs; iDOF++ )
             {
-                mMasterDofTypeMap( static_cast< int >( mMasterDofTypes( iDOF )( 0 ) ), 0 ) = iDOF;
+                mLeaderDofTypeMap( static_cast< int >( mLeaderDofTypes( iDOF )( 0 ) ), 0 ) = iDOF;
             }
 
             // set size of dof type map
-            mSlaveDofTypeMap.set_size( tMaxEnum, 1, -1 );
+            mFollowerDofTypeMap.set_size( tMaxEnum, 1, -1 );
 
             // loop over dof types
-            for ( uint iDOF = 0; iDOF < tSlaveNumDofs; iDOF++ )
+            for ( uint iDOF = 0; iDOF < tFollowerNumDofs; iDOF++ )
             {
-                mSlaveDofTypeMap( static_cast< int >( mSlaveDofTypes( iDOF )( 0 ) ), 0 ) = iDOF;
+                mFollowerDofTypeMap( static_cast< int >( mFollowerDofTypes( iDOF )( 0 ) ), 0 ) = iDOF;
             }
 
             // dv type maps -------------------------------------------------------
-            // get number of master dv types
-            uint tMasterNumDvs = this->get_dv_type_list().size();
+            // get number of leader dv types
+            uint tLeaderNumDvs = this->get_dv_type_list().size();
 
             // get maximal dv type enum
             tMaxEnum = -1;
 
             // loop over the dv types
-            for ( uint iDv = 0; iDv < tMasterNumDvs; iDv++ )
+            for ( uint iDv = 0; iDv < tLeaderNumDvs; iDv++ )
             {
-                for ( uint Ik = 0; Ik < mMasterDvTypes( iDv ).size(); Ik++ )
+                for ( uint Ik = 0; Ik < mLeaderDvTypes( iDv ).size(); Ik++ )
                 {
                     // get the highest dof type enum
-                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( mMasterDvTypes( iDv )( Ik ) ) );
+                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( mLeaderDvTypes( iDv )( Ik ) ) );
                 }
             }
 
-            // get number of slave dv types
-            uint tSlaveNumDvs = this->get_dv_type_list( mtk::Master_Slave::SLAVE ).size();
+            // get number of follower dv types
+            uint tFollowerNumDvs = this->get_dv_type_list( mtk::Leader_Follower::FOLLOWER ).size();
 
             // loop over the IWGs
-            for ( uint iDOF = 0; iDOF < tSlaveNumDvs; iDOF++ )
+            for ( uint iDOF = 0; iDOF < tFollowerNumDvs; iDOF++ )
             {
-                for ( uint Ik = 0; Ik < mSlaveDvTypes( iDOF ).size(); Ik++ )
+                for ( uint Ik = 0; Ik < mFollowerDvTypes( iDOF ).size(); Ik++ )
                 {
                     // get the highest dof type enum
-                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( mSlaveDvTypes( iDOF )( Ik ) ) );
+                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( mFollowerDvTypes( iDOF )( Ik ) ) );
                 }
             }
             // +1 since start at 0
@@ -1039,50 +1039,50 @@ namespace moris
             MORIS_ASSERT( tMaxEnum != -1, "Set::create_dv_type_map(), no information to build dv type map" );
 
             // set size of dv type map    // FIXME replace with map
-            mMasterDvTypeMap.set_size( tMaxEnum, 1, -1 );
+            mLeaderDvTypeMap.set_size( tMaxEnum, 1, -1 );
 
             // loop over dv types
-            for ( uint iDv = 0; iDv < tMasterNumDvs; iDv++ )
+            for ( uint iDv = 0; iDv < tLeaderNumDvs; iDv++ )
             {
-                mMasterDvTypeMap( static_cast< int >( mMasterDvTypes( iDv )( 0 ) ), 0 ) = iDv;
+                mLeaderDvTypeMap( static_cast< int >( mLeaderDvTypes( iDv )( 0 ) ), 0 ) = iDv;
             }
 
             // set size of dv type map
-            mSlaveDvTypeMap.set_size( tMaxEnum, 1, -1 );
+            mFollowerDvTypeMap.set_size( tMaxEnum, 1, -1 );
 
             // loop over dv types
-            for ( uint iDv = 0; iDv < tSlaveNumDvs; iDv++ )
+            for ( uint iDv = 0; iDv < tFollowerNumDvs; iDv++ )
             {
-                mSlaveDvTypeMap( static_cast< int >( mSlaveDvTypes( iDv )( 0 ) ), 0 ) = iDv;
+                mFollowerDvTypeMap( static_cast< int >( mFollowerDvTypes( iDv )( 0 ) ), 0 ) = iDv;
             }
 
             // field type maps -------------------------------------------------------
-            // get number of master field types
-            uint tMasterNumFields = this->get_field_type_list().size();
+            // get number of leader field types
+            uint tLeaderNumFields = this->get_field_type_list().size();
 
             // get maximal field type enum
             tMaxEnum = -1;
 
             // loop over the field types
-            for ( uint iFi = 0; iFi < tMasterNumFields; iFi++ )
+            for ( uint iFi = 0; iFi < tLeaderNumFields; iFi++ )
             {
-                for ( uint Ik = 0; Ik < mMasterFieldTypes( iFi ).size(); Ik++ )
+                for ( uint Ik = 0; Ik < mLeaderFieldTypes( iFi ).size(); Ik++ )
                 {
                     // get the highest field type enum
-                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( mMasterFieldTypes( iFi )( Ik ) ) );
+                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( mLeaderFieldTypes( iFi )( Ik ) ) );
                 }
             }
 
-            // get number of slave dv types
-            uint tSlaveNumFields = this->get_field_type_list( mtk::Master_Slave::SLAVE ).size();
+            // get number of follower dv types
+            uint tFollowerNumFields = this->get_field_type_list( mtk::Leader_Follower::FOLLOWER ).size();
 
             // loop over the IWGs
-            for ( uint iFi = 0; iFi < tSlaveNumFields; iFi++ )
+            for ( uint iFi = 0; iFi < tFollowerNumFields; iFi++ )
             {
-                for ( uint Ik = 0; Ik < mSlaveFieldTypes( iFi ).size(); Ik++ )
+                for ( uint Ik = 0; Ik < mFollowerFieldTypes( iFi ).size(); Ik++ )
                 {
                     // get the highest dof type enum
-                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( mSlaveFieldTypes( iFi )( Ik ) ) );
+                    tMaxEnum = std::max( tMaxEnum, static_cast< int >( mFollowerFieldTypes( iFi )( Ik ) ) );
                 }
             }
             // +1 since start at 0
@@ -1091,21 +1091,21 @@ namespace moris
             MORIS_ASSERT( tMaxEnum != -1, "Set::create_field_type_map(), no information to build field type map" );
 
             // set size of field type map    // FIXME replace with map
-            mMasterFieldTypeMap.set_size( tMaxEnum, 1, -1 );
+            mLeaderFieldTypeMap.set_size( tMaxEnum, 1, -1 );
 
             // loop over field types
-            for ( uint iFi = 0; iFi < tMasterNumFields; iFi++ )
+            for ( uint iFi = 0; iFi < tLeaderNumFields; iFi++ )
             {
-                mMasterFieldTypeMap( static_cast< int >( mMasterFieldTypes( iFi )( 0 ) ), 0 ) = iFi;
+                mLeaderFieldTypeMap( static_cast< int >( mLeaderFieldTypes( iFi )( 0 ) ), 0 ) = iFi;
             }
 
             // set size of field type map
-            mSlaveFieldTypeMap.set_size( tMaxEnum, 1, -1 );
+            mFollowerFieldTypeMap.set_size( tMaxEnum, 1, -1 );
 
             // loop over field types
-            for ( uint iFi = 0; iFi < tSlaveNumFields; iFi++ )
+            for ( uint iFi = 0; iFi < tFollowerNumFields; iFi++ )
             {
-                mSlaveFieldTypeMap( static_cast< int >( mSlaveFieldTypes( iFi )( 0 ) ), 0 ) = iFi;
+                mFollowerFieldTypeMap( static_cast< int >( mFollowerFieldTypes( iFi )( 0 ) ), 0 ) = iFi;
             }
         }
 
@@ -1115,60 +1115,60 @@ namespace moris
         Set::create_field_interpolator_managers(
                 MSI::Model_Solver_Interface* aModelSolverInterface )
         {
-            // create the master field interpolator manager
-            mMasterFIManager = new Field_Interpolator_Manager(
-                    mMasterDofTypes,
-                    mMasterDvTypes,
-                    mMasterFieldTypes,
+            // create the leader field interpolator manager
+            mLeaderFIManager = new Field_Interpolator_Manager(
+                    mLeaderDofTypes,
+                    mLeaderDvTypes,
+                    mLeaderFieldTypes,
                     this );
 
             // assign cell shape to the field interpolator manager
-            mMasterFIManager->set_IG_cell_shape( mMeshSet->get_IG_cell_shape() );
-            mMasterFIManager->set_IP_cell_shape( mMeshSet->get_IP_cell_shape() );
+            mLeaderFIManager->set_IG_cell_shape( mMeshSet->get_IG_cell_shape() );
+            mLeaderFIManager->set_IP_cell_shape( mMeshSet->get_IP_cell_shape() );
 
-            // create the geometry interpolators on the master FI manager
-            mMasterFIManager->create_geometry_interpolators();
+            // create the geometry interpolators on the leader FI manager
+            mLeaderFIManager->create_geometry_interpolators();
 
-            // create the field interpolators on the master FI manager
-            mMasterFIManager->create_field_interpolators( aModelSolverInterface );
+            // create the field interpolators on the leader FI manager
+            mLeaderFIManager->create_field_interpolators( aModelSolverInterface );
 
-            // create the slave field interpolator manager
-            mSlaveFIManager = new Field_Interpolator_Manager(
-                    mSlaveDofTypes,
-                    mSlaveDvTypes,
-                    mSlaveFieldTypes,
+            // create the follower field interpolator manager
+            mFollowerFIManager = new Field_Interpolator_Manager(
+                    mFollowerDofTypes,
+                    mFollowerDvTypes,
+                    mFollowerFieldTypes,
                     this,
-                    mtk::Master_Slave::SLAVE );
+                    mtk::Leader_Follower::FOLLOWER );
 
             // assign cell shape to the field interpolator manager
-            mSlaveFIManager->set_IG_cell_shape( mMeshSet->get_IG_cell_shape() );
-            mSlaveFIManager->set_IP_cell_shape( mMeshSet->get_IP_cell_shape() );
+            mFollowerFIManager->set_IG_cell_shape( mMeshSet->get_IG_cell_shape() );
+            mFollowerFIManager->set_IP_cell_shape( mMeshSet->get_IP_cell_shape() );
 
-            // create the geometry interpolators on the slave FI manager
-            mSlaveFIManager->create_geometry_interpolators();
+            // create the geometry interpolators on the follower FI manager
+            mFollowerFIManager->create_geometry_interpolators();
 
-            // create the field interpolators on the slave FI manager
-            mSlaveFIManager->create_field_interpolators( aModelSolverInterface );
+            // create the field interpolators on the follower FI manager
+            mFollowerFIManager->create_field_interpolators( aModelSolverInterface );
 
             // if time sideset
             if ( mElementType == fem::Element_Type::TIME_SIDESET )
             {
-                // create the master field interpolator manager
-                mMasterPreviousFIManager = new Field_Interpolator_Manager(
-                        mMasterDofTypes,
-                        mMasterDvTypes,
-                        mMasterFieldTypes,
+                // create the leader field interpolator manager
+                mLeaderPreviousFIManager = new Field_Interpolator_Manager(
+                        mLeaderDofTypes,
+                        mLeaderDvTypes,
+                        mLeaderFieldTypes,
                         this );
 
                 // assign cell shape to the field interpolator manager
-                mMasterPreviousFIManager->set_IG_cell_shape( mMeshSet->get_IG_cell_shape() );
-                mMasterPreviousFIManager->set_IP_cell_shape( mMeshSet->get_IP_cell_shape() );
+                mLeaderPreviousFIManager->set_IG_cell_shape( mMeshSet->get_IG_cell_shape() );
+                mLeaderPreviousFIManager->set_IP_cell_shape( mMeshSet->get_IP_cell_shape() );
 
-                // create the geometry interpolators on the master FI manager
-                mMasterPreviousFIManager->create_geometry_interpolators();
+                // create the geometry interpolators on the leader FI manager
+                mLeaderPreviousFIManager->create_geometry_interpolators();
 
-                // create the field interpolators on the master FI manager
-                mMasterPreviousFIManager->create_field_interpolators( aModelSolverInterface );
+                // create the field interpolators on the leader FI manager
+                mLeaderPreviousFIManager->create_field_interpolators( aModelSolverInterface );
             }
 
             // if eigen vectors
@@ -1176,22 +1176,22 @@ namespace moris
 
             if ( mNumEigenVectors > 0 )
             {
-                // create the master field interpolator manager
-                mMasterEigenFIManager = new Field_Interpolator_Manager(
-                        mMasterDofTypes,
-                        mMasterDvTypes,
-                        mMasterFieldTypes,
+                // create the leader field interpolator manager
+                mLeaderEigenFIManager = new Field_Interpolator_Manager(
+                        mLeaderDofTypes,
+                        mLeaderDvTypes,
+                        mLeaderFieldTypes,
                         this );
 
                 // assign cell shape to the field interpolator manager
-                mMasterEigenFIManager->set_IG_cell_shape( mMeshSet->get_IG_cell_shape() );
-                mMasterEigenFIManager->set_IP_cell_shape( mMeshSet->get_IP_cell_shape() );
+                mLeaderEigenFIManager->set_IG_cell_shape( mMeshSet->get_IG_cell_shape() );
+                mLeaderEigenFIManager->set_IP_cell_shape( mMeshSet->get_IP_cell_shape() );
 
-                // create the geometry interpolators on the master FI manager
-                mMasterEigenFIManager->create_geometry_interpolators();
+                // create the geometry interpolators on the leader FI manager
+                mLeaderEigenFIManager->create_geometry_interpolators();
 
-                // create the field interpolators on the master FI manager
-                mMasterEigenFIManager->create_field_interpolators( aModelSolverInterface, mNumEigenVectors );
+                // create the field interpolators on the leader FI manager
+                mLeaderEigenFIManager->create_field_interpolators( aModelSolverInterface, mNumEigenVectors );
             }
         }
 
@@ -1199,19 +1199,19 @@ namespace moris
 
         Field_Interpolator_Manager*
         Set::get_field_interpolator_manager(
-                mtk::Master_Slave aIsMaster )
+                mtk::Leader_Follower aIsLeader )
         {
-            switch ( aIsMaster )
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
-                    return mMasterFIManager;
+                case mtk::Leader_Follower::LEADER:
+                    return mLeaderFIManager;
 
-                case mtk::Master_Slave::SLAVE:
-                    return mSlaveFIManager;
+                case mtk::Leader_Follower::FOLLOWER:
+                    return mFollowerFIManager;
 
                 default:
-                    MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be master or slave." );
-                    return mMasterFIManager;
+                    MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be leader or follower." );
+                    return mLeaderFIManager;
             }
         }
 
@@ -1219,16 +1219,16 @@ namespace moris
 
         Field_Interpolator_Manager*
         Set::get_field_interpolator_manager_previous_time(
-                mtk::Master_Slave aIsMaster )
+                mtk::Leader_Follower aIsLeader )
         {
-            switch ( aIsMaster )
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
-                    return mMasterPreviousFIManager;
+                case mtk::Leader_Follower::LEADER:
+                    return mLeaderPreviousFIManager;
 
                 default:
-                    MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be master." );
-                    return mMasterPreviousFIManager;
+                    MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be leader." );
+                    return mLeaderPreviousFIManager;
             }
         }
 
@@ -1236,16 +1236,16 @@ namespace moris
 
         Field_Interpolator_Manager*
         Set::get_field_interpolator_manager_eigen_vectors(
-                mtk::Master_Slave aIsMaster )
+                mtk::Leader_Follower aIsLeader )
         {
-            switch ( aIsMaster )
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
-                    return mMasterEigenFIManager;
+                case mtk::Leader_Follower::LEADER:
+                    return mLeaderEigenFIManager;
 
                 default:
-                    MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be master." );
-                    return mMasterPreviousFIManager;
+                    MORIS_ERROR( false, "Set::get_field_interpolator_manager - can only be leader." );
+                    return mLeaderPreviousFIManager;
             }
         }
 
@@ -1257,25 +1257,25 @@ namespace moris
             // loop over the IWGs
             for ( const std::shared_ptr< IWG >& tIWG : mIWGs )
             {
-                // set the master FI manager
-                tIWG->set_field_interpolator_manager( mMasterFIManager );
+                // set the leader FI manager
+                tIWG->set_field_interpolator_manager( mLeaderFIManager );
 
-                // if double sideset, set slave
+                // if double sideset, set follower
                 if ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
                 {
-                    // set IWG slave field interpolator manager
+                    // set IWG follower field interpolator manager
                     tIWG->set_field_interpolator_manager(
-                            mSlaveFIManager,
-                            mtk::Master_Slave::SLAVE );
+                            mFollowerFIManager,
+                            mtk::Leader_Follower::FOLLOWER );
                 }
 
                 // if time sideset, set previous
                 if ( mElementType == fem::Element_Type::TIME_SIDESET )
                 {
-                    // set IWG master field interpolator manager for previous time step
+                    // set IWG leader field interpolator manager for previous time step
                     tIWG->set_field_interpolator_manager_previous_time(
-                            mMasterPreviousFIManager,
-                            mtk::Master_Slave::MASTER );
+                            mLeaderPreviousFIManager,
+                            mtk::Leader_Follower::LEADER );
                 }
             }
         }
@@ -1361,7 +1361,7 @@ namespace moris
                         moris::Cell< std::tuple<
                                 fem::Measure_Type,
                                 mtk::Primary_Void,
-                                mtk::Master_Slave > >
+                                mtk::Leader_Follower > >
                                 tClusterMEASPTuples =
                                         tSP->get_cluster_measure_tuple_list();
 
@@ -1388,7 +1388,7 @@ namespace moris
                         moris::Cell< std::tuple<
                                 fem::Measure_Type,
                                 mtk::Primary_Void,
-                                mtk::Master_Slave > >
+                                mtk::Leader_Follower > >
                                 tClusterMEASPTuples =
                                         tSP->get_cluster_measure_tuple_list();
 
@@ -1420,7 +1420,7 @@ namespace moris
                         moris::Cell< std::tuple<
                                 fem::Measure_Type,
                                 mtk::Primary_Void,
-                                mtk::Master_Slave > >
+                                mtk::Leader_Follower > >
                                 tClusterMEASPTuples =
                                         tSP->get_cluster_measure_tuple_list();
 
@@ -1461,7 +1461,7 @@ namespace moris
                         moris::Cell< std::tuple<
                                 fem::Measure_Type,
                                 mtk::Primary_Void,
-                                mtk::Master_Slave > >
+                                mtk::Leader_Follower > >
                                 tClusterMEASPTuples =
                                         tSP->get_cluster_measure_tuple_list();
 
@@ -1496,7 +1496,7 @@ namespace moris
         moris::Cell< std::tuple<
                 fem::Measure_Type,
                 mtk::Primary_Void,
-                mtk::Master_Slave > >&
+                mtk::Leader_Follower > >&
         Set::get_cluster_measure_tuples()
         {
             // check that tuples were built
@@ -1514,7 +1514,7 @@ namespace moris
         std::map< std::tuple<
                           fem::Measure_Type,
                           mtk::Primary_Void,
-                          mtk::Master_Slave >,
+                          mtk::Leader_Follower >,
                 uint >&
         Set::get_cluster_measure_map()
         {
@@ -1536,22 +1536,22 @@ namespace moris
             // loop over the IQIs
             for ( const std::shared_ptr< IQI >& tIQI : mIQIs )
             {
-                // set IQI master FI manager
-                tIQI->set_field_interpolator_manager( mMasterFIManager );
+                // set IQI leader FI manager
+                tIQI->set_field_interpolator_manager( mLeaderFIManager );
 
-                // if double sideset, set slave
+                // if double sideset, set follower
                 if ( mElementType == fem::Element_Type::DOUBLE_SIDESET )
                 {
-                    // set IQI slave FI manager
+                    // set IQI follower FI manager
                     tIQI->set_field_interpolator_manager(
-                            mSlaveFIManager,
-                            mtk::Master_Slave::SLAVE );
+                            mFollowerFIManager,
+                            mtk::Leader_Follower::FOLLOWER );
                 }
 
-                // set IQI master FI manager for eigen vectors
-                if ( mMasterEigenFIManager )
+                // set IQI leader FI manager for eigen vectors
+                if ( mLeaderEigenFIManager )
                 {
-                    tIQI->set_field_interpolator_manager_eigen_vector( mMasterEigenFIManager );
+                    tIQI->set_field_interpolator_manager_eigen_vector( mLeaderEigenFIManager );
                 }
             }
         }
@@ -1571,10 +1571,10 @@ namespace moris
             // loop over the requested dof types
             for ( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
             {
-                // get the set index for the requested master dof type
+                // get the set index for the requested leader dof type
                 sint tDofIndex = this->get_dof_index_for_type(
                         tRequestedDofTypes( Ik ),
-                        mtk::Master_Slave::MASTER );
+                        mtk::Leader_Follower::LEADER );
 
                 // if the index was set (and is different from -1)
                 if ( tDofIndex != -1 )
@@ -1583,10 +1583,10 @@ namespace moris
                     tMaxDofIndex = std::max( tMaxDofIndex, tDofIndex );
                 }
 
-                // get the set index for the requested slave dof type
+                // get the set index for the requested follower dof type
                 tDofIndex = this->get_dof_index_for_type(
                         tRequestedDofTypes( Ik ),
-                        mtk::Master_Slave::SLAVE );
+                        mtk::Leader_Follower::FOLLOWER );
 
                 // if the index was set (and is different -1)
                 if ( tDofIndex != -1 )
@@ -1613,18 +1613,18 @@ namespace moris
             // loop over the requested dof types
             for ( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
             {
-                // get the set index for the requested master dof type
+                // get the set index for the requested leader dof type
                 sint tDofIndex = this->get_dof_index_for_type(
                         tRequestedDofTypes( Ik ),
-                        mtk::Master_Slave::MASTER );
+                        mtk::Leader_Follower::LEADER );
 
                 // if the index was set (and is different from -1)
                 if ( tDofIndex != -1 )
                 {
-                    // get the number of coefficients related to the master dof type
-                    uint tNumCoeff = mMasterFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
+                    // get the number of coefficients related to the leader dof type
+                    uint tNumCoeff = mLeaderFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
 
-                    // fill the residual assembly map with starting and ending indices for the master dof type
+                    // fill the residual assembly map with starting and ending indices for the leader dof type
                     mResDofAssemblyMap( tDofIndex )( 0 ) = tCounter;
                     mResDofAssemblyMap( tDofIndex )( 1 ) = tCounter + tNumCoeff - 1;
 
@@ -1636,17 +1636,17 @@ namespace moris
             // loop over the requested dof types
             for ( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
             {
-                // get the set index for the requested slave dof type
+                // get the set index for the requested follower dof type
                 sint tDofIndex = this->get_dof_index_for_type( tRequestedDofTypes( Ik ),
-                        mtk::Master_Slave::SLAVE );
+                        mtk::Leader_Follower::FOLLOWER );
 
                 // if the dof type was set (its set index is different from -1)
                 if ( tDofIndex != -1 )
                 {
-                    // get the number of coefficients for the slave dof type
-                    uint tNumCoeff = mSlaveFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
+                    // get the number of coefficients for the follower dof type
+                    uint tNumCoeff = mFollowerFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
 
-                    // fill the residual assembly map with starting and ending indices for the slave dof type
+                    // fill the residual assembly map with starting and ending indices for the follower dof type
                     mResDofAssemblyMap( tDofIndex )( 0 ) = tCounter;
                     mResDofAssemblyMap( tDofIndex )( 1 ) = tCounter + tNumCoeff - 1;
 
@@ -1682,12 +1682,12 @@ namespace moris
 
             sint tMaxDofIndex = -1;
 
-            // master
+            // leader
             for ( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
             {
                 sint tDofIndex = this->get_dof_index_for_type(
                         tRequestedDofTypes( Ik ),
-                        mtk::Master_Slave::MASTER );
+                        mtk::Leader_Follower::LEADER );
 
                 if ( tDofIndex != -1 )
                 {
@@ -1696,7 +1696,7 @@ namespace moris
 
                 tDofIndex = this->get_dof_index_for_type(
                         tRequestedDofTypes( Ik ),
-                        mtk::Master_Slave::SLAVE );
+                        mtk::Leader_Follower::FOLLOWER );
 
                 if ( tDofIndex != -1 )
                 {
@@ -1717,7 +1717,7 @@ namespace moris
             {
                 sint tDofIndex = this->get_dof_index_for_type(
                         tRequestedDofTypes( Ik ),
-                        mtk::Master_Slave::MASTER );
+                        mtk::Leader_Follower::LEADER );
 
                 if ( tDofIndex != -1 )
                 {
@@ -1727,11 +1727,11 @@ namespace moris
                     {
                         sint tDofIndex_2 = this->get_dof_index_for_type(
                                 tRequestedDofTypes( Ii ),
-                                mtk::Master_Slave::MASTER );
+                                mtk::Leader_Follower::LEADER );
 
                         if ( tDofIndex_2 != -1 )
                         {
-                            uint tNumCoeff_2 = mMasterFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ii ) )->get_number_of_space_time_coefficients();
+                            uint tNumCoeff_2 = mLeaderFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ii ) )->get_number_of_space_time_coefficients();
 
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 1 ) = tCounter_2 + tNumCoeff_2 - 1;
@@ -1740,16 +1740,16 @@ namespace moris
                         }
                     }
 
-                    // slave
+                    // follower
                     for ( uint Ii = 0; Ii < tRequestedDofTypes.size(); Ii++ )
                     {
                         sint tDofIndex_2 = this->get_dof_index_for_type(
                                 tRequestedDofTypes( Ii ),
-                                mtk::Master_Slave::SLAVE );
+                                mtk::Leader_Follower::FOLLOWER );
 
                         if ( tDofIndex_2 != -1 )
                         {
-                            uint tNumCoeff_2 = mSlaveFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ii ) )->get_number_of_space_time_coefficients();
+                            uint tNumCoeff_2 = mFollowerFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ii ) )->get_number_of_space_time_coefficients();
 
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 1 ) = tCounter_2 + tNumCoeff_2 - 1;
@@ -1764,7 +1764,7 @@ namespace moris
             {
                 sint tDofIndex = this->get_dof_index_for_type(
                         tRequestedDofTypes( Ik ),
-                        mtk::Master_Slave::SLAVE );
+                        mtk::Leader_Follower::FOLLOWER );
 
                 if ( tDofIndex != -1 )
                 {
@@ -1774,11 +1774,11 @@ namespace moris
                     {
                         sint tDofIndex_2 = this->get_dof_index_for_type(
                                 tRequestedDofTypes( Ii ),
-                                mtk::Master_Slave::MASTER );
+                                mtk::Leader_Follower::LEADER );
 
                         if ( tDofIndex_2 != -1 )
                         {
-                            uint tNumCoeff_2 = mMasterFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ii ) )->get_number_of_space_time_coefficients();
+                            uint tNumCoeff_2 = mLeaderFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ii ) )->get_number_of_space_time_coefficients();
 
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 1 ) = tCounter_2 + tNumCoeff_2 - 1;
@@ -1791,11 +1791,11 @@ namespace moris
                     {
                         sint tDofIndex_2 = this->get_dof_index_for_type(
                                 tRequestedDofTypes( Ii ),
-                                mtk::Master_Slave::SLAVE );
+                                mtk::Leader_Follower::FOLLOWER );
 
                         if ( tDofIndex_2 != -1 )
                         {
-                            uint tNumCoeff_2 = mSlaveFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ii ) )->get_number_of_space_time_coefficients();
+                            uint tNumCoeff_2 = mFollowerFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ii ) )->get_number_of_space_time_coefficients();
 
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 1 ) = tCounter_2 + tNumCoeff_2 - 1;
@@ -1825,7 +1825,7 @@ namespace moris
             {
                 sint tDofIndex = this->get_dof_index_for_type(
                         tRequestedDofTypes( Ik ),
-                        mtk::Master_Slave::MASTER );
+                        mtk::Leader_Follower::LEADER );
 
                 if ( tDofIndex != -1 )
                 {
@@ -1834,7 +1834,7 @@ namespace moris
 
                 tDofIndex = this->get_dof_index_for_type(
                         tRequestedDofTypes( Ik ),
-                        mtk::Master_Slave::SLAVE );
+                        mtk::Leader_Follower::FOLLOWER );
 
                 if ( tDofIndex != -1 )
                 {
@@ -1849,7 +1849,7 @@ namespace moris
             {
                 sint tDofIndex = this->get_dof_index_for_type(
                         tSecondaryDofTypes( Ik ),
-                        mtk::Master_Slave::MASTER );
+                        mtk::Leader_Follower::LEADER );
 
                 if ( tDofIndex != -1 )
                 {
@@ -1858,7 +1858,7 @@ namespace moris
 
                 tDofIndex = this->get_dof_index_for_type(
                         tSecondaryDofTypes( Ik ),
-                        mtk::Master_Slave::SLAVE );
+                        mtk::Leader_Follower::FOLLOWER );
 
                 if ( tDofIndex != -1 )
                 {
@@ -1878,7 +1878,7 @@ namespace moris
             {
                 sint tDofIndex = this->get_dof_index_for_type(
                         tRequestedDofTypes( Ik ),
-                        mtk::Master_Slave::MASTER );
+                        mtk::Leader_Follower::LEADER );
 
                 if ( tDofIndex != -1 )
                 {
@@ -1888,11 +1888,11 @@ namespace moris
                     {
                         sint tDofIndex_2 = this->get_dof_index_for_type(
                                 tSecondaryDofTypes( Ii ),
-                                mtk::Master_Slave::MASTER );
+                                mtk::Leader_Follower::LEADER );
 
                         if ( tDofIndex_2 != -1 )
                         {
-                            uint tNumCoeff_2 = mMasterFIManager->get_field_interpolators_for_type( tSecondaryDofTypes( Ii ) )->get_number_of_space_time_coefficients();
+                            uint tNumCoeff_2 = mLeaderFIManager->get_field_interpolators_for_type( tSecondaryDofTypes( Ii ) )->get_number_of_space_time_coefficients();
 
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 1 ) = tCounter_2 + tNumCoeff_2 - 1;
@@ -1905,11 +1905,11 @@ namespace moris
                     {
                         sint tDofIndex_2 = this->get_dof_index_for_type(
                                 tSecondaryDofTypes( Ii ),
-                                mtk::Master_Slave::SLAVE );
+                                mtk::Leader_Follower::FOLLOWER );
 
                         if ( tDofIndex_2 != -1 )
                         {
-                            uint tNumCoeff_2 = mSlaveFIManager->get_field_interpolators_for_type( tSecondaryDofTypes( Ii ) )->get_number_of_space_time_coefficients();
+                            uint tNumCoeff_2 = mFollowerFIManager->get_field_interpolators_for_type( tSecondaryDofTypes( Ii ) )->get_number_of_space_time_coefficients();
 
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 1 ) = tCounter_2 + tNumCoeff_2 - 1;
@@ -1924,7 +1924,7 @@ namespace moris
             {
                 sint tDofIndex = this->get_dof_index_for_type(
                         tRequestedDofTypes( Ik ),
-                        mtk::Master_Slave::SLAVE );
+                        mtk::Leader_Follower::FOLLOWER );
 
                 if ( tDofIndex != -1 )
                 {
@@ -1934,11 +1934,11 @@ namespace moris
                     {
                         sint tDofIndex_2 = this->get_dof_index_for_type(
                                 tSecondaryDofTypes( Ii ),
-                                mtk::Master_Slave::MASTER );
+                                mtk::Leader_Follower::LEADER );
 
                         if ( tDofIndex_2 != -1 )
                         {
-                            uint tNumCoeff_2 = mMasterFIManager->get_field_interpolators_for_type( tSecondaryDofTypes( Ii ) )
+                            uint tNumCoeff_2 = mLeaderFIManager->get_field_interpolators_for_type( tSecondaryDofTypes( Ii ) )
                                                        ->get_number_of_space_time_coefficients();
 
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
@@ -1952,11 +1952,11 @@ namespace moris
                     {
                         sint tDofIndex_2 = this->get_dof_index_for_type(
                                 tSecondaryDofTypes( Ii ),
-                                mtk::Master_Slave::SLAVE );
+                                mtk::Leader_Follower::FOLLOWER );
 
                         if ( tDofIndex_2 != -1 )
                         {
-                            uint tNumCoeff_2 = mSlaveFIManager->get_field_interpolators_for_type( tSecondaryDofTypes( Ii ) )->get_number_of_space_time_coefficients();
+                            uint tNumCoeff_2 = mFollowerFIManager->get_field_interpolators_for_type( tSecondaryDofTypes( Ii ) )->get_number_of_space_time_coefficients();
 
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 0 ) = tCounter_2;
                             mJacDofAssemblyMap( tDofIndex )( tDofIndex_2, 1 ) = tCounter_2 + tNumCoeff_2 - 1;
@@ -1982,10 +1982,10 @@ namespace moris
             // loop over the dv types
             for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
             {
-                // get the set index for the requested master dof type
+                // get the set index for the requested leader dof type
                 sint tDvIndex = this->get_dv_index_for_type(
                         tRequestedDvTypes( Ik ),
-                        mtk::Master_Slave::MASTER );
+                        mtk::Leader_Follower::LEADER );
 
                 // if the index was set (and is different from -1)
                 if ( tDvIndex != -1 )
@@ -1994,10 +1994,10 @@ namespace moris
                     tMaxDvIndex = std::max( tMaxDvIndex, tDvIndex );
                 }
 
-                // get the set index for the requested slave slave type
+                // get the set index for the requested follower follower type
                 tDvIndex = this->get_dv_index_for_type(
                         tRequestedDvTypes( Ik ),
-                        mtk::Master_Slave::SLAVE );
+                        mtk::Leader_Follower::FOLLOWER );
 
                 // if the index was set (and is different -1)
                 if ( tDvIndex != -1 )
@@ -2024,22 +2024,22 @@ namespace moris
             // loop over the dv types
             for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
             {
-                // get the set index for the requested master dv type
+                // get the set index for the requested leader dv type
                 sint tDvIndex = this->get_dv_index_for_type(
                         tRequestedDvTypes( Ik ),
-                        mtk::Master_Slave::MASTER );
+                        mtk::Leader_Follower::LEADER );
 
                 // if the index was set (and is different from -1)
                 if ( tDvIndex != -1 )
                 {
-                    // get the FI related to the master pdv type
-                    Field_Interpolator* tFI = mMasterFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik ) );
+                    // get the FI related to the leader pdv type
+                    Field_Interpolator* tFI = mLeaderFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik ) );
 
-                    // get the number of coefficients related to the master dv type
+                    // get the number of coefficients related to the leader dv type
                     uint tNumCoeff = tFI->get_number_of_space_time_coefficients();
 
                     // fill the dv assembly map with starting and ending indices
-                    // for the master dv type
+                    // for the leader dv type
                     mPdvMatAssemblyMap( tDvIndex )( 0, 0 ) = tCounter;
                     mPdvMatAssemblyMap( tDvIndex )( 0, 1 ) = tCounter + tNumCoeff - 1;
 
@@ -2048,24 +2048,24 @@ namespace moris
                 }
             }
 
-            // loop over the slave dv types
+            // loop over the follower dv types
             for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
             {
-                // get the set index for the slave dv type
+                // get the set index for the follower dv type
                 sint tDvIndex = this->get_dv_index_for_type(
                         tRequestedDvTypes( Ik ),
-                        mtk::Master_Slave::SLAVE );
+                        mtk::Leader_Follower::FOLLOWER );
 
                 // if the dv type was set (its set index is different from -1)
                 if ( tDvIndex != -1 )
                 {
-                    // get the FI related to the master pdv type
-                    Field_Interpolator* tFI = mSlaveFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik ) );
+                    // get the FI related to the leader pdv type
+                    Field_Interpolator* tFI = mFollowerFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik ) );
 
-                    // get the number of coefficients for the slave dv type
+                    // get the number of coefficients for the follower dv type
                     uint tNumCoeff = tFI->get_number_of_space_time_coefficients();
 
-                    // fill the residual assembly map with starting and ending indices for the slave dof type
+                    // fill the residual assembly map with starting and ending indices for the follower dof type
                     mPdvMatAssemblyMap( tDvIndex )( 0, 0 ) = tCounter;
                     mPdvMatAssemblyMap( tDvIndex )( 0, 1 ) = tCounter + tNumCoeff - 1;
 
@@ -2395,28 +2395,28 @@ namespace moris
                 // loop over the requested dof types
                 for ( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
                 {
-                    // get the set index for the master dof type
+                    // get the set index for the leader dof type
                     sint tDofIndex = this->get_dof_index_for_type(
                             tRequestedDofTypes( Ik ),
-                            mtk::Master_Slave::MASTER );
+                            mtk::Leader_Follower::LEADER );
 
-                    // if this master dof is active
+                    // if this leader dof is active
                     if ( tDofIndex != -1 )
                     {
                         // update number of dof coefficients
-                        tNumCols += mMasterFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
+                        tNumCols += mLeaderFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
                     }
 
-                    // get the set index for the slave dof type
+                    // get the set index for the follower dof type
                     tDofIndex = this->get_dof_index_for_type(
                             tRequestedDofTypes( Ik ),
-                            mtk::Master_Slave::SLAVE );
+                            mtk::Leader_Follower::FOLLOWER );
 
-                    // if this slave dof is active
+                    // if this follower dof is active
                     if ( tDofIndex != -1 )
                     {
                         // update number of dof coefficients
-                        tNumCols += mSlaveFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
+                        tNumCols += mFollowerFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
                     }
                 }
 
@@ -2439,28 +2439,28 @@ namespace moris
                     // loop over the groups of secondary dof types
                     for ( auto tSecDofTypesI : tSecDofTypes )
                     {
-                        // get the set index for the master dof type
+                        // get the set index for the leader dof type
                         sint tDofIndex = this->get_dof_index_for_type(
                                 tSecDofTypesI,
-                                mtk::Master_Slave::MASTER );
+                                mtk::Leader_Follower::LEADER );
 
-                        // if this master dof is active
+                        // if this leader dof is active
                         if ( tDofIndex != -1 )
                         {
                             // update number of dof coefficients
-                            tNumRows += mMasterFIManager->get_field_interpolators_for_type( tSecDofTypesI )->get_number_of_space_time_coefficients();
+                            tNumRows += mLeaderFIManager->get_field_interpolators_for_type( tSecDofTypesI )->get_number_of_space_time_coefficients();
                         }
 
-                        // get the set index for the slave dof type
+                        // get the set index for the follower dof type
                         tDofIndex = this->get_dof_index_for_type(
                                 tSecDofTypesI,
-                                mtk::Master_Slave::SLAVE );
+                                mtk::Leader_Follower::FOLLOWER );
 
-                        // if this slave dof is active
+                        // if this follower dof is active
                         if ( tDofIndex != -1 )
                         {
                             // update number of dof coefficients
-                            tNumRows += mSlaveFIManager->get_field_interpolators_for_type( tSecDofTypesI )->get_number_of_space_time_coefficients();
+                            tNumRows += mFollowerFIManager->get_field_interpolators_for_type( tSecDofTypesI )->get_number_of_space_time_coefficients();
                         }
                     }
 
@@ -2504,28 +2504,28 @@ namespace moris
                 // loop over the requested dof types
                 for ( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
                 {
-                    // get the set index for the master dof type
+                    // get the set index for the leader dof type
                     sint tDofIndex = this->get_dof_index_for_type(
                             tRequestedDofTypes( Ik ),
-                            mtk::Master_Slave::MASTER );
+                            mtk::Leader_Follower::LEADER );
 
-                    // if this master dof is active
+                    // if this leader dof is active
                     if ( tDofIndex != -1 )
                     {
                         // update number of dof coefficients
-                        tNumCoeff += mMasterFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
+                        tNumCoeff += mLeaderFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
                     }
 
-                    // get the set index for the slave dof type
+                    // get the set index for the follower dof type
                     tDofIndex = this->get_dof_index_for_type(
                             tRequestedDofTypes( Ik ),
-                            mtk::Master_Slave::SLAVE );
+                            mtk::Leader_Follower::FOLLOWER );
 
-                    // if this slave dof is active
+                    // if this follower dof is active
                     if ( tDofIndex != -1 )
                     {
                         // update number of dof coefficients
-                        tNumCoeff += mSlaveFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
+                        tNumCoeff += mFollowerFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
                     }
 
 
@@ -2630,34 +2630,34 @@ namespace moris
                 // loop over the requested dv types
                 for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
                 {
-                    // get the set index for the master dof type
+                    // get the set index for the leader dof type
                     sint tDvIndex = this->get_dv_index_for_type(
                             tRequestedDvTypes( Ik )( 0 ),
-                            mtk::Master_Slave::MASTER );
+                            mtk::Leader_Follower::LEADER );
 
-                    // if this master dv is active
+                    // if this leader dv is active
                     if ( tDvIndex != -1 )
                     {
                         // update number of dof coefficients
-                        tNumPdvCoefficients += mMasterFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik )( 0 ) )->get_number_of_space_time_coefficients();
+                        tNumPdvCoefficients += mLeaderFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik )( 0 ) )->get_number_of_space_time_coefficients();
                     }
                 }
-                // get the requested pdv types for the slave side
-                this->get_ip_dv_types_for_set( tRequestedDvTypes, mtk::Master_Slave::SLAVE );
+                // get the requested pdv types for the follower side
+                this->get_ip_dv_types_for_set( tRequestedDvTypes, mtk::Leader_Follower::FOLLOWER );
 
                 // loop over the requested dv types
                 for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
                 {
-                    // get the set index for the slave dv type
+                    // get the set index for the follower dv type
                     sint tDvIndex = this->get_dv_index_for_type(
                             tRequestedDvTypes( Ik )( 0 ),
-                            mtk::Master_Slave::SLAVE );
+                            mtk::Leader_Follower::FOLLOWER );
 
-                    // if this slave dv is active
+                    // if this follower dv is active
                     if ( tDvIndex != -1 )
                     {
                         // update number of dof coefficients
-                        tNumPdvCoefficients += mSlaveFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik )( 0 ) )->get_number_of_space_time_coefficients();
+                        tNumPdvCoefficients += mFollowerFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik )( 0 ) )->get_number_of_space_time_coefficients();
                     }
                 }
                 // loop over requested IQIs
@@ -2721,28 +2721,28 @@ namespace moris
                 // loop over the requested dof types
                 for ( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
                 {
-                    // get the set index for the master dof type
+                    // get the set index for the leader dof type
                     sint tDofIndex = this->get_dof_index_for_type(
                             tRequestedDofTypes( Ik ),
-                            mtk::Master_Slave::MASTER );
+                            mtk::Leader_Follower::LEADER );
 
-                    // if this master dof is active
+                    // if this leader dof is active
                     if ( tDofIndex != -1 )
                     {
                         // update number of dof coefficients
-                        tNumRows += mMasterFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
+                        tNumRows += mLeaderFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
                     }
 
-                    // get the set index for the slave dof type
+                    // get the set index for the follower dof type
                     tDofIndex = this->get_dof_index_for_type(
                             tRequestedDofTypes( Ik ),
-                            mtk::Master_Slave::SLAVE );
+                            mtk::Leader_Follower::FOLLOWER );
 
-                    // if this slave dof is active
+                    // if this follower dof is active
                     if ( tDofIndex != -1 )
                     {
                         // update number of dof coefficients
-                        tNumRows += mSlaveFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
+                        tNumRows += mFollowerFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
                     }
                 }
 
@@ -2756,35 +2756,35 @@ namespace moris
                 // loop over the requested dv types
                 for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
                 {
-                    // get the set index for the master dof type
+                    // get the set index for the leader dof type
                     sint tDvIndex = this->get_dv_index_for_type(
                             tRequestedDvTypes( Ik )( 0 ),
-                            mtk::Master_Slave::MASTER );
+                            mtk::Leader_Follower::LEADER );
 
-                    // if this master dv is active
+                    // if this leader dv is active
                     if ( tDvIndex != -1 )
                     {
                         // update number of dof coefficients
-                        tNumCols += mMasterFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik )( 0 ) )->get_number_of_space_time_coefficients();
+                        tNumCols += mLeaderFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik )( 0 ) )->get_number_of_space_time_coefficients();
                     }
                 }
 
-                // get the slave side dv types
-                this->get_ip_dv_types_for_set( tRequestedDvTypes, mtk::Master_Slave::SLAVE );
+                // get the follower side dv types
+                this->get_ip_dv_types_for_set( tRequestedDvTypes, mtk::Leader_Follower::FOLLOWER );
 
                 // loop over the requested dv types
                 for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
                 {
-                    // get the set index for the master dof type
+                    // get the set index for the leader dof type
                     sint tDvIndex = this->get_dv_index_for_type(
                             tRequestedDvTypes( Ik )( 0 ),
-                            mtk::Master_Slave::SLAVE );
+                            mtk::Leader_Follower::FOLLOWER );
 
-                    // if this slave dv is active
+                    // if this follower dv is active
                     if ( tDvIndex != -1 )
                     {
                         // update number of dof coefficients
-                        tNumCols += mSlaveFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik )( 0 ) )->get_number_of_space_time_coefficients();
+                        tNumCols += mFollowerFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik )( 0 ) )->get_number_of_space_time_coefficients();
                     }
                 }
 
@@ -2815,28 +2815,28 @@ namespace moris
             // loop over the requested dof types
             for ( uint Ik = 0; Ik < tRequestedDofTypes.size(); Ik++ )
             {
-                // get the set index for the master dof type
+                // get the set index for the leader dof type
                 sint tDofIndex = this->get_dof_index_for_type(
                         tRequestedDofTypes( Ik ),
-                        mtk::Master_Slave::MASTER );
+                        mtk::Leader_Follower::LEADER );
 
-                // if this master dof is active
+                // if this leader dof is active
                 if ( tDofIndex != -1 )
                 {
                     // update number of dof coefficients
-                    tNumRows += mMasterFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
+                    tNumRows += mLeaderFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
                 }
 
-                // get the set index for the slave dof type
+                // get the set index for the follower dof type
                 tDofIndex = this->get_dof_index_for_type(
                         tRequestedDofTypes( Ik ),
-                        mtk::Master_Slave::SLAVE );
+                        mtk::Leader_Follower::FOLLOWER );
 
-                // if this slave dof is active
+                // if this follower dof is active
                 if ( tDofIndex != -1 )
                 {
                     // update number of dof coefficients
-                    tNumRows += mSlaveFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
+                    tNumRows += mFollowerFIManager->get_field_interpolators_for_type( tRequestedDofTypes( Ik ) )->get_number_of_space_time_coefficients();
                 }
             }
 
@@ -3518,26 +3518,26 @@ namespace moris
         void
         Set::get_ip_dv_types_for_set(
                 moris::Cell< moris::Cell< enum PDV_Type > >& aMatPdvType,
-                mtk::Master_Slave                            aIsMaster )
+                mtk::Leader_Follower                            aIsLeader )
         {
-            // choose based on the master, slave type
+            // choose based on the leader, follower type
             // the output here is gather from fem
-            switch ( aIsMaster )
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
+                case mtk::Leader_Follower::LEADER:
                 {
-                    aMatPdvType = mMasterDvTypes;
+                    aMatPdvType = mLeaderDvTypes;
                     break;
                 }
 
-                case mtk::Master_Slave::SLAVE:
+                case mtk::Leader_Follower::FOLLOWER:
                 {
-                    aMatPdvType = mSlaveDvTypes;
+                    aMatPdvType = mFollowerDvTypes;
                     break;
                 }
 
                 default:
-                    MORIS_ERROR( false, "Set::get_ip_dv_types_for_set - can only be master or slave." );
+                    MORIS_ERROR( false, "Set::get_ip_dv_types_for_set - can only be leader or follower." );
             }
 
             // FIXME

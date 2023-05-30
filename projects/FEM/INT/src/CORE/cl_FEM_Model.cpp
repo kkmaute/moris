@@ -1376,24 +1376,24 @@ namespace moris
                         tFuncParameters );
                 mSPs( iSP )->set_parameters( tFuncParameters );
 
-                // init string for master or slave
-                std::string       tIsMasterString = "master";
-                mtk::Master_Slave tIsMaster       = mtk::Master_Slave::MASTER;
+                // init string for leader or follower
+                std::string       tIsLeaderString = "leader";
+                mtk::Leader_Follower tIsLeader       = mtk::Leader_Follower::LEADER;
 
-                // loop on master and slave
-                for ( uint iMaster = 0; iMaster <= mSPs( iSP )->get_has_slave(); iMaster++ )
+                // loop on leader and follower
+                for ( uint iLeader = 0; iLeader <= mSPs( iSP )->get_has_follower(); iLeader++ )
                 {
-                    // if slave
-                    if ( iMaster )
+                    // if follower
+                    if ( iLeader )
                     {
-                        // reset string for slave
-                        tIsMasterString = "slave";
-                        tIsMaster       = mtk::Master_Slave::SLAVE;
+                        // reset string for follower
+                        tIsLeaderString = "follower";
+                        tIsLeader       = mtk::Leader_Follower::FOLLOWER;
                     }
 
                     // get the treated IWG phase
                     std::string tPhaseName =
-                            tSPParameter.get< std::string >( tIsMasterString + "_phase_name" );
+                            tSPParameter.get< std::string >( tIsLeaderString + "_phase_name" );
 
                     // check for unknown phase
                     MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
@@ -1403,31 +1403,31 @@ namespace moris
                     // set dof dependencies
                     moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
                     string_to_cell_of_cell(
-                            std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsMasterString + "_dof_dependencies" ) ),
+                            std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dof_dependencies" ) ),
                             tDofTypes,
                             aMSIDofTypeMap );
                     moris::Cell< std::string > tDofTypeNames;
                     string_to_cell( std::get< 1 >(
-                                            tSPParameter.get< std::pair< std::string, std::string > >( tIsMasterString + "_dof_dependencies" ) ),
+                                            tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dof_dependencies" ) ),
                             tDofTypeNames );
-                    mSPs( iSP )->set_dof_type_list( tDofTypes, tDofTypeNames, tIsMaster );
+                    mSPs( iSP )->set_dof_type_list( tDofTypes, tDofTypeNames, tIsLeader );
 
                     // set dv dependencies
                     moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
                     string_to_cell_of_cell(
-                            std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsMasterString + "_dv_dependencies" ) ),
+                            std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dv_dependencies" ) ),
                             tDvTypes,
                             aDvTypeMap );
                     moris::Cell< std::string > tDvTypeNames;
                     string_to_cell(
-                            std::get< 1 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsMasterString + "_dv_dependencies" ) ),
+                            std::get< 1 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dv_dependencies" ) ),
                             tDvTypeNames );
-                    mSPs( iSP )->set_dv_type_list( tDvTypes, tDvTypeNames, tIsMaster );
+                    mSPs( iSP )->set_dv_type_list( tDvTypes, tDvTypeNames, tIsLeader );
 
-                    // set master properties
+                    // set leader properties
                     moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
                     string_to_cell_of_cell(
-                            tSPParameter.get< std::string >( tIsMasterString + "_properties" ),
+                            tSPParameter.get< std::string >( tIsLeaderString + "_properties" ),
                             tPropertyNamesPair );
 
                     for ( uint iProp = 0; iProp < tPropertyNamesPair.size(); iProp++ )
@@ -1438,7 +1438,7 @@ namespace moris
                         // check for unknown property
                         MORIS_ERROR( aPropertyMap.find( tPropertyName ) != aPropertyMap.end(),
                                 "FEM_Model::create_stabilization_parameters - Unknown %s aPropertyString : %s \n",
-                                tIsMasterString.c_str(),
+                                tIsLeaderString.c_str(),
                                 tPropertyName.c_str() );
 
                         // get property index
@@ -1448,13 +1448,13 @@ namespace moris
                         mSPs( iSP )->set_property(
                                 mProperties( tPropertyIndex ),
                                 tPropertyNamesPair( iProp )( 1 ),
-                                tIsMaster );
+                                tIsLeader );
                     }
 
                     // set constitutive models
                     moris::Cell< moris::Cell< std::string > > tCMNamesPair;
                     string_to_cell_of_cell(
-                            tSPParameter.get< std::string >( tIsMasterString + "_constitutive_models" ),
+                            tSPParameter.get< std::string >( tIsLeaderString + "_constitutive_models" ),
                             tCMNamesPair );
 
                     // loop over CM names
@@ -1488,14 +1488,14 @@ namespace moris
                     moris::Cell< std::tuple<
                             fem::Measure_Type,
                             mtk::Primary_Void,
-                            mtk::Master_Slave > >
+                            mtk::Leader_Follower > >
                             tClusterMeasureTuples( tClusterMeasureNames.size() );
 
-                    // get fem::Measure_Type, mtk::Primary_Void and mtk::Master_Slave map
+                    // get fem::Measure_Type, mtk::Primary_Void and mtk::Leader_Follower map
                     // to convert string to enums
                     moris::map< std::string, fem::Measure_Type > tFemMeasureMap = fem::get_measure_type_map();
                     moris::map< std::string, mtk::Primary_Void > tMtkPrimaryMap = mtk::get_primary_type_map();
-                    moris::map< std::string, mtk::Master_Slave > tMtkMasterMap  = mtk::get_master_type_map();
+                    moris::map< std::string, mtk::Leader_Follower > tMtkLeaderMap  = mtk::get_leader_type_map();
 
                     // loop over cluster measures names
                     for ( uint iCMEA = 0; iCMEA < tClusterMeasureNames.size(); iCMEA++ )
@@ -1516,16 +1516,16 @@ namespace moris
                         // get mtk primary type from map
                         mtk::Primary_Void tMtkPrimaryType = tMtkPrimaryMap.find( tClusterMeasureTypes( iCMEA )( 1 ) );
 
-                        // check that master type is member of map
-                        MORIS_ERROR( tMtkMasterMap.key_exists( tClusterMeasureTypes( iCMEA )( 2 ) ),
+                        // check that leader type is member of map
+                        MORIS_ERROR( tMtkLeaderMap.key_exists( tClusterMeasureTypes( iCMEA )( 2 ) ),
                                 "FEM_Model::create_stabilization_parameters - key does not exist: %s",
                                 tClusterMeasureTypes( iCMEA )( 2 ).c_str() );
 
-                        // get mtk master type from map
-                        mtk::Master_Slave tMtkMasterType = tMtkMasterMap.find( tClusterMeasureTypes( iCMEA )( 2 ) );
+                        // get mtk leader type from map
+                        mtk::Leader_Follower tMtkLeaderType = tMtkLeaderMap.find( tClusterMeasureTypes( iCMEA )( 2 ) );
 
                         // build the cluster measure specification tuple and set it in cell of tuples
-                        tClusterMeasureTuples( iCMEA ) = std::make_tuple( tFemMeasureType, tMtkPrimaryType, tMtkMasterType );
+                        tClusterMeasureTuples( iCMEA ) = std::make_tuple( tFemMeasureType, tMtkPrimaryType, tMtkLeaderType );
                     }
 
                     // set the cell of cluster measure specification tuples to the SP
@@ -1589,8 +1589,8 @@ namespace moris
                 fem::Element_Type tIWGBulkType =
                         static_cast< fem::Element_Type >( tIWGParameter.get< uint >( "IWG_bulk_type" ) );
 
-                // set flag for master/slave
-                bool tMasterSlave = ( tIWGBulkType == fem::Element_Type::DOUBLE_SIDESET );
+                // set flag for leader/follower
+                bool tLeaderFollower = ( tIWGBulkType == fem::Element_Type::DOUBLE_SIDESET );
 
                 // create an IWG pointer
                 mIWGs( iIWG ) = tIWGFactory.create_IWG( tIWGType );
@@ -1610,24 +1610,24 @@ namespace moris
                 // set constant parameters
                 mIWGs( iIWG )->set_parameters( tFuncParameters );
 
-                // initialize string for master or slave
-                std::string       tIsMasterString = "master";
-                mtk::Master_Slave tIsMaster       = mtk::Master_Slave::MASTER;
+                // initialize string for leader or follower
+                std::string       tIsLeaderString = "leader";
+                mtk::Leader_Follower tIsLeader       = mtk::Leader_Follower::LEADER;
 
-                // loop on master and slave
-                for ( uint iMaster = 0; iMaster <= tMasterSlave; iMaster++ )
+                // loop on leader and follower
+                for ( uint iLeader = 0; iLeader <= tLeaderFollower; iLeader++ )
                 {
-                    // if slave
-                    if ( iMaster )
+                    // if follower
+                    if ( iLeader )
                     {
-                        // reset string for slave
-                        tIsMasterString = "slave";
-                        tIsMaster       = mtk::Master_Slave::SLAVE;
+                        // reset string for follower
+                        tIsLeaderString = "follower";
+                        tIsLeader       = mtk::Leader_Follower::FOLLOWER;
                     }
 
                     // get the treated IWG phase
                     std::string tPhaseName =
-                            tIWGParameter.get< std::string >( tIsMasterString + "_phase_name" );
+                            tIWGParameter.get< std::string >( tIsLeaderString + "_phase_name" );
 
                     // check for unknown phase
                     MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
@@ -1635,13 +1635,13 @@ namespace moris
                             tPhaseName.c_str() );
 
                     // set phase name
-                    mIWGs( iIWG )->set_phase_name( tPhaseName, tIsMaster );
+                    mIWGs( iIWG )->set_phase_name( tPhaseName, tIsLeader );
 
                     // get phase index
                     uint tPhaseIndex = mPhaseMap[ tPhaseName ];
 
                     // get dof type list from phase - ignore double-sided side sets
-                    if ( tMasterSlave == false )
+                    if ( tLeaderFollower == false )
                     {
                         mPhaseInfo( tPhaseIndex ).add_dof_type_to_list( tResDofTypes );
                     }
@@ -1649,7 +1649,7 @@ namespace moris
                     // set properties
                     moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
                     string_to_cell_of_cell(
-                            tIWGParameter.get< std::string >( tIsMasterString + "_properties" ),
+                            tIWGParameter.get< std::string >( tIsLeaderString + "_properties" ),
                             tPropertyNamesPair );
 
                     for ( uint iProp = 0; iProp < tPropertyNamesPair.size(); iProp++ )
@@ -1660,7 +1660,7 @@ namespace moris
                         // check for unknown property
                         MORIS_ERROR( aPropertyMap.find( tPropertyName ) != aPropertyMap.end(),
                                 "FEM_Model::create_IWGs - Unknown %s aPropertyString: %s \n",
-                                tIsMasterString.c_str(),
+                                tIsLeaderString.c_str(),
                                 tPropertyName.c_str() );
 
                         // get property index
@@ -1670,13 +1670,13 @@ namespace moris
                         mIWGs( iIWG )->set_property(
                                 mProperties( tPropertyIndex ),
                                 tPropertyNamesPair( iProp )( 1 ),
-                                tIsMaster );
+                                tIsLeader );
                     }
 
                     // set material model
                     moris::Cell< moris::Cell< std::string > > tMMNamesPair;
                     string_to_cell_of_cell(
-                            tIWGParameter.get< std::string >( tIsMasterString + "_material_model" ),
+                            tIWGParameter.get< std::string >( tIsLeaderString + "_material_model" ),
                             tMMNamesPair );
                     MORIS_ERROR( tMMNamesPair.size() <= 1, "FEM_Model::create_IWGs() - Only one material model per CM allowed." );
 
@@ -1694,13 +1694,13 @@ namespace moris
                         mIWGs( iIWG )->set_material_model(
                                 tMM,
                                 tMMNamesPair( iMM )( 1 ),
-                                tIsMaster );
+                                tIsLeader );
                     }
 
                     // set constitutive models
                     moris::Cell< moris::Cell< std::string > > tCMNamesPair;
                     string_to_cell_of_cell(
-                            tIWGParameter.get< std::string >( tIsMasterString + "_constitutive_models" ),
+                            tIWGParameter.get< std::string >( tIsLeaderString + "_constitutive_models" ),
                             tCMNamesPair );
 
                     // loop over constitutive models
@@ -1717,7 +1717,7 @@ namespace moris
                         mIWGs( iIWG )->set_constitutive_model(
                                 tCM,
                                 tCMNamesPair( iCM )( 1 ),
-                                tIsMaster );
+                                tIsLeader );
                     }
                 }
 
@@ -1757,9 +1757,9 @@ namespace moris
                 // get the IWG bulk type
                 fem::Element_Type tIWGBulkType = mIWGs( iIWG )->get_bulk_type();
 
-                // get the IWG master phase name
+                // get the IWG leader phase name
                 std::string tPhaseName =
-                        mIWGs( iIWG )->get_phase_name( mtk::Master_Slave::MASTER );
+                        mIWGs( iIWG )->get_phase_name( mtk::Leader_Follower::LEADER );
 
                 // check for unknown phase
                 MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
@@ -1769,47 +1769,47 @@ namespace moris
                 // get the phase index
                 uint tPhaseIndex = mPhaseMap[ tPhaseName ];
 
-                // get dof type list from master phase
-                const moris::Cell< moris::Cell< MSI::Dof_Type > > &tMasterDofTypes =
+                // get dof type list from leader phase
+                const moris::Cell< moris::Cell< MSI::Dof_Type > > &tLeaderDofTypes =
                         mPhaseInfo( tPhaseIndex ).get_dof_type_list();
 
-                // get dof type list from master phase
-                const moris::Cell< moris::Cell< PDV_Type > > &tMasterPdvTypes =
+                // get dof type list from leader phase
+                const moris::Cell< moris::Cell< PDV_Type > > &tLeaderPdvTypes =
                         mPhaseInfo( tPhaseIndex ).get_dv_type_list();
 
-                // set master dof dependencies
-                mIWGs( iIWG )->set_dof_type_list( tMasterDofTypes, mtk::Master_Slave::MASTER );
+                // set leader dof dependencies
+                mIWGs( iIWG )->set_dof_type_list( tLeaderDofTypes, mtk::Leader_Follower::LEADER );
 
-                // set master dv dependencies
-                mIWGs( iIWG )->set_dv_type_list( tMasterPdvTypes, mtk::Master_Slave::MASTER );
+                // set leader dv dependencies
+                mIWGs( iIWG )->set_dv_type_list( tLeaderPdvTypes, mtk::Leader_Follower::LEADER );
 
                 if ( tIWGBulkType == fem::Element_Type::DOUBLE_SIDESET )
                 {
-                    // get the IWG slave phase name
-                    std::string tSlavePhaseName =
-                            mIWGs( iIWG )->get_phase_name( mtk::Master_Slave::SLAVE );
+                    // get the IWG follower phase name
+                    std::string tFollowerPhaseName =
+                            mIWGs( iIWG )->get_phase_name( mtk::Leader_Follower::FOLLOWER );
 
                     // check for unknown phase
-                    MORIS_ERROR( mPhaseMap.find( tSlavePhaseName ) != mPhaseMap.end(),
+                    MORIS_ERROR( mPhaseMap.find( tFollowerPhaseName ) != mPhaseMap.end(),
                             "FEM_Model::create_IWGs - Unknown phase name: %s \n",
-                            tSlavePhaseName.c_str() );
+                            tFollowerPhaseName.c_str() );
 
                     // get CM index
-                    uint tSlavePhaseIndex = mPhaseMap[ tSlavePhaseName ];
+                    uint tFollowerPhaseIndex = mPhaseMap[ tFollowerPhaseName ];
 
                     // get dof type list from phase
-                    const moris::Cell< moris::Cell< MSI::Dof_Type > > &tSlaveDofTypes =
-                            mPhaseInfo( tSlavePhaseIndex ).get_dof_type_list();
+                    const moris::Cell< moris::Cell< MSI::Dof_Type > > &tFollowerDofTypes =
+                            mPhaseInfo( tFollowerPhaseIndex ).get_dof_type_list();
 
                     // get pdv type list from phase
-                    const moris::Cell< moris::Cell< PDV_Type > > &tSlavePdvTypes =
-                            mPhaseInfo( tSlavePhaseIndex ).get_dv_type_list();
+                    const moris::Cell< moris::Cell< PDV_Type > > &tFollowerPdvTypes =
+                            mPhaseInfo( tFollowerPhaseIndex ).get_dv_type_list();
 
-                    // set slave dof dependencies
-                    mIWGs( iIWG )->set_dof_type_list( tSlaveDofTypes, mtk::Master_Slave::SLAVE );
+                    // set follower dof dependencies
+                    mIWGs( iIWG )->set_dof_type_list( tFollowerDofTypes, mtk::Leader_Follower::FOLLOWER );
 
-                    // set slave dv dependencies
-                    mIWGs( iIWG )->set_dv_type_list( tSlavePdvTypes, mtk::Master_Slave::SLAVE );
+                    // set follower dv dependencies
+                    mIWGs( iIWG )->set_dv_type_list( tFollowerPdvTypes, mtk::Leader_Follower::FOLLOWER );
                 }
             }
         }
@@ -1870,7 +1870,7 @@ namespace moris
                         static_cast< fem::Element_Type >( tIQIParameter.get< uint >( "IQI_bulk_type" ) );
 
                 // set bool to true if double sideset
-                bool tMasterSlave = ( tIQIBulkType == fem::Element_Type::DOUBLE_SIDESET );
+                bool tLeaderFollower = ( tIQIBulkType == fem::Element_Type::DOUBLE_SIDESET );
 
                 // create an IQI pointer
                 mIQIs( iIQI ) = tIQIFactory.create_IQI( tIQIType );
@@ -1890,23 +1890,23 @@ namespace moris
                 // set constant parameters
                 mIQIs( iIQI )->set_parameters( tFuncParameters );
 
-                // init string for master or slave
-                std::string       tIsMasterString = "master";
-                mtk::Master_Slave tIsMaster       = mtk::Master_Slave::MASTER;
+                // init string for leader or follower
+                std::string       tIsLeaderString = "leader";
+                mtk::Leader_Follower tIsLeader       = mtk::Leader_Follower::LEADER;
 
-                // loop on master and slave
-                for ( uint iMaster = 0; iMaster <= tMasterSlave; iMaster++ )
+                // loop on leader and follower
+                for ( uint iLeader = 0; iLeader <= tLeaderFollower; iLeader++ )
                 {
-                    // if slave
-                    if ( iMaster )
+                    // if follower
+                    if ( iLeader )
                     {
-                        // reset string for slave
-                        tIsMasterString = "slave";
-                        tIsMaster       = mtk::Master_Slave::SLAVE;
+                        // reset string for follower
+                        tIsLeaderString = "follower";
+                        tIsLeader       = mtk::Leader_Follower::FOLLOWER;
                     }
 
                     // get the treated IWG phase
-                    std::string tPhaseName = tIQIParameter.get< std::string >( tIsMasterString + "_phase_name" );
+                    std::string tPhaseName = tIQIParameter.get< std::string >( tIsLeaderString + "_phase_name" );
 
                     // check for unknown phase
                     MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
@@ -1914,7 +1914,7 @@ namespace moris
                             tPhaseName.c_str() );
 
                     // set phase name
-                    mIQIs( iIQI )->set_phase_name( tPhaseName, tIsMaster );
+                    mIQIs( iIQI )->set_phase_name( tPhaseName, tIsLeader );
 
                     // get the phase index
                     uint tPhaseIndex = mPhaseMap[ tPhaseName ];
@@ -1927,16 +1927,16 @@ namespace moris
                     const moris::Cell< moris::Cell< PDV_Type > > &tDvTypes =
                             mPhaseInfo( tPhaseIndex ).get_dv_type_list();
 
-                    // set master dof dependencies
+                    // set leader dof dependencies
                     mIQIs( iIQI )->set_dof_type_list( tDofTypes );
 
-                    // set master dv dependencies
+                    // set leader dv dependencies
                     mIQIs( iIQI )->set_dv_type_list( tDvTypes );
 
-                    // set master properties
+                    // set leader properties
                     moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
                     string_to_cell_of_cell(
-                            tIQIParameter.get< std::string >( tIsMasterString + "_properties" ),
+                            tIQIParameter.get< std::string >( tIsLeaderString + "_properties" ),
                             tPropertyNamesPair );
 
                     for ( uint iProp = 0; iProp < tPropertyNamesPair.size(); iProp++ )
@@ -1947,7 +1947,7 @@ namespace moris
                         // check for unknown property
                         MORIS_ERROR( aPropertyMap.find( tPropertyName ) != aPropertyMap.end(),
                                 "FEM_Model::create_IQIs - Unknown %s aPropertyString: %s \n",
-                                tIsMasterString.c_str(),
+                                tIsLeaderString.c_str(),
                                 tPropertyName.c_str() );
 
                         // get property index
@@ -1957,13 +1957,13 @@ namespace moris
                         mIQIs( iIQI )->set_property(
                                 mProperties( tPropertyIndex ),
                                 tPropertyNamesPair( iProp )( 1 ),
-                                tIsMaster );
+                                tIsLeader );
                     }
 
-                    // set master constitutive models
+                    // set leader constitutive models
                     moris::Cell< moris::Cell< std::string > > tCMNamesPair;
                     string_to_cell_of_cell(
-                            tIQIParameter.get< std::string >( tIsMasterString + "_constitutive_models" ),
+                            tIQIParameter.get< std::string >( tIsLeaderString + "_constitutive_models" ),
                             tCMNamesPair );
 
                     for ( uint iCM = 0; iCM < tCMNamesPair.size(); iCM++ )
@@ -1979,7 +1979,7 @@ namespace moris
                         mIQIs( iIQI )->set_constitutive_model(
                                 tCM,
                                 tCMNamesPair( iCM )( 1 ),
-                                tIsMaster );
+                                tIsLeader );
                     }
                 }
 
@@ -2115,16 +2115,16 @@ namespace moris
                 // get bool for ghost
                 bool tIsGhost = mIWGs( iIWG )->get_ghost_flag();
 
-                // get the IWG master phase name
-                std::string tMasterPhaseName =
-                        mIWGs( iIWG )->get_phase_name( mtk::Master_Slave::MASTER );
+                // get the IWG leader phase name
+                std::string tLeaderPhaseName =
+                        mIWGs( iIWG )->get_phase_name( mtk::Leader_Follower::LEADER );
 
-                // get the IWG slave phase name
-                std::string tSlavePhaseName =
-                        mIWGs( iIWG )->get_phase_name( mtk::Master_Slave::SLAVE );
+                // get the IWG follower phase name
+                std::string tFollowerPhaseName =
+                        mIWGs( iIWG )->get_phase_name( mtk::Leader_Follower::FOLLOWER );
 
-                // get slave phase string from IWG input
-                std::string tSlavePhaseString =
+                // get follower phase string from IWG input
+                std::string tFollowerPhaseString =
                         tIWGParameter.get< std::string >( "neighbor_phases" );
 
                 // get ordinal string from IWG input
@@ -2135,9 +2135,9 @@ namespace moris
                 moris::Cell< std::string > tMeshSetNames;
                 this->get_mesh_set_names(
                         tIWGBulkType,
-                        tMasterPhaseName,
-                        tSlavePhaseName,
-                        tSlavePhaseString,
+                        tLeaderPhaseName,
+                        tFollowerPhaseName,
+                        tFollowerPhaseString,
                         tOrdinalString,
                         tIsGhost,
                         tMeshSetNames );
@@ -2233,16 +2233,16 @@ namespace moris
                 // get time boundary flag
                 bool tTimeBoundary = mIQIs( iIQI )->get_time_boundary();
 
-                // get the IWG master phase name
-                std::string tMasterPhaseName =
-                        mIQIs( iIQI )->get_phase_name( mtk::Master_Slave::MASTER );
+                // get the IWG leader phase name
+                std::string tLeaderPhaseName =
+                        mIQIs( iIQI )->get_phase_name( mtk::Leader_Follower::LEADER );
 
-                // get the IWG slave phase name
-                std::string tSlavePhaseName =
-                        mIQIs( iIQI )->get_phase_name( mtk::Master_Slave::SLAVE );
+                // get the IWG follower phase name
+                std::string tFollowerPhaseName =
+                        mIQIs( iIQI )->get_phase_name( mtk::Leader_Follower::FOLLOWER );
 
-                // get slave phase string from IQI input
-                std::string tSlavePhaseString =
+                // get follower phase string from IQI input
+                std::string tFollowerPhaseString =
                         tIQIParameter.get< std::string >( "neighbor_phases" );
 
                 // get ordinal string from IQI input
@@ -2253,9 +2253,9 @@ namespace moris
                 moris::Cell< std::string > tMeshSetNames;
                 this->get_mesh_set_names(
                         tIQIBulkType,
-                        tMasterPhaseName,
-                        tSlavePhaseName,
-                        tSlavePhaseString,
+                        tLeaderPhaseName,
+                        tFollowerPhaseName,
+                        tFollowerPhaseString,
                         tOrdinalString,
                         false,
                         tMeshSetNames );
@@ -2336,19 +2336,19 @@ namespace moris
         void
         FEM_Model::get_mesh_set_names(
                 fem::Element_Type           aIWGBulkType,
-                std::string                 aMasterPhaseName,
-                std::string                 aSlavePhaseName,
-                std::string                 aSlavePhaseString,
+                std::string                 aLeaderPhaseName,
+                std::string                 aFollowerPhaseName,
+                std::string                 aFollowerPhaseString,
                 std::string                 aOrdinalString,
                 bool                        aIsGhost,
                 moris::Cell< std::string > &aMeshSetNames )
         {
-            // get the master phase mesh index
-            moris::Matrix< moris::IndexMat > tMasterPhaseIndices =
-                    mPhaseInfo( mPhaseMap[ aMasterPhaseName ] ).get_phase_indices();
+            // get the leader phase mesh index
+            moris::Matrix< moris::IndexMat > tLeaderPhaseIndices =
+                    mPhaseInfo( mPhaseMap[ aLeaderPhaseName ] ).get_phase_indices();
 
-            // get the number of master phase mesh indices
-            uint tNumMasterIndices = tMasterPhaseIndices.numel();
+            // get the number of leader phase mesh indices
+            uint tNumLeaderIndices = tLeaderPhaseIndices.numel();
 
             // switch on the element type
             switch ( aIWGBulkType )
@@ -2356,58 +2356,58 @@ namespace moris
                 case fem::Element_Type::BULK:
                 {
                     // loop over phase mesh indices
-                    for ( uint iMeshIndex = 0; iMeshIndex < tNumMasterIndices; iMeshIndex++ )
+                    for ( uint iMeshIndex = 0; iMeshIndex < tNumLeaderIndices; iMeshIndex++ )
                     {
                         //                        // FIXME ! get mesh set names from integration mesh for index
                         //                        mMeshManager->get_integration_mesh( 0 )->
-                        //                                get_block_set_names_with_color( tMasterPhaseIndices( iMeshIndex ), aMeshSetNames );
+                        //                                get_block_set_names_with_color( tLeaderPhaseIndices( iMeshIndex ), aMeshSetNames );
 
                         // add mesh set name to list
                         aMeshSetNames.push_back(
-                                "HMR_dummy_c_p" + std::to_string( tMasterPhaseIndices( iMeshIndex ) ) );
+                                "HMR_dummy_c_p" + std::to_string( tLeaderPhaseIndices( iMeshIndex ) ) );
 
                         // add mesh set name to list
                         aMeshSetNames.push_back(
-                                "HMR_dummy_n_p" + std::to_string( tMasterPhaseIndices( iMeshIndex ) ) );
+                                "HMR_dummy_n_p" + std::to_string( tLeaderPhaseIndices( iMeshIndex ) ) );
                     }
                     break;
                 }
                 case fem::Element_Type::SIDESET:
                 {
                     // get neighbor phase names from string
-                    moris::Cell< std::string > tSlavePhaseNames;
-                    string_to_cell( aSlavePhaseString, tSlavePhaseNames );
+                    moris::Cell< std::string > tFollowerPhaseNames;
+                    string_to_cell( aFollowerPhaseString, tFollowerPhaseNames );
 
                     // get number of neighbor phase
-                    uint tNumSingle = tSlavePhaseNames.size();
+                    uint tNumSingle = tFollowerPhaseNames.size();
 
                     // get ordinals for boundary from string
                     Matrix< DDSMat > tOrdinals;
                     string_to_mat( aOrdinalString, tOrdinals );
                     uint tNumBoundary = tOrdinals.numel();
 
-                    // loop over master phase mesh indices
-                    for ( uint iMasterMeshIndex = 0; iMasterMeshIndex < tNumMasterIndices; iMasterMeshIndex++ )
+                    // loop over leader phase mesh indices
+                    for ( uint iLeaderMeshIndex = 0; iLeaderMeshIndex < tNumLeaderIndices; iLeaderMeshIndex++ )
                     {
                         // get single sideset
                         for ( uint iSingle = 0; iSingle < tNumSingle; iSingle++ )
                         {
                             // get the neighbor phase name
-                            std::string tNeighborPhaseName = tSlavePhaseNames( iSingle );
+                            std::string tNeighborPhaseName = tFollowerPhaseNames( iSingle );
 
-                            // get the slave phase mesh index
-                            moris::Matrix< moris::IndexMat > tSlavePhaseIndices =
+                            // get the follower phase mesh index
+                            moris::Matrix< moris::IndexMat > tFollowerPhaseIndices =
                                     mPhaseInfo( mPhaseMap[ tNeighborPhaseName ] ).get_phase_indices();
 
                             // get number of neighbor phase mesh indices
-                            uint tNumNeighborIndices = tSlavePhaseIndices.numel();
+                            uint tNumNeighborIndices = tFollowerPhaseIndices.numel();
 
                             for ( uint iNeighborMeshIndex = 0; iNeighborMeshIndex < tNumNeighborIndices; iNeighborMeshIndex++ )
                             {
                                 // FIXME get this info from the mesh
                                 // add mesh set name to list
                                 aMeshSetNames.push_back(
-                                        "iside_b0_" + std::to_string( tMasterPhaseIndices( iMasterMeshIndex ) ) + "_b1_" + std::to_string( tSlavePhaseIndices( iNeighborMeshIndex ) ) );
+                                        "iside_b0_" + std::to_string( tLeaderPhaseIndices( iLeaderMeshIndex ) ) + "_b1_" + std::to_string( tFollowerPhaseIndices( iNeighborMeshIndex ) ) );
                             }
                         }
 
@@ -2417,12 +2417,12 @@ namespace moris
                             // FIXME get this info from the mesh
                             // add mesh set name to list
                             aMeshSetNames.push_back(
-                                    "SideSet_" + std::to_string( tOrdinals( iBoundary ) ) + "_c_p" + std::to_string( tMasterPhaseIndices( iMasterMeshIndex ) ) );
+                                    "SideSet_" + std::to_string( tOrdinals( iBoundary ) ) + "_c_p" + std::to_string( tLeaderPhaseIndices( iLeaderMeshIndex ) ) );
 
                             // FIXME get this info from the mesh
                             // add mesh set name to list
                             aMeshSetNames.push_back(
-                                    "SideSet_" + std::to_string( tOrdinals( iBoundary ) ) + "_n_p" + std::to_string( tMasterPhaseIndices( iMasterMeshIndex ) ) );
+                                    "SideSet_" + std::to_string( tOrdinals( iBoundary ) ) + "_n_p" + std::to_string( tLeaderPhaseIndices( iLeaderMeshIndex ) ) );
                         }
                     }
                     break;
@@ -2432,47 +2432,47 @@ namespace moris
                     // if ghost
                     if ( aIsGhost )
                     {
-                        // loop over master phase mesh indices
-                        for ( uint iMasterMeshIndex = 0; iMasterMeshIndex < tNumMasterIndices; iMasterMeshIndex++ )
+                        // loop over leader phase mesh indices
+                        for ( uint iLeaderMeshIndex = 0; iLeaderMeshIndex < tNumLeaderIndices; iLeaderMeshIndex++ )
                         {
                             // FIXME get this info from the mesh
                             // add mesh set name to list
                             aMeshSetNames.push_back(
-                                    "ghost_p" + std::to_string( tMasterPhaseIndices( iMasterMeshIndex ) ) );
+                                    "ghost_p" + std::to_string( tLeaderPhaseIndices( iLeaderMeshIndex ) ) );
                         }
                     }
                     // if interface
                     else
                     {
-                        MORIS_ERROR( aMasterPhaseName != aSlavePhaseName,
-                                "FEM_Model::get_mesh_set_names - Master and slave phases are the same, FIXME case not handled yet " );
+                        MORIS_ERROR( aLeaderPhaseName != aFollowerPhaseName,
+                                "FEM_Model::get_mesh_set_names - Leader and follower phases are the same, FIXME case not handled yet " );
 
-                        // get the slave phase mesh index
-                        moris::Matrix< moris::IndexMat > tSlavePhaseIndices =
-                                mPhaseInfo( mPhaseMap[ aSlavePhaseName ] ).get_phase_indices();
+                        // get the follower phase mesh index
+                        moris::Matrix< moris::IndexMat > tFollowerPhaseIndices =
+                                mPhaseInfo( mPhaseMap[ aFollowerPhaseName ] ).get_phase_indices();
 
-                        // get number of slave phase mesh index
-                        uint tNumSlaveIndices = tSlavePhaseIndices.numel();
+                        // get number of follower phase mesh index
+                        uint tNumFollowerIndices = tFollowerPhaseIndices.numel();
 
-                        // loop over master phase mesh indices
-                        for ( uint iMasterMeshIndex = 0; iMasterMeshIndex < tNumMasterIndices; iMasterMeshIndex++ )
+                        // loop over leader phase mesh indices
+                        for ( uint iLeaderMeshIndex = 0; iLeaderMeshIndex < tNumLeaderIndices; iLeaderMeshIndex++ )
                         {
-                            // get master index
-                            uint tMasterPhaseIndex = tMasterPhaseIndices( iMasterMeshIndex );
+                            // get leader index
+                            uint tLeaderPhaseIndex = tLeaderPhaseIndices( iLeaderMeshIndex );
 
-                            // loop over slave phase mesh indices
-                            for ( uint iSlaveMeshIndex = 0; iSlaveMeshIndex < tNumSlaveIndices; iSlaveMeshIndex++ )
+                            // loop over follower phase mesh indices
+                            for ( uint iFollowerMeshIndex = 0; iFollowerMeshIndex < tNumFollowerIndices; iFollowerMeshIndex++ )
                             {
-                                // get slave index
-                                uint tSlavePhaseIndex = tSlavePhaseIndices( iSlaveMeshIndex );
+                                // get follower index
+                                uint tFollowerPhaseIndex = tFollowerPhaseIndices( iFollowerMeshIndex );
 
-                                // if master and slave index are different
-                                if ( tMasterPhaseIndex != tSlavePhaseIndex )
+                                // if leader and follower index are different
+                                if ( tLeaderPhaseIndex != tFollowerPhaseIndex )
                                 {
                                     // FIXME get this info from the mesh
                                     // get interface name
                                     aMeshSetNames.push_back(
-                                            "dbl_iside_p0_" + std::to_string( tMasterPhaseIndices( iMasterMeshIndex ) ) + "_p1_" + std::to_string( tSlavePhaseIndices( iSlaveMeshIndex ) ) );
+                                            "dbl_iside_p0_" + std::to_string( tLeaderPhaseIndices( iLeaderMeshIndex ) ) + "_p1_" + std::to_string( tFollowerPhaseIndices( iFollowerMeshIndex ) ) );
                                 }
                             }
                         }
@@ -2804,49 +2804,49 @@ namespace moris
                         tFuncParameters );
                 mSPs( iSP )->set_parameters( tFuncParameters );
 
-                // init string for master or slave
-                std::string       tIsMasterString = "master";
-                mtk::Master_Slave tIsMaster       = mtk::Master_Slave::MASTER;
+                // init string for leader or follower
+                std::string       tIsLeaderString = "leader";
+                mtk::Leader_Follower tIsLeader       = mtk::Leader_Follower::LEADER;
 
-                // loop on master and slave
-                for ( uint iMaster = 0; iMaster <= mSPs( iSP )->get_has_slave(); iMaster++ )
+                // loop on leader and follower
+                for ( uint iLeader = 0; iLeader <= mSPs( iSP )->get_has_follower(); iLeader++ )
                 {
-                    // if slave
-                    if ( iMaster )
+                    // if follower
+                    if ( iLeader )
                     {
-                        // reset string for slave
-                        tIsMasterString = "slave";
-                        tIsMaster       = mtk::Master_Slave::SLAVE;
+                        // reset string for follower
+                        tIsLeaderString = "follower";
+                        tIsLeader       = mtk::Leader_Follower::FOLLOWER;
                     }
 
                     // set dof dependencies
                     moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
                     string_to_cell_of_cell(
-                            std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsMasterString + "_dof_dependencies" ) ),
+                            std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dof_dependencies" ) ),
                             tDofTypes,
                             aMSIDofTypeMap );
                     moris::Cell< std::string > tDofTypeNames;
                     string_to_cell( std::get< 1 >(
-                                            tSPParameter.get< std::pair< std::string, std::string > >( tIsMasterString + "_dof_dependencies" ) ),
+                                            tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dof_dependencies" ) ),
                             tDofTypeNames );
-                    mSPs( iSP )->set_dof_type_list( tDofTypes, tDofTypeNames, tIsMaster );
+                    mSPs( iSP )->set_dof_type_list( tDofTypes, tDofTypeNames, tIsLeader );
 
                     // set dv dependencies
                     moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
                     string_to_cell_of_cell(
-                            std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsMasterString + "_dv_dependencies" ) ),
+                            std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dv_dependencies" ) ),
                             tDvTypes,
                             aDvTypeMap );
                     moris::Cell< std::string > tDvTypeNames;
                     string_to_cell(
-                            std::get< 1 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsMasterString + "_dv_dependencies" ) ),
+                            std::get< 1 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dv_dependencies" ) ),
                             tDvTypeNames );
-                    mSPs( iSP )->set_dv_type_list( tDvTypes, tDvTypeNames, tIsMaster );
+                    mSPs( iSP )->set_dv_type_list( tDvTypes, tDvTypeNames, tIsLeader );
 
-                    // set master properties
+                    // set leader properties
                     moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
                     string_to_cell_of_cell(
-                            tSPParameter.get< std::string >( tIsMasterString + "_properties" ),
+                            tSPParameter.get< std::string >( tIsLeaderString + "_properties" ),
                             tPropertyNamesPair );
 
                     for ( uint iProp = 0; iProp < tPropertyNamesPair.size(); iProp++ )
@@ -2856,7 +2856,7 @@ namespace moris
 
                         // check for unknown property
                         MORIS_ERROR( aPropertyMap.find( tPropertyName ) != aPropertyMap.end(),
-                                "FEM_Model::create_stabilization_parameters - Unknown master aPropertyString : %s \n",
+                                "FEM_Model::create_stabilization_parameters - Unknown leader aPropertyString : %s \n",
                                 tPropertyName.c_str() );
 
                         // get property index
@@ -2866,13 +2866,13 @@ namespace moris
                         mSPs( iSP )->set_property(
                                 mProperties( tPropertyIndex ),
                                 tPropertyNamesPair( iProp )( 1 ),
-                                tIsMaster );
+                                tIsLeader );
                     }
 
                     // set constitutive models
                     moris::Cell< moris::Cell< std::string > > tCMNamesPair;
                     string_to_cell_of_cell(
-                            tSPParameter.get< std::string >( tIsMasterString + "_constitutive_models" ),
+                            tSPParameter.get< std::string >( tIsLeaderString + "_constitutive_models" ),
                             tCMNamesPair );
 
                     // loop over the CM names
@@ -2883,7 +2883,7 @@ namespace moris
 
                         // check for unknown CM
                         MORIS_ERROR( aCMMap.find( tCMName ) != aCMMap.end(),
-                                "FEM_Model::create_stabilization_parameters - Unknown master aCMString: %s \n",
+                                "FEM_Model::create_stabilization_parameters - Unknown leader aCMString: %s \n",
                                 tCMName.c_str() );
 
                         // get CM index
@@ -2965,49 +2965,49 @@ namespace moris
                         aMSIDofTypeMap );
                 mIWGs( iIWG )->set_residual_dof_type( tResDofTypes );
 
-                // init string for master or slave
-                std::string       tIsMasterString = "master";
-                mtk::Master_Slave tIsMaster       = mtk::Master_Slave::MASTER;
+                // init string for leader or follower
+                std::string       tIsLeaderString = "leader";
+                mtk::Leader_Follower tIsLeader       = mtk::Leader_Follower::LEADER;
 
-                // loop on master and slave
-                for ( uint iMaster = 0; iMaster <= 1; iMaster++ )
+                // loop on leader and follower
+                for ( uint iLeader = 0; iLeader <= 1; iLeader++ )
                 {
-                    // if slave
-                    if ( iMaster )
+                    // if follower
+                    if ( iLeader )
                     {
-                        // reset string for slave
-                        tIsMasterString = "slave";
-                        tIsMaster       = mtk::Master_Slave::SLAVE;
+                        // reset string for follower
+                        tIsLeaderString = "follower";
+                        tIsLeader       = mtk::Leader_Follower::FOLLOWER;
                     }
 
                     // set dof dependencies
                     moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
                     string_to_cell_of_cell(
-                            tIWGParameter.get< std::string >( tIsMasterString + "_dof_dependencies" ),
+                            tIWGParameter.get< std::string >( tIsLeaderString + "_dof_dependencies" ),
                             tDofTypes,
                             aMSIDofTypeMap );
-                    mIWGs( iIWG )->set_dof_type_list( tDofTypes, tIsMaster );
+                    mIWGs( iIWG )->set_dof_type_list( tDofTypes, tIsLeader );
 
                     // set dv dependencies
                     moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
                     string_to_cell_of_cell(
-                            tIWGParameter.get< std::string >( tIsMasterString + "_dv_dependencies" ),
+                            tIWGParameter.get< std::string >( tIsLeaderString + "_dv_dependencies" ),
                             tDvTypes,
                             aDvTypeMap );
-                    mIWGs( iIWG )->set_dv_type_list( tDvTypes, tIsMaster );
+                    mIWGs( iIWG )->set_dv_type_list( tDvTypes, tIsLeader );
 
                     // set field types
                     moris::Cell< moris::Cell< moris::mtk::Field_Type > > tFieldTypes;
                     string_to_cell_of_cell(
-                            tIWGParameter.get< std::string >( tIsMasterString + "_field_types" ),
+                            tIWGParameter.get< std::string >( tIsLeaderString + "_field_types" ),
                             tFieldTypes,
                             aFieldTypeMap );
-                    mIWGs( iIWG )->set_field_type_list( tFieldTypes, tIsMaster );
+                    mIWGs( iIWG )->set_field_type_list( tFieldTypes, tIsLeader );
 
                     // set properties
                     moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
                     string_to_cell_of_cell(
-                            tIWGParameter.get< std::string >( tIsMasterString + "_properties" ),
+                            tIWGParameter.get< std::string >( tIsLeaderString + "_properties" ),
                             tPropertyNamesPair );
 
                     for ( uint iProp = 0; iProp < tPropertyNamesPair.size(); iProp++ )
@@ -3022,14 +3022,14 @@ namespace moris
                             mIWGs( iIWG )->set_property(
                                     mProperties( tPropertyIndex ),
                                     tPropertyNamesPair( iProp )( 1 ),
-                                    tIsMaster );
+                                    tIsLeader );
                         }
                         else
                         {
                             // create error message unknown property
                             MORIS_ERROR( false,
                                     "FEM_Model::create_IWGs - Unknown %s aPropertyString: %s \n",
-                                    tIsMasterString.c_str(),
+                                    tIsLeaderString.c_str(),
                                     tPropertyNamesPair( iProp )( 0 ).c_str() );
                         }
                     }
@@ -3037,7 +3037,7 @@ namespace moris
                     // set material model
                     moris::Cell< moris::Cell< std::string > > tMMNamesPair;
                     string_to_cell_of_cell(
-                            tIWGParameter.get< std::string >( tIsMasterString + "_material_model" ),
+                            tIWGParameter.get< std::string >( tIsLeaderString + "_material_model" ),
                             tMMNamesPair );
 
                     for ( uint iMM = 0; iMM < tMMNamesPair.size(); iMM++ )
@@ -3052,14 +3052,14 @@ namespace moris
                             mIWGs( iIWG )->set_material_model(
                                     mMMs( tMMIndex ),
                                     tMMNamesPair( iMM )( 1 ),
-                                    tIsMaster );
+                                    tIsLeader );
                         }
                         else
                         {
                             // error message unknown MM
                             MORIS_ERROR( false,
                                     "FEM_Model::create_IWGs - Unknown %s aMMString: %s \n",
-                                    tIsMasterString.c_str(),
+                                    tIsLeaderString.c_str(),
                                     tMMNamesPair( iMM )( 0 ).c_str() );
                         }
                     }
@@ -3067,7 +3067,7 @@ namespace moris
                     // set constitutive models
                     moris::Cell< moris::Cell< std::string > > tCMNamesPair;
                     string_to_cell_of_cell(
-                            tIWGParameter.get< std::string >( tIsMasterString + "_constitutive_models" ),
+                            tIWGParameter.get< std::string >( tIsLeaderString + "_constitutive_models" ),
                             tCMNamesPair );
 
                     for ( uint iCM = 0; iCM < tCMNamesPair.size(); iCM++ )
@@ -3082,14 +3082,14 @@ namespace moris
                             mIWGs( iIWG )->set_constitutive_model(
                                     mCMs( tCMIndex ),
                                     tCMNamesPair( iCM )( 1 ),
-                                    tIsMaster );
+                                    tIsLeader );
                         }
                         else
                         {
                             // error message unknown CM
                             MORIS_ERROR( false,
                                     "FEM_Model::create_IWGs - Unknown %s aCMString: %s \n",
-                                    tIsMasterString.c_str(),
+                                    tIsLeaderString.c_str(),
                                     tCMNamesPair( iCM )( 0 ).c_str() );
                         }
                     }
@@ -3200,49 +3200,49 @@ namespace moris
                         tFuncParameters );
                 mIQIs( iIQI )->set_parameters( tFuncParameters );
 
-                // init string for master or slave
-                std::string       tIsMasterString = "master";
-                mtk::Master_Slave tIsMaster       = mtk::Master_Slave::MASTER;
+                // init string for leader or follower
+                std::string       tIsLeaderString = "leader";
+                mtk::Leader_Follower tIsLeader       = mtk::Leader_Follower::LEADER;
 
-                // loop on master and slave
-                for ( uint iMaster = 0; iMaster <= 1; iMaster++ )
+                // loop on leader and follower
+                for ( uint iLeader = 0; iLeader <= 1; iLeader++ )
                 {
-                    // if slave
-                    if ( iMaster )
+                    // if follower
+                    if ( iLeader )
                     {
-                        // reset string for slave
-                        tIsMasterString = "slave";
-                        tIsMaster       = mtk::Master_Slave::SLAVE;
+                        // reset string for follower
+                        tIsLeaderString = "follower";
+                        tIsLeader       = mtk::Leader_Follower::FOLLOWER;
                     }
 
                     // set dof dependencies
                     moris::Cell< moris::Cell< moris::MSI::Dof_Type > > tDofTypes;
                     string_to_cell_of_cell(
-                            tIQIParameter.get< std::string >( tIsMasterString + "_dof_dependencies" ),
+                            tIQIParameter.get< std::string >( tIsLeaderString + "_dof_dependencies" ),
                             tDofTypes,
                             aMSIDofTypeMap );
-                    mIQIs( iIQI )->set_dof_type_list( tDofTypes, tIsMaster );
+                    mIQIs( iIQI )->set_dof_type_list( tDofTypes, tIsLeader );
 
                     // set dv dependencies
                     moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
                     string_to_cell_of_cell(
-                            tIQIParameter.get< std::string >( tIsMasterString + "_dv_dependencies" ),
+                            tIQIParameter.get< std::string >( tIsLeaderString + "_dv_dependencies" ),
                             tDvTypes,
                             aDvTypeMap );
-                    mIQIs( iIQI )->set_dv_type_list( tDvTypes, tIsMaster );
+                    mIQIs( iIQI )->set_dv_type_list( tDvTypes, tIsLeader );
 
                     // set field types
                     moris::Cell< moris::Cell< moris::mtk::Field_Type > > tFieldTypes;
                     string_to_cell_of_cell(
-                            tIQIParameter.get< std::string >( tIsMasterString + "_field_types" ),
+                            tIQIParameter.get< std::string >( tIsLeaderString + "_field_types" ),
                             tFieldTypes,
                             aFieldTypeMap );
-                    mIQIs( iIQI )->set_field_type_list( tFieldTypes, tIsMaster );
+                    mIQIs( iIQI )->set_field_type_list( tFieldTypes, tIsLeader );
 
                     // set properties
                     moris::Cell< moris::Cell< std::string > > tPropertyNamesPair;
                     string_to_cell_of_cell(
-                            tIQIParameter.get< std::string >( tIsMasterString + "_properties" ),
+                            tIQIParameter.get< std::string >( tIsLeaderString + "_properties" ),
                             tPropertyNamesPair );
 
                     for ( uint iProp = 0; iProp < tPropertyNamesPair.size(); iProp++ )
@@ -3257,14 +3257,14 @@ namespace moris
                             mIQIs( iIQI )->set_property(
                                     mProperties( tPropertyIndex ),
                                     tPropertyNamesPair( iProp )( 1 ),
-                                    tIsMaster );
+                                    tIsLeader );
                         }
                         else
                         {
                             // error message unknown property
                             MORIS_ERROR( false,
                                     "FEM_Model::create_IQIs - Unknown %s aPropertyString: %s \n",
-                                    tIsMasterString.c_str(),
+                                    tIsLeaderString.c_str(),
                                     tPropertyNamesPair( iProp )( 0 ).c_str() );
                         }
                     }
@@ -3272,7 +3272,7 @@ namespace moris
                     // set constitutive models
                     moris::Cell< moris::Cell< std::string > > tCMNamesPair;
                     string_to_cell_of_cell(
-                            tIQIParameter.get< std::string >( tIsMasterString + "_constitutive_models" ),
+                            tIQIParameter.get< std::string >( tIsLeaderString + "_constitutive_models" ),
                             tCMNamesPair );
 
                     for ( uint iCM = 0; iCM < tCMNamesPair.size(); iCM++ )
@@ -3287,14 +3287,14 @@ namespace moris
                             mIQIs( iIQI )->set_constitutive_model(
                                     mCMs( tCMIndex ),
                                     tCMNamesPair( iCM )( 1 ),
-                                    tIsMaster );
+                                    tIsLeader );
                         }
                         else
                         {
                             // error message unknown CM
                             MORIS_ERROR( false,
                                     "FEM_Model::create_IQIs - Unknown %s aCMString: %s \n",
-                                    tIsMasterString.c_str(),
+                                    tIsLeaderString.c_str(),
                                     tCMNamesPair( iCM )( 0 ).c_str() );
                         }
                     }

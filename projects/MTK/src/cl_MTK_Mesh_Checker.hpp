@@ -98,7 +98,7 @@ namespace mtk
         void print_diagnostics();
 
         bool verify_double_side_sets( Integration_Mesh const* aIgMesh );
-        bool verify_side_cluster( Cluster const* aCluster, enum Master_Slave aMasterSlave = Master_Slave::MASTER );
+        bool verify_side_cluster( Cluster const* aCluster, enum Leader_Follower aLeaderFollower = Leader_Follower::LEADER );
         bool verify_basis_indexing( Interpolation_Mesh const* aIPMesh );
 
       private:

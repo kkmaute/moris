@@ -26,7 +26,7 @@ namespace moris
         IWG_Compressible_NS_Boundary::IWG_Compressible_NS_Boundary()
         {
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "HeatFlux" ] = static_cast< uint >( IWG_Property_Type::HEAT_FLUX );
@@ -34,13 +34,13 @@ namespace moris
             mPropertyMap[ "Pressure" ] = static_cast< uint >( IWG_Property_Type::PRESSURE );
 
             // set size for the material model pointer cell
-            mMasterMM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderMM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the material map
             mMaterialMap[ "FluidMM" ] = static_cast< uint >( IWG_Material_Type::FLUID_MM );
 
             // set size for the constitutive model pointer cell
-            mMasterCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
+            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
             mConstitutiveMap[ "FluidCM" ] = static_cast< uint >( IWG_Constitutive_Type::FLUID_CM );
@@ -59,7 +59,7 @@ namespace moris
 
         void IWG_Compressible_NS_Boundary::compute_residual( real aWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
@@ -68,13 +68,13 @@ namespace moris
                     "IWG_Compressible_NS_Boundary::compute_residual() - Only pressure or density primitive variables supported for now." );
 
             // get indeces for residual dof types, indices for assembly (FIXME: assembly only for primitive vars)
-            uint tMasterDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 2 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterRes1StartIndex = mSet->get_res_dof_assembly_map()( tMasterDof1Index )( 0, 0 );
-            uint tMasterRes3StopIndex  = mSet->get_res_dof_assembly_map()( tMasterDof3Index )( 0, 1 );
+            uint tLeaderDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 2 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderRes1StartIndex = mSet->get_res_dof_assembly_map()( tLeaderDof1Index )( 0, 0 );
+            uint tLeaderRes3StopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDof3Index )( 0, 1 );
 
             // compute the residual
-            mSet->get_residual()( 0 )( { tMasterRes1StartIndex, tMasterRes3StopIndex }, { 0, 0 } ) -= aWStar * (
+            mSet->get_residual()( 0 )( { tLeaderRes1StartIndex, tLeaderRes3StopIndex }, { 0, 0 } ) -= aWStar * (
                     this->W_trans() * this->Traction() );
 
             // check for nan, infinity
@@ -86,7 +86,7 @@ namespace moris
 
         void IWG_Compressible_NS_Boundary::compute_jacobian( real aWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
@@ -95,23 +95,23 @@ namespace moris
                     "IWG_Compressible_NS_Boundary::compute_jacobian() - Only pressure or density primitive variables supported for now." );
 
             // get indeces for residual dof types, indices for assembly (FIXME: assembly only for primitive vars)
-            uint tMasterDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 2 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterRes1StartIndex = mSet->get_res_dof_assembly_map()( tMasterDof1Index )( 0, 0 );
-            uint tMasterRes3StopIndex  = mSet->get_res_dof_assembly_map()( tMasterDof3Index )( 0, 1 );
+            uint tLeaderDof1Index      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderDof3Index      = mSet->get_dof_index_for_type( mResidualDofType( 2 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderRes1StartIndex = mSet->get_res_dof_assembly_map()( tLeaderDof1Index )( 0, 0 );
+            uint tLeaderRes3StopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDof3Index )( 0, 1 );
 
             // check DoF dependencies
-            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedMasterGlobalDofTypes ), 
+            MORIS_ASSERT( check_dof_dependencies( mSet, mResidualDofType, mRequestedLeaderGlobalDofTypes ), 
                     "IWG_Compressible_NS_Bulk::compute_jacobian - Set of DoF dependencies not suppported." );
 
             // get the indeces for assembly
-            sint tDofFirstDepIndex     = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            sint tDofThirdDepIndex     = mSet->get_dof_index_for_type( mRequestedMasterGlobalDofTypes( 2 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterDep1StartIndex = mSet->get_jac_dof_assembly_map()( tMasterDof1Index )( tDofFirstDepIndex, 0 );
-            uint tMasterDep3StopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDof3Index )( tDofThirdDepIndex, 1 );                
+            sint tDofFirstDepIndex     = mSet->get_dof_index_for_type( mRequestedLeaderGlobalDofTypes( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            sint tDofThirdDepIndex     = mSet->get_dof_index_for_type( mRequestedLeaderGlobalDofTypes( 2 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderDep1StartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDof1Index )( tDofFirstDepIndex, 0 );
+            uint tLeaderDep3StopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDof3Index )( tDofThirdDepIndex, 1 );                
 
             // get subview of jacobian for += operations   
-            auto tJac = mSet->get_jacobian()( { tMasterRes1StartIndex, tMasterRes3StopIndex }, { tMasterDep1StartIndex, tMasterDep3StopIndex } );  
+            auto tJac = mSet->get_jacobian()( { tLeaderRes1StartIndex, tLeaderRes3StopIndex }, { tLeaderDep1StartIndex, tLeaderDep3StopIndex } );  
 
             // compute jacobian
             tJac -= aWStar * ( this->W_trans() * this->dTractiondDOF() );
@@ -158,16 +158,16 @@ namespace moris
             auto tTraction3 = mTraction( { tNumStateVars - 1, tNumStateVars - 1 }, { 0, 0 } );
 
             // get the velocity, FIXME: this needs to be done through the material model for conservative and entropy variables
-            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 1 ) );
+            Field_Interpolator * tFIVelocity =  mLeaderFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 1 ) );
 
             // get the material and constitutive models
-            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
-            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+            std::shared_ptr< Material_Model > tMM = mLeaderMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+            std::shared_ptr< Constitutive_Model > tCM = mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
 
             // get the properties
-            std::shared_ptr< Property > tPropHeatFlux = mMasterProp( static_cast< uint >( IWG_Property_Type::HEAT_FLUX ) );
-            std::shared_ptr< Property > tPropTraction = mMasterProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
-            std::shared_ptr< Property > tPropPressure = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
+            std::shared_ptr< Property > tPropHeatFlux = mLeaderProp( static_cast< uint >( IWG_Property_Type::HEAT_FLUX ) );
+            std::shared_ptr< Property > tPropTraction = mLeaderProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
+            std::shared_ptr< Property > tPropPressure = mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
 
             // check if a traction is prescribed and use it, if not compute it
             if ( tPropTraction != nullptr )
@@ -212,11 +212,11 @@ namespace moris
             mTractionDofEval = false;  
 
             // get the velocity, FIXME: this needs to be done through the material model for conservative and entropy variables
-            Field_Interpolator * tFIVelocity =  mMasterFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 1 ) );
+            Field_Interpolator * tFIVelocity =  mLeaderFIManager->get_field_interpolators_for_type( this->get_primary_state_var( 1 ) );
 
             // get the properties
-            std::shared_ptr< Property > tPropMu = mMasterProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
-            std::shared_ptr< Property > tPropKappa = mMasterProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
+            std::shared_ptr< Property > tPropMu = mLeaderProp( static_cast< uint >( IWG_Property_Type::DYNAMIC_VISCOSITY ) );
+            std::shared_ptr< Property > tPropKappa = mLeaderProp( static_cast< uint >( IWG_Property_Type::THERMAL_CONDUCTIVITY ) );
 
             // number of state variables and total bases
             uint tNumStateVars = this->num_space_dims() + 2;
@@ -226,25 +226,25 @@ namespace moris
             mTractionDOF.set_size( tNumStateVars, tTotNumBases , 0.0 );
 
             // get the material and constitutive models
-            std::shared_ptr< Material_Model > tMM = mMasterMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
-            std::shared_ptr< Constitutive_Model > tCM = mMasterCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
+            std::shared_ptr< Material_Model > tMM = mLeaderMM( static_cast< uint >( IWG_Material_Type::FLUID_MM ) );
+            std::shared_ptr< Constitutive_Model > tCM = mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::FLUID_CM ) );
 
             // get the properties
-            std::shared_ptr< Property > tPropHeatFlux = mMasterProp( static_cast< uint >( IWG_Property_Type::HEAT_FLUX ) );
-            std::shared_ptr< Property > tPropTraction = mMasterProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
-            std::shared_ptr< Property > tPropPressure = mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
+            std::shared_ptr< Property > tPropHeatFlux = mLeaderProp( static_cast< uint >( IWG_Property_Type::HEAT_FLUX ) );
+            std::shared_ptr< Property > tPropTraction = mLeaderProp( static_cast< uint >( IWG_Property_Type::TRACTION ) );
+            std::shared_ptr< Property > tPropPressure = mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
 
             // compute the jacobian for dof dependencies
-            for( uint iDOF = 0; iDOF < mRequestedMasterGlobalDofTypes.size(); iDOF++ )
+            for( uint iDOF = 0; iDOF < mRequestedLeaderGlobalDofTypes.size(); iDOF++ )
             {
                 // get dof type
-                Cell< MSI::Dof_Type > tDepDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type > tDepDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the dof type indices for assembly
-                uint tMasterDofIndex = mSet->get_dof_index_for_type( this->get_primary_state_var( iDOF ), mtk::Master_Slave::MASTER );
-                uint tDepDofIndex     = mSet->get_dof_index_for_type( tDepDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tDepStartIndex   = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDepDofIndex, 0 );
-                uint tDepStopIndex    = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDepDofIndex, 1 );
+                uint tLeaderDofIndex = mSet->get_dof_index_for_type( this->get_primary_state_var( iDOF ), mtk::Leader_Follower::LEADER );
+                uint tDepDofIndex     = mSet->get_dof_index_for_type( tDepDofType( 0 ), mtk::Leader_Follower::LEADER );
+                uint tDepStartIndex   = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDepDofIndex, 0 );
+                uint tDepStopIndex    = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDepDofIndex, 1 );
 
                 // get matrix subviews for different residuals - FIXME: assuming three different Residual DoF-Types
                 auto tTraction2DOF = mTractionDOF( { 1, tNumStateVars - 2 }, { tDepStartIndex, tDepStopIndex } );

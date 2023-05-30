@@ -25,7 +25,7 @@ namespace moris
         IWG_Incompressible_NS_Pressure_Neumann::IWG_Incompressible_NS_Pressure_Neumann()
         {
             // set size for the property pointer cell
-            mMasterProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
 
             // populate the property map
             mPropertyMap[ "Pressure" ]           = static_cast< uint >( IWG_Property_Type::PRESSURE );
@@ -40,39 +40,39 @@ namespace moris
         void
         IWG_Incompressible_NS_Pressure_Neumann::compute_residual( real aWStar )
         {
-            // check master field interpolators
+            // check leader field interpolators
 #ifdef MORIS_HAVE_DEBUG
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type (here pressure), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type (here pressure), indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the velocity FI
             Field_Interpolator* tVelocityFI =    //
-                    mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the imposed pressure property
             const std::shared_ptr< Property >& tPropPressure =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
 
             // get the imposed total pressure property
             const std::shared_ptr< Property >& tPropTotalPressure =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::TOTAL_PRESSURE ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::TOTAL_PRESSURE ) );
 
             // get density property
             const std::shared_ptr< Property >& tPropDensity =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
 
             // get back flow prevention prevention property
             const std::shared_ptr< Property >& tPropBackflowPrevention =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::BACKFLOW_PREVENTION ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::BACKFLOW_PREVENTION ) );
 
             // get the selection matrix property
             const std::shared_ptr< Property >& tPropSelect =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
             real tM = 1.0;
@@ -100,7 +100,7 @@ namespace moris
             if ( tPropPressure != nullptr )
             {
                 mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { tLeaderResStartIndex, tLeaderResStopIndex },
                         { 0, 0 } ) +=
                         aWStar * ( tVelocityFI->N_trans() * tM * tPropPressure->val()( 0 ) * mNormal );
             }
@@ -118,7 +118,7 @@ namespace moris
                 const real tImposedPressure = tPropTotalPressure->val()( 0 ) - 0.5 * tPropDensity->val()( 0 ) * tVelocNorm2;
 
                 mSet->get_residual()( 0 )(
-                        { tMasterResStartIndex, tMasterResStopIndex },
+                        { tLeaderResStartIndex, tLeaderResStopIndex },
                         { 0, 0 } ) +=
                         aWStar * ( tM * tImposedPressure * tVelocityFI->N_trans() * mNormal );
             }
@@ -140,7 +140,7 @@ namespace moris
                     const real tDensity = tPropDensity->val()( 0 );
 
                     mSet->get_residual()( 0 )(
-                            { tMasterResStartIndex, tMasterResStopIndex }, { 0, 0 } ) -=                       //
+                            { tLeaderResStartIndex, tLeaderResStopIndex }, { 0, 0 } ) -=                       //
                             aWStar * (                                                                         //
                                     tM * tPropBackflowPrevention->val()( 0 ) * tDensity * tNormalVelocity *    //
                                     tVelocityFI->N_trans() * tVelocityFI->val() );
@@ -158,37 +158,37 @@ namespace moris
         IWG_Incompressible_NS_Pressure_Neumann::compute_jacobian( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators
+            // check leader field interpolators
             this->check_field_interpolators();
 #endif
 
-            // get master index for residual dof type (here pressure), indices for assembly
-            uint tMasterDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Master_Slave::MASTER );
-            uint tMasterResStartIndex = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 0 );
-            uint tMasterResStopIndex  = mSet->get_res_dof_assembly_map()( tMasterDofIndex )( 0, 1 );
+            // get leader index for residual dof type (here pressure), indices for assembly
+            uint tLeaderDofIndex      = mSet->get_dof_index_for_type( mResidualDofType( 0 )( 0 ), mtk::Leader_Follower::LEADER );
+            uint tLeaderResStartIndex = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 0 );
+            uint tLeaderResStopIndex  = mSet->get_res_dof_assembly_map()( tLeaderDofIndex )( 0, 1 );
 
             // get the velocity FI
-            Field_Interpolator* tVelocityFI = mMasterFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tVelocityFI = mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
 
             // get the imposed pressure property
             const std::shared_ptr< Property >& tPropPressure =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESSURE ) );
 
             // get the imposed total pressure property
             const std::shared_ptr< Property >& tPropTotalPressure =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::TOTAL_PRESSURE ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::TOTAL_PRESSURE ) );
 
             // get back flow prevention prevention property
             const std::shared_ptr< Property >& tPropBackflowPrevention =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::BACKFLOW_PREVENTION ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::BACKFLOW_PREVENTION ) );
 
             // get density property
             const std::shared_ptr< Property >& tPropDensity =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::DENSITY ) );
 
             // get the selection matrix property
             const std::shared_ptr< Property >& tPropSelect =
-                    mMasterProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::SELECT ) );
 
             // set a default selection matrix if needed
             real tM = 1.0;
@@ -201,22 +201,22 @@ namespace moris
             }
 
             // compute the Jacobian for dof dependencies
-            uint tNumDofDependencies = mRequestedMasterGlobalDofTypes.size();
+            uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
 
             for ( uint iDOF = 0; iDOF < tNumDofDependencies; iDOF++ )
             {
                 // get the treated dof type
-                Cell< MSI::Dof_Type >& tDofType = mRequestedMasterGlobalDofTypes( iDOF );
+                Cell< MSI::Dof_Type >& tDofType = mRequestedLeaderGlobalDofTypes( iDOF );
 
                 // get the index for dof type, indices for assembly
-                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Master_Slave::MASTER );
-                uint tMasterDepStartIndex = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 0 );
-                uint tMasterDepStopIndex  = mSet->get_jac_dof_assembly_map()( tMasterDofIndex )( tDofDepIndex, 1 );
+                sint tDofDepIndex         = mSet->get_dof_index_for_type( tDofType( 0 ), mtk::Leader_Follower::LEADER );
+                uint tLeaderDepStartIndex = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 0 );
+                uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
 
                 // extract sub-matrix
                 auto tJac = mSet->get_jacobian()(
-                        { tMasterResStartIndex, tMasterResStopIndex },
-                        { tMasterDepStartIndex, tMasterDepStopIndex } );
+                        { tLeaderResStartIndex, tLeaderResStopIndex },
+                        { tLeaderDepStartIndex, tLeaderDepStopIndex } );
 
                 // when pressure is imposed
                 if ( tPropPressure != nullptr )
@@ -311,7 +311,7 @@ namespace moris
         IWG_Incompressible_NS_Pressure_Neumann::compute_jacobian_and_residual( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators
+            // check leader field interpolators
             this->check_field_interpolators();
 #endif
 
@@ -324,7 +324,7 @@ namespace moris
         IWG_Incompressible_NS_Pressure_Neumann::compute_dRdp( real aWStar )
         {
 #ifdef MORIS_HAVE_DEBUG
-            // check master field interpolators, properties and constitutive models
+            // check leader field interpolators, properties and constitutive models
             this->check_field_interpolators();
 #endif
 

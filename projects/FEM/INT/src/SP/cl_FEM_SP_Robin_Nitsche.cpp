@@ -23,7 +23,7 @@ namespace moris
         SP_Robin_Nitsche::SP_Robin_Nitsche()
         {
             // set the property pointer cell size
-            mMasterProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
+            mLeaderProp.resize( static_cast< uint >( Property_Type::MAX_ENUM ), nullptr );
 
             // populate the map
             mPropertyMap[ "NeumannPenalty" ] = static_cast< uint >( Property_Type::NEUMANN_PENALTY );
@@ -35,15 +35,15 @@ namespace moris
         SP_Robin_Nitsche::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
                 moris::Cell< std::string >&                  aDofStrings,
-                mtk::Master_Slave                            aIsMaster )
+                mtk::Leader_Follower                            aIsLeader )
         {
-            // switch on master slave
-            switch ( aIsMaster )
+            // switch on leader follower
+            switch ( aIsLeader )
             {
-                case mtk::Master_Slave::MASTER:
+                case mtk::Leader_Follower::LEADER:
                 {
                     // set dof type list
-                    mMasterDofTypes = aDofTypes;
+                    mLeaderDofTypes = aDofTypes;
 
                     // loop on dof type
                     for ( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
@@ -57,7 +57,7 @@ namespace moris
                         // if velocity
                         if ( tDofString == "THETA" )
                         {
-                            mMasterDofTemp = tDofType;
+                            mLeaderDofTemp = tDofType;
                         }
                         else
                         {
@@ -70,15 +70,15 @@ namespace moris
                     break;
                 }
 
-                case mtk::Master_Slave::SLAVE:
+                case mtk::Leader_Follower::FOLLOWER:
                 {
                     // set dof type list
-                    mSlaveDofTypes = aDofTypes;
+                    mFollowerDofTypes = aDofTypes;
                     break;
                 }
 
                 default:
-                    MORIS_ERROR( false, "SP_Velocity_SlipBoundary_Nitsche::set_dof_type_list - unknown master slave type." );
+                    MORIS_ERROR( false, "SP_Velocity_SlipBoundary_Nitsche::set_dof_type_list - unknown leader follower type." );
             }
         }
 
@@ -87,7 +87,7 @@ namespace moris
         moris::Cell< std::tuple<
                 fem::Measure_Type,
                 mtk::Primary_Void,
-                mtk::Master_Slave > >
+                mtk::Leader_Follower > >
         SP_Robin_Nitsche::get_cluster_measure_tuple_list()
         {
             return { mElementSizeTuple };
@@ -106,7 +106,7 @@ namespace moris
                                         ->val()( 0 );
 
             const std::shared_ptr< Property >& tPropNeumannPen =
-                    mMasterProp( static_cast< uint >( Property_Type::NEUMANN_PENALTY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::NEUMANN_PENALTY ) );
 
             // check that properties are set
             MORIS_ASSERT( tPropNeumannPen,
@@ -124,7 +124,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        SP_Robin_Nitsche::eval_dSPdMasterDOF(
+        SP_Robin_Nitsche::eval_dSPdLeaderDOF(
                 const moris::Cell< MSI::Dof_Type >& aDofTypes )
         {
             // get element size cluster measure value
@@ -135,27 +135,27 @@ namespace moris
                                         ->val()( 0 );
 
             // get the dof type index
-            const uint tDofIndex = mMasterGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
+            const uint tDofIndex = mLeaderGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
             // get the dof type FI
             Field_Interpolator* tFIDerivative =
-                    mMasterFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+                    mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
 
             // get number of dofs
             const uint tNumDofs = tFIDerivative->get_number_of_space_time_coefficients();
 
-            // set size for dSPdMasterDof
-            mdPPdMasterDof( tDofIndex ).set_size( 2, tNumDofs );
+            // set size for dSPdLeaderDof
+            mdPPdLeaderDof( tDofIndex ).set_size( 2, tNumDofs );
 
             const std::shared_ptr< Property >& tPropNeumannPen =
-                    mMasterProp( static_cast< uint >( Property_Type::NEUMANN_PENALTY ) );
+                    mLeaderProp( static_cast< uint >( Property_Type::NEUMANN_PENALTY ) );
 
             // if slip length depend on the dof
             if ( tPropNeumannPen->check_dof_dependency( aDofTypes ) )
             {
                 // get the derivative of the first paramater and second parameter
-                mdPPdMasterDof( tDofIndex ).get_row( 0 ) = -std::pow( mParameters( 0 )( 0 ) / ( mParameters( 0 )( 0 ) * tPropNeumannPen->val()( 0 ) + tElementSize ), 2.0 )    //
+                mdPPdLeaderDof( tDofIndex ).get_row( 0 ) = -std::pow( mParameters( 0 )( 0 ) / ( mParameters( 0 )( 0 ) * tPropNeumannPen->val()( 0 ) + tElementSize ), 2.0 )    //
                                                          * tPropNeumannPen->dPropdDOF( aDofTypes );
-                mdPPdMasterDof( tDofIndex ).get_row( 1 ) = -std::pow( tElementSize / ( mParameters( 0 )( 0 ) * tPropNeumannPen->val()( 0 ) + tElementSize ), 2.0 )    //
+                mdPPdLeaderDof( tDofIndex ).get_row( 1 ) = -std::pow( tElementSize / ( mParameters( 0 )( 0 ) * tPropNeumannPen->val()( 0 ) + tElementSize ), 2.0 )    //
                                                          * tPropNeumannPen->dPropdDOF( aDofTypes );
             }
         }

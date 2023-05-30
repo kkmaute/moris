@@ -82,7 +82,7 @@ UT_FEM_IQI_Dof( uint aTestConfiguration )
 
     std::shared_ptr< fem::IQI > tIQI = tIQIFactory.create_IQI( fem::IQI_Type::DOF );
 
-    tIQI->set_dof_type_list( tDofTypes, mtk::Master_Slave::MASTER );
+    tIQI->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
     tIQI->set_quantity_dof_type( { { MSI::Dof_Type::VX, MSI::Dof_Type::VY } } );
     tIQI->set_output_type_index( 1 );    // get vy component
     tIQI->set_name( "DofSet" );
@@ -123,10 +123,10 @@ UT_FEM_IQI_Dof( uint aTestConfiguration )
     tIQI->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
     tIQI->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
 
-    // set size and populate the set master dof type map
-    tIQI->mSet->mMasterDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
-    tIQI->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
-    tIQI->mSet->mMasterDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
+    // set size and populate the set leader dof type map
+    tIQI->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+    tIQI->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::VX ) ) = 0;
+    tIQI->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )  = 1;
 
     // loop on the space dimension
     for ( uint iSpaceDim = 2; iSpaceDim < 4; iSpaceDim++ )
@@ -233,23 +233,23 @@ UT_FEM_IQI_Dof( uint aTestConfiguration )
                     mtk::Interpolation_Type::LAGRANGE,
                     mtk::Interpolation_Order::LINEAR );
 
-            // fill coefficients for master FI
-            Matrix< DDRMat > tMasterDOFHatVel;
+            // fill coefficients for leader FI
+            Matrix< DDRMat > tLeaderDOFHatVel;
             ;
-            fill_uhat( tMasterDOFHatVel, iSpaceDim, iInterpOrder );
-            Matrix< DDRMat > tMasterDOFHatP;
-            fill_phat( tMasterDOFHatP, iSpaceDim, iInterpOrder );
+            fill_uhat( tLeaderDOFHatVel, iSpaceDim, iInterpOrder );
+            Matrix< DDRMat > tLeaderDOFHatP;
+            fill_phat( tLeaderDOFHatP, iSpaceDim, iInterpOrder );
 
             // create a cell of field interpolators for IWG
-            Cell< Field_Interpolator* > tMasterFIs( tDofTypes.size() );
+            Cell< Field_Interpolator* > tLeaderFIs( tDofTypes.size() );
 
             // create the field interpolator velocity
-            tMasterFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
-            tMasterFIs( 0 )->set_coeff( tMasterDOFHatVel );
+            tLeaderFIs( 0 ) = new Field_Interpolator( iSpaceDim, tFIRule, &tGI, tVelDofTypes( 0 ) );
+            tLeaderFIs( 0 )->set_coeff( tLeaderDOFHatVel );
 
             // create the field interpolator pressure
-            tMasterFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
-            tMasterFIs( 1 )->set_coeff( tMasterDOFHatP );
+            tLeaderFIs( 1 ) = new Field_Interpolator( 1, tFIRule, &tGI, tPDofTypes( 0 ) );
+            tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatP );
 
             // set size and fill the set residual assembly map
             tIQI->mSet->mResDofAssemblyMap.resize( tDofTypes.size() );
@@ -275,8 +275,8 @@ UT_FEM_IQI_Dof( uint aTestConfiguration )
             // build global dof type list
             tIQI->get_global_dof_type_list();
 
-            // populate the requested master dof type
-            tIQI->mRequestedMasterGlobalDofTypes = tDofTypes;
+            // populate the requested leader dof type
+            tIQI->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
@@ -285,12 +285,12 @@ UT_FEM_IQI_Dof( uint aTestConfiguration )
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager
-            tFIManager.mFI                     = tMasterFIs;
+            tFIManager.mFI                     = tLeaderFIs;
             tFIManager.mIPGeometryInterpolator = &tGI;
             tFIManager.mIGGeometryInterpolator = &tGI;
 
             // set the interpolator manager to the set
-            tIQI->mSet->mMasterFIManager = &tFIManager;
+            tIQI->mSet->mLeaderFIManager = &tFIManager;
 
             // set IWG field interpolator manager
             tIQI->set_field_interpolator_manager( &tFIManager );
@@ -306,7 +306,7 @@ UT_FEM_IQI_Dof( uint aTestConfiguration )
                 Matrix< DDRMat > tParamPoint = tIntegPoints.get_column( iGP );
 
                 // set integration point
-                tIQI->mSet->mMasterFIManager->set_space_time( tParamPoint );
+                tIQI->mSet->mLeaderFIManager->set_space_time( tParamPoint );
 
                 // check evaluation of the quantity of interest
                 //------------------------------------------------------------------------------
@@ -342,7 +342,7 @@ UT_FEM_IQI_Dof( uint aTestConfiguration )
             }
 
             // clean up
-            tMasterFIs.clear();
+            tLeaderFIs.clear();
         }
     }
 }
