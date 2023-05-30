@@ -40,7 +40,7 @@ namespace moris
 
           protected:
             // ----------------------------------------------------------------------------
-            
+
             /// @brief which cells are to be used for output
             const bool mOnlyPrimary;
 
@@ -57,7 +57,7 @@ namespace moris
 
             /// @brief sequential list of all sets
             moris::Cell< moris::mtk::Set* > mListOfAllSets;
-            Cell< moris_index > mSetLocalToTypeIndex;
+            Cell< moris_index >             mSetLocalToTypeIndex;
 
             /// @brief Names of sets in mesh
             moris::Cell< std::string > mAllSetNames;
@@ -82,7 +82,7 @@ namespace moris
             bool mMeshIsFinalized = false;
 
             const std::string mMasterString = "_Master";
-            const std::string mSlaveString = "_Slave";
+            const std::string mSlaveString  = "_Slave";
 
             // ----------------------------------------------------------------------------
 
@@ -178,9 +178,9 @@ namespace moris
                 {
                     // construct a list of names for the master and slave sides of the double sided side sets to be outputted
                     Cell< std::string > tDoubleSidedSingleSetNames( 2 * mDoubleSideSetNames.size() );
-                    for( uint iDblSideSet = 0; iDblSideSet < mDoubleSideSetNames.size(); iDblSideSet++ )
+                    for ( uint iDblSideSet = 0; iDblSideSet < mDoubleSideSetNames.size(); iDblSideSet++ )
                     {
-                        tDoubleSidedSingleSetNames( 2 * iDblSideSet ) = mDoubleSideSetNames( iDblSideSet ) + mMasterString;
+                        tDoubleSidedSingleSetNames( 2 * iDblSideSet )     = mDoubleSideSetNames( iDblSideSet ) + mMasterString;
                         tDoubleSidedSingleSetNames( 2 * iDblSideSet + 1 ) = mDoubleSideSetNames( iDblSideSet ) + mSlaveString;
                     }
 
@@ -239,28 +239,38 @@ namespace moris
 
                 // get access to this set
                 moris::mtk::Set* tSet = this->get_set_by_index( tSetIndex );
-                MORIS_ERROR( 
-                        tSet->get_set_type() == SetType::BULK, 
+                MORIS_ERROR(
+                        tSet->get_set_type() == SetType::BULK,
                         "VIS::Visualization_Mesh::get_set_cells() - "
                         "'%s' is not a bulk set. Cannot retrieve cells for this set.",
                         aSetName );
 
                 // initialize list of cells on set to return
-                uint tNumCellsOnSet = tSet->get_num_cells_on_set( mOnlyPrimary );
+                uint                            tNumCellsOnSet = tSet->get_num_cells_on_set( mOnlyPrimary );
                 moris::Cell< const mtk::Cell* > tCellsOnSet( tNumCellsOnSet );
 
                 // collect cells on set
                 uint tCellIndexOnSet = 0;
-                for( auto iCluster : tSet->get_clusters_on_set() )
+                for ( auto iCluster : tSet->get_clusters_on_set() )
                 {
-                    for( auto iCell : iCluster->get_primary_cells_in_cluster() )
+                    // collect primary cells in cluster
+                    for ( auto iPrimaryCell : iCluster->get_primary_cells_in_cluster() )
                     {
-                        tCellsOnSet( tCellIndexOnSet++ ) = iCell;
+                        tCellsOnSet( tCellIndexOnSet++ ) = iPrimaryCell;
+                    }
+
+                    // if overlapping mesh, also collect the void cells in the cluster
+                    if ( !mOnlyPrimary )
+                    {
+                        for ( auto iVoidCell : iCluster->get_void_cells_in_cluster() )
+                        {
+                            tCellsOnSet( tCellIndexOnSet++ ) = iVoidCell;
+                        }
                     }
                 }
 
-                MORIS_ASSERT( 
-                        tCellIndexOnSet == tNumCellsOnSet, 
+                MORIS_ASSERT(
+                        tCellIndexOnSet == tNumCellsOnSet,
                         "VIS::Visualization_Mesh::get_set_cells() - "
                         "Number of collected and reported cells on Set '%s' don't match. Something went wrong.",
                         aSetName.c_str() );
@@ -275,7 +285,7 @@ namespace moris
             get_all_vertices() const
             {
                 moris::Cell< moris::mtk::Vertex const * > tVerticesCopy( mVertices.size() );
-                for( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
+                for ( uint iVertex = 0; iVertex < mVertices.size(); iVertex++ )
                 {
                     tVerticesCopy( iVertex ) = mVertices( iVertex );
                 }
@@ -539,7 +549,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            void 
+            void
             get_sideset_elems_loc_inds_and_ords(
                     const std::string&  aSetName,
                     Matrix< IndexMat >& aElemIndices,
@@ -550,14 +560,17 @@ namespace moris
 
                 // check if the set is actually just part of a master or slave side set of a double sided side set
                 bool tIsMasterSideSet = false;
-                bool tIsSlaveSideSet = false;
+                bool tIsSlaveSideSet  = false;
                 if ( tSetNameCopy.length() >= mMasterString.length() )
                 {
-                    tIsMasterSideSet = ( 0 == tSetNameCopy.compare( tSetNameCopy.length() - mMasterString.length(), mMasterString.length(), mMasterString ) );
+                    
+                    tIsMasterSideSet = ( tSetNameCopy.substr( tSetNameCopy.length() - mMasterString.length() ) == mMasterString );
+                    // tIsMasterSideSet = ( 0 == tSetNameCopy.compare( tSetNameCopy.length() - mMasterString.length(), mMasterString.length(), mMasterString ) );
                 }
                 if ( tSetNameCopy.length() >= mSlaveString.length() )
                 {
-                    tIsMasterSideSet = ( 0 == tSetNameCopy.compare( tSetNameCopy.length() - mSlaveString.length(), mSlaveString.length(), mSlaveString ) );
+                    tIsSlaveSideSet = ( tSetNameCopy.substr( tSetNameCopy.length() - mSlaveString.length() ) == mSlaveString );
+                    // tIsSlaveSideSet = ( 0 == tSetNameCopy.compare( tSetNameCopy.length() - mSlaveString.length(), mSlaveString.length(), mSlaveString ) );
                 }
 
                 // if it is part of a double sided side set, delete the ending
@@ -572,29 +585,29 @@ namespace moris
 
                 // get the set
                 moris_index tSetIndex = mSetNameToIndexMap.find( tSetNameCopy );
-                MORIS_ASSERT( 
-                        (uint) tSetIndex < mListOfAllSets.size(), 
+                MORIS_ASSERT(
+                        (uint)tSetIndex < mListOfAllSets.size(),
                         "VIS::Visualization_Mesh::get_sideset_elems_loc_inds_and_ords() - Set index out of bounds" );
-                const mtk::Set * tSet = mListOfAllSets( tSetIndex );
+                const mtk::Set* tSet = mListOfAllSets( tSetIndex );
 
                 // access the list of side clusters on the current set
                 Cell< mtk::Cluster const * > tClustersOnSideSet( 0 );
 
                 // depending on the set type, get the list of clusters for the given set
-                switch( tSet->get_set_type() )
+                switch ( tSet->get_set_type() )
                 {
                     // bulk sets are not valid for this function
-                    case SetType::BULK :
+                    case SetType::BULK:
                     {
-                        MORIS_ERROR( false, 
-                            "VIS::Visualization_Mesh::get_sideset_elems_loc_inds_and_ords() - "
-                            "Set '%s' is a block set. This function cannot be applied to block sets.",
-                            aSetName.c_str() );
+                        MORIS_ERROR( false,
+                                "VIS::Visualization_Mesh::get_sideset_elems_loc_inds_and_ords() - "
+                                "Set '%s' is a block set. This function cannot be applied to block sets.",
+                                aSetName.c_str() );
                         break;
                     }
 
                     // side set
-                    case SetType::SIDESET :
+                    case SetType::SIDESET:
                     {
                         // get the index of the set in the list of side sets
                         moris_index tSideSetIndex = mSetLocalToTypeIndex( tSetIndex );
@@ -607,11 +620,11 @@ namespace moris
                     }
 
                     // double side set
-                    case SetType::DOUBLE_SIDED_SIDESET :
+                    case SetType::DOUBLE_SIDED_SIDESET:
                     {
                         // get the index of the set in the list of double side sets
                         moris_index tDblSideSetIndex = mSetLocalToTypeIndex( tSetIndex );
-                        
+
                         // get access to the correct list of clusters for output
                         if ( tIsMasterSideSet )
                         {
@@ -621,14 +634,14 @@ namespace moris
                         {
                             tClustersOnSideSet = mSlaveSideClusters( tDblSideSetIndex );
                         }
-                        else // error, neither master nor slave side
+                        else    // error, neither master nor slave side
                         {
-                            MORIS_ERROR( false, 
-                                "VIS::Visualization_Mesh::get_sideset_elems_loc_inds_and_ords() - "
-                                "Set '%s' is a double side set but name ending does not specify which side to output on.",
-                                aSetName.c_str() );
+                            MORIS_ERROR( false,
+                                    "VIS::Visualization_Mesh::get_sideset_elems_loc_inds_and_ords() - "
+                                    "Set '%s' is a double side set but name ending does not specify which side to output on.",
+                                    aSetName.c_str() );
                         }
-                        
+
                         // stop switch
                         break;
                     }
@@ -636,45 +649,45 @@ namespace moris
                     // unknown set type - error
                     default:
                     {
-                        MORIS_ERROR( false, 
-                            "VIS::Visualization_Mesh::get_sideset_elems_loc_inds_and_ords() - "
-                            "Set '%s' has unknown set type.",
-                            aSetName.c_str() );
+                        MORIS_ERROR( false,
+                                "VIS::Visualization_Mesh::get_sideset_elems_loc_inds_and_ords() - "
+                                "Set '%s' has unknown set type.",
+                                aSetName.c_str() );
                     }
 
-                } // end switch: get clusters depending on set type
+                }    // end switch: get clusters depending on set type
 
                 // count number of facets making up the side set
                 uint tNumFacets = 0;
-                for( auto iCluster : tClustersOnSideSet )
+                for ( auto iCluster : tClustersOnSideSet )
                 {
                     tNumFacets += iCluster->get_num_primary_cells();
                 }
 
-                // initialize output information 
-                aElemIndices.set_size( tNumFacets , 1, -1 );
-                aSidesetOrdinals.set_size( tNumFacets , 1, -1 );
-                
+                // initialize output information
+                aElemIndices.set_size( tNumFacets, 1, -1 );
+                aSidesetOrdinals.set_size( tNumFacets, 1, -1 );
+
                 // go over clusters and collect all IG cells and side ordinals that make up the side set
                 uint tFacetIndex = 0;
-                for( auto iCluster : tClustersOnSideSet )
+                for ( auto iCluster : tClustersOnSideSet )
                 {
                     // collect the IG elements and ordinals on the current cluster
                     Matrix< IndexMat > tIgCellIndicesInCluster = iCluster->get_primary_cell_indices_in_cluster();
-                    Matrix< IndexMat > tSideOrdinalsInCluster = iCluster->get_cell_side_ordinals();
+                    Matrix< IndexMat > tSideOrdinalsInCluster  = iCluster->get_cell_side_ordinals();
 
                     // copy cells and ordinals of the facets into the arrays
-                    for( uint iFacetOnCluster = 0; iFacetOnCluster < tSideOrdinalsInCluster.numel(); iFacetOnCluster++ )
+                    for ( uint iFacetOnCluster = 0; iFacetOnCluster < tSideOrdinalsInCluster.numel(); iFacetOnCluster++ )
                     {
-                        aElemIndices( tFacetIndex ) = tIgCellIndicesInCluster( iFacetOnCluster );
+                        aElemIndices( tFacetIndex )     = tIgCellIndicesInCluster( iFacetOnCluster );
                         aSidesetOrdinals( tFacetIndex ) = tSideOrdinalsInCluster( iFacetOnCluster );
                         tFacetIndex++;
                     }
                 }
 
-            } // end function: VIS::Visualization_Mesh::get_sideset_elems_loc_inds_and_ords()
+            }    // end function: VIS::Visualization_Mesh::get_sideset_elems_loc_inds_and_ords()
 
-            // ----------------------------------------------------------------------------
+                 // ----------------------------------------------------------------------------
 
           protected:
             // ----------------------------------------------------------------------------
@@ -690,10 +703,13 @@ namespace moris
                 // construct map linking set name to position in list of all sets
                 for ( uint iSet = 0; iSet < mListOfAllSets.size(); iSet++ )
                 {
-                    mListOfAllSets( iSet )->set_set_index( iSet );
-                    mSetNameToIndexMap[ mListOfAllSets( iSet )->get_set_name() ] = iSet;
-                }
+                    // get the current set's name
+                    const std::string tSetName = mListOfAllSets( iSet )->get_set_name();
 
+                    // populate the map
+                    mListOfAllSets( iSet )->set_set_index( iSet );
+                    mSetNameToIndexMap[ tSetName ] = iSet;
+                }
             }
 
             // ----------------------------------------------------------------------------
@@ -706,28 +722,27 @@ namespace moris
 
                 // construct a map that links set names to types and position within that type's list
                 mSetLocalToTypeIndex.resize( mListOfAllSets.size() );
-                for( uint iBlockSet = 0; iBlockSet < mBlockSetNames.size(); iBlockSet++ )
+                for ( uint iBlockSet = 0; iBlockSet < mBlockSetNames.size(); iBlockSet++ )
                 {
-                    std::string tBlockSetName = mBlockSetNames( iBlockSet );
-                    moris_index tGlobalSetIndex = mSetNameToIndexMap.find( tBlockSetName );
+                    std::string tBlockSetName               = mBlockSetNames( iBlockSet );
+                    moris_index tGlobalSetIndex             = mSetNameToIndexMap.find( tBlockSetName );
                     mSetLocalToTypeIndex( tGlobalSetIndex ) = iBlockSet;
                 }
-                for( uint iSideSet = 0; iSideSet < mSideSetNames.size(); iSideSet++ )
+                for ( uint iSideSet = 0; iSideSet < mSideSetNames.size(); iSideSet++ )
                 {
-                    std::string tSideSetName = mSideSetNames( iSideSet );
-                    moris_index tGlobalSetIndex = mSetNameToIndexMap.find( tSideSetName );
+                    std::string tSideSetName                = mSideSetNames( iSideSet );
+                    moris_index tGlobalSetIndex             = mSetNameToIndexMap.find( tSideSetName );
                     mSetLocalToTypeIndex( tGlobalSetIndex ) = iSideSet;
                 }
-                for( uint iDblSideSet = 0; iDblSideSet < mDoubleSideSetNames.size(); iDblSideSet++ )
+                for ( uint iDblSideSet = 0; iDblSideSet < mDoubleSideSetNames.size(); iDblSideSet++ )
                 {
-                    std::string tDblSideSetName = mDoubleSideSetNames( iDblSideSet );
-                    moris_index tGlobalSetIndex = mSetNameToIndexMap.find( tDblSideSetName );
+                    std::string tDblSideSetName             = mDoubleSideSetNames( iDblSideSet );
+                    moris_index tGlobalSetIndex             = mSetNameToIndexMap.find( tDblSideSetName );
                     mSetLocalToTypeIndex( tGlobalSetIndex ) = iDblSideSet;
                 }
 
                 // mark this mesh as finalized
                 mMeshIsFinalized = true;
-
             }
 
             // ----------------------------------------------------------------------------

@@ -200,9 +200,7 @@ namespace moris
              *
              */
             void
-            create_visualization_double_side_clusters(){
-                // TODO!
-            };
+            create_visualization_double_side_clusters();
 
             //-----------------------------------------------------------------------------------------------------------
 
@@ -229,9 +227,7 @@ namespace moris
              *
              */
             void
-            create_visualization_double_side_sets(){
-                // TODO!
-            };
+            create_visualization_double_side_sets();
 
             //-----------------------------------------------------------------------------------------------------------
         };

@@ -69,7 +69,7 @@ namespace moris
     std::string tPhase2Ghost = "ghost_p0";
 
     std::string tTotalDomain   = tPhase1 + "," + tPhase2;
-    std::string tAllInterfaces = /*tInterface + "," +*/ tBackSurface + "," + tFrontSurface;
+    std::string tAllInterfaces = tInterface + "," + tBackSurface + "," + tFrontSurface;
 
     /* ------------------------------------------------------------------------ */
     // geometry parameters

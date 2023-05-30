@@ -100,7 +100,7 @@ namespace moris
     }
     //-------------------------------
     std::string tBulkSets = "HMR_dummy_n_p0,HMR_dummy_c_p0";
-    std::string tVoidSets = "HMR_dummy_n_p0,HMR_dummy_c_p0";
+    std::string tVoidSets = "HMR_dummy_n_p1,HMR_dummy_c_p1";
 
     std::string tDirichletSets = "SideSet_4_n_p0,SideSet_4_c_p0";
     std::string tLoadSets     = "SideSet_2_n_p1,SideSet_2_c_p1";
@@ -111,7 +111,7 @@ namespace moris
 
     std::string tInteriorGhost = "ghost_p0";
 
-    std::string tTotalDomain = tBulkSets + "," + tVoidSets;
+    std::string tTotalDomain = tBulkSets;
 
     std::string tTotalDomainAGhost = tTotalDomain;
 
