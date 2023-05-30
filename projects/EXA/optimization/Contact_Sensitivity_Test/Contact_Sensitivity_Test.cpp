@@ -152,6 +152,8 @@ namespace moris
 
     std::string tMaterial12DSets = "dbl_iside_p0_2_p1_1";    // watch:from Material 1 (p2) to Material 2 (p1)
 
+    std::string tInterfaces = tLoadSSsets + "," + tSupportSSets + "," + tMaterial12SSets + "," + tMaterial12DSets;
+
     std::string tDofStrg = tIs3D ? "UX,UY,UZ" : "UX,UY";
 
     std::string tDirichletStr = tIs3D ? "0.0;0.0;0.0" : "0.0;0.0";
@@ -1059,7 +1061,7 @@ namespace moris
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
-        tParameterlist( 0 )( 0 ).set( "Set_Names", tTotalDomainSets );
+        tParameterlist( 0 )( 0 ).set( "Set_Names", tTotalDomainSets + "," + tInterfaces );
 
         if ( tIs3D )
         {

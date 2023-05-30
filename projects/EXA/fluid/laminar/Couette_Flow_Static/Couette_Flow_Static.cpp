@@ -41,6 +41,8 @@ namespace moris
     std::string sIn         = "iside_b0_1_b1_3";
     std::string sOut        = "iside_b0_1_b1_0";
 
+    std::string sInterfaces = sIn + "," + sOut;
+
     std::string sAllDofTypes      = "VX,VY;P";
     std::string sVelocityDofTypes = "VX,VY";
     std::string sPressureDofTypes = "P";
@@ -546,7 +548,7 @@ namespace moris
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", "Couette_Flow_Static.exo" ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
-        tParameterlist( 0 )( 0 ).set( "Set_Names", sFluid );
+        tParameterlist( 0 )( 0 ).set( "Set_Names", sFluid + "," + sInterfaces );
         tParameterlist( 0 )( 0 ).set( "Field_Names", "VX,VY,P,L2_ERROR_ANALYTIC,H1_ERROR_ANALYTIC" );
         tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,NODAL,NODAL" );
         tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIBulkVX,IQIBulkVY,IQIBulkP,IQIBulkL2Error,IQIBulkH1Error" );

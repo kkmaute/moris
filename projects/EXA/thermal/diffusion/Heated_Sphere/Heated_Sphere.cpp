@@ -58,6 +58,7 @@ namespace moris
     std::string tOuterPhaseGhost = "ghost_p0";
 
     std::string tTotalDomain = tInnerPhase + "," + tOuterPhase;
+    std::string tAllInterfaces = tOuterSurface + "," + tInterface;
 
     /* ------------------------------------------------------------------------ */
     // geometry parameters
@@ -669,7 +670,7 @@ namespace moris
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
-        tParameterlist( 0 )( 0 ).set( "Set_Names", tTotalDomain );
+        tParameterlist( 0 )( 0 ).set( "Set_Names", tTotalDomain + "," + tAllInterfaces );
         tParameterlist( 0 )( 0 ).set( "Field_Names", "TEMP,TEMP_ANALYTIC,L2_ERROR_ANALYTIC,H1_ERROR_ANALYTIC,VOLUME" );
         tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL" );
         tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIBulkTEMP,IQIBulkTEMPAnalytic,IQIBulkL2Error,IQIBulkH1Error,IQIVolume" );
