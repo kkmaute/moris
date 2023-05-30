@@ -69,11 +69,23 @@ namespace moris
                 const Matrix< DDRMat >& aCoordinates,
                 Matrix< DDRMat >&       aSensitivities )
         {
-            MORIS_ERROR( false, "get_dfield_dcoordinates not implemented for circle geometry." );
+            // Get variables
+            real tXCenter = *( mFieldVariables( 0 ) );
+            real tYCenter = *( mFieldVariables( 1 ) );
+
+            // Compute level set value
+            real tLevelSet = sqrt( pow( aCoordinates( 0 ) - tXCenter, 2 ) + pow( aCoordinates( 1 ) - tYCenter, 2 ) );
+
+            if ( std::abs( tLevelSet ) < MORIS_REAL_EPS )
+            {
+                tLevelSet = tLevelSet < 0.0 ? -MORIS_REAL_EPS : MORIS_REAL_EPS;
+            }
+
+            aSensitivities( 0 ) = ( aCoordinates( 0 ) - tXCenter ) / tLevelSet;
+            aSensitivities( 1 ) = ( aCoordinates( 1 ) - tYCenter ) / tLevelSet;
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
     }    // namespace ge
 }    // namespace moris
-
