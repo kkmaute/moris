@@ -51,7 +51,7 @@ namespace moris
     bool tIsOpt    = true;
     bool tUseGhost = true;
 
-    bool tUseAbsoulteValue = true;
+    bool tUseAbsolutValue = true;
 
     // wall thickness
     real tWallThickness = 0.05;
@@ -91,8 +91,8 @@ namespace moris
     real tInitialPerimeter    = tIs3D ? 27.3111 : 14.0771;
 
     real tInitialRegularization = 0.243945;
-    real tPerimeterPenatly      = 0.05;
-    real tRegularizationPenatly = 0.01;
+    real tPerimeterPenalty      = 0.05;
+    real tRegularizationPenalty = 0.01;
 
     // prescribed gradient when using non-pdv level set field
     std::string tLevelSetGradxConstant = tIs3D ? "1.0;1.0;1.0" : "1.0;1.0";
@@ -197,7 +197,7 @@ namespace moris
 
         // return PDV derivative of absolute value of level set function
         real factor = 1.0;
-        if ( tUseAbsoulteValue )
+        if ( tUseAbsolutValue )
         {
             factor = value > 0.0 ? 1.0 : -1.0;
         }
@@ -220,7 +220,7 @@ namespace moris
 
         // return PDV derivative of absolute value of level set function
         real factor = 1.0;
-        if ( tUseAbsoulteValue )
+        if ( tUseAbsolutValue )
         {
             factor = value > 0.0 ? 1.0 : -1.0;
         }
@@ -242,7 +242,7 @@ namespace moris
 
         // return spatial derivative of absolute value of level set function
         real factor = 1.0;
-        if ( tUseAbsoulteValue )
+        if ( tUseAbsolutValue )
         {
             factor = value > 0.0 ? 1.0 : -1.0;
         }
@@ -264,7 +264,7 @@ namespace moris
 
         // return PDV derivative of spatial derivative of absolute value of level set function
         real factor = 1.0;
-        if ( tUseAbsoulteValue )
+        if ( tUseAbsolutValue )
         {
             factor = value > 0.0 ? 1.0 : -1.0;
         }
@@ -432,9 +432,9 @@ namespace moris
 
         real obj1 = aCriteria( 0 ) / tInitialStrainEnergy;
         real obj2 = aCriteria( 1 ) / tInitialStrainEnergy;
-        real obj3 = tPerimeterPenatly * aCriteria( 3 ) / tInitialPerimeter;
-        real obj4 = tRegularizationPenatly * aCriteria( 4 ) / tInitialRegularization;
-        // real obj5 = tRegularizationPenatly* aCriteria( 5 ) ;
+        real obj3 = tPerimeterPenalty * aCriteria( 3 ) / tInitialPerimeter;
+        real obj4 = tRegularizationPenalty * aCriteria( 4 ) / tInitialRegularization;
+        // real obj5 = tRegularizationPenalty* aCriteria( 5 ) ;
 
         tObjectives( 0, 0 ) = obj1 + obj2 + obj3 + obj4;    // + obj5;
 
@@ -491,9 +491,9 @@ namespace moris
 
         tDObjectiveDCriteria( 0 ) = 1.0 / tInitialStrainEnergy;
         tDObjectiveDCriteria( 1 ) = 1.0 / tInitialStrainEnergy;
-        tDObjectiveDCriteria( 3 ) = tPerimeterPenatly / tInitialPerimeter;
-        tDObjectiveDCriteria( 4 ) = tRegularizationPenatly / tInitialRegularization;
-        // tDObjectiveDCriteria( 5 ) = tRegularizationPenatly* 1.0;
+        tDObjectiveDCriteria( 3 ) = tPerimeterPenalty / tInitialPerimeter;
+        tDObjectiveDCriteria( 4 ) = tRegularizationPenalty / tInitialRegularization;
+        // tDObjectiveDCriteria( 5 ) = tRegularizationPenalty* 1.0;
 
         return tDObjectiveDCriteria;
     }

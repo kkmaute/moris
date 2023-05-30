@@ -72,7 +72,7 @@ namespace moris
     bool tIs3D             = false;
     bool tIsOpt            = true;
     bool tUseGhost         = true;
-    bool tUseAbsoulteValue = true;
+    bool tUseAbsoluteValue = true;
 
     bool tUseDensityShift = true;
 
@@ -92,10 +92,10 @@ namespace moris
     real tInitialStrainEnergy = 1437.01;
     real tMaxMass             = 400;
 
-    real tPerimeterPenatly = 0.02;
+    real tPerimeterPenalty = 0.02;
     real tInitialPerimeter = 60.0;
 
-    real tRegularizationPenatly = 0.02;    // 0.02
+    real tRegularizationPenalty = 0.02;    // 0.02
     real tInitialRegularization = 60;
 
     //-------------------------------
@@ -106,7 +106,7 @@ namespace moris
     int tDispOrder = 1;
 
     real tBsplineLimitTop    = 1.0;
-    real tBsplineLimitButtom = 0.0;
+    real tBsplineLimitBottom = 0.0;
 
     real tElementEdgeLength = 1.0;
 
@@ -152,7 +152,7 @@ namespace moris
     std::string tBulkSets = "HMR_dummy_n_p1,HMR_dummy_c_p1";
     std::string tVoidSets = "HMR_dummy_n_p0,HMR_dummy_c_p0";
 
-    std::string tDirchletSets = "SideSet_4_n_p1,SideSet_4_n_p1";
+    std::string tDirichletSets = "SideSet_4_n_p1,SideSet_4_n_p1";
     std::string tLoadSets     = "SideSet_2_n_p1,SideSet_2_n_p1";
 
     std::string tInterfaceVoidSets = "iside_b0_1_b1_0";
@@ -335,7 +335,7 @@ namespace moris
 
         // return PDV derivative of absolute value of level set function
         real factor = 1.0;
-        if ( tUseAbsoulteValue )
+        if ( tUseAbsoluteValue )
         {
             factor = value > 0.0 ? 1.0 : -1.0;
         }
@@ -360,7 +360,7 @@ namespace moris
 
         // return PDV derivative of absolute value of level set function
         real factor = 1.0;
-        if ( tUseAbsoulteValue )
+        if ( tUseAbsoluteValue )
         {
             factor = value > 0.0 ? 1.0 : -1.0;
         }
@@ -384,7 +384,7 @@ namespace moris
 
         // return spatial derivative of absolute value of level set function
         real factor = 1.0;
-        if ( tUseAbsoulteValue )
+        if ( tUseAbsoluteValue )
         {
             factor = value > 0.0 ? 1.0 : -1.0;
         }
@@ -408,7 +408,7 @@ namespace moris
 
         // return PDV derivative of spatial derivative of absolute value of level set function
         real factor = 1.0;
-        if ( tUseAbsoulteValue )
+        if ( tUseAbsoluteValue )
         {
             factor = value > 0.0 ? 1.0 : -1.0;
         }
@@ -435,9 +435,9 @@ namespace moris
 
         real obj1 = aCriteria( 0 ) / tInitialStrainEnergy;
         // real obj2 = aCriteria( 1 ) / tInitialStrainEnergy;
-        real obj2 = tPerimeterPenatly * aCriteria( 2 ) / tInitialPerimeter;
-        real obj3 = tRegularizationPenatly * aCriteria( 3 ) / tInitialRegularization;
-        // real obj5 = tRegularizationPenatly* aCriteria( 5 ) ;
+        real obj2 = tPerimeterPenalty * aCriteria( 2 ) / tInitialPerimeter;
+        real obj3 = tRegularizationPenalty * aCriteria( 3 ) / tInitialRegularization;
+        // real obj5 = tRegularizationPenalty* aCriteria( 5 ) ;
 
         tObjectives( 0, 0 ) = obj1 + obj2 + obj3;    // + obj2 + obj3 + obj4 + obj5;
 
@@ -494,9 +494,9 @@ namespace moris
 
         tDObjectiveDCriteria( 0 ) = 1.0 / tInitialStrainEnergy;
         // tDObjectiveDCriteria( 1 ) = 1.0 / tInitialStrainEnergy;
-        tDObjectiveDCriteria( 2 ) = tPerimeterPenatly / tInitialPerimeter;
-        tDObjectiveDCriteria( 3 ) = tRegularizationPenatly / tInitialRegularization;
-        // tDObjectiveDCriteria( 5 ) = tRegularizationPenatly* 1.0;
+        tDObjectiveDCriteria( 2 ) = tPerimeterPenalty / tInitialPerimeter;
+        tDObjectiveDCriteria( 3 ) = tRegularizationPenalty / tInitialRegularization;
+        // tDObjectiveDCriteria( 5 ) = tRegularizationPenalty* 1.0;
 
         return tDObjectiveDCriteria;
     }
@@ -656,7 +656,7 @@ namespace moris
         if ( tIsOpt )
         {
             tParameterlist( 1 )( tGeoCounter ).set( "discretization_mesh_index", 1 );
-            tParameterlist( 1 )( tGeoCounter ).set( "discretization_lower_bound", tBsplineLimitButtom );
+            tParameterlist( 1 )( tGeoCounter ).set( "discretization_lower_bound", tBsplineLimitBottom );
             tParameterlist( 1 )( tGeoCounter ).set( "discretization_upper_bound", tBsplineLimitTop );
         }
         tGeoCounter++;
@@ -1045,7 +1045,7 @@ namespace moris
         tParameterList( 3 )( tIWGCounter ).set( "dof_residual", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "master_dof_dependencies", "UX,UY" );
         tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropTraction,Traction" );
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tDirchletSets );
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tDirichletSets );
         tIWGCounter++;
 
         if ( tUseGhost )

@@ -73,7 +73,7 @@ namespace moris
     bool tIs3D             = false;
     bool tIsOpt            = true;
     bool tUseGhost         = true;
-    bool tUseAbsoulteValue = true;
+    bool tUseAbsoluteValue = true;
 
     bool tUseDensityShift = true;
 
@@ -94,10 +94,10 @@ namespace moris
     real tStrainEnergyPen     = 0.1;
     real tMaxMass             = 4;
 
-    real tPerimeterPenatly = 0.1;
+    real tPerimeterPenalty = 0.1;
     real tInitialPerimeter = 8.0;
 
-    real tRegularizationPenatly = 0.2;    // 0.02
+    real tRegularizationPenalty = 0.2;    // 0.02
     real tInitialRegularization = 250;
 
     //-------------------------------
@@ -126,7 +126,7 @@ namespace moris
     int tDispOrder = 1;
 
     real tBsplineLimitTop    = 2.4;
-    real tBsplineLimitButtom = 0.0;
+    real tBsplineLimitBottom = 0.0;
 
     real tInitialDensity = 0.0001;
 
@@ -176,7 +176,7 @@ namespace moris
     std::string tVoidSets  = "HMR_dummy_n_p8,HMR_dummy_c_p8";
     std::string tFrameSets = "HMR_dummy_n_p11,HMR_dummy_c_p11";
 
-    std::string tDirchletSets = "iside_b0_11_b1_15";
+    std::string tDirichletSets = "iside_b0_11_b1_15";
     std::string tLoadSets     = "iside_b0_11_b1_15";
 
     std::string tInterfaceVoidSets = "iside_b0_9_b1_8";
@@ -592,7 +592,7 @@ namespace moris
 
         // return PDV derivative of absolute value of level set function
         real factor = 1.0;
-        if ( tUseAbsoulteValue )
+        if ( tUseAbsoluteValue )
         {
             factor = value > 0.0 ? 1.0 : -1.0;
         }
@@ -617,7 +617,7 @@ namespace moris
 
         // return PDV derivative of absolute value of level set function
         real factor = 1.0;
-        if ( tUseAbsoulteValue )
+        if ( tUseAbsoluteValue )
         {
             factor = value > 0.0 ? 1.0 : -1.0;
         }
@@ -641,7 +641,7 @@ namespace moris
 
         // return spatial derivative of absolute value of level set function
         real factor = 1.0;
-        if ( tUseAbsoulteValue )
+        if ( tUseAbsoluteValue )
         {
             factor = value > 0.0 ? 1.0 : -1.0;
         }
@@ -665,7 +665,7 @@ namespace moris
 
         // return PDV derivative of spatial derivative of absolute value of level set function
         real factor = 1.0;
-        if ( tUseAbsoulteValue )
+        if ( tUseAbsoluteValue )
         {
             factor = value > 0.0 ? 1.0 : -1.0;
         }
@@ -691,9 +691,9 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
 
     real obj1 = aCriteria( 0 ) / tInitialStrainEnergy;
     real obj2 = aCriteria( 1 ) / tInitialStrainEnergy;
-    real obj3 = tPerimeterPenatly * aCriteria( 3 ) / tInitialPerimeter;
-    real obj4 = tRegularizationPenatly* aCriteria( 4 ) / tInitialRegularization;
-    //real obj5 = tRegularizationPenatly* aCriteria( 5 ) ;
+    real obj3 = tPerimeterPenalty * aCriteria( 3 ) / tInitialPerimeter;
+    real obj4 = tRegularizationPenalty* aCriteria( 4 ) / tInitialRegularization;
+    //real obj5 = tRegularizationPenalty* aCriteria( 5 ) ;
 
     tObjectives( 0, 0 ) = obj1 + obj2 + obj3 + obj4;// + obj2 + obj3 + obj4 + obj5;
 
@@ -730,9 +730,9 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         real obj1  = tStrainEnergyPen * tStrainEnergyInner / tInitialStrainEnergy;
         real obj11 = tStrainEnergyPen * tStrainEnergyOuter / tInitialStrainEnergy;
         real obj2  = tMass;
-        real obj3  = tPerimeterPenatly * tPerimeter / tInitialPerimeter;
-        real obj4  = tRegularizationPenatly * tHeatMethodPen / tInitialRegularization;
-        // real obj5 = tRegularizationPenatly* tStress ;
+        real obj3  = tPerimeterPenalty * tPerimeter / tInitialPerimeter;
+        real obj4  = tRegularizationPenalty * tHeatMethodPen / tInitialRegularization;
+        // real obj5 = tRegularizationPenalty* tStress ;
 
         tObjectives( 0, 0 ) = obj1 + obj11 + obj2 + obj3 + obj4;    // + obj2 + obj3 + obj4 + obj5;
 
@@ -791,10 +791,10 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tDObjectiveDCriteria( 0 ) = tStrainEnergyPen * 1.0 / tInitialStrainEnergy;
         tDObjectiveDCriteria( 1 ) = tStrainEnergyPen * 1.0 / tInitialStrainEnergy;
         tDObjectiveDCriteria( 2 ) = 1.0;
-        tDObjectiveDCriteria( 3 ) = tPerimeterPenatly / tInitialPerimeter;
-        tDObjectiveDCriteria( 4 ) = tRegularizationPenatly / tInitialRegularization;
-        // tDObjectiveDCriteria( 4 ) = tRegularizationPenatly / tInitialRegularization;
-        // tDObjectiveDCriteria( 5 ) = tRegularizationPenatly* 1.0;
+        tDObjectiveDCriteria( 3 ) = tPerimeterPenalty / tInitialPerimeter;
+        tDObjectiveDCriteria( 4 ) = tRegularizationPenalty / tInitialRegularization;
+        // tDObjectiveDCriteria( 4 ) = tRegularizationPenalty / tInitialRegularization;
+        // tDObjectiveDCriteria( 5 ) = tRegularizationPenalty* 1.0;
 
         return tDObjectiveDCriteria;
     }
@@ -995,7 +995,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         if ( tIsOpt )
         {
             tParameterlist( 1 )( tGeoCounter ).set( "discretization_mesh_index", 1 );
-            tParameterlist( 1 )( tGeoCounter ).set( "discretization_lower_bound", tBsplineLimitButtom );
+            tParameterlist( 1 )( tGeoCounter ).set( "discretization_lower_bound", tBsplineLimitBottom );
             tParameterlist( 1 )( tGeoCounter ).set( "discretization_upper_bound", tBsplineLimitTop );
         }
         tGeoCounter++;
@@ -1464,7 +1464,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterList( 3 )( tIWGCounter ).set( "master_properties", "PropDirichletU,Dirichlet;PropSelect,Select" );
         tParameterList( 3 )( tIWGCounter ).set( "master_constitutive_models", "CMStrucLinIsoFrame,ElastLinIso" );
         tParameterList( 3 )( tIWGCounter ).set( "stabilization_parameters", "SPNitscheDirichletBC,DirichletNitsche" );
-        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tDirchletSets );
+        tParameterList( 3 )( tIWGCounter ).set( "mesh_set_names", tDirichletSets );
         tIWGCounter++;
 
         tParameterList( 3 ).push_back( prm::create_IWG_parameter_list() );

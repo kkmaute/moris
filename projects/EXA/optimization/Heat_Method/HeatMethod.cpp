@@ -61,7 +61,7 @@ namespace moris
     bool tIs3D = gDim == 3;
 
     // turn on/off use of absolute value of level set function
-    bool tUseAbsoulteValue = true;
+    bool tUseAbsoluteValue = true;
 
     // interpolation order
     std::string tInterpolationOrder = std::to_string( gInterpolationOrder );
@@ -217,7 +217,7 @@ namespace moris
 
         // return PDV derivative of absolute value of level set function
         real factor = 1.0;
-        if ( tUseAbsoulteValue )
+        if ( tUseAbsoluteValue )
         {
             factor = value > 0.0 ? 1.0 : -1.0;
         }
@@ -240,7 +240,7 @@ namespace moris
 
         // return PDV derivative of absolute value of level set function
         real factor = 1.0;
-        if ( tUseAbsoulteValue )
+        if ( tUseAbsoluteValue )
         {
             factor = value > 0.0 ? 1.0 : -1.0;
         }
@@ -262,7 +262,7 @@ namespace moris
 
         // return spatial derivative of absolute value of level set function
         real factor = 1.0;
-        if ( tUseAbsoulteValue )
+        if ( tUseAbsoluteValue )
         {
             factor = value > 0.0 ? 1.0 : -1.0;
         }
@@ -284,7 +284,7 @@ namespace moris
 
         // return PDV derivative of spatial derivative of absolute value of level set function
         real factor = 1.0;
-        if ( tUseAbsoulteValue )
+        if ( tUseAbsoluteValue )
         {
             factor = value > 0.0 ? 1.0 : -1.0;
         }

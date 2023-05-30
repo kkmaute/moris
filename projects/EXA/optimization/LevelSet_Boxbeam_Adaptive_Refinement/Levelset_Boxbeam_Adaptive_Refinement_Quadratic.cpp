@@ -84,7 +84,7 @@ namespace moris
     // optimization parameters
     real tInitialStrainEnergy = tIs3D ? 1.49721 + 1.47892 : 4.306294e+00 + 4.817279e+00;
     real tInitialPerimeter    = tIs3D ? 27.3111 : 41.5976;
-    real tPerimeterPenatly    = 0.2;
+    real tPerimeterPenalty    = 0.2;
 
     real tMaxMass = tIs3D ? 1.5 : 1.0;
 
@@ -287,7 +287,7 @@ namespace moris
 
         real obj1 = aCriteria( 0 ) / tInitialStrainEnergy;
         real obj2 = aCriteria( 1 ) / tInitialStrainEnergy;
-        real obj3 = tPerimeterPenatly * aCriteria( 3 ) / tInitialPerimeter;
+        real obj3 = tPerimeterPenalty * aCriteria( 3 ) / tInitialPerimeter;
 
         tObjectives( 0, 0 ) = obj1 + obj2 + obj3;
 
@@ -342,7 +342,7 @@ namespace moris
 
         tDObjectiveDCriteria( 0 ) = 1.0 / tInitialStrainEnergy;
         tDObjectiveDCriteria( 1 ) = 1.0 / tInitialStrainEnergy;
-        tDObjectiveDCriteria( 3 ) = tPerimeterPenatly / tInitialPerimeter;
+        tDObjectiveDCriteria( 3 ) = tPerimeterPenalty / tInitialPerimeter;
 
         return tDObjectiveDCriteria;
     }
