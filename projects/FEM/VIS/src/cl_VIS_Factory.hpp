@@ -160,11 +160,27 @@ namespace moris
             //-----------------------------------------------------------------------------------------------------------
 
             /**
-             * @brief Generated the vertices on the VIS mesh
+             * @brief Generate the vertices on the VIS mesh
              *
              */
             void
             create_visualization_vertices();
+
+            //-----------------------------------------------------------------------------------------------------------
+            
+            /**
+             * @brief Generate the vertices assuming continuous fields within blocks
+             */
+            void
+            create_visualization_vertices_standard();
+
+            //-----------------------------------------------------------------------------------------------------------
+            
+            /**
+             * @brief Generate the vertices such that fields discontinuous between clusters can be computed
+             */
+            void
+            create_visualization_vertices_full_discontinuous();
 
             //-----------------------------------------------------------------------------------------------------------
 

@@ -514,15 +514,19 @@ namespace moris
                         break;
 
                     case vis::VIS_Mesh_Type::FULL_DISCONTINUOUS:
-                        MORIS_ERROR( false, "Output_Manager::create_visualization_mesh() - Mesh type FULL_DISCONTINUOUS not implemented yet. " );
+                        tOnlyPrimaryCells = true;
+                        break;
+
+                    case vis::VIS_Mesh_Type::FULL_DISCONTINUOUS_WITH_OVERLAP:
+                        tOnlyPrimaryCells = false;
                         break;
 
                     default:
-                        MORIS_ERROR( false, "Output_Manager::create_visualization_mesh() - Mesh type not specified. " );
+                        MORIS_ERROR( false, "Output_Manager::create_visualization_mesh() - Mesh type not specified or unknown." );
                         break;
                 }
 
-                // TODO: handle side sets below here skip for now
+                // TODO: handle side sets below here, skip for now
                 if ( tSet->get_set_type() != SetType::BULK )
                 {
                     continue;
