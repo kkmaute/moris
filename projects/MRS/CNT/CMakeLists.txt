@@ -12,7 +12,7 @@
 add_subdirectory(src)
 
 # Add test directory
-if(MORIS_USE_TESTS AND BUILD_CON)
+if(MORIS_USE_TESTS AND BUILD_CNT)
     add_subdirectory(test)
 endif()
 

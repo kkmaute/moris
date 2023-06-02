@@ -10,7 +10,7 @@
 
 #ifndef SRC_FEM_CL_FEM_IWG_HPP_
 #define SRC_FEM_CL_FEM_IWG_HPP_
-// MRS/CON/src
+// MRS/CNT/src
 #include "cl_Cell.hpp"
 // LNA/src
 #include "cl_Matrix.hpp"

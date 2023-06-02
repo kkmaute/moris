@@ -199,7 +199,7 @@ endif()
 # Linear Algebra Library
 set(LIB_DEPENDENCIES
 	${ASR}-lib
-	${CON}-lib
+	${CNT}-lib
 	)
 
 add_library(${LINALG}-lib INTERFACE)

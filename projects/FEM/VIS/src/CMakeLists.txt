@@ -36,7 +36,7 @@ set(LIB_SOURCES
 set(LIB_DEPENDENCIES
     ${LINALG}-lib
     ${COM}-lib
-    ${CON}-lib
+    ${CNT}-lib
     ${HMR}-lib
     ${MTK}-lib
     ${ENM}-lib

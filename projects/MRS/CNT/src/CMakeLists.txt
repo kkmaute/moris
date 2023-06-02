@@ -32,22 +32,22 @@ set(LIB_SOURCES
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Containers Library
 
-#add_library(${CON}-lib INTERFACE)
-add_library(${CON}-lib STATIC ${LIB_SOURCES})
-target_include_directories(${CON}-lib INTERFACE
+#add_library(${CNT}-lib INTERFACE)
+add_library(${CNT}-lib STATIC ${LIB_SOURCES})
+target_include_directories(${CNT}-lib INTERFACE
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
-	$<INSTALL_INTERFACE:${${CON}_HEADER_INSTALL_DIR}> )
+	$<INSTALL_INTERFACE:${${CNT}_HEADER_INSTALL_DIR}> )
 
-foreach(TPL ${CON_TPL_DEPENDENCIES})
+foreach(TPL ${CNT_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
-    target_link_libraries(${CON}-lib
+    target_link_libraries(${CNT}-lib
     	INTERFACE ${MORIS}::${tpl})
     
     string(TOUPPER ${TPL} TPL)
-    target_include_directories(${CON}-lib 
+    target_include_directories(${CNT}-lib 
     	INTERFACE ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    target_compile_definitions(${CON}-lib
+    target_compile_definitions(${CNT}-lib
     	INTERFACE ${MORIS_${TPL}_DEFINITIONS})
 endforeach()
 
@@ -58,9 +58,9 @@ endforeach()
 # Containers Config Files
 
 # Makes sure all tpl dependencies are searched for in the config file
-foreach(TPL ${CON_TPL_DEPENDENCIES})
+foreach(TPL ${CNT_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
-	list(APPEND CON_CONFIG_TPL_DEPENDENCIES
+	list(APPEND CNT_CONFIG_TPL_DEPENDENCIES
 		"include(\"\${PACKAGE_PREFIX_DIR}/${CONFIG_INSTALL_DIR}/find_wrappers/${tpl}_new.cmake\")\n" )
 endforeach()
 
@@ -68,36 +68,36 @@ endforeach()
 include(CMakePackageConfigHelpers)
 
 configure_package_config_file(
-    ${CON}Config.cmake.in
-    ${${CON}_CONFIG_BUILD_DIR}/${CON}Config.cmake
+    ${CNT}Config.cmake.in
+    ${${CNT}_CONFIG_BUILD_DIR}/${CNT}Config.cmake
     INSTALL_DESTINATION 
-    ${${CON}_CONFIG_INSTALL_DIR}
+    ${${CNT}_CONFIG_INSTALL_DIR}
     PATH_VARS 
-    ${CON}_CONFIG_INSTALL_DIR
+    ${CNT}_CONFIG_INSTALL_DIR
     )
 
 write_basic_package_version_file(
-    ${${CON}_CONFIG_BUILD_DIR}/${CON}ConfigVersion.cmake
+    ${${CNT}_CONFIG_BUILD_DIR}/${CNT}ConfigVersion.cmake
     COMPATIBILITY AnyNewerVersion )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Containers Installation
 
 # Install *Config and *ConfigVersion files
-install(FILES ${${CON}_CONFIG_BUILD_DIR}/${CON}Config.cmake 
-    ${${CON}_CONFIG_BUILD_DIR}/${CON}ConfigVersion.cmake
-    DESTINATION ${${CON}_CONFIG_INSTALL_DIR} )
+install(FILES ${${CNT}_CONFIG_BUILD_DIR}/${CNT}Config.cmake 
+    ${${CNT}_CONFIG_BUILD_DIR}/${CNT}ConfigVersion.cmake
+    DESTINATION ${${CNT}_CONFIG_INSTALL_DIR} )
 
 # Install header files
 install(FILES ${HEADERS}
-    DESTINATION ${${CON}_HEADER_INSTALL_DIR} )
+    DESTINATION ${${CNT}_HEADER_INSTALL_DIR} )
 
 # Install library
-install(TARGETS ${CON}-lib
-    DESTINATION ${${CON}_LIB_INSTALL_DIR}
-    EXPORT ${CON}Targets )
+install(TARGETS ${CNT}-lib
+    DESTINATION ${${CNT}_LIB_INSTALL_DIR}
+    EXPORT ${CNT}Targets )
 
 # Export library in to *Targets file
-install(EXPORT ${CON}Targets
-    DESTINATION ${${CON}_CONFIG_INSTALL_DIR} )
+install(EXPORT ${CNT}Targets
+    DESTINATION ${${CNT}_CONFIG_INSTALL_DIR} )
 

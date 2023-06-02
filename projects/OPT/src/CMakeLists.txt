@@ -49,7 +49,7 @@ set(LIB_SOURCES
 
 # List library dependencies
 set(LIB_DEPENDENCIES
-    ${CON}-lib
+    ${CNT}-lib
     ${LINALG}-lib
     ${COM}-lib
     ${MORIS_BASE_LIBS}

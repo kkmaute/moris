@@ -13,7 +13,7 @@
 
 #include "HMR_Globals.hpp" //HMR/src
 #include "typedefs.hpp"
-#include "cl_Bitset.hpp" //CON/src
+#include "cl_Bitset.hpp" //CNT/src
 
 namespace moris
 {

@@ -15,7 +15,7 @@ MORIS = -I$(MORISROOT)/projects \
 	-I$(MORISROOT)/include \
 	-I$(MORISROOT)/projects/MRS/ASR/src \
 	-I$(MORISROOT)/projects/MRS/CHR/src \
-	-I$(MORISROOT)/projects/MRS/CON/src \
+	-I$(MORISROOT)/projects/MRS/CNT/src \
 	-I$(MORISROOT)/projects/MRS/COR/src \
 	-I$(MORISROOT)/projects/MRS/EXC/src \
 	-I$(MORISROOT)/projects/MRS/IOS/src \

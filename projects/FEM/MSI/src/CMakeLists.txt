@@ -47,7 +47,7 @@ set(LIB_SOURCES
 set(LIB_DEPENDENCIES
     ${LINALG}-lib
     ${COM}-lib
-    ${CON}-lib
+    ${CNT}-lib
     ${DLA}-lib
     ${PRM}-lib
     ${ENM}-lib

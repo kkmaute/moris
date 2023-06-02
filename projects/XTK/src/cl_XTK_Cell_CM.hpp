@@ -13,7 +13,7 @@
 
 #include "cl_MTK_Cell.hpp"
 #include "typedefs.hpp"    //MRS/COR/src
-#include "cl_Cell.hpp"     //MRS/CON/src
+#include "cl_Cell.hpp"     //MRS/CNT/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Vertex.hpp"    //MTK/src

@@ -130,7 +130,7 @@ set(LIB_SOURCES
 # List library dependencies
 set(LIB_DEPENDENCIES
     ${LINALG}-lib
-    ${CON}-lib
+    ${CNT}-lib
     ${IOS}-lib
     ${ALG}-lib
     ${MTK}-lib
@@ -176,7 +176,7 @@ set(EXE_SOURCES
 # List executable dependencies
 set(EXE_DEPENDENCIES
     ${LINALG}-lib
-    ${CON}-lib
+    ${CNT}-lib
     ${IOS}-lib
     ${HMR}-lib
     ${MTK}-lib

@@ -54,7 +54,7 @@ set(ALG "ALG")
 set(ASR "ASR")
 set(CHR "CHR")
 set(COM "COM")
-set(CON "CON")
+set(CNT "CNT")
 set(COR "COR")
 set(DLA "DLA")
 set(EXA "EXA")
@@ -259,7 +259,7 @@ option(BUILD_CHR "Build the chronos executable." OFF)
 
 option(BUILD_COM "Build the communication executable." OFF)
 
-option(BUILD_CON "Build the containers executable." OFF)
+option(BUILD_CNT "Build the containers executable." OFF)
 
 option(BUILD_DLA "Build the distributed linear algebra executable." OFF)
 

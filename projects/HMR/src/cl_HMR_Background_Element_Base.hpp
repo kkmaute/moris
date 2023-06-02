@@ -15,8 +15,8 @@
 
 #include "HMR_Globals.hpp"        //HMR/src
 #include "typedefs.hpp"           //COR/src
-#include "cl_Cell.hpp"            //CON/src
-#include "cl_Bitset.hpp"          //CON/src
+#include "cl_Cell.hpp"            //CNT/src
+#include "cl_Bitset.hpp"          //CNT/src
 #include "cl_Matrix.hpp"          //LINALG/src
 #include "linalg_typedefs.hpp"    //LINALG/src
 

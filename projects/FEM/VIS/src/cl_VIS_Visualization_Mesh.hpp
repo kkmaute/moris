@@ -11,7 +11,7 @@
 #ifndef PROJECTS_MTK_SRC_CL_VIS_VISUALIZATION_MESH_HPP_
 #define PROJECTS_MTK_SRC_CL_VIS_VISUALIZATION_MESH_HPP_
 
-#include "../../../MRS/CON/src/cl_Cell.hpp"
+#include "../../../MRS/CNT/src/cl_Cell.hpp"
 #include "../../../MTK/src/cl_MTK_Cell.hpp"
 #include "../../../MTK/src/cl_MTK_Integration_Mesh.hpp"
 #include "../../../MTK/src/cl_MTK_Mesh_Manager.hpp"    //MTK/src

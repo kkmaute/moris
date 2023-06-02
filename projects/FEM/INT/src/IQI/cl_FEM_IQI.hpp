@@ -12,7 +12,7 @@
 #define SRC_FEM_CL_FEM_IQI_HPP_
 
 #include "typedefs.hpp"     //MRS/COR/src
-#include "cl_Cell.hpp"      //MRS/CON/src
+#include "cl_Cell.hpp"      //MRS/CNT/src
 #include "cl_Matrix.hpp"    //LNA/src
 // MRS/COR/src           // note: linalg_typedefs.hpp must be included AFTER the cl_Matrix.hpp
 #include "linalg_typedefs.hpp"

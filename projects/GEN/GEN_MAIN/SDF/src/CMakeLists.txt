@@ -42,7 +42,7 @@ set(LIB_SOURCES
 set(LIB_DEPENDENCIES
 	${LINALG}-lib
 	${COM}-lib
-	${CON}-lib
+	${CNT}-lib
 	${MTK}-lib
     )
 

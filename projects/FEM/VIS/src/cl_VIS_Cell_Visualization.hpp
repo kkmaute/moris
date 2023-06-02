@@ -13,8 +13,8 @@
 
 #include "typedefs.hpp"    //MRS/COR/src
 #include "cl_Logger.hpp"
-#include "cl_Cell.hpp"        //MRS/CON/src
-#include "cl_MTK_Cell.hpp"    //MRS/CON/src
+#include "cl_Cell.hpp"        //MRS/CNT/src
+#include "cl_MTK_Cell.hpp"    //MRS/CNT/src
 #include "fn_cross.hpp"
 #include "fn_norm.hpp"
 #include "fn_trans.hpp"

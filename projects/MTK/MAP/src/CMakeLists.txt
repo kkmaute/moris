@@ -28,7 +28,7 @@ set( LIB_SOURCES
 # List library dependencies
 set(LIB_DEPENDENCIES
 	${LINALG}-lib
-	${CON}-lib
+	${CNT}-lib
     ${MTK}-lib
     ${NLA}-lib
     ${INT}-lib

@@ -7,11 +7,11 @@
 
 ### Containers Library Config File ###
 
-if(@CON@_CONFIGURED)
+if(@CNT@_CONFIGURED)
 	return()
 endif()
 
-set(@CON@_CONFIGURED TRUE)
+set(@CNT@_CONFIGURED TRUE)
 
 # CMake configuration
 @PACKAGE_INIT@
@@ -25,20 +25,20 @@ include(${PACKAGE_PREFIX_DIR}/share/utilities/moris_macros.cmake)
 include(CMakeFindDependencyMacro)
 
 # Compilers and used in build
-set(@CON@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
-set(@CON@_C_COMPLIER "@MORIS_C_COMPLIER@")
+set(@CNT@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@CNT@_C_COMPLIER "@MORIS_C_COMPLIER@")
 
 # Flags used in build
-set(@CON@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@CON_COMPILE_DEFINITIONS@")
-set(@CON@_C_FLAGS "@MORIS_C_FLAGS@" "@CON_COMPILE_DEFINITIONS@")
+set(@CNT@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@CNT_COMPILE_DEFINITIONS@")
+set(@CNT@_C_FLAGS "@MORIS_C_FLAGS@" "@CNT_COMPILE_DEFINITIONS@")
 
 # Find dependencies
-@CON_CONFIG_TPL_DEPENDENCIES@
-@CON_CONFIG_MORIS_DEPENDENCIES@
+@CNT_CONFIG_TPL_DEPENDENCIES@
+@CNT_CONFIG_MORIS_DEPENDENCIES@
 
 # Create library target
-include("@PACKAGE_CON_CONFIG_INSTALL_DIR@/@CON@Targets.cmake")
+include("@PACKAGE_CNT_CONFIG_INSTALL_DIR@/@CNT@Targets.cmake")
 
 # Library target list
-set(@CON@_LIBRARIES @CON@-lib)
-set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@CON@-lib")
+set(@CNT@_LIBRARIES @CNT@-lib)
+set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@CNT@-lib")

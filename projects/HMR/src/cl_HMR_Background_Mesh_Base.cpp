@@ -16,8 +16,8 @@
 #include "HMR_Globals.hpp" //HMR/src
 #include "HMR_Tools.hpp" //HMR/src
 #include "cl_Stopwatch.hpp" //CHR/src
-#include "cl_Cell.hpp" //CON/src
-#include "cl_Bitset.hpp" //CON/src
+#include "cl_Cell.hpp" //CNT/src
+#include "cl_Bitset.hpp" //CNT/src
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"

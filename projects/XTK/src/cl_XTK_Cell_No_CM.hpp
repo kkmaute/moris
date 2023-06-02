@@ -12,7 +12,7 @@
 
 #include "cl_MTK_Cell.hpp"
 #include "typedefs.hpp"         //MRS/COR/src
-#include "cl_Cell.hpp"          //MRS/CON/src
+#include "cl_Cell.hpp"          //MRS/CNT/src
 #include "cl_MTK_Vertex.hpp"    //MTK/src
 #include "cl_MTK_Enums.hpp"     //MTK/src
 #include "cl_MTK_Cell_Info.hpp"

@@ -12,7 +12,7 @@
 #define SRC_MESH_CL_MTK_VERTEX_HPP_
 
 #include "typedefs.hpp"    //MRS/COR/src
-#include "cl_Cell.hpp"     //MRS/CON/src
+#include "cl_Cell.hpp"     //MRS/CNT/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "fn_assert.hpp"

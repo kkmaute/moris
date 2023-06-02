@@ -16,8 +16,8 @@
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
-#include "cl_Cell.hpp" //CON/src
-#include "cl_HMR_T_Matrix.hpp" //CON/src
+#include "cl_Cell.hpp" //CNT/src
+#include "cl_HMR_T_Matrix.hpp" //CNT/src
 
 namespace moris
 {

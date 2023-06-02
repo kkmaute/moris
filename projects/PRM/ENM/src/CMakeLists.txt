@@ -34,7 +34,7 @@ set(LIB_SOURCES
 # List library dependencies
 set(LIB_DEPENDENCIES
     ${ASR}-lib
-    ${CON}-lib 
+    ${CNT}-lib 
     )
 
 # Set the output path for library

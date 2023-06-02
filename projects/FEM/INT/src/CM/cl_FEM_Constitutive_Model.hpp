@@ -14,7 +14,7 @@
 // MRS/COR/src
 #include "typedefs.hpp"
 //#include "linalg_typedefs.hpp"
-// MRS/CON/src
+// MRS/CNT/src
 #include "cl_Cell.hpp"
 // LNA/src
 #include "cl_Matrix.hpp"

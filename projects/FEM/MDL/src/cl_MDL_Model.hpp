@@ -12,9 +12,9 @@
 #define PROJECTS_FEM_MDL_SRC_CL_MDL_MODEL_HPP_
 
 #include "typedefs.hpp"                       //MRS/COR/src
-#include "cl_Cell.hpp"                        //MRS/CON/src
+#include "cl_Cell.hpp"                        //MRS/CNT/src
 
-#include "cl_Map.hpp"                        //MRS/CON/src
+#include "cl_Map.hpp"                        //MRS/CNT/src
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"

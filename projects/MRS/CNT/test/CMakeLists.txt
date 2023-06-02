@@ -22,7 +22,7 @@ set(TEST_SOURCES
 # List test dependencies
 set(TEST_DEPENDENCIES
 	test-libs
-	${CON}-lib
+	${CNT}-lib
     ${COM}-lib
     ${ALG}-lib
     ${MORIS_BASE_LIBS})
@@ -31,20 +31,20 @@ set(TEST_DEPENDENCIES
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})
 
 # Set test name
-set(CON_TEST ${CON}-test)
+set(CNT_TEST ${CNT}-test)
 
 # Create executable
-add_executable(${CON_TEST} ${TEST_SOURCES})
-target_link_libraries(${CON_TEST} PUBLIC ${TEST_DEPENDENCIES})
-set_target_properties(${CON_TEST} PROPERTIES OUTPUT_NAME ${CON_TEST}${EXE_EXT})
+add_executable(${CNT_TEST} ${TEST_SOURCES})
+target_link_libraries(${CNT_TEST} PUBLIC ${TEST_DEPENDENCIES})
+set_target_properties(${CNT_TEST} PROPERTIES OUTPUT_NAME ${CNT_TEST}${EXE_EXT})
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
-	set(CON_TEST_PROCS ${MORIS_TEST_PROCS})
-	foreach(PROCS ${CON_TEST_PROCS})
-		set(CON_PARALLEL_TEST ${CON_TEST}-${PROCS}-procs)
-		add_test(NAME ${CON_PARALLEL_TEST} 
-			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${CON_TEST}>)
+	set(CNT_TEST_PROCS ${MORIS_TEST_PROCS})
+	foreach(PROCS ${CNT_TEST_PROCS})
+		set(CNT_PARALLEL_TEST ${CNT_TEST}-${PROCS}-procs)
+		add_test(NAME ${CNT_PARALLEL_TEST} 
+			COMMAND ${MORIS_EXECUTE_COMMAND} -n ${PROCS} ${VALGRIND} ${VALGRIND_OPTIONS} $<TARGET_FILE:${CNT_TEST}>)
 	endforeach()
 endif()
 

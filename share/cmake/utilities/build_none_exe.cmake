@@ -16,7 +16,7 @@ set(BUILD_CHR OFF CACHE BOOL "Build the chronos executable." FORCE)
 
 set(BUILD_COM OFF CACHE BOOL "Build the communication executable." FORCE)
 
-set(BUILD_CON OFF CACHE BOOL "Build the containers executable." FORCE)
+set(BUILD_CNT OFF CACHE BOOL "Build the containers executable." FORCE)
 
 set(BUILD_DLA OFF CACHE BOOL "Build the distributed linear algebra executable." FORCE)
 

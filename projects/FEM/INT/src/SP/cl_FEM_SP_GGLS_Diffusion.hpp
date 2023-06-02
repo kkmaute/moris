@@ -12,7 +12,7 @@
 #define SRC_FEM_CL_FEM_SP_GGLS_DIFFUSION_HPP_
 
 #include <map>
-//MRS/CON/src
+//MRS/CNT/src
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
 //LINALG/src

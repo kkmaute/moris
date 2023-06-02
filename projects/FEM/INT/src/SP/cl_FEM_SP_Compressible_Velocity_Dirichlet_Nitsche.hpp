@@ -12,7 +12,7 @@
 #define SRC_FEM_CL_FEM_SP_COMPRESSIBLE_VELOCITY_DIRICHLET_NITSCHE_HPP_
 
 #include <map>
-//MRS/CON/src
+//MRS/CNT/src
 #include "typedefs.hpp"
 #include "cl_Cell.hpp"
 //LINALG/src
