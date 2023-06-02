@@ -203,7 +203,7 @@ option(MORIS_HAVE_PETSC
     "Build MORIS with support for PETSC." ON )
 
 option(MORIS_HAVE_SLEPC
-    "Build MORIS with support for SLEPC." ON )
+    "Build MORIS with support for SLEPC." OFF )
 
 option(MORIS_HAVE_GCMMA
     "Build MORIS with support for GCMMA." ON )
