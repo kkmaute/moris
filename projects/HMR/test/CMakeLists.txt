@@ -11,19 +11,19 @@
 # List source files
 set(TEST_SOURCES
     main.cpp
-    cl_HMR_Background_Mesh.cpp
-    cl_HMR_Background_Mesh_Private.cpp
-    cl_HMR_BSpline_Mesh.cpp
-    cl_HMR_BSpline_Mesh_Private.cpp
-    cl_HMR_Lagrange_Mesh.cpp
-    cl_HMR_Node_Sharing.cpp
-    cl_HMR_T_Matrix_Private.cpp
-    cl_HMR_SideSets.cpp
-    cl_HMR_L2.cpp
-    cl_HMR_Integration_Mesh.cpp
-    cl_HMR_Lagrange_Elements.cpp
-    UT_HMR_IO.cpp
-    UT_HMR_User_Defined_Refinement.cpp )
+    ut_HMR_Background_Mesh.cpp
+    ut_HMR_Background_Mesh_Private.cpp
+    ut_HMR_BSpline_Mesh.cpp
+    ut_HMR_BSpline_Mesh_Private.cpp
+    ut_HMR_Lagrange_Mesh.cpp
+    ut_HMR_Node_Sharing.cpp
+    ut_HMR_T_Matrix_Private.cpp
+    ut_HMR_SideSets.cpp
+    ut_HMR_L2.cpp
+    ut_HMR_Integration_Mesh.cpp
+    ut_HMR_Lagrange_Elements.cpp
+    ut_HMR_IO.cpp
+    ut_HMR_User_Defined_Refinement.cpp)
 
 set(TEST_DEPENDENCIES
     test-libs
