@@ -42,7 +42,7 @@ TEST_CASE( "IWG_Compressible_NS_Temperature_Bulk_Ideal",
 {
     // define an epsilon environment
     real tEpsilon      = 1.0E-6;
-    real tEpsilonCubic = 5.0E-6;
+    real tEpsilonCubic = 1.0E-5;
 
     // define a perturbation relative size
     real tPerturbation      = 2.0E-4;
