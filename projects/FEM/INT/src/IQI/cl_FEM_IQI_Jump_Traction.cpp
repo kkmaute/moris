@@ -11,7 +11,7 @@
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_FEM_IQI_Jump_Traction.hpp"
-#include "fn_dot.hpp"
+#include "fn_norm.hpp"
 
 namespace moris
 {
@@ -28,7 +28,7 @@ namespace moris
             mFollowerCM.resize( static_cast< uint >( IQI_Constitutive_Type::MAX_ENUM ), nullptr );
 
             // populate the constitutive map
-            mConstitutiveMap[ "ElastLinIso" ] = static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO );
+            mConstitutiveMap[ "TractionCM" ] = (uint)IQI_Constitutive_Type::TRACTION_CM;
         }
 
         //------------------------------------------------------------------------------
@@ -36,26 +36,33 @@ namespace moris
         void
         IQI_Jump_Traction::compute_QI( Matrix< DDRMat >& aQI )
         {
-            // get the elasticity constitutive model
-            const std::shared_ptr< Constitutive_Model >& tCMLeaderElasticity =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) );
-            const std::shared_ptr< Constitutive_Model >& tCMFollowerElasticity =
-                    mFollowerCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) );
+            // get the constitutive model for computing the fluxes/tractions
+            const std::shared_ptr< Constitutive_Model >& tCMLeader =
+                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::TRACTION_CM ) );
+            const std::shared_ptr< Constitutive_Model >& tCMFollower =
+                    mFollowerCM( static_cast< uint >( IQI_Constitutive_Type::TRACTION_CM ) );
 
-            // evaluate average traction difference
-            const Matrix< DDRMat > tTractionJump =
-                    tCMLeaderElasticity->traction( mNormal ) - tCMFollowerElasticity->traction( - mNormal );
+            MORIS_ASSERT( mNormal.numel() > 0,
+                    "IQI_Jump_Traction::compute_QI() - "
+                    "Normal is not set. IQIs requiring a normal must be evaluated elementally "
+                    "and averaged such that there is a well-defined normal." );
+
+                    // evaluate traction difference
+                    const Matrix< DDRMat >
+                            tTractionJump =
+                    tCMLeader->traction( mNormal ) - tCMFollower->traction( -1.0 * mNormal );
 
             // based on the IQI index select the norm or the individual component
             if ( mIQITypeIndex == -1 )
             {
-                // compute norm if no index
-                aQI = dot( tTractionJump, tTractionJump );
+                // compute and return magnitude
+                real tNorm = norm( tTractionJump );
+                aQI        = { { tNorm } };
             }
             else
             {
                 // pick the component otherwise (0,1,2)
-                aQI = { tTractionJump( mIQITypeIndex ) * tTractionJump( mIQITypeIndex ) };
+                aQI = { tTractionJump( mIQITypeIndex ) };
             }
         }
 
@@ -67,32 +74,39 @@ namespace moris
             // get index for QI
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
-            // get the elasticity constitutive model
-            const std::shared_ptr< Constitutive_Model >& tCMLeaderElasticity =
-                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) );
-            const std::shared_ptr< Constitutive_Model >& tCMFollowerElasticity =
-                    mFollowerCM( static_cast< uint >( IQI_Constitutive_Type::ELAST_LIN_ISO ) );
+            // get the constitutive model for computing the fluxes/tractions
+            const std::shared_ptr< Constitutive_Model >& tCMLeader =
+                    mLeaderCM( static_cast< uint >( IQI_Constitutive_Type::TRACTION_CM ) );
+            const std::shared_ptr< Constitutive_Model >& tCMFollower =
+                    mFollowerCM( static_cast< uint >( IQI_Constitutive_Type::TRACTION_CM ) );
 
-            // evaluate average traction difference
-            const Matrix< DDRMat > tTractionJump =
-                    tCMLeaderElasticity->traction( mNormal ) - tCMFollowerElasticity->traction( mNormal );
+            MORIS_ASSERT( mNormal.numel() > 0,
+                    "IQI_Jump_Traction::compute_QI() - "
+                    "Normal is not set. IQIs requiring a normal must be evaluated elementally "
+                    "and averaged such that there is a well-defined normal." );
 
-            // initialize the matrix
+                    // evaluate traction difference
+                    const Matrix< DDRMat >
+                            tTractionJump =
+                    tCMLeader->traction( mNormal ) - tCMFollower->traction( -1.0 * mNormal );
+
+            // initialize the output matrix
             Matrix< DDRMat > tMat;
 
             // based on the IQI index select the norm or the individual component
             if ( mIQITypeIndex == -1 )
             {
-                // compute norm if no index
-                tMat = dot( tTractionJump, tTractionJump );
+                // compute and return magnitude
+                real tNorm = norm( tTractionJump );
+                tMat       = { { tNorm } };
             }
             else
             {
                 // pick the component otherwise (0,1,2)
-                tMat = { tTractionJump( mIQITypeIndex ) * tTractionJump( mIQITypeIndex ) };
+                tMat = { { tTractionJump( mIQITypeIndex ) } };
             }
 
-            //add the contribution
+            // add the contribution
             mSet->get_QI()( tQIIndex ) += aWStar * tMat;
         }
 
@@ -101,7 +115,7 @@ namespace moris
         void
         IQI_Jump_Traction::compute_dQIdu( real aWStar )
         {
-            MORIS_ERROR( false, "Not Implemented for psedudo error for double sided set " );
+            MORIS_ERROR( false, "Not Implemented for pseudo error for double sided set " );
         }
 
         //------------------------------------------------------------------------------
@@ -111,7 +125,7 @@ namespace moris
                 moris::Cell< MSI::Dof_Type >& aDofType,
                 Matrix< DDRMat >&             adQIdu )
         {
-            MORIS_ERROR( false, "Not Implemented for psedudo error for double sided set " );
+            MORIS_ERROR( false, "Not Implemented for pseudo error for double sided set " );
         }
 
         //------------------------------------------------------------------------------

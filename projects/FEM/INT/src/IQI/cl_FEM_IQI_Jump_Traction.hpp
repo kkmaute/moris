@@ -29,7 +29,7 @@ namespace moris
         {
             enum class IQI_Constitutive_Type
             {
-                ELAST_LIN_ISO,
+                TRACTION_CM,
                 MAX_ENUM
             };
 
@@ -84,7 +84,11 @@ namespace moris
                     Matrix< DDRMat >&             adQIdu );
 
             //------------------------------------------------------------------------------
-        };
+
+        };    // class IQI_Jump_Traction
+
+        //------------------------------------------------------------------------------
+
     } /* end namespace fem */
 } /* end namespace moris */
 
