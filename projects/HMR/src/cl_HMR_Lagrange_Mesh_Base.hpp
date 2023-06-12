@@ -124,8 +124,8 @@ namespace moris
                 Lagrange_Mesh_Base ( const Parameters * aParameters,
                         Background_Mesh_Base          * aBackgroundMesh,
                         Cell< BSpline_Mesh_Base *  >  & aBSplineMeshes,
-                        const uint                    & aOrder,
-                        const uint                    & aActivationPattern );
+                        uint aOrder,
+                        uint aActivationPattern );
 
                 // ----------------------------------------------------------------------------
 
@@ -169,49 +169,49 @@ namespace moris
 
                 // ----------------------------------------------------------------------------
 
-                Matrix< DDRMat > & get_real_scalar_field_data( const uint & aFieldIndex )
+                Matrix< DDRMat > & get_real_scalar_field_data( uint aFieldIndex )
                 {
                     return mRealScalarFieldData( aFieldIndex );
                 }
 
                 // ----------------------------------------------------------------------------
 
-                const Matrix< DDRMat > & get_real_scalar_field_data( const uint & aFieldIndex ) const
+                const Matrix< DDRMat > & get_real_scalar_field_data( uint aFieldIndex ) const
                 {
                     return mRealScalarFieldData( aFieldIndex );
                 }
 
                 // ----------------------------------------------------------------------------
 
-                EntityRank get_real_scalar_field_rank( const uint & aFieldIndex ) const
+                EntityRank get_real_scalar_field_rank( uint aFieldIndex ) const
                 {
                     return mRealScalarFieldRanks( aFieldIndex );
                 }
 
                 // ----------------------------------------------------------------------------
 
-                Matrix< DDRMat > & get_real_scalar_field_coeffs( const uint & aFieldIndex )
+                Matrix< DDRMat > & get_real_scalar_field_coeffs( uint aFieldIndex )
                 {
                     return mRealScalarFieldBSplineCoeffs( aFieldIndex );
                 }
 
                 // ----------------------------------------------------------------------------
 
-                const Matrix< DDRMat > & get_real_scalar_field_coeffs( const uint & aFieldIndex ) const
+                const Matrix< DDRMat > & get_real_scalar_field_coeffs( uint aFieldIndex ) const
                 {
                     return mRealScalarFieldBSplineCoeffs( aFieldIndex );
                 }
 
                 // ----------------------------------------------------------------------------
 
-                const std::string & get_real_scalar_field_label( const uint & aFieldIndex  ) const
+                const std::string & get_real_scalar_field_label( uint aFieldIndex  ) const
                 {
                     return mRealScalarFieldLabels( aFieldIndex );
                 }
 
                 // ----------------------------------------------------------------------------
 
-                void set_real_scalar_field_label( const uint        & aFieldIndex,
+                void set_real_scalar_field_label( uint aFieldIndex,
                         const std::string & aLabel )
                 {
                     mRealScalarFieldLabels( aFieldIndex ) = aLabel;
@@ -219,15 +219,15 @@ namespace moris
 
                 // ----------------------------------------------------------------------------
 
-                uint get_real_scalar_field_bspline_order( const uint & aFieldIndex ) const
+                uint get_real_scalar_field_bspline_order( uint aFieldIndex ) const
                 {
                     return mRealScalarFieldBSplineOrders( aFieldIndex );
                 }
 
                 // ----------------------------------------------------------------------------
 
-                void set_real_scalar_field_bspline_order( const uint & aFieldIndex,
-                        const uint & aOrder )
+                void set_real_scalar_field_bspline_order( uint aFieldIndex,
+                        uint aOrder )
                 {
                     mRealScalarFieldBSplineOrders( aFieldIndex ) = aOrder;
                 }
@@ -291,7 +291,7 @@ namespace moris
                 /**
                  * returns a node pointer
                  */
-                Basis * get_node_by_index( const uint & aIndex )
+                Basis * get_node_by_index( uint aIndex )
                 {
                     MORIS_ASSERT( aIndex < mNodes.size(), "Requested node %-5i does not exist", aIndex );
                     return mNodes( aIndex );
@@ -302,7 +302,7 @@ namespace moris
                 /**
                  * returns a node pointer ( const version )
                  */
-                const Basis * get_node_by_index( const uint & aIndex ) const
+                const Basis * get_node_by_index( uint aIndex ) const
                 {
                     MORIS_ASSERT( aIndex < mNodes.size(), "Requested node %-5i does not exist", aIndex );
                     return mNodes( aIndex );
@@ -313,7 +313,7 @@ namespace moris
                 /**
                  * returns a node pointer
                  */
-                Basis * get_node_by_index_including_aura( const uint & aIndex )
+                Basis * get_node_by_index_including_aura( uint aIndex )
                 {
                     MORIS_ASSERT( aIndex < mAllBasisOnProc.size(), "Requested node %-5i does not exist", aIndex );
                     return mAllBasisOnProc( aIndex );
@@ -324,7 +324,7 @@ namespace moris
                 /**
                  * returns a node pointer ( const version )
                  */
-                const Basis * get_node_by_index_including_aura( const uint & aIndex ) const
+                const Basis * get_node_by_index_including_aura( uint aIndex ) const
                 {
                     MORIS_ASSERT( aIndex < mAllBasisOnProc.size(), "Requested node %-5i does not exist", aIndex );
                     return mAllBasisOnProc( aIndex );
@@ -419,7 +419,7 @@ namespace moris
                 /**
                  * returns the number of active basis for the linked B-Spline mesh
                  */
-                luint get_number_of_bsplines_on_proc( const uint & aMeshIndex ) const                       //FIXME
+                luint get_number_of_bsplines_on_proc( uint aMeshIndex ) const                       //FIXME
                 {
                     // check that the requested BSpline-Mesh exists
                     if ( mBSplineMeshes( aMeshIndex ) == nullptr )
@@ -436,7 +436,7 @@ namespace moris
                 // ----------------------------------------------------------------------------
 
                 Basis * get_bspline( const uint aMeshIndex,
-                        const uint & aBasisIndex )                      //FIXME
+                        uint aBasisIndex )                      //FIXME
                 {
                     // check that the requested BSpline-Mesh exists
                     MORIS_ASSERT( mBSplineMeshes( aMeshIndex ) != nullptr,
@@ -470,28 +470,28 @@ namespace moris
 
                 // ----------------------------------------------------------------------------
 
-                Facet * get_facet( const uint & aIndex )
+                Facet * get_facet( uint aIndex )
                 {
                     return mFacets( aIndex );
                 }
 
                 // ----------------------------------------------------------------------------
 
-                const Facet * get_facet( const uint & aIndex ) const
+                const Facet * get_facet( uint aIndex ) const
                 {
                     return mFacets( aIndex );
                 }
 
                 // ----------------------------------------------------------------------------
 
-                Edge * get_edge( const uint & aIndex )
+                Edge * get_edge( uint aIndex )
                 {
                     return mEdges( aIndex );
                 }
 
                 // ----------------------------------------------------------------------------
 
-                const Edge * get_edge( const uint & aIndex ) const
+                const Edge * get_edge( uint aIndex ) const
                 {
                     return mEdges( aIndex );
                 }
@@ -1048,7 +1048,7 @@ namespace moris
                  * @return Element *
                  */
                 Element * get_child(       Element * aElement,
-                        const uint    & aChildIndex );
+                        uint aChildIndex );
 
                 // ----------------------------------------------------------------------------
 
@@ -1155,8 +1155,8 @@ namespace moris
                  *
                  * @return uint          domain wide unique ID
                  */
-                virtual luint calculate_node_id( const uint  & aLevel,
-                        const luint & aI ) = 0;
+                virtual luint calculate_node_id( uint aLevel,
+                        luint aI ) = 0;
 
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1169,9 +1169,9 @@ namespace moris
                  * @param[in]  aJ        proc local j-position of node
                  * @return uint          domain wide unique ID
                  */
-                virtual luint calculate_node_id( const uint  & aLevel,
-                        const luint & aI,
-                        const luint & aJ ) = 0;
+                virtual luint calculate_node_id( uint aLevel,
+                        luint aI,
+                        luint aJ ) = 0;
 
                 // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1185,14 +1185,14 @@ namespace moris
                  * @param[in]  aK        proc local k-position of node
                  * @return uint          domain wide unique ID
                  */
-                virtual luint calculate_node_id( const uint  & aLevel,
-                        const luint & aI,
-                        const luint & aJ,
-                        const luint & aK ) = 0;
+                virtual luint calculate_node_id( uint aLevel,
+                        luint aI,
+                        luint aJ,
+                        luint aK ) = 0;
 
                 // ----------------------------------------------------------------------------
 
-                void synchronize_facet_ids( const uint & aOwnedCount );
+                void synchronize_facet_ids( uint aOwnedCount );
 
                 // ----------------------------------------------------------------------------
 
@@ -1200,7 +1200,7 @@ namespace moris
 
                 // ----------------------------------------------------------------------------
 
-                void synchronize_edge_ids( const uint & aOwnedCount );
+                void synchronize_edge_ids( uint aOwnedCount );
 
                 //void link_facet_children_2d();
 

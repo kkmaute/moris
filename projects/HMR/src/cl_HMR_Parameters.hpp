@@ -217,7 +217,7 @@ namespace moris
              *
              * @return void
              */
-            void set_processor_decomp_method( const uint& aProcDecompMethod );
+            void set_processor_decomp_method( uint aProcDecompMethod );
 
             //--------------------------------------------------------------------------------
 
@@ -305,7 +305,7 @@ namespace moris
              * @return void
              */
             void
-            set_refinement_buffer( const luint& aBufferSize )
+            set_refinement_buffer( luint aBufferSize )
             {
                 mRefinementBuffer = aBufferSize;
             }
@@ -320,7 +320,7 @@ namespace moris
              * @return void
              */
             void
-            set_staircase_buffer( const luint& aBufferSize )
+            set_staircase_buffer( luint aBufferSize )
             {
                 mStaircaseBuffer = aBufferSize;
             }
@@ -420,7 +420,7 @@ namespace moris
              * returns an entry of mLagrangeOrders
              */
             auto
-            get_lagrange_order( const uint& aIndex ) const
+            get_lagrange_order( uint aIndex ) const
                     -> decltype( mLagrangeOrders( aIndex ) )
             {
                 return mLagrangeOrders( aIndex );
@@ -432,7 +432,7 @@ namespace moris
              * returns an entry of mLagrangePatterns
              */
             auto
-            get_lagrange_pattern( const uint& aIndex ) const
+            get_lagrange_pattern( uint aIndex ) const
                     -> decltype( mLagrangePatterns( aIndex ) )
             {
                 return mLagrangePatterns( aIndex );
@@ -465,7 +465,7 @@ namespace moris
              * returns an entry of mBSplinePatterns
              */
             auto
-            get_bspline_pattern( const uint& aIndex ) const
+            get_bspline_pattern( uint aIndex ) const
                     -> decltype( mBSplinePatterns( aIndex ) )
             {
                 return mBSplinePatterns( aIndex );
@@ -477,7 +477,7 @@ namespace moris
              * returns an entry of mBSplineOrders
              */
             auto
-            get_bspline_order( const uint& aIndex ) const
+            get_bspline_order( uint aIndex ) const
                     -> decltype( mBSplineOrders( aIndex ) )
             {
                 return mBSplineOrders( aIndex );
@@ -495,7 +495,7 @@ namespace moris
             }
 
             Matrix< DDSMat >
-            get_lagrange_to_bspline_mesh( const uint& aLagrangeMeshIndex ) const
+            get_lagrange_to_bspline_mesh( uint aLagrangeMeshIndex ) const
             {
                 return mLagrangeToBSplineMesh( aLagrangeMeshIndex );
             }
@@ -527,7 +527,7 @@ namespace moris
              * returns the index of the defined Lagrange union mesh for a specified order
              */
             uint
-            get_union_mesh( const uint& aOrder ) const
+            get_union_mesh( uint aOrder ) const
             {
                 return mUnionMeshes( aOrder - 1 );
             }
@@ -674,7 +674,7 @@ namespace moris
              * @return void
              */
             // void
-            // set_max_polynomial( const luint & aMaxPolynomial ) ;
+            // set_max_polynomial( luint aMaxPolynomial ) ;
 
             //--------------------------------------------------------------------------------
 
@@ -722,8 +722,8 @@ namespace moris
              * @param[in] aElementsY
              * @return void
              */
-            void set_number_of_elements_per_dimension( const luint& aElementsX,
-                    const luint&                                    aElementsY );
+            void set_number_of_elements_per_dimension( luint aElementsX,
+                    luint                                    aElementsY );
 
             //--------------------------------------------------------------------------------
 
@@ -736,9 +736,9 @@ namespace moris
              * @param[in] aElementsZ
              * @return void
              */
-            void set_number_of_elements_per_dimension( const luint& aElementsX,
-                    const luint&                                    aElementsY,
-                    const luint&                                    aElementsZ );
+            void set_number_of_elements_per_dimension( luint aElementsX,
+                    luint                                    aElementsY,
+                    luint                                    aElementsZ );
 
             //-------------------------------------------------------------------------------
 
@@ -773,8 +773,8 @@ namespace moris
              * @param[in] real dimension in Y-Direction
              * @return void
              */
-            void set_domain_dimensions( const real& aDomainDimensionsX,
-                    const real&                     aDomainDimensionsY );
+            void set_domain_dimensions( real aDomainDimensionsX,
+                    real                     aDomainDimensionsY );
 
             //-------------------------------------------------------------------------------
 
@@ -786,9 +786,9 @@ namespace moris
              * @param[in] real dimension in Z-Direction
              * @return void
              */
-            void set_domain_dimensions( const real& aDomainDimensionsX,
-                    const real&                     aDomainDimensionsY,
-                    const real&                     aDomainDimensionsZ );
+            void set_domain_dimensions( real aDomainDimensionsX,
+                    real                     aDomainDimensionsY,
+                    real                     aDomainDimensionsZ );
 
             //-------------------------------------------------------------------------------
 
@@ -820,8 +820,8 @@ namespace moris
              *
              * @return void
              */
-            void set_domain_offset( const real& aDomainOffsetX,
-                    const real&                 aDomainOffsetY );
+            void set_domain_offset( real aDomainOffsetX,
+                    real                 aDomainOffsetY );
 
             //-------------------------------------------------------------------------------
 
@@ -834,9 +834,9 @@ namespace moris
              *
              * @return void
              */
-            void set_domain_offset( const real& aDomainOffsetX,
-                    const real&                 aDomainOffsetY,
-                    const real&                 aDomainOffsetZ );
+            void set_domain_offset( real aDomainOffsetX,
+                    real                 aDomainOffsetY,
+                    real                 aDomainOffsetZ );
 
             //-------------------------------------------------------------------------------
             /**
@@ -873,7 +873,7 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             // void
-            // set_demo_knot_parameter( const real & aParam )
+            // set_demo_knot_parameter( real aParam )
             //{
             //     mDemoKnotParameter = aParam;
             // }
@@ -889,7 +889,7 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             void
-            set_gmsh_scale( const real& aScaleFactor )
+            set_gmsh_scale( real aScaleFactor )
             {
                 mGmshScale = aScaleFactor;
             }
@@ -1083,7 +1083,7 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             void
-            set_additional_lagrange_refinement( const uint& aLevel )
+            set_additional_lagrange_refinement( uint aLevel )
             {
                 mAdditionalLagrangeRefinementLevel = aLevel;
             }

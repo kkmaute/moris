@@ -264,7 +264,7 @@ namespace moris
             luint aCount = 0;
 
             // loop over frame and count active descendants
-            for( luint k=0; k<tNumberOfCoarsestElements; ++k )
+            for( luint k = 0; k < tNumberOfCoarsestElements; k++ )
             {
                 mCoarsestElementsIncludingAura( k )->get_number_of_active_descendants( mActivePattern, aCount );
             }
@@ -779,15 +779,16 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        uint Background_Mesh_Base::calc_child_index( const luint & aI )
+        uint Background_Mesh_Base::calc_child_index( luint aI )
         {
             return aI % 2;
         }
 
         //-------------------------------------------------------------------------------
 
-        uint Background_Mesh_Base::calc_child_index( const luint & aI,
-                const luint & aJ )
+        uint Background_Mesh_Base::calc_child_index(
+                luint aI,
+                luint aJ )
         {
             uint tModI = aI % 2;
             uint tModJ = aJ % 2;
@@ -818,9 +819,10 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        uint Background_Mesh_Base::calc_child_index( const luint & aI,
-                const luint & aJ,
-                const luint & aK )
+        uint Background_Mesh_Base::calc_child_index(
+                luint aI,
+                luint aJ,
+                luint aK )
         {
             uint tModI = aI % 2;
             uint tModJ = aJ % 2;
@@ -880,7 +882,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------
 
-        luint Background_Mesh_Base::count_elements_on_level( const uint& aLevel )
+        luint Background_Mesh_Base::count_elements_on_level( uint aLevel )
         {
             // get number of coarsest elements
             luint tNumberOfCoarsestElements = mCoarsestElements.size();
@@ -909,7 +911,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------
 
-        luint Background_Mesh_Base::count_elements_on_level_including_aura( const uint& aLevel )
+        luint Background_Mesh_Base::count_elements_on_level_including_aura( uint aLevel )
         {
             // get number of coarsest elements
             luint tNumberOfCoarsestElements = mCoarsestElementsIncludingAura.size();
@@ -938,7 +940,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------
 
-        void Background_Mesh_Base::count_elements()          //FIXME see where this is called
+        void Background_Mesh_Base::count_elements()
         {
             // reset lookup table
             mNumberOfElementsPerLevel[ 0 ] = mCoarsestElements.size();
@@ -990,7 +992,7 @@ namespace moris
         //--------------------------------------------------------------------------------
 
         void Background_Mesh_Base::collect_elements_on_level(
-                const uint                      & aLevel,
+                uint aLevel,
                 Cell<Background_Element_Base*>  & aElementList )
         {
             // get number of elements from lookup table
@@ -1022,8 +1024,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------
 
-        void Background_Mesh_Base::collect_elements_on_level_including_aura( const uint                              & aLevel,
-                Cell< Background_Element_Base* >  & aElementList )
+        void Background_Mesh_Base::collect_elements_on_level_including_aura(
+                uint                              aLevel,
+                Cell< Background_Element_Base* >& aElementList )
         {
             // get number of elements from lookup table
             auto tNumberOfElements = this->count_elements_on_level_including_aura( aLevel );
@@ -1055,7 +1058,7 @@ namespace moris
         //--------------------------------------------------------------------------------
 
         void Background_Mesh_Base::collect_elements_on_level_within_proc_domain(
-                const uint                        & aLevel,
+                uint aLevel,
                 Cell< Background_Element_Base* >  & aElementList )
         {
             // get number of elements from lookup table
@@ -1328,8 +1331,8 @@ namespace moris
         //--------------------------------------------------------------------------------
 
         void Background_Mesh_Base::collect_active_elements_from_aura(
-                const uint                       & aProcNeighbor,
-                const uint                       & aMode,
+                uint                               aProcNeighbor,
+                uint                               aMode,
                 Cell< Background_Element_Base* > & aElementList )
         {
             // clear element list
@@ -1412,7 +1415,7 @@ namespace moris
         void Background_Mesh_Base::create_staircase_buffer_for_element(
                 Background_Element_Base * aElement,
                 luint                   & aElementCounter,
-                const uint              & aHalfBuffer )
+                uint                      aHalfBuffer )
         {
             // cell containing neighbors of each parent
             Cell< Background_Element_Base* > tNeighbors;
@@ -1590,9 +1593,9 @@ namespace moris
         //--------------------------------------------------------------------------------
 
         Background_Element_Base * Background_Mesh_Base::decode_pedigree_path(
-                const luint                & aAncestorID,
+                luint                    aAncestorID,
                 const Matrix< DDUMat > & aPedigreeList,
-                luint                      & aCounter )
+                luint&                   aCounter )
         {
             // pick ancestor element
             auto tIndex = this->calc_subdomain_id_from_global_id( 0, aAncestorID );
@@ -1894,7 +1897,7 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        void Background_Mesh_Base::reset_pattern( const uint & aPattern )
+        void Background_Mesh_Base::reset_pattern( uint aPattern )
         {
             MORIS_ERROR( aPattern < gNumberOfPatterns, "Invalid Pattern.");
 
@@ -1942,8 +1945,9 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        void Background_Mesh_Base::clone_pattern( const uint & aSource,
-                const uint & aTarget )
+        void Background_Mesh_Base::clone_pattern(
+                uint aSource,
+                uint aTarget )
         {
             MORIS_ERROR( aSource < gNumberOfPatterns, "Source pattern invalid.");
             MORIS_ERROR( aTarget < gNumberOfPatterns, "Target pattern invalid.");
@@ -1996,9 +2000,10 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        void Background_Mesh_Base::unite_patterns( const uint & aSourceA,
-                const uint & aSourceB,
-                const uint & aTarget )
+        void Background_Mesh_Base::unite_patterns(
+                uint aSourceA,
+                uint aSourceB,
+                uint aTarget )
         {
             MORIS_ERROR( aSourceA < gNumberOfPatterns, "Source pattern A invalid.");
             MORIS_ERROR( aSourceB < gNumberOfPatterns, "Source pattern B invalid.");
@@ -2039,7 +2044,8 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        void Background_Mesh_Base::unite_patterns( const moris::Cell< uint > & aSourcePattern,
+        void Background_Mesh_Base::unite_patterns(
+                const moris::Cell< uint > & aSourcePattern,
                 const uint                  aTarget )
         {
             for( uint Il = 0; Il < aSourcePattern.size(); ++Il )
@@ -2087,8 +2093,9 @@ namespace moris
 
         // -----------------------------------------------------------------------------
 
-        void Background_Mesh_Base::copy_pattern( const uint & aSource,
-                const uint & aTarget )
+        void Background_Mesh_Base::copy_pattern(
+                uint aSource,
+                uint aTarget )
         {
             if ( aSource != aTarget )
             {
@@ -2284,8 +2291,8 @@ namespace moris
          * Side set numbers see Exodus II : A Finite Element Data Model, p. 13
          */
         void Background_Mesh_Base::collect_side_set_elements(
-                const uint                        & aPattern,
-                const uint                        & aSideOrdinal,
+                uint                                aPattern,
+                uint                                aSideOrdinal,
                 Cell< Background_Element_Base * > & aElements )
         {
             luint tElementCounter = 0;

@@ -67,7 +67,7 @@ namespace moris
         template<>
         void
         BSpline_Element< 2, 9 >::get_ijk_of_basis(
-            const uint & aBasisNumber,
+            uint aBasisNumber,
             luint      * aIJK )
         {
             // get element local coordinate
@@ -469,7 +469,7 @@ namespace moris
         */
         template<>
         void
-        BSpline_Element< 2, 9 >::refine_basis( const uint & aBasisNumber, luint & aBasisCounter )
+        BSpline_Element< 2, 9 >::refine_basis( uint aBasisNumber, luint & aBasisCounter )
         {
             // get pointer to basis
             Basis* tBasis = mBasis[ aBasisNumber ];

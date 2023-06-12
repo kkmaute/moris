@@ -61,7 +61,7 @@ namespace moris
                 BSpline_Mesh(
                         const Parameters      * aParameters,
                         Background_Mesh_Base  * aBackgroundMesh,
-                        const uint            & aActivationPattern )
+                        uint aActivationPattern )
             : BSpline_Mesh_Base(
                     aParameters,
                     aBackgroundMesh,
@@ -140,8 +140,8 @@ namespace moris
                  */
                 Basis * create_basis(
                         const luint * aIJK,
-                        const  uint & aLevel,
-                        const  uint & aOwner );
+                        uint          aLevel,
+                        uint          aOwner );
 
                 // ----------------------------------------------------------------------------
 
@@ -155,8 +155,8 @@ namespace moris
                  */
 
                 luint calculate_basis_id(
-                        const uint  & aLevel,
-                        const luint & aI )
+                        uint  aLevel,
+                        luint aI )
                 {
                     if( aLevel < gMaxNumberOfLevels && N == 1 )
                     {
@@ -181,9 +181,9 @@ namespace moris
                  */
 
                 luint calculate_basis_id(
-                        const uint  & aLevel,
-                        const luint & aI,
-                        const luint & aJ )
+                        uint  aLevel,
+                        luint aI,
+                        luint aJ )
                 {
                     if( aLevel < gMaxNumberOfLevels && N == 2 )
                     {
@@ -210,10 +210,10 @@ namespace moris
                  * @return uint          domain wide unique ID
                  */
                 luint calculate_basis_id(
-                        const uint  & aLevel,
-                        const luint & aI,
-                        const luint & aJ,
-                        const luint & aK )
+                        uint  aLevel,
+                        luint aI,
+                        luint aJ,
+                        luint aK )
                 {
                     if( aLevel < gMaxNumberOfLevels && N == 3 )
                     {
@@ -522,9 +522,10 @@ namespace moris
         // ----------------------------------------------------------------------------
 
         template < uint N, uint P >
-        Basis * BSpline_Mesh< N, P >::create_basis( const luint * aIJK,
-                const uint  & aLevel,
-                const uint  & aOwner )
+        Basis * BSpline_Mesh< N, P >::create_basis(
+                const luint * aIJK,
+                uint          aLevel,
+                uint          aOwner )
         {
             MORIS_ERROR( false, "Don't know how to create B-Spline element.");
 
@@ -534,9 +535,10 @@ namespace moris
         // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
         template <>
-        Basis * BSpline_Mesh< 2, 1 >::create_basis( const luint * aIJK,
-                const uint  & aLevel,
-                const uint  & aOwner )
+        Basis * BSpline_Mesh< 2, 1 >::create_basis(
+                const luint* aIJK,
+                uint         aLevel,
+                uint         aOwner )
         {
             return new BSpline< 2, 9, 8 >( aIJK, aLevel, aOwner );
         }
@@ -545,9 +547,9 @@ namespace moris
 
         template <>
         Basis * BSpline_Mesh< 2, 2 >::create_basis(
-                const luint * aIJK,
-                const  uint & aLevel,
-                const  uint & aOwner )
+                const luint* aIJK,
+                uint         aLevel,
+                uint         aOwner )
         {
             return new BSpline< 2, 16, 8 >( aIJK, aLevel, aOwner );
         }
@@ -556,9 +558,9 @@ namespace moris
 
         template <>
         Basis * BSpline_Mesh< 2, 3 >::create_basis(
-                const luint * aIJK,
-                const  uint & aLevel,
-                const  uint & aOwner )
+                const luint* aIJK,
+                uint         aLevel,
+                uint         aOwner )
         {
             return new BSpline< 2, 25, 8 >( aIJK, aLevel, aOwner );
         }
@@ -567,9 +569,9 @@ namespace moris
 
         template <>
         Basis * BSpline_Mesh< 2, 4 >::create_basis(
-                const luint * aIJK,
-                const  uint & aLevel,
-                const  uint & aOwner )
+                const luint* aIJK,
+                uint         aLevel,
+                uint         aOwner )
         {
             return new BSpline< 2, 36, 8 >( aIJK, aLevel, aOwner );
         }
@@ -578,9 +580,9 @@ namespace moris
 
         template <>
         Basis * BSpline_Mesh< 2, 5 >::create_basis(
-                const luint * aIJK,
-                const  uint & aLevel,
-                const  uint & aOwner )
+                const luint* aIJK,
+                uint         aLevel,
+                uint         aOwner )
         {
             return new BSpline< 2, 49, 8 >( aIJK, aLevel, aOwner );
         }
@@ -589,9 +591,9 @@ namespace moris
 
         template <>
         Basis * BSpline_Mesh< 3, 1 >::create_basis(
-                const luint * aIJK,
-                const  uint & aLevel,
-                const  uint & aOwner )
+                const luint* aIJK,
+                uint         aLevel,
+                uint         aOwner )
         {
             return new BSpline< 3, 27, 26 >( aIJK, aLevel, aOwner );
         }
@@ -601,9 +603,9 @@ namespace moris
         template <>
         Basis*
         BSpline_Mesh< 3, 2 >::create_basis(
-                const luint * aIJK,
-                const  uint & aLevel,
-                const  uint & aOwner )
+                const luint* aIJK,
+                uint         aLevel,
+                uint         aOwner )
         {
             return new BSpline< 3, 64, 26 >( aIJK, aLevel, aOwner );
         }
@@ -612,9 +614,9 @@ namespace moris
 
         template <>
         Basis * BSpline_Mesh< 3, 3 >::create_basis(
-                const luint * aIJK,
-                const  uint & aLevel,
-                const  uint & aOwner )
+                const luint* aIJK,
+                uint         aLevel,
+                uint         aOwner )
         {
             return new BSpline< 3, 125, 26 >( aIJK, aLevel, aOwner );
         }
@@ -623,9 +625,9 @@ namespace moris
 
         template <>
         Basis * BSpline_Mesh< 3, 4 >::create_basis(
-                const luint * aIJK,
-                const  uint & aLevel,
-                const  uint & aOwner )
+                const luint* aIJK,
+                uint         aLevel,
+                uint         aOwner )
         {
             return new BSpline< 3, 216, 26 >( aIJK, aLevel, aOwner );
         }
@@ -634,9 +636,9 @@ namespace moris
 
         template <>
         Basis * BSpline_Mesh< 3, 5 >::create_basis(
-                const luint * aIJK,
-                const  uint & aLevel,
-                const  uint & aOwner )
+                const luint* aIJK,
+                uint         aLevel,
+                uint         aOwner )
         {
             return new BSpline< 3, 343, 26 >( aIJK, aLevel, aOwner );
         }

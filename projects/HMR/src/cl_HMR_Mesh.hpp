@@ -62,25 +62,25 @@ namespace moris
              */
             Mesh(
                     std::shared_ptr< Database > aDatabase,
-                    const uint&                 aLagrangeOrder,
-                    const uint&                 aLagrangePattern );
+                    uint                 aLagrangeOrder,
+                    uint                 aLagrangePattern );
 
             Mesh(
                     std::shared_ptr< Database > aDatabase,
-                    const uint&                 aOrder,
-                    const uint&                 aLagrangePattern,
-                    const uint&                 aBsplinePattern );
+                    uint                 aOrder,
+                    uint                 aLagrangePattern,
+                    uint                 aBsplinePattern );
 
             Mesh(
                     std::shared_ptr< Database > aDatabase,
-                    const uint&                 aLagrangeOrder,
-                    const uint&                 aLagrangePattern,
-                    const uint&                 aBSplineOrder,
-                    const uint&                 aBSplinePattern );
+                    uint                 aLagrangeOrder,
+                    uint                 aLagrangePattern,
+                    uint                 aBSplineOrder,
+                    uint                 aBSplinePattern );
 
             Mesh(
                     std::shared_ptr< Database > aDatabase,
-                    const uint&                 aLagrangeMeshIndex );
+                    uint                 aLagrangeMeshIndex );
 
             //-------------------------------------------------------------------------------
 
@@ -123,7 +123,7 @@ namespace moris
              */
             std::shared_ptr< Field > create_field(
                     const std::string& aLabel,
-                    const uint&        aBSplineOrder );
+                    uint        aBSplineOrder );
 
             //-------------------------------------------------------------------------------
 

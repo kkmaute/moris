@@ -103,7 +103,7 @@ namespace moris
         inline
         void
         Lagrange_Element< 3, 8 >::get_ijk_of_basis(
-            const uint & aBasisNumber,
+            uint aBasisNumber,
             luint      * aIJK )
         {
             // get element local coordinate

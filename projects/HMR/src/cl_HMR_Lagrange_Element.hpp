@@ -57,7 +57,7 @@ namespace moris
              */
             inline Lagrange_Element(
                     Background_Element_Base* aElement,
-                    const uint&              aActivationPattern )
+                    uint              aActivationPattern )
                     : Element( aElement, aActivationPattern )
             {
                 if ( N == 2 )
@@ -232,7 +232,7 @@ namespace moris
              *
              */
             Basis*
-            get_basis( const uint& aIndex )
+            get_basis( uint aIndex )
             {
                 if ( mHaveBasis )
                 {
@@ -246,7 +246,7 @@ namespace moris
             }
 
             const Basis*
-            get_basis( const uint& aIndex ) const
+            get_basis( uint aIndex ) const
             {
                 if ( mHaveBasis )
                 {
@@ -272,7 +272,7 @@ namespace moris
              */
             void
             insert_basis(
-                    const uint& aIndex,
+                    uint aIndex,
                     Basis*      aBasis )
             {
                 MORIS_ASSERT( aIndex < D, "Try to insert bases into mNodes with index being out of bound.\n" );
@@ -354,7 +354,7 @@ namespace moris
              *
              */
             void get_ijk_of_basis(
-                    const uint& aBasisNumber,
+                    uint aBasisNumber,
                     luint*      aIJK );
 
             //------------------------------------------------------------------------------
@@ -389,7 +389,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             Facet*
-            get_hmr_facet( const uint& aIndex )
+            get_hmr_facet( uint aIndex )
             {
                 return mFacets( aIndex );
             }
@@ -399,7 +399,7 @@ namespace moris
             void
             set_hmr_facet(
                     Facet*      aFacet,
-                    const uint& aIndex )
+                    uint aIndex )
             {
                 mFacets( aIndex ) = aFacet;
             }
@@ -407,7 +407,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             Edge*
-            get_hmr_edge( const uint& aIndex )
+            get_hmr_edge( uint aIndex )
             {
                 return mEdges( aIndex );
             }
@@ -415,7 +415,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             const Edge*
-            get_hmr_edge( const uint& aIndex ) const
+            get_hmr_edge( uint aIndex ) const
             {
                 return mEdges( aIndex );
             }
@@ -425,7 +425,7 @@ namespace moris
             void
             set_hmr_edge(
                     Edge*       aEdge,
-                    const uint& aIndex )
+                    uint aIndex )
             {
                 mEdges( aIndex ) = aEdge;
             }
@@ -444,7 +444,7 @@ namespace moris
              * @return void
              */
             void
-            create_basis( const uint& aBasisNumber )
+            create_basis( uint aBasisNumber )
             {
                 // container for basis position
                 luint tIJK[ N ];
@@ -528,7 +528,7 @@ namespace moris
         template< uint N, uint D >
         inline void
         Lagrange_Element< N, D >::get_ijk_of_basis(
-                const uint& aBasisNumber,
+                uint aBasisNumber,
                 luint*      aIJK )
         {
             MORIS_ERROR( false, "Don't know how to get ijk of basis." );

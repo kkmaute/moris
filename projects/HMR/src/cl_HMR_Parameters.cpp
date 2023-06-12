@@ -462,7 +462,7 @@ namespace moris
          * 0=UserDefined. 1=Min Proc Interface (Original) 2=Min Mesh Interface
          */
         void
-        Parameters::set_processor_decomp_method( const uint& aProcDecompMethod )
+        Parameters::set_processor_decomp_method( uint aProcDecompMethod )
         {
             // test if calling this function is allowed
             this->error_if_locked( "set_processor_decomp_method" );
@@ -565,8 +565,8 @@ namespace moris
 
         void
         Parameters::set_number_of_elements_per_dimension(
-                const luint& aElementsX,
-                const luint& aElementsY )
+                luint aElementsX,
+                luint aElementsY )
         {
             // test if calling this function is allowed
             this->error_if_locked( "set_number_of_elements_per_dimension" );
@@ -583,9 +583,9 @@ namespace moris
 
         void
         Parameters::set_number_of_elements_per_dimension(
-                const luint& aElementsX,
-                const luint& aElementsY,
-                const luint& aElementsZ )
+                luint aElementsX,
+                luint aElementsY,
+                luint aElementsZ )
         {
             // test if calling this function is allowed
             this->error_if_locked( "set_number_of_elements_per_dimension" );
@@ -642,8 +642,8 @@ namespace moris
 
         void
         Parameters::set_domain_dimensions(
-                const real& aDomainDimensionsX,
-                const real& aDomainDimensionsY )
+                real aDomainDimensionsX,
+                real aDomainDimensionsY )
         {
             // test if calling this function is allowed
             this->error_if_locked( "set_domain_dimensions" );
@@ -662,9 +662,9 @@ namespace moris
 
         void
         Parameters::set_domain_dimensions(
-                const real& aDomainDimensionsX,
-                const real& aDomainDimensionsY,
-                const real& aDomainDimensionsZ )
+                real aDomainDimensionsX,
+                real aDomainDimensionsY,
+                real aDomainDimensionsZ )
         {
             // test if calling this function is allowed
             this->error_if_locked( "set_domain_dimensions" );
@@ -701,8 +701,8 @@ namespace moris
 
         void
         Parameters::set_domain_offset(
-                const real& aDomainOffsetX,
-                const real& aDomainOffsetY )
+                real aDomainOffsetX,
+                real aDomainOffsetY )
         {
             // test if calling this function is allowed
             this->error_if_locked( "set_domain_offset" );
@@ -716,9 +716,9 @@ namespace moris
 
         void
         Parameters::set_domain_offset(
-                const real& aDomainOffsetX,
-                const real& aDomainOffsetY,
-                const real& aDomainOffsetZ )
+                real aDomainOffsetX,
+                real aDomainOffsetY,
+                real aDomainOffsetZ )
         {
             // test if calling this function is allowed
             this->error_if_locked( "set_domain_offset" );

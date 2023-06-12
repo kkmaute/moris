@@ -43,7 +43,7 @@ namespace moris
              * default Lagrange Element constructor
              */
             BSpline_Element(       Background_Element_Base * aElement,
-                             const uint                    & aActivationPattern) : Element( aElement, aActivationPattern )
+                             uint aActivationPattern) : Element( aElement, aActivationPattern )
             {
             }
 
@@ -92,13 +92,13 @@ namespace moris
              * @return Basis* pointer to Lagrange node
              *
              */
-            Basis * get_basis( const uint& aIndex )
+            Basis * get_basis( uint aIndex )
             {
                 MORIS_ASSERT( mHaveBasis, "can't return basis if container is not initialized" );
                 return mBasis[ aIndex ];
             }
 
-            const Basis * get_basis( const uint& aIndex ) const
+            const Basis * get_basis( uint aIndex ) const
             {
                 MORIS_ASSERT( mHaveBasis, "can't return basis if container is not initialized" );
                 return mBasis[ aIndex ];
@@ -114,8 +114,8 @@ namespace moris
              * @return void
              *
              */
-            void insert_basis( const  uint  & aIndex,
-                                      Basis * aBasis )
+            void insert_basis( uint   aIndex,
+                               Basis* aBasis )
             {
                 MORIS_ASSERT( mHaveBasis, "can't insert basis if container is not initialized" );
                 mBasis[ aIndex ] = aBasis;
@@ -220,8 +220,8 @@ namespace moris
              * @return void
              *
              */
-            void get_ijk_of_basis( const uint  & aBasisNumber,
-                                         luint * aIJK );
+            void get_ijk_of_basis( uint   aBasisNumber,
+                                   luint* aIJK );
 
 //------------------------------------------------------------------------------
 
@@ -270,7 +270,7 @@ namespace moris
              *
              * @return void
              */
-            void create_basis( const uint & aBasisNumber );
+            void create_basis( uint aBasisNumber );
 
 //------------------------------------------------------------------------------
 
@@ -281,8 +281,8 @@ namespace moris
              *
              * @return void
              */
-            void refine_basis( const uint  & aBasisNumber,
-                                     luint & aBasisCounter );
+            void refine_basis( uint   aBasisNumber,
+                               luint& aBasisCounter );
 //------------------------------------------------------------------------------
 
             /**
@@ -331,7 +331,7 @@ namespace moris
 //------------------------------------------------------------------------------
         template< uint N, uint B >
         inline
-        void BSpline_Element< N, B >::create_basis( const uint & aBasisNumber )
+        void BSpline_Element< N, B >::create_basis( uint aBasisNumber )
         {
             MORIS_ERROR( false, "Don't know how to create B-Spline.");
         }
@@ -341,8 +341,8 @@ namespace moris
         template< uint N, uint B >
         inline
         void BSpline_Element< N, B >::create_basis_on_level_zero(
-                moris::Cell< Element* > & aAllElementsOnProc,
-                luint            & aBasisCounter )
+                moris::Cell< Element* >& aAllElementsOnProc,
+                luint&                   aBasisCounter )
         {
             MORIS_ERROR( false, "Don't know how to create B-Splines on level zero.");
         }
@@ -352,8 +352,8 @@ namespace moris
         template< uint N, uint B >
         inline
         void BSpline_Element< N, B >::create_basis_for_children(
-                moris::Cell< Element * > & aAllElementsOnProc,
-                luint             & aBasisCounter )
+                moris::Cell< Element * >& aAllElementsOnProc,
+                luint&                    aBasisCounter )
         {
             MORIS_ERROR( false, "Don't know how to create B-Splines for children.");
         }
@@ -363,8 +363,8 @@ namespace moris
         template< uint N, uint B >
         inline
         void BSpline_Element< N, B >::get_ijk_of_basis(
-                const uint & aBasisNumber,
-                luint      * aIJK )
+                uint   aBasisNumber,
+                luint* aIJK )
         {
             MORIS_ERROR( false, "Don't know how to get ijk of basis.");
         }
@@ -385,8 +385,8 @@ namespace moris
         template< uint N, uint B >
         inline
         void BSpline_Element< N, B >::refine_basis(
-                const uint & aBasisNumber,
-                     luint & aBasisCounter)
+                        uint aBasisNumber,
+                        luint & aBasisCounter)
         {
             MORIS_ERROR( false, "refine_basis() not available for this element.");
         }
@@ -396,8 +396,8 @@ namespace moris
         template< uint N, uint B >
         inline
         void BSpline_Element< N, B >::refine(
-                moris::Cell< Element* > & aAllElementsOnProc,
-                           luint & aBasisCounter )
+                        moris::Cell< Element* > & aAllElementsOnProc,
+                        luint & aBasisCounter )
         {
             MORIS_ERROR( false, "refine() not available for this element.");
         }

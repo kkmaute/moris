@@ -183,7 +183,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            virtual const mtk::Vertex* get_vertex( const uint& aIndex ) const = 0;
+            virtual const mtk::Vertex* get_vertex( uint aIndex ) const = 0;
 
             // ----------------------------------------------------------------------------
             //      HMR public:
@@ -228,11 +228,11 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            virtual Basis* get_basis( const uint& aIndex ) = 0;
+            virtual Basis* get_basis( uint aIndex ) = 0;
 
             // ----------------------------------------------------------------------------
 
-            virtual const Basis* get_basis( const uint& aIndex ) const = 0;
+            virtual const Basis* get_basis( uint aIndex ) const = 0;
 
             // ----------------------------------------------------------------------------
 

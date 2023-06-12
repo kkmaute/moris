@@ -140,9 +140,9 @@ namespace moris
                  * creates a union of two patterns
                  */
                 void unite_patterns(
-                        const uint & aSourceA,
-                        const uint & aSourceB,
-                        const uint & aTarget );
+                        uint aSourceA,
+                        uint aSourceB,
+                        uint aTarget );
 
                 // -----------------------------------------------------------------------------
 
@@ -150,8 +150,8 @@ namespace moris
                  * copies a source pattern to a target pattern
                  */
                 void copy_pattern(
-                        const uint & aSource,
-                        const uint & aTarget );
+                        uint aSource,
+                        uint aTarget );
                 // -----------------------------------------------------------------------------
 
                 /**
@@ -169,9 +169,9 @@ namespace moris
                  * aTarget must be a refined variant of aSource
                  */
                 void interpolate_field(
-                        const uint                   & aSourcePattern,
+                        uint aSourcePattern,
                         const std::shared_ptr<Field>   aSource,
-                        const uint                   & aTargetPattern,
+                        uint aTargetPattern,
                         std::shared_ptr<Field>         aTarget );
 
                 // -----------------------------------------------------------------------------
@@ -186,7 +186,7 @@ namespace moris
                  * Returns the pointer to a T-Matrix object.
                  * Needed by Field constructor.
                  */
-                T_Matrix * get_t_matrix( const uint & aLagrangeMeshIndex );
+                T_Matrix * get_t_matrix( uint aLagrangeMeshIndex );
 
                 // -----------------------------------------------------------------------------
 
@@ -194,14 +194,14 @@ namespace moris
                  * returns the pointer to a Lagrange mesh, needed by interface
                  * constructor
                  */
-                Lagrange_Mesh_Base * get_lagrange_mesh_by_index( const uint& aIndex )
+                Lagrange_Mesh_Base * get_lagrange_mesh_by_index( uint aIndex )
                 {
                     return mLagrangeMeshes( aIndex );
                 }
 
                 // -----------------------------------------------------------------------------
                 Lagrange_Mesh_Base * get_additional_lagrange_mesh_by_index(
-                        const uint& aIndex,
+                        uint aIndex,
                         uint aPattern)
                 {
                     return mAdditionalLagrangeMeshes( aPattern )( aIndex );
@@ -221,7 +221,7 @@ namespace moris
                  * returns the pointer to a Bspline mesh, needed by interface
                  * constructor
                  */
-                BSpline_Mesh_Base * get_bspline_mesh_by_index( const uint& aIndex )
+                BSpline_Mesh_Base * get_bspline_mesh_by_index( uint aIndex )
                 {
                     return mBSplineMeshes( aIndex );
                 }
@@ -299,7 +299,7 @@ namespace moris
                 /**
                  * set active pattern of background mesh
                  */
-                void set_activation_pattern( const uint & aPattern )
+                void set_activation_pattern( uint aPattern )
                 {
                     mBackgroundMesh->set_activation_pattern( aPattern );
                 }
@@ -320,11 +320,11 @@ namespace moris
                 /**
                  * function needed for tests etc
                  */
-                void flag_element( const luint & aIndex );
+                void flag_element( luint aIndex );
 
                 // -----------------------------------------------------------------------------
 
-                void flag_parent( const luint & aIndex );
+                void flag_parent( luint aIndex );
 
                 // -----------------------------------------------------------------------------
 
@@ -422,11 +422,11 @@ namespace moris
                  */
                 void update_bspline_meshes();
 
-                void update_bspline_meshes( const uint & aPattern );
+                void update_bspline_meshes( uint aPattern );
 
                 void update_lagrange_meshes();
 
-                void update_lagrange_meshes( const uint & aPattern );
+                void update_lagrange_meshes( uint aPattern );
 
                 // -----------------------------------------------------------------------------
 

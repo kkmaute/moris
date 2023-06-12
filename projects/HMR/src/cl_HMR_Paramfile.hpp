@@ -148,14 +148,14 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            const uint & get_mesh_order( const uint & aIndex ) const
+            uint get_mesh_order( uint aIndex ) const
             {
                 return mMeshParams( mMeshMap.find( mMeshIDs( aIndex ) ) ).mOrder;
             }
 
 // -----------------------------------------------------------------------------
 
-            const std::string & get_mesh_path( const uint & aIndex ) const
+            const std::string & get_mesh_path( uint aIndex ) const
             {
                 return mMeshParams( mMeshMap.find( mMeshIDs( aIndex ) ) ).mPath;
             }
@@ -169,7 +169,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            const Field_Param & get_field_params( const uint & aIndex ) const
+            const Field_Param & get_field_params( uint aIndex ) const
             {
                 return mFieldParams( mFieldMap.find( mFieldIDs( aIndex ) ) );
             }

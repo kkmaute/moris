@@ -31,8 +31,8 @@ namespace moris
 
         Mesh::Mesh(
                 std::shared_ptr< Database > aDatabase,
-                const uint&                 aLagrangeOrder,
-                const uint&                 aLagrangePattern )
+                uint                 aLagrangeOrder,
+                uint                 aLagrangePattern )
         {
             // copy database pointer
             mDatabase = aDatabase;
@@ -91,7 +91,7 @@ namespace moris
 
         Mesh::Mesh(
                 std::shared_ptr< Database > aDatabase,
-                const uint&                 aLagrangeMeshIndex )
+                uint                 aLagrangeMeshIndex )
         {
             // copy database pointer
             mDatabase = aDatabase;
@@ -115,9 +115,9 @@ namespace moris
 
         Mesh::Mesh(
                 std::shared_ptr< Database > aDatabase,
-                const uint&                 aOrder,
-                const uint&                 aLagrangePattern,
-                const uint&                 aBsplinePattern )
+                uint                 aOrder,
+                uint                 aLagrangePattern,
+                uint                 aBsplinePattern )
         {
             // copy database pointer
             mDatabase = aDatabase;
@@ -171,10 +171,10 @@ namespace moris
 
         Mesh::Mesh(
                 std::shared_ptr< Database > aDatabase,
-                const uint&                 aLagrangeOrder,
-                const uint&                 aLagrangePattern,
-                const uint&                 aBSplineOrder,
-                const uint&                 aBSplinePattern )
+                uint                 aLagrangeOrder,
+                uint                 aLagrangePattern,
+                uint                 aBSplineOrder,
+                uint                 aBSplinePattern )
         {
             // copy database pointer
             mDatabase = aDatabase;
@@ -257,7 +257,7 @@ namespace moris
         std::shared_ptr< Field >
         Mesh::create_field(
                 const std::string& aLabel,
-                const uint&        aBSplineIndex )
+                uint        aBSplineIndex )
         {
             // fixme: this is not the best solution. See also
             // https://forum.libcinder.org/topic/solution-calling-shared-from-this-in-the-constructor
@@ -1993,8 +1993,6 @@ namespace moris
                     break;
                 }
                 case EntityRank::BSPLINE:
-                case EntityRank::BSPLINE_2:
-                case EntityRank::BSPLINE_3:
                 {
                     return mMesh->get_real_scalar_field_coeffs( aFieldIndex );
                     break;

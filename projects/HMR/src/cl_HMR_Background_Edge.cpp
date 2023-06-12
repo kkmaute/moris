@@ -18,8 +18,9 @@ namespace moris
     {
 //-------------------------------------------------------------------------------
 
-        Background_Edge::Background_Edge(       Background_Element_Base * aElement,
-                                          const uint                    & aIndex  )
+        Background_Edge::Background_Edge(
+                Background_Element_Base * aElement,
+                uint                      aIndex )
         {
             this->insert_element( aElement, aIndex );
         }
@@ -48,7 +49,7 @@ namespace moris
 
         void Background_Edge::insert_element(
                 Background_Element_Base * aElement,
-                const uint & aIndex )
+                uint                      aIndex )
         {
             MORIS_ASSERT( mElementCounter < 4, "Error in element counter" );
             mIndexInElement[ mElementCounter ] = aIndex;
@@ -65,14 +66,14 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        Background_Element_Base * Background_Edge::get_element( const uint & aIndex )
+        Background_Element_Base * Background_Edge::get_element( uint aIndex )
         {
             return mElements[ aIndex ];
         }
 
 //-------------------------------------------------------------------------------
 
-        uint Background_Edge::get_index_on_element( const uint & aIndex ) const
+        uint Background_Edge::get_index_on_element( uint aIndex ) const
         {
             return mIndexInElement[ aIndex ];
         }

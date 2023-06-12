@@ -182,7 +182,7 @@ namespace moris
              *
              */
             Background_Element_Base*
-            get_element( const luint& aIndex )
+            get_element( luint aIndex )
             {
                 return mActiveElements( aIndex );
             }
@@ -201,7 +201,7 @@ namespace moris
              *
              */
             const Background_Element_Base*
-            get_element( const luint& aIndex ) const
+            get_element( luint aIndex ) const
             {
                 return mActiveElements( aIndex );
             }
@@ -220,7 +220,7 @@ namespace moris
              *
              */
             Background_Element_Base*
-            get_element_including_aura( const luint& aIndex )
+            get_element_including_aura( luint aIndex )
             {
                 return mActiveElementsIncludingAura( aIndex );
             }
@@ -239,7 +239,7 @@ namespace moris
              *
              */
             const Background_Element_Base*
-            get_element_including_aura( const luint& aIndex ) const
+            get_element_including_aura( luint aIndex ) const
             {
                 return mActiveElementsIncludingAura( aIndex );
             }
@@ -258,7 +258,7 @@ namespace moris
              *
              */
             Background_Element_Base*
-            get_element_from_proc_domain_including_aura( const luint& aIndex )
+            get_element_from_proc_domain_including_aura( luint aIndex )
             {
                 return mActiveElementsIncludingAura( aIndex );
             }
@@ -275,7 +275,7 @@ namespace moris
              *
              */
             Background_Element_Base*
-            get_coarsest_element_by_subdomain_id( const luint& aSubdomainID )
+            get_coarsest_element_by_subdomain_id( luint aSubdomainID )
             {
                 return mCoarsestElementsIncludingAura( aSubdomainID );
             }
@@ -290,7 +290,7 @@ namespace moris
              *
              */
             Background_Element_Base*
-            get_coarsest_element_by_subdomain_index( const luint& aSubdomainIndex )
+            get_coarsest_element_by_subdomain_index( luint aSubdomainIndex )
             {
                 return mCoarsestElements( aSubdomainIndex );
             }
@@ -307,8 +307,8 @@ namespace moris
              *
              */
             virtual Background_Element_Base* get_coarsest_element_by_ij(
-                    const luint& aI,
-                    const luint& aJ ) = 0;
+                    luint aI,
+                    luint aJ ) = 0;
 
             //--------------------------------------------------------------------------------
 
@@ -323,9 +323,9 @@ namespace moris
              *
              */
             virtual Background_Element_Base* get_coarsest_element_by_ijk(
-                    const luint& aI,
-                    const luint& aJ,
-                    const luint& aK ) = 0;
+                    luint aI,
+                    luint aJ,
+                    luint aK ) = 0;
 
             //--------------------------------------------------------------------------------
             /**
@@ -387,7 +387,7 @@ namespace moris
             //--------------------------------------------------------------------------------
 
             // void
-            // set_buffer_size( const uint & aBuffer )
+            // set_buffer_size( uint aBuffer )
             //{
             //     mBufferSize = aBuffer;
             // }
@@ -406,7 +406,7 @@ namespace moris
              *
              */
             Matrix< DDLUMat >
-            get_subdomain_ids_of_coarsest_aura( const uint& aNeighborProc ) const
+            get_subdomain_ids_of_coarsest_aura( uint aNeighborProc ) const
             {
                 return mCoarsestAura( aNeighborProc );
             }
@@ -423,7 +423,7 @@ namespace moris
              *
              */
             Matrix< DDLUMat >
-            get_subdomain_ids_of_coarsest_inverse_aura( const uint& aNeighborProc ) const
+            get_subdomain_ids_of_coarsest_inverse_aura( uint aNeighborProc ) const
             {
                 return mCoarsestInverseAura( aNeighborProc );
             }
@@ -502,7 +502,7 @@ namespace moris
              *
              * @param[ in ]     uint active pattern
              */
-            void apply_refinement_queue_to_pattern( const uint aPattern );
+            void apply_refinement_queue_to_pattern( uint aPattern );
 
             //--------------------------------------------------------------------------------
 
@@ -514,7 +514,7 @@ namespace moris
              *
              * @return         bool telling if at least one element has been refined
              */
-            bool perform_refinement( const uint aPattern );
+            bool perform_refinement( uint aPattern );
 
             //--------------------------------------------------------------------------------
 
@@ -690,7 +690,7 @@ namespace moris
              * @return       void
              */
             void collect_elements_on_level_including_aura(
-                    const uint&                       aLevel,
+                    uint                       aLevel,
                     Cell< Background_Element_Base* >& aElementList );
 
             //--------------------------------------------------------------------------------
@@ -705,7 +705,7 @@ namespace moris
              * @return       void
              */
             void collect_elements_on_level_within_proc_domain(
-                    const uint&                       aLevel,
+                    uint                       aLevel,
                     Cell< Background_Element_Base* >& aElementList );
 
             //--------------------------------------------------------------------------------
@@ -722,8 +722,8 @@ namespace moris
              *  @param[out]  aElementList     cell with element pointers on aura
              */
             void collect_active_elements_from_aura(
-                    const uint&                       aProcNeighbor,
-                    const uint&                       aMode,
+                    uint                       aProcNeighbor,
+                    uint                       aMode,
                     Cell< Background_Element_Base* >& aElementList );
 
             //--------------------------------------------------------------------------------
@@ -796,11 +796,11 @@ namespace moris
 
             /* Element_Base *
         decode_pedigree_path(
-                const luint       & aAncestorID
+                luint aAncestorID
                 const Matrix< DDUMat > & aPedigreeList,
                 luint             & aCounter ); */
             Background_Element_Base* decode_pedigree_path(
-                    const luint&            aAncestorID,
+                    luint            aAncestorID,
                     const Matrix< DDUMat >& aPedigreeList,
                     luint&                  aCounter );
 
@@ -834,7 +834,7 @@ namespace moris
              * sets the active pattern to another value
              */
             void
-            set_activation_pattern( const uint& aPattern )
+            set_activation_pattern( uint aPattern )
             {
                 if ( mActivePattern != aPattern )
                 {
@@ -867,7 +867,7 @@ namespace moris
              * clones one pattern into another. Unlike copy pattern,
              * this pattern can extend the buffer if desired.
              */
-            void clone_pattern( const uint& aSource, const uint& aTarget );
+            void clone_pattern( uint aSource, uint aTarget );
 
             // -----------------------------------------------------------------------------
 
@@ -875,9 +875,9 @@ namespace moris
              * creates a union of two patterns
              */
             void unite_patterns(
-                    const uint& aSourceA,
-                    const uint& aSourceB,
-                    const uint& aTarget );
+                    uint aSourceA,
+                    uint aSourceB,
+                    uint aTarget );
 
             // -----------------------------------------------------------------------------
 
@@ -886,7 +886,7 @@ namespace moris
              */
             void unite_patterns(
                     const moris::Cell< uint >& aSourcePattern,
-                    const uint                 aTarget );
+                          uint                 aTarget );
 
             // -----------------------------------------------------------------------------
 
@@ -894,15 +894,15 @@ namespace moris
              * copies a pattern to another slot
              */
             void copy_pattern(
-                    const uint& aSource,
-                    const uint& aTarget );
+                    uint aSource,
+                    uint aTarget );
 
             // -----------------------------------------------------------------------------
 
             /**
              * resets the activation pattern
              */
-            void reset_pattern( const uint& aPattern );
+            void reset_pattern( uint aPattern );
 
             // -----------------------------------------------------------------------------
 
@@ -937,7 +937,7 @@ namespace moris
              * @return       void
              */
             void collect_elements_on_level(
-                    const uint&                       aLevel,
+                    uint                       aLevel,
                     Cell< Background_Element_Base* >& aElementList );
 
             //--------------------------------------------------------------------------------
@@ -950,7 +950,7 @@ namespace moris
              *
              * @return       luint         number of elements on this level
              */
-            luint count_elements_on_level( const uint& aLevel );
+            luint count_elements_on_level( uint aLevel );
 
             // -----------------------------------------------------------------------------
 
@@ -1037,8 +1037,8 @@ namespace moris
              * Side set numbers see Exodus II : A Finite Element Data Model, p. 13
              */
             void collect_side_set_elements(
-                    const uint&                       aPattern,
-                    const uint&                       aSideOrdinal,
+                    uint                       aPattern,
+                    uint                       aSideOrdinal,
                     Cell< Background_Element_Base* >& aElements );
             //------------------------------------------------------------------------------
 
@@ -1061,7 +1061,7 @@ namespace moris
             //------------------------------------------------------------------------------
 
             virtual void get_element_in_bounding_box_memory_index(
-                    const uint&                    aPattern,
+                    uint                    aPattern,
                     const moris::Matrix< DDRMat >& aPoint,
                     const moris::Matrix< DDRMat >& aBoundingBoxSize,
                     moris::Matrix< DDLUMat >&      aElementMemoryIndex ) = 0;
@@ -1081,8 +1081,8 @@ namespace moris
              * @return       luint    local ID on submesh of proc
              */
             virtual luint calc_subdomain_id_from_global_id(
-                    const uint&  aLevel,
-                    const luint& aID ) const = 0;
+                    uint  aLevel,
+                    luint aID ) const = 0;
 
             //--------------------------------------------------------------------------------
 
@@ -1138,7 +1138,7 @@ namespace moris
              * @return       uint          level of this ID
              *
              */
-            uint calc_level_of_pedigree_id( const luint& aPedigreeID );
+            uint calc_level_of_pedigree_id( luint aPedigreeID );
 
             //--------------------------------------------------------------------------------
 
@@ -1154,7 +1154,7 @@ namespace moris
              */
             /* void
         calc_pedigree_tree_from_pedigree_id(
-                const luint & aPedigreeID,
+                luint aPedigreeID,
                 Matrix< DDUMat >   & aPedigreeTree); */
 
             //--------------------------------------------------------------------------------
@@ -1167,7 +1167,7 @@ namespace moris
              * @return uint child index (0-3) of element
              *
              */
-            uint calc_child_index( const luint& aI );
+            uint calc_child_index( luint aI );
 
             //--------------------------------------------------------------------------------
 
@@ -1182,8 +1182,8 @@ namespace moris
              *
              */
             uint calc_child_index(
-                    const luint& aI,
-                    const luint& aJ );
+                    luint aI,
+                    luint aJ );
 
             //--------------------------------------------------------------------------------
 
@@ -1199,9 +1199,9 @@ namespace moris
              *
              */
             uint calc_child_index(
-                    const luint& aI,
-                    const luint& aJ,
-                    const luint& aK );
+                    luint aI,
+                    luint aJ,
+                    luint aK );
 
             //--------------------------------------------------------------------------------
 
@@ -1228,7 +1228,7 @@ namespace moris
              *
              * @return       luint         number of elements on this level
              */
-            luint count_elements_on_level_including_aura( const uint& aLevel );
+            luint count_elements_on_level_including_aura( uint aLevel );
 
             //--------------------------------------------------------------------------------
 
@@ -1263,8 +1263,8 @@ namespace moris
              *
              */
             virtual luint calc_domain_id_of_element(
-                    const uint&  aLevel,
-                    const luint& aI ) const = 0;
+                    uint  aLevel,
+                    luint aI ) const = 0;
 
             //--------------------------------------------------------------------------------
 
@@ -1279,9 +1279,9 @@ namespace moris
              *
              */
             virtual luint calc_domain_id_of_element(
-                    const uint&  aLevel,
-                    const luint& aI,
-                    const luint& aJ ) const = 0;
+                    uint  aLevel,
+                    luint aI,
+                    luint aJ ) const = 0;
 
             //--------------------------------------------------------------------------------
 
@@ -1297,10 +1297,10 @@ namespace moris
              *
              */
             virtual luint calc_domain_id_of_element(
-                    const uint&  aLevel,
-                    const luint& aI,
-                    const luint& aJ,
-                    const luint& aK ) const = 0;
+                    uint  aLevel,
+                    luint aI,
+                    luint aJ,
+                    luint aK ) const = 0;
 
             //--------------------------------------------------------------------------------
 
@@ -1309,7 +1309,7 @@ namespace moris
              * level for a side
              */
             virtual void collect_coarsest_elements_on_side(
-                    const uint&                       aSideOrdinal,
+                    uint                              aSideOrdinal,
                     Cell< Background_Element_Base* >& aCoarsestElementsOnSide ) = 0;
 
             //--------------------------------------------------------------------------------
@@ -1367,7 +1367,7 @@ namespace moris
             void create_staircase_buffer_for_element(
                     Background_Element_Base* aElement,
                     luint&                   aElementCounter,
-                    const uint&              aHalfBuffer );
+                    uint                     aHalfBuffer );
             //------------------------------------------------------------------------------
         };
     } /* namespace hmr */

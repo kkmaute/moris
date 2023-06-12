@@ -286,7 +286,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Element*
-        Edge::get_element( const uint& aIndex )
+        Edge::get_element( uint aIndex )
         {
             return mElements( aIndex );
         }
@@ -294,7 +294,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         uint
-        Edge::get_index_on_element( const uint& aIndex ) const
+        Edge::get_index_on_element( uint aIndex ) const
         {
             return mIndicesInElements( aIndex );
         }

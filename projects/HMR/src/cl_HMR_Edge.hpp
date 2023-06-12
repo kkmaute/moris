@@ -169,11 +169,11 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            Element* get_element( const uint& aIndex );
+            Element* get_element( uint aIndex );
 
             // ----------------------------------------------------------------------------
 
-            uint get_index_on_element( const uint& aIndex ) const;
+            uint get_index_on_element( uint aIndex ) const;
 
             // ----------------------------------------------------------------------------
 

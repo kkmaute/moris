@@ -93,21 +93,21 @@ namespace moris
 
 //------------------------------------------------------------------------------
                inline
-               const mtk::Vertex * get_vertex( const uint & aIndex ) const
+               const mtk::Vertex * get_vertex( uint aIndex ) const
                {
                    return mVertices[ aIndex ];
                }
 
 // ----------------------------------------------------------------------------
                inline
-               const Basis * get_basis( const uint & aIndex ) const
+               const Basis * get_basis( uint aIndex ) const
                {
                    return mVertices[ aIndex ];
                }
 
 // ----------------------------------------------------------------------------
                inline
-               Basis * get_basis( const uint & aIndex )
+               Basis * get_basis( uint aIndex )
                {
                    return mVertices[ aIndex ];
                }
@@ -119,7 +119,7 @@ namespace moris
                /**
                 * internal function called by constructor
                 */
-               void copy_vertex_pointers( const uint & aIndex );
+               void copy_vertex_pointers( uint aIndex );
 
 //------------------------------------------------------------------------------
            };
@@ -161,7 +161,7 @@ namespace moris
 
            template< uint N, uint D >
            inline
-           void Lagrange_Facet< N, D >::copy_vertex_pointers( const uint & aIndex )
+           void Lagrange_Facet< N, D >::copy_vertex_pointers( uint aIndex )
            {
                MORIS_ERROR( false,
                    "copy_vertex_pointers() not implemented for this Lagrange_Facet.");

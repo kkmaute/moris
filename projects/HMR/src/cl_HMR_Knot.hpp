@@ -43,15 +43,15 @@ namespace moris
      public:
 // ----------------------------------------------------------------------------
 
-         Knot(  const real & aA0,
-                const real & aB0,
-                const real & aC0,
-                const real & aD0,
-                const real & aA1,
-                const real & aB1,
-                const real & aC1,
-                const real & aD1,
-                const real & aXi )
+         Knot(  real aA0,
+                real aB0,
+                real aC0,
+                real aD0,
+                real aA1,
+                real aB1,
+                real aC1,
+                real aD1,
+                real aXi )
          {
              mParam0[ 0 ] = aA0;
              mParam0[ 1 ] = aB0;
@@ -88,7 +88,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
          void
-         set_radius( const real & aRadius )
+         set_radius( real aRadius )
          {
              mRmax = aRadius;
              mRmin = 0.75*aRadius;
@@ -99,9 +99,9 @@ namespace moris
 
          real
          test_for_intersection(
-                 const real & aX,
-                 const real & aY,
-                 const real & aZ ) const
+                 real aX,
+                 real aY,
+                 real aZ ) const
          {
              // call distance calculation
              real tR = this->calculate_distance( aX, aY, aZ );
@@ -121,9 +121,9 @@ namespace moris
 
          real
          calculate_distance(
-                 const real & aX,
-                 const real & aY,
-                 const real & aZ ) const
+                 real aX,
+                 real aY,
+                 real aZ ) const
          {
              // make sure that newton does not hit a local minimum
 
@@ -151,9 +151,9 @@ namespace moris
 
          real
          calculate_level_set(
-                 const real & aX,
-                 const real & aY,
-                 const real & aZ )  const
+                 real aX,
+                 real aY,
+                 real aZ )  const
          {
              real tR = this->calculate_distance( aX, aY, aZ );
 
@@ -176,9 +176,9 @@ namespace moris
 // ----------------------------------------------------------------------------
 
          real distance_to_sphere(
-                 const real & aX,
-                 const real & aY,
-                 const real & aZ ) const
+                 real aX,
+                 real aY,
+                 real aZ ) const
          {
              real tMinDistance = 1E12;
              for ( uint k = 0; k<mNumberOfPoints; ++k )
@@ -199,11 +199,11 @@ namespace moris
 // ----------------------------------------------------------------------------
 
          real
-         find_better_t( const real& aT,
-                        const real& aDeltaT,
-                        const real & aX,
-                        const real & aY,
-                        const real & aZ ) const
+         find_better_t( real aT,
+                        real aDeltaT,
+                        real aX,
+                        real aY,
+                        real aZ ) const
          {
              real tT0 = aT - aDeltaT;
              real tT1 = aT + aDeltaT;
@@ -235,9 +235,9 @@ namespace moris
 // ----------------------------------------------------------------------------
 
          uint find_initial_param(
-                 const real & aX,
-                 const real & aY,
-                 const real & aZ ) const
+                 real aX,
+                 real aY,
+                 real aZ ) const
          {
              real tMinDistance = 1E12;
              uint aK = mNumberOfPoints;
@@ -260,10 +260,10 @@ namespace moris
 // ----------------------------------------------------------------------------
 
          real
-         bisection( const uint & aK,
-                    const real & aX,
-                    const real & aY,
-                    const real & aZ ) const
+         bisection( uint aK,
+                    real aX,
+                    real aY,
+                    real aZ ) const
          {
              // left value
              real tT0 = mPoints( 0, aK-1 ) - 0.5;
@@ -304,7 +304,7 @@ namespace moris
           */
          void
          calc_point_on_knot(
-                 const real & aT,
+                 real aT,
                  real & aX,
                  real & aY,
                  real & aZ ) const
@@ -333,11 +333,11 @@ namespace moris
 // ----------------------------------------------------------------------------
 
  /*        real newton(
-                 const real& aOmega,
-                 const real& aT,
-                 const real& aX,
-                 const real& aY,
-                 const real& aZ ) const
+                 real aOmega,
+                 real aT,
+                 real aX,
+                 real aY,
+                 real aZ ) const
          {
              real df0dt;
              real df1dt;
@@ -371,10 +371,10 @@ namespace moris
 // ----------------------------------------------------------------------------
          real
          calc_second_derivative(
-                 const real& aT,
-                 const real& aX,
-                 const real& aY,
-                 const real& aZ ) const
+                 real aT,
+                 real aX,
+                 real aY,
+                 real aZ ) const
          {
             long double tDeltaT = 0.001;
 
@@ -403,12 +403,12 @@ namespace moris
           * the distance between two points
           */
          real distance (
-                 const real & aX0,
-                 const real & aY0,
-                 const real & aZ0,
-                 const real & aX1,
-                 const real & aY1,
-                 const real & aZ1 ) const
+                 real aX0,
+                 real aY0,
+                 real aZ0,
+                 real aX1,
+                 real aY1,
+                 real aZ1 ) const
          {
              return std::sqrt(
                       std::pow( ( aX1 - aX0 ), 2 )

@@ -86,8 +86,8 @@ namespace moris
              * @param[in]   aOwner      owner of basis
              */
             BSpline( const luint * aIJK,
-                     const uint  & aLevel,
-                     const uint  & aOwner ) : Basis( aLevel, aOwner )
+                     uint aLevel,
+                     uint aOwner ) : Basis( aLevel, aOwner )
             {
                 // save ijk position in memory.
                 for( uint k=0; k<N; ++k )
@@ -362,14 +362,14 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            Basis * get_connected_basis( const uint & aBasisNumber )
+            Basis * get_connected_basis( uint aBasisNumber )
             {
             	return mConnectedBasis[ aBasisNumber ];
             }
 
 // -----------------------------------------------------------------------------
 
-            const Basis * get_connected_basis( const uint & aBasisNumber ) const
+            const Basis * get_connected_basis( uint aBasisNumber ) const
             {
             	return mConnectedBasis[ aBasisNumber ];
             }
@@ -424,7 +424,7 @@ namespace moris
              *
              * @return void
              */
-            void insert_child( const uint  & aChildNumber,
+            void insert_child( uint aChildNumber,
                                      Basis * aChild )
             {
                 mChildren[ aChildNumber ] = aChild;
@@ -439,7 +439,7 @@ namespace moris
              *
              * @return Basis*               pointer to child
              */
-            Basis * get_child( const uint & aChildNumber )
+            Basis * get_child( uint aChildNumber )
             {
                 if( mChildrenFlag )
                 {
@@ -462,7 +462,7 @@ namespace moris
              *
              * @return Basis*
              */
-            Basis * get_neighbor( const uint &  aNeighborNumber )
+            Basis * get_neighbor( uint  aNeighborNumber )
             {
                 if( mNeighborsFlag )
                 {
@@ -476,7 +476,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            void insert_neighbor( const uint  & aNeighborNumber,
+            void insert_neighbor( uint aNeighborNumber,
                                    Basis * aNeighbor )
             {
                 MORIS_ASSERT( mNeighborsFlag, "Can't insert neighbor if container is not set");
@@ -624,7 +624,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            Basis * get_parent( const uint & aParentNumber )
+            Basis * get_parent( uint aParentNumber )
             {
                 return mParents[ aParentNumber ];
             }
@@ -638,7 +638,7 @@ namespace moris
 
 // -----------------------------------------------------------------------------
 
-            void set_active_index( const luint & aIndex )
+            void set_active_index( luint aIndex )
             {
                 mActiveIndex = aIndex;
             }

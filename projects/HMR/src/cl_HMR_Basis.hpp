@@ -100,8 +100,8 @@ namespace moris
                  * @param[in]   aOwner        owner of basis
                  */
 
-                Basis( const uint & aLevel,
-                        const uint & aOwner ) : mLevel( aLevel ),
+                Basis( uint aLevel,
+                        uint aOwner ) : mLevel( aLevel ),
                         mOwner( aOwner ),
                         mSharingProcs(0,0,MORIS_INDEX_MAX)
             {
@@ -246,7 +246,7 @@ namespace moris
                  *
                  * @return void
                  */
-                void set_owner( const uint & aOwner )
+                void set_owner( uint aOwner )
                 {
                     mOwner = aOwner;
                 }
@@ -365,7 +365,7 @@ namespace moris
                  *
                  * @return void
                  */
-                void set_domain_id( const luint & aID )
+                void set_domain_id( luint aID )
                 {
                     mDomainID = aID;
                 }
@@ -392,7 +392,7 @@ namespace moris
                  *
                  * @return void
                  */
-                void set_domain_index( const luint & aIndex )
+                void set_domain_index( luint aIndex )
                 {
                     mDomainIndex = aIndex;
                 }
@@ -402,7 +402,7 @@ namespace moris
                 /**
                  * sets the local index that is needed for MTK
                  */
-                void set_local_index( const luint & aIndex )
+                void set_local_index( luint aIndex )
                 {
                     mLocalIndex = aIndex;
                 }
@@ -534,7 +534,7 @@ namespace moris
                  *
                  * @return void
                  */
-                void set_memory_index( const luint& aMemoryIndex )
+                void set_memory_index( luint aMemoryIndex )
                 {
                     mMemoryIndex = aMemoryIndex;
                 }
@@ -599,7 +599,7 @@ namespace moris
                  *
                  * @return     Element_Base*    pointer to connected element
                  */
-                Element * get_element( const uint& aIndex )
+                Element * get_element( uint aIndex )
                 {
                     return mElements( aIndex );
                 }
@@ -613,7 +613,7 @@ namespace moris
                  *
                  * @return     Element_Base*    pointer to connected element
                  */
-                const Element * get_element( const uint& aIndex ) const
+                const Element * get_element( uint aIndex ) const
                 {
                     return mElements( aIndex );
                 }
@@ -680,7 +680,7 @@ namespace moris
                  *
                  * @return     Element_Base*    pointer to connected element
                  */
-                Facet * get_facet( const uint& aIndex )
+                Facet * get_facet( uint aIndex )
                 {
                     return mFacets[ aIndex ];
                 }
@@ -694,7 +694,7 @@ namespace moris
                  *
                  * @return     Element_Base*    pointer to connected element
                  */
-                const Facet * get_facet( const uint& aIndex ) const
+                const Facet * get_facet( uint aIndex ) const
                 {
                     return mFacets[ aIndex ];
                 }
@@ -761,7 +761,7 @@ namespace moris
                  *
                  * @return     Element_Base*    pointer to connected element
                  */
-                Edge * get_edge( const uint& aIndex )
+                Edge * get_edge( uint aIndex )
                 {
                     return mEdges[ aIndex ];
                 }
@@ -775,7 +775,7 @@ namespace moris
                  *
                  * @return     Element_Base*    pointer to connected element
                  */
-                const Edge * get_edge( const uint& aIndex ) const
+                const Edge * get_edge( uint aIndex ) const
                 {
                     return mEdges[ aIndex ];
                 }
@@ -869,7 +869,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                virtual Basis * get_parent( const uint & aParentNumber )
+                virtual Basis * get_parent( uint aParentNumber )
                 {
                     MORIS_ERROR( false, "get_parent() not available for selected basis type." );
                     return nullptr;
@@ -884,7 +884,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                virtual void insert_neighbor( const uint  & aaNeighborNumber,
+                virtual void insert_neighbor( uint aaNeighborNumber,
                         Basis * aNeighbor )
                 {
                     MORIS_ERROR( false, "insert_neighbor() not available for selected basis type." );
@@ -892,7 +892,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                virtual Basis * get_neighbor( const uint & aNeighborNumber )
+                virtual Basis * get_neighbor( uint aNeighborNumber )
                 {
                     MORIS_ERROR( false, "get_neighbor() not available for selected basis type." );
                     return nullptr;
@@ -901,7 +901,7 @@ namespace moris
                 //------------------------------------------------------------------------------
 
                 virtual void insert_child(
-                        const uint & aChildNumbner,
+                        uint aChildNumbner,
                         Basis      * aChild )
                 {
                     MORIS_ERROR( false, "insert_child() not available for selected basis type." );
@@ -909,7 +909,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                virtual Basis * get_child( const uint & aChildNumber )
+                virtual Basis * get_child( uint aChildNumber )
                 {
                     MORIS_ERROR( false, "get_child() not available for selected basis type." );
                     return nullptr;
@@ -955,7 +955,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                virtual void set_active_index( const luint & aIndex )
+                virtual void set_active_index( luint aIndex )
                 {
                     MORIS_ERROR( false, "set_active_index() not available for selected basis type." );
                 }
@@ -1084,7 +1084,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                virtual void init_interpolation( const uint & aOrder )
+                virtual void init_interpolation( uint aOrder )
                 {
                     MORIS_ERROR( false, "init_interpolation() not available for for selected basis type.");
                 }

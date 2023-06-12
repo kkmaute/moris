@@ -129,7 +129,7 @@ namespace moris
 
         void
         T_Matrix::calculate_t_matrix(
-                const luint&      aMemoryIndex,
+                luint             aMemoryIndex,
                 Matrix< DDRMat >& aTMatrixTransposed,
                 Cell< Basis* >&   aDOFs )
         {
@@ -142,7 +142,7 @@ namespace moris
 
         void
         T_Matrix::calculate_untruncated_t_matrix(
-                const luint&      aMemoryIndex,
+                luint      aMemoryIndex,
                 Matrix< DDRMat >& aTMatrixTransposed,
                 Cell< Basis* >&   aDOFs )
         {
@@ -210,7 +210,7 @@ namespace moris
 
         void
         T_Matrix::calculate_truncated_t_matrix(
-                const luint&      aMemoryIndex,
+                luint             aMemoryIndex,
                 Matrix< DDRMat >& aTMatrixTransposed,
                 Cell< Basis* >&   aDOFs )
         {
@@ -884,9 +884,10 @@ namespace moris
          * 1D shape function
          */
         real
-        T_Matrix::b_spline_shape_1d( const uint& aOrder,
-                const uint&                      aK,
-                const real&                      aXi )
+        T_Matrix::b_spline_shape_1d(
+                uint aOrder,
+                uint aK,
+                real aXi )
         {
             // max number of entries in lookup table
             uint tSteps = 2 * ( aOrder + 1 );
@@ -978,8 +979,8 @@ namespace moris
 
         void
         T_Matrix::b_spline_shape(
-                const real&       aXi,
-                const real&       aEta,
+                real              aXi,
+                real              aEta,
                 Matrix< DDRMat >& aN ) const
         {
             // evaluate contributions for xi and eta
@@ -1010,9 +1011,9 @@ namespace moris
 
         void
         T_Matrix::b_spline_shape(
-                const real&       aXi,
-                const real&       aEta,
-                const real&       aZeta,
+                real              aXi,
+                real              aEta,
+                real              aZeta,
                 Matrix< DDRMat >& aN ) const
         {
             // evaluate contributions for xi and eta
@@ -1102,8 +1103,8 @@ namespace moris
 
         real
         T_Matrix::lagrange_shape_1d(
-                const uint& aBasisNumber,
-                const real& aXi ) const
+                uint aBasisNumber,
+                real aXi ) const
         {
             // use horner scheme to evaluate 1D Lagrange function
             real aResult = 0.0;
@@ -1781,7 +1782,7 @@ namespace moris
 
         void
         T_Matrix::legendre(
-                const uint         & aIndex,
+                uint aIndex,
                 const long double  & aX,
                 long double        & aP,
                 long double        & adPdX ) const
@@ -2057,7 +2058,7 @@ namespace moris
          */
         void
         T_Matrix::get_child_corner_nodes_2d(
-                const uint&       aChildIndex,
+                uint       aChildIndex,
                 Matrix< DDRMat >& aXi )
         {
             switch ( aChildIndex )
@@ -2134,7 +2135,7 @@ namespace moris
          */
         void
         T_Matrix::get_child_corner_nodes_3d(
-                const uint&       aChildIndex,
+                uint       aChildIndex,
                 Matrix< DDRMat >& aXi )
         {
             switch ( aChildIndex )

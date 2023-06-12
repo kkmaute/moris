@@ -44,8 +44,8 @@ namespace moris
                 Parameters const             * aParameters,
                 Background_Mesh_Base         * aBackgroundMesh,
                 Cell< BSpline_Mesh_Base *  > & aBSplineMeshes,
-                uint const                   & aOrder,
-                uint const                   & aActivationPattern )
+                uint                           aOrder,
+                uint                           aActivationPattern )
         : Mesh_Base( aParameters,
                 aBackgroundMesh,
                 aOrder,
@@ -1087,7 +1087,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Element * Lagrange_Mesh_Base::get_child(       Element * aElement,
-                const uint    & aChildIndex )
+                uint aChildIndex )
         {
             // get pointer to background element
             Background_Element_Base* tBackElement = aElement->get_background_element();
@@ -2506,7 +2506,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Lagrange_Mesh_Base::synchronize_facet_ids( const uint & aOwnedCount )
+        void Lagrange_Mesh_Base::synchronize_facet_ids( uint aOwnedCount )
         {
 
             // get number of procs
@@ -2722,7 +2722,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Lagrange_Mesh_Base::synchronize_edge_ids( const uint & aOwnedCount )
+        void Lagrange_Mesh_Base::synchronize_edge_ids( uint aOwnedCount )
         {
             // get number of procs
             moris_id tNumberOfProcs = par_size();

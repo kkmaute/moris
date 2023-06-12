@@ -70,7 +70,7 @@ namespace moris
                 Field(
                         const std::string            & aLabel,
                         std::shared_ptr< mtk::Mesh >   aMesh,
-                        const uint                   & aBSplineIndex,
+                        uint aBSplineIndex,
                         std::shared_ptr< Database >    aDatabase,
                         Lagrange_Mesh_Base           * aLagrangeMesh );
 
@@ -152,7 +152,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                void set_bspline_output_order( const uint & aOrder )
+                void set_bspline_output_order( uint aOrder )
                 {
                     mOutputBSplineOrder = aOrder;
                 }
@@ -176,22 +176,22 @@ namespace moris
                 //------------------------------------------------------------------------------
 
                 // parameter copied from input settings
-                void set_min_surface_level( const uint & aLevel );
+                void set_min_surface_level( uint aLevel );
 
                 //------------------------------------------------------------------------------
 
                 // parameter copied from input settings
-                void set_min_volume_level( const uint & aLevel );
+                void set_min_volume_level( uint aLevel );
 
                 //------------------------------------------------------------------------------
 
                 // parameter copied from input settings
-                void set_max_surface_level( const uint & aLevel );
+                void set_max_surface_level( uint aLevel );
 
                 //------------------------------------------------------------------------------
 
                 // parameter copied from input settings
-                void set_max_volume_level( const uint & aLevel );
+                void set_max_volume_level( uint aLevel );
 
                 //------------------------------------------------------------------------------
 
@@ -349,7 +349,7 @@ namespace moris
 
                 //------------------------------------------------------------------------------
 
-                void set_bspline_order( const uint & aOrder );
+                void set_bspline_order( uint aOrder );
 
                 //------------------------------------------------------------------------------
         };

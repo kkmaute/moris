@@ -92,8 +92,8 @@ namespace moris
              */
             BSpline_Mesh_Base( const Parameters* aParameters,
                     Background_Mesh_Base*        aBackgroundMesh,
-                    const uint&                  aOrder,
-                    const uint&                  aActivationPattern );
+                    uint                  aOrder,
+                    uint                  aActivationPattern );
 
             // ----------------------------------------------------------------------------
 
@@ -141,7 +141,7 @@ namespace moris
              * returns an active basis by a position in the memory
              */
             Basis*
-            get_active_basis( const luint& aIndex )
+            get_active_basis( luint aIndex )
             {
                 return mActiveBasisOnProc( aIndex );
             }
@@ -152,7 +152,7 @@ namespace moris
              * returns an active basis by a position in the memory ( const version )
              */
             const Basis*
-            get_active_basis( const luint& aIndex ) const
+            get_active_basis( luint aIndex ) const
             {
                 return mActiveBasisOnProc( aIndex );
             }
@@ -160,7 +160,7 @@ namespace moris
             // ----------------------------------------------------------------------------
 
             Basis*
-            get_basis_by_index( const luint& aIndex )
+            get_basis_by_index( luint aIndex )
             {
                 return mIndexedBasis( aIndex );
             }
@@ -243,24 +243,24 @@ namespace moris
              * @param[in]   aOwner      owner of basis
              */
             virtual Basis* create_basis( const luint* aIJK,
-                    const uint&                       aLevel,
-                    const uint&                       aOwner ) = 0;
+                    uint                       aLevel,
+                    uint                       aOwner ) = 0;
 
             // ----------------------------------------------------------------------------
             /**
              * Returns the pointer to a basis on the coarsest level. 2D case.
              */
-            Basis* get_coarsest_basis_by_ij( const luint& aI,
-                    const luint&                          aJ );
+            Basis* get_coarsest_basis_by_ij( luint aI,
+                    luint                          aJ );
 
             // ----------------------------------------------------------------------------
 
             /**
              * Returns the pointer to a basis on the coarsest level. 3D case.
              */
-            Basis* get_coarsest_basis_by_ijk( const luint& aI,
-                    const luint&                           aJ,
-                    const luint&                           aK );
+            Basis* get_coarsest_basis_by_ijk( luint aI,
+                    luint                           aJ,
+                    luint                           aK );
 
             // ----------------------------------------------------------------------------
 
@@ -273,8 +273,9 @@ namespace moris
              *
              * @return uint          domain wide unique ID
              */
-            virtual luint calculate_basis_id( const uint& aLevel,
-                    const luint&                          aI ) = 0;
+            virtual luint calculate_basis_id(
+                    uint  aLevel,
+                    luint aI ) = 0;
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -287,9 +288,10 @@ namespace moris
              * @param[in]  aJ        proc local j-position of node
              * @return uint          domain wide unique ID
              */
-            virtual luint calculate_basis_id( const uint& aLevel,
-                    const luint&                          aI,
-                    const luint&                          aJ ) = 0;
+            virtual luint calculate_basis_id(
+                    uint  aLevel,
+                    luint aI,
+                    luint aJ ) = 0;
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -303,10 +305,11 @@ namespace moris
              * @param[in]  aK        proc local k-position of node
              * @return uint          domain wide unique ID
              */
-            virtual luint calculate_basis_id( const uint& aLevel,
-                    const luint&                          aI,
-                    const luint&                          aJ,
-                    const luint&                          aK ) = 0;
+            virtual luint calculate_basis_id(
+                    uint  aLevel,
+                    luint aI,
+                    luint aJ,
+                    luint aK ) = 0;
 
             // ----------------------------------------------------------------------------
 
@@ -318,7 +321,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            void collect_active_and_refined_elements_from_level( const uint& aLevel,
+            void collect_active_and_refined_elements_from_level( uint aLevel,
                     Cell< Element* >&                                        aElements );
 
             // ----------------------------------------------------------------------------
@@ -375,12 +378,12 @@ namespace moris
              * @param[ in    ]  aLevel   level to be investigated
              * @param[ inout ]  aBasis   cell containing found basis
              */
-            void collect_basis_from_level( const uint& aLevel,
+            void collect_basis_from_level( uint aLevel,
                     Cell< Basis* >&                    aBasis );
 
             // ----------------------------------------------------------------------------
 
-            void process_level( const uint& aLevel );
+            void process_level( uint aLevel );
 
             // ----------------------------------------------------------------------------
 
@@ -432,7 +435,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            void delete_unused_basis( const uint&     aLevel,
+            void delete_unused_basis( uint     aLevel,
                     Cell< Background_Element_Base* >& aBackgroundElements,
                     Cell< Basis* >&                   aBasis );
 

@@ -65,7 +65,7 @@ namespace moris
              * @param[in]   aElement   element on background mesh
              */
             Element( Background_Element_Base* aElement,
-                    const uint&               aActivationPattern );
+                    uint               aActivationPattern );
 
             // -----------------------------------------------------------------------------
 
@@ -112,7 +112,7 @@ namespace moris
              * sets the index of this element
              */
             void
-            set_index( const uint& aIndex )
+            set_index( uint aIndex )
             {
                 mIndex = aIndex;
             }
@@ -170,23 +170,23 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            virtual Facet* get_hmr_facet( const uint& aIndex );
+            virtual Facet* get_hmr_facet( uint aIndex );
 
             //------------------------------------------------------------------------------
 
-            virtual void set_hmr_facet( Facet* aFacet, const uint& aIndex );
+            virtual void set_hmr_facet( Facet* aFacet, uint aIndex );
 
             //------------------------------------------------------------------------------
 
-            virtual Edge* get_hmr_edge( const uint& aIndex );
+            virtual Edge* get_hmr_edge( uint aIndex );
 
             //------------------------------------------------------------------------------
 
-            virtual const Edge* get_hmr_edge( const uint& aIndex ) const;
+            virtual const Edge* get_hmr_edge( uint aIndex ) const;
 
             //------------------------------------------------------------------------------
 
-            virtual void set_hmr_edge( Edge* aEdge, const uint& aIndex );
+            virtual void set_hmr_edge( Edge* aEdge, uint aIndex );
 
             //------------------------------------------------------------------------------
 
@@ -313,9 +313,9 @@ namespace moris
              * @return Basis* pointer to Lagrange node
              *
              */
-            virtual Basis* get_basis( const uint& aIndex ) = 0;
+            virtual Basis* get_basis( uint aIndex ) = 0;
 
-            virtual const Basis* get_basis( const uint& aIndex ) const = 0;
+            virtual const Basis* get_basis( uint aIndex ) const = 0;
 
             //------------------------------------------------------------------------------
 
@@ -328,7 +328,7 @@ namespace moris
              * @return void
              *
              */
-            virtual void insert_basis( const uint& aIndex,
+            virtual void insert_basis( uint aIndex,
                     Basis*                         aBasis ) = 0;
 
             //------------------------------------------------------------------------------
@@ -429,7 +429,7 @@ namespace moris
              * @param[in] aNeighborNumber      desired neighbor of element
              */
             Element* get_neighbor( moris::Cell< Element* >& aAllElementsOnProc,
-                    const luint&                            aNeighborNumber );
+                    luint                            aNeighborNumber );
 
             //------------------------------------------------------------------------------
 
@@ -437,7 +437,7 @@ namespace moris
              * returns a child if it exists
              */
             Element* get_child( moris::Cell< Element* >& aAllElementsOnProc,
-                    const uint&                          aChildIndex );
+                    uint                          aChildIndex );
 
             //------------------------------------------------------------------------------
 
@@ -450,7 +450,7 @@ namespace moris
              * @return void
              *
              */
-            virtual void get_ijk_of_basis( const uint& aBasisNumber,
+            virtual void get_ijk_of_basis( uint aBasisNumber,
                     luint*                             aIJK ) = 0;
 
             //------------------------------------------------------------------------------
@@ -565,7 +565,7 @@ namespace moris
              * than the one stored in the memory
              */
             void
-            update_min_refinement_level( const uint& aMinRefinementLevel )
+            update_min_refinement_level( uint aMinRefinementLevel )
             {
                 mElement->update_min_refimenent_level( aMinRefinementLevel );
             }
@@ -576,7 +576,7 @@ namespace moris
              * set min refinement level to this value
              */
             void
-            set_min_refinement_level( const uint& aMinRefinementLevel )
+            set_min_refinement_level( uint aMinRefinementLevel )
             {
                 mElement->set_min_refimenent_level( aMinRefinementLevel );
             }
@@ -629,7 +629,7 @@ namespace moris
              *
              * @return void
              */
-            virtual void create_basis( const uint& aBasisNumber ) = 0;
+            virtual void create_basis( uint aBasisNumber ) = 0;
 
             //------------------------------------------------------------------------------
 
@@ -640,7 +640,7 @@ namespace moris
              * @return void
              */
             virtual void
-            refine_basis( const uint& aBasisNumber, luint& aBasisCounter )
+            refine_basis( uint aBasisNumber, luint& aBasisCounter )
             {
                 MORIS_ERROR( false, "refine_basis() not available for this element." );
             }

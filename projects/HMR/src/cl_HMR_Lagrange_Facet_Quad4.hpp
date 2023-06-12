@@ -43,7 +43,7 @@ namespace moris
         template<>
         inline
         void
-        Lagrange_Facet< 3, 4 >::copy_vertex_pointers( const uint & aIndex )
+        Lagrange_Facet< 3, 4 >::copy_vertex_pointers( uint aIndex )
         {
             // pick side of parent element
             switch( aIndex )

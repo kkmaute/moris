@@ -72,7 +72,7 @@ namespace moris
         Lagrange_Mesh( const Parameters           * aParameters,
                        Background_Mesh_Base       * aBackgroundMesh,
                        Cell< BSpline_Mesh_Base* > & aBSplineMeshes,
-                       const uint                 & aActivationPattern ) : Lagrange_Mesh_Base( aParameters,
+                       uint aActivationPattern ) : Lagrange_Mesh_Base( aParameters,
                                                                                                aBackgroundMesh,
                                                                                                aBSplineMeshes,
                                                                                                P,
@@ -149,8 +149,8 @@ namespace moris
          * @return uint          domain wide unique ID
          */
         inline
-        luint calculate_node_id( const uint  & aLevel,
-                                 const luint & aI )
+        luint calculate_node_id( uint aLevel,
+                                 luint aI )
         {
             if( aLevel < gMaxNumberOfLevels && N == 1 )
             {
@@ -177,9 +177,9 @@ namespace moris
         inline
         luint
         calculate_node_id(
-                const uint  & aLevel,
-                const luint & aI,
-                const luint & aJ )
+                uint aLevel,
+                luint aI,
+                luint aJ )
         {
             if( aLevel < gMaxNumberOfLevels && N == 2 )
             {
@@ -209,10 +209,10 @@ namespace moris
         inline
         luint
         calculate_node_id(
-                const uint  & aLevel,
-                const luint & aI,
-                const luint & aJ,
-                const luint & aK )
+                uint aLevel,
+                luint aI,
+                luint aJ,
+                luint aK )
         {
             if( aLevel < gMaxNumberOfLevels && N == 3 )
             {

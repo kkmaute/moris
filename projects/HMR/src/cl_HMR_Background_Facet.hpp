@@ -63,12 +63,12 @@ namespace moris
              */
             Background_Facet(       Background_Element_Base * aElementA,
                                     Background_Element_Base * aElementB,
-                              const uint                    & aIndexOnElementA  );
+                              uint aIndexOnElementA  );
 
 //------------------------------------------------------------------------------
 
             Background_Facet(       Background_Element_Base * aElement,
-                              const uint                    & aIndexOnElement );
+                              uint aIndexOnElement );
 
 //------------------------------------------------------------------------------
 
@@ -137,7 +137,7 @@ namespace moris
             /**
              * returns the index in relation to the leader element
              */
-            uint get_index_on_other( const uint & aIndex ) const;
+            uint get_index_on_other( uint aIndex ) const;
 
 //--------------------------------------------------------------------------------
         };

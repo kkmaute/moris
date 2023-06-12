@@ -18,9 +18,9 @@ namespace moris
     {
 //-------------------------------------------------------------------------------
 
-        Background_Facet::Background_Facet(       Background_Element_Base * aElementA,
-                                                  Background_Element_Base * aElementB,
-                                            const uint                    & aIndexOnElementA )
+        Background_Facet::Background_Facet( Background_Element_Base * aElementA,
+                                            Background_Element_Base * aElementB,
+                                            uint                      aIndexOnElementA )
         {
             if ( aElementA->is_padding() )
             {
@@ -52,8 +52,8 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        Background_Facet::Background_Facet(       Background_Element_Base * aElement,
-                                            const uint                    & aIndexOnElement )
+        Background_Facet::Background_Facet( Background_Element_Base * aElement,
+                                            uint                      aIndexOnElement )
         {
             mLeaderElement = aElement;
             mFollowerElement  = nullptr;
@@ -111,7 +111,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-        uint Background_Facet::get_index_on_other( const uint & aIndex ) const
+        uint Background_Facet::get_index_on_other( uint aIndex ) const
         {
             uint tNeighborFace[ 6 ] = { 2, 3, 0, 1, 5, 4 } ;
             return tNeighborFace[ aIndex ];

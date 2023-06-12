@@ -24,7 +24,7 @@ namespace moris
 
                 Interpolation_Mesh_HMR(
                         std::shared_ptr< Database >   aDatabase,
-                        const uint                  & aLagrangeMeshIndex)
+                        uint aLagrangeMeshIndex)
             : Mesh( aDatabase,
                     aLagrangeMeshIndex )
             {
@@ -32,8 +32,8 @@ namespace moris
 
                 Interpolation_Mesh_HMR(
                         std::shared_ptr< Database >   aDatabase,
-                        const uint                  & aLagrangeOrder,
-                        const uint                  & aLagrangePattern )
+                        uint aLagrangeOrder,
+                        uint aLagrangePattern )
                 : Mesh( aDatabase,
                         aLagrangeOrder,
                         aLagrangePattern )
@@ -42,9 +42,9 @@ namespace moris
 
                 Interpolation_Mesh_HMR(
                         std::shared_ptr< Database >   aDatabase,
-                        const uint                  & aOrder,
-                        const uint                  & aLagrangePattern,
-                        const uint                  & aBsplinePattern)
+                        uint aOrder,
+                        uint aLagrangePattern,
+                        uint aBsplinePattern)
                 : Mesh( aDatabase,
                         aOrder,
                         aLagrangePattern,
@@ -54,10 +54,10 @@ namespace moris
 
                 Interpolation_Mesh_HMR(
                         std::shared_ptr< Database >   aDatabase,
-                        const uint                  & aLagrangeOrder,
-                        const uint                  & aLagrangePattern,
-                        const uint                  & aBSplineOrder,
-                        const uint                  & aBsplinePattern)
+                        uint aLagrangeOrder,
+                        uint aLagrangePattern,
+                        uint aBSplineOrder,
+                        uint aBsplinePattern)
                 : Mesh( aDatabase,
                         aLagrangeOrder,
                         aLagrangePattern,

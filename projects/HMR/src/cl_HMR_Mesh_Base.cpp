@@ -19,8 +19,8 @@ namespace moris
         Mesh_Base::Mesh_Base (
                 const Parameters           * aParameters,
                 Background_Mesh_Base       * aBackgroundMesh,
-                const uint                 & aOrder,
-                const uint                 & aActivationPattern )
+                uint aOrder,
+                uint aActivationPattern )
         : mParameters( aParameters ),
           mBackgroundMesh( aBackgroundMesh ),
           mOrder( aOrder ),
@@ -428,9 +428,9 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         void Mesh_Base::collect_basis_from_aura(
-                const uint      & aProcNeighborIndex,
-                const uint      & aMode,
-                Cell< Basis* >  & aBasisList )
+                uint            aProcNeighborIndex,
+                uint            aMode,
+                Cell< Basis* >& aBasisList )
         {
             // clear basis list
             aBasisList.clear();
@@ -663,7 +663,7 @@ namespace moris
         void
         Mesh_Base::get_basis_coords_of_element(
                 Matrix< DDRMat >  & aBasisCoords,
-                const luint       & aElementIndex )
+                luint               aElementIndex )
         {
             // set number of basis per element
             uint tNumberOfBasisPerElement;

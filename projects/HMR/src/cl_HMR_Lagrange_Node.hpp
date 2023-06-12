@@ -116,7 +116,7 @@ namespace moris
 
 // ----------------------------------------------------------------------------
 
-            void init_interpolation( const uint & aBSplineMeshIndex )
+            void init_interpolation( uint aBSplineMeshIndex )
             {
                 if ( ! mHaveInterpolationContainer )
                 {

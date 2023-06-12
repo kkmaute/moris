@@ -37,11 +37,11 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Field::Field(
-                const std::string            & aLabel,
-                std::shared_ptr< mtk::Mesh >   aMesh,
-                const uint                   & aBSplineMeshIndex,
-                std::shared_ptr< Database >    aDatabase,
-                Lagrange_Mesh_Base *           aLagrangeMesh )
+                const std::string&           aLabel,
+                std::shared_ptr< mtk::Mesh > aMesh,
+                uint                         aBSplineMeshIndex,
+                std::shared_ptr< Database >  aDatabase,
+                Lagrange_Mesh_Base *         aLagrangeMesh )
         : mMesh( aMesh ),
           mDatabase( aDatabase ),
           mLagrangeMesh( aLagrangeMesh ),
@@ -62,9 +62,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Field::Field(
-                const std::string       & aLabel,
-                std::shared_ptr< Mesh >   aMesh,
-                const std::string       & aHdf5FilePath  )
+                const std::string&      aLabel,
+                std::shared_ptr< Mesh > aMesh,
+                const std::string&      aHdf5FilePath  )
         : mMesh( aMesh )
         {
             // link to database
@@ -120,28 +120,28 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // parameter copied from input settings
-        void Field::set_min_surface_level( const uint & aLevel )
+        void Field::set_min_surface_level( uint aLevel )
         {
             mMinSurfaceLevel = aLevel;
         }
 
         //------------------------------------------------------------------------------
 
-        void Field::set_min_volume_level( const uint & aLevel )
+        void Field::set_min_volume_level( uint aLevel )
         {
             mMinVolumeLevel = aLevel;
         }
 
         //------------------------------------------------------------------------------
 
-        void Field::set_max_surface_level( const uint & aLevel )
+        void Field::set_max_surface_level( uint aLevel )
         {
             mMaxSurfaceLevel = aLevel;
         }
 
         //------------------------------------------------------------------------------
 
-        void Field::set_max_volume_level( const uint & aLevel )
+        void Field::set_max_volume_level( uint aLevel )
         {
             mMaxVolumeLevel = aLevel;
         }
@@ -222,8 +222,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         // change field to the mesh which is deliverd as an input
-        void Field::change_mesh(       Lagrange_Mesh_Base * aMesh,
-                const uint                 aFieldIndex )
+        void Field::change_mesh(
+                Lagrange_Mesh_Base* aMesh,
+                const uint          aFieldIndex )
         {
             // set order of B-Spline
             mLagrangeMesh->set_real_scalar_field_bspline_order(
@@ -470,7 +471,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void Field::set_bspline_order( const uint & aOrder )
+        void Field::set_bspline_order( uint aOrder )
         {
             mLagrangeMesh->set_real_scalar_field_bspline_order( mFieldIndex, aOrder );
         }
@@ -479,29 +480,6 @@ namespace moris
 
         EntityRank Field::get_bspline_rank() const
         {
-            //            switch( this->get_bspline_order() )
-            //            {
-            //                case( 1 ) :
-            //                {
-            //                    return EntityRank::BSPLINE;
-            //                    break;
-            //                }
-            //                case( 2 ) :
-            //                {
-            //                    return EntityRank::BSPLINE_2;
-            //                    break;
-            //                }
-            //                case( 3 ) :
-            //                {
-            //                    return EntityRank::BSPLINE_3;
-            //                    break;
-            //                }
-            //                default :
-            //                {
-            //                    return EntityRank::INVALID;
-            //                    break;
-            //                }
-            //            }
             return EntityRank::BSPLINE;
         }
 

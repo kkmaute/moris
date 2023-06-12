@@ -375,7 +375,7 @@ namespace moris
 
         void
         HMR::save_to_exodus(
-                const uint&        aMeshIndex,
+                uint               aMeshIndex,
                 const std::string& aPath,
                 const double       aTimeStep )
         {
@@ -429,7 +429,7 @@ namespace moris
         void
         HMR::save_coeffs_to_hdf5_file(
                 const std::string& aFilePath,
-                const uint&        aLagrangeMeshIndex )
+                uint               aLagrangeMeshIndex )
         {
             // Get Lagrange mesh
             Lagrange_Mesh_Base* tMesh = mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex );
@@ -575,8 +575,8 @@ namespace moris
         void
         HMR::save_mesh_relations_to_hdf5_file(
                 const std::string& aFilePath,
-                const uint&        aLagrangeMeshIndex,
-                const uint&        aBsplineMeshIndex )
+                uint               aLagrangeMeshIndex,
+                uint               aBsplineMeshIndex )
         {
             // Get Lagrange mesh
             Lagrange_Mesh_Base* tLagrangeMesh = mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex );
@@ -825,7 +825,7 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         void
-        HMR::set_activation_pattern( const uint& aActivationPattern )
+        HMR::set_activation_pattern( uint aActivationPattern )
         {
             this->get_database()->set_activation_pattern( aActivationPattern );
         }
@@ -844,7 +844,7 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         std::shared_ptr< Mesh >
-        HMR::create_mesh( const uint& aLagrangeIndex )
+        HMR::create_mesh( uint aLagrangeIndex )
         {
             return std::make_shared< Mesh >(
                     mDatabase,
@@ -855,8 +855,8 @@ namespace moris
 
         std::shared_ptr< Mesh >
         HMR::create_mesh(
-                const uint& aLagrangeOrder,
-                const uint& aPattern )
+                uint aLagrangeOrder,
+                uint aPattern )
         {
             return std::make_shared< Mesh >(
                     mDatabase,
@@ -868,9 +868,9 @@ namespace moris
 
         std::shared_ptr< Mesh >
         HMR::create_mesh(
-                const uint& aLagrangeOrder,
-                const uint& aLagrangePattern,
-                const uint& aBsplinePattern )
+                uint aLagrangeOrder,
+                uint aLagrangePattern,
+                uint aBsplinePattern )
         {
             return std::make_shared< Mesh >(
                     mDatabase,
@@ -882,7 +882,7 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         Interpolation_Mesh_HMR*
-        HMR::create_interpolation_mesh( const uint& aLagrangeMeshIndex )
+        HMR::create_interpolation_mesh( uint aLagrangeMeshIndex )
         {
             return new Interpolation_Mesh_HMR( mDatabase, aLagrangeMeshIndex );
         }
@@ -914,8 +914,8 @@ namespace moris
 
         Interpolation_Mesh_HMR*
         HMR::create_interpolation_mesh(
-                const uint& aLagrangeOrder,
-                const uint& aPattern )
+                uint aLagrangeOrder,
+                uint aPattern )
         {
             return new Interpolation_Mesh_HMR( mDatabase,
                     aLagrangeOrder,
@@ -924,9 +924,9 @@ namespace moris
 
         Interpolation_Mesh_HMR*
         HMR::create_interpolation_mesh(
-                const uint& aOrder,
-                const uint& aLagrangePattern,
-                const uint& aBsplinePattern )
+                uint aOrder,
+                uint aLagrangePattern,
+                uint aBsplinePattern )
         {
             return new Interpolation_Mesh_HMR(
                     mDatabase,
@@ -939,8 +939,8 @@ namespace moris
 
         Integration_Mesh_HMR*
         HMR::create_integration_mesh(
-                const uint&             aLagrangeOrder,
-                const uint&             aPattern,
+                uint                    aLagrangeOrder,
+                uint                    aPattern,
                 Interpolation_Mesh_HMR* aInterpolationMesh )
         {
             return new Integration_Mesh_HMR(
@@ -953,7 +953,7 @@ namespace moris
 
         Integration_Mesh_HMR*
         HMR::create_integration_mesh(
-                const uint&             aLagrangeMeshIndex,
+                uint                    aLagrangeMeshIndex,
                 Interpolation_Mesh_HMR* aInterpolationMesh )
         {
             return new Integration_Mesh_HMR(
@@ -979,8 +979,8 @@ namespace moris
         std::shared_ptr< Field >
         HMR::create_field(
                 const std::string& aLabel,
-                const uint&        aLagrangeIndex,
-                const uint&        aBSplineIndex )
+                uint               aLagrangeIndex,
+                uint               aBSplineIndex )
         {
             // return mInputMesh->create_field( aLabel );
             uint tFieldIndex = mFields.size();
@@ -1042,8 +1042,8 @@ namespace moris
         void
         HMR::save_bsplines_to_vtk(
                 const std::string& aFilePath,
-                const uint&        aLagrangeMeshIndex,
-                const uint&        aBsplineMeshIndex )
+                uint               aLagrangeMeshIndex,
+                uint               aBsplineMeshIndex )
         {
             // dump mesh
             mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex )->get_bspline_mesh( aBsplineMeshIndex )->save_to_vtk( aFilePath );
@@ -1053,8 +1053,8 @@ namespace moris
 
         void
         HMR::calculate_bspline_coordinates(
-                const uint& aLagrangeMeshIndex,
-                const uint& aBsplineMeshIndex )
+                uint aLagrangeMeshIndex,
+                uint aBsplineMeshIndex )
         {
             mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex )->get_bspline_mesh( aBsplineMeshIndex )->calculate_basis_coordinates();
         }
@@ -1064,7 +1064,7 @@ namespace moris
         void
         HMR::save_faces_to_vtk(
                 const std::string& aFilePath,
-                const uint&        aLagrangeMeshIndex )
+                uint               aLagrangeMeshIndex )
         {
             // dump mesh
             mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex )->save_faces_to_vtk( aFilePath );
@@ -1075,7 +1075,7 @@ namespace moris
         void
         HMR::save_edges_to_vtk(
                 const std::string& aFilePath,
-                const uint&        aLagrangeMeshIndex )
+                uint               aLagrangeMeshIndex )
         {
             MORIS_ERROR( mParameters->get_number_of_dimensions() == 3,
                     "HMR::save_edges_to_vtk() can only be called for 3D meshes" );
@@ -1089,7 +1089,7 @@ namespace moris
         void
         HMR::save_mesh_to_vtk(
                 const std::string& aFilePath,
-                const uint&        aLagrangeMeshIndex )
+                uint               aLagrangeMeshIndex )
         {
             // dump mesh
             mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex )->save_to_vtk( aFilePath );

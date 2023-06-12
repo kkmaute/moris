@@ -51,8 +51,8 @@ namespace moris
         template<>
         inline luint
         Background_Mesh< 1 >::calc_domain_id_of_element(
-                const uint&  aLevel,
-                const luint& aI ) const
+                uint  aLevel,
+                luint aI ) const
         {
             if ( aLevel < gMaxNumberOfLevels )
             {
@@ -82,8 +82,8 @@ namespace moris
         template<>
         inline luint
         Background_Mesh< 1 >::calc_domain_id_of_element(
-                const uint&  aLevel,
-                const luint& aI ) const
+                uint  aLevel,
+                luint aI ) const
         {
             if ( aLevel < gMaxNumberOfLevels )
             {
@@ -112,8 +112,8 @@ namespace moris
         template<>
         inline luint
         Background_Mesh< 1 >::calc_subdomain_id_of_element(
-                const uint&  aLevel,
-                const luint& aI ) const
+                uint  aLevel,
+                luint aI ) const
         {
             if ( aLevel < gMaxNumberOfLevels )
             {
@@ -141,8 +141,8 @@ namespace moris
         template<>
         inline luint
         Background_Mesh< 1 >::calc_subdomain_id_from_global_id(
-                const uint&  aLevel,
-                const luint& aID ) const
+                uint  aLevel,
+                luint aID ) const
         {
             if ( aLevel < gMaxNumberOfLevels )
             {

@@ -263,8 +263,8 @@ namespace moris
              */
             Background_Element_Base*
             get_coarsest_element_by_ij(
-                    const luint& aI,
-                    const luint& aJ )
+                    luint aI,
+                    luint aJ )
             {
                 return mCoarsestElementsIncludingAura( this->calc_subdomain_id_of_element( 0, aI, aJ ) );
             }
@@ -282,9 +282,9 @@ namespace moris
              */
             Background_Element_Base*
             get_coarsest_element_by_ijk(
-                    const luint& aI,
-                    const luint& aJ,
-                    const luint& aK )
+                    luint aI,
+                    luint aJ,
+                    luint aK )
             {
                 return mCoarsestElementsIncludingAura( this->calc_subdomain_id_of_element( 0, aI, aJ, aK ) );
             }
@@ -324,8 +324,8 @@ namespace moris
              * @return       luint    local ID on submesh of proc
              */
             luint calc_subdomain_id_from_global_id(
-                    const uint&  aLevel,
-                    const luint& aID ) const;
+                    uint  aLevel,
+                    luint aID ) const;
 
             //--------------------------------------------------------------------------------
 
@@ -367,8 +367,8 @@ namespace moris
              *
              */
             luint calc_domain_id_of_element(
-                    const uint&  aLevel,
-                    const luint& aI ) const;
+                    uint  aLevel,
+                    luint aI ) const;
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -383,9 +383,9 @@ namespace moris
              *
              */
             luint calc_domain_id_of_element(
-                    const uint&  aLevel,
-                    const luint& aI,
-                    const luint& aJ ) const;
+                    uint  aLevel,
+                    luint aI,
+                    luint aJ ) const;
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -401,10 +401,10 @@ namespace moris
              *
              */
             luint calc_domain_id_of_element(
-                    const uint&  aLevel,
-                    const luint& aI,
-                    const luint& aJ,
-                    const luint& aK ) const;
+                    uint  aLevel,
+                    luint aI,
+                    luint aJ,
+                    luint aK ) const;
             //--------------------------------------------------------------------------------
 
             /**
@@ -412,7 +412,7 @@ namespace moris
              * level for a side
              */
             void collect_coarsest_elements_on_side(
-                    const uint&                       aSideOrdinal,
+                    uint                       aSideOrdinal,
                     Cell< Background_Element_Base* >& aCoarsestElementsOnSide );
 
             //--------------------------------------------------------------------------------
@@ -491,7 +491,7 @@ namespace moris
              */
             void
             create_proc_dims_min_mesh_interface(
-                    const uint&        aNumberOfDimensions,
+                    uint               aNumberOfDimensions,
                     Matrix< DDLUMat >& aMeshDims,
                     Matrix< DDUMat >&  aProcDimensions )
 
@@ -1016,8 +1016,8 @@ namespace moris
              *
              */
             void
-            insert_zero_level_element( const luint& aPosition,
-                    Background_Element_Base*        aElement )
+            insert_zero_level_element( luint                    aPosition,
+                                       Background_Element_Base* aElement )
             {
                 mCoarsestElementsIncludingAura( aPosition ) = aElement;
             }
@@ -1034,8 +1034,8 @@ namespace moris
              *
              */
             luint calc_subdomain_id_of_element(
-                    const uint&  aLevel,
-                    const luint& aI ) const;
+                    uint  aLevel,
+                    luint aI ) const;
 
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -1050,9 +1050,9 @@ namespace moris
              *
              */
             luint calc_subdomain_id_of_element(
-                    const uint&  aLevel,
-                    const luint& aI,
-                    const luint& aJ ) const;
+                    uint  aLevel,
+                    luint aI,
+                    luint aJ ) const;
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
             /**
@@ -1067,10 +1067,10 @@ namespace moris
              *
              */
             luint calc_subdomain_id_of_element(
-                    const uint&  aLevel,
-                    const luint& aI,
-                    const luint& aJ,
-                    const luint& aK ) const;
+                    uint  aLevel,
+                    luint aI,
+                    luint aJ,
+                    luint aK ) const;
 
             //--------------------------------------------------------------------------------
             /**
@@ -1085,9 +1085,9 @@ namespace moris
              *
              * @return void
              */
-            void calc_element_ids( const uint& aLevel,
-                    const Matrix< DDLUMat >&   aIJK,
-                    Matrix< DDLUMat >&         aIDs ) const;
+            void calc_element_ids( uint      aLevel,
+                    const Matrix< DDLUMat >& aIJK,
+                    Matrix< DDLUMat >&       aIDs ) const;
 
             //--------------------------------------------------------------------------------
 
@@ -1143,7 +1143,7 @@ namespace moris
 
             void
             get_element_in_bounding_box_memory_index(
-                    const uint&                    aPattern,
+                    uint                           aPattern,
                     const moris::Matrix< DDRMat >& aPoint,
                     const moris::Matrix< DDRMat >& aBoundingBoxSize,
                     moris::Matrix< DDLUMat >&      aElementMemoryIndex )
@@ -1242,9 +1242,9 @@ namespace moris
 
             //--------------------------------------------------------------------------------
 
-            void collect_coarsest_elements_in_bounding_box( moris::Cell< Background_Element_Base* >& aBackgroundElements,
-                    luint                                                                            aBoundingBoxStartEndIJK[][ 2 ],
-                    uint                                                                             alevel );
+            void collect_coarsest_elements_in_bounding_box( Cell< Background_Element_Base* >& aBackgroundElements,
+                                                            luint                             aBoundingBoxStartEndIJK[][ 2 ],
+                                                            uint                              alevel );
 
             //--------------------------------------------------------------------------------
         }; /* Background_Mesh */
@@ -1272,8 +1272,8 @@ namespace moris
         template< uint N >
         inline luint
         Background_Mesh< N >::calc_domain_id_of_element(
-                const uint&  aLevel,
-                const luint& aI ) const
+                uint  aLevel,
+                luint aI ) const
         {
             MORIS_ERROR( false, "wrong function calc_domain_id_of_element() called." );
             return 0;
@@ -1284,9 +1284,9 @@ namespace moris
         template< uint N >
         inline luint
         Background_Mesh< N >::calc_domain_id_of_element(
-                const uint&  aLevel,
-                const luint& aI,
-                const luint& aJ ) const
+                uint  aLevel,
+                luint aI,
+                luint aJ ) const
         {
             MORIS_ERROR( false, "wrong function calc_domain_id_of_element() called." );
             return 0;
@@ -1296,10 +1296,10 @@ namespace moris
         template< uint N >
         inline luint
         Background_Mesh< N >::calc_domain_id_of_element(
-                const uint&  aLevel,
-                const luint& aI,
-                const luint& aJ,
-                const luint& aK ) const
+                uint  aLevel,
+                luint aI,
+                luint aJ,
+                luint aK ) const
         {
             MORIS_ERROR( false, "wrong function calc_domain_id_of_element() called." );
             return 0;
@@ -1310,8 +1310,8 @@ namespace moris
         template< uint N >
         inline luint
         Background_Mesh< N >::calc_subdomain_id_of_element(
-                const uint&  aLevel,
-                const luint& aI ) const
+                uint  aLevel,
+                luint aI ) const
         {
             MORIS_ERROR( false, "wrong function calc_subdomain_id_of_element() called." );
             return 0;
@@ -1322,9 +1322,9 @@ namespace moris
         template< uint N >
         inline luint
         Background_Mesh< N >::calc_subdomain_id_of_element(
-                const uint&  aLevel,
-                const luint& aI,
-                const luint& aJ ) const
+                uint  aLevel,
+                luint aI,
+                luint aJ ) const
         {
             MORIS_ERROR( false, "wrong function calc_subdomain_id_of_element() called." );
             return 0;
@@ -1335,10 +1335,10 @@ namespace moris
         template< uint N >
         inline luint
         Background_Mesh< N >::calc_subdomain_id_of_element(
-                const uint&  aLevel,
-                const luint& aI,
-                const luint& aJ,
-                const luint& aK ) const
+                uint  aLevel,
+                luint aI,
+                luint aJ,
+                luint aK ) const
         {
             MORIS_ERROR( false, "wrong function calc_subdomain_id_of_element() called." );
             return 0;
@@ -1349,7 +1349,7 @@ namespace moris
         template< uint N >
         inline void
         Background_Mesh< N >::calc_element_ids(
-                const uint&              aLevel,
+                uint                     aLevel,
                 const Matrix< DDLUMat >& aIJK,
                 Matrix< DDLUMat >&       aIDs ) const
         {
@@ -1361,8 +1361,8 @@ namespace moris
         template< uint N >
         inline luint
         Background_Mesh< N >::calc_subdomain_id_from_global_id(
-                const uint&  aLevel,
-                const luint& aID ) const
+                uint  aLevel,
+                luint aID ) const
         {
             MORIS_ERROR( false, "Don't know how to calculate IDs yet." );
             return 0;
@@ -1422,7 +1422,7 @@ namespace moris
         template< uint N >
         inline void
         Background_Mesh< N >::collect_coarsest_elements_on_side(
-                const uint&                       aSideOrdinal,
+                uint                              aSideOrdinal,
                 Cell< Background_Element_Base* >& aCoarsestElementsOnSide )
         {
             MORIS_ERROR( false, "Do not know how to collect coarsest elements on side \n" );

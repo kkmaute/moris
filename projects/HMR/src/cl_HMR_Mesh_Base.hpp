@@ -97,8 +97,8 @@ namespace moris
              */
             Mesh_Base( const Parameters*  aParameters,
                     Background_Mesh_Base* aBackgroundMesh,
-                    const uint&           aOrder,
-                    const uint&           aActivationPattern );
+                    uint           aOrder,
+                    uint           aActivationPattern );
 
             // ----------------------------------------------------------------------------
 
@@ -118,7 +118,7 @@ namespace moris
             // ----------------------------------------------------------------------------
 
             void
-            set_index( const uint& aIndex )
+            set_index( uint aIndex )
             {
                 mMeshIndex = aIndex;
             }
@@ -143,7 +143,7 @@ namespace moris
              * @return const Basis*  pointer to node
              */
             Basis*
-            get_basis_by_memory_index( const luint& aBasisIndex )
+            get_basis_by_memory_index( luint aBasisIndex )
             {
                 return mAllBasisOnProc( aBasisIndex );
             }
@@ -214,7 +214,7 @@ namespace moris
              * @return const Element*   pointer to node
              */
             const Element*
-            get_element( const luint& aElementIndex ) const
+            get_element( luint aElementIndex ) const
             {
                 std::cout << mAllElementsOnProc.size() << ", " << mNumberOfElements << std::endl;
                 return mAllElementsOnProc( mBackgroundMesh->get_element( aElementIndex )
@@ -246,7 +246,7 @@ namespace moris
              * @return const Element*   pointer to node
              */
             const Element*
-            get_element_including_aura( const luint& aElementIndex ) const
+            get_element_including_aura( luint aElementIndex ) const
             {
                 return mAllElementsOnProc( mBackgroundMesh->get_element_including_aura( aElementIndex )
                                                    ->get_memory_index() );
@@ -262,7 +262,7 @@ namespace moris
              * @return const Element*   pointer to node
              */
             Element*
-            get_element_by_memory_index( const luint& aMemoryIndex )
+            get_element_by_memory_index( luint aMemoryIndex )
             {
                 return mAllElementsOnProc( aMemoryIndex );
             }
@@ -278,7 +278,7 @@ namespace moris
              * @return const Element*   pointer to node
              */
             const Element*
-            get_element_by_memory_index( const luint& aMemoryIndex ) const
+            get_element_by_memory_index( luint aMemoryIndex ) const
             {
                 return mAllElementsOnProc( aMemoryIndex );
             }
@@ -359,7 +359,7 @@ namespace moris
              */
             void get_basis_coords_of_element(
                     Matrix< DDRMat >& aBasisCoords,
-                    const luint&      aElementIndex );
+                    luint      aElementIndex );
 
             // ----------------------------------------------------------------------------
 
@@ -465,8 +465,8 @@ namespace moris
              *
              *  @param[out]  aNodeList     cell with node pointers on aura
              */
-            void collect_basis_from_aura( const uint& aProcNeighborIndex,
-                    const uint&                       aMode,
+            void collect_basis_from_aura( uint aProcNeighborIndex,
+                    uint                       aMode,
                     Cell< Basis* >&                   aNodeList );
 
           protected:

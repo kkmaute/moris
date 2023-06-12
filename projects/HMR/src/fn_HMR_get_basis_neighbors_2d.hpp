@@ -21,7 +21,7 @@ namespace moris
 // ----------------------------------------------------------------------------
 
         void get_basis_neighbors_2d(       Basis  * aBasis,
-                                     const uint   & aOrder,
+                                     uint aOrder,
                                            Basis ** aNeighbors )
         {
              // make sure order is not too big

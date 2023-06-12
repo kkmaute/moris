@@ -483,7 +483,7 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         void
-        Database::update_bspline_meshes( const uint& aPattern )
+        Database::update_bspline_meshes( uint aPattern )
         {
             // remember active pattern // uint
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
@@ -525,7 +525,7 @@ namespace moris
         // -----------------------------------------------------------------------------
 
         void
-        Database::update_lagrange_meshes( const uint& aPattern )
+        Database::update_lagrange_meshes( uint aPattern )
         {
             // remember active pattern // uint
             auto tActivePattern = mBackgroundMesh->get_activation_pattern();
@@ -858,9 +858,9 @@ namespace moris
          */
         void
         Database::unite_patterns(
-                const uint& aSourceA,
-                const uint& aSourceB,
-                const uint& aTarget )
+                uint aSourceA,
+                uint aSourceB,
+                uint aTarget )
         {
             tic tTimer;
 
@@ -890,8 +890,8 @@ namespace moris
          * copies a source pattern to a target pattern
          */
         void
-        Database::copy_pattern( const uint& aSource,
-                const uint&                 aTarget )
+        Database::copy_pattern( uint aSource,
+                uint                 aTarget )
         {
             tic tTimer;
 
@@ -1049,9 +1049,9 @@ namespace moris
         // interpolate field values from source Lagrange to target Lagrange mesh
         void
         Database::interpolate_field(
-                const uint&                    aSourcePattern,
+                uint                           aSourcePattern,
                 const std::shared_ptr< Field > aSource,
-                const uint&                    aTargetPattern,
+                uint                           aTargetPattern,
                 std::shared_ptr< Field >       aTarget )
         {
             // make sure that mesh orders match
@@ -1620,7 +1620,7 @@ namespace moris
         // ----------------------------------------------------------------------------
 
         void
-        Database::flag_element( const luint& aIndex )
+        Database::flag_element( luint aIndex )
         {
             // flag element implies that a manual refinement is performed
             // therefore, we set the flag
@@ -1637,7 +1637,7 @@ namespace moris
         // ----------------------------------------------------------------------------
 
         void
-        Database::flag_parent( const luint& aIndex )
+        Database::flag_parent( luint aIndex )
         {
             // get pointer to this element
             Background_Element_Base* tElement = mBackgroundMesh->get_element( aIndex );

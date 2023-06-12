@@ -56,8 +56,7 @@ namespace moris
 
             // cell containing child matrices ( transposed )
             Cell< Matrix< DDRMat > > mChild;
-
-            Cell< Cell< Matrix< DDRMat > > >mChild_2;
+            Cell< Cell< Matrix< DDRMat > > >mChildMultiplied;
 
             //! parameter coordinates for lagrange element / natural coordinates
             Matrix< DDRMat > mLagrangeParam;
@@ -107,7 +106,7 @@ namespace moris
             void ( * mEvalNGeo )( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN );
 
             //! pointer to corner node function
-            void ( * mGetCorners )(  const uint & aChildindex, Matrix< DDRMat > & aXi );
+            void ( * mGetCorners )( uint aChildIndex, Matrix< DDRMat > & aXi );
 
             //! pointer to shape function
             void ( T_Matrix :: * mEvalN )( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN ) const;
@@ -169,51 +168,10 @@ namespace moris
                                                      Cell< Basis* >   & aDOFs );
 
 //-------------------------------------------------------------------------------
-
-            const Matrix< DDRMat > & get_child_matrix( const uint aChildIndex ) const
-            {
-                return mChild( aChildIndex );
-            }
+            virtual void evaluate( uint aBSplineMeshIndex,
+                                   bool aBool = true);
 
 //-------------------------------------------------------------------------------
-            virtual void evaluate( const uint aBSplineMeshIndex,
-                           const bool aBool = true);
-
-//-------------------------------------------------------------------------------
-
-            /**
-             * @brief evaluate B-Spline basis functions at a given lagrange point
-             *
-             * @param aBsplineElement
-             * @param aLagrangeElement
-             * @param tBsplineBasis
-             * @param tWeights
-             */
-
-            void evaluate_extended_t_matrix( Element*                    aBsplineElement,
-                    Element*                                    aLagrangeElement,
-                    moris::Cell< moris::Cell< mtk::Vertex* > >& tBsplineBasis,
-                    moris::Cell< Matrix< DDRMat > >&            tWeights );
-
-            //-------------------------------------------------------------------------------
-
-            /**
-             * @brief evaluate the L2 projection weights converting extended basis to root basis
-             *
-             * @param aRootBsplineElement
-             * @param aExtendedBsplineElement
-             * @param tRootBsplineBasis
-             * @param tExtendedBsplineBasis
-             * @param tWeights
-             */
-
-            void evaluate_L2_projection( Element*               aRootBsplineElement,
-                    Element*                                    aExtendedBsplineElement,
-                    moris::Cell< moris::Cell< mtk::Vertex* > >& tRootBsplineBasis,
-                    moris::Cell< mtk::Vertex* >&                tExtendedBsplineBasis,
-                    moris::Cell< Matrix< DDRMat > >&            tWeights );
-
-            //-------------------------------------------------------------------------------
 
             void evaluate_trivial( uint aBSplineMeshIndex,
                                    bool aBool );
@@ -246,7 +204,7 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            const Matrix< DDRMat> & get_child_matrix_1( const Cell< uint > & aChildIndices );
+            const Matrix< DDRMat> & get_child_matrix( const Cell< uint > & aChildIndices );
 
 //------------------------------------------------------------------------------
 
@@ -303,9 +261,9 @@ namespace moris
             /**
              * 1D shape function
              */
-            real b_spline_shape_1d( const uint & aOrder,
-                                    const uint & aK,
-                                    const real & aXi ) const;
+            static real b_spline_shape_1d( uint aOrder,
+                                    uint aK,
+                                    real aXi );
 
 //------------------------------------------------------------------------------
 
@@ -395,7 +353,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            Matrix< DDRMat > get_supporting_points( const uint aDimension, const uint aOrder );
+            static Matrix< DDRMat > get_supporting_points( uint aDimension, uint aOrder );
 
         };
 

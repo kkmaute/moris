@@ -22,9 +22,9 @@ namespace moris
         template<>
         inline luint
         Background_Mesh< 2 >::calc_domain_id_of_element(
-                const uint&  aLevel,
-                const luint& aI,
-                const luint& aJ ) const
+                uint  aLevel,
+                luint aI,
+                luint aJ ) const
         {
             MORIS_ASSERT( aLevel < gMaxNumberOfLevels,
                     "calc_domain_id_of_element(), Requested refinement level larger than maximal refinement level" );
@@ -45,9 +45,9 @@ namespace moris
         template<>
         inline luint
         Background_Mesh< 2 >::calc_subdomain_id_of_element(
-                const uint&  aLevel,
-                const luint& aI,
-                const luint& aJ ) const
+                uint  aLevel,
+                luint aI,
+                luint aJ ) const
         {
             MORIS_ASSERT( aLevel < gMaxNumberOfLevels,
                     "calc_subdomain_id_of_element(), Requested refinement level larger than maximal refinement level" );
@@ -70,7 +70,7 @@ namespace moris
         template<>
         inline void
         Background_Mesh< 2 >::calc_element_ids(
-                const uint&              aLevel,
+                uint                     aLevel,
                 const Matrix< DDLUMat >& aIJK,
                 Matrix< DDLUMat >&       aIDs ) const
         {
@@ -103,8 +103,8 @@ namespace moris
         template<>
         inline luint
         Background_Mesh< 2 >::calc_subdomain_id_from_global_id(
-                const uint&  aLevel,
-                const luint& aID ) const
+                uint  aLevel,
+                luint aID ) const
         {
             MORIS_ASSERT( aLevel < gMaxNumberOfLevels, "calc_subdomain_id_from_global_id(), Requested refinement level larger than maximal refinement level" );
 
@@ -686,7 +686,7 @@ namespace moris
         template<>
         inline void
         Background_Mesh< 2 >::collect_coarsest_elements_on_side(
-                const uint&                       aSideOrdinal,
+                uint                       aSideOrdinal,
                 Cell< Background_Element_Base* >& aCoarsestElementsOnSide )
         {
             // clear output cell

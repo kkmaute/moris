@@ -28,17 +28,16 @@ namespace moris
 //------------------------------------------------------------------------------
 
         BSpline_Mesh_Base::BSpline_Mesh_Base (
-                const Parameters      * aParameters,
-                Background_Mesh_Base  * aBackgroundMesh,
-                const uint            & aOrder,
-                const uint            & aActivationPattern ) : Mesh_Base( aParameters,
-                                                                          aBackgroundMesh,
-                                                                          aOrder,
-                                                                          aActivationPattern ),
-                                                               mNumberOfChildrenPerBasis( std::pow( aOrder + 2,
-                                                                                          aParameters->get_number_of_dimensions() ) ),
-                                                               mNumberOfElementsPerBasis( std::pow( aOrder+1,
-                                                                                          aParameters->get_number_of_dimensions() ) )
+                const Parameters*     aParameters,
+                Background_Mesh_Base* aBackgroundMesh,
+                uint                   aOrder,
+                uint                   aActivationPattern )
+        : Mesh_Base( aParameters,
+                     aBackgroundMesh,
+                     aOrder,
+                     aActivationPattern )
+        , mNumberOfChildrenPerBasis( std::pow( aOrder + 2,aParameters->get_number_of_dimensions() ) )
+        , mNumberOfElementsPerBasis( std::pow( aOrder+1,aParameters->get_number_of_dimensions() ) )
         {
             this->calculate_child_stencil();
 
@@ -129,8 +128,8 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Basis * BSpline_Mesh_Base::get_coarsest_basis_by_ij( const luint & aI,
-                                                             const luint & aJ )
+        Basis * BSpline_Mesh_Base::get_coarsest_basis_by_ij( luint aI,
+                                                             luint aJ )
         {
             MORIS_ASSERT( aI < mNumberOfCoarsestBasisOnProc[ 0 ] && aJ < mNumberOfCoarsestBasisOnProc[ 1 ],
                     "get_coarsest_basis_by_ij(), requested basis outside of the domain limits");
@@ -147,24 +146,15 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        Basis * BSpline_Mesh_Base::get_coarsest_basis_by_ijk( const luint & aI,
-                                                              const luint & aJ,
-                                                              const luint & aK )
+        Basis * BSpline_Mesh_Base::get_coarsest_basis_by_ijk( luint aI,
+                                                              luint aJ,
+                                                              luint aK )
         {
             MORIS_ASSERT( aI < mNumberOfCoarsestBasisOnProc[ 0 ] && aJ < mNumberOfCoarsestBasisOnProc[ 1 ] && aK < mNumberOfCoarsestBasisOnProc[ 2 ],
                     "get_coarsest_basis_by_ij(), requested basis outside of the domain limits");
 
-//            if (    aI < mNumberOfCoarsestBasisOnProc[ 0 ] &&
-//                    aJ < mNumberOfCoarsestBasisOnProc[ 1 ] &&
-//                    aK < mNumberOfCoarsestBasisOnProc[ 2 ] )
-//            {
-                return mAllCoarsestBasisOnProc( aI + mNumberOfCoarsestBasisOnProc[ 0 ] *
-                                              ( aJ + aK * mNumberOfCoarsestBasisOnProc[ 1 ] ) );
-//            }
-//            else
-//            {
-//                return nullptr;
-//            }
+            return mAllCoarsestBasisOnProc( aI + mNumberOfCoarsestBasisOnProc[ 0 ] *
+                                          ( aJ + aK * mNumberOfCoarsestBasisOnProc[ 1 ] ) );
         }
 
 //------------------------------------------------------------------------------
@@ -547,8 +537,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void BSpline_Mesh_Base::collect_active_and_refined_elements_from_level( const uint              & aLevel,
-                                                                                      Cell< Element * > & aElements )
+        void BSpline_Mesh_Base::collect_active_and_refined_elements_from_level(
+                uint                aLevel,
+                Cell< Element * > & aElements )
         {
             // cell containing background elements on this level
             Cell< Background_Element_Base* > tBackgroundElements;
@@ -584,7 +575,7 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void BSpline_Mesh_Base::process_level( const uint & aLevel )
+        void BSpline_Mesh_Base::process_level( uint aLevel )
         {
             Cell< Element* > tElementsOnThisLevel;
             this->collect_active_and_refined_elements_from_level( aLevel, tElementsOnThisLevel );
@@ -620,8 +611,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void BSpline_Mesh_Base::preprocess_basis_from_level( Cell< Element * > & aElements,
-                                                             Cell< Basis * >   & aBasis )
+        void BSpline_Mesh_Base::preprocess_basis_from_level(
+                Cell< Element * > & aElements,
+                Cell< Basis * >   & aBasis )
         {
             // reset flags for basis
             for( Element * tElement : aElements )
@@ -784,9 +776,10 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void BSpline_Mesh_Base::delete_unused_basis( const uint                             & aLevel,
-                                                           Cell< Background_Element_Base* > & aBackgroundElements,
-                                                           Cell< Basis* >                   & aBasis )
+        void BSpline_Mesh_Base::delete_unused_basis(
+                uint                               aLevel,
+                Cell< Background_Element_Base* > & aBackgroundElements,
+                Cell< Basis* >                   & aBasis )
         {
             // start timer
             tic tTimer;
@@ -935,8 +928,9 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-        void BSpline_Mesh_Base::collect_basis_from_level( const uint           & aLevel,
-                                                                Cell< Basis* > & aBasis )
+        void BSpline_Mesh_Base::collect_basis_from_level(
+                uint             aLevel,
+                Cell< Basis* > & aBasis )
         {
             Cell< Element * > tElements;
 

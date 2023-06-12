@@ -201,7 +201,7 @@ namespace moris
          */
         template<>
         inline
-        void Lagrange_Element< 3, 27 >::get_ijk_of_basis( const uint   & aBasisNumber,
+        void Lagrange_Element< 3, 27 >::get_ijk_of_basis( uint aBasisNumber,
                                                                  luint * aIJK )
         {
             // get element local coordinate

@@ -40,7 +40,7 @@ namespace moris
         public:
 //-------------------------------------------------------------------------------
 
-            Background_Edge( Background_Element_Base * aElement, const uint & aIndex );
+            Background_Edge( Background_Element_Base * aElement, uint aIndex );
 
 //-------------------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             void
-            insert_element( Background_Element_Base * aElement, const uint & aIndex );
+            insert_element( Background_Element_Base * aElement, uint aIndex );
 
 //-------------------------------------------------------------------------------
 
@@ -74,12 +74,12 @@ namespace moris
 //-------------------------------------------------------------------------------
 
             Background_Element_Base *
-            get_element( const uint & aIndex );
+            get_element( uint aIndex );
 
 //-------------------------------------------------------------------------------
 
             uint
-            get_index_on_element( const uint & aIndex ) const;
+            get_index_on_element( uint aIndex ) const;
 
 //-------------------------------------------------------------------------------
         };

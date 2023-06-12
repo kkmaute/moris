@@ -98,10 +98,10 @@ namespace moris
              * Default constuctor for element base class
              */
             Background_Element_Base( Background_Element_Base* aParent,
-                    const uint&                               aActivePattern,
-                    const luint&                              aID,
-                    const uint&                               aLevel,
-                    const uint&                               aOwner )
+                    uint                               aActivePattern,
+                    luint                              aID,
+                    uint                               aLevel,
+                    uint                               aOwner )
                     : mParent( aParent )
                     , mDomainID( aID )
                     , mLevel( aLevel )
@@ -169,7 +169,7 @@ namespace moris
              * @return void
              */
             void
-            set_active_flag( const uint& aPattern )
+            set_active_flag( uint aPattern )
             {
                 // set active flag on
                 mActiveFlags.set( aPattern );
@@ -200,7 +200,7 @@ namespace moris
              * @return void
              */
             void
-            set_refined_flag( const uint& aPattern )
+            set_refined_flag( uint aPattern )
             {
                 // a refined element is not active
                 mActiveFlags.reset( aPattern );
@@ -306,7 +306,7 @@ namespace moris
              * @return bool   true if refined
              */
             bool
-            is_refined( const uint& aPattern ) const
+            is_refined( uint aPattern ) const
             {
                 MORIS_ASSERT( aPattern < gNumberOfPatterns, "is_refined(); Only %-2i pattern are created. Requested pattern is %-2i", gNumberOfPatterns, aPattern );
                 return mRefinedFlags.test( aPattern );
@@ -320,7 +320,7 @@ namespace moris
              * @return bool   true if active
              */
             bool
-            is_active( const uint& aPattern ) const
+            is_active( uint aPattern ) const
             {
                 MORIS_ASSERT( aPattern < gNumberOfPatterns, "is_active(); Only %-2i pattern are created. Requested pattern is %-2i", gNumberOfPatterns, aPattern );
                 return mActiveFlags.test( aPattern );
@@ -332,7 +332,7 @@ namespace moris
              * tells if an element is deactive
              */
             bool
-            is_deactive( const uint& aPattern )
+            is_deactive( uint aPattern )
             {
                 MORIS_ASSERT( aPattern < gNumberOfPatterns, "is_deactive(); Only %-2i pattern are created. Requested pattern is %-2i", gNumberOfPatterns, aPattern );
                 return !( mActiveFlags.test( aPattern ) || mRefinedFlags.test( aPattern ) );
@@ -376,7 +376,7 @@ namespace moris
              * @return bool   true if children exist on the current pattern
              */
             bool
-            has_children( const uint& aPattern ) const
+            has_children( uint aPattern ) const
             {
                 if ( mPaddingFlag )
                 {
@@ -484,11 +484,11 @@ namespace moris
              * @param[in] aIndex                  Index of requested child
              * @return Background_Element_Base *  pointer to selected child
              */
-            virtual Background_Element_Base* get_child( const uint& aIndex ) = 0;
+            virtual Background_Element_Base* get_child( uint aIndex ) = 0;
 
             //--------------------------------------------------------------------------------
 
-            virtual Background_Element_Base* get_child( const uint& aIndex ) const = 0;
+            virtual Background_Element_Base* get_child( uint aIndex ) const = 0;
 
             //--------------------------------------------------------------------------------
 
@@ -531,7 +531,7 @@ namespace moris
              *
              * @return bool
              */
-            virtual bool test_child_index_bit( const uint& aBit ) const = 0;
+            virtual bool test_child_index_bit( uint aBit ) const = 0;
 
             //--------------------------------------------------------------------------------
 
@@ -545,7 +545,7 @@ namespace moris
              * @return void
              */
             virtual void insert_neighbor(
-                    const uint&              aIndex,
+                    uint                     aIndex,
                     Background_Element_Base* aNeighbor ) = 0;
 
             //--------------------------------------------------------------------------------
@@ -557,7 +557,7 @@ namespace moris
              *
              * @return Background_Element_Base* pointer to requested neighbor
              */
-            virtual Background_Element_Base* get_neighbor( const uint& aIndex ) = 0;
+            virtual Background_Element_Base* get_neighbor( uint aIndex ) = 0;
             //--------------------------------------------------------------------------------
 
             /**
@@ -567,7 +567,7 @@ namespace moris
              *
              * @return Background_Element_Base* pointer to requested neighbor
              */
-            virtual const Background_Element_Base* get_neighbor( const uint& aIndex ) const = 0;
+            virtual const Background_Element_Base* get_neighbor( uint aIndex ) const = 0;
 
             //--------------------------------------------------------------------------------
 
@@ -593,7 +593,7 @@ namespace moris
              *
              * @return void
              */
-            virtual void get_number_of_active_descendants( const uint& aPattern, luint& aCount ) const = 0;
+            virtual void get_number_of_active_descendants( uint aPattern, luint& aCount ) const = 0;
 
             //--------------------------------------------------------------------------------
 
@@ -638,11 +638,11 @@ namespace moris
              * @return void
              *
              */
-            virtual void collect_active_descendants( const uint& aPattern,
+            virtual void collect_active_descendants( uint aPattern,
                     Cell< Background_Element_Base* >&            aElementList,
                     luint&                                       aElementCount ) = 0;
 
-            virtual void collect_active_descendants( const uint& aPattern,
+            virtual void collect_active_descendants( uint aPattern,
                     Cell< const Background_Element_Base* >&      aElementList,
                     luint&                                       aElementCount ) const = 0;
 
@@ -661,7 +661,7 @@ namespace moris
              *
              */
             virtual void collect_active_descendants_by_memory_index(
-                    const uint&        aPattern,
+                    uint               aPattern,
                     Matrix< DDLUMat >& aElementList,
                     luint&             aElementCount,
                     const int          aNeighborIndex = -1 ) const = 0;
@@ -693,8 +693,8 @@ namespace moris
              * tells how many active descendants live on side 1
              */
             virtual void get_number_of_active_descendants_on_side_1(
-                    const uint& aPattern,
-                    luint&      aCount ) = 0;
+                    uint   aPattern,
+                    luint& aCount ) = 0;
 
             //--------------------------------------------------------------------------------
 
@@ -702,16 +702,16 @@ namespace moris
              * tells how many active descendants live on side 2
              */
             virtual void get_number_of_active_descendants_on_side_2(
-                    const uint& aPattern,
-                    luint&      aCount ) = 0;
+                    uint   aPattern,
+                    luint& aCount ) = 0;
             //--------------------------------------------------------------------------------
 
             /**
              * tells how many active descendants live on side 3
              */
             virtual void get_number_of_active_descendants_on_side_3(
-                    const uint& aPattern,
-                    luint&      aCount ) = 0;
+                    uint   aPattern,
+                    luint& aCount ) = 0;
 
             //--------------------------------------------------------------------------------
 
@@ -719,8 +719,8 @@ namespace moris
              * tells how many active descendants live on side 4
              */
             virtual void get_number_of_active_descendants_on_side_4(
-                    const uint& aPattern,
-                    luint&      aCount ) = 0;
+                    uint   aPattern,
+                    luint& aCount ) = 0;
 
             //--------------------------------------------------------------------------------
 
@@ -728,8 +728,8 @@ namespace moris
              * tells how many active descendants live on side 5
              */
             virtual void get_number_of_active_descendants_on_side_5(
-                    const uint& aPattern,
-                    luint&      aCount ) = 0;
+                    uint   aPattern,
+                    luint& aCount ) = 0;
 
             //--------------------------------------------------------------------------------
 
@@ -737,48 +737,48 @@ namespace moris
              * tells how many active descendants live on side 6
              */
             virtual void get_number_of_active_descendants_on_side_6(
-                    const uint& aPattern,
-                    luint&      aCount ) = 0;
+                    uint   aPattern,
+                    luint& aCount ) = 0;
 
             //--------------------------------------------------------------------------------
 
             virtual void collect_active_descendants_on_side_1(
-                    const uint&                       aPattern,
+                    uint                              aPattern,
                     Cell< Background_Element_Base* >& aElementList,
                     luint&                            aElementCount ) = 0;
 
             //--------------------------------------------------------------------------------
 
             virtual void collect_active_descendants_on_side_2(
-                    const uint&                       aPattern,
+                    uint                             aPattern,
                     Cell< Background_Element_Base* >& aElementList,
                     luint&                            aElementCount ) = 0;
 
             //--------------------------------------------------------------------------------
 
             virtual void collect_active_descendants_on_side_3(
-                    const uint&                       aPattern,
+                    uint                              aPattern,
                     Cell< Background_Element_Base* >& aElementList,
                     luint&                            aElementCount ) = 0;
 
             //--------------------------------------------------------------------------------
 
             virtual void collect_active_descendants_on_side_4(
-                    const uint&                       aPattern,
+                    uint                              aPattern,
                     Cell< Background_Element_Base* >& aElementList,
                     luint&                            aElementCount ) = 0;
 
             //--------------------------------------------------------------------------------
 
             virtual void collect_active_descendants_on_side_5(
-                    const uint&                       aPattern,
+                    uint                              aPattern,
                     Cell< Background_Element_Base* >& aElementList,
                     luint&                            aElementCount ) = 0;
 
             //--------------------------------------------------------------------------------
 
             virtual void collect_active_descendants_on_side_6(
-                    const uint&                       aPattern,
+                    uint                              aPattern,
                     Cell< Background_Element_Base* >& aElementList,
                     luint&                            aElementCount ) = 0;
 
@@ -804,7 +804,7 @@ namespace moris
              *
              * @return void
              */
-            virtual void print_neighbors( const uint& aPattern ) = 0;
+            virtual void print_neighbors( uint aPattern ) = 0;
 
             //--------------------------------------------------------------------------------
 
@@ -815,8 +815,8 @@ namespace moris
              * @param[in]     aLevel    level to be considered
              * @param[inout]  aCount    counter for elements
              */
-            virtual void count_elements_on_level( const uint& aLevel,
-                    luint&                                    aElementCount ) = 0;
+            virtual void count_elements_on_level( uint   aLevel,
+                                                  luint& aElementCount ) = 0;
 
             //--------------------------------------------------------------------------------
 
@@ -829,7 +829,7 @@ namespace moris
              * @param[inout]  aElementCount   counter for elements
              */
             virtual void collect_elements_on_level(
-                    const uint&                       aLevel,
+                    uint                              aLevel,
                     Cell< Background_Element_Base* >& aElementList,
                     luint&                            aElementCount ) = 0;
 
@@ -839,7 +839,7 @@ namespace moris
              * called by BackgroundMesh->update_database()
              * depends on selected activation pattern
              */
-            virtual void collect_neighbors( const uint& aPattern ) = 0;
+            virtual void collect_neighbors( uint aPattern ) = 0;
 
             //-------------------------------------------------------------------------------
 
@@ -850,8 +850,8 @@ namespace moris
              * @param[ in  ] aOrder       degree of neighborship
              * @param[ out ] aNeighbors   cell containing found neighbors
              */
-            virtual void get_neighbors_from_same_level( const uint& aOrder,
-                    Cell< Background_Element_Base* >&               aNeighbors ) = 0;
+            virtual void get_neighbors_from_same_level( uint                              aOrder,
+                                                        Cell< Background_Element_Base* >& aNeighbors ) = 0;
 
             //-------------------------------------------------------------------------------
 
@@ -863,7 +863,7 @@ namespace moris
              * @return void
              */
             void
-            set_domain_index( const uint& aPattern, const luint& aIndex )
+            set_domain_index( uint aPattern, luint aIndex )
             {
                 mDomainIndex( aPattern ) = aIndex;
             }
@@ -876,7 +876,7 @@ namespace moris
              * @return luint global index of element
              */
             luint
-            get_hmr_index( const uint& aPattern )
+            get_hmr_index( uint aPattern )
             {
                 return mDomainIndex( aPattern );
             }
@@ -891,7 +891,7 @@ namespace moris
              * @return void
              */
             void
-            set_memory_index( const luint& aIndex )
+            set_memory_index( luint aIndex )
             {
                 mMemoryIndex = aIndex;
             }
@@ -915,7 +915,7 @@ namespace moris
              * coarsen this element
              */
             void
-            coarsen( const uint& aPattern )
+            coarsen( uint aPattern )
             {
                 MORIS_ASSERT( mActiveFlags.test( aPattern ), "Can only coarsen active elements." );
 
@@ -932,7 +932,7 @@ namespace moris
              * deactivate this element
              */
             void
-            deactivate( const uint& aPattern )
+            deactivate( uint aPattern )
             {
                 // deactivate self
                 mActiveFlags.reset( aPattern );
@@ -973,14 +973,14 @@ namespace moris
             /**
              * returns a face of the background element
              */
-            virtual Background_Facet* get_facet( const uint& aIndex ) = 0;
+            virtual Background_Facet* get_facet( uint aIndex ) = 0;
 
             //-------------------------------------------------------------------------------
 
             /**
              * inserts a face of the backgound element
              */
-            virtual void insert_facet( Background_Facet* aFace, const uint& aIndex ) = 0;
+            virtual void insert_facet( Background_Facet* aFace, uint aIndex ) = 0;
 
             //-------------------------------------------------------------------------------
 
@@ -1025,14 +1025,14 @@ namespace moris
             /**
              * get pointer to background edge
              */
-            virtual Background_Edge* get_edge( const uint& aIndex ) = 0;
+            virtual Background_Edge* get_edge( uint aIndex ) = 0;
 
             //-------------------------------------------------------------------------------
 
             /**
              * insert pointer to background edge
              */
-            virtual void insert_edge( Background_Edge* aEdge, const uint& aIndex ) = 0;
+            virtual void insert_edge( Background_Edge* aEdge, uint aIndex ) = 0;
 
             //-------------------------------------------------------------------------------
 
@@ -1040,7 +1040,7 @@ namespace moris
              * explicitly sets the minumum refinement level.
              */
             void
-            set_min_refimenent_level( const uint& aMinRefinementLevel )
+            set_min_refimenent_level( uint aMinRefinementLevel )
             {
                 mMinRefinementLevel = aMinRefinementLevel;
             }
@@ -1051,7 +1051,7 @@ namespace moris
              * updates sets the minumum refinement level.
              */
             void
-            update_min_refimenent_level( const uint& aMinRefinementLevel )
+            update_min_refimenent_level( uint aMinRefinementLevel )
             {
                 if ( mMinRefinementLevel < aMinRefinementLevel )
                 {

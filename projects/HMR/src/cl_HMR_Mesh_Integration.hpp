@@ -46,8 +46,8 @@ namespace moris
             public:
 
                 Integration_Mesh_HMR(
-                        const uint                  & aLagrangeOrder,
-                        const uint                  & aLagrangePattern,
+                        uint aLagrangeOrder,
+                        uint aLagrangePattern,
                         Interpolation_Mesh_HMR      * aInterpolationMesh )
             : Mesh( aInterpolationMesh->get_database(),
                     aLagrangeOrder,
@@ -60,7 +60,7 @@ namespace moris
             }
 
                 Integration_Mesh_HMR(
-                        const uint                               & aLagrangeMeshIndex,
+                        uint aLagrangeMeshIndex,
                         Interpolation_Mesh_HMR                   * aInterpolationMesh  )
                 : Mesh( aInterpolationMesh->get_database(),
                         aLagrangeMeshIndex )
