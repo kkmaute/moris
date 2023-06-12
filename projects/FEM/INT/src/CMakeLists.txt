@@ -245,6 +245,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_Zienkiewicz_Zhu.hpp
     IQI/cl_FEM_IQI_Jump_Dof.hpp
     IQI/cl_FEM_IQI_Jump_Traction.hpp
+    IQI/cl_FEM_IQI_Traction.hpp
      
     MEA/cl_FEM_Cluster_Measure.hpp
     )
@@ -467,6 +468,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Zienkiewicz_Zhu.cpp
     IQI/cl_FEM_IQI_Jump_Dof.cpp
     IQI/cl_FEM_IQI_Jump_Traction.cpp
+    IQI/cl_FEM_IQI_Traction.cpp
    
     MEA/cl_FEM_Cluster_Measure.cpp
     

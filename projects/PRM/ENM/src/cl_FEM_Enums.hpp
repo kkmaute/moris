@@ -182,6 +182,7 @@ namespace moris
 
             JUMP_DOF,
             JUMP_TRACTION,
+            TRACTION,
 
             ADVECTION_STRONG_RESIDUAL,
             STRONG_RESIDUAL_SA,

@@ -46,6 +46,7 @@
 #include "cl_FEM_IQI_Zienkiewicz_Zhu.hpp"
 #include "cl_FEM_IQI_Jump_Dof.hpp"
 #include "cl_FEM_IQI_Jump_Traction.hpp"
+#include "cl_FEM_IQI_Traction.hpp"
 
 namespace moris
 {
@@ -177,6 +178,9 @@ namespace moris
                     return std::make_shared< IQI_Jump_Dof >();
                 case IQI_Type::JUMP_TRACTION:
                     return std::make_shared< IQI_Jump_Traction >();
+                case IQI_Type::TRACTION:
+                    return std::make_shared< IQI_Traction >();
+
 
                 default:
                     MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );
