@@ -598,8 +598,14 @@ namespace moris
                 size_t const & aRowIndex,
                 size_t const & aColIndex )
         {
-            MORIS_ASSERT( aRowIndex < this->n_rows(), "Row index out of bounds" );
-            MORIS_ASSERT( aColIndex < this->n_cols(), "Col index out of bounds" );
+            MORIS_ASSERT( aRowIndex < this->n_rows(), 
+                    "Matrix< arma::Mat >operator() - Row index out of bounds. Index: %i, Size: %i",
+                    aRowIndex,
+                    this->n_rows() );
+            MORIS_ASSERT( aColIndex < this->n_cols(), 
+                    "Matrix< arma::Mat >operator() - Col index out of bounds. Index: %i, Size: %i",
+                    aColIndex,
+                    this->n_cols() );
 
             return mMatrix( aRowIndex, aColIndex );
         }
@@ -617,8 +623,14 @@ namespace moris
                 const size_t& aRowIndex,
                 const size_t& aColIndex ) const
         {
-            MORIS_ASSERT( aRowIndex < this->n_rows(), "Row index out of bounds" );
-            MORIS_ASSERT( aColIndex < this->n_cols(), "Col index out of bounds" );
+            MORIS_ASSERT( aRowIndex < this->n_rows(), 
+                    "Matrix< arma::Mat >operator() - Row index out of bounds. Index: %i, Size: %i",
+                    aRowIndex,
+                    this->n_rows() );
+            MORIS_ASSERT( aColIndex < this->n_cols(), 
+                    "Matrix< arma::Mat >operator() - Col index out of bounds. Index: %i, Size: %i",
+                    aColIndex,
+                    this->n_cols() );
 
             return mMatrix( aRowIndex, aColIndex );
         }
@@ -634,9 +646,11 @@ namespace moris
         operator()( size_t const & aIndex )
         {
             MORIS_ASSERT( this->matrix_data().is_vec(),
-                    "Using vector () operator on non-vector" );
+                    "Matrix< arma::Mat >operator() - Using vector () operator on non-vector" );
             MORIS_ASSERT( aIndex < this->numel(),
-                    "Vector index out of bounds" );
+                    "Matrix< arma::Mat >operator() - Vector index out of bounds. Index: %i, Size: %i",
+                    aIndex,
+                    this->numel() );
 
             return mMatrix( aIndex );
         }
@@ -652,9 +666,11 @@ namespace moris
         operator()( const size_t& aIndex ) const
         {
             MORIS_ASSERT( this->matrix_data().is_vec(),
-                    "Using vector () operator on non-vector" );
+                    "Matrix< arma::Mat >operator() - Using vector () operator on non-vector" );
             MORIS_ASSERT( aIndex < this->numel(),
-                    "Vector index out of bounds" );
+                    "Matrix< arma::Mat >operator() - Vector index out of bounds. Index: %i, Size: %i",
+                    aIndex,
+                    this->numel() );
 
             return mMatrix( aIndex );
         }

@@ -154,7 +154,6 @@ namespace xtk
     {
         moris_index tSideOrd = mIntegrationCellSideOrdinals(aCellIndexInCluster);
 
-
         moris::Cell<moris::mtk::Vertex const *> tVerticesOnSide = mIntegrationCells(aCellIndexInCluster)->get_vertices_on_side_ordinal(tSideOrd);
         // iterate through vertices and see if the ids match
         for(moris::moris_index i = 0; i < (moris_index)tVerticesOnSide.size(); i++)

@@ -537,6 +537,7 @@ namespace moris
                 mOutputManager->end_writing( aVisMeshIndex );
             }
 
+            // populate FEM fields if requested for output
             mEquationModel->populate_fields();
         }
 

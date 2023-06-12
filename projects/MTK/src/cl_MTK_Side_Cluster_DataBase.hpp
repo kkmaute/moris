@@ -110,8 +110,9 @@ namespace moris
              *
              */
             virtual moris_index
-            get_cell_side_ordinal( moris::moris_index aCellIndexInCluster,
-                    const mtk::Leader_Follower           aIsLeader = mtk::Leader_Follower::LEADER ) const override;
+            get_cell_side_ordinal(
+                    moris::moris_index         aCellIndexInCluster,
+                    const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
             // ----------------------------------------------------------------------------------
 
@@ -146,7 +147,7 @@ namespace moris
             virtual moris::Matrix< moris::DDRMat >
             get_vertex_local_coordinate_wrt_interp_cell(
                     moris::mtk::Vertex const * aVertex,
-                    const mtk::Leader_Follower    aIsLeader = mtk::Leader_Follower::LEADER ) const override;
+                    const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
             // ----------------------------------------------------------------------------------
 
@@ -179,8 +180,9 @@ namespace moris
              */
 
             virtual moris_index
-            get_vertex_cluster_index( const Vertex* aVertex,
-                    const mtk::Leader_Follower         aIsLeader = mtk::Leader_Follower::LEADER ) const override;
+            get_vertex_cluster_index(
+                    const Vertex*              aVertex,
+                    const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
             // ----------------------------------------------------------------------------------
 
@@ -210,7 +212,7 @@ namespace moris
 
             virtual moris::real
             compute_cluster_cell_measure(
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const override;
 
             //---------------------------------------------------------------------------------------
@@ -225,7 +227,7 @@ namespace moris
 
             virtual Matrix< DDRMat >
             compute_cluster_ig_cell_measures(
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const override;
 
             //---------------------------------------------------------------------------------------
@@ -242,17 +244,17 @@ namespace moris
 
             virtual moris::real
             compute_cluster_cell_measure_derivative(
-                    const Matrix< DDRMat >& aPerturbedVertexCoords,
-                    uint                    aDirection,
-                    const mtk::Primary_Void aPrimaryOrVoid,
+                    const Matrix< DDRMat >&    aPerturbedVertexCoords,
+                    uint                       aDirection,
+                    const mtk::Primary_Void    aPrimaryOrVoid,
                     const mtk::Leader_Follower aIsLeader ) const override;
 
             //------------------------------------------------------------------------------
 
             virtual moris::real
             compute_cluster_group_cell_measure(
-                    const moris_index       aDiscretizationMeshIndex,
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const moris_index          aDiscretizationMeshIndex,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const override
             {
                 MORIS_ERROR( false, "mtk::Side_Cluster_DataBase::compute_cluster_group_cell_measure() - Not implemented in this child class." );
@@ -263,10 +265,10 @@ namespace moris
 
             virtual moris::real
             compute_cluster_group_cell_measure_derivative(
-                    const moris_index       aDiscretizationMeshIndex,
-                    const Matrix< DDRMat >& aPerturbedVertexCoords,
-                    uint                    aDirection,
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const moris_index          aDiscretizationMeshIndex,
+                    const Matrix< DDRMat >&    aPerturbedVertexCoords,
+                    uint                       aDirection,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const override
             {
                 MORIS_ERROR( false, "mtk::Side_Cluster_DataBase::compute_cluster_group_cell_measure_derivative() - Not implemented in this child class." );
@@ -277,8 +279,8 @@ namespace moris
 
             virtual moris::real
             compute_cluster_group_cell_side_measure(
-                    const moris_index       aDiscretizationMeshIndex,
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const moris_index          aDiscretizationMeshIndex,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const override
             {
                 MORIS_ERROR( false, "mtk::Cell_Cluster_DataBase::compute_cluster_group_cell_side_measure() - Not implemented in this child class." );
@@ -289,10 +291,10 @@ namespace moris
 
             virtual moris::real
             compute_cluster_group_cell_side_measure_derivative(
-                    const moris_index       aDiscretizationMeshIndex,
-                    const Matrix< DDRMat >& aPerturbedVertexCoords,
-                    uint                    aDirection,
-                    const mtk::Primary_Void aPrimaryOrVoid,
+                    const moris_index          aDiscretizationMeshIndex,
+                    const Matrix< DDRMat >&    aPerturbedVertexCoords,
+                    uint                       aDirection,
+                    const mtk::Primary_Void    aPrimaryOrVoid,
                     const mtk::Leader_Follower aIsLeader ) const override
             {
                 MORIS_ERROR( false, "mtk::Cell_Cluster_DataBase::compute_cluster_group_cell_side_measure_derivative() - Not implemented in this child class." );

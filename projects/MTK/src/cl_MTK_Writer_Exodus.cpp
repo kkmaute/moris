@@ -454,12 +454,16 @@ namespace moris
 
             // Check that block index is valid
             int tNumBlocks = ex_inquire_int( mExoID, EX_INQ_ELEM_BLK );
-            MORIS_ERROR( tNumBlocks > tBlockIndex, "Index of block set is larger than number of blocks" );
+            MORIS_ERROR( 
+                    tNumBlocks > tBlockIndex, 
+                    "Writer_Exodus::write_elemental_field() - Index of block set is larger than number of blocks" );
 
             // Field name to index
             int tFieldIndex = mElementalFieldNamesMap[ aFieldName ];
-            MORIS_ERROR( (uint) tFieldIndex < mElementalFieldNamesMap.size(),
-                    aFieldName.append( " is not an elemental field name on this mesh!" ).c_str() );
+            MORIS_ERROR( 
+                    (uint) tFieldIndex < mElementalFieldNamesMap.size(),
+                    "Writer_Exodus::write_elemental_field() - '%s' is not an elemental field name on this mesh!", 
+                    aFieldName.c_str() );
 
             // Check number of field values = number of elements
             MORIS_ERROR( aFieldValues.numel() == mMesh->get_set_cells( aBlockName ).size(),
@@ -529,7 +533,7 @@ namespace moris
             // Field name to index
             int tFieldIndex = mSideSetFieldNamesMap[ aFieldName ];
             MORIS_ERROR( (uint) tFieldIndex < mSideSetFieldNamesMap.size(), 
-                    "Writer_Exodus::write_side_set_field() - %s is not an elemental field name on this mesh.",
+                    "Writer_Exodus::write_side_set_field() - '%s' is not an elemental field name on this mesh.",
                     aFieldName.c_str() );
 
             // Ensure that time step is larger than or equal 1
@@ -548,7 +552,7 @@ namespace moris
             // Check for error
             MORIS_ERROR( tErrMsg == 0,
                     "Writer_Exodus::write_side_set_field() - "
-                    "Side set field %s could not be written for side set %s to exodus file.",
+                    "Side set field '%s' could not be written for side set '%s' to exodus file.",
                     aFieldName.c_str(),
                     aSideSetName.c_str() );
         }

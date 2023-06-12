@@ -339,9 +339,9 @@ namespace moris
             aPADofMap.set_size( tNumMyPdofs, tNumUniqueAdofs, 0.0 );
 
             // Loop over all pdofs of this equation object
-            for ( uint Ii = 0; Ii < tNumMyPdofs; Ii++ )
+            for ( uint iPDOF = 0; iPDOF < tNumMyPdofs; iPDOF++ )
             {
-                auto tPdof = mFreePdofs( Ii );
+                auto tPdof = mFreePdofs( iPDOF );
 
                 // Loop over all adof Ids of this pdof
                 for ( uint Ik = 0; Ik < tPdof->mAdofIds.numel(); Ik++ )
@@ -350,7 +350,7 @@ namespace moris
                     uint tColumnPos = mUniqueAdofMap[ tPdof->mAdofIds( Ik, 0 ) ];
 
                     // Insert value into pdof-adof-map
-                    aPADofMap( Ii, tColumnPos ) = ( mFreePdofs( Ii )->mTmatrix )( Ik, 0 );
+                    aPADofMap( iPDOF, tColumnPos ) = ( mFreePdofs( iPDOF )->mTmatrix )( Ik, 0 );
                 }
             }
         }

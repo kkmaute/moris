@@ -535,12 +535,12 @@ namespace moris
             //------------------------------------------------------------------------------
             /**
              * compute quantity of interest
-             * @param[ in ] aMeshIndex mesh index to specify on which visualization mesh to compute QI
-             * @param[ in ] aFieldType enum for computation type (GLOBAL,NODAL,ELEMENTAL,...)
+             * @param[ in ] aFemMeshIndex mesh index to specify on which mesh to compute QI
+             * @param[ in ] aFieldType enum for computation type (GLOBAL,NODAL,ELEMENTAL_INT,ELEMENTAL_AVG)
              */
             virtual void
             compute_quantity_of_interest(
-                    const uint           aMeshIndex,
+                    const uint           aFemMeshIndex,
                     enum vis::Field_Type aFieldType )
             {
                 MORIS_ASSERT( false, "Equation_Object::compute_quantity_of_interest() - not implemented for base class." );
