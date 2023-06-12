@@ -305,7 +305,7 @@ namespace moris
                         Basis* tNode = tElement->get_basis( k );
 
                         // test if node exists
-                        if ( tNode != NULL )
+                        if ( tNode != nullptr )
                         {
                             // test if node is not flagged
                             if ( ! tNode->is_flagged() )
@@ -1468,7 +1468,7 @@ namespace moris
             for( uint k = 1; k < tNumberOfTwins; ++k )
             {
                 // check if a B-Spline mesh has been assigned to current Lagrange mesh ...
-                if( mBSplineMeshes( k ) != NULL )
+                if( mBSplineMeshes( k ) != nullptr )
                 {
                     // ... if so, match twins for all elements in B-Sp. and Lag. meshes
                     for( uint e=0; e<tNumberOfElements; ++e )
@@ -1994,7 +1994,7 @@ namespace moris
                 tLeader->set_hmr_facet( tFacet,
                         tFacet->get_index_on_leader() );
 
-                if( tFollower != NULL )
+                if( tFollower != nullptr )
                 {
                     // insert element into follower
                     tFollower->set_hmr_facet( tFacet,
@@ -2955,7 +2955,7 @@ namespace moris
                         std::cout << "Leader " << tLeader->get_hmr_id() << std::endl;
                         for( uint k = 0; k<4; ++k )
                         {
-                            std::cout << k << " " << ( tLeader->get_child( mAllElementsOnProc, k) != NULL ) << std::endl;
+                            std::cout << k << " " << ( tLeader->get_child( mAllElementsOnProc, k) != nullptr ) << std::endl;
                         }
                     }
                     // get index on leader
@@ -3756,10 +3756,10 @@ namespace moris
 
         void Lagrange_Mesh_Base::calculate_t_matrix( const uint aBSplineMeshIndex )
         {
-            MORIS_ASSERT( mBSplineMeshes( aBSplineMeshIndex ) != NULL, "B-Spline Mesh does not exist" );
+            MORIS_ASSERT( mBSplineMeshes( aBSplineMeshIndex ) != nullptr, "B-Spline Mesh does not exist" );
 
             // create matrix object if it does not exist
-            if( mTMatrix( aBSplineMeshIndex ) == NULL )
+            if( mTMatrix( aBSplineMeshIndex ) == nullptr )
             {
                 // get pointer to mesh
                 BSpline_Mesh_Base * tMesh = mBSplineMeshes( aBSplineMeshIndex  );
@@ -3783,7 +3783,7 @@ namespace moris
         {
             for( T_Matrix *  tTMatrix : mTMatrix )
             {
-                if( tTMatrix != NULL )
+                if( tTMatrix != nullptr )
                 {
                     delete tTMatrix;
                 }

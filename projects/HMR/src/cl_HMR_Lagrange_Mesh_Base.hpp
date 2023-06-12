@@ -872,7 +872,7 @@ namespace moris
 
                 uint get_number_of_side_sets() const
                 {
-                    if( mSideSets != NULL )
+                    if( mSideSets != nullptr )
                     {
                         return mSideSets->size();
                     }

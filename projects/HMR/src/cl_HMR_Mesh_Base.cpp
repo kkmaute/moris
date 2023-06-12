@@ -462,7 +462,7 @@ namespace moris
                         Basis* tBasis = tElement->get_basis( k );
 
                         // test if basis exists
-                        if ( tBasis != NULL )
+                        if ( tBasis != nullptr )
                         {
                             // test if basis is not flagged
                             if ( ! tBasis->is_flagged() )
@@ -496,7 +496,7 @@ namespace moris
                         Basis* tBasis = tElement->get_basis( k );
 
                         // test if basis exists
-                        if ( tBasis != NULL )
+                        if ( tBasis != nullptr )
                         {
                             // test if basis is flagged
                             if ( tBasis->is_flagged() )
@@ -638,7 +638,7 @@ namespace moris
                 Basis* tBasis = tElement->get_basis( k );
 
                 // test if basis exists
-                if( tBasis != NULL )
+                if( tBasis != nullptr )
                 {
                     if ( tBasis->get_hmr_id() == tID )
                     {

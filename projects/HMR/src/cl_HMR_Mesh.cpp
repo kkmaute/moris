@@ -84,7 +84,7 @@ namespace moris
                 // setup_glb_to_local_maps();
             }
 
-            // MORIS_ERROR( mMesh != NULL, "Could not find mesh, do you parameters for lagrange_orders contain the provided aLagrangeOrder?" );
+            // MORIS_ERROR( mMesh != nullptr, "Could not find mesh, do you parameters for lagrange_orders contain the provided aLagrangeOrder?" );
         }
 
         //-----------------------------------------------------------------------------
@@ -958,7 +958,7 @@ namespace moris
 
             Matrix< IndexMat > aIndices;
 
-            if ( tFacet->get_follower() == NULL )
+            if ( tFacet->get_follower() == nullptr )
             {
                 if ( tFacet->get_hmr_leader()->is_active() )
                 {

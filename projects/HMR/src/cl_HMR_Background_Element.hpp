@@ -655,7 +655,7 @@ namespace moris
                     uint tOther =  tIndexOnOther[ f ];
 
                     // grab pointer of facet from neighbor, if neighbor exists and is on same level.
-                    if( mNeighbors[ f ] != NULL )
+                    if( mNeighbors[ f ] != nullptr )
                     {
                         // test if neighbor lives on same level
                         if(  mNeighbors[ f ]->get_level() == mLevel )
@@ -665,14 +665,14 @@ namespace moris
                         }
                     }
                     // test if facet has not been created yet
-                    if ( mFacets[ f ] == NULL )
+                    if ( mFacets[ f ] == nullptr )
                     {
                         // set flag that this element is responsible for
                         // deleting this face
                         mFacetOwnFlags.set( f );
 
                         // test if this element is on the edge of the domain
-                        if( mNeighbors[ f ] == NULL )
+                        if( mNeighbors[ f ] == nullptr )
                         {
                             // this facet has now proc owner, I am leader
                             // create face
@@ -730,7 +730,7 @@ namespace moris
              */
             void insert_facet( Background_Facet * aFace, uint aIndex )
             {
-                MORIS_ASSERT( mFacets[ aIndex ] == NULL, "tried to overwrite existing facet" );
+                MORIS_ASSERT( mFacets[ aIndex ] == nullptr, "tried to overwrite existing facet" );
                 // copy face to slot
                 mFacets[ aIndex ] = aFace;
             }
@@ -2107,7 +2107,7 @@ namespace moris
                    Background_Element_Base* tNeighbor = mParent->get_neighbor( 4 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        if ( tNeighbor->has_children( aPattern ) )
                        {
@@ -2123,7 +2123,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 0 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        if ( tNeighbor->has_children( aPattern ) )
                        {
@@ -2141,7 +2141,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 3 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        if ( tNeighbor->has_children( aPattern ) )
                        {
@@ -2176,7 +2176,7 @@ namespace moris
                        = mParent->get_neighbor( 0 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        if ( tNeighbor->has_children( aPattern ) )
                        {
@@ -2193,7 +2193,7 @@ namespace moris
                    // neighbor 2
                    tNeighbor = mParent->get_neighbor( 5 );
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        if ( tNeighbor->has_children( aPattern ) )
                        {
@@ -2212,7 +2212,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 1 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        if ( tNeighbor->has_children( aPattern ) )
                        {
@@ -2243,7 +2243,7 @@ namespace moris
                        = mParent->get_neighbor( 3 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        if ( tNeighbor->has_children( aPattern ) )
                        {
@@ -2273,7 +2273,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 7 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        if ( tNeighbor->has_children( aPattern ) )
                        {
@@ -2289,7 +2289,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 2 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        if ( tNeighbor->has_children( aPattern ) )
                        {
@@ -2317,7 +2317,7 @@ namespace moris
                        = mParent->get_neighbor( 1 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        if ( tNeighbor->has_children( aPattern ) )
                        {
@@ -2341,7 +2341,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 2 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        if ( tNeighbor->has_children( aPattern ) )
                        {
@@ -2359,7 +2359,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 6 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        if ( tNeighbor->has_children( aPattern ) )
                        {
@@ -2400,7 +2400,7 @@ namespace moris
                        = mParent->get_neighbor( 0 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 0 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2425,7 +2425,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 3 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 3 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2450,7 +2450,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 4 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 4 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2475,7 +2475,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 6 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 6 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2496,7 +2496,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 9 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 9 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2517,7 +2517,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 10 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 10 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2538,7 +2538,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 18 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 18 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2571,7 +2571,7 @@ namespace moris
                        = mParent->get_neighbor( 0 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 0 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2596,7 +2596,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 1 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 1 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2621,7 +2621,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 4 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 4 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2646,7 +2646,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 6 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 6 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2667,7 +2667,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 7 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 7 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2688,7 +2688,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 11 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 11 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2709,7 +2709,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 19 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 19 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2743,7 +2743,7 @@ namespace moris
                        = mParent->get_neighbor( 2 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 2 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2768,7 +2768,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 3 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 3 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2793,7 +2793,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 4 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 4 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2818,7 +2818,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 8 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 8 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2839,7 +2839,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 9 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 9 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2860,7 +2860,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 13 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 13 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2881,7 +2881,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 21 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 21 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2913,7 +2913,7 @@ namespace moris
                        = mParent->get_neighbor( 1 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 1 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2938,7 +2938,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 2 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 2 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2963,7 +2963,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 4 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 4 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -2988,7 +2988,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 7 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 7 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3009,7 +3009,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 8 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 8 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3030,7 +3030,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 12 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 12 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3051,7 +3051,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 20 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 20 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3084,7 +3084,7 @@ namespace moris
                        = mParent->get_neighbor( 0 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 0 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3109,7 +3109,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 3 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 3 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3134,7 +3134,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 5 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 5 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3159,7 +3159,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 10 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 10 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3180,7 +3180,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 14 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 14 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3201,7 +3201,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 17 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 17 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3222,7 +3222,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 22 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 22 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3256,7 +3256,7 @@ namespace moris
                        = mParent->get_neighbor( 0 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 0 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3281,7 +3281,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 1 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 1 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3306,7 +3306,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 5 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 5 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3331,7 +3331,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 11 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 11 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3352,7 +3352,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 14 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 14 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3373,7 +3373,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 15 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 15 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3394,7 +3394,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 23 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 23 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3426,7 +3426,7 @@ namespace moris
                        = mParent->get_neighbor( 2 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 2 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3451,7 +3451,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 3 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 3 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3476,7 +3476,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 5 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 5 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3501,7 +3501,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 13 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 13 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3522,7 +3522,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 16 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 16 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3543,7 +3543,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 17 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 17 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3564,7 +3564,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 25 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 25 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3596,7 +3596,7 @@ namespace moris
                        = mParent->get_neighbor( 1 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 1 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3621,7 +3621,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 2 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 2 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3646,7 +3646,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 5 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 5 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3671,7 +3671,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 12 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 12 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3692,7 +3692,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 15 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 15 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3713,7 +3713,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 16 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 16 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3734,7 +3734,7 @@ namespace moris
                    tNeighbor = mParent->get_neighbor( 24 );
 
                    // test if neighbor exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor 24 has children
                        if ( tNeighbor->has_children( aPattern ) )
@@ -3825,9 +3825,9 @@ namespace moris
         inline
         void Background_Element< 3, 8, 26, 6, 12 >::insert_edge( Background_Edge * aEdge, uint aIndex )
         {
-            MORIS_ASSERT( mEdges[ aIndex ] == NULL, "tried to overwrite edge" );
+            MORIS_ASSERT( mEdges[ aIndex ] == nullptr, "tried to overwrite edge" );
 
-            if( aEdge != NULL )
+            if( aEdge != nullptr )
             {
                 mEdges[ aIndex ] = aEdge;
                 aEdge->insert_element( this, aIndex );

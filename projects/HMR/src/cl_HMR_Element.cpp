@@ -38,7 +38,7 @@ namespace moris
             Background_Element_Base* tElement = mElement->get_neighbor( aNeighborNumber );
 
             // test if neighbor exists
-            if ( tElement != NULL )
+            if ( tElement != nullptr )
             {
                 // test if neighbor is on the same level
                 if ( tElement->get_level() == mElement->get_level() )

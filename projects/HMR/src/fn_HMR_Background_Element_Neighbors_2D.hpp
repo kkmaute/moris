@@ -43,7 +43,7 @@ namespace moris
             for ( uint k = 0; k < 8; ++k)
             {
                 // test if neighbor exists
-                if ( mNeighbors[ k ] != NULL )
+                if ( mNeighbors[ k ] != nullptr )
                 {
                     // test if neighbor is on same level
                     if ( mNeighbors[ k ]->get_level() == mLevel )
@@ -60,13 +60,13 @@ namespace moris
             if ( aOrder >= 2 )
             {
                 // test if neighbor 0 exists
-                if ( tNeighbors( 0 ) != NULL )
+                if ( tNeighbors( 0 ) != nullptr )
                 {
                     // get neighbor 0 of neighbor 0
                     tNeighbor =  tNeighbors( 0 )->get_neighbor( 0 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 10 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 10 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -80,7 +80,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 0 )->get_neighbor( 4 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 9 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 9 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -94,7 +94,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 0 )->get_neighbor( 5 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 11 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 11 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -106,13 +106,13 @@ namespace moris
 
                 }
                 // test if neighbor 1 exists
-                if ( tNeighbors( 1 ) != NULL )
+                if ( tNeighbors( 1 ) != nullptr )
                 {
                     // get neighbor 1 of neighbor 1
                     tNeighbor =  tNeighbors( 1 )->get_neighbor( 1 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 16 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 16 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -126,7 +126,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 1 )->get_neighbor( 5 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 14 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 14 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -140,7 +140,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 1 )->get_neighbor( 6 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 18 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 18 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -152,13 +152,13 @@ namespace moris
 
                 }
                 // test if neighbor 2 exists
-                if ( tNeighbors( 2 ) != NULL )
+                if ( tNeighbors( 2 ) != nullptr )
                 {
                     // get neighbor 2 of neighbor 2
                     tNeighbor =  tNeighbors( 2 )->get_neighbor( 2 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 21 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 21 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -172,7 +172,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 2 )->get_neighbor( 6 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 22 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 22 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -186,7 +186,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 2 )->get_neighbor( 7 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 20 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 20 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -198,13 +198,13 @@ namespace moris
 
                 }
                 // test if neighbor 3 exists
-                if ( tNeighbors( 3 ) != NULL )
+                if ( tNeighbors( 3 ) != nullptr )
                 {
                     // get neighbor 3 of neighbor 3
                     tNeighbor =  tNeighbors( 3 )->get_neighbor( 3 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 15 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 15 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -218,7 +218,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 3 )->get_neighbor( 4 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 13 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 13 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -232,7 +232,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 3 )->get_neighbor( 7 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 17 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 17 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -244,13 +244,13 @@ namespace moris
 
                 }
                 // test if neighbor 4 exists
-                if ( tNeighbors( 4 ) != NULL )
+                if ( tNeighbors( 4 ) != nullptr )
                 {
                     // get neighbor 0 of neighbor 4
                     tNeighbor =  tNeighbors( 4 )->get_neighbor( 0 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 9 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 9 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -264,7 +264,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 4 )->get_neighbor( 3 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 13 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 13 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -278,7 +278,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 4 )->get_neighbor( 4 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 8 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 8 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -292,7 +292,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 4 )->get_neighbor( 5 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 10 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 10 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -306,7 +306,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 4 )->get_neighbor( 7 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 15 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 15 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -318,13 +318,13 @@ namespace moris
 
                 }
                 // test if neighbor 5 exists
-                if ( tNeighbors( 5 ) != NULL )
+                if ( tNeighbors( 5 ) != nullptr )
                 {
                     // get neighbor 0 of neighbor 5
                     tNeighbor =  tNeighbors( 5 )->get_neighbor( 0 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 11 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 11 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -338,7 +338,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 5 )->get_neighbor( 1 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 14 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 14 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -352,7 +352,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 5 )->get_neighbor( 4 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 10 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 10 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -366,7 +366,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 5 )->get_neighbor( 5 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 12 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 12 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -380,7 +380,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 5 )->get_neighbor( 6 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 16 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 16 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -392,13 +392,13 @@ namespace moris
 
                 }
                 // test if neighbor 6 exists
-                if ( tNeighbors( 6 ) != NULL )
+                if ( tNeighbors( 6 ) != nullptr )
                 {
                     // get neighbor 1 of neighbor 6
                     tNeighbor =  tNeighbors( 6 )->get_neighbor( 1 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 18 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 18 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -412,7 +412,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 6 )->get_neighbor( 2 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 22 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 22 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -426,7 +426,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 6 )->get_neighbor( 5 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 16 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 16 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -440,7 +440,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 6 )->get_neighbor( 6 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 23 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 23 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -454,7 +454,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 6 )->get_neighbor( 7 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 21 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 21 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -466,13 +466,13 @@ namespace moris
 
                 }
                 // test if neighbor 7 exists
-                if ( tNeighbors( 7 ) != NULL )
+                if ( tNeighbors( 7 ) != nullptr )
                 {
                     // get neighbor 2 of neighbor 7
                     tNeighbor =  tNeighbors( 7 )->get_neighbor( 2 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 20 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 20 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -486,7 +486,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 7 )->get_neighbor( 3 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 17 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 17 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -500,7 +500,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 7 )->get_neighbor( 4 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 15 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 15 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -514,7 +514,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 7 )->get_neighbor( 6 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 21 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 21 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -528,7 +528,7 @@ namespace moris
                     tNeighbor =  tNeighbors( 7 )->get_neighbor( 7 );
 
                     // test if neighbor exists and was not copied yet
-                    if ( tNeighbor != NULL && tNeighbors( 19 ) == NULL )
+                    if ( tNeighbor != nullptr && tNeighbors( 19 ) == nullptr )
                     {
                         // test if neighbor is on same level
                         if ( tNeighbor->get_level() == mLevel )
@@ -542,13 +542,13 @@ namespace moris
                 if ( aOrder >= 3 )
                 {
                     // test if neighbor 8 exists
-                    if ( tNeighbors( 8 ) != NULL )
+                    if ( tNeighbors( 8 ) != nullptr )
                     {
                         // get neighbor 0 of neighbor 8
                         tNeighbor =  tNeighbors( 8 )->get_neighbor( 0 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 25 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 25 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -562,7 +562,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 8 )->get_neighbor( 3 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 31 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 31 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -576,7 +576,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 8 )->get_neighbor( 4 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 24 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 24 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -590,7 +590,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 8 )->get_neighbor( 5 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 26 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 26 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -604,7 +604,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 8 )->get_neighbor( 7 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 33 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 33 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -616,13 +616,13 @@ namespace moris
 
                     }
                     // test if neighbor 9 exists
-                    if ( tNeighbors( 9 ) != NULL )
+                    if ( tNeighbors( 9 ) != nullptr )
                     {
                         // get neighbor 0 of neighbor 9
                         tNeighbor =  tNeighbors( 9 )->get_neighbor( 0 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 26 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 26 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -636,7 +636,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 9 )->get_neighbor( 4 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 25 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 25 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -650,7 +650,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 9 )->get_neighbor( 5 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 27 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 27 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -662,13 +662,13 @@ namespace moris
 
                     }
                     // test if neighbor 10 exists
-                    if ( tNeighbors( 10 ) != NULL )
+                    if ( tNeighbors( 10 ) != nullptr )
                     {
                         // get neighbor 0 of neighbor 10
                         tNeighbor =  tNeighbors( 10 )->get_neighbor( 0 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 27 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 27 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -682,7 +682,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 10 )->get_neighbor( 4 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 26 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 26 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -696,7 +696,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 10 )->get_neighbor( 5 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 28 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 28 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -708,13 +708,13 @@ namespace moris
 
                     }
                     // test if neighbor 11 exists
-                    if ( tNeighbors( 11 ) != NULL )
+                    if ( tNeighbors( 11 ) != nullptr )
                     {
                         // get neighbor 0 of neighbor 11
                         tNeighbor =  tNeighbors( 11 )->get_neighbor( 0 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 28 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 28 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -728,7 +728,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 11 )->get_neighbor( 4 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 27 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 27 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -742,7 +742,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 11 )->get_neighbor( 5 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 29 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 29 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -754,13 +754,13 @@ namespace moris
 
                     }
                     // test if neighbor 12 exists
-                    if ( tNeighbors( 12 ) != NULL )
+                    if ( tNeighbors( 12 ) != nullptr )
                     {
                         // get neighbor 0 of neighbor 12
                         tNeighbor =  tNeighbors( 12 )->get_neighbor( 0 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 29 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 29 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -774,7 +774,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 12 )->get_neighbor( 1 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 32 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 32 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -788,7 +788,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 12 )->get_neighbor( 4 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 28 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 28 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -802,7 +802,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 12 )->get_neighbor( 5 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 30 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 30 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -816,7 +816,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 12 )->get_neighbor( 6 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 34 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 34 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -828,13 +828,13 @@ namespace moris
 
                     }
                     // test if neighbor 13 exists
-                    if ( tNeighbors( 13 ) != NULL )
+                    if ( tNeighbors( 13 ) != nullptr )
                     {
                         // get neighbor 3 of neighbor 13
                         tNeighbor =  tNeighbors( 13 )->get_neighbor( 3 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 33 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 33 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -848,7 +848,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 13 )->get_neighbor( 4 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 31 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 31 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -862,7 +862,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 13 )->get_neighbor( 7 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 35 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 35 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -874,13 +874,13 @@ namespace moris
 
                     }
                     // test if neighbor 14 exists
-                    if ( tNeighbors( 14 ) != NULL )
+                    if ( tNeighbors( 14 ) != nullptr )
                     {
                         // get neighbor 1 of neighbor 14
                         tNeighbor =  tNeighbors( 14 )->get_neighbor( 1 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 34 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 34 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -894,7 +894,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 14 )->get_neighbor( 5 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 32 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 32 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -908,7 +908,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 14 )->get_neighbor( 6 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 36 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 36 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -920,13 +920,13 @@ namespace moris
 
                     }
                     // test if neighbor 15 exists
-                    if ( tNeighbors( 15 ) != NULL )
+                    if ( tNeighbors( 15 ) != nullptr )
                     {
                         // get neighbor 3 of neighbor 15
                         tNeighbor =  tNeighbors( 15 )->get_neighbor( 3 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 35 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 35 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -940,7 +940,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 15 )->get_neighbor( 4 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 33 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 33 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -954,7 +954,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 15 )->get_neighbor( 7 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 37 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 37 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -966,13 +966,13 @@ namespace moris
 
                     }
                     // test if neighbor 16 exists
-                    if ( tNeighbors( 16 ) != NULL )
+                    if ( tNeighbors( 16 ) != nullptr )
                     {
                         // get neighbor 1 of neighbor 16
                         tNeighbor =  tNeighbors( 16 )->get_neighbor( 1 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 36 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 36 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -986,7 +986,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 16 )->get_neighbor( 5 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 34 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 34 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1000,7 +1000,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 16 )->get_neighbor( 6 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 38 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 38 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1012,13 +1012,13 @@ namespace moris
 
                     }
                     // test if neighbor 17 exists
-                    if ( tNeighbors( 17 ) != NULL )
+                    if ( tNeighbors( 17 ) != nullptr )
                     {
                         // get neighbor 3 of neighbor 17
                         tNeighbor =  tNeighbors( 17 )->get_neighbor( 3 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 37 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 37 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1032,7 +1032,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 17 )->get_neighbor( 4 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 35 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 35 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1046,7 +1046,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 17 )->get_neighbor( 7 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 39 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 39 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1058,13 +1058,13 @@ namespace moris
 
                     }
                     // test if neighbor 18 exists
-                    if ( tNeighbors( 18 ) != NULL )
+                    if ( tNeighbors( 18 ) != nullptr )
                     {
                         // get neighbor 1 of neighbor 18
                         tNeighbor =  tNeighbors( 18 )->get_neighbor( 1 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 38 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 38 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1078,7 +1078,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 18 )->get_neighbor( 5 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 36 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 36 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1092,7 +1092,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 18 )->get_neighbor( 6 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 40 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 40 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1104,13 +1104,13 @@ namespace moris
 
                     }
                     // test if neighbor 19 exists
-                    if ( tNeighbors( 19 ) != NULL )
+                    if ( tNeighbors( 19 ) != nullptr )
                     {
                         // get neighbor 2 of neighbor 19
                         tNeighbor =  tNeighbors( 19 )->get_neighbor( 2 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 42 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 42 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1124,7 +1124,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 19 )->get_neighbor( 3 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 39 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 39 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1138,7 +1138,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 19 )->get_neighbor( 4 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 37 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 37 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1152,7 +1152,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 19 )->get_neighbor( 6 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 43 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 43 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1166,7 +1166,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 19 )->get_neighbor( 7 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 41 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 41 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1178,13 +1178,13 @@ namespace moris
 
                     }
                     // test if neighbor 20 exists
-                    if ( tNeighbors( 20 ) != NULL )
+                    if ( tNeighbors( 20 ) != nullptr )
                     {
                         // get neighbor 2 of neighbor 20
                         tNeighbor =  tNeighbors( 20 )->get_neighbor( 2 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 43 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 43 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1198,7 +1198,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 20 )->get_neighbor( 6 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 44 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 44 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1212,7 +1212,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 20 )->get_neighbor( 7 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 42 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 42 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1224,13 +1224,13 @@ namespace moris
 
                     }
                     // test if neighbor 21 exists
-                    if ( tNeighbors( 21 ) != NULL )
+                    if ( tNeighbors( 21 ) != nullptr )
                     {
                         // get neighbor 2 of neighbor 21
                         tNeighbor =  tNeighbors( 21 )->get_neighbor( 2 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 44 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 44 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1244,7 +1244,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 21 )->get_neighbor( 6 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 45 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 45 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1258,7 +1258,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 21 )->get_neighbor( 7 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 43 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 43 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1270,13 +1270,13 @@ namespace moris
 
                     }
                     // test if neighbor 22 exists
-                    if ( tNeighbors( 22 ) != NULL )
+                    if ( tNeighbors( 22 ) != nullptr )
                     {
                         // get neighbor 2 of neighbor 22
                         tNeighbor =  tNeighbors( 22 )->get_neighbor( 2 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 45 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 45 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1290,7 +1290,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 22 )->get_neighbor( 6 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 46 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 46 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1304,7 +1304,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 22 )->get_neighbor( 7 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 44 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 44 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1316,13 +1316,13 @@ namespace moris
 
                     }
                     // test if neighbor 23 exists
-                    if ( tNeighbors( 23 ) != NULL )
+                    if ( tNeighbors( 23 ) != nullptr )
                     {
                         // get neighbor 1 of neighbor 23
                         tNeighbor =  tNeighbors( 23 )->get_neighbor( 1 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 40 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 40 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1336,7 +1336,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 23 )->get_neighbor( 2 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 46 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 46 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1350,7 +1350,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 23 )->get_neighbor( 5 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 38 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 38 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1364,7 +1364,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 23 )->get_neighbor( 6 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 47 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 47 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1378,7 +1378,7 @@ namespace moris
                         tNeighbor =  tNeighbors( 23 )->get_neighbor( 7 );
 
                         // test if neighbor exists and was not copied yet
-                        if ( tNeighbor != NULL && tNeighbors( 45 ) == NULL )
+                        if ( tNeighbor != nullptr && tNeighbors( 45 ) == nullptr )
                         {
                             // test if neighbor is on same level
                             if ( tNeighbor->get_level() == mLevel )
@@ -1397,7 +1397,7 @@ namespace moris
             // count number of existing elements
             for( auto tNeighbor : tNeighbors )
             {
-                if ( tNeighbor != NULL )
+                if ( tNeighbor != nullptr )
                 {
                     ++tCount;
                 }
@@ -1412,7 +1412,7 @@ namespace moris
             // copy existing elements
             for( auto tNeighbor : tNeighbors )
             {
-                if ( tNeighbor != NULL )
+                if ( tNeighbor != nullptr )
                 {
                     aNeighbors( tCount++ ) = tNeighbor;
                 }

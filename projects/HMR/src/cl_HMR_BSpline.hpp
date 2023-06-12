@@ -500,7 +500,7 @@ namespace moris
                         for( uint k=0; k<C; ++k )
                         {
                             // test if child exists
-                            if ( mChildren[ k ] != NULL )
+                            if ( mChildren[ k ] != nullptr )
                             {
                                 mChildren[ k ]->flag_descendants();
                             }
@@ -525,7 +525,7 @@ namespace moris
                         for( uint k=0; k<C; ++k )
                         {
                             // test if child exists
-                            if ( mChildren[ k ] != NULL )
+                            if ( mChildren[ k ] != nullptr )
                             {
                                 mChildren[ k ]->unflag_descendants();
                             }
@@ -552,7 +552,7 @@ namespace moris
                         for( uint k=0; k<C; ++k )
                         {
                             // test if child exists
-                            if ( mChildren[ k ] != NULL )
+                            if ( mChildren[ k ] != nullptr )
                             {
                                 mChildren[ k ]->count_descendants( aBasisCount );
                             }
@@ -583,7 +583,7 @@ namespace moris
                         for( uint k=0; k<C; ++k )
                         {
                             // test if child exists
-                            if ( mChildren[ k ] != NULL )
+                            if ( mChildren[ k ] != nullptr )
                             {
                                 mChildren[ k ]->collect_descendants( aBasisList, aBasisCount );
                             }
@@ -663,7 +663,7 @@ namespace moris
                 {
                     for( uint k=0; k<C; ++k )
                     {
-                        if( mChildren[ k ] != NULL )
+                        if( mChildren[ k ] != nullptr )
                         {
                             if ( mChildren[ k ]->is_active() ||  mChildren[ k ]->is_refined() )
                             {

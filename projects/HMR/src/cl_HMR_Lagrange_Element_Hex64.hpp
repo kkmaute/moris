@@ -564,7 +564,7 @@ namespace moris
                  = this->get_neighbor( aAllElementsOnProc, 4 );
 
              // test if neighbor 4 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy nodes from this neighbor
                  mNodes[  0 ] = tNeighbor->get_basis(  4 );
@@ -589,7 +589,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 0 );
 
              // test if neighbor 0 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy nodes from this neighbor
                  mNodes[  0 ] = tNeighbor->get_basis(  3 );
@@ -614,7 +614,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 3 );
 
              // test if neighbor 3 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy nodes from this neighbor
                  mNodes[  0 ] = tNeighbor->get_basis(  1 );
@@ -639,7 +639,7 @@ namespace moris
              for( uint k=0; k<64; ++k )
              {
                  // test if node exists
-                 if( mNodes[ k ] == NULL )
+                 if( mNodes[ k ] == nullptr )
                  {
                      // create node
                      this->create_basis( k );
@@ -742,7 +742,7 @@ namespace moris
             Element* tNeighbor = this->get_neighbor( aAllElementsOnProc, 0 );
 
             // test if neighbor 0 exists
-            if ( tNeighbor != NULL )
+            if ( tNeighbor != nullptr )
             {
                 // test if nodes on face 0 exist
                 if ( tNeighbor->children_have_basis() )
@@ -860,7 +860,7 @@ namespace moris
             tNeighbor = this->get_neighbor( aAllElementsOnProc, 1 );
 
             // test if neighbor 1 exists
-            if ( tNeighbor != NULL )
+            if ( tNeighbor != nullptr )
             {
                 // test if nodes on face 1 exist
                 if ( tNeighbor->children_have_basis() )
@@ -978,7 +978,7 @@ namespace moris
             tNeighbor = this->get_neighbor( aAllElementsOnProc, 2 );
 
             // test if neighbor 2 exists
-            if ( tNeighbor != NULL )
+            if ( tNeighbor != nullptr )
             {
                 // test if nodes on face 2 exist
                 if ( tNeighbor->children_have_basis() )
@@ -1096,7 +1096,7 @@ namespace moris
             tNeighbor = this->get_neighbor( aAllElementsOnProc, 3 );
 
             // test if neighbor 3 exists
-            if ( tNeighbor != NULL )
+            if ( tNeighbor != nullptr )
             {
                 // test if nodes on face 3 exist
                 if ( tNeighbor->children_have_basis() )
@@ -1214,7 +1214,7 @@ namespace moris
             tNeighbor = this->get_neighbor( aAllElementsOnProc, 4 );
 
             // test if neighbor 4 exists
-            if ( tNeighbor != NULL )
+            if ( tNeighbor != nullptr )
             {
                 // test if nodes on face 4 exist
                 if ( tNeighbor->children_have_basis() )
@@ -1332,7 +1332,7 @@ namespace moris
             tNeighbor = this->get_neighbor( aAllElementsOnProc, 5 );
 
             // test if neighbor 5 exists
-            if ( tNeighbor != NULL )
+            if ( tNeighbor != nullptr )
             {
                 // test if nodes on face 5 exist
                 if ( tNeighbor->children_have_basis() )
@@ -1450,7 +1450,7 @@ namespace moris
             tNeighbor = this->get_neighbor( aAllElementsOnProc, 6 );
 
             // test if neighbor 6 exists
-            if ( tNeighbor != NULL )
+            if ( tNeighbor != nullptr )
             {
                 // test if nodes on edge 0 exist
                 if ( tNeighbor->children_have_basis() )
@@ -1478,7 +1478,7 @@ namespace moris
             tNeighbor = this->get_neighbor( aAllElementsOnProc, 7 );
 
             // test if neighbor 7 exists
-            if ( tNeighbor != NULL )
+            if ( tNeighbor != nullptr )
             {
                 // test if nodes on edge 1 exist
                 if ( tNeighbor->children_have_basis() )
@@ -1506,7 +1506,7 @@ namespace moris
             tNeighbor = this->get_neighbor( aAllElementsOnProc, 8 );
 
             // test if neighbor 8 exists
-            if ( tNeighbor != NULL )
+            if ( tNeighbor != nullptr )
             {
                 // test if nodes on edge 2 exist
                 if ( tNeighbor->children_have_basis() )
@@ -1534,7 +1534,7 @@ namespace moris
             tNeighbor = this->get_neighbor( aAllElementsOnProc, 9 );
 
             // test if neighbor 9 exists
-            if ( tNeighbor != NULL )
+            if ( tNeighbor != nullptr )
             {
                 // test if nodes on edge 3 exist
                 if ( tNeighbor->children_have_basis() )
@@ -1562,7 +1562,7 @@ namespace moris
             tNeighbor = this->get_neighbor( aAllElementsOnProc, 10 );
 
             // test if neighbor 10 exists
-            if ( tNeighbor != NULL )
+            if ( tNeighbor != nullptr )
             {
                 // test if nodes on edge 4 exist
                 if ( tNeighbor->children_have_basis() )
@@ -1590,7 +1590,7 @@ namespace moris
             tNeighbor = this->get_neighbor( aAllElementsOnProc, 11 );
 
             // test if neighbor 11 exists
-            if ( tNeighbor != NULL )
+            if ( tNeighbor != nullptr )
             {
                 // test if nodes on edge 5 exist
                 if ( tNeighbor->children_have_basis() )
@@ -1618,7 +1618,7 @@ namespace moris
             tNeighbor = this->get_neighbor( aAllElementsOnProc, 12 );
 
             // test if neighbor 12 exists
-            if ( tNeighbor != NULL )
+            if ( tNeighbor != nullptr )
             {
                 // test if nodes on edge 6 exist
                 if ( tNeighbor->children_have_basis() )
@@ -1646,7 +1646,7 @@ namespace moris
             tNeighbor = this->get_neighbor( aAllElementsOnProc, 13 );
 
             // test if neighbor 13 exists
-            if ( tNeighbor != NULL )
+            if ( tNeighbor != nullptr )
             {
                 // test if nodes on edge 7 exist
                 if ( tNeighbor->children_have_basis() )
@@ -1674,7 +1674,7 @@ namespace moris
             tNeighbor = this->get_neighbor( aAllElementsOnProc, 14 );
 
             // test if neighbor 14 exists
-            if ( tNeighbor != NULL )
+            if ( tNeighbor != nullptr )
             {
                 // test if nodes on edge 8 exist
                 if ( tNeighbor->children_have_basis() )
@@ -1702,7 +1702,7 @@ namespace moris
             tNeighbor = this->get_neighbor( aAllElementsOnProc, 15 );
 
             // test if neighbor 15 exists
-            if ( tNeighbor != NULL )
+            if ( tNeighbor != nullptr )
             {
                 // test if nodes on edge 9 exist
                 if ( tNeighbor->children_have_basis() )
@@ -1730,7 +1730,7 @@ namespace moris
             tNeighbor = this->get_neighbor( aAllElementsOnProc, 16 );
 
             // test if neighbor 16 exists
-            if ( tNeighbor != NULL )
+            if ( tNeighbor != nullptr )
             {
                 // test if nodes on edge 10 exist
                 if ( tNeighbor->children_have_basis() )
@@ -1758,7 +1758,7 @@ namespace moris
             tNeighbor = this->get_neighbor( aAllElementsOnProc, 17 );
 
             // test if neighbor 17 exists
-            if ( tNeighbor != NULL )
+            if ( tNeighbor != nullptr )
             {
                 // test if nodes on edge 11 exist
                 if ( tNeighbor->children_have_basis() )
@@ -1801,7 +1801,7 @@ namespace moris
             luint tIJK[ 3 ] = { 0, 0, 0 };
 
             // test if node 1 exists
-            if ( tNodes[ 1 ] == NULL )
+            if ( tNodes[ 1 ] == nullptr )
             {
                  // calculate position of node 1
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -1816,7 +1816,7 @@ namespace moris
              }
 
             // test if node 3 exists
-            if ( tNodes[ 3 ] == NULL )
+            if ( tNodes[ 3 ] == nullptr )
             {
                  // calculate position of node 3
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -1831,7 +1831,7 @@ namespace moris
              }
 
             // test if node 5 exists
-            if ( tNodes[ 5 ] == NULL )
+            if ( tNodes[ 5 ] == nullptr )
             {
                  // calculate position of node 5
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -1846,7 +1846,7 @@ namespace moris
              }
 
             // test if node 7 exists
-            if ( tNodes[ 7 ] == NULL )
+            if ( tNodes[ 7 ] == nullptr )
             {
                  // calculate position of node 7
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -1861,7 +1861,7 @@ namespace moris
              }
 
             // test if node 8 exists
-            if ( tNodes[ 8 ] == NULL )
+            if ( tNodes[ 8 ] == nullptr )
             {
                  // calculate position of node 8
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -1876,7 +1876,7 @@ namespace moris
              }
 
             // test if node 9 exists
-            if ( tNodes[ 9 ] == NULL )
+            if ( tNodes[ 9 ] == nullptr )
             {
                  // calculate position of node 9
                  tIJK[ 0 ] = tAnchor[ 0 ] + 2;
@@ -1891,7 +1891,7 @@ namespace moris
              }
 
             // test if node 10 exists
-            if ( tNodes[ 10 ] == NULL )
+            if ( tNodes[ 10 ] == nullptr )
             {
                  // calculate position of node 10
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -1906,7 +1906,7 @@ namespace moris
              }
 
             // test if node 11 exists
-            if ( tNodes[ 11 ] == NULL )
+            if ( tNodes[ 11 ] == nullptr )
             {
                  // calculate position of node 11
                  tIJK[ 0 ] = tAnchor[ 0 ] + 4;
@@ -1921,7 +1921,7 @@ namespace moris
              }
 
             // test if node 12 exists
-            if ( tNodes[ 12 ] == NULL )
+            if ( tNodes[ 12 ] == nullptr )
             {
                  // calculate position of node 12
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -1936,7 +1936,7 @@ namespace moris
              }
 
             // test if node 13 exists
-            if ( tNodes[ 13 ] == NULL )
+            if ( tNodes[ 13 ] == nullptr )
             {
                  // calculate position of node 13
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -1951,7 +1951,7 @@ namespace moris
              }
 
             // test if node 15 exists
-            if ( tNodes[ 15 ] == NULL )
+            if ( tNodes[ 15 ] == nullptr )
             {
                  // calculate position of node 15
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -1966,7 +1966,7 @@ namespace moris
              }
 
             // test if node 17 exists
-            if ( tNodes[ 17 ] == NULL )
+            if ( tNodes[ 17 ] == nullptr )
             {
                  // calculate position of node 17
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -1981,7 +1981,7 @@ namespace moris
              }
 
             // test if node 19 exists
-            if ( tNodes[ 19 ] == NULL )
+            if ( tNodes[ 19 ] == nullptr )
             {
                  // calculate position of node 19
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -1996,7 +1996,7 @@ namespace moris
              }
 
             // test if node 21 exists
-            if ( tNodes[ 21 ] == NULL )
+            if ( tNodes[ 21 ] == nullptr )
             {
                  // calculate position of node 21
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -2011,7 +2011,7 @@ namespace moris
              }
 
             // test if node 22 exists
-            if ( tNodes[ 22 ] == NULL )
+            if ( tNodes[ 22 ] == nullptr )
             {
                  // calculate position of node 22
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -2026,7 +2026,7 @@ namespace moris
              }
 
             // test if node 23 exists
-            if ( tNodes[ 23 ] == NULL )
+            if ( tNodes[ 23 ] == nullptr )
             {
                  // calculate position of node 23
                  tIJK[ 0 ] = tAnchor[ 0 ] + 2;
@@ -2041,7 +2041,7 @@ namespace moris
              }
 
             // test if node 24 exists
-            if ( tNodes[ 24 ] == NULL )
+            if ( tNodes[ 24 ] == nullptr )
             {
                  // calculate position of node 24
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -2056,7 +2056,7 @@ namespace moris
              }
 
             // test if node 25 exists
-            if ( tNodes[ 25 ] == NULL )
+            if ( tNodes[ 25 ] == nullptr )
             {
                  // calculate position of node 25
                  tIJK[ 0 ] = tAnchor[ 0 ] + 4;
@@ -2071,7 +2071,7 @@ namespace moris
              }
 
             // test if node 26 exists
-            if ( tNodes[ 26 ] == NULL )
+            if ( tNodes[ 26 ] == nullptr )
             {
                  // calculate position of node 26
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -2086,7 +2086,7 @@ namespace moris
              }
 
             // test if node 27 exists
-            if ( tNodes[ 27 ] == NULL )
+            if ( tNodes[ 27 ] == nullptr )
             {
                  // calculate position of node 27
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -2101,7 +2101,7 @@ namespace moris
              }
 
             // test if node 29 exists
-            if ( tNodes[ 29 ] == NULL )
+            if ( tNodes[ 29 ] == nullptr )
             {
                  // calculate position of node 29
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -2116,7 +2116,7 @@ namespace moris
              }
 
             // test if node 31 exists
-            if ( tNodes[ 31 ] == NULL )
+            if ( tNodes[ 31 ] == nullptr )
             {
                  // calculate position of node 31
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -2131,7 +2131,7 @@ namespace moris
              }
 
             // test if node 33 exists
-            if ( tNodes[ 33 ] == NULL )
+            if ( tNodes[ 33 ] == nullptr )
             {
                  // calculate position of node 33
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -2146,7 +2146,7 @@ namespace moris
              }
 
             // test if node 35 exists
-            if ( tNodes[ 35 ] == NULL )
+            if ( tNodes[ 35 ] == nullptr )
             {
                  // calculate position of node 35
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -2161,7 +2161,7 @@ namespace moris
              }
 
             // test if node 36 exists
-            if ( tNodes[ 36 ] == NULL )
+            if ( tNodes[ 36 ] == nullptr )
             {
                  // calculate position of node 36
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -2176,7 +2176,7 @@ namespace moris
              }
 
             // test if node 37 exists
-            if ( tNodes[ 37 ] == NULL )
+            if ( tNodes[ 37 ] == nullptr )
             {
                  // calculate position of node 37
                  tIJK[ 0 ] = tAnchor[ 0 ] + 2;
@@ -2191,7 +2191,7 @@ namespace moris
              }
 
             // test if node 38 exists
-            if ( tNodes[ 38 ] == NULL )
+            if ( tNodes[ 38 ] == nullptr )
             {
                  // calculate position of node 38
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -2206,7 +2206,7 @@ namespace moris
              }
 
             // test if node 39 exists
-            if ( tNodes[ 39 ] == NULL )
+            if ( tNodes[ 39 ] == nullptr )
             {
                  // calculate position of node 39
                  tIJK[ 0 ] = tAnchor[ 0 ] + 4;
@@ -2221,7 +2221,7 @@ namespace moris
              }
 
             // test if node 40 exists
-            if ( tNodes[ 40 ] == NULL )
+            if ( tNodes[ 40 ] == nullptr )
             {
                  // calculate position of node 40
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -2236,7 +2236,7 @@ namespace moris
              }
 
             // test if node 41 exists
-            if ( tNodes[ 41 ] == NULL )
+            if ( tNodes[ 41 ] == nullptr )
             {
                  // calculate position of node 41
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -2251,7 +2251,7 @@ namespace moris
              }
 
             // test if node 43 exists
-            if ( tNodes[ 43 ] == NULL )
+            if ( tNodes[ 43 ] == nullptr )
             {
                  // calculate position of node 43
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -2266,7 +2266,7 @@ namespace moris
              }
 
             // test if node 45 exists
-            if ( tNodes[ 45 ] == NULL )
+            if ( tNodes[ 45 ] == nullptr )
             {
                  // calculate position of node 45
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -2281,7 +2281,7 @@ namespace moris
              }
 
             // test if node 47 exists
-            if ( tNodes[ 47 ] == NULL )
+            if ( tNodes[ 47 ] == nullptr )
             {
                  // calculate position of node 47
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -2296,7 +2296,7 @@ namespace moris
              }
 
             // test if node 49 exists
-            if ( tNodes[ 49 ] == NULL )
+            if ( tNodes[ 49 ] == nullptr )
             {
                  // calculate position of node 49
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -2311,7 +2311,7 @@ namespace moris
              }
 
             // test if node 50 exists
-            if ( tNodes[ 50 ] == NULL )
+            if ( tNodes[ 50 ] == nullptr )
             {
                  // calculate position of node 50
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -2326,7 +2326,7 @@ namespace moris
              }
 
             // test if node 51 exists
-            if ( tNodes[ 51 ] == NULL )
+            if ( tNodes[ 51 ] == nullptr )
             {
                  // calculate position of node 51
                  tIJK[ 0 ] = tAnchor[ 0 ] + 2;
@@ -2341,7 +2341,7 @@ namespace moris
              }
 
             // test if node 52 exists
-            if ( tNodes[ 52 ] == NULL )
+            if ( tNodes[ 52 ] == nullptr )
             {
                  // calculate position of node 52
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -2356,7 +2356,7 @@ namespace moris
              }
 
             // test if node 53 exists
-            if ( tNodes[ 53 ] == NULL )
+            if ( tNodes[ 53 ] == nullptr )
             {
                  // calculate position of node 53
                  tIJK[ 0 ] = tAnchor[ 0 ] + 4;
@@ -2371,7 +2371,7 @@ namespace moris
              }
 
             // test if node 54 exists
-            if ( tNodes[ 54 ] == NULL )
+            if ( tNodes[ 54 ] == nullptr )
             {
                  // calculate position of node 54
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -2386,7 +2386,7 @@ namespace moris
              }
 
             // test if node 55 exists
-            if ( tNodes[ 55 ] == NULL )
+            if ( tNodes[ 55 ] == nullptr )
             {
                  // calculate position of node 55
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -2401,7 +2401,7 @@ namespace moris
              }
 
             // test if node 56 exists
-            if ( tNodes[ 56 ] == NULL )
+            if ( tNodes[ 56 ] == nullptr )
             {
                  // calculate position of node 56
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -2471,7 +2471,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 62 exists
-            if ( tNodes[ 62 ] == NULL )
+            if ( tNodes[ 62 ] == nullptr )
             {
                  // calculate position of node 62
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -2486,7 +2486,7 @@ namespace moris
              }
 
             // test if node 63 exists
-            if ( tNodes[ 63 ] == NULL )
+            if ( tNodes[ 63 ] == nullptr )
             {
                  // calculate position of node 63
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -2556,7 +2556,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 69 exists
-            if ( tNodes[ 69 ] == NULL )
+            if ( tNodes[ 69 ] == nullptr )
             {
                  // calculate position of node 69
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -2571,7 +2571,7 @@ namespace moris
              }
 
             // test if node 70 exists
-            if ( tNodes[ 70 ] == NULL )
+            if ( tNodes[ 70 ] == nullptr )
             {
                  // calculate position of node 70
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -2641,7 +2641,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 76 exists
-            if ( tNodes[ 76 ] == NULL )
+            if ( tNodes[ 76 ] == nullptr )
             {
                  // calculate position of node 76
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -2656,7 +2656,7 @@ namespace moris
              }
 
             // test if node 77 exists
-            if ( tNodes[ 77 ] == NULL )
+            if ( tNodes[ 77 ] == nullptr )
             {
                  // calculate position of node 77
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -2726,7 +2726,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 83 exists
-            if ( tNodes[ 83 ] == NULL )
+            if ( tNodes[ 83 ] == nullptr )
             {
                  // calculate position of node 83
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -2741,7 +2741,7 @@ namespace moris
              }
 
             // test if node 84 exists
-            if ( tNodes[ 84 ] == NULL )
+            if ( tNodes[ 84 ] == nullptr )
             {
                  // calculate position of node 84
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -2811,7 +2811,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 90 exists
-            if ( tNodes[ 90 ] == NULL )
+            if ( tNodes[ 90 ] == nullptr )
             {
                  // calculate position of node 90
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -2826,7 +2826,7 @@ namespace moris
              }
 
             // test if node 91 exists
-            if ( tNodes[ 91 ] == NULL )
+            if ( tNodes[ 91 ] == nullptr )
             {
                  // calculate position of node 91
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -2841,7 +2841,7 @@ namespace moris
              }
 
             // test if node 92 exists
-            if ( tNodes[ 92 ] == NULL )
+            if ( tNodes[ 92 ] == nullptr )
             {
                  // calculate position of node 92
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -2856,7 +2856,7 @@ namespace moris
              }
 
             // test if node 93 exists
-            if ( tNodes[ 93 ] == NULL )
+            if ( tNodes[ 93 ] == nullptr )
             {
                  // calculate position of node 93
                  tIJK[ 0 ] = tAnchor[ 0 ] + 2;
@@ -2871,7 +2871,7 @@ namespace moris
              }
 
             // test if node 94 exists
-            if ( tNodes[ 94 ] == NULL )
+            if ( tNodes[ 94 ] == nullptr )
             {
                  // calculate position of node 94
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -2886,7 +2886,7 @@ namespace moris
              }
 
             // test if node 95 exists
-            if ( tNodes[ 95 ] == NULL )
+            if ( tNodes[ 95 ] == nullptr )
             {
                  // calculate position of node 95
                  tIJK[ 0 ] = tAnchor[ 0 ] + 4;
@@ -2901,7 +2901,7 @@ namespace moris
              }
 
             // test if node 96 exists
-            if ( tNodes[ 96 ] == NULL )
+            if ( tNodes[ 96 ] == nullptr )
             {
                  // calculate position of node 96
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -2916,7 +2916,7 @@ namespace moris
              }
 
             // test if node 97 exists
-            if ( tNodes[ 97 ] == NULL )
+            if ( tNodes[ 97 ] == nullptr )
             {
                  // calculate position of node 97
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -2931,7 +2931,7 @@ namespace moris
              }
 
             // test if node 99 exists
-            if ( tNodes[ 99 ] == NULL )
+            if ( tNodes[ 99 ] == nullptr )
             {
                  // calculate position of node 99
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -2946,7 +2946,7 @@ namespace moris
              }
 
             // test if node 101 exists
-            if ( tNodes[ 101 ] == NULL )
+            if ( tNodes[ 101 ] == nullptr )
             {
                  // calculate position of node 101
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -2961,7 +2961,7 @@ namespace moris
              }
 
             // test if node 103 exists
-            if ( tNodes[ 103 ] == NULL )
+            if ( tNodes[ 103 ] == nullptr )
             {
                  // calculate position of node 103
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -2976,7 +2976,7 @@ namespace moris
              }
 
             // test if node 105 exists
-            if ( tNodes[ 105 ] == NULL )
+            if ( tNodes[ 105 ] == nullptr )
             {
                  // calculate position of node 105
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -3046,7 +3046,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 111 exists
-            if ( tNodes[ 111 ] == NULL )
+            if ( tNodes[ 111 ] == nullptr )
             {
                  // calculate position of node 111
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -3094,7 +3094,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 119 exists
-            if ( tNodes[ 119 ] == NULL )
+            if ( tNodes[ 119 ] == nullptr )
             {
                  // calculate position of node 119
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -3164,7 +3164,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 125 exists
-            if ( tNodes[ 125 ] == NULL )
+            if ( tNodes[ 125 ] == nullptr )
             {
                  // calculate position of node 125
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -3212,7 +3212,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 133 exists
-            if ( tNodes[ 133 ] == NULL )
+            if ( tNodes[ 133 ] == nullptr )
             {
                  // calculate position of node 133
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -3282,7 +3282,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 139 exists
-            if ( tNodes[ 139 ] == NULL )
+            if ( tNodes[ 139 ] == nullptr )
             {
                  // calculate position of node 139
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -3297,7 +3297,7 @@ namespace moris
              }
 
             // test if node 141 exists
-            if ( tNodes[ 141 ] == NULL )
+            if ( tNodes[ 141 ] == nullptr )
             {
                  // calculate position of node 141
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -3312,7 +3312,7 @@ namespace moris
              }
 
             // test if node 143 exists
-            if ( tNodes[ 143 ] == NULL )
+            if ( tNodes[ 143 ] == nullptr )
             {
                  // calculate position of node 143
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -3327,7 +3327,7 @@ namespace moris
              }
 
             // test if node 145 exists
-            if ( tNodes[ 145 ] == NULL )
+            if ( tNodes[ 145 ] == nullptr )
             {
                  // calculate position of node 145
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -3342,7 +3342,7 @@ namespace moris
              }
 
             // test if node 147 exists
-            if ( tNodes[ 147 ] == NULL )
+            if ( tNodes[ 147 ] == nullptr )
             {
                  // calculate position of node 147
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -3357,7 +3357,7 @@ namespace moris
              }
 
             // test if node 148 exists
-            if ( tNodes[ 148 ] == NULL )
+            if ( tNodes[ 148 ] == nullptr )
             {
                  // calculate position of node 148
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -3372,7 +3372,7 @@ namespace moris
              }
 
             // test if node 149 exists
-            if ( tNodes[ 149 ] == NULL )
+            if ( tNodes[ 149 ] == nullptr )
             {
                  // calculate position of node 149
                  tIJK[ 0 ] = tAnchor[ 0 ] + 2;
@@ -3387,7 +3387,7 @@ namespace moris
              }
 
             // test if node 150 exists
-            if ( tNodes[ 150 ] == NULL )
+            if ( tNodes[ 150 ] == nullptr )
             {
                  // calculate position of node 150
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -3402,7 +3402,7 @@ namespace moris
              }
 
             // test if node 151 exists
-            if ( tNodes[ 151 ] == NULL )
+            if ( tNodes[ 151 ] == nullptr )
             {
                  // calculate position of node 151
                  tIJK[ 0 ] = tAnchor[ 0 ] + 4;
@@ -3417,7 +3417,7 @@ namespace moris
              }
 
             // test if node 152 exists
-            if ( tNodes[ 152 ] == NULL )
+            if ( tNodes[ 152 ] == nullptr )
             {
                  // calculate position of node 152
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -3432,7 +3432,7 @@ namespace moris
              }
 
             // test if node 153 exists
-            if ( tNodes[ 153 ] == NULL )
+            if ( tNodes[ 153 ] == nullptr )
             {
                  // calculate position of node 153
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -3447,7 +3447,7 @@ namespace moris
              }
 
             // test if node 154 exists
-            if ( tNodes[ 154 ] == NULL )
+            if ( tNodes[ 154 ] == nullptr )
             {
                  // calculate position of node 154
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -3517,7 +3517,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 160 exists
-            if ( tNodes[ 160 ] == NULL )
+            if ( tNodes[ 160 ] == nullptr )
             {
                  // calculate position of node 160
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -3532,7 +3532,7 @@ namespace moris
              }
 
             // test if node 161 exists
-            if ( tNodes[ 161 ] == NULL )
+            if ( tNodes[ 161 ] == nullptr )
             {
                  // calculate position of node 161
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -3602,7 +3602,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 167 exists
-            if ( tNodes[ 167 ] == NULL )
+            if ( tNodes[ 167 ] == nullptr )
             {
                  // calculate position of node 167
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -3617,7 +3617,7 @@ namespace moris
              }
 
             // test if node 168 exists
-            if ( tNodes[ 168 ] == NULL )
+            if ( tNodes[ 168 ] == nullptr )
             {
                  // calculate position of node 168
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -3687,7 +3687,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 174 exists
-            if ( tNodes[ 174 ] == NULL )
+            if ( tNodes[ 174 ] == nullptr )
             {
                  // calculate position of node 174
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -3702,7 +3702,7 @@ namespace moris
              }
 
             // test if node 175 exists
-            if ( tNodes[ 175 ] == NULL )
+            if ( tNodes[ 175 ] == nullptr )
             {
                  // calculate position of node 175
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -3772,7 +3772,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 181 exists
-            if ( tNodes[ 181 ] == NULL )
+            if ( tNodes[ 181 ] == nullptr )
             {
                  // calculate position of node 181
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -3787,7 +3787,7 @@ namespace moris
              }
 
             // test if node 182 exists
-            if ( tNodes[ 182 ] == NULL )
+            if ( tNodes[ 182 ] == nullptr )
             {
                  // calculate position of node 182
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -3857,7 +3857,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 188 exists
-            if ( tNodes[ 188 ] == NULL )
+            if ( tNodes[ 188 ] == nullptr )
             {
                  // calculate position of node 188
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -3872,7 +3872,7 @@ namespace moris
              }
 
             // test if node 189 exists
-            if ( tNodes[ 189 ] == NULL )
+            if ( tNodes[ 189 ] == nullptr )
             {
                  // calculate position of node 189
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -3887,7 +3887,7 @@ namespace moris
              }
 
             // test if node 190 exists
-            if ( tNodes[ 190 ] == NULL )
+            if ( tNodes[ 190 ] == nullptr )
             {
                  // calculate position of node 190
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -3902,7 +3902,7 @@ namespace moris
              }
 
             // test if node 191 exists
-            if ( tNodes[ 191 ] == NULL )
+            if ( tNodes[ 191 ] == nullptr )
             {
                  // calculate position of node 191
                  tIJK[ 0 ] = tAnchor[ 0 ] + 2;
@@ -3917,7 +3917,7 @@ namespace moris
              }
 
             // test if node 192 exists
-            if ( tNodes[ 192 ] == NULL )
+            if ( tNodes[ 192 ] == nullptr )
             {
                  // calculate position of node 192
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -3932,7 +3932,7 @@ namespace moris
              }
 
             // test if node 193 exists
-            if ( tNodes[ 193 ] == NULL )
+            if ( tNodes[ 193 ] == nullptr )
             {
                  // calculate position of node 193
                  tIJK[ 0 ] = tAnchor[ 0 ] + 4;
@@ -3947,7 +3947,7 @@ namespace moris
              }
 
             // test if node 194 exists
-            if ( tNodes[ 194 ] == NULL )
+            if ( tNodes[ 194 ] == nullptr )
             {
                  // calculate position of node 194
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -3962,7 +3962,7 @@ namespace moris
              }
 
             // test if node 195 exists
-            if ( tNodes[ 195 ] == NULL )
+            if ( tNodes[ 195 ] == nullptr )
             {
                  // calculate position of node 195
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -3977,7 +3977,7 @@ namespace moris
              }
 
             // test if node 197 exists
-            if ( tNodes[ 197 ] == NULL )
+            if ( tNodes[ 197 ] == nullptr )
             {
                  // calculate position of node 197
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -3992,7 +3992,7 @@ namespace moris
              }
 
             // test if node 199 exists
-            if ( tNodes[ 199 ] == NULL )
+            if ( tNodes[ 199 ] == nullptr )
             {
                  // calculate position of node 199
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -4007,7 +4007,7 @@ namespace moris
              }
 
             // test if node 201 exists
-            if ( tNodes[ 201 ] == NULL )
+            if ( tNodes[ 201 ] == nullptr )
             {
                  // calculate position of node 201
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -4022,7 +4022,7 @@ namespace moris
              }
 
             // test if node 203 exists
-            if ( tNodes[ 203 ] == NULL )
+            if ( tNodes[ 203 ] == nullptr )
             {
                  // calculate position of node 203
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -4092,7 +4092,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 209 exists
-            if ( tNodes[ 209 ] == NULL )
+            if ( tNodes[ 209 ] == nullptr )
             {
                  // calculate position of node 209
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -4140,7 +4140,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 217 exists
-            if ( tNodes[ 217 ] == NULL )
+            if ( tNodes[ 217 ] == nullptr )
             {
                  // calculate position of node 217
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -4210,7 +4210,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 223 exists
-            if ( tNodes[ 223 ] == NULL )
+            if ( tNodes[ 223 ] == nullptr )
             {
                  // calculate position of node 223
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -4258,7 +4258,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 231 exists
-            if ( tNodes[ 231 ] == NULL )
+            if ( tNodes[ 231 ] == nullptr )
             {
                  // calculate position of node 231
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -4328,7 +4328,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 237 exists
-            if ( tNodes[ 237 ] == NULL )
+            if ( tNodes[ 237 ] == nullptr )
             {
                  // calculate position of node 237
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -4343,7 +4343,7 @@ namespace moris
              }
 
             // test if node 239 exists
-            if ( tNodes[ 239 ] == NULL )
+            if ( tNodes[ 239 ] == nullptr )
             {
                  // calculate position of node 239
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -4358,7 +4358,7 @@ namespace moris
              }
 
             // test if node 241 exists
-            if ( tNodes[ 241 ] == NULL )
+            if ( tNodes[ 241 ] == nullptr )
             {
                  // calculate position of node 241
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -4373,7 +4373,7 @@ namespace moris
              }
 
             // test if node 243 exists
-            if ( tNodes[ 243 ] == NULL )
+            if ( tNodes[ 243 ] == nullptr )
             {
                  // calculate position of node 243
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -4388,7 +4388,7 @@ namespace moris
              }
 
             // test if node 245 exists
-            if ( tNodes[ 245 ] == NULL )
+            if ( tNodes[ 245 ] == nullptr )
             {
                  // calculate position of node 245
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -4403,7 +4403,7 @@ namespace moris
              }
 
             // test if node 246 exists
-            if ( tNodes[ 246 ] == NULL )
+            if ( tNodes[ 246 ] == nullptr )
             {
                  // calculate position of node 246
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -4418,7 +4418,7 @@ namespace moris
              }
 
             // test if node 247 exists
-            if ( tNodes[ 247 ] == NULL )
+            if ( tNodes[ 247 ] == nullptr )
             {
                  // calculate position of node 247
                  tIJK[ 0 ] = tAnchor[ 0 ] + 2;
@@ -4433,7 +4433,7 @@ namespace moris
              }
 
             // test if node 248 exists
-            if ( tNodes[ 248 ] == NULL )
+            if ( tNodes[ 248 ] == nullptr )
             {
                  // calculate position of node 248
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -4448,7 +4448,7 @@ namespace moris
              }
 
             // test if node 249 exists
-            if ( tNodes[ 249 ] == NULL )
+            if ( tNodes[ 249 ] == nullptr )
             {
                  // calculate position of node 249
                  tIJK[ 0 ] = tAnchor[ 0 ] + 4;
@@ -4463,7 +4463,7 @@ namespace moris
              }
 
             // test if node 250 exists
-            if ( tNodes[ 250 ] == NULL )
+            if ( tNodes[ 250 ] == nullptr )
             {
                  // calculate position of node 250
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -4478,7 +4478,7 @@ namespace moris
              }
 
             // test if node 251 exists
-            if ( tNodes[ 251 ] == NULL )
+            if ( tNodes[ 251 ] == nullptr )
             {
                  // calculate position of node 251
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -4493,7 +4493,7 @@ namespace moris
              }
 
             // test if node 252 exists
-            if ( tNodes[ 252 ] == NULL )
+            if ( tNodes[ 252 ] == nullptr )
             {
                  // calculate position of node 252
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -4563,7 +4563,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 258 exists
-            if ( tNodes[ 258 ] == NULL )
+            if ( tNodes[ 258 ] == nullptr )
             {
                  // calculate position of node 258
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -4578,7 +4578,7 @@ namespace moris
              }
 
             // test if node 259 exists
-            if ( tNodes[ 259 ] == NULL )
+            if ( tNodes[ 259 ] == nullptr )
             {
                  // calculate position of node 259
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -4648,7 +4648,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 265 exists
-            if ( tNodes[ 265 ] == NULL )
+            if ( tNodes[ 265 ] == nullptr )
             {
                  // calculate position of node 265
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -4663,7 +4663,7 @@ namespace moris
              }
 
             // test if node 266 exists
-            if ( tNodes[ 266 ] == NULL )
+            if ( tNodes[ 266 ] == nullptr )
             {
                  // calculate position of node 266
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -4733,7 +4733,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 272 exists
-            if ( tNodes[ 272 ] == NULL )
+            if ( tNodes[ 272 ] == nullptr )
             {
                  // calculate position of node 272
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -4748,7 +4748,7 @@ namespace moris
              }
 
             // test if node 273 exists
-            if ( tNodes[ 273 ] == NULL )
+            if ( tNodes[ 273 ] == nullptr )
             {
                  // calculate position of node 273
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -4818,7 +4818,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 279 exists
-            if ( tNodes[ 279 ] == NULL )
+            if ( tNodes[ 279 ] == nullptr )
             {
                  // calculate position of node 279
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -4833,7 +4833,7 @@ namespace moris
              }
 
             // test if node 280 exists
-            if ( tNodes[ 280 ] == NULL )
+            if ( tNodes[ 280 ] == nullptr )
             {
                  // calculate position of node 280
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -4903,7 +4903,7 @@ namespace moris
              ++aBasisCounter;
 
             // test if node 286 exists
-            if ( tNodes[ 286 ] == NULL )
+            if ( tNodes[ 286 ] == nullptr )
             {
                  // calculate position of node 286
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -4918,7 +4918,7 @@ namespace moris
              }
 
             // test if node 287 exists
-            if ( tNodes[ 287 ] == NULL )
+            if ( tNodes[ 287 ] == nullptr )
             {
                  // calculate position of node 287
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -4933,7 +4933,7 @@ namespace moris
              }
 
             // test if node 288 exists
-            if ( tNodes[ 288 ] == NULL )
+            if ( tNodes[ 288 ] == nullptr )
             {
                  // calculate position of node 288
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -4948,7 +4948,7 @@ namespace moris
              }
 
             // test if node 289 exists
-            if ( tNodes[ 289 ] == NULL )
+            if ( tNodes[ 289 ] == nullptr )
             {
                  // calculate position of node 289
                  tIJK[ 0 ] = tAnchor[ 0 ] + 2;
@@ -4963,7 +4963,7 @@ namespace moris
              }
 
             // test if node 290 exists
-            if ( tNodes[ 290 ] == NULL )
+            if ( tNodes[ 290 ] == nullptr )
             {
                  // calculate position of node 290
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -4978,7 +4978,7 @@ namespace moris
              }
 
             // test if node 291 exists
-            if ( tNodes[ 291 ] == NULL )
+            if ( tNodes[ 291 ] == nullptr )
             {
                  // calculate position of node 291
                  tIJK[ 0 ] = tAnchor[ 0 ] + 4;
@@ -4993,7 +4993,7 @@ namespace moris
              }
 
             // test if node 292 exists
-            if ( tNodes[ 292 ] == NULL )
+            if ( tNodes[ 292 ] == nullptr )
             {
                  // calculate position of node 292
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -5008,7 +5008,7 @@ namespace moris
              }
 
             // test if node 293 exists
-            if ( tNodes[ 293 ] == NULL )
+            if ( tNodes[ 293 ] == nullptr )
             {
                  // calculate position of node 293
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -5023,7 +5023,7 @@ namespace moris
              }
 
             // test if node 295 exists
-            if ( tNodes[ 295 ] == NULL )
+            if ( tNodes[ 295 ] == nullptr )
             {
                  // calculate position of node 295
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -5038,7 +5038,7 @@ namespace moris
              }
 
             // test if node 297 exists
-            if ( tNodes[ 297 ] == NULL )
+            if ( tNodes[ 297 ] == nullptr )
             {
                  // calculate position of node 297
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -5053,7 +5053,7 @@ namespace moris
              }
 
             // test if node 299 exists
-            if ( tNodes[ 299 ] == NULL )
+            if ( tNodes[ 299 ] == nullptr )
             {
                  // calculate position of node 299
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -5068,7 +5068,7 @@ namespace moris
              }
 
             // test if node 301 exists
-            if ( tNodes[ 301 ] == NULL )
+            if ( tNodes[ 301 ] == nullptr )
             {
                  // calculate position of node 301
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -5083,7 +5083,7 @@ namespace moris
              }
 
             // test if node 302 exists
-            if ( tNodes[ 302 ] == NULL )
+            if ( tNodes[ 302 ] == nullptr )
             {
                  // calculate position of node 302
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -5098,7 +5098,7 @@ namespace moris
              }
 
             // test if node 303 exists
-            if ( tNodes[ 303 ] == NULL )
+            if ( tNodes[ 303 ] == nullptr )
             {
                  // calculate position of node 303
                  tIJK[ 0 ] = tAnchor[ 0 ] + 2;
@@ -5113,7 +5113,7 @@ namespace moris
              }
 
             // test if node 304 exists
-            if ( tNodes[ 304 ] == NULL )
+            if ( tNodes[ 304 ] == nullptr )
             {
                  // calculate position of node 304
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -5128,7 +5128,7 @@ namespace moris
              }
 
             // test if node 305 exists
-            if ( tNodes[ 305 ] == NULL )
+            if ( tNodes[ 305 ] == nullptr )
             {
                  // calculate position of node 305
                  tIJK[ 0 ] = tAnchor[ 0 ] + 4;
@@ -5143,7 +5143,7 @@ namespace moris
              }
 
             // test if node 306 exists
-            if ( tNodes[ 306 ] == NULL )
+            if ( tNodes[ 306 ] == nullptr )
             {
                  // calculate position of node 306
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -5158,7 +5158,7 @@ namespace moris
              }
 
             // test if node 307 exists
-            if ( tNodes[ 307 ] == NULL )
+            if ( tNodes[ 307 ] == nullptr )
             {
                  // calculate position of node 307
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -5173,7 +5173,7 @@ namespace moris
              }
 
             // test if node 309 exists
-            if ( tNodes[ 309 ] == NULL )
+            if ( tNodes[ 309 ] == nullptr )
             {
                  // calculate position of node 309
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -5188,7 +5188,7 @@ namespace moris
              }
 
             // test if node 311 exists
-            if ( tNodes[ 311 ] == NULL )
+            if ( tNodes[ 311 ] == nullptr )
             {
                  // calculate position of node 311
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -5203,7 +5203,7 @@ namespace moris
              }
 
             // test if node 313 exists
-            if ( tNodes[ 313 ] == NULL )
+            if ( tNodes[ 313 ] == nullptr )
             {
                  // calculate position of node 313
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -5218,7 +5218,7 @@ namespace moris
              }
 
             // test if node 315 exists
-            if ( tNodes[ 315 ] == NULL )
+            if ( tNodes[ 315 ] == nullptr )
             {
                  // calculate position of node 315
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -5233,7 +5233,7 @@ namespace moris
              }
 
             // test if node 316 exists
-            if ( tNodes[ 316 ] == NULL )
+            if ( tNodes[ 316 ] == nullptr )
             {
                  // calculate position of node 316
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -5248,7 +5248,7 @@ namespace moris
              }
 
             // test if node 317 exists
-            if ( tNodes[ 317 ] == NULL )
+            if ( tNodes[ 317 ] == nullptr )
             {
                  // calculate position of node 317
                  tIJK[ 0 ] = tAnchor[ 0 ] + 2;
@@ -5263,7 +5263,7 @@ namespace moris
              }
 
             // test if node 318 exists
-            if ( tNodes[ 318 ] == NULL )
+            if ( tNodes[ 318 ] == nullptr )
             {
                  // calculate position of node 318
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -5278,7 +5278,7 @@ namespace moris
              }
 
             // test if node 319 exists
-            if ( tNodes[ 319 ] == NULL )
+            if ( tNodes[ 319 ] == nullptr )
             {
                  // calculate position of node 319
                  tIJK[ 0 ] = tAnchor[ 0 ] + 4;
@@ -5293,7 +5293,7 @@ namespace moris
              }
 
             // test if node 320 exists
-            if ( tNodes[ 320 ] == NULL )
+            if ( tNodes[ 320 ] == nullptr )
             {
                  // calculate position of node 320
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -5308,7 +5308,7 @@ namespace moris
              }
 
             // test if node 321 exists
-            if ( tNodes[ 321 ] == NULL )
+            if ( tNodes[ 321 ] == nullptr )
             {
                  // calculate position of node 321
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -5323,7 +5323,7 @@ namespace moris
              }
 
             // test if node 323 exists
-            if ( tNodes[ 323 ] == NULL )
+            if ( tNodes[ 323 ] == nullptr )
             {
                  // calculate position of node 323
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -5338,7 +5338,7 @@ namespace moris
              }
 
             // test if node 325 exists
-            if ( tNodes[ 325 ] == NULL )
+            if ( tNodes[ 325 ] == nullptr )
             {
                  // calculate position of node 325
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -5353,7 +5353,7 @@ namespace moris
              }
 
             // test if node 327 exists
-            if ( tNodes[ 327 ] == NULL )
+            if ( tNodes[ 327 ] == nullptr )
             {
                  // calculate position of node 327
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -5368,7 +5368,7 @@ namespace moris
              }
 
             // test if node 329 exists
-            if ( tNodes[ 329 ] == NULL )
+            if ( tNodes[ 329 ] == nullptr )
             {
                  // calculate position of node 329
                  tIJK[ 0 ] = tAnchor[ 0 ];
@@ -5383,7 +5383,7 @@ namespace moris
              }
 
             // test if node 330 exists
-            if ( tNodes[ 330 ] == NULL )
+            if ( tNodes[ 330 ] == nullptr )
             {
                  // calculate position of node 330
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -5398,7 +5398,7 @@ namespace moris
              }
 
             // test if node 331 exists
-            if ( tNodes[ 331 ] == NULL )
+            if ( tNodes[ 331 ] == nullptr )
             {
                  // calculate position of node 331
                  tIJK[ 0 ] = tAnchor[ 0 ] + 2;
@@ -5413,7 +5413,7 @@ namespace moris
              }
 
             // test if node 332 exists
-            if ( tNodes[ 332 ] == NULL )
+            if ( tNodes[ 332 ] == nullptr )
             {
                  // calculate position of node 332
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -5428,7 +5428,7 @@ namespace moris
              }
 
             // test if node 333 exists
-            if ( tNodes[ 333 ] == NULL )
+            if ( tNodes[ 333 ] == nullptr )
             {
                  // calculate position of node 333
                  tIJK[ 0 ] = tAnchor[ 0 ] + 4;
@@ -5443,7 +5443,7 @@ namespace moris
              }
 
             // test if node 334 exists
-            if ( tNodes[ 334 ] == NULL )
+            if ( tNodes[ 334 ] == nullptr )
             {
                  // calculate position of node 334
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;
@@ -5458,7 +5458,7 @@ namespace moris
              }
 
             // test if node 335 exists
-            if ( tNodes[ 335 ] == NULL )
+            if ( tNodes[ 335 ] == nullptr )
             {
                  // calculate position of node 335
                  tIJK[ 0 ] = tAnchor[ 0 ] + 6;
@@ -5473,7 +5473,7 @@ namespace moris
              }
 
             // test if node 337 exists
-            if ( tNodes[ 337 ] == NULL )
+            if ( tNodes[ 337 ] == nullptr )
             {
                  // calculate position of node 337
                  tIJK[ 0 ] = tAnchor[ 0 ] + 1;
@@ -5488,7 +5488,7 @@ namespace moris
              }
 
             // test if node 339 exists
-            if ( tNodes[ 339 ] == NULL )
+            if ( tNodes[ 339 ] == nullptr )
             {
                  // calculate position of node 339
                  tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -5503,7 +5503,7 @@ namespace moris
              }
 
             // test if node 341 exists
-            if ( tNodes[ 341 ] == NULL )
+            if ( tNodes[ 341 ] == nullptr )
             {
                  // calculate position of node 341
                  tIJK[ 0 ] = tAnchor[ 0 ] + 5;

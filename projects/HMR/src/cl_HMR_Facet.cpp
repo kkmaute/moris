@@ -33,7 +33,7 @@ namespace moris
             mIndexOnLeader = aBackgroundFacet->get_index_on_leader();
 
             // set pointer to follower if background follower exists
-            if ( aBackgroundFacet->get_follower() != NULL )
+            if ( aBackgroundFacet->get_follower() != nullptr )
             {
                 mFollower = aMesh->get_element_by_memory_index( aBackgroundFacet->get_follower()->get_memory_index() );
 
@@ -148,7 +148,7 @@ namespace moris
         bool
         Facet::is_active() const
         {
-            if ( mFollower == NULL )
+            if ( mFollower == nullptr )
             {
                 return mLeader->is_active();
             }

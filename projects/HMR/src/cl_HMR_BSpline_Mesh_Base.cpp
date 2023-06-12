@@ -624,7 +624,7 @@ namespace moris
                     // get pointer to basis
                     Basis * tBasis = tElement->get_basis( k );
 
-                    if( tBasis != NULL )
+                    if( tBasis != nullptr )
                     {
                         // unflag this basis
                         tBasis->unflag();
@@ -652,7 +652,7 @@ namespace moris
                    // get pointer to basis
                    Basis * tBasis = tElement->get_basis( k );
 
-                   if( tBasis != NULL )
+                   if( tBasis != nullptr )
                    {
                        // test if basis has been counted
                        if ( ! tBasis->is_flagged() )
@@ -674,7 +674,7 @@ namespace moris
                    {
                        // get pointer to basis
                        Basis * tBasis = tElement->get_basis( k );
-                       if( tBasis != NULL )
+                       if( tBasis != nullptr )
                        {
                            tBasis->use();
                        }
@@ -697,7 +697,7 @@ namespace moris
                    // get pointer to basis
                    Basis * tBasis = tElement->get_basis( k );
 
-                   if( tBasis != NULL )
+                   if( tBasis != nullptr )
                    {
                        // test if this basis has been processed already
                        if ( tBasis->is_flagged() )
@@ -720,7 +720,7 @@ namespace moris
                        // get pointer to basis
                        Basis * tBasis = tElement->get_basis( k );
 
-                       if( tBasis != NULL )
+                       if( tBasis != nullptr )
                        {
                            // assign memory of neighbor container for this basis
                            tBasis->init_neighbor_container();
@@ -744,7 +744,7 @@ namespace moris
                {
                    Basis * tBasis = tElement->get_basis( k );
 
-                   if( tBasis != NULL )
+                   if( tBasis != nullptr )
                    {
                        // insert this element into basis
                        tBasis->insert_element( tElement );
@@ -806,7 +806,7 @@ namespace moris
                         Basis* tChild = tParent->get_child( k );
 
                         // test if child exists
-                        if( tChild != NULL )
+                        if( tChild != nullptr )
                         {
                             // test if basis is not used
                             if ( ! tChild->is_used() )
@@ -832,7 +832,7 @@ namespace moris
                        Basis* tNeighbor = tBasis->get_neighbor( k );
 
                        // test if neighbor exists
-                       if ( tNeighbor != NULL )
+                       if ( tNeighbor != nullptr )
                        {
                            // test if neighbor is not used
                            if( ! tNeighbor->is_used() )
@@ -857,7 +857,7 @@ namespace moris
                         Basis* tBasis = tElement->get_basis( k );
 
                         // test if basis exists
-                        if( tBasis != NULL )
+                        if( tBasis != nullptr )
                         {
                             // test if basis is not used
                             if ( ! tBasis->is_used() )
@@ -946,7 +946,7 @@ namespace moris
                     Basis* tBasis = tElement->get_basis( k );
 
                     // test if basis exists
-                    if ( tBasis != NULL )
+                    if ( tBasis != nullptr )
                     {
                         // unflag this basis
                         tBasis->unflag();
@@ -966,7 +966,7 @@ namespace moris
                     Basis* tBasis = tElement->get_basis( k );
 
                     // test if basis exists
-                    if ( tBasis != NULL )
+                    if ( tBasis != nullptr )
                     {
                         // test if basis has been counted
                         if ( ! tBasis->is_flagged() )
@@ -996,7 +996,7 @@ namespace moris
                     Basis* tBasis = tElement->get_basis( k );
 
                     // test if basis exists
-                    if ( tBasis != NULL )
+                    if ( tBasis != nullptr )
                     {
                         // test if basis has been added
                         if ( tBasis->is_flagged() )
@@ -1220,7 +1220,7 @@ namespace moris
                             Basis * tChild = tParent->get_child( k );
 
                             // pointer may be null because we deleted unused basis
-                            if( tChild != NULL )
+                            if( tChild != nullptr )
                             {
                                 // increment parent counter for child
                                 tChild->increment_parent_counter();
@@ -1241,7 +1241,7 @@ namespace moris
                             Basis * tChild = tParent->get_child( k );
 
                             // pointer may be null because we deleted unused basis
-                            if( tChild != NULL )
+                            if( tChild != nullptr )
                             {
                                 // copy pointer of parent to child
                                 tParent->get_child( k )->insert_parent( tParent );

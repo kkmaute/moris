@@ -505,7 +505,7 @@ namespace moris
                 // get pointer to mesh
                 BSpline_Mesh_Base* tBMesh = tMesh->get_bspline_mesh( Im );
 
-                if ( tBMesh != NULL )
+                if ( tBMesh != nullptr )
                 {
                     // generate label
                     std::string tLabel = "NumberOfCoefficients_" + std::to_string( Im );

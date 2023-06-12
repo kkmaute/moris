@@ -553,7 +553,7 @@ namespace moris
              Element* tNeighbor = this->get_neighbor( aAllElementsOnProc, 0 );
 
              // test if neighbor  0 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  37 ] = tNeighbor->get_basis(   0 );
@@ -578,7 +578,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 1 );
 
              // test if neighbor  1 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  43 ] = tNeighbor->get_basis(   1 );
@@ -603,7 +603,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 2 );
 
              // test if neighbor  2 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  51 ] = tNeighbor->get_basis(   3 );
@@ -628,7 +628,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 3 );
 
              // test if neighbor  3 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  42 ] = tNeighbor->get_basis(   0 );
@@ -653,7 +653,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 4 );
 
              // test if neighbor  4 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[   7 ] = tNeighbor->get_basis(   0 );
@@ -678,7 +678,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 5 );
 
              // test if neighbor  5 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[ 123 ] = tNeighbor->get_basis(   4 );
@@ -703,7 +703,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 6 );
 
              // test if neighbor  6 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[   1 ] = tNeighbor->get_basis(   0 );
@@ -740,7 +740,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 7 );
 
              // test if neighbor  7 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[   8 ] = tNeighbor->get_basis(   0 );
@@ -777,7 +777,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 8 );
 
              // test if neighbor  8 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  13 ] = tNeighbor->get_basis(   0 );
@@ -814,7 +814,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 9 );
 
              // test if neighbor  9 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[   6 ] = tNeighbor->get_basis(   0 );
@@ -851,7 +851,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 10 );
 
              // test if neighbor  10 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  36 ] = tNeighbor->get_basis(   0 );
@@ -888,7 +888,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 11 );
 
              // test if neighbor  11 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  38 ] = tNeighbor->get_basis(   0 );
@@ -925,7 +925,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 12 );
 
              // test if neighbor  12 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  45 ] = tNeighbor->get_basis(   1 );
@@ -962,7 +962,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 13 );
 
              // test if neighbor  13 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  44 ] = tNeighbor->get_basis(   0 );
@@ -999,7 +999,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 14 );
 
              // test if neighbor  14 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  57 ] = tNeighbor->get_basis(   0 );
@@ -1036,7 +1036,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 15 );
 
              // test if neighbor  15 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  63 ] = tNeighbor->get_basis(   1 );
@@ -1073,7 +1073,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 16 );
 
              // test if neighbor  16 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  71 ] = tNeighbor->get_basis(   3 );
@@ -1110,7 +1110,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 17 );
 
              // test if neighbor  17 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  62 ] = tNeighbor->get_basis(   0 );
@@ -1147,7 +1147,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 18 );
 
              // test if neighbor  18 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[   0 ] = tNeighbor->get_basis(   0 );
@@ -1193,7 +1193,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 19 );
 
              // test if neighbor  19 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[   2 ] = tNeighbor->get_basis(   0 );
@@ -1239,7 +1239,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 20 );
 
              // test if neighbor  20 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  14 ] = tNeighbor->get_basis(   0 );
@@ -1285,7 +1285,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 21 );
 
              // test if neighbor  21 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  12 ] = tNeighbor->get_basis(   0 );
@@ -1331,7 +1331,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 22 );
 
              // test if neighbor  22 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  56 ] = tNeighbor->get_basis(   0 );
@@ -1377,7 +1377,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 23 );
 
              // test if neighbor  23 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  58 ] = tNeighbor->get_basis(   0 );
@@ -1423,7 +1423,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 24 );
 
              // test if neighbor  24 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  65 ] = tNeighbor->get_basis(   1 );
@@ -1469,7 +1469,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 25 );
 
              // test if neighbor  25 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  64 ] = tNeighbor->get_basis(   0 );
@@ -1512,7 +1512,7 @@ namespace moris
              }
 
              // test if basis 0 exists
-             if ( mBasis[   0 ] != NULL )
+             if ( mBasis[   0 ] != nullptr )
              {
                  // test if basis 0 has been processed
                  if ( ! mBasis[   0 ]->is_flagged() )
@@ -1552,7 +1552,7 @@ namespace moris
              }
 
              // test if basis 1 exists
-             if ( mBasis[   1 ] != NULL )
+             if ( mBasis[   1 ] != nullptr )
              {
                  // test if basis 1 has been processed
                  if ( ! mBasis[   1 ]->is_flagged() )
@@ -1592,7 +1592,7 @@ namespace moris
              }
 
              // test if basis 2 exists
-             if ( mBasis[   2 ] != NULL )
+             if ( mBasis[   2 ] != nullptr )
              {
                  // test if basis 2 has been processed
                  if ( ! mBasis[   2 ]->is_flagged() )
@@ -1632,7 +1632,7 @@ namespace moris
              }
 
              // test if basis 3 exists
-             if ( mBasis[   3 ] != NULL )
+             if ( mBasis[   3 ] != nullptr )
              {
                  // test if basis 3 has been processed
                  if ( ! mBasis[   3 ]->is_flagged() )
@@ -1672,7 +1672,7 @@ namespace moris
              }
 
              // test if basis 4 exists
-             if ( mBasis[   4 ] != NULL )
+             if ( mBasis[   4 ] != nullptr )
              {
                  // test if basis 4 has been processed
                  if ( ! mBasis[   4 ]->is_flagged() )
@@ -1712,7 +1712,7 @@ namespace moris
              }
 
              // test if basis 5 exists
-             if ( mBasis[   5 ] != NULL )
+             if ( mBasis[   5 ] != nullptr )
              {
                  // test if basis 5 has been processed
                  if ( ! mBasis[   5 ]->is_flagged() )
@@ -1752,7 +1752,7 @@ namespace moris
              }
 
              // test if basis 6 exists
-             if ( mBasis[   6 ] != NULL )
+             if ( mBasis[   6 ] != nullptr )
              {
                  // test if basis 6 has been processed
                  if ( ! mBasis[   6 ]->is_flagged() )
@@ -1792,7 +1792,7 @@ namespace moris
              }
 
              // test if basis 7 exists
-             if ( mBasis[   7 ] != NULL )
+             if ( mBasis[   7 ] != nullptr )
              {
                  // test if basis 7 has been processed
                  if ( ! mBasis[   7 ]->is_flagged() )
@@ -1832,7 +1832,7 @@ namespace moris
              }
 
              // test if basis 8 exists
-             if ( mBasis[   8 ] != NULL )
+             if ( mBasis[   8 ] != nullptr )
              {
                  // test if basis 8 has been processed
                  if ( ! mBasis[   8 ]->is_flagged() )
@@ -1872,7 +1872,7 @@ namespace moris
              }
 
              // test if basis 9 exists
-             if ( mBasis[   9 ] != NULL )
+             if ( mBasis[   9 ] != nullptr )
              {
                  // test if basis 9 has been processed
                  if ( ! mBasis[   9 ]->is_flagged() )
@@ -1912,7 +1912,7 @@ namespace moris
              }
 
              // test if basis 10 exists
-             if ( mBasis[  10 ] != NULL )
+             if ( mBasis[  10 ] != nullptr )
              {
                  // test if basis 10 has been processed
                  if ( ! mBasis[  10 ]->is_flagged() )
@@ -1952,7 +1952,7 @@ namespace moris
              }
 
              // test if basis 11 exists
-             if ( mBasis[  11 ] != NULL )
+             if ( mBasis[  11 ] != nullptr )
              {
                  // test if basis 11 has been processed
                  if ( ! mBasis[  11 ]->is_flagged() )
@@ -1992,7 +1992,7 @@ namespace moris
              }
 
              // test if basis 12 exists
-             if ( mBasis[  12 ] != NULL )
+             if ( mBasis[  12 ] != nullptr )
              {
                  // test if basis 12 has been processed
                  if ( ! mBasis[  12 ]->is_flagged() )
@@ -2032,7 +2032,7 @@ namespace moris
              }
 
              // test if basis 13 exists
-             if ( mBasis[  13 ] != NULL )
+             if ( mBasis[  13 ] != nullptr )
              {
                  // test if basis 13 has been processed
                  if ( ! mBasis[  13 ]->is_flagged() )
@@ -2072,7 +2072,7 @@ namespace moris
              }
 
              // test if basis 14 exists
-             if ( mBasis[  14 ] != NULL )
+             if ( mBasis[  14 ] != nullptr )
              {
                  // test if basis 14 has been processed
                  if ( ! mBasis[  14 ]->is_flagged() )
@@ -2112,7 +2112,7 @@ namespace moris
              }
 
              // test if basis 15 exists
-             if ( mBasis[  15 ] != NULL )
+             if ( mBasis[  15 ] != nullptr )
              {
                  // test if basis 15 has been processed
                  if ( ! mBasis[  15 ]->is_flagged() )
@@ -2152,7 +2152,7 @@ namespace moris
              }
 
              // test if basis 16 exists
-             if ( mBasis[  16 ] != NULL )
+             if ( mBasis[  16 ] != nullptr )
              {
                  // test if basis 16 has been processed
                  if ( ! mBasis[  16 ]->is_flagged() )
@@ -2192,7 +2192,7 @@ namespace moris
              }
 
              // test if basis 17 exists
-             if ( mBasis[  17 ] != NULL )
+             if ( mBasis[  17 ] != nullptr )
              {
                  // test if basis 17 has been processed
                  if ( ! mBasis[  17 ]->is_flagged() )
@@ -2232,7 +2232,7 @@ namespace moris
              }
 
              // test if basis 18 exists
-             if ( mBasis[  18 ] != NULL )
+             if ( mBasis[  18 ] != nullptr )
              {
                  // test if basis 18 has been processed
                  if ( ! mBasis[  18 ]->is_flagged() )
@@ -2272,7 +2272,7 @@ namespace moris
              }
 
              // test if basis 19 exists
-             if ( mBasis[  19 ] != NULL )
+             if ( mBasis[  19 ] != nullptr )
              {
                  // test if basis 19 has been processed
                  if ( ! mBasis[  19 ]->is_flagged() )
@@ -2312,7 +2312,7 @@ namespace moris
              }
 
              // test if basis 20 exists
-             if ( mBasis[  20 ] != NULL )
+             if ( mBasis[  20 ] != nullptr )
              {
                  // test if basis 20 has been processed
                  if ( ! mBasis[  20 ]->is_flagged() )
@@ -2352,7 +2352,7 @@ namespace moris
              }
 
              // test if basis 21 exists
-             if ( mBasis[  21 ] != NULL )
+             if ( mBasis[  21 ] != nullptr )
              {
                  // test if basis 21 has been processed
                  if ( ! mBasis[  21 ]->is_flagged() )
@@ -2392,7 +2392,7 @@ namespace moris
              }
 
              // test if basis 22 exists
-             if ( mBasis[  22 ] != NULL )
+             if ( mBasis[  22 ] != nullptr )
              {
                  // test if basis 22 has been processed
                  if ( ! mBasis[  22 ]->is_flagged() )
@@ -2432,7 +2432,7 @@ namespace moris
              }
 
              // test if basis 23 exists
-             if ( mBasis[  23 ] != NULL )
+             if ( mBasis[  23 ] != nullptr )
              {
                  // test if basis 23 has been processed
                  if ( ! mBasis[  23 ]->is_flagged() )
@@ -2472,7 +2472,7 @@ namespace moris
              }
 
              // test if basis 24 exists
-             if ( mBasis[  24 ] != NULL )
+             if ( mBasis[  24 ] != nullptr )
              {
                  // test if basis 24 has been processed
                  if ( ! mBasis[  24 ]->is_flagged() )
@@ -2512,7 +2512,7 @@ namespace moris
              }
 
              // test if basis 25 exists
-             if ( mBasis[  25 ] != NULL )
+             if ( mBasis[  25 ] != nullptr )
              {
                  // test if basis 25 has been processed
                  if ( ! mBasis[  25 ]->is_flagged() )
@@ -2552,7 +2552,7 @@ namespace moris
              }
 
              // test if basis 26 exists
-             if ( mBasis[  26 ] != NULL )
+             if ( mBasis[  26 ] != nullptr )
              {
                  // test if basis 26 has been processed
                  if ( ! mBasis[  26 ]->is_flagged() )
@@ -2592,7 +2592,7 @@ namespace moris
              }
 
              // test if basis 27 exists
-             if ( mBasis[  27 ] != NULL )
+             if ( mBasis[  27 ] != nullptr )
              {
                  // test if basis 27 has been processed
                  if ( ! mBasis[  27 ]->is_flagged() )
@@ -2632,7 +2632,7 @@ namespace moris
              }
 
              // test if basis 28 exists
-             if ( mBasis[  28 ] != NULL )
+             if ( mBasis[  28 ] != nullptr )
              {
                  // test if basis 28 has been processed
                  if ( ! mBasis[  28 ]->is_flagged() )
@@ -2672,7 +2672,7 @@ namespace moris
              }
 
              // test if basis 29 exists
-             if ( mBasis[  29 ] != NULL )
+             if ( mBasis[  29 ] != nullptr )
              {
                  // test if basis 29 has been processed
                  if ( ! mBasis[  29 ]->is_flagged() )
@@ -2712,7 +2712,7 @@ namespace moris
              }
 
              // test if basis 30 exists
-             if ( mBasis[  30 ] != NULL )
+             if ( mBasis[  30 ] != nullptr )
              {
                  // test if basis 30 has been processed
                  if ( ! mBasis[  30 ]->is_flagged() )
@@ -2752,7 +2752,7 @@ namespace moris
              }
 
              // test if basis 31 exists
-             if ( mBasis[  31 ] != NULL )
+             if ( mBasis[  31 ] != nullptr )
              {
                  // test if basis 31 has been processed
                  if ( ! mBasis[  31 ]->is_flagged() )
@@ -2792,7 +2792,7 @@ namespace moris
              }
 
              // test if basis 32 exists
-             if ( mBasis[  32 ] != NULL )
+             if ( mBasis[  32 ] != nullptr )
              {
                  // test if basis 32 has been processed
                  if ( ! mBasis[  32 ]->is_flagged() )
@@ -2832,7 +2832,7 @@ namespace moris
              }
 
              // test if basis 33 exists
-             if ( mBasis[  33 ] != NULL )
+             if ( mBasis[  33 ] != nullptr )
              {
                  // test if basis 33 has been processed
                  if ( ! mBasis[  33 ]->is_flagged() )
@@ -2872,7 +2872,7 @@ namespace moris
              }
 
              // test if basis 34 exists
-             if ( mBasis[  34 ] != NULL )
+             if ( mBasis[  34 ] != nullptr )
              {
                  // test if basis 34 has been processed
                  if ( ! mBasis[  34 ]->is_flagged() )
@@ -2912,7 +2912,7 @@ namespace moris
              }
 
              // test if basis 35 exists
-             if ( mBasis[  35 ] != NULL )
+             if ( mBasis[  35 ] != nullptr )
              {
                  // test if basis 35 has been processed
                  if ( ! mBasis[  35 ]->is_flagged() )
@@ -2952,7 +2952,7 @@ namespace moris
              }
 
              // test if basis 36 exists
-             if ( mBasis[  36 ] != NULL )
+             if ( mBasis[  36 ] != nullptr )
              {
                  // test if basis 36 has been processed
                  if ( ! mBasis[  36 ]->is_flagged() )
@@ -2992,7 +2992,7 @@ namespace moris
              }
 
              // test if basis 37 exists
-             if ( mBasis[  37 ] != NULL )
+             if ( mBasis[  37 ] != nullptr )
              {
                  // test if basis 37 has been processed
                  if ( ! mBasis[  37 ]->is_flagged() )
@@ -3032,7 +3032,7 @@ namespace moris
              }
 
              // test if basis 38 exists
-             if ( mBasis[  38 ] != NULL )
+             if ( mBasis[  38 ] != nullptr )
              {
                  // test if basis 38 has been processed
                  if ( ! mBasis[  38 ]->is_flagged() )
@@ -3072,7 +3072,7 @@ namespace moris
              }
 
              // test if basis 39 exists
-             if ( mBasis[  39 ] != NULL )
+             if ( mBasis[  39 ] != nullptr )
              {
                  // test if basis 39 has been processed
                  if ( ! mBasis[  39 ]->is_flagged() )
@@ -3112,7 +3112,7 @@ namespace moris
              }
 
              // test if basis 40 exists
-             if ( mBasis[  40 ] != NULL )
+             if ( mBasis[  40 ] != nullptr )
              {
                  // test if basis 40 has been processed
                  if ( ! mBasis[  40 ]->is_flagged() )
@@ -3152,7 +3152,7 @@ namespace moris
              }
 
              // test if basis 41 exists
-             if ( mBasis[  41 ] != NULL )
+             if ( mBasis[  41 ] != nullptr )
              {
                  // test if basis 41 has been processed
                  if ( ! mBasis[  41 ]->is_flagged() )
@@ -3192,7 +3192,7 @@ namespace moris
              }
 
              // test if basis 42 exists
-             if ( mBasis[  42 ] != NULL )
+             if ( mBasis[  42 ] != nullptr )
              {
                  // test if basis 42 has been processed
                  if ( ! mBasis[  42 ]->is_flagged() )
@@ -3232,7 +3232,7 @@ namespace moris
              }
 
              // test if basis 43 exists
-             if ( mBasis[  43 ] != NULL )
+             if ( mBasis[  43 ] != nullptr )
              {
                  // test if basis 43 has been processed
                  if ( ! mBasis[  43 ]->is_flagged() )
@@ -3272,7 +3272,7 @@ namespace moris
              }
 
              // test if basis 44 exists
-             if ( mBasis[  44 ] != NULL )
+             if ( mBasis[  44 ] != nullptr )
              {
                  // test if basis 44 has been processed
                  if ( ! mBasis[  44 ]->is_flagged() )
@@ -3312,7 +3312,7 @@ namespace moris
              }
 
              // test if basis 45 exists
-             if ( mBasis[  45 ] != NULL )
+             if ( mBasis[  45 ] != nullptr )
              {
                  // test if basis 45 has been processed
                  if ( ! mBasis[  45 ]->is_flagged() )
@@ -3352,7 +3352,7 @@ namespace moris
              }
 
              // test if basis 46 exists
-             if ( mBasis[  46 ] != NULL )
+             if ( mBasis[  46 ] != nullptr )
              {
                  // test if basis 46 has been processed
                  if ( ! mBasis[  46 ]->is_flagged() )
@@ -3392,7 +3392,7 @@ namespace moris
              }
 
              // test if basis 47 exists
-             if ( mBasis[  47 ] != NULL )
+             if ( mBasis[  47 ] != nullptr )
              {
                  // test if basis 47 has been processed
                  if ( ! mBasis[  47 ]->is_flagged() )
@@ -3432,7 +3432,7 @@ namespace moris
              }
 
              // test if basis 48 exists
-             if ( mBasis[  48 ] != NULL )
+             if ( mBasis[  48 ] != nullptr )
              {
                  // test if basis 48 has been processed
                  if ( ! mBasis[  48 ]->is_flagged() )
@@ -3472,7 +3472,7 @@ namespace moris
              }
 
              // test if basis 49 exists
-             if ( mBasis[  49 ] != NULL )
+             if ( mBasis[  49 ] != nullptr )
              {
                  // test if basis 49 has been processed
                  if ( ! mBasis[  49 ]->is_flagged() )
@@ -3512,7 +3512,7 @@ namespace moris
              }
 
              // test if basis 50 exists
-             if ( mBasis[  50 ] != NULL )
+             if ( mBasis[  50 ] != nullptr )
              {
                  // test if basis 50 has been processed
                  if ( ! mBasis[  50 ]->is_flagged() )
@@ -3552,7 +3552,7 @@ namespace moris
              }
 
              // test if basis 51 exists
-             if ( mBasis[  51 ] != NULL )
+             if ( mBasis[  51 ] != nullptr )
              {
                  // test if basis 51 has been processed
                  if ( ! mBasis[  51 ]->is_flagged() )
@@ -3592,7 +3592,7 @@ namespace moris
              }
 
              // test if basis 52 exists
-             if ( mBasis[  52 ] != NULL )
+             if ( mBasis[  52 ] != nullptr )
              {
                  // test if basis 52 has been processed
                  if ( ! mBasis[  52 ]->is_flagged() )
@@ -3632,7 +3632,7 @@ namespace moris
              }
 
              // test if basis 53 exists
-             if ( mBasis[  53 ] != NULL )
+             if ( mBasis[  53 ] != nullptr )
              {
                  // test if basis 53 has been processed
                  if ( ! mBasis[  53 ]->is_flagged() )
@@ -3672,7 +3672,7 @@ namespace moris
              }
 
              // test if basis 54 exists
-             if ( mBasis[  54 ] != NULL )
+             if ( mBasis[  54 ] != nullptr )
              {
                  // test if basis 54 has been processed
                  if ( ! mBasis[  54 ]->is_flagged() )
@@ -3712,7 +3712,7 @@ namespace moris
              }
 
              // test if basis 55 exists
-             if ( mBasis[  55 ] != NULL )
+             if ( mBasis[  55 ] != nullptr )
              {
                  // test if basis 55 has been processed
                  if ( ! mBasis[  55 ]->is_flagged() )
@@ -3752,7 +3752,7 @@ namespace moris
              }
 
              // test if basis 56 exists
-             if ( mBasis[  56 ] != NULL )
+             if ( mBasis[  56 ] != nullptr )
              {
                  // test if basis 56 has been processed
                  if ( ! mBasis[  56 ]->is_flagged() )
@@ -3792,7 +3792,7 @@ namespace moris
              }
 
              // test if basis 57 exists
-             if ( mBasis[  57 ] != NULL )
+             if ( mBasis[  57 ] != nullptr )
              {
                  // test if basis 57 has been processed
                  if ( ! mBasis[  57 ]->is_flagged() )
@@ -3832,7 +3832,7 @@ namespace moris
              }
 
              // test if basis 58 exists
-             if ( mBasis[  58 ] != NULL )
+             if ( mBasis[  58 ] != nullptr )
              {
                  // test if basis 58 has been processed
                  if ( ! mBasis[  58 ]->is_flagged() )
@@ -3872,7 +3872,7 @@ namespace moris
              }
 
              // test if basis 59 exists
-             if ( mBasis[  59 ] != NULL )
+             if ( mBasis[  59 ] != nullptr )
              {
                  // test if basis 59 has been processed
                  if ( ! mBasis[  59 ]->is_flagged() )
@@ -3912,7 +3912,7 @@ namespace moris
              }
 
              // test if basis 60 exists
-             if ( mBasis[  60 ] != NULL )
+             if ( mBasis[  60 ] != nullptr )
              {
                  // test if basis 60 has been processed
                  if ( ! mBasis[  60 ]->is_flagged() )
@@ -3952,7 +3952,7 @@ namespace moris
              }
 
              // test if basis 61 exists
-             if ( mBasis[  61 ] != NULL )
+             if ( mBasis[  61 ] != nullptr )
              {
                  // test if basis 61 has been processed
                  if ( ! mBasis[  61 ]->is_flagged() )
@@ -3992,7 +3992,7 @@ namespace moris
              }
 
              // test if basis 62 exists
-             if ( mBasis[  62 ] != NULL )
+             if ( mBasis[  62 ] != nullptr )
              {
                  // test if basis 62 has been processed
                  if ( ! mBasis[  62 ]->is_flagged() )
@@ -4032,7 +4032,7 @@ namespace moris
              }
 
              // test if basis 63 exists
-             if ( mBasis[  63 ] != NULL )
+             if ( mBasis[  63 ] != nullptr )
              {
                  // test if basis 63 has been processed
                  if ( ! mBasis[  63 ]->is_flagged() )
@@ -4090,7 +4090,7 @@ namespace moris
             Basis* tBasis = mBasis[ aBasisNumber ];
 
             // test if basis exists
-            if ( tBasis != NULL )
+            if ( tBasis != nullptr )
             {
                 // test if basis has been refined already
                 if ( ! tBasis->has_children() )
@@ -4105,7 +4105,7 @@ namespace moris
                     Basis* tChildren[ 125 ] = { nullptr };
 
                     // test if neighbor 0 exists
-                    if( tNeighbors[ 0 ] != NULL )
+                    if( tNeighbors[ 0 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 0 ];
@@ -4192,7 +4192,7 @@ namespace moris
                     }
 
                     // test if neighbor 1 exists
-                    if( tNeighbors[ 1 ] != NULL )
+                    if( tNeighbors[ 1 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 1 ];
@@ -4279,7 +4279,7 @@ namespace moris
                     }
 
                     // test if neighbor 2 exists
-                    if( tNeighbors[ 2 ] != NULL )
+                    if( tNeighbors[ 2 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 2 ];
@@ -4366,7 +4366,7 @@ namespace moris
                     }
 
                     // test if neighbor 3 exists
-                    if( tNeighbors[ 3 ] != NULL )
+                    if( tNeighbors[ 3 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 3 ];
@@ -4453,7 +4453,7 @@ namespace moris
                     }
 
                     // test if neighbor 4 exists
-                    if( tNeighbors[ 4 ] != NULL )
+                    if( tNeighbors[ 4 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 4 ];
@@ -4540,7 +4540,7 @@ namespace moris
                     }
 
                     // test if neighbor 5 exists
-                    if( tNeighbors[ 5 ] != NULL )
+                    if( tNeighbors[ 5 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 5 ];
@@ -4627,7 +4627,7 @@ namespace moris
                     }
 
                     // test if neighbor 6 exists
-                    if( tNeighbors[ 6 ] != NULL )
+                    if( tNeighbors[ 6 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 6 ];
@@ -4684,7 +4684,7 @@ namespace moris
                     }
 
                     // test if neighbor 7 exists
-                    if( tNeighbors[ 7 ] != NULL )
+                    if( tNeighbors[ 7 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 7 ];
@@ -4741,7 +4741,7 @@ namespace moris
                     }
 
                     // test if neighbor 8 exists
-                    if( tNeighbors[ 8 ] != NULL )
+                    if( tNeighbors[ 8 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 8 ];
@@ -4798,7 +4798,7 @@ namespace moris
                     }
 
                     // test if neighbor 9 exists
-                    if( tNeighbors[ 9 ] != NULL )
+                    if( tNeighbors[ 9 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 9 ];
@@ -4855,7 +4855,7 @@ namespace moris
                     }
 
                     // test if neighbor 10 exists
-                    if( tNeighbors[ 10 ] != NULL )
+                    if( tNeighbors[ 10 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 10 ];
@@ -4912,7 +4912,7 @@ namespace moris
                     }
 
                     // test if neighbor 11 exists
-                    if( tNeighbors[ 11 ] != NULL )
+                    if( tNeighbors[ 11 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 11 ];
@@ -4969,7 +4969,7 @@ namespace moris
                     }
 
                     // test if neighbor 12 exists
-                    if( tNeighbors[ 12 ] != NULL )
+                    if( tNeighbors[ 12 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 12 ];
@@ -5026,7 +5026,7 @@ namespace moris
                     }
 
                     // test if neighbor 13 exists
-                    if( tNeighbors[ 13 ] != NULL )
+                    if( tNeighbors[ 13 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 13 ];
@@ -5083,7 +5083,7 @@ namespace moris
                     }
 
                     // test if neighbor 14 exists
-                    if( tNeighbors[ 14 ] != NULL )
+                    if( tNeighbors[ 14 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 14 ];
@@ -5140,7 +5140,7 @@ namespace moris
                     }
 
                     // test if neighbor 15 exists
-                    if( tNeighbors[ 15 ] != NULL )
+                    if( tNeighbors[ 15 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 15 ];
@@ -5197,7 +5197,7 @@ namespace moris
                     }
 
                     // test if neighbor 16 exists
-                    if( tNeighbors[ 16 ] != NULL )
+                    if( tNeighbors[ 16 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 16 ];
@@ -5254,7 +5254,7 @@ namespace moris
                     }
 
                     // test if neighbor 17 exists
-                    if( tNeighbors[ 17 ] != NULL )
+                    if( tNeighbors[ 17 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 17 ];
@@ -5311,7 +5311,7 @@ namespace moris
                     }
 
                     // test if neighbor 18 exists
-                    if( tNeighbors[ 18 ] != NULL )
+                    if( tNeighbors[ 18 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 18 ];
@@ -5350,7 +5350,7 @@ namespace moris
                     }
 
                     // test if neighbor 19 exists
-                    if( tNeighbors[ 19 ] != NULL )
+                    if( tNeighbors[ 19 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 19 ];
@@ -5389,7 +5389,7 @@ namespace moris
                     }
 
                     // test if neighbor 20 exists
-                    if( tNeighbors[ 20 ] != NULL )
+                    if( tNeighbors[ 20 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 20 ];
@@ -5428,7 +5428,7 @@ namespace moris
                     }
 
                     // test if neighbor 21 exists
-                    if( tNeighbors[ 21 ] != NULL )
+                    if( tNeighbors[ 21 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 21 ];
@@ -5467,7 +5467,7 @@ namespace moris
                     }
 
                     // test if neighbor 22 exists
-                    if( tNeighbors[ 22 ] != NULL )
+                    if( tNeighbors[ 22 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 22 ];
@@ -5506,7 +5506,7 @@ namespace moris
                     }
 
                     // test if neighbor 23 exists
-                    if( tNeighbors[ 23 ] != NULL )
+                    if( tNeighbors[ 23 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 23 ];
@@ -5545,7 +5545,7 @@ namespace moris
                     }
 
                     // test if neighbor 24 exists
-                    if( tNeighbors[ 24 ] != NULL )
+                    if( tNeighbors[ 24 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 24 ];
@@ -5584,7 +5584,7 @@ namespace moris
                     }
 
                     // test if neighbor 25 exists
-                    if( tNeighbors[ 25 ] != NULL )
+                    if( tNeighbors[ 25 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 25 ];
@@ -5623,7 +5623,7 @@ namespace moris
                     }
 
                     // test if neighbor 26 exists
-                    if( tNeighbors[ 26 ] != NULL )
+                    if( tNeighbors[ 26 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 26 ];
@@ -5636,7 +5636,7 @@ namespace moris
                     }
 
                     // test if neighbor 27 exists
-                    if( tNeighbors[ 27 ] != NULL )
+                    if( tNeighbors[ 27 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 27 ];
@@ -5651,7 +5651,7 @@ namespace moris
                     }
 
                     // test if neighbor 28 exists
-                    if( tNeighbors[ 28 ] != NULL )
+                    if( tNeighbors[ 28 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 28 ];
@@ -5668,7 +5668,7 @@ namespace moris
                     }
 
                     // test if neighbor 29 exists
-                    if( tNeighbors[ 29 ] != NULL )
+                    if( tNeighbors[ 29 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 29 ];
@@ -5683,7 +5683,7 @@ namespace moris
                     }
 
                     // test if neighbor 30 exists
-                    if( tNeighbors[ 30 ] != NULL )
+                    if( tNeighbors[ 30 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 30 ];
@@ -5696,7 +5696,7 @@ namespace moris
                     }
 
                     // test if neighbor 31 exists
-                    if( tNeighbors[ 31 ] != NULL )
+                    if( tNeighbors[ 31 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 31 ];
@@ -5711,7 +5711,7 @@ namespace moris
                     }
 
                     // test if neighbor 32 exists
-                    if( tNeighbors[ 32 ] != NULL )
+                    if( tNeighbors[ 32 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 32 ];
@@ -5732,7 +5732,7 @@ namespace moris
                     }
 
                     // test if neighbor 33 exists
-                    if( tNeighbors[ 33 ] != NULL )
+                    if( tNeighbors[ 33 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 33 ];
@@ -5759,7 +5759,7 @@ namespace moris
                     }
 
                     // test if neighbor 34 exists
-                    if( tNeighbors[ 34 ] != NULL )
+                    if( tNeighbors[ 34 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 34 ];
@@ -5780,7 +5780,7 @@ namespace moris
                     }
 
                     // test if neighbor 35 exists
-                    if( tNeighbors[ 35 ] != NULL )
+                    if( tNeighbors[ 35 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 35 ];
@@ -5795,7 +5795,7 @@ namespace moris
                     }
 
                     // test if neighbor 36 exists
-                    if( tNeighbors[ 36 ] != NULL )
+                    if( tNeighbors[ 36 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 36 ];
@@ -5812,7 +5812,7 @@ namespace moris
                     }
 
                     // test if neighbor 37 exists
-                    if( tNeighbors[ 37 ] != NULL )
+                    if( tNeighbors[ 37 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 37 ];
@@ -5839,7 +5839,7 @@ namespace moris
                     }
 
                     // test if neighbor 38 exists
-                    if( tNeighbors[ 38 ] != NULL )
+                    if( tNeighbors[ 38 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 38 ];
@@ -5876,7 +5876,7 @@ namespace moris
                     }
 
                     // test if neighbor 39 exists
-                    if( tNeighbors[ 39 ] != NULL )
+                    if( tNeighbors[ 39 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 39 ];
@@ -5903,7 +5903,7 @@ namespace moris
                     }
 
                     // test if neighbor 40 exists
-                    if( tNeighbors[ 40 ] != NULL )
+                    if( tNeighbors[ 40 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 40 ];
@@ -5920,7 +5920,7 @@ namespace moris
                     }
 
                     // test if neighbor 41 exists
-                    if( tNeighbors[ 41 ] != NULL )
+                    if( tNeighbors[ 41 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 41 ];
@@ -5935,7 +5935,7 @@ namespace moris
                     }
 
                     // test if neighbor 42 exists
-                    if( tNeighbors[ 42 ] != NULL )
+                    if( tNeighbors[ 42 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 42 ];
@@ -5956,7 +5956,7 @@ namespace moris
                     }
 
                     // test if neighbor 43 exists
-                    if( tNeighbors[ 43 ] != NULL )
+                    if( tNeighbors[ 43 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 43 ];
@@ -5983,7 +5983,7 @@ namespace moris
                     }
 
                     // test if neighbor 44 exists
-                    if( tNeighbors[ 44 ] != NULL )
+                    if( tNeighbors[ 44 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 44 ];
@@ -6004,7 +6004,7 @@ namespace moris
                     }
 
                     // test if neighbor 45 exists
-                    if( tNeighbors[ 45 ] != NULL )
+                    if( tNeighbors[ 45 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 45 ];
@@ -6019,7 +6019,7 @@ namespace moris
                     }
 
                     // test if neighbor 46 exists
-                    if( tNeighbors[ 46 ] != NULL )
+                    if( tNeighbors[ 46 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 46 ];
@@ -6032,7 +6032,7 @@ namespace moris
                     }
 
                     // test if neighbor 47 exists
-                    if( tNeighbors[ 47 ] != NULL )
+                    if( tNeighbors[ 47 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 47 ];
@@ -6047,7 +6047,7 @@ namespace moris
                     }
 
                     // test if neighbor 48 exists
-                    if( tNeighbors[ 48 ] != NULL )
+                    if( tNeighbors[ 48 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 48 ];
@@ -6064,7 +6064,7 @@ namespace moris
                     }
 
                     // test if neighbor 49 exists
-                    if( tNeighbors[ 49 ] != NULL )
+                    if( tNeighbors[ 49 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 49 ];
@@ -6079,7 +6079,7 @@ namespace moris
                     }
 
                     // test if neighbor 50 exists
-                    if( tNeighbors[ 50 ] != NULL )
+                    if( tNeighbors[ 50 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 50 ];
@@ -6092,7 +6092,7 @@ namespace moris
                     }
 
                     // test if neighbor 51 exists
-                    if( tNeighbors[ 51 ] != NULL )
+                    if( tNeighbors[ 51 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 51 ];
@@ -6107,7 +6107,7 @@ namespace moris
                     }
 
                     // test if neighbor 52 exists
-                    if( tNeighbors[ 52 ] != NULL )
+                    if( tNeighbors[ 52 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 52 ];
@@ -6128,7 +6128,7 @@ namespace moris
                     }
 
                     // test if neighbor 53 exists
-                    if( tNeighbors[ 53 ] != NULL )
+                    if( tNeighbors[ 53 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 53 ];
@@ -6155,7 +6155,7 @@ namespace moris
                     }
 
                     // test if neighbor 54 exists
-                    if( tNeighbors[ 54 ] != NULL )
+                    if( tNeighbors[ 54 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 54 ];
@@ -6176,7 +6176,7 @@ namespace moris
                     }
 
                     // test if neighbor 55 exists
-                    if( tNeighbors[ 55 ] != NULL )
+                    if( tNeighbors[ 55 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 55 ];
@@ -6191,7 +6191,7 @@ namespace moris
                     }
 
                     // test if neighbor 56 exists
-                    if( tNeighbors[ 56 ] != NULL )
+                    if( tNeighbors[ 56 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 56 ];
@@ -6212,7 +6212,7 @@ namespace moris
                     }
 
                     // test if neighbor 57 exists
-                    if( tNeighbors[ 57 ] != NULL )
+                    if( tNeighbors[ 57 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 57 ];
@@ -6233,7 +6233,7 @@ namespace moris
                     }
 
                     // test if neighbor 58 exists
-                    if( tNeighbors[ 58 ] != NULL )
+                    if( tNeighbors[ 58 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 58 ];
@@ -6260,7 +6260,7 @@ namespace moris
                     }
 
                     // test if neighbor 59 exists
-                    if( tNeighbors[ 59 ] != NULL )
+                    if( tNeighbors[ 59 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 59 ];
@@ -6287,7 +6287,7 @@ namespace moris
                     }
 
                     // test if neighbor 60 exists
-                    if( tNeighbors[ 60 ] != NULL )
+                    if( tNeighbors[ 60 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 60 ];
@@ -6308,7 +6308,7 @@ namespace moris
                     }
 
                     // test if neighbor 61 exists
-                    if( tNeighbors[ 61 ] != NULL )
+                    if( tNeighbors[ 61 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 61 ];
@@ -6329,7 +6329,7 @@ namespace moris
                     }
 
                     // test if neighbor 62 exists
-                    if( tNeighbors[ 62 ] != NULL )
+                    if( tNeighbors[ 62 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 62 ];
@@ -6344,7 +6344,7 @@ namespace moris
                     }
 
                     // test if neighbor 63 exists
-                    if( tNeighbors[ 63 ] != NULL )
+                    if( tNeighbors[ 63 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 63 ];
@@ -6365,7 +6365,7 @@ namespace moris
                     }
 
                     // test if neighbor 64 exists
-                    if( tNeighbors[ 64 ] != NULL )
+                    if( tNeighbors[ 64 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 64 ];
@@ -6392,7 +6392,7 @@ namespace moris
                     }
 
                     // test if neighbor 65 exists
-                    if( tNeighbors[ 65 ] != NULL )
+                    if( tNeighbors[ 65 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 65 ];
@@ -6413,7 +6413,7 @@ namespace moris
                     }
 
                     // test if neighbor 66 exists
-                    if( tNeighbors[ 66 ] != NULL )
+                    if( tNeighbors[ 66 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 66 ];
@@ -6428,7 +6428,7 @@ namespace moris
                     }
 
                     // test if neighbor 67 exists
-                    if( tNeighbors[ 67 ] != NULL )
+                    if( tNeighbors[ 67 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 67 ];
@@ -6445,7 +6445,7 @@ namespace moris
                     }
 
                     // test if neighbor 68 exists
-                    if( tNeighbors[ 68 ] != NULL )
+                    if( tNeighbors[ 68 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 68 ];
@@ -6472,7 +6472,7 @@ namespace moris
                     }
 
                     // test if neighbor 69 exists
-                    if( tNeighbors[ 69 ] != NULL )
+                    if( tNeighbors[ 69 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 69 ];
@@ -6509,7 +6509,7 @@ namespace moris
                     }
 
                     // test if neighbor 70 exists
-                    if( tNeighbors[ 70 ] != NULL )
+                    if( tNeighbors[ 70 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 70 ];
@@ -6536,7 +6536,7 @@ namespace moris
                     }
 
                     // test if neighbor 71 exists
-                    if( tNeighbors[ 71 ] != NULL )
+                    if( tNeighbors[ 71 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 71 ];
@@ -6553,7 +6553,7 @@ namespace moris
                     }
 
                     // test if neighbor 72 exists
-                    if( tNeighbors[ 72 ] != NULL )
+                    if( tNeighbors[ 72 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 72 ];
@@ -6580,7 +6580,7 @@ namespace moris
                     }
 
                     // test if neighbor 73 exists
-                    if( tNeighbors[ 73 ] != NULL )
+                    if( tNeighbors[ 73 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 73 ];
@@ -6607,7 +6607,7 @@ namespace moris
                     }
 
                     // test if neighbor 74 exists
-                    if( tNeighbors[ 74 ] != NULL )
+                    if( tNeighbors[ 74 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 74 ];
@@ -6644,7 +6644,7 @@ namespace moris
                     }
 
                     // test if neighbor 75 exists
-                    if( tNeighbors[ 75 ] != NULL )
+                    if( tNeighbors[ 75 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 75 ];
@@ -6681,7 +6681,7 @@ namespace moris
                     }
 
                     // test if neighbor 76 exists
-                    if( tNeighbors[ 76 ] != NULL )
+                    if( tNeighbors[ 76 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 76 ];
@@ -6708,7 +6708,7 @@ namespace moris
                     }
 
                     // test if neighbor 77 exists
-                    if( tNeighbors[ 77 ] != NULL )
+                    if( tNeighbors[ 77 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 77 ];
@@ -6735,7 +6735,7 @@ namespace moris
                     }
 
                     // test if neighbor 78 exists
-                    if( tNeighbors[ 78 ] != NULL )
+                    if( tNeighbors[ 78 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 78 ];
@@ -6752,7 +6752,7 @@ namespace moris
                     }
 
                     // test if neighbor 79 exists
-                    if( tNeighbors[ 79 ] != NULL )
+                    if( tNeighbors[ 79 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 79 ];
@@ -6779,7 +6779,7 @@ namespace moris
                     }
 
                     // test if neighbor 80 exists
-                    if( tNeighbors[ 80 ] != NULL )
+                    if( tNeighbors[ 80 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 80 ];
@@ -6816,7 +6816,7 @@ namespace moris
                     }
 
                     // test if neighbor 81 exists
-                    if( tNeighbors[ 81 ] != NULL )
+                    if( tNeighbors[ 81 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 81 ];
@@ -6843,7 +6843,7 @@ namespace moris
                     }
 
                     // test if neighbor 82 exists
-                    if( tNeighbors[ 82 ] != NULL )
+                    if( tNeighbors[ 82 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 82 ];
@@ -6860,7 +6860,7 @@ namespace moris
                     }
 
                     // test if neighbor 83 exists
-                    if( tNeighbors[ 83 ] != NULL )
+                    if( tNeighbors[ 83 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 83 ];
@@ -6875,7 +6875,7 @@ namespace moris
                     }
 
                     // test if neighbor 84 exists
-                    if( tNeighbors[ 84 ] != NULL )
+                    if( tNeighbors[ 84 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 84 ];
@@ -6896,7 +6896,7 @@ namespace moris
                     }
 
                     // test if neighbor 85 exists
-                    if( tNeighbors[ 85 ] != NULL )
+                    if( tNeighbors[ 85 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 85 ];
@@ -6923,7 +6923,7 @@ namespace moris
                     }
 
                     // test if neighbor 86 exists
-                    if( tNeighbors[ 86 ] != NULL )
+                    if( tNeighbors[ 86 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 86 ];
@@ -6944,7 +6944,7 @@ namespace moris
                     }
 
                     // test if neighbor 87 exists
-                    if( tNeighbors[ 87 ] != NULL )
+                    if( tNeighbors[ 87 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 87 ];
@@ -6959,7 +6959,7 @@ namespace moris
                     }
 
                     // test if neighbor 88 exists
-                    if( tNeighbors[ 88 ] != NULL )
+                    if( tNeighbors[ 88 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 88 ];
@@ -6980,7 +6980,7 @@ namespace moris
                     }
 
                     // test if neighbor 89 exists
-                    if( tNeighbors[ 89 ] != NULL )
+                    if( tNeighbors[ 89 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 89 ];
@@ -7001,7 +7001,7 @@ namespace moris
                     }
 
                     // test if neighbor 90 exists
-                    if( tNeighbors[ 90 ] != NULL )
+                    if( tNeighbors[ 90 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 90 ];
@@ -7028,7 +7028,7 @@ namespace moris
                     }
 
                     // test if neighbor 91 exists
-                    if( tNeighbors[ 91 ] != NULL )
+                    if( tNeighbors[ 91 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 91 ];
@@ -7055,7 +7055,7 @@ namespace moris
                     }
 
                     // test if neighbor 92 exists
-                    if( tNeighbors[ 92 ] != NULL )
+                    if( tNeighbors[ 92 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 92 ];
@@ -7076,7 +7076,7 @@ namespace moris
                     }
 
                     // test if neighbor 93 exists
-                    if( tNeighbors[ 93 ] != NULL )
+                    if( tNeighbors[ 93 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 93 ];
@@ -7097,7 +7097,7 @@ namespace moris
                     }
 
                     // test if neighbor 94 exists
-                    if( tNeighbors[ 94 ] != NULL )
+                    if( tNeighbors[ 94 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 94 ];
@@ -7112,7 +7112,7 @@ namespace moris
                     }
 
                     // test if neighbor 95 exists
-                    if( tNeighbors[ 95 ] != NULL )
+                    if( tNeighbors[ 95 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 95 ];
@@ -7133,7 +7133,7 @@ namespace moris
                     }
 
                     // test if neighbor 96 exists
-                    if( tNeighbors[ 96 ] != NULL )
+                    if( tNeighbors[ 96 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 96 ];
@@ -7160,7 +7160,7 @@ namespace moris
                     }
 
                     // test if neighbor 97 exists
-                    if( tNeighbors[ 97 ] != NULL )
+                    if( tNeighbors[ 97 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 97 ];
@@ -7181,7 +7181,7 @@ namespace moris
                     }
 
                     // test if neighbor 98 exists
-                    if( tNeighbors[ 98 ] != NULL )
+                    if( tNeighbors[ 98 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 98 ];
@@ -7196,7 +7196,7 @@ namespace moris
                     }
 
                     // test if neighbor 99 exists
-                    if( tNeighbors[ 99 ] != NULL )
+                    if( tNeighbors[ 99 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 99 ];
@@ -7209,7 +7209,7 @@ namespace moris
                     }
 
                     // test if neighbor 100 exists
-                    if( tNeighbors[ 100 ] != NULL )
+                    if( tNeighbors[ 100 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 100 ];
@@ -7224,7 +7224,7 @@ namespace moris
                     }
 
                     // test if neighbor 101 exists
-                    if( tNeighbors[ 101 ] != NULL )
+                    if( tNeighbors[ 101 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 101 ];
@@ -7241,7 +7241,7 @@ namespace moris
                     }
 
                     // test if neighbor 102 exists
-                    if( tNeighbors[ 102 ] != NULL )
+                    if( tNeighbors[ 102 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 102 ];
@@ -7256,7 +7256,7 @@ namespace moris
                     }
 
                     // test if neighbor 103 exists
-                    if( tNeighbors[ 103 ] != NULL )
+                    if( tNeighbors[ 103 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 103 ];
@@ -7269,7 +7269,7 @@ namespace moris
                     }
 
                     // test if neighbor 104 exists
-                    if( tNeighbors[ 104 ] != NULL )
+                    if( tNeighbors[ 104 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 104 ];
@@ -7284,7 +7284,7 @@ namespace moris
                     }
 
                     // test if neighbor 105 exists
-                    if( tNeighbors[ 105 ] != NULL )
+                    if( tNeighbors[ 105 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 105 ];
@@ -7305,7 +7305,7 @@ namespace moris
                     }
 
                     // test if neighbor 106 exists
-                    if( tNeighbors[ 106 ] != NULL )
+                    if( tNeighbors[ 106 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 106 ];
@@ -7332,7 +7332,7 @@ namespace moris
                     }
 
                     // test if neighbor 107 exists
-                    if( tNeighbors[ 107 ] != NULL )
+                    if( tNeighbors[ 107 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 107 ];
@@ -7353,7 +7353,7 @@ namespace moris
                     }
 
                     // test if neighbor 108 exists
-                    if( tNeighbors[ 108 ] != NULL )
+                    if( tNeighbors[ 108 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 108 ];
@@ -7368,7 +7368,7 @@ namespace moris
                     }
 
                     // test if neighbor 109 exists
-                    if( tNeighbors[ 109 ] != NULL )
+                    if( tNeighbors[ 109 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 109 ];
@@ -7385,7 +7385,7 @@ namespace moris
                     }
 
                     // test if neighbor 110 exists
-                    if( tNeighbors[ 110 ] != NULL )
+                    if( tNeighbors[ 110 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 110 ];
@@ -7412,7 +7412,7 @@ namespace moris
                     }
 
                     // test if neighbor 111 exists
-                    if( tNeighbors[ 111 ] != NULL )
+                    if( tNeighbors[ 111 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 111 ];
@@ -7449,7 +7449,7 @@ namespace moris
                     }
 
                     // test if neighbor 112 exists
-                    if( tNeighbors[ 112 ] != NULL )
+                    if( tNeighbors[ 112 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 112 ];
@@ -7476,7 +7476,7 @@ namespace moris
                     }
 
                     // test if neighbor 113 exists
-                    if( tNeighbors[ 113 ] != NULL )
+                    if( tNeighbors[ 113 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 113 ];
@@ -7493,7 +7493,7 @@ namespace moris
                     }
 
                     // test if neighbor 114 exists
-                    if( tNeighbors[ 114 ] != NULL )
+                    if( tNeighbors[ 114 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 114 ];
@@ -7508,7 +7508,7 @@ namespace moris
                     }
 
                     // test if neighbor 115 exists
-                    if( tNeighbors[ 115 ] != NULL )
+                    if( tNeighbors[ 115 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 115 ];
@@ -7529,7 +7529,7 @@ namespace moris
                     }
 
                     // test if neighbor 116 exists
-                    if( tNeighbors[ 116 ] != NULL )
+                    if( tNeighbors[ 116 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 116 ];
@@ -7556,7 +7556,7 @@ namespace moris
                     }
 
                     // test if neighbor 117 exists
-                    if( tNeighbors[ 117 ] != NULL )
+                    if( tNeighbors[ 117 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 117 ];
@@ -7577,7 +7577,7 @@ namespace moris
                     }
 
                     // test if neighbor 118 exists
-                    if( tNeighbors[ 118 ] != NULL )
+                    if( tNeighbors[ 118 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 118 ];
@@ -7592,7 +7592,7 @@ namespace moris
                     }
 
                     // test if neighbor 119 exists
-                    if( tNeighbors[ 119 ] != NULL )
+                    if( tNeighbors[ 119 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 119 ];
@@ -7605,7 +7605,7 @@ namespace moris
                     }
 
                     // test if neighbor 120 exists
-                    if( tNeighbors[ 120 ] != NULL )
+                    if( tNeighbors[ 120 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 120 ];
@@ -7620,7 +7620,7 @@ namespace moris
                     }
 
                     // test if neighbor 121 exists
-                    if( tNeighbors[ 121 ] != NULL )
+                    if( tNeighbors[ 121 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 121 ];
@@ -7637,7 +7637,7 @@ namespace moris
                     }
 
                     // test if neighbor 122 exists
-                    if( tNeighbors[ 122 ] != NULL )
+                    if( tNeighbors[ 122 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 122 ];
@@ -7652,7 +7652,7 @@ namespace moris
                     }
 
                     // test if neighbor 123 exists
-                    if( tNeighbors[ 123 ] != NULL )
+                    if( tNeighbors[ 123 ] != nullptr )
                     {
                         // get pointer to neighbor
                         Basis* tNeighbor = tNeighbors[ 123 ];
@@ -7702,7 +7702,7 @@ namespace moris
                            for( luint i=tIMin; i<tIMax; ++i )
                            {
                                // test if child exists
-                               if( tChildren[ tCount ] != NULL )
+                               if( tChildren[ tCount ] != nullptr )
                                {
                                    // insert child
                                    tBasis->insert_child( tCount, tChildren[ tCount ] );
@@ -7754,7169 +7754,7169 @@ namespace moris
             Basis* tBasis[ 125 ] = { nullptr };
 
             // populate basis pattern
-            if ( mBasis[   0 ] != NULL )
+            if ( mBasis[   0 ] != nullptr )
             {
-                if ( tBasis[   0 ] == NULL )
+                if ( tBasis[   0 ] == nullptr )
                 {
                     tBasis[   0 ] = mBasis[   0 ]->get_child(  93 );
                 }
-                if ( tBasis[   1 ] == NULL )
+                if ( tBasis[   1 ] == nullptr )
                 {
                     tBasis[   1 ] = mBasis[   0 ]->get_child(  94 );
                 }
-                if ( tBasis[   5 ] == NULL )
+                if ( tBasis[   5 ] == nullptr )
                 {
                     tBasis[   5 ] = mBasis[   0 ]->get_child(  98 );
                 }
-                if ( tBasis[   6 ] == NULL )
+                if ( tBasis[   6 ] == nullptr )
                 {
                     tBasis[   6 ] = mBasis[   0 ]->get_child(  99 );
                 }
-                if ( tBasis[  25 ] == NULL )
+                if ( tBasis[  25 ] == nullptr )
                 {
                     tBasis[  25 ] = mBasis[   0 ]->get_child( 118 );
                 }
-                if ( tBasis[  26 ] == NULL )
+                if ( tBasis[  26 ] == nullptr )
                 {
                     tBasis[  26 ] = mBasis[   0 ]->get_child( 119 );
                 }
-                if ( tBasis[  30 ] == NULL )
+                if ( tBasis[  30 ] == nullptr )
                 {
                     tBasis[  30 ] = mBasis[   0 ]->get_child( 123 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[   0 ]->get_child( 124 );
                 }
             }
 
-            if ( mBasis[   1 ] != NULL )
+            if ( mBasis[   1 ] != nullptr )
             {
-                if ( tBasis[   3 ] == NULL )
+                if ( tBasis[   3 ] == nullptr )
                 {
                     tBasis[   3 ] = mBasis[   1 ]->get_child(  90 );
                 }
-                if ( tBasis[   4 ] == NULL )
+                if ( tBasis[   4 ] == nullptr )
                 {
                     tBasis[   4 ] = mBasis[   1 ]->get_child(  91 );
                 }
-                if ( tBasis[   8 ] == NULL )
+                if ( tBasis[   8 ] == nullptr )
                 {
                     tBasis[   8 ] = mBasis[   1 ]->get_child(  95 );
                 }
-                if ( tBasis[   9 ] == NULL )
+                if ( tBasis[   9 ] == nullptr )
                 {
                     tBasis[   9 ] = mBasis[   1 ]->get_child(  96 );
                 }
-                if ( tBasis[  28 ] == NULL )
+                if ( tBasis[  28 ] == nullptr )
                 {
                     tBasis[  28 ] = mBasis[   1 ]->get_child( 115 );
                 }
-                if ( tBasis[  29 ] == NULL )
+                if ( tBasis[  29 ] == nullptr )
                 {
                     tBasis[  29 ] = mBasis[   1 ]->get_child( 116 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[   1 ]->get_child( 120 );
                 }
-                if ( tBasis[  34 ] == NULL )
+                if ( tBasis[  34 ] == nullptr )
                 {
                     tBasis[  34 ] = mBasis[   1 ]->get_child( 121 );
                 }
             }
 
-            if ( mBasis[   2 ] != NULL )
+            if ( mBasis[   2 ] != nullptr )
             {
-                if ( tBasis[  18 ] == NULL )
+                if ( tBasis[  18 ] == nullptr )
                 {
                     tBasis[  18 ] = mBasis[   2 ]->get_child(  75 );
                 }
-                if ( tBasis[  19 ] == NULL )
+                if ( tBasis[  19 ] == nullptr )
                 {
                     tBasis[  19 ] = mBasis[   2 ]->get_child(  76 );
                 }
-                if ( tBasis[  23 ] == NULL )
+                if ( tBasis[  23 ] == nullptr )
                 {
                     tBasis[  23 ] = mBasis[   2 ]->get_child(  80 );
                 }
-                if ( tBasis[  24 ] == NULL )
+                if ( tBasis[  24 ] == nullptr )
                 {
                     tBasis[  24 ] = mBasis[   2 ]->get_child(  81 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[   2 ]->get_child( 100 );
                 }
-                if ( tBasis[  44 ] == NULL )
+                if ( tBasis[  44 ] == nullptr )
                 {
                     tBasis[  44 ] = mBasis[   2 ]->get_child( 101 );
                 }
-                if ( tBasis[  48 ] == NULL )
+                if ( tBasis[  48 ] == nullptr )
                 {
                     tBasis[  48 ] = mBasis[   2 ]->get_child( 105 );
                 }
-                if ( tBasis[  49 ] == NULL )
+                if ( tBasis[  49 ] == nullptr )
                 {
                     tBasis[  49 ] = mBasis[   2 ]->get_child( 106 );
                 }
             }
 
-            if ( mBasis[   3 ] != NULL )
+            if ( mBasis[   3 ] != nullptr )
             {
-                if ( tBasis[  15 ] == NULL )
+                if ( tBasis[  15 ] == nullptr )
                 {
                     tBasis[  15 ] = mBasis[   3 ]->get_child(  78 );
                 }
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[   3 ]->get_child(  79 );
                 }
-                if ( tBasis[  20 ] == NULL )
+                if ( tBasis[  20 ] == nullptr )
                 {
                     tBasis[  20 ] = mBasis[   3 ]->get_child(  83 );
                 }
-                if ( tBasis[  21 ] == NULL )
+                if ( tBasis[  21 ] == nullptr )
                 {
                     tBasis[  21 ] = mBasis[   3 ]->get_child(  84 );
                 }
-                if ( tBasis[  40 ] == NULL )
+                if ( tBasis[  40 ] == nullptr )
                 {
                     tBasis[  40 ] = mBasis[   3 ]->get_child( 103 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[   3 ]->get_child( 104 );
                 }
-                if ( tBasis[  45 ] == NULL )
+                if ( tBasis[  45 ] == nullptr )
                 {
                     tBasis[  45 ] = mBasis[   3 ]->get_child( 108 );
                 }
-                if ( tBasis[  46 ] == NULL )
+                if ( tBasis[  46 ] == nullptr )
                 {
                     tBasis[  46 ] = mBasis[   3 ]->get_child( 109 );
                 }
             }
 
-            if ( mBasis[   4 ] != NULL )
+            if ( mBasis[   4 ] != nullptr )
             {
-                if ( tBasis[  75 ] == NULL )
+                if ( tBasis[  75 ] == nullptr )
                 {
                     tBasis[  75 ] = mBasis[   4 ]->get_child(  18 );
                 }
-                if ( tBasis[  76 ] == NULL )
+                if ( tBasis[  76 ] == nullptr )
                 {
                     tBasis[  76 ] = mBasis[   4 ]->get_child(  19 );
                 }
-                if ( tBasis[  80 ] == NULL )
+                if ( tBasis[  80 ] == nullptr )
                 {
                     tBasis[  80 ] = mBasis[   4 ]->get_child(  23 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[   4 ]->get_child(  24 );
                 }
-                if ( tBasis[ 100 ] == NULL )
+                if ( tBasis[ 100 ] == nullptr )
                 {
                     tBasis[ 100 ] = mBasis[   4 ]->get_child(  43 );
                 }
-                if ( tBasis[ 101 ] == NULL )
+                if ( tBasis[ 101 ] == nullptr )
                 {
                     tBasis[ 101 ] = mBasis[   4 ]->get_child(  44 );
                 }
-                if ( tBasis[ 105 ] == NULL )
+                if ( tBasis[ 105 ] == nullptr )
                 {
                     tBasis[ 105 ] = mBasis[   4 ]->get_child(  48 );
                 }
-                if ( tBasis[ 106 ] == NULL )
+                if ( tBasis[ 106 ] == nullptr )
                 {
                     tBasis[ 106 ] = mBasis[   4 ]->get_child(  49 );
                 }
             }
 
-            if ( mBasis[   5 ] != NULL )
+            if ( mBasis[   5 ] != nullptr )
             {
-                if ( tBasis[  78 ] == NULL )
+                if ( tBasis[  78 ] == nullptr )
                 {
                     tBasis[  78 ] = mBasis[   5 ]->get_child(  15 );
                 }
-                if ( tBasis[  79 ] == NULL )
+                if ( tBasis[  79 ] == nullptr )
                 {
                     tBasis[  79 ] = mBasis[   5 ]->get_child(  16 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[   5 ]->get_child(  20 );
                 }
-                if ( tBasis[  84 ] == NULL )
+                if ( tBasis[  84 ] == nullptr )
                 {
                     tBasis[  84 ] = mBasis[   5 ]->get_child(  21 );
                 }
-                if ( tBasis[ 103 ] == NULL )
+                if ( tBasis[ 103 ] == nullptr )
                 {
                     tBasis[ 103 ] = mBasis[   5 ]->get_child(  40 );
                 }
-                if ( tBasis[ 104 ] == NULL )
+                if ( tBasis[ 104 ] == nullptr )
                 {
                     tBasis[ 104 ] = mBasis[   5 ]->get_child(  41 );
                 }
-                if ( tBasis[ 108 ] == NULL )
+                if ( tBasis[ 108 ] == nullptr )
                 {
                     tBasis[ 108 ] = mBasis[   5 ]->get_child(  45 );
                 }
-                if ( tBasis[ 109 ] == NULL )
+                if ( tBasis[ 109 ] == nullptr )
                 {
                     tBasis[ 109 ] = mBasis[   5 ]->get_child(  46 );
                 }
             }
 
-            if ( mBasis[   6 ] != NULL )
+            if ( mBasis[   6 ] != nullptr )
             {
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[   6 ]->get_child(   0 );
                 }
-                if ( tBasis[  94 ] == NULL )
+                if ( tBasis[  94 ] == nullptr )
                 {
                     tBasis[  94 ] = mBasis[   6 ]->get_child(   1 );
                 }
-                if ( tBasis[  98 ] == NULL )
+                if ( tBasis[  98 ] == nullptr )
                 {
                     tBasis[  98 ] = mBasis[   6 ]->get_child(   5 );
                 }
-                if ( tBasis[  99 ] == NULL )
+                if ( tBasis[  99 ] == nullptr )
                 {
                     tBasis[  99 ] = mBasis[   6 ]->get_child(   6 );
                 }
-                if ( tBasis[ 118 ] == NULL )
+                if ( tBasis[ 118 ] == nullptr )
                 {
                     tBasis[ 118 ] = mBasis[   6 ]->get_child(  25 );
                 }
-                if ( tBasis[ 119 ] == NULL )
+                if ( tBasis[ 119 ] == nullptr )
                 {
                     tBasis[ 119 ] = mBasis[   6 ]->get_child(  26 );
                 }
-                if ( tBasis[ 123 ] == NULL )
+                if ( tBasis[ 123 ] == nullptr )
                 {
                     tBasis[ 123 ] = mBasis[   6 ]->get_child(  30 );
                 }
-                if ( tBasis[ 124 ] == NULL )
+                if ( tBasis[ 124 ] == nullptr )
                 {
                     tBasis[ 124 ] = mBasis[   6 ]->get_child(  31 );
                 }
             }
 
-            if ( mBasis[   7 ] != NULL )
+            if ( mBasis[   7 ] != nullptr )
             {
-                if ( tBasis[  90 ] == NULL )
+                if ( tBasis[  90 ] == nullptr )
                 {
                     tBasis[  90 ] = mBasis[   7 ]->get_child(   3 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[   7 ]->get_child(   4 );
                 }
-                if ( tBasis[  95 ] == NULL )
+                if ( tBasis[  95 ] == nullptr )
                 {
                     tBasis[  95 ] = mBasis[   7 ]->get_child(   8 );
                 }
-                if ( tBasis[  96 ] == NULL )
+                if ( tBasis[  96 ] == nullptr )
                 {
                     tBasis[  96 ] = mBasis[   7 ]->get_child(   9 );
                 }
-                if ( tBasis[ 115 ] == NULL )
+                if ( tBasis[ 115 ] == nullptr )
                 {
                     tBasis[ 115 ] = mBasis[   7 ]->get_child(  28 );
                 }
-                if ( tBasis[ 116 ] == NULL )
+                if ( tBasis[ 116 ] == nullptr )
                 {
                     tBasis[ 116 ] = mBasis[   7 ]->get_child(  29 );
                 }
-                if ( tBasis[ 120 ] == NULL )
+                if ( tBasis[ 120 ] == nullptr )
                 {
                     tBasis[ 120 ] = mBasis[   7 ]->get_child(  33 );
                 }
-                if ( tBasis[ 121 ] == NULL )
+                if ( tBasis[ 121 ] == nullptr )
                 {
                     tBasis[ 121 ] = mBasis[   7 ]->get_child(  34 );
                 }
             }
 
-            if ( mBasis[   8 ] != NULL )
+            if ( mBasis[   8 ] != nullptr )
             {
-                if ( tBasis[   0 ] == NULL )
+                if ( tBasis[   0 ] == nullptr )
                 {
                     tBasis[   0 ] = mBasis[   8 ]->get_child(  91 );
                 }
-                if ( tBasis[   1 ] == NULL )
+                if ( tBasis[   1 ] == nullptr )
                 {
                     tBasis[   1 ] = mBasis[   8 ]->get_child(  92 );
                 }
-                if ( tBasis[   2 ] == NULL )
+                if ( tBasis[   2 ] == nullptr )
                 {
                     tBasis[   2 ] = mBasis[   8 ]->get_child(  93 );
                 }
-                if ( tBasis[   3 ] == NULL )
+                if ( tBasis[   3 ] == nullptr )
                 {
                     tBasis[   3 ] = mBasis[   8 ]->get_child(  94 );
                 }
-                if ( tBasis[   5 ] == NULL )
+                if ( tBasis[   5 ] == nullptr )
                 {
                     tBasis[   5 ] = mBasis[   8 ]->get_child(  96 );
                 }
-                if ( tBasis[   6 ] == NULL )
+                if ( tBasis[   6 ] == nullptr )
                 {
                     tBasis[   6 ] = mBasis[   8 ]->get_child(  97 );
                 }
-                if ( tBasis[   7 ] == NULL )
+                if ( tBasis[   7 ] == nullptr )
                 {
                     tBasis[   7 ] = mBasis[   8 ]->get_child(  98 );
                 }
-                if ( tBasis[   8 ] == NULL )
+                if ( tBasis[   8 ] == nullptr )
                 {
                     tBasis[   8 ] = mBasis[   8 ]->get_child(  99 );
                 }
-                if ( tBasis[  25 ] == NULL )
+                if ( tBasis[  25 ] == nullptr )
                 {
                     tBasis[  25 ] = mBasis[   8 ]->get_child( 116 );
                 }
-                if ( tBasis[  26 ] == NULL )
+                if ( tBasis[  26 ] == nullptr )
                 {
                     tBasis[  26 ] = mBasis[   8 ]->get_child( 117 );
                 }
-                if ( tBasis[  27 ] == NULL )
+                if ( tBasis[  27 ] == nullptr )
                 {
                     tBasis[  27 ] = mBasis[   8 ]->get_child( 118 );
                 }
-                if ( tBasis[  28 ] == NULL )
+                if ( tBasis[  28 ] == nullptr )
                 {
                     tBasis[  28 ] = mBasis[   8 ]->get_child( 119 );
                 }
-                if ( tBasis[  30 ] == NULL )
+                if ( tBasis[  30 ] == nullptr )
                 {
                     tBasis[  30 ] = mBasis[   8 ]->get_child( 121 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[   8 ]->get_child( 122 );
                 }
-                if ( tBasis[  32 ] == NULL )
+                if ( tBasis[  32 ] == nullptr )
                 {
                     tBasis[  32 ] = mBasis[   8 ]->get_child( 123 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[   8 ]->get_child( 124 );
                 }
             }
 
-            if ( mBasis[   9 ] != NULL )
+            if ( mBasis[   9 ] != nullptr )
             {
-                if ( tBasis[   1 ] == NULL )
+                if ( tBasis[   1 ] == nullptr )
                 {
                     tBasis[   1 ] = mBasis[   9 ]->get_child(  90 );
                 }
-                if ( tBasis[   2 ] == NULL )
+                if ( tBasis[   2 ] == nullptr )
                 {
                     tBasis[   2 ] = mBasis[   9 ]->get_child(  91 );
                 }
-                if ( tBasis[   3 ] == NULL )
+                if ( tBasis[   3 ] == nullptr )
                 {
                     tBasis[   3 ] = mBasis[   9 ]->get_child(  92 );
                 }
-                if ( tBasis[   4 ] == NULL )
+                if ( tBasis[   4 ] == nullptr )
                 {
                     tBasis[   4 ] = mBasis[   9 ]->get_child(  93 );
                 }
-                if ( tBasis[   6 ] == NULL )
+                if ( tBasis[   6 ] == nullptr )
                 {
                     tBasis[   6 ] = mBasis[   9 ]->get_child(  95 );
                 }
-                if ( tBasis[   7 ] == NULL )
+                if ( tBasis[   7 ] == nullptr )
                 {
                     tBasis[   7 ] = mBasis[   9 ]->get_child(  96 );
                 }
-                if ( tBasis[   8 ] == NULL )
+                if ( tBasis[   8 ] == nullptr )
                 {
                     tBasis[   8 ] = mBasis[   9 ]->get_child(  97 );
                 }
-                if ( tBasis[   9 ] == NULL )
+                if ( tBasis[   9 ] == nullptr )
                 {
                     tBasis[   9 ] = mBasis[   9 ]->get_child(  98 );
                 }
-                if ( tBasis[  26 ] == NULL )
+                if ( tBasis[  26 ] == nullptr )
                 {
                     tBasis[  26 ] = mBasis[   9 ]->get_child( 115 );
                 }
-                if ( tBasis[  27 ] == NULL )
+                if ( tBasis[  27 ] == nullptr )
                 {
                     tBasis[  27 ] = mBasis[   9 ]->get_child( 116 );
                 }
-                if ( tBasis[  28 ] == NULL )
+                if ( tBasis[  28 ] == nullptr )
                 {
                     tBasis[  28 ] = mBasis[   9 ]->get_child( 117 );
                 }
-                if ( tBasis[  29 ] == NULL )
+                if ( tBasis[  29 ] == nullptr )
                 {
                     tBasis[  29 ] = mBasis[   9 ]->get_child( 118 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[   9 ]->get_child( 120 );
                 }
-                if ( tBasis[  32 ] == NULL )
+                if ( tBasis[  32 ] == nullptr )
                 {
                     tBasis[  32 ] = mBasis[   9 ]->get_child( 121 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[   9 ]->get_child( 122 );
                 }
-                if ( tBasis[  34 ] == NULL )
+                if ( tBasis[  34 ] == nullptr )
                 {
                     tBasis[  34 ] = mBasis[   9 ]->get_child( 123 );
                 }
             }
 
-            if ( mBasis[  10 ] != NULL )
+            if ( mBasis[  10 ] != nullptr )
             {
-                if ( tBasis[   0 ] == NULL )
+                if ( tBasis[   0 ] == nullptr )
                 {
                     tBasis[   0 ] = mBasis[  10 ]->get_child(  83 );
                 }
-                if ( tBasis[   1 ] == NULL )
+                if ( tBasis[   1 ] == nullptr )
                 {
                     tBasis[   1 ] = mBasis[  10 ]->get_child(  84 );
                 }
-                if ( tBasis[   5 ] == NULL )
+                if ( tBasis[   5 ] == nullptr )
                 {
                     tBasis[   5 ] = mBasis[  10 ]->get_child(  88 );
                 }
-                if ( tBasis[   6 ] == NULL )
+                if ( tBasis[   6 ] == nullptr )
                 {
                     tBasis[   6 ] = mBasis[  10 ]->get_child(  89 );
                 }
-                if ( tBasis[  10 ] == NULL )
+                if ( tBasis[  10 ] == nullptr )
                 {
                     tBasis[  10 ] = mBasis[  10 ]->get_child(  93 );
                 }
-                if ( tBasis[  11 ] == NULL )
+                if ( tBasis[  11 ] == nullptr )
                 {
                     tBasis[  11 ] = mBasis[  10 ]->get_child(  94 );
                 }
-                if ( tBasis[  15 ] == NULL )
+                if ( tBasis[  15 ] == nullptr )
                 {
                     tBasis[  15 ] = mBasis[  10 ]->get_child(  98 );
                 }
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[  10 ]->get_child(  99 );
                 }
-                if ( tBasis[  25 ] == NULL )
+                if ( tBasis[  25 ] == nullptr )
                 {
                     tBasis[  25 ] = mBasis[  10 ]->get_child( 108 );
                 }
-                if ( tBasis[  26 ] == NULL )
+                if ( tBasis[  26 ] == nullptr )
                 {
                     tBasis[  26 ] = mBasis[  10 ]->get_child( 109 );
                 }
-                if ( tBasis[  30 ] == NULL )
+                if ( tBasis[  30 ] == nullptr )
                 {
                     tBasis[  30 ] = mBasis[  10 ]->get_child( 113 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  10 ]->get_child( 114 );
                 }
-                if ( tBasis[  35 ] == NULL )
+                if ( tBasis[  35 ] == nullptr )
                 {
                     tBasis[  35 ] = mBasis[  10 ]->get_child( 118 );
                 }
-                if ( tBasis[  36 ] == NULL )
+                if ( tBasis[  36 ] == nullptr )
                 {
                     tBasis[  36 ] = mBasis[  10 ]->get_child( 119 );
                 }
-                if ( tBasis[  40 ] == NULL )
+                if ( tBasis[  40 ] == nullptr )
                 {
                     tBasis[  40 ] = mBasis[  10 ]->get_child( 123 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  10 ]->get_child( 124 );
                 }
             }
 
-            if ( mBasis[  11 ] != NULL )
+            if ( mBasis[  11 ] != nullptr )
             {
-                if ( tBasis[   5 ] == NULL )
+                if ( tBasis[   5 ] == nullptr )
                 {
                     tBasis[   5 ] = mBasis[  11 ]->get_child(  78 );
                 }
-                if ( tBasis[   6 ] == NULL )
+                if ( tBasis[   6 ] == nullptr )
                 {
                     tBasis[   6 ] = mBasis[  11 ]->get_child(  79 );
                 }
-                if ( tBasis[  10 ] == NULL )
+                if ( tBasis[  10 ] == nullptr )
                 {
                     tBasis[  10 ] = mBasis[  11 ]->get_child(  83 );
                 }
-                if ( tBasis[  11 ] == NULL )
+                if ( tBasis[  11 ] == nullptr )
                 {
                     tBasis[  11 ] = mBasis[  11 ]->get_child(  84 );
                 }
-                if ( tBasis[  15 ] == NULL )
+                if ( tBasis[  15 ] == nullptr )
                 {
                     tBasis[  15 ] = mBasis[  11 ]->get_child(  88 );
                 }
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[  11 ]->get_child(  89 );
                 }
-                if ( tBasis[  20 ] == NULL )
+                if ( tBasis[  20 ] == nullptr )
                 {
                     tBasis[  20 ] = mBasis[  11 ]->get_child(  93 );
                 }
-                if ( tBasis[  21 ] == NULL )
+                if ( tBasis[  21 ] == nullptr )
                 {
                     tBasis[  21 ] = mBasis[  11 ]->get_child(  94 );
                 }
-                if ( tBasis[  30 ] == NULL )
+                if ( tBasis[  30 ] == nullptr )
                 {
                     tBasis[  30 ] = mBasis[  11 ]->get_child( 103 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  11 ]->get_child( 104 );
                 }
-                if ( tBasis[  35 ] == NULL )
+                if ( tBasis[  35 ] == nullptr )
                 {
                     tBasis[  35 ] = mBasis[  11 ]->get_child( 108 );
                 }
-                if ( tBasis[  36 ] == NULL )
+                if ( tBasis[  36 ] == nullptr )
                 {
                     tBasis[  36 ] = mBasis[  11 ]->get_child( 109 );
                 }
-                if ( tBasis[  40 ] == NULL )
+                if ( tBasis[  40 ] == nullptr )
                 {
                     tBasis[  40 ] = mBasis[  11 ]->get_child( 113 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  11 ]->get_child( 114 );
                 }
-                if ( tBasis[  45 ] == NULL )
+                if ( tBasis[  45 ] == nullptr )
                 {
                     tBasis[  45 ] = mBasis[  11 ]->get_child( 118 );
                 }
-                if ( tBasis[  46 ] == NULL )
+                if ( tBasis[  46 ] == nullptr )
                 {
                     tBasis[  46 ] = mBasis[  11 ]->get_child( 119 );
                 }
             }
 
-            if ( mBasis[  12 ] != NULL )
+            if ( mBasis[  12 ] != nullptr )
             {
-                if ( tBasis[   0 ] == NULL )
+                if ( tBasis[   0 ] == nullptr )
                 {
                     tBasis[   0 ] = mBasis[  12 ]->get_child(  43 );
                 }
-                if ( tBasis[   1 ] == NULL )
+                if ( tBasis[   1 ] == nullptr )
                 {
                     tBasis[   1 ] = mBasis[  12 ]->get_child(  44 );
                 }
-                if ( tBasis[   5 ] == NULL )
+                if ( tBasis[   5 ] == nullptr )
                 {
                     tBasis[   5 ] = mBasis[  12 ]->get_child(  48 );
                 }
-                if ( tBasis[   6 ] == NULL )
+                if ( tBasis[   6 ] == nullptr )
                 {
                     tBasis[   6 ] = mBasis[  12 ]->get_child(  49 );
                 }
-                if ( tBasis[  25 ] == NULL )
+                if ( tBasis[  25 ] == nullptr )
                 {
                     tBasis[  25 ] = mBasis[  12 ]->get_child(  68 );
                 }
-                if ( tBasis[  26 ] == NULL )
+                if ( tBasis[  26 ] == nullptr )
                 {
                     tBasis[  26 ] = mBasis[  12 ]->get_child(  69 );
                 }
-                if ( tBasis[  30 ] == NULL )
+                if ( tBasis[  30 ] == nullptr )
                 {
                     tBasis[  30 ] = mBasis[  12 ]->get_child(  73 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  12 ]->get_child(  74 );
                 }
-                if ( tBasis[  50 ] == NULL )
+                if ( tBasis[  50 ] == nullptr )
                 {
                     tBasis[  50 ] = mBasis[  12 ]->get_child(  93 );
                 }
-                if ( tBasis[  51 ] == NULL )
+                if ( tBasis[  51 ] == nullptr )
                 {
                     tBasis[  51 ] = mBasis[  12 ]->get_child(  94 );
                 }
-                if ( tBasis[  55 ] == NULL )
+                if ( tBasis[  55 ] == nullptr )
                 {
                     tBasis[  55 ] = mBasis[  12 ]->get_child(  98 );
                 }
-                if ( tBasis[  56 ] == NULL )
+                if ( tBasis[  56 ] == nullptr )
                 {
                     tBasis[  56 ] = mBasis[  12 ]->get_child(  99 );
                 }
-                if ( tBasis[  75 ] == NULL )
+                if ( tBasis[  75 ] == nullptr )
                 {
                     tBasis[  75 ] = mBasis[  12 ]->get_child( 118 );
                 }
-                if ( tBasis[  76 ] == NULL )
+                if ( tBasis[  76 ] == nullptr )
                 {
                     tBasis[  76 ] = mBasis[  12 ]->get_child( 119 );
                 }
-                if ( tBasis[  80 ] == NULL )
+                if ( tBasis[  80 ] == nullptr )
                 {
                     tBasis[  80 ] = mBasis[  12 ]->get_child( 123 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  12 ]->get_child( 124 );
                 }
             }
 
-            if ( mBasis[  13 ] != NULL )
+            if ( mBasis[  13 ] != nullptr )
             {
-                if ( tBasis[  25 ] == NULL )
+                if ( tBasis[  25 ] == nullptr )
                 {
                     tBasis[  25 ] = mBasis[  13 ]->get_child(  18 );
                 }
-                if ( tBasis[  26 ] == NULL )
+                if ( tBasis[  26 ] == nullptr )
                 {
                     tBasis[  26 ] = mBasis[  13 ]->get_child(  19 );
                 }
-                if ( tBasis[  30 ] == NULL )
+                if ( tBasis[  30 ] == nullptr )
                 {
                     tBasis[  30 ] = mBasis[  13 ]->get_child(  23 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  13 ]->get_child(  24 );
                 }
-                if ( tBasis[  50 ] == NULL )
+                if ( tBasis[  50 ] == nullptr )
                 {
                     tBasis[  50 ] = mBasis[  13 ]->get_child(  43 );
                 }
-                if ( tBasis[  51 ] == NULL )
+                if ( tBasis[  51 ] == nullptr )
                 {
                     tBasis[  51 ] = mBasis[  13 ]->get_child(  44 );
                 }
-                if ( tBasis[  55 ] == NULL )
+                if ( tBasis[  55 ] == nullptr )
                 {
                     tBasis[  55 ] = mBasis[  13 ]->get_child(  48 );
                 }
-                if ( tBasis[  56 ] == NULL )
+                if ( tBasis[  56 ] == nullptr )
                 {
                     tBasis[  56 ] = mBasis[  13 ]->get_child(  49 );
                 }
-                if ( tBasis[  75 ] == NULL )
+                if ( tBasis[  75 ] == nullptr )
                 {
                     tBasis[  75 ] = mBasis[  13 ]->get_child(  68 );
                 }
-                if ( tBasis[  76 ] == NULL )
+                if ( tBasis[  76 ] == nullptr )
                 {
                     tBasis[  76 ] = mBasis[  13 ]->get_child(  69 );
                 }
-                if ( tBasis[  80 ] == NULL )
+                if ( tBasis[  80 ] == nullptr )
                 {
                     tBasis[  80 ] = mBasis[  13 ]->get_child(  73 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  13 ]->get_child(  74 );
                 }
-                if ( tBasis[ 100 ] == NULL )
+                if ( tBasis[ 100 ] == nullptr )
                 {
                     tBasis[ 100 ] = mBasis[  13 ]->get_child(  93 );
                 }
-                if ( tBasis[ 101 ] == NULL )
+                if ( tBasis[ 101 ] == nullptr )
                 {
                     tBasis[ 101 ] = mBasis[  13 ]->get_child(  94 );
                 }
-                if ( tBasis[ 105 ] == NULL )
+                if ( tBasis[ 105 ] == nullptr )
                 {
                     tBasis[ 105 ] = mBasis[  13 ]->get_child(  98 );
                 }
-                if ( tBasis[ 106 ] == NULL )
+                if ( tBasis[ 106 ] == nullptr )
                 {
                     tBasis[ 106 ] = mBasis[  13 ]->get_child(  99 );
                 }
             }
 
-            if ( mBasis[  14 ] != NULL )
+            if ( mBasis[  14 ] != nullptr )
             {
-                if ( tBasis[   3 ] == NULL )
+                if ( tBasis[   3 ] == nullptr )
                 {
                     tBasis[   3 ] = mBasis[  14 ]->get_child(  80 );
                 }
-                if ( tBasis[   4 ] == NULL )
+                if ( tBasis[   4 ] == nullptr )
                 {
                     tBasis[   4 ] = mBasis[  14 ]->get_child(  81 );
                 }
-                if ( tBasis[   8 ] == NULL )
+                if ( tBasis[   8 ] == nullptr )
                 {
                     tBasis[   8 ] = mBasis[  14 ]->get_child(  85 );
                 }
-                if ( tBasis[   9 ] == NULL )
+                if ( tBasis[   9 ] == nullptr )
                 {
                     tBasis[   9 ] = mBasis[  14 ]->get_child(  86 );
                 }
-                if ( tBasis[  13 ] == NULL )
+                if ( tBasis[  13 ] == nullptr )
                 {
                     tBasis[  13 ] = mBasis[  14 ]->get_child(  90 );
                 }
-                if ( tBasis[  14 ] == NULL )
+                if ( tBasis[  14 ] == nullptr )
                 {
                     tBasis[  14 ] = mBasis[  14 ]->get_child(  91 );
                 }
-                if ( tBasis[  18 ] == NULL )
+                if ( tBasis[  18 ] == nullptr )
                 {
                     tBasis[  18 ] = mBasis[  14 ]->get_child(  95 );
                 }
-                if ( tBasis[  19 ] == NULL )
+                if ( tBasis[  19 ] == nullptr )
                 {
                     tBasis[  19 ] = mBasis[  14 ]->get_child(  96 );
                 }
-                if ( tBasis[  28 ] == NULL )
+                if ( tBasis[  28 ] == nullptr )
                 {
                     tBasis[  28 ] = mBasis[  14 ]->get_child( 105 );
                 }
-                if ( tBasis[  29 ] == NULL )
+                if ( tBasis[  29 ] == nullptr )
                 {
                     tBasis[  29 ] = mBasis[  14 ]->get_child( 106 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  14 ]->get_child( 110 );
                 }
-                if ( tBasis[  34 ] == NULL )
+                if ( tBasis[  34 ] == nullptr )
                 {
                     tBasis[  34 ] = mBasis[  14 ]->get_child( 111 );
                 }
-                if ( tBasis[  38 ] == NULL )
+                if ( tBasis[  38 ] == nullptr )
                 {
                     tBasis[  38 ] = mBasis[  14 ]->get_child( 115 );
                 }
-                if ( tBasis[  39 ] == NULL )
+                if ( tBasis[  39 ] == nullptr )
                 {
                     tBasis[  39 ] = mBasis[  14 ]->get_child( 116 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  14 ]->get_child( 120 );
                 }
-                if ( tBasis[  44 ] == NULL )
+                if ( tBasis[  44 ] == nullptr )
                 {
                     tBasis[  44 ] = mBasis[  14 ]->get_child( 121 );
                 }
             }
 
-            if ( mBasis[  15 ] != NULL )
+            if ( mBasis[  15 ] != nullptr )
             {
-                if ( tBasis[   8 ] == NULL )
+                if ( tBasis[   8 ] == nullptr )
                 {
                     tBasis[   8 ] = mBasis[  15 ]->get_child(  75 );
                 }
-                if ( tBasis[   9 ] == NULL )
+                if ( tBasis[   9 ] == nullptr )
                 {
                     tBasis[   9 ] = mBasis[  15 ]->get_child(  76 );
                 }
-                if ( tBasis[  13 ] == NULL )
+                if ( tBasis[  13 ] == nullptr )
                 {
                     tBasis[  13 ] = mBasis[  15 ]->get_child(  80 );
                 }
-                if ( tBasis[  14 ] == NULL )
+                if ( tBasis[  14 ] == nullptr )
                 {
                     tBasis[  14 ] = mBasis[  15 ]->get_child(  81 );
                 }
-                if ( tBasis[  18 ] == NULL )
+                if ( tBasis[  18 ] == nullptr )
                 {
                     tBasis[  18 ] = mBasis[  15 ]->get_child(  85 );
                 }
-                if ( tBasis[  19 ] == NULL )
+                if ( tBasis[  19 ] == nullptr )
                 {
                     tBasis[  19 ] = mBasis[  15 ]->get_child(  86 );
                 }
-                if ( tBasis[  23 ] == NULL )
+                if ( tBasis[  23 ] == nullptr )
                 {
                     tBasis[  23 ] = mBasis[  15 ]->get_child(  90 );
                 }
-                if ( tBasis[  24 ] == NULL )
+                if ( tBasis[  24 ] == nullptr )
                 {
                     tBasis[  24 ] = mBasis[  15 ]->get_child(  91 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  15 ]->get_child( 100 );
                 }
-                if ( tBasis[  34 ] == NULL )
+                if ( tBasis[  34 ] == nullptr )
                 {
                     tBasis[  34 ] = mBasis[  15 ]->get_child( 101 );
                 }
-                if ( tBasis[  38 ] == NULL )
+                if ( tBasis[  38 ] == nullptr )
                 {
                     tBasis[  38 ] = mBasis[  15 ]->get_child( 105 );
                 }
-                if ( tBasis[  39 ] == NULL )
+                if ( tBasis[  39 ] == nullptr )
                 {
                     tBasis[  39 ] = mBasis[  15 ]->get_child( 106 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  15 ]->get_child( 110 );
                 }
-                if ( tBasis[  44 ] == NULL )
+                if ( tBasis[  44 ] == nullptr )
                 {
                     tBasis[  44 ] = mBasis[  15 ]->get_child( 111 );
                 }
-                if ( tBasis[  48 ] == NULL )
+                if ( tBasis[  48 ] == nullptr )
                 {
                     tBasis[  48 ] = mBasis[  15 ]->get_child( 115 );
                 }
-                if ( tBasis[  49 ] == NULL )
+                if ( tBasis[  49 ] == nullptr )
                 {
                     tBasis[  49 ] = mBasis[  15 ]->get_child( 116 );
                 }
             }
 
-            if ( mBasis[  16 ] != NULL )
+            if ( mBasis[  16 ] != nullptr )
             {
-                if ( tBasis[   3 ] == NULL )
+                if ( tBasis[   3 ] == nullptr )
                 {
                     tBasis[   3 ] = mBasis[  16 ]->get_child(  40 );
                 }
-                if ( tBasis[   4 ] == NULL )
+                if ( tBasis[   4 ] == nullptr )
                 {
                     tBasis[   4 ] = mBasis[  16 ]->get_child(  41 );
                 }
-                if ( tBasis[   8 ] == NULL )
+                if ( tBasis[   8 ] == nullptr )
                 {
                     tBasis[   8 ] = mBasis[  16 ]->get_child(  45 );
                 }
-                if ( tBasis[   9 ] == NULL )
+                if ( tBasis[   9 ] == nullptr )
                 {
                     tBasis[   9 ] = mBasis[  16 ]->get_child(  46 );
                 }
-                if ( tBasis[  28 ] == NULL )
+                if ( tBasis[  28 ] == nullptr )
                 {
                     tBasis[  28 ] = mBasis[  16 ]->get_child(  65 );
                 }
-                if ( tBasis[  29 ] == NULL )
+                if ( tBasis[  29 ] == nullptr )
                 {
                     tBasis[  29 ] = mBasis[  16 ]->get_child(  66 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  16 ]->get_child(  70 );
                 }
-                if ( tBasis[  34 ] == NULL )
+                if ( tBasis[  34 ] == nullptr )
                 {
                     tBasis[  34 ] = mBasis[  16 ]->get_child(  71 );
                 }
-                if ( tBasis[  53 ] == NULL )
+                if ( tBasis[  53 ] == nullptr )
                 {
                     tBasis[  53 ] = mBasis[  16 ]->get_child(  90 );
                 }
-                if ( tBasis[  54 ] == NULL )
+                if ( tBasis[  54 ] == nullptr )
                 {
                     tBasis[  54 ] = mBasis[  16 ]->get_child(  91 );
                 }
-                if ( tBasis[  58 ] == NULL )
+                if ( tBasis[  58 ] == nullptr )
                 {
                     tBasis[  58 ] = mBasis[  16 ]->get_child(  95 );
                 }
-                if ( tBasis[  59 ] == NULL )
+                if ( tBasis[  59 ] == nullptr )
                 {
                     tBasis[  59 ] = mBasis[  16 ]->get_child(  96 );
                 }
-                if ( tBasis[  78 ] == NULL )
+                if ( tBasis[  78 ] == nullptr )
                 {
                     tBasis[  78 ] = mBasis[  16 ]->get_child( 115 );
                 }
-                if ( tBasis[  79 ] == NULL )
+                if ( tBasis[  79 ] == nullptr )
                 {
                     tBasis[  79 ] = mBasis[  16 ]->get_child( 116 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  16 ]->get_child( 120 );
                 }
-                if ( tBasis[  84 ] == NULL )
+                if ( tBasis[  84 ] == nullptr )
                 {
                     tBasis[  84 ] = mBasis[  16 ]->get_child( 121 );
                 }
             }
 
-            if ( mBasis[  17 ] != NULL )
+            if ( mBasis[  17 ] != nullptr )
             {
-                if ( tBasis[  28 ] == NULL )
+                if ( tBasis[  28 ] == nullptr )
                 {
                     tBasis[  28 ] = mBasis[  17 ]->get_child(  15 );
                 }
-                if ( tBasis[  29 ] == NULL )
+                if ( tBasis[  29 ] == nullptr )
                 {
                     tBasis[  29 ] = mBasis[  17 ]->get_child(  16 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  17 ]->get_child(  20 );
                 }
-                if ( tBasis[  34 ] == NULL )
+                if ( tBasis[  34 ] == nullptr )
                 {
                     tBasis[  34 ] = mBasis[  17 ]->get_child(  21 );
                 }
-                if ( tBasis[  53 ] == NULL )
+                if ( tBasis[  53 ] == nullptr )
                 {
                     tBasis[  53 ] = mBasis[  17 ]->get_child(  40 );
                 }
-                if ( tBasis[  54 ] == NULL )
+                if ( tBasis[  54 ] == nullptr )
                 {
                     tBasis[  54 ] = mBasis[  17 ]->get_child(  41 );
                 }
-                if ( tBasis[  58 ] == NULL )
+                if ( tBasis[  58 ] == nullptr )
                 {
                     tBasis[  58 ] = mBasis[  17 ]->get_child(  45 );
                 }
-                if ( tBasis[  59 ] == NULL )
+                if ( tBasis[  59 ] == nullptr )
                 {
                     tBasis[  59 ] = mBasis[  17 ]->get_child(  46 );
                 }
-                if ( tBasis[  78 ] == NULL )
+                if ( tBasis[  78 ] == nullptr )
                 {
                     tBasis[  78 ] = mBasis[  17 ]->get_child(  65 );
                 }
-                if ( tBasis[  79 ] == NULL )
+                if ( tBasis[  79 ] == nullptr )
                 {
                     tBasis[  79 ] = mBasis[  17 ]->get_child(  66 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  17 ]->get_child(  70 );
                 }
-                if ( tBasis[  84 ] == NULL )
+                if ( tBasis[  84 ] == nullptr )
                 {
                     tBasis[  84 ] = mBasis[  17 ]->get_child(  71 );
                 }
-                if ( tBasis[ 103 ] == NULL )
+                if ( tBasis[ 103 ] == nullptr )
                 {
                     tBasis[ 103 ] = mBasis[  17 ]->get_child(  90 );
                 }
-                if ( tBasis[ 104 ] == NULL )
+                if ( tBasis[ 104 ] == nullptr )
                 {
                     tBasis[ 104 ] = mBasis[  17 ]->get_child(  91 );
                 }
-                if ( tBasis[ 108 ] == NULL )
+                if ( tBasis[ 108 ] == nullptr )
                 {
                     tBasis[ 108 ] = mBasis[  17 ]->get_child(  95 );
                 }
-                if ( tBasis[ 109 ] == NULL )
+                if ( tBasis[ 109 ] == nullptr )
                 {
                     tBasis[ 109 ] = mBasis[  17 ]->get_child(  96 );
                 }
             }
 
-            if ( mBasis[  18 ] != NULL )
+            if ( mBasis[  18 ] != nullptr )
             {
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[  18 ]->get_child(  75 );
                 }
-                if ( tBasis[  17 ] == NULL )
+                if ( tBasis[  17 ] == nullptr )
                 {
                     tBasis[  17 ] = mBasis[  18 ]->get_child(  76 );
                 }
-                if ( tBasis[  18 ] == NULL )
+                if ( tBasis[  18 ] == nullptr )
                 {
                     tBasis[  18 ] = mBasis[  18 ]->get_child(  77 );
                 }
-                if ( tBasis[  19 ] == NULL )
+                if ( tBasis[  19 ] == nullptr )
                 {
                     tBasis[  19 ] = mBasis[  18 ]->get_child(  78 );
                 }
-                if ( tBasis[  21 ] == NULL )
+                if ( tBasis[  21 ] == nullptr )
                 {
                     tBasis[  21 ] = mBasis[  18 ]->get_child(  80 );
                 }
-                if ( tBasis[  22 ] == NULL )
+                if ( tBasis[  22 ] == nullptr )
                 {
                     tBasis[  22 ] = mBasis[  18 ]->get_child(  81 );
                 }
-                if ( tBasis[  23 ] == NULL )
+                if ( tBasis[  23 ] == nullptr )
                 {
                     tBasis[  23 ] = mBasis[  18 ]->get_child(  82 );
                 }
-                if ( tBasis[  24 ] == NULL )
+                if ( tBasis[  24 ] == nullptr )
                 {
                     tBasis[  24 ] = mBasis[  18 ]->get_child(  83 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  18 ]->get_child( 100 );
                 }
-                if ( tBasis[  42 ] == NULL )
+                if ( tBasis[  42 ] == nullptr )
                 {
                     tBasis[  42 ] = mBasis[  18 ]->get_child( 101 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  18 ]->get_child( 102 );
                 }
-                if ( tBasis[  44 ] == NULL )
+                if ( tBasis[  44 ] == nullptr )
                 {
                     tBasis[  44 ] = mBasis[  18 ]->get_child( 103 );
                 }
-                if ( tBasis[  46 ] == NULL )
+                if ( tBasis[  46 ] == nullptr )
                 {
                     tBasis[  46 ] = mBasis[  18 ]->get_child( 105 );
                 }
-                if ( tBasis[  47 ] == NULL )
+                if ( tBasis[  47 ] == nullptr )
                 {
                     tBasis[  47 ] = mBasis[  18 ]->get_child( 106 );
                 }
-                if ( tBasis[  48 ] == NULL )
+                if ( tBasis[  48 ] == nullptr )
                 {
                     tBasis[  48 ] = mBasis[  18 ]->get_child( 107 );
                 }
-                if ( tBasis[  49 ] == NULL )
+                if ( tBasis[  49 ] == nullptr )
                 {
                     tBasis[  49 ] = mBasis[  18 ]->get_child( 108 );
                 }
             }
 
-            if ( mBasis[  19 ] != NULL )
+            if ( mBasis[  19 ] != nullptr )
             {
-                if ( tBasis[  15 ] == NULL )
+                if ( tBasis[  15 ] == nullptr )
                 {
                     tBasis[  15 ] = mBasis[  19 ]->get_child(  76 );
                 }
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[  19 ]->get_child(  77 );
                 }
-                if ( tBasis[  17 ] == NULL )
+                if ( tBasis[  17 ] == nullptr )
                 {
                     tBasis[  17 ] = mBasis[  19 ]->get_child(  78 );
                 }
-                if ( tBasis[  18 ] == NULL )
+                if ( tBasis[  18 ] == nullptr )
                 {
                     tBasis[  18 ] = mBasis[  19 ]->get_child(  79 );
                 }
-                if ( tBasis[  20 ] == NULL )
+                if ( tBasis[  20 ] == nullptr )
                 {
                     tBasis[  20 ] = mBasis[  19 ]->get_child(  81 );
                 }
-                if ( tBasis[  21 ] == NULL )
+                if ( tBasis[  21 ] == nullptr )
                 {
                     tBasis[  21 ] = mBasis[  19 ]->get_child(  82 );
                 }
-                if ( tBasis[  22 ] == NULL )
+                if ( tBasis[  22 ] == nullptr )
                 {
                     tBasis[  22 ] = mBasis[  19 ]->get_child(  83 );
                 }
-                if ( tBasis[  23 ] == NULL )
+                if ( tBasis[  23 ] == nullptr )
                 {
                     tBasis[  23 ] = mBasis[  19 ]->get_child(  84 );
                 }
-                if ( tBasis[  40 ] == NULL )
+                if ( tBasis[  40 ] == nullptr )
                 {
                     tBasis[  40 ] = mBasis[  19 ]->get_child( 101 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  19 ]->get_child( 102 );
                 }
-                if ( tBasis[  42 ] == NULL )
+                if ( tBasis[  42 ] == nullptr )
                 {
                     tBasis[  42 ] = mBasis[  19 ]->get_child( 103 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  19 ]->get_child( 104 );
                 }
-                if ( tBasis[  45 ] == NULL )
+                if ( tBasis[  45 ] == nullptr )
                 {
                     tBasis[  45 ] = mBasis[  19 ]->get_child( 106 );
                 }
-                if ( tBasis[  46 ] == NULL )
+                if ( tBasis[  46 ] == nullptr )
                 {
                     tBasis[  46 ] = mBasis[  19 ]->get_child( 107 );
                 }
-                if ( tBasis[  47 ] == NULL )
+                if ( tBasis[  47 ] == nullptr )
                 {
                     tBasis[  47 ] = mBasis[  19 ]->get_child( 108 );
                 }
-                if ( tBasis[  48 ] == NULL )
+                if ( tBasis[  48 ] == nullptr )
                 {
                     tBasis[  48 ] = mBasis[  19 ]->get_child( 109 );
                 }
             }
 
-            if ( mBasis[  20 ] != NULL )
+            if ( mBasis[  20 ] != nullptr )
             {
-                if ( tBasis[  18 ] == NULL )
+                if ( tBasis[  18 ] == nullptr )
                 {
                     tBasis[  18 ] = mBasis[  20 ]->get_child(  25 );
                 }
-                if ( tBasis[  19 ] == NULL )
+                if ( tBasis[  19 ] == nullptr )
                 {
                     tBasis[  19 ] = mBasis[  20 ]->get_child(  26 );
                 }
-                if ( tBasis[  23 ] == NULL )
+                if ( tBasis[  23 ] == nullptr )
                 {
                     tBasis[  23 ] = mBasis[  20 ]->get_child(  30 );
                 }
-                if ( tBasis[  24 ] == NULL )
+                if ( tBasis[  24 ] == nullptr )
                 {
                     tBasis[  24 ] = mBasis[  20 ]->get_child(  31 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  20 ]->get_child(  50 );
                 }
-                if ( tBasis[  44 ] == NULL )
+                if ( tBasis[  44 ] == nullptr )
                 {
                     tBasis[  44 ] = mBasis[  20 ]->get_child(  51 );
                 }
-                if ( tBasis[  48 ] == NULL )
+                if ( tBasis[  48 ] == nullptr )
                 {
                     tBasis[  48 ] = mBasis[  20 ]->get_child(  55 );
                 }
-                if ( tBasis[  49 ] == NULL )
+                if ( tBasis[  49 ] == nullptr )
                 {
                     tBasis[  49 ] = mBasis[  20 ]->get_child(  56 );
                 }
-                if ( tBasis[  68 ] == NULL )
+                if ( tBasis[  68 ] == nullptr )
                 {
                     tBasis[  68 ] = mBasis[  20 ]->get_child(  75 );
                 }
-                if ( tBasis[  69 ] == NULL )
+                if ( tBasis[  69 ] == nullptr )
                 {
                     tBasis[  69 ] = mBasis[  20 ]->get_child(  76 );
                 }
-                if ( tBasis[  73 ] == NULL )
+                if ( tBasis[  73 ] == nullptr )
                 {
                     tBasis[  73 ] = mBasis[  20 ]->get_child(  80 );
                 }
-                if ( tBasis[  74 ] == NULL )
+                if ( tBasis[  74 ] == nullptr )
                 {
                     tBasis[  74 ] = mBasis[  20 ]->get_child(  81 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  20 ]->get_child( 100 );
                 }
-                if ( tBasis[  94 ] == NULL )
+                if ( tBasis[  94 ] == nullptr )
                 {
                     tBasis[  94 ] = mBasis[  20 ]->get_child( 101 );
                 }
-                if ( tBasis[  98 ] == NULL )
+                if ( tBasis[  98 ] == nullptr )
                 {
                     tBasis[  98 ] = mBasis[  20 ]->get_child( 105 );
                 }
-                if ( tBasis[  99 ] == NULL )
+                if ( tBasis[  99 ] == nullptr )
                 {
                     tBasis[  99 ] = mBasis[  20 ]->get_child( 106 );
                 }
             }
 
-            if ( mBasis[  21 ] != NULL )
+            if ( mBasis[  21 ] != nullptr )
             {
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  21 ]->get_child(   0 );
                 }
-                if ( tBasis[  44 ] == NULL )
+                if ( tBasis[  44 ] == nullptr )
                 {
                     tBasis[  44 ] = mBasis[  21 ]->get_child(   1 );
                 }
-                if ( tBasis[  48 ] == NULL )
+                if ( tBasis[  48 ] == nullptr )
                 {
                     tBasis[  48 ] = mBasis[  21 ]->get_child(   5 );
                 }
-                if ( tBasis[  49 ] == NULL )
+                if ( tBasis[  49 ] == nullptr )
                 {
                     tBasis[  49 ] = mBasis[  21 ]->get_child(   6 );
                 }
-                if ( tBasis[  68 ] == NULL )
+                if ( tBasis[  68 ] == nullptr )
                 {
                     tBasis[  68 ] = mBasis[  21 ]->get_child(  25 );
                 }
-                if ( tBasis[  69 ] == NULL )
+                if ( tBasis[  69 ] == nullptr )
                 {
                     tBasis[  69 ] = mBasis[  21 ]->get_child(  26 );
                 }
-                if ( tBasis[  73 ] == NULL )
+                if ( tBasis[  73 ] == nullptr )
                 {
                     tBasis[  73 ] = mBasis[  21 ]->get_child(  30 );
                 }
-                if ( tBasis[  74 ] == NULL )
+                if ( tBasis[  74 ] == nullptr )
                 {
                     tBasis[  74 ] = mBasis[  21 ]->get_child(  31 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  21 ]->get_child(  50 );
                 }
-                if ( tBasis[  94 ] == NULL )
+                if ( tBasis[  94 ] == nullptr )
                 {
                     tBasis[  94 ] = mBasis[  21 ]->get_child(  51 );
                 }
-                if ( tBasis[  98 ] == NULL )
+                if ( tBasis[  98 ] == nullptr )
                 {
                     tBasis[  98 ] = mBasis[  21 ]->get_child(  55 );
                 }
-                if ( tBasis[  99 ] == NULL )
+                if ( tBasis[  99 ] == nullptr )
                 {
                     tBasis[  99 ] = mBasis[  21 ]->get_child(  56 );
                 }
-                if ( tBasis[ 118 ] == NULL )
+                if ( tBasis[ 118 ] == nullptr )
                 {
                     tBasis[ 118 ] = mBasis[  21 ]->get_child(  75 );
                 }
-                if ( tBasis[ 119 ] == NULL )
+                if ( tBasis[ 119 ] == nullptr )
                 {
                     tBasis[ 119 ] = mBasis[  21 ]->get_child(  76 );
                 }
-                if ( tBasis[ 123 ] == NULL )
+                if ( tBasis[ 123 ] == nullptr )
                 {
                     tBasis[ 123 ] = mBasis[  21 ]->get_child(  80 );
                 }
-                if ( tBasis[ 124 ] == NULL )
+                if ( tBasis[ 124 ] == nullptr )
                 {
                     tBasis[ 124 ] = mBasis[  21 ]->get_child(  81 );
                 }
             }
 
-            if ( mBasis[  22 ] != NULL )
+            if ( mBasis[  22 ] != nullptr )
             {
-                if ( tBasis[  15 ] == NULL )
+                if ( tBasis[  15 ] == nullptr )
                 {
                     tBasis[  15 ] = mBasis[  22 ]->get_child(  28 );
                 }
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[  22 ]->get_child(  29 );
                 }
-                if ( tBasis[  20 ] == NULL )
+                if ( tBasis[  20 ] == nullptr )
                 {
                     tBasis[  20 ] = mBasis[  22 ]->get_child(  33 );
                 }
-                if ( tBasis[  21 ] == NULL )
+                if ( tBasis[  21 ] == nullptr )
                 {
                     tBasis[  21 ] = mBasis[  22 ]->get_child(  34 );
                 }
-                if ( tBasis[  40 ] == NULL )
+                if ( tBasis[  40 ] == nullptr )
                 {
                     tBasis[  40 ] = mBasis[  22 ]->get_child(  53 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  22 ]->get_child(  54 );
                 }
-                if ( tBasis[  45 ] == NULL )
+                if ( tBasis[  45 ] == nullptr )
                 {
                     tBasis[  45 ] = mBasis[  22 ]->get_child(  58 );
                 }
-                if ( tBasis[  46 ] == NULL )
+                if ( tBasis[  46 ] == nullptr )
                 {
                     tBasis[  46 ] = mBasis[  22 ]->get_child(  59 );
                 }
-                if ( tBasis[  65 ] == NULL )
+                if ( tBasis[  65 ] == nullptr )
                 {
                     tBasis[  65 ] = mBasis[  22 ]->get_child(  78 );
                 }
-                if ( tBasis[  66 ] == NULL )
+                if ( tBasis[  66 ] == nullptr )
                 {
                     tBasis[  66 ] = mBasis[  22 ]->get_child(  79 );
                 }
-                if ( tBasis[  70 ] == NULL )
+                if ( tBasis[  70 ] == nullptr )
                 {
                     tBasis[  70 ] = mBasis[  22 ]->get_child(  83 );
                 }
-                if ( tBasis[  71 ] == NULL )
+                if ( tBasis[  71 ] == nullptr )
                 {
                     tBasis[  71 ] = mBasis[  22 ]->get_child(  84 );
                 }
-                if ( tBasis[  90 ] == NULL )
+                if ( tBasis[  90 ] == nullptr )
                 {
                     tBasis[  90 ] = mBasis[  22 ]->get_child( 103 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  22 ]->get_child( 104 );
                 }
-                if ( tBasis[  95 ] == NULL )
+                if ( tBasis[  95 ] == nullptr )
                 {
                     tBasis[  95 ] = mBasis[  22 ]->get_child( 108 );
                 }
-                if ( tBasis[  96 ] == NULL )
+                if ( tBasis[  96 ] == nullptr )
                 {
                     tBasis[  96 ] = mBasis[  22 ]->get_child( 109 );
                 }
             }
 
-            if ( mBasis[  23 ] != NULL )
+            if ( mBasis[  23 ] != nullptr )
             {
-                if ( tBasis[  40 ] == NULL )
+                if ( tBasis[  40 ] == nullptr )
                 {
                     tBasis[  40 ] = mBasis[  23 ]->get_child(   3 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  23 ]->get_child(   4 );
                 }
-                if ( tBasis[  45 ] == NULL )
+                if ( tBasis[  45 ] == nullptr )
                 {
                     tBasis[  45 ] = mBasis[  23 ]->get_child(   8 );
                 }
-                if ( tBasis[  46 ] == NULL )
+                if ( tBasis[  46 ] == nullptr )
                 {
                     tBasis[  46 ] = mBasis[  23 ]->get_child(   9 );
                 }
-                if ( tBasis[  65 ] == NULL )
+                if ( tBasis[  65 ] == nullptr )
                 {
                     tBasis[  65 ] = mBasis[  23 ]->get_child(  28 );
                 }
-                if ( tBasis[  66 ] == NULL )
+                if ( tBasis[  66 ] == nullptr )
                 {
                     tBasis[  66 ] = mBasis[  23 ]->get_child(  29 );
                 }
-                if ( tBasis[  70 ] == NULL )
+                if ( tBasis[  70 ] == nullptr )
                 {
                     tBasis[  70 ] = mBasis[  23 ]->get_child(  33 );
                 }
-                if ( tBasis[  71 ] == NULL )
+                if ( tBasis[  71 ] == nullptr )
                 {
                     tBasis[  71 ] = mBasis[  23 ]->get_child(  34 );
                 }
-                if ( tBasis[  90 ] == NULL )
+                if ( tBasis[  90 ] == nullptr )
                 {
                     tBasis[  90 ] = mBasis[  23 ]->get_child(  53 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  23 ]->get_child(  54 );
                 }
-                if ( tBasis[  95 ] == NULL )
+                if ( tBasis[  95 ] == nullptr )
                 {
                     tBasis[  95 ] = mBasis[  23 ]->get_child(  58 );
                 }
-                if ( tBasis[  96 ] == NULL )
+                if ( tBasis[  96 ] == nullptr )
                 {
                     tBasis[  96 ] = mBasis[  23 ]->get_child(  59 );
                 }
-                if ( tBasis[ 115 ] == NULL )
+                if ( tBasis[ 115 ] == nullptr )
                 {
                     tBasis[ 115 ] = mBasis[  23 ]->get_child(  78 );
                 }
-                if ( tBasis[ 116 ] == NULL )
+                if ( tBasis[ 116 ] == nullptr )
                 {
                     tBasis[ 116 ] = mBasis[  23 ]->get_child(  79 );
                 }
-                if ( tBasis[ 120 ] == NULL )
+                if ( tBasis[ 120 ] == nullptr )
                 {
                     tBasis[ 120 ] = mBasis[  23 ]->get_child(  83 );
                 }
-                if ( tBasis[ 121 ] == NULL )
+                if ( tBasis[ 121 ] == nullptr )
                 {
                     tBasis[ 121 ] = mBasis[  23 ]->get_child(  84 );
                 }
             }
 
-            if ( mBasis[  24 ] != NULL )
+            if ( mBasis[  24 ] != nullptr )
             {
-                if ( tBasis[  75 ] == NULL )
+                if ( tBasis[  75 ] == nullptr )
                 {
                     tBasis[  75 ] = mBasis[  24 ]->get_child(  16 );
                 }
-                if ( tBasis[  76 ] == NULL )
+                if ( tBasis[  76 ] == nullptr )
                 {
                     tBasis[  76 ] = mBasis[  24 ]->get_child(  17 );
                 }
-                if ( tBasis[  77 ] == NULL )
+                if ( tBasis[  77 ] == nullptr )
                 {
                     tBasis[  77 ] = mBasis[  24 ]->get_child(  18 );
                 }
-                if ( tBasis[  78 ] == NULL )
+                if ( tBasis[  78 ] == nullptr )
                 {
                     tBasis[  78 ] = mBasis[  24 ]->get_child(  19 );
                 }
-                if ( tBasis[  80 ] == NULL )
+                if ( tBasis[  80 ] == nullptr )
                 {
                     tBasis[  80 ] = mBasis[  24 ]->get_child(  21 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  24 ]->get_child(  22 );
                 }
-                if ( tBasis[  82 ] == NULL )
+                if ( tBasis[  82 ] == nullptr )
                 {
                     tBasis[  82 ] = mBasis[  24 ]->get_child(  23 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  24 ]->get_child(  24 );
                 }
-                if ( tBasis[ 100 ] == NULL )
+                if ( tBasis[ 100 ] == nullptr )
                 {
                     tBasis[ 100 ] = mBasis[  24 ]->get_child(  41 );
                 }
-                if ( tBasis[ 101 ] == NULL )
+                if ( tBasis[ 101 ] == nullptr )
                 {
                     tBasis[ 101 ] = mBasis[  24 ]->get_child(  42 );
                 }
-                if ( tBasis[ 102 ] == NULL )
+                if ( tBasis[ 102 ] == nullptr )
                 {
                     tBasis[ 102 ] = mBasis[  24 ]->get_child(  43 );
                 }
-                if ( tBasis[ 103 ] == NULL )
+                if ( tBasis[ 103 ] == nullptr )
                 {
                     tBasis[ 103 ] = mBasis[  24 ]->get_child(  44 );
                 }
-                if ( tBasis[ 105 ] == NULL )
+                if ( tBasis[ 105 ] == nullptr )
                 {
                     tBasis[ 105 ] = mBasis[  24 ]->get_child(  46 );
                 }
-                if ( tBasis[ 106 ] == NULL )
+                if ( tBasis[ 106 ] == nullptr )
                 {
                     tBasis[ 106 ] = mBasis[  24 ]->get_child(  47 );
                 }
-                if ( tBasis[ 107 ] == NULL )
+                if ( tBasis[ 107 ] == nullptr )
                 {
                     tBasis[ 107 ] = mBasis[  24 ]->get_child(  48 );
                 }
-                if ( tBasis[ 108 ] == NULL )
+                if ( tBasis[ 108 ] == nullptr )
                 {
                     tBasis[ 108 ] = mBasis[  24 ]->get_child(  49 );
                 }
             }
 
-            if ( mBasis[  25 ] != NULL )
+            if ( mBasis[  25 ] != nullptr )
             {
-                if ( tBasis[  76 ] == NULL )
+                if ( tBasis[  76 ] == nullptr )
                 {
                     tBasis[  76 ] = mBasis[  25 ]->get_child(  15 );
                 }
-                if ( tBasis[  77 ] == NULL )
+                if ( tBasis[  77 ] == nullptr )
                 {
                     tBasis[  77 ] = mBasis[  25 ]->get_child(  16 );
                 }
-                if ( tBasis[  78 ] == NULL )
+                if ( tBasis[  78 ] == nullptr )
                 {
                     tBasis[  78 ] = mBasis[  25 ]->get_child(  17 );
                 }
-                if ( tBasis[  79 ] == NULL )
+                if ( tBasis[  79 ] == nullptr )
                 {
                     tBasis[  79 ] = mBasis[  25 ]->get_child(  18 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  25 ]->get_child(  20 );
                 }
-                if ( tBasis[  82 ] == NULL )
+                if ( tBasis[  82 ] == nullptr )
                 {
                     tBasis[  82 ] = mBasis[  25 ]->get_child(  21 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  25 ]->get_child(  22 );
                 }
-                if ( tBasis[  84 ] == NULL )
+                if ( tBasis[  84 ] == nullptr )
                 {
                     tBasis[  84 ] = mBasis[  25 ]->get_child(  23 );
                 }
-                if ( tBasis[ 101 ] == NULL )
+                if ( tBasis[ 101 ] == nullptr )
                 {
                     tBasis[ 101 ] = mBasis[  25 ]->get_child(  40 );
                 }
-                if ( tBasis[ 102 ] == NULL )
+                if ( tBasis[ 102 ] == nullptr )
                 {
                     tBasis[ 102 ] = mBasis[  25 ]->get_child(  41 );
                 }
-                if ( tBasis[ 103 ] == NULL )
+                if ( tBasis[ 103 ] == nullptr )
                 {
                     tBasis[ 103 ] = mBasis[  25 ]->get_child(  42 );
                 }
-                if ( tBasis[ 104 ] == NULL )
+                if ( tBasis[ 104 ] == nullptr )
                 {
                     tBasis[ 104 ] = mBasis[  25 ]->get_child(  43 );
                 }
-                if ( tBasis[ 106 ] == NULL )
+                if ( tBasis[ 106 ] == nullptr )
                 {
                     tBasis[ 106 ] = mBasis[  25 ]->get_child(  45 );
                 }
-                if ( tBasis[ 107 ] == NULL )
+                if ( tBasis[ 107 ] == nullptr )
                 {
                     tBasis[ 107 ] = mBasis[  25 ]->get_child(  46 );
                 }
-                if ( tBasis[ 108 ] == NULL )
+                if ( tBasis[ 108 ] == nullptr )
                 {
                     tBasis[ 108 ] = mBasis[  25 ]->get_child(  47 );
                 }
-                if ( tBasis[ 109 ] == NULL )
+                if ( tBasis[ 109 ] == nullptr )
                 {
                     tBasis[ 109 ] = mBasis[  25 ]->get_child(  48 );
                 }
             }
 
-            if ( mBasis[  26 ] != NULL )
+            if ( mBasis[  26 ] != nullptr )
             {
-                if ( tBasis[  75 ] == NULL )
+                if ( tBasis[  75 ] == nullptr )
                 {
                     tBasis[  75 ] = mBasis[  26 ]->get_child(   8 );
                 }
-                if ( tBasis[  76 ] == NULL )
+                if ( tBasis[  76 ] == nullptr )
                 {
                     tBasis[  76 ] = mBasis[  26 ]->get_child(   9 );
                 }
-                if ( tBasis[  80 ] == NULL )
+                if ( tBasis[  80 ] == nullptr )
                 {
                     tBasis[  80 ] = mBasis[  26 ]->get_child(  13 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  26 ]->get_child(  14 );
                 }
-                if ( tBasis[  85 ] == NULL )
+                if ( tBasis[  85 ] == nullptr )
                 {
                     tBasis[  85 ] = mBasis[  26 ]->get_child(  18 );
                 }
-                if ( tBasis[  86 ] == NULL )
+                if ( tBasis[  86 ] == nullptr )
                 {
                     tBasis[  86 ] = mBasis[  26 ]->get_child(  19 );
                 }
-                if ( tBasis[  90 ] == NULL )
+                if ( tBasis[  90 ] == nullptr )
                 {
                     tBasis[  90 ] = mBasis[  26 ]->get_child(  23 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  26 ]->get_child(  24 );
                 }
-                if ( tBasis[ 100 ] == NULL )
+                if ( tBasis[ 100 ] == nullptr )
                 {
                     tBasis[ 100 ] = mBasis[  26 ]->get_child(  33 );
                 }
-                if ( tBasis[ 101 ] == NULL )
+                if ( tBasis[ 101 ] == nullptr )
                 {
                     tBasis[ 101 ] = mBasis[  26 ]->get_child(  34 );
                 }
-                if ( tBasis[ 105 ] == NULL )
+                if ( tBasis[ 105 ] == nullptr )
                 {
                     tBasis[ 105 ] = mBasis[  26 ]->get_child(  38 );
                 }
-                if ( tBasis[ 106 ] == NULL )
+                if ( tBasis[ 106 ] == nullptr )
                 {
                     tBasis[ 106 ] = mBasis[  26 ]->get_child(  39 );
                 }
-                if ( tBasis[ 110 ] == NULL )
+                if ( tBasis[ 110 ] == nullptr )
                 {
                     tBasis[ 110 ] = mBasis[  26 ]->get_child(  43 );
                 }
-                if ( tBasis[ 111 ] == NULL )
+                if ( tBasis[ 111 ] == nullptr )
                 {
                     tBasis[ 111 ] = mBasis[  26 ]->get_child(  44 );
                 }
-                if ( tBasis[ 115 ] == NULL )
+                if ( tBasis[ 115 ] == nullptr )
                 {
                     tBasis[ 115 ] = mBasis[  26 ]->get_child(  48 );
                 }
-                if ( tBasis[ 116 ] == NULL )
+                if ( tBasis[ 116 ] == nullptr )
                 {
                     tBasis[ 116 ] = mBasis[  26 ]->get_child(  49 );
                 }
             }
 
-            if ( mBasis[  27 ] != NULL )
+            if ( mBasis[  27 ] != nullptr )
             {
-                if ( tBasis[  80 ] == NULL )
+                if ( tBasis[  80 ] == nullptr )
                 {
                     tBasis[  80 ] = mBasis[  27 ]->get_child(   3 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  27 ]->get_child(   4 );
                 }
-                if ( tBasis[  85 ] == NULL )
+                if ( tBasis[  85 ] == nullptr )
                 {
                     tBasis[  85 ] = mBasis[  27 ]->get_child(   8 );
                 }
-                if ( tBasis[  86 ] == NULL )
+                if ( tBasis[  86 ] == nullptr )
                 {
                     tBasis[  86 ] = mBasis[  27 ]->get_child(   9 );
                 }
-                if ( tBasis[  90 ] == NULL )
+                if ( tBasis[  90 ] == nullptr )
                 {
                     tBasis[  90 ] = mBasis[  27 ]->get_child(  13 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  27 ]->get_child(  14 );
                 }
-                if ( tBasis[  95 ] == NULL )
+                if ( tBasis[  95 ] == nullptr )
                 {
                     tBasis[  95 ] = mBasis[  27 ]->get_child(  18 );
                 }
-                if ( tBasis[  96 ] == NULL )
+                if ( tBasis[  96 ] == nullptr )
                 {
                     tBasis[  96 ] = mBasis[  27 ]->get_child(  19 );
                 }
-                if ( tBasis[ 105 ] == NULL )
+                if ( tBasis[ 105 ] == nullptr )
                 {
                     tBasis[ 105 ] = mBasis[  27 ]->get_child(  28 );
                 }
-                if ( tBasis[ 106 ] == NULL )
+                if ( tBasis[ 106 ] == nullptr )
                 {
                     tBasis[ 106 ] = mBasis[  27 ]->get_child(  29 );
                 }
-                if ( tBasis[ 110 ] == NULL )
+                if ( tBasis[ 110 ] == nullptr )
                 {
                     tBasis[ 110 ] = mBasis[  27 ]->get_child(  33 );
                 }
-                if ( tBasis[ 111 ] == NULL )
+                if ( tBasis[ 111 ] == nullptr )
                 {
                     tBasis[ 111 ] = mBasis[  27 ]->get_child(  34 );
                 }
-                if ( tBasis[ 115 ] == NULL )
+                if ( tBasis[ 115 ] == nullptr )
                 {
                     tBasis[ 115 ] = mBasis[  27 ]->get_child(  38 );
                 }
-                if ( tBasis[ 116 ] == NULL )
+                if ( tBasis[ 116 ] == nullptr )
                 {
                     tBasis[ 116 ] = mBasis[  27 ]->get_child(  39 );
                 }
-                if ( tBasis[ 120 ] == NULL )
+                if ( tBasis[ 120 ] == nullptr )
                 {
                     tBasis[ 120 ] = mBasis[  27 ]->get_child(  43 );
                 }
-                if ( tBasis[ 121 ] == NULL )
+                if ( tBasis[ 121 ] == nullptr )
                 {
                     tBasis[ 121 ] = mBasis[  27 ]->get_child(  44 );
                 }
             }
 
-            if ( mBasis[  28 ] != NULL )
+            if ( mBasis[  28 ] != nullptr )
             {
-                if ( tBasis[  78 ] == NULL )
+                if ( tBasis[  78 ] == nullptr )
                 {
                     tBasis[  78 ] = mBasis[  28 ]->get_child(   5 );
                 }
-                if ( tBasis[  79 ] == NULL )
+                if ( tBasis[  79 ] == nullptr )
                 {
                     tBasis[  79 ] = mBasis[  28 ]->get_child(   6 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  28 ]->get_child(  10 );
                 }
-                if ( tBasis[  84 ] == NULL )
+                if ( tBasis[  84 ] == nullptr )
                 {
                     tBasis[  84 ] = mBasis[  28 ]->get_child(  11 );
                 }
-                if ( tBasis[  88 ] == NULL )
+                if ( tBasis[  88 ] == nullptr )
                 {
                     tBasis[  88 ] = mBasis[  28 ]->get_child(  15 );
                 }
-                if ( tBasis[  89 ] == NULL )
+                if ( tBasis[  89 ] == nullptr )
                 {
                     tBasis[  89 ] = mBasis[  28 ]->get_child(  16 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  28 ]->get_child(  20 );
                 }
-                if ( tBasis[  94 ] == NULL )
+                if ( tBasis[  94 ] == nullptr )
                 {
                     tBasis[  94 ] = mBasis[  28 ]->get_child(  21 );
                 }
-                if ( tBasis[ 103 ] == NULL )
+                if ( tBasis[ 103 ] == nullptr )
                 {
                     tBasis[ 103 ] = mBasis[  28 ]->get_child(  30 );
                 }
-                if ( tBasis[ 104 ] == NULL )
+                if ( tBasis[ 104 ] == nullptr )
                 {
                     tBasis[ 104 ] = mBasis[  28 ]->get_child(  31 );
                 }
-                if ( tBasis[ 108 ] == NULL )
+                if ( tBasis[ 108 ] == nullptr )
                 {
                     tBasis[ 108 ] = mBasis[  28 ]->get_child(  35 );
                 }
-                if ( tBasis[ 109 ] == NULL )
+                if ( tBasis[ 109 ] == nullptr )
                 {
                     tBasis[ 109 ] = mBasis[  28 ]->get_child(  36 );
                 }
-                if ( tBasis[ 113 ] == NULL )
+                if ( tBasis[ 113 ] == nullptr )
                 {
                     tBasis[ 113 ] = mBasis[  28 ]->get_child(  40 );
                 }
-                if ( tBasis[ 114 ] == NULL )
+                if ( tBasis[ 114 ] == nullptr )
                 {
                     tBasis[ 114 ] = mBasis[  28 ]->get_child(  41 );
                 }
-                if ( tBasis[ 118 ] == NULL )
+                if ( tBasis[ 118 ] == nullptr )
                 {
                     tBasis[ 118 ] = mBasis[  28 ]->get_child(  45 );
                 }
-                if ( tBasis[ 119 ] == NULL )
+                if ( tBasis[ 119 ] == nullptr )
                 {
                     tBasis[ 119 ] = mBasis[  28 ]->get_child(  46 );
                 }
             }
 
-            if ( mBasis[  29 ] != NULL )
+            if ( mBasis[  29 ] != nullptr )
             {
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  29 ]->get_child(   0 );
                 }
-                if ( tBasis[  84 ] == NULL )
+                if ( tBasis[  84 ] == nullptr )
                 {
                     tBasis[  84 ] = mBasis[  29 ]->get_child(   1 );
                 }
-                if ( tBasis[  88 ] == NULL )
+                if ( tBasis[  88 ] == nullptr )
                 {
                     tBasis[  88 ] = mBasis[  29 ]->get_child(   5 );
                 }
-                if ( tBasis[  89 ] == NULL )
+                if ( tBasis[  89 ] == nullptr )
                 {
                     tBasis[  89 ] = mBasis[  29 ]->get_child(   6 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  29 ]->get_child(  10 );
                 }
-                if ( tBasis[  94 ] == NULL )
+                if ( tBasis[  94 ] == nullptr )
                 {
                     tBasis[  94 ] = mBasis[  29 ]->get_child(  11 );
                 }
-                if ( tBasis[  98 ] == NULL )
+                if ( tBasis[  98 ] == nullptr )
                 {
                     tBasis[  98 ] = mBasis[  29 ]->get_child(  15 );
                 }
-                if ( tBasis[  99 ] == NULL )
+                if ( tBasis[  99 ] == nullptr )
                 {
                     tBasis[  99 ] = mBasis[  29 ]->get_child(  16 );
                 }
-                if ( tBasis[ 108 ] == NULL )
+                if ( tBasis[ 108 ] == nullptr )
                 {
                     tBasis[ 108 ] = mBasis[  29 ]->get_child(  25 );
                 }
-                if ( tBasis[ 109 ] == NULL )
+                if ( tBasis[ 109 ] == nullptr )
                 {
                     tBasis[ 109 ] = mBasis[  29 ]->get_child(  26 );
                 }
-                if ( tBasis[ 113 ] == NULL )
+                if ( tBasis[ 113 ] == nullptr )
                 {
                     tBasis[ 113 ] = mBasis[  29 ]->get_child(  30 );
                 }
-                if ( tBasis[ 114 ] == NULL )
+                if ( tBasis[ 114 ] == nullptr )
                 {
                     tBasis[ 114 ] = mBasis[  29 ]->get_child(  31 );
                 }
-                if ( tBasis[ 118 ] == NULL )
+                if ( tBasis[ 118 ] == nullptr )
                 {
                     tBasis[ 118 ] = mBasis[  29 ]->get_child(  35 );
                 }
-                if ( tBasis[ 119 ] == NULL )
+                if ( tBasis[ 119 ] == nullptr )
                 {
                     tBasis[ 119 ] = mBasis[  29 ]->get_child(  36 );
                 }
-                if ( tBasis[ 123 ] == NULL )
+                if ( tBasis[ 123 ] == nullptr )
                 {
                     tBasis[ 123 ] = mBasis[  29 ]->get_child(  40 );
                 }
-                if ( tBasis[ 124 ] == NULL )
+                if ( tBasis[ 124 ] == nullptr )
                 {
                     tBasis[ 124 ] = mBasis[  29 ]->get_child(  41 );
                 }
             }
 
-            if ( mBasis[  30 ] != NULL )
+            if ( mBasis[  30 ] != nullptr )
             {
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  30 ]->get_child(   0 );
                 }
-                if ( tBasis[  92 ] == NULL )
+                if ( tBasis[  92 ] == nullptr )
                 {
                     tBasis[  92 ] = mBasis[  30 ]->get_child(   1 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  30 ]->get_child(   2 );
                 }
-                if ( tBasis[  94 ] == NULL )
+                if ( tBasis[  94 ] == nullptr )
                 {
                     tBasis[  94 ] = mBasis[  30 ]->get_child(   3 );
                 }
-                if ( tBasis[  96 ] == NULL )
+                if ( tBasis[  96 ] == nullptr )
                 {
                     tBasis[  96 ] = mBasis[  30 ]->get_child(   5 );
                 }
-                if ( tBasis[  97 ] == NULL )
+                if ( tBasis[  97 ] == nullptr )
                 {
                     tBasis[  97 ] = mBasis[  30 ]->get_child(   6 );
                 }
-                if ( tBasis[  98 ] == NULL )
+                if ( tBasis[  98 ] == nullptr )
                 {
                     tBasis[  98 ] = mBasis[  30 ]->get_child(   7 );
                 }
-                if ( tBasis[  99 ] == NULL )
+                if ( tBasis[  99 ] == nullptr )
                 {
                     tBasis[  99 ] = mBasis[  30 ]->get_child(   8 );
                 }
-                if ( tBasis[ 116 ] == NULL )
+                if ( tBasis[ 116 ] == nullptr )
                 {
                     tBasis[ 116 ] = mBasis[  30 ]->get_child(  25 );
                 }
-                if ( tBasis[ 117 ] == NULL )
+                if ( tBasis[ 117 ] == nullptr )
                 {
                     tBasis[ 117 ] = mBasis[  30 ]->get_child(  26 );
                 }
-                if ( tBasis[ 118 ] == NULL )
+                if ( tBasis[ 118 ] == nullptr )
                 {
                     tBasis[ 118 ] = mBasis[  30 ]->get_child(  27 );
                 }
-                if ( tBasis[ 119 ] == NULL )
+                if ( tBasis[ 119 ] == nullptr )
                 {
                     tBasis[ 119 ] = mBasis[  30 ]->get_child(  28 );
                 }
-                if ( tBasis[ 121 ] == NULL )
+                if ( tBasis[ 121 ] == nullptr )
                 {
                     tBasis[ 121 ] = mBasis[  30 ]->get_child(  30 );
                 }
-                if ( tBasis[ 122 ] == NULL )
+                if ( tBasis[ 122 ] == nullptr )
                 {
                     tBasis[ 122 ] = mBasis[  30 ]->get_child(  31 );
                 }
-                if ( tBasis[ 123 ] == NULL )
+                if ( tBasis[ 123 ] == nullptr )
                 {
                     tBasis[ 123 ] = mBasis[  30 ]->get_child(  32 );
                 }
-                if ( tBasis[ 124 ] == NULL )
+                if ( tBasis[ 124 ] == nullptr )
                 {
                     tBasis[ 124 ] = mBasis[  30 ]->get_child(  33 );
                 }
             }
 
-            if ( mBasis[  31 ] != NULL )
+            if ( mBasis[  31 ] != nullptr )
             {
-                if ( tBasis[  90 ] == NULL )
+                if ( tBasis[  90 ] == nullptr )
                 {
                     tBasis[  90 ] = mBasis[  31 ]->get_child(   1 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  31 ]->get_child(   2 );
                 }
-                if ( tBasis[  92 ] == NULL )
+                if ( tBasis[  92 ] == nullptr )
                 {
                     tBasis[  92 ] = mBasis[  31 ]->get_child(   3 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  31 ]->get_child(   4 );
                 }
-                if ( tBasis[  95 ] == NULL )
+                if ( tBasis[  95 ] == nullptr )
                 {
                     tBasis[  95 ] = mBasis[  31 ]->get_child(   6 );
                 }
-                if ( tBasis[  96 ] == NULL )
+                if ( tBasis[  96 ] == nullptr )
                 {
                     tBasis[  96 ] = mBasis[  31 ]->get_child(   7 );
                 }
-                if ( tBasis[  97 ] == NULL )
+                if ( tBasis[  97 ] == nullptr )
                 {
                     tBasis[  97 ] = mBasis[  31 ]->get_child(   8 );
                 }
-                if ( tBasis[  98 ] == NULL )
+                if ( tBasis[  98 ] == nullptr )
                 {
                     tBasis[  98 ] = mBasis[  31 ]->get_child(   9 );
                 }
-                if ( tBasis[ 115 ] == NULL )
+                if ( tBasis[ 115 ] == nullptr )
                 {
                     tBasis[ 115 ] = mBasis[  31 ]->get_child(  26 );
                 }
-                if ( tBasis[ 116 ] == NULL )
+                if ( tBasis[ 116 ] == nullptr )
                 {
                     tBasis[ 116 ] = mBasis[  31 ]->get_child(  27 );
                 }
-                if ( tBasis[ 117 ] == NULL )
+                if ( tBasis[ 117 ] == nullptr )
                 {
                     tBasis[ 117 ] = mBasis[  31 ]->get_child(  28 );
                 }
-                if ( tBasis[ 118 ] == NULL )
+                if ( tBasis[ 118 ] == nullptr )
                 {
                     tBasis[ 118 ] = mBasis[  31 ]->get_child(  29 );
                 }
-                if ( tBasis[ 120 ] == NULL )
+                if ( tBasis[ 120 ] == nullptr )
                 {
                     tBasis[ 120 ] = mBasis[  31 ]->get_child(  31 );
                 }
-                if ( tBasis[ 121 ] == NULL )
+                if ( tBasis[ 121 ] == nullptr )
                 {
                     tBasis[ 121 ] = mBasis[  31 ]->get_child(  32 );
                 }
-                if ( tBasis[ 122 ] == NULL )
+                if ( tBasis[ 122 ] == nullptr )
                 {
                     tBasis[ 122 ] = mBasis[  31 ]->get_child(  33 );
                 }
-                if ( tBasis[ 123 ] == NULL )
+                if ( tBasis[ 123 ] == nullptr )
                 {
                     tBasis[ 123 ] = mBasis[  31 ]->get_child(  34 );
                 }
             }
 
-            if ( mBasis[  32 ] != NULL )
+            if ( mBasis[  32 ] != nullptr )
             {
-                if ( tBasis[   0 ] == NULL )
+                if ( tBasis[   0 ] == nullptr )
                 {
                     tBasis[   0 ] = mBasis[  32 ]->get_child(  81 );
                 }
-                if ( tBasis[   1 ] == NULL )
+                if ( tBasis[   1 ] == nullptr )
                 {
                     tBasis[   1 ] = mBasis[  32 ]->get_child(  82 );
                 }
-                if ( tBasis[   2 ] == NULL )
+                if ( tBasis[   2 ] == nullptr )
                 {
                     tBasis[   2 ] = mBasis[  32 ]->get_child(  83 );
                 }
-                if ( tBasis[   3 ] == NULL )
+                if ( tBasis[   3 ] == nullptr )
                 {
                     tBasis[   3 ] = mBasis[  32 ]->get_child(  84 );
                 }
-                if ( tBasis[   5 ] == NULL )
+                if ( tBasis[   5 ] == nullptr )
                 {
                     tBasis[   5 ] = mBasis[  32 ]->get_child(  86 );
                 }
-                if ( tBasis[   6 ] == NULL )
+                if ( tBasis[   6 ] == nullptr )
                 {
                     tBasis[   6 ] = mBasis[  32 ]->get_child(  87 );
                 }
-                if ( tBasis[   7 ] == NULL )
+                if ( tBasis[   7 ] == nullptr )
                 {
                     tBasis[   7 ] = mBasis[  32 ]->get_child(  88 );
                 }
-                if ( tBasis[   8 ] == NULL )
+                if ( tBasis[   8 ] == nullptr )
                 {
                     tBasis[   8 ] = mBasis[  32 ]->get_child(  89 );
                 }
-                if ( tBasis[  10 ] == NULL )
+                if ( tBasis[  10 ] == nullptr )
                 {
                     tBasis[  10 ] = mBasis[  32 ]->get_child(  91 );
                 }
-                if ( tBasis[  11 ] == NULL )
+                if ( tBasis[  11 ] == nullptr )
                 {
                     tBasis[  11 ] = mBasis[  32 ]->get_child(  92 );
                 }
-                if ( tBasis[  12 ] == NULL )
+                if ( tBasis[  12 ] == nullptr )
                 {
                     tBasis[  12 ] = mBasis[  32 ]->get_child(  93 );
                 }
-                if ( tBasis[  13 ] == NULL )
+                if ( tBasis[  13 ] == nullptr )
                 {
                     tBasis[  13 ] = mBasis[  32 ]->get_child(  94 );
                 }
-                if ( tBasis[  15 ] == NULL )
+                if ( tBasis[  15 ] == nullptr )
                 {
                     tBasis[  15 ] = mBasis[  32 ]->get_child(  96 );
                 }
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[  32 ]->get_child(  97 );
                 }
-                if ( tBasis[  17 ] == NULL )
+                if ( tBasis[  17 ] == nullptr )
                 {
                     tBasis[  17 ] = mBasis[  32 ]->get_child(  98 );
                 }
-                if ( tBasis[  18 ] == NULL )
+                if ( tBasis[  18 ] == nullptr )
                 {
                     tBasis[  18 ] = mBasis[  32 ]->get_child(  99 );
                 }
-                if ( tBasis[  25 ] == NULL )
+                if ( tBasis[  25 ] == nullptr )
                 {
                     tBasis[  25 ] = mBasis[  32 ]->get_child( 106 );
                 }
-                if ( tBasis[  26 ] == NULL )
+                if ( tBasis[  26 ] == nullptr )
                 {
                     tBasis[  26 ] = mBasis[  32 ]->get_child( 107 );
                 }
-                if ( tBasis[  27 ] == NULL )
+                if ( tBasis[  27 ] == nullptr )
                 {
                     tBasis[  27 ] = mBasis[  32 ]->get_child( 108 );
                 }
-                if ( tBasis[  28 ] == NULL )
+                if ( tBasis[  28 ] == nullptr )
                 {
                     tBasis[  28 ] = mBasis[  32 ]->get_child( 109 );
                 }
-                if ( tBasis[  30 ] == NULL )
+                if ( tBasis[  30 ] == nullptr )
                 {
                     tBasis[  30 ] = mBasis[  32 ]->get_child( 111 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  32 ]->get_child( 112 );
                 }
-                if ( tBasis[  32 ] == NULL )
+                if ( tBasis[  32 ] == nullptr )
                 {
                     tBasis[  32 ] = mBasis[  32 ]->get_child( 113 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  32 ]->get_child( 114 );
                 }
-                if ( tBasis[  35 ] == NULL )
+                if ( tBasis[  35 ] == nullptr )
                 {
                     tBasis[  35 ] = mBasis[  32 ]->get_child( 116 );
                 }
-                if ( tBasis[  36 ] == NULL )
+                if ( tBasis[  36 ] == nullptr )
                 {
                     tBasis[  36 ] = mBasis[  32 ]->get_child( 117 );
                 }
-                if ( tBasis[  37 ] == NULL )
+                if ( tBasis[  37 ] == nullptr )
                 {
                     tBasis[  37 ] = mBasis[  32 ]->get_child( 118 );
                 }
-                if ( tBasis[  38 ] == NULL )
+                if ( tBasis[  38 ] == nullptr )
                 {
                     tBasis[  38 ] = mBasis[  32 ]->get_child( 119 );
                 }
-                if ( tBasis[  40 ] == NULL )
+                if ( tBasis[  40 ] == nullptr )
                 {
                     tBasis[  40 ] = mBasis[  32 ]->get_child( 121 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  32 ]->get_child( 122 );
                 }
-                if ( tBasis[  42 ] == NULL )
+                if ( tBasis[  42 ] == nullptr )
                 {
                     tBasis[  42 ] = mBasis[  32 ]->get_child( 123 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  32 ]->get_child( 124 );
                 }
             }
 
-            if ( mBasis[  33 ] != NULL )
+            if ( mBasis[  33 ] != nullptr )
             {
-                if ( tBasis[   5 ] == NULL )
+                if ( tBasis[   5 ] == nullptr )
                 {
                     tBasis[   5 ] = mBasis[  33 ]->get_child(  76 );
                 }
-                if ( tBasis[   6 ] == NULL )
+                if ( tBasis[   6 ] == nullptr )
                 {
                     tBasis[   6 ] = mBasis[  33 ]->get_child(  77 );
                 }
-                if ( tBasis[   7 ] == NULL )
+                if ( tBasis[   7 ] == nullptr )
                 {
                     tBasis[   7 ] = mBasis[  33 ]->get_child(  78 );
                 }
-                if ( tBasis[   8 ] == NULL )
+                if ( tBasis[   8 ] == nullptr )
                 {
                     tBasis[   8 ] = mBasis[  33 ]->get_child(  79 );
                 }
-                if ( tBasis[  10 ] == NULL )
+                if ( tBasis[  10 ] == nullptr )
                 {
                     tBasis[  10 ] = mBasis[  33 ]->get_child(  81 );
                 }
-                if ( tBasis[  11 ] == NULL )
+                if ( tBasis[  11 ] == nullptr )
                 {
                     tBasis[  11 ] = mBasis[  33 ]->get_child(  82 );
                 }
-                if ( tBasis[  12 ] == NULL )
+                if ( tBasis[  12 ] == nullptr )
                 {
                     tBasis[  12 ] = mBasis[  33 ]->get_child(  83 );
                 }
-                if ( tBasis[  13 ] == NULL )
+                if ( tBasis[  13 ] == nullptr )
                 {
                     tBasis[  13 ] = mBasis[  33 ]->get_child(  84 );
                 }
-                if ( tBasis[  15 ] == NULL )
+                if ( tBasis[  15 ] == nullptr )
                 {
                     tBasis[  15 ] = mBasis[  33 ]->get_child(  86 );
                 }
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[  33 ]->get_child(  87 );
                 }
-                if ( tBasis[  17 ] == NULL )
+                if ( tBasis[  17 ] == nullptr )
                 {
                     tBasis[  17 ] = mBasis[  33 ]->get_child(  88 );
                 }
-                if ( tBasis[  18 ] == NULL )
+                if ( tBasis[  18 ] == nullptr )
                 {
                     tBasis[  18 ] = mBasis[  33 ]->get_child(  89 );
                 }
-                if ( tBasis[  20 ] == NULL )
+                if ( tBasis[  20 ] == nullptr )
                 {
                     tBasis[  20 ] = mBasis[  33 ]->get_child(  91 );
                 }
-                if ( tBasis[  21 ] == NULL )
+                if ( tBasis[  21 ] == nullptr )
                 {
                     tBasis[  21 ] = mBasis[  33 ]->get_child(  92 );
                 }
-                if ( tBasis[  22 ] == NULL )
+                if ( tBasis[  22 ] == nullptr )
                 {
                     tBasis[  22 ] = mBasis[  33 ]->get_child(  93 );
                 }
-                if ( tBasis[  23 ] == NULL )
+                if ( tBasis[  23 ] == nullptr )
                 {
                     tBasis[  23 ] = mBasis[  33 ]->get_child(  94 );
                 }
-                if ( tBasis[  30 ] == NULL )
+                if ( tBasis[  30 ] == nullptr )
                 {
                     tBasis[  30 ] = mBasis[  33 ]->get_child( 101 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  33 ]->get_child( 102 );
                 }
-                if ( tBasis[  32 ] == NULL )
+                if ( tBasis[  32 ] == nullptr )
                 {
                     tBasis[  32 ] = mBasis[  33 ]->get_child( 103 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  33 ]->get_child( 104 );
                 }
-                if ( tBasis[  35 ] == NULL )
+                if ( tBasis[  35 ] == nullptr )
                 {
                     tBasis[  35 ] = mBasis[  33 ]->get_child( 106 );
                 }
-                if ( tBasis[  36 ] == NULL )
+                if ( tBasis[  36 ] == nullptr )
                 {
                     tBasis[  36 ] = mBasis[  33 ]->get_child( 107 );
                 }
-                if ( tBasis[  37 ] == NULL )
+                if ( tBasis[  37 ] == nullptr )
                 {
                     tBasis[  37 ] = mBasis[  33 ]->get_child( 108 );
                 }
-                if ( tBasis[  38 ] == NULL )
+                if ( tBasis[  38 ] == nullptr )
                 {
                     tBasis[  38 ] = mBasis[  33 ]->get_child( 109 );
                 }
-                if ( tBasis[  40 ] == NULL )
+                if ( tBasis[  40 ] == nullptr )
                 {
                     tBasis[  40 ] = mBasis[  33 ]->get_child( 111 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  33 ]->get_child( 112 );
                 }
-                if ( tBasis[  42 ] == NULL )
+                if ( tBasis[  42 ] == nullptr )
                 {
                     tBasis[  42 ] = mBasis[  33 ]->get_child( 113 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  33 ]->get_child( 114 );
                 }
-                if ( tBasis[  45 ] == NULL )
+                if ( tBasis[  45 ] == nullptr )
                 {
                     tBasis[  45 ] = mBasis[  33 ]->get_child( 116 );
                 }
-                if ( tBasis[  46 ] == NULL )
+                if ( tBasis[  46 ] == nullptr )
                 {
                     tBasis[  46 ] = mBasis[  33 ]->get_child( 117 );
                 }
-                if ( tBasis[  47 ] == NULL )
+                if ( tBasis[  47 ] == nullptr )
                 {
                     tBasis[  47 ] = mBasis[  33 ]->get_child( 118 );
                 }
-                if ( tBasis[  48 ] == NULL )
+                if ( tBasis[  48 ] == nullptr )
                 {
                     tBasis[  48 ] = mBasis[  33 ]->get_child( 119 );
                 }
             }
 
-            if ( mBasis[  34 ] != NULL )
+            if ( mBasis[  34 ] != nullptr )
             {
-                if ( tBasis[   6 ] == NULL )
+                if ( tBasis[   6 ] == nullptr )
                 {
                     tBasis[   6 ] = mBasis[  34 ]->get_child(  75 );
                 }
-                if ( tBasis[   7 ] == NULL )
+                if ( tBasis[   7 ] == nullptr )
                 {
                     tBasis[   7 ] = mBasis[  34 ]->get_child(  76 );
                 }
-                if ( tBasis[   8 ] == NULL )
+                if ( tBasis[   8 ] == nullptr )
                 {
                     tBasis[   8 ] = mBasis[  34 ]->get_child(  77 );
                 }
-                if ( tBasis[   9 ] == NULL )
+                if ( tBasis[   9 ] == nullptr )
                 {
                     tBasis[   9 ] = mBasis[  34 ]->get_child(  78 );
                 }
-                if ( tBasis[  11 ] == NULL )
+                if ( tBasis[  11 ] == nullptr )
                 {
                     tBasis[  11 ] = mBasis[  34 ]->get_child(  80 );
                 }
-                if ( tBasis[  12 ] == NULL )
+                if ( tBasis[  12 ] == nullptr )
                 {
                     tBasis[  12 ] = mBasis[  34 ]->get_child(  81 );
                 }
-                if ( tBasis[  13 ] == NULL )
+                if ( tBasis[  13 ] == nullptr )
                 {
                     tBasis[  13 ] = mBasis[  34 ]->get_child(  82 );
                 }
-                if ( tBasis[  14 ] == NULL )
+                if ( tBasis[  14 ] == nullptr )
                 {
                     tBasis[  14 ] = mBasis[  34 ]->get_child(  83 );
                 }
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[  34 ]->get_child(  85 );
                 }
-                if ( tBasis[  17 ] == NULL )
+                if ( tBasis[  17 ] == nullptr )
                 {
                     tBasis[  17 ] = mBasis[  34 ]->get_child(  86 );
                 }
-                if ( tBasis[  18 ] == NULL )
+                if ( tBasis[  18 ] == nullptr )
                 {
                     tBasis[  18 ] = mBasis[  34 ]->get_child(  87 );
                 }
-                if ( tBasis[  19 ] == NULL )
+                if ( tBasis[  19 ] == nullptr )
                 {
                     tBasis[  19 ] = mBasis[  34 ]->get_child(  88 );
                 }
-                if ( tBasis[  21 ] == NULL )
+                if ( tBasis[  21 ] == nullptr )
                 {
                     tBasis[  21 ] = mBasis[  34 ]->get_child(  90 );
                 }
-                if ( tBasis[  22 ] == NULL )
+                if ( tBasis[  22 ] == nullptr )
                 {
                     tBasis[  22 ] = mBasis[  34 ]->get_child(  91 );
                 }
-                if ( tBasis[  23 ] == NULL )
+                if ( tBasis[  23 ] == nullptr )
                 {
                     tBasis[  23 ] = mBasis[  34 ]->get_child(  92 );
                 }
-                if ( tBasis[  24 ] == NULL )
+                if ( tBasis[  24 ] == nullptr )
                 {
                     tBasis[  24 ] = mBasis[  34 ]->get_child(  93 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  34 ]->get_child( 100 );
                 }
-                if ( tBasis[  32 ] == NULL )
+                if ( tBasis[  32 ] == nullptr )
                 {
                     tBasis[  32 ] = mBasis[  34 ]->get_child( 101 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  34 ]->get_child( 102 );
                 }
-                if ( tBasis[  34 ] == NULL )
+                if ( tBasis[  34 ] == nullptr )
                 {
                     tBasis[  34 ] = mBasis[  34 ]->get_child( 103 );
                 }
-                if ( tBasis[  36 ] == NULL )
+                if ( tBasis[  36 ] == nullptr )
                 {
                     tBasis[  36 ] = mBasis[  34 ]->get_child( 105 );
                 }
-                if ( tBasis[  37 ] == NULL )
+                if ( tBasis[  37 ] == nullptr )
                 {
                     tBasis[  37 ] = mBasis[  34 ]->get_child( 106 );
                 }
-                if ( tBasis[  38 ] == NULL )
+                if ( tBasis[  38 ] == nullptr )
                 {
                     tBasis[  38 ] = mBasis[  34 ]->get_child( 107 );
                 }
-                if ( tBasis[  39 ] == NULL )
+                if ( tBasis[  39 ] == nullptr )
                 {
                     tBasis[  39 ] = mBasis[  34 ]->get_child( 108 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  34 ]->get_child( 110 );
                 }
-                if ( tBasis[  42 ] == NULL )
+                if ( tBasis[  42 ] == nullptr )
                 {
                     tBasis[  42 ] = mBasis[  34 ]->get_child( 111 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  34 ]->get_child( 112 );
                 }
-                if ( tBasis[  44 ] == NULL )
+                if ( tBasis[  44 ] == nullptr )
                 {
                     tBasis[  44 ] = mBasis[  34 ]->get_child( 113 );
                 }
-                if ( tBasis[  46 ] == NULL )
+                if ( tBasis[  46 ] == nullptr )
                 {
                     tBasis[  46 ] = mBasis[  34 ]->get_child( 115 );
                 }
-                if ( tBasis[  47 ] == NULL )
+                if ( tBasis[  47 ] == nullptr )
                 {
                     tBasis[  47 ] = mBasis[  34 ]->get_child( 116 );
                 }
-                if ( tBasis[  48 ] == NULL )
+                if ( tBasis[  48 ] == nullptr )
                 {
                     tBasis[  48 ] = mBasis[  34 ]->get_child( 117 );
                 }
-                if ( tBasis[  49 ] == NULL )
+                if ( tBasis[  49 ] == nullptr )
                 {
                     tBasis[  49 ] = mBasis[  34 ]->get_child( 118 );
                 }
             }
 
-            if ( mBasis[  35 ] != NULL )
+            if ( mBasis[  35 ] != nullptr )
             {
-                if ( tBasis[   1 ] == NULL )
+                if ( tBasis[   1 ] == nullptr )
                 {
                     tBasis[   1 ] = mBasis[  35 ]->get_child(  80 );
                 }
-                if ( tBasis[   2 ] == NULL )
+                if ( tBasis[   2 ] == nullptr )
                 {
                     tBasis[   2 ] = mBasis[  35 ]->get_child(  81 );
                 }
-                if ( tBasis[   3 ] == NULL )
+                if ( tBasis[   3 ] == nullptr )
                 {
                     tBasis[   3 ] = mBasis[  35 ]->get_child(  82 );
                 }
-                if ( tBasis[   4 ] == NULL )
+                if ( tBasis[   4 ] == nullptr )
                 {
                     tBasis[   4 ] = mBasis[  35 ]->get_child(  83 );
                 }
-                if ( tBasis[   6 ] == NULL )
+                if ( tBasis[   6 ] == nullptr )
                 {
                     tBasis[   6 ] = mBasis[  35 ]->get_child(  85 );
                 }
-                if ( tBasis[   7 ] == NULL )
+                if ( tBasis[   7 ] == nullptr )
                 {
                     tBasis[   7 ] = mBasis[  35 ]->get_child(  86 );
                 }
-                if ( tBasis[   8 ] == NULL )
+                if ( tBasis[   8 ] == nullptr )
                 {
                     tBasis[   8 ] = mBasis[  35 ]->get_child(  87 );
                 }
-                if ( tBasis[   9 ] == NULL )
+                if ( tBasis[   9 ] == nullptr )
                 {
                     tBasis[   9 ] = mBasis[  35 ]->get_child(  88 );
                 }
-                if ( tBasis[  11 ] == NULL )
+                if ( tBasis[  11 ] == nullptr )
                 {
                     tBasis[  11 ] = mBasis[  35 ]->get_child(  90 );
                 }
-                if ( tBasis[  12 ] == NULL )
+                if ( tBasis[  12 ] == nullptr )
                 {
                     tBasis[  12 ] = mBasis[  35 ]->get_child(  91 );
                 }
-                if ( tBasis[  13 ] == NULL )
+                if ( tBasis[  13 ] == nullptr )
                 {
                     tBasis[  13 ] = mBasis[  35 ]->get_child(  92 );
                 }
-                if ( tBasis[  14 ] == NULL )
+                if ( tBasis[  14 ] == nullptr )
                 {
                     tBasis[  14 ] = mBasis[  35 ]->get_child(  93 );
                 }
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[  35 ]->get_child(  95 );
                 }
-                if ( tBasis[  17 ] == NULL )
+                if ( tBasis[  17 ] == nullptr )
                 {
                     tBasis[  17 ] = mBasis[  35 ]->get_child(  96 );
                 }
-                if ( tBasis[  18 ] == NULL )
+                if ( tBasis[  18 ] == nullptr )
                 {
                     tBasis[  18 ] = mBasis[  35 ]->get_child(  97 );
                 }
-                if ( tBasis[  19 ] == NULL )
+                if ( tBasis[  19 ] == nullptr )
                 {
                     tBasis[  19 ] = mBasis[  35 ]->get_child(  98 );
                 }
-                if ( tBasis[  26 ] == NULL )
+                if ( tBasis[  26 ] == nullptr )
                 {
                     tBasis[  26 ] = mBasis[  35 ]->get_child( 105 );
                 }
-                if ( tBasis[  27 ] == NULL )
+                if ( tBasis[  27 ] == nullptr )
                 {
                     tBasis[  27 ] = mBasis[  35 ]->get_child( 106 );
                 }
-                if ( tBasis[  28 ] == NULL )
+                if ( tBasis[  28 ] == nullptr )
                 {
                     tBasis[  28 ] = mBasis[  35 ]->get_child( 107 );
                 }
-                if ( tBasis[  29 ] == NULL )
+                if ( tBasis[  29 ] == nullptr )
                 {
                     tBasis[  29 ] = mBasis[  35 ]->get_child( 108 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  35 ]->get_child( 110 );
                 }
-                if ( tBasis[  32 ] == NULL )
+                if ( tBasis[  32 ] == nullptr )
                 {
                     tBasis[  32 ] = mBasis[  35 ]->get_child( 111 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  35 ]->get_child( 112 );
                 }
-                if ( tBasis[  34 ] == NULL )
+                if ( tBasis[  34 ] == nullptr )
                 {
                     tBasis[  34 ] = mBasis[  35 ]->get_child( 113 );
                 }
-                if ( tBasis[  36 ] == NULL )
+                if ( tBasis[  36 ] == nullptr )
                 {
                     tBasis[  36 ] = mBasis[  35 ]->get_child( 115 );
                 }
-                if ( tBasis[  37 ] == NULL )
+                if ( tBasis[  37 ] == nullptr )
                 {
                     tBasis[  37 ] = mBasis[  35 ]->get_child( 116 );
                 }
-                if ( tBasis[  38 ] == NULL )
+                if ( tBasis[  38 ] == nullptr )
                 {
                     tBasis[  38 ] = mBasis[  35 ]->get_child( 117 );
                 }
-                if ( tBasis[  39 ] == NULL )
+                if ( tBasis[  39 ] == nullptr )
                 {
                     tBasis[  39 ] = mBasis[  35 ]->get_child( 118 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  35 ]->get_child( 120 );
                 }
-                if ( tBasis[  42 ] == NULL )
+                if ( tBasis[  42 ] == nullptr )
                 {
                     tBasis[  42 ] = mBasis[  35 ]->get_child( 121 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  35 ]->get_child( 122 );
                 }
-                if ( tBasis[  44 ] == NULL )
+                if ( tBasis[  44 ] == nullptr )
                 {
                     tBasis[  44 ] = mBasis[  35 ]->get_child( 123 );
                 }
             }
 
-            if ( mBasis[  36 ] != NULL )
+            if ( mBasis[  36 ] != nullptr )
             {
-                if ( tBasis[   0 ] == NULL )
+                if ( tBasis[   0 ] == nullptr )
                 {
                     tBasis[   0 ] = mBasis[  36 ]->get_child(  41 );
                 }
-                if ( tBasis[   1 ] == NULL )
+                if ( tBasis[   1 ] == nullptr )
                 {
                     tBasis[   1 ] = mBasis[  36 ]->get_child(  42 );
                 }
-                if ( tBasis[   2 ] == NULL )
+                if ( tBasis[   2 ] == nullptr )
                 {
                     tBasis[   2 ] = mBasis[  36 ]->get_child(  43 );
                 }
-                if ( tBasis[   3 ] == NULL )
+                if ( tBasis[   3 ] == nullptr )
                 {
                     tBasis[   3 ] = mBasis[  36 ]->get_child(  44 );
                 }
-                if ( tBasis[   5 ] == NULL )
+                if ( tBasis[   5 ] == nullptr )
                 {
                     tBasis[   5 ] = mBasis[  36 ]->get_child(  46 );
                 }
-                if ( tBasis[   6 ] == NULL )
+                if ( tBasis[   6 ] == nullptr )
                 {
                     tBasis[   6 ] = mBasis[  36 ]->get_child(  47 );
                 }
-                if ( tBasis[   7 ] == NULL )
+                if ( tBasis[   7 ] == nullptr )
                 {
                     tBasis[   7 ] = mBasis[  36 ]->get_child(  48 );
                 }
-                if ( tBasis[   8 ] == NULL )
+                if ( tBasis[   8 ] == nullptr )
                 {
                     tBasis[   8 ] = mBasis[  36 ]->get_child(  49 );
                 }
-                if ( tBasis[  25 ] == NULL )
+                if ( tBasis[  25 ] == nullptr )
                 {
                     tBasis[  25 ] = mBasis[  36 ]->get_child(  66 );
                 }
-                if ( tBasis[  26 ] == NULL )
+                if ( tBasis[  26 ] == nullptr )
                 {
                     tBasis[  26 ] = mBasis[  36 ]->get_child(  67 );
                 }
-                if ( tBasis[  27 ] == NULL )
+                if ( tBasis[  27 ] == nullptr )
                 {
                     tBasis[  27 ] = mBasis[  36 ]->get_child(  68 );
                 }
-                if ( tBasis[  28 ] == NULL )
+                if ( tBasis[  28 ] == nullptr )
                 {
                     tBasis[  28 ] = mBasis[  36 ]->get_child(  69 );
                 }
-                if ( tBasis[  30 ] == NULL )
+                if ( tBasis[  30 ] == nullptr )
                 {
                     tBasis[  30 ] = mBasis[  36 ]->get_child(  71 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  36 ]->get_child(  72 );
                 }
-                if ( tBasis[  32 ] == NULL )
+                if ( tBasis[  32 ] == nullptr )
                 {
                     tBasis[  32 ] = mBasis[  36 ]->get_child(  73 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  36 ]->get_child(  74 );
                 }
-                if ( tBasis[  50 ] == NULL )
+                if ( tBasis[  50 ] == nullptr )
                 {
                     tBasis[  50 ] = mBasis[  36 ]->get_child(  91 );
                 }
-                if ( tBasis[  51 ] == NULL )
+                if ( tBasis[  51 ] == nullptr )
                 {
                     tBasis[  51 ] = mBasis[  36 ]->get_child(  92 );
                 }
-                if ( tBasis[  52 ] == NULL )
+                if ( tBasis[  52 ] == nullptr )
                 {
                     tBasis[  52 ] = mBasis[  36 ]->get_child(  93 );
                 }
-                if ( tBasis[  53 ] == NULL )
+                if ( tBasis[  53 ] == nullptr )
                 {
                     tBasis[  53 ] = mBasis[  36 ]->get_child(  94 );
                 }
-                if ( tBasis[  55 ] == NULL )
+                if ( tBasis[  55 ] == nullptr )
                 {
                     tBasis[  55 ] = mBasis[  36 ]->get_child(  96 );
                 }
-                if ( tBasis[  56 ] == NULL )
+                if ( tBasis[  56 ] == nullptr )
                 {
                     tBasis[  56 ] = mBasis[  36 ]->get_child(  97 );
                 }
-                if ( tBasis[  57 ] == NULL )
+                if ( tBasis[  57 ] == nullptr )
                 {
                     tBasis[  57 ] = mBasis[  36 ]->get_child(  98 );
                 }
-                if ( tBasis[  58 ] == NULL )
+                if ( tBasis[  58 ] == nullptr )
                 {
                     tBasis[  58 ] = mBasis[  36 ]->get_child(  99 );
                 }
-                if ( tBasis[  75 ] == NULL )
+                if ( tBasis[  75 ] == nullptr )
                 {
                     tBasis[  75 ] = mBasis[  36 ]->get_child( 116 );
                 }
-                if ( tBasis[  76 ] == NULL )
+                if ( tBasis[  76 ] == nullptr )
                 {
                     tBasis[  76 ] = mBasis[  36 ]->get_child( 117 );
                 }
-                if ( tBasis[  77 ] == NULL )
+                if ( tBasis[  77 ] == nullptr )
                 {
                     tBasis[  77 ] = mBasis[  36 ]->get_child( 118 );
                 }
-                if ( tBasis[  78 ] == NULL )
+                if ( tBasis[  78 ] == nullptr )
                 {
                     tBasis[  78 ] = mBasis[  36 ]->get_child( 119 );
                 }
-                if ( tBasis[  80 ] == NULL )
+                if ( tBasis[  80 ] == nullptr )
                 {
                     tBasis[  80 ] = mBasis[  36 ]->get_child( 121 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  36 ]->get_child( 122 );
                 }
-                if ( tBasis[  82 ] == NULL )
+                if ( tBasis[  82 ] == nullptr )
                 {
                     tBasis[  82 ] = mBasis[  36 ]->get_child( 123 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  36 ]->get_child( 124 );
                 }
             }
 
-            if ( mBasis[  37 ] != NULL )
+            if ( mBasis[  37 ] != nullptr )
             {
-                if ( tBasis[   1 ] == NULL )
+                if ( tBasis[   1 ] == nullptr )
                 {
                     tBasis[   1 ] = mBasis[  37 ]->get_child(  40 );
                 }
-                if ( tBasis[   2 ] == NULL )
+                if ( tBasis[   2 ] == nullptr )
                 {
                     tBasis[   2 ] = mBasis[  37 ]->get_child(  41 );
                 }
-                if ( tBasis[   3 ] == NULL )
+                if ( tBasis[   3 ] == nullptr )
                 {
                     tBasis[   3 ] = mBasis[  37 ]->get_child(  42 );
                 }
-                if ( tBasis[   4 ] == NULL )
+                if ( tBasis[   4 ] == nullptr )
                 {
                     tBasis[   4 ] = mBasis[  37 ]->get_child(  43 );
                 }
-                if ( tBasis[   6 ] == NULL )
+                if ( tBasis[   6 ] == nullptr )
                 {
                     tBasis[   6 ] = mBasis[  37 ]->get_child(  45 );
                 }
-                if ( tBasis[   7 ] == NULL )
+                if ( tBasis[   7 ] == nullptr )
                 {
                     tBasis[   7 ] = mBasis[  37 ]->get_child(  46 );
                 }
-                if ( tBasis[   8 ] == NULL )
+                if ( tBasis[   8 ] == nullptr )
                 {
                     tBasis[   8 ] = mBasis[  37 ]->get_child(  47 );
                 }
-                if ( tBasis[   9 ] == NULL )
+                if ( tBasis[   9 ] == nullptr )
                 {
                     tBasis[   9 ] = mBasis[  37 ]->get_child(  48 );
                 }
-                if ( tBasis[  26 ] == NULL )
+                if ( tBasis[  26 ] == nullptr )
                 {
                     tBasis[  26 ] = mBasis[  37 ]->get_child(  65 );
                 }
-                if ( tBasis[  27 ] == NULL )
+                if ( tBasis[  27 ] == nullptr )
                 {
                     tBasis[  27 ] = mBasis[  37 ]->get_child(  66 );
                 }
-                if ( tBasis[  28 ] == NULL )
+                if ( tBasis[  28 ] == nullptr )
                 {
                     tBasis[  28 ] = mBasis[  37 ]->get_child(  67 );
                 }
-                if ( tBasis[  29 ] == NULL )
+                if ( tBasis[  29 ] == nullptr )
                 {
                     tBasis[  29 ] = mBasis[  37 ]->get_child(  68 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  37 ]->get_child(  70 );
                 }
-                if ( tBasis[  32 ] == NULL )
+                if ( tBasis[  32 ] == nullptr )
                 {
                     tBasis[  32 ] = mBasis[  37 ]->get_child(  71 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  37 ]->get_child(  72 );
                 }
-                if ( tBasis[  34 ] == NULL )
+                if ( tBasis[  34 ] == nullptr )
                 {
                     tBasis[  34 ] = mBasis[  37 ]->get_child(  73 );
                 }
-                if ( tBasis[  51 ] == NULL )
+                if ( tBasis[  51 ] == nullptr )
                 {
                     tBasis[  51 ] = mBasis[  37 ]->get_child(  90 );
                 }
-                if ( tBasis[  52 ] == NULL )
+                if ( tBasis[  52 ] == nullptr )
                 {
                     tBasis[  52 ] = mBasis[  37 ]->get_child(  91 );
                 }
-                if ( tBasis[  53 ] == NULL )
+                if ( tBasis[  53 ] == nullptr )
                 {
                     tBasis[  53 ] = mBasis[  37 ]->get_child(  92 );
                 }
-                if ( tBasis[  54 ] == NULL )
+                if ( tBasis[  54 ] == nullptr )
                 {
                     tBasis[  54 ] = mBasis[  37 ]->get_child(  93 );
                 }
-                if ( tBasis[  56 ] == NULL )
+                if ( tBasis[  56 ] == nullptr )
                 {
                     tBasis[  56 ] = mBasis[  37 ]->get_child(  95 );
                 }
-                if ( tBasis[  57 ] == NULL )
+                if ( tBasis[  57 ] == nullptr )
                 {
                     tBasis[  57 ] = mBasis[  37 ]->get_child(  96 );
                 }
-                if ( tBasis[  58 ] == NULL )
+                if ( tBasis[  58 ] == nullptr )
                 {
                     tBasis[  58 ] = mBasis[  37 ]->get_child(  97 );
                 }
-                if ( tBasis[  59 ] == NULL )
+                if ( tBasis[  59 ] == nullptr )
                 {
                     tBasis[  59 ] = mBasis[  37 ]->get_child(  98 );
                 }
-                if ( tBasis[  76 ] == NULL )
+                if ( tBasis[  76 ] == nullptr )
                 {
                     tBasis[  76 ] = mBasis[  37 ]->get_child( 115 );
                 }
-                if ( tBasis[  77 ] == NULL )
+                if ( tBasis[  77 ] == nullptr )
                 {
                     tBasis[  77 ] = mBasis[  37 ]->get_child( 116 );
                 }
-                if ( tBasis[  78 ] == NULL )
+                if ( tBasis[  78 ] == nullptr )
                 {
                     tBasis[  78 ] = mBasis[  37 ]->get_child( 117 );
                 }
-                if ( tBasis[  79 ] == NULL )
+                if ( tBasis[  79 ] == nullptr )
                 {
                     tBasis[  79 ] = mBasis[  37 ]->get_child( 118 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  37 ]->get_child( 120 );
                 }
-                if ( tBasis[  82 ] == NULL )
+                if ( tBasis[  82 ] == nullptr )
                 {
                     tBasis[  82 ] = mBasis[  37 ]->get_child( 121 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  37 ]->get_child( 122 );
                 }
-                if ( tBasis[  84 ] == NULL )
+                if ( tBasis[  84 ] == nullptr )
                 {
                     tBasis[  84 ] = mBasis[  37 ]->get_child( 123 );
                 }
             }
 
-            if ( mBasis[  38 ] != NULL )
+            if ( mBasis[  38 ] != nullptr )
             {
-                if ( tBasis[  26 ] == NULL )
+                if ( tBasis[  26 ] == nullptr )
                 {
                     tBasis[  26 ] = mBasis[  38 ]->get_child(  15 );
                 }
-                if ( tBasis[  27 ] == NULL )
+                if ( tBasis[  27 ] == nullptr )
                 {
                     tBasis[  27 ] = mBasis[  38 ]->get_child(  16 );
                 }
-                if ( tBasis[  28 ] == NULL )
+                if ( tBasis[  28 ] == nullptr )
                 {
                     tBasis[  28 ] = mBasis[  38 ]->get_child(  17 );
                 }
-                if ( tBasis[  29 ] == NULL )
+                if ( tBasis[  29 ] == nullptr )
                 {
                     tBasis[  29 ] = mBasis[  38 ]->get_child(  18 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  38 ]->get_child(  20 );
                 }
-                if ( tBasis[  32 ] == NULL )
+                if ( tBasis[  32 ] == nullptr )
                 {
                     tBasis[  32 ] = mBasis[  38 ]->get_child(  21 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  38 ]->get_child(  22 );
                 }
-                if ( tBasis[  34 ] == NULL )
+                if ( tBasis[  34 ] == nullptr )
                 {
                     tBasis[  34 ] = mBasis[  38 ]->get_child(  23 );
                 }
-                if ( tBasis[  51 ] == NULL )
+                if ( tBasis[  51 ] == nullptr )
                 {
                     tBasis[  51 ] = mBasis[  38 ]->get_child(  40 );
                 }
-                if ( tBasis[  52 ] == NULL )
+                if ( tBasis[  52 ] == nullptr )
                 {
                     tBasis[  52 ] = mBasis[  38 ]->get_child(  41 );
                 }
-                if ( tBasis[  53 ] == NULL )
+                if ( tBasis[  53 ] == nullptr )
                 {
                     tBasis[  53 ] = mBasis[  38 ]->get_child(  42 );
                 }
-                if ( tBasis[  54 ] == NULL )
+                if ( tBasis[  54 ] == nullptr )
                 {
                     tBasis[  54 ] = mBasis[  38 ]->get_child(  43 );
                 }
-                if ( tBasis[  56 ] == NULL )
+                if ( tBasis[  56 ] == nullptr )
                 {
                     tBasis[  56 ] = mBasis[  38 ]->get_child(  45 );
                 }
-                if ( tBasis[  57 ] == NULL )
+                if ( tBasis[  57 ] == nullptr )
                 {
                     tBasis[  57 ] = mBasis[  38 ]->get_child(  46 );
                 }
-                if ( tBasis[  58 ] == NULL )
+                if ( tBasis[  58 ] == nullptr )
                 {
                     tBasis[  58 ] = mBasis[  38 ]->get_child(  47 );
                 }
-                if ( tBasis[  59 ] == NULL )
+                if ( tBasis[  59 ] == nullptr )
                 {
                     tBasis[  59 ] = mBasis[  38 ]->get_child(  48 );
                 }
-                if ( tBasis[  76 ] == NULL )
+                if ( tBasis[  76 ] == nullptr )
                 {
                     tBasis[  76 ] = mBasis[  38 ]->get_child(  65 );
                 }
-                if ( tBasis[  77 ] == NULL )
+                if ( tBasis[  77 ] == nullptr )
                 {
                     tBasis[  77 ] = mBasis[  38 ]->get_child(  66 );
                 }
-                if ( tBasis[  78 ] == NULL )
+                if ( tBasis[  78 ] == nullptr )
                 {
                     tBasis[  78 ] = mBasis[  38 ]->get_child(  67 );
                 }
-                if ( tBasis[  79 ] == NULL )
+                if ( tBasis[  79 ] == nullptr )
                 {
                     tBasis[  79 ] = mBasis[  38 ]->get_child(  68 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  38 ]->get_child(  70 );
                 }
-                if ( tBasis[  82 ] == NULL )
+                if ( tBasis[  82 ] == nullptr )
                 {
                     tBasis[  82 ] = mBasis[  38 ]->get_child(  71 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  38 ]->get_child(  72 );
                 }
-                if ( tBasis[  84 ] == NULL )
+                if ( tBasis[  84 ] == nullptr )
                 {
                     tBasis[  84 ] = mBasis[  38 ]->get_child(  73 );
                 }
-                if ( tBasis[ 101 ] == NULL )
+                if ( tBasis[ 101 ] == nullptr )
                 {
                     tBasis[ 101 ] = mBasis[  38 ]->get_child(  90 );
                 }
-                if ( tBasis[ 102 ] == NULL )
+                if ( tBasis[ 102 ] == nullptr )
                 {
                     tBasis[ 102 ] = mBasis[  38 ]->get_child(  91 );
                 }
-                if ( tBasis[ 103 ] == NULL )
+                if ( tBasis[ 103 ] == nullptr )
                 {
                     tBasis[ 103 ] = mBasis[  38 ]->get_child(  92 );
                 }
-                if ( tBasis[ 104 ] == NULL )
+                if ( tBasis[ 104 ] == nullptr )
                 {
                     tBasis[ 104 ] = mBasis[  38 ]->get_child(  93 );
                 }
-                if ( tBasis[ 106 ] == NULL )
+                if ( tBasis[ 106 ] == nullptr )
                 {
                     tBasis[ 106 ] = mBasis[  38 ]->get_child(  95 );
                 }
-                if ( tBasis[ 107 ] == NULL )
+                if ( tBasis[ 107 ] == nullptr )
                 {
                     tBasis[ 107 ] = mBasis[  38 ]->get_child(  96 );
                 }
-                if ( tBasis[ 108 ] == NULL )
+                if ( tBasis[ 108 ] == nullptr )
                 {
                     tBasis[ 108 ] = mBasis[  38 ]->get_child(  97 );
                 }
-                if ( tBasis[ 109 ] == NULL )
+                if ( tBasis[ 109 ] == nullptr )
                 {
                     tBasis[ 109 ] = mBasis[  38 ]->get_child(  98 );
                 }
             }
 
-            if ( mBasis[  39 ] != NULL )
+            if ( mBasis[  39 ] != nullptr )
             {
-                if ( tBasis[  25 ] == NULL )
+                if ( tBasis[  25 ] == nullptr )
                 {
                     tBasis[  25 ] = mBasis[  39 ]->get_child(  16 );
                 }
-                if ( tBasis[  26 ] == NULL )
+                if ( tBasis[  26 ] == nullptr )
                 {
                     tBasis[  26 ] = mBasis[  39 ]->get_child(  17 );
                 }
-                if ( tBasis[  27 ] == NULL )
+                if ( tBasis[  27 ] == nullptr )
                 {
                     tBasis[  27 ] = mBasis[  39 ]->get_child(  18 );
                 }
-                if ( tBasis[  28 ] == NULL )
+                if ( tBasis[  28 ] == nullptr )
                 {
                     tBasis[  28 ] = mBasis[  39 ]->get_child(  19 );
                 }
-                if ( tBasis[  30 ] == NULL )
+                if ( tBasis[  30 ] == nullptr )
                 {
                     tBasis[  30 ] = mBasis[  39 ]->get_child(  21 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  39 ]->get_child(  22 );
                 }
-                if ( tBasis[  32 ] == NULL )
+                if ( tBasis[  32 ] == nullptr )
                 {
                     tBasis[  32 ] = mBasis[  39 ]->get_child(  23 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  39 ]->get_child(  24 );
                 }
-                if ( tBasis[  50 ] == NULL )
+                if ( tBasis[  50 ] == nullptr )
                 {
                     tBasis[  50 ] = mBasis[  39 ]->get_child(  41 );
                 }
-                if ( tBasis[  51 ] == NULL )
+                if ( tBasis[  51 ] == nullptr )
                 {
                     tBasis[  51 ] = mBasis[  39 ]->get_child(  42 );
                 }
-                if ( tBasis[  52 ] == NULL )
+                if ( tBasis[  52 ] == nullptr )
                 {
                     tBasis[  52 ] = mBasis[  39 ]->get_child(  43 );
                 }
-                if ( tBasis[  53 ] == NULL )
+                if ( tBasis[  53 ] == nullptr )
                 {
                     tBasis[  53 ] = mBasis[  39 ]->get_child(  44 );
                 }
-                if ( tBasis[  55 ] == NULL )
+                if ( tBasis[  55 ] == nullptr )
                 {
                     tBasis[  55 ] = mBasis[  39 ]->get_child(  46 );
                 }
-                if ( tBasis[  56 ] == NULL )
+                if ( tBasis[  56 ] == nullptr )
                 {
                     tBasis[  56 ] = mBasis[  39 ]->get_child(  47 );
                 }
-                if ( tBasis[  57 ] == NULL )
+                if ( tBasis[  57 ] == nullptr )
                 {
                     tBasis[  57 ] = mBasis[  39 ]->get_child(  48 );
                 }
-                if ( tBasis[  58 ] == NULL )
+                if ( tBasis[  58 ] == nullptr )
                 {
                     tBasis[  58 ] = mBasis[  39 ]->get_child(  49 );
                 }
-                if ( tBasis[  75 ] == NULL )
+                if ( tBasis[  75 ] == nullptr )
                 {
                     tBasis[  75 ] = mBasis[  39 ]->get_child(  66 );
                 }
-                if ( tBasis[  76 ] == NULL )
+                if ( tBasis[  76 ] == nullptr )
                 {
                     tBasis[  76 ] = mBasis[  39 ]->get_child(  67 );
                 }
-                if ( tBasis[  77 ] == NULL )
+                if ( tBasis[  77 ] == nullptr )
                 {
                     tBasis[  77 ] = mBasis[  39 ]->get_child(  68 );
                 }
-                if ( tBasis[  78 ] == NULL )
+                if ( tBasis[  78 ] == nullptr )
                 {
                     tBasis[  78 ] = mBasis[  39 ]->get_child(  69 );
                 }
-                if ( tBasis[  80 ] == NULL )
+                if ( tBasis[  80 ] == nullptr )
                 {
                     tBasis[  80 ] = mBasis[  39 ]->get_child(  71 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  39 ]->get_child(  72 );
                 }
-                if ( tBasis[  82 ] == NULL )
+                if ( tBasis[  82 ] == nullptr )
                 {
                     tBasis[  82 ] = mBasis[  39 ]->get_child(  73 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  39 ]->get_child(  74 );
                 }
-                if ( tBasis[ 100 ] == NULL )
+                if ( tBasis[ 100 ] == nullptr )
                 {
                     tBasis[ 100 ] = mBasis[  39 ]->get_child(  91 );
                 }
-                if ( tBasis[ 101 ] == NULL )
+                if ( tBasis[ 101 ] == nullptr )
                 {
                     tBasis[ 101 ] = mBasis[  39 ]->get_child(  92 );
                 }
-                if ( tBasis[ 102 ] == NULL )
+                if ( tBasis[ 102 ] == nullptr )
                 {
                     tBasis[ 102 ] = mBasis[  39 ]->get_child(  93 );
                 }
-                if ( tBasis[ 103 ] == NULL )
+                if ( tBasis[ 103 ] == nullptr )
                 {
                     tBasis[ 103 ] = mBasis[  39 ]->get_child(  94 );
                 }
-                if ( tBasis[ 105 ] == NULL )
+                if ( tBasis[ 105 ] == nullptr )
                 {
                     tBasis[ 105 ] = mBasis[  39 ]->get_child(  96 );
                 }
-                if ( tBasis[ 106 ] == NULL )
+                if ( tBasis[ 106 ] == nullptr )
                 {
                     tBasis[ 106 ] = mBasis[  39 ]->get_child(  97 );
                 }
-                if ( tBasis[ 107 ] == NULL )
+                if ( tBasis[ 107 ] == nullptr )
                 {
                     tBasis[ 107 ] = mBasis[  39 ]->get_child(  98 );
                 }
-                if ( tBasis[ 108 ] == NULL )
+                if ( tBasis[ 108 ] == nullptr )
                 {
                     tBasis[ 108 ] = mBasis[  39 ]->get_child(  99 );
                 }
             }
 
-            if ( mBasis[  40 ] != NULL )
+            if ( mBasis[  40 ] != nullptr )
             {
-                if ( tBasis[   0 ] == NULL )
+                if ( tBasis[   0 ] == nullptr )
                 {
                     tBasis[   0 ] = mBasis[  40 ]->get_child(  33 );
                 }
-                if ( tBasis[   1 ] == NULL )
+                if ( tBasis[   1 ] == nullptr )
                 {
                     tBasis[   1 ] = mBasis[  40 ]->get_child(  34 );
                 }
-                if ( tBasis[   5 ] == NULL )
+                if ( tBasis[   5 ] == nullptr )
                 {
                     tBasis[   5 ] = mBasis[  40 ]->get_child(  38 );
                 }
-                if ( tBasis[   6 ] == NULL )
+                if ( tBasis[   6 ] == nullptr )
                 {
                     tBasis[   6 ] = mBasis[  40 ]->get_child(  39 );
                 }
-                if ( tBasis[  10 ] == NULL )
+                if ( tBasis[  10 ] == nullptr )
                 {
                     tBasis[  10 ] = mBasis[  40 ]->get_child(  43 );
                 }
-                if ( tBasis[  11 ] == NULL )
+                if ( tBasis[  11 ] == nullptr )
                 {
                     tBasis[  11 ] = mBasis[  40 ]->get_child(  44 );
                 }
-                if ( tBasis[  15 ] == NULL )
+                if ( tBasis[  15 ] == nullptr )
                 {
                     tBasis[  15 ] = mBasis[  40 ]->get_child(  48 );
                 }
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[  40 ]->get_child(  49 );
                 }
-                if ( tBasis[  25 ] == NULL )
+                if ( tBasis[  25 ] == nullptr )
                 {
                     tBasis[  25 ] = mBasis[  40 ]->get_child(  58 );
                 }
-                if ( tBasis[  26 ] == NULL )
+                if ( tBasis[  26 ] == nullptr )
                 {
                     tBasis[  26 ] = mBasis[  40 ]->get_child(  59 );
                 }
-                if ( tBasis[  30 ] == NULL )
+                if ( tBasis[  30 ] == nullptr )
                 {
                     tBasis[  30 ] = mBasis[  40 ]->get_child(  63 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  40 ]->get_child(  64 );
                 }
-                if ( tBasis[  35 ] == NULL )
+                if ( tBasis[  35 ] == nullptr )
                 {
                     tBasis[  35 ] = mBasis[  40 ]->get_child(  68 );
                 }
-                if ( tBasis[  36 ] == NULL )
+                if ( tBasis[  36 ] == nullptr )
                 {
                     tBasis[  36 ] = mBasis[  40 ]->get_child(  69 );
                 }
-                if ( tBasis[  40 ] == NULL )
+                if ( tBasis[  40 ] == nullptr )
                 {
                     tBasis[  40 ] = mBasis[  40 ]->get_child(  73 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  40 ]->get_child(  74 );
                 }
-                if ( tBasis[  50 ] == NULL )
+                if ( tBasis[  50 ] == nullptr )
                 {
                     tBasis[  50 ] = mBasis[  40 ]->get_child(  83 );
                 }
-                if ( tBasis[  51 ] == NULL )
+                if ( tBasis[  51 ] == nullptr )
                 {
                     tBasis[  51 ] = mBasis[  40 ]->get_child(  84 );
                 }
-                if ( tBasis[  55 ] == NULL )
+                if ( tBasis[  55 ] == nullptr )
                 {
                     tBasis[  55 ] = mBasis[  40 ]->get_child(  88 );
                 }
-                if ( tBasis[  56 ] == NULL )
+                if ( tBasis[  56 ] == nullptr )
                 {
                     tBasis[  56 ] = mBasis[  40 ]->get_child(  89 );
                 }
-                if ( tBasis[  60 ] == NULL )
+                if ( tBasis[  60 ] == nullptr )
                 {
                     tBasis[  60 ] = mBasis[  40 ]->get_child(  93 );
                 }
-                if ( tBasis[  61 ] == NULL )
+                if ( tBasis[  61 ] == nullptr )
                 {
                     tBasis[  61 ] = mBasis[  40 ]->get_child(  94 );
                 }
-                if ( tBasis[  65 ] == NULL )
+                if ( tBasis[  65 ] == nullptr )
                 {
                     tBasis[  65 ] = mBasis[  40 ]->get_child(  98 );
                 }
-                if ( tBasis[  66 ] == NULL )
+                if ( tBasis[  66 ] == nullptr )
                 {
                     tBasis[  66 ] = mBasis[  40 ]->get_child(  99 );
                 }
-                if ( tBasis[  75 ] == NULL )
+                if ( tBasis[  75 ] == nullptr )
                 {
                     tBasis[  75 ] = mBasis[  40 ]->get_child( 108 );
                 }
-                if ( tBasis[  76 ] == NULL )
+                if ( tBasis[  76 ] == nullptr )
                 {
                     tBasis[  76 ] = mBasis[  40 ]->get_child( 109 );
                 }
-                if ( tBasis[  80 ] == NULL )
+                if ( tBasis[  80 ] == nullptr )
                 {
                     tBasis[  80 ] = mBasis[  40 ]->get_child( 113 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  40 ]->get_child( 114 );
                 }
-                if ( tBasis[  85 ] == NULL )
+                if ( tBasis[  85 ] == nullptr )
                 {
                     tBasis[  85 ] = mBasis[  40 ]->get_child( 118 );
                 }
-                if ( tBasis[  86 ] == NULL )
+                if ( tBasis[  86 ] == nullptr )
                 {
                     tBasis[  86 ] = mBasis[  40 ]->get_child( 119 );
                 }
-                if ( tBasis[  90 ] == NULL )
+                if ( tBasis[  90 ] == nullptr )
                 {
                     tBasis[  90 ] = mBasis[  40 ]->get_child( 123 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  40 ]->get_child( 124 );
                 }
             }
 
-            if ( mBasis[  41 ] != NULL )
+            if ( mBasis[  41 ] != nullptr )
             {
-                if ( tBasis[  25 ] == NULL )
+                if ( tBasis[  25 ] == nullptr )
                 {
                     tBasis[  25 ] = mBasis[  41 ]->get_child(   8 );
                 }
-                if ( tBasis[  26 ] == NULL )
+                if ( tBasis[  26 ] == nullptr )
                 {
                     tBasis[  26 ] = mBasis[  41 ]->get_child(   9 );
                 }
-                if ( tBasis[  30 ] == NULL )
+                if ( tBasis[  30 ] == nullptr )
                 {
                     tBasis[  30 ] = mBasis[  41 ]->get_child(  13 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  41 ]->get_child(  14 );
                 }
-                if ( tBasis[  35 ] == NULL )
+                if ( tBasis[  35 ] == nullptr )
                 {
                     tBasis[  35 ] = mBasis[  41 ]->get_child(  18 );
                 }
-                if ( tBasis[  36 ] == NULL )
+                if ( tBasis[  36 ] == nullptr )
                 {
                     tBasis[  36 ] = mBasis[  41 ]->get_child(  19 );
                 }
-                if ( tBasis[  40 ] == NULL )
+                if ( tBasis[  40 ] == nullptr )
                 {
                     tBasis[  40 ] = mBasis[  41 ]->get_child(  23 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  41 ]->get_child(  24 );
                 }
-                if ( tBasis[  50 ] == NULL )
+                if ( tBasis[  50 ] == nullptr )
                 {
                     tBasis[  50 ] = mBasis[  41 ]->get_child(  33 );
                 }
-                if ( tBasis[  51 ] == NULL )
+                if ( tBasis[  51 ] == nullptr )
                 {
                     tBasis[  51 ] = mBasis[  41 ]->get_child(  34 );
                 }
-                if ( tBasis[  55 ] == NULL )
+                if ( tBasis[  55 ] == nullptr )
                 {
                     tBasis[  55 ] = mBasis[  41 ]->get_child(  38 );
                 }
-                if ( tBasis[  56 ] == NULL )
+                if ( tBasis[  56 ] == nullptr )
                 {
                     tBasis[  56 ] = mBasis[  41 ]->get_child(  39 );
                 }
-                if ( tBasis[  60 ] == NULL )
+                if ( tBasis[  60 ] == nullptr )
                 {
                     tBasis[  60 ] = mBasis[  41 ]->get_child(  43 );
                 }
-                if ( tBasis[  61 ] == NULL )
+                if ( tBasis[  61 ] == nullptr )
                 {
                     tBasis[  61 ] = mBasis[  41 ]->get_child(  44 );
                 }
-                if ( tBasis[  65 ] == NULL )
+                if ( tBasis[  65 ] == nullptr )
                 {
                     tBasis[  65 ] = mBasis[  41 ]->get_child(  48 );
                 }
-                if ( tBasis[  66 ] == NULL )
+                if ( tBasis[  66 ] == nullptr )
                 {
                     tBasis[  66 ] = mBasis[  41 ]->get_child(  49 );
                 }
-                if ( tBasis[  75 ] == NULL )
+                if ( tBasis[  75 ] == nullptr )
                 {
                     tBasis[  75 ] = mBasis[  41 ]->get_child(  58 );
                 }
-                if ( tBasis[  76 ] == NULL )
+                if ( tBasis[  76 ] == nullptr )
                 {
                     tBasis[  76 ] = mBasis[  41 ]->get_child(  59 );
                 }
-                if ( tBasis[  80 ] == NULL )
+                if ( tBasis[  80 ] == nullptr )
                 {
                     tBasis[  80 ] = mBasis[  41 ]->get_child(  63 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  41 ]->get_child(  64 );
                 }
-                if ( tBasis[  85 ] == NULL )
+                if ( tBasis[  85 ] == nullptr )
                 {
                     tBasis[  85 ] = mBasis[  41 ]->get_child(  68 );
                 }
-                if ( tBasis[  86 ] == NULL )
+                if ( tBasis[  86 ] == nullptr )
                 {
                     tBasis[  86 ] = mBasis[  41 ]->get_child(  69 );
                 }
-                if ( tBasis[  90 ] == NULL )
+                if ( tBasis[  90 ] == nullptr )
                 {
                     tBasis[  90 ] = mBasis[  41 ]->get_child(  73 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  41 ]->get_child(  74 );
                 }
-                if ( tBasis[ 100 ] == NULL )
+                if ( tBasis[ 100 ] == nullptr )
                 {
                     tBasis[ 100 ] = mBasis[  41 ]->get_child(  83 );
                 }
-                if ( tBasis[ 101 ] == NULL )
+                if ( tBasis[ 101 ] == nullptr )
                 {
                     tBasis[ 101 ] = mBasis[  41 ]->get_child(  84 );
                 }
-                if ( tBasis[ 105 ] == NULL )
+                if ( tBasis[ 105 ] == nullptr )
                 {
                     tBasis[ 105 ] = mBasis[  41 ]->get_child(  88 );
                 }
-                if ( tBasis[ 106 ] == NULL )
+                if ( tBasis[ 106 ] == nullptr )
                 {
                     tBasis[ 106 ] = mBasis[  41 ]->get_child(  89 );
                 }
-                if ( tBasis[ 110 ] == NULL )
+                if ( tBasis[ 110 ] == nullptr )
                 {
                     tBasis[ 110 ] = mBasis[  41 ]->get_child(  93 );
                 }
-                if ( tBasis[ 111 ] == NULL )
+                if ( tBasis[ 111 ] == nullptr )
                 {
                     tBasis[ 111 ] = mBasis[  41 ]->get_child(  94 );
                 }
-                if ( tBasis[ 115 ] == NULL )
+                if ( tBasis[ 115 ] == nullptr )
                 {
                     tBasis[ 115 ] = mBasis[  41 ]->get_child(  98 );
                 }
-                if ( tBasis[ 116 ] == NULL )
+                if ( tBasis[ 116 ] == nullptr )
                 {
                     tBasis[ 116 ] = mBasis[  41 ]->get_child(  99 );
                 }
             }
 
-            if ( mBasis[  42 ] != NULL )
+            if ( mBasis[  42 ] != nullptr )
             {
-                if ( tBasis[  30 ] == NULL )
+                if ( tBasis[  30 ] == nullptr )
                 {
                     tBasis[  30 ] = mBasis[  42 ]->get_child(   3 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  42 ]->get_child(   4 );
                 }
-                if ( tBasis[  35 ] == NULL )
+                if ( tBasis[  35 ] == nullptr )
                 {
                     tBasis[  35 ] = mBasis[  42 ]->get_child(   8 );
                 }
-                if ( tBasis[  36 ] == NULL )
+                if ( tBasis[  36 ] == nullptr )
                 {
                     tBasis[  36 ] = mBasis[  42 ]->get_child(   9 );
                 }
-                if ( tBasis[  40 ] == NULL )
+                if ( tBasis[  40 ] == nullptr )
                 {
                     tBasis[  40 ] = mBasis[  42 ]->get_child(  13 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  42 ]->get_child(  14 );
                 }
-                if ( tBasis[  45 ] == NULL )
+                if ( tBasis[  45 ] == nullptr )
                 {
                     tBasis[  45 ] = mBasis[  42 ]->get_child(  18 );
                 }
-                if ( tBasis[  46 ] == NULL )
+                if ( tBasis[  46 ] == nullptr )
                 {
                     tBasis[  46 ] = mBasis[  42 ]->get_child(  19 );
                 }
-                if ( tBasis[  55 ] == NULL )
+                if ( tBasis[  55 ] == nullptr )
                 {
                     tBasis[  55 ] = mBasis[  42 ]->get_child(  28 );
                 }
-                if ( tBasis[  56 ] == NULL )
+                if ( tBasis[  56 ] == nullptr )
                 {
                     tBasis[  56 ] = mBasis[  42 ]->get_child(  29 );
                 }
-                if ( tBasis[  60 ] == NULL )
+                if ( tBasis[  60 ] == nullptr )
                 {
                     tBasis[  60 ] = mBasis[  42 ]->get_child(  33 );
                 }
-                if ( tBasis[  61 ] == NULL )
+                if ( tBasis[  61 ] == nullptr )
                 {
                     tBasis[  61 ] = mBasis[  42 ]->get_child(  34 );
                 }
-                if ( tBasis[  65 ] == NULL )
+                if ( tBasis[  65 ] == nullptr )
                 {
                     tBasis[  65 ] = mBasis[  42 ]->get_child(  38 );
                 }
-                if ( tBasis[  66 ] == NULL )
+                if ( tBasis[  66 ] == nullptr )
                 {
                     tBasis[  66 ] = mBasis[  42 ]->get_child(  39 );
                 }
-                if ( tBasis[  70 ] == NULL )
+                if ( tBasis[  70 ] == nullptr )
                 {
                     tBasis[  70 ] = mBasis[  42 ]->get_child(  43 );
                 }
-                if ( tBasis[  71 ] == NULL )
+                if ( tBasis[  71 ] == nullptr )
                 {
                     tBasis[  71 ] = mBasis[  42 ]->get_child(  44 );
                 }
-                if ( tBasis[  80 ] == NULL )
+                if ( tBasis[  80 ] == nullptr )
                 {
                     tBasis[  80 ] = mBasis[  42 ]->get_child(  53 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  42 ]->get_child(  54 );
                 }
-                if ( tBasis[  85 ] == NULL )
+                if ( tBasis[  85 ] == nullptr )
                 {
                     tBasis[  85 ] = mBasis[  42 ]->get_child(  58 );
                 }
-                if ( tBasis[  86 ] == NULL )
+                if ( tBasis[  86 ] == nullptr )
                 {
                     tBasis[  86 ] = mBasis[  42 ]->get_child(  59 );
                 }
-                if ( tBasis[  90 ] == NULL )
+                if ( tBasis[  90 ] == nullptr )
                 {
                     tBasis[  90 ] = mBasis[  42 ]->get_child(  63 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  42 ]->get_child(  64 );
                 }
-                if ( tBasis[  95 ] == NULL )
+                if ( tBasis[  95 ] == nullptr )
                 {
                     tBasis[  95 ] = mBasis[  42 ]->get_child(  68 );
                 }
-                if ( tBasis[  96 ] == NULL )
+                if ( tBasis[  96 ] == nullptr )
                 {
                     tBasis[  96 ] = mBasis[  42 ]->get_child(  69 );
                 }
-                if ( tBasis[ 105 ] == NULL )
+                if ( tBasis[ 105 ] == nullptr )
                 {
                     tBasis[ 105 ] = mBasis[  42 ]->get_child(  78 );
                 }
-                if ( tBasis[ 106 ] == NULL )
+                if ( tBasis[ 106 ] == nullptr )
                 {
                     tBasis[ 106 ] = mBasis[  42 ]->get_child(  79 );
                 }
-                if ( tBasis[ 110 ] == NULL )
+                if ( tBasis[ 110 ] == nullptr )
                 {
                     tBasis[ 110 ] = mBasis[  42 ]->get_child(  83 );
                 }
-                if ( tBasis[ 111 ] == NULL )
+                if ( tBasis[ 111 ] == nullptr )
                 {
                     tBasis[ 111 ] = mBasis[  42 ]->get_child(  84 );
                 }
-                if ( tBasis[ 115 ] == NULL )
+                if ( tBasis[ 115 ] == nullptr )
                 {
                     tBasis[ 115 ] = mBasis[  42 ]->get_child(  88 );
                 }
-                if ( tBasis[ 116 ] == NULL )
+                if ( tBasis[ 116 ] == nullptr )
                 {
                     tBasis[ 116 ] = mBasis[  42 ]->get_child(  89 );
                 }
-                if ( tBasis[ 120 ] == NULL )
+                if ( tBasis[ 120 ] == nullptr )
                 {
                     tBasis[ 120 ] = mBasis[  42 ]->get_child(  93 );
                 }
-                if ( tBasis[ 121 ] == NULL )
+                if ( tBasis[ 121 ] == nullptr )
                 {
                     tBasis[ 121 ] = mBasis[  42 ]->get_child(  94 );
                 }
             }
 
-            if ( mBasis[  43 ] != NULL )
+            if ( mBasis[  43 ] != nullptr )
             {
-                if ( tBasis[   5 ] == NULL )
+                if ( tBasis[   5 ] == nullptr )
                 {
                     tBasis[   5 ] = mBasis[  43 ]->get_child(  28 );
                 }
-                if ( tBasis[   6 ] == NULL )
+                if ( tBasis[   6 ] == nullptr )
                 {
                     tBasis[   6 ] = mBasis[  43 ]->get_child(  29 );
                 }
-                if ( tBasis[  10 ] == NULL )
+                if ( tBasis[  10 ] == nullptr )
                 {
                     tBasis[  10 ] = mBasis[  43 ]->get_child(  33 );
                 }
-                if ( tBasis[  11 ] == NULL )
+                if ( tBasis[  11 ] == nullptr )
                 {
                     tBasis[  11 ] = mBasis[  43 ]->get_child(  34 );
                 }
-                if ( tBasis[  15 ] == NULL )
+                if ( tBasis[  15 ] == nullptr )
                 {
                     tBasis[  15 ] = mBasis[  43 ]->get_child(  38 );
                 }
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[  43 ]->get_child(  39 );
                 }
-                if ( tBasis[  20 ] == NULL )
+                if ( tBasis[  20 ] == nullptr )
                 {
                     tBasis[  20 ] = mBasis[  43 ]->get_child(  43 );
                 }
-                if ( tBasis[  21 ] == NULL )
+                if ( tBasis[  21 ] == nullptr )
                 {
                     tBasis[  21 ] = mBasis[  43 ]->get_child(  44 );
                 }
-                if ( tBasis[  30 ] == NULL )
+                if ( tBasis[  30 ] == nullptr )
                 {
                     tBasis[  30 ] = mBasis[  43 ]->get_child(  53 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  43 ]->get_child(  54 );
                 }
-                if ( tBasis[  35 ] == NULL )
+                if ( tBasis[  35 ] == nullptr )
                 {
                     tBasis[  35 ] = mBasis[  43 ]->get_child(  58 );
                 }
-                if ( tBasis[  36 ] == NULL )
+                if ( tBasis[  36 ] == nullptr )
                 {
                     tBasis[  36 ] = mBasis[  43 ]->get_child(  59 );
                 }
-                if ( tBasis[  40 ] == NULL )
+                if ( tBasis[  40 ] == nullptr )
                 {
                     tBasis[  40 ] = mBasis[  43 ]->get_child(  63 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  43 ]->get_child(  64 );
                 }
-                if ( tBasis[  45 ] == NULL )
+                if ( tBasis[  45 ] == nullptr )
                 {
                     tBasis[  45 ] = mBasis[  43 ]->get_child(  68 );
                 }
-                if ( tBasis[  46 ] == NULL )
+                if ( tBasis[  46 ] == nullptr )
                 {
                     tBasis[  46 ] = mBasis[  43 ]->get_child(  69 );
                 }
-                if ( tBasis[  55 ] == NULL )
+                if ( tBasis[  55 ] == nullptr )
                 {
                     tBasis[  55 ] = mBasis[  43 ]->get_child(  78 );
                 }
-                if ( tBasis[  56 ] == NULL )
+                if ( tBasis[  56 ] == nullptr )
                 {
                     tBasis[  56 ] = mBasis[  43 ]->get_child(  79 );
                 }
-                if ( tBasis[  60 ] == NULL )
+                if ( tBasis[  60 ] == nullptr )
                 {
                     tBasis[  60 ] = mBasis[  43 ]->get_child(  83 );
                 }
-                if ( tBasis[  61 ] == NULL )
+                if ( tBasis[  61 ] == nullptr )
                 {
                     tBasis[  61 ] = mBasis[  43 ]->get_child(  84 );
                 }
-                if ( tBasis[  65 ] == NULL )
+                if ( tBasis[  65 ] == nullptr )
                 {
                     tBasis[  65 ] = mBasis[  43 ]->get_child(  88 );
                 }
-                if ( tBasis[  66 ] == NULL )
+                if ( tBasis[  66 ] == nullptr )
                 {
                     tBasis[  66 ] = mBasis[  43 ]->get_child(  89 );
                 }
-                if ( tBasis[  70 ] == NULL )
+                if ( tBasis[  70 ] == nullptr )
                 {
                     tBasis[  70 ] = mBasis[  43 ]->get_child(  93 );
                 }
-                if ( tBasis[  71 ] == NULL )
+                if ( tBasis[  71 ] == nullptr )
                 {
                     tBasis[  71 ] = mBasis[  43 ]->get_child(  94 );
                 }
-                if ( tBasis[  80 ] == NULL )
+                if ( tBasis[  80 ] == nullptr )
                 {
                     tBasis[  80 ] = mBasis[  43 ]->get_child( 103 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  43 ]->get_child( 104 );
                 }
-                if ( tBasis[  85 ] == NULL )
+                if ( tBasis[  85 ] == nullptr )
                 {
                     tBasis[  85 ] = mBasis[  43 ]->get_child( 108 );
                 }
-                if ( tBasis[  86 ] == NULL )
+                if ( tBasis[  86 ] == nullptr )
                 {
                     tBasis[  86 ] = mBasis[  43 ]->get_child( 109 );
                 }
-                if ( tBasis[  90 ] == NULL )
+                if ( tBasis[  90 ] == nullptr )
                 {
                     tBasis[  90 ] = mBasis[  43 ]->get_child( 113 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  43 ]->get_child( 114 );
                 }
-                if ( tBasis[  95 ] == NULL )
+                if ( tBasis[  95 ] == nullptr )
                 {
                     tBasis[  95 ] = mBasis[  43 ]->get_child( 118 );
                 }
-                if ( tBasis[  96 ] == NULL )
+                if ( tBasis[  96 ] == nullptr )
                 {
                     tBasis[  96 ] = mBasis[  43 ]->get_child( 119 );
                 }
             }
 
-            if ( mBasis[  44 ] != NULL )
+            if ( mBasis[  44 ] != nullptr )
             {
-                if ( tBasis[   3 ] == NULL )
+                if ( tBasis[   3 ] == nullptr )
                 {
                     tBasis[   3 ] = mBasis[  44 ]->get_child(  30 );
                 }
-                if ( tBasis[   4 ] == NULL )
+                if ( tBasis[   4 ] == nullptr )
                 {
                     tBasis[   4 ] = mBasis[  44 ]->get_child(  31 );
                 }
-                if ( tBasis[   8 ] == NULL )
+                if ( tBasis[   8 ] == nullptr )
                 {
                     tBasis[   8 ] = mBasis[  44 ]->get_child(  35 );
                 }
-                if ( tBasis[   9 ] == NULL )
+                if ( tBasis[   9 ] == nullptr )
                 {
                     tBasis[   9 ] = mBasis[  44 ]->get_child(  36 );
                 }
-                if ( tBasis[  13 ] == NULL )
+                if ( tBasis[  13 ] == nullptr )
                 {
                     tBasis[  13 ] = mBasis[  44 ]->get_child(  40 );
                 }
-                if ( tBasis[  14 ] == NULL )
+                if ( tBasis[  14 ] == nullptr )
                 {
                     tBasis[  14 ] = mBasis[  44 ]->get_child(  41 );
                 }
-                if ( tBasis[  18 ] == NULL )
+                if ( tBasis[  18 ] == nullptr )
                 {
                     tBasis[  18 ] = mBasis[  44 ]->get_child(  45 );
                 }
-                if ( tBasis[  19 ] == NULL )
+                if ( tBasis[  19 ] == nullptr )
                 {
                     tBasis[  19 ] = mBasis[  44 ]->get_child(  46 );
                 }
-                if ( tBasis[  28 ] == NULL )
+                if ( tBasis[  28 ] == nullptr )
                 {
                     tBasis[  28 ] = mBasis[  44 ]->get_child(  55 );
                 }
-                if ( tBasis[  29 ] == NULL )
+                if ( tBasis[  29 ] == nullptr )
                 {
                     tBasis[  29 ] = mBasis[  44 ]->get_child(  56 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  44 ]->get_child(  60 );
                 }
-                if ( tBasis[  34 ] == NULL )
+                if ( tBasis[  34 ] == nullptr )
                 {
                     tBasis[  34 ] = mBasis[  44 ]->get_child(  61 );
                 }
-                if ( tBasis[  38 ] == NULL )
+                if ( tBasis[  38 ] == nullptr )
                 {
                     tBasis[  38 ] = mBasis[  44 ]->get_child(  65 );
                 }
-                if ( tBasis[  39 ] == NULL )
+                if ( tBasis[  39 ] == nullptr )
                 {
                     tBasis[  39 ] = mBasis[  44 ]->get_child(  66 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  44 ]->get_child(  70 );
                 }
-                if ( tBasis[  44 ] == NULL )
+                if ( tBasis[  44 ] == nullptr )
                 {
                     tBasis[  44 ] = mBasis[  44 ]->get_child(  71 );
                 }
-                if ( tBasis[  53 ] == NULL )
+                if ( tBasis[  53 ] == nullptr )
                 {
                     tBasis[  53 ] = mBasis[  44 ]->get_child(  80 );
                 }
-                if ( tBasis[  54 ] == NULL )
+                if ( tBasis[  54 ] == nullptr )
                 {
                     tBasis[  54 ] = mBasis[  44 ]->get_child(  81 );
                 }
-                if ( tBasis[  58 ] == NULL )
+                if ( tBasis[  58 ] == nullptr )
                 {
                     tBasis[  58 ] = mBasis[  44 ]->get_child(  85 );
                 }
-                if ( tBasis[  59 ] == NULL )
+                if ( tBasis[  59 ] == nullptr )
                 {
                     tBasis[  59 ] = mBasis[  44 ]->get_child(  86 );
                 }
-                if ( tBasis[  63 ] == NULL )
+                if ( tBasis[  63 ] == nullptr )
                 {
                     tBasis[  63 ] = mBasis[  44 ]->get_child(  90 );
                 }
-                if ( tBasis[  64 ] == NULL )
+                if ( tBasis[  64 ] == nullptr )
                 {
                     tBasis[  64 ] = mBasis[  44 ]->get_child(  91 );
                 }
-                if ( tBasis[  68 ] == NULL )
+                if ( tBasis[  68 ] == nullptr )
                 {
                     tBasis[  68 ] = mBasis[  44 ]->get_child(  95 );
                 }
-                if ( tBasis[  69 ] == NULL )
+                if ( tBasis[  69 ] == nullptr )
                 {
                     tBasis[  69 ] = mBasis[  44 ]->get_child(  96 );
                 }
-                if ( tBasis[  78 ] == NULL )
+                if ( tBasis[  78 ] == nullptr )
                 {
                     tBasis[  78 ] = mBasis[  44 ]->get_child( 105 );
                 }
-                if ( tBasis[  79 ] == NULL )
+                if ( tBasis[  79 ] == nullptr )
                 {
                     tBasis[  79 ] = mBasis[  44 ]->get_child( 106 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  44 ]->get_child( 110 );
                 }
-                if ( tBasis[  84 ] == NULL )
+                if ( tBasis[  84 ] == nullptr )
                 {
                     tBasis[  84 ] = mBasis[  44 ]->get_child( 111 );
                 }
-                if ( tBasis[  88 ] == NULL )
+                if ( tBasis[  88 ] == nullptr )
                 {
                     tBasis[  88 ] = mBasis[  44 ]->get_child( 115 );
                 }
-                if ( tBasis[  89 ] == NULL )
+                if ( tBasis[  89 ] == nullptr )
                 {
                     tBasis[  89 ] = mBasis[  44 ]->get_child( 116 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  44 ]->get_child( 120 );
                 }
-                if ( tBasis[  94 ] == NULL )
+                if ( tBasis[  94 ] == nullptr )
                 {
                     tBasis[  94 ] = mBasis[  44 ]->get_child( 121 );
                 }
             }
 
-            if ( mBasis[  45 ] != NULL )
+            if ( mBasis[  45 ] != nullptr )
             {
-                if ( tBasis[   8 ] == NULL )
+                if ( tBasis[   8 ] == nullptr )
                 {
                     tBasis[   8 ] = mBasis[  45 ]->get_child(  25 );
                 }
-                if ( tBasis[   9 ] == NULL )
+                if ( tBasis[   9 ] == nullptr )
                 {
                     tBasis[   9 ] = mBasis[  45 ]->get_child(  26 );
                 }
-                if ( tBasis[  13 ] == NULL )
+                if ( tBasis[  13 ] == nullptr )
                 {
                     tBasis[  13 ] = mBasis[  45 ]->get_child(  30 );
                 }
-                if ( tBasis[  14 ] == NULL )
+                if ( tBasis[  14 ] == nullptr )
                 {
                     tBasis[  14 ] = mBasis[  45 ]->get_child(  31 );
                 }
-                if ( tBasis[  18 ] == NULL )
+                if ( tBasis[  18 ] == nullptr )
                 {
                     tBasis[  18 ] = mBasis[  45 ]->get_child(  35 );
                 }
-                if ( tBasis[  19 ] == NULL )
+                if ( tBasis[  19 ] == nullptr )
                 {
                     tBasis[  19 ] = mBasis[  45 ]->get_child(  36 );
                 }
-                if ( tBasis[  23 ] == NULL )
+                if ( tBasis[  23 ] == nullptr )
                 {
                     tBasis[  23 ] = mBasis[  45 ]->get_child(  40 );
                 }
-                if ( tBasis[  24 ] == NULL )
+                if ( tBasis[  24 ] == nullptr )
                 {
                     tBasis[  24 ] = mBasis[  45 ]->get_child(  41 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  45 ]->get_child(  50 );
                 }
-                if ( tBasis[  34 ] == NULL )
+                if ( tBasis[  34 ] == nullptr )
                 {
                     tBasis[  34 ] = mBasis[  45 ]->get_child(  51 );
                 }
-                if ( tBasis[  38 ] == NULL )
+                if ( tBasis[  38 ] == nullptr )
                 {
                     tBasis[  38 ] = mBasis[  45 ]->get_child(  55 );
                 }
-                if ( tBasis[  39 ] == NULL )
+                if ( tBasis[  39 ] == nullptr )
                 {
                     tBasis[  39 ] = mBasis[  45 ]->get_child(  56 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  45 ]->get_child(  60 );
                 }
-                if ( tBasis[  44 ] == NULL )
+                if ( tBasis[  44 ] == nullptr )
                 {
                     tBasis[  44 ] = mBasis[  45 ]->get_child(  61 );
                 }
-                if ( tBasis[  48 ] == NULL )
+                if ( tBasis[  48 ] == nullptr )
                 {
                     tBasis[  48 ] = mBasis[  45 ]->get_child(  65 );
                 }
-                if ( tBasis[  49 ] == NULL )
+                if ( tBasis[  49 ] == nullptr )
                 {
                     tBasis[  49 ] = mBasis[  45 ]->get_child(  66 );
                 }
-                if ( tBasis[  58 ] == NULL )
+                if ( tBasis[  58 ] == nullptr )
                 {
                     tBasis[  58 ] = mBasis[  45 ]->get_child(  75 );
                 }
-                if ( tBasis[  59 ] == NULL )
+                if ( tBasis[  59 ] == nullptr )
                 {
                     tBasis[  59 ] = mBasis[  45 ]->get_child(  76 );
                 }
-                if ( tBasis[  63 ] == NULL )
+                if ( tBasis[  63 ] == nullptr )
                 {
                     tBasis[  63 ] = mBasis[  45 ]->get_child(  80 );
                 }
-                if ( tBasis[  64 ] == NULL )
+                if ( tBasis[  64 ] == nullptr )
                 {
                     tBasis[  64 ] = mBasis[  45 ]->get_child(  81 );
                 }
-                if ( tBasis[  68 ] == NULL )
+                if ( tBasis[  68 ] == nullptr )
                 {
                     tBasis[  68 ] = mBasis[  45 ]->get_child(  85 );
                 }
-                if ( tBasis[  69 ] == NULL )
+                if ( tBasis[  69 ] == nullptr )
                 {
                     tBasis[  69 ] = mBasis[  45 ]->get_child(  86 );
                 }
-                if ( tBasis[  73 ] == NULL )
+                if ( tBasis[  73 ] == nullptr )
                 {
                     tBasis[  73 ] = mBasis[  45 ]->get_child(  90 );
                 }
-                if ( tBasis[  74 ] == NULL )
+                if ( tBasis[  74 ] == nullptr )
                 {
                     tBasis[  74 ] = mBasis[  45 ]->get_child(  91 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  45 ]->get_child( 100 );
                 }
-                if ( tBasis[  84 ] == NULL )
+                if ( tBasis[  84 ] == nullptr )
                 {
                     tBasis[  84 ] = mBasis[  45 ]->get_child( 101 );
                 }
-                if ( tBasis[  88 ] == NULL )
+                if ( tBasis[  88 ] == nullptr )
                 {
                     tBasis[  88 ] = mBasis[  45 ]->get_child( 105 );
                 }
-                if ( tBasis[  89 ] == NULL )
+                if ( tBasis[  89 ] == nullptr )
                 {
                     tBasis[  89 ] = mBasis[  45 ]->get_child( 106 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  45 ]->get_child( 110 );
                 }
-                if ( tBasis[  94 ] == NULL )
+                if ( tBasis[  94 ] == nullptr )
                 {
                     tBasis[  94 ] = mBasis[  45 ]->get_child( 111 );
                 }
-                if ( tBasis[  98 ] == NULL )
+                if ( tBasis[  98 ] == nullptr )
                 {
                     tBasis[  98 ] = mBasis[  45 ]->get_child( 115 );
                 }
-                if ( tBasis[  99 ] == NULL )
+                if ( tBasis[  99 ] == nullptr )
                 {
                     tBasis[  99 ] = mBasis[  45 ]->get_child( 116 );
                 }
             }
 
-            if ( mBasis[  46 ] != NULL )
+            if ( mBasis[  46 ] != nullptr )
             {
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  46 ]->get_child(   0 );
                 }
-                if ( tBasis[  34 ] == NULL )
+                if ( tBasis[  34 ] == nullptr )
                 {
                     tBasis[  34 ] = mBasis[  46 ]->get_child(   1 );
                 }
-                if ( tBasis[  38 ] == NULL )
+                if ( tBasis[  38 ] == nullptr )
                 {
                     tBasis[  38 ] = mBasis[  46 ]->get_child(   5 );
                 }
-                if ( tBasis[  39 ] == NULL )
+                if ( tBasis[  39 ] == nullptr )
                 {
                     tBasis[  39 ] = mBasis[  46 ]->get_child(   6 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  46 ]->get_child(  10 );
                 }
-                if ( tBasis[  44 ] == NULL )
+                if ( tBasis[  44 ] == nullptr )
                 {
                     tBasis[  44 ] = mBasis[  46 ]->get_child(  11 );
                 }
-                if ( tBasis[  48 ] == NULL )
+                if ( tBasis[  48 ] == nullptr )
                 {
                     tBasis[  48 ] = mBasis[  46 ]->get_child(  15 );
                 }
-                if ( tBasis[  49 ] == NULL )
+                if ( tBasis[  49 ] == nullptr )
                 {
                     tBasis[  49 ] = mBasis[  46 ]->get_child(  16 );
                 }
-                if ( tBasis[  58 ] == NULL )
+                if ( tBasis[  58 ] == nullptr )
                 {
                     tBasis[  58 ] = mBasis[  46 ]->get_child(  25 );
                 }
-                if ( tBasis[  59 ] == NULL )
+                if ( tBasis[  59 ] == nullptr )
                 {
                     tBasis[  59 ] = mBasis[  46 ]->get_child(  26 );
                 }
-                if ( tBasis[  63 ] == NULL )
+                if ( tBasis[  63 ] == nullptr )
                 {
                     tBasis[  63 ] = mBasis[  46 ]->get_child(  30 );
                 }
-                if ( tBasis[  64 ] == NULL )
+                if ( tBasis[  64 ] == nullptr )
                 {
                     tBasis[  64 ] = mBasis[  46 ]->get_child(  31 );
                 }
-                if ( tBasis[  68 ] == NULL )
+                if ( tBasis[  68 ] == nullptr )
                 {
                     tBasis[  68 ] = mBasis[  46 ]->get_child(  35 );
                 }
-                if ( tBasis[  69 ] == NULL )
+                if ( tBasis[  69 ] == nullptr )
                 {
                     tBasis[  69 ] = mBasis[  46 ]->get_child(  36 );
                 }
-                if ( tBasis[  73 ] == NULL )
+                if ( tBasis[  73 ] == nullptr )
                 {
                     tBasis[  73 ] = mBasis[  46 ]->get_child(  40 );
                 }
-                if ( tBasis[  74 ] == NULL )
+                if ( tBasis[  74 ] == nullptr )
                 {
                     tBasis[  74 ] = mBasis[  46 ]->get_child(  41 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  46 ]->get_child(  50 );
                 }
-                if ( tBasis[  84 ] == NULL )
+                if ( tBasis[  84 ] == nullptr )
                 {
                     tBasis[  84 ] = mBasis[  46 ]->get_child(  51 );
                 }
-                if ( tBasis[  88 ] == NULL )
+                if ( tBasis[  88 ] == nullptr )
                 {
                     tBasis[  88 ] = mBasis[  46 ]->get_child(  55 );
                 }
-                if ( tBasis[  89 ] == NULL )
+                if ( tBasis[  89 ] == nullptr )
                 {
                     tBasis[  89 ] = mBasis[  46 ]->get_child(  56 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  46 ]->get_child(  60 );
                 }
-                if ( tBasis[  94 ] == NULL )
+                if ( tBasis[  94 ] == nullptr )
                 {
                     tBasis[  94 ] = mBasis[  46 ]->get_child(  61 );
                 }
-                if ( tBasis[  98 ] == NULL )
+                if ( tBasis[  98 ] == nullptr )
                 {
                     tBasis[  98 ] = mBasis[  46 ]->get_child(  65 );
                 }
-                if ( tBasis[  99 ] == NULL )
+                if ( tBasis[  99 ] == nullptr )
                 {
                     tBasis[  99 ] = mBasis[  46 ]->get_child(  66 );
                 }
-                if ( tBasis[ 108 ] == NULL )
+                if ( tBasis[ 108 ] == nullptr )
                 {
                     tBasis[ 108 ] = mBasis[  46 ]->get_child(  75 );
                 }
-                if ( tBasis[ 109 ] == NULL )
+                if ( tBasis[ 109 ] == nullptr )
                 {
                     tBasis[ 109 ] = mBasis[  46 ]->get_child(  76 );
                 }
-                if ( tBasis[ 113 ] == NULL )
+                if ( tBasis[ 113 ] == nullptr )
                 {
                     tBasis[ 113 ] = mBasis[  46 ]->get_child(  80 );
                 }
-                if ( tBasis[ 114 ] == NULL )
+                if ( tBasis[ 114 ] == nullptr )
                 {
                     tBasis[ 114 ] = mBasis[  46 ]->get_child(  81 );
                 }
-                if ( tBasis[ 118 ] == NULL )
+                if ( tBasis[ 118 ] == nullptr )
                 {
                     tBasis[ 118 ] = mBasis[  46 ]->get_child(  85 );
                 }
-                if ( tBasis[ 119 ] == NULL )
+                if ( tBasis[ 119 ] == nullptr )
                 {
                     tBasis[ 119 ] = mBasis[  46 ]->get_child(  86 );
                 }
-                if ( tBasis[ 123 ] == NULL )
+                if ( tBasis[ 123 ] == nullptr )
                 {
                     tBasis[ 123 ] = mBasis[  46 ]->get_child(  90 );
                 }
-                if ( tBasis[ 124 ] == NULL )
+                if ( tBasis[ 124 ] == nullptr )
                 {
                     tBasis[ 124 ] = mBasis[  46 ]->get_child(  91 );
                 }
             }
 
-            if ( mBasis[  47 ] != NULL )
+            if ( mBasis[  47 ] != nullptr )
             {
-                if ( tBasis[  28 ] == NULL )
+                if ( tBasis[  28 ] == nullptr )
                 {
                     tBasis[  28 ] = mBasis[  47 ]->get_child(   5 );
                 }
-                if ( tBasis[  29 ] == NULL )
+                if ( tBasis[  29 ] == nullptr )
                 {
                     tBasis[  29 ] = mBasis[  47 ]->get_child(   6 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  47 ]->get_child(  10 );
                 }
-                if ( tBasis[  34 ] == NULL )
+                if ( tBasis[  34 ] == nullptr )
                 {
                     tBasis[  34 ] = mBasis[  47 ]->get_child(  11 );
                 }
-                if ( tBasis[  38 ] == NULL )
+                if ( tBasis[  38 ] == nullptr )
                 {
                     tBasis[  38 ] = mBasis[  47 ]->get_child(  15 );
                 }
-                if ( tBasis[  39 ] == NULL )
+                if ( tBasis[  39 ] == nullptr )
                 {
                     tBasis[  39 ] = mBasis[  47 ]->get_child(  16 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  47 ]->get_child(  20 );
                 }
-                if ( tBasis[  44 ] == NULL )
+                if ( tBasis[  44 ] == nullptr )
                 {
                     tBasis[  44 ] = mBasis[  47 ]->get_child(  21 );
                 }
-                if ( tBasis[  53 ] == NULL )
+                if ( tBasis[  53 ] == nullptr )
                 {
                     tBasis[  53 ] = mBasis[  47 ]->get_child(  30 );
                 }
-                if ( tBasis[  54 ] == NULL )
+                if ( tBasis[  54 ] == nullptr )
                 {
                     tBasis[  54 ] = mBasis[  47 ]->get_child(  31 );
                 }
-                if ( tBasis[  58 ] == NULL )
+                if ( tBasis[  58 ] == nullptr )
                 {
                     tBasis[  58 ] = mBasis[  47 ]->get_child(  35 );
                 }
-                if ( tBasis[  59 ] == NULL )
+                if ( tBasis[  59 ] == nullptr )
                 {
                     tBasis[  59 ] = mBasis[  47 ]->get_child(  36 );
                 }
-                if ( tBasis[  63 ] == NULL )
+                if ( tBasis[  63 ] == nullptr )
                 {
                     tBasis[  63 ] = mBasis[  47 ]->get_child(  40 );
                 }
-                if ( tBasis[  64 ] == NULL )
+                if ( tBasis[  64 ] == nullptr )
                 {
                     tBasis[  64 ] = mBasis[  47 ]->get_child(  41 );
                 }
-                if ( tBasis[  68 ] == NULL )
+                if ( tBasis[  68 ] == nullptr )
                 {
                     tBasis[  68 ] = mBasis[  47 ]->get_child(  45 );
                 }
-                if ( tBasis[  69 ] == NULL )
+                if ( tBasis[  69 ] == nullptr )
                 {
                     tBasis[  69 ] = mBasis[  47 ]->get_child(  46 );
                 }
-                if ( tBasis[  78 ] == NULL )
+                if ( tBasis[  78 ] == nullptr )
                 {
                     tBasis[  78 ] = mBasis[  47 ]->get_child(  55 );
                 }
-                if ( tBasis[  79 ] == NULL )
+                if ( tBasis[  79 ] == nullptr )
                 {
                     tBasis[  79 ] = mBasis[  47 ]->get_child(  56 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  47 ]->get_child(  60 );
                 }
-                if ( tBasis[  84 ] == NULL )
+                if ( tBasis[  84 ] == nullptr )
                 {
                     tBasis[  84 ] = mBasis[  47 ]->get_child(  61 );
                 }
-                if ( tBasis[  88 ] == NULL )
+                if ( tBasis[  88 ] == nullptr )
                 {
                     tBasis[  88 ] = mBasis[  47 ]->get_child(  65 );
                 }
-                if ( tBasis[  89 ] == NULL )
+                if ( tBasis[  89 ] == nullptr )
                 {
                     tBasis[  89 ] = mBasis[  47 ]->get_child(  66 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  47 ]->get_child(  70 );
                 }
-                if ( tBasis[  94 ] == NULL )
+                if ( tBasis[  94 ] == nullptr )
                 {
                     tBasis[  94 ] = mBasis[  47 ]->get_child(  71 );
                 }
-                if ( tBasis[ 103 ] == NULL )
+                if ( tBasis[ 103 ] == nullptr )
                 {
                     tBasis[ 103 ] = mBasis[  47 ]->get_child(  80 );
                 }
-                if ( tBasis[ 104 ] == NULL )
+                if ( tBasis[ 104 ] == nullptr )
                 {
                     tBasis[ 104 ] = mBasis[  47 ]->get_child(  81 );
                 }
-                if ( tBasis[ 108 ] == NULL )
+                if ( tBasis[ 108 ] == nullptr )
                 {
                     tBasis[ 108 ] = mBasis[  47 ]->get_child(  85 );
                 }
-                if ( tBasis[ 109 ] == NULL )
+                if ( tBasis[ 109 ] == nullptr )
                 {
                     tBasis[ 109 ] = mBasis[  47 ]->get_child(  86 );
                 }
-                if ( tBasis[ 113 ] == NULL )
+                if ( tBasis[ 113 ] == nullptr )
                 {
                     tBasis[ 113 ] = mBasis[  47 ]->get_child(  90 );
                 }
-                if ( tBasis[ 114 ] == NULL )
+                if ( tBasis[ 114 ] == nullptr )
                 {
                     tBasis[ 114 ] = mBasis[  47 ]->get_child(  91 );
                 }
-                if ( tBasis[ 118 ] == NULL )
+                if ( tBasis[ 118 ] == nullptr )
                 {
                     tBasis[ 118 ] = mBasis[  47 ]->get_child(  95 );
                 }
-                if ( tBasis[ 119 ] == NULL )
+                if ( tBasis[ 119 ] == nullptr )
                 {
                     tBasis[ 119 ] = mBasis[  47 ]->get_child(  96 );
                 }
             }
 
-            if ( mBasis[  48 ] != NULL )
+            if ( mBasis[  48 ] != nullptr )
             {
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[  48 ]->get_child(  25 );
                 }
-                if ( tBasis[  17 ] == NULL )
+                if ( tBasis[  17 ] == nullptr )
                 {
                     tBasis[  17 ] = mBasis[  48 ]->get_child(  26 );
                 }
-                if ( tBasis[  18 ] == NULL )
+                if ( tBasis[  18 ] == nullptr )
                 {
                     tBasis[  18 ] = mBasis[  48 ]->get_child(  27 );
                 }
-                if ( tBasis[  19 ] == NULL )
+                if ( tBasis[  19 ] == nullptr )
                 {
                     tBasis[  19 ] = mBasis[  48 ]->get_child(  28 );
                 }
-                if ( tBasis[  21 ] == NULL )
+                if ( tBasis[  21 ] == nullptr )
                 {
                     tBasis[  21 ] = mBasis[  48 ]->get_child(  30 );
                 }
-                if ( tBasis[  22 ] == NULL )
+                if ( tBasis[  22 ] == nullptr )
                 {
                     tBasis[  22 ] = mBasis[  48 ]->get_child(  31 );
                 }
-                if ( tBasis[  23 ] == NULL )
+                if ( tBasis[  23 ] == nullptr )
                 {
                     tBasis[  23 ] = mBasis[  48 ]->get_child(  32 );
                 }
-                if ( tBasis[  24 ] == NULL )
+                if ( tBasis[  24 ] == nullptr )
                 {
                     tBasis[  24 ] = mBasis[  48 ]->get_child(  33 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  48 ]->get_child(  50 );
                 }
-                if ( tBasis[  42 ] == NULL )
+                if ( tBasis[  42 ] == nullptr )
                 {
                     tBasis[  42 ] = mBasis[  48 ]->get_child(  51 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  48 ]->get_child(  52 );
                 }
-                if ( tBasis[  44 ] == NULL )
+                if ( tBasis[  44 ] == nullptr )
                 {
                     tBasis[  44 ] = mBasis[  48 ]->get_child(  53 );
                 }
-                if ( tBasis[  46 ] == NULL )
+                if ( tBasis[  46 ] == nullptr )
                 {
                     tBasis[  46 ] = mBasis[  48 ]->get_child(  55 );
                 }
-                if ( tBasis[  47 ] == NULL )
+                if ( tBasis[  47 ] == nullptr )
                 {
                     tBasis[  47 ] = mBasis[  48 ]->get_child(  56 );
                 }
-                if ( tBasis[  48 ] == NULL )
+                if ( tBasis[  48 ] == nullptr )
                 {
                     tBasis[  48 ] = mBasis[  48 ]->get_child(  57 );
                 }
-                if ( tBasis[  49 ] == NULL )
+                if ( tBasis[  49 ] == nullptr )
                 {
                     tBasis[  49 ] = mBasis[  48 ]->get_child(  58 );
                 }
-                if ( tBasis[  66 ] == NULL )
+                if ( tBasis[  66 ] == nullptr )
                 {
                     tBasis[  66 ] = mBasis[  48 ]->get_child(  75 );
                 }
-                if ( tBasis[  67 ] == NULL )
+                if ( tBasis[  67 ] == nullptr )
                 {
                     tBasis[  67 ] = mBasis[  48 ]->get_child(  76 );
                 }
-                if ( tBasis[  68 ] == NULL )
+                if ( tBasis[  68 ] == nullptr )
                 {
                     tBasis[  68 ] = mBasis[  48 ]->get_child(  77 );
                 }
-                if ( tBasis[  69 ] == NULL )
+                if ( tBasis[  69 ] == nullptr )
                 {
                     tBasis[  69 ] = mBasis[  48 ]->get_child(  78 );
                 }
-                if ( tBasis[  71 ] == NULL )
+                if ( tBasis[  71 ] == nullptr )
                 {
                     tBasis[  71 ] = mBasis[  48 ]->get_child(  80 );
                 }
-                if ( tBasis[  72 ] == NULL )
+                if ( tBasis[  72 ] == nullptr )
                 {
                     tBasis[  72 ] = mBasis[  48 ]->get_child(  81 );
                 }
-                if ( tBasis[  73 ] == NULL )
+                if ( tBasis[  73 ] == nullptr )
                 {
                     tBasis[  73 ] = mBasis[  48 ]->get_child(  82 );
                 }
-                if ( tBasis[  74 ] == NULL )
+                if ( tBasis[  74 ] == nullptr )
                 {
                     tBasis[  74 ] = mBasis[  48 ]->get_child(  83 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  48 ]->get_child( 100 );
                 }
-                if ( tBasis[  92 ] == NULL )
+                if ( tBasis[  92 ] == nullptr )
                 {
                     tBasis[  92 ] = mBasis[  48 ]->get_child( 101 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  48 ]->get_child( 102 );
                 }
-                if ( tBasis[  94 ] == NULL )
+                if ( tBasis[  94 ] == nullptr )
                 {
                     tBasis[  94 ] = mBasis[  48 ]->get_child( 103 );
                 }
-                if ( tBasis[  96 ] == NULL )
+                if ( tBasis[  96 ] == nullptr )
                 {
                     tBasis[  96 ] = mBasis[  48 ]->get_child( 105 );
                 }
-                if ( tBasis[  97 ] == NULL )
+                if ( tBasis[  97 ] == nullptr )
                 {
                     tBasis[  97 ] = mBasis[  48 ]->get_child( 106 );
                 }
-                if ( tBasis[  98 ] == NULL )
+                if ( tBasis[  98 ] == nullptr )
                 {
                     tBasis[  98 ] = mBasis[  48 ]->get_child( 107 );
                 }
-                if ( tBasis[  99 ] == NULL )
+                if ( tBasis[  99 ] == nullptr )
                 {
                     tBasis[  99 ] = mBasis[  48 ]->get_child( 108 );
                 }
             }
 
-            if ( mBasis[  49 ] != NULL )
+            if ( mBasis[  49 ] != nullptr )
             {
-                if ( tBasis[  15 ] == NULL )
+                if ( tBasis[  15 ] == nullptr )
                 {
                     tBasis[  15 ] = mBasis[  49 ]->get_child(  26 );
                 }
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[  49 ]->get_child(  27 );
                 }
-                if ( tBasis[  17 ] == NULL )
+                if ( tBasis[  17 ] == nullptr )
                 {
                     tBasis[  17 ] = mBasis[  49 ]->get_child(  28 );
                 }
-                if ( tBasis[  18 ] == NULL )
+                if ( tBasis[  18 ] == nullptr )
                 {
                     tBasis[  18 ] = mBasis[  49 ]->get_child(  29 );
                 }
-                if ( tBasis[  20 ] == NULL )
+                if ( tBasis[  20 ] == nullptr )
                 {
                     tBasis[  20 ] = mBasis[  49 ]->get_child(  31 );
                 }
-                if ( tBasis[  21 ] == NULL )
+                if ( tBasis[  21 ] == nullptr )
                 {
                     tBasis[  21 ] = mBasis[  49 ]->get_child(  32 );
                 }
-                if ( tBasis[  22 ] == NULL )
+                if ( tBasis[  22 ] == nullptr )
                 {
                     tBasis[  22 ] = mBasis[  49 ]->get_child(  33 );
                 }
-                if ( tBasis[  23 ] == NULL )
+                if ( tBasis[  23 ] == nullptr )
                 {
                     tBasis[  23 ] = mBasis[  49 ]->get_child(  34 );
                 }
-                if ( tBasis[  40 ] == NULL )
+                if ( tBasis[  40 ] == nullptr )
                 {
                     tBasis[  40 ] = mBasis[  49 ]->get_child(  51 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  49 ]->get_child(  52 );
                 }
-                if ( tBasis[  42 ] == NULL )
+                if ( tBasis[  42 ] == nullptr )
                 {
                     tBasis[  42 ] = mBasis[  49 ]->get_child(  53 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  49 ]->get_child(  54 );
                 }
-                if ( tBasis[  45 ] == NULL )
+                if ( tBasis[  45 ] == nullptr )
                 {
                     tBasis[  45 ] = mBasis[  49 ]->get_child(  56 );
                 }
-                if ( tBasis[  46 ] == NULL )
+                if ( tBasis[  46 ] == nullptr )
                 {
                     tBasis[  46 ] = mBasis[  49 ]->get_child(  57 );
                 }
-                if ( tBasis[  47 ] == NULL )
+                if ( tBasis[  47 ] == nullptr )
                 {
                     tBasis[  47 ] = mBasis[  49 ]->get_child(  58 );
                 }
-                if ( tBasis[  48 ] == NULL )
+                if ( tBasis[  48 ] == nullptr )
                 {
                     tBasis[  48 ] = mBasis[  49 ]->get_child(  59 );
                 }
-                if ( tBasis[  65 ] == NULL )
+                if ( tBasis[  65 ] == nullptr )
                 {
                     tBasis[  65 ] = mBasis[  49 ]->get_child(  76 );
                 }
-                if ( tBasis[  66 ] == NULL )
+                if ( tBasis[  66 ] == nullptr )
                 {
                     tBasis[  66 ] = mBasis[  49 ]->get_child(  77 );
                 }
-                if ( tBasis[  67 ] == NULL )
+                if ( tBasis[  67 ] == nullptr )
                 {
                     tBasis[  67 ] = mBasis[  49 ]->get_child(  78 );
                 }
-                if ( tBasis[  68 ] == NULL )
+                if ( tBasis[  68 ] == nullptr )
                 {
                     tBasis[  68 ] = mBasis[  49 ]->get_child(  79 );
                 }
-                if ( tBasis[  70 ] == NULL )
+                if ( tBasis[  70 ] == nullptr )
                 {
                     tBasis[  70 ] = mBasis[  49 ]->get_child(  81 );
                 }
-                if ( tBasis[  71 ] == NULL )
+                if ( tBasis[  71 ] == nullptr )
                 {
                     tBasis[  71 ] = mBasis[  49 ]->get_child(  82 );
                 }
-                if ( tBasis[  72 ] == NULL )
+                if ( tBasis[  72 ] == nullptr )
                 {
                     tBasis[  72 ] = mBasis[  49 ]->get_child(  83 );
                 }
-                if ( tBasis[  73 ] == NULL )
+                if ( tBasis[  73 ] == nullptr )
                 {
                     tBasis[  73 ] = mBasis[  49 ]->get_child(  84 );
                 }
-                if ( tBasis[  90 ] == NULL )
+                if ( tBasis[  90 ] == nullptr )
                 {
                     tBasis[  90 ] = mBasis[  49 ]->get_child( 101 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  49 ]->get_child( 102 );
                 }
-                if ( tBasis[  92 ] == NULL )
+                if ( tBasis[  92 ] == nullptr )
                 {
                     tBasis[  92 ] = mBasis[  49 ]->get_child( 103 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  49 ]->get_child( 104 );
                 }
-                if ( tBasis[  95 ] == NULL )
+                if ( tBasis[  95 ] == nullptr )
                 {
                     tBasis[  95 ] = mBasis[  49 ]->get_child( 106 );
                 }
-                if ( tBasis[  96 ] == NULL )
+                if ( tBasis[  96 ] == nullptr )
                 {
                     tBasis[  96 ] = mBasis[  49 ]->get_child( 107 );
                 }
-                if ( tBasis[  97 ] == NULL )
+                if ( tBasis[  97 ] == nullptr )
                 {
                     tBasis[  97 ] = mBasis[  49 ]->get_child( 108 );
                 }
-                if ( tBasis[  98 ] == NULL )
+                if ( tBasis[  98 ] == nullptr )
                 {
                     tBasis[  98 ] = mBasis[  49 ]->get_child( 109 );
                 }
             }
 
-            if ( mBasis[  50 ] != NULL )
+            if ( mBasis[  50 ] != nullptr )
             {
-                if ( tBasis[  40 ] == NULL )
+                if ( tBasis[  40 ] == nullptr )
                 {
                     tBasis[  40 ] = mBasis[  50 ]->get_child(   1 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  50 ]->get_child(   2 );
                 }
-                if ( tBasis[  42 ] == NULL )
+                if ( tBasis[  42 ] == nullptr )
                 {
                     tBasis[  42 ] = mBasis[  50 ]->get_child(   3 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  50 ]->get_child(   4 );
                 }
-                if ( tBasis[  45 ] == NULL )
+                if ( tBasis[  45 ] == nullptr )
                 {
                     tBasis[  45 ] = mBasis[  50 ]->get_child(   6 );
                 }
-                if ( tBasis[  46 ] == NULL )
+                if ( tBasis[  46 ] == nullptr )
                 {
                     tBasis[  46 ] = mBasis[  50 ]->get_child(   7 );
                 }
-                if ( tBasis[  47 ] == NULL )
+                if ( tBasis[  47 ] == nullptr )
                 {
                     tBasis[  47 ] = mBasis[  50 ]->get_child(   8 );
                 }
-                if ( tBasis[  48 ] == NULL )
+                if ( tBasis[  48 ] == nullptr )
                 {
                     tBasis[  48 ] = mBasis[  50 ]->get_child(   9 );
                 }
-                if ( tBasis[  65 ] == NULL )
+                if ( tBasis[  65 ] == nullptr )
                 {
                     tBasis[  65 ] = mBasis[  50 ]->get_child(  26 );
                 }
-                if ( tBasis[  66 ] == NULL )
+                if ( tBasis[  66 ] == nullptr )
                 {
                     tBasis[  66 ] = mBasis[  50 ]->get_child(  27 );
                 }
-                if ( tBasis[  67 ] == NULL )
+                if ( tBasis[  67 ] == nullptr )
                 {
                     tBasis[  67 ] = mBasis[  50 ]->get_child(  28 );
                 }
-                if ( tBasis[  68 ] == NULL )
+                if ( tBasis[  68 ] == nullptr )
                 {
                     tBasis[  68 ] = mBasis[  50 ]->get_child(  29 );
                 }
-                if ( tBasis[  70 ] == NULL )
+                if ( tBasis[  70 ] == nullptr )
                 {
                     tBasis[  70 ] = mBasis[  50 ]->get_child(  31 );
                 }
-                if ( tBasis[  71 ] == NULL )
+                if ( tBasis[  71 ] == nullptr )
                 {
                     tBasis[  71 ] = mBasis[  50 ]->get_child(  32 );
                 }
-                if ( tBasis[  72 ] == NULL )
+                if ( tBasis[  72 ] == nullptr )
                 {
                     tBasis[  72 ] = mBasis[  50 ]->get_child(  33 );
                 }
-                if ( tBasis[  73 ] == NULL )
+                if ( tBasis[  73 ] == nullptr )
                 {
                     tBasis[  73 ] = mBasis[  50 ]->get_child(  34 );
                 }
-                if ( tBasis[  90 ] == NULL )
+                if ( tBasis[  90 ] == nullptr )
                 {
                     tBasis[  90 ] = mBasis[  50 ]->get_child(  51 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  50 ]->get_child(  52 );
                 }
-                if ( tBasis[  92 ] == NULL )
+                if ( tBasis[  92 ] == nullptr )
                 {
                     tBasis[  92 ] = mBasis[  50 ]->get_child(  53 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  50 ]->get_child(  54 );
                 }
-                if ( tBasis[  95 ] == NULL )
+                if ( tBasis[  95 ] == nullptr )
                 {
                     tBasis[  95 ] = mBasis[  50 ]->get_child(  56 );
                 }
-                if ( tBasis[  96 ] == NULL )
+                if ( tBasis[  96 ] == nullptr )
                 {
                     tBasis[  96 ] = mBasis[  50 ]->get_child(  57 );
                 }
-                if ( tBasis[  97 ] == NULL )
+                if ( tBasis[  97 ] == nullptr )
                 {
                     tBasis[  97 ] = mBasis[  50 ]->get_child(  58 );
                 }
-                if ( tBasis[  98 ] == NULL )
+                if ( tBasis[  98 ] == nullptr )
                 {
                     tBasis[  98 ] = mBasis[  50 ]->get_child(  59 );
                 }
-                if ( tBasis[ 115 ] == NULL )
+                if ( tBasis[ 115 ] == nullptr )
                 {
                     tBasis[ 115 ] = mBasis[  50 ]->get_child(  76 );
                 }
-                if ( tBasis[ 116 ] == NULL )
+                if ( tBasis[ 116 ] == nullptr )
                 {
                     tBasis[ 116 ] = mBasis[  50 ]->get_child(  77 );
                 }
-                if ( tBasis[ 117 ] == NULL )
+                if ( tBasis[ 117 ] == nullptr )
                 {
                     tBasis[ 117 ] = mBasis[  50 ]->get_child(  78 );
                 }
-                if ( tBasis[ 118 ] == NULL )
+                if ( tBasis[ 118 ] == nullptr )
                 {
                     tBasis[ 118 ] = mBasis[  50 ]->get_child(  79 );
                 }
-                if ( tBasis[ 120 ] == NULL )
+                if ( tBasis[ 120 ] == nullptr )
                 {
                     tBasis[ 120 ] = mBasis[  50 ]->get_child(  81 );
                 }
-                if ( tBasis[ 121 ] == NULL )
+                if ( tBasis[ 121 ] == nullptr )
                 {
                     tBasis[ 121 ] = mBasis[  50 ]->get_child(  82 );
                 }
-                if ( tBasis[ 122 ] == NULL )
+                if ( tBasis[ 122 ] == nullptr )
                 {
                     tBasis[ 122 ] = mBasis[  50 ]->get_child(  83 );
                 }
-                if ( tBasis[ 123 ] == NULL )
+                if ( tBasis[ 123 ] == nullptr )
                 {
                     tBasis[ 123 ] = mBasis[  50 ]->get_child(  84 );
                 }
             }
 
-            if ( mBasis[  51 ] != NULL )
+            if ( mBasis[  51 ] != nullptr )
             {
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  51 ]->get_child(   0 );
                 }
-                if ( tBasis[  42 ] == NULL )
+                if ( tBasis[  42 ] == nullptr )
                 {
                     tBasis[  42 ] = mBasis[  51 ]->get_child(   1 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  51 ]->get_child(   2 );
                 }
-                if ( tBasis[  44 ] == NULL )
+                if ( tBasis[  44 ] == nullptr )
                 {
                     tBasis[  44 ] = mBasis[  51 ]->get_child(   3 );
                 }
-                if ( tBasis[  46 ] == NULL )
+                if ( tBasis[  46 ] == nullptr )
                 {
                     tBasis[  46 ] = mBasis[  51 ]->get_child(   5 );
                 }
-                if ( tBasis[  47 ] == NULL )
+                if ( tBasis[  47 ] == nullptr )
                 {
                     tBasis[  47 ] = mBasis[  51 ]->get_child(   6 );
                 }
-                if ( tBasis[  48 ] == NULL )
+                if ( tBasis[  48 ] == nullptr )
                 {
                     tBasis[  48 ] = mBasis[  51 ]->get_child(   7 );
                 }
-                if ( tBasis[  49 ] == NULL )
+                if ( tBasis[  49 ] == nullptr )
                 {
                     tBasis[  49 ] = mBasis[  51 ]->get_child(   8 );
                 }
-                if ( tBasis[  66 ] == NULL )
+                if ( tBasis[  66 ] == nullptr )
                 {
                     tBasis[  66 ] = mBasis[  51 ]->get_child(  25 );
                 }
-                if ( tBasis[  67 ] == NULL )
+                if ( tBasis[  67 ] == nullptr )
                 {
                     tBasis[  67 ] = mBasis[  51 ]->get_child(  26 );
                 }
-                if ( tBasis[  68 ] == NULL )
+                if ( tBasis[  68 ] == nullptr )
                 {
                     tBasis[  68 ] = mBasis[  51 ]->get_child(  27 );
                 }
-                if ( tBasis[  69 ] == NULL )
+                if ( tBasis[  69 ] == nullptr )
                 {
                     tBasis[  69 ] = mBasis[  51 ]->get_child(  28 );
                 }
-                if ( tBasis[  71 ] == NULL )
+                if ( tBasis[  71 ] == nullptr )
                 {
                     tBasis[  71 ] = mBasis[  51 ]->get_child(  30 );
                 }
-                if ( tBasis[  72 ] == NULL )
+                if ( tBasis[  72 ] == nullptr )
                 {
                     tBasis[  72 ] = mBasis[  51 ]->get_child(  31 );
                 }
-                if ( tBasis[  73 ] == NULL )
+                if ( tBasis[  73 ] == nullptr )
                 {
                     tBasis[  73 ] = mBasis[  51 ]->get_child(  32 );
                 }
-                if ( tBasis[  74 ] == NULL )
+                if ( tBasis[  74 ] == nullptr )
                 {
                     tBasis[  74 ] = mBasis[  51 ]->get_child(  33 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  51 ]->get_child(  50 );
                 }
-                if ( tBasis[  92 ] == NULL )
+                if ( tBasis[  92 ] == nullptr )
                 {
                     tBasis[  92 ] = mBasis[  51 ]->get_child(  51 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  51 ]->get_child(  52 );
                 }
-                if ( tBasis[  94 ] == NULL )
+                if ( tBasis[  94 ] == nullptr )
                 {
                     tBasis[  94 ] = mBasis[  51 ]->get_child(  53 );
                 }
-                if ( tBasis[  96 ] == NULL )
+                if ( tBasis[  96 ] == nullptr )
                 {
                     tBasis[  96 ] = mBasis[  51 ]->get_child(  55 );
                 }
-                if ( tBasis[  97 ] == NULL )
+                if ( tBasis[  97 ] == nullptr )
                 {
                     tBasis[  97 ] = mBasis[  51 ]->get_child(  56 );
                 }
-                if ( tBasis[  98 ] == NULL )
+                if ( tBasis[  98 ] == nullptr )
                 {
                     tBasis[  98 ] = mBasis[  51 ]->get_child(  57 );
                 }
-                if ( tBasis[  99 ] == NULL )
+                if ( tBasis[  99 ] == nullptr )
                 {
                     tBasis[  99 ] = mBasis[  51 ]->get_child(  58 );
                 }
-                if ( tBasis[ 116 ] == NULL )
+                if ( tBasis[ 116 ] == nullptr )
                 {
                     tBasis[ 116 ] = mBasis[  51 ]->get_child(  75 );
                 }
-                if ( tBasis[ 117 ] == NULL )
+                if ( tBasis[ 117 ] == nullptr )
                 {
                     tBasis[ 117 ] = mBasis[  51 ]->get_child(  76 );
                 }
-                if ( tBasis[ 118 ] == NULL )
+                if ( tBasis[ 118 ] == nullptr )
                 {
                     tBasis[ 118 ] = mBasis[  51 ]->get_child(  77 );
                 }
-                if ( tBasis[ 119 ] == NULL )
+                if ( tBasis[ 119 ] == nullptr )
                 {
                     tBasis[ 119 ] = mBasis[  51 ]->get_child(  78 );
                 }
-                if ( tBasis[ 121 ] == NULL )
+                if ( tBasis[ 121 ] == nullptr )
                 {
                     tBasis[ 121 ] = mBasis[  51 ]->get_child(  80 );
                 }
-                if ( tBasis[ 122 ] == NULL )
+                if ( tBasis[ 122 ] == nullptr )
                 {
                     tBasis[ 122 ] = mBasis[  51 ]->get_child(  81 );
                 }
-                if ( tBasis[ 123 ] == NULL )
+                if ( tBasis[ 123 ] == nullptr )
                 {
                     tBasis[ 123 ] = mBasis[  51 ]->get_child(  82 );
                 }
-                if ( tBasis[ 124 ] == NULL )
+                if ( tBasis[ 124 ] == nullptr )
                 {
                     tBasis[ 124 ] = mBasis[  51 ]->get_child(  83 );
                 }
             }
 
-            if ( mBasis[  52 ] != NULL )
+            if ( mBasis[  52 ] != nullptr )
             {
-                if ( tBasis[  75 ] == NULL )
+                if ( tBasis[  75 ] == nullptr )
                 {
                     tBasis[  75 ] = mBasis[  52 ]->get_child(   6 );
                 }
-                if ( tBasis[  76 ] == NULL )
+                if ( tBasis[  76 ] == nullptr )
                 {
                     tBasis[  76 ] = mBasis[  52 ]->get_child(   7 );
                 }
-                if ( tBasis[  77 ] == NULL )
+                if ( tBasis[  77 ] == nullptr )
                 {
                     tBasis[  77 ] = mBasis[  52 ]->get_child(   8 );
                 }
-                if ( tBasis[  78 ] == NULL )
+                if ( tBasis[  78 ] == nullptr )
                 {
                     tBasis[  78 ] = mBasis[  52 ]->get_child(   9 );
                 }
-                if ( tBasis[  80 ] == NULL )
+                if ( tBasis[  80 ] == nullptr )
                 {
                     tBasis[  80 ] = mBasis[  52 ]->get_child(  11 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  52 ]->get_child(  12 );
                 }
-                if ( tBasis[  82 ] == NULL )
+                if ( tBasis[  82 ] == nullptr )
                 {
                     tBasis[  82 ] = mBasis[  52 ]->get_child(  13 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  52 ]->get_child(  14 );
                 }
-                if ( tBasis[  85 ] == NULL )
+                if ( tBasis[  85 ] == nullptr )
                 {
                     tBasis[  85 ] = mBasis[  52 ]->get_child(  16 );
                 }
-                if ( tBasis[  86 ] == NULL )
+                if ( tBasis[  86 ] == nullptr )
                 {
                     tBasis[  86 ] = mBasis[  52 ]->get_child(  17 );
                 }
-                if ( tBasis[  87 ] == NULL )
+                if ( tBasis[  87 ] == nullptr )
                 {
                     tBasis[  87 ] = mBasis[  52 ]->get_child(  18 );
                 }
-                if ( tBasis[  88 ] == NULL )
+                if ( tBasis[  88 ] == nullptr )
                 {
                     tBasis[  88 ] = mBasis[  52 ]->get_child(  19 );
                 }
-                if ( tBasis[  90 ] == NULL )
+                if ( tBasis[  90 ] == nullptr )
                 {
                     tBasis[  90 ] = mBasis[  52 ]->get_child(  21 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  52 ]->get_child(  22 );
                 }
-                if ( tBasis[  92 ] == NULL )
+                if ( tBasis[  92 ] == nullptr )
                 {
                     tBasis[  92 ] = mBasis[  52 ]->get_child(  23 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  52 ]->get_child(  24 );
                 }
-                if ( tBasis[ 100 ] == NULL )
+                if ( tBasis[ 100 ] == nullptr )
                 {
                     tBasis[ 100 ] = mBasis[  52 ]->get_child(  31 );
                 }
-                if ( tBasis[ 101 ] == NULL )
+                if ( tBasis[ 101 ] == nullptr )
                 {
                     tBasis[ 101 ] = mBasis[  52 ]->get_child(  32 );
                 }
-                if ( tBasis[ 102 ] == NULL )
+                if ( tBasis[ 102 ] == nullptr )
                 {
                     tBasis[ 102 ] = mBasis[  52 ]->get_child(  33 );
                 }
-                if ( tBasis[ 103 ] == NULL )
+                if ( tBasis[ 103 ] == nullptr )
                 {
                     tBasis[ 103 ] = mBasis[  52 ]->get_child(  34 );
                 }
-                if ( tBasis[ 105 ] == NULL )
+                if ( tBasis[ 105 ] == nullptr )
                 {
                     tBasis[ 105 ] = mBasis[  52 ]->get_child(  36 );
                 }
-                if ( tBasis[ 106 ] == NULL )
+                if ( tBasis[ 106 ] == nullptr )
                 {
                     tBasis[ 106 ] = mBasis[  52 ]->get_child(  37 );
                 }
-                if ( tBasis[ 107 ] == NULL )
+                if ( tBasis[ 107 ] == nullptr )
                 {
                     tBasis[ 107 ] = mBasis[  52 ]->get_child(  38 );
                 }
-                if ( tBasis[ 108 ] == NULL )
+                if ( tBasis[ 108 ] == nullptr )
                 {
                     tBasis[ 108 ] = mBasis[  52 ]->get_child(  39 );
                 }
-                if ( tBasis[ 110 ] == NULL )
+                if ( tBasis[ 110 ] == nullptr )
                 {
                     tBasis[ 110 ] = mBasis[  52 ]->get_child(  41 );
                 }
-                if ( tBasis[ 111 ] == NULL )
+                if ( tBasis[ 111 ] == nullptr )
                 {
                     tBasis[ 111 ] = mBasis[  52 ]->get_child(  42 );
                 }
-                if ( tBasis[ 112 ] == NULL )
+                if ( tBasis[ 112 ] == nullptr )
                 {
                     tBasis[ 112 ] = mBasis[  52 ]->get_child(  43 );
                 }
-                if ( tBasis[ 113 ] == NULL )
+                if ( tBasis[ 113 ] == nullptr )
                 {
                     tBasis[ 113 ] = mBasis[  52 ]->get_child(  44 );
                 }
-                if ( tBasis[ 115 ] == NULL )
+                if ( tBasis[ 115 ] == nullptr )
                 {
                     tBasis[ 115 ] = mBasis[  52 ]->get_child(  46 );
                 }
-                if ( tBasis[ 116 ] == NULL )
+                if ( tBasis[ 116 ] == nullptr )
                 {
                     tBasis[ 116 ] = mBasis[  52 ]->get_child(  47 );
                 }
-                if ( tBasis[ 117 ] == NULL )
+                if ( tBasis[ 117 ] == nullptr )
                 {
                     tBasis[ 117 ] = mBasis[  52 ]->get_child(  48 );
                 }
-                if ( tBasis[ 118 ] == NULL )
+                if ( tBasis[ 118 ] == nullptr )
                 {
                     tBasis[ 118 ] = mBasis[  52 ]->get_child(  49 );
                 }
             }
 
-            if ( mBasis[  53 ] != NULL )
+            if ( mBasis[  53 ] != nullptr )
             {
-                if ( tBasis[  76 ] == NULL )
+                if ( tBasis[  76 ] == nullptr )
                 {
                     tBasis[  76 ] = mBasis[  53 ]->get_child(   5 );
                 }
-                if ( tBasis[  77 ] == NULL )
+                if ( tBasis[  77 ] == nullptr )
                 {
                     tBasis[  77 ] = mBasis[  53 ]->get_child(   6 );
                 }
-                if ( tBasis[  78 ] == NULL )
+                if ( tBasis[  78 ] == nullptr )
                 {
                     tBasis[  78 ] = mBasis[  53 ]->get_child(   7 );
                 }
-                if ( tBasis[  79 ] == NULL )
+                if ( tBasis[  79 ] == nullptr )
                 {
                     tBasis[  79 ] = mBasis[  53 ]->get_child(   8 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  53 ]->get_child(  10 );
                 }
-                if ( tBasis[  82 ] == NULL )
+                if ( tBasis[  82 ] == nullptr )
                 {
                     tBasis[  82 ] = mBasis[  53 ]->get_child(  11 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  53 ]->get_child(  12 );
                 }
-                if ( tBasis[  84 ] == NULL )
+                if ( tBasis[  84 ] == nullptr )
                 {
                     tBasis[  84 ] = mBasis[  53 ]->get_child(  13 );
                 }
-                if ( tBasis[  86 ] == NULL )
+                if ( tBasis[  86 ] == nullptr )
                 {
                     tBasis[  86 ] = mBasis[  53 ]->get_child(  15 );
                 }
-                if ( tBasis[  87 ] == NULL )
+                if ( tBasis[  87 ] == nullptr )
                 {
                     tBasis[  87 ] = mBasis[  53 ]->get_child(  16 );
                 }
-                if ( tBasis[  88 ] == NULL )
+                if ( tBasis[  88 ] == nullptr )
                 {
                     tBasis[  88 ] = mBasis[  53 ]->get_child(  17 );
                 }
-                if ( tBasis[  89 ] == NULL )
+                if ( tBasis[  89 ] == nullptr )
                 {
                     tBasis[  89 ] = mBasis[  53 ]->get_child(  18 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  53 ]->get_child(  20 );
                 }
-                if ( tBasis[  92 ] == NULL )
+                if ( tBasis[  92 ] == nullptr )
                 {
                     tBasis[  92 ] = mBasis[  53 ]->get_child(  21 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  53 ]->get_child(  22 );
                 }
-                if ( tBasis[  94 ] == NULL )
+                if ( tBasis[  94 ] == nullptr )
                 {
                     tBasis[  94 ] = mBasis[  53 ]->get_child(  23 );
                 }
-                if ( tBasis[ 101 ] == NULL )
+                if ( tBasis[ 101 ] == nullptr )
                 {
                     tBasis[ 101 ] = mBasis[  53 ]->get_child(  30 );
                 }
-                if ( tBasis[ 102 ] == NULL )
+                if ( tBasis[ 102 ] == nullptr )
                 {
                     tBasis[ 102 ] = mBasis[  53 ]->get_child(  31 );
                 }
-                if ( tBasis[ 103 ] == NULL )
+                if ( tBasis[ 103 ] == nullptr )
                 {
                     tBasis[ 103 ] = mBasis[  53 ]->get_child(  32 );
                 }
-                if ( tBasis[ 104 ] == NULL )
+                if ( tBasis[ 104 ] == nullptr )
                 {
                     tBasis[ 104 ] = mBasis[  53 ]->get_child(  33 );
                 }
-                if ( tBasis[ 106 ] == NULL )
+                if ( tBasis[ 106 ] == nullptr )
                 {
                     tBasis[ 106 ] = mBasis[  53 ]->get_child(  35 );
                 }
-                if ( tBasis[ 107 ] == NULL )
+                if ( tBasis[ 107 ] == nullptr )
                 {
                     tBasis[ 107 ] = mBasis[  53 ]->get_child(  36 );
                 }
-                if ( tBasis[ 108 ] == NULL )
+                if ( tBasis[ 108 ] == nullptr )
                 {
                     tBasis[ 108 ] = mBasis[  53 ]->get_child(  37 );
                 }
-                if ( tBasis[ 109 ] == NULL )
+                if ( tBasis[ 109 ] == nullptr )
                 {
                     tBasis[ 109 ] = mBasis[  53 ]->get_child(  38 );
                 }
-                if ( tBasis[ 111 ] == NULL )
+                if ( tBasis[ 111 ] == nullptr )
                 {
                     tBasis[ 111 ] = mBasis[  53 ]->get_child(  40 );
                 }
-                if ( tBasis[ 112 ] == NULL )
+                if ( tBasis[ 112 ] == nullptr )
                 {
                     tBasis[ 112 ] = mBasis[  53 ]->get_child(  41 );
                 }
-                if ( tBasis[ 113 ] == NULL )
+                if ( tBasis[ 113 ] == nullptr )
                 {
                     tBasis[ 113 ] = mBasis[  53 ]->get_child(  42 );
                 }
-                if ( tBasis[ 114 ] == NULL )
+                if ( tBasis[ 114 ] == nullptr )
                 {
                     tBasis[ 114 ] = mBasis[  53 ]->get_child(  43 );
                 }
-                if ( tBasis[ 116 ] == NULL )
+                if ( tBasis[ 116 ] == nullptr )
                 {
                     tBasis[ 116 ] = mBasis[  53 ]->get_child(  45 );
                 }
-                if ( tBasis[ 117 ] == NULL )
+                if ( tBasis[ 117 ] == nullptr )
                 {
                     tBasis[ 117 ] = mBasis[  53 ]->get_child(  46 );
                 }
-                if ( tBasis[ 118 ] == NULL )
+                if ( tBasis[ 118 ] == nullptr )
                 {
                     tBasis[ 118 ] = mBasis[  53 ]->get_child(  47 );
                 }
-                if ( tBasis[ 119 ] == NULL )
+                if ( tBasis[ 119 ] == nullptr )
                 {
                     tBasis[ 119 ] = mBasis[  53 ]->get_child(  48 );
                 }
             }
 
-            if ( mBasis[  54 ] != NULL )
+            if ( mBasis[  54 ] != nullptr )
             {
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  54 ]->get_child(   0 );
                 }
-                if ( tBasis[  82 ] == NULL )
+                if ( tBasis[  82 ] == nullptr )
                 {
                     tBasis[  82 ] = mBasis[  54 ]->get_child(   1 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  54 ]->get_child(   2 );
                 }
-                if ( tBasis[  84 ] == NULL )
+                if ( tBasis[  84 ] == nullptr )
                 {
                     tBasis[  84 ] = mBasis[  54 ]->get_child(   3 );
                 }
-                if ( tBasis[  86 ] == NULL )
+                if ( tBasis[  86 ] == nullptr )
                 {
                     tBasis[  86 ] = mBasis[  54 ]->get_child(   5 );
                 }
-                if ( tBasis[  87 ] == NULL )
+                if ( tBasis[  87 ] == nullptr )
                 {
                     tBasis[  87 ] = mBasis[  54 ]->get_child(   6 );
                 }
-                if ( tBasis[  88 ] == NULL )
+                if ( tBasis[  88 ] == nullptr )
                 {
                     tBasis[  88 ] = mBasis[  54 ]->get_child(   7 );
                 }
-                if ( tBasis[  89 ] == NULL )
+                if ( tBasis[  89 ] == nullptr )
                 {
                     tBasis[  89 ] = mBasis[  54 ]->get_child(   8 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  54 ]->get_child(  10 );
                 }
-                if ( tBasis[  92 ] == NULL )
+                if ( tBasis[  92 ] == nullptr )
                 {
                     tBasis[  92 ] = mBasis[  54 ]->get_child(  11 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  54 ]->get_child(  12 );
                 }
-                if ( tBasis[  94 ] == NULL )
+                if ( tBasis[  94 ] == nullptr )
                 {
                     tBasis[  94 ] = mBasis[  54 ]->get_child(  13 );
                 }
-                if ( tBasis[  96 ] == NULL )
+                if ( tBasis[  96 ] == nullptr )
                 {
                     tBasis[  96 ] = mBasis[  54 ]->get_child(  15 );
                 }
-                if ( tBasis[  97 ] == NULL )
+                if ( tBasis[  97 ] == nullptr )
                 {
                     tBasis[  97 ] = mBasis[  54 ]->get_child(  16 );
                 }
-                if ( tBasis[  98 ] == NULL )
+                if ( tBasis[  98 ] == nullptr )
                 {
                     tBasis[  98 ] = mBasis[  54 ]->get_child(  17 );
                 }
-                if ( tBasis[  99 ] == NULL )
+                if ( tBasis[  99 ] == nullptr )
                 {
                     tBasis[  99 ] = mBasis[  54 ]->get_child(  18 );
                 }
-                if ( tBasis[ 106 ] == NULL )
+                if ( tBasis[ 106 ] == nullptr )
                 {
                     tBasis[ 106 ] = mBasis[  54 ]->get_child(  25 );
                 }
-                if ( tBasis[ 107 ] == NULL )
+                if ( tBasis[ 107 ] == nullptr )
                 {
                     tBasis[ 107 ] = mBasis[  54 ]->get_child(  26 );
                 }
-                if ( tBasis[ 108 ] == NULL )
+                if ( tBasis[ 108 ] == nullptr )
                 {
                     tBasis[ 108 ] = mBasis[  54 ]->get_child(  27 );
                 }
-                if ( tBasis[ 109 ] == NULL )
+                if ( tBasis[ 109 ] == nullptr )
                 {
                     tBasis[ 109 ] = mBasis[  54 ]->get_child(  28 );
                 }
-                if ( tBasis[ 111 ] == NULL )
+                if ( tBasis[ 111 ] == nullptr )
                 {
                     tBasis[ 111 ] = mBasis[  54 ]->get_child(  30 );
                 }
-                if ( tBasis[ 112 ] == NULL )
+                if ( tBasis[ 112 ] == nullptr )
                 {
                     tBasis[ 112 ] = mBasis[  54 ]->get_child(  31 );
                 }
-                if ( tBasis[ 113 ] == NULL )
+                if ( tBasis[ 113 ] == nullptr )
                 {
                     tBasis[ 113 ] = mBasis[  54 ]->get_child(  32 );
                 }
-                if ( tBasis[ 114 ] == NULL )
+                if ( tBasis[ 114 ] == nullptr )
                 {
                     tBasis[ 114 ] = mBasis[  54 ]->get_child(  33 );
                 }
-                if ( tBasis[ 116 ] == NULL )
+                if ( tBasis[ 116 ] == nullptr )
                 {
                     tBasis[ 116 ] = mBasis[  54 ]->get_child(  35 );
                 }
-                if ( tBasis[ 117 ] == NULL )
+                if ( tBasis[ 117 ] == nullptr )
                 {
                     tBasis[ 117 ] = mBasis[  54 ]->get_child(  36 );
                 }
-                if ( tBasis[ 118 ] == NULL )
+                if ( tBasis[ 118 ] == nullptr )
                 {
                     tBasis[ 118 ] = mBasis[  54 ]->get_child(  37 );
                 }
-                if ( tBasis[ 119 ] == NULL )
+                if ( tBasis[ 119 ] == nullptr )
                 {
                     tBasis[ 119 ] = mBasis[  54 ]->get_child(  38 );
                 }
-                if ( tBasis[ 121 ] == NULL )
+                if ( tBasis[ 121 ] == nullptr )
                 {
                     tBasis[ 121 ] = mBasis[  54 ]->get_child(  40 );
                 }
-                if ( tBasis[ 122 ] == NULL )
+                if ( tBasis[ 122 ] == nullptr )
                 {
                     tBasis[ 122 ] = mBasis[  54 ]->get_child(  41 );
                 }
-                if ( tBasis[ 123 ] == NULL )
+                if ( tBasis[ 123 ] == nullptr )
                 {
                     tBasis[ 123 ] = mBasis[  54 ]->get_child(  42 );
                 }
-                if ( tBasis[ 124 ] == NULL )
+                if ( tBasis[ 124 ] == nullptr )
                 {
                     tBasis[ 124 ] = mBasis[  54 ]->get_child(  43 );
                 }
             }
 
-            if ( mBasis[  55 ] != NULL )
+            if ( mBasis[  55 ] != nullptr )
             {
-                if ( tBasis[  80 ] == NULL )
+                if ( tBasis[  80 ] == nullptr )
                 {
                     tBasis[  80 ] = mBasis[  55 ]->get_child(   1 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  55 ]->get_child(   2 );
                 }
-                if ( tBasis[  82 ] == NULL )
+                if ( tBasis[  82 ] == nullptr )
                 {
                     tBasis[  82 ] = mBasis[  55 ]->get_child(   3 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  55 ]->get_child(   4 );
                 }
-                if ( tBasis[  85 ] == NULL )
+                if ( tBasis[  85 ] == nullptr )
                 {
                     tBasis[  85 ] = mBasis[  55 ]->get_child(   6 );
                 }
-                if ( tBasis[  86 ] == NULL )
+                if ( tBasis[  86 ] == nullptr )
                 {
                     tBasis[  86 ] = mBasis[  55 ]->get_child(   7 );
                 }
-                if ( tBasis[  87 ] == NULL )
+                if ( tBasis[  87 ] == nullptr )
                 {
                     tBasis[  87 ] = mBasis[  55 ]->get_child(   8 );
                 }
-                if ( tBasis[  88 ] == NULL )
+                if ( tBasis[  88 ] == nullptr )
                 {
                     tBasis[  88 ] = mBasis[  55 ]->get_child(   9 );
                 }
-                if ( tBasis[  90 ] == NULL )
+                if ( tBasis[  90 ] == nullptr )
                 {
                     tBasis[  90 ] = mBasis[  55 ]->get_child(  11 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  55 ]->get_child(  12 );
                 }
-                if ( tBasis[  92 ] == NULL )
+                if ( tBasis[  92 ] == nullptr )
                 {
                     tBasis[  92 ] = mBasis[  55 ]->get_child(  13 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  55 ]->get_child(  14 );
                 }
-                if ( tBasis[  95 ] == NULL )
+                if ( tBasis[  95 ] == nullptr )
                 {
                     tBasis[  95 ] = mBasis[  55 ]->get_child(  16 );
                 }
-                if ( tBasis[  96 ] == NULL )
+                if ( tBasis[  96 ] == nullptr )
                 {
                     tBasis[  96 ] = mBasis[  55 ]->get_child(  17 );
                 }
-                if ( tBasis[  97 ] == NULL )
+                if ( tBasis[  97 ] == nullptr )
                 {
                     tBasis[  97 ] = mBasis[  55 ]->get_child(  18 );
                 }
-                if ( tBasis[  98 ] == NULL )
+                if ( tBasis[  98 ] == nullptr )
                 {
                     tBasis[  98 ] = mBasis[  55 ]->get_child(  19 );
                 }
-                if ( tBasis[ 105 ] == NULL )
+                if ( tBasis[ 105 ] == nullptr )
                 {
                     tBasis[ 105 ] = mBasis[  55 ]->get_child(  26 );
                 }
-                if ( tBasis[ 106 ] == NULL )
+                if ( tBasis[ 106 ] == nullptr )
                 {
                     tBasis[ 106 ] = mBasis[  55 ]->get_child(  27 );
                 }
-                if ( tBasis[ 107 ] == NULL )
+                if ( tBasis[ 107 ] == nullptr )
                 {
                     tBasis[ 107 ] = mBasis[  55 ]->get_child(  28 );
                 }
-                if ( tBasis[ 108 ] == NULL )
+                if ( tBasis[ 108 ] == nullptr )
                 {
                     tBasis[ 108 ] = mBasis[  55 ]->get_child(  29 );
                 }
-                if ( tBasis[ 110 ] == NULL )
+                if ( tBasis[ 110 ] == nullptr )
                 {
                     tBasis[ 110 ] = mBasis[  55 ]->get_child(  31 );
                 }
-                if ( tBasis[ 111 ] == NULL )
+                if ( tBasis[ 111 ] == nullptr )
                 {
                     tBasis[ 111 ] = mBasis[  55 ]->get_child(  32 );
                 }
-                if ( tBasis[ 112 ] == NULL )
+                if ( tBasis[ 112 ] == nullptr )
                 {
                     tBasis[ 112 ] = mBasis[  55 ]->get_child(  33 );
                 }
-                if ( tBasis[ 113 ] == NULL )
+                if ( tBasis[ 113 ] == nullptr )
                 {
                     tBasis[ 113 ] = mBasis[  55 ]->get_child(  34 );
                 }
-                if ( tBasis[ 115 ] == NULL )
+                if ( tBasis[ 115 ] == nullptr )
                 {
                     tBasis[ 115 ] = mBasis[  55 ]->get_child(  36 );
                 }
-                if ( tBasis[ 116 ] == NULL )
+                if ( tBasis[ 116 ] == nullptr )
                 {
                     tBasis[ 116 ] = mBasis[  55 ]->get_child(  37 );
                 }
-                if ( tBasis[ 117 ] == NULL )
+                if ( tBasis[ 117 ] == nullptr )
                 {
                     tBasis[ 117 ] = mBasis[  55 ]->get_child(  38 );
                 }
-                if ( tBasis[ 118 ] == NULL )
+                if ( tBasis[ 118 ] == nullptr )
                 {
                     tBasis[ 118 ] = mBasis[  55 ]->get_child(  39 );
                 }
-                if ( tBasis[ 120 ] == NULL )
+                if ( tBasis[ 120 ] == nullptr )
                 {
                     tBasis[ 120 ] = mBasis[  55 ]->get_child(  41 );
                 }
-                if ( tBasis[ 121 ] == NULL )
+                if ( tBasis[ 121 ] == nullptr )
                 {
                     tBasis[ 121 ] = mBasis[  55 ]->get_child(  42 );
                 }
-                if ( tBasis[ 122 ] == NULL )
+                if ( tBasis[ 122 ] == nullptr )
                 {
                     tBasis[ 122 ] = mBasis[  55 ]->get_child(  43 );
                 }
-                if ( tBasis[ 123 ] == NULL )
+                if ( tBasis[ 123 ] == nullptr )
                 {
                     tBasis[ 123 ] = mBasis[  55 ]->get_child(  44 );
                 }
             }
 
-            if ( mBasis[  56 ] != NULL )
+            if ( mBasis[  56 ] != nullptr )
             {
-                if ( tBasis[   0 ] == NULL )
+                if ( tBasis[   0 ] == nullptr )
                 {
                     tBasis[   0 ] = mBasis[  56 ]->get_child(  31 );
                 }
-                if ( tBasis[   1 ] == NULL )
+                if ( tBasis[   1 ] == nullptr )
                 {
                     tBasis[   1 ] = mBasis[  56 ]->get_child(  32 );
                 }
-                if ( tBasis[   2 ] == NULL )
+                if ( tBasis[   2 ] == nullptr )
                 {
                     tBasis[   2 ] = mBasis[  56 ]->get_child(  33 );
                 }
-                if ( tBasis[   3 ] == NULL )
+                if ( tBasis[   3 ] == nullptr )
                 {
                     tBasis[   3 ] = mBasis[  56 ]->get_child(  34 );
                 }
-                if ( tBasis[   5 ] == NULL )
+                if ( tBasis[   5 ] == nullptr )
                 {
                     tBasis[   5 ] = mBasis[  56 ]->get_child(  36 );
                 }
-                if ( tBasis[   6 ] == NULL )
+                if ( tBasis[   6 ] == nullptr )
                 {
                     tBasis[   6 ] = mBasis[  56 ]->get_child(  37 );
                 }
-                if ( tBasis[   7 ] == NULL )
+                if ( tBasis[   7 ] == nullptr )
                 {
                     tBasis[   7 ] = mBasis[  56 ]->get_child(  38 );
                 }
-                if ( tBasis[   8 ] == NULL )
+                if ( tBasis[   8 ] == nullptr )
                 {
                     tBasis[   8 ] = mBasis[  56 ]->get_child(  39 );
                 }
-                if ( tBasis[  10 ] == NULL )
+                if ( tBasis[  10 ] == nullptr )
                 {
                     tBasis[  10 ] = mBasis[  56 ]->get_child(  41 );
                 }
-                if ( tBasis[  11 ] == NULL )
+                if ( tBasis[  11 ] == nullptr )
                 {
                     tBasis[  11 ] = mBasis[  56 ]->get_child(  42 );
                 }
-                if ( tBasis[  12 ] == NULL )
+                if ( tBasis[  12 ] == nullptr )
                 {
                     tBasis[  12 ] = mBasis[  56 ]->get_child(  43 );
                 }
-                if ( tBasis[  13 ] == NULL )
+                if ( tBasis[  13 ] == nullptr )
                 {
                     tBasis[  13 ] = mBasis[  56 ]->get_child(  44 );
                 }
-                if ( tBasis[  15 ] == NULL )
+                if ( tBasis[  15 ] == nullptr )
                 {
                     tBasis[  15 ] = mBasis[  56 ]->get_child(  46 );
                 }
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[  56 ]->get_child(  47 );
                 }
-                if ( tBasis[  17 ] == NULL )
+                if ( tBasis[  17 ] == nullptr )
                 {
                     tBasis[  17 ] = mBasis[  56 ]->get_child(  48 );
                 }
-                if ( tBasis[  18 ] == NULL )
+                if ( tBasis[  18 ] == nullptr )
                 {
                     tBasis[  18 ] = mBasis[  56 ]->get_child(  49 );
                 }
-                if ( tBasis[  25 ] == NULL )
+                if ( tBasis[  25 ] == nullptr )
                 {
                     tBasis[  25 ] = mBasis[  56 ]->get_child(  56 );
                 }
-                if ( tBasis[  26 ] == NULL )
+                if ( tBasis[  26 ] == nullptr )
                 {
                     tBasis[  26 ] = mBasis[  56 ]->get_child(  57 );
                 }
-                if ( tBasis[  27 ] == NULL )
+                if ( tBasis[  27 ] == nullptr )
                 {
                     tBasis[  27 ] = mBasis[  56 ]->get_child(  58 );
                 }
-                if ( tBasis[  28 ] == NULL )
+                if ( tBasis[  28 ] == nullptr )
                 {
                     tBasis[  28 ] = mBasis[  56 ]->get_child(  59 );
                 }
-                if ( tBasis[  30 ] == NULL )
+                if ( tBasis[  30 ] == nullptr )
                 {
                     tBasis[  30 ] = mBasis[  56 ]->get_child(  61 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  56 ]->get_child(  62 );
                 }
-                if ( tBasis[  32 ] == NULL )
+                if ( tBasis[  32 ] == nullptr )
                 {
                     tBasis[  32 ] = mBasis[  56 ]->get_child(  63 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  56 ]->get_child(  64 );
                 }
-                if ( tBasis[  35 ] == NULL )
+                if ( tBasis[  35 ] == nullptr )
                 {
                     tBasis[  35 ] = mBasis[  56 ]->get_child(  66 );
                 }
-                if ( tBasis[  36 ] == NULL )
+                if ( tBasis[  36 ] == nullptr )
                 {
                     tBasis[  36 ] = mBasis[  56 ]->get_child(  67 );
                 }
-                if ( tBasis[  37 ] == NULL )
+                if ( tBasis[  37 ] == nullptr )
                 {
                     tBasis[  37 ] = mBasis[  56 ]->get_child(  68 );
                 }
-                if ( tBasis[  38 ] == NULL )
+                if ( tBasis[  38 ] == nullptr )
                 {
                     tBasis[  38 ] = mBasis[  56 ]->get_child(  69 );
                 }
-                if ( tBasis[  40 ] == NULL )
+                if ( tBasis[  40 ] == nullptr )
                 {
                     tBasis[  40 ] = mBasis[  56 ]->get_child(  71 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  56 ]->get_child(  72 );
                 }
-                if ( tBasis[  42 ] == NULL )
+                if ( tBasis[  42 ] == nullptr )
                 {
                     tBasis[  42 ] = mBasis[  56 ]->get_child(  73 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  56 ]->get_child(  74 );
                 }
-                if ( tBasis[  50 ] == NULL )
+                if ( tBasis[  50 ] == nullptr )
                 {
                     tBasis[  50 ] = mBasis[  56 ]->get_child(  81 );
                 }
-                if ( tBasis[  51 ] == NULL )
+                if ( tBasis[  51 ] == nullptr )
                 {
                     tBasis[  51 ] = mBasis[  56 ]->get_child(  82 );
                 }
-                if ( tBasis[  52 ] == NULL )
+                if ( tBasis[  52 ] == nullptr )
                 {
                     tBasis[  52 ] = mBasis[  56 ]->get_child(  83 );
                 }
-                if ( tBasis[  53 ] == NULL )
+                if ( tBasis[  53 ] == nullptr )
                 {
                     tBasis[  53 ] = mBasis[  56 ]->get_child(  84 );
                 }
-                if ( tBasis[  55 ] == NULL )
+                if ( tBasis[  55 ] == nullptr )
                 {
                     tBasis[  55 ] = mBasis[  56 ]->get_child(  86 );
                 }
-                if ( tBasis[  56 ] == NULL )
+                if ( tBasis[  56 ] == nullptr )
                 {
                     tBasis[  56 ] = mBasis[  56 ]->get_child(  87 );
                 }
-                if ( tBasis[  57 ] == NULL )
+                if ( tBasis[  57 ] == nullptr )
                 {
                     tBasis[  57 ] = mBasis[  56 ]->get_child(  88 );
                 }
-                if ( tBasis[  58 ] == NULL )
+                if ( tBasis[  58 ] == nullptr )
                 {
                     tBasis[  58 ] = mBasis[  56 ]->get_child(  89 );
                 }
-                if ( tBasis[  60 ] == NULL )
+                if ( tBasis[  60 ] == nullptr )
                 {
                     tBasis[  60 ] = mBasis[  56 ]->get_child(  91 );
                 }
-                if ( tBasis[  61 ] == NULL )
+                if ( tBasis[  61 ] == nullptr )
                 {
                     tBasis[  61 ] = mBasis[  56 ]->get_child(  92 );
                 }
-                if ( tBasis[  62 ] == NULL )
+                if ( tBasis[  62 ] == nullptr )
                 {
                     tBasis[  62 ] = mBasis[  56 ]->get_child(  93 );
                 }
-                if ( tBasis[  63 ] == NULL )
+                if ( tBasis[  63 ] == nullptr )
                 {
                     tBasis[  63 ] = mBasis[  56 ]->get_child(  94 );
                 }
-                if ( tBasis[  65 ] == NULL )
+                if ( tBasis[  65 ] == nullptr )
                 {
                     tBasis[  65 ] = mBasis[  56 ]->get_child(  96 );
                 }
-                if ( tBasis[  66 ] == NULL )
+                if ( tBasis[  66 ] == nullptr )
                 {
                     tBasis[  66 ] = mBasis[  56 ]->get_child(  97 );
                 }
-                if ( tBasis[  67 ] == NULL )
+                if ( tBasis[  67 ] == nullptr )
                 {
                     tBasis[  67 ] = mBasis[  56 ]->get_child(  98 );
                 }
-                if ( tBasis[  68 ] == NULL )
+                if ( tBasis[  68 ] == nullptr )
                 {
                     tBasis[  68 ] = mBasis[  56 ]->get_child(  99 );
                 }
-                if ( tBasis[  75 ] == NULL )
+                if ( tBasis[  75 ] == nullptr )
                 {
                     tBasis[  75 ] = mBasis[  56 ]->get_child( 106 );
                 }
-                if ( tBasis[  76 ] == NULL )
+                if ( tBasis[  76 ] == nullptr )
                 {
                     tBasis[  76 ] = mBasis[  56 ]->get_child( 107 );
                 }
-                if ( tBasis[  77 ] == NULL )
+                if ( tBasis[  77 ] == nullptr )
                 {
                     tBasis[  77 ] = mBasis[  56 ]->get_child( 108 );
                 }
-                if ( tBasis[  78 ] == NULL )
+                if ( tBasis[  78 ] == nullptr )
                 {
                     tBasis[  78 ] = mBasis[  56 ]->get_child( 109 );
                 }
-                if ( tBasis[  80 ] == NULL )
+                if ( tBasis[  80 ] == nullptr )
                 {
                     tBasis[  80 ] = mBasis[  56 ]->get_child( 111 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  56 ]->get_child( 112 );
                 }
-                if ( tBasis[  82 ] == NULL )
+                if ( tBasis[  82 ] == nullptr )
                 {
                     tBasis[  82 ] = mBasis[  56 ]->get_child( 113 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  56 ]->get_child( 114 );
                 }
-                if ( tBasis[  85 ] == NULL )
+                if ( tBasis[  85 ] == nullptr )
                 {
                     tBasis[  85 ] = mBasis[  56 ]->get_child( 116 );
                 }
-                if ( tBasis[  86 ] == NULL )
+                if ( tBasis[  86 ] == nullptr )
                 {
                     tBasis[  86 ] = mBasis[  56 ]->get_child( 117 );
                 }
-                if ( tBasis[  87 ] == NULL )
+                if ( tBasis[  87 ] == nullptr )
                 {
                     tBasis[  87 ] = mBasis[  56 ]->get_child( 118 );
                 }
-                if ( tBasis[  88 ] == NULL )
+                if ( tBasis[  88 ] == nullptr )
                 {
                     tBasis[  88 ] = mBasis[  56 ]->get_child( 119 );
                 }
-                if ( tBasis[  90 ] == NULL )
+                if ( tBasis[  90 ] == nullptr )
                 {
                     tBasis[  90 ] = mBasis[  56 ]->get_child( 121 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  56 ]->get_child( 122 );
                 }
-                if ( tBasis[  92 ] == NULL )
+                if ( tBasis[  92 ] == nullptr )
                 {
                     tBasis[  92 ] = mBasis[  56 ]->get_child( 123 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  56 ]->get_child( 124 );
                 }
             }
 
-            if ( mBasis[  57 ] != NULL )
+            if ( mBasis[  57 ] != nullptr )
             {
-                if ( tBasis[   1 ] == NULL )
+                if ( tBasis[   1 ] == nullptr )
                 {
                     tBasis[   1 ] = mBasis[  57 ]->get_child(  30 );
                 }
-                if ( tBasis[   2 ] == NULL )
+                if ( tBasis[   2 ] == nullptr )
                 {
                     tBasis[   2 ] = mBasis[  57 ]->get_child(  31 );
                 }
-                if ( tBasis[   3 ] == NULL )
+                if ( tBasis[   3 ] == nullptr )
                 {
                     tBasis[   3 ] = mBasis[  57 ]->get_child(  32 );
                 }
-                if ( tBasis[   4 ] == NULL )
+                if ( tBasis[   4 ] == nullptr )
                 {
                     tBasis[   4 ] = mBasis[  57 ]->get_child(  33 );
                 }
-                if ( tBasis[   6 ] == NULL )
+                if ( tBasis[   6 ] == nullptr )
                 {
                     tBasis[   6 ] = mBasis[  57 ]->get_child(  35 );
                 }
-                if ( tBasis[   7 ] == NULL )
+                if ( tBasis[   7 ] == nullptr )
                 {
                     tBasis[   7 ] = mBasis[  57 ]->get_child(  36 );
                 }
-                if ( tBasis[   8 ] == NULL )
+                if ( tBasis[   8 ] == nullptr )
                 {
                     tBasis[   8 ] = mBasis[  57 ]->get_child(  37 );
                 }
-                if ( tBasis[   9 ] == NULL )
+                if ( tBasis[   9 ] == nullptr )
                 {
                     tBasis[   9 ] = mBasis[  57 ]->get_child(  38 );
                 }
-                if ( tBasis[  11 ] == NULL )
+                if ( tBasis[  11 ] == nullptr )
                 {
                     tBasis[  11 ] = mBasis[  57 ]->get_child(  40 );
                 }
-                if ( tBasis[  12 ] == NULL )
+                if ( tBasis[  12 ] == nullptr )
                 {
                     tBasis[  12 ] = mBasis[  57 ]->get_child(  41 );
                 }
-                if ( tBasis[  13 ] == NULL )
+                if ( tBasis[  13 ] == nullptr )
                 {
                     tBasis[  13 ] = mBasis[  57 ]->get_child(  42 );
                 }
-                if ( tBasis[  14 ] == NULL )
+                if ( tBasis[  14 ] == nullptr )
                 {
                     tBasis[  14 ] = mBasis[  57 ]->get_child(  43 );
                 }
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[  57 ]->get_child(  45 );
                 }
-                if ( tBasis[  17 ] == NULL )
+                if ( tBasis[  17 ] == nullptr )
                 {
                     tBasis[  17 ] = mBasis[  57 ]->get_child(  46 );
                 }
-                if ( tBasis[  18 ] == NULL )
+                if ( tBasis[  18 ] == nullptr )
                 {
                     tBasis[  18 ] = mBasis[  57 ]->get_child(  47 );
                 }
-                if ( tBasis[  19 ] == NULL )
+                if ( tBasis[  19 ] == nullptr )
                 {
                     tBasis[  19 ] = mBasis[  57 ]->get_child(  48 );
                 }
-                if ( tBasis[  26 ] == NULL )
+                if ( tBasis[  26 ] == nullptr )
                 {
                     tBasis[  26 ] = mBasis[  57 ]->get_child(  55 );
                 }
-                if ( tBasis[  27 ] == NULL )
+                if ( tBasis[  27 ] == nullptr )
                 {
                     tBasis[  27 ] = mBasis[  57 ]->get_child(  56 );
                 }
-                if ( tBasis[  28 ] == NULL )
+                if ( tBasis[  28 ] == nullptr )
                 {
                     tBasis[  28 ] = mBasis[  57 ]->get_child(  57 );
                 }
-                if ( tBasis[  29 ] == NULL )
+                if ( tBasis[  29 ] == nullptr )
                 {
                     tBasis[  29 ] = mBasis[  57 ]->get_child(  58 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  57 ]->get_child(  60 );
                 }
-                if ( tBasis[  32 ] == NULL )
+                if ( tBasis[  32 ] == nullptr )
                 {
                     tBasis[  32 ] = mBasis[  57 ]->get_child(  61 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  57 ]->get_child(  62 );
                 }
-                if ( tBasis[  34 ] == NULL )
+                if ( tBasis[  34 ] == nullptr )
                 {
                     tBasis[  34 ] = mBasis[  57 ]->get_child(  63 );
                 }
-                if ( tBasis[  36 ] == NULL )
+                if ( tBasis[  36 ] == nullptr )
                 {
                     tBasis[  36 ] = mBasis[  57 ]->get_child(  65 );
                 }
-                if ( tBasis[  37 ] == NULL )
+                if ( tBasis[  37 ] == nullptr )
                 {
                     tBasis[  37 ] = mBasis[  57 ]->get_child(  66 );
                 }
-                if ( tBasis[  38 ] == NULL )
+                if ( tBasis[  38 ] == nullptr )
                 {
                     tBasis[  38 ] = mBasis[  57 ]->get_child(  67 );
                 }
-                if ( tBasis[  39 ] == NULL )
+                if ( tBasis[  39 ] == nullptr )
                 {
                     tBasis[  39 ] = mBasis[  57 ]->get_child(  68 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  57 ]->get_child(  70 );
                 }
-                if ( tBasis[  42 ] == NULL )
+                if ( tBasis[  42 ] == nullptr )
                 {
                     tBasis[  42 ] = mBasis[  57 ]->get_child(  71 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  57 ]->get_child(  72 );
                 }
-                if ( tBasis[  44 ] == NULL )
+                if ( tBasis[  44 ] == nullptr )
                 {
                     tBasis[  44 ] = mBasis[  57 ]->get_child(  73 );
                 }
-                if ( tBasis[  51 ] == NULL )
+                if ( tBasis[  51 ] == nullptr )
                 {
                     tBasis[  51 ] = mBasis[  57 ]->get_child(  80 );
                 }
-                if ( tBasis[  52 ] == NULL )
+                if ( tBasis[  52 ] == nullptr )
                 {
                     tBasis[  52 ] = mBasis[  57 ]->get_child(  81 );
                 }
-                if ( tBasis[  53 ] == NULL )
+                if ( tBasis[  53 ] == nullptr )
                 {
                     tBasis[  53 ] = mBasis[  57 ]->get_child(  82 );
                 }
-                if ( tBasis[  54 ] == NULL )
+                if ( tBasis[  54 ] == nullptr )
                 {
                     tBasis[  54 ] = mBasis[  57 ]->get_child(  83 );
                 }
-                if ( tBasis[  56 ] == NULL )
+                if ( tBasis[  56 ] == nullptr )
                 {
                     tBasis[  56 ] = mBasis[  57 ]->get_child(  85 );
                 }
-                if ( tBasis[  57 ] == NULL )
+                if ( tBasis[  57 ] == nullptr )
                 {
                     tBasis[  57 ] = mBasis[  57 ]->get_child(  86 );
                 }
-                if ( tBasis[  58 ] == NULL )
+                if ( tBasis[  58 ] == nullptr )
                 {
                     tBasis[  58 ] = mBasis[  57 ]->get_child(  87 );
                 }
-                if ( tBasis[  59 ] == NULL )
+                if ( tBasis[  59 ] == nullptr )
                 {
                     tBasis[  59 ] = mBasis[  57 ]->get_child(  88 );
                 }
-                if ( tBasis[  61 ] == NULL )
+                if ( tBasis[  61 ] == nullptr )
                 {
                     tBasis[  61 ] = mBasis[  57 ]->get_child(  90 );
                 }
-                if ( tBasis[  62 ] == NULL )
+                if ( tBasis[  62 ] == nullptr )
                 {
                     tBasis[  62 ] = mBasis[  57 ]->get_child(  91 );
                 }
-                if ( tBasis[  63 ] == NULL )
+                if ( tBasis[  63 ] == nullptr )
                 {
                     tBasis[  63 ] = mBasis[  57 ]->get_child(  92 );
                 }
-                if ( tBasis[  64 ] == NULL )
+                if ( tBasis[  64 ] == nullptr )
                 {
                     tBasis[  64 ] = mBasis[  57 ]->get_child(  93 );
                 }
-                if ( tBasis[  66 ] == NULL )
+                if ( tBasis[  66 ] == nullptr )
                 {
                     tBasis[  66 ] = mBasis[  57 ]->get_child(  95 );
                 }
-                if ( tBasis[  67 ] == NULL )
+                if ( tBasis[  67 ] == nullptr )
                 {
                     tBasis[  67 ] = mBasis[  57 ]->get_child(  96 );
                 }
-                if ( tBasis[  68 ] == NULL )
+                if ( tBasis[  68 ] == nullptr )
                 {
                     tBasis[  68 ] = mBasis[  57 ]->get_child(  97 );
                 }
-                if ( tBasis[  69 ] == NULL )
+                if ( tBasis[  69 ] == nullptr )
                 {
                     tBasis[  69 ] = mBasis[  57 ]->get_child(  98 );
                 }
-                if ( tBasis[  76 ] == NULL )
+                if ( tBasis[  76 ] == nullptr )
                 {
                     tBasis[  76 ] = mBasis[  57 ]->get_child( 105 );
                 }
-                if ( tBasis[  77 ] == NULL )
+                if ( tBasis[  77 ] == nullptr )
                 {
                     tBasis[  77 ] = mBasis[  57 ]->get_child( 106 );
                 }
-                if ( tBasis[  78 ] == NULL )
+                if ( tBasis[  78 ] == nullptr )
                 {
                     tBasis[  78 ] = mBasis[  57 ]->get_child( 107 );
                 }
-                if ( tBasis[  79 ] == NULL )
+                if ( tBasis[  79 ] == nullptr )
                 {
                     tBasis[  79 ] = mBasis[  57 ]->get_child( 108 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  57 ]->get_child( 110 );
                 }
-                if ( tBasis[  82 ] == NULL )
+                if ( tBasis[  82 ] == nullptr )
                 {
                     tBasis[  82 ] = mBasis[  57 ]->get_child( 111 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  57 ]->get_child( 112 );
                 }
-                if ( tBasis[  84 ] == NULL )
+                if ( tBasis[  84 ] == nullptr )
                 {
                     tBasis[  84 ] = mBasis[  57 ]->get_child( 113 );
                 }
-                if ( tBasis[  86 ] == NULL )
+                if ( tBasis[  86 ] == nullptr )
                 {
                     tBasis[  86 ] = mBasis[  57 ]->get_child( 115 );
                 }
-                if ( tBasis[  87 ] == NULL )
+                if ( tBasis[  87 ] == nullptr )
                 {
                     tBasis[  87 ] = mBasis[  57 ]->get_child( 116 );
                 }
-                if ( tBasis[  88 ] == NULL )
+                if ( tBasis[  88 ] == nullptr )
                 {
                     tBasis[  88 ] = mBasis[  57 ]->get_child( 117 );
                 }
-                if ( tBasis[  89 ] == NULL )
+                if ( tBasis[  89 ] == nullptr )
                 {
                     tBasis[  89 ] = mBasis[  57 ]->get_child( 118 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  57 ]->get_child( 120 );
                 }
-                if ( tBasis[  92 ] == NULL )
+                if ( tBasis[  92 ] == nullptr )
                 {
                     tBasis[  92 ] = mBasis[  57 ]->get_child( 121 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  57 ]->get_child( 122 );
                 }
-                if ( tBasis[  94 ] == NULL )
+                if ( tBasis[  94 ] == nullptr )
                 {
                     tBasis[  94 ] = mBasis[  57 ]->get_child( 123 );
                 }
             }
 
-            if ( mBasis[  58 ] != NULL )
+            if ( mBasis[  58 ] != nullptr )
             {
-                if ( tBasis[   6 ] == NULL )
+                if ( tBasis[   6 ] == nullptr )
                 {
                     tBasis[   6 ] = mBasis[  58 ]->get_child(  25 );
                 }
-                if ( tBasis[   7 ] == NULL )
+                if ( tBasis[   7 ] == nullptr )
                 {
                     tBasis[   7 ] = mBasis[  58 ]->get_child(  26 );
                 }
-                if ( tBasis[   8 ] == NULL )
+                if ( tBasis[   8 ] == nullptr )
                 {
                     tBasis[   8 ] = mBasis[  58 ]->get_child(  27 );
                 }
-                if ( tBasis[   9 ] == NULL )
+                if ( tBasis[   9 ] == nullptr )
                 {
                     tBasis[   9 ] = mBasis[  58 ]->get_child(  28 );
                 }
-                if ( tBasis[  11 ] == NULL )
+                if ( tBasis[  11 ] == nullptr )
                 {
                     tBasis[  11 ] = mBasis[  58 ]->get_child(  30 );
                 }
-                if ( tBasis[  12 ] == NULL )
+                if ( tBasis[  12 ] == nullptr )
                 {
                     tBasis[  12 ] = mBasis[  58 ]->get_child(  31 );
                 }
-                if ( tBasis[  13 ] == NULL )
+                if ( tBasis[  13 ] == nullptr )
                 {
                     tBasis[  13 ] = mBasis[  58 ]->get_child(  32 );
                 }
-                if ( tBasis[  14 ] == NULL )
+                if ( tBasis[  14 ] == nullptr )
                 {
                     tBasis[  14 ] = mBasis[  58 ]->get_child(  33 );
                 }
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[  58 ]->get_child(  35 );
                 }
-                if ( tBasis[  17 ] == NULL )
+                if ( tBasis[  17 ] == nullptr )
                 {
                     tBasis[  17 ] = mBasis[  58 ]->get_child(  36 );
                 }
-                if ( tBasis[  18 ] == NULL )
+                if ( tBasis[  18 ] == nullptr )
                 {
                     tBasis[  18 ] = mBasis[  58 ]->get_child(  37 );
                 }
-                if ( tBasis[  19 ] == NULL )
+                if ( tBasis[  19 ] == nullptr )
                 {
                     tBasis[  19 ] = mBasis[  58 ]->get_child(  38 );
                 }
-                if ( tBasis[  21 ] == NULL )
+                if ( tBasis[  21 ] == nullptr )
                 {
                     tBasis[  21 ] = mBasis[  58 ]->get_child(  40 );
                 }
-                if ( tBasis[  22 ] == NULL )
+                if ( tBasis[  22 ] == nullptr )
                 {
                     tBasis[  22 ] = mBasis[  58 ]->get_child(  41 );
                 }
-                if ( tBasis[  23 ] == NULL )
+                if ( tBasis[  23 ] == nullptr )
                 {
                     tBasis[  23 ] = mBasis[  58 ]->get_child(  42 );
                 }
-                if ( tBasis[  24 ] == NULL )
+                if ( tBasis[  24 ] == nullptr )
                 {
                     tBasis[  24 ] = mBasis[  58 ]->get_child(  43 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  58 ]->get_child(  50 );
                 }
-                if ( tBasis[  32 ] == NULL )
+                if ( tBasis[  32 ] == nullptr )
                 {
                     tBasis[  32 ] = mBasis[  58 ]->get_child(  51 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  58 ]->get_child(  52 );
                 }
-                if ( tBasis[  34 ] == NULL )
+                if ( tBasis[  34 ] == nullptr )
                 {
                     tBasis[  34 ] = mBasis[  58 ]->get_child(  53 );
                 }
-                if ( tBasis[  36 ] == NULL )
+                if ( tBasis[  36 ] == nullptr )
                 {
                     tBasis[  36 ] = mBasis[  58 ]->get_child(  55 );
                 }
-                if ( tBasis[  37 ] == NULL )
+                if ( tBasis[  37 ] == nullptr )
                 {
                     tBasis[  37 ] = mBasis[  58 ]->get_child(  56 );
                 }
-                if ( tBasis[  38 ] == NULL )
+                if ( tBasis[  38 ] == nullptr )
                 {
                     tBasis[  38 ] = mBasis[  58 ]->get_child(  57 );
                 }
-                if ( tBasis[  39 ] == NULL )
+                if ( tBasis[  39 ] == nullptr )
                 {
                     tBasis[  39 ] = mBasis[  58 ]->get_child(  58 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  58 ]->get_child(  60 );
                 }
-                if ( tBasis[  42 ] == NULL )
+                if ( tBasis[  42 ] == nullptr )
                 {
                     tBasis[  42 ] = mBasis[  58 ]->get_child(  61 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  58 ]->get_child(  62 );
                 }
-                if ( tBasis[  44 ] == NULL )
+                if ( tBasis[  44 ] == nullptr )
                 {
                     tBasis[  44 ] = mBasis[  58 ]->get_child(  63 );
                 }
-                if ( tBasis[  46 ] == NULL )
+                if ( tBasis[  46 ] == nullptr )
                 {
                     tBasis[  46 ] = mBasis[  58 ]->get_child(  65 );
                 }
-                if ( tBasis[  47 ] == NULL )
+                if ( tBasis[  47 ] == nullptr )
                 {
                     tBasis[  47 ] = mBasis[  58 ]->get_child(  66 );
                 }
-                if ( tBasis[  48 ] == NULL )
+                if ( tBasis[  48 ] == nullptr )
                 {
                     tBasis[  48 ] = mBasis[  58 ]->get_child(  67 );
                 }
-                if ( tBasis[  49 ] == NULL )
+                if ( tBasis[  49 ] == nullptr )
                 {
                     tBasis[  49 ] = mBasis[  58 ]->get_child(  68 );
                 }
-                if ( tBasis[  56 ] == NULL )
+                if ( tBasis[  56 ] == nullptr )
                 {
                     tBasis[  56 ] = mBasis[  58 ]->get_child(  75 );
                 }
-                if ( tBasis[  57 ] == NULL )
+                if ( tBasis[  57 ] == nullptr )
                 {
                     tBasis[  57 ] = mBasis[  58 ]->get_child(  76 );
                 }
-                if ( tBasis[  58 ] == NULL )
+                if ( tBasis[  58 ] == nullptr )
                 {
                     tBasis[  58 ] = mBasis[  58 ]->get_child(  77 );
                 }
-                if ( tBasis[  59 ] == NULL )
+                if ( tBasis[  59 ] == nullptr )
                 {
                     tBasis[  59 ] = mBasis[  58 ]->get_child(  78 );
                 }
-                if ( tBasis[  61 ] == NULL )
+                if ( tBasis[  61 ] == nullptr )
                 {
                     tBasis[  61 ] = mBasis[  58 ]->get_child(  80 );
                 }
-                if ( tBasis[  62 ] == NULL )
+                if ( tBasis[  62 ] == nullptr )
                 {
                     tBasis[  62 ] = mBasis[  58 ]->get_child(  81 );
                 }
-                if ( tBasis[  63 ] == NULL )
+                if ( tBasis[  63 ] == nullptr )
                 {
                     tBasis[  63 ] = mBasis[  58 ]->get_child(  82 );
                 }
-                if ( tBasis[  64 ] == NULL )
+                if ( tBasis[  64 ] == nullptr )
                 {
                     tBasis[  64 ] = mBasis[  58 ]->get_child(  83 );
                 }
-                if ( tBasis[  66 ] == NULL )
+                if ( tBasis[  66 ] == nullptr )
                 {
                     tBasis[  66 ] = mBasis[  58 ]->get_child(  85 );
                 }
-                if ( tBasis[  67 ] == NULL )
+                if ( tBasis[  67 ] == nullptr )
                 {
                     tBasis[  67 ] = mBasis[  58 ]->get_child(  86 );
                 }
-                if ( tBasis[  68 ] == NULL )
+                if ( tBasis[  68 ] == nullptr )
                 {
                     tBasis[  68 ] = mBasis[  58 ]->get_child(  87 );
                 }
-                if ( tBasis[  69 ] == NULL )
+                if ( tBasis[  69 ] == nullptr )
                 {
                     tBasis[  69 ] = mBasis[  58 ]->get_child(  88 );
                 }
-                if ( tBasis[  71 ] == NULL )
+                if ( tBasis[  71 ] == nullptr )
                 {
                     tBasis[  71 ] = mBasis[  58 ]->get_child(  90 );
                 }
-                if ( tBasis[  72 ] == NULL )
+                if ( tBasis[  72 ] == nullptr )
                 {
                     tBasis[  72 ] = mBasis[  58 ]->get_child(  91 );
                 }
-                if ( tBasis[  73 ] == NULL )
+                if ( tBasis[  73 ] == nullptr )
                 {
                     tBasis[  73 ] = mBasis[  58 ]->get_child(  92 );
                 }
-                if ( tBasis[  74 ] == NULL )
+                if ( tBasis[  74 ] == nullptr )
                 {
                     tBasis[  74 ] = mBasis[  58 ]->get_child(  93 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  58 ]->get_child( 100 );
                 }
-                if ( tBasis[  82 ] == NULL )
+                if ( tBasis[  82 ] == nullptr )
                 {
                     tBasis[  82 ] = mBasis[  58 ]->get_child( 101 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  58 ]->get_child( 102 );
                 }
-                if ( tBasis[  84 ] == NULL )
+                if ( tBasis[  84 ] == nullptr )
                 {
                     tBasis[  84 ] = mBasis[  58 ]->get_child( 103 );
                 }
-                if ( tBasis[  86 ] == NULL )
+                if ( tBasis[  86 ] == nullptr )
                 {
                     tBasis[  86 ] = mBasis[  58 ]->get_child( 105 );
                 }
-                if ( tBasis[  87 ] == NULL )
+                if ( tBasis[  87 ] == nullptr )
                 {
                     tBasis[  87 ] = mBasis[  58 ]->get_child( 106 );
                 }
-                if ( tBasis[  88 ] == NULL )
+                if ( tBasis[  88 ] == nullptr )
                 {
                     tBasis[  88 ] = mBasis[  58 ]->get_child( 107 );
                 }
-                if ( tBasis[  89 ] == NULL )
+                if ( tBasis[  89 ] == nullptr )
                 {
                     tBasis[  89 ] = mBasis[  58 ]->get_child( 108 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  58 ]->get_child( 110 );
                 }
-                if ( tBasis[  92 ] == NULL )
+                if ( tBasis[  92 ] == nullptr )
                 {
                     tBasis[  92 ] = mBasis[  58 ]->get_child( 111 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  58 ]->get_child( 112 );
                 }
-                if ( tBasis[  94 ] == NULL )
+                if ( tBasis[  94 ] == nullptr )
                 {
                     tBasis[  94 ] = mBasis[  58 ]->get_child( 113 );
                 }
-                if ( tBasis[  96 ] == NULL )
+                if ( tBasis[  96 ] == nullptr )
                 {
                     tBasis[  96 ] = mBasis[  58 ]->get_child( 115 );
                 }
-                if ( tBasis[  97 ] == NULL )
+                if ( tBasis[  97 ] == nullptr )
                 {
                     tBasis[  97 ] = mBasis[  58 ]->get_child( 116 );
                 }
-                if ( tBasis[  98 ] == NULL )
+                if ( tBasis[  98 ] == nullptr )
                 {
                     tBasis[  98 ] = mBasis[  58 ]->get_child( 117 );
                 }
-                if ( tBasis[  99 ] == NULL )
+                if ( tBasis[  99 ] == nullptr )
                 {
                     tBasis[  99 ] = mBasis[  58 ]->get_child( 118 );
                 }
             }
 
-            if ( mBasis[  59 ] != NULL )
+            if ( mBasis[  59 ] != nullptr )
             {
-                if ( tBasis[   5 ] == NULL )
+                if ( tBasis[   5 ] == nullptr )
                 {
                     tBasis[   5 ] = mBasis[  59 ]->get_child(  26 );
                 }
-                if ( tBasis[   6 ] == NULL )
+                if ( tBasis[   6 ] == nullptr )
                 {
                     tBasis[   6 ] = mBasis[  59 ]->get_child(  27 );
                 }
-                if ( tBasis[   7 ] == NULL )
+                if ( tBasis[   7 ] == nullptr )
                 {
                     tBasis[   7 ] = mBasis[  59 ]->get_child(  28 );
                 }
-                if ( tBasis[   8 ] == NULL )
+                if ( tBasis[   8 ] == nullptr )
                 {
                     tBasis[   8 ] = mBasis[  59 ]->get_child(  29 );
                 }
-                if ( tBasis[  10 ] == NULL )
+                if ( tBasis[  10 ] == nullptr )
                 {
                     tBasis[  10 ] = mBasis[  59 ]->get_child(  31 );
                 }
-                if ( tBasis[  11 ] == NULL )
+                if ( tBasis[  11 ] == nullptr )
                 {
                     tBasis[  11 ] = mBasis[  59 ]->get_child(  32 );
                 }
-                if ( tBasis[  12 ] == NULL )
+                if ( tBasis[  12 ] == nullptr )
                 {
                     tBasis[  12 ] = mBasis[  59 ]->get_child(  33 );
                 }
-                if ( tBasis[  13 ] == NULL )
+                if ( tBasis[  13 ] == nullptr )
                 {
                     tBasis[  13 ] = mBasis[  59 ]->get_child(  34 );
                 }
-                if ( tBasis[  15 ] == NULL )
+                if ( tBasis[  15 ] == nullptr )
                 {
                     tBasis[  15 ] = mBasis[  59 ]->get_child(  36 );
                 }
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[  59 ]->get_child(  37 );
                 }
-                if ( tBasis[  17 ] == NULL )
+                if ( tBasis[  17 ] == nullptr )
                 {
                     tBasis[  17 ] = mBasis[  59 ]->get_child(  38 );
                 }
-                if ( tBasis[  18 ] == NULL )
+                if ( tBasis[  18 ] == nullptr )
                 {
                     tBasis[  18 ] = mBasis[  59 ]->get_child(  39 );
                 }
-                if ( tBasis[  20 ] == NULL )
+                if ( tBasis[  20 ] == nullptr )
                 {
                     tBasis[  20 ] = mBasis[  59 ]->get_child(  41 );
                 }
-                if ( tBasis[  21 ] == NULL )
+                if ( tBasis[  21 ] == nullptr )
                 {
                     tBasis[  21 ] = mBasis[  59 ]->get_child(  42 );
                 }
-                if ( tBasis[  22 ] == NULL )
+                if ( tBasis[  22 ] == nullptr )
                 {
                     tBasis[  22 ] = mBasis[  59 ]->get_child(  43 );
                 }
-                if ( tBasis[  23 ] == NULL )
+                if ( tBasis[  23 ] == nullptr )
                 {
                     tBasis[  23 ] = mBasis[  59 ]->get_child(  44 );
                 }
-                if ( tBasis[  30 ] == NULL )
+                if ( tBasis[  30 ] == nullptr )
                 {
                     tBasis[  30 ] = mBasis[  59 ]->get_child(  51 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  59 ]->get_child(  52 );
                 }
-                if ( tBasis[  32 ] == NULL )
+                if ( tBasis[  32 ] == nullptr )
                 {
                     tBasis[  32 ] = mBasis[  59 ]->get_child(  53 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  59 ]->get_child(  54 );
                 }
-                if ( tBasis[  35 ] == NULL )
+                if ( tBasis[  35 ] == nullptr )
                 {
                     tBasis[  35 ] = mBasis[  59 ]->get_child(  56 );
                 }
-                if ( tBasis[  36 ] == NULL )
+                if ( tBasis[  36 ] == nullptr )
                 {
                     tBasis[  36 ] = mBasis[  59 ]->get_child(  57 );
                 }
-                if ( tBasis[  37 ] == NULL )
+                if ( tBasis[  37 ] == nullptr )
                 {
                     tBasis[  37 ] = mBasis[  59 ]->get_child(  58 );
                 }
-                if ( tBasis[  38 ] == NULL )
+                if ( tBasis[  38 ] == nullptr )
                 {
                     tBasis[  38 ] = mBasis[  59 ]->get_child(  59 );
                 }
-                if ( tBasis[  40 ] == NULL )
+                if ( tBasis[  40 ] == nullptr )
                 {
                     tBasis[  40 ] = mBasis[  59 ]->get_child(  61 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  59 ]->get_child(  62 );
                 }
-                if ( tBasis[  42 ] == NULL )
+                if ( tBasis[  42 ] == nullptr )
                 {
                     tBasis[  42 ] = mBasis[  59 ]->get_child(  63 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  59 ]->get_child(  64 );
                 }
-                if ( tBasis[  45 ] == NULL )
+                if ( tBasis[  45 ] == nullptr )
                 {
                     tBasis[  45 ] = mBasis[  59 ]->get_child(  66 );
                 }
-                if ( tBasis[  46 ] == NULL )
+                if ( tBasis[  46 ] == nullptr )
                 {
                     tBasis[  46 ] = mBasis[  59 ]->get_child(  67 );
                 }
-                if ( tBasis[  47 ] == NULL )
+                if ( tBasis[  47 ] == nullptr )
                 {
                     tBasis[  47 ] = mBasis[  59 ]->get_child(  68 );
                 }
-                if ( tBasis[  48 ] == NULL )
+                if ( tBasis[  48 ] == nullptr )
                 {
                     tBasis[  48 ] = mBasis[  59 ]->get_child(  69 );
                 }
-                if ( tBasis[  55 ] == NULL )
+                if ( tBasis[  55 ] == nullptr )
                 {
                     tBasis[  55 ] = mBasis[  59 ]->get_child(  76 );
                 }
-                if ( tBasis[  56 ] == NULL )
+                if ( tBasis[  56 ] == nullptr )
                 {
                     tBasis[  56 ] = mBasis[  59 ]->get_child(  77 );
                 }
-                if ( tBasis[  57 ] == NULL )
+                if ( tBasis[  57 ] == nullptr )
                 {
                     tBasis[  57 ] = mBasis[  59 ]->get_child(  78 );
                 }
-                if ( tBasis[  58 ] == NULL )
+                if ( tBasis[  58 ] == nullptr )
                 {
                     tBasis[  58 ] = mBasis[  59 ]->get_child(  79 );
                 }
-                if ( tBasis[  60 ] == NULL )
+                if ( tBasis[  60 ] == nullptr )
                 {
                     tBasis[  60 ] = mBasis[  59 ]->get_child(  81 );
                 }
-                if ( tBasis[  61 ] == NULL )
+                if ( tBasis[  61 ] == nullptr )
                 {
                     tBasis[  61 ] = mBasis[  59 ]->get_child(  82 );
                 }
-                if ( tBasis[  62 ] == NULL )
+                if ( tBasis[  62 ] == nullptr )
                 {
                     tBasis[  62 ] = mBasis[  59 ]->get_child(  83 );
                 }
-                if ( tBasis[  63 ] == NULL )
+                if ( tBasis[  63 ] == nullptr )
                 {
                     tBasis[  63 ] = mBasis[  59 ]->get_child(  84 );
                 }
-                if ( tBasis[  65 ] == NULL )
+                if ( tBasis[  65 ] == nullptr )
                 {
                     tBasis[  65 ] = mBasis[  59 ]->get_child(  86 );
                 }
-                if ( tBasis[  66 ] == NULL )
+                if ( tBasis[  66 ] == nullptr )
                 {
                     tBasis[  66 ] = mBasis[  59 ]->get_child(  87 );
                 }
-                if ( tBasis[  67 ] == NULL )
+                if ( tBasis[  67 ] == nullptr )
                 {
                     tBasis[  67 ] = mBasis[  59 ]->get_child(  88 );
                 }
-                if ( tBasis[  68 ] == NULL )
+                if ( tBasis[  68 ] == nullptr )
                 {
                     tBasis[  68 ] = mBasis[  59 ]->get_child(  89 );
                 }
-                if ( tBasis[  70 ] == NULL )
+                if ( tBasis[  70 ] == nullptr )
                 {
                     tBasis[  70 ] = mBasis[  59 ]->get_child(  91 );
                 }
-                if ( tBasis[  71 ] == NULL )
+                if ( tBasis[  71 ] == nullptr )
                 {
                     tBasis[  71 ] = mBasis[  59 ]->get_child(  92 );
                 }
-                if ( tBasis[  72 ] == NULL )
+                if ( tBasis[  72 ] == nullptr )
                 {
                     tBasis[  72 ] = mBasis[  59 ]->get_child(  93 );
                 }
-                if ( tBasis[  73 ] == NULL )
+                if ( tBasis[  73 ] == nullptr )
                 {
                     tBasis[  73 ] = mBasis[  59 ]->get_child(  94 );
                 }
-                if ( tBasis[  80 ] == NULL )
+                if ( tBasis[  80 ] == nullptr )
                 {
                     tBasis[  80 ] = mBasis[  59 ]->get_child( 101 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  59 ]->get_child( 102 );
                 }
-                if ( tBasis[  82 ] == NULL )
+                if ( tBasis[  82 ] == nullptr )
                 {
                     tBasis[  82 ] = mBasis[  59 ]->get_child( 103 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  59 ]->get_child( 104 );
                 }
-                if ( tBasis[  85 ] == NULL )
+                if ( tBasis[  85 ] == nullptr )
                 {
                     tBasis[  85 ] = mBasis[  59 ]->get_child( 106 );
                 }
-                if ( tBasis[  86 ] == NULL )
+                if ( tBasis[  86 ] == nullptr )
                 {
                     tBasis[  86 ] = mBasis[  59 ]->get_child( 107 );
                 }
-                if ( tBasis[  87 ] == NULL )
+                if ( tBasis[  87 ] == nullptr )
                 {
                     tBasis[  87 ] = mBasis[  59 ]->get_child( 108 );
                 }
-                if ( tBasis[  88 ] == NULL )
+                if ( tBasis[  88 ] == nullptr )
                 {
                     tBasis[  88 ] = mBasis[  59 ]->get_child( 109 );
                 }
-                if ( tBasis[  90 ] == NULL )
+                if ( tBasis[  90 ] == nullptr )
                 {
                     tBasis[  90 ] = mBasis[  59 ]->get_child( 111 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  59 ]->get_child( 112 );
                 }
-                if ( tBasis[  92 ] == NULL )
+                if ( tBasis[  92 ] == nullptr )
                 {
                     tBasis[  92 ] = mBasis[  59 ]->get_child( 113 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  59 ]->get_child( 114 );
                 }
-                if ( tBasis[  95 ] == NULL )
+                if ( tBasis[  95 ] == nullptr )
                 {
                     tBasis[  95 ] = mBasis[  59 ]->get_child( 116 );
                 }
-                if ( tBasis[  96 ] == NULL )
+                if ( tBasis[  96 ] == nullptr )
                 {
                     tBasis[  96 ] = mBasis[  59 ]->get_child( 117 );
                 }
-                if ( tBasis[  97 ] == NULL )
+                if ( tBasis[  97 ] == nullptr )
                 {
                     tBasis[  97 ] = mBasis[  59 ]->get_child( 118 );
                 }
-                if ( tBasis[  98 ] == NULL )
+                if ( tBasis[  98 ] == nullptr )
                 {
                     tBasis[  98 ] = mBasis[  59 ]->get_child( 119 );
                 }
             }
 
-            if ( mBasis[  60 ] != NULL )
+            if ( mBasis[  60 ] != nullptr )
             {
-                if ( tBasis[  25 ] == NULL )
+                if ( tBasis[  25 ] == nullptr )
                 {
                     tBasis[  25 ] = mBasis[  60 ]->get_child(   6 );
                 }
-                if ( tBasis[  26 ] == NULL )
+                if ( tBasis[  26 ] == nullptr )
                 {
                     tBasis[  26 ] = mBasis[  60 ]->get_child(   7 );
                 }
-                if ( tBasis[  27 ] == NULL )
+                if ( tBasis[  27 ] == nullptr )
                 {
                     tBasis[  27 ] = mBasis[  60 ]->get_child(   8 );
                 }
-                if ( tBasis[  28 ] == NULL )
+                if ( tBasis[  28 ] == nullptr )
                 {
                     tBasis[  28 ] = mBasis[  60 ]->get_child(   9 );
                 }
-                if ( tBasis[  30 ] == NULL )
+                if ( tBasis[  30 ] == nullptr )
                 {
                     tBasis[  30 ] = mBasis[  60 ]->get_child(  11 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  60 ]->get_child(  12 );
                 }
-                if ( tBasis[  32 ] == NULL )
+                if ( tBasis[  32 ] == nullptr )
                 {
                     tBasis[  32 ] = mBasis[  60 ]->get_child(  13 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  60 ]->get_child(  14 );
                 }
-                if ( tBasis[  35 ] == NULL )
+                if ( tBasis[  35 ] == nullptr )
                 {
                     tBasis[  35 ] = mBasis[  60 ]->get_child(  16 );
                 }
-                if ( tBasis[  36 ] == NULL )
+                if ( tBasis[  36 ] == nullptr )
                 {
                     tBasis[  36 ] = mBasis[  60 ]->get_child(  17 );
                 }
-                if ( tBasis[  37 ] == NULL )
+                if ( tBasis[  37 ] == nullptr )
                 {
                     tBasis[  37 ] = mBasis[  60 ]->get_child(  18 );
                 }
-                if ( tBasis[  38 ] == NULL )
+                if ( tBasis[  38 ] == nullptr )
                 {
                     tBasis[  38 ] = mBasis[  60 ]->get_child(  19 );
                 }
-                if ( tBasis[  40 ] == NULL )
+                if ( tBasis[  40 ] == nullptr )
                 {
                     tBasis[  40 ] = mBasis[  60 ]->get_child(  21 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  60 ]->get_child(  22 );
                 }
-                if ( tBasis[  42 ] == NULL )
+                if ( tBasis[  42 ] == nullptr )
                 {
                     tBasis[  42 ] = mBasis[  60 ]->get_child(  23 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  60 ]->get_child(  24 );
                 }
-                if ( tBasis[  50 ] == NULL )
+                if ( tBasis[  50 ] == nullptr )
                 {
                     tBasis[  50 ] = mBasis[  60 ]->get_child(  31 );
                 }
-                if ( tBasis[  51 ] == NULL )
+                if ( tBasis[  51 ] == nullptr )
                 {
                     tBasis[  51 ] = mBasis[  60 ]->get_child(  32 );
                 }
-                if ( tBasis[  52 ] == NULL )
+                if ( tBasis[  52 ] == nullptr )
                 {
                     tBasis[  52 ] = mBasis[  60 ]->get_child(  33 );
                 }
-                if ( tBasis[  53 ] == NULL )
+                if ( tBasis[  53 ] == nullptr )
                 {
                     tBasis[  53 ] = mBasis[  60 ]->get_child(  34 );
                 }
-                if ( tBasis[  55 ] == NULL )
+                if ( tBasis[  55 ] == nullptr )
                 {
                     tBasis[  55 ] = mBasis[  60 ]->get_child(  36 );
                 }
-                if ( tBasis[  56 ] == NULL )
+                if ( tBasis[  56 ] == nullptr )
                 {
                     tBasis[  56 ] = mBasis[  60 ]->get_child(  37 );
                 }
-                if ( tBasis[  57 ] == NULL )
+                if ( tBasis[  57 ] == nullptr )
                 {
                     tBasis[  57 ] = mBasis[  60 ]->get_child(  38 );
                 }
-                if ( tBasis[  58 ] == NULL )
+                if ( tBasis[  58 ] == nullptr )
                 {
                     tBasis[  58 ] = mBasis[  60 ]->get_child(  39 );
                 }
-                if ( tBasis[  60 ] == NULL )
+                if ( tBasis[  60 ] == nullptr )
                 {
                     tBasis[  60 ] = mBasis[  60 ]->get_child(  41 );
                 }
-                if ( tBasis[  61 ] == NULL )
+                if ( tBasis[  61 ] == nullptr )
                 {
                     tBasis[  61 ] = mBasis[  60 ]->get_child(  42 );
                 }
-                if ( tBasis[  62 ] == NULL )
+                if ( tBasis[  62 ] == nullptr )
                 {
                     tBasis[  62 ] = mBasis[  60 ]->get_child(  43 );
                 }
-                if ( tBasis[  63 ] == NULL )
+                if ( tBasis[  63 ] == nullptr )
                 {
                     tBasis[  63 ] = mBasis[  60 ]->get_child(  44 );
                 }
-                if ( tBasis[  65 ] == NULL )
+                if ( tBasis[  65 ] == nullptr )
                 {
                     tBasis[  65 ] = mBasis[  60 ]->get_child(  46 );
                 }
-                if ( tBasis[  66 ] == NULL )
+                if ( tBasis[  66 ] == nullptr )
                 {
                     tBasis[  66 ] = mBasis[  60 ]->get_child(  47 );
                 }
-                if ( tBasis[  67 ] == NULL )
+                if ( tBasis[  67 ] == nullptr )
                 {
                     tBasis[  67 ] = mBasis[  60 ]->get_child(  48 );
                 }
-                if ( tBasis[  68 ] == NULL )
+                if ( tBasis[  68 ] == nullptr )
                 {
                     tBasis[  68 ] = mBasis[  60 ]->get_child(  49 );
                 }
-                if ( tBasis[  75 ] == NULL )
+                if ( tBasis[  75 ] == nullptr )
                 {
                     tBasis[  75 ] = mBasis[  60 ]->get_child(  56 );
                 }
-                if ( tBasis[  76 ] == NULL )
+                if ( tBasis[  76 ] == nullptr )
                 {
                     tBasis[  76 ] = mBasis[  60 ]->get_child(  57 );
                 }
-                if ( tBasis[  77 ] == NULL )
+                if ( tBasis[  77 ] == nullptr )
                 {
                     tBasis[  77 ] = mBasis[  60 ]->get_child(  58 );
                 }
-                if ( tBasis[  78 ] == NULL )
+                if ( tBasis[  78 ] == nullptr )
                 {
                     tBasis[  78 ] = mBasis[  60 ]->get_child(  59 );
                 }
-                if ( tBasis[  80 ] == NULL )
+                if ( tBasis[  80 ] == nullptr )
                 {
                     tBasis[  80 ] = mBasis[  60 ]->get_child(  61 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  60 ]->get_child(  62 );
                 }
-                if ( tBasis[  82 ] == NULL )
+                if ( tBasis[  82 ] == nullptr )
                 {
                     tBasis[  82 ] = mBasis[  60 ]->get_child(  63 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  60 ]->get_child(  64 );
                 }
-                if ( tBasis[  85 ] == NULL )
+                if ( tBasis[  85 ] == nullptr )
                 {
                     tBasis[  85 ] = mBasis[  60 ]->get_child(  66 );
                 }
-                if ( tBasis[  86 ] == NULL )
+                if ( tBasis[  86 ] == nullptr )
                 {
                     tBasis[  86 ] = mBasis[  60 ]->get_child(  67 );
                 }
-                if ( tBasis[  87 ] == NULL )
+                if ( tBasis[  87 ] == nullptr )
                 {
                     tBasis[  87 ] = mBasis[  60 ]->get_child(  68 );
                 }
-                if ( tBasis[  88 ] == NULL )
+                if ( tBasis[  88 ] == nullptr )
                 {
                     tBasis[  88 ] = mBasis[  60 ]->get_child(  69 );
                 }
-                if ( tBasis[  90 ] == NULL )
+                if ( tBasis[  90 ] == nullptr )
                 {
                     tBasis[  90 ] = mBasis[  60 ]->get_child(  71 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  60 ]->get_child(  72 );
                 }
-                if ( tBasis[  92 ] == NULL )
+                if ( tBasis[  92 ] == nullptr )
                 {
                     tBasis[  92 ] = mBasis[  60 ]->get_child(  73 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  60 ]->get_child(  74 );
                 }
-                if ( tBasis[ 100 ] == NULL )
+                if ( tBasis[ 100 ] == nullptr )
                 {
                     tBasis[ 100 ] = mBasis[  60 ]->get_child(  81 );
                 }
-                if ( tBasis[ 101 ] == NULL )
+                if ( tBasis[ 101 ] == nullptr )
                 {
                     tBasis[ 101 ] = mBasis[  60 ]->get_child(  82 );
                 }
-                if ( tBasis[ 102 ] == NULL )
+                if ( tBasis[ 102 ] == nullptr )
                 {
                     tBasis[ 102 ] = mBasis[  60 ]->get_child(  83 );
                 }
-                if ( tBasis[ 103 ] == NULL )
+                if ( tBasis[ 103 ] == nullptr )
                 {
                     tBasis[ 103 ] = mBasis[  60 ]->get_child(  84 );
                 }
-                if ( tBasis[ 105 ] == NULL )
+                if ( tBasis[ 105 ] == nullptr )
                 {
                     tBasis[ 105 ] = mBasis[  60 ]->get_child(  86 );
                 }
-                if ( tBasis[ 106 ] == NULL )
+                if ( tBasis[ 106 ] == nullptr )
                 {
                     tBasis[ 106 ] = mBasis[  60 ]->get_child(  87 );
                 }
-                if ( tBasis[ 107 ] == NULL )
+                if ( tBasis[ 107 ] == nullptr )
                 {
                     tBasis[ 107 ] = mBasis[  60 ]->get_child(  88 );
                 }
-                if ( tBasis[ 108 ] == NULL )
+                if ( tBasis[ 108 ] == nullptr )
                 {
                     tBasis[ 108 ] = mBasis[  60 ]->get_child(  89 );
                 }
-                if ( tBasis[ 110 ] == NULL )
+                if ( tBasis[ 110 ] == nullptr )
                 {
                     tBasis[ 110 ] = mBasis[  60 ]->get_child(  91 );
                 }
-                if ( tBasis[ 111 ] == NULL )
+                if ( tBasis[ 111 ] == nullptr )
                 {
                     tBasis[ 111 ] = mBasis[  60 ]->get_child(  92 );
                 }
-                if ( tBasis[ 112 ] == NULL )
+                if ( tBasis[ 112 ] == nullptr )
                 {
                     tBasis[ 112 ] = mBasis[  60 ]->get_child(  93 );
                 }
-                if ( tBasis[ 113 ] == NULL )
+                if ( tBasis[ 113 ] == nullptr )
                 {
                     tBasis[ 113 ] = mBasis[  60 ]->get_child(  94 );
                 }
-                if ( tBasis[ 115 ] == NULL )
+                if ( tBasis[ 115 ] == nullptr )
                 {
                     tBasis[ 115 ] = mBasis[  60 ]->get_child(  96 );
                 }
-                if ( tBasis[ 116 ] == NULL )
+                if ( tBasis[ 116 ] == nullptr )
                 {
                     tBasis[ 116 ] = mBasis[  60 ]->get_child(  97 );
                 }
-                if ( tBasis[ 117 ] == NULL )
+                if ( tBasis[ 117 ] == nullptr )
                 {
                     tBasis[ 117 ] = mBasis[  60 ]->get_child(  98 );
                 }
-                if ( tBasis[ 118 ] == NULL )
+                if ( tBasis[ 118 ] == nullptr )
                 {
                     tBasis[ 118 ] = mBasis[  60 ]->get_child(  99 );
                 }
             }
 
-            if ( mBasis[  61 ] != NULL )
+            if ( mBasis[  61 ] != nullptr )
             {
-                if ( tBasis[  26 ] == NULL )
+                if ( tBasis[  26 ] == nullptr )
                 {
                     tBasis[  26 ] = mBasis[  61 ]->get_child(   5 );
                 }
-                if ( tBasis[  27 ] == NULL )
+                if ( tBasis[  27 ] == nullptr )
                 {
                     tBasis[  27 ] = mBasis[  61 ]->get_child(   6 );
                 }
-                if ( tBasis[  28 ] == NULL )
+                if ( tBasis[  28 ] == nullptr )
                 {
                     tBasis[  28 ] = mBasis[  61 ]->get_child(   7 );
                 }
-                if ( tBasis[  29 ] == NULL )
+                if ( tBasis[  29 ] == nullptr )
                 {
                     tBasis[  29 ] = mBasis[  61 ]->get_child(   8 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  61 ]->get_child(  10 );
                 }
-                if ( tBasis[  32 ] == NULL )
+                if ( tBasis[  32 ] == nullptr )
                 {
                     tBasis[  32 ] = mBasis[  61 ]->get_child(  11 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  61 ]->get_child(  12 );
                 }
-                if ( tBasis[  34 ] == NULL )
+                if ( tBasis[  34 ] == nullptr )
                 {
                     tBasis[  34 ] = mBasis[  61 ]->get_child(  13 );
                 }
-                if ( tBasis[  36 ] == NULL )
+                if ( tBasis[  36 ] == nullptr )
                 {
                     tBasis[  36 ] = mBasis[  61 ]->get_child(  15 );
                 }
-                if ( tBasis[  37 ] == NULL )
+                if ( tBasis[  37 ] == nullptr )
                 {
                     tBasis[  37 ] = mBasis[  61 ]->get_child(  16 );
                 }
-                if ( tBasis[  38 ] == NULL )
+                if ( tBasis[  38 ] == nullptr )
                 {
                     tBasis[  38 ] = mBasis[  61 ]->get_child(  17 );
                 }
-                if ( tBasis[  39 ] == NULL )
+                if ( tBasis[  39 ] == nullptr )
                 {
                     tBasis[  39 ] = mBasis[  61 ]->get_child(  18 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  61 ]->get_child(  20 );
                 }
-                if ( tBasis[  42 ] == NULL )
+                if ( tBasis[  42 ] == nullptr )
                 {
                     tBasis[  42 ] = mBasis[  61 ]->get_child(  21 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  61 ]->get_child(  22 );
                 }
-                if ( tBasis[  44 ] == NULL )
+                if ( tBasis[  44 ] == nullptr )
                 {
                     tBasis[  44 ] = mBasis[  61 ]->get_child(  23 );
                 }
-                if ( tBasis[  51 ] == NULL )
+                if ( tBasis[  51 ] == nullptr )
                 {
                     tBasis[  51 ] = mBasis[  61 ]->get_child(  30 );
                 }
-                if ( tBasis[  52 ] == NULL )
+                if ( tBasis[  52 ] == nullptr )
                 {
                     tBasis[  52 ] = mBasis[  61 ]->get_child(  31 );
                 }
-                if ( tBasis[  53 ] == NULL )
+                if ( tBasis[  53 ] == nullptr )
                 {
                     tBasis[  53 ] = mBasis[  61 ]->get_child(  32 );
                 }
-                if ( tBasis[  54 ] == NULL )
+                if ( tBasis[  54 ] == nullptr )
                 {
                     tBasis[  54 ] = mBasis[  61 ]->get_child(  33 );
                 }
-                if ( tBasis[  56 ] == NULL )
+                if ( tBasis[  56 ] == nullptr )
                 {
                     tBasis[  56 ] = mBasis[  61 ]->get_child(  35 );
                 }
-                if ( tBasis[  57 ] == NULL )
+                if ( tBasis[  57 ] == nullptr )
                 {
                     tBasis[  57 ] = mBasis[  61 ]->get_child(  36 );
                 }
-                if ( tBasis[  58 ] == NULL )
+                if ( tBasis[  58 ] == nullptr )
                 {
                     tBasis[  58 ] = mBasis[  61 ]->get_child(  37 );
                 }
-                if ( tBasis[  59 ] == NULL )
+                if ( tBasis[  59 ] == nullptr )
                 {
                     tBasis[  59 ] = mBasis[  61 ]->get_child(  38 );
                 }
-                if ( tBasis[  61 ] == NULL )
+                if ( tBasis[  61 ] == nullptr )
                 {
                     tBasis[  61 ] = mBasis[  61 ]->get_child(  40 );
                 }
-                if ( tBasis[  62 ] == NULL )
+                if ( tBasis[  62 ] == nullptr )
                 {
                     tBasis[  62 ] = mBasis[  61 ]->get_child(  41 );
                 }
-                if ( tBasis[  63 ] == NULL )
+                if ( tBasis[  63 ] == nullptr )
                 {
                     tBasis[  63 ] = mBasis[  61 ]->get_child(  42 );
                 }
-                if ( tBasis[  64 ] == NULL )
+                if ( tBasis[  64 ] == nullptr )
                 {
                     tBasis[  64 ] = mBasis[  61 ]->get_child(  43 );
                 }
-                if ( tBasis[  66 ] == NULL )
+                if ( tBasis[  66 ] == nullptr )
                 {
                     tBasis[  66 ] = mBasis[  61 ]->get_child(  45 );
                 }
-                if ( tBasis[  67 ] == NULL )
+                if ( tBasis[  67 ] == nullptr )
                 {
                     tBasis[  67 ] = mBasis[  61 ]->get_child(  46 );
                 }
-                if ( tBasis[  68 ] == NULL )
+                if ( tBasis[  68 ] == nullptr )
                 {
                     tBasis[  68 ] = mBasis[  61 ]->get_child(  47 );
                 }
-                if ( tBasis[  69 ] == NULL )
+                if ( tBasis[  69 ] == nullptr )
                 {
                     tBasis[  69 ] = mBasis[  61 ]->get_child(  48 );
                 }
-                if ( tBasis[  76 ] == NULL )
+                if ( tBasis[  76 ] == nullptr )
                 {
                     tBasis[  76 ] = mBasis[  61 ]->get_child(  55 );
                 }
-                if ( tBasis[  77 ] == NULL )
+                if ( tBasis[  77 ] == nullptr )
                 {
                     tBasis[  77 ] = mBasis[  61 ]->get_child(  56 );
                 }
-                if ( tBasis[  78 ] == NULL )
+                if ( tBasis[  78 ] == nullptr )
                 {
                     tBasis[  78 ] = mBasis[  61 ]->get_child(  57 );
                 }
-                if ( tBasis[  79 ] == NULL )
+                if ( tBasis[  79 ] == nullptr )
                 {
                     tBasis[  79 ] = mBasis[  61 ]->get_child(  58 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  61 ]->get_child(  60 );
                 }
-                if ( tBasis[  82 ] == NULL )
+                if ( tBasis[  82 ] == nullptr )
                 {
                     tBasis[  82 ] = mBasis[  61 ]->get_child(  61 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  61 ]->get_child(  62 );
                 }
-                if ( tBasis[  84 ] == NULL )
+                if ( tBasis[  84 ] == nullptr )
                 {
                     tBasis[  84 ] = mBasis[  61 ]->get_child(  63 );
                 }
-                if ( tBasis[  86 ] == NULL )
+                if ( tBasis[  86 ] == nullptr )
                 {
                     tBasis[  86 ] = mBasis[  61 ]->get_child(  65 );
                 }
-                if ( tBasis[  87 ] == NULL )
+                if ( tBasis[  87 ] == nullptr )
                 {
                     tBasis[  87 ] = mBasis[  61 ]->get_child(  66 );
                 }
-                if ( tBasis[  88 ] == NULL )
+                if ( tBasis[  88 ] == nullptr )
                 {
                     tBasis[  88 ] = mBasis[  61 ]->get_child(  67 );
                 }
-                if ( tBasis[  89 ] == NULL )
+                if ( tBasis[  89 ] == nullptr )
                 {
                     tBasis[  89 ] = mBasis[  61 ]->get_child(  68 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  61 ]->get_child(  70 );
                 }
-                if ( tBasis[  92 ] == NULL )
+                if ( tBasis[  92 ] == nullptr )
                 {
                     tBasis[  92 ] = mBasis[  61 ]->get_child(  71 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  61 ]->get_child(  72 );
                 }
-                if ( tBasis[  94 ] == NULL )
+                if ( tBasis[  94 ] == nullptr )
                 {
                     tBasis[  94 ] = mBasis[  61 ]->get_child(  73 );
                 }
-                if ( tBasis[ 101 ] == NULL )
+                if ( tBasis[ 101 ] == nullptr )
                 {
                     tBasis[ 101 ] = mBasis[  61 ]->get_child(  80 );
                 }
-                if ( tBasis[ 102 ] == NULL )
+                if ( tBasis[ 102 ] == nullptr )
                 {
                     tBasis[ 102 ] = mBasis[  61 ]->get_child(  81 );
                 }
-                if ( tBasis[ 103 ] == NULL )
+                if ( tBasis[ 103 ] == nullptr )
                 {
                     tBasis[ 103 ] = mBasis[  61 ]->get_child(  82 );
                 }
-                if ( tBasis[ 104 ] == NULL )
+                if ( tBasis[ 104 ] == nullptr )
                 {
                     tBasis[ 104 ] = mBasis[  61 ]->get_child(  83 );
                 }
-                if ( tBasis[ 106 ] == NULL )
+                if ( tBasis[ 106 ] == nullptr )
                 {
                     tBasis[ 106 ] = mBasis[  61 ]->get_child(  85 );
                 }
-                if ( tBasis[ 107 ] == NULL )
+                if ( tBasis[ 107 ] == nullptr )
                 {
                     tBasis[ 107 ] = mBasis[  61 ]->get_child(  86 );
                 }
-                if ( tBasis[ 108 ] == NULL )
+                if ( tBasis[ 108 ] == nullptr )
                 {
                     tBasis[ 108 ] = mBasis[  61 ]->get_child(  87 );
                 }
-                if ( tBasis[ 109 ] == NULL )
+                if ( tBasis[ 109 ] == nullptr )
                 {
                     tBasis[ 109 ] = mBasis[  61 ]->get_child(  88 );
                 }
-                if ( tBasis[ 111 ] == NULL )
+                if ( tBasis[ 111 ] == nullptr )
                 {
                     tBasis[ 111 ] = mBasis[  61 ]->get_child(  90 );
                 }
-                if ( tBasis[ 112 ] == NULL )
+                if ( tBasis[ 112 ] == nullptr )
                 {
                     tBasis[ 112 ] = mBasis[  61 ]->get_child(  91 );
                 }
-                if ( tBasis[ 113 ] == NULL )
+                if ( tBasis[ 113 ] == nullptr )
                 {
                     tBasis[ 113 ] = mBasis[  61 ]->get_child(  92 );
                 }
-                if ( tBasis[ 114 ] == NULL )
+                if ( tBasis[ 114 ] == nullptr )
                 {
                     tBasis[ 114 ] = mBasis[  61 ]->get_child(  93 );
                 }
-                if ( tBasis[ 116 ] == NULL )
+                if ( tBasis[ 116 ] == nullptr )
                 {
                     tBasis[ 116 ] = mBasis[  61 ]->get_child(  95 );
                 }
-                if ( tBasis[ 117 ] == NULL )
+                if ( tBasis[ 117 ] == nullptr )
                 {
                     tBasis[ 117 ] = mBasis[  61 ]->get_child(  96 );
                 }
-                if ( tBasis[ 118 ] == NULL )
+                if ( tBasis[ 118 ] == nullptr )
                 {
                     tBasis[ 118 ] = mBasis[  61 ]->get_child(  97 );
                 }
-                if ( tBasis[ 119 ] == NULL )
+                if ( tBasis[ 119 ] == nullptr )
                 {
                     tBasis[ 119 ] = mBasis[  61 ]->get_child(  98 );
                 }
             }
 
-            if ( mBasis[  62 ] != NULL )
+            if ( mBasis[  62 ] != nullptr )
             {
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  62 ]->get_child(   0 );
                 }
-                if ( tBasis[  32 ] == NULL )
+                if ( tBasis[  32 ] == nullptr )
                 {
                     tBasis[  32 ] = mBasis[  62 ]->get_child(   1 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  62 ]->get_child(   2 );
                 }
-                if ( tBasis[  34 ] == NULL )
+                if ( tBasis[  34 ] == nullptr )
                 {
                     tBasis[  34 ] = mBasis[  62 ]->get_child(   3 );
                 }
-                if ( tBasis[  36 ] == NULL )
+                if ( tBasis[  36 ] == nullptr )
                 {
                     tBasis[  36 ] = mBasis[  62 ]->get_child(   5 );
                 }
-                if ( tBasis[  37 ] == NULL )
+                if ( tBasis[  37 ] == nullptr )
                 {
                     tBasis[  37 ] = mBasis[  62 ]->get_child(   6 );
                 }
-                if ( tBasis[  38 ] == NULL )
+                if ( tBasis[  38 ] == nullptr )
                 {
                     tBasis[  38 ] = mBasis[  62 ]->get_child(   7 );
                 }
-                if ( tBasis[  39 ] == NULL )
+                if ( tBasis[  39 ] == nullptr )
                 {
                     tBasis[  39 ] = mBasis[  62 ]->get_child(   8 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  62 ]->get_child(  10 );
                 }
-                if ( tBasis[  42 ] == NULL )
+                if ( tBasis[  42 ] == nullptr )
                 {
                     tBasis[  42 ] = mBasis[  62 ]->get_child(  11 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  62 ]->get_child(  12 );
                 }
-                if ( tBasis[  44 ] == NULL )
+                if ( tBasis[  44 ] == nullptr )
                 {
                     tBasis[  44 ] = mBasis[  62 ]->get_child(  13 );
                 }
-                if ( tBasis[  46 ] == NULL )
+                if ( tBasis[  46 ] == nullptr )
                 {
                     tBasis[  46 ] = mBasis[  62 ]->get_child(  15 );
                 }
-                if ( tBasis[  47 ] == NULL )
+                if ( tBasis[  47 ] == nullptr )
                 {
                     tBasis[  47 ] = mBasis[  62 ]->get_child(  16 );
                 }
-                if ( tBasis[  48 ] == NULL )
+                if ( tBasis[  48 ] == nullptr )
                 {
                     tBasis[  48 ] = mBasis[  62 ]->get_child(  17 );
                 }
-                if ( tBasis[  49 ] == NULL )
+                if ( tBasis[  49 ] == nullptr )
                 {
                     tBasis[  49 ] = mBasis[  62 ]->get_child(  18 );
                 }
-                if ( tBasis[  56 ] == NULL )
+                if ( tBasis[  56 ] == nullptr )
                 {
                     tBasis[  56 ] = mBasis[  62 ]->get_child(  25 );
                 }
-                if ( tBasis[  57 ] == NULL )
+                if ( tBasis[  57 ] == nullptr )
                 {
                     tBasis[  57 ] = mBasis[  62 ]->get_child(  26 );
                 }
-                if ( tBasis[  58 ] == NULL )
+                if ( tBasis[  58 ] == nullptr )
                 {
                     tBasis[  58 ] = mBasis[  62 ]->get_child(  27 );
                 }
-                if ( tBasis[  59 ] == NULL )
+                if ( tBasis[  59 ] == nullptr )
                 {
                     tBasis[  59 ] = mBasis[  62 ]->get_child(  28 );
                 }
-                if ( tBasis[  61 ] == NULL )
+                if ( tBasis[  61 ] == nullptr )
                 {
                     tBasis[  61 ] = mBasis[  62 ]->get_child(  30 );
                 }
-                if ( tBasis[  62 ] == NULL )
+                if ( tBasis[  62 ] == nullptr )
                 {
                     tBasis[  62 ] = mBasis[  62 ]->get_child(  31 );
                 }
-                if ( tBasis[  63 ] == NULL )
+                if ( tBasis[  63 ] == nullptr )
                 {
                     tBasis[  63 ] = mBasis[  62 ]->get_child(  32 );
                 }
-                if ( tBasis[  64 ] == NULL )
+                if ( tBasis[  64 ] == nullptr )
                 {
                     tBasis[  64 ] = mBasis[  62 ]->get_child(  33 );
                 }
-                if ( tBasis[  66 ] == NULL )
+                if ( tBasis[  66 ] == nullptr )
                 {
                     tBasis[  66 ] = mBasis[  62 ]->get_child(  35 );
                 }
-                if ( tBasis[  67 ] == NULL )
+                if ( tBasis[  67 ] == nullptr )
                 {
                     tBasis[  67 ] = mBasis[  62 ]->get_child(  36 );
                 }
-                if ( tBasis[  68 ] == NULL )
+                if ( tBasis[  68 ] == nullptr )
                 {
                     tBasis[  68 ] = mBasis[  62 ]->get_child(  37 );
                 }
-                if ( tBasis[  69 ] == NULL )
+                if ( tBasis[  69 ] == nullptr )
                 {
                     tBasis[  69 ] = mBasis[  62 ]->get_child(  38 );
                 }
-                if ( tBasis[  71 ] == NULL )
+                if ( tBasis[  71 ] == nullptr )
                 {
                     tBasis[  71 ] = mBasis[  62 ]->get_child(  40 );
                 }
-                if ( tBasis[  72 ] == NULL )
+                if ( tBasis[  72 ] == nullptr )
                 {
                     tBasis[  72 ] = mBasis[  62 ]->get_child(  41 );
                 }
-                if ( tBasis[  73 ] == NULL )
+                if ( tBasis[  73 ] == nullptr )
                 {
                     tBasis[  73 ] = mBasis[  62 ]->get_child(  42 );
                 }
-                if ( tBasis[  74 ] == NULL )
+                if ( tBasis[  74 ] == nullptr )
                 {
                     tBasis[  74 ] = mBasis[  62 ]->get_child(  43 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  62 ]->get_child(  50 );
                 }
-                if ( tBasis[  82 ] == NULL )
+                if ( tBasis[  82 ] == nullptr )
                 {
                     tBasis[  82 ] = mBasis[  62 ]->get_child(  51 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  62 ]->get_child(  52 );
                 }
-                if ( tBasis[  84 ] == NULL )
+                if ( tBasis[  84 ] == nullptr )
                 {
                     tBasis[  84 ] = mBasis[  62 ]->get_child(  53 );
                 }
-                if ( tBasis[  86 ] == NULL )
+                if ( tBasis[  86 ] == nullptr )
                 {
                     tBasis[  86 ] = mBasis[  62 ]->get_child(  55 );
                 }
-                if ( tBasis[  87 ] == NULL )
+                if ( tBasis[  87 ] == nullptr )
                 {
                     tBasis[  87 ] = mBasis[  62 ]->get_child(  56 );
                 }
-                if ( tBasis[  88 ] == NULL )
+                if ( tBasis[  88 ] == nullptr )
                 {
                     tBasis[  88 ] = mBasis[  62 ]->get_child(  57 );
                 }
-                if ( tBasis[  89 ] == NULL )
+                if ( tBasis[  89 ] == nullptr )
                 {
                     tBasis[  89 ] = mBasis[  62 ]->get_child(  58 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  62 ]->get_child(  60 );
                 }
-                if ( tBasis[  92 ] == NULL )
+                if ( tBasis[  92 ] == nullptr )
                 {
                     tBasis[  92 ] = mBasis[  62 ]->get_child(  61 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  62 ]->get_child(  62 );
                 }
-                if ( tBasis[  94 ] == NULL )
+                if ( tBasis[  94 ] == nullptr )
                 {
                     tBasis[  94 ] = mBasis[  62 ]->get_child(  63 );
                 }
-                if ( tBasis[  96 ] == NULL )
+                if ( tBasis[  96 ] == nullptr )
                 {
                     tBasis[  96 ] = mBasis[  62 ]->get_child(  65 );
                 }
-                if ( tBasis[  97 ] == NULL )
+                if ( tBasis[  97 ] == nullptr )
                 {
                     tBasis[  97 ] = mBasis[  62 ]->get_child(  66 );
                 }
-                if ( tBasis[  98 ] == NULL )
+                if ( tBasis[  98 ] == nullptr )
                 {
                     tBasis[  98 ] = mBasis[  62 ]->get_child(  67 );
                 }
-                if ( tBasis[  99 ] == NULL )
+                if ( tBasis[  99 ] == nullptr )
                 {
                     tBasis[  99 ] = mBasis[  62 ]->get_child(  68 );
                 }
-                if ( tBasis[ 106 ] == NULL )
+                if ( tBasis[ 106 ] == nullptr )
                 {
                     tBasis[ 106 ] = mBasis[  62 ]->get_child(  75 );
                 }
-                if ( tBasis[ 107 ] == NULL )
+                if ( tBasis[ 107 ] == nullptr )
                 {
                     tBasis[ 107 ] = mBasis[  62 ]->get_child(  76 );
                 }
-                if ( tBasis[ 108 ] == NULL )
+                if ( tBasis[ 108 ] == nullptr )
                 {
                     tBasis[ 108 ] = mBasis[  62 ]->get_child(  77 );
                 }
-                if ( tBasis[ 109 ] == NULL )
+                if ( tBasis[ 109 ] == nullptr )
                 {
                     tBasis[ 109 ] = mBasis[  62 ]->get_child(  78 );
                 }
-                if ( tBasis[ 111 ] == NULL )
+                if ( tBasis[ 111 ] == nullptr )
                 {
                     tBasis[ 111 ] = mBasis[  62 ]->get_child(  80 );
                 }
-                if ( tBasis[ 112 ] == NULL )
+                if ( tBasis[ 112 ] == nullptr )
                 {
                     tBasis[ 112 ] = mBasis[  62 ]->get_child(  81 );
                 }
-                if ( tBasis[ 113 ] == NULL )
+                if ( tBasis[ 113 ] == nullptr )
                 {
                     tBasis[ 113 ] = mBasis[  62 ]->get_child(  82 );
                 }
-                if ( tBasis[ 114 ] == NULL )
+                if ( tBasis[ 114 ] == nullptr )
                 {
                     tBasis[ 114 ] = mBasis[  62 ]->get_child(  83 );
                 }
-                if ( tBasis[ 116 ] == NULL )
+                if ( tBasis[ 116 ] == nullptr )
                 {
                     tBasis[ 116 ] = mBasis[  62 ]->get_child(  85 );
                 }
-                if ( tBasis[ 117 ] == NULL )
+                if ( tBasis[ 117 ] == nullptr )
                 {
                     tBasis[ 117 ] = mBasis[  62 ]->get_child(  86 );
                 }
-                if ( tBasis[ 118 ] == NULL )
+                if ( tBasis[ 118 ] == nullptr )
                 {
                     tBasis[ 118 ] = mBasis[  62 ]->get_child(  87 );
                 }
-                if ( tBasis[ 119 ] == NULL )
+                if ( tBasis[ 119 ] == nullptr )
                 {
                     tBasis[ 119 ] = mBasis[  62 ]->get_child(  88 );
                 }
-                if ( tBasis[ 121 ] == NULL )
+                if ( tBasis[ 121 ] == nullptr )
                 {
                     tBasis[ 121 ] = mBasis[  62 ]->get_child(  90 );
                 }
-                if ( tBasis[ 122 ] == NULL )
+                if ( tBasis[ 122 ] == nullptr )
                 {
                     tBasis[ 122 ] = mBasis[  62 ]->get_child(  91 );
                 }
-                if ( tBasis[ 123 ] == NULL )
+                if ( tBasis[ 123 ] == nullptr )
                 {
                     tBasis[ 123 ] = mBasis[  62 ]->get_child(  92 );
                 }
-                if ( tBasis[ 124 ] == NULL )
+                if ( tBasis[ 124 ] == nullptr )
                 {
                     tBasis[ 124 ] = mBasis[  62 ]->get_child(  93 );
                 }
             }
 
-            if ( mBasis[  63 ] != NULL )
+            if ( mBasis[  63 ] != nullptr )
             {
-                if ( tBasis[  30 ] == NULL )
+                if ( tBasis[  30 ] == nullptr )
                 {
                     tBasis[  30 ] = mBasis[  63 ]->get_child(   1 );
                 }
-                if ( tBasis[  31 ] == NULL )
+                if ( tBasis[  31 ] == nullptr )
                 {
                     tBasis[  31 ] = mBasis[  63 ]->get_child(   2 );
                 }
-                if ( tBasis[  32 ] == NULL )
+                if ( tBasis[  32 ] == nullptr )
                 {
                     tBasis[  32 ] = mBasis[  63 ]->get_child(   3 );
                 }
-                if ( tBasis[  33 ] == NULL )
+                if ( tBasis[  33 ] == nullptr )
                 {
                     tBasis[  33 ] = mBasis[  63 ]->get_child(   4 );
                 }
-                if ( tBasis[  35 ] == NULL )
+                if ( tBasis[  35 ] == nullptr )
                 {
                     tBasis[  35 ] = mBasis[  63 ]->get_child(   6 );
                 }
-                if ( tBasis[  36 ] == NULL )
+                if ( tBasis[  36 ] == nullptr )
                 {
                     tBasis[  36 ] = mBasis[  63 ]->get_child(   7 );
                 }
-                if ( tBasis[  37 ] == NULL )
+                if ( tBasis[  37 ] == nullptr )
                 {
                     tBasis[  37 ] = mBasis[  63 ]->get_child(   8 );
                 }
-                if ( tBasis[  38 ] == NULL )
+                if ( tBasis[  38 ] == nullptr )
                 {
                     tBasis[  38 ] = mBasis[  63 ]->get_child(   9 );
                 }
-                if ( tBasis[  40 ] == NULL )
+                if ( tBasis[  40 ] == nullptr )
                 {
                     tBasis[  40 ] = mBasis[  63 ]->get_child(  11 );
                 }
-                if ( tBasis[  41 ] == NULL )
+                if ( tBasis[  41 ] == nullptr )
                 {
                     tBasis[  41 ] = mBasis[  63 ]->get_child(  12 );
                 }
-                if ( tBasis[  42 ] == NULL )
+                if ( tBasis[  42 ] == nullptr )
                 {
                     tBasis[  42 ] = mBasis[  63 ]->get_child(  13 );
                 }
-                if ( tBasis[  43 ] == NULL )
+                if ( tBasis[  43 ] == nullptr )
                 {
                     tBasis[  43 ] = mBasis[  63 ]->get_child(  14 );
                 }
-                if ( tBasis[  45 ] == NULL )
+                if ( tBasis[  45 ] == nullptr )
                 {
                     tBasis[  45 ] = mBasis[  63 ]->get_child(  16 );
                 }
-                if ( tBasis[  46 ] == NULL )
+                if ( tBasis[  46 ] == nullptr )
                 {
                     tBasis[  46 ] = mBasis[  63 ]->get_child(  17 );
                 }
-                if ( tBasis[  47 ] == NULL )
+                if ( tBasis[  47 ] == nullptr )
                 {
                     tBasis[  47 ] = mBasis[  63 ]->get_child(  18 );
                 }
-                if ( tBasis[  48 ] == NULL )
+                if ( tBasis[  48 ] == nullptr )
                 {
                     tBasis[  48 ] = mBasis[  63 ]->get_child(  19 );
                 }
-                if ( tBasis[  55 ] == NULL )
+                if ( tBasis[  55 ] == nullptr )
                 {
                     tBasis[  55 ] = mBasis[  63 ]->get_child(  26 );
                 }
-                if ( tBasis[  56 ] == NULL )
+                if ( tBasis[  56 ] == nullptr )
                 {
                     tBasis[  56 ] = mBasis[  63 ]->get_child(  27 );
                 }
-                if ( tBasis[  57 ] == NULL )
+                if ( tBasis[  57 ] == nullptr )
                 {
                     tBasis[  57 ] = mBasis[  63 ]->get_child(  28 );
                 }
-                if ( tBasis[  58 ] == NULL )
+                if ( tBasis[  58 ] == nullptr )
                 {
                     tBasis[  58 ] = mBasis[  63 ]->get_child(  29 );
                 }
-                if ( tBasis[  60 ] == NULL )
+                if ( tBasis[  60 ] == nullptr )
                 {
                     tBasis[  60 ] = mBasis[  63 ]->get_child(  31 );
                 }
-                if ( tBasis[  61 ] == NULL )
+                if ( tBasis[  61 ] == nullptr )
                 {
                     tBasis[  61 ] = mBasis[  63 ]->get_child(  32 );
                 }
-                if ( tBasis[  62 ] == NULL )
+                if ( tBasis[  62 ] == nullptr )
                 {
                     tBasis[  62 ] = mBasis[  63 ]->get_child(  33 );
                 }
-                if ( tBasis[  63 ] == NULL )
+                if ( tBasis[  63 ] == nullptr )
                 {
                     tBasis[  63 ] = mBasis[  63 ]->get_child(  34 );
                 }
-                if ( tBasis[  65 ] == NULL )
+                if ( tBasis[  65 ] == nullptr )
                 {
                     tBasis[  65 ] = mBasis[  63 ]->get_child(  36 );
                 }
-                if ( tBasis[  66 ] == NULL )
+                if ( tBasis[  66 ] == nullptr )
                 {
                     tBasis[  66 ] = mBasis[  63 ]->get_child(  37 );
                 }
-                if ( tBasis[  67 ] == NULL )
+                if ( tBasis[  67 ] == nullptr )
                 {
                     tBasis[  67 ] = mBasis[  63 ]->get_child(  38 );
                 }
-                if ( tBasis[  68 ] == NULL )
+                if ( tBasis[  68 ] == nullptr )
                 {
                     tBasis[  68 ] = mBasis[  63 ]->get_child(  39 );
                 }
-                if ( tBasis[  70 ] == NULL )
+                if ( tBasis[  70 ] == nullptr )
                 {
                     tBasis[  70 ] = mBasis[  63 ]->get_child(  41 );
                 }
-                if ( tBasis[  71 ] == NULL )
+                if ( tBasis[  71 ] == nullptr )
                 {
                     tBasis[  71 ] = mBasis[  63 ]->get_child(  42 );
                 }
-                if ( tBasis[  72 ] == NULL )
+                if ( tBasis[  72 ] == nullptr )
                 {
                     tBasis[  72 ] = mBasis[  63 ]->get_child(  43 );
                 }
-                if ( tBasis[  73 ] == NULL )
+                if ( tBasis[  73 ] == nullptr )
                 {
                     tBasis[  73 ] = mBasis[  63 ]->get_child(  44 );
                 }
-                if ( tBasis[  80 ] == NULL )
+                if ( tBasis[  80 ] == nullptr )
                 {
                     tBasis[  80 ] = mBasis[  63 ]->get_child(  51 );
                 }
-                if ( tBasis[  81 ] == NULL )
+                if ( tBasis[  81 ] == nullptr )
                 {
                     tBasis[  81 ] = mBasis[  63 ]->get_child(  52 );
                 }
-                if ( tBasis[  82 ] == NULL )
+                if ( tBasis[  82 ] == nullptr )
                 {
                     tBasis[  82 ] = mBasis[  63 ]->get_child(  53 );
                 }
-                if ( tBasis[  83 ] == NULL )
+                if ( tBasis[  83 ] == nullptr )
                 {
                     tBasis[  83 ] = mBasis[  63 ]->get_child(  54 );
                 }
-                if ( tBasis[  85 ] == NULL )
+                if ( tBasis[  85 ] == nullptr )
                 {
                     tBasis[  85 ] = mBasis[  63 ]->get_child(  56 );
                 }
-                if ( tBasis[  86 ] == NULL )
+                if ( tBasis[  86 ] == nullptr )
                 {
                     tBasis[  86 ] = mBasis[  63 ]->get_child(  57 );
                 }
-                if ( tBasis[  87 ] == NULL )
+                if ( tBasis[  87 ] == nullptr )
                 {
                     tBasis[  87 ] = mBasis[  63 ]->get_child(  58 );
                 }
-                if ( tBasis[  88 ] == NULL )
+                if ( tBasis[  88 ] == nullptr )
                 {
                     tBasis[  88 ] = mBasis[  63 ]->get_child(  59 );
                 }
-                if ( tBasis[  90 ] == NULL )
+                if ( tBasis[  90 ] == nullptr )
                 {
                     tBasis[  90 ] = mBasis[  63 ]->get_child(  61 );
                 }
-                if ( tBasis[  91 ] == NULL )
+                if ( tBasis[  91 ] == nullptr )
                 {
                     tBasis[  91 ] = mBasis[  63 ]->get_child(  62 );
                 }
-                if ( tBasis[  92 ] == NULL )
+                if ( tBasis[  92 ] == nullptr )
                 {
                     tBasis[  92 ] = mBasis[  63 ]->get_child(  63 );
                 }
-                if ( tBasis[  93 ] == NULL )
+                if ( tBasis[  93 ] == nullptr )
                 {
                     tBasis[  93 ] = mBasis[  63 ]->get_child(  64 );
                 }
-                if ( tBasis[  95 ] == NULL )
+                if ( tBasis[  95 ] == nullptr )
                 {
                     tBasis[  95 ] = mBasis[  63 ]->get_child(  66 );
                 }
-                if ( tBasis[  96 ] == NULL )
+                if ( tBasis[  96 ] == nullptr )
                 {
                     tBasis[  96 ] = mBasis[  63 ]->get_child(  67 );
                 }
-                if ( tBasis[  97 ] == NULL )
+                if ( tBasis[  97 ] == nullptr )
                 {
                     tBasis[  97 ] = mBasis[  63 ]->get_child(  68 );
                 }
-                if ( tBasis[  98 ] == NULL )
+                if ( tBasis[  98 ] == nullptr )
                 {
                     tBasis[  98 ] = mBasis[  63 ]->get_child(  69 );
                 }
-                if ( tBasis[ 105 ] == NULL )
+                if ( tBasis[ 105 ] == nullptr )
                 {
                     tBasis[ 105 ] = mBasis[  63 ]->get_child(  76 );
                 }
-                if ( tBasis[ 106 ] == NULL )
+                if ( tBasis[ 106 ] == nullptr )
                 {
                     tBasis[ 106 ] = mBasis[  63 ]->get_child(  77 );
                 }
-                if ( tBasis[ 107 ] == NULL )
+                if ( tBasis[ 107 ] == nullptr )
                 {
                     tBasis[ 107 ] = mBasis[  63 ]->get_child(  78 );
                 }
-                if ( tBasis[ 108 ] == NULL )
+                if ( tBasis[ 108 ] == nullptr )
                 {
                     tBasis[ 108 ] = mBasis[  63 ]->get_child(  79 );
                 }
-                if ( tBasis[ 110 ] == NULL )
+                if ( tBasis[ 110 ] == nullptr )
                 {
                     tBasis[ 110 ] = mBasis[  63 ]->get_child(  81 );
                 }
-                if ( tBasis[ 111 ] == NULL )
+                if ( tBasis[ 111 ] == nullptr )
                 {
                     tBasis[ 111 ] = mBasis[  63 ]->get_child(  82 );
                 }
-                if ( tBasis[ 112 ] == NULL )
+                if ( tBasis[ 112 ] == nullptr )
                 {
                     tBasis[ 112 ] = mBasis[  63 ]->get_child(  83 );
                 }
-                if ( tBasis[ 113 ] == NULL )
+                if ( tBasis[ 113 ] == nullptr )
                 {
                     tBasis[ 113 ] = mBasis[  63 ]->get_child(  84 );
                 }
-                if ( tBasis[ 115 ] == NULL )
+                if ( tBasis[ 115 ] == nullptr )
                 {
                     tBasis[ 115 ] = mBasis[  63 ]->get_child(  86 );
                 }
-                if ( tBasis[ 116 ] == NULL )
+                if ( tBasis[ 116 ] == nullptr )
                 {
                     tBasis[ 116 ] = mBasis[  63 ]->get_child(  87 );
                 }
-                if ( tBasis[ 117 ] == NULL )
+                if ( tBasis[ 117 ] == nullptr )
                 {
                     tBasis[ 117 ] = mBasis[  63 ]->get_child(  88 );
                 }
-                if ( tBasis[ 118 ] == NULL )
+                if ( tBasis[ 118 ] == nullptr )
                 {
                     tBasis[ 118 ] = mBasis[  63 ]->get_child(  89 );
                 }
-                if ( tBasis[ 120 ] == NULL )
+                if ( tBasis[ 120 ] == nullptr )
                 {
                     tBasis[ 120 ] = mBasis[  63 ]->get_child(  91 );
                 }
-                if ( tBasis[ 121 ] == NULL )
+                if ( tBasis[ 121 ] == nullptr )
                 {
                     tBasis[ 121 ] = mBasis[  63 ]->get_child(  92 );
                 }
-                if ( tBasis[ 122 ] == NULL )
+                if ( tBasis[ 122 ] == nullptr )
                 {
                     tBasis[ 122 ] = mBasis[  63 ]->get_child(  93 );
                 }
-                if ( tBasis[ 123 ] == NULL )
+                if ( tBasis[ 123 ] == nullptr )
                 {
                     tBasis[ 123 ] = mBasis[  63 ]->get_child(  94 );
                 }

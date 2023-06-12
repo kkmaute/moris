@@ -161,7 +161,7 @@ namespace moris
              Element* tNeighbor = this->get_neighbor( aAllElementsOnProc, 0 );
 
              // test if neighbor  0 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  17 ] = tNeighbor->get_basis(   0 );
@@ -174,7 +174,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 1 );
 
              // test if neighbor  1 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  21 ] = tNeighbor->get_basis(   1 );
@@ -187,7 +187,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 2 );
 
              // test if neighbor  2 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  25 ] = tNeighbor->get_basis(   3 );
@@ -200,7 +200,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 3 );
 
              // test if neighbor  3 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  20 ] = tNeighbor->get_basis(   0 );
@@ -213,7 +213,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 4 );
 
              // test if neighbor  4 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[   5 ] = tNeighbor->get_basis(   0 );
@@ -226,7 +226,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 5 );
 
              // test if neighbor  5 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  45 ] = tNeighbor->get_basis(   4 );
@@ -239,7 +239,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 6 );
 
              // test if neighbor  6 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[   1 ] = tNeighbor->get_basis(   0 );
@@ -254,7 +254,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 7 );
 
              // test if neighbor  7 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[   6 ] = tNeighbor->get_basis(   0 );
@@ -269,7 +269,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 8 );
 
              // test if neighbor  8 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[   9 ] = tNeighbor->get_basis(   0 );
@@ -284,7 +284,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 9 );
 
              // test if neighbor  9 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[   4 ] = tNeighbor->get_basis(   0 );
@@ -299,7 +299,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 10 );
 
              // test if neighbor  10 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  16 ] = tNeighbor->get_basis(   0 );
@@ -314,7 +314,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 11 );
 
              // test if neighbor  11 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  18 ] = tNeighbor->get_basis(   0 );
@@ -329,7 +329,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 12 );
 
              // test if neighbor  12 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  23 ] = tNeighbor->get_basis(   1 );
@@ -344,7 +344,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 13 );
 
              // test if neighbor  13 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  22 ] = tNeighbor->get_basis(   0 );
@@ -359,7 +359,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 14 );
 
              // test if neighbor  14 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  29 ] = tNeighbor->get_basis(   0 );
@@ -374,7 +374,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 15 );
 
              // test if neighbor  15 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  33 ] = tNeighbor->get_basis(   1 );
@@ -389,7 +389,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 16 );
 
              // test if neighbor  16 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  37 ] = tNeighbor->get_basis(   3 );
@@ -404,7 +404,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 17 );
 
              // test if neighbor  17 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  32 ] = tNeighbor->get_basis(   0 );
@@ -419,7 +419,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 18 );
 
              // test if neighbor  18 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[   0 ] = tNeighbor->get_basis(   0 );
@@ -435,7 +435,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 19 );
 
              // test if neighbor  19 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[   2 ] = tNeighbor->get_basis(   0 );
@@ -451,7 +451,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 20 );
 
              // test if neighbor  20 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  10 ] = tNeighbor->get_basis(   0 );
@@ -467,7 +467,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 21 );
 
              // test if neighbor  21 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[   8 ] = tNeighbor->get_basis(   0 );
@@ -483,7 +483,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 22 );
 
              // test if neighbor  22 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  28 ] = tNeighbor->get_basis(   0 );
@@ -499,7 +499,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 23 );
 
              // test if neighbor  23 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  30 ] = tNeighbor->get_basis(   0 );
@@ -515,7 +515,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 24 );
 
              // test if neighbor  24 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  35 ] = tNeighbor->get_basis(   1 );
@@ -531,7 +531,7 @@ namespace moris
              tNeighbor = this->get_neighbor( aAllElementsOnProc, 25 );
 
              // test if neighbor  25 exists
-             if ( tNeighbor != NULL )
+             if ( tNeighbor != nullptr )
              {
                  // copy pointers into frame
                  tBasis[  34 ] = tNeighbor->get_basis(   0 );
@@ -544,7 +544,7 @@ namespace moris
              }
 
              // test if basis 0 exists
-             if ( mBasis[   0 ] != NULL )
+             if ( mBasis[   0 ] != nullptr )
              {
                  // test if basis 0 has been processed
                  if ( ! mBasis[   0 ]->is_flagged() )
@@ -584,7 +584,7 @@ namespace moris
              }
 
              // test if basis 1 exists
-             if ( mBasis[   1 ] != NULL )
+             if ( mBasis[   1 ] != nullptr )
              {
                  // test if basis 1 has been processed
                  if ( ! mBasis[   1 ]->is_flagged() )
@@ -624,7 +624,7 @@ namespace moris
              }
 
              // test if basis 2 exists
-             if ( mBasis[   2 ] != NULL )
+             if ( mBasis[   2 ] != nullptr )
              {
                  // test if basis 2 has been processed
                  if ( ! mBasis[   2 ]->is_flagged() )
@@ -664,7 +664,7 @@ namespace moris
              }
 
              // test if basis 3 exists
-             if ( mBasis[   3 ] != NULL )
+             if ( mBasis[   3 ] != nullptr )
              {
                  // test if basis 3 has been processed
                  if ( ! mBasis[   3 ]->is_flagged() )
@@ -704,7 +704,7 @@ namespace moris
              }
 
              // test if basis 4 exists
-             if ( mBasis[   4 ] != NULL )
+             if ( mBasis[   4 ] != nullptr )
              {
                  // test if basis 4 has been processed
                  if ( ! mBasis[   4 ]->is_flagged() )
@@ -744,7 +744,7 @@ namespace moris
              }
 
              // test if basis 5 exists
-             if ( mBasis[   5 ] != NULL )
+             if ( mBasis[   5 ] != nullptr )
              {
                  // test if basis 5 has been processed
                  if ( ! mBasis[   5 ]->is_flagged() )
@@ -784,7 +784,7 @@ namespace moris
              }
 
              // test if basis 6 exists
-             if ( mBasis[   6 ] != NULL )
+             if ( mBasis[   6 ] != nullptr )
              {
                  // test if basis 6 has been processed
                  if ( ! mBasis[   6 ]->is_flagged() )
@@ -824,7 +824,7 @@ namespace moris
              }
 
              // test if basis 7 exists
-             if ( mBasis[   7 ] != NULL )
+             if ( mBasis[   7 ] != nullptr )
              {
                  // test if basis 7 has been processed
                  if ( ! mBasis[   7 ]->is_flagged() )
@@ -882,7 +882,7 @@ namespace moris
             Basis* tBasis = mBasis[ aBasisNumber ];
 
             // test if basis exists
-            if ( tBasis != NULL )
+            if ( tBasis != nullptr )
             {
                 // test if basis has been refined already
                 if ( ! tBasis->has_children() )
@@ -897,7 +897,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 0 );
 
                    // test if neighbor 0 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -919,7 +919,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 1 );
 
                    // test if neighbor 1 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -941,7 +941,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 2 );
 
                    // test if neighbor 2 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -963,7 +963,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 3 );
 
                    // test if neighbor 3 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -985,7 +985,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 4 );
 
                    // test if neighbor 4 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1007,7 +1007,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 5 );
 
                    // test if neighbor 5 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1029,7 +1029,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 6 );
 
                    // test if neighbor 6 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1045,7 +1045,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 7 );
 
                    // test if neighbor 7 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1061,7 +1061,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 8 );
 
                    // test if neighbor 8 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1077,7 +1077,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 9 );
 
                    // test if neighbor 9 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1093,7 +1093,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 10 );
 
                    // test if neighbor 10 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1109,7 +1109,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 11 );
 
                    // test if neighbor 11 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1125,7 +1125,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 12 );
 
                    // test if neighbor 12 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1141,7 +1141,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 13 );
 
                    // test if neighbor 13 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1157,7 +1157,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 14 );
 
                    // test if neighbor 14 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1173,7 +1173,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 15 );
 
                    // test if neighbor 15 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1189,7 +1189,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 16 );
 
                    // test if neighbor 16 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1205,7 +1205,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 17 );
 
                    // test if neighbor 17 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1221,7 +1221,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 18 );
 
                    // test if neighbor 18 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1235,7 +1235,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 19 );
 
                    // test if neighbor 19 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1249,7 +1249,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 20 );
 
                    // test if neighbor 20 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1263,7 +1263,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 21 );
 
                    // test if neighbor 21 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1277,7 +1277,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 22 );
 
                    // test if neighbor 22 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1291,7 +1291,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 23 );
 
                    // test if neighbor 23 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1305,7 +1305,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 24 );
 
                    // test if neighbor 24 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1319,7 +1319,7 @@ namespace moris
                    tNeighbor = tBasis->get_neighbor( 25 );
 
                    // test if neighbor 25 exists
-                   if ( tNeighbor != NULL )
+                   if ( tNeighbor != nullptr )
                    {
                        // test if neighbor has children
                        if ( tNeighbor->has_children() )
@@ -1364,7 +1364,7 @@ namespace moris
                            for( luint i=tIMin; i<tIMax; ++i )
                            {
                                // test if child does not exist
-                               if( tBasis->get_child( tCount ) == NULL )
+                               if( tBasis->get_child( tCount ) == nullptr )
                                {
                                    // calculate i-j-k position of child
                                    luint tIJK[ 3 ] = { i, j, k };
@@ -1411,289 +1411,289 @@ namespace moris
             Basis* tBasis[ 27 ] = { nullptr };
 
             // populate basis pattern
-            if ( mBasis[   0 ] != NULL )
+            if ( mBasis[   0 ] != nullptr )
             {
-                if ( tBasis[   0 ] == NULL )
+                if ( tBasis[   0 ] == nullptr )
                 {
                     tBasis[   0 ] = mBasis[   0 ]->get_child(  13 );
                 }
-                if ( tBasis[   1 ] == NULL )
+                if ( tBasis[   1 ] == nullptr )
                 {
                     tBasis[   1 ] = mBasis[   0 ]->get_child(  14 );
                 }
-                if ( tBasis[   3 ] == NULL )
+                if ( tBasis[   3 ] == nullptr )
                 {
                     tBasis[   3 ] = mBasis[   0 ]->get_child(  16 );
                 }
-                if ( tBasis[   4 ] == NULL )
+                if ( tBasis[   4 ] == nullptr )
                 {
                     tBasis[   4 ] = mBasis[   0 ]->get_child(  17 );
                 }
-                if ( tBasis[   9 ] == NULL )
+                if ( tBasis[   9 ] == nullptr )
                 {
                     tBasis[   9 ] = mBasis[   0 ]->get_child(  22 );
                 }
-                if ( tBasis[  10 ] == NULL )
+                if ( tBasis[  10 ] == nullptr )
                 {
                     tBasis[  10 ] = mBasis[   0 ]->get_child(  23 );
                 }
-                if ( tBasis[  12 ] == NULL )
+                if ( tBasis[  12 ] == nullptr )
                 {
                     tBasis[  12 ] = mBasis[   0 ]->get_child(  25 );
                 }
-                if ( tBasis[  13 ] == NULL )
+                if ( tBasis[  13 ] == nullptr )
                 {
                     tBasis[  13 ] = mBasis[   0 ]->get_child(  26 );
                 }
             }
 
-            if ( mBasis[   1 ] != NULL )
+            if ( mBasis[   1 ] != nullptr )
             {
-                if ( tBasis[   1 ] == NULL )
+                if ( tBasis[   1 ] == nullptr )
                 {
                     tBasis[   1 ] = mBasis[   1 ]->get_child(  12 );
                 }
-                if ( tBasis[   2 ] == NULL )
+                if ( tBasis[   2 ] == nullptr )
                 {
                     tBasis[   2 ] = mBasis[   1 ]->get_child(  13 );
                 }
-                if ( tBasis[   4 ] == NULL )
+                if ( tBasis[   4 ] == nullptr )
                 {
                     tBasis[   4 ] = mBasis[   1 ]->get_child(  15 );
                 }
-                if ( tBasis[   5 ] == NULL )
+                if ( tBasis[   5 ] == nullptr )
                 {
                     tBasis[   5 ] = mBasis[   1 ]->get_child(  16 );
                 }
-                if ( tBasis[  10 ] == NULL )
+                if ( tBasis[  10 ] == nullptr )
                 {
                     tBasis[  10 ] = mBasis[   1 ]->get_child(  21 );
                 }
-                if ( tBasis[  11 ] == NULL )
+                if ( tBasis[  11 ] == nullptr )
                 {
                     tBasis[  11 ] = mBasis[   1 ]->get_child(  22 );
                 }
-                if ( tBasis[  13 ] == NULL )
+                if ( tBasis[  13 ] == nullptr )
                 {
                     tBasis[  13 ] = mBasis[   1 ]->get_child(  24 );
                 }
-                if ( tBasis[  14 ] == NULL )
+                if ( tBasis[  14 ] == nullptr )
                 {
                     tBasis[  14 ] = mBasis[   1 ]->get_child(  25 );
                 }
             }
 
-            if ( mBasis[   2 ] != NULL )
+            if ( mBasis[   2 ] != nullptr )
             {
-                if ( tBasis[   4 ] == NULL )
+                if ( tBasis[   4 ] == nullptr )
                 {
                     tBasis[   4 ] = mBasis[   2 ]->get_child(   9 );
                 }
-                if ( tBasis[   5 ] == NULL )
+                if ( tBasis[   5 ] == nullptr )
                 {
                     tBasis[   5 ] = mBasis[   2 ]->get_child(  10 );
                 }
-                if ( tBasis[   7 ] == NULL )
+                if ( tBasis[   7 ] == nullptr )
                 {
                     tBasis[   7 ] = mBasis[   2 ]->get_child(  12 );
                 }
-                if ( tBasis[   8 ] == NULL )
+                if ( tBasis[   8 ] == nullptr )
                 {
                     tBasis[   8 ] = mBasis[   2 ]->get_child(  13 );
                 }
-                if ( tBasis[  13 ] == NULL )
+                if ( tBasis[  13 ] == nullptr )
                 {
                     tBasis[  13 ] = mBasis[   2 ]->get_child(  18 );
                 }
-                if ( tBasis[  14 ] == NULL )
+                if ( tBasis[  14 ] == nullptr )
                 {
                     tBasis[  14 ] = mBasis[   2 ]->get_child(  19 );
                 }
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[   2 ]->get_child(  21 );
                 }
-                if ( tBasis[  17 ] == NULL )
+                if ( tBasis[  17 ] == nullptr )
                 {
                     tBasis[  17 ] = mBasis[   2 ]->get_child(  22 );
                 }
             }
 
-            if ( mBasis[   3 ] != NULL )
+            if ( mBasis[   3 ] != nullptr )
             {
-                if ( tBasis[   3 ] == NULL )
+                if ( tBasis[   3 ] == nullptr )
                 {
                     tBasis[   3 ] = mBasis[   3 ]->get_child(  10 );
                 }
-                if ( tBasis[   4 ] == NULL )
+                if ( tBasis[   4 ] == nullptr )
                 {
                     tBasis[   4 ] = mBasis[   3 ]->get_child(  11 );
                 }
-                if ( tBasis[   6 ] == NULL )
+                if ( tBasis[   6 ] == nullptr )
                 {
                     tBasis[   6 ] = mBasis[   3 ]->get_child(  13 );
                 }
-                if ( tBasis[   7 ] == NULL )
+                if ( tBasis[   7 ] == nullptr )
                 {
                     tBasis[   7 ] = mBasis[   3 ]->get_child(  14 );
                 }
-                if ( tBasis[  12 ] == NULL )
+                if ( tBasis[  12 ] == nullptr )
                 {
                     tBasis[  12 ] = mBasis[   3 ]->get_child(  19 );
                 }
-                if ( tBasis[  13 ] == NULL )
+                if ( tBasis[  13 ] == nullptr )
                 {
                     tBasis[  13 ] = mBasis[   3 ]->get_child(  20 );
                 }
-                if ( tBasis[  15 ] == NULL )
+                if ( tBasis[  15 ] == nullptr )
                 {
                     tBasis[  15 ] = mBasis[   3 ]->get_child(  22 );
                 }
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[   3 ]->get_child(  23 );
                 }
             }
 
-            if ( mBasis[   4 ] != NULL )
+            if ( mBasis[   4 ] != nullptr )
             {
-                if ( tBasis[   9 ] == NULL )
+                if ( tBasis[   9 ] == nullptr )
                 {
                     tBasis[   9 ] = mBasis[   4 ]->get_child(   4 );
                 }
-                if ( tBasis[  10 ] == NULL )
+                if ( tBasis[  10 ] == nullptr )
                 {
                     tBasis[  10 ] = mBasis[   4 ]->get_child(   5 );
                 }
-                if ( tBasis[  12 ] == NULL )
+                if ( tBasis[  12 ] == nullptr )
                 {
                     tBasis[  12 ] = mBasis[   4 ]->get_child(   7 );
                 }
-                if ( tBasis[  13 ] == NULL )
+                if ( tBasis[  13 ] == nullptr )
                 {
                     tBasis[  13 ] = mBasis[   4 ]->get_child(   8 );
                 }
-                if ( tBasis[  18 ] == NULL )
+                if ( tBasis[  18 ] == nullptr )
                 {
                     tBasis[  18 ] = mBasis[   4 ]->get_child(  13 );
                 }
-                if ( tBasis[  19 ] == NULL )
+                if ( tBasis[  19 ] == nullptr )
                 {
                     tBasis[  19 ] = mBasis[   4 ]->get_child(  14 );
                 }
-                if ( tBasis[  21 ] == NULL )
+                if ( tBasis[  21 ] == nullptr )
                 {
                     tBasis[  21 ] = mBasis[   4 ]->get_child(  16 );
                 }
-                if ( tBasis[  22 ] == NULL )
+                if ( tBasis[  22 ] == nullptr )
                 {
                     tBasis[  22 ] = mBasis[   4 ]->get_child(  17 );
                 }
             }
 
-            if ( mBasis[   5 ] != NULL )
+            if ( mBasis[   5 ] != nullptr )
             {
-                if ( tBasis[  10 ] == NULL )
+                if ( tBasis[  10 ] == nullptr )
                 {
                     tBasis[  10 ] = mBasis[   5 ]->get_child(   3 );
                 }
-                if ( tBasis[  11 ] == NULL )
+                if ( tBasis[  11 ] == nullptr )
                 {
                     tBasis[  11 ] = mBasis[   5 ]->get_child(   4 );
                 }
-                if ( tBasis[  13 ] == NULL )
+                if ( tBasis[  13 ] == nullptr )
                 {
                     tBasis[  13 ] = mBasis[   5 ]->get_child(   6 );
                 }
-                if ( tBasis[  14 ] == NULL )
+                if ( tBasis[  14 ] == nullptr )
                 {
                     tBasis[  14 ] = mBasis[   5 ]->get_child(   7 );
                 }
-                if ( tBasis[  19 ] == NULL )
+                if ( tBasis[  19 ] == nullptr )
                 {
                     tBasis[  19 ] = mBasis[   5 ]->get_child(  12 );
                 }
-                if ( tBasis[  20 ] == NULL )
+                if ( tBasis[  20 ] == nullptr )
                 {
                     tBasis[  20 ] = mBasis[   5 ]->get_child(  13 );
                 }
-                if ( tBasis[  22 ] == NULL )
+                if ( tBasis[  22 ] == nullptr )
                 {
                     tBasis[  22 ] = mBasis[   5 ]->get_child(  15 );
                 }
-                if ( tBasis[  23 ] == NULL )
+                if ( tBasis[  23 ] == nullptr )
                 {
                     tBasis[  23 ] = mBasis[   5 ]->get_child(  16 );
                 }
             }
 
-            if ( mBasis[   6 ] != NULL )
+            if ( mBasis[   6 ] != nullptr )
             {
-                if ( tBasis[  13 ] == NULL )
+                if ( tBasis[  13 ] == nullptr )
                 {
                     tBasis[  13 ] = mBasis[   6 ]->get_child(   0 );
                 }
-                if ( tBasis[  14 ] == NULL )
+                if ( tBasis[  14 ] == nullptr )
                 {
                     tBasis[  14 ] = mBasis[   6 ]->get_child(   1 );
                 }
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[   6 ]->get_child(   3 );
                 }
-                if ( tBasis[  17 ] == NULL )
+                if ( tBasis[  17 ] == nullptr )
                 {
                     tBasis[  17 ] = mBasis[   6 ]->get_child(   4 );
                 }
-                if ( tBasis[  22 ] == NULL )
+                if ( tBasis[  22 ] == nullptr )
                 {
                     tBasis[  22 ] = mBasis[   6 ]->get_child(   9 );
                 }
-                if ( tBasis[  23 ] == NULL )
+                if ( tBasis[  23 ] == nullptr )
                 {
                     tBasis[  23 ] = mBasis[   6 ]->get_child(  10 );
                 }
-                if ( tBasis[  25 ] == NULL )
+                if ( tBasis[  25 ] == nullptr )
                 {
                     tBasis[  25 ] = mBasis[   6 ]->get_child(  12 );
                 }
-                if ( tBasis[  26 ] == NULL )
+                if ( tBasis[  26 ] == nullptr )
                 {
                     tBasis[  26 ] = mBasis[   6 ]->get_child(  13 );
                 }
             }
 
-            if ( mBasis[   7 ] != NULL )
+            if ( mBasis[   7 ] != nullptr )
             {
-                if ( tBasis[  12 ] == NULL )
+                if ( tBasis[  12 ] == nullptr )
                 {
                     tBasis[  12 ] = mBasis[   7 ]->get_child(   1 );
                 }
-                if ( tBasis[  13 ] == NULL )
+                if ( tBasis[  13 ] == nullptr )
                 {
                     tBasis[  13 ] = mBasis[   7 ]->get_child(   2 );
                 }
-                if ( tBasis[  15 ] == NULL )
+                if ( tBasis[  15 ] == nullptr )
                 {
                     tBasis[  15 ] = mBasis[   7 ]->get_child(   4 );
                 }
-                if ( tBasis[  16 ] == NULL )
+                if ( tBasis[  16 ] == nullptr )
                 {
                     tBasis[  16 ] = mBasis[   7 ]->get_child(   5 );
                 }
-                if ( tBasis[  21 ] == NULL )
+                if ( tBasis[  21 ] == nullptr )
                 {
                     tBasis[  21 ] = mBasis[   7 ]->get_child(  10 );
                 }
-                if ( tBasis[  22 ] == NULL )
+                if ( tBasis[  22 ] == nullptr )
                 {
                     tBasis[  22 ] = mBasis[   7 ]->get_child(  11 );
                 }
-                if ( tBasis[  24 ] == NULL )
+                if ( tBasis[  24 ] == nullptr )
                 {
                     tBasis[  24 ] = mBasis[   7 ]->get_child(  13 );
                 }
-                if ( tBasis[  25 ] == NULL )
+                if ( tBasis[  25 ] == nullptr )
                 {
                     tBasis[  25 ] = mBasis[   7 ]->get_child(  14 );
                 }
