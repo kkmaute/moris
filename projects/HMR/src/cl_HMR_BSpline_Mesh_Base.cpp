@@ -2501,43 +2501,43 @@ namespace moris
            }
            tFile << std::endl;
 
-           // write mtk index
-           tFile << "SCALARS MTK_INDEX int" << std::endl;
-           tFile << "LOOKUP_TABLE default" << std::endl;
-           for( auto tBasis : mAllBasisOnProc )
+       // write mtk index
+       tFile << "SCALARS MTK_INDEX int" << std::endl;
+       tFile << "LOOKUP_TABLE default" << std::endl;
+       for( auto tBasis : mAllBasisOnProc )
+       {
+           if( tBasis->is_flagged() )
            {
-               if( tBasis->is_flagged() )
-               {
-                   tIChar = swap_byte_endian( (int) tBasis->get_index() );
+               tIChar = swap_byte_endian( (int) tBasis->get_index() );
 
-                   tFile.write( ( char *) &tIChar, sizeof(int));
-               }
+               tFile.write( ( char *) &tIChar, sizeof(int));
            }
-           tFile << std::endl;
+       }
+       tFile << std::endl;
 
-           // write active index
-           tFile << "SCALARS ACTIVE_INDEX int" << std::endl;
-           tFile << "LOOKUP_TABLE default" << std::endl;
-           for( auto tBasis : mAllBasisOnProc )
+       // write active index
+       tFile << "SCALARS ACTIVE_INDEX int" << std::endl;
+       tFile << "LOOKUP_TABLE default" << std::endl;
+       for( auto tBasis : mAllBasisOnProc )
+       {
+           if( tBasis->is_flagged() )
            {
-               if( tBasis->is_flagged() )
+               if( tBasis->is_active() )
                {
-                   if( tBasis->is_active() )
-                   {
-                       tIChar = swap_byte_endian( (int) tBasis->get_active_index() );
-                   }
-                   else
-                   {
-                       tIChar = swap_byte_endian( (int) -1 );
-                   }
-                   tFile.write( ( char *) &tIChar, sizeof(int));
+                   tIChar = swap_byte_endian( (int) tBasis->get_active_index() );
                }
+               else
+               {
+                   tIChar = swap_byte_endian( (int) -1 );
+               }
+               tFile.write( ( char *) &tIChar, sizeof(int));
            }
+       }
 
-           tFile << std::endl;
+       tFile << std::endl;
 
-           // close the output file
-           tFile.close();
+       // close the output file
+       tFile.close();
 
            // unflag all bases
            this->unflag_all_basis();

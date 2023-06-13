@@ -23,36 +23,33 @@
 #include "cl_Cell.hpp"
 #include "typedefs.hpp"
 
-namespace moris
+namespace moris::hmr
 {
-    namespace hmr
-    {
 // -----------------------------------------------------------------------------
 
-        void
-        initialize_fields(
-                const Arguments                  & aArguments,
-                const Paramfile                  & aParamfile,
-                HMR                              * aHMR,
-                Cell< std::shared_ptr< Field > > & aFields )
+    void
+    initialize_fields(
+            const Arguments                  & aArguments,
+            const Paramfile                  & aParamfile,
+            HMR                              * aHMR,
+            Cell< std::shared_ptr< Field > > & aFields )
+    {
+        // reset field container
+        aFields.clear();
+
+        // get number of fields from parameter file
+        uint tNumberOfFields = aParamfile.get_number_of_fields();
+
+        // loop over all requested fields
+        for( uint f=0; f<tNumberOfFields; ++f )
         {
-            // reset field container
-            aFields.clear();
-
-            // get number of fields from parameter file
-            uint tNumberOfFields = aParamfile.get_number_of_fields();
-
-            // loop over all requested fields
-            for( uint f=0; f<tNumberOfFields; ++f )
-            {
-                // create field pointer
+            // create field pointer
 //                aFields.push_back( aHMR->create_field(  aParamfile.get_field_params( f ) ) );       //FIXME
-            }
-
         }
 
+    }
+
 // -----------------------------------------------------------------------------
-    } /* namespace hmr */
 } /* namespace moris */
 
 #endif /* PROJECTS_HMR_SRC_FN_HMR_EXEC_INITIALIZE_FIELDS_HPP_ */

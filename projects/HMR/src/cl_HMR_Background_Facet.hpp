@@ -15,135 +15,132 @@
 #include "typedefs.hpp"
 #include "cl_Bitset.hpp" //CNT/src
 
-namespace moris
+namespace moris::hmr
 {
-    namespace hmr
+//-----------------------------------------------------------------------------
+
+    class Background_Element_Base;
+
+//-----------------------------------------------------------------------------
+    class Background_Facet
     {
-//-----------------------------------------------------------------------------
+        //! Pointer to parent. Points to null for faces
+        //! on coarsest level.
+        // Background_Facet *      mParent;
 
-        class Background_Element_Base;
+        //! Contains the ID of the proc that owns the element.
+        // moris_id                    mOwner;
 
-//-----------------------------------------------------------------------------
-        class Background_Facet
-        {
-            //! Pointer to parent. Points to null for faces
-            //! on coarsest level.
-            // Background_Facet *      mParent;
+        //! Tells if a face is active
+        // Bitset< gNumberOfPatterns > mActiveFlags;
 
-            //! Contains the ID of the proc that owns the element.
-            // moris_id                    mOwner;
+        //! Tells if a face is refined
+        // Bitset< gNumberOfPatterns > mRefinedFlags;
 
-            //! Tells if a face is active
-            // Bitset< gNumberOfPatterns > mActiveFlags;
+        //! Tells if the face has children.
+        // bool                        mChildrenFlag = false;
 
-            //! Tells if a face is refined
-            // Bitset< gNumberOfPatterns > mRefinedFlags;
+        //! index in memory
+        // uint                        mMemoryIndex;
 
-            //! Tells if the face has children.
-            // bool                        mChildrenFlag = false;
+        //! reference element ( the element with the lower id )
+        Background_Element_Base *   mLeaderElement;
+        Background_Element_Base *   mFollowerElement;
 
-            //! index in memory
-            // uint                        mMemoryIndex;
+        //! face index for leader element
+        uint                        mIndexOnLeader;
 
-            //! reference element ( the element with the lower id )
-            Background_Element_Base *   mLeaderElement;
-            Background_Element_Base *   mFollowerElement;
-
-            //! face index for leader element
-            uint                        mIndexOnLeader;
-
-            //! multi purpose flag
-            bool                        mFlag = false;
+        //! multi purpose flag
+        bool                        mFlag = false;
 //------------------------------------------------------------------------------
-        public:
+    public:
 //------------------------------------------------------------------------------
 
-            /**
-             * Default constructor
-             */
-            Background_Facet(       Background_Element_Base * aElementA,
-                                    Background_Element_Base * aElementB,
-                              uint aIndexOnElementA  );
+        /**
+         * Default constructor
+         */
+        Background_Facet(       Background_Element_Base * aElementA,
+                                Background_Element_Base * aElementB,
+                          uint aIndexOnElementA  );
 
 //------------------------------------------------------------------------------
 
-            Background_Facet(       Background_Element_Base * aElement,
-                              uint aIndexOnElement );
+        Background_Facet(       Background_Element_Base * aElement,
+                          uint aIndexOnElement );
 
 //------------------------------------------------------------------------------
 
-            /**
-             * trivial destructor
-             */
-            ~Background_Facet(){};
+        /**
+         * trivial destructor
+         */
+        ~Background_Facet(){};
 
 //------------------------------------------------------------------------------
 
-            /**
-             * sets the flag
-             */
-            void flag();
+        /**
+         * sets the flag
+         */
+        void flag();
 
 //------------------------------------------------------------------------------
 
-            /**
-             * resets the flag
-             */
-            void unflag();
+        /**
+         * resets the flag
+         */
+        void unflag();
 
 //--------------------------------------------------------------------------------
 
-            /**
-             * test if flag is set
-             */
-            bool is_flagged() const;
+        /**
+         * test if flag is set
+         */
+        bool is_flagged() const;
 
 //--------------------------------------------------------------------------------
 
-            /**
-             * get pointer to leader element
-             */
-            Background_Element_Base * get_leader();
+        /**
+         * get pointer to leader element
+         */
+        Background_Element_Base * get_leader();
 //--------------------------------------------------------------------------------
 
-            /**
-             * get pointer to follower element
-             */
-            Background_Element_Base * get_follower();
-
-//--------------------------------------------------------------------------------
-
-            /**
-             * sets the follower element
-             */
-            void set_follower( Background_Element_Base * aElement );
+        /**
+         * get pointer to follower element
+         */
+        Background_Element_Base * get_follower();
 
 //--------------------------------------------------------------------------------
 
-            /**
-             * returns the index in relation to the leader element
-             */
-            uint get_index_on_leader() const;
+        /**
+         * sets the follower element
+         */
+        void set_follower( Background_Element_Base * aElement );
 
 //--------------------------------------------------------------------------------
 
-            /**
-             * returns the index in relation to the leader element
-             */
-            uint get_index_on_follower() const;
+        /**
+         * returns the index in relation to the leader element
+         */
+        uint get_index_on_leader() const;
 
 //--------------------------------------------------------------------------------
 
-            /**
-             * returns the index in relation to the leader element
-             */
-            uint get_index_on_other( uint aIndex ) const;
+        /**
+         * returns the index in relation to the leader element
+         */
+        uint get_index_on_follower() const;
 
 //--------------------------------------------------------------------------------
-        };
+
+        /**
+         * returns the index in relation to the leader element
+         */
+        uint get_index_on_other( uint aIndex ) const;
+
+//--------------------------------------------------------------------------------
+    };
 
 //-------------------------------------------------------------------------------
-    } /* namespace hmr */
 } /* namespace moris */
 
 #endif /* PROJECTS_HMR_SRC_CL_HMR_BACKGROUND_FACET_HPP_ */

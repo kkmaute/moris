@@ -18,12 +18,10 @@
 #include "HMR_Tools.hpp" //HMR/src
 #include "stk_impl/cl_MTK_Mesh_Core_STK.hpp"
 
-namespace moris
+namespace moris::hmr
 {
-    namespace hmr
-    {
 
-// ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
 
     STK::STK( Lagrange_Mesh_Base * aMesh ) : mParameters( aMesh->get_parameters() ),
                                              mMesh( aMesh ),
@@ -31,7 +29,7 @@ namespace moris
     {
     }
 
-// ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
     void STK::create_mesh_data( const double aTimeStep )
     {
         // start timer
@@ -70,8 +68,8 @@ namespace moris
         tNodeIDs.set_size( tNumberOfNodes, 1 );
 
         // forth field is node Inds
-//        Matrix< DDRMat> & tElementIndices = mMesh->get_real_scalar_field_data( 3 );
-//        tElementIndices.set_size( tNumberOfElements, 1 );
+    //        Matrix< DDRMat> & tElementIndices = mMesh->get_real_scalar_field_data( 3 );
+    //        tElementIndices.set_size( tNumberOfElements, 1 );
 
         // initialize topology field
         mElementTopology.set_size( tNumberOfElements, tNumberOfNodesPerElement );
@@ -121,7 +119,7 @@ namespace moris
             tElementOwners( e ) = tElement->get_owner();
 
             // save index of element
-//            tElementIndices( e ) = tElement->get_index();
+    //            tElementIndices( e ) = tElement->get_index();
         }
 
         // loop over all nodes
@@ -240,11 +238,11 @@ namespace moris
         real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
         // print output
-//        MORIS_LOG_INFO( "%s Created MTK output object.\n               Mesh has %lu elements and %lu nodes.\n               Creation took %5.3f seconds.\n\n",
-//                proc_string().c_str(),
-//                ( long unsigned int ) tNumberOfElements,
-//                ( long unsigned int ) tNumberOfNodes,
-//                ( double ) tElapsedTime / 1000);
+    //        MORIS_LOG_INFO( "%s Created MTK output object.\n               Mesh has %lu elements and %lu nodes.\n               Creation took %5.3f seconds.\n\n",
+    //                proc_string().c_str(),
+    //                ( long unsigned int ) tNumberOfElements,
+    //                ( long unsigned int ) tNumberOfNodes,
+    //                ( double ) tElapsedTime / 1000);
         MORIS_LOG_INFO( "%s Created MTK output object.",
                 proc_string().c_str());
         MORIS_LOG_INFO( "Mesh has %lu elements and %lu nodes.",
@@ -256,13 +254,13 @@ namespace moris
 
     }
 
-// ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
 
     void STK::save_to_file( const std::string & aFilePath )
     {
         tic tTimer;
 
-//        mMeshData.print_details();
+    //        mMeshData.print_details();
 
         // create database object
         moris::mtk::Mesh_Core_STK tMesh( mMeshData );
@@ -280,10 +278,10 @@ namespace moris
         real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
         // print output
-//        MORIS_LOG_INFO( "%s Wrote MTK mesh to file %s.\n               Writing took %5.3f seconds.\n\n",
-//                proc_string().c_str(),
-//                aFilePath.c_str(),
-//                ( double ) tElapsedTime / 1000 );
+    //        MORIS_LOG_INFO( "%s Wrote MTK mesh to file %s.\n               Writing took %5.3f seconds.\n\n",
+    //                proc_string().c_str(),
+    //                aFilePath.c_str(),
+    //                ( double ) tElapsedTime / 1000 );
         MORIS_LOG_INFO( "%s Wrote MTK mesh to file %s.",
                 proc_string().c_str(),
                 aFilePath.c_str());
@@ -292,7 +290,7 @@ namespace moris
         MORIS_LOG_INFO( " " );
     }
 
-// ----------------------------------------------------------------------------
+    // ----------------------------------------------------------------------------
 
     void STK::flag_old_and_new_elements()
     {
@@ -333,6 +331,5 @@ namespace moris
         }
     }
 // ----------------------------------------------------------------------------
-    } /* namespace hmr */
 } /* namespace moris */
 

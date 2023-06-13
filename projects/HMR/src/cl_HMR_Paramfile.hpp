@@ -31,188 +31,184 @@
 namespace moris
 {
     class XML_Parser;
+}
+namespace moris::hmr
+{
+// -----------------------------------------------------------------------------
 
-    namespace hmr
+    class Parameters;
+
+// -----------------------------------------------------------------------------
+    struct Mesh_Param
     {
+        moris_id    mID     = gNoID;
+        uint        mOrder  = 0;
+        std::string mPath;
+    };
+
 // -----------------------------------------------------------------------------
 
-        class Parameters;
+    class Paramfile
+    {
+        //! HMR runtime mode
+        const enum State    mState;
+
+        // the parser object
+        XML_Parser *        mParser = nullptr;
+
+        ParameterList       mParameterList;
+
+        //! container with mesh settings
+        Cell< Mesh_Param >  mMeshParams;
+
+        //! container with field setting
+        Cell< Field_Param > mFieldParams;
+
+        //! list of target files for mappint
+        //Cell< std::string > mTargets;
+
+        map< moris_id, uint > mMeshMap;
+        map< moris_id, uint > mFieldMap;
+
+        std::string mInputDatabase;
+        std::string mOutputDatabase;
+        std::string mCoefficients;
+
+        Matrix< IdMat > mFieldIDs;
+        Matrix< IdMat > mMeshIDs;
+
+        std::string  mLibraryPath;
+        std::string  mUserFunction;
+        std::string  mUnionMesh;
+
+        sint mInitialBSplineRefinement     = -1;
+        sint mAdditionalLagrangeRefinement = -1;
 
 // -----------------------------------------------------------------------------
-        struct Mesh_Param
+    public:
+// -----------------------------------------------------------------------------
+
+        Paramfile( const std::string & aPath, const enum State aState );
+
+// -----------------------------------------------------------------------------
+
+        /**
+         * destructor
+         */
+        ~Paramfile();
+
+// -----------------------------------------------------------------------------
+
+        ParameterList & get_parameter_list();
+
+// -----------------------------------------------------------------------------
+
+        const std::string & get_input_db_path() const
         {
-            moris_id    mID     = gNoID;
-            uint        mOrder  = 0;
-            std::string mPath   = "";
-
-            Mesh_Param(){};
-            ~Mesh_Param(){};
-        };
+            return mInputDatabase;
+        }
 
 // -----------------------------------------------------------------------------
 
-        class Paramfile
+        const std::string & get_output_db_path() const
         {
-            //! HMR runtime mode
-            const enum State    mState;
-
-            // the parser object
-            XML_Parser *        mParser = nullptr;
-
-            ParameterList       mParameterList;
-
-            //! container with mesh settings
-            Cell< Mesh_Param >  mMeshParams;
-
-            //! container with field setting
-            Cell< Field_Param > mFieldParams;
-
-            //! list of target files for mappint
-            //Cell< std::string > mTargets;
-
-            map< moris_id, uint > mMeshMap;
-            map< moris_id, uint > mFieldMap;
-
-            std::string mInputDatabase  = "";
-            std::string mOutputDatabase = "";
-            std::string mCoefficients   = "";
-
-            Matrix< IdMat > mFieldIDs;
-            Matrix< IdMat > mMeshIDs;
-
-            std::string  mLibraryPath = "";
-            std::string  mUserFunction = "";
-            std::string  mUnionMesh = "";
-
-            sint mInitialBSplineRefinement     = -1;
-            sint mAdditionalLagrangeRefinement = -1;
-
-// -----------------------------------------------------------------------------
-        public:
-// -----------------------------------------------------------------------------
-
-            Paramfile( const std::string & aPath, const enum State aState );
+            return mOutputDatabase;
+        }
 
 // -----------------------------------------------------------------------------
 
-            /**
-             * destructor
-             */
-            ~Paramfile();
+        const std::string & get_coefficient_db_path() const
+        {
+            return mCoefficients;
+        }
 
 // -----------------------------------------------------------------------------
 
-            ParameterList & get_parameter_list();
+        const std::string & get_library_path() const
+        {
+            return mLibraryPath;
+        }
 
 // -----------------------------------------------------------------------------
 
-            const std::string & get_input_db_path() const
-            {
-                return mInputDatabase;
-            }
+        const std::string & get_user_function_name() const
+        {
+            return mUserFunction;
+        }
 
 // -----------------------------------------------------------------------------
 
-            const std::string & get_output_db_path() const
-            {
-                return mOutputDatabase;
-            }
+        uint get_number_of_meshes() const
+        {
+            return mMeshIDs.length();
+        }
 
 // -----------------------------------------------------------------------------
 
-            const std::string & get_coefficient_db_path() const
-            {
-                return mCoefficients;
-            }
+        uint get_mesh_order( uint aIndex ) const
+        {
+            return mMeshParams( mMeshMap.find( mMeshIDs( aIndex ) ) ).mOrder;
+        }
 
 // -----------------------------------------------------------------------------
 
-            const std::string & get_library_path() const
-            {
-                return mLibraryPath;
-            }
+        const std::string & get_mesh_path( uint aIndex ) const
+        {
+            return mMeshParams( mMeshMap.find( mMeshIDs( aIndex ) ) ).mPath;
+        }
 
 // -----------------------------------------------------------------------------
 
-            const std::string & get_user_function_name() const
-            {
-                return mUserFunction;
-            }
+        uint get_number_of_fields() const
+        {
+            return mFieldIDs.length();
+        }
 
 // -----------------------------------------------------------------------------
 
-            uint get_number_of_meshes() const
-            {
-                return mMeshIDs.length();
-            }
+        const Field_Param & get_field_params( uint aIndex ) const
+        {
+            return mFieldParams( mFieldMap.find( mFieldIDs( aIndex ) ) );
+        }
 
 // -----------------------------------------------------------------------------
 
-            uint get_mesh_order( uint aIndex ) const
-            {
-                return mMeshParams( mMeshMap.find( mMeshIDs( aIndex ) ) ).mOrder;
-            }
+        const std::string & get_union_mesh_path() const
+        {
+            return mUnionMesh;
+        }
+
+// -----------------------------------------------------------------------------
+    private:
+// -----------------------------------------------------------------------------
+
+        void load_mesh_params();
 
 // -----------------------------------------------------------------------------
 
-            const std::string & get_mesh_path( uint aIndex ) const
-            {
-                return mMeshParams( mMeshMap.find( mMeshIDs( aIndex ) ) ).mPath;
-            }
+        void
+        load_field_params();
 
 // -----------------------------------------------------------------------------
 
-            uint get_number_of_fields() const
-            {
-                return mFieldIDs.length();
-            }
+        void load_state_params();
 
 // -----------------------------------------------------------------------------
 
-            const Field_Param & get_field_params( uint aIndex ) const
-            {
-                return mFieldParams( mFieldMap.find( mFieldIDs( aIndex ) ) );
-            }
+        void load_parameter_list();
 
 // -----------------------------------------------------------------------------
 
-            const std::string & get_union_mesh_path() const
-            {
-                return mUnionMesh;
-            }
-
-// -----------------------------------------------------------------------------
-        private:
-// -----------------------------------------------------------------------------
-
-            void load_mesh_params();
+        void update_parameter_list();
 
 // -----------------------------------------------------------------------------
 
-            void
-            load_field_params();
+        void load_user_refinement_parameters();
 
 // -----------------------------------------------------------------------------
-
-            void load_state_params();
-
-// -----------------------------------------------------------------------------
-
-            void load_parameter_list();
+    };
 
 // -----------------------------------------------------------------------------
-
-            void update_parameter_list();
-
-// -----------------------------------------------------------------------------
-
-            void load_user_refinement_parameters();
-
-// -----------------------------------------------------------------------------
-        };
-
-// -----------------------------------------------------------------------------
-    } /* namespace hmr */
 } /* namespace moris */
 
 #endif /* PROJECTS_HMR_SRC_CL_HMR_PARAMFILE_HPP_ */

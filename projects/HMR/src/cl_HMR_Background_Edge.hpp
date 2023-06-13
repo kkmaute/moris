@@ -13,77 +13,74 @@
 
 #include "typedefs.hpp"
 
-namespace moris
+namespace moris::hmr
 {
-    namespace hmr
+//-------------------------------------------------------------------------------
+
+    class Background_Element_Base;
+
+//-------------------------------------------------------------------------------
+    class Background_Edge
     {
-//-------------------------------------------------------------------------------
+        //! flag of this edge
+        bool mFlag = false;
 
-        class Background_Element_Base;
+        //! tells how many elements are connected
+        uint mElementCounter = 0;
 
-//-------------------------------------------------------------------------------
-        class Background_Edge
-        {
-            //! flag of this edge
-            bool mFlag = false;
+        //! pointer with connected elements
+        Background_Element_Base * mElements[ 4 ] = { nullptr };
 
-            //! tells how many elements are connected
-            uint mElementCounter = 0;
-
-            //! pointer with connected elements
-            Background_Element_Base * mElements[ 4 ] = { nullptr };
-
-            //! edge indices
-            uint                      mIndexInElement[ 4 ];
+        //! edge indices
+        uint                      mIndexInElement[ 4 ];
 
 //-------------------------------------------------------------------------------
-        public:
+    public:
 //-------------------------------------------------------------------------------
 
-            Background_Edge( Background_Element_Base * aElement, uint aIndex );
+        Background_Edge( Background_Element_Base * aElement, uint aIndex );
 
 //-------------------------------------------------------------------------------
 
-            ~Background_Edge(){};
+        ~Background_Edge(){};
 
 //-------------------------------------------------------------------------------
 
-            void
-            flag();
+        void
+        flag();
 
 //-------------------------------------------------------------------------------
 
-            void
-            unflag();
+        void
+        unflag();
 
 //-------------------------------------------------------------------------------
 
-            bool
-            is_flagged() const;
+        bool
+        is_flagged() const;
 
 //-------------------------------------------------------------------------------
 
-            void
-            insert_element( Background_Element_Base * aElement, uint aIndex );
+        void
+        insert_element( Background_Element_Base * aElement, uint aIndex );
 
 //-------------------------------------------------------------------------------
 
-            uint
-            get_number_of_elements() const;
+        uint
+        get_number_of_elements() const;
 
 //-------------------------------------------------------------------------------
 
-            Background_Element_Base *
-            get_element( uint aIndex );
+        Background_Element_Base *
+        get_element( uint aIndex );
 
 //-------------------------------------------------------------------------------
 
-            uint
-            get_index_on_element( uint aIndex ) const;
+        uint
+        get_index_on_element( uint aIndex ) const;
 
 //-------------------------------------------------------------------------------
-        };
-    }
+    };
 }
 
 #endif /* PROJECTS_HMR_SRC_CL_HMR_BACKGROUND_EDGE_HPP_ */

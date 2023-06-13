@@ -748,71 +748,71 @@ namespace moris
                 }
             }
 
-            // tidy up
-            delete tElement;
-            delete tBackElement;
-        }
+        // tidy up
+        delete tElement;
+        delete tBackElement;
+    }
 
         //-------------------------------------------------------------------------------
 
-        void
-        T_Matrix::init_lagrange_parameter_coordinates( Element* aLagrangeElement, Element* aBSplineElement )
+    void
+    T_Matrix::init_lagrange_parameter_coordinates( Element* aLagrangeElement, Element* aBSplineElement )
+    {
+        // get dimensions from settings
+        uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
+
+        // number of nodes per direction
+        uint tNodesPerDirection = mLagrangeMesh->get_order() + 1;
+
+        // number of nodes
+        mNumberOfNodes = std::pow( tNodesPerDirection, tNumberOfDimensions );
+
+        // create background element for reference
+        Background_Element_Base* tBackElement = this->create_background_element();
+
+        // create a Lagrange element
+        Element* tReferenceElement = mLagrangeMesh->create_element( tBackElement );
+
+        // assign memory for parameter coordinates
+        mLagrangeParamModified.set_size( mLagrangeParam.n_rows(), mLagrangeParam.n_cols() );
+
+        // scaling factor
+        real tScale = 1.0 / ( (real)mLagrangeMesh->get_order() );
+
+        // container for ijk position of basis
+        luint tIJK[ 3 ];
+
+        const luint* tIJKBSpline  = aBSplineElement->get_ijk();
+        const luint* tIJKLagrange = aLagrangeElement->get_ijk();
+
+        for ( uint k = 0; k < mNumberOfNodes ; ++k )
         {
-            // get dimensions from settings
-            uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
+            // get position from element
+            tReferenceElement->get_ijk_of_basis( k, tIJK );
 
-            // number of nodes per direction
-            uint tNodesPerDirection = mLagrangeMesh->get_order() + 1;
-
-            // number of nodes
-            mNumberOfNodes = std::pow( tNodesPerDirection, tNumberOfDimensions );
-
-            // create background element for reference
-            Background_Element_Base* tBackElement = this->create_background_element();
-
-            // create a Lagrange element
-            Element* tReferenceElement = mLagrangeMesh->create_element( tBackElement );
-
-            // assign memory for parameter coordinates
-            mLagrangeParamModified.set_size( mLagrangeParam.n_rows(), mLagrangeParam.n_cols() );
-
-            // scaling factor
-            real tScale = 1.0 / ( (real)mLagrangeMesh->get_order() );
-
-            // container for ijk position of basis
-            luint tIJK[ 3 ];
-
-            const luint* tIJKBSpline  = aBSplineElement->get_ijk();
-            const luint* tIJKLagrange = aLagrangeElement->get_ijk();
-
-            for ( uint k = 0; k < mNumberOfNodes ; ++k )
+            // save coordinate into memory
+            for ( uint i = 0; i < tNumberOfDimensions; ++i )
             {
-                // get position from element
-                tReferenceElement->get_ijk_of_basis( k, tIJK );
+                // Define a custom ternary operator to subtract two lunit since they are unsigned
+                moris_index tDifference = ( tIJKLagrange[i] > tIJKBSpline[i] ) ? (tIJKLagrange[i] - tIJKBSpline[i]) : -(tIJKBSpline[i] -tIJKLagrange[i] ) ;
+                moris_index tIJKValue = tIJK[ i ] + tDifference ;
 
-                // save coordinate into memory
-                for ( uint i = 0; i < tNumberOfDimensions; ++i )
-                {
-                    // Define a custom ternary operator to subtract two lunit since they are unsigned
-                    moris_index tDifference = ( tIJKLagrange[i] > tIJKBSpline[i] ) ? (tIJKLagrange[i] - tIJKBSpline[i]) : -(tIJKBSpline[i] -tIJKLagrange[i] ) ; 
-                    moris_index tIJKValue = tIJK[ i ] + tDifference ;
-
-                    // fill in node ijk positions in element
-                    mLagrangeParamModified( i, k ) = 2 * tScale * tIJKValue - 1.0;
-                }
+                // fill in node ijk positions in element
+                mLagrangeParamModified( i, k ) = 2 * tScale * tIJKValue - 1.0;
             }
         }
+    }
 
-        //-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
-        void
-        T_Matrix::init_lagrange_matrix()
-        {
-            // get number of dimensions from settings
-            uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
+    void
+    T_Matrix::init_lagrange_matrix()
+    {
+        // get number of dimensions from settings
+        uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
 
-            // get number of basis per element of B-Spline mesh
-            uint tNumberOfBasis = mBSplineIJK.n_cols();
+        // get number of basis per element of B-Spline mesh
+        uint tNumberOfBasis = mBSplineIJK.n_cols();
 
             // get number of Lagrange nodes
             uint tNumberOfNodes = mLagrangeParam.n_cols();
@@ -842,55 +842,55 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        void
-        T_Matrix::recompute_lagrange_matrix()
+    void
+    T_Matrix::recompute_lagrange_matrix()
+    {
+        // get number of dimensions from settings
+        uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
+
+        // get number of basis per element of B-Spline mesh
+        uint tNumberOfBasis = mBSplineIJK.n_cols();
+
+        // get number of Lagrange nodes
+        uint tNumberOfNodes = mLagrangeParam.n_cols();
+
+        // initialize T-Matrix for B-Spline to Lagrange conversion
+        mTMatrixLagrangeModified.set_size( tNumberOfNodes, tNumberOfBasis, 1 );
+
+        // get order of B-Spline mesh
+        uint tOrder = mBSplineMesh->get_order();
+
+        // loop over all Lagrange nodes
+        for ( uint k = 0; k < tNumberOfNodes; ++k )
         {
-            // get number of dimensions from settings
-            uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
-
-            // get number of basis per element of B-Spline mesh
-            uint tNumberOfBasis = mBSplineIJK.n_cols();
-
-            // get number of Lagrange nodes
-            uint tNumberOfNodes = mLagrangeParam.n_cols();
-
-            // initialize T-Matrix for B-Spline to Lagrange conversion
-            mTMatrixLagrangeModified.set_size( tNumberOfNodes, tNumberOfBasis, 1 );
-
-            // get order of B-Spline mesh
-            uint tOrder = mBSplineMesh->get_order();
-
-            // loop over all Lagrange nodes
-            for ( uint k = 0; k < tNumberOfNodes; ++k )
+            // loop over all B-Spline Basis
+            for ( uint j = 0; j < tNumberOfBasis; ++j )
             {
-                // loop over all B-Spline Basis
-                for ( uint j = 0; j < tNumberOfBasis; ++j )
+                // loop over all dimensions
+                for ( uint i = 0; i < tNumberOfDimensions; ++i )
                 {
-                    // loop over all dimensions
-                    for ( uint i = 0; i < tNumberOfDimensions; ++i )
-                    {
-                        mTMatrixLagrangeModified( k, j ) *= this->b_spline_shape_1d_extended( tOrder,
-                                mBSplineIJK( i, j ),
-                                mLagrangeParamModified( i, k ) );
-                    }
+                    mTMatrixLagrangeModified( k, j ) *= this->b_spline_shape_1d_extended( tOrder,
+                            mBSplineIJK( i, j ),
+                            mLagrangeParamModified( i, k ) );
                 }
             }
         }
+    }
 
 
-        //-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
-        /**
-         * 1D shape function
-         */
-        real
-        T_Matrix::b_spline_shape_1d(
-                uint aOrder,
-                uint aK,
-                real aXi )
-        {
-            // max number of entries in lookup table
-            uint tSteps = 2 * ( aOrder + 1 );
+    /**
+     * 1D shape function
+     */
+    real
+    T_Matrix::b_spline_shape_1d(
+            uint aOrder,
+            uint aK,
+            real aXi )
+    {
+        // max number of entries in lookup table
+        uint tSteps = 2 * ( aOrder + 1 );
 
             // temporary matrix that contains B-Spline segments
             Matrix< DDRMat > tDeltaXi( tSteps, 1, 0 );
@@ -928,64 +928,64 @@ namespace moris
                 }
             }
 
-            // first value in entry is shape value
-            return tN( 0 );
-        }
+        // first value in entry is shape value
+        return tN( 0 );
+    }
 
-        //-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
-        /**
-         * Extene
-         */
+    /**
+     * Extene
+     */
 
-        real
-        T_Matrix::b_spline_shape_1d_extended( const uint& aOrder,
-                const uint&                               aK,
-                const real&                               aXi ) const
+    real
+    T_Matrix::b_spline_shape_1d_extended( const uint& aOrder,
+            const uint&                               aK,
+            const real&                               aXi ) const
+    {
+        switch ( aOrder )
         {
-            switch ( aOrder )
+            // linear interpolation
+            case 1:
             {
-                // linear interpolation
-                case 1:
+                // local ordering of basis function
+                switch ( aK )
                 {
-                    // local ordering of basis function
-                    switch ( aK )
+                    case 0:
                     {
-                        case 0:
-                        {
-                            return 0.5 * ( 1.0 - aXi );
-                        }
-                        case 1:
-                        {
-                            return 0.5 * ( 1.0 + aXi );
-                        }
-                        default:
-                        {
-                            MORIS_ERROR( false, "The specified local basis %u is not implemented", aK );
-                            return 0.0;
-                        }
+                        return 0.5 * ( 1.0 - aXi );
+                    }
+                    case 1:
+                    {
+                        return 0.5 * ( 1.0 + aXi );
+                    }
+                    default:
+                    {
+                        MORIS_ERROR( false, "The specified local basis %u is not implemented", aK );
+                        return 0.0;
                     }
                 }
+            }
 
-                default:
-                {
-                    MORIS_ERROR( false, "The specified order %u is not implemented", aOrder );
-                    return 0.0;
-                }
+            default:
+            {
+                MORIS_ERROR( false, "The specified order %u is not implemented", aOrder );
+                return 0.0;
             }
         }
+    }
 
-        //-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
-        void
-        T_Matrix::b_spline_shape(
-                real              aXi,
-                real              aEta,
-                Matrix< DDRMat >& aN ) const
-        {
-            // evaluate contributions for xi and eta
-            Matrix< DDRMat > tNxi( mBSplineOrder + 1, 1 );
-            Matrix< DDRMat > tNeta( mBSplineOrder + 1, 1 );
+    void
+    T_Matrix::b_spline_shape(
+            real              aXi,
+            real              aEta,
+            Matrix< DDRMat >& aN ) const
+    {
+        // evaluate contributions for xi and eta
+        Matrix< DDRMat > tNxi( mBSplineOrder + 1, 1 );
+        Matrix< DDRMat > tNeta( mBSplineOrder + 1, 1 );
 
             for ( uint i = 0; i <= mBSplineOrder; ++i )
             {
@@ -1336,308 +1336,308 @@ namespace moris
             }            // end loop over all elements
         }
 
-        //-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
-        void
-        T_Matrix::evaluate_extended_t_matrix( Element*               aBsplineElement,
-                Element*                                    aLagrangeElement,
-                moris::Cell< moris::Cell< mtk::Vertex* > >& tBsplineBasis,
-                moris::Cell< Matrix< DDRMat > >&            tWeights )
+    void
+    T_Matrix::evaluate_extended_t_matrix( Element*               aBsplineElement,
+            Element*                                    aLagrangeElement,
+            moris::Cell< moris::Cell< mtk::Vertex* > >& tBsplineBasis,
+            moris::Cell< Matrix< DDRMat > >&            tWeights )
+    {
+        Background_Element_Base* aBSpBackgroundElement = aBsplineElement->get_background_element();
+
+        // evaluate
+        this->init_lagrange_parameter_coordinates( aLagrangeElement, aBsplineElement );
+        this->recompute_lagrange_matrix();
+
+        // get B-Spline pattern of this mesh
+        auto tBSplinePattern = mBSplineMesh->get_activation_pattern();
+
+        // select pattern
+        mLagrangeMesh->select_activation_pattern();
+
+        // unflag all nodes on this mesh
+        mLagrangeMesh->unflag_all_basis();
+
+        // number of nodes per element
+        uint tNumberOfNodesPerElement = mLagrangeMesh->get_number_of_basis_per_element();
+
+        // unity matrix
+        Matrix< DDRMat > tEye;
+        eye( tNumberOfNodesPerElement, tNumberOfNodesPerElement, tEye );
+
+        // calculate transposed Lagrange T-Matrix
+        Matrix< DDRMat > tL( mTMatrixLagrangeModified );
+
+        /*if( mLagrangeMesh->get_activation_pattern()
+                == mParameters->get_lagrange_output_pattern() )
         {
-            Background_Element_Base* aBSpBackgroundElement = aBsplineElement->get_background_element();
-            
-            // evaluate
-            this->init_lagrange_parameter_coordinates( aLagrangeElement, aBsplineElement );
-            this->recompute_lagrange_matrix();
+            mLagrangeMesh->save_to_vtk("Lagrange.vtk");
+            mBSplineMesh->save_to_vtk( "BSplines.vtk" );
+            mLagrangeMesh->get_background_mesh()->save_to_vtk( "Background.vtk");
+        }*/
 
-            // get B-Spline pattern of this mesh
-            auto tBSplinePattern = mBSplineMesh->get_activation_pattern();
+        // get pointer to background element
+        auto tBackgroundElement = aLagrangeElement->get_background_element();
 
-            // select pattern
-            mLagrangeMesh->select_activation_pattern();
+        // initialize refinement Matrix
+        Matrix< DDRMat > tR;
 
-            // unflag all nodes on this mesh
-            mLagrangeMesh->unflag_all_basis();
+        bool tLagrangeEqualBspline    = false;
+        bool tFirstLagrangeRefinement = true;
 
-            // number of nodes per element
-            uint tNumberOfNodesPerElement = mLagrangeMesh->get_number_of_basis_per_element();
-
-            // unity matrix
-            Matrix< DDRMat > tEye;
-            eye( tNumberOfNodesPerElement, tNumberOfNodesPerElement, tEye );
-
-            // calculate transposed Lagrange T-Matrix
-            Matrix< DDRMat > tL( mTMatrixLagrangeModified );
-
-            /*if( mLagrangeMesh->get_activation_pattern()
-                    == mParameters->get_lagrange_output_pattern() )
+        while ( !tBackgroundElement->is_active( tBSplinePattern ) )
+        {
+            if ( tFirstLagrangeRefinement )
             {
-                mLagrangeMesh->save_to_vtk("Lagrange.vtk");
-                mBSplineMesh->save_to_vtk( "BSplines.vtk" );
-                mLagrangeMesh->get_background_mesh()->save_to_vtk( "Background.vtk");
-            }*/
-
-            // get pointer to background element
-            auto tBackgroundElement = aLagrangeElement->get_background_element();
-
-            // initialize refinement Matrix
-            Matrix< DDRMat > tR;
-
-            bool tLagrangeEqualBspline    = false;
-            bool tFirstLagrangeRefinement = true;
-
-            while ( !tBackgroundElement->is_active( tBSplinePattern ) )
-            {
-                if ( tFirstLagrangeRefinement )
-                {
-                    // right multiply refinement matrix
-                    tR                       = this->get_refinement_matrix( tBackgroundElement->get_child_index() );
-                    tFirstLagrangeRefinement = false;
-                    tLagrangeEqualBspline    = true;
-                }
-                else
-                {
-                    tR = tR * this->get_refinement_matrix( tBackgroundElement->get_child_index() );
-                }
-
-                // jump to parent
-                tBackgroundElement = tBackgroundElement->get_parent();
-            }
-
-            // calculate the B-Spline T-Matrix
-            Matrix< DDRMat > tB;
-            Cell< Basis* >   tDOFs;
-
-            this->calculate_t_matrix(
-                    aBSpBackgroundElement->get_memory_index(),
-                    tB,
-                    tDOFs );
-
-            Matrix< DDRMat > tT;
-
-            if ( tLagrangeEqualBspline )
-            {
-                // transposed T-Matrix
-                tT = tR * tL * tB;
+                // right multiply refinement matrix
+                tR                       = this->get_refinement_matrix( tBackgroundElement->get_child_index() );
+                tFirstLagrangeRefinement = false;
+                tLagrangeEqualBspline    = true;
             }
             else
             {
-                tT = tL * tB;
+                tR = tR * this->get_refinement_matrix( tBackgroundElement->get_child_index() );
             }
 
-            // number of columns in T-Matrix
-            uint tNCols = tT.n_cols();
+            // jump to parent
+            tBackgroundElement = tBackgroundElement->get_parent();
+        }
 
-            // epsilon to count T-Matrix
-            real tEpsilon = 1e-12;
+        // calculate the B-Spline T-Matrix
+        Matrix< DDRMat > tB;
+        Cell< Basis* >   tDOFs;
 
-            // resize the arrays
-            tBsplineBasis.resize( tNumberOfNodesPerElement );
-            tWeights.resize( tNumberOfNodesPerElement );
+        this->calculate_t_matrix(
+                aBSpBackgroundElement->get_memory_index(),
+                tB,
+                tDOFs );
 
-            // loop over all nodes of this element
-            for ( uint k = 0; k < tNumberOfNodesPerElement; ++k )
-            {
-                // initialize counter
-                uint tCount = 0;
+        Matrix< DDRMat > tT;
 
-                // reserve DOF cell
-                Cell< mtk::Vertex* > tNodeDOFs( tNCols, nullptr );
-
-                // reserve matrix with coefficients
-                Matrix< DDRMat > tCoefficients( tNCols, 1 );
-
-                // loop over all nonzero entries
-                for ( uint i = 0; i < tNCols; ++i )
-                {
-                    if ( std::abs( tT( k, i ) ) > tEpsilon )
-                    {
-                        // copy entry of T-Matrix
-                        tCoefficients( tCount ) = tT( k, i );
-
-                        // copy pointer of dof and convert to mtk::Vertex
-                        tNodeDOFs( tCount ) = tDOFs( i );
-
-                        // flag this DOF
-                        tDOFs( i )->flag();
-
-                        // increment counter
-                        ++tCount;
-                    }
-                }
-
-                tCoefficients.resize( tCount, 1 );
-                tNodeDOFs.resize( tCount );
-
-                tBsplineBasis( k ) = tNodeDOFs;
-                tWeights( k )      = tCoefficients;
-            }
-        }   
-
-        //-------------------------------------------------------------------------------
-
-        void
-        T_Matrix::evaluate_L2_projection( Element*          aRootBsplineElement,
-                Element*                                    aExtendedBsplineElement,
-                moris::Cell< moris::Cell< mtk::Vertex* > >& tRootBsplineBasis,
-                moris::Cell< mtk::Vertex* >&                tExtendedBsplineBasis,
-                moris::Cell< Matrix< DDRMat > >&            tWeights )
+        if ( tLagrangeEqualBspline )
         {
-            // Background_Element_Base* aRootBSpBackgroundElement = aRootBsplineElement->get_background_element();
-            // Background_Element_Base* aExtendedBSpBackgroundElement = aExtendedBsplineElement->get_background_element();
+            // transposed T-Matrix
+            tT = tR * tL * tB;
+        }
+        else
+        {
+            tT = tL * tB;
+        }
 
-            const luint* tRootIJK     = aRootBsplineElement->get_ijk();
-            const luint* tExtendedIJK = aExtendedBsplineElement->get_ijk();
+        // number of columns in T-Matrix
+        uint tNCols = tT.n_cols();
 
-            // get dimensions
-            uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
+        // epsilon to count T-Matrix
+        real tEpsilon = 1e-12;
 
-            // number of bspline coefficients per direction
-            uint tNodesPerDirection = mBSplineOrder + 1;
+        // resize the arrays
+        tBsplineBasis.resize( tNumberOfNodesPerElement );
+        tWeights.resize( tNumberOfNodesPerElement );
 
-            // initialize 1D matrices to find the projection matrix in 1D
-            moris::Cell< Matrix< DDRMat > > tMatrices1D( tNumberOfDimensions, Matrix< DDRMat >( tNodesPerDirection, tNodesPerDirection, MORIS_REAL_MAX ) );
+        // loop over all nodes of this element
+        for ( uint k = 0; k < tNumberOfNodesPerElement; ++k )
+        {
+            // initialize counter
+            uint tCount = 0;
 
-            // loop over the dimensions and create the i,j,k 1D matrices
-            for ( uint iDim = 0; iDim < tNumberOfDimensions; iDim++ )
+            // reserve DOF cell
+            Cell< mtk::Vertex* > tNodeDOFs( tNCols, nullptr );
+
+            // reserve matrix with coefficients
+            Matrix< DDRMat > tCoefficients( tNCols, 1 );
+
+            // loop over all nonzero entries
+            for ( uint i = 0; i < tNCols; ++i )
             {
-                real tShift = tRootIJK[ iDim ] < tExtendedIJK[ iDim ] ? real( -tRootIJK[ iDim ] + tExtendedIJK[ iDim ] ) : -real( -tExtendedIJK[ iDim ] + tRootIJK[ iDim ] );
+                if ( std::abs( tT( k, i ) ) > tEpsilon )
+                {
+                    // copy entry of T-Matrix
+                    tCoefficients( tCount ) = tT( k, i );
 
-                // find the shift in each direction
-                this->get_extention_matrix_1d( tShift, tMatrices1D( iDim ) );
+                    // copy pointer of dof and convert to mtk::Vertex
+                    tNodeDOFs( tCount ) = tDOFs( i );
+
+                    // flag this DOF
+                    tDOFs( i )->flag();
+
+                    // increment counter
+                    ++tCount;
+                }
             }
 
-            // calculate number of basis per element
-            uint tNumberOfBasis = std::pow( tNodesPerDirection, tNumberOfDimensions );
+            tCoefficients.resize( tCount, 1 );
+            tNodeDOFs.resize( tCount );
 
-            // initialize the projection matrix with the correct size
-            Matrix< DDRMat > tL2ProjectionMatrix( tNumberOfBasis, tNumberOfBasis );
+            tBsplineBasis( k ) = tNodeDOFs;
+            tWeights( k )      = tCoefficients;
+        }
+    }
 
-            // Apply a tensor product to get the final weights
-            if ( tNumberOfDimensions == 2 )
+    //-------------------------------------------------------------------------------
+
+    void
+    T_Matrix::evaluate_L2_projection( Element*          aRootBsplineElement,
+            Element*                                    aExtendedBsplineElement,
+            moris::Cell< moris::Cell< mtk::Vertex* > >& tRootBsplineBasis,
+            moris::Cell< mtk::Vertex* >&                tExtendedBsplineBasis,
+            moris::Cell< Matrix< DDRMat > >&            tWeights )
+    {
+        // Background_Element_Base* aRootBSpBackgroundElement = aRootBsplineElement->get_background_element();
+        // Background_Element_Base* aExtendedBSpBackgroundElement = aExtendedBsplineElement->get_background_element();
+
+        const luint* tRootIJK     = aRootBsplineElement->get_ijk();
+        const luint* tExtendedIJK = aExtendedBsplineElement->get_ijk();
+
+        // get dimensions
+        uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
+
+        // number of bspline coefficients per direction
+        uint tNodesPerDirection = mBSplineOrder + 1;
+
+        // initialize 1D matrices to find the projection matrix in 1D
+        moris::Cell< Matrix< DDRMat > > tMatrices1D( tNumberOfDimensions, Matrix< DDRMat >( tNodesPerDirection, tNodesPerDirection, MORIS_REAL_MAX ) );
+
+        // loop over the dimensions and create the i,j,k 1D matrices
+        for ( uint iDim = 0; iDim < tNumberOfDimensions; iDim++ )
+        {
+            real tShift = tRootIJK[ iDim ] < tExtendedIJK[ iDim ] ? real( -tRootIJK[ iDim ] + tExtendedIJK[ iDim ] ) : -real( -tExtendedIJK[ iDim ] + tRootIJK[ iDim ] );
+
+            // find the shift in each direction
+            this->get_extention_matrix_1d( tShift, tMatrices1D( iDim ) );
+        }
+
+        // calculate number of basis per element
+        uint tNumberOfBasis = std::pow( tNodesPerDirection, tNumberOfDimensions );
+
+        // initialize the projection matrix with the correct size
+        Matrix< DDRMat > tL2ProjectionMatrix( tNumberOfBasis, tNumberOfBasis );
+
+        // Apply a tensor product to get the final weights
+        if ( tNumberOfDimensions == 2 )
+        {
+            uint b = 0;
+            for ( uint l = 0; l < tNodesPerDirection; ++l )
             {
-                uint b = 0;
-                for ( uint l = 0; l < tNodesPerDirection; ++l )
+                for ( uint k = 0; k < tNodesPerDirection; ++k )
                 {
-                    for ( uint k = 0; k < tNodesPerDirection; ++k )
+                    uint a = 0;
+                    for ( uint j = 0; j < tNodesPerDirection; ++j )
+                    {
+                        for ( uint i = 0; i < tNodesPerDirection; ++i )
+                        {
+                            tL2ProjectionMatrix( mBasisIndex( a ), mBasisIndex( b ) ) = tMatrices1D( 0 )( i, k ) * tMatrices1D( 1 )( j, l );
+                            ++a;
+                        }
+                    }
+                    ++b;
+                }
+            }
+        }
+        else if ( tNumberOfDimensions == 3 )
+        {
+            uint b = 0;
+            for ( uint p = 0; p < tNodesPerDirection; ++p )
+            {
+                for ( uint q = 0; q < tNodesPerDirection; ++q )
+                {
+                    for ( uint l = 0; l < tNodesPerDirection; ++l )
                     {
                         uint a = 0;
-                        for ( uint j = 0; j < tNodesPerDirection; ++j )
+                        for ( uint k = 0; k < tNodesPerDirection; ++k )
                         {
-                            for ( uint i = 0; i < tNodesPerDirection; ++i )
+                            for ( uint j = 0; j < tNodesPerDirection; ++j )
                             {
-                                tL2ProjectionMatrix( mBasisIndex( a ), mBasisIndex( b ) ) = tMatrices1D( 0 )( i, k ) * tMatrices1D( 1 )( j, l );
-                                ++a;
+                                for ( uint i = 0; i < tNodesPerDirection; ++i )
+                                {
+                                    tL2ProjectionMatrix( mBasisIndex( a ), mBasisIndex( b ) ) = tMatrices1D( 0 )( i, l ) * tMatrices1D( 1 )( j, q ) * tMatrices1D( 2 )( k, p );
+                                    ++a;
+                                }
                             }
                         }
                         ++b;
                     }
                 }
             }
-            else if ( tNumberOfDimensions == 3 )
+        }
+
+        // initialize the basis for the root cell and extended cell
+        moris::Cell< Basis* > tRootBasis;
+        moris::Cell< Basis* > tExtendedBasis;
+
+        //reserve enough memory for each of them
+        tRootBasis.reserve(tNumberOfBasis);
+        tExtendedBasis.reserve(tNumberOfBasis);
+
+        // fill out the cell data
+        for ( uint i = 0; i < tNumberOfBasis; i++ )
+        {
+            // get the basis
+            Basis* tBasis = aRootBsplineElement->get_basis( i );
+
+            //if it is active add it to the cell
+            if ( tBasis->is_active() )
             {
-                uint b = 0;
-                for ( uint p = 0; p < tNodesPerDirection; ++p )
-                {
-                    for ( uint q = 0; q < tNodesPerDirection; ++q )
-                    {
-                        for ( uint l = 0; l < tNodesPerDirection; ++l )
-                        {
-                            uint a = 0;
-                            for ( uint k = 0; k < tNodesPerDirection; ++k )
-                            {
-                                for ( uint j = 0; j < tNodesPerDirection; ++j )
-                                {
-                                    for ( uint i = 0; i < tNodesPerDirection; ++i )
-                                    {
-                                        tL2ProjectionMatrix( mBasisIndex( a ), mBasisIndex( b ) ) = tMatrices1D( 0 )( i, l ) * tMatrices1D( 1 )( j, q ) * tMatrices1D( 2 )( k, p );
-                                        ++a;
-                                    }
-                                }
-                            }
-                            ++b;
-                        }
-                    }
-                }
+                tRootBasis.push_back( tBasis );
             }
 
-            // initialize the basis for the root cell and extended cell
-            moris::Cell< Basis* > tRootBasis;
-            moris::Cell< Basis* > tExtendedBasis;
+            // get the basis
+            tBasis = aExtendedBsplineElement->get_basis( i );
 
-            //reserve enough memory for each of them
-            tRootBasis.reserve(tNumberOfBasis);
-            tExtendedBasis.reserve(tNumberOfBasis);
-
-            // fill out the cell data
-            for ( uint i = 0; i < tNumberOfBasis; i++ )
+            //if it is active add it to the cell
+            if ( tBasis->is_active() )
             {
-                // get the basis
-                Basis* tBasis = aRootBsplineElement->get_basis( i );
-
-                //if it is active add it to the cell
-                if ( tBasis->is_active() )
-                {
-                    tRootBasis.push_back( tBasis );
-                }
-
-                // get the basis
-                tBasis = aExtendedBsplineElement->get_basis( i );
-
-                //if it is active add it to the cell
-                if ( tBasis->is_active() )
-                {
-                    tExtendedBasis.push_back( tBasis);
-                }
-            }
-
-            // resize the output cells
-            tWeights.resize( tNumberOfBasis );
-            tRootBsplineBasis.resize( tNumberOfBasis );
-            tExtendedBsplineBasis.resize( tNumberOfBasis );
-
-            // loop over the basis and eliminate the zero values
-            for ( uint iExtendedBasisIndex = 0; iExtendedBasisIndex < tNumberOfBasis; iExtendedBasisIndex++ )
-            {
-                // set size for each of the extended basis
-                tExtendedBsplineBasis( iExtendedBasisIndex ) = tExtendedBasis( iExtendedBasisIndex );
-                tWeights( iExtendedBasisIndex ).set_size( tNumberOfBasis, 1 );
-                tRootBsplineBasis( iExtendedBasisIndex ).resize( tNumberOfBasis );
-
-                // find all the basis and weights of the root that hve non-zero values
-                uint tNonzeroCount = 0;
-                for ( uint iRootBasisIndex = 0; iRootBasisIndex < tNumberOfBasis; iRootBasisIndex++ )
-                {
-                    // if the wieght is non-zero add it to the cell
-                    if ( std::abs( tL2ProjectionMatrix( iExtendedBasisIndex, iRootBasisIndex ) ) > MORIS_REAL_EPS )
-                    {
-                        // assign the output values 
-                        tWeights( iExtendedBasisIndex )( tNonzeroCount )          = tL2ProjectionMatrix( iExtendedBasisIndex, iRootBasisIndex );
-                        tRootBsplineBasis( iExtendedBasisIndex )( tNonzeroCount ) = tRootBasis( iRootBasisIndex );
-
-                        //increment the non-zero count
-                        tNonzeroCount++;
-                    }
-                }
-
-                // resize the output cells to the correct non-zero size
-                tWeights( iExtendedBasisIndex ).resize( tNonzeroCount, 1 );
-                tRootBsplineBasis( iExtendedBasisIndex ).resize( tNonzeroCount );
+                tExtendedBasis.push_back( tBasis);
             }
         }
 
-        //-------------------------------------------------------------------------------
+        // resize the output cells
+        tWeights.resize( tNumberOfBasis );
+        tRootBsplineBasis.resize( tNumberOfBasis );
+        tExtendedBsplineBasis.resize( tNumberOfBasis );
 
-        void
-        T_Matrix::evaluate_trivial(
-                const uint aBSplineMeshIndex,
-                const bool aBool )
+        // loop over the basis and eliminate the zero values
+        for ( uint iExtendedBasisIndex = 0; iExtendedBasisIndex < tNumberOfBasis; iExtendedBasisIndex++ )
         {
-            // select pattern
-            mLagrangeMesh->select_activation_pattern();
+            // set size for each of the extended basis
+            tExtendedBsplineBasis( iExtendedBasisIndex ) = tExtendedBasis( iExtendedBasisIndex );
+            tWeights( iExtendedBasisIndex ).set_size( tNumberOfBasis, 1 );
+            tRootBsplineBasis( iExtendedBasisIndex ).resize( tNumberOfBasis );
 
-            // get number of elements on this Lagrange mesh
-            luint tNumberOfElements = mLagrangeMesh->get_number_of_elements();
+            // find all the basis and weights of the root that hve non-zero values
+            uint tNonzeroCount = 0;
+            for ( uint iRootBasisIndex = 0; iRootBasisIndex < tNumberOfBasis; iRootBasisIndex++ )
+            {
+                // if the wieght is non-zero add it to the cell
+                if ( std::abs( tL2ProjectionMatrix( iExtendedBasisIndex, iRootBasisIndex ) ) > MORIS_REAL_EPS )
+                {
+                    // assign the output values
+                    tWeights( iExtendedBasisIndex )( tNonzeroCount )          = tL2ProjectionMatrix( iExtendedBasisIndex, iRootBasisIndex );
+                    tRootBsplineBasis( iExtendedBasisIndex )( tNonzeroCount ) = tRootBasis( iRootBasisIndex );
+
+                    //increment the non-zero count
+                    tNonzeroCount++;
+                }
+            }
+
+            // resize the output cells to the correct non-zero size
+            tWeights( iExtendedBasisIndex ).resize( tNonzeroCount, 1 );
+            tRootBsplineBasis( iExtendedBasisIndex ).resize( tNonzeroCount );
+        }
+    }
+
+    //-------------------------------------------------------------------------------
+
+    void
+    T_Matrix::evaluate_trivial(
+            const uint aBSplineMeshIndex,
+            const bool aBool )
+    {
+        // select pattern
+        mLagrangeMesh->select_activation_pattern();
+
+        // get number of elements on this Lagrange mesh
+        luint tNumberOfElements = mLagrangeMesh->get_number_of_elements();
 
             // unflag all nodes on this mesh
             mLagrangeMesh->unflag_all_basis();
@@ -2879,29 +2879,28 @@ namespace moris
                 }
             }
 
-            return aXihat;
-        }
+        return aXihat;
+    }
 
-        void
-        T_Matrix::get_extention_matrix_1d( real const & aShift, Matrix< DDRMat >& aExtentionMatrix )
+    void
+    T_Matrix::get_extention_matrix_1d( real const & aShift, Matrix< DDRMat >& aExtentionMatrix )
+    {
+        switch ( mBSplineOrder )
         {
-            switch ( mBSplineOrder )
-            {
-                case 1:
-                    aExtentionMatrix = { { 1.0 - aShift, aShift }, { -aShift, 1.0 + aShift } };
-                    break;
-                case 2:
-                    aExtentionMatrix = { { 0.5 * ( aShift - 2.0 ) * ( aShift - 1.0 ), aShift * ( -aShift + 2.0 ), 0.5 * aShift * ( aShift - 1.0 ) },    //
-                        { 0.5 * aShift * ( aShift - 1.0 ), -( aShift - 1.0 ) * ( aShift + 1.0 ), 0.5 * aShift * ( aShift + 1 ) },                       //
-                        { 0.5 * aShift * ( aShift + 1.0 ), -aShift * ( aShift + 2.0 ), 0.5 * ( aShift + 1 ) * ( aShift + 2 ) } };
-                    break;
+            case 1:
+                aExtentionMatrix = { { 1.0 - aShift, aShift }, { -aShift, 1.0 + aShift } };
+                break;
+            case 2:
+                aExtentionMatrix = { { 0.5 * ( aShift - 2.0 ) * ( aShift - 1.0 ), aShift * ( -aShift + 2.0 ), 0.5 * aShift * ( aShift - 1.0 ) },    //
+                    { 0.5 * aShift * ( aShift - 1.0 ), -( aShift - 1.0 ) * ( aShift + 1.0 ), 0.5 * aShift * ( aShift + 1 ) },                       //
+                    { 0.5 * aShift * ( aShift + 1.0 ), -aShift * ( aShift + 2.0 ), 0.5 * ( aShift + 1 ) * ( aShift + 2 ) } };
+                break;
 
-                default:
-                    break;
-            }
+            default:
+                break;
         }
+    }
 
-        //-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
 
-    } /* namespace hmr */
-} /* namespace moris */
+}

@@ -914,75 +914,75 @@ namespace moris
                         moris::Cell< uint >&                       aBspCellRefineLevels );
 
                  // -----------------------------------------------------------------------------
-                
-                /**
-                 * @brief evaluate the b-spline basis function at a given lagrange element
-                 * 
-                 * @param aDiscretizationMeshIndex 
-                 * @param aBSplineCellIndex 
-                 * @param aLagrangeCell 
-                 * @param tBsplineBasis 
-                 * @param tWeights 
-                 */
-                void
-                get_extended_t_matrix(
-                        moris_index const &                         aDiscretizationMeshIndex,
-                        moris_index const &                         aBSplineCellIndex,
-                        Element&                                    aLagrangeCell,
-                        moris::Cell< moris::Cell< mtk::Vertex* > >& tBsplineBasis,
-                        moris::Cell< Matrix< DDRMat > >&            tWeights );
 
-                // -----------------------------------------------------------------------------
+            /**
+             * @brief evaluate the b-spline basis function at a given lagrange element
+             *
+             * @param aDiscretizationMeshIndex
+             * @param aBSplineCellIndex
+             * @param aLagrangeCell
+             * @param tBsplineBasis
+             * @param tWeights
+             */
+            void
+            get_extended_t_matrix(
+                    moris_index const &                         aDiscretizationMeshIndex,
+                    moris_index const &                         aBSplineCellIndex,
+                    Element&                                    aLagrangeCell,
+                    moris::Cell< moris::Cell< mtk::Vertex* > >& tBsplineBasis,
+                    moris::Cell< Matrix< DDRMat > >&            tWeights );
 
-                /**
-                 * @brief get the information to express extended basis in term of root basis
-                 *
-                 * @param[in] aDiscretizationMeshIndex b-spline mesh index
-                 * @param[in] aRootBSplineCellIndex  the root b-sp
-                 * @param[in] aExtendedBSplineCellIndex
-                 * @param[out] tRootBsplineBasis
-                 * @param[out] tExtendedBsplineBasis
-                 * @param[out] tWeights
-                 */
+            // -----------------------------------------------------------------------------
 
-                void get_L2_projection_matrix(
-                        moris_index const &                         aDiscretizationMeshIndex,
-                        moris_index const &                         aRootBSplineCellIndex,
-                        moris_index const &                         aExtendedBSplineCellIndex,
-                        moris::Cell< moris::Cell< mtk::Vertex* > >& tRootBsplineBasis,
-                        moris::Cell< mtk::Vertex* >&                tExtendedBsplineBasis,
-                        moris::Cell< Matrix< DDRMat > >&            tWeights );
+            /**
+             * @brief get the information to express extended basis in term of root basis
+             *
+             * @param[in] aDiscretizationMeshIndex b-spline mesh index
+             * @param[in] aRootBSplineCellIndex  the root b-sp
+             * @param[in] aExtendedBSplineCellIndex
+             * @param[out] tRootBsplineBasis
+             * @param[out] tExtendedBsplineBasis
+             * @param[out] tWeights
+             */
+
+            void get_L2_projection_matrix(
+                    moris_index const &                         aDiscretizationMeshIndex,
+                    moris_index const &                         aRootBSplineCellIndex,
+                    moris_index const &                         aExtendedBSplineCellIndex,
+                    moris::Cell< moris::Cell< mtk::Vertex* > >& tRootBsplineBasis,
+                    moris::Cell< mtk::Vertex* >&                tExtendedBsplineBasis,
+                    moris::Cell< Matrix< DDRMat > >&            tWeights );
 
 
-                // -----------------------------------------------------------------------------
+            // -----------------------------------------------------------------------------
 
-                /**
-                 * @brief Get the bspline element ijk level object
-                 * 
-                 * @param aDiscretizationMeshIndex 
-                 * @param aBsplineElementIndex 
-                 * @param aLevel 
-                 * @return const luint* 
-                 */
+            /**
+             * @brief Get the bspline element ijk level object
+             *
+             * @param aDiscretizationMeshIndex
+             * @param aBsplineElementIndex
+             * @param aLevel
+             * @return const luint*
+             */
 
-                const luint*
-                get_bspline_element_ijk_level(
-                    moris_index const & aDiscretizationMeshIndex,
-                    moris_index const & aBsplineElementIndex,
-                    uint                aLevel );
+            const luint*
+            get_bspline_element_ijk_level(
+                moris_index const & aDiscretizationMeshIndex,
+                moris_index const & aBsplineElementIndex,
+                uint                aLevel );
 
-                 // -----------------------------------------------------------------------------
+             // -----------------------------------------------------------------------------
 
-                /**
-                 * collect Lagrange elements on an BSpline interpolation element
-                 */
-                void
-                get_elements_in_interpolation_cluster(
-                        moris_index const aElementIndex,
-                        moris_index const aDiscretizationMeshIndex,
-                        moris::Cell< mtk::Cell * > & aCells);
+            /**
+             * collect Lagrange elements on an BSpline interpolation element
+             */
+            void
+            get_elements_in_interpolation_cluster(
+                    moris_index const aElementIndex,
+                    moris_index const aDiscretizationMeshIndex,
+                    moris::Cell< mtk::Cell * > & aCells);
 
-                // ----------------------------------------------------------------------------
+            // ----------------------------------------------------------------------------
 
                 /**
                  * @brief collect Lagrange elements on an BSpline interpolation element and side ordinal

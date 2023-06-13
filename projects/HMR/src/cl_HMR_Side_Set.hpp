@@ -18,20 +18,16 @@
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Side_Sets_Info.hpp"
 
-namespace moris
+namespace moris::hmr
 {
-    namespace hmr
+    struct Side_Set
     {
-        struct
-        Side_Set
-        {
-            Matrix<IdMat>        mElemIdsAndSideOrds;
-            Matrix<IndexMat>     mElemIndices;
-            mtk::MtkSideSetInfo  mInfo;
+        Matrix<IdMat>        mElemIdsAndSideOrds;
+        Matrix<IndexMat>     mElemIndices;
+        mtk::MtkSideSetInfo  mInfo;
 //-------------------------------------------------------------------------------
-        };
+    };
 
-    }
 }
 
 #endif /* PROJECTS_HMR_SRC_DOC_CL_HMR_SIDE_SET_HPP_ */

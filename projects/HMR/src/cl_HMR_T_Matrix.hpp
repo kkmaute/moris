@@ -95,18 +95,18 @@ namespace moris
             // Matrix< DDRMat > mBSplineMass;
             //Matrix< DDRMat > mLagrangeMass;
 
-            //! pointer to T-Matrix calculation function
-            //! points to either calculate_untruncated_t_matrix
-            //! or calculate_truncated_t_matrix
-            void ( T_Matrix:: * mTMatrixFunction )( const luint            & aMemoryIndex,
-                                                           Matrix< DDRMat > & aTMatrixTransposed,
-                                                           Cell< Basis* >   & aDOFs );
+        //! pointer to T-Matrix calculation function
+        //! points to either calculate_untruncated_t_matrix
+        //! or calculate_truncated_t_matrix
+        void ( T_Matrix:: * mTMatrixFunction )( luint aMemoryIndex,
+                                                       Matrix< DDRMat > & aTMatrixTransposed,
+                                                       Cell< Basis* >   & aDOFs );
 
             //! pointer to function for geometry interpolation
             void ( * mEvalNGeo )( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN );
 
-            //! pointer to corner node function
-            void ( * mGetCorners )( uint aChildIndex, Matrix< DDRMat > & aXi );
+        //! pointer to corner node function
+        void ( * mGetCorners )(  uint aChildIndex, Matrix< DDRMat > & aXi );
 
             //! pointer to shape function
             void ( T_Matrix :: * mEvalN )( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN ) const;
@@ -137,35 +137,35 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
-            const Matrix< DDRMat > & get_refinement_matrix( const uint & aChildIndex ) const
-            {
-                return mLagrangeRefinementMatrix( aChildIndex );
-            }
+        const Matrix< DDRMat > & get_refinement_matrix( uint aChildIndex ) const
+        {
+            return mLagrangeRefinementMatrix( aChildIndex );
+        }
 
 //-------------------------------------------------------------------------------
 
-            const Matrix< DDRMat > & get_change_order_matrix( const uint & aOrder ) const
-            {
-                return mLagrangeChangeOrderMatrix( aOrder );
-            }
+        const Matrix< DDRMat > & get_change_order_matrix( uint aOrder ) const
+        {
+            return mLagrangeChangeOrderMatrix( aOrder );
+        }
 
 //-------------------------------------------------------------------------------
 
-            void calculate_t_matrix( const luint            & aMemoryIndex,
-                                           Matrix< DDRMat > & aTMatrixTransposed,
-                                           Cell< Basis* >   & aDOFs );
+        void calculate_t_matrix( luint aMemoryIndex,
+                                       Matrix< DDRMat > & aTMatrixTransposed,
+                                       Cell< Basis* >   & aDOFs );
 
 //-------------------------------------------------------------------------------
 
-            void calculate_untruncated_t_matrix( const luint            & aMemoryIndex,
-                                                       Matrix< DDRMat > & aTMatrixTransposed,
-                                                       Cell< Basis* >   & aDOFs );
+        void calculate_untruncated_t_matrix( luint aMemoryIndex,
+                                                   Matrix< DDRMat > & aTMatrixTransposed,
+                                                   Cell< Basis* >   & aDOFs );
 
 //-------------------------------------------------------------------------------
 
-            void calculate_truncated_t_matrix( const luint            & aMemoryIndex,
-                                                     Matrix< DDRMat > & aTMatrixTransposed,
-                                                     Cell< Basis* >   & aDOFs );
+        void calculate_truncated_t_matrix( luint aMemoryIndex,
+                                                 Matrix< DDRMat > & aTMatrixTransposed,
+                                                 Cell< Basis* >   & aDOFs );
 
 //-------------------------------------------------------------------------------
             virtual void evaluate( uint aBSplineMeshIndex,
@@ -267,30 +267,30 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            /**
-             * 2D shape function
-             */
-            void b_spline_shape( const real             & aXi,
-                                 const real             & aEta,
-                                       Matrix< DDRMat > & aN ) const;
+        /**
+         * 2D shape function
+         */
+        void b_spline_shape( real aXi,
+                             real aEta,
+                                   Matrix< DDRMat > & aN ) const;
 
 //------------------------------------------------------------------------------
 
-            /**
-             * 3D shape function
-             */
-            void b_spline_shape( const real             & aXi,
-                                 const real             & aEta,
-                                 const real             & aZeta,
-                                       Matrix< DDRMat > & aN ) const;
+        /**
+         * 3D shape function
+         */
+        void b_spline_shape( real aXi,
+                             real aEta,
+                             real aZeta,
+                                   Matrix< DDRMat > & aN ) const;
 
 //------------------------------------------------------------------------------
 
-            /**
-             * 1D shape function
-             */
-            real lagrange_shape_1d( const uint & aBasisNumber,
-                                    const real & aXi ) const;
+        /**
+         * 1D shape function
+         */
+        real lagrange_shape_1d( uint aBasisNumber,
+                                real aXi ) const;
 
 //------------------------------------------------------------------------------
 
@@ -325,17 +325,17 @@ namespace moris
 
 //------------------------------------------------------------------------------
 
-            /**
-             * returns the corner nodes of a child and dimension
-             */
-            static void get_child_corner_nodes_2d( const uint & aChildIndex, Matrix< DDRMat > & aXi );
+        /**
+         * returns the corner nodes of a child and dimension
+         */
+        static void get_child_corner_nodes_2d( uint aChildIndex, Matrix< DDRMat > & aXi );
 
 //------------------------------------------------------------------------------
 
-            /**
-             * returns the corner nodes of a child and dimension
-             */
-            static void get_child_corner_nodes_3d(  const uint & aChildIndex, Matrix< DDRMat > & aXi );
+        /**
+         * returns the corner nodes of a child and dimension
+         */
+        static void get_child_corner_nodes_3d(  uint aChildIndex, Matrix< DDRMat > & aXi );
 
 //------------------------------------------------------------------------------
 

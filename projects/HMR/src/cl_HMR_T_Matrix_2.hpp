@@ -19,53 +19,50 @@
 #include "cl_Cell.hpp" //CNT/src
 #include "cl_HMR_T_Matrix.hpp" //CNT/src
 
-namespace moris
+namespace moris::hmr
 {
-    namespace hmr
+    /**
+     *  \brief a T-Matrix Generator
+     */
+//-------------------------------------------------------------------------------
+
+    class T_Matrix_2 : public T_Matrix
     {
-        /**
-         *  \brief a T-Matrix Generator
-         */
-//-------------------------------------------------------------------------------
+        //! ref to Lagrange Mesh
+        Lagrange_Mesh_Base * mLagrangeMeshCoarse;
 
-        class T_Matrix_2 : public T_Matrix
-        {
-            //! ref to Lagrange Mesh
-            Lagrange_Mesh_Base * mLagrangeMeshCoarse;
+        //! order of Lagrange Mesh
+        uint        mLagrangeOrderCoarse;
 
-            //! order of Lagrange Mesh
-            uint        mLagrangeOrderCoarse;
-
-            //! number of nodes per Lagrange element
-            uint        mNumberOfNodesCoarse;
+        //! number of nodes per Lagrange element
+        uint        mNumberOfNodesCoarse;
 
 //-------------------------------------------------------------------------------
-        public:
+    public:
 //-------------------------------------------------------------------------------
 
-            // constructor
-            T_Matrix_2( const Parameters         * aParameters,
-                            BSpline_Mesh_Base  * aBSplineMesh,
-                            Lagrange_Mesh_Base * aLagrangeMesh,
-                            Lagrange_Mesh_Base * aLagrangeMeshCoarse );
+        // constructor
+        T_Matrix_2( const Parameters         * aParameters,
+                        BSpline_Mesh_Base  * aBSplineMesh,
+                        Lagrange_Mesh_Base * aLagrangeMesh,
+                        Lagrange_Mesh_Base * aLagrangeMeshCoarse );
 
 //-------------------------------------------------------------------------------
 
-            // destructor
-            ~T_Matrix_2();
+        // destructor
+        ~T_Matrix_2();
 
 //-------------------------------------------------------------------------------
-            void evaluate( const uint aBSplineMeshIndex,
-                           const bool aBool = true);
+        void evaluate( const uint aBSplineMeshIndex,
+                       const bool aBool = true);
 
 //-------------------------------------------------------------------------------
-       private:
+   private:
 //-------------------------------------------------------------------------------
 
-        };
+    };
 
 //------------------------------------------------------------------------------
-    }
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_T_MATRIX_HPP_ */
