@@ -4073,17 +4073,17 @@ namespace moris::hmr
 // ----------------------------------------------------------------------------
 
     /**
-    * Refines the basis of an element
-    *
-    * @param[inout] aBasisNumber         local index of basis that is to be refined
-    * @param[inout] aBasisCounter        counter to keep track of generated basis
-    *
-    * @return void
-    */
+     * Refines a basis of this element
+     *
+     * @param aBasisNumber Index of the basis to refine
+     * @return Number of created bases
+     */
     template<>
-    void
-    BSpline_Element< 3, 64 >::refine_basis( uint aBasisNumber, luint & aBasisCounter )
+    luint BSpline_Element< 3, 64 >::refine_basis( uint aBasisNumber )
     {
+        // Start basis counter
+        luint tBasisCounter = 0;
+         
         // get pointer to basis
         Basis* tBasis = mBasis[ aBasisNumber ];
 
@@ -7662,90 +7662,92 @@ namespace moris::hmr
                     }
                 }
 
-               // level of child basis
-               uint tLevel = tBasis->get_level() + 1;
+                // level of child basis
+                uint tLevel = tBasis->get_level() + 1;
 
-               // create container for children
-               tBasis->init_children_container();
+                // create container for children
+                tBasis->init_children_container();
 
-               // position of basis
-               const luint* tParentIJK  = tBasis->get_ijk();
+                // position of basis
+                const luint* tParentIJK  = tBasis->get_ijk();
 
-               // minumum i-position
-               luint tIMin = 2*tParentIJK[ 0 ];
+                // minumum i-position
+                luint tIMin = 2*tParentIJK[ 0 ];
 
-               // minumum j-position
-               luint tJMin = 2*tParentIJK[ 1 ];
+                // minumum j-position
+                luint tJMin = 2*tParentIJK[ 1 ];
 
-               // minumum k-position
-               luint tKMin = 2*tParentIJK[ 2 ];
+                // minumum k-position
+                luint tKMin = 2*tParentIJK[ 2 ];
 
-               // maximum i-position
-               luint tIMax = tIMin + 5;
+                // maximum i-position
+                luint tIMax = tIMin + 5;
 
-               // maximum j-position
-               luint tJMax = tJMin + 5;
+                // maximum j-position
+                luint tJMax = tJMin + 5;
 
-               // maximum K-position
-               luint tKMax = tKMin + 5;
+                // maximum K-position
+                luint tKMax = tKMin + 5;
 
-               // initialize counter
-               uint tCount = 0;
+                // initialize counter
+                uint tChildIndex = 0;
 
-               // loop over all positions
-               for( luint k=tKMin; k<tKMax; ++k )
-               {
-                   for( luint j=tJMin; j<tJMax; ++j )
-                   {
-                       for( luint i=tIMin; i<tIMax; ++i )
-                       {
-                           // test if child exists
-                           if( tChildren[ tCount ] != nullptr )
-                           {
-                               // insert child
-                               tBasis->insert_child( tCount, tChildren[ tCount ] );
-                           }
-                           else
-                           {
-                               // calculate i-j-k position of child
-                               luint tIJK[ 3 ] = { i, j, k };
+                // loop over all positions
+                for( luint k=tKMin; k<tKMax; ++k )
+                {
+                    for( luint j=tJMin; j<tJMax; ++j )
+                    {
+                        for( luint i=tIMin; i<tIMax; ++i )
+                        {
+                            // test if child exists
+                            if( tChildren[ tChildIndex ] != nullptr )
+                            {
+                                 // insert child
+                                 tBasis->insert_child( tChildIndex, tChildren[ tChildIndex ] );
+                            }
+                            else
+                            {
+                                 // calculate i-j-k position of child
+                                 luint tIJK[ 3 ] = { i, j, k };
 
-                               // create child
-                               tBasis->insert_child( tCount,
-                                   new BSpline< 3, 125, 124 >( tIJK, tLevel, gNoProcOwner ) );
+                                 // create child
+                                 tBasis->insert_child( tChildIndex,
+                                     new BSpline< 3, 125, 124 >( tIJK, tLevel, gNoProcOwner ) );
 
-                           // increment basis counter
-                           ++aBasisCounter;
-                           }
+                                 // increment basis counter
+                                 tBasisCounter++;
+                            }
 
-                      // increment child counter
-                           ++tCount;
-                       }
-                   }
-               }
+                            // increment child index
+                            tChildIndex++;
+                        }
+                    }
+                }
             }
         }
+        
+        // Return basis counter
+        return tBasisCounter;
     }
 
 // ----------------------------------------------------------------------------
 
     /**
-    * Refines a B-Spline element
-    *
-    * @param[inout] aAllElementsOnProc   cell containing all B-Spline
-    *                                    elements including the aura
-    * @param[inout] aBasisCounter        counter to keep track of generated basis
-    *
-    * @return void
-    */
+     * Refines this element.
+     *
+     * @param aAllElementsOnProc Cell containing all B-spline elements including the aura
+     * @return Number of created bases
+     */
     template<>
-    void
-    BSpline_Element< 3, 64 >::refine( moris::Cell< Element* > & aAllElementsOnProc, luint & aBasisCounter )
+    luint BSpline_Element< 3, 64 >::refine( moris::Cell< Element* > & aAllElementsOnProc )
     {
+        // Start basis counter
+        luint tBasisCounter = 0;
+        
         // refine basis if they have not been refined already
         for( uint k=0; k<64; ++k )
         {
-            this->refine_basis( k, aBasisCounter );
+            tBasisCounter += this->refine_basis( k );
         }
 
         // initialize temporary basis pattern
@@ -15461,6 +15463,9 @@ namespace moris::hmr
 
         // set basis flag of element
         mChildrenBasisFlag = true;
+        
+        // Return basis counter
+        return tBasisCounter;
     }
 
 // ----------------------------------------------------------------------------

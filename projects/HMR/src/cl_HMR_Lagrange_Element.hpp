@@ -311,34 +311,24 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         /**
-         * Creates all nodes on the coarsest level.
-         * Called by Lagrange mesh create_basis_on_level_zero().
+         * Creates all bases on the coarsest level.
          *
-         * @param[inout] aAllElementsOnProc   cell containing all Lagrange
-         *                                    elements including the aura
-         * @param[inout] aNodeCounter         counter to keep track of
-         *                                    how many nodes were generated
-         * @return void
+         * @param aAllElementsOnProc Cell containing all elements including the aura
+         * @return Number of created bases
          */
-        void create_basis_on_level_zero(
-                moris::Cell< Element* >& aAllElementsOnProc,
-                luint&                   aNodeCounter );
+        luint create_basis_on_level_zero(
+                moris::Cell< Element* >& aAllElementsOnProc );
 
         //------------------------------------------------------------------------------
 
         /**
-         * Creates nodes for children of refined elements.
-         * Called by Lagrange mesh.
+         * Creates bases for children of refined elements.
          *
-         * @param[inout] aAllElementsOnProc   cell containing all Lagrange
-         *                                    elements including the aura
-         * @param[inout] aBasisCounter        counter to keep track of
-         *                                    how many nodes were generated
-         * @return void
+         * @param aAllElementsOnProc Cell containing all elements including the aura
+         * @return Number of created bases
          */
-        void create_basis_for_children(
-                moris::Cell< Element* >& aAllElementsOnProc,
-                luint&                   aBasisCounter );
+        luint create_basis_for_children(
+                moris::Cell< Element* >& aAllElementsOnProc );
 
         //------------------------------------------------------------------------------
 
@@ -473,23 +463,21 @@ namespace moris::hmr
     //------------------------------------------------------------------------------
 
     template< uint N, uint D >
-    inline void
-    Lagrange_Element< N, D >::create_basis_on_level_zero(
-            moris::Cell< Element* >& aAllElementsOnProc,
-            luint&                   aBasisCounter )
+    luint Lagrange_Element< N, D >::create_basis_on_level_zero(
+            moris::Cell< Element* >& aAllElementsOnProc )
     {
         MORIS_ERROR( false, "Don't know how to create Lagrange nodes on level zero." );
+        return 0;
     }
 
     //------------------------------------------------------------------------------
 
     template< uint N, uint D >
-    inline void
-    Lagrange_Element< N, D >::create_basis_for_children(
-            moris::Cell< Element* >& aAllElementsOnProc,
-            luint&                   aBasisCounter )
+    luint Lagrange_Element< N, D >::create_basis_for_children(
+            moris::Cell< Element* >& aAllElementsOnProc )
     {
         MORIS_ERROR( false, "Don't know how to create Lagrange nodes for children." );
+        return 0;
     }
 
     //------------------------------------------------------------------------------

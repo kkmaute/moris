@@ -177,99 +177,96 @@ namespace moris::hmr
 // ----------------------------------------------------------------------------
 
     /**
-    * Creates all nodes on the coarsest level.
-    * Called by Lagrange mesh create_nodes_on_level_zero().
-    *
-    * @param[inout] aAllElementsOnProc   cell containing all Lagrange
-    *                                    elements including the aura
-    * @param[inout] aBasisCounter         counter to keep track of
-    *                                    how many nodes were generated
-    * @return void
-    */
+     * Creates all bases on the coarsest level.
+     *
+     * @param aAllElementsOnProc Cell containing all elements including the aura
+     * @return Number of created bases
+     */
     template<>
     inline
-    void
-    Lagrange_Element< 3, 8 >::create_basis_on_level_zero(
-          moris::Cell< Element * > & aAllElementsOnProc,
-          luint                           & aBasisCounter )
+    luint Lagrange_Element< 3, 8 >::create_basis_on_level_zero(
+          moris::Cell< Element * > & aAllElementsOnProc )
     {
-         // initialize container for nodes
-         this->init_basis_container();
+        // Start basis counter
+        luint tBasisCounter = 0;
 
-         // get pointer to neighbor 4
-         Element* tNeighbor
-             = this->get_neighbor( aAllElementsOnProc, 4 );
+        // initialize container for nodes
+        this->init_basis_container();
 
-         // test if neighbor 4 exists
-         if ( tNeighbor != nullptr )
-         {
-             // copy nodes from this neighbor
-             mNodes[  0 ] = tNeighbor->get_basis(  4 );
-             mNodes[  1 ] = tNeighbor->get_basis(  5 );
-             mNodes[  2 ] = tNeighbor->get_basis(  6 );
-             mNodes[  3 ] = tNeighbor->get_basis(  7 );
-         }
+        // get pointer to neighbor 4
+        Element* tNeighbor
+            = this->get_neighbor( aAllElementsOnProc, 4 );
 
-         // get pointer to neighbor 0
-         tNeighbor = this->get_neighbor( aAllElementsOnProc, 0 );
+        // test if neighbor 4 exists
+        if ( tNeighbor != nullptr )
+        {
+            // copy nodes from this neighbor
+            mNodes[  0 ] = tNeighbor->get_basis(  4 );
+            mNodes[  1 ] = tNeighbor->get_basis(  5 );
+            mNodes[  2 ] = tNeighbor->get_basis(  6 );
+            mNodes[  3 ] = tNeighbor->get_basis(  7 );
+        }
 
-         // test if neighbor 0 exists
-         if ( tNeighbor != nullptr )
-         {
-             // copy nodes from this neighbor
-             mNodes[  0 ] = tNeighbor->get_basis(  3 );
-             mNodes[  1 ] = tNeighbor->get_basis(  2 );
-             mNodes[  4 ] = tNeighbor->get_basis(  7 );
-             mNodes[  5 ] = tNeighbor->get_basis(  6 );
-         }
+        // get pointer to neighbor 0
+        tNeighbor = this->get_neighbor( aAllElementsOnProc, 0 );
 
-         // get pointer to neighbor 3
-         tNeighbor = this->get_neighbor( aAllElementsOnProc, 3 );
+        // test if neighbor 0 exists
+        if ( tNeighbor != nullptr )
+        {
+            // copy nodes from this neighbor
+            mNodes[  0 ] = tNeighbor->get_basis(  3 );
+            mNodes[  1 ] = tNeighbor->get_basis(  2 );
+            mNodes[  4 ] = tNeighbor->get_basis(  7 );
+            mNodes[  5 ] = tNeighbor->get_basis(  6 );
+        }
 
-         // test if neighbor 3 exists
-         if ( tNeighbor != nullptr )
-         {
-             // copy nodes from this neighbor
-             mNodes[  0 ] = tNeighbor->get_basis(  1 );
-             mNodes[  3 ] = tNeighbor->get_basis(  2 );
-             mNodes[  4 ] = tNeighbor->get_basis(  5 );
-             mNodes[  7 ] = tNeighbor->get_basis(  6 );
-         }
+        // get pointer to neighbor 3
+        tNeighbor = this->get_neighbor( aAllElementsOnProc, 3 );
 
-         // loop over all nodes
-         for( uint k=0; k<8; ++k )
-         {
-             // test if node exists
-             if( mNodes[ k ] == nullptr )
-             {
-                 // create node
-                 this->create_basis( k );
+        // test if neighbor 3 exists
+        if ( tNeighbor != nullptr )
+        {
+            // copy nodes from this neighbor
+            mNodes[  0 ] = tNeighbor->get_basis(  1 );
+            mNodes[  3 ] = tNeighbor->get_basis(  2 );
+            mNodes[  4 ] = tNeighbor->get_basis(  5 );
+            mNodes[  7 ] = tNeighbor->get_basis(  6 );
+        }
 
-                 // increment node counter
-                 ++aBasisCounter;
-             }
-         }
+        // loop over all nodes
+        for( uint k=0; k<8; ++k )
+        {
+            // test if node exists
+            if( mNodes[ k ] == nullptr )
+            {
+                // create node
+                this->create_basis( k );
+
+                // increment node counter
+                tBasisCounter++;
+            }
+        }
+
+        // Return basis counter
+        return tBasisCounter;
     }
 
 // ----------------------------------------------------------------------------
 
     /**
-    * Creates nodes for children of refined elements.
-    * Called by Lagrange mesh create_nodes_on_higher_levels().
-    *
-    * @param[inout] aAllElementsOnProc   cell containing all Lagrange
-    *                                    elements including the aura
-    * @param[inout] aNodeCounter         counter to keep track of
-    *                                    how many nodes were generated
-    * @return void
-    */
+     * Creates bases for children of refined elements.
+     *
+     * @param aAllElementsOnProc Cell containing all elements including the aura
+     * @return Number of created bases
+     */
     template<>
     inline
-    void
-    Lagrange_Element< 3, 8 >::create_basis_for_children(
-        moris::Cell< Element * > & aAllElementsOnProc,
-        luint             & aBasisCounter )
+    luint Lagrange_Element< 3, 8 >::create_basis_for_children(
+        moris::Cell< Element * > & aAllElementsOnProc )
     {
+        // Start basis counter
+        luint tBasisCounter = 0;
+
         // create temporary array containing all nodes
         Basis* tNodes[ 27 ] = { nullptr };
 
@@ -775,7 +772,7 @@ namespace moris::hmr
              tNodes[ 1 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 3 exists
@@ -790,7 +787,7 @@ namespace moris::hmr
              tNodes[ 3 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 4 exists
@@ -805,7 +802,7 @@ namespace moris::hmr
              tNodes[ 4 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 5 exists
@@ -820,7 +817,7 @@ namespace moris::hmr
              tNodes[ 5 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 7 exists
@@ -835,7 +832,7 @@ namespace moris::hmr
              tNodes[ 7 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 9 exists
@@ -850,7 +847,7 @@ namespace moris::hmr
              tNodes[ 9 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 10 exists
@@ -865,7 +862,7 @@ namespace moris::hmr
              tNodes[ 10 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 11 exists
@@ -880,7 +877,7 @@ namespace moris::hmr
              tNodes[ 11 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 12 exists
@@ -895,7 +892,7 @@ namespace moris::hmr
              tNodes[ 12 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
          // calculate position of node 13
@@ -907,7 +904,7 @@ namespace moris::hmr
          tNodes[ 13 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
         // test if node 14 exists
         if ( tNodes[ 14 ] == nullptr )
@@ -921,7 +918,7 @@ namespace moris::hmr
              tNodes[ 14 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 15 exists
@@ -936,7 +933,7 @@ namespace moris::hmr
              tNodes[ 15 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 16 exists
@@ -951,7 +948,7 @@ namespace moris::hmr
              tNodes[ 16 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 17 exists
@@ -966,7 +963,7 @@ namespace moris::hmr
              tNodes[ 17 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 19 exists
@@ -981,7 +978,7 @@ namespace moris::hmr
              tNodes[ 19 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 21 exists
@@ -996,7 +993,7 @@ namespace moris::hmr
              tNodes[ 21 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 22 exists
@@ -1011,7 +1008,7 @@ namespace moris::hmr
              tNodes[ 22 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 23 exists
@@ -1026,7 +1023,7 @@ namespace moris::hmr
              tNodes[ 23 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 25 exists
@@ -1041,7 +1038,7 @@ namespace moris::hmr
              tNodes[ 25 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
          // pointer to child
@@ -1185,6 +1182,9 @@ namespace moris::hmr
 
         // set flag that this element has been processed
         this->set_children_basis_flag();
+
+        // Return basis counter
+        return tBasisCounter;
     }
 
 // ----------------------------------------------------------------------------

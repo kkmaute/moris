@@ -306,17 +306,17 @@ namespace moris::hmr
 // ----------------------------------------------------------------------------
 
     /**
-    * Refines the basis of an element
-    *
-    * @param[inout] aBasisNumber         element local index of basis that is to be refined
-    * @param[inout] aBasisCounter        counter to keep track of generated basis
-    *
-    * @return void
-    */
+     * Refines a basis of this element
+     *
+     * @param aBasisNumber Index of the basis to refine
+     * @return Number of created bases
+     */
     template<>
-    void
-    BSpline_Element< 2, 4 >::refine_basis( uint aBasisNumber, luint & aBasisCounter )
+    luint BSpline_Element< 2, 4 >::refine_basis( uint aBasisNumber )
     {
+        // Start basis counter
+        luint tBasisCounter = 0;
+        
         // get pointer to basis
         Basis * tBasis = mBasis[ aBasisNumber ];
 
@@ -326,199 +326,201 @@ namespace moris::hmr
             // test if basis has been refined already
             if ( ! tBasis->has_children() )
             {
-               // create temporary container for children
-               tBasis->init_children_container();
+                // create temporary container for children
+                tBasis->init_children_container();
 
-               // pointer to basis neighbor
-               Basis * tNeighbor;
+                // pointer to basis neighbor
+                Basis * tNeighbor;
 
-               // get neighbor 0
-               tNeighbor = tBasis->get_neighbor( 0 );
+                // get neighbor 0
+                tNeighbor = tBasis->get_neighbor( 0 );
 
-               // test if neighbor 0 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  0, tNeighbor->get_child(  6 ) );
-                       tBasis->insert_child(  1, tNeighbor->get_child(  7 ) );
-                       tBasis->insert_child(  2, tNeighbor->get_child(  8 ) );
-                   }
-               }
+                // test if neighbor 0 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  0, tNeighbor->get_child(  6 ) );
+                        tBasis->insert_child(  1, tNeighbor->get_child(  7 ) );
+                        tBasis->insert_child(  2, tNeighbor->get_child(  8 ) );
+                    }
+                }
 
-               // get neighbor 1
-               tNeighbor = tBasis->get_neighbor( 1 );
+                // get neighbor 1
+                tNeighbor = tBasis->get_neighbor( 1 );
 
-               // test if neighbor 1 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  2, tNeighbor->get_child(  0 ) );
-                       tBasis->insert_child(  5, tNeighbor->get_child(  3 ) );
-                       tBasis->insert_child(  8, tNeighbor->get_child(  6 ) );
-                   }
-               }
+                // test if neighbor 1 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  2, tNeighbor->get_child(  0 ) );
+                        tBasis->insert_child(  5, tNeighbor->get_child(  3 ) );
+                        tBasis->insert_child(  8, tNeighbor->get_child(  6 ) );
+                    }
+                }
 
-               // get neighbor 2
-               tNeighbor = tBasis->get_neighbor( 2 );
+                // get neighbor 2
+                tNeighbor = tBasis->get_neighbor( 2 );
 
-               // test if neighbor 2 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  6, tNeighbor->get_child(  0 ) );
-                       tBasis->insert_child(  7, tNeighbor->get_child(  1 ) );
-                       tBasis->insert_child(  8, tNeighbor->get_child(  2 ) );
-                   }
-               }
+                // test if neighbor 2 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  6, tNeighbor->get_child(  0 ) );
+                        tBasis->insert_child(  7, tNeighbor->get_child(  1 ) );
+                        tBasis->insert_child(  8, tNeighbor->get_child(  2 ) );
+                    }
+                }
 
-               // get neighbor 3
-               tNeighbor = tBasis->get_neighbor( 3 );
+                // get neighbor 3
+                tNeighbor = tBasis->get_neighbor( 3 );
 
-               // test if neighbor 3 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  0, tNeighbor->get_child(  2 ) );
-                       tBasis->insert_child(  3, tNeighbor->get_child(  5 ) );
-                       tBasis->insert_child(  6, tNeighbor->get_child(  8 ) );
-                   }
-               }
+                // test if neighbor 3 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  0, tNeighbor->get_child(  2 ) );
+                        tBasis->insert_child(  3, tNeighbor->get_child(  5 ) );
+                        tBasis->insert_child(  6, tNeighbor->get_child(  8 ) );
+                    }
+                }
 
-               // get neighbor 4
-               tNeighbor = tBasis->get_neighbor( 4 );
+                // get neighbor 4
+                tNeighbor = tBasis->get_neighbor( 4 );
 
-               // test if neighbor 4 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  0, tNeighbor->get_child(  8 ) );
-                   }
-               }
+                // test if neighbor 4 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  0, tNeighbor->get_child(  8 ) );
+                    }
+                }
 
-               // get neighbor 5
-               tNeighbor = tBasis->get_neighbor( 5 );
+                // get neighbor 5
+                tNeighbor = tBasis->get_neighbor( 5 );
 
-               // test if neighbor 5 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  2, tNeighbor->get_child(  6 ) );
-                   }
-               }
+                // test if neighbor 5 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  2, tNeighbor->get_child(  6 ) );
+                    }
+                }
 
-               // get neighbor 6
-               tNeighbor = tBasis->get_neighbor( 6 );
+                // get neighbor 6
+                tNeighbor = tBasis->get_neighbor( 6 );
 
-               // test if neighbor 6 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  8, tNeighbor->get_child(  0 ) );
-                   }
-               }
+                // test if neighbor 6 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  8, tNeighbor->get_child(  0 ) );
+                    }
+                }
 
-               // get neighbor 7
-               tNeighbor = tBasis->get_neighbor( 7 );
+                // get neighbor 7
+                tNeighbor = tBasis->get_neighbor( 7 );
 
-               // test if neighbor 7 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  6, tNeighbor->get_child(  2 ) );
-                   }
-               }
+                // test if neighbor 7 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  6, tNeighbor->get_child(  2 ) );
+                    }
+                }
 
-               // level of child basis
-               uint tLevel = tBasis->get_level() + 1;
+                // level of child basis
+                uint tLevel = tBasis->get_level() + 1;
 
-               // position of basis
-               const luint* tParentIJ  = tBasis->get_ijk();
+                // position of basis
+                const luint* tParentIJ  = tBasis->get_ijk();
 
-               // minumum i-position
-               luint tIMin = 2*tParentIJ[ 0 ];
+                // minumum i-position
+                luint tIMin = 2*tParentIJ[ 0 ];
 
-               // minumum j-position
-               luint tJMin = 2*tParentIJ[ 1 ];
+                // minumum j-position
+                luint tJMin = 2*tParentIJ[ 1 ];
 
-               // maximum i-position
-               luint tIMax = tIMin + 3;
+                // maximum i-position
+                luint tIMax = tIMin + 3;
 
-               // maximum j-position
-               luint tJMax = tJMin + 3;
+                // maximum j-position
+                luint tJMax = tJMin + 3;
 
-               // initialize counter
-               uint tCount = 0;
+                // initialize counter
+                uint tChildIndex = 0;
 
-               // loop over all positions
-               for( luint j = tJMin; j < tJMax; ++j )
-               {
-                   for( luint i = tIMin; i < tIMax; ++i )
-                   {
-                       // test if child does not exist
-                       if( tBasis->get_child( tCount ) == nullptr )
-                       {
-                           // calculate i-j position of child
-                           luint tIJ[ 2 ] = { i, j };
+                // loop over all positions
+                for( luint j = tJMin; j < tJMax; ++j )
+                {
+                    for( luint i = tIMin; i < tIMax; ++i )
+                    {
+                        // test if child does not exist
+                        if( tBasis->get_child( tChildIndex ) == nullptr )
+                        {
+                            // calculate i-j position of child
+                            luint tIJ[ 2 ] = { i, j };
 
-                           // create child
-                           tBasis->insert_child( tCount,
-                                                 new BSpline< 2, 9, 8 >( tIJ, tLevel, gNoProcOwner ) );
+                            // create child
+                            tBasis->insert_child( tChildIndex,
+                                                    new BSpline< 2, 9, 8 >( tIJ, tLevel, gNoProcOwner ) );
 
-                           // increment basis counter
-                           ++aBasisCounter;
-                       }
+                            // increment basis counter
+                            tBasisCounter++;
+                        }
 
-                       // increment counter
-                       ++tCount;
-                   }
-               }
+                        // increment child index
+                        tChildIndex++;
+                    }
+                }
             }
         }
+        
+        // Return basis counter
+        return tBasisCounter;
     }
 
 // ----------------------------------------------------------------------------
 
     /**
-    * Refines a B-Spline element
-    *
-    * @param[inout] aAllElementsOnProc   cell containing all B-Spline
-    *                                    elements including the aura
-    * @param[inout] aBasisCounter        counter to keep track of generated basis
-    *
-    * @return void
-    */
+     * Refines this element.
+     *
+     * @param aAllElementsOnProc Cell containing all B-spline elements including the aura
+     * @return Number of created bases
+     */
     template<>
-    void BSpline_Element< 2, 4 >::refine( moris::Cell< Element* > & aAllElementsOnProc,
-                                          luint                   & aBasisCounter )
+    luint BSpline_Element< 2, 4 >::refine( moris::Cell< Element* > & aAllElementsOnProc )
     {
+        // Start basis counter
+        luint tBasisCounter = 0;
+        
         // refine basis if they have not been refined already
         for( uint k = 0; k < 4; ++k )
         {
-            this->refine_basis( k, aBasisCounter );
+            tBasisCounter += this->refine_basis( k );
         }
 
         // initialize temporary basis pattern
@@ -642,6 +644,9 @@ namespace moris::hmr
 
         // set basis flag of element
         mChildrenBasisFlag = true;
+        
+        // Return basis counter
+        return tBasisCounter;
     }
 
 // ----------------------------------------------------------------------------

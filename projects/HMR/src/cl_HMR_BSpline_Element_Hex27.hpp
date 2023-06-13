@@ -2015,17 +2015,17 @@ namespace moris::hmr
 // ----------------------------------------------------------------------------
 
     /**
-    * Refines the basis of an element
-    *
-    * @param[inout] aBasisNumber         element local index of basis that is to be refined
-    * @param[inout] aBasisCounter        counter to keep track of generated basis
-    *
-    * @return void
-    */
+     * Refines a basis of this element
+     *
+     * @param aBasisNumber Index of the basis to refine
+     * @return Number of created bases
+     */
     template<>
-    void
-    BSpline_Element< 3, 27 >::refine_basis( uint aBasisNumber, luint & aBasisCounter )
+    luint BSpline_Element< 3, 27 >::refine_basis( uint aBasisNumber )
     {
+        // Start basis counter
+        luint tBasisCounter = 0;
+
         // get pointer to basis
         Basis* tBasis = mBasis[ aBasisNumber ];
 
@@ -2035,874 +2035,876 @@ namespace moris::hmr
             // test if basis has been refined already
             if ( ! tBasis->has_children() )
             {
-               // create temporary container for children
-               tBasis->init_children_container();
-
-               // pointer to basis neighbor
-               Basis* tNeighbor;
-
-               // get neighbor 0
-               tNeighbor = tBasis->get_neighbor( 0 );
-
-               // test if neighbor 0 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  0, tNeighbor->get_child(  8 ) );
-                       tBasis->insert_child(  1, tNeighbor->get_child(  9 ) );
-                       tBasis->insert_child(  2, tNeighbor->get_child( 10 ) );
-                       tBasis->insert_child(  3, tNeighbor->get_child( 11 ) );
-                       tBasis->insert_child(  4, tNeighbor->get_child( 12 ) );
-                       tBasis->insert_child(  5, tNeighbor->get_child( 13 ) );
-                       tBasis->insert_child(  6, tNeighbor->get_child( 14 ) );
-                       tBasis->insert_child(  7, tNeighbor->get_child( 15 ) );
-                       tBasis->insert_child( 16, tNeighbor->get_child( 24 ) );
-                       tBasis->insert_child( 17, tNeighbor->get_child( 25 ) );
-                       tBasis->insert_child( 18, tNeighbor->get_child( 26 ) );
-                       tBasis->insert_child( 19, tNeighbor->get_child( 27 ) );
-                       tBasis->insert_child( 20, tNeighbor->get_child( 28 ) );
-                       tBasis->insert_child( 21, tNeighbor->get_child( 29 ) );
-                       tBasis->insert_child( 22, tNeighbor->get_child( 30 ) );
-                       tBasis->insert_child( 23, tNeighbor->get_child( 31 ) );
-                       tBasis->insert_child( 32, tNeighbor->get_child( 40 ) );
-                       tBasis->insert_child( 33, tNeighbor->get_child( 41 ) );
-                       tBasis->insert_child( 34, tNeighbor->get_child( 42 ) );
-                       tBasis->insert_child( 35, tNeighbor->get_child( 43 ) );
-                       tBasis->insert_child( 36, tNeighbor->get_child( 44 ) );
-                       tBasis->insert_child( 37, tNeighbor->get_child( 45 ) );
-                       tBasis->insert_child( 38, tNeighbor->get_child( 46 ) );
-                       tBasis->insert_child( 39, tNeighbor->get_child( 47 ) );
-                       tBasis->insert_child( 48, tNeighbor->get_child( 56 ) );
-                       tBasis->insert_child( 49, tNeighbor->get_child( 57 ) );
-                       tBasis->insert_child( 50, tNeighbor->get_child( 58 ) );
-                       tBasis->insert_child( 51, tNeighbor->get_child( 59 ) );
-                       tBasis->insert_child( 52, tNeighbor->get_child( 60 ) );
-                       tBasis->insert_child( 53, tNeighbor->get_child( 61 ) );
-                       tBasis->insert_child( 54, tNeighbor->get_child( 62 ) );
-                       tBasis->insert_child( 55, tNeighbor->get_child( 63 ) );
-                   }
-               }
-
-               // get neighbor 1
-               tNeighbor = tBasis->get_neighbor( 1 );
-
-               // test if neighbor 1 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  2, tNeighbor->get_child(  0 ) );
-                       tBasis->insert_child(  3, tNeighbor->get_child(  1 ) );
-                       tBasis->insert_child(  6, tNeighbor->get_child(  4 ) );
-                       tBasis->insert_child(  7, tNeighbor->get_child(  5 ) );
-                       tBasis->insert_child( 10, tNeighbor->get_child(  8 ) );
-                       tBasis->insert_child( 11, tNeighbor->get_child(  9 ) );
-                       tBasis->insert_child( 14, tNeighbor->get_child( 12 ) );
-                       tBasis->insert_child( 15, tNeighbor->get_child( 13 ) );
-                       tBasis->insert_child( 18, tNeighbor->get_child( 16 ) );
-                       tBasis->insert_child( 19, tNeighbor->get_child( 17 ) );
-                       tBasis->insert_child( 22, tNeighbor->get_child( 20 ) );
-                       tBasis->insert_child( 23, tNeighbor->get_child( 21 ) );
-                       tBasis->insert_child( 26, tNeighbor->get_child( 24 ) );
-                       tBasis->insert_child( 27, tNeighbor->get_child( 25 ) );
-                       tBasis->insert_child( 30, tNeighbor->get_child( 28 ) );
-                       tBasis->insert_child( 31, tNeighbor->get_child( 29 ) );
-                       tBasis->insert_child( 34, tNeighbor->get_child( 32 ) );
-                       tBasis->insert_child( 35, tNeighbor->get_child( 33 ) );
-                       tBasis->insert_child( 38, tNeighbor->get_child( 36 ) );
-                       tBasis->insert_child( 39, tNeighbor->get_child( 37 ) );
-                       tBasis->insert_child( 42, tNeighbor->get_child( 40 ) );
-                       tBasis->insert_child( 43, tNeighbor->get_child( 41 ) );
-                       tBasis->insert_child( 46, tNeighbor->get_child( 44 ) );
-                       tBasis->insert_child( 47, tNeighbor->get_child( 45 ) );
-                       tBasis->insert_child( 50, tNeighbor->get_child( 48 ) );
-                       tBasis->insert_child( 51, tNeighbor->get_child( 49 ) );
-                       tBasis->insert_child( 54, tNeighbor->get_child( 52 ) );
-                       tBasis->insert_child( 55, tNeighbor->get_child( 53 ) );
-                       tBasis->insert_child( 58, tNeighbor->get_child( 56 ) );
-                       tBasis->insert_child( 59, tNeighbor->get_child( 57 ) );
-                       tBasis->insert_child( 62, tNeighbor->get_child( 60 ) );
-                       tBasis->insert_child( 63, tNeighbor->get_child( 61 ) );
-                   }
-               }
-
-               // get neighbor 2
-               tNeighbor = tBasis->get_neighbor( 2 );
-
-               // test if neighbor 2 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  8, tNeighbor->get_child(  0 ) );
-                       tBasis->insert_child(  9, tNeighbor->get_child(  1 ) );
-                       tBasis->insert_child( 10, tNeighbor->get_child(  2 ) );
-                       tBasis->insert_child( 11, tNeighbor->get_child(  3 ) );
-                       tBasis->insert_child( 12, tNeighbor->get_child(  4 ) );
-                       tBasis->insert_child( 13, tNeighbor->get_child(  5 ) );
-                       tBasis->insert_child( 14, tNeighbor->get_child(  6 ) );
-                       tBasis->insert_child( 15, tNeighbor->get_child(  7 ) );
-                       tBasis->insert_child( 24, tNeighbor->get_child( 16 ) );
-                       tBasis->insert_child( 25, tNeighbor->get_child( 17 ) );
-                       tBasis->insert_child( 26, tNeighbor->get_child( 18 ) );
-                       tBasis->insert_child( 27, tNeighbor->get_child( 19 ) );
-                       tBasis->insert_child( 28, tNeighbor->get_child( 20 ) );
-                       tBasis->insert_child( 29, tNeighbor->get_child( 21 ) );
-                       tBasis->insert_child( 30, tNeighbor->get_child( 22 ) );
-                       tBasis->insert_child( 31, tNeighbor->get_child( 23 ) );
-                       tBasis->insert_child( 40, tNeighbor->get_child( 32 ) );
-                       tBasis->insert_child( 41, tNeighbor->get_child( 33 ) );
-                       tBasis->insert_child( 42, tNeighbor->get_child( 34 ) );
-                       tBasis->insert_child( 43, tNeighbor->get_child( 35 ) );
-                       tBasis->insert_child( 44, tNeighbor->get_child( 36 ) );
-                       tBasis->insert_child( 45, tNeighbor->get_child( 37 ) );
-                       tBasis->insert_child( 46, tNeighbor->get_child( 38 ) );
-                       tBasis->insert_child( 47, tNeighbor->get_child( 39 ) );
-                       tBasis->insert_child( 56, tNeighbor->get_child( 48 ) );
-                       tBasis->insert_child( 57, tNeighbor->get_child( 49 ) );
-                       tBasis->insert_child( 58, tNeighbor->get_child( 50 ) );
-                       tBasis->insert_child( 59, tNeighbor->get_child( 51 ) );
-                       tBasis->insert_child( 60, tNeighbor->get_child( 52 ) );
-                       tBasis->insert_child( 61, tNeighbor->get_child( 53 ) );
-                       tBasis->insert_child( 62, tNeighbor->get_child( 54 ) );
-                       tBasis->insert_child( 63, tNeighbor->get_child( 55 ) );
-                   }
-               }
-
-               // get neighbor 3
-               tNeighbor = tBasis->get_neighbor( 3 );
-
-               // test if neighbor 3 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  0, tNeighbor->get_child(  2 ) );
-                       tBasis->insert_child(  1, tNeighbor->get_child(  3 ) );
-                       tBasis->insert_child(  4, tNeighbor->get_child(  6 ) );
-                       tBasis->insert_child(  5, tNeighbor->get_child(  7 ) );
-                       tBasis->insert_child(  8, tNeighbor->get_child( 10 ) );
-                       tBasis->insert_child(  9, tNeighbor->get_child( 11 ) );
-                       tBasis->insert_child( 12, tNeighbor->get_child( 14 ) );
-                       tBasis->insert_child( 13, tNeighbor->get_child( 15 ) );
-                       tBasis->insert_child( 16, tNeighbor->get_child( 18 ) );
-                       tBasis->insert_child( 17, tNeighbor->get_child( 19 ) );
-                       tBasis->insert_child( 20, tNeighbor->get_child( 22 ) );
-                       tBasis->insert_child( 21, tNeighbor->get_child( 23 ) );
-                       tBasis->insert_child( 24, tNeighbor->get_child( 26 ) );
-                       tBasis->insert_child( 25, tNeighbor->get_child( 27 ) );
-                       tBasis->insert_child( 28, tNeighbor->get_child( 30 ) );
-                       tBasis->insert_child( 29, tNeighbor->get_child( 31 ) );
-                       tBasis->insert_child( 32, tNeighbor->get_child( 34 ) );
-                       tBasis->insert_child( 33, tNeighbor->get_child( 35 ) );
-                       tBasis->insert_child( 36, tNeighbor->get_child( 38 ) );
-                       tBasis->insert_child( 37, tNeighbor->get_child( 39 ) );
-                       tBasis->insert_child( 40, tNeighbor->get_child( 42 ) );
-                       tBasis->insert_child( 41, tNeighbor->get_child( 43 ) );
-                       tBasis->insert_child( 44, tNeighbor->get_child( 46 ) );
-                       tBasis->insert_child( 45, tNeighbor->get_child( 47 ) );
-                       tBasis->insert_child( 48, tNeighbor->get_child( 50 ) );
-                       tBasis->insert_child( 49, tNeighbor->get_child( 51 ) );
-                       tBasis->insert_child( 52, tNeighbor->get_child( 54 ) );
-                       tBasis->insert_child( 53, tNeighbor->get_child( 55 ) );
-                       tBasis->insert_child( 56, tNeighbor->get_child( 58 ) );
-                       tBasis->insert_child( 57, tNeighbor->get_child( 59 ) );
-                       tBasis->insert_child( 60, tNeighbor->get_child( 62 ) );
-                       tBasis->insert_child( 61, tNeighbor->get_child( 63 ) );
-                   }
-               }
-
-               // get neighbor 4
-               tNeighbor = tBasis->get_neighbor( 4 );
-
-               // test if neighbor 4 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  0, tNeighbor->get_child( 32 ) );
-                       tBasis->insert_child(  1, tNeighbor->get_child( 33 ) );
-                       tBasis->insert_child(  2, tNeighbor->get_child( 34 ) );
-                       tBasis->insert_child(  3, tNeighbor->get_child( 35 ) );
-                       tBasis->insert_child(  4, tNeighbor->get_child( 36 ) );
-                       tBasis->insert_child(  5, tNeighbor->get_child( 37 ) );
-                       tBasis->insert_child(  6, tNeighbor->get_child( 38 ) );
-                       tBasis->insert_child(  7, tNeighbor->get_child( 39 ) );
-                       tBasis->insert_child(  8, tNeighbor->get_child( 40 ) );
-                       tBasis->insert_child(  9, tNeighbor->get_child( 41 ) );
-                       tBasis->insert_child( 10, tNeighbor->get_child( 42 ) );
-                       tBasis->insert_child( 11, tNeighbor->get_child( 43 ) );
-                       tBasis->insert_child( 12, tNeighbor->get_child( 44 ) );
-                       tBasis->insert_child( 13, tNeighbor->get_child( 45 ) );
-                       tBasis->insert_child( 14, tNeighbor->get_child( 46 ) );
-                       tBasis->insert_child( 15, tNeighbor->get_child( 47 ) );
-                       tBasis->insert_child( 16, tNeighbor->get_child( 48 ) );
-                       tBasis->insert_child( 17, tNeighbor->get_child( 49 ) );
-                       tBasis->insert_child( 18, tNeighbor->get_child( 50 ) );
-                       tBasis->insert_child( 19, tNeighbor->get_child( 51 ) );
-                       tBasis->insert_child( 20, tNeighbor->get_child( 52 ) );
-                       tBasis->insert_child( 21, tNeighbor->get_child( 53 ) );
-                       tBasis->insert_child( 22, tNeighbor->get_child( 54 ) );
-                       tBasis->insert_child( 23, tNeighbor->get_child( 55 ) );
-                       tBasis->insert_child( 24, tNeighbor->get_child( 56 ) );
-                       tBasis->insert_child( 25, tNeighbor->get_child( 57 ) );
-                       tBasis->insert_child( 26, tNeighbor->get_child( 58 ) );
-                       tBasis->insert_child( 27, tNeighbor->get_child( 59 ) );
-                       tBasis->insert_child( 28, tNeighbor->get_child( 60 ) );
-                       tBasis->insert_child( 29, tNeighbor->get_child( 61 ) );
-                       tBasis->insert_child( 30, tNeighbor->get_child( 62 ) );
-                       tBasis->insert_child( 31, tNeighbor->get_child( 63 ) );
-                   }
-               }
-
-               // get neighbor 5
-               tNeighbor = tBasis->get_neighbor( 5 );
-
-               // test if neighbor 5 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child( 32, tNeighbor->get_child(  0 ) );
-                       tBasis->insert_child( 33, tNeighbor->get_child(  1 ) );
-                       tBasis->insert_child( 34, tNeighbor->get_child(  2 ) );
-                       tBasis->insert_child( 35, tNeighbor->get_child(  3 ) );
-                       tBasis->insert_child( 36, tNeighbor->get_child(  4 ) );
-                       tBasis->insert_child( 37, tNeighbor->get_child(  5 ) );
-                       tBasis->insert_child( 38, tNeighbor->get_child(  6 ) );
-                       tBasis->insert_child( 39, tNeighbor->get_child(  7 ) );
-                       tBasis->insert_child( 40, tNeighbor->get_child(  8 ) );
-                       tBasis->insert_child( 41, tNeighbor->get_child(  9 ) );
-                       tBasis->insert_child( 42, tNeighbor->get_child( 10 ) );
-                       tBasis->insert_child( 43, tNeighbor->get_child( 11 ) );
-                       tBasis->insert_child( 44, tNeighbor->get_child( 12 ) );
-                       tBasis->insert_child( 45, tNeighbor->get_child( 13 ) );
-                       tBasis->insert_child( 46, tNeighbor->get_child( 14 ) );
-                       tBasis->insert_child( 47, tNeighbor->get_child( 15 ) );
-                       tBasis->insert_child( 48, tNeighbor->get_child( 16 ) );
-                       tBasis->insert_child( 49, tNeighbor->get_child( 17 ) );
-                       tBasis->insert_child( 50, tNeighbor->get_child( 18 ) );
-                       tBasis->insert_child( 51, tNeighbor->get_child( 19 ) );
-                       tBasis->insert_child( 52, tNeighbor->get_child( 20 ) );
-                       tBasis->insert_child( 53, tNeighbor->get_child( 21 ) );
-                       tBasis->insert_child( 54, tNeighbor->get_child( 22 ) );
-                       tBasis->insert_child( 55, tNeighbor->get_child( 23 ) );
-                       tBasis->insert_child( 56, tNeighbor->get_child( 24 ) );
-                       tBasis->insert_child( 57, tNeighbor->get_child( 25 ) );
-                       tBasis->insert_child( 58, tNeighbor->get_child( 26 ) );
-                       tBasis->insert_child( 59, tNeighbor->get_child( 27 ) );
-                       tBasis->insert_child( 60, tNeighbor->get_child( 28 ) );
-                       tBasis->insert_child( 61, tNeighbor->get_child( 29 ) );
-                       tBasis->insert_child( 62, tNeighbor->get_child( 30 ) );
-                       tBasis->insert_child( 63, tNeighbor->get_child( 31 ) );
-                   }
-               }
-
-               // get neighbor 6
-               tNeighbor = tBasis->get_neighbor( 6 );
-
-               // test if neighbor 6 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  0, tNeighbor->get_child( 40 ) );
-                       tBasis->insert_child(  1, tNeighbor->get_child( 41 ) );
-                       tBasis->insert_child(  2, tNeighbor->get_child( 42 ) );
-                       tBasis->insert_child(  3, tNeighbor->get_child( 43 ) );
-                       tBasis->insert_child(  4, tNeighbor->get_child( 44 ) );
-                       tBasis->insert_child(  5, tNeighbor->get_child( 45 ) );
-                       tBasis->insert_child(  6, tNeighbor->get_child( 46 ) );
-                       tBasis->insert_child(  7, tNeighbor->get_child( 47 ) );
-                       tBasis->insert_child( 16, tNeighbor->get_child( 56 ) );
-                       tBasis->insert_child( 17, tNeighbor->get_child( 57 ) );
-                       tBasis->insert_child( 18, tNeighbor->get_child( 58 ) );
-                       tBasis->insert_child( 19, tNeighbor->get_child( 59 ) );
-                       tBasis->insert_child( 20, tNeighbor->get_child( 60 ) );
-                       tBasis->insert_child( 21, tNeighbor->get_child( 61 ) );
-                       tBasis->insert_child( 22, tNeighbor->get_child( 62 ) );
-                       tBasis->insert_child( 23, tNeighbor->get_child( 63 ) );
-                   }
-               }
-
-               // get neighbor 7
-               tNeighbor = tBasis->get_neighbor( 7 );
-
-               // test if neighbor 7 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  2, tNeighbor->get_child( 32 ) );
-                       tBasis->insert_child(  3, tNeighbor->get_child( 33 ) );
-                       tBasis->insert_child(  6, tNeighbor->get_child( 36 ) );
-                       tBasis->insert_child(  7, tNeighbor->get_child( 37 ) );
-                       tBasis->insert_child( 10, tNeighbor->get_child( 40 ) );
-                       tBasis->insert_child( 11, tNeighbor->get_child( 41 ) );
-                       tBasis->insert_child( 14, tNeighbor->get_child( 44 ) );
-                       tBasis->insert_child( 15, tNeighbor->get_child( 45 ) );
-                       tBasis->insert_child( 18, tNeighbor->get_child( 48 ) );
-                       tBasis->insert_child( 19, tNeighbor->get_child( 49 ) );
-                       tBasis->insert_child( 22, tNeighbor->get_child( 52 ) );
-                       tBasis->insert_child( 23, tNeighbor->get_child( 53 ) );
-                       tBasis->insert_child( 26, tNeighbor->get_child( 56 ) );
-                       tBasis->insert_child( 27, tNeighbor->get_child( 57 ) );
-                       tBasis->insert_child( 30, tNeighbor->get_child( 60 ) );
-                       tBasis->insert_child( 31, tNeighbor->get_child( 61 ) );
-                   }
-               }
-
-               // get neighbor 8
-               tNeighbor = tBasis->get_neighbor( 8 );
-
-               // test if neighbor 8 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  8, tNeighbor->get_child( 32 ) );
-                       tBasis->insert_child(  9, tNeighbor->get_child( 33 ) );
-                       tBasis->insert_child( 10, tNeighbor->get_child( 34 ) );
-                       tBasis->insert_child( 11, tNeighbor->get_child( 35 ) );
-                       tBasis->insert_child( 12, tNeighbor->get_child( 36 ) );
-                       tBasis->insert_child( 13, tNeighbor->get_child( 37 ) );
-                       tBasis->insert_child( 14, tNeighbor->get_child( 38 ) );
-                       tBasis->insert_child( 15, tNeighbor->get_child( 39 ) );
-                       tBasis->insert_child( 24, tNeighbor->get_child( 48 ) );
-                       tBasis->insert_child( 25, tNeighbor->get_child( 49 ) );
-                       tBasis->insert_child( 26, tNeighbor->get_child( 50 ) );
-                       tBasis->insert_child( 27, tNeighbor->get_child( 51 ) );
-                       tBasis->insert_child( 28, tNeighbor->get_child( 52 ) );
-                       tBasis->insert_child( 29, tNeighbor->get_child( 53 ) );
-                       tBasis->insert_child( 30, tNeighbor->get_child( 54 ) );
-                       tBasis->insert_child( 31, tNeighbor->get_child( 55 ) );
-                   }
-               }
-
-               // get neighbor 9
-               tNeighbor = tBasis->get_neighbor( 9 );
-
-               // test if neighbor 9 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  0, tNeighbor->get_child( 34 ) );
-                       tBasis->insert_child(  1, tNeighbor->get_child( 35 ) );
-                       tBasis->insert_child(  4, tNeighbor->get_child( 38 ) );
-                       tBasis->insert_child(  5, tNeighbor->get_child( 39 ) );
-                       tBasis->insert_child(  8, tNeighbor->get_child( 42 ) );
-                       tBasis->insert_child(  9, tNeighbor->get_child( 43 ) );
-                       tBasis->insert_child( 12, tNeighbor->get_child( 46 ) );
-                       tBasis->insert_child( 13, tNeighbor->get_child( 47 ) );
-                       tBasis->insert_child( 16, tNeighbor->get_child( 50 ) );
-                       tBasis->insert_child( 17, tNeighbor->get_child( 51 ) );
-                       tBasis->insert_child( 20, tNeighbor->get_child( 54 ) );
-                       tBasis->insert_child( 21, tNeighbor->get_child( 55 ) );
-                       tBasis->insert_child( 24, tNeighbor->get_child( 58 ) );
-                       tBasis->insert_child( 25, tNeighbor->get_child( 59 ) );
-                       tBasis->insert_child( 28, tNeighbor->get_child( 62 ) );
-                       tBasis->insert_child( 29, tNeighbor->get_child( 63 ) );
-                   }
-               }
-
-               // get neighbor 10
-               tNeighbor = tBasis->get_neighbor( 10 );
-
-               // test if neighbor 10 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  0, tNeighbor->get_child( 10 ) );
-                       tBasis->insert_child(  1, tNeighbor->get_child( 11 ) );
-                       tBasis->insert_child(  4, tNeighbor->get_child( 14 ) );
-                       tBasis->insert_child(  5, tNeighbor->get_child( 15 ) );
-                       tBasis->insert_child( 16, tNeighbor->get_child( 26 ) );
-                       tBasis->insert_child( 17, tNeighbor->get_child( 27 ) );
-                       tBasis->insert_child( 20, tNeighbor->get_child( 30 ) );
-                       tBasis->insert_child( 21, tNeighbor->get_child( 31 ) );
-                       tBasis->insert_child( 32, tNeighbor->get_child( 42 ) );
-                       tBasis->insert_child( 33, tNeighbor->get_child( 43 ) );
-                       tBasis->insert_child( 36, tNeighbor->get_child( 46 ) );
-                       tBasis->insert_child( 37, tNeighbor->get_child( 47 ) );
-                       tBasis->insert_child( 48, tNeighbor->get_child( 58 ) );
-                       tBasis->insert_child( 49, tNeighbor->get_child( 59 ) );
-                       tBasis->insert_child( 52, tNeighbor->get_child( 62 ) );
-                       tBasis->insert_child( 53, tNeighbor->get_child( 63 ) );
-                   }
-               }
-
-               // get neighbor 11
-               tNeighbor = tBasis->get_neighbor( 11 );
-
-               // test if neighbor 11 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  2, tNeighbor->get_child(  8 ) );
-                       tBasis->insert_child(  3, tNeighbor->get_child(  9 ) );
-                       tBasis->insert_child(  6, tNeighbor->get_child( 12 ) );
-                       tBasis->insert_child(  7, tNeighbor->get_child( 13 ) );
-                       tBasis->insert_child( 18, tNeighbor->get_child( 24 ) );
-                       tBasis->insert_child( 19, tNeighbor->get_child( 25 ) );
-                       tBasis->insert_child( 22, tNeighbor->get_child( 28 ) );
-                       tBasis->insert_child( 23, tNeighbor->get_child( 29 ) );
-                       tBasis->insert_child( 34, tNeighbor->get_child( 40 ) );
-                       tBasis->insert_child( 35, tNeighbor->get_child( 41 ) );
-                       tBasis->insert_child( 38, tNeighbor->get_child( 44 ) );
-                       tBasis->insert_child( 39, tNeighbor->get_child( 45 ) );
-                       tBasis->insert_child( 50, tNeighbor->get_child( 56 ) );
-                       tBasis->insert_child( 51, tNeighbor->get_child( 57 ) );
-                       tBasis->insert_child( 54, tNeighbor->get_child( 60 ) );
-                       tBasis->insert_child( 55, tNeighbor->get_child( 61 ) );
-                   }
-               }
-
-               // get neighbor 12
-               tNeighbor = tBasis->get_neighbor( 12 );
-
-               // test if neighbor 12 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child( 10, tNeighbor->get_child(  0 ) );
-                       tBasis->insert_child( 11, tNeighbor->get_child(  1 ) );
-                       tBasis->insert_child( 14, tNeighbor->get_child(  4 ) );
-                       tBasis->insert_child( 15, tNeighbor->get_child(  5 ) );
-                       tBasis->insert_child( 26, tNeighbor->get_child( 16 ) );
-                       tBasis->insert_child( 27, tNeighbor->get_child( 17 ) );
-                       tBasis->insert_child( 30, tNeighbor->get_child( 20 ) );
-                       tBasis->insert_child( 31, tNeighbor->get_child( 21 ) );
-                       tBasis->insert_child( 42, tNeighbor->get_child( 32 ) );
-                       tBasis->insert_child( 43, tNeighbor->get_child( 33 ) );
-                       tBasis->insert_child( 46, tNeighbor->get_child( 36 ) );
-                       tBasis->insert_child( 47, tNeighbor->get_child( 37 ) );
-                       tBasis->insert_child( 58, tNeighbor->get_child( 48 ) );
-                       tBasis->insert_child( 59, tNeighbor->get_child( 49 ) );
-                       tBasis->insert_child( 62, tNeighbor->get_child( 52 ) );
-                       tBasis->insert_child( 63, tNeighbor->get_child( 53 ) );
-                   }
-               }
-
-               // get neighbor 13
-               tNeighbor = tBasis->get_neighbor( 13 );
-
-               // test if neighbor 13 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  8, tNeighbor->get_child(  2 ) );
-                       tBasis->insert_child(  9, tNeighbor->get_child(  3 ) );
-                       tBasis->insert_child( 12, tNeighbor->get_child(  6 ) );
-                       tBasis->insert_child( 13, tNeighbor->get_child(  7 ) );
-                       tBasis->insert_child( 24, tNeighbor->get_child( 18 ) );
-                       tBasis->insert_child( 25, tNeighbor->get_child( 19 ) );
-                       tBasis->insert_child( 28, tNeighbor->get_child( 22 ) );
-                       tBasis->insert_child( 29, tNeighbor->get_child( 23 ) );
-                       tBasis->insert_child( 40, tNeighbor->get_child( 34 ) );
-                       tBasis->insert_child( 41, tNeighbor->get_child( 35 ) );
-                       tBasis->insert_child( 44, tNeighbor->get_child( 38 ) );
-                       tBasis->insert_child( 45, tNeighbor->get_child( 39 ) );
-                       tBasis->insert_child( 56, tNeighbor->get_child( 50 ) );
-                       tBasis->insert_child( 57, tNeighbor->get_child( 51 ) );
-                       tBasis->insert_child( 60, tNeighbor->get_child( 54 ) );
-                       tBasis->insert_child( 61, tNeighbor->get_child( 55 ) );
-                   }
-               }
-
-               // get neighbor 14
-               tNeighbor = tBasis->get_neighbor( 14 );
-
-               // test if neighbor 14 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child( 32, tNeighbor->get_child(  8 ) );
-                       tBasis->insert_child( 33, tNeighbor->get_child(  9 ) );
-                       tBasis->insert_child( 34, tNeighbor->get_child( 10 ) );
-                       tBasis->insert_child( 35, tNeighbor->get_child( 11 ) );
-                       tBasis->insert_child( 36, tNeighbor->get_child( 12 ) );
-                       tBasis->insert_child( 37, tNeighbor->get_child( 13 ) );
-                       tBasis->insert_child( 38, tNeighbor->get_child( 14 ) );
-                       tBasis->insert_child( 39, tNeighbor->get_child( 15 ) );
-                       tBasis->insert_child( 48, tNeighbor->get_child( 24 ) );
-                       tBasis->insert_child( 49, tNeighbor->get_child( 25 ) );
-                       tBasis->insert_child( 50, tNeighbor->get_child( 26 ) );
-                       tBasis->insert_child( 51, tNeighbor->get_child( 27 ) );
-                       tBasis->insert_child( 52, tNeighbor->get_child( 28 ) );
-                       tBasis->insert_child( 53, tNeighbor->get_child( 29 ) );
-                       tBasis->insert_child( 54, tNeighbor->get_child( 30 ) );
-                       tBasis->insert_child( 55, tNeighbor->get_child( 31 ) );
-                   }
-               }
-
-               // get neighbor 15
-               tNeighbor = tBasis->get_neighbor( 15 );
-
-               // test if neighbor 15 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child( 34, tNeighbor->get_child(  0 ) );
-                       tBasis->insert_child( 35, tNeighbor->get_child(  1 ) );
-                       tBasis->insert_child( 38, tNeighbor->get_child(  4 ) );
-                       tBasis->insert_child( 39, tNeighbor->get_child(  5 ) );
-                       tBasis->insert_child( 42, tNeighbor->get_child(  8 ) );
-                       tBasis->insert_child( 43, tNeighbor->get_child(  9 ) );
-                       tBasis->insert_child( 46, tNeighbor->get_child( 12 ) );
-                       tBasis->insert_child( 47, tNeighbor->get_child( 13 ) );
-                       tBasis->insert_child( 50, tNeighbor->get_child( 16 ) );
-                       tBasis->insert_child( 51, tNeighbor->get_child( 17 ) );
-                       tBasis->insert_child( 54, tNeighbor->get_child( 20 ) );
-                       tBasis->insert_child( 55, tNeighbor->get_child( 21 ) );
-                       tBasis->insert_child( 58, tNeighbor->get_child( 24 ) );
-                       tBasis->insert_child( 59, tNeighbor->get_child( 25 ) );
-                       tBasis->insert_child( 62, tNeighbor->get_child( 28 ) );
-                       tBasis->insert_child( 63, tNeighbor->get_child( 29 ) );
-                   }
-               }
-
-               // get neighbor 16
-               tNeighbor = tBasis->get_neighbor( 16 );
-
-               // test if neighbor 16 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child( 40, tNeighbor->get_child(  0 ) );
-                       tBasis->insert_child( 41, tNeighbor->get_child(  1 ) );
-                       tBasis->insert_child( 42, tNeighbor->get_child(  2 ) );
-                       tBasis->insert_child( 43, tNeighbor->get_child(  3 ) );
-                       tBasis->insert_child( 44, tNeighbor->get_child(  4 ) );
-                       tBasis->insert_child( 45, tNeighbor->get_child(  5 ) );
-                       tBasis->insert_child( 46, tNeighbor->get_child(  6 ) );
-                       tBasis->insert_child( 47, tNeighbor->get_child(  7 ) );
-                       tBasis->insert_child( 56, tNeighbor->get_child( 16 ) );
-                       tBasis->insert_child( 57, tNeighbor->get_child( 17 ) );
-                       tBasis->insert_child( 58, tNeighbor->get_child( 18 ) );
-                       tBasis->insert_child( 59, tNeighbor->get_child( 19 ) );
-                       tBasis->insert_child( 60, tNeighbor->get_child( 20 ) );
-                       tBasis->insert_child( 61, tNeighbor->get_child( 21 ) );
-                       tBasis->insert_child( 62, tNeighbor->get_child( 22 ) );
-                       tBasis->insert_child( 63, tNeighbor->get_child( 23 ) );
-                   }
-               }
-
-               // get neighbor 17
-               tNeighbor = tBasis->get_neighbor( 17 );
-
-               // test if neighbor 17 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child( 32, tNeighbor->get_child(  2 ) );
-                       tBasis->insert_child( 33, tNeighbor->get_child(  3 ) );
-                       tBasis->insert_child( 36, tNeighbor->get_child(  6 ) );
-                       tBasis->insert_child( 37, tNeighbor->get_child(  7 ) );
-                       tBasis->insert_child( 40, tNeighbor->get_child( 10 ) );
-                       tBasis->insert_child( 41, tNeighbor->get_child( 11 ) );
-                       tBasis->insert_child( 44, tNeighbor->get_child( 14 ) );
-                       tBasis->insert_child( 45, tNeighbor->get_child( 15 ) );
-                       tBasis->insert_child( 48, tNeighbor->get_child( 18 ) );
-                       tBasis->insert_child( 49, tNeighbor->get_child( 19 ) );
-                       tBasis->insert_child( 52, tNeighbor->get_child( 22 ) );
-                       tBasis->insert_child( 53, tNeighbor->get_child( 23 ) );
-                       tBasis->insert_child( 56, tNeighbor->get_child( 26 ) );
-                       tBasis->insert_child( 57, tNeighbor->get_child( 27 ) );
-                       tBasis->insert_child( 60, tNeighbor->get_child( 30 ) );
-                       tBasis->insert_child( 61, tNeighbor->get_child( 31 ) );
-                   }
-               }
-
-               // get neighbor 18
-               tNeighbor = tBasis->get_neighbor( 18 );
-
-               // test if neighbor 18 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  0, tNeighbor->get_child( 42 ) );
-                       tBasis->insert_child(  1, tNeighbor->get_child( 43 ) );
-                       tBasis->insert_child(  4, tNeighbor->get_child( 46 ) );
-                       tBasis->insert_child(  5, tNeighbor->get_child( 47 ) );
-                       tBasis->insert_child( 16, tNeighbor->get_child( 58 ) );
-                       tBasis->insert_child( 17, tNeighbor->get_child( 59 ) );
-                       tBasis->insert_child( 20, tNeighbor->get_child( 62 ) );
-                       tBasis->insert_child( 21, tNeighbor->get_child( 63 ) );
-                   }
-               }
-
-               // get neighbor 19
-               tNeighbor = tBasis->get_neighbor( 19 );
-
-               // test if neighbor 19 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  2, tNeighbor->get_child( 40 ) );
-                       tBasis->insert_child(  3, tNeighbor->get_child( 41 ) );
-                       tBasis->insert_child(  6, tNeighbor->get_child( 44 ) );
-                       tBasis->insert_child(  7, tNeighbor->get_child( 45 ) );
-                       tBasis->insert_child( 18, tNeighbor->get_child( 56 ) );
-                       tBasis->insert_child( 19, tNeighbor->get_child( 57 ) );
-                       tBasis->insert_child( 22, tNeighbor->get_child( 60 ) );
-                       tBasis->insert_child( 23, tNeighbor->get_child( 61 ) );
-                   }
-               }
-
-               // get neighbor 20
-               tNeighbor = tBasis->get_neighbor( 20 );
-
-               // test if neighbor 20 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child( 10, tNeighbor->get_child( 32 ) );
-                       tBasis->insert_child( 11, tNeighbor->get_child( 33 ) );
-                       tBasis->insert_child( 14, tNeighbor->get_child( 36 ) );
-                       tBasis->insert_child( 15, tNeighbor->get_child( 37 ) );
-                       tBasis->insert_child( 26, tNeighbor->get_child( 48 ) );
-                       tBasis->insert_child( 27, tNeighbor->get_child( 49 ) );
-                       tBasis->insert_child( 30, tNeighbor->get_child( 52 ) );
-                       tBasis->insert_child( 31, tNeighbor->get_child( 53 ) );
-                   }
-               }
-
-               // get neighbor 21
-               tNeighbor = tBasis->get_neighbor( 21 );
-
-               // test if neighbor 21 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child(  8, tNeighbor->get_child( 34 ) );
-                       tBasis->insert_child(  9, tNeighbor->get_child( 35 ) );
-                       tBasis->insert_child( 12, tNeighbor->get_child( 38 ) );
-                       tBasis->insert_child( 13, tNeighbor->get_child( 39 ) );
-                       tBasis->insert_child( 24, tNeighbor->get_child( 50 ) );
-                       tBasis->insert_child( 25, tNeighbor->get_child( 51 ) );
-                       tBasis->insert_child( 28, tNeighbor->get_child( 54 ) );
-                       tBasis->insert_child( 29, tNeighbor->get_child( 55 ) );
-                   }
-               }
-
-               // get neighbor 22
-               tNeighbor = tBasis->get_neighbor( 22 );
-
-               // test if neighbor 22 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child( 32, tNeighbor->get_child( 10 ) );
-                       tBasis->insert_child( 33, tNeighbor->get_child( 11 ) );
-                       tBasis->insert_child( 36, tNeighbor->get_child( 14 ) );
-                       tBasis->insert_child( 37, tNeighbor->get_child( 15 ) );
-                       tBasis->insert_child( 48, tNeighbor->get_child( 26 ) );
-                       tBasis->insert_child( 49, tNeighbor->get_child( 27 ) );
-                       tBasis->insert_child( 52, tNeighbor->get_child( 30 ) );
-                       tBasis->insert_child( 53, tNeighbor->get_child( 31 ) );
-                   }
-               }
-
-               // get neighbor 23
-               tNeighbor = tBasis->get_neighbor( 23 );
-
-               // test if neighbor 23 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child( 34, tNeighbor->get_child(  8 ) );
-                       tBasis->insert_child( 35, tNeighbor->get_child(  9 ) );
-                       tBasis->insert_child( 38, tNeighbor->get_child( 12 ) );
-                       tBasis->insert_child( 39, tNeighbor->get_child( 13 ) );
-                       tBasis->insert_child( 50, tNeighbor->get_child( 24 ) );
-                       tBasis->insert_child( 51, tNeighbor->get_child( 25 ) );
-                       tBasis->insert_child( 54, tNeighbor->get_child( 28 ) );
-                       tBasis->insert_child( 55, tNeighbor->get_child( 29 ) );
-                   }
-               }
-
-               // get neighbor 24
-               tNeighbor = tBasis->get_neighbor( 24 );
-
-               // test if neighbor 24 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child( 42, tNeighbor->get_child(  0 ) );
-                       tBasis->insert_child( 43, tNeighbor->get_child(  1 ) );
-                       tBasis->insert_child( 46, tNeighbor->get_child(  4 ) );
-                       tBasis->insert_child( 47, tNeighbor->get_child(  5 ) );
-                       tBasis->insert_child( 58, tNeighbor->get_child( 16 ) );
-                       tBasis->insert_child( 59, tNeighbor->get_child( 17 ) );
-                       tBasis->insert_child( 62, tNeighbor->get_child( 20 ) );
-                       tBasis->insert_child( 63, tNeighbor->get_child( 21 ) );
-                   }
-               }
-
-               // get neighbor 25
-               tNeighbor = tBasis->get_neighbor( 25 );
-
-               // test if neighbor 25 exists
-               if ( tNeighbor != nullptr )
-               {
-                   // test if neighbor has children
-                   if ( tNeighbor->has_children() )
-                   {
-                       // copy children of neighbor
-                       tBasis->insert_child( 40, tNeighbor->get_child(  2 ) );
-                       tBasis->insert_child( 41, tNeighbor->get_child(  3 ) );
-                       tBasis->insert_child( 44, tNeighbor->get_child(  6 ) );
-                       tBasis->insert_child( 45, tNeighbor->get_child(  7 ) );
-                       tBasis->insert_child( 56, tNeighbor->get_child( 18 ) );
-                       tBasis->insert_child( 57, tNeighbor->get_child( 19 ) );
-                       tBasis->insert_child( 60, tNeighbor->get_child( 22 ) );
-                       tBasis->insert_child( 61, tNeighbor->get_child( 23 ) );
-                   }
-               }
-
-               // level of child basis
-               uint tLevel = tBasis->get_level() + 1;
-
-               // position of basis
-               const luint* tParentIJK  = tBasis->get_ijk();
-
-               // minumum i-position
-               luint tIMin = 2*tParentIJK[ 0 ];
-
-               // minumum j-position
-               luint tJMin = 2*tParentIJK[ 1 ];
-
-               // minumum k-position
-               luint tKMin = 2*tParentIJK[ 2 ];
-
-               // maximum i-position
-               luint tIMax = tIMin + 4;
-
-               // maximum j-position
-               luint tJMax = tJMin + 4;
-
-               // maximum K-position
-               luint tKMax = tKMin + 4;
-
-               // initialize counter
-               uint tCount = 0;
-
-               // loop over all positions
-               for( luint k=tKMin; k<tKMax; ++k )
-               {
-                   for( luint j=tJMin; j<tJMax; ++j )
-                   {
-                       for( luint i=tIMin; i<tIMax; ++i )
-                       {
-                           // test if child does not exist
-                           if( tBasis->get_child( tCount ) == nullptr )
-                           {
-                               // calculate i-j-k position of child
-                               luint tIJK[ 3 ] = { i, j, k };
-
-                               // create child
-                               tBasis->insert_child( tCount,
-                                   new BSpline< 3, 64, 26 >( tIJK, tLevel, gNoProcOwner ) );
-
-                           // increment basis counter
-                           ++aBasisCounter;
-                           }
-
-                           // increment counter
-                           ++tCount;
-                       }
-                   }
-               }
+                // create temporary container for children
+                tBasis->init_children_container();
+
+                // pointer to basis neighbor
+                Basis* tNeighbor;
+
+                // get neighbor 0
+                tNeighbor = tBasis->get_neighbor( 0 );
+
+                // test if neighbor 0 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  0, tNeighbor->get_child(  8 ) );
+                        tBasis->insert_child(  1, tNeighbor->get_child(  9 ) );
+                        tBasis->insert_child(  2, tNeighbor->get_child( 10 ) );
+                        tBasis->insert_child(  3, tNeighbor->get_child( 11 ) );
+                        tBasis->insert_child(  4, tNeighbor->get_child( 12 ) );
+                        tBasis->insert_child(  5, tNeighbor->get_child( 13 ) );
+                        tBasis->insert_child(  6, tNeighbor->get_child( 14 ) );
+                        tBasis->insert_child(  7, tNeighbor->get_child( 15 ) );
+                        tBasis->insert_child( 16, tNeighbor->get_child( 24 ) );
+                        tBasis->insert_child( 17, tNeighbor->get_child( 25 ) );
+                        tBasis->insert_child( 18, tNeighbor->get_child( 26 ) );
+                        tBasis->insert_child( 19, tNeighbor->get_child( 27 ) );
+                        tBasis->insert_child( 20, tNeighbor->get_child( 28 ) );
+                        tBasis->insert_child( 21, tNeighbor->get_child( 29 ) );
+                        tBasis->insert_child( 22, tNeighbor->get_child( 30 ) );
+                        tBasis->insert_child( 23, tNeighbor->get_child( 31 ) );
+                        tBasis->insert_child( 32, tNeighbor->get_child( 40 ) );
+                        tBasis->insert_child( 33, tNeighbor->get_child( 41 ) );
+                        tBasis->insert_child( 34, tNeighbor->get_child( 42 ) );
+                        tBasis->insert_child( 35, tNeighbor->get_child( 43 ) );
+                        tBasis->insert_child( 36, tNeighbor->get_child( 44 ) );
+                        tBasis->insert_child( 37, tNeighbor->get_child( 45 ) );
+                        tBasis->insert_child( 38, tNeighbor->get_child( 46 ) );
+                        tBasis->insert_child( 39, tNeighbor->get_child( 47 ) );
+                        tBasis->insert_child( 48, tNeighbor->get_child( 56 ) );
+                        tBasis->insert_child( 49, tNeighbor->get_child( 57 ) );
+                        tBasis->insert_child( 50, tNeighbor->get_child( 58 ) );
+                        tBasis->insert_child( 51, tNeighbor->get_child( 59 ) );
+                        tBasis->insert_child( 52, tNeighbor->get_child( 60 ) );
+                        tBasis->insert_child( 53, tNeighbor->get_child( 61 ) );
+                        tBasis->insert_child( 54, tNeighbor->get_child( 62 ) );
+                        tBasis->insert_child( 55, tNeighbor->get_child( 63 ) );
+                    }
+                }
+
+                // get neighbor 1
+                tNeighbor = tBasis->get_neighbor( 1 );
+
+                // test if neighbor 1 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  2, tNeighbor->get_child(  0 ) );
+                        tBasis->insert_child(  3, tNeighbor->get_child(  1 ) );
+                        tBasis->insert_child(  6, tNeighbor->get_child(  4 ) );
+                        tBasis->insert_child(  7, tNeighbor->get_child(  5 ) );
+                        tBasis->insert_child( 10, tNeighbor->get_child(  8 ) );
+                        tBasis->insert_child( 11, tNeighbor->get_child(  9 ) );
+                        tBasis->insert_child( 14, tNeighbor->get_child( 12 ) );
+                        tBasis->insert_child( 15, tNeighbor->get_child( 13 ) );
+                        tBasis->insert_child( 18, tNeighbor->get_child( 16 ) );
+                        tBasis->insert_child( 19, tNeighbor->get_child( 17 ) );
+                        tBasis->insert_child( 22, tNeighbor->get_child( 20 ) );
+                        tBasis->insert_child( 23, tNeighbor->get_child( 21 ) );
+                        tBasis->insert_child( 26, tNeighbor->get_child( 24 ) );
+                        tBasis->insert_child( 27, tNeighbor->get_child( 25 ) );
+                        tBasis->insert_child( 30, tNeighbor->get_child( 28 ) );
+                        tBasis->insert_child( 31, tNeighbor->get_child( 29 ) );
+                        tBasis->insert_child( 34, tNeighbor->get_child( 32 ) );
+                        tBasis->insert_child( 35, tNeighbor->get_child( 33 ) );
+                        tBasis->insert_child( 38, tNeighbor->get_child( 36 ) );
+                        tBasis->insert_child( 39, tNeighbor->get_child( 37 ) );
+                        tBasis->insert_child( 42, tNeighbor->get_child( 40 ) );
+                        tBasis->insert_child( 43, tNeighbor->get_child( 41 ) );
+                        tBasis->insert_child( 46, tNeighbor->get_child( 44 ) );
+                        tBasis->insert_child( 47, tNeighbor->get_child( 45 ) );
+                        tBasis->insert_child( 50, tNeighbor->get_child( 48 ) );
+                        tBasis->insert_child( 51, tNeighbor->get_child( 49 ) );
+                        tBasis->insert_child( 54, tNeighbor->get_child( 52 ) );
+                        tBasis->insert_child( 55, tNeighbor->get_child( 53 ) );
+                        tBasis->insert_child( 58, tNeighbor->get_child( 56 ) );
+                        tBasis->insert_child( 59, tNeighbor->get_child( 57 ) );
+                        tBasis->insert_child( 62, tNeighbor->get_child( 60 ) );
+                        tBasis->insert_child( 63, tNeighbor->get_child( 61 ) );
+                    }
+                }
+
+                // get neighbor 2
+                tNeighbor = tBasis->get_neighbor( 2 );
+
+                // test if neighbor 2 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  8, tNeighbor->get_child(  0 ) );
+                        tBasis->insert_child(  9, tNeighbor->get_child(  1 ) );
+                        tBasis->insert_child( 10, tNeighbor->get_child(  2 ) );
+                        tBasis->insert_child( 11, tNeighbor->get_child(  3 ) );
+                        tBasis->insert_child( 12, tNeighbor->get_child(  4 ) );
+                        tBasis->insert_child( 13, tNeighbor->get_child(  5 ) );
+                        tBasis->insert_child( 14, tNeighbor->get_child(  6 ) );
+                        tBasis->insert_child( 15, tNeighbor->get_child(  7 ) );
+                        tBasis->insert_child( 24, tNeighbor->get_child( 16 ) );
+                        tBasis->insert_child( 25, tNeighbor->get_child( 17 ) );
+                        tBasis->insert_child( 26, tNeighbor->get_child( 18 ) );
+                        tBasis->insert_child( 27, tNeighbor->get_child( 19 ) );
+                        tBasis->insert_child( 28, tNeighbor->get_child( 20 ) );
+                        tBasis->insert_child( 29, tNeighbor->get_child( 21 ) );
+                        tBasis->insert_child( 30, tNeighbor->get_child( 22 ) );
+                        tBasis->insert_child( 31, tNeighbor->get_child( 23 ) );
+                        tBasis->insert_child( 40, tNeighbor->get_child( 32 ) );
+                        tBasis->insert_child( 41, tNeighbor->get_child( 33 ) );
+                        tBasis->insert_child( 42, tNeighbor->get_child( 34 ) );
+                        tBasis->insert_child( 43, tNeighbor->get_child( 35 ) );
+                        tBasis->insert_child( 44, tNeighbor->get_child( 36 ) );
+                        tBasis->insert_child( 45, tNeighbor->get_child( 37 ) );
+                        tBasis->insert_child( 46, tNeighbor->get_child( 38 ) );
+                        tBasis->insert_child( 47, tNeighbor->get_child( 39 ) );
+                        tBasis->insert_child( 56, tNeighbor->get_child( 48 ) );
+                        tBasis->insert_child( 57, tNeighbor->get_child( 49 ) );
+                        tBasis->insert_child( 58, tNeighbor->get_child( 50 ) );
+                        tBasis->insert_child( 59, tNeighbor->get_child( 51 ) );
+                        tBasis->insert_child( 60, tNeighbor->get_child( 52 ) );
+                        tBasis->insert_child( 61, tNeighbor->get_child( 53 ) );
+                        tBasis->insert_child( 62, tNeighbor->get_child( 54 ) );
+                        tBasis->insert_child( 63, tNeighbor->get_child( 55 ) );
+                    }
+                }
+
+                // get neighbor 3
+                tNeighbor = tBasis->get_neighbor( 3 );
+
+                // test if neighbor 3 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  0, tNeighbor->get_child(  2 ) );
+                        tBasis->insert_child(  1, tNeighbor->get_child(  3 ) );
+                        tBasis->insert_child(  4, tNeighbor->get_child(  6 ) );
+                        tBasis->insert_child(  5, tNeighbor->get_child(  7 ) );
+                        tBasis->insert_child(  8, tNeighbor->get_child( 10 ) );
+                        tBasis->insert_child(  9, tNeighbor->get_child( 11 ) );
+                        tBasis->insert_child( 12, tNeighbor->get_child( 14 ) );
+                        tBasis->insert_child( 13, tNeighbor->get_child( 15 ) );
+                        tBasis->insert_child( 16, tNeighbor->get_child( 18 ) );
+                        tBasis->insert_child( 17, tNeighbor->get_child( 19 ) );
+                        tBasis->insert_child( 20, tNeighbor->get_child( 22 ) );
+                        tBasis->insert_child( 21, tNeighbor->get_child( 23 ) );
+                        tBasis->insert_child( 24, tNeighbor->get_child( 26 ) );
+                        tBasis->insert_child( 25, tNeighbor->get_child( 27 ) );
+                        tBasis->insert_child( 28, tNeighbor->get_child( 30 ) );
+                        tBasis->insert_child( 29, tNeighbor->get_child( 31 ) );
+                        tBasis->insert_child( 32, tNeighbor->get_child( 34 ) );
+                        tBasis->insert_child( 33, tNeighbor->get_child( 35 ) );
+                        tBasis->insert_child( 36, tNeighbor->get_child( 38 ) );
+                        tBasis->insert_child( 37, tNeighbor->get_child( 39 ) );
+                        tBasis->insert_child( 40, tNeighbor->get_child( 42 ) );
+                        tBasis->insert_child( 41, tNeighbor->get_child( 43 ) );
+                        tBasis->insert_child( 44, tNeighbor->get_child( 46 ) );
+                        tBasis->insert_child( 45, tNeighbor->get_child( 47 ) );
+                        tBasis->insert_child( 48, tNeighbor->get_child( 50 ) );
+                        tBasis->insert_child( 49, tNeighbor->get_child( 51 ) );
+                        tBasis->insert_child( 52, tNeighbor->get_child( 54 ) );
+                        tBasis->insert_child( 53, tNeighbor->get_child( 55 ) );
+                        tBasis->insert_child( 56, tNeighbor->get_child( 58 ) );
+                        tBasis->insert_child( 57, tNeighbor->get_child( 59 ) );
+                        tBasis->insert_child( 60, tNeighbor->get_child( 62 ) );
+                        tBasis->insert_child( 61, tNeighbor->get_child( 63 ) );
+                    }
+                }
+
+                // get neighbor 4
+                tNeighbor = tBasis->get_neighbor( 4 );
+
+                // test if neighbor 4 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  0, tNeighbor->get_child( 32 ) );
+                        tBasis->insert_child(  1, tNeighbor->get_child( 33 ) );
+                        tBasis->insert_child(  2, tNeighbor->get_child( 34 ) );
+                        tBasis->insert_child(  3, tNeighbor->get_child( 35 ) );
+                        tBasis->insert_child(  4, tNeighbor->get_child( 36 ) );
+                        tBasis->insert_child(  5, tNeighbor->get_child( 37 ) );
+                        tBasis->insert_child(  6, tNeighbor->get_child( 38 ) );
+                        tBasis->insert_child(  7, tNeighbor->get_child( 39 ) );
+                        tBasis->insert_child(  8, tNeighbor->get_child( 40 ) );
+                        tBasis->insert_child(  9, tNeighbor->get_child( 41 ) );
+                        tBasis->insert_child( 10, tNeighbor->get_child( 42 ) );
+                        tBasis->insert_child( 11, tNeighbor->get_child( 43 ) );
+                        tBasis->insert_child( 12, tNeighbor->get_child( 44 ) );
+                        tBasis->insert_child( 13, tNeighbor->get_child( 45 ) );
+                        tBasis->insert_child( 14, tNeighbor->get_child( 46 ) );
+                        tBasis->insert_child( 15, tNeighbor->get_child( 47 ) );
+                        tBasis->insert_child( 16, tNeighbor->get_child( 48 ) );
+                        tBasis->insert_child( 17, tNeighbor->get_child( 49 ) );
+                        tBasis->insert_child( 18, tNeighbor->get_child( 50 ) );
+                        tBasis->insert_child( 19, tNeighbor->get_child( 51 ) );
+                        tBasis->insert_child( 20, tNeighbor->get_child( 52 ) );
+                        tBasis->insert_child( 21, tNeighbor->get_child( 53 ) );
+                        tBasis->insert_child( 22, tNeighbor->get_child( 54 ) );
+                        tBasis->insert_child( 23, tNeighbor->get_child( 55 ) );
+                        tBasis->insert_child( 24, tNeighbor->get_child( 56 ) );
+                        tBasis->insert_child( 25, tNeighbor->get_child( 57 ) );
+                        tBasis->insert_child( 26, tNeighbor->get_child( 58 ) );
+                        tBasis->insert_child( 27, tNeighbor->get_child( 59 ) );
+                        tBasis->insert_child( 28, tNeighbor->get_child( 60 ) );
+                        tBasis->insert_child( 29, tNeighbor->get_child( 61 ) );
+                        tBasis->insert_child( 30, tNeighbor->get_child( 62 ) );
+                        tBasis->insert_child( 31, tNeighbor->get_child( 63 ) );
+                    }
+                }
+
+                // get neighbor 5
+                tNeighbor = tBasis->get_neighbor( 5 );
+
+                // test if neighbor 5 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child( 32, tNeighbor->get_child(  0 ) );
+                        tBasis->insert_child( 33, tNeighbor->get_child(  1 ) );
+                        tBasis->insert_child( 34, tNeighbor->get_child(  2 ) );
+                        tBasis->insert_child( 35, tNeighbor->get_child(  3 ) );
+                        tBasis->insert_child( 36, tNeighbor->get_child(  4 ) );
+                        tBasis->insert_child( 37, tNeighbor->get_child(  5 ) );
+                        tBasis->insert_child( 38, tNeighbor->get_child(  6 ) );
+                        tBasis->insert_child( 39, tNeighbor->get_child(  7 ) );
+                        tBasis->insert_child( 40, tNeighbor->get_child(  8 ) );
+                        tBasis->insert_child( 41, tNeighbor->get_child(  9 ) );
+                        tBasis->insert_child( 42, tNeighbor->get_child( 10 ) );
+                        tBasis->insert_child( 43, tNeighbor->get_child( 11 ) );
+                        tBasis->insert_child( 44, tNeighbor->get_child( 12 ) );
+                        tBasis->insert_child( 45, tNeighbor->get_child( 13 ) );
+                        tBasis->insert_child( 46, tNeighbor->get_child( 14 ) );
+                        tBasis->insert_child( 47, tNeighbor->get_child( 15 ) );
+                        tBasis->insert_child( 48, tNeighbor->get_child( 16 ) );
+                        tBasis->insert_child( 49, tNeighbor->get_child( 17 ) );
+                        tBasis->insert_child( 50, tNeighbor->get_child( 18 ) );
+                        tBasis->insert_child( 51, tNeighbor->get_child( 19 ) );
+                        tBasis->insert_child( 52, tNeighbor->get_child( 20 ) );
+                        tBasis->insert_child( 53, tNeighbor->get_child( 21 ) );
+                        tBasis->insert_child( 54, tNeighbor->get_child( 22 ) );
+                        tBasis->insert_child( 55, tNeighbor->get_child( 23 ) );
+                        tBasis->insert_child( 56, tNeighbor->get_child( 24 ) );
+                        tBasis->insert_child( 57, tNeighbor->get_child( 25 ) );
+                        tBasis->insert_child( 58, tNeighbor->get_child( 26 ) );
+                        tBasis->insert_child( 59, tNeighbor->get_child( 27 ) );
+                        tBasis->insert_child( 60, tNeighbor->get_child( 28 ) );
+                        tBasis->insert_child( 61, tNeighbor->get_child( 29 ) );
+                        tBasis->insert_child( 62, tNeighbor->get_child( 30 ) );
+                        tBasis->insert_child( 63, tNeighbor->get_child( 31 ) );
+                    }
+                }
+
+                // get neighbor 6
+                tNeighbor = tBasis->get_neighbor( 6 );
+
+                // test if neighbor 6 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  0, tNeighbor->get_child( 40 ) );
+                        tBasis->insert_child(  1, tNeighbor->get_child( 41 ) );
+                        tBasis->insert_child(  2, tNeighbor->get_child( 42 ) );
+                        tBasis->insert_child(  3, tNeighbor->get_child( 43 ) );
+                        tBasis->insert_child(  4, tNeighbor->get_child( 44 ) );
+                        tBasis->insert_child(  5, tNeighbor->get_child( 45 ) );
+                        tBasis->insert_child(  6, tNeighbor->get_child( 46 ) );
+                        tBasis->insert_child(  7, tNeighbor->get_child( 47 ) );
+                        tBasis->insert_child( 16, tNeighbor->get_child( 56 ) );
+                        tBasis->insert_child( 17, tNeighbor->get_child( 57 ) );
+                        tBasis->insert_child( 18, tNeighbor->get_child( 58 ) );
+                        tBasis->insert_child( 19, tNeighbor->get_child( 59 ) );
+                        tBasis->insert_child( 20, tNeighbor->get_child( 60 ) );
+                        tBasis->insert_child( 21, tNeighbor->get_child( 61 ) );
+                        tBasis->insert_child( 22, tNeighbor->get_child( 62 ) );
+                        tBasis->insert_child( 23, tNeighbor->get_child( 63 ) );
+                    }
+                }
+
+                // get neighbor 7
+                tNeighbor = tBasis->get_neighbor( 7 );
+
+                // test if neighbor 7 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  2, tNeighbor->get_child( 32 ) );
+                        tBasis->insert_child(  3, tNeighbor->get_child( 33 ) );
+                        tBasis->insert_child(  6, tNeighbor->get_child( 36 ) );
+                        tBasis->insert_child(  7, tNeighbor->get_child( 37 ) );
+                        tBasis->insert_child( 10, tNeighbor->get_child( 40 ) );
+                        tBasis->insert_child( 11, tNeighbor->get_child( 41 ) );
+                        tBasis->insert_child( 14, tNeighbor->get_child( 44 ) );
+                        tBasis->insert_child( 15, tNeighbor->get_child( 45 ) );
+                        tBasis->insert_child( 18, tNeighbor->get_child( 48 ) );
+                        tBasis->insert_child( 19, tNeighbor->get_child( 49 ) );
+                        tBasis->insert_child( 22, tNeighbor->get_child( 52 ) );
+                        tBasis->insert_child( 23, tNeighbor->get_child( 53 ) );
+                        tBasis->insert_child( 26, tNeighbor->get_child( 56 ) );
+                        tBasis->insert_child( 27, tNeighbor->get_child( 57 ) );
+                        tBasis->insert_child( 30, tNeighbor->get_child( 60 ) );
+                        tBasis->insert_child( 31, tNeighbor->get_child( 61 ) );
+                    }
+                }
+
+                // get neighbor 8
+                tNeighbor = tBasis->get_neighbor( 8 );
+
+                // test if neighbor 8 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  8, tNeighbor->get_child( 32 ) );
+                        tBasis->insert_child(  9, tNeighbor->get_child( 33 ) );
+                        tBasis->insert_child( 10, tNeighbor->get_child( 34 ) );
+                        tBasis->insert_child( 11, tNeighbor->get_child( 35 ) );
+                        tBasis->insert_child( 12, tNeighbor->get_child( 36 ) );
+                        tBasis->insert_child( 13, tNeighbor->get_child( 37 ) );
+                        tBasis->insert_child( 14, tNeighbor->get_child( 38 ) );
+                        tBasis->insert_child( 15, tNeighbor->get_child( 39 ) );
+                        tBasis->insert_child( 24, tNeighbor->get_child( 48 ) );
+                        tBasis->insert_child( 25, tNeighbor->get_child( 49 ) );
+                        tBasis->insert_child( 26, tNeighbor->get_child( 50 ) );
+                        tBasis->insert_child( 27, tNeighbor->get_child( 51 ) );
+                        tBasis->insert_child( 28, tNeighbor->get_child( 52 ) );
+                        tBasis->insert_child( 29, tNeighbor->get_child( 53 ) );
+                        tBasis->insert_child( 30, tNeighbor->get_child( 54 ) );
+                        tBasis->insert_child( 31, tNeighbor->get_child( 55 ) );
+                    }
+                }
+
+                // get neighbor 9
+                tNeighbor = tBasis->get_neighbor( 9 );
+
+                // test if neighbor 9 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  0, tNeighbor->get_child( 34 ) );
+                        tBasis->insert_child(  1, tNeighbor->get_child( 35 ) );
+                        tBasis->insert_child(  4, tNeighbor->get_child( 38 ) );
+                        tBasis->insert_child(  5, tNeighbor->get_child( 39 ) );
+                        tBasis->insert_child(  8, tNeighbor->get_child( 42 ) );
+                        tBasis->insert_child(  9, tNeighbor->get_child( 43 ) );
+                        tBasis->insert_child( 12, tNeighbor->get_child( 46 ) );
+                        tBasis->insert_child( 13, tNeighbor->get_child( 47 ) );
+                        tBasis->insert_child( 16, tNeighbor->get_child( 50 ) );
+                        tBasis->insert_child( 17, tNeighbor->get_child( 51 ) );
+                        tBasis->insert_child( 20, tNeighbor->get_child( 54 ) );
+                        tBasis->insert_child( 21, tNeighbor->get_child( 55 ) );
+                        tBasis->insert_child( 24, tNeighbor->get_child( 58 ) );
+                        tBasis->insert_child( 25, tNeighbor->get_child( 59 ) );
+                        tBasis->insert_child( 28, tNeighbor->get_child( 62 ) );
+                        tBasis->insert_child( 29, tNeighbor->get_child( 63 ) );
+                    }
+                }
+
+                // get neighbor 10
+                tNeighbor = tBasis->get_neighbor( 10 );
+
+                // test if neighbor 10 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  0, tNeighbor->get_child( 10 ) );
+                        tBasis->insert_child(  1, tNeighbor->get_child( 11 ) );
+                        tBasis->insert_child(  4, tNeighbor->get_child( 14 ) );
+                        tBasis->insert_child(  5, tNeighbor->get_child( 15 ) );
+                        tBasis->insert_child( 16, tNeighbor->get_child( 26 ) );
+                        tBasis->insert_child( 17, tNeighbor->get_child( 27 ) );
+                        tBasis->insert_child( 20, tNeighbor->get_child( 30 ) );
+                        tBasis->insert_child( 21, tNeighbor->get_child( 31 ) );
+                        tBasis->insert_child( 32, tNeighbor->get_child( 42 ) );
+                        tBasis->insert_child( 33, tNeighbor->get_child( 43 ) );
+                        tBasis->insert_child( 36, tNeighbor->get_child( 46 ) );
+                        tBasis->insert_child( 37, tNeighbor->get_child( 47 ) );
+                        tBasis->insert_child( 48, tNeighbor->get_child( 58 ) );
+                        tBasis->insert_child( 49, tNeighbor->get_child( 59 ) );
+                        tBasis->insert_child( 52, tNeighbor->get_child( 62 ) );
+                        tBasis->insert_child( 53, tNeighbor->get_child( 63 ) );
+                    }
+                }
+
+                // get neighbor 11
+                tNeighbor = tBasis->get_neighbor( 11 );
+
+                // test if neighbor 11 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  2, tNeighbor->get_child(  8 ) );
+                        tBasis->insert_child(  3, tNeighbor->get_child(  9 ) );
+                        tBasis->insert_child(  6, tNeighbor->get_child( 12 ) );
+                        tBasis->insert_child(  7, tNeighbor->get_child( 13 ) );
+                        tBasis->insert_child( 18, tNeighbor->get_child( 24 ) );
+                        tBasis->insert_child( 19, tNeighbor->get_child( 25 ) );
+                        tBasis->insert_child( 22, tNeighbor->get_child( 28 ) );
+                        tBasis->insert_child( 23, tNeighbor->get_child( 29 ) );
+                        tBasis->insert_child( 34, tNeighbor->get_child( 40 ) );
+                        tBasis->insert_child( 35, tNeighbor->get_child( 41 ) );
+                        tBasis->insert_child( 38, tNeighbor->get_child( 44 ) );
+                        tBasis->insert_child( 39, tNeighbor->get_child( 45 ) );
+                        tBasis->insert_child( 50, tNeighbor->get_child( 56 ) );
+                        tBasis->insert_child( 51, tNeighbor->get_child( 57 ) );
+                        tBasis->insert_child( 54, tNeighbor->get_child( 60 ) );
+                        tBasis->insert_child( 55, tNeighbor->get_child( 61 ) );
+                    }
+                }
+
+                // get neighbor 12
+                tNeighbor = tBasis->get_neighbor( 12 );
+
+                // test if neighbor 12 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child( 10, tNeighbor->get_child(  0 ) );
+                        tBasis->insert_child( 11, tNeighbor->get_child(  1 ) );
+                        tBasis->insert_child( 14, tNeighbor->get_child(  4 ) );
+                        tBasis->insert_child( 15, tNeighbor->get_child(  5 ) );
+                        tBasis->insert_child( 26, tNeighbor->get_child( 16 ) );
+                        tBasis->insert_child( 27, tNeighbor->get_child( 17 ) );
+                        tBasis->insert_child( 30, tNeighbor->get_child( 20 ) );
+                        tBasis->insert_child( 31, tNeighbor->get_child( 21 ) );
+                        tBasis->insert_child( 42, tNeighbor->get_child( 32 ) );
+                        tBasis->insert_child( 43, tNeighbor->get_child( 33 ) );
+                        tBasis->insert_child( 46, tNeighbor->get_child( 36 ) );
+                        tBasis->insert_child( 47, tNeighbor->get_child( 37 ) );
+                        tBasis->insert_child( 58, tNeighbor->get_child( 48 ) );
+                        tBasis->insert_child( 59, tNeighbor->get_child( 49 ) );
+                        tBasis->insert_child( 62, tNeighbor->get_child( 52 ) );
+                        tBasis->insert_child( 63, tNeighbor->get_child( 53 ) );
+                    }
+                }
+
+                // get neighbor 13
+                tNeighbor = tBasis->get_neighbor( 13 );
+
+                // test if neighbor 13 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  8, tNeighbor->get_child(  2 ) );
+                        tBasis->insert_child(  9, tNeighbor->get_child(  3 ) );
+                        tBasis->insert_child( 12, tNeighbor->get_child(  6 ) );
+                        tBasis->insert_child( 13, tNeighbor->get_child(  7 ) );
+                        tBasis->insert_child( 24, tNeighbor->get_child( 18 ) );
+                        tBasis->insert_child( 25, tNeighbor->get_child( 19 ) );
+                        tBasis->insert_child( 28, tNeighbor->get_child( 22 ) );
+                        tBasis->insert_child( 29, tNeighbor->get_child( 23 ) );
+                        tBasis->insert_child( 40, tNeighbor->get_child( 34 ) );
+                        tBasis->insert_child( 41, tNeighbor->get_child( 35 ) );
+                        tBasis->insert_child( 44, tNeighbor->get_child( 38 ) );
+                        tBasis->insert_child( 45, tNeighbor->get_child( 39 ) );
+                        tBasis->insert_child( 56, tNeighbor->get_child( 50 ) );
+                        tBasis->insert_child( 57, tNeighbor->get_child( 51 ) );
+                        tBasis->insert_child( 60, tNeighbor->get_child( 54 ) );
+                        tBasis->insert_child( 61, tNeighbor->get_child( 55 ) );
+                    }
+                }
+
+                // get neighbor 14
+                tNeighbor = tBasis->get_neighbor( 14 );
+
+                // test if neighbor 14 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child( 32, tNeighbor->get_child(  8 ) );
+                        tBasis->insert_child( 33, tNeighbor->get_child(  9 ) );
+                        tBasis->insert_child( 34, tNeighbor->get_child( 10 ) );
+                        tBasis->insert_child( 35, tNeighbor->get_child( 11 ) );
+                        tBasis->insert_child( 36, tNeighbor->get_child( 12 ) );
+                        tBasis->insert_child( 37, tNeighbor->get_child( 13 ) );
+                        tBasis->insert_child( 38, tNeighbor->get_child( 14 ) );
+                        tBasis->insert_child( 39, tNeighbor->get_child( 15 ) );
+                        tBasis->insert_child( 48, tNeighbor->get_child( 24 ) );
+                        tBasis->insert_child( 49, tNeighbor->get_child( 25 ) );
+                        tBasis->insert_child( 50, tNeighbor->get_child( 26 ) );
+                        tBasis->insert_child( 51, tNeighbor->get_child( 27 ) );
+                        tBasis->insert_child( 52, tNeighbor->get_child( 28 ) );
+                        tBasis->insert_child( 53, tNeighbor->get_child( 29 ) );
+                        tBasis->insert_child( 54, tNeighbor->get_child( 30 ) );
+                        tBasis->insert_child( 55, tNeighbor->get_child( 31 ) );
+                    }
+                }
+
+                // get neighbor 15
+                tNeighbor = tBasis->get_neighbor( 15 );
+
+                // test if neighbor 15 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child( 34, tNeighbor->get_child(  0 ) );
+                        tBasis->insert_child( 35, tNeighbor->get_child(  1 ) );
+                        tBasis->insert_child( 38, tNeighbor->get_child(  4 ) );
+                        tBasis->insert_child( 39, tNeighbor->get_child(  5 ) );
+                        tBasis->insert_child( 42, tNeighbor->get_child(  8 ) );
+                        tBasis->insert_child( 43, tNeighbor->get_child(  9 ) );
+                        tBasis->insert_child( 46, tNeighbor->get_child( 12 ) );
+                        tBasis->insert_child( 47, tNeighbor->get_child( 13 ) );
+                        tBasis->insert_child( 50, tNeighbor->get_child( 16 ) );
+                        tBasis->insert_child( 51, tNeighbor->get_child( 17 ) );
+                        tBasis->insert_child( 54, tNeighbor->get_child( 20 ) );
+                        tBasis->insert_child( 55, tNeighbor->get_child( 21 ) );
+                        tBasis->insert_child( 58, tNeighbor->get_child( 24 ) );
+                        tBasis->insert_child( 59, tNeighbor->get_child( 25 ) );
+                        tBasis->insert_child( 62, tNeighbor->get_child( 28 ) );
+                        tBasis->insert_child( 63, tNeighbor->get_child( 29 ) );
+                    }
+                }
+
+                // get neighbor 16
+                tNeighbor = tBasis->get_neighbor( 16 );
+
+                // test if neighbor 16 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child( 40, tNeighbor->get_child(  0 ) );
+                        tBasis->insert_child( 41, tNeighbor->get_child(  1 ) );
+                        tBasis->insert_child( 42, tNeighbor->get_child(  2 ) );
+                        tBasis->insert_child( 43, tNeighbor->get_child(  3 ) );
+                        tBasis->insert_child( 44, tNeighbor->get_child(  4 ) );
+                        tBasis->insert_child( 45, tNeighbor->get_child(  5 ) );
+                        tBasis->insert_child( 46, tNeighbor->get_child(  6 ) );
+                        tBasis->insert_child( 47, tNeighbor->get_child(  7 ) );
+                        tBasis->insert_child( 56, tNeighbor->get_child( 16 ) );
+                        tBasis->insert_child( 57, tNeighbor->get_child( 17 ) );
+                        tBasis->insert_child( 58, tNeighbor->get_child( 18 ) );
+                        tBasis->insert_child( 59, tNeighbor->get_child( 19 ) );
+                        tBasis->insert_child( 60, tNeighbor->get_child( 20 ) );
+                        tBasis->insert_child( 61, tNeighbor->get_child( 21 ) );
+                        tBasis->insert_child( 62, tNeighbor->get_child( 22 ) );
+                        tBasis->insert_child( 63, tNeighbor->get_child( 23 ) );
+                    }
+                }
+
+                // get neighbor 17
+                tNeighbor = tBasis->get_neighbor( 17 );
+
+                // test if neighbor 17 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child( 32, tNeighbor->get_child(  2 ) );
+                        tBasis->insert_child( 33, tNeighbor->get_child(  3 ) );
+                        tBasis->insert_child( 36, tNeighbor->get_child(  6 ) );
+                        tBasis->insert_child( 37, tNeighbor->get_child(  7 ) );
+                        tBasis->insert_child( 40, tNeighbor->get_child( 10 ) );
+                        tBasis->insert_child( 41, tNeighbor->get_child( 11 ) );
+                        tBasis->insert_child( 44, tNeighbor->get_child( 14 ) );
+                        tBasis->insert_child( 45, tNeighbor->get_child( 15 ) );
+                        tBasis->insert_child( 48, tNeighbor->get_child( 18 ) );
+                        tBasis->insert_child( 49, tNeighbor->get_child( 19 ) );
+                        tBasis->insert_child( 52, tNeighbor->get_child( 22 ) );
+                        tBasis->insert_child( 53, tNeighbor->get_child( 23 ) );
+                        tBasis->insert_child( 56, tNeighbor->get_child( 26 ) );
+                        tBasis->insert_child( 57, tNeighbor->get_child( 27 ) );
+                        tBasis->insert_child( 60, tNeighbor->get_child( 30 ) );
+                        tBasis->insert_child( 61, tNeighbor->get_child( 31 ) );
+                    }
+                }
+
+                // get neighbor 18
+                tNeighbor = tBasis->get_neighbor( 18 );
+
+                // test if neighbor 18 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  0, tNeighbor->get_child( 42 ) );
+                        tBasis->insert_child(  1, tNeighbor->get_child( 43 ) );
+                        tBasis->insert_child(  4, tNeighbor->get_child( 46 ) );
+                        tBasis->insert_child(  5, tNeighbor->get_child( 47 ) );
+                        tBasis->insert_child( 16, tNeighbor->get_child( 58 ) );
+                        tBasis->insert_child( 17, tNeighbor->get_child( 59 ) );
+                        tBasis->insert_child( 20, tNeighbor->get_child( 62 ) );
+                        tBasis->insert_child( 21, tNeighbor->get_child( 63 ) );
+                    }
+                }
+
+                // get neighbor 19
+                tNeighbor = tBasis->get_neighbor( 19 );
+
+                // test if neighbor 19 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  2, tNeighbor->get_child( 40 ) );
+                        tBasis->insert_child(  3, tNeighbor->get_child( 41 ) );
+                        tBasis->insert_child(  6, tNeighbor->get_child( 44 ) );
+                        tBasis->insert_child(  7, tNeighbor->get_child( 45 ) );
+                        tBasis->insert_child( 18, tNeighbor->get_child( 56 ) );
+                        tBasis->insert_child( 19, tNeighbor->get_child( 57 ) );
+                        tBasis->insert_child( 22, tNeighbor->get_child( 60 ) );
+                        tBasis->insert_child( 23, tNeighbor->get_child( 61 ) );
+                    }
+                }
+
+                // get neighbor 20
+                tNeighbor = tBasis->get_neighbor( 20 );
+
+                // test if neighbor 20 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child( 10, tNeighbor->get_child( 32 ) );
+                        tBasis->insert_child( 11, tNeighbor->get_child( 33 ) );
+                        tBasis->insert_child( 14, tNeighbor->get_child( 36 ) );
+                        tBasis->insert_child( 15, tNeighbor->get_child( 37 ) );
+                        tBasis->insert_child( 26, tNeighbor->get_child( 48 ) );
+                        tBasis->insert_child( 27, tNeighbor->get_child( 49 ) );
+                        tBasis->insert_child( 30, tNeighbor->get_child( 52 ) );
+                        tBasis->insert_child( 31, tNeighbor->get_child( 53 ) );
+                    }
+                }
+
+                // get neighbor 21
+                tNeighbor = tBasis->get_neighbor( 21 );
+
+                // test if neighbor 21 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child(  8, tNeighbor->get_child( 34 ) );
+                        tBasis->insert_child(  9, tNeighbor->get_child( 35 ) );
+                        tBasis->insert_child( 12, tNeighbor->get_child( 38 ) );
+                        tBasis->insert_child( 13, tNeighbor->get_child( 39 ) );
+                        tBasis->insert_child( 24, tNeighbor->get_child( 50 ) );
+                        tBasis->insert_child( 25, tNeighbor->get_child( 51 ) );
+                        tBasis->insert_child( 28, tNeighbor->get_child( 54 ) );
+                        tBasis->insert_child( 29, tNeighbor->get_child( 55 ) );
+                    }
+                }
+
+                // get neighbor 22
+                tNeighbor = tBasis->get_neighbor( 22 );
+
+                // test if neighbor 22 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child( 32, tNeighbor->get_child( 10 ) );
+                        tBasis->insert_child( 33, tNeighbor->get_child( 11 ) );
+                        tBasis->insert_child( 36, tNeighbor->get_child( 14 ) );
+                        tBasis->insert_child( 37, tNeighbor->get_child( 15 ) );
+                        tBasis->insert_child( 48, tNeighbor->get_child( 26 ) );
+                        tBasis->insert_child( 49, tNeighbor->get_child( 27 ) );
+                        tBasis->insert_child( 52, tNeighbor->get_child( 30 ) );
+                        tBasis->insert_child( 53, tNeighbor->get_child( 31 ) );
+                    }
+                }
+
+                // get neighbor 23
+                tNeighbor = tBasis->get_neighbor( 23 );
+
+                // test if neighbor 23 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child( 34, tNeighbor->get_child(  8 ) );
+                        tBasis->insert_child( 35, tNeighbor->get_child(  9 ) );
+                        tBasis->insert_child( 38, tNeighbor->get_child( 12 ) );
+                        tBasis->insert_child( 39, tNeighbor->get_child( 13 ) );
+                        tBasis->insert_child( 50, tNeighbor->get_child( 24 ) );
+                        tBasis->insert_child( 51, tNeighbor->get_child( 25 ) );
+                        tBasis->insert_child( 54, tNeighbor->get_child( 28 ) );
+                        tBasis->insert_child( 55, tNeighbor->get_child( 29 ) );
+                    }
+                }
+
+                // get neighbor 24
+                tNeighbor = tBasis->get_neighbor( 24 );
+
+                // test if neighbor 24 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child( 42, tNeighbor->get_child(  0 ) );
+                        tBasis->insert_child( 43, tNeighbor->get_child(  1 ) );
+                        tBasis->insert_child( 46, tNeighbor->get_child(  4 ) );
+                        tBasis->insert_child( 47, tNeighbor->get_child(  5 ) );
+                        tBasis->insert_child( 58, tNeighbor->get_child( 16 ) );
+                        tBasis->insert_child( 59, tNeighbor->get_child( 17 ) );
+                        tBasis->insert_child( 62, tNeighbor->get_child( 20 ) );
+                        tBasis->insert_child( 63, tNeighbor->get_child( 21 ) );
+                    }
+                }
+
+                // get neighbor 25
+                tNeighbor = tBasis->get_neighbor( 25 );
+
+                // test if neighbor 25 exists
+                if ( tNeighbor != nullptr )
+                {
+                    // test if neighbor has children
+                    if ( tNeighbor->has_children() )
+                    {
+                        // copy children of neighbor
+                        tBasis->insert_child( 40, tNeighbor->get_child(  2 ) );
+                        tBasis->insert_child( 41, tNeighbor->get_child(  3 ) );
+                        tBasis->insert_child( 44, tNeighbor->get_child(  6 ) );
+                        tBasis->insert_child( 45, tNeighbor->get_child(  7 ) );
+                        tBasis->insert_child( 56, tNeighbor->get_child( 18 ) );
+                        tBasis->insert_child( 57, tNeighbor->get_child( 19 ) );
+                        tBasis->insert_child( 60, tNeighbor->get_child( 22 ) );
+                        tBasis->insert_child( 61, tNeighbor->get_child( 23 ) );
+                    }
+                }
+
+                // level of child basis
+                uint tLevel = tBasis->get_level() + 1;
+
+                // position of basis
+                const luint* tParentIJK  = tBasis->get_ijk();
+
+                // minumum i-position
+                luint tIMin = 2*tParentIJK[ 0 ];
+
+                // minumum j-position
+                luint tJMin = 2*tParentIJK[ 1 ];
+
+                // minumum k-position
+                luint tKMin = 2*tParentIJK[ 2 ];
+
+                // maximum i-position
+                luint tIMax = tIMin + 4;
+
+                // maximum j-position
+                luint tJMax = tJMin + 4;
+
+                // maximum K-position
+                luint tKMax = tKMin + 4;
+
+                // initialize counter
+                uint tChildIndex = 0;
+
+                // loop over all positions
+                for( luint k=tKMin; k<tKMax; ++k )
+                {
+                    for( luint j=tJMin; j<tJMax; ++j )
+                    {
+                        for( luint i=tIMin; i<tIMax; ++i )
+                        {
+                            // test if child does not exist
+                            if( tBasis->get_child( tChildIndex ) == nullptr )
+                            {
+                                 // calculate i-j-k position of child
+                                 luint tIJK[ 3 ] = { i, j, k };
+
+                                 // create child
+                                 tBasis->insert_child( tChildIndex,
+                                     new BSpline< 3, 64, 26 >( tIJK, tLevel, gNoProcOwner ) );
+
+                                // increment basis counter
+                                tBasisCounter++;
+                            }
+
+                            // increment child index
+                            tChildIndex++;
+                        }
+                    }
+                }
             }
         }
+        
+        // Return basis counter
+        return tBasisCounter;
     }
 
 // ----------------------------------------------------------------------------
 
     /**
-    * Refines a B-Spline element
-    *
-    * @param[inout] aAllElementsOnProc   cell containing all B-Spline
-    *                                    elements including the aura
-    * @param[inout] aBasisCounter        counter to keep track of generated basis
-    *
-    * @return void
-    */
+     * Refines this element.
+     *
+     * @param aAllElementsOnProc Cell containing all B-spline elements including the aura
+     * @return Number of created bases
+     */
     template<>
-    void
-    BSpline_Element< 3, 27 >::refine( moris::Cell< Element* > & aAllElementsOnProc, luint & aBasisCounter )
+    luint BSpline_Element< 3, 27 >::refine( moris::Cell< Element* > & aAllElementsOnProc )
     {
+        // Start basis counter
+        luint tBasisCounter = 0;
+
         // refine basis if they have not been refined already
         for( uint k=0; k<27; ++k )
         {
-            this->refine_basis( k, aBasisCounter );
+            tBasisCounter += this->refine_basis( k );
         }
 
         // initialize temporary basis pattern
@@ -5310,6 +5312,9 @@ namespace moris::hmr
 
         // set basis flag of element
         mChildrenBasisFlag = true;
+
+        // Return basis counter
+        return tBasisCounter;
     }
 
 // ----------------------------------------------------------------------------

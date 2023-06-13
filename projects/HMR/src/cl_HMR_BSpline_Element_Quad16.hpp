@@ -664,17 +664,17 @@ namespace moris::hmr
 // ----------------------------------------------------------------------------
 
     /**
-    * Refines the basis of an element
-    *
-    * @param[inout] aBasisNumber         local index of basis that is to be refined
-    * @param[inout] aBasisCounter        counter to keep track of generated basis
-    *
-    * @return void
-    */
+     * Refines a basis of this element
+     *
+     * @param aBasisNumber Index of the basis to refine
+     * @return Number of created bases
+     */
     template<>
-    void
-    BSpline_Element< 2, 16 >::refine_basis( uint aBasisNumber, luint & aBasisCounter )
+    luint BSpline_Element< 2, 16 >::refine_basis( uint aBasisNumber )
     {
+        // Start basis counter
+        luint tBasisCounter = 0;
+        
         // get pointer to basis
         Basis* tBasis = mBasis[ aBasisNumber ];
 
@@ -1147,7 +1147,7 @@ namespace moris::hmr
                luint tJMax = tJMin + 5;
 
                // initialize counter
-               uint tCount = 0;
+               uint tChildIndex = 0;
 
                // loop over all positions
                for( luint j=tJMin; j<tJMax; ++j )
@@ -1155,10 +1155,10 @@ namespace moris::hmr
                    for( luint i=tIMin; i<tIMax; ++i )
                    {
                        // test if child exists
-                       if( tChildren[ tCount ] != nullptr )
+                       if( tChildren[ tChildIndex ] != nullptr )
                        {
                            // insert child
-                           tBasis->insert_child( tCount, tChildren[ tCount ] );
+                           tBasis->insert_child( tChildIndex, tChildren[ tChildIndex ] );
                        }
                        else
                        {
@@ -1166,40 +1166,42 @@ namespace moris::hmr
                            luint tIJ[ 2 ] = { i, j };
 
                            // create child
-                           tBasis->insert_child( tCount,
+                           tBasis->insert_child( tChildIndex,
                                new BSpline< 2, 25, 24 >( tIJ, tLevel, gNoProcOwner ) );
 
                            // increment basis counter
-                           ++aBasisCounter;
+                           tBasisCounter++;
                        }
 
-                       // increment child counter
-                       ++tCount;
+                       // increment child index
+                       tChildIndex++;
                    }
                }
             }
         }
+        
+        // Return basis counter
+        return tBasisCounter;
     }
 
 // ----------------------------------------------------------------------------
 
     /**
-    * Refines a B-Spline element
-    *
-    * @param[inout] aAllElementsOnProc   cell containing all B-Spline
-    *                                    elements including the aura
-    * @param[inout] aBasisCounter        counter to keep track of generated basis
-    *
-    * @return void
-    */
+     * Refines this element.
+     *
+     * @param aAllElementsOnProc Cell containing all B-spline elements including the aura
+     * @return Number of created bases
+     */
     template<>
-    void
-    BSpline_Element< 2, 16 >::refine( moris::Cell< Element* > & aAllElementsOnProc, luint & aBasisCounter )
+    luint BSpline_Element< 2, 16 >::refine( moris::Cell< Element* > & aAllElementsOnProc )
     {
+        // Start basis counter
+        luint tBasisCounter = 0;
+        
         // refine basis if they have not been refined already
         for( uint k=0; k<16; ++k )
         {
-            this->refine_basis( k, aBasisCounter );
+            tBasisCounter += this->refine_basis( k );
         }
 
         // initialize temporary basis pattern
@@ -1931,6 +1933,9 @@ namespace moris::hmr
 
         // set basis flag of element
         mChildrenBasisFlag = true;
+        
+        // Return basis counter
+        return tBasisCounter;
     }
 
 // ----------------------------------------------------------------------------

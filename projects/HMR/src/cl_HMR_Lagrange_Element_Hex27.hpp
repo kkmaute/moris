@@ -408,109 +408,110 @@ namespace moris::hmr
 // ----------------------------------------------------------------------------
 
     /**
-    * Creates all nodes on the coarsest level.
-    * Called by Lagrange mesh create_nodes_on_level_zero().
-    *
-    * @param[inout] aAllElementsOnProc   cell containing all Lagrange
-    *                                    elements including the aura
-    * @param[inout] aBasisCounter         counter to keep track of
-    *                                    how many nodes were generated
-    * @return void
-    */
+     * Creates all bases on the coarsest level.
+     *
+     * @param aAllElementsOnProc Cell containing all elements including the aura
+     * @return Number of created bases
+     */
     template<>
     inline
-    void Lagrange_Element< 3, 27 >::create_basis_on_level_zero( moris::Cell< Element * > & aAllElementsOnProc,
-                                                                luint                    & aBasisCounter )
+    luint Lagrange_Element< 3, 27 >::create_basis_on_level_zero( 
+                    moris::Cell< Element * > & aAllElementsOnProc )
     {
-         // initialize container for nodes
-         this->init_basis_container();
+        // Start basis counter
+        luint tBasisCounter = 0;
+        
+        // initialize container for nodes
+        this->init_basis_container();
 
-         // get pointer to neighbor 4
-         Element* tNeighbor = this->get_neighbor( aAllElementsOnProc, 4 );
+        // get pointer to neighbor 4
+        Element* tNeighbor = this->get_neighbor( aAllElementsOnProc, 4 );
 
-         // test if neighbor 4 exists
-         if ( tNeighbor != nullptr )
-         {
-             // copy nodes from this neighbor
-             mNodes[  0 ] = tNeighbor->get_basis(  4 );
-             mNodes[  1 ] = tNeighbor->get_basis(  5 );
-             mNodes[  2 ] = tNeighbor->get_basis(  6 );
-             mNodes[  3 ] = tNeighbor->get_basis(  7 );
-             mNodes[  8 ] = tNeighbor->get_basis( 16 );
-             mNodes[  9 ] = tNeighbor->get_basis( 17 );
-             mNodes[ 10 ] = tNeighbor->get_basis( 18 );
-             mNodes[ 11 ] = tNeighbor->get_basis( 19 );
-             mNodes[ 21 ] = tNeighbor->get_basis( 22 );
-         }
+        // test if neighbor 4 exists
+        if ( tNeighbor != nullptr )
+        {
+            // copy nodes from this neighbor
+            mNodes[  0 ] = tNeighbor->get_basis(  4 );
+            mNodes[  1 ] = tNeighbor->get_basis(  5 );
+            mNodes[  2 ] = tNeighbor->get_basis(  6 );
+            mNodes[  3 ] = tNeighbor->get_basis(  7 );
+            mNodes[  8 ] = tNeighbor->get_basis( 16 );
+            mNodes[  9 ] = tNeighbor->get_basis( 17 );
+            mNodes[ 10 ] = tNeighbor->get_basis( 18 );
+            mNodes[ 11 ] = tNeighbor->get_basis( 19 );
+            mNodes[ 21 ] = tNeighbor->get_basis( 22 );
+        }
 
-         // get pointer to neighbor 0
-         tNeighbor = this->get_neighbor( aAllElementsOnProc, 0 );
+        // get pointer to neighbor 0
+        tNeighbor = this->get_neighbor( aAllElementsOnProc, 0 );
 
-         // test if neighbor 0 exists
-         if ( tNeighbor != nullptr )
-         {
-             // copy nodes from this neighbor
-             mNodes[  0 ] = tNeighbor->get_basis(  3 );
-             mNodes[  1 ] = tNeighbor->get_basis(  2 );
-             mNodes[  4 ] = tNeighbor->get_basis(  7 );
-             mNodes[  5 ] = tNeighbor->get_basis(  6 );
-             mNodes[  8 ] = tNeighbor->get_basis( 10 );
-             mNodes[ 12 ] = tNeighbor->get_basis( 15 );
-             mNodes[ 13 ] = tNeighbor->get_basis( 14 );
-             mNodes[ 16 ] = tNeighbor->get_basis( 18 );
-             mNodes[ 25 ] = tNeighbor->get_basis( 26 );
-         }
+        // test if neighbor 0 exists
+        if ( tNeighbor != nullptr )
+        {
+            // copy nodes from this neighbor
+            mNodes[  0 ] = tNeighbor->get_basis(  3 );
+            mNodes[  1 ] = tNeighbor->get_basis(  2 );
+            mNodes[  4 ] = tNeighbor->get_basis(  7 );
+            mNodes[  5 ] = tNeighbor->get_basis(  6 );
+            mNodes[  8 ] = tNeighbor->get_basis( 10 );
+            mNodes[ 12 ] = tNeighbor->get_basis( 15 );
+            mNodes[ 13 ] = tNeighbor->get_basis( 14 );
+            mNodes[ 16 ] = tNeighbor->get_basis( 18 );
+            mNodes[ 25 ] = tNeighbor->get_basis( 26 );
+        }
 
-         // get pointer to neighbor 3
-         tNeighbor = this->get_neighbor( aAllElementsOnProc, 3 );
+        // get pointer to neighbor 3
+        tNeighbor = this->get_neighbor( aAllElementsOnProc, 3 );
 
-         // test if neighbor 3 exists
-         if ( tNeighbor != nullptr )
-         {
-             // copy nodes from this neighbor
-             mNodes[  0 ] = tNeighbor->get_basis(  1 );
-             mNodes[  3 ] = tNeighbor->get_basis(  2 );
-             mNodes[  4 ] = tNeighbor->get_basis(  5 );
-             mNodes[  7 ] = tNeighbor->get_basis(  6 );
-             mNodes[ 11 ] = tNeighbor->get_basis(  9 );
-             mNodes[ 12 ] = tNeighbor->get_basis( 13 );
-             mNodes[ 15 ] = tNeighbor->get_basis( 14 );
-             mNodes[ 19 ] = tNeighbor->get_basis( 17 );
-             mNodes[ 23 ] = tNeighbor->get_basis( 24 );
-         }
+        // test if neighbor 3 exists
+        if ( tNeighbor != nullptr )
+        {
+            // copy nodes from this neighbor
+            mNodes[  0 ] = tNeighbor->get_basis(  1 );
+            mNodes[  3 ] = tNeighbor->get_basis(  2 );
+            mNodes[  4 ] = tNeighbor->get_basis(  5 );
+            mNodes[  7 ] = tNeighbor->get_basis(  6 );
+            mNodes[ 11 ] = tNeighbor->get_basis(  9 );
+            mNodes[ 12 ] = tNeighbor->get_basis( 13 );
+            mNodes[ 15 ] = tNeighbor->get_basis( 14 );
+            mNodes[ 19 ] = tNeighbor->get_basis( 17 );
+            mNodes[ 23 ] = tNeighbor->get_basis( 24 );
+        }
 
-         // loop over all nodes
-         for( uint k=0; k<27; ++k )
-         {
-             // test if node exists
-             if( mNodes[ k ] == nullptr )
-             {
-                 // create node
-                 this->create_basis( k );
+        // loop over all nodes
+        for( uint k=0; k<27; ++k )
+        {
+            // test if node exists
+            if( mNodes[ k ] == nullptr )
+            {
+                // create node
+                this->create_basis( k );
 
-                 // increment node counter
-                 ++aBasisCounter;
-             }
-         }
+                // increment node counter
+                tBasisCounter++;
+            }
+        }
+
+        // Return basis counter
+        return tBasisCounter;
     }
 
 // ----------------------------------------------------------------------------
 
     /**
-    * Creates nodes for children of refined elements.
-    * Called by Lagrange mesh create_nodes_on_higher_levels().
-    *
-    * @param[inout] aAllElementsOnProc   cell containing all Lagrange
-    *                                    elements including the aura
-    * @param[inout] aNodeCounter         counter to keep track of
-    *                                    how many nodes were generated
-    * @return void
-    */
+     * Creates bases for children of refined elements.
+     *
+     * @param aAllElementsOnProc Cell containing all elements including the aura
+     * @return Number of created bases
+     */
     template<>
     inline
-    void Lagrange_Element< 3, 27 >::create_basis_for_children( moris::Cell< Element * > & aAllElementsOnProc,
-                                                               luint                    & aBasisCounter )
+    luint Lagrange_Element< 3, 27 >::create_basis_for_children(
+            moris::Cell< Element * > & aAllElementsOnProc )
     {
+        // Start basis counter
+        luint tBasisCounter = 0;
+
         // create temporary array containing all nodes
         Basis* tNodes[ 125 ] = { nullptr };
 
@@ -1382,7 +1383,7 @@ namespace moris::hmr
              tNodes[ 1 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 3 exists
@@ -1397,7 +1398,7 @@ namespace moris::hmr
              tNodes[ 3 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 5 exists
@@ -1412,7 +1413,7 @@ namespace moris::hmr
              tNodes[ 5 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 6 exists
@@ -1427,7 +1428,7 @@ namespace moris::hmr
              tNodes[ 6 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 7 exists
@@ -1442,7 +1443,7 @@ namespace moris::hmr
              tNodes[ 7 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 8 exists
@@ -1457,7 +1458,7 @@ namespace moris::hmr
              tNodes[ 8 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 9 exists
@@ -1472,7 +1473,7 @@ namespace moris::hmr
              tNodes[ 9 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 11 exists
@@ -1487,7 +1488,7 @@ namespace moris::hmr
              tNodes[ 11 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 13 exists
@@ -1502,7 +1503,7 @@ namespace moris::hmr
              tNodes[ 13 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 15 exists
@@ -1517,7 +1518,7 @@ namespace moris::hmr
              tNodes[ 15 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 16 exists
@@ -1532,7 +1533,7 @@ namespace moris::hmr
              tNodes[ 16 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 17 exists
@@ -1547,7 +1548,7 @@ namespace moris::hmr
              tNodes[ 17 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 18 exists
@@ -1562,7 +1563,7 @@ namespace moris::hmr
              tNodes[ 18 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 19 exists
@@ -1577,7 +1578,7 @@ namespace moris::hmr
              tNodes[ 19 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 21 exists
@@ -1592,7 +1593,7 @@ namespace moris::hmr
              tNodes[ 21 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 23 exists
@@ -1607,7 +1608,7 @@ namespace moris::hmr
              tNodes[ 23 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 25 exists
@@ -1622,7 +1623,7 @@ namespace moris::hmr
              tNodes[ 25 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 26 exists
@@ -1637,7 +1638,7 @@ namespace moris::hmr
              tNodes[ 26 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 27 exists
@@ -1652,7 +1653,7 @@ namespace moris::hmr
              tNodes[ 27 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 28 exists
@@ -1667,7 +1668,7 @@ namespace moris::hmr
              tNodes[ 28 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 29 exists
@@ -1682,7 +1683,7 @@ namespace moris::hmr
              tNodes[ 29 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 30 exists
@@ -1697,7 +1698,7 @@ namespace moris::hmr
              tNodes[ 30 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
          // calculate position of node 31
@@ -1709,7 +1710,7 @@ namespace moris::hmr
          tNodes[ 31 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
          // calculate position of node 32
          tIJK[ 0 ] = tAnchor[ 0 ] + 2;
@@ -1720,7 +1721,7 @@ namespace moris::hmr
          tNodes[ 32 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
          // calculate position of node 33
          tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -1731,7 +1732,7 @@ namespace moris::hmr
          tNodes[ 33 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
         // test if node 34 exists
         if ( tNodes[ 34 ] == nullptr )
@@ -1745,7 +1746,7 @@ namespace moris::hmr
              tNodes[ 34 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 35 exists
@@ -1760,7 +1761,7 @@ namespace moris::hmr
              tNodes[ 35 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
          // calculate position of node 36
@@ -1772,7 +1773,7 @@ namespace moris::hmr
          tNodes[ 36 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
          // calculate position of node 37
          tIJK[ 0 ] = tAnchor[ 0 ] + 2;
@@ -1783,7 +1784,7 @@ namespace moris::hmr
          tNodes[ 37 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
          // calculate position of node 38
          tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -1794,7 +1795,7 @@ namespace moris::hmr
          tNodes[ 38 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
         // test if node 39 exists
         if ( tNodes[ 39 ] == nullptr )
@@ -1808,7 +1809,7 @@ namespace moris::hmr
              tNodes[ 39 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 40 exists
@@ -1823,7 +1824,7 @@ namespace moris::hmr
              tNodes[ 40 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
          // calculate position of node 41
@@ -1835,7 +1836,7 @@ namespace moris::hmr
          tNodes[ 41 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
          // calculate position of node 42
          tIJK[ 0 ] = tAnchor[ 0 ] + 2;
@@ -1846,7 +1847,7 @@ namespace moris::hmr
          tNodes[ 42 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
          // calculate position of node 43
          tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -1857,7 +1858,7 @@ namespace moris::hmr
          tNodes[ 43 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
         // test if node 44 exists
         if ( tNodes[ 44 ] == nullptr )
@@ -1871,7 +1872,7 @@ namespace moris::hmr
              tNodes[ 44 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 45 exists
@@ -1886,7 +1887,7 @@ namespace moris::hmr
              tNodes[ 45 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 46 exists
@@ -1901,7 +1902,7 @@ namespace moris::hmr
              tNodes[ 46 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 47 exists
@@ -1916,7 +1917,7 @@ namespace moris::hmr
              tNodes[ 47 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 48 exists
@@ -1931,7 +1932,7 @@ namespace moris::hmr
              tNodes[ 48 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 49 exists
@@ -1946,7 +1947,7 @@ namespace moris::hmr
              tNodes[ 49 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 51 exists
@@ -1961,7 +1962,7 @@ namespace moris::hmr
              tNodes[ 51 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 53 exists
@@ -1976,7 +1977,7 @@ namespace moris::hmr
              tNodes[ 53 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 55 exists
@@ -1991,7 +1992,7 @@ namespace moris::hmr
              tNodes[ 55 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
          // calculate position of node 56
@@ -2003,7 +2004,7 @@ namespace moris::hmr
          tNodes[ 56 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
          // calculate position of node 57
          tIJK[ 0 ] = tAnchor[ 0 ] + 2;
@@ -2014,7 +2015,7 @@ namespace moris::hmr
          tNodes[ 57 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
          // calculate position of node 58
          tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -2025,7 +2026,7 @@ namespace moris::hmr
          tNodes[ 58 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
         // test if node 59 exists
         if ( tNodes[ 59 ] == nullptr )
@@ -2039,7 +2040,7 @@ namespace moris::hmr
              tNodes[ 59 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
          // calculate position of node 61
@@ -2051,7 +2052,7 @@ namespace moris::hmr
          tNodes[ 61 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
          // calculate position of node 63
          tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -2062,7 +2063,7 @@ namespace moris::hmr
          tNodes[ 63 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
         // test if node 65 exists
         if ( tNodes[ 65 ] == nullptr )
@@ -2076,7 +2077,7 @@ namespace moris::hmr
              tNodes[ 65 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
          // calculate position of node 66
@@ -2088,7 +2089,7 @@ namespace moris::hmr
          tNodes[ 66 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
          // calculate position of node 67
          tIJK[ 0 ] = tAnchor[ 0 ] + 2;
@@ -2099,7 +2100,7 @@ namespace moris::hmr
          tNodes[ 67 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
          // calculate position of node 68
          tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -2110,7 +2111,7 @@ namespace moris::hmr
          tNodes[ 68 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
         // test if node 69 exists
         if ( tNodes[ 69 ] == nullptr )
@@ -2124,7 +2125,7 @@ namespace moris::hmr
              tNodes[ 69 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 71 exists
@@ -2139,7 +2140,7 @@ namespace moris::hmr
              tNodes[ 71 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 73 exists
@@ -2154,7 +2155,7 @@ namespace moris::hmr
              tNodes[ 73 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 75 exists
@@ -2169,7 +2170,7 @@ namespace moris::hmr
              tNodes[ 75 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 76 exists
@@ -2184,7 +2185,7 @@ namespace moris::hmr
              tNodes[ 76 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 77 exists
@@ -2199,7 +2200,7 @@ namespace moris::hmr
              tNodes[ 77 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 78 exists
@@ -2214,7 +2215,7 @@ namespace moris::hmr
              tNodes[ 78 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 79 exists
@@ -2229,7 +2230,7 @@ namespace moris::hmr
              tNodes[ 79 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 80 exists
@@ -2244,7 +2245,7 @@ namespace moris::hmr
              tNodes[ 80 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
          // calculate position of node 81
@@ -2256,7 +2257,7 @@ namespace moris::hmr
          tNodes[ 81 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
          // calculate position of node 82
          tIJK[ 0 ] = tAnchor[ 0 ] + 2;
@@ -2267,7 +2268,7 @@ namespace moris::hmr
          tNodes[ 82 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
          // calculate position of node 83
          tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -2278,7 +2279,7 @@ namespace moris::hmr
          tNodes[ 83 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
         // test if node 84 exists
         if ( tNodes[ 84 ] == nullptr )
@@ -2292,7 +2293,7 @@ namespace moris::hmr
              tNodes[ 84 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 85 exists
@@ -2307,7 +2308,7 @@ namespace moris::hmr
              tNodes[ 85 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
          // calculate position of node 86
@@ -2319,7 +2320,7 @@ namespace moris::hmr
          tNodes[ 86 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
          // calculate position of node 87
          tIJK[ 0 ] = tAnchor[ 0 ] + 2;
@@ -2330,7 +2331,7 @@ namespace moris::hmr
          tNodes[ 87 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
          // calculate position of node 88
          tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -2341,7 +2342,7 @@ namespace moris::hmr
          tNodes[ 88 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
         // test if node 89 exists
         if ( tNodes[ 89 ] == nullptr )
@@ -2355,7 +2356,7 @@ namespace moris::hmr
              tNodes[ 89 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 90 exists
@@ -2370,7 +2371,7 @@ namespace moris::hmr
              tNodes[ 90 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
          // calculate position of node 91
@@ -2382,7 +2383,7 @@ namespace moris::hmr
          tNodes[ 91 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
          // calculate position of node 92
          tIJK[ 0 ] = tAnchor[ 0 ] + 2;
@@ -2393,7 +2394,7 @@ namespace moris::hmr
          tNodes[ 92 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
          // calculate position of node 93
          tIJK[ 0 ] = tAnchor[ 0 ] + 3;
@@ -2404,7 +2405,7 @@ namespace moris::hmr
          tNodes[ 93 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
          // increment node counter
-         ++aBasisCounter;
+         tBasisCounter++;
 
         // test if node 94 exists
         if ( tNodes[ 94 ] == nullptr )
@@ -2418,7 +2419,7 @@ namespace moris::hmr
              tNodes[ 94 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 95 exists
@@ -2433,7 +2434,7 @@ namespace moris::hmr
              tNodes[ 95 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 96 exists
@@ -2448,7 +2449,7 @@ namespace moris::hmr
              tNodes[ 96 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 97 exists
@@ -2463,7 +2464,7 @@ namespace moris::hmr
              tNodes[ 97 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 98 exists
@@ -2478,7 +2479,7 @@ namespace moris::hmr
              tNodes[ 98 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 99 exists
@@ -2493,7 +2494,7 @@ namespace moris::hmr
              tNodes[ 99 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 101 exists
@@ -2508,7 +2509,7 @@ namespace moris::hmr
              tNodes[ 101 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 103 exists
@@ -2523,7 +2524,7 @@ namespace moris::hmr
              tNodes[ 103 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 105 exists
@@ -2538,7 +2539,7 @@ namespace moris::hmr
              tNodes[ 105 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 106 exists
@@ -2553,7 +2554,7 @@ namespace moris::hmr
              tNodes[ 106 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 107 exists
@@ -2568,7 +2569,7 @@ namespace moris::hmr
              tNodes[ 107 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 108 exists
@@ -2583,7 +2584,7 @@ namespace moris::hmr
              tNodes[ 108 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 109 exists
@@ -2598,7 +2599,7 @@ namespace moris::hmr
              tNodes[ 109 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 111 exists
@@ -2613,7 +2614,7 @@ namespace moris::hmr
              tNodes[ 111 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 113 exists
@@ -2628,7 +2629,7 @@ namespace moris::hmr
              tNodes[ 113 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 115 exists
@@ -2643,7 +2644,7 @@ namespace moris::hmr
              tNodes[ 115 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 116 exists
@@ -2658,7 +2659,7 @@ namespace moris::hmr
              tNodes[ 116 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 117 exists
@@ -2673,7 +2674,7 @@ namespace moris::hmr
              tNodes[ 117 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 118 exists
@@ -2688,7 +2689,7 @@ namespace moris::hmr
              tNodes[ 118 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 119 exists
@@ -2703,7 +2704,7 @@ namespace moris::hmr
              tNodes[ 119 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 121 exists
@@ -2718,7 +2719,7 @@ namespace moris::hmr
              tNodes[ 121 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
         // test if node 123 exists
@@ -2733,7 +2734,7 @@ namespace moris::hmr
              tNodes[ 123 ] =  new Lagrange_Node< 3 >( tIJK, tLevel, tOwner );
 
              // increment node counter
-             ++aBasisCounter;
+             tBasisCounter++;
          }
 
          // pointer to child
@@ -3029,6 +3030,9 @@ namespace moris::hmr
 
         // set flag that this element has been processed
         this->set_children_basis_flag();
+
+        // Return basis counter
+        return tBasisCounter;
     }
 
 // ----------------------------------------------------------------------------
