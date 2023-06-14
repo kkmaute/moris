@@ -412,122 +412,17 @@ namespace moris::hmr
 
     // ----------------------------------------------------------------------------
 
-    template < uint N, uint P >
+    template< uint N, uint P >
     Element * BSpline_Mesh< N, P >::create_element( Background_Element_Base* aElement )
     {
-        MORIS_ERROR( false, "Don't know how to create B-Spline element.");
-        return nullptr;
-    }
+        // Check for dimension less than or equal to 3 and degree less than or equal to 3
+        MORIS_ERROR( N <= 3 and P <= 3, "Don't know how to create B-Spline element.");
 
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+        // Create element
+        Element * aBSplineElement = new BSpline_Element< P, (N > 1) * P, (N > 2) * P >( aElement, mActivationPattern );
 
-    template<>
-    Element * BSpline_Mesh< 2, 1 >::create_element( Background_Element_Base* aElement )
-    {
-        Element * aBSplineElement = new BSpline_Element< 1, 1, 0 >( aElement, mActivationPattern );
-
+        // Return element
         return aBSplineElement;
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template<>
-    Element * BSpline_Mesh< 2, 2 >::create_element( Background_Element_Base* aElement )
-    {
-        Element * aBSplineElement = new BSpline_Element< 2, 2, 0 >( aElement, mActivationPattern );
-
-        return aBSplineElement;
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template<>
-    Element * BSpline_Mesh< 2, 3 >::create_element( Background_Element_Base* aElement )
-    {
-        Element * aBSplineElement = new BSpline_Element< 3, 3, 0 >( aElement, mActivationPattern );
-
-        return aBSplineElement;
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template<>
-    Element * BSpline_Mesh< 2, 4 >::create_element( Background_Element_Base* aElement )
-    {
-        Element * aBSplineElement = new BSpline_Element< 4, 4, 0 >( aElement, mActivationPattern );
-
-        return aBSplineElement;
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template<>
-    Element * BSpline_Mesh< 2, 5 >::create_element( Background_Element_Base* aElement )
-    {
-        Element * aBSplineElement = new BSpline_Element< 5, 5, 0 >( aElement, mActivationPattern );
-
-        return aBSplineElement;
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template<>
-    Element * BSpline_Mesh< 3, 1 >::create_element( Background_Element_Base* aElement )
-    {
-        Element * aBSplineElement = new BSpline_Element< 1, 1, 1 >( aElement, mActivationPattern );
-
-        return aBSplineElement;
-    }
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template<>
-    Element * BSpline_Mesh< 3, 2 >::create_element( Background_Element_Base* aElement )
-    {
-        Element * aBSplineElement = new BSpline_Element< 2, 2, 2 >( aElement, mActivationPattern );
-
-        return aBSplineElement;
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template<>
-    Element * BSpline_Mesh< 3, 3 >::create_element( Background_Element_Base* aElement )
-    {
-        Element * aBSplineElement = new BSpline_Element< 3, 3, 3 >( aElement, mActivationPattern );
-
-        return aBSplineElement;
-    }
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template<>
-    Element * BSpline_Mesh< 3, 4 >::create_element( Background_Element_Base* aElement )
-    {
-        Element * aBSplineElement = new BSpline_Element< 4, 4, 4 >( aElement, mActivationPattern );
-
-        return aBSplineElement;
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template<>
-    Element * BSpline_Mesh< 3, 5 >::create_element( Background_Element_Base* aElement )
-    {
-        Element * aBSplineElement = new BSpline_Element< 5, 5, 5 >( aElement, mActivationPattern );
-
-        return aBSplineElement;
-    }
-
-    // ----------------------------------------------------------------------------
-
-    template < uint N, uint P >
-    Basis * BSpline_Mesh< N, P >::create_basis(
-            const luint * aIJK,
-            uint          aLevel,
-            uint          aOwner )
-    {
-        MORIS_ERROR( false, "Don't know how to create B-Spline element.");
-
-        return nullptr;
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
