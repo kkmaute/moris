@@ -25,7 +25,7 @@ namespace moris::hmr
     */
     template<>
     mtk::Geometry_Type
-    BSpline_Element< 3, 27 >::get_geometry_type() const
+    BSpline_Element< 2, 2, 2 >::get_geometry_type() const
     {
         return mtk::Geometry_Type::HEX;
     }
@@ -42,7 +42,7 @@ namespace moris::hmr
      */
     template<>
     void
-    BSpline_Element< 3, 27 >::get_basis_indices_for_vtk(
+    BSpline_Element< 2, 2, 2 >::get_basis_indices_for_vtk(
         Matrix< DDLUMat > & aBasis )
     {
         // assemble nodes in correct order
@@ -87,7 +87,7 @@ namespace moris::hmr
      */
     template<>
     void
-    BSpline_Element< 3, 27 >::get_ijk_of_basis(
+    BSpline_Element< 2, 2, 2 >::get_ijk_of_basis(
         uint aBasisNumber,
         luint      * aIJK )
     {
@@ -305,7 +305,7 @@ namespace moris::hmr
     */
     template<>
     void
-    BSpline_Element< 3, 27 >::link_basis_with_neighbors(
+    BSpline_Element< 2, 2, 2 >::link_basis_with_neighbors(
           moris::Cell< Element* > & aAllElementsOnProc )
     {
          // initialize frame of basis around basis from this element
@@ -2021,7 +2021,7 @@ namespace moris::hmr
      * @return Number of created bases
      */
     template<>
-    luint BSpline_Element< 3, 27 >::refine_basis( uint aBasisNumber )
+    luint BSpline_Element< 2, 2, 2 >::refine_basis( uint aBasisNumber )
     {
         // Start basis counter
         luint tBasisCounter = 0;
@@ -2896,7 +2896,7 @@ namespace moris::hmr
      * @return Number of created bases
      */
     template<>
-    luint BSpline_Element< 3, 27 >::refine( moris::Cell< Element* > & aAllElementsOnProc )
+    luint BSpline_Element< 2, 2, 2 >::refine( moris::Cell< Element* > & aAllElementsOnProc )
     {
         // Start basis counter
         luint tBasisCounter = 0;

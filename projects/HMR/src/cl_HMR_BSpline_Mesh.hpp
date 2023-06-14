@@ -424,7 +424,7 @@ namespace moris::hmr
     template<>
     Element * BSpline_Mesh< 2, 1 >::create_element( Background_Element_Base* aElement )
     {
-        Element * aBSplineElement = new BSpline_Element< 2, 4 >( aElement, mActivationPattern );
+        Element * aBSplineElement = new BSpline_Element< 1, 1, 0 >( aElement, mActivationPattern );
 
         return aBSplineElement;
     }
@@ -434,7 +434,7 @@ namespace moris::hmr
     template<>
     Element * BSpline_Mesh< 2, 2 >::create_element( Background_Element_Base* aElement )
     {
-        Element * aBSplineElement = new BSpline_Element< 2,9 >( aElement, mActivationPattern );
+        Element * aBSplineElement = new BSpline_Element< 2, 2, 0 >( aElement, mActivationPattern );
 
         return aBSplineElement;
     }
@@ -444,7 +444,7 @@ namespace moris::hmr
     template<>
     Element * BSpline_Mesh< 2, 3 >::create_element( Background_Element_Base* aElement )
     {
-        Element * aBSplineElement = new BSpline_Element< 2, 16 >( aElement, mActivationPattern );
+        Element * aBSplineElement = new BSpline_Element< 3, 3, 0 >( aElement, mActivationPattern );
 
         return aBSplineElement;
     }
@@ -454,7 +454,7 @@ namespace moris::hmr
     template<>
     Element * BSpline_Mesh< 2, 4 >::create_element( Background_Element_Base* aElement )
     {
-        Element * aBSplineElement = new BSpline_Element< 2, 25 >( aElement, mActivationPattern );
+        Element * aBSplineElement = new BSpline_Element< 4, 4, 0 >( aElement, mActivationPattern );
 
         return aBSplineElement;
     }
@@ -464,7 +464,7 @@ namespace moris::hmr
     template<>
     Element * BSpline_Mesh< 2, 5 >::create_element( Background_Element_Base* aElement )
     {
-        Element * aBSplineElement = new BSpline_Element< 2, 36 >( aElement, mActivationPattern );
+        Element * aBSplineElement = new BSpline_Element< 5, 5, 0 >( aElement, mActivationPattern );
 
         return aBSplineElement;
     }
@@ -474,7 +474,7 @@ namespace moris::hmr
     template<>
     Element * BSpline_Mesh< 3, 1 >::create_element( Background_Element_Base* aElement )
     {
-        Element * aBSplineElement = new BSpline_Element< 3, 8 >( aElement, mActivationPattern );
+        Element * aBSplineElement = new BSpline_Element< 1, 1, 1 >( aElement, mActivationPattern );
 
         return aBSplineElement;
     }
@@ -483,7 +483,7 @@ namespace moris::hmr
     template<>
     Element * BSpline_Mesh< 3, 2 >::create_element( Background_Element_Base* aElement )
     {
-        Element * aBSplineElement = new BSpline_Element< 3, 27 >( aElement, mActivationPattern );
+        Element * aBSplineElement = new BSpline_Element< 2, 2, 2 >( aElement, mActivationPattern );
 
         return aBSplineElement;
     }
@@ -493,7 +493,7 @@ namespace moris::hmr
     template<>
     Element * BSpline_Mesh< 3, 3 >::create_element( Background_Element_Base* aElement )
     {
-        Element * aBSplineElement = new BSpline_Element< 3, 64 >( aElement, mActivationPattern );
+        Element * aBSplineElement = new BSpline_Element< 3, 3, 3 >( aElement, mActivationPattern );
 
         return aBSplineElement;
     }
@@ -502,7 +502,7 @@ namespace moris::hmr
     template<>
     Element * BSpline_Mesh< 3, 4 >::create_element( Background_Element_Base* aElement )
     {
-        Element * aBSplineElement = new BSpline_Element< 3, 125 >( aElement, mActivationPattern );
+        Element * aBSplineElement = new BSpline_Element< 4, 4, 4 >( aElement, mActivationPattern );
 
         return aBSplineElement;
     }
@@ -512,7 +512,7 @@ namespace moris::hmr
     template<>
     Element * BSpline_Mesh< 3, 5 >::create_element( Background_Element_Base* aElement )
     {
-        Element * aBSplineElement = new BSpline_Element< 3, 216 >( aElement, mActivationPattern );
+        Element * aBSplineElement = new BSpline_Element< 5, 5, 5 >( aElement, mActivationPattern );
 
         return aBSplineElement;
     }

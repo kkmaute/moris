@@ -628,7 +628,7 @@ namespace moris::hmr
          * @return Number of created bases
          */
         virtual
-        luint refine_basis( uint aBasisNumber, luint& aBasisCounter )
+        luint refine_basis( uint aBasisNumber )
         {
             MORIS_ERROR( false, "refine_basis() not available for this element." );
             return 0;
