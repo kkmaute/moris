@@ -21,27 +21,27 @@ namespace moris::hmr
 //------------------------------------------------------------------------------
 
     /**
-     * \brief BSplinee Element templated against
-     *
-     * uint N: number of dimensions (1, 2, or 3)
-     * uint B: number of basis
+     * B-spline element class
+     * 
+     * @tparam P Polynomial degree in x-direction
+     * @tparam Q Polynomial degree in y-direction
+     * @tparam R Polynomial degree in z-direction
      */
     template< uint P, uint Q, uint R >
     class BSpline_Element : public Element
     {
         //! pointer to nodes
-        //Basis*     mBasis[ B ] = { nullptr };
         Basis**     mBasis;
 
-// -----------------------------------------------------------------------------
-        public:
-// -----------------------------------------------------------------------------
+    public:
 
         /**
          * default Lagrange Element constructor
          */
-        BSpline_Element(       Background_Element_Base * aElement,
-                         uint aActivationPattern) : Element( aElement, aActivationPattern )
+        BSpline_Element(       
+              Background_Element_Base * aElement,
+              uint aActivationPattern)
+        : Element( aElement, aActivationPattern )
         {
         }
 
@@ -50,14 +50,14 @@ namespace moris::hmr
         /**
          * default destructor
          */
-        ~BSpline_Element()
+        ~BSpline_Element() override
         {
            this->delete_basis_container();
         }
 
 //------------------------------------------------------------------------------
 
-        void init_basis_container()
+        void init_basis_container() override
         {
             MORIS_ASSERT( ! mHaveBasis, "Basis container of element already initiated" );
 
@@ -71,7 +71,7 @@ namespace moris::hmr
 
 //------------------------------------------------------------------------------
 
-        void delete_basis_container()
+        void delete_basis_container() override
         {
             if( mHaveBasis )
             {
@@ -90,13 +90,13 @@ namespace moris::hmr
          * @return Basis* pointer to Lagrange node
          *
          */
-        Basis * get_basis( uint aIndex )
+        Basis * get_basis( uint aIndex ) override
         {
             MORIS_ASSERT( mHaveBasis, "can't return basis if container is not initialized" );
             return mBasis[ aIndex ];
         }
 
-        const Basis * get_basis( uint aIndex ) const
+        const Basis * get_basis( uint aIndex ) const override
         {
             MORIS_ASSERT( mHaveBasis, "can't return basis if container is not initialized" );
             return mBasis[ aIndex ];
@@ -113,7 +113,7 @@ namespace moris::hmr
          *
          */
         void insert_basis( uint   aIndex,
-                           Basis* aBasis )
+                           Basis* aBasis ) override
         {
             MORIS_ASSERT( mHaveBasis, "can't insert basis if container is not initialized" );
             mBasis[ aIndex ] = aBasis;
@@ -127,7 +127,7 @@ namespace moris::hmr
          * @param aAllElementsOnProc Cell containing all B-spline elements including the aura
          * @return Number of created bases
          */
-        luint create_basis_on_level_zero( moris::Cell< Element * > & aAllElementsOnProc );
+        luint create_basis_on_level_zero( moris::Cell< Element * > & aAllElementsOnProc ) override;
 
 //------------------------------------------------------------------------------
 
@@ -137,7 +137,7 @@ namespace moris::hmr
          * @param aAllElementsOnProc Cell containing all B-spline elements including the aura
          * @return Number of created bases
          */
-        luint create_basis_for_children( moris::Cell< Element * > & aAllElementsOnProc );
+        luint create_basis_for_children( moris::Cell< Element * > & aAllElementsOnProc ) override;
 
 // -----------------------------------------------------------------------------
 
@@ -146,7 +146,7 @@ namespace moris::hmr
          *
          * @return void
          */
-        void print_connectivity()
+        void print_connectivity() override
         {
             std::fprintf( stdout,
                     "connectivity of element %4lu ( ID %4lu, parent %4lu ):\n",
@@ -175,7 +175,7 @@ namespace moris::hmr
          * @return std::string
          *
          */
-        std::string get_gmsh_string();
+        std::string get_gmsh_string() override;
 
 //------------------------------------------------------------------------------
 
@@ -184,19 +184,16 @@ namespace moris::hmr
          *
          * @return uint
          */
-        uint get_vtk_type();
+        uint get_vtk_type() override;
 
 //------------------------------------------------------------------------------
 
         /**
-         * node IDs needed for VTK output
-         *
-         * @param[out] moris::Matrix< DDLUMat >
-         *
-         * @return void
-         *
+         * Gets the basis indices needed for basis output
+         * 
+         * @param aBasis Basis indices
          */
-        void get_basis_indices_for_vtk( Matrix< DDLUMat > & aNodes );
+        void get_basis_indices_for_vtk( Matrix< DDLUMat > & aBasisIndices ) override;
 
 //------------------------------------------------------------------------------
 
@@ -210,7 +207,7 @@ namespace moris::hmr
          *
          */
         void get_ijk_of_basis( uint   aBasisNumber,
-                               luint* aIJK );
+                               luint* aIJK ) override;
 
 //------------------------------------------------------------------------------
 
@@ -221,7 +218,7 @@ namespace moris::hmr
          *                                    elements including the aura
          * @return void
          */
-        void link_basis_with_neighbors( moris::Cell< Element* > & aAllElementsOnProc );
+        void link_basis_with_neighbors( moris::Cell< Element* > & aAllElementsOnProc ) override;
 
 //------------------------------------------------------------------------------
 
@@ -231,21 +228,21 @@ namespace moris::hmr
          * @param aAllElementsOnProc Cell containing all B-spline elements including the aura
          * @return Number of created bases
          */
-        luint refine( moris::Cell< Element* > & aAllElementsOnProc );
+        luint refine( moris::Cell< Element* > & aAllElementsOnProc ) override;
 
 //------------------------------------------------------------------------------
 
         /**
          * Returns the geometry type of the element
          */
-        mtk::Geometry_Type get_geometry_type() const ;
+        mtk::Geometry_Type get_geometry_type() const override ;
 
 //------------------------------------------------------------------------------
 
         /**
          * Returns the number of basis connected to this element.
          */
-        uint get_number_of_vertices() const
+        uint get_number_of_vertices() const override
         {
             return (P + 1) * (Q + 1) * (R + 1);
         }
@@ -261,7 +258,7 @@ namespace moris::hmr
          *
          * @return void
          */
-        void create_basis( uint aBasisNumber );
+        void create_basis( uint aBasisNumber ) override;
 
 //------------------------------------------------------------------------------
 
@@ -278,14 +275,14 @@ namespace moris::hmr
         /**
          * returns the interpolation order of this element
          */
-        mtk::Interpolation_Order get_interpolation_order() const;
+        mtk::Interpolation_Order get_interpolation_order() const override;
 
 //------------------------------------------------------------------------------
 
         /**
          * returns a Mat with the basis coords
          */
-        Matrix< DDRMat > get_vertex_coords() const ;
+        Matrix< DDRMat > get_vertex_coords() const override ;
 
 //------------------------------------------------------------------------------
     };
@@ -293,7 +290,7 @@ namespace moris::hmr
 
     template< uint P, uint Q, uint R >
     inline
-    std::string BSpline_Element< P, Q, R>::get_gmsh_string()
+    std::string BSpline_Element< P, Q, R >::get_gmsh_string()
     {
         std::string aString = "GMSH not implemented for this element";
         return aString;
@@ -303,7 +300,7 @@ namespace moris::hmr
 
     template< uint P, uint Q, uint R >
     inline
-    uint BSpline_Element< P, Q, R>::get_vtk_type()
+    uint BSpline_Element< P, Q, R >::get_vtk_type()
     {
         // this element has no VTK id
         return 0;
@@ -312,14 +309,14 @@ namespace moris::hmr
 //------------------------------------------------------------------------------
 
     template< uint P, uint Q, uint R >
-    void BSpline_Element< P, Q, R>::get_basis_indices_for_vtk( Matrix< DDLUMat > & aBasis )
+    void BSpline_Element< P, Q, R >::get_basis_indices_for_vtk( Matrix< DDLUMat > & aBasis )
     {
         // do nothing
     }
 
 //------------------------------------------------------------------------------
     template< uint P, uint Q, uint R >
-    void BSpline_Element< P, Q, R>::create_basis( uint aBasisNumber )
+    void BSpline_Element< P, Q, R >::create_basis( uint aBasisNumber )
     {
         MORIS_ERROR( false, "Don't know how to create B-Spline.");
     }
@@ -327,7 +324,7 @@ namespace moris::hmr
 //------------------------------------------------------------------------------
 
     template< uint P, uint Q, uint R >
-    luint BSpline_Element< P, Q, R>::create_basis_on_level_zero( moris::Cell< Element* >& aAllElementsOnProc )
+    luint BSpline_Element< P, Q, R >::create_basis_on_level_zero( moris::Cell< Element* >& aAllElementsOnProc )
     {
         MORIS_ERROR( false, "Don't know how to create B-Splines on level zero.");
         return 0;
@@ -336,7 +333,7 @@ namespace moris::hmr
 //------------------------------------------------------------------------------
 
     template< uint P, uint Q, uint R >
-    luint BSpline_Element< P, Q, R>::create_basis_for_children( moris::Cell< Element * >& aAllElementsOnProc )
+    luint BSpline_Element< P, Q, R >::create_basis_for_children( moris::Cell< Element * >& aAllElementsOnProc )
     {
         MORIS_ERROR( false, "Don't know how to create B-Splines for children.");
         return 0;
@@ -346,7 +343,7 @@ namespace moris::hmr
 
     template< uint P, uint Q, uint R >
     inline
-    void BSpline_Element< P, Q, R>::get_ijk_of_basis(
+    void BSpline_Element< P, Q, R >::get_ijk_of_basis(
             uint   aBasisNumber,
             luint* aIJK )
     {
@@ -357,7 +354,7 @@ namespace moris::hmr
 
     template< uint P, uint Q, uint R >
     inline
-    void BSpline_Element< P, Q, R>::link_basis_with_neighbors(
+    void BSpline_Element< P, Q, R >::link_basis_with_neighbors(
                     moris::Cell< Element* > & aAllElementsOnProc )
     {
         MORIS_ERROR( false,
@@ -367,7 +364,7 @@ namespace moris::hmr
 //------------------------------------------------------------------------------
 
     template< uint P, uint Q, uint R >
-    luint BSpline_Element< P, Q, R>::refine_basis( uint aBasisNumber )
+    luint BSpline_Element< P, Q, R >::refine_basis( uint aBasisNumber )
     {
         MORIS_ERROR( false, "refine_basis() not available for this element.");
         return 0;
@@ -376,7 +373,7 @@ namespace moris::hmr
 //------------------------------------------------------------------------------
 
     template< uint P, uint Q, uint R >
-    luint BSpline_Element< P, Q, R>::refine(
+    luint BSpline_Element< P, Q, R >::refine(
                     moris::Cell< Element* > & aAllElementsOnProc )
     {
         MORIS_ERROR( false, "refine() not available for this element.");
@@ -387,7 +384,7 @@ namespace moris::hmr
 
     template< uint P, uint Q, uint R >
     inline
-    mtk::Geometry_Type BSpline_Element< P, Q, R>::get_geometry_type() const
+    mtk::Geometry_Type BSpline_Element< P, Q, R >::get_geometry_type() const
     {
         MORIS_ERROR( false, "get_geometry_type() not available for this element.");
         return mtk::Geometry_Type::UNDEFINED;
@@ -397,7 +394,7 @@ namespace moris::hmr
 
     template< uint P, uint Q, uint R >
     inline
-    mtk::Interpolation_Order BSpline_Element< P, Q, R>::get_interpolation_order() const
+    mtk::Interpolation_Order BSpline_Element< P, Q, R >::get_interpolation_order() const
     {
         MORIS_ERROR( false, "get_interpolation_order() not available for this element.");
         return mtk::Interpolation_Order::UNDEFINED;
@@ -407,7 +404,7 @@ namespace moris::hmr
 
     template< uint P, uint Q, uint R >
     inline
-    Matrix< DDRMat > BSpline_Element< P, Q, R>::get_vertex_coords() const
+    Matrix< DDRMat > BSpline_Element< P, Q, R >::get_vertex_coords() const
     {
         MORIS_ERROR(false, "get_vertex_coords(): to make this Bspline_Element function work, turn on calculate_basis_coordinates() in collect_basis()");
 
