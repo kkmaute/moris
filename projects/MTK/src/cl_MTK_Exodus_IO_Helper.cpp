@@ -1321,6 +1321,24 @@ namespace moris
         // ---------------------------------------------------------------------------------------------
 
         real
+        Exodus_IO_Helper::get_nodal_field_value(
+                uint const        &aNodeId,
+                std::string const &aFieldName,
+                uint const        &aTimeStepIndex )
+        {
+            // iterator to find a pointer to the field name
+            auto it = std::find_if( mNodeFieldNamePtrs.begin(), mNodeFieldNamePtrs.end(), [ & ]( const char *aNames )    //
+                    { return std::string( aNames ) == aFieldName; } );
+
+            // get the index of the field
+            uint tFieldIndex = std::distance( mNodeFieldNamePtrs.begin(), it );
+
+            return this->get_nodal_field_value( aNodeId, tFieldIndex, aTimeStepIndex );
+        }
+
+        // ---------------------------------------------------------------------------------------------
+
+        real
         Exodus_IO_Helper::get_nodal_field_value_by_coords(
                 moris::Matrix<DDRMat> aCoords,
                 uint                  aFieldIndex,
