@@ -29,6 +29,7 @@ set(HEADERS
 
 # List library source files
 set(LIB_SOURCES
+    cl_Mesh_Enums.cpp
     cl_MTK_Enums.cpp )
 
 # List library dependencies
