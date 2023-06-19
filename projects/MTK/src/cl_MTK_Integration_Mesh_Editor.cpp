@@ -88,7 +88,7 @@ namespace moris::mtk
             // get the vertex pointers to extract the
             moris::Cell< Vertex * > tVertexPointers = tCell.get_vertex_pointers();
 
-            // use the transfrom to transfer vertex to index and write them in the correct spot of the connectivity info
+            // use the transform to transfer vertex to index and write them in the correct spot of the connectivity info
             std::transform( tVertexPointers.begin(),
                 tVertexPointers.end(),
                 mIGMeshInfo->mCellToVertexIndicies.begin() + mOutputMesh->mCellToVertexOffSet( iCell ),
