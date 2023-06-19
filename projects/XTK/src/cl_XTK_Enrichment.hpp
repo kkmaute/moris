@@ -108,6 +108,9 @@ namespace xtk
         // FIXME: for SPG based enrichment, the above needs to go eventually
         Cell< moris::Matrix< IndexMat > > mSubphaseGroupIndsInEnrichedBasis;    // input: enriched BF index || output: list of SPG indices in which enriched BF is active
         Matrix< IdMat >                   mBulkPhaseInEnrichedBasis;            // input: enriched BF index || output: // FIXME: ?
+        
+        // transpose of the above map, it is empty by default
+        moris::Cell< moris::Cell< moris_index > > mEnrichedBasisInSubphaseGroup; // input: SPG index || output: list of enriched BF indices active in the SPG
 
         // Basis enrichment level indices
         moris::Cell< Matrix< IndexMat > > mBasisEnrichmentIndices;    // input1: non-enriched BF index, input2: enrichment level || output: enriched BF index
@@ -152,6 +155,7 @@ namespace xtk
       public:
         typedef std::unordered_map< moris::moris_index, moris::moris_index > IndexMap;
         friend class Multigrid;
+        friend class Basis_Processor;
 
       private:
         // enrichment method
@@ -1066,6 +1070,15 @@ namespace xtk
         get_max_basis_id( moris_index const & aMeshIndex );
 
         // ----------------------------------------------------------------------------------
+        
+        public: 
+        /**
+         * @brief construct the map that shows all of the enriched basis that are interpolating into an SPG
+         * 
+         */
+
+        void
+        construct_enriched_basis_in_subphase_group_map(); 
     };
 }    // namespace xtk
 #endif /* XTK_SRC_XTK_CL_XTK_ENRICHMENT_HPP_ */
