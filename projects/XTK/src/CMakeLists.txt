@@ -97,6 +97,7 @@ set(HEADERS
     fn_XTK_punch_card_sum.hpp
     fn_XTK_find_in_cell.hpp
     fn_XTK_match_normal_to_side_ordinal.hpp 
+    cl_XTK_Basis_Processor.hpp
     )                                                                                                                                                                                                                                                                   
 
 
@@ -168,7 +169,9 @@ cl_XTK_Octree_Interface.cpp
 
 cl_XTK_Diagnostics.cpp
 
-cl_XTK_Integration_Mesh_Cleanup.cpp )
+cl_XTK_Integration_Mesh_Cleanup.cpp 
+
+cl_XTK_Basis_Processor.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES 
