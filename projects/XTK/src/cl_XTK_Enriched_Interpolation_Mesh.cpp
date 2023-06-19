@@ -3149,11 +3149,7 @@ namespace xtk
                 tFieldDiscrete.set_coefficients( tCoeffMatrix );
                 tFieldDiscrete.compute_nodal_values();
                 Matrix< DDRMat > const & tVals = tFieldDiscrete.get_values();
-
-                if ( tActiveBasis( tMeshIndex )( iB ) == 6 )
-                {
-                    print_as_row_vector( tVals, "tVals" );
-                }
+                
                 tFieldData( tFieldIndex ) = tVals;
             }
         }
