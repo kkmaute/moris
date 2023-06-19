@@ -65,6 +65,7 @@ namespace xtk
     class Enriched_Integration_Mesh;
     class Ghost_Stabilization;
     class Multigrid;
+    class Basis_Processor;
 }    // namespace xtk
 
 using namespace moris;
@@ -82,6 +83,7 @@ namespace xtk
         friend class Cut_Integration_Mesh;
         friend class Ghost_Stabilization;
         friend class Multigrid;
+        friend class Basis_Processor; 
 
         //--------------------------------------------------------------------------------
 

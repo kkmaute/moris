@@ -39,7 +39,7 @@
 #include "cl_TOL_Memory_Map.hpp"
 #include "cl_Tracer.hpp"
 #include "fn_stringify_matrix.hpp"
-
+#include "cl_XTK_Basis_Processor.hpp"
 
 using namespace moris;
 
@@ -453,6 +453,31 @@ namespace xtk
 
             // place the pair in mesh manager
             mMTKOutputPerformer->register_mesh_pair( &tEnrInterpMesh, &tEnrIntegMesh, false, tXTKMeshName );
+
+            // basis agglomeration
+            if ( mParameterList.get< bool >( "activate_basis_agglomeration" ) )
+            {
+                // create a static object
+                Basis_Processor tBasisProcessor = Basis_Processor( this );
+
+                // perform the basis agglomeration
+                tBasisProcessor.perform_basis_extention();
+            }
+
+            else if ( mParameterList.get< bool >( "activate_cell_agglomeration" ) )
+            {
+                // create a static object
+                Basis_Processor tBasisProcessor = Basis_Processor( this );
+
+                // perform the basis agglomeration
+                tBasisProcessor.perform_cell_agglomeration();
+            }
+
+            // write the enriched ip mesh
+            if ( mParameterList.get< bool >( "exodus_output_XTK_ip_mesh" ) )
+            {
+                mEnrichedInterpMesh( 0 )->write_mesh( &mParameterList );
+            }
 
             // output (to console) a list of all blocks & sets in the XIGA model
             if ( mParameterList.get< bool >( "print_enriched_ig_mesh" ) )
