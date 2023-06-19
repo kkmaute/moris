@@ -832,7 +832,7 @@ namespace xtk
             tCellIdField( iCell ) = (moris::real)this->get_mtk_cell( iCell ).get_id();
         }
 
-        this->add_field_data( tFieldIndex, EntityRank::ELEMENT, tCellIdField );
+        this->add_field_data( tFieldIndex, EntityRank::ELEMENT, tCellIdField , MORIS_INDEX_MAX);
     }
 
     //------------------------------------------------------------------------------
@@ -926,8 +926,18 @@ namespace xtk
                 // iterate through circles, see if the basis is active
                 for ( moris_index iSp = 0; iSp < tNumSpheres; iSp++ )
                 {
-                    // FIXME: make the
-                    moris::real tLSVal = sqrt( pow( tBasisCoords( 0 ) - aProbeSpheres( iSp, 1 ), 2 ) + pow( tBasisCoords( 1 ) - aProbeSpheres( iSp, 2 ), 2 ) + pow( tBasisCoords( 2 ) - aProbeSpheres( iSp, 3 ), 2 ) ) - aProbeSpheres( iSp, 0 );
+                    // initialize  the level set value
+                    moris::real tLSVal = 0;
+
+                    // determine the value of level set at the basis coordinates based on the dimension
+                    if ( this->get_spatial_dim() == 3 )
+                    {
+                        tLSVal = sqrt( pow( tBasisCoords( 0 ) - aProbeSpheres( iSp, 1 ), 2 ) + pow( tBasisCoords( 1 ) - aProbeSpheres( iSp, 2 ), 2 ) + pow( tBasisCoords( 2 ) - aProbeSpheres( iSp, 3 ), 2 ) ) - aProbeSpheres( iSp, 0 );
+                    }
+                    else
+                    {
+                        tLSVal = sqrt( pow( tBasisCoords( 0 ) - aProbeSpheres( iSp, 1 ), 2 ) + pow( tBasisCoords( 1 ) - aProbeSpheres( iSp, 2 ), 2 ) ) - aProbeSpheres( iSp, 0 );
+                    }
 
                     if ( tLSVal < 0.0 )
                     {
@@ -971,7 +981,7 @@ namespace xtk
                 tFieldNames( tFieldIndex ) = tBaseStr + tInterpTypeStr + "_ind_" + std::to_string( tActiveBasis( tMeshIndex )( iB ) );
 
                 // declare the field in this mesh
-                tFieldIndices( tFieldIndex ) = this->create_field( tFieldNames( tFieldIndex ), EntityRank::NODE, 0 );
+                tFieldIndices( tFieldIndex ) = this->create_field( tFieldNames( tFieldIndex ), EntityRank::NODE, MORIS_INDEX_MAX );
             }
         }
 
@@ -1037,7 +1047,7 @@ namespace xtk
         // iterate through interpolation
         for ( uint iField = 0; iField < tFieldIndices.size(); iField++ )
         {
-            this->add_field_data( tFieldIndices( iField ), EntityRank::NODE, tFieldData( iField ) );
+            this->add_field_data( tFieldIndices( iField ), EntityRank::NODE, tFieldData( iField ) , MORIS_INDEX_MAX);
         }
 
 #endif
@@ -1114,13 +1124,13 @@ namespace xtk
         //----------------------------------------------------------------
         // write nodal fields
 
-        Cell< std::string > tNodeFields = this->get_field_names( EntityRank::NODE );
+        Cell< std::string > tNodeFields = this->get_field_names( EntityRank::NODE, MORIS_INDEX_MAX );
         tExodusWriter.set_nodal_fields( tNodeFields );
 
         for ( uint iF = 0; iF < tNodeFields.size(); iF++ )
         {
             moris::moris_index tFieldIndex = this->get_field_index( tNodeFields( iF ), EntityRank::NODE );
-            tExodusWriter.write_nodal_field( tNodeFields( iF ), this->get_field_data( tFieldIndex, EntityRank::NODE ) );
+            tExodusWriter.write_nodal_field( tNodeFields( iF ), this->get_field_data( tFieldIndex, EntityRank::NODE , MORIS_INDEX_MAX) );
         }
 
         //----------------------------------------------------------------
@@ -1130,7 +1140,7 @@ namespace xtk
         this->create_cell_id_fields();
 
         // get a list of names of all the fields to be written
-        Cell< std::string > tCellFields = this->get_field_names( EntityRank::ELEMENT );
+        Cell< std::string > tCellFields = this->get_field_names( EntityRank::ELEMENT, MORIS_INDEX_MAX );
 
         // set the field names in the exodus file
         tExodusWriter.set_elemental_fields( tCellFields );
@@ -1142,8 +1152,8 @@ namespace xtk
         for ( uint iField = 0; iField < tCellFields.size(); iField++ )
         {
             // get the index of the of the current field in the stored list of fields
-            moris::moris_index      tFieldIndex = this->get_field_index( tCellFields( iField ), EntityRank::ELEMENT );
-            Matrix< DDRMat > const &tFieldData  = this->get_field_data( tFieldIndex, EntityRank::ELEMENT );
+            moris::moris_index      tFieldIndex = this->get_field_index( tCellFields( iField ), EntityRank::ELEMENT, MORIS_INDEX_MAX );
+            Matrix< DDRMat > const &tFieldData  = this->get_field_data( tFieldIndex, EntityRank::ELEMENT, MORIS_INDEX_MAX );
 
             // write field on every block
             for ( uint iBlock = 0; iBlock < this->get_num_blocks(); iBlock++ )
@@ -1240,7 +1250,7 @@ namespace xtk
         Cell< std::string > tCellFields = { "bg_cell_id" };
 
         // set field index
-        moris_index tFieldIndex = this->create_field( tCellFields( 0 ), EntityRank::ELEMENT, 0 );
+        moris_index tFieldIndex = this->create_field( tCellFields( 0 ), EntityRank::ELEMENT, MORIS_INDEX_MAX );
 
         moris::Matrix< moris::DDRMat > tCellIdField( 1, this->get_num_elems() );
 
@@ -1260,7 +1270,7 @@ namespace xtk
             }
         }
 
-        this->add_field_data( tFieldIndex, EntityRank::ELEMENT, tCellIdField );
+        this->add_field_data( tFieldIndex, EntityRank::ELEMENT, tCellIdField , MORIS_INDEX_MAX);
     }
 
     //------------------------------------------------------------------------------
@@ -1303,11 +1313,11 @@ namespace xtk
 
         for ( uint iF = 0; iF < tCellFields.size(); iF++ )
         {
-            tFieldIndices( iF ) = this->create_field( tCellFields( iF ), EntityRank::ELEMENT, 0 );
+            tFieldIndices( iF ) = this->create_field( tCellFields( iF ), EntityRank::ELEMENT, MORIS_INDEX_MAX );
         }
 
-        this->add_field_data( tFieldIndices( 0 ), EntityRank::ELEMENT, tCellToSubphase );
-        this->add_field_data( tFieldIndices( 1 ), EntityRank::ELEMENT, tCellToBulkPhase );
+        this->add_field_data( tFieldIndices( 0 ), EntityRank::ELEMENT, tCellToSubphase, MORIS_INDEX_MAX );
+        this->add_field_data( tFieldIndices( 1 ), EntityRank::ELEMENT, tCellToBulkPhase , MORIS_INDEX_MAX);
     }
 
     //------------------------------------------------------------------------------
