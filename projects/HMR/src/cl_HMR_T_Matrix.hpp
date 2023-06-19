@@ -45,7 +45,7 @@ namespace moris
             //! matrix containing the ijk positions of reference element / ijk position of nodes an element
             Matrix< DDUMat > mLagrangeIJK;
 
-            //! ordering scheme for Elements
+            //! local ordering of the B-spline basis in the B-spline element
             Matrix< DDUMat > mBasisIndex;
 
             // unity matrix
@@ -62,8 +62,14 @@ namespace moris
             //! parameter coordinates for lagrange element / natural coordinates
             Matrix< DDRMat > mLagrangeParam;
 
+            //! parameter coordinates for lagrange element / natural coordinates
+            Matrix< DDRMat > mLagrangeParamModified;
+
             //! T-Matrix for B-Spline to Lagrange conversion
             Matrix< DDRMat > mTMatrixLagrange;
+
+            //! T-Matrix for B-Spline to Lagrange conversion
+            Matrix< DDRMat > mTMatrixLagrangeModified;
 
             //! weights needed for truncation
             Matrix< DDRMat > mTruncationWeights;
@@ -179,7 +185,41 @@ namespace moris
             virtual void evaluate( const uint aBSplineMeshIndex,
                            const bool aBool = true);
 
-//-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
+
+            /**
+             * @brief evaluate B-Spline basis functions at a given lagrange point
+             * 
+             * @param aBsplineElement 
+             * @param aLagrangeElement 
+             * @param tBsplineBasis 
+             * @param tWeights 
+             */
+
+            void evaluate_extended_t_matrix( Element*                    aBsplineElement,
+                    Element*                                    aLagrangeElement,
+                    moris::Cell< moris::Cell< mtk::Vertex* > >& tBsplineBasis,
+                    moris::Cell< Matrix< DDRMat > >&            tWeights );
+
+            //-------------------------------------------------------------------------------
+
+            /**
+             * @brief evaluate the L2 projection weights converting extended basis to root basis
+             * 
+             * @param aRootBsplineElement 
+             * @param aExtendedBsplineElement 
+             * @param tRootBsplineBasis 
+             * @param tExtendedBsplineBasis 
+             * @param tWeights 
+             */
+
+            void evaluate_L2_projection( Element*               aRootBsplineElement,
+                    Element*                                    aExtendedBsplineElement,
+                    moris::Cell< moris::Cell< mtk::Vertex* > >& tRootBsplineBasis,
+                    moris::Cell< mtk::Vertex* >&                tExtendedBsplineBasis,
+                    moris::Cell< Matrix< DDRMat > >&            tWeights );
+
+            //-------------------------------------------------------------------------------
 
             void evaluate_trivial( const uint aBSplineMeshIndex,
                                    const bool aBool );
@@ -221,8 +261,27 @@ namespace moris
 //------------------------------------------------------------------------------
 
             void init_lagrange_parameter_coordinates();
+            //------------------------------------------------------------------------------
+            
+            /**
+             * @brief  initializes the lagrange parameter coordinates w.r.t the B-Spline mesh
+             * 
+             * @param aLagrangeElement 
+             * @param aBSplineElement 
+             */
 
-//------------------------------------------------------------------------------
+            void init_lagrange_parameter_coordinates(Element* aLagrangeElement, Element* aBSplineElement);
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief recompute the lagrange matrix based on the refinement matrices
+             * 
+             */
+
+            void recompute_lagrange_matrix();
+
+            //------------------------------------------------------------------------------
 
             /**
              * calculates the matrix that converts B-Spline DOFs per element to Lagrange DOFs.
@@ -270,6 +329,22 @@ namespace moris
              * 1D shape function
              */
             real b_spline_shape_1d( const uint & aOrder,
+                                    const uint & aK,
+                                    const real & aXi ) const;
+
+                                    
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief explict evaluation of the b-spline shape function at a given parametric coordinate
+             * 
+             * @param aOrder 
+             * @param aK 
+             * @param aXi 
+             * @return real 
+             */
+
+            real b_spline_shape_1d_extended( const uint & aOrder,
                                     const uint & aK,
                                     const real & aXi ) const;
 
@@ -362,6 +437,18 @@ namespace moris
 //------------------------------------------------------------------------------
 
             Matrix< DDRMat > get_supporting_points( const uint aDimension, const uint aOrder );
+
+            //-------------------------------------------------------------------------------
+
+            /**
+             * @brief get the off-line computed extention matrix in 1D
+             * 
+             * @param aShift 
+             * @param aExtentionMatrix 
+             */
+
+            void 
+            get_extention_matrix_1d(real const & aShift, Matrix< DDRMat >& aExtentionMatrix); 
 
         };
 
