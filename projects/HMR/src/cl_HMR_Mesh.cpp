@@ -1063,6 +1063,57 @@ namespace moris
                     aBspCellRefineLevels );
         }
 
+        // ----------------------------------------------------------------------------
+
+        const luint*
+        Mesh::get_bspline_element_ijk_level(
+                moris_index const & aDiscretizationMeshIndex,
+                moris_index const & aBsplineElementIndex,
+                uint                aLevel )
+        {
+            return mMesh->get_bspline_element_ijk_level(
+                    aDiscretizationMeshIndex,
+                    aBsplineElementIndex,
+                    aLevel );
+        }
+
+        // ----------------------------------------------------------------------------
+
+        void
+        Mesh::get_extended_t_matrix(
+                moris_index const &                         aDiscretizationMeshIndex,
+                moris_index const &                         aBSplineCellIndex,
+                moris::mtk::Cell&                           aLagrangeCell,
+                moris::Cell< moris::Cell< mtk::Vertex* > >& tBsplineBasis,
+                moris::Cell< Matrix< DDRMat > >&            tWeights )
+        {
+            Element& aHMRLagrangeCell = reinterpret_cast< Element& >( aLagrangeCell );
+            mMesh->get_extended_t_matrix( aDiscretizationMeshIndex,
+                    aBSplineCellIndex,
+                    aHMRLagrangeCell,
+                    tBsplineBasis,
+                    tWeights );
+        }
+
+        // ----------------------------------------------------------------------------
+
+        void
+        Mesh::get_L2_projection_matrix(
+                moris_index const &                         aDiscretizationMeshIndex,
+                moris_index const &                         aRootBSplineCellIndex,
+                moris_index const &                         aExtendedBSplineCellIndex,
+                moris::Cell< moris::Cell< mtk::Vertex* > >& tRootBsplineBasis,
+                moris::Cell< mtk::Vertex* >&                tExtendedBsplineBasis,
+                moris::Cell< Matrix< DDRMat > >&            tWeights )
+        {
+            mMesh->get_L2_projection_matrix( aDiscretizationMeshIndex,
+                    aRootBSplineCellIndex,
+                    aExtendedBSplineCellIndex,
+                    tRootBsplineBasis,
+                    tExtendedBsplineBasis,
+                    tWeights );
+        }
+
         //-----------------------------------------------------------------------------
 
         void

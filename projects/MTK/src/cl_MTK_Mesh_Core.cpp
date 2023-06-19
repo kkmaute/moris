@@ -1246,6 +1246,45 @@ namespace moris
             MORIS_ERROR( false, "Mesh::get_lagrange_elements_in_bspline_elements() -  not implemented in mtk base class" );
         }
 
+         //--------------------------------------------------------------------------------------------------------------
+
+        const luint*
+        Mesh::get_bspline_element_ijk_level(
+                moris_index const & aDiscretizationMeshIndex,
+                moris_index const & aBsplineElementIndex,
+                uint                aLevel )
+        {
+            MORIS_ERROR( false, "Mesh::get_bspline_element_ijk_level() -  not implemented in mtk base class" );
+            return new luint[0];
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
+        Mesh::get_extended_t_matrix(
+                moris_index const &                         aDiscretizationMeshIndex,
+                moris_index const &                         aBSplineCellIndex,
+                moris::mtk::Cell&                           aLagrangeCell,
+                moris::Cell< moris::Cell< mtk::Vertex* > >& tBsplineBasis,
+                moris::Cell< Matrix< DDRMat > >&            tWeights )
+        {
+            MORIS_ERROR( false, "Mesh::get_extended_t_matrix() -  not implemented in mtk base class" );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
+        Mesh::get_L2_projection_matrix(
+                moris_index const &                         aDiscretizationMeshIndex,
+                moris_index const &                         aRootBSplineCellIndex,
+                moris_index const &                         aExtendedBSplineCellIndex,
+                moris::Cell< moris::Cell< mtk::Vertex* > >& tRootBsplineBasis,
+                moris::Cell< mtk::Vertex* >&                tExtendedBsplineBasis,
+                moris::Cell< Matrix< DDRMat > >&            tWeights )
+        {
+            MORIS_ERROR( false, "Mesh::get_L2_projection_matrix() -  not implemented in mtk base class" );
+        }
+
         //--------------------------------------------------------------------------------------------------------------
 
         void
