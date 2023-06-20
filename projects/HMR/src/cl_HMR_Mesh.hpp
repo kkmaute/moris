@@ -348,6 +348,35 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
+            virtual void
+            get_extended_t_matrix(
+                    moris_index const &                  aDiscretizationMeshIndex,
+                    moris_index const &                  aBSplineCellIndex,
+                    moris::mtk::Cell&                    aLagrangeCell,
+                    moris::Cell< Cell< mtk::Vertex* > >& tBsplineBasis,
+                    moris::Cell< Matrix< DDRMat > >&     tWeights ) override;
+
+            // ----------------------------------------------------------------------------
+
+            virtual void
+            get_L2_projection_matrix(
+                    moris_index const &                         aDiscretizationMeshIndex,
+                    moris_index const &                         aRootBSplineCellIndex,
+                    moris_index const &                         aExtendedBSplineCellIndex,
+                    moris::Cell< moris::Cell< mtk::Vertex* > >& tRootBsplineBasis,
+                    moris::Cell< mtk::Vertex* >&                tExtendedBsplineBasis,
+                    moris::Cell< Matrix< DDRMat > >&            tWeights ) override;
+
+            // ----------------------------------------------------------------------------
+
+            virtual const luint*
+            get_bspline_element_ijk_level(
+                    moris_index const & aDiscretizationMeshIndex,
+                    moris_index const & aBsplineElementIndex,
+                    uint                aLevel ) override;
+
+            // ----------------------------------------------------------------------------
+
             void get_elements_in_interpolation_cluster(
                     moris_index                aElementIndex,
                     moris_index                aDiscretizationMeshIndex,

@@ -4727,4 +4727,50 @@ namespace xtk
         }
         return tMaxId;
     }
+
+    //-------------------------------------------------------------------------------------
+
+    void
+    Enrichment::construct_enriched_basis_in_subphase_group_map()
+    {
+        // loop over DMI
+        for ( const auto& iMeshIndex : mMeshIndices )
+        {
+            // get a refrence of the map and its transpose
+            Cell< moris::Matrix< IndexMat > >&  tSubphaseGroupIndsInEnrichedBasis = mEnrichmentData( iMeshIndex ).mSubphaseGroupIndsInEnrichedBasis;
+            Cell< moris::Cell< moris_index > >& tEnrichedBasisInSubphaseGroup     = mEnrichmentData( iMeshIndex ).mEnrichedBasisInSubphaseGroup;
+
+            // Get the number of subphase groups (on the current proc) and reisze
+            moris_id tNumSubphaseGroups = mBsplineMeshInfos( iMeshIndex )->get_num_SPGs();
+            tEnrichedBasisInSubphaseGroup.resize( tNumSubphaseGroups );
+
+            // estimate number of inner cells and use the estimate to resize
+            uint tOrder = mXTKModelPtr->mBackgroundMesh->get_discretization_order( iMeshIndex );
+            uint tDim   = mXTKModelPtr->mBackgroundMesh->get_spatial_dim();
+
+            // resize the inner cells based on the order estimate
+            for ( auto& iEnrichedBasisInSubpahseGroup : tEnrichedBasisInSubphaseGroup )
+            {
+                iEnrichedBasisInSubpahseGroup.reserve( tOrder + tDim );
+            }
+
+            // loop over the BF indices to populate the map
+            for ( size_t iEnrichedBFIndex = 0; iEnrichedBFIndex < tSubphaseGroupIndsInEnrichedBasis.size(); iEnrichedBFIndex++ )
+            {
+                // get the subshases on which BF is active
+                moris::Matrix< IndexMat >& iSPGsInSupport = tSubphaseGroupIndsInEnrichedBasis( iEnrichedBFIndex );
+
+                // loop over the SPG indices and put the enriched BF index in the corrosponding SPG index
+                std::for_each( iSPGsInSupport.begin(), iSPGsInSupport.end(), [ &tEnrichedBasisInSubphaseGroup, &iEnrichedBFIndex ]    //
+                        ( moris_index const & aSPGIndex ) {
+                            // construct the inverse map
+                            tEnrichedBasisInSubphaseGroup( aSPGIndex ).push_back( iEnrichedBFIndex );
+                        } );
+            }
+            // trim the extra spaces generated
+            shrink_to_fit_all( tEnrichedBasisInSubphaseGroup );
+        }
+    }
+
+
 }    // namespace xtk

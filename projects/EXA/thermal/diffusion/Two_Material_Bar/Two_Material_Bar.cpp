@@ -305,6 +305,10 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh", false );
         tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
         tParameterlist( 0 )( 0 ).set( "high_to_low_dbl_side_sets", true );
+        tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ip_mesh", true );
+        tParameterlist( 0 )( 0 ).set( "write_basis_functions", true );
+        tParameterlist( 0 )( 0 ).set( "write_enrichment_fields", true );
+        tParameterlist( 0 )( 0 ).set( "write_enrichment_fields_probe_spheres", "5.0,0.0,0.0,0.0" );
     }
 
     void

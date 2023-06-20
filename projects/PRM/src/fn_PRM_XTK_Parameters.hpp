@@ -72,6 +72,7 @@ namespace moris
 
             // Write enrichment fields on mesh (only recommended on very small meshes)
             tParameterList.insert( "write_enrichment_fields", false );
+            tParameterList.insert( "write_basis_functions", false );
 
             // request B-spline cluster information (SPG IDs, indices, etc.) to be written to the xtk_temp.exo
             tParameterList.insert( "write_bspline_cluster_info", false );
@@ -103,6 +104,7 @@ namespace moris
 
             // write XTK exodus mesh
             tParameterList.insert( "exodus_output_XTK_ig_mesh", false );
+            tParameterList.insert( "exodus_output_XTK_ip_mesh", false );
 
             // write Cut_Integration_Mesh
             tParameterList.insert( "output_cut_ig_mesh", false );
@@ -133,6 +135,11 @@ namespace moris
             tParameterList.insert( "identify_hanging_nodes", false );
 
             tParameterList.insert( "delete_xtk_after_generation", true );
+
+            tParameterList.insert( "activate_basis_agglomeration", false );
+            tParameterList.insert( "volume_fraction", 1.0 );    // by default all the cut cells are considered bad
+            tParameterList.insert( "activate_cell_agglomeration", false );
+            tParameterList.insert( "visualize_cell_association", false );
 
             return tParameterList;
         }

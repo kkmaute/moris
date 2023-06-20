@@ -19,13 +19,16 @@
 #include "cl_XTK_Ghost_Stabilization.hpp"
 #include "cl_XTK_Vertex_Enrichment.hpp"
 #include "cl_XTK_Enrichment.hpp"
+#include "cl_Param_List.hpp"
 
 using namespace moris;
+
 
 namespace xtk
 {
 
     class Model;
+    class Field;
     class Enriched_Interpolation_Mesh : public mtk::Interpolation_Mesh
     {
         // friend classes
@@ -100,6 +103,14 @@ namespace xtk
         // not owned basis functions
         Cell< moris_index > mNotOwnedBasis;    // TODO input:  || output:
         Cell< moris_index > mOwnedBasis;       // TODO input:  || output:
+        
+        // block set information in an implicit form 
+        moris::Cell< std::string > mBlockSetNames;
+        moris::Cell< moris::Cell< moris_index > > mElementIndicesInBlock;
+
+        // Fields
+        moris::Cell< xtk::Field >                                     mFields; /*Structure Node (0), Cell(1)*/
+        moris::Cell< std::unordered_map< std::string, moris_index > > mFieldLabelToIndex; // input: Field rank (0: Node, 1:Element) , field label || output: field index
 
       public:
         Enriched_Interpolation_Mesh( Model* aXTKModel );
@@ -682,6 +693,276 @@ namespace xtk
          */
         void
         override_vertex_enrichment_id_index();
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Get the set names object
+         *
+         * @param aSetEntityRank
+         * @return moris::Cell< std::string >
+         */
+
+        moris::Cell< std::string >
+        get_set_names( enum EntityRank aSetEntityRank ) const;
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Create a set names object
+         *
+         */
+
+        void
+        create_set_names();
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief
+         *
+         * @param tFieldNames
+         * @param tFieldData
+         */
+
+        void
+        create_basis_support_fields( moris::Matrix< moris::DDRMat > const & aProbeSpheres );
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief
+         *
+         * @param tFieldNames
+         * @param tFieldData
+         */
+
+        void
+        create_basis_function_fields( moris::Matrix< moris::DDRMat > const & aProbeSpheres );
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Create a cell id fields object
+         *
+         */
+
+        void
+        create_cell_id_fields();
+
+        //------------------------------------------------------------------------------
+        // Function to write a field
+        //------------------------------------------------------------------------------
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Get the coefficient indices of node object
+         *
+         * @param aNodeIndex
+         * @param aDiscretizationMeshIndex
+         * @return Matrix< IndexMat >
+         */
+
+        Matrix< IndexMat >
+        get_coefficient_indices_of_node(
+                uint aNodeIndex,
+                uint aDiscretizationMeshIndex );
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Get the t matrix of node loc ind object
+         *
+         * @param aNodeIndex
+         * @param aDiscretizationMeshIndex
+         * @return const Matrix< DDRMat >&
+         */
+
+        const Matrix< DDRMat >&
+        get_t_matrix_of_node_loc_ind(
+                uint aNodeIndex,
+                uint aDiscretizationMeshIndex );
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Get the coefficient owners of node object
+         *
+         * @param aNodeIndex
+         * @param aBSplineMeshIndex
+         * @return Matrix< IdMat >
+         */
+
+        Matrix< IdMat >
+        get_coefficient_owners_of_node(
+                uint aNodeIndex,
+                uint aBSplineMeshIndex );
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Get the coefficient IDs of node object
+         *
+         * @param aNodeIndex
+         * @param aDiscretizationIndex
+         * @return Matrix< IdMat >
+         */
+
+        Matrix< IdMat > get_coefficient_IDs_of_node(
+                uint aNodeIndex,
+                uint aDiscretizationIndex );
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Get the entity owner object
+         *
+         * @param aEntityIndex
+         * @param aEntityRank
+         * @param aDiscretizationMeshIndex
+         * @return uint
+         */
+
+        uint get_entity_owner(
+                moris_index       aEntityIndex,
+                enum EntityRank   aEntityRank,
+                const moris_index aDiscretizationMeshIndex ) const;
+
+
+        //------------------------------------------------------------------------------
+        // Additional Field Functions
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Get the field names object
+         *
+         * @param aEntityRank
+         * @return moris::Cell< std::string >
+         */
+
+        moris::Cell< std::string >
+        get_field_names( enum moris::EntityRank aEntityRank );
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Create a field
+         * @param[in] aLabel Field label
+         * @param[in] aEntityRank Field entity rank
+         * @param[in]aBulkPhaseIndex Bulk phase field defined over
+         * aBulkphaseIndex of MORIS_INDEX_MAX results in a field over all phases
+         */
+
+        moris::moris_index
+        create_field( std::string      aLabel,
+                enum moris::EntityRank aEntityRank,
+                moris::moris_index     aBulkPhaseIndex = MORIS_INDEX_MAX );
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Given a field name and rank, gets the field index(ordinal)
+         * @return Field index
+         */
+
+        moris::moris_index
+        get_field_index( std::string   aLabel,
+                enum moris::EntityRank aEntityRank );
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Add field data to created field
+         * @param[in] aFieldIndex Field index (use fn:get_field_index(...) to get)
+         * @param[in] aEntityRank Field entity rank
+         * @param[in] aFieldData Field data
+         */
+
+        void
+        add_field_data( moris::moris_index aFieldIndex,
+                enum moris::EntityRank     aEntityRank,
+                Matrix< DDRMat > const &   aFieldData );
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Given a field index and field entity rank, get the field data
+         * @param[in] aFieldIndex Field index (use fn:get_field_index(...) to get)
+         * @param[in] aEntityRank Field entity rank
+         * @return Field data
+         */
+
+        Matrix< DDRMat > const &
+        get_field_data( moris::moris_index aFieldIndex,
+                enum moris::EntityRank     aEntityRank ) const;
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Get the entity rank field index object
+         *
+         * @param aEntityRank
+         * @return moris_index
+         */
+
+        moris_index
+        get_entity_rank_field_index( enum moris::EntityRank aEntityRank );
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @return  whether a field exists or not
+         */
+        bool
+        field_exists( std::string      aLabel,
+                enum moris::EntityRank aEntityRank );
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief
+         *
+         * @param aParameterList
+         */
+
+        void
+        write_mesh( moris::ParameterList* aParamList );
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Get the num blocks object
+         *
+         * @return moris_index
+         */
+
+        moris::uint
+        get_num_blocks() const;
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Get the block set index object
+         *
+         * @param aString
+         * @return moris_index
+         */
+
+        moris_index
+        get_block_set_index( std::string aString ) const;
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Get the set cells object
+         *
+         * @param aSetLabel
+         * @return moris::Cell< mtk::Cell const * >
+         */
+
+        moris::Cell< mtk::Cell const * >
+        get_set_cells( std::string aSetLabel ) const;
     };
 }    // namespace xtk
 

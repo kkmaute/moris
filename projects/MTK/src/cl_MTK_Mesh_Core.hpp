@@ -154,6 +154,64 @@ namespace moris
                     moris::Cell< moris_index >&                aLagToBspCellIndices,
                     moris::Cell< uint >&                       aBspCellRefineLevels );
 
+            // -----------------------------------------------------------------------------
+
+            /**
+             * @brief Get the bspline element ijk and level
+             *
+             * @param aDiscretizationMeshIndex discretization mesh index
+             * @param aBsplineElementIndex 
+             * @param aIJK
+             * @param aLevel
+             */
+
+            virtual const luint*
+            get_bspline_element_ijk_level(
+                    moris_index const & aDiscretizationMeshIndex,
+                    moris_index const & aBsplineElementIndex,
+                    uint                aLevel );
+
+            // -----------------------------------------------------------------------------
+
+            /**
+             * @brief Get the bspline element ijk level object
+             *
+             * @param aDiscretizationMeshIndex
+             * @param aBsplineElementIndex
+             * @param aIJK
+             * @param aLevel
+             */
+
+            virtual void
+            get_extended_t_matrix(
+                    moris_index const &                         aDiscretizationMeshIndex,
+                    moris_index const &                         aBSplineCellIndex,
+                    moris::mtk::Cell&                           aLagrangeCell,
+                    moris::Cell< moris::Cell< mtk::Vertex* > >& tBsplineBasis,
+                    moris::Cell< Matrix< DDRMat > >&            tWeights );
+
+            // -----------------------------------------------------------------------------
+
+            /**
+             * @brief Get the L2 projection matrix object
+             *
+             * @param aDiscretizationMeshIndex discretization mesh index
+             * @param aRootBSplineCellIndex 
+             * @param aExtendedBSplineCellIndex
+             * @param tRootBsplineBasis
+             * @param tExtendedBsplineBasis
+             * @param tWeights coefficients to relate extended basis to root basis
+             */
+
+            virtual void
+            get_L2_projection_matrix(
+                    moris_index const &                         aDiscretizationMeshIndex,
+                    moris_index const &                         aRootBSplineCellIndex,
+                    moris_index const &                         aExtendedBSplineCellIndex,
+                    moris::Cell< moris::Cell< mtk::Vertex* > >& tRootBsplineBasis,
+                    moris::Cell< mtk::Vertex* >&                tExtendedBsplineBasis,
+                    moris::Cell< Matrix< DDRMat > >&            tWeights );
+
             // ----------------------------------------------------------------------------
 
             /**

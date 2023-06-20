@@ -16,6 +16,7 @@
 
 #include "cl_Matrix.hpp"
 #include "fn_norm.hpp"
+#include "fn_stringify_matrix.hpp"
 
 using namespace moris;
 
@@ -212,6 +213,120 @@ check_results(
 
 //---------------------------------------------------------------
 
+extern "C" void
+check_results_xtk_mesh(
+        std::string aExoFileNameIG,
+        std::string aExoFileNameIP )
+{
+    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( "Checking Results - Test Case on %i processor.", par_size() );
+    MORIS_LOG_INFO( "" );
+
+    // open and query exodus output file (set verbose to true to get basic mesh information)
+    moris::mtk::Exodus_IO_Helper tExoIOIGMesh( aExoFileNameIG.c_str(), 0, false, false );
+    moris::mtk::Exodus_IO_Helper tExoIOIPMesh( aExoFileNameIP.c_str(), 0, false, false );
+
+    // define reference node IDs ( first is the IG mesh, second is the IP mesh )
+    Cell< uint > tReferenceNodeId = { 8 , 5 };
+
+    if ( gPrintReferenceValues )
+    {
+        uint tNumDimsIG  = tExoIOIGMesh.get_number_of_dimensions();
+        uint tNumNodesIG = tExoIOIGMesh.get_number_of_nodes();
+        uint tNumElemsIG = tExoIOIGMesh.get_number_of_elements();
+
+        uint tNumDimsIP  = tExoIOIPMesh.get_number_of_dimensions();
+        uint tNumNodesIP = tExoIOIPMesh.get_number_of_nodes();
+        uint tNumElemsIP = tExoIOIPMesh.get_number_of_elements();
+
+        std::cout << "Number of dimensions IG mesh : " << tNumDimsIG << std::endl;
+        std::cout << "Number of nodes IG mesh      : " << tNumNodesIG << std::endl;
+        std::cout << "Number of elements IG mesh   : " << tNumElemsIG << std::endl;
+
+        std::cout << "Number of dimensions IP mesh : " << tNumDimsIP << std::endl;
+        std::cout << "Number of nodes IP mesh      : " << tNumNodesIP << std::endl;
+        std::cout << "Number of elements IP mesh   : " << tNumElemsIP << std::endl;
+
+        // coordinates of reference point
+        moris::print( tExoIOIGMesh.get_nodal_coordinate( tReferenceNodeId( 0 ) ), "Coordinates of reference point IG mesh" );
+        moris::print( tExoIOIPMesh.get_nodal_coordinate( tReferenceNodeId( 1 ) ), "Coordinates of reference point IP mesh" );
+
+        return;
+    }
+
+
+    // define reference values for dimension, number of nodes and number of elements
+    Cell< uint > tReferenceNumDims  = { 2, 2 };
+    Cell< uint > tReferenceNumNodes = { 54, 60 };
+    Cell< uint > tReferenceNumElems = { 26, 10 };
+
+    uint tNumDimsIG  = tExoIOIGMesh.get_number_of_dimensions();
+    uint tNumNodesIG = tExoIOIGMesh.get_number_of_nodes();
+    uint tNumElemsIG = tExoIOIGMesh.get_number_of_elements();
+
+    uint tNumDimsIP  = tExoIOIPMesh.get_number_of_dimensions();
+    uint tNumNodesIP = tExoIOIPMesh.get_number_of_nodes();
+    uint tNumElemsIP = tExoIOIPMesh.get_number_of_elements();
+
+    REQUIRE( tNumDimsIG == tReferenceNumDims( 0 ) );
+    REQUIRE( tNumNodesIG == tReferenceNumNodes( 0 ) );
+    REQUIRE( tNumElemsIG == tReferenceNumElems( 0 ) );
+
+    REQUIRE( tNumDimsIP == tReferenceNumDims( 1 ) );
+    REQUIRE( tNumNodesIP == tReferenceNumNodes( 1 ) );
+    REQUIRE( tNumElemsIP == tReferenceNumElems( 1 ) );
+
+    // define reference coordinates for node aNodeId
+    Cell< Matrix< DDRMat > > tReferenceCoordinate;
+
+    tReferenceCoordinate.push_back( { { +1.25 }, { +0.25 } } );
+    tReferenceCoordinate.push_back( { { +1.25 }, { +0.0 } } );
+
+    // check nodal coordinates
+    Matrix< DDRMat > tActualCoordinateIG = tExoIOIGMesh.get_nodal_coordinate( tReferenceNodeId( 0 ) );
+    Matrix< DDRMat > tActualCoordinateIP = tExoIOIPMesh.get_nodal_coordinate( tReferenceNodeId( 1 ) );
+
+    real tRelDiffNormIG = moris::norm( tActualCoordinateIG - tReferenceCoordinate( 0 ) ) / moris::norm( tReferenceCoordinate( 0 ) );
+    real tRelDiffNormIP = moris::norm( tActualCoordinateIP - tReferenceCoordinate( 1 ) ) / moris::norm( tReferenceCoordinate( 1 ) );
+
+    MORIS_LOG_INFO( "Check nodal IG-coordinates:  reference %12.5e, actual %12.5e, percent  error %12.5e.",
+            norm( tReferenceCoordinate( 0 ) ),
+            norm( tActualCoordinateIG ),
+            tRelDiffNormIG * 100.0 );
+    MORIS_LOG_INFO( "Check nodal IP-coordinates:  reference %12.5e, actual %12.5e, percent  error %12.5e.",
+            norm( tReferenceCoordinate( 1 ) ),
+            norm( tActualCoordinateIP ),
+            tRelDiffNormIP * 100.0 );
+
+     // Define reference values for nodal fields
+     Matrix<DDRMat> tReferenceValuesIGMesh = {{ 1.0 , -10.0 }};
+     Matrix<DDRMat> tReferenceValuesIPMesh = {{ 0.0625, 0.375 , 0.0625 } };
+
+        // Define actual values for nodal fields
+     Matrix< DDRMat > tActualValuesIGMesh( 1, 2, 0.0 );
+     tActualValuesIGMesh(0) =  tExoIOIGMesh.get_nodal_field_value( tReferenceNodeId( 0 ), "weights_mi_0_ind_4", 0.0 ) ;
+     tActualValuesIGMesh(1) =  tExoIOIGMesh.get_nodal_field_value( tReferenceNodeId( 0 ), "weights_mi_0_ind_22", 0.0 ) ;
+
+     Matrix< DDRMat > tActualValuesIPMesh( 1, 3, 0.0 );
+     tActualValuesIPMesh(0)= tExoIOIPMesh.get_nodal_field_value( tReferenceNodeId( 1 ), "Basis_mi_0_ind_0", 0.0 ) ;
+     tActualValuesIPMesh(1)=tExoIOIPMesh.get_nodal_field_value( tReferenceNodeId( 1 ), "Basis_mi_0_ind_4", 0.0 ) ;
+     tActualValuesIPMesh(2)= tExoIOIPMesh.get_nodal_field_value( tReferenceNodeId( 1 ), "weights_mi_0_ind_10", 0.0);
+
+     // define lambdas to check if values are equal
+     bool tIGMeshValuesAreEqual = std::equal( tActualValuesIGMesh.begin(), tActualValuesIGMesh.end(), tReferenceValuesIGMesh.begin() );
+     bool tIPMeshValuesAreEqual = std::equal( tActualValuesIPMesh.begin(), tActualValuesIPMesh.end(), tReferenceValuesIPMesh.begin() );
+
+     // print out IP and IG mesh values
+     MORIS_LOG_INFO( "Check IG mesh values: reference %s , actual %s.", ios::stringify_log( tReferenceValuesIGMesh ).c_str(), ios::stringify_log( tActualValuesIGMesh ).c_str() );
+     MORIS_LOG_INFO( "Check IP mesh values: reference %s , actual %s.", ios::stringify_log( tReferenceValuesIPMesh ).c_str(), ios::stringify_log( tActualValuesIPMesh ).c_str() );
+
+     // check the values are matching
+     REQUIRE( tIGMeshValuesAreEqual );
+     REQUIRE( tIPMeshValuesAreEqual );
+}
+
+//---------------------------------------------------------------
+
 TEST_CASE( "Two_Material_Bar_Linear",
         "[moris],[example],[structure],[linear]" )
 {
@@ -290,6 +405,11 @@ TEST_CASE( "Two_Material_Bar_Quadratic",
 
     // perform check for Test Case 2
     check_results( "Two_Material_Bar_2.exo", gTestCaseIndex );
+
+#ifdef MORIS_HAVE_DEBUG
+    // check xtk mesh results
+    check_results_xtk_mesh( "xtk_temp.exo", "xtk_temp_ip.exo" );
+#endif
 
     MORIS_LOG_INFO( "" );
     MORIS_LOG_INFO( "Executing Two_Material_Bar - 3D: Interpolation order 2 - %i Processors.", par_size() );

@@ -414,6 +414,23 @@ namespace moris
                  */
                 uint
                 get_field_index_by_name( std::string aFileName );
+
+                //------------------------------------------------------------------------------
+
+                /**
+                 * @brief Get the nodal field value based on the name of the field
+                 * 
+                 * @param aNodeId 
+                 * @param aFieldName 
+                 * @param aTimeStepIndex 
+                 * @return real 
+                 */
+
+                real
+                get_nodal_field_value(
+                uint const        &aNodeId,
+                std::string const &aFieldName,
+                uint const        &aTimeStepIndex );
         };
     }
 }
