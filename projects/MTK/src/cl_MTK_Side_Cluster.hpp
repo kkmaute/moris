@@ -318,7 +318,7 @@ namespace moris
              * @return Matrix of vertex indices in cluster
              */
             virtual moris::Matrix< moris::IndexMat >
-            get_vertex_indices_in_cluster() const;
+            get_vertex_indices_in_cluster( mtk::Leader_Follower aLeaderFollower = mtk::Leader_Follower::LEADER ) const;
             // ----------------------------------------------------------------------------------
             // Cell/Vertex Id Access
             // ----------------------------------------------------------------------------------

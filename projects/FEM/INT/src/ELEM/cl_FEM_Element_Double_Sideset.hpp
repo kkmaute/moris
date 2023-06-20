@@ -12,7 +12,7 @@
 #define SRC_FEM_CL_FEM_ELEMENT_DOUBLE_SIDESET_HPP_
 
 #include "assert.h"
-#include "cl_FEM_Element.hpp" //FEM/INT/src
+#include "cl_FEM_Element.hpp"    //FEM/INT/src
 
 namespace moris
 {
@@ -26,117 +26,151 @@ namespace moris
         class Element_Double_Sideset : public Element
         {
 
-                //------------------------------------------------------------------------------
-            public:
-                //------------------------------------------------------------------------------
-                /**
-                 * constructor
-                 * @param[ in ] aLeftIGCell         pointer to mesh cell for leader element
-                 * @param[ in ] aRightIGCell        pointer to mesh cell for follower element
-                 * @param[ in ] aSet                pointer to FEM set to which the elements belong
-                 * @param[ in ] aCluster            pointer to FEM cluster to which the elements belong
-                 * @param[ in ] aCellIndexInCluster index of the element in the cluster
-                 */
-                Element_Double_Sideset(
-                        mtk::Cell const    * aLeftIGCell,
-                        mtk::Cell const    * aRightIGCell,
-                        Set                * aSet,
-                        Cluster            * aCluster,
-                        moris::moris_index   aCellIndexInCluster );
+            //------------------------------------------------------------------------------
 
-                //------------------------------------------------------------------------------
-                /**
-                 * destructor
-                 */
-                ~Element_Double_Sideset();
+          public:
+            //------------------------------------------------------------------------------
 
-                //------------------------------------------------------------------------------
-                /**
-                 * compute residual over the element
-                 */
-                void compute_residual();
+            /**
+             * constructor
+             * @param[ in ] aLeftIGCell         pointer to mesh cell for leader element
+             * @param[ in ] aRightIGCell        pointer to mesh cell for follower element
+             * @param[ in ] aSet                pointer to FEM set to which the elements belong
+             * @param[ in ] aCluster            pointer to FEM cluster to which the elements belong
+             * @param[ in ] aCellIndexInCluster index of the element in the cluster
+             */
+            Element_Double_Sideset(
+                    mtk::Cell const   *aLeftIGCell,
+                    mtk::Cell const   *aRightIGCell,
+                    Set               *aSet,
+                    Cluster           *aCluster,
+                    moris::moris_index aCellIndexInCluster );
 
-                //------------------------------------------------------------------------------
-                /**
-                 * compute jacobian over the element
-                 */
-                void compute_jacobian();
+            //------------------------------------------------------------------------------
 
-                //------------------------------------------------------------------------------
-                /**
-                 * compute jacobian and residual over the element
-                 */
-                void compute_jacobian_and_residual();
+            /**
+             * destructor
+             */
+            ~Element_Double_Sideset();
 
-                //------------------------------------------------------------------------------
-                /**
-                 * compute dRdp
-                 */
-                void compute_dRdp();
+            //------------------------------------------------------------------------------
 
-                //------------------------------------------------------------------------------
-                /**
-                 * compute QI
-                 */
-                void compute_QI();
+            /**
+             * compute residual over the element
+             */
+            void compute_residual();
 
-                //------------------------------------------------------------------------------
-                /**
-                 * compute dQIdu
-                 */
-                void compute_dQIdu()
-                {
-                    MORIS_ERROR( false, "Element_Double_Sideset::compute_dQIdu - not implemented.");
-                }
+            //------------------------------------------------------------------------------
 
-                //------------------------------------------------------------------------------
-                /**
-                 * compute dQIdp
-                 */
-                void compute_dQIdp_explicit()
-                {
-                    MORIS_ERROR( false, "Element_Double_Sideset::compute_dQIdp_explicit - not implemented.");
-                }
+            /**
+             * compute jacobian over the element
+             */
+            void compute_jacobian();
 
-                //------------------------------------------------------------------------------
-                /**
-                 * compute dRdp and dQIdp
-                 */
-                void compute_dRdp_and_dQIdp();
+            //------------------------------------------------------------------------------
 
-                //------------------------------------------------------------------------------
-                /**
-                 * compute volume over the element
-                 * @param[ in ] aIsLeader enum for leader or follower
-                 */
-                real compute_volume( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
+            /**
+             * compute jacobian and residual over the element
+             */
+            void compute_jacobian_and_residual();
 
-                //------------------------------------------------------------------------------
-            protected:
+            //------------------------------------------------------------------------------
 
-                //------------------------------------------------------------------------------
-                /**
-                 * initialize the geometry interpolator for the IG leader and follower element
-                 * @param[ in ] aLeaderSideOrdinal side ordinal for the leader element
-                 * @param[ in ] aFollowerSideOrdinal  side ordinal for the follower element
-                 */
-                void init_ig_geometry_interpolator(
-                        uint aLeaderSideOrdinal,
-                        uint aFollowerSideOrdinal );
+            /**
+             * compute dRdp
+             */
+            void compute_dRdp();
 
-                //------------------------------------------------------------------------------
-                /**
-                 * initialize the geometry interpolator for the IG leader and follower element
-                 * @param[ in ] aLeaderSideOrdinal side ordinal for the leader element
-                 * @param[ in ] aFollowerSideOrdinal  side ordinal for the follower element
-                 * @param[ in ] aGeoLocalAssembly  matrix with pdv local assembly indices
-                 *                                 for leader element
-                 *                                 ( NumVertexIndices x NumPdvTypes )
-                 */
-                void init_ig_geometry_interpolator(
-                        uint               aLeaderSideOrdinal,
-                        uint               aFollowerSideOrdinal,
-                        Matrix< DDSMat > & aGeoLocalAssembly );
+            //------------------------------------------------------------------------------
+
+            /**
+             * compute QI
+             */
+            void compute_QI();
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * compute dQIdu
+             */
+            void
+            compute_dQIdu()
+            {
+                MORIS_ERROR( false, "Element_Double_Sideset::compute_dQIdu - not implemented." );
+            }
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * compute dQIdp
+             */
+            void
+            compute_dQIdp_explicit()
+            {
+                MORIS_ERROR( false, "Element_Double_Sideset::compute_dQIdp_explicit - not implemented." );
+            }
+
+            //------------------------------------------------------------------------------
+            /**
+             * compute dRdp and dQIdp
+             */
+            void compute_dRdp_and_dQIdp();
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * compute quantity of interest in a global way
+             * @param[ in ] aFemMeshIndex mesh index for used IG mesh
+             */
+            void compute_quantity_of_interest_global( const uint aFemMeshIndex );
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * compute quantity of interest in a elemental way
+             * @param[ in ] aFemMeshIndex mesh index for used IG mesh
+             * @param[ in ] aAverageOutput flag, turn on to request the averaged, rather than integrated quantity on the element/facet
+             */
+            void compute_quantity_of_interest_elemental(
+                    const uint aFemMeshIndex,
+                    const bool aAverageOutput );
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * compute volume over the element
+             * @param[ in ] aIsLeader enum for leader or follower
+             */
+            real compute_volume( mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
+
+            //------------------------------------------------------------------------------
+
+          protected:
+            //------------------------------------------------------------------------------
+
+            /**
+             * initialize the geometry interpolator for the IG leader and follower element
+             * @param[ in ] aLeaderSideOrdinal side ordinal for the leader element
+             * @param[ in ] aFollowerSideOrdinal  side ordinal for the follower element
+             */
+            void init_ig_geometry_interpolator(
+                    uint aLeaderSideOrdinal,
+                    uint aFollowerSideOrdinal );
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * initialize the geometry interpolator for the IG leader and follower element
+             * @param[ in ] aLeaderSideOrdinal side ordinal for the leader element
+             * @param[ in ] aFollowerSideOrdinal  side ordinal for the follower element
+             * @param[ in ] aGeoLocalAssembly  matrix with pdv local assembly indices
+             *                                 for leader element
+             *                                 ( NumVertexIndices x NumPdvTypes )
+             */
+            void init_ig_geometry_interpolator(
+                    uint              aLeaderSideOrdinal,
+                    uint              aFollowerSideOrdinal,
+                    Matrix< DDSMat > &aGeoLocalAssembly );
         };
 
         //------------------------------------------------------------------------------
@@ -144,4 +178,3 @@ namespace moris
 } /* namespace moris */
 
 #endif /* SRC_FEM_CL_FEM_ELEMENT_DOUBLE_SIDESET_HPP_ */
-

@@ -347,7 +347,7 @@ namespace moris
                         "temp.exo",
                         { "HMR_dummy_c_p0", "HMR_dummy_c_p1", "HMR_dummy_n_p0", "HMR_dummy_n_p1" },
                         { "strain energy elemental", "strain energy global", "strain energy nodal IP" },
-                        { Field_Type::ELEMENTAL, Field_Type::GLOBAL, Field_Type::NODAL },
+                        { Field_Type::ELEMENTAL_AVG, Field_Type::GLOBAL, Field_Type::NODAL },
                         { "IQI", "IQI", "IQI" } );
 
                 tModel->set_output_manager( &tOutputData );
@@ -650,7 +650,7 @@ namespace moris
                 tParameterList.set( "File_Name", std::pair< std::string, std::string >( tMorisOutput, "Vis_Test.exo" ) );
                 tParameterList.set( "Set_Names", std::string( "HMR_dummy_c_p0,HMR_dummy_c_p1,HMR_dummy_n_p0,HMR_dummy_n_p1" ) );
                 tParameterList.set( "Field_Names", std::string( "strain_energy_elemental,strain_energy_global,strain_energy_nodal_IP" ) );
-                tParameterList.set( "Field_Type", std::string( "ELEMENTAL,GLOBAL,NODAL" ) );
+                tParameterList.set( "Field_Type", std::string( "ELEMENTAL_INT,GLOBAL,NODAL" ) );
                 tParameterList.set( "IQI_Names", std::string( "IQI,IQI,IQI" ) );
 
                 Output_Manager tOutputData( tParameterList );

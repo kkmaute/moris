@@ -144,9 +144,6 @@ namespace moris
             // bulk type
             fem::Element_Type mBulkType = fem::Element_Type::BULK;
 
-            // for VIS output: which side of the side set to output on (only relevant for double sided side sets)
-            mtk::Leader_Follower mOutputSide = mtk::Leader_Follower::LEADER;
-
             // strings for leader and follower phase name
             std::string mLeaderPhaseName;
             std::string mFollowerPhaseName;

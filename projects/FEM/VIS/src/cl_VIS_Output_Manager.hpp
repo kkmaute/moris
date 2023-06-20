@@ -229,13 +229,47 @@ namespace moris
 
             //-----------------------------------------------------------------------------------------------------------
 
+            void add_faceted_fields( const uint aVisMeshIndex );
+
+            //-----------------------------------------------------------------------------------------------------------
+
             void add_global_fields( const uint aVisMeshIndex );
 
             //-----------------------------------------------------------------------------------------------------------
 
-            void write_field( const uint                   aVisMeshIndex,
+            void write_field(
+                    const uint                             aVisMeshIndex,
                     const real                             aTime,
                     std::shared_ptr< MSI::Equation_Model > aEquationModel );
+
+            //-----------------------------------------------------------------------------------------------------------
+
+            void
+            get_IQI_and_field_names(
+                    const uint                   aVisMeshIndex,
+                    Cell< Cell< std::string > > &aIQINames,
+                    Cell< Cell< std::string > > &aFieldNames,
+                    Cell< uint >                &aNumIQIsForFieldType );
+
+            //-----------------------------------------------------------------------------------------------------------
+
+            void compute_fields_for_set(
+                    const uint                         aVisMeshIndex,
+                    MSI::Equation_Set                 *aFemSet,
+                    Cell< Cell< std::string > > const &aIQINames,
+                    Cell< Cell< std::string > > const &aFieldNames,
+                    Matrix< DDRMat >                  *aGlobalFieldValues,
+                    Matrix< DDRMat >                  *aNodalFieldValues );
+
+            //-----------------------------------------------------------------------------------------------------------
+
+            void
+            compute_and_write_elemental_fields_on_set(
+                    const uint                 aVisMeshIndex,
+                    MSI::Equation_Set         *aFemSet,
+                    const Field_Type           aFieldType,
+                    Cell< std::string > const &aIQINamesForType,
+                    Cell< std::string > const &aFieldNamesForType );
 
             //-----------------------------------------------------------------------------------------------------------
         };

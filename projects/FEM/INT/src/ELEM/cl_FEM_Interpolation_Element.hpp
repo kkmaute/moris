@@ -46,6 +46,7 @@ namespace moris
           protected:
             // pointer to the mesh cluster
             // NOTE: first cluster in list is the one that gets built in XTK
+            // NOTE: the subsequent clusters usually correspond to clusters created from each of the VIS meshes
             moris::Cell< std::shared_ptr< fem::Cluster > > mFemCluster;
 
             // pointer to the leader and follower mesh interpolation cell
@@ -119,11 +120,11 @@ namespace moris
             /**
              * set cluster
              * @param[ in ] aCluster     pointer to a fem cluster
-             * @param[ in ] aMeshIndex   mesh index
+             * @param[ in ] aFemMeshIndex   mesh index
              */
             void set_cluster(
                     std::shared_ptr< fem::Cluster > aCluster,
-                    const uint                      aMeshIndex );
+                    const uint                      aFemMeshIndex );
 
             //------------------------------------------------------------------------------
             /**
@@ -196,15 +197,37 @@ namespace moris
             void compute_QI();
 
             //------------------------------------------------------------------------------
+
             /**
              * compute the quantity of interest on cluster
-             * @param[ in ] aMeshIndex  index for vis mesh used
+             * @param[ in ] aFemMeshIndex  index for the mesh used
              * @param[ in ] aFieldType  an enum for computation/return type
-             *                          GLOBAL, NODAL, ELEMENTAL
+             *                          GLOBAL, NODAL, ELEMENTAL_INT, ELEMENTAL_AVG
              */
-            void compute_quantity_of_interest(
-                    const uint           aClusterIndex,
+            void
+            compute_quantity_of_interest(
+                    const uint           aFemMeshIndex,
                     enum vis::Field_Type aFieldType );
+
+            //------------------------------------------------------------------------------
+
+            /**
+             * @brief compute elemental coefficients and set FIs for evaluating IQIs
+             */
+            void
+            setup_IQI_computation();
+
+            //------------------------------------------------------------------------------
+
+            void
+            compute_nodal_QIs_standard(
+                    const uint           aMeshIndex,
+                    mtk::Leader_Follower aLeaderOrFollowerSide = mtk::Leader_Follower::LEADER );
+
+            //------------------------------------------------------------------------------
+
+            void
+            compute_nodal_QIs_double_sided( const uint aMeshIndex );
 
             //------------------------------------------------------------------------------
             /**
@@ -233,7 +256,8 @@ namespace moris
             void set_field_interpolators_coefficients();
 
             //------------------------------------------------------------------------------
-        };
+
+        };    // class FEM::Interpolation_Element
 
         //------------------------------------------------------------------------------
     } /* namespace fem */

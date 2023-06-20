@@ -65,36 +65,36 @@ namespace moris
         Equation_Model::compute_IQIs()
         {
             // get number of IQI on the model
-            moris::uint tNumIQIsOnModel =
+            uint tNumIQIsOnModel =
                     this->get_requested_IQI_names().size();
 
             // get local number of equation sets
-            moris::uint tNumSets = mFemSets.size();
+            uint tNumSets = mFemSets.size();
 
             // loop over local equation sets
-            for ( moris::uint tSetIndex = 0; tSetIndex < tNumSets; tSetIndex++ )
+            for ( uint tSetIndex = 0; tSetIndex < tNumSets; tSetIndex++ )
             {
                 // initialize treated equation set // FIXME????
                 mFemSets( tSetIndex )->initialize_set();
 
                 // get number of IQIs on treated equation set
-                moris::uint tNumIQIsOnSet = mFemSets( tSetIndex )->get_number_of_requested_IQIs();
+                uint tNumIQIsOnSet = mFemSets( tSetIndex )->get_number_of_requested_IQIs();
 
                 // if some IQI are requested on treated equation set
                 if ( tNumIQIsOnSet > 0 )
                 {
                     // get number of equation objects on treated equation set
-                    moris::uint tNumEquationObjectOnSet = mFemSets( tSetIndex )->get_num_equation_objects();
+                    uint tNumEquationObjectOnSet = mFemSets( tSetIndex )->get_num_equation_objects();
 
                     // loop over equation objects on treated equation set
-                    for ( moris::uint tEquationObjectIndex = 0; tEquationObjectIndex < tNumEquationObjectOnSet; tEquationObjectIndex++ )
+                    for ( uint tEquationObjectIndex = 0; tEquationObjectIndex < tNumEquationObjectOnSet; tEquationObjectIndex++ )
                     {
                         // compute QI
                         // FIXME this is elemental right now??
                         mFemSets( tSetIndex )->get_equation_object_list()( tEquationObjectIndex )->compute_QI();
 
                         // loop over IQIs on model
-                        for ( moris::uint tIQIIndex = 0; tIQIIndex < tNumIQIsOnModel; tIQIIndex++ )
+                        for ( uint tIQIIndex = 0; tIQIIndex < tNumIQIsOnModel; tIQIIndex++ )
                         {
                             // assemble QI values into global vector
                             mGlobalIQIVal( tIQIIndex ) += mFemSets( tSetIndex )->get_QI()( tIQIIndex );
@@ -149,23 +149,25 @@ namespace moris
             Tracer tTracer( "MSI", "EquationModel", "ComputedQIdpExplAndImpl" );
 
             // get local number of equation sets
-            moris::uint tNumSets = mFemSets.size();
+            uint tNumSets = mFemSets.size();
 
             // loop over local equation sets
-            for ( moris::uint tSetIndex = 0; tSetIndex < tNumSets; tSetIndex++ )
+            for ( uint tSetIndex = 0; tSetIndex < tNumSets; tSetIndex++ )
             {
-                // get number of equation object on treated equation set
-                moris::uint tNumEqObjOnSet =
-                        mFemSets( tSetIndex )->get_num_equation_objects();
+                // get access to the equation objects
+                Cell< MSI::Equation_Object * > & tEqnObjList = mFemSets( tSetIndex )->get_equation_object_list();
 
-                // initialize treated equation set //FIXME????
+                // get number of equation object on treated equation set
+                uint tNumEqObjOnSet = tEqnObjList.size();
+
+                // initialize treated equation set
                 mFemSets( tSetIndex )->initialize_set();
 
                 // loop over equation objects on treated equation set
-                for ( moris::uint tEqObjIndex = 0; tEqObjIndex < tNumEqObjOnSet; tEqObjIndex++ )
+                for ( uint tEqObjIndex = 0; tEqObjIndex < tNumEqObjOnSet; tEqObjIndex++ )
                 {
                     // compute dQIdp implicit
-                    mFemSets( tSetIndex )->get_equation_object_list()( tEqObjIndex )->compute_dQIdp_explicit_implicit();
+                    tEqnObjList( tEqObjIndex )->compute_dQIdp_explicit_implicit();
                 }
 
                 // free memory on treated equation set
@@ -188,20 +190,20 @@ namespace moris
             Tracer tTracer( "MSI", "EquationModel", "Compute_dQIdp_Impl" );
 
             // get local number of equation sets
-            moris::uint tNumSets = mFemSets.size();
+            uint tNumSets = mFemSets.size();
 
             // loop over local equation sets
-            for ( moris::uint tSetIndex = 0; tSetIndex < tNumSets; tSetIndex++ )
+            for ( uint tSetIndex = 0; tSetIndex < tNumSets; tSetIndex++ )
             {
                 // get number of equation object on treated equation set
-                moris::uint tNumEquationObjectOnSet =
+                uint tNumEquationObjectOnSet =
                         mFemSets( tSetIndex )->get_num_equation_objects();
 
                 // initialize treated equation set //FIXME????
                 mFemSets( tSetIndex )->initialize_set();
 
                 // loop over equation objects on treated equation set
-                for ( moris::uint tEquationObjectIndex = 0; tEquationObjectIndex < tNumEquationObjectOnSet; tEquationObjectIndex++ )
+                for ( uint tEquationObjectIndex = 0; tEquationObjectIndex < tNumEquationObjectOnSet; tEquationObjectIndex++ )
                 {
                     // compute dQIdp implicit
                     mFemSets( tSetIndex )->get_equation_object_list()( tEquationObjectIndex )->compute_dQIdp_implicit();
@@ -223,13 +225,13 @@ namespace moris
             Tracer tTracer( "MSI", "EquationModel", "Compute_dQIdp_Expl" );
 
             // get local number of equation sets
-            moris::uint tNumSets = mFemSets.size();
+            uint tNumSets = mFemSets.size();
 
             // loop over local equation sets
-            for ( moris::uint iSet = 0; iSet < tNumSets; iSet++ )
+            for ( uint iSet = 0; iSet < tNumSets; iSet++ )
             {
                 // get number of equation objects on treated equation set
-                moris::uint tNumEquationObjectOnSet =
+                uint tNumEquationObjectOnSet =
                         mFemSets( iSet )->get_num_equation_objects();
 
                 // initialize treated equation set //FIXME????
@@ -239,7 +241,7 @@ namespace moris
                 if ( mFemSets( iSet )->get_number_of_requested_IQIs() > 0 )
                 {
                     // loop over equation objects on treated equation set
-                    for ( moris::uint iEqObj = 0; iEqObj < tNumEquationObjectOnSet; iEqObj++ )
+                    for ( uint iEqObj = 0; iEqObj < tNumEquationObjectOnSet; iEqObj++ )
                     {
                         // compute dQIdp explicit
                         mFemSets( iSet )->get_equation_object_list()( iEqObj )->compute_dQIdp_explicit();

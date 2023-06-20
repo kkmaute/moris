@@ -59,7 +59,9 @@ namespace moris
     std::string tPhase1 = "HMR_dummy_n_p1,HMR_dummy_c_p1";
     std::string tPhase2 = "HMR_dummy_n_p0,HMR_dummy_c_p0";
 
-    std::string tInterface = "dbl_iside_p0_1_p1_0";
+    std::string tInterface         = "dbl_iside_p0_1_p1_0";
+    std::string tInterfaceLeader   = "iside_b0_1_b1_0";
+    std::string tInterfaceFollower = "iside_b0_0_b1_1";
 
     std::string tBackSurface = "SideSet_4_n_p1";
 
@@ -69,7 +71,7 @@ namespace moris
     std::string tPhase2Ghost = "ghost_p0";
 
     std::string tTotalDomain   = tPhase1 + "," + tPhase2;
-    std::string tAllInterfaces = tInterface + "," + tBackSurface + "," + tFrontSurface;
+    std::string tAllInterfaces = tInterface + "," + tBackSurface + "," + tFrontSurface + "," + tInterfaceLeader + "," + tInterfaceFollower;
 
     /* ------------------------------------------------------------------------ */
     // geometry parameters
@@ -645,6 +647,30 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain );
         tIQICounter++;
 
+        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQI_Volume_Elem_Avg" );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", (uint)fem::IQI_Type::VOLUME );
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain );
+        tIQICounter++;
+
+        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQI_Volume_Elem_Int" );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", (uint)fem::IQI_Type::VOLUME );
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain );
+        tIQICounter++;
+
+        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQI_Volume_Face_Avg" );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", (uint)fem::IQI_Type::VOLUME );
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tInterfaceLeader );
+        tIQICounter++;
+
+        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQI_Volume_Face_Int" );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", (uint)fem::IQI_Type::VOLUME );
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tInterfaceLeader );
+        tIQICounter++;
+
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
         tParameterList( 5 ).resize( 1 );
@@ -704,10 +730,27 @@ namespace moris
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
-        tParameterlist( 0 )( 0 ).set( "Set_Names", tTotalDomain + "," + tAllInterfaces );   
-        tParameterlist( 0 )( 0 ).set( "Field_Names", "TEMP,TEMP_ANALYTIC,L2_ERROR_ANALYTIC,H1_ERROR_ANALYTIC,VOLUME" );
-        tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL" );
-        tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIBulkTEMP,IQIBulkTEMPAnalytic,IQIBulkL2Error,IQIBulkH1Error,IQIVolume" );
+        tParameterlist( 0 )( 0 ).set( "Set_Names", tTotalDomain + "," + tAllInterfaces );
+
+        tParameterlist( 0 )( 0 ).set( "Field_Names", 
+                "TEMP,TEMP_ANALYTIC,"
+                "L2_ERROR_ANALYTIC,H1_ERROR_ANALYTIC,"
+                "VOLUME,"
+                "VOL_ELEMENTAL_AVG,VOL_ELEMENTAL_INT,"
+                "VOL_FACETED_AVG,VOL_FACETED_INT" );
+        tParameterlist( 0 )( 0 ).set( "Field_Type", 
+                "NODAL,NODAL,"
+                "GLOBAL,GLOBAL,"
+                "GLOBAL,"
+                "ELEMENTAL_AVG,ELEMENTAL_INT,"
+                "FACETED_AVG,FACETED_INT" );
+        tParameterlist( 0 )( 0 ).set( "IQI_Names", 
+                "IQIBulkTEMP,IQIBulkTEMPAnalytic,"
+                "IQIBulkL2Error,IQIBulkH1Error,"
+                "IQIVolume,"
+                "IQI_Volume_Elem_Avg,IQI_Volume_Elem_Int,"
+                "IQI_Volume_Face_Avg,IQI_Volume_Face_Int" );
+
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }
 

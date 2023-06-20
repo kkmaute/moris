@@ -52,12 +52,16 @@ namespace moris
 
     std::string tInterface = "dbl_iside_p0_1_p1_0";
 
+    std::string tSphereSurface        = "iside_b0_1_b1_0";
+    std::string tBlockInnerSurface    = "iside_b0_0_b1_1";
+    std::string tInterfaceSingleSides = tSphereSurface + "," + tBlockInnerSurface;
+
     std::string tOuterSurface = "SideSet_1_n_p0,SideSet_2_n_p0,SideSet_3_n_p0,SideSet_4_n_p0,SideSet_5_n_p0,SideSet_6_n_p0";
 
     std::string tInnerPhaseGhost = "ghost_p1";
     std::string tOuterPhaseGhost = "ghost_p0";
 
-    std::string tTotalDomain = tInnerPhase + "," + tOuterPhase;
+    std::string tTotalDomain   = tInnerPhase + "," + tOuterPhase;
     std::string tAllInterfaces = tOuterSurface + "," + tInterface;
 
     /* ------------------------------------------------------------------------ */
@@ -604,12 +608,54 @@ namespace moris
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain );
         tIQICounter++;
 
+        // Total volume of the sphere and the block around it
         tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
         tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQIVolume" );
         tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::VOLUME ) );
         tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "TEMP" );
         tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tTotalDomain );
         tIQICounter++;
+
+        // surface area of the sphere
+        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQI_Sphere_Surface" );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", static_cast< uint >( fem::IQI_Type::VOLUME ) );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "TEMP" );
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tSphereSurface );
+        tIQICounter++;
+
+        // sphere surface heat flux
+        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQI_Sphere_Outer_Surface_Heat_Flux" );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", (uint)fem::IQI_Type::TRACTION );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "TEMP" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_constitutive_models", "CMDiffusionInner,TractionCM" );
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tSphereSurface );
+        tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
+        tIQICounter++;
+
+        // block inner surface heat flux
+        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQI_Block_Inner_Surface_Heat_Flux" );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", (uint)fem::IQI_Type::TRACTION );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "TEMP" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_constitutive_models", "CMDiffusionOuter,TractionCM" );
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tBlockInnerSurface );
+        tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
+        tIQICounter++;
+
+        // error in heat fluxes between the two materials
+        tParameterList( 4 ).push_back( prm::create_IQI_parameter_list() );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_name", "IQI_Surface_Heat_Flux_Jump" );
+        tParameterList( 4 )( tIQICounter ).set( "IQI_type", (uint)fem::IQI_Type::JUMP_TRACTION );
+        tParameterList( 4 )( tIQICounter ).set( "leader_dof_dependencies", "TEMP" );
+        tParameterList( 4 )( tIQICounter ).set( "follower_dof_dependencies", "TEMP" );
+        tParameterList( 4 )( tIQICounter ).set( "leader_constitutive_models", "CMDiffusionInner,TractionCM" );
+        tParameterList( 4 )( tIQICounter ).set( "follower_constitutive_models", "CMDiffusionOuter,TractionCM" );
+        tParameterList( 4 )( tIQICounter ).set( "mesh_set_names", tInterface );
+        tParameterList( 4 )( tIQICounter ).set( "vectorial_field_index", 0 );
+        tIQICounter++;
+
 
         //------------------------------------------------------------------------------
         // fill the computation part of the parameter list
@@ -670,10 +716,31 @@ namespace moris
         tParameterlist( 0 )( 0 ) = prm::create_vis_parameter_list();
         tParameterlist( 0 )( 0 ).set( "File_Name", std::pair< std::string, std::string >( "./", tOutputFileName ) );
         tParameterlist( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
-        tParameterlist( 0 )( 0 ).set( "Set_Names", tTotalDomain + "," + tAllInterfaces );
-        tParameterlist( 0 )( 0 ).set( "Field_Names", "TEMP,TEMP_ANALYTIC,L2_ERROR_ANALYTIC,H1_ERROR_ANALYTIC,VOLUME" );
-        tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,GLOBAL,GLOBAL,GLOBAL" );
-        tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIBulkTEMP,IQIBulkTEMPAnalytic,IQIBulkL2Error,IQIBulkH1Error,IQIVolume" );
+        tParameterlist( 0 )( 0 ).set( "Set_Names", tTotalDomain + "," + tAllInterfaces + "," + tInterfaceSingleSides );
+        tParameterlist( 0 )( 0 ).set( "Field_Names",
+                "TEMP,TEMP_ANALYTIC,"
+                "L2_ERROR_ANALYTIC,H1_ERROR_ANALYTIC,"
+                "VOLUME,"
+                "SPHERE_SURFACE_AREA,ELEMENTAL_SPHERE_SURFACE_AREA,"
+                "SPHERE_SURFACE_HEAT_FLUX,TOTAL_SPHERE_SURFACE_HEAT_FLUX,"
+                "BLOCK_INNER_SURFACE_HEAT_FLUX,TOTAL_BLOCK_INNER_SURFACE_HEAT_FLUX,"
+                "HEAT_FLUX_JUMP" );
+        tParameterlist( 0 )( 0 ).set( "Field_Type",
+                "NODAL,NODAL,"
+                "GLOBAL,GLOBAL,"
+                "GLOBAL,"
+                "GLOBAL,FACETED_INT,"
+                "FACETED_AVG,GLOBAL,"
+                "FACETED_AVG,GLOBAL,"
+                "FACETED_AVG" );
+        tParameterlist( 0 )( 0 ).set( "IQI_Names",
+                "IQIBulkTEMP,IQIBulkTEMPAnalytic,"
+                "IQIBulkL2Error,IQIBulkH1Error,"
+                "IQIVolume,"
+                "IQI_Sphere_Surface, IQI_Sphere_Surface,"
+                "IQI_Sphere_Outer_Surface_Heat_Flux,IQI_Sphere_Outer_Surface_Heat_Flux,"
+                "IQI_Block_Inner_Surface_Heat_Flux,IQI_Block_Inner_Surface_Heat_Flux,"
+                "IQI_Surface_Heat_Flux_Jump" );
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }
 
@@ -689,4 +756,3 @@ namespace moris
 #ifdef __cplusplus
 }
 #endif
-

@@ -879,7 +879,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names", "block_1,block_2" );
         tParameterlist( 0 )( 0 ).set( "Field_Names", "UX,UY,STRESS1,STRESS2,Temp,EMOD1,EMOD2" );
-        tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,NODAL,NODAL,ELEMENTAL,ELEMENTAL" );
+        tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,NODAL,NODAL,ELEMENTAL_AVG,ELEMENTAL_AVG" );
         tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIBulkDISPX,IQIBulkDISPY,IQIVMStress1,IQIVMStress2,IQITempField,IQIEmod1,IQIEmod2" );
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }

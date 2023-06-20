@@ -674,7 +674,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        Element_Bulk::compute_quantity_of_interest_global( const uint aMeshIndex )
+        Element_Bulk::compute_quantity_of_interest_global( const uint aFemMeshIndex )
         {
             // get number of active local IQIs
             uint tNumLocalIQIs = mSet->get_number_of_requested_global_IQIs_for_visualization();
@@ -739,7 +739,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        Element_Bulk::compute_quantity_of_interest_elemental( const uint aMeshIndex )
+        Element_Bulk::compute_quantity_of_interest_elemental(
+                const uint aFemMeshIndex,
+                const bool aAverageOutput )
         {
             // get number of active local IQIs
             uint tNumLocalIQIs = mSet->get_number_of_requested_elemental_IQIs_for_visualization();
@@ -748,6 +750,30 @@ namespace moris
             if ( tNumLocalIQIs == 0 )
             {
                 return;
+            }
+
+            // get the VIS mesh index
+            uint tVisMeshIndex = aFemMeshIndex - 1;
+
+            // get the IG cell's index in the VIS mesh
+            moris_index tCellIndex = mLeaderCell->get_index();
+            moris_index tAssemblyIndex = mSet->mCellAssemblyMap( tVisMeshIndex )( tCellIndex );
+            MORIS_ASSERT( tAssemblyIndex > -1,
+                    "FEM::Element_Bulk::compute_quantity_of_interest_elemental() - "
+                    "Element not part of VIS cell assembly map." );
+
+            // FIXME: this seems inefficient and should be done elsewhere
+            // set unused IQI values to not be NAN
+            for ( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
+            {
+                // get IQI global index
+                moris_index tGlobalIqiIndex =
+                        mSet->get_requested_elemental_IQIs_global_indices_for_visualization()( iIQI );
+
+                if ( ( *mSet->mSetElementalValues )( tAssemblyIndex, tGlobalIqiIndex ) == std::numeric_limits< real >::quiet_NaN() )
+                {
+                    ( *mSet->mSetElementalValues )( tAssemblyIndex, tGlobalIqiIndex ) = 0.0;
+                }
             }
 
             // set physical and parametric space and time coefficients for IG element
@@ -791,7 +817,7 @@ namespace moris
                             mSet->get_requested_elemental_IQIs_for_visualization()( iIQI );
 
                     // get IQI global index
-                    moris_index tGlobalIndex =
+                    moris_index tGlobalIqiIndex =
                             mSet->get_requested_elemental_IQIs_global_indices_for_visualization()( iIQI );
 
                     // reset the requested IQI
@@ -802,23 +828,24 @@ namespace moris
                     tReqIQI->compute_QI( tQIElemental );
 
                     // assemble the QI value on the set
-                    ( *mSet->mSetElementalValues )(
-                            mSet->mCellAssemblyMap( aMeshIndex )( mLeaderCell->get_index() ), tGlobalIndex ) +=
-                            tWStar * tQIElemental( 0 );
+                    ( *mSet->mSetElementalValues )( tAssemblyIndex, tGlobalIqiIndex ) += tWStar * tQIElemental( 0 );
                 }
             }
 
-            // loop over IQI and divide each elemental IQI by space-time volume
-            for ( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
+            // loop over IQI and divide each elemental IQI by space-time volume if requested
+            if ( aAverageOutput )
             {
-                // get IQI global index
-                moris_index tGlobalIndex =
-                        mSet->get_requested_elemental_IQIs_global_indices_for_visualization()( iIQI );
+                for ( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
+                {
+                    // get IQI global index
+                    moris_index tGlobalIqiIndex =
+                            mSet->get_requested_elemental_IQIs_global_indices_for_visualization()( iIQI );
 
-                // divide by space-time volume
-                ( *mSet->mSetElementalValues )(
-                        mSet->mCellAssemblyMap( aMeshIndex )( mLeaderCell->get_index() ), tGlobalIndex ) /=
-                        tSpaceTimeVolume;
+                    // divide by space-time volume
+                    moris_index tLeaderCellIndex = mLeaderCell->get_index();
+                    moris_index tAssemblyIndex = mSet->mCellAssemblyMap( tVisMeshIndex )( tLeaderCellIndex );
+                    ( *mSet->mSetElementalValues )( tAssemblyIndex, tGlobalIqiIndex )  /= tSpaceTimeVolume;
+                }
             }
         }
 

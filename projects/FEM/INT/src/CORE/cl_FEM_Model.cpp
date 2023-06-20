@@ -255,7 +255,10 @@ namespace moris
             // set the size of mIsActiveXYZ, mXYZPdvIds and mXYZLocalAssemblyIndices
             mIsActiveXYZ.set_size( tNumIGNodes, tGeoPdvType.size() );
             mXYZPdvIds.set_size( tNumIGNodes, tGeoPdvType.size() );
-            mXYZLocalAssemblyIndices.set_size( tNumIGNodes, tGeoPdvType.size() );
+
+            // TODO: fill with default value causes nothing to crash, but it does without, why?
+            mXYZLocalAssemblyIndices.set_size( tNumIGNodes, tGeoPdvType.size(), MORIS_INDEX_MAX );
+            // mXYZLocalAssemblyIndices.set_size( tNumIGNodes, tGeoPdvType.size() );
 
             // TODO: MESHCLEANUP
             // load Mesh-GEN map
@@ -583,9 +586,11 @@ namespace moris
             for ( uint tNode = 0; tNode < tNumIndices; tNode++ )
             {
                 // get node index
-                uint tNodeIndex = aNodeIndices( tNode );
+                uint        tNodeIndex   = aNodeIndices( tNode );
+                moris_index tIgNodeIndex = mIGNodes( tNodeIndex )->get_index();
 
-                mXYZLocalAssemblyIndices.get_row( mIGNodes( tNodeIndex )->get_index() ).fill( -1 );
+                // reset with -1
+                mXYZLocalAssemblyIndices.get_row( tIgNodeIndex ).fill( -1 );
             }
         }
 
@@ -614,11 +619,22 @@ namespace moris
 
                 // get assembly index from nodes
                 Matrix< DDSMat > tPdvAssemblyIndicesTemp;
-                this->get_local_xyz_pdv_assembly_indices( mIGNodes( tNodeIndex )->get_index(), tPdvAssemblyIndicesTemp, aRequestedPdvTypes );
+                moris_index      tIgNodeIndex = mIGNodes( tNodeIndex )->get_index();
+                this->get_local_xyz_pdv_assembly_indices( tIgNodeIndex, tPdvAssemblyIndicesTemp, aRequestedPdvTypes );
 
                 aXYZPdvAssemblyIndices.get_row( tNode ) = tPdvAssemblyIndicesTemp.matrix_data();
             }
         }
+
+        //------------------------------------------------------------------------------
+
+        Matrix< DDSMat >
+        FEM_Model::get_XYZ_local_pdv_assembly_map() const
+        {
+            return mXYZLocalAssemblyIndices;
+        }
+
+        //------------------------------------------------------------------------------
 
         void
         FEM_Model::set_integration_xyz_pdv_assembly_index(
@@ -626,7 +642,16 @@ namespace moris
                 enum PDV_Type aPdvType,
                 moris_index   aXYZPdvAssemblyIndex )
         {
-            mXYZLocalAssemblyIndices( mIGNodes( aNodeIndex )->get_index(), static_cast< uint >( aPdvType ) ) = aXYZPdvAssemblyIndex;
+            // get the index of the underlying node
+            moris_index tIgNodeIndex = mIGNodes( aNodeIndex )->get_index();
+
+            // sanity check the input
+            MORIS_ASSERT( aXYZPdvAssemblyIndex != MORIS_INDEX_MAX, 
+                "FEM_Model::set_integration_xyz_pdv_assembly_index() - "
+                "Trying to assign MORIS_INDEX_MAX in XYZ Local PDV assembly map. This shouldn't happen." );
+
+            // assign assembly index in map
+            mXYZLocalAssemblyIndices( tIgNodeIndex, (uint)aPdvType ) = aXYZPdvAssemblyIndex;
         }
 
         //------------------------------------------------------------------------------
@@ -1377,7 +1402,7 @@ namespace moris
                 mSPs( iSP )->set_parameters( tFuncParameters );
 
                 // init string for leader or follower
-                std::string       tIsLeaderString = "leader";
+                std::string          tIsLeaderString = "leader";
                 mtk::Leader_Follower tIsLeader       = mtk::Leader_Follower::LEADER;
 
                 // loop on leader and follower
@@ -1493,8 +1518,8 @@ namespace moris
 
                     // get fem::Measure_Type, mtk::Primary_Void and mtk::Leader_Follower map
                     // to convert string to enums
-                    moris::map< std::string, fem::Measure_Type > tFemMeasureMap = fem::get_measure_type_map();
-                    moris::map< std::string, mtk::Primary_Void > tMtkPrimaryMap = mtk::get_primary_type_map();
+                    moris::map< std::string, fem::Measure_Type >    tFemMeasureMap = fem::get_measure_type_map();
+                    moris::map< std::string, mtk::Primary_Void >    tMtkPrimaryMap = mtk::get_primary_type_map();
                     moris::map< std::string, mtk::Leader_Follower > tMtkLeaderMap  = mtk::get_leader_type_map();
 
                     // loop over cluster measures names
@@ -1611,7 +1636,7 @@ namespace moris
                 mIWGs( iIWG )->set_parameters( tFuncParameters );
 
                 // initialize string for leader or follower
-                std::string       tIsLeaderString = "leader";
+                std::string          tIsLeaderString = "leader";
                 mtk::Leader_Follower tIsLeader       = mtk::Leader_Follower::LEADER;
 
                 // loop on leader and follower
@@ -1891,7 +1916,7 @@ namespace moris
                 mIQIs( iIQI )->set_parameters( tFuncParameters );
 
                 // init string for leader or follower
-                std::string       tIsLeaderString = "leader";
+                std::string          tIsLeaderString = "leader";
                 mtk::Leader_Follower tIsLeader       = mtk::Leader_Follower::LEADER;
 
                 // loop on leader and follower
@@ -2805,7 +2830,7 @@ namespace moris
                 mSPs( iSP )->set_parameters( tFuncParameters );
 
                 // init string for leader or follower
-                std::string       tIsLeaderString = "leader";
+                std::string          tIsLeaderString = "leader";
                 mtk::Leader_Follower tIsLeader       = mtk::Leader_Follower::LEADER;
 
                 // loop on leader and follower
@@ -2966,7 +2991,7 @@ namespace moris
                 mIWGs( iIWG )->set_residual_dof_type( tResDofTypes );
 
                 // init string for leader or follower
-                std::string       tIsLeaderString = "leader";
+                std::string          tIsLeaderString = "leader";
                 mtk::Leader_Follower tIsLeader       = mtk::Leader_Follower::LEADER;
 
                 // loop on leader and follower
@@ -3201,7 +3226,7 @@ namespace moris
                 mIQIs( iIQI )->set_parameters( tFuncParameters );
 
                 // init string for leader or follower
-                std::string       tIsLeaderString = "leader";
+                std::string          tIsLeaderString = "leader";
                 mtk::Leader_Follower tIsLeader       = mtk::Leader_Follower::LEADER;
 
                 // loop on leader and follower
@@ -3650,9 +3675,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        FEM_Model::get_vertex_xyz_active_flags( moris_index aVertexIndex,
-                Matrix< DDSMat >                           &aIsActiveDv,
-                const moris::Cell< enum PDV_Type >         &aPdvTypes )
+        FEM_Model::get_vertex_xyz_active_flags(
+                moris_index                         aVertexIndex,
+                Matrix< DDSMat >                   &aIsActiveDv,
+                const moris::Cell< enum PDV_Type > &aPdvTypes )
         {
             // get number of requested pdv types
             uint tNumPdvTypes = aPdvTypes.size();
@@ -3674,8 +3700,9 @@ namespace moris
         //-------------------------------------------------------------------------------------------------
 
         void
-        FEM_Model::set_vertex_xyz_active_flags( moris_index aVertexIndex,
-                moris::Cell< Matrix< DDSMat > >            &aIsActiveDv )
+        FEM_Model::set_vertex_xyz_active_flags(
+                moris_index                      aVertexIndex,
+                moris::Cell< Matrix< DDSMat > > &aIsActiveDv )
         {
             // get num of pdv
             uint tNumXYZPdv = aIsActiveDv.size();
@@ -3690,8 +3717,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        FEM_Model::set_vertex_xyz_pdv_ids( moris_index aVertexIndex,
-                moris::Cell< Matrix< DDSMat > >       &aXYZPvIds )
+        FEM_Model::set_vertex_xyz_pdv_ids(
+                moris_index                      aVertexIndex,
+                moris::Cell< Matrix< DDSMat > > &aXYZPvIds )
         {
             // get num of pdv
             uint tNumXYZPdv = aXYZPvIds.size();
@@ -3706,9 +3734,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        FEM_Model::get_vertex_xyz_pdv_ids( moris_index aVertexIndex,
-                Matrix< DDSMat >                      &aXYZPdvIds,
-                const moris::Cell< enum PDV_Type >    &aPdvTypes )
+        FEM_Model::get_vertex_xyz_pdv_ids(
+                moris_index                         aVertexIndex,
+                Matrix< DDSMat >                   &aXYZPdvIds,
+                const moris::Cell< enum PDV_Type > &aPdvTypes )
         {
             // get number of requested pdv types
             uint tNumPdvTypes = aPdvTypes.size();
@@ -3730,9 +3759,10 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        FEM_Model::get_local_xyz_pdv_assembly_indices( moris_index aVertexIndex,
-                Matrix< DDSMat >                                  &aXYZLocalAssemblyIndices,
-                const moris::Cell< enum PDV_Type >                &aPdvTypes )
+        FEM_Model::get_local_xyz_pdv_assembly_indices(
+                moris_index                         aVertexIndex,
+                Matrix< DDSMat >                   &aXYZLocalAssemblyIndices,
+                const moris::Cell< enum PDV_Type > &aPdvTypes )
         {
             // get number of requested pdv types
             uint tNumPdvTypes = aPdvTypes.size();
@@ -3746,8 +3776,16 @@ namespace moris
                 // get pdv index
                 uint tXYZIndex = static_cast< uint >( aPdvTypes( iPdvType ) );
 
+                // get the assembly index
+                moris_index tAssemblyIndex = mXYZLocalAssemblyIndices( aVertexIndex, tXYZIndex );
+
+                // sanity check the output
+                MORIS_ASSERT( tAssemblyIndex != MORIS_INDEX_MAX, 
+                        "FEM_Model::get_local_xyz_pdv_assembly_indices() - "
+                        "Local PDV assembly index is MORIS_INDEX_MAX. It has likely not been assigned." );
+
                 // set value
-                aXYZLocalAssemblyIndices( iPdvType ) = mXYZLocalAssemblyIndices( aVertexIndex, tXYZIndex );
+                aXYZLocalAssemblyIndices( iPdvType ) = tAssemblyIndex;
             }
         }
 
@@ -3759,7 +3797,8 @@ namespace moris
          * @param aDofTypeToBsplineMeshIndex
          */
         void
-        FEM_Model::set_dof_type_to_Bspline_mesh_index( std::unordered_map< MSI::Dof_Type, moris_index > aDofTypeToBsplineMeshIndex )
+        FEM_Model::set_dof_type_to_Bspline_mesh_index(
+                std::unordered_map< MSI::Dof_Type, moris_index > aDofTypeToBsplineMeshIndex )
         {
             mDofTypeToBsplineMeshIndex = aDofTypeToBsplineMeshIndex;
         }
@@ -3780,7 +3819,9 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        FEM_Model::check_and_set_ghost_set_names( std::string &aMeshSetName, enum MSI::Dof_Type aDofType )
+        FEM_Model::check_and_set_ghost_set_names(
+                std::string       &aMeshSetName,
+                enum MSI::Dof_Type aDofType )
         {
             // check whether new ghost sets should be used
             if ( mUseNewGhostSets )

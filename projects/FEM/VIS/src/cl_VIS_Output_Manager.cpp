@@ -10,12 +10,12 @@
 
 #include "cl_VIS_Output_Manager.hpp"
 
-#include "cl_VIS_Factory.hpp"
+#include <set>
 
+#include "cl_VIS_Factory.hpp"
 #include "cl_MDL_Model.hpp"
 #include "cl_MSI_Equation_Set.hpp"
 #include "cl_MSI_Equation_Model.hpp"
-
 #include "cl_FEM_Set.hpp"
 
 #include "fn_Parsing_Tools.hpp"
@@ -167,19 +167,19 @@ namespace moris
                     aParameterlist.get< std::string >( "IQI_Names" ),
                     tQINames );
 
-            MORIS_ERROR( tQINames.size() > 0, 
+            MORIS_ERROR( tQINames.size() > 0,
                     "Output_Manager::set_outputs() - At least one IQI name needs to be provided for Vis mesh\n" );
 
             for ( auto tName : tQINames )
             {
-                MORIS_ERROR( tName.length() > 0, 
+                MORIS_ERROR( tName.length() > 0,
                         "Output_Manager::set_outputs() - Empty strings for IQI name in Vis mesh are not allowed\n" );
             }
 
             tOutputData.mQINames = tQINames;
 
             // check that length of Field_Names and Field_Type are consistent
-            MORIS_ERROR( tFieldNames.size() == tQINames.size(), 
+            MORIS_ERROR( tFieldNames.size() == tQINames.size(),
                     "Output_Manager::set_outputs() - Number of Field Names and QI Names differ." );
 
             // resize list of output data objects
@@ -257,7 +257,7 @@ namespace moris
                 std::shared_ptr< MSI::Equation_Model > aEquationModel )
         {
             Tracer tTracer( "Output_Manager", "VisMesh", "CreateVisSets" );
- 
+
             // get number of requested sets
             uint tNumRequestedSets = mOutputData( aVisMeshIndex ).mSetNames.size();
 
@@ -276,32 +276,31 @@ namespace moris
             mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
             mMTKMesh->get_mesh_pair( mMTKMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
 
-            // loop over requested equation sets // TODO: the loop
+            // loop over requested equation sets
             for ( uint iSet = 0; iSet < tNumRequestedSets; iSet++ )
             {
-                // get mtk set index
-                moris_index tFemSetIndex = tIntegrationMesh->get_set_index_by_name( tMeshSetNames( iSet ) );
+                // get the current set's name
+                std::string tSetName = tMeshSetNames( iSet );
+
+                // get FEM/MTK set index
+                moris_index tFemSetIndex = tIntegrationMesh->get_set_index_by_name( tSetName );
 
                 if ( tMeshSetToFemSetMap.key_exists( std::make_tuple( tFemSetIndex, false, false ) ) )
                 {
                     // find set index for this block index
                     moris_index tEquationSetIndex = tMeshSetToFemSetMap.find( std::make_tuple( tFemSetIndex, false, false ) );
 
-// TODO: why is the visualization set handed to the equation sets themselves?
-                    
+                    // get VIS set index
+                    mtk::Set* tVisSet = mVisMesh( aVisMeshIndex )->get_set_by_name( tSetName );
+
                     // set vis set to fem set. +1 because 0 is reserved for fem
-                    tEquationSets(
-                            tEquationSetIndex )
-                            ->set_visualization_set(
-                                    aVisMeshIndex + 1,
-                                    mVisMesh( aVisMeshIndex )->get_set_by_index( iSet ), // FIXME: the set should be retrieved via name from the VIS mesh, as the indices in the Output_Data and the VIS_Mesh might not match up
-                                    mOnlyPrimary );
+                    tEquationSets( tEquationSetIndex )->set_visualization_set( aVisMeshIndex, tVisSet, mOnlyPrimary );
                 }
 
                 // warn the user that the current set name (probably specified in the VIS parameter list) will be ignored as it does not exist
                 else
                 {
-                    MORIS_LOG_WARNING( 
+                    MORIS_LOG_WARNING(
                             "Set with name '%s' has been requested for output on VIS-mesh #%i "
                             "but does not exist in the list of FEM-sets. It will be ignored.",
                             tMeshSetNames( iSet ).c_str(),
@@ -353,6 +352,7 @@ namespace moris
             // add nodal elemental and global fields to mesh (only tell the mesh they are there, it doesn't populate them yet)
             this->add_nodal_fields( aVisMeshIndex );
             this->add_elemental_fields( aVisMeshIndex );
+            this->add_faceted_fields( aVisMeshIndex );
             this->add_global_fields( aVisMeshIndex );
 
             // write standard outputs like IDs and Indices to file
@@ -399,8 +399,12 @@ namespace moris
         void
         Output_Manager::add_elemental_fields( const uint aVisMeshIndex )
         {
+            // get the field names
+            const Cell< std::string > tFieldNames = mOutputData( aVisMeshIndex ).mFieldNames;
+            uint                      tNumFields  = tFieldNames.size();
+
             // allocate cell for storing elemental field names; 3 default fields are added
-            moris::Cell< std::string > tElementalFieldNames( 3 + mOutputData( aVisMeshIndex ).mFieldNames.size() );
+            moris::Cell< std::string > tElementalFieldNames( 3 + tNumFields );
 
             tElementalFieldNames( 0 ) = "Mesh_Id";
             tElementalFieldNames( 1 ) = "Mesh_Index";
@@ -410,11 +414,13 @@ namespace moris
             uint tCounter = 3;
 
             // loop over field names and check if fields are elemental fields
-            for ( uint Ik = 0; Ik < mOutputData( aVisMeshIndex ).mFieldNames.size(); Ik++ )
+            for ( uint iField = 0; iField < tNumFields; iField++ )
             {
-                if ( mOutputData( aVisMeshIndex ).mFieldType( Ik ) == Field_Type::ELEMENTAL )
+                vis::Field_Type tOutputFieldType = mOutputData( aVisMeshIndex ).mFieldType( iField );
+
+                if ( tOutputFieldType == Field_Type::ELEMENTAL_INT || tOutputFieldType == Field_Type::ELEMENTAL_AVG )
                 {
-                    tElementalFieldNames( tCounter++ ) = mOutputData( aVisMeshIndex ).mFieldNames( Ik );
+                    tElementalFieldNames( tCounter++ ) = tFieldNames( iField );
                 }
             }
 
@@ -428,6 +434,35 @@ namespace moris
         //-----------------------------------------------------------------------------------------------------------
 
         void
+        Output_Manager::add_faceted_fields( const uint aVisMeshIndex )
+        {
+            // allocate cell for storing elemental field names; 3 default fields are added
+            moris::Cell< std::string > tFacetedFieldNames( mOutputData( aVisMeshIndex ).mFieldNames.size() );
+
+            // initialize counter
+            uint tCounter = 0;
+
+            // loop over field names and check if fields are elemental fields
+            for ( uint iField = 0; iField < mOutputData( aVisMeshIndex ).mFieldNames.size(); iField++ )
+            {
+                vis::Field_Type tOutputFieldType = mOutputData( aVisMeshIndex ).mFieldType( iField );
+
+                if ( tOutputFieldType == Field_Type::FACETED_INT || tOutputFieldType == Field_Type::FACETED_AVG )
+                {
+                    tFacetedFieldNames( tCounter++ ) = mOutputData( aVisMeshIndex ).mFieldNames( iField );
+                }
+            }
+
+            // trim cell of element field names
+            tFacetedFieldNames.resize( tCounter );
+
+            // write field names to file
+            mWriter( aVisMeshIndex )->set_side_set_fields( tFacetedFieldNames );
+        }
+
+        //-----------------------------------------------------------------------------------------------------------
+
+        void
         Output_Manager::add_global_fields( const uint aVisMeshIndex )
         {
             moris::Cell< std::string > tGlobalFieldNames( mOutputData( aVisMeshIndex ).mFieldNames.size() );
@@ -435,11 +470,11 @@ namespace moris
             uint tCounter = 0;
 
             // loop over field names and check if fields are global fields
-            for ( uint Ik = 0; Ik < mOutputData( aVisMeshIndex ).mFieldNames.size(); Ik++ )
+            for ( uint iField = 0; iField < mOutputData( aVisMeshIndex ).mFieldNames.size(); iField++ )
             {
-                if ( mOutputData( aVisMeshIndex ).mFieldType( Ik ) == Field_Type::GLOBAL )
+                if ( mOutputData( aVisMeshIndex ).mFieldType( iField ) == Field_Type::GLOBAL )
                 {
-                    tGlobalFieldNames( tCounter++ ) = mOutputData( aVisMeshIndex ).mFieldNames( Ik );
+                    tGlobalFieldNames( tCounter++ ) = mOutputData( aVisMeshIndex ).mFieldNames( iField );
                 }
             }
 
@@ -526,7 +561,7 @@ namespace moris
                         break;
                 }
 
-                // TODO: handle side sets below here, skip for now
+                // don't write indices on facets
                 if ( tSet->get_set_type() != SetType::BULK )
                 {
                     continue;
@@ -606,14 +641,14 @@ namespace moris
                         tIdIndex( 2 )( tCellAssemblyMap( tIndex ) ) = par_rank();
                     }
 
-                } // end for: each cluster on set
+                }    // end for: each cluster on set
 
-                mWriter( aVisMeshIndex )->write_elemental_field( tSet->get_set_name(), "Mesh_Id", tIdIndex( 0 ) );
-                mWriter( aVisMeshIndex )->write_elemental_field( tSet->get_set_name(), "Mesh_Index", tIdIndex( 1 ) );
-                mWriter( aVisMeshIndex )->write_elemental_field( tSet->get_set_name(), "Proc_Index", tIdIndex( 2 ) );
+                const std::string tSetName = tSet->get_set_name();
+                mWriter( aVisMeshIndex )->write_elemental_field( tSetName, "Mesh_Id", tIdIndex( 0 ) );
+                mWriter( aVisMeshIndex )->write_elemental_field( tSetName, "Mesh_Index", tIdIndex( 1 ) );
+                mWriter( aVisMeshIndex )->write_elemental_field( tSetName, "Proc_Index", tIdIndex( 2 ) );
 
-            } // end for: each set
-
+            }    // end for: each set
         }
 
         //-----------------------------------------------------------------------------------------------------------
@@ -624,59 +659,23 @@ namespace moris
                 const real                             aTime,
                 std::shared_ptr< MSI::Equation_Model > aEquationModel )
         {
+            // log/time this operation
             Tracer tTracer( "Output_Manager", "VisMesh", "WriteFields" );
-
-            // number of fields in vis mesh
-            uint tNumFields = mOutputData( aVisMeshIndex ).mFieldNames.size();
 
             // number of set names
             uint tNumSetNames = mOutputData( aVisMeshIndex ).mSetNames.size();
 
-            // initialize lists of output fields for each type of fields (global, nodal, or elemental)
-            moris::Cell< std::string > tGlobalIQINames;
-            moris::Cell< std::string > tGlobalFieldNames;
-            moris::Cell< std::string > tNodalIQINames;
-            moris::Cell< std::string > tNodalFieldNames;
-            moris::Cell< std::string > tElementalIQINames;
-            moris::Cell< std::string > tElementalFieldNames;
+            // initialize lists of IQIs and their output field names
+            Cell< Cell< std::string > > tIQINames;
+            Cell< Cell< std::string > > tFieldNames;
+            Cell< uint >                tNumIQIsForFieldType;
+            this->get_IQI_and_field_names(
+                    aVisMeshIndex,
+                    tIQINames,
+                    tFieldNames,
+                    tNumIQIsForFieldType );
 
-            // loop over all output fields and sort them into lists by type (i.e. global, nodal, or elemental)
-            for ( uint Ik = 0; Ik < tNumFields; Ik++ )
-            {
-                // get the field type
-                Field_Type tFieldType = mOutputData( aVisMeshIndex ).mFieldType( Ik );
-
-                // get the IQI name
-                std::string tIQIName = mOutputData( aVisMeshIndex ).mQINames( Ik );
-
-                // get the field name
-                std::string tFieldName = mOutputData( aVisMeshIndex ).mFieldNames( Ik );
-
-                // switch on field type
-                switch ( tFieldType )
-                {
-                    case Field_Type::GLOBAL:
-                        tGlobalIQINames.push_back( tIQIName );
-                        tGlobalFieldNames.push_back( tFieldName );
-                        break;
-                    case Field_Type::NODAL:
-                        tNodalIQINames.push_back( tIQIName );
-                        tNodalFieldNames.push_back( tFieldName );
-                        break;
-                    case Field_Type::ELEMENTAL:
-                        tElementalIQINames.push_back( tIQIName );
-                        tElementalFieldNames.push_back( tFieldName );
-                        break;
-                    default:
-                        MORIS_ERROR( false, "Unknown field type." );
-                }
-            }
-
-            uint tNumGlobalIQIs    = tGlobalIQINames.size();
-            uint tNumNodalIQIs     = tNodalIQINames.size();
-            uint tNumElementalIQIs = tElementalIQINames.size();
-
-            // increment field write counter
+            // increment field write counter (signal that another output has been performed)
             mOutputData( aVisMeshIndex ).mFieldWriteCounter++;
 
             // write time to file
@@ -687,88 +686,69 @@ namespace moris
                     aEquationModel->get_mesh_set_to_fem_set_index_map();
 
             // get equation sets
-            moris::Cell< MSI::Equation_Set* >& tEquationSets =
-                    aEquationModel->get_equation_sets();
+            moris::Cell< MSI::Equation_Set* >& tEquationSets = aEquationModel->get_equation_sets();
 
-            // get integration mesh
+            // access the integration mesh for output
             mtk::Interpolation_Mesh* tInterpolationMesh = nullptr;
             mtk::Integration_Mesh*   tIntegrationMesh   = nullptr;
-
             mMTKMesh->get_mesh_pair( mMTKMeshPairIndex, tInterpolationMesh, tIntegrationMesh );
 
-            // init nodal field values
+            // get number of global and nodal IQIs
+            uint tNumGlobalIQIs = tNumIQIsForFieldType( (uint)Field_Type::GLOBAL );
+            uint tNumNodalIQIs  = tNumIQIsForFieldType( (uint)Field_Type::NODAL );
+
+            // initialize list of nodal field values to be filled below
             Matrix< DDRMat > tNodalValues(
                     mVisMesh( aVisMeshIndex )->get_num_nodes(),
                     tNumNodalIQIs,
                     std::numeric_limits< real >::quiet_NaN() );
 
-            // init global field values
+            // initialize list of global field values to be filled below
             Matrix< DDRMat > tGlobalValues( 1, tNumGlobalIQIs, 0.0 );
 
-            // loop over all blocks on this output object
+            // loop over all sets on this VIS mesh
             for ( uint iSet = 0; iSet < tNumSetNames; iSet++ )
             {
+                // get the current set's name
+                std::string tSetName = mOutputData( aVisMeshIndex ).mSetNames( iSet );
+
                 // get mesh set index from name
-                moris_index tFemSetIndex = tIntegrationMesh->get_set_index_by_name(
-                        mOutputData( aVisMeshIndex ).mSetNames( iSet ) );
+                moris_index tFemSetIndex = tIntegrationMesh->get_set_index_by_name( tSetName );
 
                 // only output sets that actually exist in equation model
-                if ( tMeshSetToFemSetMap.key_exists( std::make_tuple( tFemSetIndex, false, false ) ) )
+                if ( !tMeshSetToFemSetMap.key_exists( std::make_tuple( tFemSetIndex, false, false ) ) )
                 {
-                    // find set index for this block index
-                    moris_index tEquationSetIndex =
-                            tMeshSetToFemSetMap.find( std::make_tuple( tFemSetIndex, false, false ) );
+                    continue;
+                }
 
-                    // global values
-                    if ( tNumGlobalIQIs > 0 )
-                    {
-                        tEquationSets( tEquationSetIndex )->compute_quantity_of_interest_global(    //
-                                aVisMeshIndex + 1,
-                                &tGlobalValues,
-                                tGlobalIQINames );
-                    }
+                // find set index for this block index
+                moris_index tEquationSetIndex =
+                        tMeshSetToFemSetMap.find( std::make_tuple( tFemSetIndex, false, false ) );
 
-                    // nodal values
-                    if ( tNumNodalIQIs > 0 )
-                    {
-                        tEquationSets( tEquationSetIndex )->compute_quantity_of_interest_nodal(    //
-                                aVisMeshIndex + 1,
-                                &tNodalValues,
-                                tNodalIQINames );
-                    }
+                // get access to the FEM set
+                MSI::Equation_Set* tFemSet = tEquationSets( tEquationSetIndex );
 
-                    // elemental field values
-                    if ( tNumElementalIQIs > 0 )
-                    {
-                        Matrix< DDRMat > tElementValues;
+                // skip the set if it is empty on the current proc
+                if ( tFemSet->get_num_equation_objects() == 0 )
+                {
+                    continue;
+                }
 
-                        // elemental values
-                        tEquationSets( tEquationSetIndex )->compute_quantity_of_interest_elemental(    //
-                                aVisMeshIndex + 1,
-                                &tElementValues,
-                                tElementalIQINames );
+                // compute the fields for the current set
+                this->compute_fields_for_set(
+                        aVisMeshIndex,
+                        tFemSet,
+                        tIQINames,
+                        tFieldNames,
+                        &tGlobalValues,
+                        &tNodalValues );
 
-                        for ( uint iElemField = 0; iElemField < tNumElementalIQIs; iElemField++ )
-                        {
-                            // get the elemental field name
-                            std::string tFieldName = tElementalFieldNames( iElemField );
-
-                            // get elemental field values
-                            Matrix< DDRMat > tFieldValues = tElementValues.get_column( iElemField );
-
-                            // write elemental field
-                            mWriter( aVisMeshIndex )->write_elemental_field( mOutputData( aVisMeshIndex ).mSetNames( iSet ), tFieldName, tFieldValues );
-                        }
-                    }
-
-                } // end if: set exists in equation model
-
-            } // end for: each set requested for output mesh
+            }    // end for: each set requested for output mesh
 
             for ( uint iNodalField = 0; iNodalField < tNumNodalIQIs; iNodalField++ )
             {
                 // get the elemental field name
-                std::string tFieldName = tNodalFieldNames( iNodalField );
+                std::string tFieldName = tFieldNames( (uint)Field_Type::NODAL )( iNodalField );
 
                 // get elemental field values
                 Matrix< DDRMat > tFieldValues = tNodalValues.get_column( iNodalField );
@@ -780,24 +760,23 @@ namespace moris
             Matrix< DDRMat > tGlobalVariableValues( tNumGlobalIQIs, 1, MORIS_REAL_MAX );
             for ( uint iGlobalField = 0; iGlobalField < tNumGlobalIQIs; iGlobalField++ )
             {
-                real tTotalGlobalValue;
-
                 // get the global field name
-                std::string tFieldName = tGlobalFieldNames( iGlobalField );
+                std::string tFieldName = tFieldNames( (uint)Field_Type::GLOBAL )( iGlobalField );
 
                 // get global field values
-                tTotalGlobalValue = sum_all( tGlobalValues( iGlobalField ) );
+                real tTotalGlobalValue = sum_all( tGlobalValues( iGlobalField ) );
 
+                // store global value
                 tGlobalVariableValues( iGlobalField ) = tTotalGlobalValue;
 
+                // write global values to console
                 MORIS_LOG_SPEC( tFieldName, tGlobalVariableValues( iGlobalField ) );
-                // MORIS_LOG_INFO ("Global Variable: %s = %e",tFieldName.c_str(), tGlobalVariableValues( iGlobalField ) );
             }
 
-            // write global variables
+            // write global variables to exodus
             if ( tNumGlobalIQIs > 0 )
             {
-                mWriter( aVisMeshIndex )->write_global_variables( tGlobalFieldNames, tGlobalVariableValues );
+                mWriter( aVisMeshIndex )->write_global_variables( tFieldNames( (uint)Field_Type::GLOBAL ), tGlobalVariableValues );
             }
 
             // check if a copy of the current mesh file should be created
@@ -811,5 +790,211 @@ namespace moris
         }
 
         //-----------------------------------------------------------------------------------------------------------
+
+        void
+        Output_Manager::get_IQI_and_field_names(
+                const uint                   aVisMeshIndex,
+                Cell< Cell< std::string > >& aIQINames,
+                Cell< Cell< std::string > >& aFieldNames,
+                Cell< uint >&                aNumIQIsForFieldType )
+        {
+            // number of fields in vis mesh
+            uint tNumFields = mOutputData( aVisMeshIndex ).mFieldNames.size();
+
+            /* initialize lists of IQIs and their output field names
+             * input: Field_Type converted to integer
+             * output: list of IQIs and their field names for this field type */
+            aIQINames.resize( (uint)Field_Type::END_ENUM );
+            aFieldNames.resize( (uint)Field_Type::END_ENUM );
+            aIQINames.reserve( 2 * tNumFields );
+            aFieldNames.reserve( 2 * tNumFields );
+
+            // loop over all output fields and sort them into lists by type (i.e. global, nodal, or elemental)
+            for ( uint iField = 0; iField < tNumFields; iField++ )
+            {
+                // get the type of the current field
+                uint tFieldType = (uint)mOutputData( aVisMeshIndex ).mFieldType( iField );
+
+                // get the IQI name
+                std::string tIQIName = mOutputData( aVisMeshIndex ).mQINames( iField );
+
+                // get the field name
+                std::string tFieldName = mOutputData( aVisMeshIndex ).mFieldNames( iField );
+
+                // sort the IQIs and their corresponding field name into the lists
+                aIQINames( tFieldType ).push_back( tIQIName );
+                aFieldNames( tFieldType ).push_back( tFieldName );
+            }
+
+            // figure out how many fields there are of each type
+            aNumIQIsForFieldType.resize( (uint)Field_Type::END_ENUM );
+
+            for ( uint iFieldType = 0; iFieldType < (uint)Field_Type::END_ENUM; iFieldType++ )
+            {
+                aNumIQIsForFieldType( iFieldType ) = aIQINames( iFieldType ).size();
+            }
+
+        }    // end function: VIS::Output_Manager::get_IQI_and_field_names()
+
+        //-----------------------------------------------------------------------------------------------------------
+
+        void
+        Output_Manager::compute_fields_for_set(
+                const uint                          aVisMeshIndex,
+                MSI::Equation_Set*                  aFemSet,
+                Cell< Cell< std::string > > const & aIQINames,
+                Cell< Cell< std::string > > const & aFieldNames,
+                Matrix< DDRMat >*                   aGlobalFieldValues,
+                Matrix< DDRMat >*                   aNodalFieldValues )
+        {
+            // compute fields for each type
+            for ( uint iFieldType = 0; iFieldType < (uint)Field_Type::END_ENUM; iFieldType++ )
+            {
+                // get the requested IQIs for the current type
+                Cell< std::string > const & tIQINamesForType = aIQINames( iFieldType );
+                Cell< std::string > const & tFieldNamesForType = aFieldNames( iFieldType );
+
+                // get the number of fields for the current type
+                uint tNumFieldsForType = tIQINamesForType.size();
+
+                // skip this field type if there aren't any IQIs
+                if ( tNumFieldsForType == 0 )
+                {
+                    continue;
+                }
+
+                // get the field type as an enum (for better readability)
+                Field_Type tFieldType = (Field_Type)iFieldType;
+
+                // perform check that we only output using supported Field types
+                std::set< Field_Type > tUnsupportedFieldTypes = { Field_Type::UNDEFINED, Field_Type::NODAL_IP, Field_Type::END_ENUM };
+                MORIS_ERROR( tUnsupportedFieldTypes.find( tFieldType ) == tUnsupportedFieldTypes.end(),
+                        "VIS::Output_Manager::compute_fields_for_set() - Trying to output to unsupported field type." );
+
+                // all supported elemental field types are some sort of elemental values
+                std::set< Field_Type > tElementalFieldTypes = {
+                    Field_Type::ELEMENTAL_AVG,
+                    Field_Type::ELEMENTAL_INT,
+                    Field_Type::FACETED_AVG,
+                    Field_Type::FACETED_INT
+                };
+
+                // compute global fields
+                if ( tFieldType == Field_Type::GLOBAL )
+                {
+                    aFemSet->compute_quantity_of_interest_global(
+                            aVisMeshIndex,
+                            aGlobalFieldValues,
+                            tIQINamesForType );
+                }
+
+                // compute nodal fields, if there are any
+                else if ( tFieldType == Field_Type::NODAL )
+                {
+                    aFemSet->compute_quantity_of_interest_nodal(
+                            aVisMeshIndex,
+                            aNodalFieldValues,
+                            tIQINamesForType );
+                }
+
+                // compute elemental fields and output them immediately to avoid unnecessarily storing data
+                else if ( tElementalFieldTypes.find( tFieldType ) != tElementalFieldTypes.end() )
+                {
+                    this->compute_and_write_elemental_fields_on_set(
+                            aVisMeshIndex, 
+                            aFemSet, 
+                            tFieldType, 
+                            tIQINamesForType, 
+                            tFieldNamesForType );
+                }
+
+            }    // end for: each field type
+
+        }        // end function: VIS::Output_Manager::compute_fields_for_set()
+
+        //-----------------------------------------------------------------------------------------------------------
+
+        void
+        Output_Manager::compute_and_write_elemental_fields_on_set(
+                const uint                  aVisMeshIndex,
+                MSI::Equation_Set*          aFemSet,
+                const Field_Type            aFieldType,
+                Cell< std::string > const & aIQINamesForType,
+                Cell< std::string > const & aFieldNamesForType )
+        {
+            // get the number of IQIs for the type
+            uint tNumIQIsForType = aIQINamesForType.size();
+            MORIS_ASSERT(
+                    tNumIQIsForType > 0,
+                    "VIS::Output_Manager::compute_and_write_elemental_fields_on_set() - "
+                    "No IQIs to compute. This function should only be called if there are IQIs to be computed." );
+
+            // sanity check the  input
+#ifdef MORIS_HAVE_DEBUG
+            std::set< Field_Type > tSupportedFieldTypes = {
+                Field_Type::ELEMENTAL_AVG,
+                Field_Type::ELEMENTAL_INT,
+                Field_Type::FACETED_AVG,
+                Field_Type::FACETED_INT
+            };
+            MORIS_ASSERT(
+                    tSupportedFieldTypes.find( aFieldType ) != tSupportedFieldTypes.end(),
+                    "VIS::Output_Manager::compute_and_write_elemental_fields_on_set() - "
+                    "Trying to compute non-elemental field type which is not supported in this function." );
+#endif
+
+            // decode the field type into FACETED vs. ELEMENTAL and AVG vs. INT
+            bool tIsFacetedFieldType  = ( aFieldType == Field_Type::FACETED_AVG || aFieldType == Field_Type::FACETED_INT );
+            bool tIsAveragedFieldType = ( aFieldType == Field_Type::FACETED_AVG || aFieldType == Field_Type::ELEMENTAL_AVG );
+
+            // get the current set's name
+            const std::string tSetName = aFemSet->get_set_name();
+
+            // get the set's type
+            const fem::Element_Type tSetType = aFemSet->get_element_type();
+
+            // check if set is a faceted set
+            bool tIsFacetedSet = ( tSetType == fem::Element_Type::SIDESET ) || ( tSetType == fem::Element_Type::DOUBLE_SIDESET );
+
+            // skip mis-matched sets, i.e. faceted fields are only outputted on side sets and elemental fields only on block sets
+            if ( tIsFacetedFieldType != tIsFacetedSet )
+            {
+                return;
+            }
+
+            // initialize array of elemental values
+            Matrix< DDRMat > tElementValues;
+
+            // compute elemental values
+            aFemSet->compute_quantity_of_interest_elemental(
+                    aVisMeshIndex,
+                    &tElementValues,
+                    aIQINamesForType,
+                    tIsAveragedFieldType );
+
+            // write each elemental field to output immediately
+            for ( uint iElemField = 0; iElemField < tNumIQIsForType; iElemField++ )
+            {
+                // get the elemental field name
+                std::string tFieldName = aFieldNamesForType( iElemField );
+
+                // get elemental field values
+                Matrix< DDRMat > tFieldValues = tElementValues.get_column( iElemField );
+
+                // write elemental field (write as facet or as elemental values to exodus depending on the set type)
+                if ( tIsFacetedFieldType )
+                {
+                    mWriter( aVisMeshIndex )->write_side_set_field( tSetName, tFieldName, tFieldValues );
+                }
+                else
+                {
+                    mWriter( aVisMeshIndex )->write_elemental_field( tSetName, tFieldName, tFieldValues );
+                }
+            }
+
+        }    // end function: VIS::Output_Manager::compute_and_write_elemental_fields_on_set()
+
+        //-----------------------------------------------------------------------------------------------------------
+
     }    // namespace vis
 }    // namespace moris

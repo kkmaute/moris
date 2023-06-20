@@ -706,13 +706,6 @@ namespace xtk
                 // check if the Vertex-Enrichment (VE) (i.e. enriched T-matrix) passed into this fnct. is the same as the VE already associated with this particular enr. vertex
                 if ( tCurrentVertEnrichment != nullptr )
                 {
-
-                    // // debug
-                    // if( aMeshIndex == 1 && tBaseVertIndex == 6507 && aVertexEnrichment == *tCurrentVertEnrichment )
-                    // {
-                    //     std::cout << "Stop here!" << std::endl;
-                    // }
-
                     // check whether the two T-matrices are equal
                     bool tVertEnrichmentsAreEqual = ( aVertexEnrichment == *tCurrentVertEnrichment );
 

@@ -744,15 +744,17 @@ namespace moris
             //------------------------------------------------------------------------------
             /**
              * compute quantity of interest elemental
-             * @param[ in ] aMeshIndex   mesh index to defined IG mesh to use
-             * @param[ in ] aFieldValues matrix to be filled with QI elemental values
-             * @param[ in ] aQINames     list of QI names to compute
+             * @param[ in ] aMeshIndex          mesh index to defined IG mesh to use
+             * @param[ in ] aFieldValues        matrix to be filled with QI elemental values
+             * @param[ in ] aQINames            list of QI names to compute
+             * @param[ in ] aOutputAverageValue whether the value is an average on the element, or the integrated quantity on the element
              */
             virtual void
             compute_quantity_of_interest_elemental(
                     const uint                        aMeshIndex,
                     Matrix< DDRMat >*                 aFieldValues,
-                    const moris::Cell< std::string >& aQINames )
+                    const moris::Cell< std::string >& aQINames,
+                    const bool                        aOutputAverageValue = true  )
             {
                 MORIS_ASSERT( false, "Equation_Set::compute_quantity_of_interest_elemental - not implemented for base class." );
             }

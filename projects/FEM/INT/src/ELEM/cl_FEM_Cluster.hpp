@@ -80,6 +80,9 @@ namespace moris
             // cluster measure map
             std::map< std::tuple< fem::Measure_Type, mtk::Primary_Void, mtk::Leader_Follower >, uint > mClusterMEAMap;
 
+            // flag to easily differentiate between ACTUAL FEM and VIS clusters for debugging
+            bool mIsVisCluster;
+
             friend class Element_Bulk;
             friend class Element_Sideset;
             friend class Element_Double_Sideset;
@@ -103,7 +106,8 @@ namespace moris
                     const Element_Type    aElementType,
                     const mtk::Cluster   *aMeshCluster,
                     Set                  *aSet,
-                    MSI::Equation_Object *aEquationObject );
+                    MSI::Equation_Object *aEquationObject,
+                    bool                  aIsVisCluster = false );
 
             //------------------------------------------------------------------------------
 
@@ -117,7 +121,15 @@ namespace moris
             /**
              * trivial destructor
              */
-             ~Cluster();
+            ~Cluster();
+
+            //------------------------------------------------------------------------------
+
+            bool
+            is_VIS_cluster() const
+            {
+                return mIsVisCluster;
+            }
 
             //------------------------------------------------------------------------------
 
@@ -151,7 +163,8 @@ namespace moris
             /**
              * get the vertices local coordinates on the IP cell
              */
-            moris::Matrix< moris::DDRMat > get_vertices_local_coordinates_wrt_interp_cell();
+            moris::Matrix< moris::DDRMat > get_vertices_local_coordinates_wrt_interp_cell(
+                    mtk::Leader_Follower aLeaderFollower = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
@@ -167,7 +180,8 @@ namespace moris
              * @param[ in ] aVerticesIndices matrix of vertex indices on cluster to be filled
              */
             void get_vertex_indices_in_cluster_for_visualization(
-                    moris::Matrix< moris::IndexMat > &aVerticesIndices );
+                    moris::Matrix< moris::IndexMat > &aVerticesIndices,
+                    mtk::Leader_Follower              aLeaderFollower = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
@@ -177,9 +191,9 @@ namespace moris
              * @param[ in ] aIsLeader           enum for leader or follower
              */
             moris::Matrix< moris::DDRMat > get_cell_local_coords_on_side_wrt_interp_cell(
-                    moris::moris_index aCellIndexInCluster,
-                    moris::moris_index aSideOrdinal,
-                    mtk::Leader_Follower  aIsLeader = mtk::Leader_Follower::LEADER );
+                    moris::moris_index   aCellIndexInCluster,
+                    moris::moris_index   aSideOrdinal,
+                    mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
             /**
@@ -238,12 +252,12 @@ namespace moris
             //------------------------------------------------------------------------------
             /**
              * compute the quantity of interest on cluster
-             * @param[ in ] aMeshIndex mesh index for used IG mesh
+             * @param[ in ] aFemMeshIndex mesh index for used IG mesh
              * @param[ in ] aFieldType enum for computation/return type
-             *                         GLOBAL, NODAL, ELEMENTAL
+             *                         GLOBAL, NODAL, ELEMENTAL_INT, ELEMENTAL_AVG
              */
             void compute_quantity_of_interest(
-                    const uint           aMeshIndex,
+                    const uint           aFemMeshIndex,
                     enum vis::Field_Type aFieldType );
 
             //------------------------------------------------------------------------------
@@ -295,8 +309,8 @@ namespace moris
              * get cluster measure
              */
             std::shared_ptr< Cluster_Measure > &get_cluster_measure(
-                    fem::Measure_Type aMeasureType,
-                    mtk::Primary_Void aIsPrimary,
+                    fem::Measure_Type    aMeasureType,
+                    mtk::Primary_Void    aIsPrimary,
                     mtk::Leader_Follower aIsLeader );
 
             //------------------------------------------------------------------------------
@@ -326,7 +340,7 @@ namespace moris
              * Compute the measure (volume 3d or area 2d) of the cells in the void or primary phase
              */
             moris::real compute_cluster_cell_measure(
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
@@ -334,7 +348,7 @@ namespace moris
              * Compute the measure derivatives of the cells in the void or primary phase
              */
             moris::Matrix< DDRMat > compute_cluster_cell_measure_derivative(
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -343,7 +357,7 @@ namespace moris
              * Only valid on side cluster type mtk clusters
              */
             moris::real compute_cluster_cell_side_measure(
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
@@ -352,7 +366,7 @@ namespace moris
              * Only valid on side cluster type mtk clusters
              */
             moris::Matrix< DDRMat > compute_cluster_cell_side_measure_derivative(
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------
@@ -360,7 +374,7 @@ namespace moris
              * Compute the element size (length) of the cells in the void or primary phase
              */
             moris::real compute_cluster_cell_length_measure(
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER ) const;
 
             //------------------------------------------------------------------------------
@@ -368,7 +382,7 @@ namespace moris
              * Compute the element size (length) derivatives of the cells in the void or primary phase
              */
             moris::Matrix< DDRMat > compute_cluster_cell_length_measure_derivative(
-                    const mtk::Primary_Void aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
+                    const mtk::Primary_Void    aPrimaryOrVoid = mtk::Primary_Void::PRIMARY,
                     const mtk::Leader_Follower aIsLeader      = mtk::Leader_Follower::LEADER );
 
             //------------------------------------------------------------------------------

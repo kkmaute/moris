@@ -244,9 +244,6 @@ namespace moris
             tParameterList.insert( "time_continuity", false );
             tParameterList.insert( "time_boundary", false );
 
-            // determines on which side of the double side set information gets written to the VIS mesh
-            tParameterList.insert( "output_side", (uint)( mtk::Leader_Follower::LEADER ) );
-
             tParameterList.insert( "normalization", "none" );    // options: time, design, vector of reference values
 
             return tParameterList;

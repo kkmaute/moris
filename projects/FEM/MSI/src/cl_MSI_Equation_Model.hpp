@@ -142,6 +142,16 @@ namespace moris
             }
 
             //------------------------------------------------------------------------------
+
+            virtual
+            Matrix< DDSMat >
+            get_XYZ_local_pdv_assembly_map() const
+            {
+                MORIS_ERROR( false, "MSI::Equation_Model::get_XYZ_local_pdv_assembly_map - Not implemented for the base class." );
+                return Matrix< DDSMat >( 0, 0 );
+            }
+
+            //------------------------------------------------------------------------------
             /**
              * finalize the equation sets
              * @param[ in ] aModelSolverInterface pointer to a model solver interface

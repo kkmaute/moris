@@ -31,10 +31,12 @@ namespace moris
                 const Element_Type    aElementType,
                 const mtk::Cluster   *aMeshCluster,
                 Set                  *aSet,
-                MSI::Equation_Object *aEquationObject )
+                MSI::Equation_Object *aEquationObject,
+                bool                  aIsVisCluster )
                 : mInterpolationElement( aEquationObject )
                 , mSet( aSet )
                 , mElementType( aElementType )
+                , mIsVisCluster( aIsVisCluster )
         {
             // fill the cell cluster pointer
             mMeshCluster = aMeshCluster;
@@ -94,8 +96,8 @@ namespace moris
                     mFollowerIntegrationCells = aMeshCluster->get_primary_cells_in_cluster( mtk::Leader_Follower::FOLLOWER );
 
                     // set the side ordinals for the leader and follower IG cells
-                    mLeaderListOfSideOrdinals = aMeshCluster->get_cell_side_ordinals( mtk::Leader_Follower::LEADER );
-                    mFollowerListOfSideOrdinals  = aMeshCluster->get_cell_side_ordinals( mtk::Leader_Follower::FOLLOWER );
+                    mLeaderListOfSideOrdinals   = aMeshCluster->get_cell_side_ordinals( mtk::Leader_Follower::LEADER );
+                    mFollowerListOfSideOrdinals = aMeshCluster->get_cell_side_ordinals( mtk::Leader_Follower::FOLLOWER );
 
                     // loop over the IG cells
                     for ( moris::uint iIGCell = 0; iIGCell < tNumLeaderIGCells; iIGCell++ )
@@ -209,32 +211,35 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Matrix< moris::DDRMat >
-        Cluster::get_vertices_local_coordinates_wrt_interp_cell()
+        Matrix< moris::DDRMat >
+        Cluster::get_vertices_local_coordinates_wrt_interp_cell( mtk::Leader_Follower aLeaderFollower )
         {
-            // check that side cluster
-            MORIS_ASSERT( mElementType == fem::Element_Type::BULK,
-                    "Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell - not a bulk cluster." );
-
             // check that the mesh cluster was set
             MORIS_ASSERT( mMeshCluster != NULL,
-                    "Cluster::get_vertices_local_coordinates_wrt_interp_cell - empty cluster." );
+                    "FEM::Cluster::get_vertices_local_coordinates_wrt_interp_cell() - Empty cluster." );
 
             // get the vertices param coords from the cluster
-            return mMeshCluster->get_vertices_local_coordinates_wrt_interp_cell();
+            return mMeshCluster->get_vertices_local_coordinates_wrt_interp_cell( aLeaderFollower );
         }
 
         //------------------------------------------------------------------------------
 
         void
         Cluster::get_vertex_indices_in_cluster_for_sensitivity(
-                moris::Matrix< moris::IndexMat > &aVerticesIndices )
+                Matrix< IndexMat > &aVerticesIndices )
         {
             // if mesh cluster is not trivial
             if ( !mMeshCluster->is_trivial( mtk::Leader_Follower::LEADER ) )
             {
+                // for bulk and single-sided elements, get the leader vertices, for double-sided both leader and follower
+                mtk::Leader_Follower tLeaderFollower = mtk::Leader_Follower::LEADER;
+                if ( this->get_element_type() == Element_Type::DOUBLE_SIDESET )
+                {
+                    tLeaderFollower = mtk::Leader_Follower::UNDEFINED;
+                }
+
                 // get vertices indices on cluster
-                aVerticesIndices = mMeshCluster->get_vertex_indices_in_cluster();
+                aVerticesIndices = mMeshCluster->get_vertex_indices_in_cluster( tLeaderFollower );
             }
         }
 
@@ -242,27 +247,23 @@ namespace moris
 
         void
         Cluster::get_vertex_indices_in_cluster_for_visualization(
-                moris::Matrix< moris::IndexMat > &aVerticesIndices )
+                Matrix< IndexMat >  &aVerticesIndices,
+                mtk::Leader_Follower aLeaderFollower )
         {
-            // check that bulk cluster
-            MORIS_ASSERT( mElementType == fem::Element_Type::BULK,
-                    "Cluster::get_vertex_indices_in_cluster - not a bulk cluster." );
-
             // check that the mesh cluster was set
-            MORIS_ASSERT( mMeshCluster != NULL,
-                    "Cluster::get_vertex_indices_in_cluster - empty cluster." );
+            MORIS_ASSERT( mMeshCluster != NULL, "FEM::Cluster::get_vertex_indices_in_cluster() - Cluster is empty." );
 
             // fill vertex indices matrix
-            aVerticesIndices = mMeshCluster->get_vertex_indices_in_cluster();
+            aVerticesIndices = mMeshCluster->get_vertex_indices_in_cluster( aLeaderFollower );
         }
 
         //------------------------------------------------------------------------------
 
-        moris::Matrix< moris::DDRMat >
+        Matrix< moris::DDRMat >
         Cluster::get_cell_local_coords_on_side_wrt_interp_cell(
-                moris::moris_index aCellIndexInCluster,
-                moris::moris_index aSideOrdinal,
-                mtk::Leader_Follower  aIsLeader )
+                moris::moris_index   aCellIndexInCluster,
+                moris::moris_index   aSideOrdinal,
+                mtk::Leader_Follower aIsLeader )
         {
             // check that side cluster
             MORIS_ASSERT( ( mElementType == fem::Element_Type::DOUBLE_SIDESET ) || ( mElementType == fem::Element_Type::SIDESET ),
@@ -278,7 +279,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Matrix< moris::DDRMat >
+        Matrix< moris::DDRMat >
         Cluster::get_primary_cell_local_coords_on_side_wrt_interp_cell(
                 moris::moris_index aPrimaryCellIndexInCluster )
         {
@@ -530,7 +531,7 @@ namespace moris
 
         void
         Cluster::compute_quantity_of_interest(
-                const uint           aMeshIndex,
+                const uint           aFemMeshIndex,
                 enum vis::Field_Type aFieldType )
         {
             // FIXME
@@ -545,7 +546,7 @@ namespace moris
                 if ( mComputeResidualAndIQI( iElem ) )
                 {
                     // compute the quantity of interest for the IG element
-                    mElements( iElem )->compute_quantity_of_interest( aMeshIndex, aFieldType );
+                    mElements( iElem )->compute_quantity_of_interest( aFemMeshIndex, aFieldType );
                 }
             }
         }
@@ -580,8 +581,8 @@ namespace moris
 
         std::shared_ptr< Cluster_Measure > &
         Cluster::get_cluster_measure(
-                fem::Measure_Type aMeasureType,
-                mtk::Primary_Void aIsPrimary,
+                fem::Measure_Type    aMeasureType,
+                mtk::Primary_Void    aIsPrimary,
                 mtk::Leader_Follower aIsLeader )
         {
             // init cluster index
@@ -636,7 +637,7 @@ namespace moris
 
         moris::real
         Cluster::compute_cluster_cell_measure(
-                const mtk::Primary_Void aPrimaryOrVoid,
+                const mtk::Primary_Void    aPrimaryOrVoid,
                 const mtk::Leader_Follower aIsLeader ) const
         {
             // check that the mesh cluster was set
@@ -648,14 +649,17 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Matrix< DDRMat >
+        Matrix< DDRMat >
         Cluster::compute_cluster_cell_measure_derivative(
-                const mtk::Primary_Void aPrimaryOrVoid,
+                const mtk::Primary_Void    aPrimaryOrVoid,
                 const mtk::Leader_Follower aIsLeader )
         {
             // check that the mesh cluster was set
             MORIS_ASSERT( mMeshCluster != NULL,
                     "Cluster::compute_cluster_cell_measure_derivative - empty cluster." );
+
+            // check that this function is not called on the VIS clusters, only makes sense on actual FEM clusters
+            MORIS_ASSERT( !this->is_VIS_cluster(), "FEM cluster is actually VIS cluster." );
 
             // get the vertex pointers in cluster
             moris::Cell< moris::mtk::Vertex const * > tVertices =
@@ -678,9 +682,11 @@ namespace moris
                 for ( uint iClusterNode = 0; iClusterNode < tVertices.size(); iClusterNode++ )
                 {
                     // get local assembly indices
-                    Matrix< DDSMat > tGeoLocalAssembly;
-                    mSet->get_equation_model()->get_integration_xyz_pdv_assembly_indices(
-                            { { tVertices( iClusterNode )->get_index() } },
+                    Matrix< DDSMat >     tGeoLocalAssembly;
+                    MSI::Equation_Model *tEquationModel    = mSet->get_equation_model();
+                    Matrix< IndexMat >   tClusterNodeIndex = { { tVertices( iClusterNode )->get_index() } };
+                    tEquationModel->get_integration_xyz_pdv_assembly_indices(
+                            tClusterNodeIndex,
                             tGeoPdvType,
                             tGeoLocalAssembly );
 
@@ -698,11 +704,25 @@ namespace moris
                     for ( uint iSpace = 0; iSpace < tGeoLocalAssembly.n_cols(); iSpace++ )
                     {
                         // get the pdv assembly index
-                        sint tPDVAssemblyIndex = tGeoLocalAssembly( iSpace );
+                        moris_index tPDVAssemblyIndex = tGeoLocalAssembly( iSpace );
+
+                        // sanity check
+                        MORIS_ASSERT( tPDVAssemblyIndex != MORIS_INDEX_MAX,
+                                "FEM::Cluster::compute_cluster_cell_measure_derivative() - "
+                                "tPDVAssemblyIndex is MORIS_INDEX_MAX which likely means that mXYZLocalAssemblyIndices"
+                                "in the FEM-Model has not been set for this node and PDV type." );
 
                         // if pdv assembly index is set
                         if ( tPDVAssemblyIndex != -1 )
                         {
+
+                            // check
+                            MORIS_ASSERT( tPDVAssemblyIndex < (moris_index)tDerivatives.numel(),
+                                    "FEM::Cluster::compute_cluster_cell_measure_derivative() - "
+                                    "tPDVAssemblyIndex is out of bounds. Assembly index is %i, but number of PDVs only is: %i",
+                                    tPDVAssemblyIndex,
+                                    tDerivatives.numel() );
+
                             // add contribution from the cell to the cluster measure
                             tDerivatives( tPDVAssemblyIndex ) +=
                                     mMeshCluster->compute_cluster_cell_measure_derivative(
@@ -721,7 +741,7 @@ namespace moris
 
         moris::real
         Cluster::compute_cluster_cell_side_measure(
-                const mtk::Primary_Void aPrimaryOrVoid,
+                const mtk::Primary_Void    aPrimaryOrVoid,
                 const mtk::Leader_Follower aIsLeader ) const
         {
             // check that the mesh cluster was set
@@ -733,9 +753,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Matrix< DDRMat >
+        Matrix< DDRMat >
         Cluster::compute_cluster_cell_side_measure_derivative(
-                const mtk::Primary_Void aPrimaryOrVoid,
+                const mtk::Primary_Void    aPrimaryOrVoid,
                 const mtk::Leader_Follower aIsLeader )
         {
             // check that the mesh cluster was set
@@ -763,9 +783,11 @@ namespace moris
                 for ( uint iClusterNode = 0; iClusterNode < tVertices.size(); iClusterNode++ )
                 {
                     // get local assembly indices
-                    Matrix< DDSMat > tGeoLocalAssembly;
-                    mSet->get_equation_model()->get_integration_xyz_pdv_assembly_indices(
-                            { { tVertices( iClusterNode )->get_index() } },
+                    Matrix< DDSMat >     tGeoLocalAssembly;
+                    MSI::Equation_Model *tEquationModel    = mSet->get_equation_model();
+                    Matrix< IndexMat >   tClusterNodeIndex = { { tVertices( iClusterNode )->get_index() } };
+                    tEquationModel->get_integration_xyz_pdv_assembly_indices(
+                            tClusterNodeIndex,
                             tGeoPdvType,
                             tGeoLocalAssembly );
 
@@ -784,6 +806,12 @@ namespace moris
                     {
                         // get the pdv assembly index
                         sint tPDVAssemblyIndex = tGeoLocalAssembly( iSpace );
+
+                        // sanity check
+                        MORIS_ASSERT( tPDVAssemblyIndex != MORIS_INDEX_MAX,
+                                "FEM::Cluster::compute_cluster_cell_side_measure_derivative() - "
+                                "tPDVAssemblyIndex is MORIS_INDEX_MAX which likely means that mXYZLocalAssemblyIndices"
+                                "in the FEM-Model has not been set for this node and PDV type." );
 
                         // if pdv assembly index is set
                         if ( tPDVAssemblyIndex != -1 )
@@ -806,7 +834,7 @@ namespace moris
 
         moris::real
         Cluster::compute_cluster_cell_length_measure(
-                const mtk::Primary_Void aPrimaryOrVoid,
+                const mtk::Primary_Void    aPrimaryOrVoid,
                 const mtk::Leader_Follower aIsLeader ) const
         {
             // check that the mesh cluster was set
@@ -869,9 +897,9 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Matrix< DDRMat >
+        Matrix< DDRMat >
         Cluster::compute_cluster_cell_length_measure_derivative(
-                const mtk::Primary_Void aPrimaryOrVoid,
+                const mtk::Primary_Void    aPrimaryOrVoid,
                 const mtk::Leader_Follower aIsLeader )
         {
             // check that the mesh cluster was set
@@ -987,7 +1015,7 @@ namespace moris
         {
             // new way to compute cluster volume
 
-            const mtk::Primary_Void tPrimaryOrVoid = mtk::Primary_Void::PRIMARY;
+            const mtk::Primary_Void    tPrimaryOrVoid = mtk::Primary_Void::PRIMARY;
             const mtk::Leader_Follower tIsLeader      = mtk::Leader_Follower::LEADER;
 
             real tClusterVolume = 0.0;
@@ -1029,7 +1057,7 @@ namespace moris
         {
             // new way to compute cluster volume
 
-            const mtk::Primary_Void tPrimaryOrVoid = mtk::Primary_Void::PRIMARY;
+            const mtk::Primary_Void    tPrimaryOrVoid = mtk::Primary_Void::PRIMARY;
             const mtk::Leader_Follower tIsLeader      = mtk::Leader_Follower::LEADER;
 
             // switch on set type
@@ -1228,4 +1256,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-

@@ -54,10 +54,9 @@ namespace moris
                     , mPrimaryIntegrationCells( 0, nullptr )
                     , mIntegrationCellSideOrdinals( 0, 0 )
                     , mVerticesInCluster( 0, nullptr )
-                    , mVertexParamCoords( 0, 0 )
-            {
-                // do nothing else
-            };
+                    , mVertexParamCoords( 0, 0 ){
+                        // do nothing else
+                    };
 
             //----------------------------------------------------------------
 
@@ -128,10 +127,10 @@ namespace moris
             get_cell_side_ordinals( const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
             //----------------------------------------------------------------
-            
+
             moris_index
-            get_cell_side_ordinal( 
-                    moris::moris_index      aCellIndexInCluster,
+            get_cell_side_ordinal(
+                    moris::moris_index         aCellIndexInCluster,
                     const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
             //----------------------------------------------------------------
@@ -146,20 +145,23 @@ namespace moris
 
             //----------------------------------------------------------------
 
-            // moris_index
-            // get_vertex_cluster_index( moris::mtk::Vertex const * aVertex,
-            //         const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER  ) const;
+            moris_index
+            get_vertex_cluster_index(
+                    const mtk::Vertex         *aVertex,
+                    const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER ) const override;
 
             //----------------------------------------------------------------
 
-            // moris_index
-            // get_vertex_ordinal_on_facet( moris_index aCellIndexInCluster, moris::mtk::Vertex const * aVertex ) const;
+            moris_index
+            get_vertex_ordinal_on_facet(
+                    moris_index               aCellIndexInCluster,
+                    moris::mtk::Vertex const *aVertex ) const override;
 
             //----------------------------------------------------------------
 
             moris::Matrix< moris::DDRMat >
             get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const *aVertex,
-                    const mtk::Leader_Follower                                        aIsLeader = mtk::Leader_Follower::LEADER ) const;
+                    const mtk::Leader_Follower                                     aIsLeader = mtk::Leader_Follower::LEADER ) const;
 
             //----------------------------------------------------------------
 

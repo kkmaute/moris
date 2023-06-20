@@ -317,7 +317,7 @@ namespace moris
         // ----------------------------------------------------------------------------------
 
         moris::Matrix<moris::IndexMat>
-        Side_Cluster::get_vertex_indices_in_cluster() const
+        Side_Cluster::get_vertex_indices_in_cluster( mtk::Leader_Follower aLeaderFollower) const
         {
             // number of cells in cluster
             moris::uint tNumVertices = this->get_num_vertices_in_cluster();

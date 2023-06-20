@@ -739,13 +739,6 @@ Node_Hierarchy_Interface::sort_nodes_2d(
 
     Cell< moris::mtk::Vertex* > tVertices = aIgCell->get_vertex_pointers();
 
-    // debug
-    // std::cout << "-------------------------------------------------------------------------\n" << std::flush;
-    // std::cout << "aCellIndexIntersectedEdgeOrdinals->size() = " << aCellIndexIntersectedEdgeOrdinals->size() << " \n" << std::flush;
-    // std::cout << "tIndices.size() = " << tIndices.size() << " \n" << std::flush;
-    // std::cout << "tVertices.size() = " << tVertices.size() << " \n" << std::flush;
-    // print( tVertices, "tVertices" );
-
     // intersection goes through two edges
     if ( aCellIndexIntersectedEdgeOrdinals->size() == 2 )
     {
@@ -760,12 +753,6 @@ Node_Hierarchy_Interface::sort_nodes_2d(
         ( *aSortedNodeInds )( 2 ) = tVertices( 2 );
         ( *aSortedNodeInds )( 3 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 0 ) );
         ( *aSortedNodeInds )( 4 ) = ( *aCellIndexIntersectedEdgeVertex )( tIndices( 1 ) );
-
-        // print( *aCellIndexIntersectedEdgeVertex, "*aCellIndexIntersectedEdgeVertex" );
-        // print( *aCellIndexIntersectedEdgeOrdinals, "*aCellIndexIntersectedEdgeOrdinals" );
-        // print( *aSortedNodeInds , "*aSortedNodeInds" );
-        // std::cout << "Permutation-ID: " <<  aPermutation << " \n" << std::flush;
-        // std::cout << "-------------------------------------------------------------------------\n" << std::flush;
     }
 
     // intersection goes through one of the vertices

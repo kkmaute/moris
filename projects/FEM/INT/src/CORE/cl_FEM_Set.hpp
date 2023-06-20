@@ -87,7 +87,7 @@ namespace moris
 
             // field interpolator manager pointers
             Field_Interpolator_Manager* mLeaderFIManager         = nullptr;
-            Field_Interpolator_Manager* mFollowerFIManager          = nullptr;
+            Field_Interpolator_Manager* mFollowerFIManager       = nullptr;
             Field_Interpolator_Manager* mLeaderPreviousFIManager = nullptr;
             Field_Interpolator_Manager* mLeaderEigenFIManager    = nullptr;
 
@@ -129,21 +129,23 @@ namespace moris
             Matrix< DDSMat > mUniqueFieldTypeMap;
 
             // map visualization cell id to position in vector
-            moris::Cell< moris::Matrix< DDSMat > > mCellAssemblyMap;
-            moris::Cell< uint >                    mMtkIgCellOnSet;
+            moris::Cell< Matrix< DDSMat > > mCellAssemblyMap;     // input: VIS mesh index, VIS cell index || output: position of cell within list of cells on VIS set
+            moris::Cell< uint >             mNumIgCellsOnSet;     // input: VIS mesh index || output: number of IG cells in that VIS set
+
+            moris::Cell< Matrix< DDSMat > > mFacetAssemblyMap;    // input: VIS mesh index, IG cell index, side ordinal  || output: position of facet within the output (dbl) side set
+            moris::Cell< uint >             mNumFacetsOnSet;      // input: VIS mesh index || output: number of facets in that VIS (dbl) side set
 
             // cluster measure specifications on set
-            moris::Cell< std::tuple<
-                    fem::Measure_Type,
-                    mtk::Primary_Void,
-                    mtk::Leader_Follower > >
+            moris::Cell<
+                    std::tuple<
+                            fem::Measure_Type,
+                            mtk::Primary_Void,
+                            mtk::Leader_Follower > >
                     mClusterMEATuples;
 
             // cluster measure specification map on set
-            std::map< std::tuple<
-                              fem::Measure_Type,
-                              mtk::Primary_Void,
-                              mtk::Leader_Follower >,
+            std::map<
+                    std::tuple< fem::Measure_Type, mtk::Primary_Void, mtk::Leader_Follower >,
                     uint >
                     mClusterMEAMap;
 
@@ -279,6 +281,17 @@ namespace moris
                     const uint       aMeshIndex,
                     moris::mtk::Set* aVisMeshSet,
                     const bool       aOnlyPrimaryCells );
+
+            void
+            construct_cell_assembly_map_for_VIS_set(
+                    const uint       aMeshIndex,
+                    moris::mtk::Set* aVisMeshSet,
+                    const bool       aOnlyPrimaryCells );
+
+            void
+            construct_facet_assembly_map_for_VIS_set(
+                    const uint       aMeshIndex,
+                    moris::mtk::Set* aVisMeshSet );
 
             //------------------------------------------------------------------------------
             /**
@@ -919,13 +932,13 @@ namespace moris
             //------------------------------------------------------------------------------
             /**
              * compute a quantity of interest nodal
-             * @param[ in ] aMeshIndex        vis mesh index to define mesh
+             * @param[ in ] aVisMeshIndex     vis mesh index to define mesh
              *                                on which values are evaluated
              * @param[ in ] aNodalFieldValues matrix to fill with nodal values
              * @param[ in ] aQINames          list of IQI names to be evaluated
              */
             void compute_quantity_of_interest_nodal(
-                    const uint                        aMeshIndex,
+                    const uint                        aVisMeshIndex,
                     Matrix< DDRMat >*                 aNodalFieldValues,
                     const moris::Cell< std::string >& aQINames );
 
@@ -951,13 +964,13 @@ namespace moris
             //------------------------------------------------------------------------------
             /**
              * compute a quantity of interest global
-             * @param[ in ] aMeshIndex         vis mesh index to define mesh
+             * @param[ in ] aVisMeshIndex      vis mesh index to define mesh
              *                                 on which values are evaluated
              * @param[ in ] aGlobalFieldValues matrix to fill with global values
              * @param[ in ] aQINames           list of IQI names to be evaluated
              */
             void compute_quantity_of_interest_global(
-                    const uint                        aMeshIndex,
+                    const uint                        aVisMeshIndex,
                     Matrix< DDRMat >*                 aGlobalFieldValues,
                     const moris::Cell< std::string >& aQINames );
 
@@ -983,15 +996,17 @@ namespace moris
             //------------------------------------------------------------------------------
             /**
              * compute a quantity of interest elemental
-             * @param[ in ] aMeshIndex            vis mesh index to define mesh
+             * @param[ in ] aVisMeshIndex         vis mesh index to define mesh
              *                                    on which values are evaluated
              * @param[ in ] aElementalFieldValues matrix to fill with elemental values
              * @param[ in ] aQINames              list of IQI names to be evaluated
+             * @param[ in ] aOutputAverageValue   whether the value is an average on the element, or the integrated quantity on the element
              */
             void compute_quantity_of_interest_elemental(
-                    const uint                        aMeshIndex,
+                    const uint                        aVisMeshIndex,
                     Matrix< DDRMat >*                 aElementalFieldValues,
-                    const moris::Cell< std::string >& aQINames );
+                    const moris::Cell< std::string >& aQINames,
+                    const bool                        aOutputAverageValue = true );
 
             //------------------------------------------------------------------------------
             /**

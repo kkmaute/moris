@@ -81,8 +81,9 @@ namespace moris
             /// @brief flag indicating whether the mesh is ready for output
             bool mMeshIsFinalized = false;
 
-            const std::string mLeaderString = "_Leader";
-            const std::string mFollowerString  = "_Follower";
+            // TODO: does this need to go?
+            // const std::string mLeaderString   = "_Leader";
+            // const std::string mFollowerString = "_Follower";
 
             // ----------------------------------------------------------------------------
 
@@ -176,17 +177,22 @@ namespace moris
                 }
                 else if ( aSetEntityRank == EntityRank::EDGE || aSetEntityRank == EntityRank::FACE )
                 {
-                    // construct a list of names for the leader and follower sides of the double sided side sets to be outputted
-                    Cell< std::string > tDoubleSidedSingleSetNames( 2 * mDoubleSideSetNames.size() );
-                    for ( uint iDblSideSet = 0; iDblSideSet < mDoubleSideSetNames.size(); iDblSideSet++ )
-                    {
-                        tDoubleSidedSingleSetNames( 2 * iDblSideSet )     = mDoubleSideSetNames( iDblSideSet ) + mLeaderString;
-                        tDoubleSidedSingleSetNames( 2 * iDblSideSet + 1 ) = mDoubleSideSetNames( iDblSideSet ) + mFollowerString;
-                    }
+                    // TODO: does this need to go?
+                    // // construct a list of names for the leader and follower sides of the double sided side sets to be outputted
+                    // Cell< std::string > tDoubleSidedSingleSetNames( 2 * mDoubleSideSetNames.size() );
+                    // for ( uint iDblSideSet = 0; iDblSideSet < mDoubleSideSetNames.size(); iDblSideSet++ )
+                    // {
+                    //     tDoubleSidedSingleSetNames( 2 * iDblSideSet )     = mDoubleSideSetNames( iDblSideSet ) + mLeaderString;
+                    //     tDoubleSidedSingleSetNames( 2 * iDblSideSet + 1 ) = mDoubleSideSetNames( iDblSideSet ) + mFollowerString;
+                    // }
+                    //
+                    // // construct the list including the set names of all side sets to be outputted
+                    // Cell< std::string > tAllOutputSideSetNames = mSideSetNames;
+                    // tAllOutputSideSetNames.append( tDoubleSidedSingleSetNames );
 
-                    // construct the list including the set names of all side sets to be outputted
+                    // concatenate list of side set and dbl side sets
                     Cell< std::string > tAllOutputSideSetNames = mSideSetNames;
-                    tAllOutputSideSetNames.append( tDoubleSidedSingleSetNames );
+                    tAllOutputSideSetNames.append( mDoubleSideSetNames );
 
                     // return the list of all side set names to be outputted
                     return tAllOutputSideSetNames;
@@ -335,10 +341,12 @@ namespace moris
             moris::mtk::Set*
             get_set_by_name( std::string aSetLabel ) const
             {
+                MORIS_ASSERT(
+                        mSetNameToIndexMap.key_exists( aSetLabel ),
+                        "VIS::Visualization_Mesh::get_set_by_name() - Set with name '%s' is not part of VIS mesh.",
+                        aSetLabel.c_str() );
+
                 moris_index tSetIndex = mSetNameToIndexMap.find( aSetLabel );
-
-                MORIS_ASSERT( (uint)tSetIndex < mListOfAllSets.size(), "VIS::Visualization_Mesh::get_set_by_name() - Set index out of bounds" );
-
                 return mListOfAllSets( tSetIndex );
             }
 
@@ -558,31 +566,6 @@ namespace moris
                 // copy string such that we can modify it
                 std::string tSetNameCopy = aSetName;
 
-                // check if the set is actually just part of a leader or follower side set of a double sided side set
-                bool tIsLeaderSideSet = false;
-                bool tIsFollowerSideSet  = false;
-                if ( tSetNameCopy.length() >= mLeaderString.length() )
-                {
-                    
-                    tIsLeaderSideSet = ( tSetNameCopy.substr( tSetNameCopy.length() - mLeaderString.length() ) == mLeaderString );
-                    // tIsLeaderSideSet = ( 0 == tSetNameCopy.compare( tSetNameCopy.length() - mLeaderString.length(), mLeaderString.length(), mLeaderString ) );
-                }
-                if ( tSetNameCopy.length() >= mFollowerString.length() )
-                {
-                    tIsFollowerSideSet = ( tSetNameCopy.substr( tSetNameCopy.length() - mFollowerString.length() ) == mFollowerString );
-                    // tIsFollowerSideSet = ( 0 == tSetNameCopy.compare( tSetNameCopy.length() - mFollowerString.length(), mFollowerString.length(), mFollowerString ) );
-                }
-
-                // if it is part of a double sided side set, delete the ending
-                if ( tIsLeaderSideSet )
-                {
-                    tSetNameCopy.erase( tSetNameCopy.length() - mLeaderString.length() );
-                }
-                if ( tIsFollowerSideSet )
-                {
-                    tSetNameCopy.erase( tSetNameCopy.length() - mFollowerString.length() );
-                }
-
                 // get the set
                 moris_index tSetIndex = mSetNameToIndexMap.find( tSetNameCopy );
                 MORIS_ASSERT(
@@ -625,22 +608,8 @@ namespace moris
                         // get the index of the set in the list of double side sets
                         moris_index tDblSideSetIndex = mSetLocalToTypeIndex( tSetIndex );
 
-                        // get access to the correct list of clusters for output
-                        if ( tIsLeaderSideSet )
-                        {
-                            tClustersOnSideSet = mLeaderSideClusters( tDblSideSetIndex );
-                        }
-                        else if ( tIsFollowerSideSet )
-                        {
-                            tClustersOnSideSet = mFollowerSideClusters( tDblSideSetIndex );
-                        }
-                        else    // error, neither leader nor follower side
-                        {
-                            MORIS_ERROR( false,
-                                    "VIS::Visualization_Mesh::get_sideset_elems_loc_inds_and_ords() - "
-                                    "Set '%s' is a double side set but name ending does not specify which side to output on.",
-                                    aSetName.c_str() );
-                        }
+                        // use the leader side sets for printing
+                        tClustersOnSideSet = mLeaderSideClusters( tDblSideSetIndex );
 
                         // stop switch
                         break;

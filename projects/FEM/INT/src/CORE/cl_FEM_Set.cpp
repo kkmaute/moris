@@ -20,6 +20,7 @@
 #include "cl_FEM_Interpolation_Element.hpp"         //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"                       //FEM/INT/src
 #include "cl_MTK_Set.hpp"                           //FEM/INT/src
+#include "cl_MTK_Cell_Info.hpp"
 #include "fn_equal_to.hpp"
 
 namespace moris
@@ -362,12 +363,12 @@ namespace moris
         Set::create_unique_dof_and_dv_type_lists()
         {
             // init dof and dv type counter
-            uint tLeaderDofCounter   = 0;
-            uint tLeaderDvCounter    = 0;
-            uint tLeaderFieldCounter = 0;
-            uint tFollowerDofCounter    = 0;
-            uint tFollowerDvCounter     = 0;
-            uint tFollowerFieldCounter  = 0;
+            uint tLeaderDofCounter     = 0;
+            uint tLeaderDvCounter      = 0;
+            uint tLeaderFieldCounter   = 0;
+            uint tFollowerDofCounter   = 0;
+            uint tFollowerDvCounter    = 0;
+            uint tFollowerFieldCounter = 0;
 
             // loop over the IWGs
             for ( const std::shared_ptr< IWG >& tIWG : mIWGs )
@@ -1977,14 +1978,17 @@ namespace moris
             moris::Cell< enum PDV_Type > tRequestedDvTypes = mUniqueDvTypeList;
 
             // init the max index for dv types
-            sint tMaxDvIndex = -1;
+            moris_index tMaxDvIndex = -1;
 
             // loop over the dv types
-            for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
+            for ( uint iPdvType = 0; iPdvType < tRequestedDvTypes.size(); iPdvType++ )
             {
+                // get the current PDV type
+                PDV_Type tPdvType = tRequestedDvTypes( iPdvType );
+
                 // get the set index for the requested leader dof type
-                sint tDvIndex = this->get_dv_index_for_type(
-                        tRequestedDvTypes( Ik ),
+                moris_index tDvIndex = this->get_dv_index_for_type(
+                        tPdvType,
                         mtk::Leader_Follower::LEADER );
 
                 // if the index was set (and is different from -1)
@@ -1996,7 +2000,7 @@ namespace moris
 
                 // get the set index for the requested follower follower type
                 tDvIndex = this->get_dv_index_for_type(
-                        tRequestedDvTypes( Ik ),
+                        tPdvType,
                         mtk::Leader_Follower::FOLLOWER );
 
                 // if the index was set (and is different -1)
@@ -2022,18 +2026,21 @@ namespace moris
             uint tCounter = 0;
 
             // loop over the dv types
-            for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
+            for ( uint iPdvType = 0; iPdvType < tRequestedDvTypes.size(); iPdvType++ )
             {
+                // get the current PDV type
+                PDV_Type tPdvType = tRequestedDvTypes( iPdvType );
+
                 // get the set index for the requested leader dv type
-                sint tDvIndex = this->get_dv_index_for_type(
-                        tRequestedDvTypes( Ik ),
+                moris_index tDvIndex = this->get_dv_index_for_type(
+                        tPdvType,
                         mtk::Leader_Follower::LEADER );
 
                 // if the index was set (and is different from -1)
                 if ( tDvIndex != -1 )
                 {
                     // get the FI related to the leader pdv type
-                    Field_Interpolator* tFI = mLeaderFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik ) );
+                    Field_Interpolator* tFI = mLeaderFIManager->get_field_interpolators_for_type( tPdvType );
 
                     // get the number of coefficients related to the leader dv type
                     uint tNumCoeff = tFI->get_number_of_space_time_coefficients();
@@ -2049,18 +2056,21 @@ namespace moris
             }
 
             // loop over the follower dv types
-            for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
+            for ( uint iPdvType = 0; iPdvType < tRequestedDvTypes.size(); iPdvType++ )
             {
+                // get the current PDV type
+                PDV_Type tPdvType = tRequestedDvTypes( iPdvType );
+
                 // get the set index for the follower dv type
-                sint tDvIndex = this->get_dv_index_for_type(
-                        tRequestedDvTypes( Ik ),
+                moris_index tDvIndex = this->get_dv_index_for_type(
+                        tPdvType,
                         mtk::Leader_Follower::FOLLOWER );
 
                 // if the dv type was set (its set index is different from -1)
                 if ( tDvIndex != -1 )
                 {
                     // get the FI related to the leader pdv type
-                    Field_Interpolator* tFI = mFollowerFIManager->get_field_interpolators_for_type( tRequestedDvTypes( Ik ) );
+                    Field_Interpolator* tFI = mFollowerFIManager->get_field_interpolators_for_type( tPdvType );
 
                     // get the number of coefficients for the follower dv type
                     uint tNumCoeff = tFI->get_number_of_space_time_coefficients();
@@ -2084,19 +2094,28 @@ namespace moris
         Set::create_geo_pdv_assembly_map(
                 std::shared_ptr< fem::Cluster > aFemCluster )
         {
+            // make sure this is done on the FEM clusters and not on the VIS clusters
+            MORIS_ASSERT( !aFemCluster->is_VIS_cluster(),
+                    "FEM::Set::create_geo_pdv_assembly_map() - "
+                    "Trying to set PDV assembly map on a VIS cluster. This shouldn't happen." );
+
             // get the design variable interface
             MSI::Design_Variable_Interface* tDVInterface =
                     mEquationModel->get_design_variable_interface();
 
             // get the geo dv types requested by the opt
             moris::Cell< enum PDV_Type > tRequestedDvTypes;
+            moris_index                  tMeshSetIndex = mMeshSet->get_set_index();
             tDVInterface->get_ig_unique_dv_types_for_set(
-                    mMeshSet->get_set_index(),
+                    tMeshSetIndex,
                     tRequestedDvTypes );
 
             // get node indices on cluster
             moris::Matrix< moris::IndexMat > tNodeIndicesOnCluster;
             aFemCluster->get_vertex_indices_in_cluster_for_sensitivity( tNodeIndicesOnCluster );
+
+            // get access to the FEM model
+            MSI::Equation_Model* tFemModel = this->get_equation_model();
 
             // clean up assembly vector
             mPdvGeoAssemblyVector.set_size( 0, 0 );
@@ -2104,7 +2123,7 @@ namespace moris
             // get the pdv active flags and ids from the FEM IG nodes
             Matrix< DDSMat > tIsActivePdv;
             Matrix< DDSMat > tPdvIds;
-            this->get_equation_model()->get_integration_xyz_pdv_active_flags_and_ids(
+            tFemModel->get_integration_xyz_pdv_active_flags_and_ids(
                     tNodeIndicesOnCluster,
                     tRequestedDvTypes,
                     tIsActivePdv,
@@ -2116,71 +2135,79 @@ namespace moris
             // set flag for active pdv
             mPdvGeoAssemblyFlag = ( sum( tIsActivePdv ) > 0 );
 
-            // if there are some active pdvs
-            if ( mPdvGeoAssemblyFlag )
+            // if there are no active pdvs, skip the rest
+            if ( !mPdvGeoAssemblyFlag )
             {
-                // clean up assembly map
-                mPdvGeoAssemblyMap.clear();
-
-                // get number of pdv types
-                uint tNumPdvTypes = tRequestedDvTypes.size();
-
-                // get number of nodes on cluster
-                uint tNumIGNodes = tNodeIndicesOnCluster.numel();
-
-                // reset assembly indices on nodes
-                this->get_equation_model()->reset_integration_xyz_pdv_assembly_indices( tNodeIndicesOnCluster );
-
-                // clean up assembly vector
-                Matrix< DDSMat > tPdvGeoAssemblyVectorTemp( tNumIGNodes * tNumPdvTypes, 1, -1 );
-
-                // loop over the requested pdv types
-                for ( uint iGeoPdv = 0; iGeoPdv < tNumPdvTypes; iGeoPdv++ )
-                {
-                    // get treated geo pdv type
-                    PDV_Type tGeoPdvType = tRequestedDvTypes( iGeoPdv );
-
-                    // get treated geo pdv type index
-                    // moris_index tGeoPdvIndex = static_cast< uint >( tGeoPdvType );
-
-                    // loop over the ig nodes on cluster
-                    for ( uint iIGNode = 0; iIGNode < tNumIGNodes; iIGNode++ )
-                    {
-                        // get treated node index
-                        moris_index tNodeIndex = tNodeIndicesOnCluster( iIGNode );
-
-                        // create key pair
-                        std::pair< moris_index, PDV_Type > tKeyPair = std::make_pair( tNodeIndex, tGeoPdvType );
-
-                        // if active and not set in the map
-                        if ( tIsActivePdv( iIGNode, iGeoPdv ) && ( mPdvGeoAssemblyMap.find( tKeyPair ) == mPdvGeoAssemblyMap.end() ) )
-                        {
-                            // fill the map
-                            mPdvGeoAssemblyMap[ tKeyPair ] = tActiveGeoPdvCounter;
-
-                            // set node local index on cluster
-                            this->get_equation_model()->set_integration_xyz_pdv_assembly_index(
-                                    tNodeIndex,
-                                    tGeoPdvType,
-                                    tActiveGeoPdvCounter );
-
-                            // fill the global assembly vector
-                            tPdvGeoAssemblyVectorTemp( tActiveGeoPdvCounter ) = tPdvIds( iIGNode, iGeoPdv );
-
-                            // update active geo pdv counter
-                            tActiveGeoPdvCounter++;
-                        }
-                    }
-                }
-
-                if ( tActiveGeoPdvCounter > 0 )
-                {
-                    // fill assembly vector
-                    mPdvGeoAssemblyVector.set_size( tActiveGeoPdvCounter, 1, -1 );
-                    mPdvGeoAssemblyVector = tPdvGeoAssemblyVectorTemp( { 0, tActiveGeoPdvCounter - 1 }, { 0, 0 } );
-                }
+                return;
             }
-        }
+
+            // clean up assembly map
+            mPdvGeoAssemblyMap.clear();
+
+            // get number of pdv types
+            uint tNumPdvTypes = tRequestedDvTypes.size();
+
+            // get number of nodes on cluster
+            uint tNumIGNodes = tNodeIndicesOnCluster.numel();
+
+            // reset assembly indices on nodes
+            tFemModel->reset_integration_xyz_pdv_assembly_indices( tNodeIndicesOnCluster );
+
+            // clean up assembly vector
+            Matrix< DDSMat > tPdvGeoAssemblyVectorTemp( tNumIGNodes * tNumPdvTypes, 1, -1 );
+
+            // loop over the requested pdv types
+            for ( uint iGeoPdv = 0; iGeoPdv < tNumPdvTypes; iGeoPdv++ )
+            {
+                // get treated geo pdv type
+                PDV_Type tGeoPdvType = tRequestedDvTypes( iGeoPdv );
+
+                // get treated geo pdv type index
+                // moris_index tGeoPdvIndex = static_cast< uint >( tGeoPdvType );
+
+                // loop over the ig nodes on cluster
+                for ( uint iIGNode = 0; iIGNode < tNumIGNodes; iIGNode++ )
+                {
+                    // get treated node index
+                    moris_index tNodeIndex = tNodeIndicesOnCluster( iIGNode );
+
+                    // create key pair
+                    std::pair< moris_index, PDV_Type > tKeyPair = std::make_pair( tNodeIndex, tGeoPdvType );
+
+                    // if active and not set in the map
+                    bool tPdvIsActive   = tIsActivePdv( iIGNode, iGeoPdv );
+                    bool tPdvIsNotInMap = ( mPdvGeoAssemblyMap.find( tKeyPair ) == mPdvGeoAssemblyMap.end() );
+                    if ( tPdvIsActive && tPdvIsNotInMap )
+                    {
+                        // fill the map
+                        mPdvGeoAssemblyMap[ tKeyPair ] = tActiveGeoPdvCounter;
+
+                        // set node local index on cluster
+                        tFemModel->set_integration_xyz_pdv_assembly_index(
+                                tNodeIndex,
+                                tGeoPdvType,
+                                tActiveGeoPdvCounter );
+
+                        // fill the global assembly vector
+                        moris_id tPdvId                                   = tPdvIds( iIGNode, iGeoPdv );
+                        tPdvGeoAssemblyVectorTemp( tActiveGeoPdvCounter ) = tPdvId;
+
+                        // update active geo pdv counter
+                        tActiveGeoPdvCounter++;
+                    }
+
+                }    // end for: each IG vertex
+
+            }        // end for: each PDV type
+
+            if ( tActiveGeoPdvCounter > 0 )
+            {
+                // fill assembly vector
+                mPdvGeoAssemblyVector.set_size( tActiveGeoPdvCounter, 1, -1 );
+                mPdvGeoAssemblyVector = tPdvGeoAssemblyVectorTemp( { 0, tActiveGeoPdvCounter - 1 }, { 0, 0 } );
+            }
+
+        }    // end function: fem::Set::create_geo_pdv_assembly_map()
 
         //------------------------------------------------------------------------------
 
@@ -3177,71 +3204,259 @@ namespace moris
 
         void
         Set::set_visualization_set(
-                const uint       aMeshIndex,
+                const uint       aVisMeshIndex,
                 moris::mtk::Set* aVisMeshSet,
                 const bool       aOnlyPrimaryCells )
         {
             uint tNumClustersOnSets = aVisMeshSet->get_num_clusters_on_set();
 
+            // the FEM mesh index corresponding to the current VIS mesh index is always +1
+            moris_index tFemMeshIndex = aVisMeshIndex + 1;
+
             // set vis clusters to fem clusters
             for ( uint iCluster = 0; iCluster < tNumClustersOnSets; iCluster++ )
             {
+                // get the VIS cluster
+                const mtk::Cluster* tVisCluster = aVisMeshSet->get_clusters_by_index( iCluster );
+
+                // get access to the corresponding FEM element
+                MSI::Equation_Object* tFemElement = mEquationObjList( iCluster );
+
                 // create a fem cluster
                 std::shared_ptr< fem::Cluster > tCluster =
                         std::make_shared< fem::Cluster >(
                                 mElementType,
-                                aVisMeshSet->get_clusters_by_index( iCluster ),
+                                tVisCluster,
                                 this,
-                                mEquationObjList( iCluster ) );
+                                tFemElement,
+                                true );    // mark this cluster to be a visualization cluster
 
-                reinterpret_cast< fem::Interpolation_Element* >( mEquationObjList( iCluster ) )->set_cluster( tCluster, aMeshIndex );
+                // reference the FEM cluster created from the VIS cluster on the FEM element for use in output
+                reinterpret_cast< fem::Interpolation_Element* >( tFemElement )->set_cluster( tCluster, tFemMeshIndex );
             }
 
+            // get the set type
+            moris::SetType tSetType = aVisMeshSet->get_set_type();
+
             // the below steps are only needed for block sets
-            // TODO: mCellAssemblyMap is also needed for side sets
-            if ( aVisMeshSet->get_set_type() == moris::SetType::BULK )
+            if ( tSetType == moris::SetType::BULK )
             {
-                // get the cells that are on the VIS cluster the fem cluster is supposed to output to
-                moris::Matrix< DDSMat > tCellIndices = aVisMeshSet->get_cell_inds_on_block( aOnlyPrimaryCells );
-                uint tNumCells = aVisMeshSet->get_num_cells_on_set( aOnlyPrimaryCells );
+                this->construct_cell_assembly_map_for_VIS_set( aVisMeshIndex, aVisMeshSet, aOnlyPrimaryCells );
+            }
+            else if ( tSetType == moris::SetType::SIDESET || tSetType == moris::SetType::DOUBLE_SIDED_SIDESET )
+            {
+                this->construct_facet_assembly_map_for_VIS_set( aVisMeshIndex, aVisMeshSet );
+            }
+            else
+            {
+                MORIS_ERROR( false, "FEM::Set::set_visualization_set() - Unknown cluster type." );
+            }
 
-                // resize arrays for current VIS mesh information, if array is too small
-                if( mCellAssemblyMap.size() < aMeshIndex + 1 )
+
+        }    // end function: Set::set_visualization_set()
+
+        //------------------------------------------------------------------------------
+
+        void
+        Set::construct_cell_assembly_map_for_VIS_set(
+                const uint       aVisMeshIndex,
+                moris::mtk::Set* aVisMeshSet,
+                const bool       aOnlyPrimaryCells )
+        {
+            // make sure this function is only called on block sets
+            MORIS_ASSERT(
+                    aVisMeshSet->get_set_type() == moris::SetType::BULK,
+                    "fem::Set::construct_cell_assembly_map_for_VIS_set() - Function can only be called for BULK sets." );
+
+            // get the cells that are on the VIS cluster the fem cluster is supposed to output to
+            Matrix< DDSMat > tCellIndices = aVisMeshSet->get_cell_inds_on_block( aOnlyPrimaryCells );
+            uint             tNumCells    = aVisMeshSet->get_num_cells_on_set( aOnlyPrimaryCells );
+
+            // resize arrays for current VIS mesh information, if array is too small
+            if ( mCellAssemblyMap.size() < aVisMeshIndex + 1 )
+            {
+                mCellAssemblyMap.resize( aVisMeshIndex + 1 );
+                mNumIgCellsOnSet.resize( aVisMeshIndex + 1 );
+            }
+
+            // store how many cells are in the current mesh set
+            mNumIgCellsOnSet( aVisMeshIndex ) = tNumCells;
+
+            // skip the rest for empty sets
+            if ( tNumCells == 0 )
+            {
+                return;
+            }
+
+            // initialize the map relating mtk cell index in the mesh to the
+            moris_index tMaxIndex = tCellIndices.max();
+            mCellAssemblyMap( aVisMeshIndex ).set_size( tMaxIndex + 1, 1, -1 );
+
+            // relate the mtk cell index to the position of the cell in the list of cells on a given block
+            for ( uint iCell = 0; iCell < tNumCells; iCell++ )
+            {
+                moris_index tCellIndex                          = tCellIndices( iCell );
+                mCellAssemblyMap( aVisMeshIndex )( tCellIndex ) = iCell;
+            }
+
+        }    // end function: fem::Set::construct_cell_assembly_map_for_VIS_set()
+
+        //------------------------------------------------------------------------------
+
+        void
+        Set::construct_facet_assembly_map_for_VIS_set(
+                const uint       aVisMeshIndex,
+                moris::mtk::Set* aVisMeshSet )
+        {
+            // get the set type
+            moris::SetType tSetType = aVisMeshSet->get_set_type();
+
+            // make sure this function is only called on (dbl) side sets
+            MORIS_ASSERT(
+                    tSetType == moris::SetType::SIDESET || tSetType == moris::SetType::DOUBLE_SIDED_SIDESET,
+                    "fem::Set::construct_facet_assembly_map_for_VIS_set() - "
+                    "Function can only be called for SIDESETs or DOUBLE_SIDED_SIDESETs." );
+
+            // -------------
+            // get initialization data for facet assembly map
+
+            // get the clusters on the current set
+            Cell< mtk::Cluster const * > const & tClustersOnSet = aVisMeshSet->get_clusters_on_set();
+
+            // get the number of facets on the set's element type in the loop below
+            uint tNumFacetsOnElementType = 0;
+
+            // find the maximum (leader) cell index on the current set and count number of facets
+            moris_index tMaxLeaderCellIndex = 0;
+            uint        tNumFacetsOnSet     = 0;
+            for ( uint iClusterOnSet = 0; iClusterOnSet < tClustersOnSet.size(); iClusterOnSet++ )
+            {
+                // get pointer for the current cluster
+                mtk::Cluster const * tCluster = tClustersOnSet( iClusterOnSet );
+
+                // get the Leader side
+                mtk::Cluster const * tLeaderSideCluster;
+                if ( tSetType == moris::SetType::DOUBLE_SIDED_SIDESET )
                 {
-                    mCellAssemblyMap.resize( aMeshIndex + 1 );
-                    mMtkIgCellOnSet.resize( aMeshIndex + 1 );
+                    tLeaderSideCluster = &tCluster->get_leader_side_cluster();
+                }
+                else if ( tSetType == moris::SetType::SIDESET )
+                {
+                    tLeaderSideCluster = tCluster;
+                }
+                else
+                {
+                    MORIS_ERROR( false,
+                            "fem::Set::construct_facet_assembly_map_for_VIS_set() - "
+                            "Function can only be called for SIDESETs or DOUBLE_SIDED_SIDESETs." );
+                    tLeaderSideCluster = tCluster;
                 }
 
-                // store how many cells are in the current mesh set
-                mMtkIgCellOnSet( aMeshIndex ) = tNumCells;
-
-                // skip the rest for empty sets
-                if ( tNumCells == 0 )
+                // get the info for a representative cell
+                if ( iClusterOnSet == 0 )
                 {
-                    return;
+                    tNumFacetsOnElementType = tLeaderSideCluster->get_primary_cells_in_cluster()( 0 )->get_cell_info()->get_num_facets();
                 }
 
-                // initialize the map relating mtk cell index in the mesh to the 
-                moris_index tMaxIndex = tCellIndices.max();
-                mCellAssemblyMap( aMeshIndex ).set_size( tMaxIndex + 1, 1, -1 );
+                // get the IG cell indices on the leader cluster
+                Matrix< IndexMat > tLeaderCellIndices = tLeaderSideCluster->get_primary_cell_indices_in_cluster();
 
-                // relate the mtk cell index to the position of the cell in the list of cells on a given block
-                for ( uint iCell = 0; iCell < tNumCells; iCell++ )
+                // get the maximum out of all the IG cell indices and count up number of facets
+                for ( uint iCellOnCluster = 0; iCellOnCluster < tLeaderCellIndices.numel(); iCellOnCluster++ )
                 {
-                    moris_index tCellIndex = tCellIndices( iCell );
-                    mCellAssemblyMap( aMeshIndex )( tCellIndex ) = iCell;
+                    moris_index tLeaderCellIndex = tLeaderCellIndices( iCellOnCluster );
+                    tMaxLeaderCellIndex          = std::max( tLeaderCellIndex, tMaxLeaderCellIndex );
+                    tNumFacetsOnSet++;
                 }
-            } // end if: set is a bulk set
-        } // end function: Set::set_visualization_set()
+            }
+
+            // -------------
+            // initialize facet assembly map
+
+            // resize arrays for current VIS mesh information, if array is too small
+            if ( mFacetAssemblyMap.size() < aVisMeshIndex + 1 )
+            {
+                mFacetAssemblyMap.resize( aVisMeshIndex + 1 );
+                mNumFacetsOnSet.resize( aVisMeshIndex + 1 );
+            }
+
+            // store how many facets are in the current mesh set
+            mNumFacetsOnSet( aVisMeshIndex ) = tNumFacetsOnSet;
+
+            // skip the rest for empty sets
+            if ( tClustersOnSet.size() == 0 )
+            {
+                return;
+            }
+
+            // set size of the map and initialize with default value
+            mFacetAssemblyMap( aVisMeshIndex ).set_size( tMaxLeaderCellIndex + 1, tNumFacetsOnElementType, -1 );
+
+            // -------------
+            // construct facet assembly map
+
+            // initialize index counter for facets
+            moris_index tFacetIndexOnSet = 0;
+
+            // go over clusters and facets within to construct map
+            for ( uint iClusterOnSet = 0; iClusterOnSet < tClustersOnSet.size(); iClusterOnSet++ )
+            {
+                // get pointer for the current cluster
+                mtk::Cluster const * tCluster = tClustersOnSet( iClusterOnSet );
+
+                // get the Leader side
+                mtk::Cluster const * tLeaderSideCluster;
+                if ( tSetType == moris::SetType::DOUBLE_SIDED_SIDESET )
+                {
+                    tLeaderSideCluster = &tCluster->get_leader_side_cluster();
+                }
+                else if ( tSetType == moris::SetType::SIDESET )
+                {
+                    tLeaderSideCluster = tCluster;
+                }
+                else
+                {
+                    MORIS_ERROR( false,
+                            "fem::Set::construct_facet_assembly_map_for_VIS_set() - "
+                            "Function can only be called for SIDESETs or DOUBLE_SIDED_SIDESETs." );
+                    tLeaderSideCluster = tCluster;
+                }
+
+                // get the IG cell indices on the leader cluster
+                Matrix< IndexMat > tLeaderCellIndices = tLeaderSideCluster->get_primary_cell_indices_in_cluster();
+
+                // get the corresponding side ordinals
+                Matrix< IndexMat > tLeaderSideOrdinals = tLeaderSideCluster->get_cell_side_ordinals();
+
+                // associate each facet in the cluster with its position in the list of facets in the set
+                for ( uint iCellOnCluster = 0; iCellOnCluster < tLeaderCellIndices.numel(); iCellOnCluster++ )
+                {
+                    // get the info for the current facet
+                    moris_index tLeaderCellIndex   = tLeaderCellIndices( iCellOnCluster );
+                    moris_index tLeaderSideOrdinal = tLeaderSideOrdinals( iCellOnCluster );
+
+                    // fill map
+                    mFacetAssemblyMap( aVisMeshIndex )( tLeaderCellIndex, tLeaderSideOrdinal ) = tFacetIndexOnSet;
+
+                    // increment facet index
+                    tFacetIndexOnSet++;
+                }
+
+            }    // end for: clusters on (dbl) side set
+
+        }        // end function: fem::Set::construct_facet_assembly_map_for_VIS_set()
 
         //------------------------------------------------------------------------------
 
         void
         Set::compute_quantity_of_interest_nodal(
-                const uint                        aMeshIndex,
+                const uint                        aVisMeshIndex,
                 Matrix< DDRMat >*                 aNodalFieldValues,
                 const moris::Cell< std::string >& aQINames )
         {
+            // FEM mesh index is VIS mesh index +1
+            moris_index tFemMeshIndex = aVisMeshIndex + 1;
+
             // set the nodal set values to the ones provided
             mSetNodalValues = aNodalFieldValues;
 
@@ -3252,9 +3467,7 @@ namespace moris
             for ( uint iElement = 0; iElement < tNumElements; iElement++ )
             {
                 // compute quantity of interest
-                mEquationObjList( iElement )->compute_quantity_of_interest(
-                        aMeshIndex,
-                        vis::Field_Type::NODAL );
+                mEquationObjList( iElement )->compute_quantity_of_interest( tFemMeshIndex, vis::Field_Type::NODAL );
             }
         }
 
@@ -3286,10 +3499,13 @@ namespace moris
 
         void
         Set::compute_quantity_of_interest_global(
-                const uint                        aMeshIndex,
+                const uint                        aVisMeshIndex,
                 Matrix< DDRMat >*                 aGlobalFieldValues,
                 const moris::Cell< std::string >& aQINames )
         {
+            // FEM mesh index is VIS mesh index +1
+            moris_index tFemMeshIndex = aVisMeshIndex + 1;
+
             // set the global set values to the ones provided
             mSetGlobalValues = aGlobalFieldValues;
 
@@ -3300,9 +3516,7 @@ namespace moris
             for ( uint iElement = 0; iElement < tNumEqObjs; iElement++ )
             {
                 // compute quantity of interest
-                mEquationObjList( iElement )->compute_quantity_of_interest(
-                        aMeshIndex,
-                        vis::Field_Type::GLOBAL );
+                mEquationObjList( iElement )->compute_quantity_of_interest( tFemMeshIndex, vis::Field_Type::GLOBAL );
             }
         }
 
@@ -3334,24 +3548,47 @@ namespace moris
 
         void
         Set::compute_quantity_of_interest_elemental(
-                const uint                        aMeshIndex,
+                const uint                        aVisMeshIndex,
                 Matrix< DDRMat >*                 aElementalFieldValues,
-                const moris::Cell< std::string >& aQINames )
+                const moris::Cell< std::string >& aQINames,
+                const bool                        aOutputAverageValue )
         {
+            // FEM mesh index is VIS mesh index +1
+            moris_index tFemMeshIndex = aVisMeshIndex + 1;
+
             // set the elemental set values to the ones provided
             mSetElementalValues = aElementalFieldValues;
-            mSetElementalValues->set_size( mMtkIgCellOnSet( aMeshIndex ), aQINames.size(), 0.0 );
 
-            this->gather_requested_IQIs( aQINames, mRequestedElementalIQIs, mRequestedElementalIQIsGlobalIndices );
+            // get the number of elements or facets on the set depending on the set type
+            uint tNumElementsOnSet;
+            if ( this->get_element_type() == fem::Element_Type::BULK )
+            {
+                tNumElementsOnSet = mNumIgCellsOnSet( aVisMeshIndex );
+            }
+            else    // SIDESET or DOUBLE_SIDESET
+            {
+                tNumElementsOnSet = mNumFacetsOnSet( aVisMeshIndex );
+            }
+
+            // initialize output vector
+            // mSetElementalValues->set_size( tNumElementsOnSet, aQINames.size(), std::numeric_limits< real >::quiet_NaN() );
+            mSetElementalValues->set_size( tNumElementsOnSet, aQINames.size(), 0.0 );
+
+            this->gather_requested_IQIs( aQINames, mRequestedElementalIQIs, mRequestedElementalIQIsGlobalIndices );    // get the used IQIs on the current set
+
+            // compute averages if requested by user
+            vis::Field_Type tOutputType = vis::Field_Type::ELEMENTAL_INT;
+            if ( aOutputAverageValue )
+            {
+                tOutputType = vis::Field_Type::ELEMENTAL_AVG;
+            }
 
             // loop over equation objects
             uint tNumEqObjs = mEquationObjList.size();
             for ( uint iElement = 0; iElement < tNumEqObjs; iElement++ )
             {
                 // compute quantity of interest
-                mEquationObjList( iElement )->compute_quantity_of_interest(
-                        aMeshIndex,
-                        vis::Field_Type::ELEMENTAL );
+                mEquationObjList( iElement )->compute_quantity_of_interest( tFemMeshIndex, tOutputType );
             }
         }
 
@@ -3518,7 +3755,7 @@ namespace moris
         void
         Set::get_ip_dv_types_for_set(
                 moris::Cell< moris::Cell< enum PDV_Type > >& aMatPdvType,
-                mtk::Leader_Follower                            aIsLeader )
+                mtk::Leader_Follower                         aIsLeader )
         {
             // choose based on the leader, follower type
             // the output here is gather from fem

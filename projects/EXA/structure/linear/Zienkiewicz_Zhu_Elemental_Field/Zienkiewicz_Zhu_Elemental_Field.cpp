@@ -524,7 +524,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "Mesh_Type", static_cast< uint >( vis::VIS_Mesh_Type::STANDARD ) );
         tParameterlist( 0 )( 0 ).set( "Set_Names", tPhase1 );
         tParameterlist( 0 )( 0 ).set( "Field_Names", "UX,UY,Stress,ZienkiewiczZhu" );
-        tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,ELEMENTAL" );
+        tParameterlist( 0 )( 0 ).set( "Field_Type", "NODAL,NODAL,NODAL,ELEMENTAL_AVG" );
         tParameterlist( 0 )( 0 ).set( "IQI_Names", "IQIBulkUX,IQIBulkUY,IQIBulkStress,IQIBulkZienkiewiczZhu" );
         tParameterlist( 0 )( 0 ).set( "Save_Frequency", 1 );
     }

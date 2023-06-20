@@ -213,8 +213,8 @@ namespace moris
             }
 
             // get treated side ordinal on the leader and on the follower
-            uint tLeaderSideOrd = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
-            uint tFollowerSideOrd  = mCluster->mFollowerListOfSideOrdinals( mCellIndexInCluster );
+            uint tLeaderSideOrd   = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
+            uint tFollowerSideOrd = mCluster->mFollowerListOfSideOrdinals( mCellIndexInCluster );
 
             // set the leader/follower ig geometry interpolator physical/parametric space and time coefficients
             this->init_ig_geometry_interpolator( tLeaderSideOrd, tFollowerSideOrd );
@@ -302,8 +302,8 @@ namespace moris
             }
 
             // get treated side ordinal on the leader and on the follower
-            uint tLeaderSideOrd = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
-            uint tFollowerSideOrd  = mCluster->mFollowerListOfSideOrdinals( mCellIndexInCluster );
+            uint tLeaderSideOrd   = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
+            uint tFollowerSideOrd = mCluster->mFollowerListOfSideOrdinals( mCellIndexInCluster );
 
             // set the leader/follower ig geometry interpolator physical/parametric space and time coefficients
             this->init_ig_geometry_interpolator( tLeaderSideOrd, tFollowerSideOrd );
@@ -387,8 +387,8 @@ namespace moris
             }
 
             // get treated side ordinal on the leader and on the follower
-            uint tLeaderSideOrd = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
-            uint tFollowerSideOrd  = mCluster->mFollowerListOfSideOrdinals( mCellIndexInCluster );
+            uint tLeaderSideOrd   = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
+            uint tFollowerSideOrd = mCluster->mFollowerListOfSideOrdinals( mCellIndexInCluster );
 
             // set the leader/follower ig geometry interpolator physical/parametric space and time coefficients
             this->init_ig_geometry_interpolator( tLeaderSideOrd, tFollowerSideOrd );
@@ -478,8 +478,8 @@ namespace moris
             }
 
             // get treated side ordinal on the leader and on the follower
-            uint tLeaderSideOrd = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
-            uint tFollowerSideOrd  = mCluster->mFollowerListOfSideOrdinals( mCellIndexInCluster );
+            uint tLeaderSideOrd   = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
+            uint tFollowerSideOrd = mCluster->mFollowerListOfSideOrdinals( mCellIndexInCluster );
 
             // set the leader/follower ig geometry interpolator physical/parametric space and time coefficients
             Matrix< DDSMat > tGeoLocalAssembly;
@@ -574,8 +574,8 @@ namespace moris
             }
 
             // get treated side ordinal on the leader and on the follower
-            uint tLeaderSideOrd = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
-            uint tFollowerSideOrd  = mCluster->mFollowerListOfSideOrdinals( mCellIndexInCluster );
+            uint tLeaderSideOrd   = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
+            uint tFollowerSideOrd = mCluster->mFollowerListOfSideOrdinals( mCellIndexInCluster );
 
             // set the leader/follower ig geometry interpolator physical/parametric space and time coefficients
             Matrix< DDSMat > tGeoLocalAssembly;
@@ -653,7 +653,239 @@ namespace moris
                     ( this->*m_compute_dRdp )( tReqIWG, tWStar, tGeoLocalAssembly, tVertexIndices );
                 }
 
-                // FIXME add part over IQIs
+                // FIXME: add part over IQIs
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        Element_Double_Sideset::compute_quantity_of_interest_global( const uint aFemMeshIndex )
+        {
+            // get number of active local IQIs
+            uint tNumLocalIQIs = mSet->get_number_of_requested_global_IQIs_for_visualization();
+
+            // check that some IQIs need to be evaluated
+            if ( tNumLocalIQIs == 0 )
+            {
+                return;
+            }
+
+            // get treated side ordinal on the leader and on the follower
+            uint tLeaderSideOrd   = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
+            uint tFollowerSideOrd = mCluster->mFollowerListOfSideOrdinals( mCellIndexInCluster );
+
+            // set the leader/follower ig geometry interpolator physical/parametric space and time coefficients
+            this->init_ig_geometry_interpolator( tLeaderSideOrd, tFollowerSideOrd );
+
+            // get a leader follower vertex pair on the facet
+            moris::mtk::Vertex const * tLeaderVertex   = mLeaderCell->get_vertices_on_side_ordinal( tLeaderSideOrd )( 0 );
+            moris::mtk::Vertex const * tFollowerVertex = mCluster->get_left_vertex_pair( tLeaderVertex );
+
+            // get the ordinal of the follower vertex wrt the current facet
+            moris_index tFollowerVertexOrdinalOnFacet = mCluster->get_right_vertex_ordinal_on_facet( mCellIndexInCluster, tFollowerVertex );
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
+            // loop over integration points
+            for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get local integration point for the leader integration cell
+                const Matrix< DDRMat >& tLeaderLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                // get a copy of the local integration point for the follower integration cell
+                Matrix< DDRMat > tFollowerLocalIntegPoint = side_coordinate_map(
+                        mSet->get_IG_geometry_type(),
+                        tFollowerVertexOrdinalOnFacet,
+                        tLeaderLocalIntegPoint );
+
+                // set evaluation point for leader and follower FIs and GIs
+                mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
+                        ->set_space_time_from_local_IG_point( tLeaderLocalIntegPoint );
+                mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
+                        ->set_space_time_from_local_IG_point( tFollowerLocalIntegPoint );
+
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    continue;
+                }
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
+
+                // get the normal from mesh
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mLeaderCell, tLeaderSideOrd );
+
+                // loop over the requested IQIs on the element
+                for ( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
+                {
+                    // get requested IQI
+                    const std::shared_ptr< IQI >& tReqIQI =
+                            mSet->get_requested_global_IQIs_for_visualization()( iIQI );
+
+                    // get IQI global index
+                    moris_index tGlobalIndex =
+                            mSet->get_requested_global_IQIs_global_indices_for_visualization()( iIQI );
+
+                    // reset the requested IQI
+                    tReqIQI->reset_eval_flags();
+
+                    // set the normal for the IWG
+                    tReqIQI->set_normal( tNormal );
+
+                    // compute quantity of interest at evaluation point
+                    Matrix< DDRMat > tQIGlobal( 1, 1, 0.0 );
+                    tReqIQI->compute_QI( tQIGlobal );
+
+                    // assemble computed QI on the set
+                    ( *( mSet->mSetGlobalValues ) )( tGlobalIndex ) += tWStar * tQIGlobal( 0 );
+
+                }    // end for: each IQI on the current element
+
+            }        // end for: each integration point
+
+        }            // end function: Element_Double_Sideset::compute_quantity_of_interest_global()
+
+        //------------------------------------------------------------------------------
+
+        void
+        Element_Double_Sideset::compute_quantity_of_interest_elemental(
+                const uint aFemMeshIndex,
+                const bool aAverageOutput )
+        {
+            // get number of active local IQIs
+            uint tNumLocalIQIs = mSet->get_number_of_requested_elemental_IQIs_for_visualization();
+
+            // check that some IQIs need to be evaluated
+            if ( tNumLocalIQIs == 0 )
+            {
+                return;
+            }
+
+            // get the VIS mesh index
+            uint tVisMeshIndex = aFemMeshIndex - 1;
+
+            // get treated side ordinal on the leader and on the follower
+            uint tLeaderSideOrd   = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
+            uint tFollowerSideOrd = mCluster->mFollowerListOfSideOrdinals( mCellIndexInCluster );
+
+            // get the leader IG cell's index in the VIS mesh
+            moris_index tLeaderCellIndex          = mLeaderCell->get_index();
+            moris_index tLeaderFacetIndexInVisSet = mSet->mFacetAssemblyMap( tVisMeshIndex )( tLeaderCellIndex, tLeaderSideOrd );
+            MORIS_ASSERT( tLeaderFacetIndexInVisSet > -1,
+                    "FEM::Element_Double_Sideset::compute_quantity_of_interest_elemental() - "
+                    "Facet not part of VIS facet assembly map." );
+
+            // FIXME: this seems inefficient and should be done elsewhere
+            // set unused IQI values to not be NAN
+            for ( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
+            {
+                // get IQI global index
+                moris_index tGlobalIqiIndex =
+                        mSet->get_requested_elemental_IQIs_global_indices_for_visualization()( iIQI );
+
+                if ( ( *mSet->mSetElementalValues )( tLeaderFacetIndexInVisSet, tGlobalIqiIndex ) == std::numeric_limits< real >::quiet_NaN() )
+                {
+                    ( *mSet->mSetElementalValues )( tLeaderFacetIndexInVisSet, tGlobalIqiIndex ) = 0.0;
+                }
+            }
+
+            // set the leader/follower ig geometry interpolator physical/parametric space and time coefficients
+            this->init_ig_geometry_interpolator( tLeaderSideOrd, tFollowerSideOrd );
+
+            // initialize space - time volume
+            real tSpaceTimeVolume = 0.0;
+
+            // get a leader follower vertex pair on the facet
+            moris::mtk::Vertex const * tLeaderVertex   = mLeaderCell->get_vertices_on_side_ordinal( tLeaderSideOrd )( 0 );
+            moris::mtk::Vertex const * tFollowerVertex = mCluster->get_left_vertex_pair( tLeaderVertex );
+
+            // get the ordinal of the follower vertex wrt the current facet
+            moris_index tFollowerVertexOrdinalOnFacet = mCluster->get_right_vertex_ordinal_on_facet( mCellIndexInCluster, tFollowerVertex );
+
+            // loop over integration points
+            uint tNumIntegPoints = mSet->get_number_of_integration_points();
+
+            // loop over integration points
+            for ( uint iGP = 0; iGP < tNumIntegPoints; iGP++ )
+            {
+                // get local integration point for the leader integration cell
+                const Matrix< DDRMat >& tLeaderLocalIntegPoint = mSet->get_integration_points().get_column( iGP );
+
+                // get a copy of the local integration point for the follower integration cell
+                Matrix< DDRMat > tFollowerLocalIntegPoint = side_coordinate_map(
+                        mSet->get_IG_geometry_type(),
+                        tFollowerVertexOrdinalOnFacet,
+                        tLeaderLocalIntegPoint );
+
+                // set evaluation point for leader and follower FIs and GIs
+                mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER )
+                        ->set_space_time_from_local_IG_point( tLeaderLocalIntegPoint );
+                mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )
+                        ->set_space_time_from_local_IG_point( tFollowerLocalIntegPoint );
+
+                // compute detJ of integration domain
+                real tDetJ = mSet->get_field_interpolator_manager()->get_IG_geometry_interpolator()->det_J();
+
+                // skip if detJ smaller than threshold
+                if ( tDetJ < Geometry_Interpolator::sDetJInvJacLowerLimit )
+                {
+                    continue;
+                }
+
+                // compute integration point weight
+                real tWStar = mSet->get_integration_weights()( iGP ) * tDetJ;
+
+                // add contribution to space-time volume
+                tSpaceTimeVolume += tWStar;
+
+                // get the normal from mesh
+                Matrix< DDRMat > tNormal = mCluster->get_side_normal( mLeaderCell, tLeaderSideOrd );
+
+                // loop over the requested IQIs on the element
+                for ( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
+                {
+                    // get requested IQI
+                    const std::shared_ptr< IQI >& tReqIQI =
+                            mSet->get_requested_elemental_IQIs_for_visualization()( iIQI );
+
+                    // get IQI global index
+                    moris_index tGlobalIqiIndex =
+                            mSet->get_requested_elemental_IQIs_global_indices_for_visualization()( iIQI );
+
+                    // reset the requested IQI
+                    tReqIQI->reset_eval_flags();
+
+                    // set the normal for the IWG
+                    tReqIQI->set_normal( tNormal );
+
+                    // compute quantity of interest at evaluation point
+                    Matrix< DDRMat > tQIElemental( 1, 1, 0.0 );
+                    tReqIQI->compute_QI( tQIElemental );
+
+                    // assemble computed QI on the set
+                    ( *mSet->mSetElementalValues )( tLeaderFacetIndexInVisSet, tGlobalIqiIndex ) += tWStar * tQIElemental( 0 );
+
+                }    // end for: each IQI to be evaluated on cluster
+
+            }        // end for: each integration point
+
+            // loop over IQI and divide each elemental IQI by space-time volume if requested
+            if ( aAverageOutput )
+            {
+                for ( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
+                {
+                    // get IQI global index
+                    moris_index tGlobalIqiIndex = mSet->get_requested_elemental_IQIs_global_indices_for_visualization()( iIQI );
+
+                    // normalize by space-time volume
+                    ( *mSet->mSetElementalValues )( tLeaderFacetIndexInVisSet, tGlobalIqiIndex ) /= tSpaceTimeVolume;
+                }
             }
         }
 
@@ -663,8 +895,8 @@ namespace moris
         Element_Double_Sideset::compute_volume( mtk::Leader_Follower aIsLeader )
         {
             // get treated side ordinal on the leader and on the follower
-            uint tLeaderSideOrd = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
-            uint tFollowerSideOrd  = mCluster->mFollowerListOfSideOrdinals( mCellIndexInCluster );
+            uint tLeaderSideOrd   = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
+            uint tFollowerSideOrd = mCluster->mFollowerListOfSideOrdinals( mCellIndexInCluster );
 
             // set the leader/follower ig geometry interpolator physical/parametric space and time coefficients
             this->init_ig_geometry_interpolator( tLeaderSideOrd, tFollowerSideOrd );
@@ -711,8 +943,8 @@ namespace moris
             }
 
             // get treated side ordinal on the leader and on the follower
-            uint tLeaderSideOrd = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
-            uint tFollowerSideOrd  = mCluster->mFollowerListOfSideOrdinals( mCellIndexInCluster );
+            uint tLeaderSideOrd   = mCluster->mLeaderListOfSideOrdinals( mCellIndexInCluster );
+            uint tFollowerSideOrd = mCluster->mFollowerListOfSideOrdinals( mCellIndexInCluster );
 
             // set the leader/follower ig geometry interpolator physical/parametric space and time coefficients
             this->init_ig_geometry_interpolator( tLeaderSideOrd, tFollowerSideOrd );
@@ -783,4 +1015,3 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
-

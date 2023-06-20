@@ -40,7 +40,7 @@ namespace moris
         class Integration_Mesh;
         class Field;
         enum class Field_Type;
-    } // namespace mtk
+    }    // namespace mtk
 
     namespace fem
     {
@@ -55,7 +55,7 @@ namespace moris
         class IWG;
         class IQI;
         class Field;
-    } // namespace fem
+    }    // namespace fem
 
     namespace MSI
     {
@@ -65,7 +65,7 @@ namespace moris
         class Equation_Object;
         class Design_Variable_Interface;
         enum class Dof_Type;
-    } // namespace MSI
+    }    // namespace MSI
 
     namespace fem
     {
@@ -74,8 +74,8 @@ namespace moris
         class FEM_Model : public MSI::Equation_Model
         {
             // pointer to reference mesh
-            std::shared_ptr<mtk::Mesh_Manager> mMeshManager = nullptr;
-            moris_index mMeshPairIndex;
+            std::shared_ptr< mtk::Mesh_Manager > mMeshManager = nullptr;
+            moris_index                          mMeshPairIndex;
 
             // information about B-spline mesh indices (only for naming purposes, this information is otherwise entity of MSI)
             std::unordered_map< MSI::Dof_Type, moris_index > mDofTypeToBsplineMeshIndex;
@@ -84,67 +84,68 @@ namespace moris
             bool mUseNewGhostSets = false;
 
             // list of IP node pointers
-            moris::Cell<fem::Node_Base *> mIPNodes;
+            moris::Cell< fem::Node_Base * > mIPNodes;
 
             // list of IG node pointers
-            moris::Cell<fem::Node_Base *> mIGNodes;
+            moris::Cell< fem::Node_Base * > mIGNodes;
 
             // storage for xyz pdv active flags
             // row number i : underlying mtk vertex index of the fem IG node
             // column number : showing activation based on type
-            Matrix<DDSMat> mIsActiveXYZ;
+            Matrix< DDSMat > mIsActiveXYZ;
 
             // storage for xyz pdv ids
             // row number i : underlying mtk vertex index of the fem IG node
             // column number : showing activation based on type
-            Matrix<DDSMat> mXYZPdvIds;
+            Matrix< DDSMat > mXYZPdvIds;
 
             // storage for xyz pdv ids
             // row number i : underlying mtk vertex index of the fem IG node
             // column number : showing activation based on type
-            Matrix<DDSMat> mXYZLocalAssemblyIndices;
+            Matrix< DDSMat > mXYZLocalAssemblyIndices;
 
             // list of QI values
-            moris::Cell<moris::real> mQi;
+            moris::Cell< moris::real > mQi;
 
             // parameter list to build the fem model
-            moris::Cell<moris::Cell<ParameterList>> mParameterList;
+            moris::Cell< moris::Cell< ParameterList > > mParameterList;
 
             // unpacked fem inputs
-            moris::Cell<fem::Set_User_Info> mSetInfo;
+            moris::Cell< fem::Set_User_Info > mSetInfo;
 
             // unpacked phase inputs
-            moris::Cell<fem::Phase_User_Info> mPhaseInfo;
-            std::map<std::string, uint> mPhaseMap;
+            moris::Cell< fem::Phase_User_Info > mPhaseInfo;
+            std::map< std::string, uint >       mPhaseMap;
 
             // space dimension
             uint mSpaceDim;
 
             // fixme remove ?
-            moris::Cell<std::shared_ptr<fem::Property>> mProperties;
-            moris::Cell<std::shared_ptr<fem::Field>> mFields;
-            moris::Cell<std::shared_ptr<fem::Material_Model>> mMMs;
-            moris::Cell<std::shared_ptr<fem::Constitutive_Model>> mCMs;
-            moris::Cell<std::shared_ptr<fem::Stabilization_Parameter>> mSPs;
-            moris::Cell<std::shared_ptr<fem::IWG>> mIWGs;
-            moris::Cell<std::shared_ptr<fem::IQI>> mIQIs;
+            moris::Cell< std::shared_ptr< fem::Property > >                mProperties;
+            moris::Cell< std::shared_ptr< fem::Field > >                   mFields;
+            moris::Cell< std::shared_ptr< fem::Material_Model > >          mMMs;
+            moris::Cell< std::shared_ptr< fem::Constitutive_Model > >      mCMs;
+            moris::Cell< std::shared_ptr< fem::Stabilization_Parameter > > mSPs;
+            moris::Cell< std::shared_ptr< fem::IWG > >                     mIWGs;
+            moris::Cell< std::shared_ptr< fem::IQI > >                     mIQIs;
 
-            moris::Cell<moris::sint> mFieldTypeMap;
+            moris::Cell< moris::sint > mFieldTypeMap;
 
             //! requested IQI Names
-            moris::Cell<std::string> mRequestedIQINames;
+            moris::Cell< std::string > mRequestedIQINames;
 
             // A map for mIQIs
-            moris::map<std::string, moris_index> mIQINameToIndexMap;
+            moris::map< std::string, moris_index > mIQINameToIndexMap;
 
             // flag to skip GEN procedures
             bool mFEMOnly = false;
 
             //------------------------------------------------------------------------------
-        public:
+
+          public:
             //! Gauss point information. Only used for output
-            uint mBulkGaussPoints = 0;
-            uint mSideSetsGaussPoints = 0;
+            uint mBulkGaussPoints                = 0;
+            uint mSideSetsGaussPoints            = 0;
             uint mDoubleSidedSideSetsGaussPoints = 0;
 
             //------------------------------------------------------------------------------
@@ -155,9 +156,9 @@ namespace moris
              * @param[ in ] aSetInfo       cell of set user info
              */
             FEM_Model(
-                std::shared_ptr<mtk::Mesh_Manager> aMeshManager,
-                const moris_index &aMeshPairIndex,
-                moris::Cell<fem::Set_User_Info> &aSetInfo);
+                    std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
+                    const moris_index                   &aMeshPairIndex,
+                    moris::Cell< fem::Set_User_Info >   &aSetInfo );
 
             //------------------------------------------------------------------------------
             /**
@@ -168,10 +169,10 @@ namespace moris
              * @param[ in ] aDesignVariableInterface a design variable interface pointer
              */
             FEM_Model(
-                std::shared_ptr<mtk::Mesh_Manager> aMeshManager,
-                const moris_index &aMeshPairIndex,
-                moris::Cell<fem::Set_User_Info> &aSetInfo,
-                MSI::Design_Variable_Interface *aDesignVariableInterface);
+                    std::shared_ptr< mtk::Mesh_Manager > aMeshManager,
+                    const moris_index                   &aMeshPairIndex,
+                    moris::Cell< fem::Set_User_Info >   &aSetInfo,
+                    MSI::Design_Variable_Interface      *aDesignVariableInterface );
 
             //------------------------------------------------------------------------------
             /**
@@ -183,7 +184,7 @@ namespace moris
              */
             FEM_Model(
                     std::shared_ptr< mtk::Mesh_Manager >        aMeshManager,
-                    const moris_index&                          aMeshPairIndex,
+                    const moris_index                          &aMeshPairIndex,
                     moris::Cell< moris::Cell< ParameterList > > aParameterList,
                     std::shared_ptr< Library_IO >               aLibrary );
 
@@ -197,10 +198,10 @@ namespace moris
              * @param[ in ] aDesignVariableInterface a design variable interface pointer
              */
             FEM_Model(
-                    std::shared_ptr< mtk::Mesh_Manager >             aMeshManager,
-                    const moris_index&                               aMeshPairIndex,
-                    moris::Cell< moris::Cell< ParameterList > >      aParameterList,
-                    MSI::Design_Variable_Interface*                  aDesignVariableInterface );
+                    std::shared_ptr< mtk::Mesh_Manager >        aMeshManager,
+                    const moris_index                          &aMeshPairIndex,
+                    moris::Cell< moris::Cell< ParameterList > > aParameterList,
+                    MSI::Design_Variable_Interface             *aDesignVariableInterface );
 
             //------------------------------------------------------------------------------
             /**
@@ -219,7 +220,7 @@ namespace moris
             void free_memory();
 
             //------------------------------------------------------------------------------
-            
+
             /**
              * initialize the FEM model from parameter lists + create the interpolation nodes & FEM sets
              * @param[ in ] aLibrary       a file path for property functions
@@ -232,7 +233,7 @@ namespace moris
              * initialize the FEM model from parameter lists
              * @param[ in ] aLibrary       a file path for property functions
              */
-            void initialize(std::shared_ptr<Library_IO> aLibrary);
+            void initialize( std::shared_ptr< Library_IO > aLibrary );
 
             //------------------------------------------------------------------------------
 
@@ -242,8 +243,8 @@ namespace moris
             void
             reset()
             {
-                mBulkGaussPoints = 0;
-                mSideSetsGaussPoints = 0;
+                mBulkGaussPoints                = 0;
+                mSideSetsGaussPoints            = 0;
                 mDoubleSidedSideSetsGaussPoints = 0;
             };
 
@@ -255,15 +256,15 @@ namespace moris
             inline void
             report_on_assembly()
             {
-                uint tTotalBulkGaussPoints                = sum_all(mBulkGaussPoints);
-                uint tTotalSideSetsGaussPoints            = sum_all(mSideSetsGaussPoints);
-                uint tTotalDoubleSidedSideSetsGaussPoints = sum_all(mDoubleSidedSideSetsGaussPoints);
+                uint tTotalBulkGaussPoints                = sum_all( mBulkGaussPoints );
+                uint tTotalSideSetsGaussPoints            = sum_all( mSideSetsGaussPoints );
+                uint tTotalDoubleSidedSideSetsGaussPoints = sum_all( mDoubleSidedSideSetsGaussPoints );
 
                 if ( tTotalBulkGaussPoints + tTotalSideSetsGaussPoints + tTotalDoubleSidedSideSetsGaussPoints > 0 )
                 {
-                    MORIS_LOG_SPEC("Number of Bulk Gauss Points",               tTotalBulkGaussPoints);
-                    MORIS_LOG_SPEC("Number of SideSet Gauss Points",            tTotalSideSetsGaussPoints);
-                    MORIS_LOG_SPEC("Number of DoubleSidedSideset Gauss Points", tTotalDoubleSidedSideSetsGaussPoints);
+                    MORIS_LOG_SPEC( "Number of Bulk Gauss Points", tTotalBulkGaussPoints );
+                    MORIS_LOG_SPEC( "Number of SideSet Gauss Points", tTotalSideSetsGaussPoints );
+                    MORIS_LOG_SPEC( "Number of DoubleSidedSideset Gauss Points", tTotalDoubleSidedSideSetsGaussPoints );
                 }
             };
 
@@ -272,14 +273,14 @@ namespace moris
              * create interpolation nodes
              * @param[ in ] aIPMesh interpolation mesh pointer
              */
-            void create_interpolation_nodes(mtk::Interpolation_Mesh *aIPMesh);
+            void create_interpolation_nodes( mtk::Interpolation_Mesh *aIPMesh );
 
             //------------------------------------------------------------------------------
             /**
              * create integration nodes
              * @param[ in ] aIGMesh integration mesh pointer
              */
-            void create_integration_nodes(mtk::Integration_Mesh *aIGMesh);
+            void create_integration_nodes( mtk::Integration_Mesh *aIGMesh );
 
             //------------------------------------------------------------------------------
             /**
@@ -290,9 +291,9 @@ namespace moris
              *                           ( tNumNodeIndices x tNumPdvTypes )
              */
             void get_integration_xyz_active_flags(
-                const Matrix<IndexMat> &aNodeIndices,
-                const moris::Cell<PDV_Type> &aPdvTypes,
-                Matrix<DDSMat> &aIsActiveDv);
+                    const Matrix< IndexMat >      &aNodeIndices,
+                    const moris::Cell< PDV_Type > &aPdvTypes,
+                    Matrix< DDSMat >              &aIsActiveDv );
 
             //------------------------------------------------------------------------------
             /**
@@ -303,9 +304,9 @@ namespace moris
              *                           ( tNumNodeIndices x tNumPdvTypes )
              */
             void get_integration_xyz_pdv_ids(
-                const Matrix<IndexMat> &aNodeIndices,
-                const moris::Cell<PDV_Type> &aRequestedPdvTypes,
-                Matrix<DDSMat> &aXYZPdvIds);
+                    const Matrix< IndexMat >      &aNodeIndices,
+                    const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+                    Matrix< DDSMat >              &aXYZPdvIds );
 
             //------------------------------------------------------------------------------
             /**
@@ -318,10 +319,10 @@ namespace moris
              *                           ( tNumNodeIndices x tNumPdvTypes )
              */
             void get_integration_xyz_pdv_active_flags_and_ids(
-                const Matrix<IndexMat> &aNodeIndices,
-                const moris::Cell<PDV_Type> &aRequestedPdvTypes,
-                Matrix<DDSMat> &aIsActiveDv,
-                Matrix<DDSMat> &aXYZPdvIds);
+                    const Matrix< IndexMat >      &aNodeIndices,
+                    const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+                    Matrix< DDSMat >              &aIsActiveDv,
+                    Matrix< DDSMat >              &aXYZPdvIds );
 
             //------------------------------------------------------------------------------
             /**
@@ -332,9 +333,14 @@ namespace moris
              *                           ( tNumNodeIndices x tNumPdvTypes )
              */
             void get_integration_xyz_pdv_assembly_indices(
-                const Matrix<IndexMat> &aNodeIndices,
-                const moris::Cell<PDV_Type> &aRequestedPdvTypes,
-                Matrix<DDSMat> &aXYZPdvAssemblyIndices);
+                    const Matrix< IndexMat >      &aNodeIndices,
+                    const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+                    Matrix< DDSMat >              &aXYZPdvAssemblyIndices );
+
+            //------------------------------------------------------------------------------
+            
+            Matrix< DDSMat >
+            get_XYZ_local_pdv_assembly_map() const override;
 
             //------------------------------------------------------------------------------
             /**
@@ -342,7 +348,7 @@ namespace moris
              * @param[ in ] aNodeIndices list of node indices to reset
              */
             void reset_integration_xyz_pdv_assembly_indices(
-                const Matrix<IndexMat> &aNodeIndices);
+                    const Matrix< IndexMat > &aNodeIndices );
 
             //------------------------------------------------------------------------------
             /**
@@ -352,9 +358,9 @@ namespace moris
              * @param[ in ] aXYZPdvAssemblyIndex assembly index for pdv type to set
              */
             void set_integration_xyz_pdv_assembly_index(
-                moris_index aNodeIndex,
-                enum PDV_Type aPdvType,
-                moris_index aXYZPdvAssemblyIndex);
+                    moris_index   aNodeIndex,
+                    enum PDV_Type aPdvType,
+                    moris_index   aXYZPdvAssemblyIndex );
 
             //------------------------------------------------------------------------------
             /**
@@ -363,8 +369,8 @@ namespace moris
              * @param[ in ] aIGMesh integration mesh pointer
              */
             void create_fem_sets(
-                mtk::Interpolation_Mesh *aIPMesh,
-                mtk::Integration_Mesh *aIGMesh);
+                    mtk::Interpolation_Mesh *aIPMesh,
+                    mtk::Integration_Mesh   *aIGMesh );
 
             //------------------------------------------------------------------------------
             /**
@@ -374,9 +380,9 @@ namespace moris
              * @param[ in ] aSetInfo cell of set user info
              */
             void create_fem_sets(
-                mtk::Interpolation_Mesh *aIPMesh,
-                mtk::Integration_Mesh *aIGMesh,
-                moris::Cell<fem::Set_User_Info> &aSetInfo);
+                    mtk::Interpolation_Mesh           *aIPMesh,
+                    mtk::Integration_Mesh             *aIGMesh,
+                    moris::Cell< fem::Set_User_Info > &aSetInfo );
 
             //------------------------------------------------------------------------------
             /**
@@ -384,7 +390,7 @@ namespace moris
              * @param[ in ] aParameterList a list of parameter for the FEM model
              */
             void
-            set_parameter_list(moris::Cell<moris::Cell<ParameterList>> aParameterList)
+            set_parameter_list( moris::Cell< moris::Cell< ParameterList > > aParameterList )
             {
                 mParameterList = aParameterList;
             }
@@ -395,7 +401,7 @@ namespace moris
              * @param[ in ] aSpaceDim int for space dimension
              */
             void
-            set_space_dim(uint aSpaceDim)
+            set_space_dim( uint aSpaceDim )
             {
                 mSpaceDim = aSpaceDim;
             }
@@ -404,7 +410,7 @@ namespace moris
             /**
              * get equation sets for test
              */
-            moris::Cell<MSI::Equation_Set *> &
+            moris::Cell< MSI::Equation_Set * > &
             get_equation_sets()
             {
                 return mFemSets;
@@ -414,7 +420,7 @@ namespace moris
             /**
              * get equation objects
              */
-            moris::Cell<MSI::Equation_Object *> &
+            moris::Cell< MSI::Equation_Object * > &
             get_equation_objects()
             {
                 return mFemClusters;
@@ -424,7 +430,7 @@ namespace moris
             /**
              * MTK set to fem set index map
              */
-            map<std::tuple<moris_index, bool, bool>, moris_index> &
+            map< std::tuple< moris_index, bool, bool >, moris_index > &
             get_mesh_set_to_fem_set_index_map()
             {
                 return mMeshSetToFemSetMap;
@@ -437,7 +443,7 @@ namespace moris
              * @param[ in ] aRequestedIQINames List of requested IQI names
              */
             void
-            set_requested_IQI_names(const moris::Cell<std::string> &aRequestedIQINames)
+            set_requested_IQI_names( const moris::Cell< std::string > &aRequestedIQINames )
             {
                 mRequestedIQINames = aRequestedIQINames;
             }
@@ -446,7 +452,7 @@ namespace moris
             /**
              * get requested IQI names
              */
-            const moris::Cell<std::string> &
+            const moris::Cell< std::string > &
             get_requested_IQI_names()
             {
                 return mRequestedIQINames;
@@ -469,7 +475,7 @@ namespace moris
              * finalize the fem sets
              */
             void finalize_equation_sets(
-                MSI::Model_Solver_Interface *aModelSolverInterface);
+                    MSI::Model_Solver_Interface *aModelSolverInterface );
 
             //------------------------------------------------------------------------------
             /**
@@ -480,11 +486,11 @@ namespace moris
              * @param[ in ] aLibrary       a file path for property functions
              */
             void create_properties(
-                std::map<std::string, uint> &aPropertyMap,
-                moris::map<std::string, MSI::Dof_Type> &aMSIDofTypeMap,
-                moris::map<std::string, PDV_Type> &aDvTypeMap,
-                moris::map<std::string, mtk::Field_Type> &aFieldTypeMap,
-                std::shared_ptr<Library_IO> aLibrary);
+                    std::map< std::string, uint >              &aPropertyMap,
+                    moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
+                    moris::map< std::string, PDV_Type >        &aDvTypeMap,
+                    moris::map< std::string, mtk::Field_Type > &aFieldTypeMap,
+                    std::shared_ptr< Library_IO >               aLibrary );
 
             //------------------------------------------------------------------------------
             /**
@@ -492,7 +498,7 @@ namespace moris
              * * @param[ in ] aFieldNameToIndexMap  Map which maps the field name to an index
              */
             void create_fields(
-                std::map<std::string, uint> &aFieldMap);
+                    std::map< std::string, uint > &aFieldMap );
 
             //------------------------------------------------------------------------------
             /**
@@ -502,9 +508,9 @@ namespace moris
              * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
              */
             void create_material_models(
-                std::map<std::string, uint> &aPropertyMap,
-                moris::map<std::string, MSI::Dof_Type> &aMSIDofTypeMap,
-                moris::map<std::string, PDV_Type> &aDvTypeMap);
+                    std::map< std::string, uint >            &aPropertyMap,
+                    moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
+                    moris::map< std::string, PDV_Type >      &aDvTypeMap );
 
             //------------------------------------------------------------------------------
             /**
@@ -514,9 +520,9 @@ namespace moris
              * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
              */
             void create_constitutive_models(
-                std::map<std::string, uint> &aPropertyMap,
-                moris::map<std::string, MSI::Dof_Type> &aMSIDofTypeMap,
-                moris::map<std::string, PDV_Type> &aDvTypeMap);
+                    std::map< std::string, uint >            &aPropertyMap,
+                    moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
+                    moris::map< std::string, PDV_Type >      &aDvTypeMap );
 
             //------------------------------------------------------------------------------
             /**
@@ -527,10 +533,10 @@ namespace moris
              * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
              */
             void create_stabilization_parameters(
-                std::map<std::string, uint> &aSPMap,
-                std::map<std::string, uint> &aPropertyMap,
-                moris::map<std::string, MSI::Dof_Type> &aMSIDofTypeMap,
-                moris::map<std::string, PDV_Type> &aDvTypeMap);
+                    std::map< std::string, uint >            &aSPMap,
+                    std::map< std::string, uint >            &aPropertyMap,
+                    moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
+                    moris::map< std::string, PDV_Type >      &aDvTypeMap );
 
             //------------------------------------------------------------------------------
             /**
@@ -540,9 +546,9 @@ namespace moris
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
              */
             void create_IWGs(
-                std::map<std::string, uint> &aPropertyMap,
-                std::map<std::string, uint> &aSPMap,
-                moris::map<std::string, MSI::Dof_Type> &aMSIDofTypeMap);
+                    std::map< std::string, uint >            &aPropertyMap,
+                    std::map< std::string, uint >            &aSPMap,
+                    moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap );
 
             //------------------------------------------------------------------------------
             /**
@@ -552,16 +558,16 @@ namespace moris
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
              */
             void create_IQIs(
-                std::map<std::string, uint> &aPropertyMap,
-                std::map<std::string, uint> &aSPMap,
-                moris::map<std::string, MSI::Dof_Type> &aMSIDofTypeMap);
+                    std::map< std::string, uint >            &aPropertyMap,
+                    std::map< std::string, uint >            &aSPMap,
+                    moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap );
 
             //------------------------------------------------------------------------------
             /**
              * create fem set info
              * @param[ in ] aWithPhase FIXME remove just there to overload
              */
-            void create_fem_set_info(bool aWithPhase);
+            void create_fem_set_info( bool aWithPhase );
 
             //------------------------------------------------------------------------------
             /**
@@ -588,13 +594,13 @@ namespace moris
              * @param[ in ] aMeshSetNames         cell of mesh set names to fill
              */
             void get_mesh_set_names(
-                fem::Element_Type aBulkType,
-                std::string aLeaderPhaseName,
-                std::string aFollowerPhaseName,
-                std::string aNeighborPhasesString,
-                std::string aSideOrdinalsString,
-                bool aIsGhost,
-                moris::Cell<std::string> &aMeshSetNames);
+                    fem::Element_Type           aBulkType,
+                    std::string                 aLeaderPhaseName,
+                    std::string                 aFollowerPhaseName,
+                    std::string                 aNeighborPhasesString,
+                    std::string                 aSideOrdinalsString,
+                    bool                        aIsGhost,
+                    moris::Cell< std::string > &aMeshSetNames );
 
             //------------------------------------------------------------------------------
             // FIXME Old version of FEM inputs to be removed
@@ -607,10 +613,10 @@ namespace moris
              * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
              */
             void create_material_models(
-                std::map<std::string, uint> &aMMMap,
-                std::map<std::string, uint> &aPropertyMap,
-                moris::map<std::string, MSI::Dof_Type> &aMSIDofTypeMap,
-                moris::map<std::string, PDV_Type> &aDvTypeMap);
+                    std::map< std::string, uint >            &aMMMap,
+                    std::map< std::string, uint >            &aPropertyMap,
+                    moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
+                    moris::map< std::string, PDV_Type >      &aDvTypeMap );
 
             //------------------------------------------------------------------------------
             /**
@@ -621,11 +627,11 @@ namespace moris
              * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
              */
             void create_constitutive_models(
-                std::map<std::string, uint> &aCMMap,
-                std::map<std::string, uint> &aPropertyMap,
-                std::map<std::string, uint> &aMMMap,
-                moris::map<std::string, MSI::Dof_Type> &aMSIDofTypeMap,
-                moris::map<std::string, PDV_Type> &aDvTypeMap);
+                    std::map< std::string, uint >            &aCMMap,
+                    std::map< std::string, uint >            &aPropertyMap,
+                    std::map< std::string, uint >            &aMMMap,
+                    moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
+                    moris::map< std::string, PDV_Type >      &aDvTypeMap );
 
             //------------------------------------------------------------------------------
             /**
@@ -636,11 +642,11 @@ namespace moris
              * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
              */
             void create_stabilization_parameters(
-                std::map<std::string, uint> &aSPMap,
-                std::map<std::string, uint> &aPropertyMap,
-                std::map<std::string, uint> &aCMMap,
-                moris::map<std::string, MSI::Dof_Type> &aMSIDofTypeMap,
-                moris::map<std::string, PDV_Type> &aDvTypeMap);
+                    std::map< std::string, uint >            &aSPMap,
+                    std::map< std::string, uint >            &aPropertyMap,
+                    std::map< std::string, uint >            &aCMMap,
+                    moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
+                    moris::map< std::string, PDV_Type >      &aDvTypeMap );
 
             //------------------------------------------------------------------------------
             /**
@@ -655,15 +661,15 @@ namespace moris
              * @param[ in ] aFieldTypeMap  a map from std::string to Field_Type
              */
             void create_IWGs(
-                std::map<std::string, uint> &aIWGMap,
-                std::map<std::string, uint> &aPropertyMap,
-                std::map<std::string, uint> &aMMMap,
-                std::map<std::string, uint> &aCMMap,
-                std::map<std::string, uint> &aSPMap,
-                std::map<std::string, uint> &aFieldMap,
-                moris::map<std::string, MSI::Dof_Type> &aMSIDofTypeMap,
-                moris::map<std::string, PDV_Type> &aDvTypeMap,
-                moris::map<std::string, mtk::Field_Type> &aFieldTypeMap);
+                    std::map< std::string, uint >              &aIWGMap,
+                    std::map< std::string, uint >              &aPropertyMap,
+                    std::map< std::string, uint >              &aMMMap,
+                    std::map< std::string, uint >              &aCMMap,
+                    std::map< std::string, uint >              &aSPMap,
+                    std::map< std::string, uint >              &aFieldMap,
+                    moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
+                    moris::map< std::string, PDV_Type >        &aDvTypeMap,
+                    moris::map< std::string, mtk::Field_Type > &aFieldTypeMap );
 
             //------------------------------------------------------------------------------
             /**
@@ -677,14 +683,14 @@ namespace moris
              * @param[ in ] aFieldTypeMap  a map from std::string to Field_Type
              */
             void create_IQIs(
-                std::map<std::string, uint> &aIQIMap,
-                std::map<std::string, uint> &aPropertyMap,
-                std::map<std::string, uint> &aCMMap,
-                std::map<std::string, uint> &aSPMap,
-                std::map<std::string, uint> &aFieldMap,
-                moris::map<std::string, MSI::Dof_Type> &aMSIDofTypeMap,
-                moris::map<std::string, PDV_Type> &aDvTypeMap,
-                moris::map<std::string, mtk::Field_Type> &aFieldTypeMap);
+                    std::map< std::string, uint >              &aIQIMap,
+                    std::map< std::string, uint >              &aPropertyMap,
+                    std::map< std::string, uint >              &aCMMap,
+                    std::map< std::string, uint >              &aSPMap,
+                    std::map< std::string, uint >              &aFieldMap,
+                    moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
+                    moris::map< std::string, PDV_Type >        &aDvTypeMap,
+                    moris::map< std::string, mtk::Field_Type > &aFieldTypeMap );
 
             //------------------------------------------------------------------------------
             /**
@@ -696,13 +702,13 @@ namespace moris
             /**
              * return field by type
              */
-            const std::shared_ptr<fem::Field> &get_field(mtk::Field_Type tFieldType);
+            const std::shared_ptr< fem::Field > &get_field( mtk::Field_Type tFieldType );
 
             //------------------------------------------------------------------------------
             /**
              * return fields
              */
-            moris::Cell<std::shared_ptr<mtk::Field>> get_fields();
+            moris::Cell< std::shared_ptr< mtk::Field > > get_fields();
 
             //------------------------------------------------------------------------------
 
@@ -715,9 +721,9 @@ namespace moris
              * @param[ out ] aPdvTypes
              * @param[ out ] aIsActiveDv
              */
-            void get_vertex_xyz_active_flags(moris_index aVeretxIndex,
-                                             Matrix<DDSMat> &aIsActiveDv,
-                                             const moris::Cell<enum PDV_Type> &aPdvTypes);
+            void get_vertex_xyz_active_flags( moris_index aVeretxIndex,
+                    Matrix< DDSMat >                     &aIsActiveDv,
+                    const moris::Cell< enum PDV_Type >   &aPdvTypes );
 
             //------------------------------------------------------------------------------
             /**
@@ -725,8 +731,8 @@ namespace moris
              * @param[ in ] aVeretxIndex
              * @param[ out ] aIsActiveDv
              */
-            void set_vertex_xyz_active_flags(moris_index aVeretxIndex,
-                                             moris::Cell<Matrix<DDSMat>> &aIsActiveDv);
+            void set_vertex_xyz_active_flags( moris_index aVeretxIndex,
+                    moris::Cell< Matrix< DDSMat > >      &aIsActiveDv );
 
             //------------------------------------------------------------------------------
             /**
@@ -734,8 +740,8 @@ namespace moris
              * @param[ in ] aVeretxIndex
              * @param[ in ] aXYZPvIds list of xyz pdv ids
              */
-            void set_vertex_xyz_pdv_ids(moris_index aVeretxIndex,
-                                        moris::Cell<Matrix<DDSMat>> &aXYZPvIds);
+            void set_vertex_xyz_pdv_ids( moris_index aVeretxIndex,
+                    moris::Cell< Matrix< DDSMat > > &aXYZPvIds );
 
             //------------------------------------------------------------------------------
             /**
@@ -744,9 +750,9 @@ namespace moris
              * @param[ in ] aXYZPdvIds
              * @param[ in ] aIsActiveDv
              */
-            void get_vertex_xyz_pdv_ids(moris_index aVeretxIndex,
-                                        Matrix<DDSMat> &aXYZPdvIds,
-                                        const moris::Cell<enum PDV_Type> &aPdvTypes);
+            void get_vertex_xyz_pdv_ids( moris_index    aVeretxIndex,
+                    Matrix< DDSMat >                   &aXYZPdvIds,
+                    const moris::Cell< enum PDV_Type > &aPdvTypes );
 
             //------------------------------------------------------------------------------
             /**
@@ -755,27 +761,27 @@ namespace moris
              * @param[ in ] aXYZLocalAssemblyIndices matrix to fill with local cluster assembly indices
              * @param[ in ] aPdvType               list of enums for requested x/y/z pdv
              */
-            void get_local_xyz_pdv_assembly_indices(moris_index aVeretxIndex,
-                                                    Matrix<DDSMat> &aXYZLocalAssemblyIndices,
-                                                    const moris::Cell<enum PDV_Type> &aPdvTypes);
+            void get_local_xyz_pdv_assembly_indices( moris_index aVeretxIndex,
+                    Matrix< DDSMat >                            &aXYZLocalAssemblyIndices,
+                    const moris::Cell< enum PDV_Type >          &aPdvTypes );
 
 
             //------------------------------------------------------------------------------
-            
+
             /**
              * @brief Set the dof type to Bspline mesh index map
-             * 
-             * @param aDofTypeToBsplineMeshIndex 
+             *
+             * @param aDofTypeToBsplineMeshIndex
              */
             void
             set_dof_type_to_Bspline_mesh_index( std::unordered_map< MSI::Dof_Type, moris_index > aDofTypeToBsplineMeshIndex );
 
             //------------------------------------------------------------------------------
-            
+
             /**
              * @brief set flag whether to use new ghost sets
-             * 
-             * @param aUseNewGhostSets 
+             *
+             * @param aUseNewGhostSets
              */
             void
             set_use_new_ghost_sets( bool aUseNewGhostSets );
@@ -783,21 +789,19 @@ namespace moris
             //------------------------------------------------------------------------------
 
             /**
-             * @brief check the ghost set names and conrrect them to automatically include 
+             * @brief check the ghost set names and conrrect them to automatically include
              * the correct B-spline mesh index when the new ghost sets are used
-             * 
-             * @param aMeshSetName 
-             * @param aDofType 
+             *
+             * @param aMeshSetName
+             * @param aDofType
              */
             void
-            check_and_set_ghost_set_names( std::string& aMeshSetName, enum MSI::Dof_Type aDofType );
+            check_and_set_ghost_set_names( std::string &aMeshSetName, enum MSI::Dof_Type aDofType );
 
             //------------------------------------------------------------------------------
-
         };
         //------------------------------------------------------------------------------
-    } // namespace fem
+    }    // namespace fem
 } /* namespace moris */
 
 #endif /* PROJECTS_FEM_MDL_SRC_CL_FEM_MODEL_HPP_ */
-

@@ -133,14 +133,13 @@ namespace moris
         }
 
         //----------------------------------------------------------------
-        
+
         moris_index
-        Side_Cluster_Visualization::get_cell_side_ordinal( 
-                moris::moris_index      aCellIndexInCluster,
+        Side_Cluster_Visualization::get_cell_side_ordinal(
+                moris::moris_index         aCellIndexInCluster,
                 const mtk::Leader_Follower aIsLeader ) const
         {
-            MORIS_ERROR( false, "VIS::Side_Cluster_Visualization::get_cell_side_ordinal() - not implemented in this child class." );
-            return MORIS_INDEX_MAX;
+            return mIntegrationCellSideOrdinals( aCellIndexInCluster );
         }
 
         //----------------------------------------------------------------
@@ -161,13 +160,56 @@ namespace moris
 
         //----------------------------------------------------------------
 
+        moris_index
+        Side_Cluster_Visualization::get_vertex_cluster_index(
+                const mtk::Vertex         *aVertex,
+                const mtk::Leader_Follower aIsLeader ) const
+        {
+            moris_id tVertexId = aVertex->get_id();
+            return this->get_vertex_cluster_local_index( tVertexId );
+        }
+
+        //----------------------------------------------------------------
+
+        moris_index
+        Side_Cluster_Visualization::get_vertex_ordinal_on_facet(
+                moris_index               aCellIndexInCluster,
+                moris::mtk::Vertex const *aVertex ) const
+        {
+            // get the side ordinal of the facet
+            moris_index tSideOrd = mIntegrationCellSideOrdinals( aCellIndexInCluster );
+
+            // get the vertices 
+            moris::Cell< mtk::Vertex const * > tVerticesOnSide = 
+                    mPrimaryIntegrationCells( aCellIndexInCluster )->get_vertices_on_side_ordinal( tSideOrd );
+            
+            // iterate through vertices and see if the ids match
+            for ( moris_index iVertex = 0; iVertex < (moris_index)tVerticesOnSide.size(); iVertex++ )
+            {
+                moris_index tVertexIndex = tVerticesOnSide( iVertex )->get_index();
+                if ( tVertexIndex == aVertex->get_index() )
+                {
+                    return iVertex;
+                }
+            }
+
+            // if the code makes it here, the vertex has not been found
+            MORIS_ERROR( false, "Side_Cluster_Visualization::get_vertex_ordinal_on_facet() - Vertex not found on facet." );
+            return MORIS_INDEX_MAX;
+        }
+
+        //----------------------------------------------------------------
+
         moris::Matrix< moris::DDRMat >
-        Side_Cluster_Visualization::get_vertex_local_coordinate_wrt_interp_cell( moris::mtk::Vertex const *aVertex,
-                const mtk::Leader_Follower                                                                    aIsLeader ) const
+        Side_Cluster_Visualization::get_vertex_local_coordinate_wrt_interp_cell(
+                moris::mtk::Vertex const  *aVertex,
+                const mtk::Leader_Follower aIsLeader ) const
         {
             moris_index tLocalVertIndex = this->get_vertex_cluster_local_index( aVertex->get_id() );
 
-            MORIS_ASSERT( tLocalVertIndex < (moris_index)mVertexParamCoords.n_rows(), "Vertex local side cluster index out of bounds. This could be cause by not adding parametric coordinates" );
+            MORIS_ASSERT( tLocalVertIndex < (moris_index)mVertexParamCoords.n_rows(),
+                    "Side_Cluster_Visualization::get_vertex_local_coordinate_wrt_interp_cell() - "
+                    "Vertex local side cluster index out of bounds. This could be cause by not adding parametric coordinates" );
 
             return mVertexParamCoords.get_row( tLocalVertIndex );
         }
@@ -185,9 +227,15 @@ namespace moris
         moris_index
         Side_Cluster_Visualization::get_vertex_cluster_local_index( moris_id aVertexId ) const
         {
+            MORIS_ASSERT( mVertexIdToLocalIndex.size() > 0,
+                    "Side_Cluster_Visualization::get_vertex_cluster_local_index() - "
+                    "mVertexIdToLocalIndex has not been initialized." );
+
             auto tIter = mVertexIdToLocalIndex.find( aVertexId );
 
-            MORIS_ERROR( tIter != mVertexIdToLocalIndex.end(), "Vertex not found in side cluster" );
+            MORIS_ERROR( tIter != mVertexIdToLocalIndex.end(),
+                    "Side_Cluster_Visualization::get_vertex_cluster_local_index() - "
+                    "Vertex not found in side cluster." );
 
             return tIter->second;
         }
@@ -195,8 +243,9 @@ namespace moris
         //----------------------------------------------------------------
 
         void
-        Side_Cluster_Visualization::add_vertex_to_map( moris_id aVertexId,
-                moris_index                                     aVertexLocalIndex )
+        Side_Cluster_Visualization::add_vertex_to_map(
+                moris_id    aVertexId,
+                moris_index aVertexLocalIndex )
         {
             MORIS_ERROR( mVertexIdToLocalIndex.find( aVertexId ) == mVertexIdToLocalIndex.end(), "Trying to add vertex already found in side cluster" );
             mVertexIdToLocalIndex[ aVertexId ] = aVertexLocalIndex;

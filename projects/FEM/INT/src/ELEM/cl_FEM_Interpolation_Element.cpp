@@ -88,10 +88,10 @@ namespace moris
         void
         Interpolation_Element::set_cluster(
                 std::shared_ptr< fem::Cluster > aCluster,
-                const uint                      aMeshIndex )
+                const uint                      aFemMeshIndex )
         {
             // if mesh index is 0 (i.e., forward analysis mesh, IG mesh)
-            if ( aMeshIndex == 0 )
+            if ( aFemMeshIndex == 0 )
             {
                 // fem cluster with index 0 should be set only once and shall not be changed
                 MORIS_ASSERT( !( mFemCluster.size() >= 1 ),
@@ -99,13 +99,13 @@ namespace moris
             }
 
             // get max size for fem cluster list
-            sint tSize = std::max( (sint)mFemCluster.size(), (sint)aMeshIndex + 1 );
+            sint tSize = std::max( (sint)mFemCluster.size(), (sint)aFemMeshIndex + 1 );
 
             // resize fem cluster list
             mFemCluster.resize( tSize );
 
             // add the fem cluster to the list
-            mFemCluster( aMeshIndex ) = aCluster;
+            mFemCluster( aFemMeshIndex ) = aCluster;
         }
 
         //------------------------------------------------------------------------------
@@ -381,7 +381,7 @@ namespace moris
             for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
             {
                 // get dv ids for this type and node indices
-                moris::Cell< moris::Matrix< IdMat > > tPdvIds;
+                moris::Cell< Matrix< IdMat > > tPdvIds;
 
                 // get the pdv ids for requested vertices and pdv type
                 tDVInterface->get_ip_dv_ids_for_type_and_ind(
@@ -419,7 +419,7 @@ namespace moris
                 for ( uint Ik = 0; Ik < tRequestedDvTypes.size(); Ik++ )
                 {
                     // get dv ids for this type and node indices
-                    moris::Cell< moris::Matrix< IdMat > > tPdvIds;
+                    moris::Cell< Matrix< IdMat > > tPdvIds;
 
                     // get the pdv ids for requested vertices and pdv type
                     tDVInterface->get_ip_dv_ids_for_type_and_ind(
@@ -714,6 +714,11 @@ namespace moris
             // fill IP pdv assembly vector
             this->fill_mat_pdv_assembly_vector();
 
+            // make sure this is done on the FEM clusters and not on the VIS clusters
+            MORIS_ASSERT( !mFemCluster( 0 )->is_VIS_cluster(), 
+                    "FEM::Set::compute_dQIdp_explicit_implicit() - "
+                    "Trying to compute sensitivities on a VIS cluster. This shouldn't happen." );
+
             // init IG pdv assembly map
             mSet->create_geo_pdv_assembly_map( mFemCluster( 0 ) );
 
@@ -870,7 +875,7 @@ namespace moris
                             Ik );
 
                     // post multiplication of adjoint values time dRdp
-                    moris::Matrix< DDRMat > tLocalIPdQiDp =
+                    Matrix< DDRMat > tLocalIPdQiDp =
                             -1.0 * trans( tAdjointPdofValuesReordered ) * tdRdp( 0 );
 
                     // assemble implicit dQidp into multivector
@@ -892,7 +897,7 @@ namespace moris
                             Ik );
 
                     // post multiplication of adjoint values time dRdp
-                    moris::Matrix< DDRMat > tLocalIGdQiDp =
+                    Matrix< DDRMat > tLocalIGdQiDp =
                             -1.0 * trans( tAdjointPdofValuesReordered ) * tdRdp( 1 );
 
                     // assemble implicit dQidp into multivector
@@ -1052,7 +1057,7 @@ namespace moris
                 if ( tLocalToGlobalIdsIPPdv.numel() != 0 )
                 {
                     // post multiplication of adjoint values time dRdp
-                    moris::Matrix< DDRMat > tLocalIPdQiDp =
+                    Matrix< DDRMat > tLocalIPdQiDp =
                             -1.0 * trans( tAdjointPdofValuesReordered ) * tdRdp( 0 );
 
                     // assemble implicit dQidp into multivector
@@ -1068,7 +1073,7 @@ namespace moris
                 if ( tLocalToGlobalIdsIGPdv.numel() != 0 )
                 {
                     // post multiplication of adjoint values time dRdp
-                    moris::Matrix< DDRMat > tLocalIGdQiDp =
+                    Matrix< DDRMat > tLocalIGdQiDp =
                             -1.0 * trans( tAdjointPdofValuesReordered ) * tdRdp( 1 );
 
                     // assemble implicit dQidp into multivector
@@ -1155,108 +1160,236 @@ namespace moris
 
         void
         Interpolation_Element::compute_quantity_of_interest(
-                const uint           aMeshIndex,
+                const uint           aFemMeshIndex,
                 enum vis::Field_Type aFieldType )
         {
-            // FIXME: skip side clusters for now
-            if( mFemCluster( aMeshIndex )->get_element_type() != fem::Element_Type::BULK )
+            // compute elemental coefficients and set FIs for evaluating IQIs
+            this->setup_IQI_computation();
+
+            // if nodal field
+            if ( aFieldType == vis::Field_Type::NODAL )
             {
-                return;
+                // get the type of the current cluster
+                enum fem::Element_Type tElementType = mFemCluster( aFemMeshIndex )->get_element_type();
+
+                // compute the nodal values of the requested QIs
+                // double sided clusters require additional treatment of the follower side and therefore need special consideration
+                if ( tElementType == fem::Element_Type::DOUBLE_SIDESET )
+                {
+                    this->compute_nodal_QIs_double_sided( aFemMeshIndex );
+                }
+                else    // on BULK or SIDESET elements use the default
+                {
+                    this->compute_nodal_QIs_standard( aFemMeshIndex );
+                }
             }
 
+            // if elemental or global field
+            else
+            {
+                // ask cluster to compute quantity of interest
+                mFemCluster( aFemMeshIndex )->compute_quantity_of_interest( aFemMeshIndex, aFieldType );
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        Interpolation_Element::setup_IQI_computation()
+        {
             // compute pdof values
-            // FIXME do this only once
-            this->compute_my_pdof_values();
+            this->compute_my_pdof_values();    // FIXME: do this only once
 
             // if time continuity set
             if ( mSet->get_time_continuity() )
             {
                 // compute pdof values for previous time step
-                // FIXME do this only once
-                this->compute_previous_pdof_values();
+                this->compute_previous_pdof_values();    // FIXME: do this only once
             }
 
             // if eigen vectors
             if ( mSet->mNumEigenVectors )
             {
                 // compute pdof values for previous time step
-                // FIXME do this only once
-                this->compute_my_eigen_vector_values();
+                this->compute_my_eigen_vector_values();    // FIXME: do this only once
             }
 
             // set the field interpolators coefficients
             this->set_field_interpolators_coefficients();
 
-            // FIXME should not be like this
-            mSet->set_IQI_field_interpolator_managers();
+            // give IQI access to the field interpolator
+            mSet->set_IQI_field_interpolator_managers();    // FIXME: should not be like this
 
             // set cluster for stabilization parameter
             mSet->set_IQI_cluster_for_stabilization_parameters( mFemCluster( 0 ).get() );
+        }
 
-            // if nodal field
-            if ( aFieldType == vis::Field_Type::NODAL )
+        //------------------------------------------------------------------------------
+
+        void
+        Interpolation_Element::compute_nodal_QIs_standard(
+                const uint           aFemMeshIndex,
+                mtk::Leader_Follower aLeaderOrFollowerSide )
+        {
+            // get the vertex indices on the mesh cluster
+            Matrix< IndexMat > tVertexIndices;
+            mFemCluster( aFemMeshIndex )->get_vertex_indices_in_cluster_for_visualization( tVertexIndices, aLeaderOrFollowerSide );
+
+            // get the vertices local coordinates on the mesh cluster
+            Matrix< moris::DDRMat > tVertexLocalCoords =
+                    mFemCluster( aFemMeshIndex )->get_vertices_local_coordinates_wrt_interp_cell( aLeaderOrFollowerSide );
+
+            // get number of vertices on the treated mesh cluster
+            uint tNumVertices = tVertexLocalCoords.n_rows();
+
+            // loop over the vertices on the treated mesh cluster
+            for ( uint iVertex = 0; iVertex < tNumVertices; iVertex++ )
             {
-                // get the leader vertices indices on the mesh cluster
-                moris::Matrix< moris::IndexMat > tVertexIndices;
-                mFemCluster( aMeshIndex )->get_vertex_indices_in_cluster_for_visualization( tVertexIndices );
+                // get the i-th vertex's coordinates in the IP parametric space
+                Matrix< DDRMat > tNodalPointLocalCoords = tVertexLocalCoords.get_row( iVertex );
+                tNodalPointLocalCoords.resize( 1, tNodalPointLocalCoords.numel() + 1 );
+                tNodalPointLocalCoords( tNodalPointLocalCoords.numel() - 1 ) = -1.0;
+                tNodalPointLocalCoords                                       = trans( tNodalPointLocalCoords );
 
-                // FIXME: this operation only works for BULK clusters
-                // get the leader vertices local coordinates on the mesh cluster
-                moris::Matrix< moris::DDRMat > tVertexLocalCoords =
-                        mFemCluster( aMeshIndex )->get_vertices_local_coordinates_wrt_interp_cell();
+                // set vertex coordinates for field interpolator
+                mSet->get_field_interpolator_manager()->set_space_time( tNodalPointLocalCoords );
 
-                // get number of vertices on the treated mesh cluster
-                uint tNumNodes = tVertexLocalCoords.n_rows();
-
-                // loop over the vertices on the treated mesh cluster
-                for ( uint iVertex = 0; iVertex < tNumNodes; iVertex++ )
+                // set vertex coordinates for field interpolator of eigen vectors
+                if ( mSet->mNumEigenVectors )
                 {
-                    // get the ith vertex coordinates in the IP param space
-                    Matrix< DDRMat > tGlobalIntegPoint = tVertexLocalCoords.get_row( iVertex );
-                    tGlobalIntegPoint.resize( 1, tGlobalIntegPoint.numel() + 1 );
-                    tGlobalIntegPoint( tGlobalIntegPoint.numel() - 1 ) = -1.0;
-                    tGlobalIntegPoint                                  = trans( tGlobalIntegPoint );
+                    mSet->get_field_interpolator_manager_eigen_vectors()->set_space_time( tNodalPointLocalCoords );
+                }
 
-                    // set vertex coordinates for field interpolator
-                    mSet->get_field_interpolator_manager()->set_space_time( tGlobalIntegPoint );
+                // get the current vertex's coordinates
+                moris_index tVertexIndex = tVertexIndices( iVertex );
 
-                    // set vertex coordinates for field interpolator of eigen vectors
-                    if ( mSet->mNumEigenVectors )
-                    {
-                        mSet->get_field_interpolator_manager_eigen_vectors()->set_space_time( tGlobalIntegPoint );
-                    }
+                // get number of active local IQIs
+                uint tNumLocalIQIs = mSet->get_number_of_requested_nodal_IQIs_for_visualization();
 
-                    // get number of active local IQIs
-                    uint tNumLocalIQIs = mSet->get_number_of_requested_nodal_IQIs_for_visualization();
+                // loop over IQI
+                for ( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
+                {
+                    // get requested IQI
+                    const std::shared_ptr< IQI >& tReqIQI =
+                            mSet->get_requested_nodal_IQIs_for_visualization()( iIQI );
 
-                    // loop over IQI
-                    for ( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
-                    {
-                        // get requested IQI
-                        const std::shared_ptr< IQI >& tReqIQI =
-                                mSet->get_requested_nodal_IQIs_for_visualization()( iIQI );
+                    // get IQI global index
+                    moris_index tGlobalIqiIndex =
+                            mSet->get_requested_nodal_IQIs_global_indices_for_visualization()( iIQI );
 
-                        // get IQI global index
-                        moris_index tGlobalIndex =
-                                mSet->get_requested_nodal_IQIs_global_indices_for_visualization()( iIQI );
+                    // reset the requested IQI
+                    tReqIQI->reset_eval_flags();
 
-                        // reset the requested IQI
-                        tReqIQI->reset_eval_flags();
+                    // compute quantity of interest at evaluation point
+                    Matrix< DDRMat > tQINodal( 1, 1, 0.0 );
+                    tReqIQI->compute_QI( tQINodal );
 
-                        // compute quantity of interest at evaluation point
-                        Matrix< DDRMat > tQINodal( 1, 1, 0.0 );
-                        tReqIQI->compute_QI( tQINodal );
+                    // assemble the nodal QI value on the set
+                    ( *mSet->mSetNodalValues )( tVertexIndex, tGlobalIqiIndex ) = tQINodal( 0 );
+                }
 
-                        // assemble the nodal QI value on the set
-                        ( *mSet->mSetNodalValues )( tVertexIndices( iVertex ), tGlobalIndex ) = tQINodal( 0 );
-                    }
-                } // end for: vertices on cluster
-            } // end if: nodal field
-            else // other fields
+            }    // end for: vertices on cluster
+
+        }        // end function: Interpolation_Element::compute_nodal_QIs()
+
+        //------------------------------------------------------------------------------
+
+        void
+        Interpolation_Element::compute_nodal_QIs_double_sided( const uint aFemMeshIndex )
+        {
+            // make sure this function is only called on double sided side clusters
+            MORIS_ASSERT(
+                    mFemCluster( aFemMeshIndex )->get_element_type() == fem::Element_Type::DOUBLE_SIDESET,
+                    "Interpolation_Element::compute_nodal_QIs_double_sided() - "
+                    "This function can only be called on double sided side clusters." );
+
+            // get the VIS vertex indices on the mesh cluster
+            Matrix< IndexMat > tLeaderVisVertexIndices;
+            Matrix< IndexMat > tFollowerVisVertexIndices;
+            mFemCluster( aFemMeshIndex )
+                    ->get_vertex_indices_in_cluster_for_visualization( tLeaderVisVertexIndices, mtk::Leader_Follower::LEADER );
+            mFemCluster( aFemMeshIndex )
+                    ->get_vertex_indices_in_cluster_for_visualization( tFollowerVisVertexIndices, mtk::Leader_Follower::FOLLOWER );
+
+            // get the vertices' local coordinates on the respective mesh clusters
+            Matrix< moris::DDRMat > tLeaderVertexLocalCoords =
+                    mFemCluster( aFemMeshIndex )->get_vertices_local_coordinates_wrt_interp_cell( mtk::Leader_Follower::LEADER );
+            Matrix< moris::DDRMat > tFollowerVertexLocalCoords =
+                    mFemCluster( aFemMeshIndex )->get_vertices_local_coordinates_wrt_interp_cell( mtk::Leader_Follower::FOLLOWER );
+
+            // get number of vertices on the treated mesh cluster
+            uint tNumVertices = tLeaderVertexLocalCoords.n_rows();
+
+            // deduce the number of spatial dimensions
+            uint tNumSpatialDims = tLeaderVertexLocalCoords.n_cols();
+
+            // make sure the number of vertices on both clusters is the same (since the assumption is made that they correspond to each other)
+            MORIS_ASSERT(
+                    tNumVertices == tFollowerVertexLocalCoords.n_rows(),
+                    "Interpolation_Element::compute_nodal_QIs_double_sided() - "
+                    "The number of vertices on the Leader and Follower VIS clusters don't match. "
+                    "Here the assumption is made that the two hold the same (interface only) vertices." );
+
+            // loop over the interfaces vertices on the treated dbl side cluster cluster
+            for ( uint iVertex = 0; iVertex < tNumVertices; iVertex++ )
             {
-                // ask cluster to compute quantity of interest
-                mFemCluster( aMeshIndex )->compute_quantity_of_interest( aMeshIndex, aFieldType );
-            }
+                // get the vertex's coordinates with respect to both the leader and follower cells
+                Matrix< DDRMat > tNodalPointLeaderLocalCoords   = tLeaderVertexLocalCoords.get_row( iVertex );
+                Matrix< DDRMat > tNodalPointFollowerLocalCoords = tFollowerVertexLocalCoords.get_row( iVertex );
+
+                // add the time local coordinate and set it to -1 (beginning of time slab)
+                tNodalPointLeaderLocalCoords.resize( 1, tNumSpatialDims + 1 ); // add time dimension
+                tNodalPointFollowerLocalCoords.resize( 1, tNumSpatialDims + 1 );
+                tNodalPointLeaderLocalCoords( tNumSpatialDims ) = -1.0; // set time location to -1
+                tNodalPointFollowerLocalCoords( tNumSpatialDims ) = -1.0;
+
+                // field interpolator takes the transpose
+                tNodalPointLeaderLocalCoords = trans( tNodalPointLeaderLocalCoords );
+                tNodalPointFollowerLocalCoords = trans( tNodalPointFollowerLocalCoords );
+
+                // set vertex coordinates for field interpolators on the leader and follower sides
+                mSet->get_field_interpolator_manager( mtk::Leader_Follower::LEADER  )->set_space_time( tNodalPointLeaderLocalCoords );
+                mSet->get_field_interpolator_manager( mtk::Leader_Follower::FOLLOWER )->set_space_time( tNodalPointFollowerLocalCoords );
+
+                // set vertex coordinates for field interpolator of eigen vectors
+                if ( mSet->mNumEigenVectors )
+                {
+                    mSet->get_field_interpolator_manager_eigen_vectors( mtk::Leader_Follower::LEADER  )
+                            ->set_space_time( tNodalPointLeaderLocalCoords );
+                    mSet->get_field_interpolator_manager_eigen_vectors( mtk::Leader_Follower::FOLLOWER )
+                            ->set_space_time( tNodalPointFollowerLocalCoords );
+                }
+
+                // get the current vertex's coordinates
+                moris_index tLeaderVertexIndex = tLeaderVisVertexIndices( iVertex );
+
+                // get number of active local IQIs
+                uint tNumLocalIQIs = mSet->get_number_of_requested_nodal_IQIs_for_visualization();
+
+                // loop over IQI
+                for ( uint iIQI = 0; iIQI < tNumLocalIQIs; iIQI++ )
+                {
+                    // get requested IQI
+                    const std::shared_ptr< IQI >& tReqIQI =
+                            mSet->get_requested_nodal_IQIs_for_visualization()( iIQI );
+
+                    // get IQI global index
+                    moris_index tGlobalIqiIndex =
+                            mSet->get_requested_nodal_IQIs_global_indices_for_visualization()( iIQI );
+
+                    // reset the requested IQI
+                    tReqIQI->reset_eval_flags();
+
+                    // compute quantity of interest at evaluation point
+                    Matrix< DDRMat > tQINodal( 1, 1, 0.0 );
+                    tReqIQI->compute_QI( tQINodal );
+
+                    // assemble the nodal QI value on the set 
+                    // NOTE: output of the dbl. sided elements by the VIS mesh is defined on the leader side; hence, the nodal value is outputted to the leader vertex
+                    ( *mSet->mSetNodalValues )( tLeaderVertexIndex, tGlobalIqiIndex ) = tQINodal( 0 );
+                }
+
+            }    // end for: vertices on cluster
         }
 
         //------------------------------------------------------------------------------
@@ -1301,11 +1434,11 @@ namespace moris
                 // if nodal field
                 if ( aFields( tGlobalIndex )->get_field_entity_type() == mtk::Field_Entity_Type::NODAL )
                 {
-                    //                // get the leader vertices indices on the mesh cluster
-                    //                moris::Matrix< moris::IndexMat > tVertexIndices = mFemCluster( 0 )->
-                    //                        get_mesh_cluster()->
-                    //                        get_interpolation_cell().
-                    //                        get_vertex_inds();
+                    // // get the leader vertices indices on the mesh cluster
+                    // Matrix< IndexMat > tVertexIndices = mFemCluster( 0 )->
+                    //         get_mesh_cluster()->
+                    //         get_interpolation_cell().
+                    //         get_vertex_inds();
 
                     Matrix< IndexMat > tVertexIndices =
                             mLeaderInterpolationCell->get_vertex_inds();
@@ -1346,7 +1479,7 @@ namespace moris
                     // get mtk interpolation element index
                     moris_index tIndex = mLeaderInterpolationCell->get_index();
 
-                    moris::Matrix< DDRMat > tValues( 1, 1, 0.0 );
+                    Matrix< DDRMat > tValues( 1, 1, 0.0 );
 
                     MORIS_ASSERT( aFields( tGlobalIndex )->get_value( tIndex, 0 ) == MORIS_REAL_MIN, "elemental field values previously set." );
 
@@ -1363,8 +1496,10 @@ namespace moris
 
                     aFields( tGlobalIndex )->set_field_value( tIndex, tValues );
                 }
-            }
-        }
+
+            }    // end for: each requested IQIs for field output
+
+        }        // end function: Interpolation_Element::populate_fields()
 
         //------------------------------------------------------------------------------
     } /* namespace fem */
