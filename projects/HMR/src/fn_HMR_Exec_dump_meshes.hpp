@@ -47,7 +47,7 @@ namespace moris::hmr
                 // get orde rof mesh
                 uint tOrder = aParamfile.get_mesh_order( m );
 
-                uint tIndex;
+                uint tIndex = 0;
 
                 MORIS_ERROR(false, "HMR::get_mesh_index() this function is not udated yet ");
                 // get index of mesh order
