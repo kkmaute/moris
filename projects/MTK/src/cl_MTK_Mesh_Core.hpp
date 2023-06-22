@@ -30,8 +30,7 @@ namespace moris
     namespace hmr
     {
         class Database;
-        class Lagrange_Mesh_Base;
-    }    // namespace hmr
+    }
 
     namespace mtk
     {
@@ -55,9 +54,6 @@ namespace moris
 
             //! ref to hmr object for multigrid FIXME
             std::shared_ptr< hmr::Database > mDatabase;
-
-            // FIXME
-            hmr::Lagrange_Mesh_Base* mMesh = nullptr;
 
             // ----------------------------------------------------------------------------
 
@@ -107,11 +103,22 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            uint get_order();
+            /**
+             * Gets the polynomial order of this mesh
+             *
+             * @return Polynomial degree
+             */
+            virtual uint get_order();
 
             // ----------------------------------------------------------------------------
 
-            uint get_discretization_order( moris_index aDiscretizationIndex );
+            /**
+             * Gets the polynomial order of an underlying discretization of this mesh
+             *
+             * @param aDiscretizationIndex Discretization index, if applicable
+             * @return Polynomial degree
+             */
+            virtual uint get_discretization_order( uint aDiscretizationIndex = 0 );
 
             // ----------------------------------------------------------------------------
 
@@ -1158,11 +1165,6 @@ namespace moris
 
             // FIXME breaks inheritance
             std::shared_ptr< hmr::Database > get_HMR_database();
-
-            // ----------------------------------------------------------------------------
-
-            // FIXME breaks inheritance
-            hmr::Lagrange_Mesh_Base* get_HMR_lagrange_mesh();
 
             // ----------------------------------------------------------------------------
 

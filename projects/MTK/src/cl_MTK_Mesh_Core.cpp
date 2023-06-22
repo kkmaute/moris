@@ -690,17 +690,6 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        hmr::Lagrange_Mesh_Base*
-        Mesh::get_HMR_lagrange_mesh()
-        {
-            MORIS_ERROR( this->get_mesh_type() == MeshType::HMR, "Not HMR" );
-            MORIS_ERROR( mMesh != nullptr, "get_HMR_lagrange_mesh(), Lagrange mesh is nullptr" );
-
-            return mMesh;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
         Matrix< DDUMat >
         Mesh::get_shared_discretization_coefficient_indices(
                 const Matrix< DDUMat >& aNodeIndices,
@@ -1187,20 +1176,17 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        uint
-        Mesh::get_order()
+        uint Mesh::get_order()
         {
-            MORIS_ERROR( this->get_mesh_type() == MeshType::HMR, "get_order only implemented for HMR meshes" );
-            return mMesh->get_order();
+            moris::Cell< std::string > tSetNames = this->get_set_names( EntityRank::ELEMENT );
+            return get_order_from_topology( this->get_blockset_topology( tSetNames(0) ) );
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        uint
-        Mesh::get_discretization_order( moris_index aDiscretizationMeshIndex )
+        uint Mesh::get_discretization_order( uint aDiscretizationIndex )
         {
-            MORIS_ERROR( this->get_mesh_type() == MeshType::HMR, "get_order only implemented for HMR meshes" );
-            return mMesh->get_bspline_order( aDiscretizationMeshIndex );
+            return this->get_order();
         }
 
         //--------------------------------------------------------------------------------------------------------------

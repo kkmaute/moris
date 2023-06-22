@@ -131,8 +131,8 @@ namespace moris
 
             tLagrangeOrder = std::max( tLagrangeOrder, tUnionDescritizationOrder );
 
-            uint tSourcePattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
-            uint tTargetPattern = tTargetMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
+            uint tSourcePattern = dynamic_cast< hmr::Mesh* >( tSourceMesh )->get_lagrange_mesh()->get_activation_pattern();
+            uint tTargetPattern = dynamic_cast< hmr::Mesh* >( tTargetMesh )->get_lagrange_mesh()->get_activation_pattern();
             uint tUnionPattern  = tHMRDatabase->get_parameters()->get_union_pattern();
 
             // create union pattern
@@ -248,11 +248,11 @@ namespace moris
             // get order of Union Mesh
             uint tLagrangeOrder = std::max( tSourceLagrangeOrder, tTargetOrder );
 
-            uint tSourcePattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
-            uint tTargetPattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
+            uint tSourcePattern = dynamic_cast< hmr::Mesh* >( tSourceMesh )->get_lagrange_mesh()->get_activation_pattern();
+            uint tTargetPattern = dynamic_cast< hmr::Mesh* >( tSourceMesh )->get_lagrange_mesh()->get_activation_pattern();
             uint tUnionPattern  = tHMRDatabase->get_parameters()->get_union_pattern();
 
-            uint tTargetBSPattern = tSourceMesh->get_HMR_lagrange_mesh()->    //
+            uint tTargetBSPattern = dynamic_cast< hmr::Mesh* >( tSourceMesh )->get_lagrange_mesh()->    //
                                     get_bspline_pattern(                      //
                                             tDiscreteFieldSource->get_discretization_mesh_index() );
 
@@ -354,8 +354,8 @@ namespace moris
                     "Mapper::interpolate_field() - Number of fields differ in ource and target field.\n" );
 
             // pointer to mesh that is linked to input field
-            hmr::Lagrange_Mesh_Base* tSourceLagrangeMesh = tSourceMesh->get_HMR_lagrange_mesh();
-            hmr::Lagrange_Mesh_Base* tTargetLagrangeMesh = tTargetMesh->get_HMR_lagrange_mesh();
+            hmr::Lagrange_Mesh_Base* tSourceLagrangeMesh = dynamic_cast< hmr::Mesh* >( tSourceMesh )->get_lagrange_mesh();
+            hmr::Lagrange_Mesh_Base* tTargetLagrangeMesh = dynamic_cast< hmr::Mesh* >( tTargetMesh )->get_lagrange_mesh();
 
             uint tSourcePattern = tSourceLagrangeMesh->get_activation_pattern();
             // uint tTargetPattern = tTargetLagrangeMesh->get_activation_pattern();
@@ -473,8 +473,8 @@ namespace moris
             moris::mtk::Mesh* tTargetMesh = tMeshPairOut.get_interpolation_mesh();
 
             // pointer to mesh that is linked to input field
-            hmr::Lagrange_Mesh_Base* tSourceLagrangeMesh = tSourceMesh->get_HMR_lagrange_mesh();
-            hmr::Lagrange_Mesh_Base* tTargetLagrangeMesh = tTargetMesh->get_HMR_lagrange_mesh();
+            hmr::Lagrange_Mesh_Base* tSourceLagrangeMesh = dynamic_cast< hmr::Mesh* >( tSourceMesh )->get_lagrange_mesh();
+            hmr::Lagrange_Mesh_Base* tTargetLagrangeMesh = dynamic_cast< hmr::Mesh* >( tTargetMesh )->get_lagrange_mesh();
 
             // make sure that meshes are compatible
             MORIS_ASSERT( tSourceLagrangeMesh->get_activation_pattern() == tTargetLagrangeMesh->get_activation_pattern(),

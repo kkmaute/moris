@@ -214,8 +214,8 @@ namespace moris
             moris::Matrix< DDUMat >  tLoadPatternTo;
             moris::map< sint, sint > tReferencePatternMap;
 
-            uint tSourceLagrangePattern = tSourceMesh->get_HMR_lagrange_mesh()->get_activation_pattern();
-            uint tSourceBSplinePattern  = tSourceMesh->get_HMR_lagrange_mesh()->get_bspline_pattern( tDiscretizationMeshIndex );
+            uint tSourceLagrangePattern = dynamic_cast< hmr::Mesh* >( tSourceMesh )->get_lagrange_mesh()->get_activation_pattern();
+            uint tSourceBSplinePattern  = dynamic_cast< hmr::Mesh* >( tSourceMesh )->get_lagrange_mesh()->get_bspline_pattern( tDiscretizationMeshIndex );
 
             if ( mParameters.mModeIndex != 2 )
             {
