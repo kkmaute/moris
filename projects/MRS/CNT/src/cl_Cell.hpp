@@ -817,30 +817,66 @@ namespace moris
 
     //------------------------------------------------------------------
 
-    /*!
-     * Iterates through cell and prints cell as a row vector. Usefull for some debugging tasks.
-     * Will only work on data types that allow std::cout calls
+    // General is_container trait with default value as false
+    template< typename T, typename = void >
+    struct is_moris_cell : std::false_type{};
+
+    // Specialization for moris cell type
+    template< typename T >
+    struct is_moris_cell< Cell< T > > : std::true_type{};
+
+    template< typename T >
+    std::string
+    print_nested_cells( const T& aCell )
+    {
+        // initialize the return string
+        std::string aReturnStr="";
+
+        // Check if the container type is a nested container
+        if constexpr ( is_moris_cell< T >::value )
+        {
+            aReturnStr += "[";
+
+            // Keep track of the first element to avoid printing an extra comma
+            bool first = true;
+            for ( const auto& iElement : aCell )
+            {
+                if ( !first )
+                {
+                    aReturnStr += ", ";
+                }
+
+                // Recursively print each nested element
+                aReturnStr += print_nested_cells( iElement );
+                first = false;
+            }
+            aReturnStr += "]";
+        }
+        else
+        {
+
+            aReturnStr += std::to_string( aCell );
+        }
+
+        return aReturnStr;
+    }
+
+    //------------------------------------------------------------------
+    /**
+     * @brief prints out a row vector for infinite nested cells
+     * 
+     * @tparam T 
+     * @param aCell 
+     * @param aStr 
      */
+
     template< typename T >
     void
     print_as_row_vector(
             Cell< T > const & aCell,
             std::string       aStr = "Cell" )
     {
-        std::cout << aStr << " = [ " << std::flush;
-        for ( moris::uint i = 0; i < aCell.size(); i++ )
-        {
-            if ( i == aCell.size() - 1 )
-            {
-                std::cout << aCell( i ) << std::flush;
-            }
-            else
-            {
-                std::cout << aCell( i ) << ", " << std::flush;
-            }
-        }
-
-        std::cout << " ]" << std::endl;
+        std::cout<<aStr<<" = "<<print_nested_cells(aCell)<<std::endl;
     }
 
     //------------------------------------------------------------------
