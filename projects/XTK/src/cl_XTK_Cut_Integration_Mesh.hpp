@@ -647,6 +647,10 @@ namespace xtk
         // input: sub-phase index || output: // TODO: some info needed when having a refinement boundary
         moris::Cell< std::shared_ptr< moris::Cell< moris_index > > > mTransitionNeighborCellLocation;
 
+        // auxiliary array to perform depth first search,  it is empty by default to save memory
+        // input: sub-phase index || output: flag indicating if the vertex is visited
+        moris::Cell< bool > mVisitedFlag;
+
         void
         print_subphase_neighborhood()
         {
@@ -698,6 +702,46 @@ namespace xtk
                 }
                 std::cout << std::endl;
             }
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        void
+        depth_first_search( moris_index const & aSubphaseIndex, moris_index const & aDegree, moris::Cell< moris_index >& aNeighbors )
+        {
+            // set the starting vertex as visited
+            mVisitedFlag( aSubphaseIndex ) = true;
+
+            // break out of recursive function if it reached to vertex itself
+            if ( 0 == aDegree )
+            {
+                aNeighbors.push_back( aSubphaseIndex );
+                return;
+            }
+
+            // loop ove the neighbour and if not visited then perform depth first search
+            for ( const auto& iNeighbour : *( mSubphaseToSubPhase( aSubphaseIndex ) ) )
+            {
+                if ( !mVisitedFlag( iNeighbour ) )
+                {
+                    depth_first_search( iNeighbour, aDegree - 1, aNeighbors );
+                }
+            }
+        }
+
+        // ----------------------------------------------------------------------------------
+
+        void
+        get_kth_degree_neighbours( moris_index const & aSubphaseIndex, moris_index const & aDegree, moris::Cell< moris_index >& aNeighbors )
+        {
+            // mark all the vertices as not visited
+            mVisitedFlag.resize( mSubphaseToSubPhase.size());
+
+            // reset all vertices to false for a new traversal
+            mVisitedFlag.assign(mSubphaseToSubPhase.size(), false );
+
+            // perform depth first search
+            depth_first_search( aSubphaseIndex, aDegree, aNeighbors );
         }
     };
 
