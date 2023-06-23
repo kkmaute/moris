@@ -31,7 +31,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh],[Backgr
         if( moris::par_size() == 1 ||  moris::par_size() == 2  || moris::par_size() == 4 )
         {
             // create settings object
-            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+            auto tParameters = new moris::hmr::Parameters;
 
             // Processor Decomposition Method
             uint tDecompMethod = 1;
@@ -55,10 +55,10 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh],[Backgr
             tParameters->set_bspline_truncation( false );
 
             // create factory
-            moris::hmr::Factory tFactory;
+            moris::hmr::Factory tFactory( tParameters );
 
             // create background mesh object
-            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
 
             // update element table
             //tBackgroundMesh->collect_active_elements();
@@ -357,7 +357,7 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh],[Backgr
         if( moris::par_size() == 1 ||  moris::par_size() == 2  || moris::par_size() == 4 )
         {
             // create settings object
-            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+            auto tParameters = new moris::hmr::Parameters;
 
             // Processor Decomposition Method
             uint tDecompMethod = 1;
@@ -378,10 +378,10 @@ TEST_CASE("HMR_Background_Mesh", "[moris],[mesh],[hmr],[Background_Mesh],[Backgr
             tParameters->set_bspline_truncation( false );
 
             // create factory
-            moris::hmr::Factory tFactory;
+            moris::hmr::Factory tFactory( tParameters );
 
             // create background mesh object
-            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
 
             if ( moris::par_size() == 1 )
             {
@@ -621,7 +621,7 @@ TEST_CASE("HMR_Background_Mesh_Activation_Pattern", "[moris],[mesh],[hmr],[Backg
     if( moris::par_size() == 1 )
     {
         // create settings object
-        moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+        auto tParameters = new moris::hmr::Parameters;
 
         // set number of elements
         tParameters->set_number_of_elements_per_dimension( { {4}, {4} } );
@@ -641,10 +641,10 @@ TEST_CASE("HMR_Background_Mesh_Activation_Pattern", "[moris],[mesh],[hmr],[Backg
         tParameters->set_bspline_truncation( false );
 
         // create factory
-        moris::hmr::Factory tFactory;
+        moris::hmr::Factory tFactory( tParameters );
 
         // create background mesh object
-        moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+        moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh();
 
         //----------------------------------------------------------------------------------------------------------
         // Work on activation pattern 0 mesh
@@ -723,7 +723,7 @@ TEST_CASE("HMR_Background_Mesh_Unite_Pattern", "[moris],[mesh],[hmr],[Background
     if( moris::par_size() == 1 )
     {
         // create settings object
-        moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+        auto tParameters = new moris::hmr::Parameters;
 
         // Processor Decomposition Method
         uint tDecompMethod = 1;
@@ -743,10 +743,10 @@ TEST_CASE("HMR_Background_Mesh_Unite_Pattern", "[moris],[mesh],[hmr],[Background
         tParameters->set_bspline_truncation( false );
 
         // create factory
-        moris::hmr::Factory tFactory;
+        moris::hmr::Factory tFactory( tParameters );
 
         // create background mesh object
-        moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+        moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh();
 
         //----------------------------------------------------------------------------------------------------------
         // Work on activation pattern 0 mesh
@@ -1042,7 +1042,7 @@ TEST_CASE("HMR_Background_Mesh_Proc_Decomp_Min_Mesh_Interface", "[moris],[mesh],
         if( moris::par_size() == 1 ||  moris::par_size() == 2  || moris::par_size() == 4 )
         {
             // create settings object
-            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+            auto tParameters = new moris::hmr::Parameters;
 
             // Processor Decomposition Method
             uint tDecompMethod = 2;
@@ -1066,10 +1066,10 @@ TEST_CASE("HMR_Background_Mesh_Proc_Decomp_Min_Mesh_Interface", "[moris],[mesh],
             tParameters->set_bspline_truncation( false );
 
             // create factory
-            moris::hmr::Factory tFactory;
+            moris::hmr::Factory tFactory( tParameters );
 
             // create background mesh object
-            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
 
             // update element table
             //tBackgroundMesh->collect_active_elements();
@@ -1369,7 +1369,7 @@ TEST_CASE("HMR_Background_Mesh_Proc_Decomp_Min_Mesh_Interface", "[moris],[mesh],
         if( moris::par_size() == 1 ||  moris::par_size() == 2  || moris::par_size() == 4 )
         {
             // create settings object
-            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+            auto tParameters = new moris::hmr::Parameters;
 
             // Processor Decomposition Method
             uint tDecompMethod = 2;
@@ -1390,10 +1390,10 @@ TEST_CASE("HMR_Background_Mesh_Proc_Decomp_Min_Mesh_Interface", "[moris],[mesh],
             tParameters->set_bspline_truncation( false );
 
             // create factory
-            moris::hmr::Factory tFactory;
+            moris::hmr::Factory tFactory( tParameters );
 
             // create background mesh object
-            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
 
             if ( moris::par_size() == 1 )
             {
@@ -1656,7 +1656,7 @@ TEST_CASE("HMR_Background_Mesh_Proc_Nonmultiple_Background", "[moris],[mesh],[hm
     {
 
         // create settings object
-        moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+        auto tParameters = new moris::hmr::Parameters;
 
         // Processor Decomposition Method
         uint tDecompMethod = 1;
@@ -1680,10 +1680,10 @@ TEST_CASE("HMR_Background_Mesh_Proc_Nonmultiple_Background", "[moris],[mesh],[hm
         tParameters->set_bspline_truncation( false );
 
         // create factory
-        moris::hmr::Factory tFactory;
+        moris::hmr::Factory tFactory( tParameters );
 
         // create background mesh object
-        moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+        moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
 
         // update element table
         //tBackgroundMesh->collect_active_elements();
@@ -2155,7 +2155,7 @@ TEST_CASE("HMR_Background_Mesh_Proc_Nonmultiple_Background_3D", "[moris],[mesh],
         {
 
             // create settings object
-            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+            auto tParameters = new moris::hmr::Parameters;
 
             // Processor Decomposition Method
             uint tDecompMethod = 2;
@@ -2179,10 +2179,10 @@ TEST_CASE("HMR_Background_Mesh_Proc_Nonmultiple_Background_3D", "[moris],[mesh],
             tParameters->set_bspline_truncation( false );
 
             // create factory
-            moris::hmr::Factory tFactory;
+            moris::hmr::Factory tFactory( tParameters );
 
             // create background mesh object
-            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
 
             // update element table
             //tBackgroundMesh->collect_active_elements();
@@ -2413,7 +2413,7 @@ TEST_CASE("HMR_Background_Mesh_Proc_Nonmultiple_Background_3D", "[moris],[mesh],
         if( moris::par_size() == 12 )
         {
             // create settings object
-            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+            auto tParameters = new moris::hmr::Parameters;
 
             // Processor Decomposition Method
             uint tDecompMethod = 2;
@@ -2437,10 +2437,10 @@ TEST_CASE("HMR_Background_Mesh_Proc_Nonmultiple_Background_3D", "[moris],[mesh],
             tParameters->set_bspline_truncation( false );
 
             // create factory
-            moris::hmr::Factory tFactory;
+            moris::hmr::Factory tFactory( tParameters );
 
             // create background mesh object
-            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
 
             // update element table
             //tBackgroundMesh->collect_active_elements();

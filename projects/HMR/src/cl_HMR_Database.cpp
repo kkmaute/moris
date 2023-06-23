@@ -31,10 +31,10 @@ namespace moris::hmr
         aParameters->lock();
 
         // create factory object
-        Factory tFactory;
+        Factory tFactory( mParameters );
 
         // create background mesh object
-        mBackgroundMesh = tFactory.create_background_mesh( mParameters );
+        mBackgroundMesh = tFactory.create_background_mesh();
 
         // fixme: this might already be done in set_activation_pattern
         // during database update
@@ -62,10 +62,10 @@ namespace moris::hmr
             : mParameters( create_hmr_parameters_from_hdf5_file( aPath ) )
     {
         // create factory
-        Factory tFactory;
+        Factory tFactory( mParameters );
 
         // create background mesh object
-        mBackgroundMesh = tFactory.create_background_mesh( mParameters );
+        mBackgroundMesh = tFactory.create_background_mesh();
 
         // reset all patterns
         for ( uint k = 0; k < gNumberOfPatterns; ++k )
@@ -93,10 +93,10 @@ namespace moris::hmr
     {
         MORIS_ERROR( false, " Database(); constructor not updated yet" );
         // create factory
-        Factory tFactory;
+        Factory tFactory( mParameters );
 
         // create background mesh object
-        mBackgroundMesh = tFactory.create_background_mesh( mParameters );
+        mBackgroundMesh = tFactory.create_background_mesh();
 
         // reset all patterns
         for ( uint k = 0; k < gNumberOfPatterns; ++k )
@@ -271,7 +271,7 @@ namespace moris::hmr
     //
     //            for( uint k=0; k<tNumberOfBSplineMeshes; ++k )
     //            {
-    //                mBSplineMeshes( k ) = tFactory.create_bspline_mesh( mParameters,
+    //                mBSplineMeshes( k ) = tFactory.create_bspline_mesh(
     //                                                                    mBackgroundMesh,
     //                                                                    mParameters->get_bspline_pattern( k ),
     //                                                                    mParameters->get_bspline_order( k ) );
@@ -287,7 +287,7 @@ namespace moris::hmr
     //
     //            for( uint k=0; k<tNumberOfLagrangeMeshes; ++k )
     //            {
-    //                mLagrangeMeshes( k ) = tFactory.create_lagrange_mesh( mParameters,
+    //                mLagrangeMeshes( k ) = tFactory.create_lagrange_mesh(
     //                                                                      mBackgroundMesh,
     //                                                                      mBSplineMeshes,
     //                                                                      mParameters->get_lagrange_pattern( k ),
@@ -312,7 +312,7 @@ namespace moris::hmr
         this->delete_meshes();
 
         // create factory object
-        Factory tFactory;
+        Factory tFactory( mParameters );
 
         // create BSpline meshes
         uint tNumberOfBSplineMeshes = mParameters->get_number_of_bspline_meshes();
@@ -323,7 +323,7 @@ namespace moris::hmr
         // create all B-Spline meshes requested
         for ( uint k = 0; k < tNumberOfBSplineMeshes; ++k )
         {
-            mBSplineMeshes( k ) = tFactory.create_bspline_mesh( mParameters,
+            mBSplineMeshes( k ) = tFactory.create_bspline_mesh(
                     mBackgroundMesh,
                     mParameters->get_bspline_pattern( k ),
                     mParameters->get_bspline_order( k ) );
@@ -363,7 +363,6 @@ namespace moris::hmr
 
             // create Lagrange mesh with links to all B-spline meshes associated to them
             mLagrangeMeshes( k ) = tFactory.create_lagrange_mesh(
-                    mParameters,
                     mBackgroundMesh,
                     tBsplineMeshes,
                     mParameters->get_lagrange_pattern( k ),

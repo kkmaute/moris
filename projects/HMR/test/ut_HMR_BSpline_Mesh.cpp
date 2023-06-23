@@ -34,7 +34,7 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr],[BsplineMesh]")
         SECTION("B-Spline Mesh 2D: test basis uniqueness")
         {
             // create settings object
-            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+            auto tParameters = new moris::hmr::Parameters;
 
             // set number of elements
             moris::Matrix< moris::DDLUMat > tNumberOfElements;
@@ -59,7 +59,7 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr],[BsplineMesh]")
             tParameters->set_bspline_truncation( false );
 
             // create factory
-            moris::hmr::Factory tFactory;
+            moris::hmr::Factory tFactory( tParameters );
 
             // max level to refine
             uint tMaxLevel = 3;
@@ -79,7 +79,7 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr],[BsplineMesh]")
                 tParameters->set_bspline_patterns ( { {0} } );
 
                 // create background mesh object
-                moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+                moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
 
                 // refine a few elements in the mesh
                 for( moris::uint l=0; l<tMaxLevel; ++l  )
@@ -101,10 +101,10 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr],[BsplineMesh]")
                 }
 
                 // create B-Spline mesh
-                moris::hmr::BSpline_Mesh_Base* tBSplineMesh = tFactory.create_bspline_mesh( tParameters,
-                                                                                            tBackgroundMesh,
-                                                                                            0,
-                                                                                            tOrder );
+                moris::hmr::BSpline_Mesh_Base* tBSplineMesh = tFactory.create_bspline_mesh(
+                        tBackgroundMesh,
+                        0,
+                        tOrder );
 
                 // test basis uniqueness
                 REQUIRE ( tBSplineMesh->test_for_double_basis() );
@@ -122,7 +122,7 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr],[BsplineMesh]")
         SECTION("B-Spline Mesh 3D: test basis uniqueness")
         {
             // create settings object
-            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+            auto tParameters = new moris::hmr::Parameters;
 
             // set number of elements
             moris::Matrix< moris::DDLUMat > tNumberOfElements;
@@ -149,7 +149,7 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr],[BsplineMesh]")
             tParameters->set_bspline_truncation( false );
 
             // create factory
-            moris::hmr::Factory tFactory;
+            moris::hmr::Factory tFactory( tParameters );
 
             // max level to refine
             uint tMaxLevel = 3;
@@ -170,7 +170,7 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr],[BsplineMesh]")
 
                 // create background mesh object
                 moris::hmr::Background_Mesh_Base* tBackgroundMesh
-                    = tFactory.create_background_mesh( tParameters );
+                    = tFactory.create_background_mesh();
 
                 // refine a few elements in the mesh
                 for( moris::uint l=0; l<tMaxLevel; ++l  )
@@ -193,10 +193,10 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr],[BsplineMesh]")
                 }
 
                 // create B-Spline mesh
-                moris::hmr::BSpline_Mesh_Base* tBSplineMesh = tFactory.create_bspline_mesh( tParameters,
-                                                                                            tBackgroundMesh,
-                                                                                            0,
-                                                                                            tOrder );
+                moris::hmr::BSpline_Mesh_Base* tBSplineMesh = tFactory.create_bspline_mesh(
+                        tBackgroundMesh,
+                        0,
+                        tOrder );
 
                 // test basis uniqueness
                 REQUIRE ( tBSplineMesh->test_for_double_basis() );
@@ -219,7 +219,7 @@ TEST_CASE("HMR_Bspline_Mesh_Pattern", "[moris],[mesh],[hmr],[Bspline_mesh_patter
     if(  moris::par_size() == 1 )
     {
             // create settings object
-            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+            auto tParameters = new moris::hmr::Parameters;
 
             // set number of elements
             tParameters->set_number_of_elements_per_dimension( { {4}, {4} } );
@@ -238,10 +238,10 @@ TEST_CASE("HMR_Bspline_Mesh_Pattern", "[moris],[mesh],[hmr],[Bspline_mesh_patter
             tParameters->set_bspline_patterns ( { {0} } );
 
             // create factory
-            moris::hmr::Factory tFactory;
+            moris::hmr::Factory tFactory( tParameters );
 
             // create background mesh object
-            moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+            moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh();
 
             //----------------------------------------------------------------------------------------------------------
             // Work on activation pattern 0 mesh
@@ -267,8 +267,8 @@ TEST_CASE("HMR_Bspline_Mesh_Pattern", "[moris],[mesh],[hmr],[Bspline_mesh_patter
 
             // create B-Spline mesh
             //( Parameters, Backgroundmesh, Pattern, Order)
-            moris::hmr::BSpline_Mesh_Base* tBSplineMesh_1 = tFactory.create_bspline_mesh( tParameters, tBackgroundMesh, 0, 1 );
-            moris::hmr::BSpline_Mesh_Base* tBSplineMesh_2 = tFactory.create_bspline_mesh( tParameters, tBackgroundMesh, 1, 1 );
+            moris::hmr::BSpline_Mesh_Base* tBSplineMesh_1 = tFactory.create_bspline_mesh( tBackgroundMesh, 0, 1 );
+            moris::hmr::BSpline_Mesh_Base* tBSplineMesh_2 = tFactory.create_bspline_mesh( tBackgroundMesh, 1, 1 );
 
             tBSplineMesh_1->test_sanity();
             tBSplineMesh_2->test_sanity();

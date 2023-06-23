@@ -42,7 +42,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr],[hmr_t_matrix]")
             // creaete minimal setup
 
              // create settings object
-             moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+             auto tParameters = new moris::hmr::Parameters;
 
              // set number of elements
              moris::Matrix< moris::DDLUMat > tNumberOfElements = { {1}, {1} };
@@ -53,28 +53,28 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr],[hmr_t_matrix]")
              tParameters->set_staircase_buffer( 3 );
 
              // create background mesh
-             moris::hmr::Factory tFactory;
+             moris::hmr::Factory tFactory( tParameters );
 
              // create background mesh object
-             moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+             moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
 
              for( uint tOrder = 1; tOrder<=3; ++tOrder )
              {
 
                  // create B-Spline mesh
-                 moris::hmr::BSpline_Mesh_Base * tBSplineMesh =  tFactory.create_bspline_mesh( tParameters,
-                                                                                               tBackgroundMesh,
-                                                                                               tParameters->get_bspline_input_pattern(),
-                                                                                               tOrder );
+                 moris::hmr::BSpline_Mesh_Base * tBSplineMesh =  tFactory.create_bspline_mesh(
+                         tBackgroundMesh,
+                         tParameters->get_bspline_input_pattern(),
+                         tOrder );
 
                  // create container of B-Spline meshes
                  moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes( 1, tBSplineMesh );
 
-                 moris::hmr::Lagrange_Mesh_Base * tLagrangeMesh =  tFactory.create_lagrange_mesh( tParameters,
-                                                                                                  tBackgroundMesh,
-                                                                                                  tBSplineMeshes,
-                                                                                                  tParameters->get_lagrange_input_pattern(),
-                                                                                                  tOrder );
+                 moris::hmr::Lagrange_Mesh_Base * tLagrangeMesh =  tFactory.create_lagrange_mesh(
+                         tBackgroundMesh,
+                         tBSplineMeshes,
+                         tParameters->get_lagrange_input_pattern(),
+                         tOrder );
 
                  // initialixe T-Matrix object
                  moris::hmr::T_Matrix< 2 > tTMatrix( tParameters, tBSplineMesh, tLagrangeMesh );
@@ -177,7 +177,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr],[hmr_t_matrix]")
         SECTION ( "T-Matrix: Lagrange shape 2D" )
         {
             // create settings object
-            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+            auto tParameters = new moris::hmr::Parameters;
 
             // this geometry creates one element, geometry coordinates
             // are identical to parameter coordinates
@@ -197,26 +197,26 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr],[hmr_t_matrix]")
                 tParameters->set_bspline_truncation( true );
 
                 // create factory
-                moris::hmr::Factory tFactory;
+                moris::hmr::Factory tFactory( tParameters );
 
                 // create background mesh object
-                moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+                moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
 
                 // create B-Spline Mesh
-                moris::hmr::BSpline_Mesh_Base * tBSplineMesh =  tFactory.create_bspline_mesh( tParameters,
-                                                                                              tBackgroundMesh,
-                                                                                              tParameters->get_bspline_input_pattern(),
-                                                                                              tOrder );
+                moris::hmr::BSpline_Mesh_Base * tBSplineMesh =  tFactory.create_bspline_mesh(
+                        tBackgroundMesh,
+                        tParameters->get_bspline_input_pattern(),
+                        tOrder );
 
                 // create container of B-Spline meshes
                 moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes( 1, tBSplineMesh );
 
                 // create B-Spline Mesh
-                moris::hmr::Lagrange_Mesh_Base * tLagrangeMesh =  tFactory.create_lagrange_mesh( tParameters,
-                                                                                                 tBackgroundMesh,
-                                                                                                 tBSplineMeshes,
-                                                                                                 tParameters->get_lagrange_input_pattern(),
-                                                                                                 tOrder );
+                moris::hmr::Lagrange_Mesh_Base * tLagrangeMesh =  tFactory.create_lagrange_mesh(
+                        tBackgroundMesh,
+                        tBSplineMeshes,
+                        tParameters->get_lagrange_input_pattern(),
+                        tOrder );
 
                 // create T-Matrix object
                 auto tTMatrix = new moris::hmr::T_Matrix< 2 >( tParameters, tBSplineMesh, tLagrangeMesh );
@@ -277,7 +277,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr],[hmr_t_matrix]")
         SECTION ( "T-Matrix: Lagrange shape 3D" )
         {
             // create settings object
-            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+            auto tParameters = new moris::hmr::Parameters;
 
             // this geometry creates one element, geometry coordinates
             // are identical to parameter coordinates
@@ -300,26 +300,25 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr],[hmr_t_matrix]")
                 tParameters->set_bspline_truncation( true );
 
                 // create factory
-                moris::hmr::Factory tFactory;
+                moris::hmr::Factory tFactory( tParameters );
 
                 // create background mesh object
-                moris::hmr::Background_Mesh_Base* tBackgroundMesh
-                = tFactory.create_background_mesh( tParameters );
+                moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
 
                 // create B-Spline Mesh
-                moris::hmr::BSpline_Mesh_Base * tBSplineMesh =  tFactory.create_bspline_mesh( tParameters,
-                                                                                              tBackgroundMesh,
-                                                                                              tParameters->get_bspline_input_pattern(),
-                                                                                              tOrder );
+                moris::hmr::BSpline_Mesh_Base * tBSplineMesh =  tFactory.create_bspline_mesh(
+                        tBackgroundMesh,
+                        tParameters->get_bspline_input_pattern(),
+                        tOrder );
 
                moris::Cell< moris::hmr::BSpline_Mesh_Base*  > tBSplineMeshes( 1, tBSplineMesh );
 
                 // create B-Spline Mesh
-                moris::hmr::Lagrange_Mesh_Base * tLagrangeMesh =  tFactory.create_lagrange_mesh( tParameters,
-                                                                                                 tBackgroundMesh,
-                                                                                                 tBSplineMeshes,
-                                                                                                 tParameters->get_lagrange_input_pattern(),
-                                                                                                 tOrder );
+                moris::hmr::Lagrange_Mesh_Base * tLagrangeMesh =  tFactory.create_lagrange_mesh(
+                        tBackgroundMesh,
+                        tBSplineMeshes,
+                        tParameters->get_lagrange_input_pattern(),
+                        tOrder );
 
                 // create T-Matrix object
                 auto tTMatrix = new moris::hmr::T_Matrix< 3 >( tParameters, tBSplineMesh, tLagrangeMesh );

@@ -1932,10 +1932,9 @@ namespace moris::hmr
 
         Cell< BSpline_Mesh_Base* > tBSplineDummy( 1, nullptr );
 
-        moris::hmr::Factory tFactory;
+        Factory tFactory( mParameters );
 
         Lagrange_Mesh_Base* tMesh = tFactory.create_lagrange_mesh(
-                mParameters,
                 mDatabase->get_background_mesh(),
                 tBSplineDummy,
                 aPattern,
@@ -1991,10 +1990,9 @@ namespace moris::hmr
 
         Cell< BSpline_Mesh_Base* > tBSplineDummy( 1, nullptr );
 
-        moris::hmr::Factory tFactory;
+        Factory tFactory( mParameters );
 
         Lagrange_Mesh_Base* tMesh = tFactory.create_lagrange_mesh(
-                mParameters,
                 mDatabase->get_background_mesh(),
                 tBSplineDummy,
                 aPattern,
@@ -2101,10 +2099,9 @@ namespace moris::hmr
 
             Cell< BSpline_Mesh_Base* > tBSplineDummy( 1, nullptr );
 
-            moris::hmr::Factory tFactory;
+            Factory tFactory( mParameters );
 
             Lagrange_Mesh_Base* tMesh = tFactory.create_lagrange_mesh(
-                    mParameters,
                     mDatabase->get_background_mesh(),
                     tBSplineDummy,
                     aPattern,
@@ -2168,10 +2165,9 @@ namespace moris::hmr
 
             Cell< BSpline_Mesh_Base* > tBSplineDummy( 1, nullptr );
 
-            moris::hmr::Factory tFactory;
+            Factory tFactory( mParameters );
 
             Lagrange_Mesh_Base* tMesh = tFactory.create_lagrange_mesh(
-                    mParameters,
                     mDatabase->get_background_mesh(),
                     tBSplineDummy,
                     aPattern,

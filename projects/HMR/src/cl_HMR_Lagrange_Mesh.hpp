@@ -154,17 +154,15 @@ namespace moris::hmr
                     if( P < tBSplineOrder and mParameters->use_advanced_t_matrices() )
                     {
                         // create factory object
-                        Factory tFactory;
+                        Factory tFactory( mParameters );
 
                         mLagrangeMeshForTMatrix( Ik ) = tFactory.create_lagrange_mesh(
-                                mParameters,
                                 mBackgroundMesh,
                                 mBSplineMeshes,
                                 this->get_activation_pattern(),
                                 tBSplineOrder );
 
-                        mTMatrix( Ik ) = new T_Matrix_2< N >(
-                                mParameters,
+                        mTMatrix( Ik ) = new T_Matrix_2< N >( mParameters,
                                 tMesh,
                                 mLagrangeMeshForTMatrix( Ik ),
                                 this );

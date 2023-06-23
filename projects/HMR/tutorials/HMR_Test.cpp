@@ -79,7 +79,7 @@ main(
 //                    tParameters->set_bspline_truncation( true );
 //
 //                    // create factory
-//                    moris::hmr::Factory tFactory;
+//                    Factory tFactory( mParameters );
 //
 //                    // create background mesh object
 //                    moris::hmr::Background_Mesh_Base* tBackgroundMesh

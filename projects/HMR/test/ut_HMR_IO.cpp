@@ -135,10 +135,10 @@ TEST_CASE( "HMR_IO", "[moris],[hmr],[HMR_IO]" )
             moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
 
             // create factory
-            moris::hmr::Factory tFactory;
+            Factory tFactory( tHMR_Input.get_database()->get_parameters() );
 
             // create first order Lagrange mesh
-            moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh = tFactory.create_lagrange_mesh( tHMR_Input.get_database()->get_parameters(),
+            moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh = tFactory.create_lagrange_mesh(
                     tHMR_Input.get_database()->get_background_mesh(),
                     tBSplineMeshes,
                     2,

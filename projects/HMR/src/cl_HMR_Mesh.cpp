@@ -121,12 +121,14 @@ namespace moris::hmr
         mDatabase = aDatabase;
 
         mDummyBSplineMeshes.resize( 3, nullptr );
-        moris::hmr::Factory tFactory;
+
+        // Create factory
+        Factory tFactory( mDatabase->get_parameters() );
 
         for ( uint Ik = 0; Ik < 3; Ik++ )
         {
+            // FIXME only one mesh
             mDummyBSplineMeshes( Ik ) = tFactory.create_bspline_mesh(
-                    mDatabase->get_parameters(),    // FIXME only one mesh
                     mDatabase->get_background_mesh(),
                     aBsplinePattern,
                     aOrder );
@@ -134,7 +136,6 @@ namespace moris::hmr
 
         // Create Lagrange mesh
         mMesh = tFactory.create_lagrange_mesh(
-                mDatabase->get_parameters(),
                 mDatabase->get_background_mesh(),
                 mDummyBSplineMeshes,
                 aLagrangePattern,
@@ -180,12 +181,12 @@ namespace moris::hmr
         mDatabase = aDatabase;
 
         mDummyBSplineMeshes.resize( 1, nullptr );
-        moris::hmr::Factory tFactory;
+        Factory tFactory( mDatabase->get_parameters() );
 
         for ( uint Ik = 0; Ik < 1; Ik++ )
         {
+            // FIXME only one mesh
             mDummyBSplineMeshes( Ik ) = tFactory.create_bspline_mesh(
-                    mDatabase->get_parameters(),    // FIXME only one mesh
                     mDatabase->get_background_mesh(),
                     aBSplinePattern,
                     aBSplineOrder );
@@ -193,7 +194,6 @@ namespace moris::hmr
 
         // Create Lagrange mesh
         mMesh = tFactory.create_lagrange_mesh(
-                mDatabase->get_parameters(),
                 mDatabase->get_background_mesh(),
                 mDummyBSplineMeshes,
                 aLagrangePattern,

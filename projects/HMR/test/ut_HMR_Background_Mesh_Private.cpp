@@ -36,7 +36,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
         SECTION( "Background mesh 2D: test calc_child_index() function")
         {
             // create settings object
-            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+            auto tParameters = new moris::hmr::Parameters;
 
             // set number of elements
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {6}, {4} };
@@ -53,10 +53,10 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             tParameters->set_bspline_truncation( false );
 
             // create factory
-            moris::hmr::Factory tFactory;
+            moris::hmr::Factory tFactory( tParameters );
 
             // create background mesh object
-            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
 
             // update element table
             tBackgroundMesh->collect_active_elements();
@@ -107,7 +107,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
      SECTION( "Background mesh 3D: test calc_child_index() function")
      {
             // create settings object
-            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+            auto tParameters = new moris::hmr::Parameters;
 
             // set number of elements
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {4}, {6}, {4} };
@@ -124,11 +124,11 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             tParameters->set_bspline_truncation( false );
 
             // create factory
-            moris::hmr::Factory tFactory;
+            moris::hmr::Factory tFactory( tParameters );
 
             // create background mesh object
             moris::hmr::Background_Mesh_Base* tBackgroundMesh
-            = tFactory.create_background_mesh( tParameters );
+            = tFactory.create_background_mesh();
 
             // update element table
             tBackgroundMesh->collect_active_elements();
@@ -185,7 +185,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             //
 
             // create settings object
-            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+            auto tParameters = new moris::hmr::Parameters;
 
             // set number of elements
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {6}, {4} };
@@ -203,10 +203,10 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             tParameters->set_bspline_truncation( false );
 
             // create factory
-            moris::hmr::Factory tFactory;
+            moris::hmr::Factory tFactory( tParameters );
 
             // create background mesh object
-            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
 
             // update element table
             tBackgroundMesh->collect_active_elements();
@@ -384,7 +384,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
        SECTION( "Background mesh 3D: test neighborhood calculation")
        {
                 // create settings object
-                moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+                auto tParameters = new moris::hmr::Parameters;
 
                 // set number of elements
                 moris::Matrix< moris::DDLUMat > tNumberOfElements = { {4}, {2}, {3} };
@@ -399,10 +399,10 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
                 tParameters->set_bspline_truncation( false );
 
                 // create factory
-                moris::hmr::Factory tFactory;
+                moris::hmr::Factory tFactory( tParameters );
 
                 // create background mesh object
-                moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+                moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh();
 
                 // update element table
                 tBackgroundMesh->collect_active_elements();
@@ -622,7 +622,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
         SECTION( "Background mesh 2D: test get_neighbors_from_same_level() function")
         {
             // create settings object
-            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+            auto tParameters = new moris::hmr::Parameters;
 
             // set number of elements
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {6}, {6} };
@@ -636,11 +636,11 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             tParameters->set_bspline_truncation( false );
 
             // create factory
-            moris::hmr::Factory tFactory;
+            moris::hmr::Factory tFactory( tParameters );
 
             // create background mesh object
             moris::hmr::Background_Mesh_Base* tBackgroundMesh
-            = tFactory.create_background_mesh( tParameters );
+            = tFactory.create_background_mesh();
 
             // get number of elements
             moris::luint tNumberOfActiveElements
@@ -730,7 +730,7 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
        SECTION( "Background mesh 3D: test get_neighbors_from_same_level() function")
         {
             // create settings object
-            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+            auto tParameters = new moris::hmr::Parameters;
 
             // set number of elements
             moris::Matrix< moris::DDLUMat > tNumberOfElements = { {6}, {6}, {6} };
@@ -744,11 +744,11 @@ TEST_CASE("HMR_Background_Mesh_Private", "[moris],[mesh],[hmr][Background_Mesh_p
             tParameters->set_bspline_truncation( false );
 
             // create factory
-            moris::hmr::Factory tFactory;
+            moris::hmr::Factory tFactory( tParameters );
 
             // create background mesh object
             moris::hmr::Background_Mesh_Base* tBackgroundMesh
-            = tFactory.create_background_mesh( tParameters );
+            = tFactory.create_background_mesh();
 
             // get number of elements
             moris::luint tNumberOfActiveElements = tBackgroundMesh->get_number_of_active_elements_on_proc();

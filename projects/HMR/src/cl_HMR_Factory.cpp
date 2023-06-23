@@ -35,61 +35,64 @@
 
 namespace moris::hmr
 {
+    //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
-
-/**
- * creates a backgroud mesh depending on the number of dimensions set
- */
-Background_Mesh_Base * Factory::create_background_mesh( const Parameters * aParameters )
-{
-    // create background mesh object
-    Background_Mesh_Base* aMesh;
-
-    // get number of dimensions from settings
-    auto tNumberOfDimensions =  aParameters->get_number_of_dimensions();
-
-    switch( tNumberOfDimensions )
+    Factory::Factory( const Parameters* aParameters )
+    : mParameters( aParameters )
     {
-        case( 1 ) :
-        {
-            // create mesh object
-            aMesh = new Background_Mesh< 1 >( aParameters );
-            break;
-        }
-        case( 2 ) :
-        {
-            aMesh = new Background_Mesh< 2 >( aParameters );
-            break;
-        }
-        case( 3 ) :
-        {
-            aMesh = new Background_Mesh< 3 >( aParameters );
-            break;
-        }
-        default :
-        {
-            std::fprintf( stdout,
-                    "create_background_mesh(): unknown number of dimensions %u\n",
-                    ( unsigned int ) tNumberOfDimensions );
-            exit(-1);
-            break;
-        }
     }
 
-    // reset main patterns of this mesh
-    // fixme: this should be its own funcion
-    aMesh->reset_pattern( aParameters->get_bspline_input_pattern() );
-    aMesh->reset_pattern( aParameters->get_lagrange_input_pattern() );
-    aMesh->reset_pattern( aParameters->get_bspline_output_pattern() );
-    aMesh->reset_pattern( aParameters->get_lagrange_output_pattern() );
-
-    return aMesh;
-}
-//-------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------
+    
+    Background_Mesh_Base * Factory::create_background_mesh()
+    {
+        // create background mesh object
+        Background_Mesh_Base* aMesh;
+    
+        // get number of dimensions from settings
+        uint tNumberOfDimensions =  mParameters->get_number_of_dimensions();
+    
+        switch( tNumberOfDimensions )
+        {
+            case( 1 ) :
+            {
+                // create mesh object
+                aMesh = new Background_Mesh< 1 >( mParameters );
+                break;
+            }
+            case( 2 ) :
+            {
+                aMesh = new Background_Mesh< 2 >( mParameters );
+                break;
+            }
+            case( 3 ) :
+            {
+                aMesh = new Background_Mesh< 3 >( mParameters );
+                break;
+            }
+            default :
+            {
+                std::fprintf( stdout,
+                        "create_background_mesh(): unknown number of dimensions %u\n",
+                        ( unsigned int ) tNumberOfDimensions );
+                exit(-1);
+                break;
+            }
+        }
+    
+        // reset main patterns of this mesh
+        // fixme: this should be its own funcion
+        aMesh->reset_pattern( mParameters->get_bspline_input_pattern() );
+        aMesh->reset_pattern( mParameters->get_lagrange_input_pattern() );
+        aMesh->reset_pattern( mParameters->get_bspline_output_pattern() );
+        aMesh->reset_pattern( mParameters->get_lagrange_output_pattern() );
+    
+        return aMesh;
+    }
+    
+    //-------------------------------------------------------------------------------
 
     Lagrange_Mesh_Base * Factory::create_lagrange_mesh(
-        const Parameters*          aParameters,
         Background_Mesh_Base*      aBackgroundMesh,
         Cell< BSpline_Mesh_Base* > aBSplineMeshes,
         uint                       aActivationPattern,
@@ -98,7 +101,7 @@ Background_Mesh_Base * Factory::create_background_mesh( const Parameters * aPara
         Lagrange_Mesh_Base* aMesh;
 
         // get number of dimensions from settings
-        auto tNumberOfDimensions =  aParameters->get_number_of_dimensions();
+        uint tNumberOfDimensions =  mParameters->get_number_of_dimensions();
 
         switch( tNumberOfDimensions )
         {
@@ -108,7 +111,7 @@ Background_Mesh_Base * Factory::create_background_mesh( const Parameters * aPara
             {
             case( 1 ):
             {
-                aMesh = new Lagrange_Mesh< 2, 1 >( aParameters,
+                aMesh = new Lagrange_Mesh< 2, 1 >( mParameters,
                                                    aBackgroundMesh,
                                                    aBSplineMeshes,
                                                    aActivationPattern );
@@ -116,7 +119,7 @@ Background_Mesh_Base * Factory::create_background_mesh( const Parameters * aPara
             }
             case( 2 ):
             {
-                aMesh = new Lagrange_Mesh< 2, 2 >( aParameters,
+                aMesh = new Lagrange_Mesh< 2, 2 >( mParameters,
                                                    aBackgroundMesh,
                                                    aBSplineMeshes,
                                                    aActivationPattern );
@@ -124,7 +127,7 @@ Background_Mesh_Base * Factory::create_background_mesh( const Parameters * aPara
             }
             case( 3 ):
             {
-                aMesh = new Lagrange_Mesh< 2, 3 >( aParameters,
+                aMesh = new Lagrange_Mesh< 2, 3 >( mParameters,
                                                    aBackgroundMesh,
                                                    aBSplineMeshes,
                                                    aActivationPattern );
@@ -146,7 +149,7 @@ Background_Mesh_Base * Factory::create_background_mesh( const Parameters * aPara
             {
             case( 1 ):
             {
-                aMesh = new Lagrange_Mesh< 3, 1 >( aParameters,
+                aMesh = new Lagrange_Mesh< 3, 1 >( mParameters,
                                                    aBackgroundMesh,
                                                    aBSplineMeshes,
                                                    aActivationPattern );
@@ -154,7 +157,7 @@ Background_Mesh_Base * Factory::create_background_mesh( const Parameters * aPara
             }
             case( 2 ):
             {
-                aMesh = new Lagrange_Mesh< 3, 2 >( aParameters,
+                aMesh = new Lagrange_Mesh< 3, 2 >( mParameters,
                                                    aBackgroundMesh,
                                                    aBSplineMeshes,
                                                    aActivationPattern );
@@ -162,7 +165,7 @@ Background_Mesh_Base * Factory::create_background_mesh( const Parameters * aPara
             }
             case( 3 ):
             {
-                aMesh = new Lagrange_Mesh< 3, 3 >( aParameters,
+                aMesh = new Lagrange_Mesh< 3, 3 >( mParameters,
                                                    aBackgroundMesh,
                                                    aBSplineMeshes,
                                                    aActivationPattern );
@@ -188,10 +191,10 @@ Background_Mesh_Base * Factory::create_background_mesh( const Parameters * aPara
 
         return aMesh;
     }
-//-------------------------------------------------------------------------------
+    
+    //-------------------------------------------------------------------------------
 
     BSpline_Mesh_Base * Factory::create_bspline_mesh(
-            const Parameters*     aParameters,
             Background_Mesh_Base* aBackgroundMesh,
             uint                  aActivationPattern,
             luint                 aPolynomialDegree )
@@ -199,7 +202,7 @@ Background_Mesh_Base * Factory::create_background_mesh( const Parameters * aPara
         BSpline_Mesh_Base * aMesh;
 
         // get number of dimensions from settings
-        auto tNumberOfDimensions =  aParameters->get_number_of_dimensions();
+        uint tNumberOfDimensions =  mParameters->get_number_of_dimensions();
 
         switch( tNumberOfDimensions )
         {
@@ -209,35 +212,35 @@ Background_Mesh_Base * Factory::create_background_mesh( const Parameters * aPara
             {
             case( 1 ):
             {
-                aMesh = new BSpline_Mesh< 2, 1 >( aParameters,
+                aMesh = new BSpline_Mesh< 2, 1 >( mParameters,
                                                   aBackgroundMesh,
                                                   aActivationPattern );
                 break;
             }
             case( 2 ):
             {
-                aMesh = new BSpline_Mesh< 2, 2 >( aParameters,
+                aMesh = new BSpline_Mesh< 2, 2 >( mParameters,
                                                   aBackgroundMesh,
                                                   aActivationPattern );
                 break;
             }
             case( 3 ):
             {
-                aMesh = new BSpline_Mesh< 2, 3 >( aParameters,
+                aMesh = new BSpline_Mesh< 2, 3 >( mParameters,
                                                   aBackgroundMesh,
                                                   aActivationPattern );
                 break;
             }
             case( 4 ):
             {
-                aMesh = new BSpline_Mesh< 2, 4 >( aParameters,
+                aMesh = new BSpline_Mesh< 2, 4 >( mParameters,
                                                   aBackgroundMesh,
                                                   aActivationPattern );
                 break;
             }
             case( 5 ):
             {
-                aMesh = new BSpline_Mesh< 2, 5 >( aParameters,
+                aMesh = new BSpline_Mesh< 2, 5 >( mParameters,
                                                   aBackgroundMesh,
                                                   aActivationPattern );
                 break;
@@ -258,35 +261,35 @@ Background_Mesh_Base * Factory::create_background_mesh( const Parameters * aPara
             {
             case( 1 ):
             {
-                aMesh = new BSpline_Mesh< 3, 1 >( aParameters,
+                aMesh = new BSpline_Mesh< 3, 1 >( mParameters,
                                                   aBackgroundMesh,
                                                   aActivationPattern );
                 break;
             }
             case( 2 ):
             {
-                aMesh = new BSpline_Mesh< 3, 2 >( aParameters,
+                aMesh = new BSpline_Mesh< 3, 2 >( mParameters,
                                                   aBackgroundMesh,
                                                   aActivationPattern );
                 break;
             }
             case( 3 ):
             {
-                aMesh = new BSpline_Mesh< 3, 3 >( aParameters,
+                aMesh = new BSpline_Mesh< 3, 3 >( mParameters,
                                                  aBackgroundMesh,
                                                  aActivationPattern );
                 break;
             }
             case( 4 ):
             {
-                aMesh = new BSpline_Mesh< 3, 4 >( aParameters,
+                aMesh = new BSpline_Mesh< 3, 4 >( mParameters,
                                                   aBackgroundMesh,
                                                   aActivationPattern );
                 break;
             }
             case( 5 ):
             {
-                aMesh = new BSpline_Mesh< 3, 5 >( aParameters,
+                aMesh = new BSpline_Mesh< 3, 5 >( mParameters,
                                                   aBackgroundMesh,
                                                   aActivationPattern );
                 break;
@@ -312,6 +315,5 @@ Background_Mesh_Base * Factory::create_background_mesh( const Parameters * aPara
        return aMesh;
     }
 
-//-------------------------------------------------------------------------------
-
-} /* namespace moris */
+    //-------------------------------------------------------------------------------
+}

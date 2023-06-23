@@ -48,7 +48,7 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh],[lagran
         SECTION("Lagrange Mesh 2D: test node uniqueness")
         {
             // create settings object
-            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+            auto tParameters = new Parameters;
 
             // pattern this mesh operates on
             uint tPattern = tParameters->get_lagrange_input_pattern();
@@ -65,10 +65,10 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh],[lagran
             tParameters->set_bspline_truncation( false );
 
             // create factory
-            moris::hmr::Factory tFactory;
+            Factory tFactory( tParameters );
 
             // create background mesh object
-            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
 
             // maximum level to refine to
             moris::uint tLevel = 3;
@@ -97,7 +97,7 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh],[lagran
             for ( uint p=1; p<=3; ++p )
             {
                 // create first order Lagrange mesh
-                moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh =  tFactory.create_lagrange_mesh( tParameters,
+                moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh =  tFactory.create_lagrange_mesh(
                         tBackgroundMesh,
                         tBSplineMeshes,
                         tPattern,
@@ -121,7 +121,7 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh],[lagran
         SECTION("Lagrange Mesh 3D: test node uniqueness")
         {
             // create settings object
-            moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+            auto tParameters = new Parameters;
 
             uint tPattern = tParameters->get_lagrange_input_pattern();
 
@@ -137,10 +137,10 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh],[lagran
             tParameters->set_bspline_truncation( false );
 
             // create factory
-            moris::hmr::Factory tFactory;
+            Factory tFactory( tParameters );
 
             // create background mesh object
-            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+            moris::hmr::Background_Mesh_Base* tBackgroundMesh = tFactory.create_background_mesh();
 
             // set active pattern of output mesh
             tBackgroundMesh->set_activation_pattern( tPattern );
@@ -169,7 +169,7 @@ TEST_CASE("HMR_Lagrange_Mesh", "[moris],[mesh],[hmr],[hmr_lagrange_mesh],[lagran
             for ( uint p=1; p<=3; ++p )
             {
                 // create first order Lagrange mesh
-                moris::hmr::Lagrange_Mesh_Base * tLagrangeMesh =  tFactory.create_lagrange_mesh( tParameters,
+                moris::hmr::Lagrange_Mesh_Base * tLagrangeMesh =  tFactory.create_lagrange_mesh(
                         tBackgroundMesh,
                         tBSplineMeshes,
                         tPattern,
@@ -531,7 +531,7 @@ TEST_CASE("Lagrange_Mesh_Pattern","[moris],[hmr],[Lagrange_Mesh_Pattern],[lagran
         moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
 
         // create settings object
-        moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+        auto tParameters = new Parameters;
 
         // set number of elements
         tParameters->set_number_of_elements_per_dimension( { {4}, {4} } );
@@ -544,10 +544,10 @@ TEST_CASE("Lagrange_Mesh_Pattern","[moris],[hmr],[Lagrange_Mesh_Pattern],[lagran
         tParameters->set_bspline_truncation( false );
 
         // create factory
-        moris::hmr::Factory tFactory;
+        Factory tFactory( tParameters );
 
         // create background mesh object
-        moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+        moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh();
 
         //----------------------------------------------------------------------------------------------------------
         // Work on activation pattern 0 mesh
@@ -582,19 +582,19 @@ TEST_CASE("Lagrange_Mesh_Pattern","[moris],[hmr],[Lagrange_Mesh_Pattern],[lagran
         tBackgroundMesh->set_activation_pattern( 3 );
 
         // create first order Lagrange mesh
-        moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh_1 =  tFactory.create_lagrange_mesh( tParameters,
+        moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh_1 =  tFactory.create_lagrange_mesh(
                 tBackgroundMesh,
                 tBSplineMeshes,
                 0,
                 1 );
         // create first order Lagrange mesh
-        moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh_2 =  tFactory.create_lagrange_mesh( tParameters,
+        moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh_2 =  tFactory.create_lagrange_mesh(
                 tBackgroundMesh,
                 tBSplineMeshes,
                 1,
                 1 );
         // create first order Lagrange mesh
-        moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh_3 =  tFactory.create_lagrange_mesh( tParameters,
+        moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh_3 =  tFactory.create_lagrange_mesh(
                 tBackgroundMesh,
                 tBSplineMeshes,
                 3,
@@ -666,7 +666,7 @@ TEST_CASE("Lagrange_Mesh_Pattern_2","[moris],[hmr],[Lagrange_Mesh_Pattern_2],[la
         moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
 
         // create settings object
-        moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+        auto tParameters = new Parameters;
 
         // set number of elements
         tParameters->set_number_of_elements_per_dimension( { {4}, {4} } );
@@ -679,10 +679,10 @@ TEST_CASE("Lagrange_Mesh_Pattern_2","[moris],[hmr],[Lagrange_Mesh_Pattern_2],[la
         tParameters->set_bspline_truncation( false );
 
         // create factory
-        moris::hmr::Factory tFactory;
+        Factory tFactory( tParameters );
 
         // create background mesh object
-        moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+        moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh();
 
         //----------------------------------------------------------------------------------------------------------
         // Work on activation pattern 0 mesh
@@ -700,13 +700,13 @@ TEST_CASE("Lagrange_Mesh_Pattern_2","[moris],[hmr],[Lagrange_Mesh_Pattern_2],[la
         tBackgroundMesh->perform_refinement( 1);
 
         // create first order Lagrange mesh
-        moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh_1 =  tFactory.create_lagrange_mesh( tParameters,
+        moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh_1 =  tFactory.create_lagrange_mesh(
                 tBackgroundMesh,
                 tBSplineMeshes,
                 0,
                 1 );
         // create first order Lagrange mesh
-        moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh_2 =  tFactory.create_lagrange_mesh( tParameters,
+        moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh_2 =  tFactory.create_lagrange_mesh(
                 tBackgroundMesh,
                 tBSplineMeshes,
                 1,
@@ -841,7 +841,7 @@ TEST_CASE("Lagrange_Mesh_Bounding_Box","[moris],[hmr],[lagrange_mesh_bounding_bo
         moris::Cell< moris::hmr::BSpline_Mesh_Base* > tBSplineMeshes;
 
         // create settings object
-        moris::hmr::Parameters * tParameters = new moris::hmr::Parameters;
+        auto tParameters = new Parameters;
 
         // set number of elements
         tParameters->set_number_of_elements_per_dimension( { {10}, {10} } );
@@ -855,10 +855,10 @@ TEST_CASE("Lagrange_Mesh_Bounding_Box","[moris],[hmr],[lagrange_mesh_bounding_bo
         tParameters->set_bspline_truncation( false );
 
         // create factory
-        moris::hmr::Factory tFactory;
+        Factory tFactory( tParameters );
 
         // create background mesh object
-        moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh( tParameters );
+        moris::hmr::Background_Mesh_Base * tBackgroundMesh = tFactory.create_background_mesh();
 
         //----------------------------------------------------------------------------------------------------------
         // Work on activation pattern 0 mesh
@@ -872,7 +872,7 @@ TEST_CASE("Lagrange_Mesh_Bounding_Box","[moris],[hmr],[lagrange_mesh_bounding_bo
         tBackgroundMesh->perform_refinement( 0 );
 
         // create first order Lagrange mesh
-        moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh =  tFactory.create_lagrange_mesh( tParameters,
+        moris::hmr::Lagrange_Mesh_Base* tLagrangeMesh =  tFactory.create_lagrange_mesh(
                 tBackgroundMesh,
                 tBSplineMeshes,
                 0,
