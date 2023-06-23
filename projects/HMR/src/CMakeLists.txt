@@ -77,6 +77,7 @@ set(HEADERS
     cl_HMR_Side_Set.hpp
     cl_HMR_State.hpp
     cl_HMR_STK.hpp
+    cl_HMR_T_Matrix_Base.hpp
     cl_HMR_T_Matrix.hpp
     cl_HMR_T_Matrix_2.hpp
     cl_HMR.hpp
@@ -121,8 +122,7 @@ set(LIB_SOURCES
     cl_HMR_Parameters.cpp
     cl_HMR_Paramfile.cpp
     cl_HMR_STK.cpp
-    cl_HMR_T_Matrix.cpp
-    cl_HMR_T_Matrix_2.cpp
+    cl_HMR_T_Matrix_Base.cpp
     cl_HMR_Cell_Cluster.cpp
     cl_HMR_Side_Cluster.cpp
    )

@@ -181,14 +181,6 @@ namespace moris::hmr
             // -----------------------------------------------------------------------------
 
             /**
-             * Returns the pointer to a T-Matrix object.
-             * Needed by Field constructor.
-             */
-            T_Matrix * get_t_matrix( uint aLagrangeMeshIndex );
-
-            // -----------------------------------------------------------------------------
-
-            /**
              * returns the pointer to a Lagrange mesh, needed by interface
              * constructor
              */

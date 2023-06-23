@@ -1147,9 +1147,19 @@ namespace moris::hmr
         // containers for source and target data
         Matrix< DDRMat > tElementSourceData( tNumberOfNodesPerElement, aSource->get_number_of_dimensions() );
 
-        T_Matrix* tTMatrix = new T_Matrix(
-                mParameters,
-                tTargetMesh );
+        // Create T-matrix
+        T_Matrix_Base* tTMatrix;
+        switch ( mParameters->get_number_of_dimensions() )
+        {
+            case 2:
+                tTMatrix = new T_Matrix< 2 >( mParameters, tTargetMesh );
+                break;
+            case 3:
+                tTMatrix = new T_Matrix< 3 >( mParameters, tTargetMesh );
+                break;
+            default:
+                MORIS_ERROR( false, "Number of dimensions not known." );
+        }
 
         // loop over all elements
         for ( luint e = 0; e < tNumberOfElements; ++e )
@@ -1243,9 +1253,19 @@ namespace moris::hmr
         // get number of elements
         uint tNumberOfElements = tSourceMesh->get_number_of_elements();
 
-        // create t-matrix object
-        T_Matrix* tTMatrix = new T_Matrix( mParameters,
-                tSourceMesh );
+        // create T-matrix object
+        T_Matrix_Base* tTMatrix;
+        switch ( mParameters->get_number_of_dimensions() )
+        {
+            case 2:
+                tTMatrix = new T_Matrix< 2 >( mParameters, tSourceMesh );
+                break;
+            case 3:
+                tTMatrix = new T_Matrix< 3 >( mParameters, tSourceMesh );
+                break;
+            default:
+                MORIS_ERROR( false, "Number of dimensions not known." );
+        }
 
         uint             tTargetMeshOrder = tTargetMesh->get_order();
         Matrix< DDRMat > tT               = tTMatrix->get_change_order_matrix( tTargetMeshOrder );
@@ -1302,8 +1322,6 @@ namespace moris::hmr
         if ( par_size() > 1 )
         {
             tic tTimer;
-
-            uint tCount = 0;
 
             // loop over all Lagrange meshes
             for ( Lagrange_Mesh_Base* tMesh : mLagrangeMeshes )
@@ -1363,8 +1381,6 @@ namespace moris::hmr
                             tID,
                             k );
                 }
-
-                ++tCount;
             }
 
             // loop over all B-Spline meshes

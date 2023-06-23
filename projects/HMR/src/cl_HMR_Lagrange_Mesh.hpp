@@ -28,6 +28,8 @@
 #include "cl_HMR_Lagrange_Facet_Quad9.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
+#include "cl_HMR_T_Matrix.hpp"
+#include "cl_HMR_T_Matrix_2.hpp"
 #include "HMR_Globals.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Stopwatch.hpp" //CHR/src
@@ -36,350 +38,438 @@
 
 namespace moris::hmr
 {
-// ----------------------------------------------------------------------------
-
-/**
- * \brief the Lagrange_Mesh class calculates Lagrange nodes for a given
- *  background mesh.
- *
- */
-template< uint N, uint P >
-class Lagrange_Mesh : public Lagrange_Mesh_Base
-{
-    //! Lookup table containing offset for node IDs
-    luint mNodeLevelOffset[ gMaxNumberOfLevels ];
-
-    //! Lookup table containing number of elements per dimension for each level
-    luint mNumberOfElementsPerDimensionIncludingAura[ gMaxNumberOfLevels ][ N ];
-
-    //! Lookup table for node IDs
-    luint mMySubdomainOffset[ gMaxNumberOfLevels ][ N ];
-
-// ----------------------------------------------------------------------------
-public:
-// ----------------------------------------------------------------------------
-
     /**
-     * Constructor for Lagrange Mesh
+     * Lagrange mesh class
      *
-     * @param[in] aParameters       ref to container of user defined settings
-     * @param[in] aBackgroundMesh pointer to background mesh
-     *
+     * @tparam N Number of dimensions
+     * @tparam P Polynomial order
      */
-    inline
-    Lagrange_Mesh( const Parameters           * aParameters,
-                   Background_Mesh_Base       * aBackgroundMesh,
-                   Cell< BSpline_Mesh_Base* > & aBSplineMeshes,
-                   uint aActivationPattern ) : Lagrange_Mesh_Base( aParameters,
-                                                                                           aBackgroundMesh,
-                                                                                           aBSplineMeshes,
-                                                                                           P,
-                                                                                           aActivationPattern )
+    template< uint N, uint P >
+    class Lagrange_Mesh : public Lagrange_Mesh_Base
     {
-        // ask background mesh for number of elements per ijk-direction
-        this->get_number_of_elements_per_dimension();
+        //! Lookup table containing offset for node IDs
+        luint mNodeLevelOffset[ gMaxNumberOfLevels ];
 
-        // calculate lookup table mNodeLevelOffset
-        this->calculate_level_offset();
+        //! Lookup table containing number of elements per dimension for each level
+        luint mNumberOfElementsPerDimensionIncludingAura[ gMaxNumberOfLevels ][ N ];
 
-        // find out coordinate of first point on proc subdomain
-        this->calculate_subdomain_offset();
+        //! Lookup table for node IDs
+        luint mMySubdomainOffset[ gMaxNumberOfLevels ][ N ];
 
-        // calculate any value that can change after refinement
-        this->update_mesh();
+        //! calculation object that calculates the T-Matrices
+        Cell< T_Matrix< N >* > mTMatrix;
 
-        this->init_t_matrices();
-    }
+    public:
 
-// ----------------------------------------------------------------------------
-
-    /**
-     * Default destructor.
-     */
-    inline
-    ~Lagrange_Mesh()
-    {
-       this->delete_t_matrices();
-       this->delete_pointers();
-
-       this->delete_facets();
-
-       if( mParameters->get_number_of_dimensions() == 3 )
-       {
-           this->delete_edges();
-       }
-
-       this->delete_t_matrix_lagrange_mesh();
-    }
-
-// ----------------------------------------------------------------------------
-
-    /**
-     * Creates a Lagrange element and links it to corresponding element
-     * on background mesh.
-     *
-     * @param[in] aElement  pointer to element on background mesh
-     *
-     * @return Element*  new Lagrange element
-     */
-    Element * create_element( Background_Element_Base* aElement );
-
-// ----------------------------------------------------------------------------
-protected:
-// ----------------------------------------------------------------------------
-
-    Facet * create_facet( Background_Facet * aFacet );
-
-// ----------------------------------------------------------------------------
-
-    Edge * create_edge( Background_Edge * aEdge );
-
-// ----------------------------------------------------------------------------
-private:
-// ----------------------------------------------------------------------------
-
-    /**
-     * calculates domain wide unique node ID (1D case)
-     * Useful for debugging.
-     *
-     * @param[in]  aLevel    level of node
-     * @param[in]  aI        proc local i-position of node
-     * @return uint          domain wide unique ID
-     */
-    inline
-    luint calculate_node_id( uint aLevel,
-                             luint aI )
-    {
-        if( aLevel < gMaxNumberOfLevels && N == 1 )
+        /**
+         * Constructor for Lagrange Mesh
+         *
+         * @param[in] aParameters       ref to container of user defined settings
+         * @param[in] aBackgroundMesh pointer to background mesh
+         *
+         */
+        Lagrange_Mesh( const Parameters           * aParameters,
+                       Background_Mesh_Base       * aBackgroundMesh,
+                       Cell< BSpline_Mesh_Base* > & aBSplineMeshes,
+                       uint aActivationPattern )
+              : Lagrange_Mesh_Base( aParameters,
+                      aBackgroundMesh,
+                      aBSplineMeshes,
+                      P,
+                      aActivationPattern )
         {
-            return  aI + mMySubdomainOffset[ aLevel ][ 0 ]
-                       + mNodeLevelOffset[ aLevel ];
+            // ask background mesh for number of elements per ijk-direction
+            this->get_number_of_elements_per_dimension();
+
+            // calculate lookup table mNodeLevelOffset
+            this->calculate_level_offset();
+
+            // find out coordinate of first point on proc subdomain
+            this->calculate_subdomain_offset();
+
+            // calculate any value that can change after refinement
+            this->update_mesh();
+
+            // Initialize T-matrices
+            this->init_t_matrices();
         }
-        else
+
+    // ----------------------------------------------------------------------------
+
+        /**
+         * Default destructor.
+         */
+        ~Lagrange_Mesh()
         {
-            return gNoEntityID;
+           this->delete_t_matrices();
+           this->delete_pointers();
+           this->delete_facets();
+
+           if( N == 3 )
+           {
+               this->delete_edges();
+           }
+
+           this->delete_t_matrix_lagrange_mesh();
         }
-    }
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+    // ----------------------------------------------------------------------------
 
-    /**
-     * calculates domain wide unique node ID (2D case)
-     * Useful for debugging.
-     *
-     * @param[in]  aLevel    level of node
-     * @param[in]  aI        proc local i-position of node
-     * @param[in]  aJ        proc local j-position of node
-     * @return uint          domain wide unique ID
-     */
-    inline
-    luint
-    calculate_node_id(
-            uint aLevel,
-            luint aI,
-            luint aJ )
-    {
-        if( aLevel < gMaxNumberOfLevels && N == 2 )
+        /**
+         * Creates a Lagrange element and links it to corresponding element
+         * on background mesh.
+         *
+         * @param[in] aElement  pointer to element on background mesh
+         *
+         * @return Element*  new Lagrange element
+         */
+        Element * create_element( Background_Element_Base* aElement );
+
+    protected:
+
+        Facet * create_facet( Background_Facet * aFacet );
+
+
+        Edge * create_edge( Background_Edge * aEdge );
+
+    private:
+
+        /**
+         * Initializes T-matrices
+         */
+        void init_t_matrices()
         {
-            return  aI + mMySubdomainOffset[ aLevel ][ 0 ]
-                    + ( aJ + mMySubdomainOffset[ aLevel ][ 1 ] )
-                    *( P*mNumberOfElementsPerDimensionIncludingAura[ aLevel ][ 0 ] + 1)
-                    + mNodeLevelOffset[ aLevel ];
-        }
-        else
-        {
-            return gNoEntityID;
-        }
-    }
+            // Resize for T-matrices
+            mTMatrix.resize( mNumBSplineMeshes, nullptr );
+            mLagrangeMeshForTMatrix.resize( mNumBSplineMeshes, nullptr );
 
-// - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    /**
-     * calculates domain wide unique node ID (3D case)
-     * Useful for debugging.
-     *
-     * @param[in]  aLevel    level of node
-     * @param[in]  aI        proc local i-position of node
-     * @param[in]  aJ        proc local j-position of node
-     * @param[in]  aK        proc local k-position of node
-     * @return uint          domain wide unique ID
-     */
-    inline
-    luint
-    calculate_node_id(
-            uint aLevel,
-            luint aI,
-            luint aJ,
-            luint aK )
-    {
-        if( aLevel < gMaxNumberOfLevels && N == 3 )
-        {
-            return  aI + mMySubdomainOffset[ aLevel ][ 0 ]
-                    + ( P*mNumberOfElementsPerDimensionIncludingAura[ aLevel ][ 0 ] + 1)
-                    * ( ( aJ + mMySubdomainOffset[ aLevel ][ 1 ] )
-                    + (aK + mMySubdomainOffset[ aLevel ][ 2 ] ) * ( P*
-                      mNumberOfElementsPerDimensionIncludingAura[ aLevel ][ 1 ] + 1) )
-                    + mNodeLevelOffset[ aLevel ];
-        }
-        else
-        {
-            return gNoEntityID;
-        }
-    }
-
-// ----------------------------------------------------------------------------
-
-    /**
-     * Internal function. Asks the background mesh for number of elements
-     * per direction, stores result in  mAuraNumberOfElementsPerDimension
-     *
-     * @return void
-     *
-     */
-    inline
-    void
-    get_number_of_elements_per_dimension()
-    {
-        // get elements per level from background mesh
-        Matrix< DDLUMat > tMat =
-            mBackgroundMesh->get_number_of_elements_per_direction();
-
-        // convert matrix to fixed size array
-        for( uint l=0; l<gMaxNumberOfLevels; ++l )
-        {
-            for( uint k=0; k<N; ++k )
+            for( uint Ik = 0; Ik < mNumBSplineMeshes; Ik++ )
             {
-                mNumberOfElementsPerDimensionIncludingAura[ l ][ k ]
-                    = tMat( k, l );
+                BSpline_Mesh_Base * tMesh = mBSplineMeshes( Ik );
+
+                if ( tMesh != nullptr )
+                {
+                    uint tBSplineOrder = tMesh->get_order();
+
+                    if( P < tBSplineOrder and mParameters->use_advanced_t_matrices() )
+                    {
+                        // create factory object
+                        Factory tFactory;
+
+                        mLagrangeMeshForTMatrix( Ik ) = tFactory.create_lagrange_mesh(
+                                mParameters,
+                                mBackgroundMesh,
+                                mBSplineMeshes,
+                                this->get_activation_pattern(),
+                                tBSplineOrder );
+
+                        mTMatrix( Ik ) = new T_Matrix_2< N >(
+                                mParameters,
+                                tMesh,
+                                mLagrangeMeshForTMatrix( Ik ),
+                                this );
+                    }
+                    else
+                    {
+                        mTMatrix( Ik ) = new T_Matrix< N >( mParameters,
+                                tMesh,
+                                this );
+                    }
+                }
+                else
+                {
+                    // trivial case when all t-matrix weights are 1
+                    mTMatrix( Ik ) = new T_Matrix< N >( mParameters,
+                            this );
+                }
             }
         }
 
-    }
-
-// ----------------------------------------------------------------------------
-
-    /**
-     *  Private function, creates the mNodeLevelOffset lookup table.
-     *
-     *  @return void
-     */
-    inline
-    void calculate_level_offset()
-    {
-        // calculate node level offset
-        mNodeLevelOffset[ 0 ] = 0;
-
-        for( uint l=1; l<gMaxNumberOfLevels; ++l )
+        /**
+         * calculates domain wide unique node ID (1D case)
+         * Useful for debugging.
+         *
+         * @param[in]  aLevel    level of node
+         * @param[in]  aI        proc local i-position of node
+         * @return uint          domain wide unique ID
+         */
+        luint calculate_node_id( uint aLevel,
+                                 luint aI )
         {
-            // calculate number of nodes on this level
-            luint tNumberOfNodes = 1;
-            for( uint k=0; k<N; ++k )
+            if( aLevel < gMaxNumberOfLevels && N == 1 )
             {
-                tNumberOfNodes *= P * mNumberOfElementsPerDimensionIncludingAura[ l-1 ][ k ] + 1;
+                return  aI + mMySubdomainOffset[ aLevel ][ 0 ]
+                           + mNodeLevelOffset[ aLevel ];
             }
-
-            // add number of nodes to offset table
-            mNodeLevelOffset[ l ] = mNodeLevelOffset[ l-1 ] + tNumberOfNodes;
-        }
-    }
-
-// ----------------------------------------------------------------------------
-
-    /**
-     * Private function calculates the mMySubdomainOffset lookup table
-     *
-     * @return void
-     */
-    inline
-    void calculate_subdomain_offset()
-    {
-        Matrix< DDLUMat > tIJK = mBackgroundMesh->get_subdomain_offset_of_proc();
-
-        for( uint l=0; l<gMaxNumberOfLevels; ++l )
-        {
-            for( uint k=0; k<N; ++k )
+            else
             {
-                mMySubdomainOffset[ l ][ k ] = P * tIJK( k, l );
+                return gNoEntityID;
             }
         }
-    }
 
-// ----------------------------------------------------------------------------
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-     /**
-      * calculates XZY coordinates for each node
-      *
-      * @return void
-      */
-     inline
-     void calculate_node_coordinates()
-     {
-         // get domain dimensions from settings
-         Matrix< DDRMat > tDomainDimensions = mParameters->get_domain_dimensions();
+        /**
+         * calculates domain wide unique node ID (2D case)
+         * Useful for debugging.
+         *
+         * @param[in]  aLevel    level of node
+         * @param[in]  aI        proc local i-position of node
+         * @param[in]  aJ        proc local j-position of node
+         * @return uint          domain wide unique ID
+         */
+        luint calculate_node_id(
+                uint aLevel,
+                luint aI,
+                luint aJ )
+        {
+            if( aLevel < gMaxNumberOfLevels && N == 2 )
+            {
+                return  aI + mMySubdomainOffset[ aLevel ][ 0 ]
+                        + ( aJ + mMySubdomainOffset[ aLevel ][ 1 ] )
+                        *( P*mNumberOfElementsPerDimensionIncludingAura[ aLevel ][ 0 ] + 1)
+                        + mNodeLevelOffset[ aLevel ];
+            }
+            else
+            {
+                return gNoEntityID;
+            }
+        }
 
-         // get number of elements on coarsest level from settings
-         Matrix< DDLUMat > tNumberOfElements = mParameters->get_number_of_elements_per_dimension();
+    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-         // calculate step width
-         real tDeltaX[ gMaxNumberOfLevels ][ N ];
+        /**
+         * calculates domain wide unique node ID (3D case)
+         * Useful for debugging.
+         *
+         * @param[in]  aLevel    level of node
+         * @param[in]  aI        proc local i-position of node
+         * @param[in]  aJ        proc local j-position of node
+         * @param[in]  aK        proc local k-position of node
+         * @return uint          domain wide unique ID
+         */
+        luint calculate_node_id(
+                uint aLevel,
+                luint aI,
+                luint aJ,
+                luint aK )
+        {
+            if( aLevel < gMaxNumberOfLevels && N == 3 )
+            {
+                return  aI + mMySubdomainOffset[ aLevel ][ 0 ]
+                        + ( P * mNumberOfElementsPerDimensionIncludingAura[ aLevel ][ 0 ] + 1 )
+                        * ( ( aJ + mMySubdomainOffset[ aLevel ][ 1 ] )
+                        + (aK + mMySubdomainOffset[ aLevel ][ 2 ] )
+                        * ( P * mNumberOfElementsPerDimensionIncludingAura[ aLevel ][ 1 ] + 1) )
+                        + mNodeLevelOffset[ aLevel ];
+            }
+            else
+            {
+                return gNoEntityID;
+            }
+        }
 
-         // calculate width for first level
-         for( uint k=0; k<N; ++k )
+    // ----------------------------------------------------------------------------
+
+        /**
+         * Internal function. Asks the background mesh for number of elements
+         * per direction, stores result in  mAuraNumberOfElementsPerDimension
+         *
+         * @return void
+         *
+         */
+        void get_number_of_elements_per_dimension()
+        {
+            // get elements per level from background mesh
+            Matrix< DDLUMat > tMat =
+                mBackgroundMesh->get_number_of_elements_per_direction();
+
+            // convert matrix to fixed size array
+            for( uint l=0; l<gMaxNumberOfLevels; ++l )
+            {
+                for( uint k=0; k<N; ++k )
+                {
+                    mNumberOfElementsPerDimensionIncludingAura[ l ][ k ]
+                        = tMat( k, l );
+                }
+            }
+
+        }
+
+    // ----------------------------------------------------------------------------
+
+        /**
+         *  Private function, creates the mNodeLevelOffset lookup table.
+         *
+         *  @return void
+         */
+        void calculate_level_offset()
+        {
+            // calculate node level offset
+            mNodeLevelOffset[ 0 ] = 0;
+
+            for( uint l=1; l<gMaxNumberOfLevels; ++l )
+            {
+                // calculate number of nodes on this level
+                luint tNumberOfNodes = 1;
+                for( uint k=0; k<N; ++k )
+                {
+                    tNumberOfNodes *= P * mNumberOfElementsPerDimensionIncludingAura[ l-1 ][ k ] + 1;
+                }
+
+                // add number of nodes to offset table
+                mNodeLevelOffset[ l ] = mNodeLevelOffset[ l-1 ] + tNumberOfNodes;
+            }
+        }
+
+    // ----------------------------------------------------------------------------
+
+        /**
+         * Private function calculates the mMySubdomainOffset lookup table
+         *
+         * @return void
+         */
+        void calculate_subdomain_offset()
+        {
+            Matrix< DDLUMat > tIJK = mBackgroundMesh->get_subdomain_offset_of_proc();
+
+            for( uint l=0; l<gMaxNumberOfLevels; ++l )
+            {
+                for( uint k=0; k<N; ++k )
+                {
+                    mMySubdomainOffset[ l ][ k ] = P * tIJK( k, l );
+                }
+            }
+        }
+
+    // ----------------------------------------------------------------------------
+
+         /**
+          * calculates XZY coordinates for each node
+          *
+          * @return void
+          */
+         void calculate_node_coordinates()
          {
-             tDeltaX[ 0 ][ k ] = tDomainDimensions( k ) / ( ( real ) ( P * tNumberOfElements( k ) ) );
-         }
+             // get domain dimensions from settings
+             Matrix< DDRMat > tDomainDimensions = mParameters->get_domain_dimensions();
 
-         // loop over all higher levels
-         for( uint l=1; l<gMaxNumberOfLevels; ++l )
-         {
+             // get number of elements on coarsest level from settings
+             Matrix< DDLUMat > tNumberOfElements = mParameters->get_number_of_elements_per_dimension();
+
+             // calculate step width
+             real tDeltaX[ gMaxNumberOfLevels ][ N ];
+
+             // calculate width for first level
              for( uint k=0; k<N; ++k )
              {
-                 tDeltaX[ l ][ k ] = 0.5*tDeltaX[ l-1 ][ k ];
+                 tDeltaX[ 0 ][ k ] = tDomainDimensions( k ) / ( ( real ) ( P * tNumberOfElements( k ) ) );
+             }
+
+             // loop over all higher levels
+             for( uint l=1; l<gMaxNumberOfLevels; ++l )
+             {
+                 for( uint k=0; k<N; ++k )
+                 {
+                     tDeltaX[ l ][ k ] = 0.5*tDeltaX[ l-1 ][ k ];
+                 }
+             }
+
+             // get domain offset
+             Matrix< DDRMat > tParametersOffset = mParameters->get_domain_offset();
+
+             // domain offset
+             real tOffset[ N ];
+
+             // get coords from background mesh
+             Matrix< DDRMat > tOffsetCoords = mBackgroundMesh->get_domain_offset();
+
+             // unflatten coords to a normal array
+             for( uint k=0; k<N; ++k )
+             {
+                 tOffset[ k ] = tOffsetCoords( k );
+             }
+
+             // loop over all nodes
+             for( auto tNode : mAllBasisOnProc )
+             {
+                 // get ijk position of node
+                 const luint* tIJK = tNode->get_ijk();
+
+                 // get level of node
+                 luint tLevel = tNode->get_level();
+
+                 // array containing coordinate
+                 real tXYZ[ N ];
+
+                 // loop over all dimensions
+                 for( uint k=0; k<N; ++k )
+                 {
+                     tXYZ[ k ] = ( ( real ) ( tIJK[ k ]
+                                  + mMySubdomainOffset[ tLevel ][ k ] ) )
+                                  * tDeltaX[ tLevel ][ k ] + tOffset[ k ];
+                 }
+
+                 // write XYZ coordinate into node
+                 tNode->set_xyz( tXYZ );
              }
          }
 
-         // get domain offset
-         Matrix< DDRMat > tParametersOffset = mParameters->get_domain_offset();
+         // ----------------------------------------------------------------------------
 
-         // domain offset
-         real tOffset[ N ];
-
-         // get coords from background mesh
-         Matrix< DDRMat > tOffsetCoords = mBackgroundMesh->get_domain_offset();
-
-         // unflatten coords to a normal array
-         for( uint k=0; k<N; ++k )
+         void delete_t_matrices()
          {
-             tOffset[ k ] = tOffsetCoords( k );
-         }
-
-         // loop over all nodes
-         for( auto tNode : mAllBasisOnProc )
-         {
-             // get ijk position of node
-             const luint* tIJK = tNode->get_ijk();
-
-             // get level of node
-             luint tLevel = tNode->get_level();
-
-             // array containing coordinate
-             real tXYZ[ N ];
-
-             // loop over all dimensions
-             for( uint k=0; k<N; ++k )
+             for ( T_Matrix< N >*  tTMatrix : mTMatrix )
              {
-                 tXYZ[ k ] = ( ( real ) ( tIJK[ k ]
-                              + mMySubdomainOffset[ tLevel ][ k ] ) )
-                              * tDeltaX[ tLevel ][ k ] + tOffset[ k ];
+                 delete tTMatrix;
              }
-
-             // write XYZ coordinate into node
-             tNode->set_xyz( tXYZ );
          }
-     }
 
-// ----------------------------------------------------------------------------
-};
+        // ----------------------------------------------------------------------------
+
+        void calculate_t_matrices( const bool aBool )
+        {
+            tic tTimer;
+
+            for( uint Ik = 0; Ik < mNumBSplineMeshes; Ik++ )
+            {
+                BSpline_Mesh_Base * tMesh = mBSplineMeshes( Ik );
+
+                if( tMesh != nullptr )
+                {
+                    uint tBSplineOrder = tMesh->get_order();
+
+                    if( P < tBSplineOrder and mParameters->use_advanced_t_matrices() )
+                    {
+                        MORIS_ERROR( mLagrangeMeshForTMatrix( Ik ) != nullptr,
+                                     "Lagrange_Mesh_Base::calculate_t_matrices(), Higher order Lagrange mesh for T-Matrices does not exist." );
+
+                        mLagrangeMeshForTMatrix( Ik )->update_mesh();
+                    }
+
+                    mTMatrix( Ik )->evaluate( Ik, aBool );
+                }
+                else
+                {
+                    mTMatrix( Ik )->evaluate_trivial( Ik, aBool );
+                }
+            }
+
+            this->delete_t_matrix_lagrange_mesh();
+
+            // stop timer
+            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
+
+            // Log output
+            MORIS_LOG_INFO( "%s Created T-Matrices for Lagrange Mesh of order %u on pattern %u.",
+                            proc_string().c_str(),
+                            ( unsigned int ) mOrder,
+                            ( unsigned int ) mActivationPattern );
+            MORIS_LOG_INFO( "Creation took %5.3f seconds.",
+                            ( double ) tElapsedTime / 1000 );
+            MORIS_LOG_INFO( " " );
+        }
+    };
 // ----------------------------------------------------------------------------
 
     template < uint N, uint P >

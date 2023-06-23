@@ -53,11 +53,6 @@ namespace moris::hmr
         mNumBSplineMeshes = mBSplineMeshes.size();
 
         this->check_if_bspline_mesh_is_trivial_interpolation();
-
-        // allocate T-Matrix cell
-        //            mTMatrix.resize( gMaxBSplineOrder+1, nullptr );
-        mTMatrix.resize( mBSplineMeshes.size(), nullptr );
-
         this->reset_fields();
     }
 
@@ -3633,156 +3628,13 @@ namespace moris::hmr
         // stop timer
         real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
 
-        // print output
-        //            MORIS_LOG_INFO( "%s Saved coefficients to binary file:\n               %s.\n               Saving took %5.3f seconds.\n\n",
-        //                    proc_string().c_str(),
-        //                    tFilePath.c_str(),
-        //                    ( double ) tElapsedTime / 1000 );
-
+        // Log output
         MORIS_LOG_INFO( "%s Saved coefficients to binary file:  %s.",
                 proc_string().c_str(),
                 tFilePath.c_str());
         MORIS_LOG_INFO( "Saving took %5.3f seconds.",
                 ( double ) tElapsedTime / 1000 );
         MORIS_LOG_INFO( " " );
-    }
-
-    //------------------------------------------------------------------------------
-
-    void Lagrange_Mesh_Base::init_t_matrices()
-    {
-        mLagrangeMeshForTMatrix.resize( mNumBSplineMeshes, nullptr );
-
-        for( uint Ik = 0; Ik < mNumBSplineMeshes; Ik++ )
-        {
-            BSpline_Mesh_Base * tMesh = mBSplineMeshes( Ik );
-
-            if( tMesh != nullptr )
-            {
-                uint tLagrangeOrder = this->get_order();
-                uint tBSplineOrder = tMesh->get_order();
-
-                if( tLagrangeOrder < tBSplineOrder and mParameters->use_advanced_t_matrices() )
-                {
-                    // create factory object
-                    Factory tFactory;
-
-                    mLagrangeMeshForTMatrix( Ik ) = tFactory.create_lagrange_mesh(
-                            mParameters,
-                            mBackgroundMesh,
-                            mBSplineMeshes,
-                            this->get_activation_pattern(),
-                            tBSplineOrder );
-
-                    mTMatrix( Ik ) = new T_Matrix_2(
-                            mParameters,
-                            tMesh,
-                            mLagrangeMeshForTMatrix( Ik ),
-                            this );
-                }
-                else
-                {
-                    mTMatrix( Ik ) = new T_Matrix( mParameters,
-                            tMesh,
-                            this );
-                }
-            }
-            else
-            {
-                // trivial case when all t-matix weights are 1
-                mTMatrix( Ik ) = new T_Matrix( mParameters,
-                        this );
-            }
-        }
-    }
-
-    //------------------------------------------------------------------------------
-
-    void Lagrange_Mesh_Base::calculate_t_matrices( const bool aBool )
-    {
-        tic tTimer;
-
-        for( uint Ik = 0; Ik < mNumBSplineMeshes; Ik++ )
-        {
-            BSpline_Mesh_Base * tMesh = mBSplineMeshes( Ik );
-
-            if( tMesh != nullptr )
-            {
-                uint tLagrangeOrder = this->get_order();
-                uint tBSplineOrder = tMesh->get_order();
-
-                if( tLagrangeOrder < tBSplineOrder and mParameters->use_advanced_t_matrices() )
-                {
-                    MORIS_ERROR( mLagrangeMeshForTMatrix( Ik ) != nullptr,
-                            "Lagrange_Mesh_Base::calculate_t_matrices(), Higher order Lagrange mesh for T-Matrices does not exist." );
-
-                    mLagrangeMeshForTMatrix( Ik )->update_mesh();
-                }
-
-                mTMatrix( Ik )->evaluate( Ik, aBool );
-            }
-            else
-            {
-                mTMatrix( Ik )->evaluate_trivial( Ik, aBool );
-            }
-        }
-
-        this->delete_t_matrix_lagrange_mesh();
-
-        // stop timer
-        real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
-
-        //            MORIS_LOG_INFO( "%s Created T-Matrices for Lagrange Mesh of order %u on pattern %u.\n               Creation took %5.3f seconds.\n\n",
-        //                    proc_string().c_str(),
-        //                    ( unsigned int ) mOrder,
-        //                    ( unsigned int ) mActivationPattern,
-        //                    ( double ) tElapsedTime / 1000 );
-
-        MORIS_LOG_INFO( "%s Created T-Matrices for Lagrange Mesh of order %u on pattern %u.",
-                proc_string().c_str(),
-                ( unsigned int ) mOrder,
-                ( unsigned int ) mActivationPattern );
-        MORIS_LOG_INFO( "Creation took %5.3f seconds.",
-                ( double ) tElapsedTime / 1000 );
-        MORIS_LOG_INFO( " " );
-    }
-
-    //------------------------------------------------------------------------------
-
-    void Lagrange_Mesh_Base::calculate_t_matrix( const uint aBSplineMeshIndex )
-    {
-        MORIS_ASSERT( mBSplineMeshes( aBSplineMeshIndex ) != nullptr, "B-Spline Mesh does not exist" );
-
-        // create matrix object if it does not exist
-        if( mTMatrix( aBSplineMeshIndex ) == nullptr )
-        {
-            // get pointer to mesh
-            BSpline_Mesh_Base * tMesh = mBSplineMeshes( aBSplineMeshIndex  );
-
-            mTMatrix( aBSplineMeshIndex ) = new T_Matrix( mParameters,
-                    tMesh,
-                    this );
-        }
-
-        std::cout << "Evaluate T-Matrix" << std::endl;
-
-        // evaluate the T-Matrices of this B-Spline mesh
-        mTMatrix( aBSplineMeshIndex )->evaluate( aBSplineMeshIndex );
-
-        std::cout << "End evaluate T-Matrix" << std::endl;
-    }
-
-    //------------------------------------------------------------------------------
-
-    void Lagrange_Mesh_Base::delete_t_matrices()
-    {
-        for( T_Matrix *  tTMatrix : mTMatrix )
-        {
-            if( tTMatrix != nullptr )
-            {
-                delete tTMatrix;
-            }
-        }
     }
 
     //------------------------------------------------------------------------------
@@ -4229,25 +4081,6 @@ namespace moris::hmr
             aCells( Ik ) = this->get_element_by_memory_index( tMemoryIndex );
         }
     }
-
-    //------------------------------------------------------------------------------
-
-    /*Matrix< IndexMat > &
-    Lagrange_Mesh_Base::get_side_set_ids( const std::string & aLabel )
-    {
-        // get number of sets
-        uint tNumberOfSets = this->get_number_of_side_sets();
-
-        for( uint k=0; k<tNumberOfSets; ++k )
-        {
-            Side_Set & tSet = *mSideSets( k );
-            if( aLabel == tSet.mInfo.mSideSetName )
-            {
-                return tSet.mElemIndices;
-            }
-        }
-        MORIS_ERROR( false, "HMR: side set not found on mesh" );
-    } */
 
     //------------------------------------------------------------------------------
 
