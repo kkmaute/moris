@@ -666,6 +666,19 @@ namespace xtk
         }
 
         // ----------------------------------------------------------------------------------
+
+        bool
+        spg_exists_on_partition( moris_id aSubphaseGroupId ) const
+        {
+            // find ID in map
+            auto tIter = mSpgIdToIndexMap.find( aSubphaseGroupId );
+
+            // return true if ID was found , otherwise return false, i.e. SPG does not exist in the map
+            return  tIter != mSpgIdToIndexMap.end(); 
+
+        }
+
+        // ----------------------------------------------------------------------------------
     };
 
     // ----------------------------------------------------------------------------------
