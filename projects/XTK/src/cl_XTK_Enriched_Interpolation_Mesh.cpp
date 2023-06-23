@@ -28,6 +28,7 @@ namespace xtk
             , mNumVerts( 0 )
             , mNumVertsPerInterpCell( MORIS_UINT_MAX )
             , mCellInfo( nullptr )
+            ,mFieldLabelToIndex( 2 )
     {
     }
 
@@ -3344,8 +3345,6 @@ namespace xtk
     void
     Enriched_Interpolation_Mesh::write_mesh( moris::ParameterList* aParamList )
     {
-        mFieldLabelToIndex.resize( 2 );
-
         this->create_set_names();
 
         // get path to output XTK files to
