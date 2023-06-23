@@ -823,7 +823,7 @@ namespace xtk
         // Fields constructed here
         Cell< std::string > tCellFields = { "cell_id" };
 
-        moris_index tFieldIndex = this->create_field( tCellFields( 0 ), EntityRank::ELEMENT );
+        moris_index tFieldIndex = this->create_field( tCellFields( 0 ), EntityRank::ELEMENT, MORIS_INDEX_MAX );
 
         moris::Matrix< moris::DDRMat > tCellIdField( 1, this->get_num_elems() );
 
@@ -1980,6 +1980,11 @@ namespace xtk
         // return fields constructed set-wise
         else
         {
+            if ( mSetWiseFieldLabelToIndex( tRankFieldIndex ).size() == 0 )
+            {
+                return tOutputFieldNames;
+            }
+
             // collect the field labels
             for ( auto const &iter : mSetWiseFieldLabelToIndex( tRankFieldIndex )( aSetOrdinal ) )
             {
