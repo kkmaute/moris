@@ -17,7 +17,7 @@
 #include "cl_HMR_Background_Facet.hpp"
 #include "cl_HMR_Facet.hpp"
 #include "cl_HMR_T_Matrix.hpp"
-#include "cl_HMR_T_Matrix_2.hpp"
+#include "cl_HMR_T_Matrix_Advanced.hpp"
 #include "HMR_Tools.hpp"
 #include "cl_Stopwatch.hpp" //CHR/src
 #include "cl_Map.hpp"

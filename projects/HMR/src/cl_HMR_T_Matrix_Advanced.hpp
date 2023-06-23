@@ -4,7 +4,7 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_HMR_T_Matrix_2.hpp
+ * cl_HMR_T_Matrix_Advanced.hpp
  *
  */
 
@@ -27,7 +27,7 @@ namespace moris::hmr
      * @tparam N Number of dimensions
      */
     template< uint N >
-    class T_Matrix_2 : public T_Matrix< N >
+    class T_Matrix_Advanced : public T_Matrix< N >
     {
         //! Pointer to coarse Lagrange mesh
         Lagrange_Mesh_Base * mLagrangeMeshCoarse;
@@ -35,7 +35,7 @@ namespace moris::hmr
     public:
 
         // constructor
-        T_Matrix_2(
+        T_Matrix_Advanced(
                 const Parameters   * aParameters,
                 BSpline_Mesh_Base  * aBSplineMesh,
                 Lagrange_Mesh_Base * aLagrangeMesh,
@@ -47,7 +47,7 @@ namespace moris::hmr
 
         // -------------------------------------------------------------------------------------------------------------
 
-        ~T_Matrix_2()
+        ~T_Matrix_Advanced()
         {
         }
 

@@ -29,7 +29,7 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "cl_HMR_T_Matrix.hpp"
-#include "cl_HMR_T_Matrix_2.hpp"
+#include "cl_HMR_T_Matrix_Advanced.hpp"
 #include "HMR_Globals.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Stopwatch.hpp" //CHR/src
@@ -162,10 +162,10 @@ namespace moris::hmr
                                 this->get_activation_pattern(),
                                 tBSplineOrder );
 
-                        mTMatrix( Ik ) = new T_Matrix_2< N >( mParameters,
-                                tMesh,
-                                mLagrangeMeshForTMatrix( Ik ),
-                                this );
+                        mTMatrix( Ik ) = new T_Matrix_Advanced< N >(mParameters,
+                                                                    tMesh,
+                                                                    mLagrangeMeshForTMatrix( Ik ),
+                                                                    this );
                     }
                     else
                     {

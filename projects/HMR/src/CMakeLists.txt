@@ -79,7 +79,7 @@ set(HEADERS
     cl_HMR_STK.hpp
     cl_HMR_T_Matrix_Base.hpp
     cl_HMR_T_Matrix.hpp
-    cl_HMR_T_Matrix_2.hpp
+    cl_HMR_T_Matrix_Advanced.hpp
     cl_HMR.hpp
     fn_HMR_Background_Element_Edges_3D.hpp
     fn_HMR_Background_Element_Neighbors_2D.hpp
