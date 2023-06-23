@@ -78,5 +78,18 @@ TEST_CASE(
         REQUIRE( myCell1(6) == 3 );
     }
 
+    
+    SECTION( "moris::Cell print_as_row_vector")
+    {
+        moris::Cell< moris::uint > myCell1 = { 4, 5, 9, 8 };
+        moris::Cell< moris::Cell<moris::uint> > myCell2 = { {10, 2, 3 }, { 4, 5, 9, 8 } };
+        moris::Cell< moris::Cell<moris::Cell<moris::uint> > > myCell3 = {{{1,2,3}, {4,5,6}}, {{7,8,9}}};;
+
+        print_as_row_vector(myCell1);
+        print_as_row_vector(myCell2);
+        print_as_row_vector(myCell3);
+
+    }
+
 }
 
