@@ -148,9 +148,6 @@ namespace xtk
         construct_follower_basis_using_volume( moris_index aMeshIndex );
 
 
-        // void
-        // construct_cell_aggregates();
-
         // ----------------------------------------------------------------------------------
 
         /**
@@ -256,6 +253,76 @@ namespace xtk
 
         void
         override_t_matrices( moris_index aMeshIndex );
+
+        // ----------------------------------------------------------------------------------
+
+        /**
+         * @brief This function performs the nearest neighbour exchange for the root SPGs
+         *
+         * @param aMeshIndex
+         */
+
+        void
+        perform_nearest_neighbour_exchange( moris_index const &  aMeshIndex );
+
+        // ----------------------------------------------------------------------------------
+
+        /**
+         * @brief prepare the identifier for the root SPG ids and list of non owned subphase groups 
+         * based on the processors
+         * 
+         * @param aMeshIndex 
+         * @param aNotOwnedSpgsToProcs 
+         * @param aSPGIDs 
+         */
+
+        void
+        prepare_requests_for_not_owned_subphase_groups( moris_index const & aMeshIndex,
+                Cell< Cell< moris_index > >&                                aNotOwnedSpgsToProcs,
+                Cell< moris::Cell< moris_id > >&                            aSPGIDs );
+
+        // ----------------------------------------------------------------------------------
+
+        /**
+         * @brief  uses the information from prepare_requests_for_not_owned_subphase_groups to prepare 
+         * the data the needs to be sent to other processors
+         * 
+         * @param aMeshIndex 
+         * @param aSendSubphaseGroupRootIds 
+         * @param aReceivedSPGIds 
+         */
+
+        void
+        prepare_answers_for_owned_subphase_groups(moris_index const & aMeshIndex,
+            moris::Cell< moris::Cell< moris_id > >& aSendSubphaseGroupRootIds,
+            moris::Cell< moris::Cell< moris_id > > const & aReceivedSPGIds );
+
+        // ----------------------------------------------------------------------------------
+
+        /**
+         * @brief sets the SPG root IDs received from neighbouring processors
+         * 
+         * @param aReceivedSubphaseGroupRootIds 
+         * @param aNotOwnedSpgsToProcs 
+         */
+
+        void
+        handle_requested_subphase_groups_answers(
+            moris::Cell< moris::Cell< moris_id > >&        aReceivedSubphaseGroupRootIds,
+            moris::Cell< moris::Cell< moris_id > > const & aNotOwnedSpgsToProcs );
+
+        //-----------------------------------------------------------------------------------
+
+        /**
+         * @brief Determines if the cell aggeragetion process should be stopped
+         * It stops when all SPGs are assigned a root SPG Id
+         * 
+         * @return true 
+         * @return false 
+         */
+
+        bool
+        determine_stopping_criteria();
     };
 
 }    // namespace xtk
