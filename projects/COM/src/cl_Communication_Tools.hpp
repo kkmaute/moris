@@ -397,6 +397,19 @@ namespace moris
     all_land( bool aMyBool );
 
     //------------------------------------------------------------------------------
+
+    /**
+     * @brief logical or statement reduction for all processes
+     * 
+     * @param aMyBool 
+     * @return true 
+     * @return false 
+     */
+
+    bool 
+    all_lor( bool aMyBool );
+
+    //------------------------------------------------------------------------------
     /**
      *
      * @brief                 Communication tags are used within MPI to label

@@ -580,4 +580,16 @@ namespace moris
 
         return tReductionResult;
     }
+
+    //------------------------------------------------------------------------------
+
+    bool
+    all_lor( bool aMyBool )
+    {
+        // Each MPI process sends its rank to reduction, root MPI process collects the result
+        bool tReductionResult = false;
+        MPI_Allreduce( &aMyBool, &tReductionResult, 1, MPI_CXX_BOOL, MPI_LOR, MPI_COMM_WORLD  );
+
+        return tReductionResult;
+    }
 }    // namespace moris
