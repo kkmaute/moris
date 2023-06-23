@@ -1674,7 +1674,7 @@ namespace moris
                 }
 
                 // resize the output cells to the correct non-zero size
-                tWeights( iExtendedBasisIndex ).set_size( tNonzeroCount, 1 );
+                tWeights( iExtendedBasisIndex ).resize( tNonzeroCount, 1 );
                 tRootBsplineBasis( iExtendedBasisIndex ).resize( tNonzeroCount );
             }
         }
