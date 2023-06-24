@@ -145,43 +145,32 @@ namespace moris::hmr
 
             for( uint Ik = 0; Ik < mNumBSplineMeshes; Ik++ )
             {
+                // create factory object
+                Factory tFactory( mParameters );
+
+                // Get B-spline mesh and order
                 BSpline_Mesh_Base * tMesh = mBSplineMeshes( Ik );
 
-                if ( tMesh != nullptr )
+                // Check if B-spline mesh exists
+                if ( tMesh )
                 {
+                    // Check if Lagrange order is less than B-spline order for advanced T-matrices
                     uint tBSplineOrder = tMesh->get_order();
-
-                    if( P < tBSplineOrder and mParameters->use_advanced_t_matrices() )
+                    if ( P < tBSplineOrder and mParameters->use_advanced_t_matrices() )
                     {
-                        // create factory object
-                        Factory tFactory( mParameters );
-
                         mLagrangeMeshForTMatrix( Ik ) = tFactory.create_lagrange_mesh(
                                 mBackgroundMesh,
                                 mBSplineMeshes,
                                 this->get_activation_pattern(),
                                 tBSplineOrder );
+                    }
+                }
 
-                        mTMatrix( Ik ) = new T_Matrix_Advanced< N >(
-                                mParameters,
-                                mLagrangeMeshForTMatrix( Ik ),
-                                tMesh,
-                                this );
-                    }
-                    else
-                    {
-                        mTMatrix( Ik ) = new T_Matrix< N >(
-                                mParameters,
-                                this,
-                                tMesh );
-                    }
-                }
-                else
-                {
-                    // trivial case when all t-matrix weights are 1
-                    mTMatrix( Ik ) = new T_Matrix< N >( mParameters,
-                            this );
-                }
+                // Create T-matrix
+                mTMatrix( Ik ) = tFactory.create_t_matrix< N >(
+                        this,
+                        tMesh,
+                        mLagrangeMeshForTMatrix( Ik ) );
             }
         }
 

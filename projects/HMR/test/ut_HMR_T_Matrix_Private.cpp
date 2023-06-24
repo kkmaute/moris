@@ -77,7 +77,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr],[hmr_t_matrix]")
                          tOrder );
 
                  // initialixe T-Matrix object
-                 moris::hmr::T_Matrix< 2 > tTMatrix( tParameters, tLagrangeMesh, tBSplineMesh );
+                 auto tTMatrix = tFactory.create_t_matrix< 2 >( tLagrangeMesh, tBSplineMesh );
 
                  // points where the function is tested
                  moris::Matrix< moris::DDRMat > tXi = { { -1, -0.5, 0, 0.5, 1 } };
@@ -153,7 +153,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr],[hmr_t_matrix]")
                      for( uint i = 0; i < 5; ++i )
                      {
                          // save error into matrix
-                         tError( i ) = tTMatrix.b_spline_shape_1d( tOrder, k, tXi( i ) ) - tSolution( i, k );
+                         tError( i ) = tTMatrix->b_spline_shape_1d( tOrder, k, tXi( i ) ) - tSolution( i, k );
                      }
 
                      // test solution
@@ -162,6 +162,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr],[hmr_t_matrix]")
 
                  delete tBSplineMesh;
                  delete tLagrangeMesh;
+                 delete tTMatrix;
 
              }
              // delete settings object
@@ -321,7 +322,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr],[hmr_t_matrix]")
                         tOrder );
 
                 // create T-Matrix object
-                auto tTMatrix = new moris::hmr::T_Matrix< 3 >( tParameters, tLagrangeMesh, tBSplineMesh );
+                auto tTMatrix = tFactory.create_t_matrix< 3 >( tLagrangeMesh, tBSplineMesh );
 
                 // ask Lagrange mesh for number of nodes per element
                 moris::luint tNumberOfNodes = tLagrangeMesh->get_number_of_nodes_on_proc();

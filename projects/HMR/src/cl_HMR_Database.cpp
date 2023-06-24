@@ -1147,18 +1147,8 @@ namespace moris::hmr
         Matrix< DDRMat > tElementSourceData( tNumberOfNodesPerElement, aSource->get_number_of_dimensions() );
 
         // Create T-matrix
-        T_Matrix_Base* tTMatrix;
-        switch ( mParameters->get_number_of_dimensions() )
-        {
-            case 2:
-                tTMatrix = new T_Matrix< 2 >( mParameters, tTargetMesh );
-                break;
-            case 3:
-                tTMatrix = new T_Matrix< 3 >( mParameters, tTargetMesh );
-                break;
-            default:
-                MORIS_ERROR( false, "Number of dimensions not known." );
-        }
+        Factory tFactory( mParameters );
+        T_Matrix_Base* tTMatrix = tFactory.create_t_matrix( tTargetMesh );
 
         // loop over all elements
         for ( luint e = 0; e < tNumberOfElements; ++e )
@@ -1253,19 +1243,10 @@ namespace moris::hmr
         uint tNumberOfElements = tSourceMesh->get_number_of_elements();
 
         // create T-matrix object
-        T_Matrix_Base* tTMatrix;
-        switch ( mParameters->get_number_of_dimensions() )
-        {
-            case 2:
-                tTMatrix = new T_Matrix< 2 >( mParameters, tSourceMesh );
-                break;
-            case 3:
-                tTMatrix = new T_Matrix< 3 >( mParameters, tSourceMesh );
-                break;
-            default:
-                MORIS_ERROR( false, "Number of dimensions not known." );
-        }
+        Factory tFactory( mParameters );
+        T_Matrix_Base* tTMatrix = tFactory.create_t_matrix( tSourceMesh );
 
+        // Get target mesh order and change order matrix
         uint             tTargetMeshOrder = tTargetMesh->get_order();
         Matrix< DDRMat > tT               = tTMatrix->get_change_order_matrix( tTargetMeshOrder );
 

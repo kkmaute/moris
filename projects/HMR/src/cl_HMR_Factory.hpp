@@ -14,12 +14,17 @@
 #include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_T_Matrix_Base.hpp"
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
 
 namespace moris::hmr
 {
+    // Forward declare T-matrix template
+    template< uint N >
+    class T_Matrix;
+
     /**
      * \brief factory class that generates pointers to templated meshes
      */
@@ -74,6 +79,34 @@ namespace moris::hmr
                 Background_Mesh_Base* aBackgroundMesh,
                 uint                  aActivationPattern,
                 luint                 aPolynomialDegree );
+
+        /**
+         * Creates a T-matrix specified by the given parameters
+         *
+         * @param aLagrangeMesh Lagrange mesh pointer
+         * @param aBSplineMesh B-spline mesh pointer
+         * @param aLagrangeMeshFine Pointer to finer Lagrange mesh, only needed for creating advanced T-matrices
+         * @return Base T-matrix pointer
+         */
+        T_Matrix_Base* create_t_matrix(
+                Lagrange_Mesh_Base* aLagrangeMesh,
+                BSpline_Mesh_Base*  aBSplineMesh = nullptr,
+                Lagrange_Mesh_Base* aLagrangeMeshCoarse = nullptr );
+
+        /**
+         * Creates a T-matrix for a specific dimension, if desired and known at compile-time
+         *
+         * @tparam N Spatial dimension
+         * @param aLagrangeMesh Lagrange mesh pointer
+         * @param aBSplineMesh B-spline mesh pointer
+         * @param aLagrangeMeshFine Pointer to finer Lagrange mesh, only needed for creating advanced T-matrices
+         * @return T-matrix pointer
+         */
+        template< uint N >
+        T_Matrix< N >* create_t_matrix(
+                Lagrange_Mesh_Base* aLagrangeMesh,
+                BSpline_Mesh_Base*  aBSplineMesh = nullptr,
+                Lagrange_Mesh_Base* aLagrangeMeshFine = nullptr );
 
     };
 }

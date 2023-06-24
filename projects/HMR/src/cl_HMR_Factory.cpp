@@ -32,6 +32,8 @@
 #include "cl_HMR_Lagrange_Facet_Quad4.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Facet_Quad9.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Mesh.hpp" //HMR/src
+#include "cl_HMR_T_Matrix.hpp"
+#include "cl_HMR_T_Matrix_Advanced.hpp"
 
 namespace moris::hmr
 {
@@ -98,98 +100,86 @@ namespace moris::hmr
         uint                       aActivationPattern,
         luint                      aPolynomialDegree )
     {
-        Lagrange_Mesh_Base* aMesh;
-
         // get number of dimensions from settings
         uint tNumberOfDimensions =  mParameters->get_number_of_dimensions();
 
         switch( tNumberOfDimensions )
         {
-        case( 2 ) :
-        {
-            switch ( aPolynomialDegree )
+            case( 2 ) :
             {
-            case( 1 ):
-            {
-                aMesh = new Lagrange_Mesh< 2, 1 >( mParameters,
-                                                   aBackgroundMesh,
-                                                   aBSplineMeshes,
-                                                   aActivationPattern );
-                break;
+                switch ( aPolynomialDegree )
+                {
+                    case( 1 ):
+                    {
+                        return new Lagrange_Mesh< 2, 1 >( mParameters,
+                                                           aBackgroundMesh,
+                                                           aBSplineMeshes,
+                                                           aActivationPattern );
+                    }
+                    case( 2 ):
+                    {
+                        return new Lagrange_Mesh< 2, 2 >( mParameters,
+                                                           aBackgroundMesh,
+                                                           aBSplineMeshes,
+                                                           aActivationPattern );
+                    }
+                    case( 3 ):
+                    {
+                        return new Lagrange_Mesh< 2, 3 >( mParameters,
+                                                           aBackgroundMesh,
+                                                           aBSplineMeshes,
+                                                           aActivationPattern );
+                    }
+                    default:
+                    {
+                        MORIS_ERROR( false, "create_lagrange_mesh(): unsupported polynomial degree %u for dimension %u\n",
+                                ( unsigned int )  aPolynomialDegree,
+                                ( unsigned int )  tNumberOfDimensions );
+                        return nullptr;
+                    }
+                }
             }
-            case( 2 ):
+            case( 3 ) :
             {
-                aMesh = new Lagrange_Mesh< 2, 2 >( mParameters,
-                                                   aBackgroundMesh,
-                                                   aBSplineMeshes,
-                                                   aActivationPattern );
-                break;
+                switch ( aPolynomialDegree )
+                {
+                    case( 1 ):
+                    {
+                        return new Lagrange_Mesh< 3, 1 >( mParameters,
+                                                           aBackgroundMesh,
+                                                           aBSplineMeshes,
+                                                           aActivationPattern );
+                    }
+                    case( 2 ):
+                    {
+                        return new Lagrange_Mesh< 3, 2 >( mParameters,
+                                                           aBackgroundMesh,
+                                                           aBSplineMeshes,
+                                                           aActivationPattern );
+                    }
+                    case( 3 ):
+                    {
+                        return new Lagrange_Mesh< 3, 3 >( mParameters,
+                                                           aBackgroundMesh,
+                                                           aBSplineMeshes,
+                                                           aActivationPattern );
+                    }
+                    default:
+                    {
+                        MORIS_ERROR( false, "create_lagrange_mesh(): unsupported polynomial degree %u for dimension %u\n",
+                                ( unsigned int )  aPolynomialDegree,
+                                ( unsigned int )  tNumberOfDimensions );
+                        return nullptr;
+                    }
+                }
             }
-            case( 3 ):
+            default :
             {
-                aMesh = new Lagrange_Mesh< 2, 3 >( mParameters,
-                                                   aBackgroundMesh,
-                                                   aBSplineMeshes,
-                                                   aActivationPattern );
-                break;
-            }
-            default:
-            {
-                MORIS_ERROR( false, "create_lagrange_mesh(): unsupported polynomial degree %u for dimension %u\n",
-                        ( unsigned int )  aPolynomialDegree,
+                MORIS_ERROR( false, "create_lagrange_mesh(): unknown number of dimensions %u\n",
                         ( unsigned int )  tNumberOfDimensions );
-                break;
+                return nullptr;
             }
-            }
-            break;
         }
-        case( 3 ) :
-        {
-            switch ( aPolynomialDegree )
-            {
-            case( 1 ):
-            {
-                aMesh = new Lagrange_Mesh< 3, 1 >( mParameters,
-                                                   aBackgroundMesh,
-                                                   aBSplineMeshes,
-                                                   aActivationPattern );
-                break;
-            }
-            case( 2 ):
-            {
-                aMesh = new Lagrange_Mesh< 3, 2 >( mParameters,
-                                                   aBackgroundMesh,
-                                                   aBSplineMeshes,
-                                                   aActivationPattern );
-                break;
-            }
-            case( 3 ):
-            {
-                aMesh = new Lagrange_Mesh< 3, 3 >( mParameters,
-                                                   aBackgroundMesh,
-                                                   aBSplineMeshes,
-                                                   aActivationPattern );
-                break;
-            }
-            default:
-            {
-                MORIS_ERROR( false, "create_lagrange_mesh(): unsupported polynomial degree %u for dimension %u\n",
-                        ( unsigned int )  aPolynomialDegree,
-                        ( unsigned int )  tNumberOfDimensions );
-                break;
-            }
-            }
-            break;
-        }
-        default :
-        {
-            MORIS_ERROR( false, "create_lagrange_mesh(): unknown number of dimensions %u\n",
-                    ( unsigned int )  tNumberOfDimensions );
-            break;
-        }
-        }
-
-        return aMesh;
     }
     
     //-------------------------------------------------------------------------------
@@ -199,121 +189,149 @@ namespace moris::hmr
             uint                  aActivationPattern,
             luint                 aPolynomialDegree )
     {
-        BSpline_Mesh_Base * aMesh;
-
         // get number of dimensions from settings
         uint tNumberOfDimensions =  mParameters->get_number_of_dimensions();
 
         switch( tNumberOfDimensions )
         {
-        case( 2 ) :
-        {
-            switch ( aPolynomialDegree )
+            case( 2 ) :
             {
-            case( 1 ):
-            {
-                aMesh = new BSpline_Mesh< 2, 1 >( mParameters,
-                                                  aBackgroundMesh,
-                                                  aActivationPattern );
-                break;
+                switch ( aPolynomialDegree )
+                {
+                    case( 1 ):
+                    {
+                        return new BSpline_Mesh< 2, 1 >( mParameters,
+                                                          aBackgroundMesh,
+                                                          aActivationPattern );
+                    }
+                    case( 2 ):
+                    {
+                        return new BSpline_Mesh< 2, 2 >( mParameters,
+                                                          aBackgroundMesh,
+                                                          aActivationPattern );
+                    }
+                    case( 3 ):
+                    {
+                        return new BSpline_Mesh< 2, 3 >( mParameters,
+                                                          aBackgroundMesh,
+                                                          aActivationPattern );
+                    }
+                    case( 4 ):
+                    {
+                        return new BSpline_Mesh< 2, 4 >( mParameters,
+                                                          aBackgroundMesh,
+                                                          aActivationPattern );
+                    }
+                    case( 5 ):
+                    {
+                        return new BSpline_Mesh< 2, 5 >( mParameters,
+                                                          aBackgroundMesh,
+                                                          aActivationPattern );
+                    }
+                    default:
+                    {
+                        MORIS_ERROR( false, "create_bspline_mesh(): unsupported polynomial degree %u for dimension %u\n",
+                                ( unsigned int )  aPolynomialDegree,
+                                ( unsigned int )  tNumberOfDimensions );
+                        return nullptr;
+                    }
+                }
             }
-            case( 2 ):
+            case( 3 ) :
             {
-                aMesh = new BSpline_Mesh< 2, 2 >( mParameters,
-                                                  aBackgroundMesh,
-                                                  aActivationPattern );
-                break;
+                switch ( aPolynomialDegree )
+                {
+                    case( 1 ):
+                    {
+                        return new BSpline_Mesh< 3, 1 >( mParameters,
+                                                          aBackgroundMesh,
+                                                          aActivationPattern );
+                    }
+                    case( 2 ):
+                    {
+                        return new BSpline_Mesh< 3, 2 >( mParameters,
+                                                          aBackgroundMesh,
+                                                          aActivationPattern );
+                    }
+                    case( 3 ):
+                    {
+                        return new BSpline_Mesh< 3, 3 >( mParameters,
+                                                         aBackgroundMesh,
+                                                         aActivationPattern );
+                    }
+                    case( 4 ):
+                    {
+                        return new BSpline_Mesh< 3, 4 >( mParameters,
+                                                          aBackgroundMesh,
+                                                          aActivationPattern );
+                    }
+                    case( 5 ):
+                    {
+                        return new BSpline_Mesh< 3, 5 >( mParameters,
+                                                          aBackgroundMesh,
+                                                          aActivationPattern );
+                    }
+                    default:
+                    {
+                        MORIS_ERROR( false, "create_bspline_mesh(): unsupported polynomial degree %u for dimension %u\n",
+                                ( unsigned int )  aPolynomialDegree,
+                                ( unsigned int )  tNumberOfDimensions );
+                        return nullptr;
+                    }
+                }
             }
-            case( 3 ):
+            default :
             {
-                aMesh = new BSpline_Mesh< 2, 3 >( mParameters,
-                                                  aBackgroundMesh,
-                                                  aActivationPattern );
-                break;
-            }
-            case( 4 ):
-            {
-                aMesh = new BSpline_Mesh< 2, 4 >( mParameters,
-                                                  aBackgroundMesh,
-                                                  aActivationPattern );
-                break;
-            }
-            case( 5 ):
-            {
-                aMesh = new BSpline_Mesh< 2, 5 >( mParameters,
-                                                  aBackgroundMesh,
-                                                  aActivationPattern );
-                break;
-            }
-            default:
-            {
-                MORIS_ERROR( false, "create_bspline_mesh(): unsupported polynomial degree %u for dimension %u\n",
-                        ( unsigned int )  aPolynomialDegree,
+                MORIS_ERROR( false, "create_bspline_mesh(): unknown number of dimensions %u\n",
                         ( unsigned int )  tNumberOfDimensions );
-                break;
+                return nullptr;
             }
         }
-        }
-        break;
-        case( 3 ) :
-        {
-            switch ( aPolynomialDegree )
-            {
-            case( 1 ):
-            {
-                aMesh = new BSpline_Mesh< 3, 1 >( mParameters,
-                                                  aBackgroundMesh,
-                                                  aActivationPattern );
-                break;
-            }
-            case( 2 ):
-            {
-                aMesh = new BSpline_Mesh< 3, 2 >( mParameters,
-                                                  aBackgroundMesh,
-                                                  aActivationPattern );
-                break;
-            }
-            case( 3 ):
-            {
-                aMesh = new BSpline_Mesh< 3, 3 >( mParameters,
-                                                 aBackgroundMesh,
-                                                 aActivationPattern );
-                break;
-            }
-            case( 4 ):
-            {
-                aMesh = new BSpline_Mesh< 3, 4 >( mParameters,
-                                                  aBackgroundMesh,
-                                                  aActivationPattern );
-                break;
-            }
-            case( 5 ):
-            {
-                aMesh = new BSpline_Mesh< 3, 5 >( mParameters,
-                                                  aBackgroundMesh,
-                                                  aActivationPattern );
-                break;
-            }
-            default:
-            {
-                MORIS_ERROR( false, "create_bspline_mesh(): unsupported polynomial degree %u for dimension %u\n",
-                        ( unsigned int )  aPolynomialDegree,
-                        ( unsigned int )  tNumberOfDimensions );
-                break;
-            }
-       }
-       break;
-       }
-       default :
-       {
-           MORIS_ERROR( false, "create_bspline_mesh(): unknown number of dimensions %u\n",
-                   ( unsigned int )  tNumberOfDimensions );
-           break;
-       }
-       }
-
-       return aMesh;
     }
 
     //-------------------------------------------------------------------------------
+
+    T_Matrix_Base* Factory::create_t_matrix(
+            Lagrange_Mesh_Base * aLagrangeMesh,
+            BSpline_Mesh_Base  * aBSplineMesh,
+            Lagrange_Mesh_Base * aLagrangeMeshFine)
+    {
+        switch ( mParameters->get_number_of_dimensions() )
+        {
+            case 2:
+                return create_t_matrix< 2 >( aLagrangeMesh, aBSplineMesh, aLagrangeMeshFine );
+            case 3:
+                return create_t_matrix< 3 >( aLagrangeMesh, aBSplineMesh, aLagrangeMeshFine );
+            default :
+            {
+                MORIS_ERROR( false, "create_t_matrix(): unknown number of dimensions %u\n",
+                             ( unsigned int )  mParameters->get_number_of_dimensions() );
+                return nullptr;
+            }
+        }
+    }
+
+    //-------------------------------------------------------------------------------
+
+    template< uint N >
+    T_Matrix< N >* Factory::create_t_matrix(
+            Lagrange_Mesh_Base * aLagrangeMesh,
+            BSpline_Mesh_Base  * aBSplineMesh,
+            Lagrange_Mesh_Base * aLagrangeMeshFine)
+    {
+        // Use Advanced T-matrices
+        if ( mParameters->use_advanced_t_matrices() )
+        {
+            return new T_Matrix_Advanced< N >( mParameters, aLagrangeMeshFine, aBSplineMesh, aLagrangeMesh );
+        }
+
+        // Use regular T-matrices
+        else
+        {
+            return new T_Matrix< N >( mParameters, aLagrangeMesh, aBSplineMesh );
+        }
+    }
+
+    //-------------------------------------------------------------------------------
+
 }
