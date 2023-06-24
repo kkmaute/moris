@@ -162,16 +162,18 @@ namespace moris::hmr
                                 this->get_activation_pattern(),
                                 tBSplineOrder );
 
-                        mTMatrix( Ik ) = new T_Matrix_Advanced< N >(mParameters,
-                                                                    tMesh,
-                                                                    mLagrangeMeshForTMatrix( Ik ),
-                                                                    this );
+                        mTMatrix( Ik ) = new T_Matrix_Advanced< N >(
+                                mParameters,
+                                mLagrangeMeshForTMatrix( Ik ),
+                                this,
+                                tMesh);
                     }
                     else
                     {
-                        mTMatrix( Ik ) = new T_Matrix< N >( mParameters,
-                                tMesh,
-                                this );
+                        mTMatrix( Ik ) = new T_Matrix< N >(
+                                mParameters,
+                                this,
+                                tMesh );
                     }
                 }
                 else

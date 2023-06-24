@@ -29,11 +29,11 @@ namespace moris::hmr
         //! ref to settings container
         const Parameters   * mParameters;
 
-        //! ref to B-Spline Mesh
-        BSpline_Mesh_Base  * mBSplineMesh;
-
         //! ref to Lagrange Mesh
         Lagrange_Mesh_Base * mLagrangeMesh;
+
+        //! ref to B-Spline Mesh
+        BSpline_Mesh_Base  * mBSplineMesh;
 
         //! matrix containing the ijk positions of reference element
         Matrix< DDUMat > mBSplineIJK;
@@ -96,15 +96,17 @@ namespace moris::hmr
 
     public:
 
-        // constructor
-        T_Matrix_Base( const Parameters         * aParameters,
-                        BSpline_Mesh_Base  * aBSplineMesh,
-                        Lagrange_Mesh_Base * aLagrangeMesh );
-
-        T_Matrix_Base( const Parameters         * aParameters,
-                        Lagrange_Mesh_Base * aLagrangeMesh );
-
-        //-------------------------------------------------------------------------------
+        /**
+         * Constructor initializing Lagrange coefficients
+         *
+         * @param aParameters HMR Parameters
+         * @param aLagrangeMesh Lagrange mesh pointer
+         * @param aBSplineMesh B-spline Mesh pointer
+         */
+        T_Matrix_Base(
+                const Parameters*   aParameters,
+                Lagrange_Mesh_Base* aLagrangeMesh,
+                BSpline_Mesh_Base*  aBSplineMesh = nullptr );
 
         // destructor
         virtual ~T_Matrix_Base();

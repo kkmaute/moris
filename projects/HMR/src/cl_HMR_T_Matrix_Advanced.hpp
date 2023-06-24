@@ -37,10 +37,10 @@ namespace moris::hmr
         // constructor
         T_Matrix_Advanced(
                 const Parameters   * aParameters,
-                BSpline_Mesh_Base  * aBSplineMesh,
                 Lagrange_Mesh_Base * aLagrangeMesh,
-                Lagrange_Mesh_Base * aLagrangeMeshCoarse)
-                : T_Matrix< N >( aParameters, aBSplineMesh, aLagrangeMesh )
+                Lagrange_Mesh_Base * aLagrangeMeshCoarse,
+                BSpline_Mesh_Base  * aBSplineMesh)
+                : T_Matrix< N >( aParameters, aLagrangeMesh, aBSplineMesh )
                 , mLagrangeMeshCoarse( aLagrangeMeshCoarse )
         {
         }

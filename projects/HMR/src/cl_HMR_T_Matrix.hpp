@@ -426,92 +426,59 @@ namespace moris::hmr
 
         T_Matrix(
                 const Parameters*   aParameters,
-                BSpline_Mesh_Base*  aBSplineMesh,
-                Lagrange_Mesh_Base* aLagrangeMesh )
-                : T_Matrix_Base( aParameters, aBSplineMesh, aLagrangeMesh )
+                Lagrange_Mesh_Base* aLagrangeMesh,
+                BSpline_Mesh_Base*  aBSplineMesh = nullptr )
+                : T_Matrix_Base( aParameters, aLagrangeMesh, aBSplineMesh )
         {
+            // TODO remove function pointers with template specialization
+            switch ( N )
+            {
+                case 2:
+                {
+                    mEvalNGeo   = &N_quad4;
+                    mEvalN      = &T_Matrix<N>::lagrange_shape_2d;
+                    mGetCorners = &get_child_corner_nodes_2d;
+
+                    break;
+                }
+                case 3:
+                {
+                    mEvalNGeo   = &N_hex8;
+                    mEvalN      = &T_Matrix<N>::lagrange_shape_3d;
+                    mGetCorners = &get_child_corner_nodes_3d;
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "unknown number of dimensions" );
+                    break;
+                }
+            }
+
             // Initializations
-            this->init_basis_index();
-            this->init_unity_matrix();
-            this->init_child_matrices();
-            this->init_truncation_weights();
             this->init_lagrange_parameter_coordinates();
-            this->init_lagrange_matrix();
-
-            // TODO
-            switch ( N )
-            {
-                case 2:
-                {
-                    mEvalNGeo   = &N_quad4;
-                    mEvalN      = &T_Matrix<N>::lagrange_shape_2d;
-                    mGetCorners = &get_child_corner_nodes_2d;
-
-                    break;
-                }
-                case 3:
-                {
-                    mEvalNGeo   = &N_hex8;
-                    mEvalN      = &T_Matrix<N>::lagrange_shape_3d;
-                    mGetCorners = &get_child_corner_nodes_3d;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "unknown number of dimensions" );
-                    break;
-                }
-            }
-
             this->init_lagrange_refinement_matrices();
             this->init_lagrange_change_order_matrices();
 
-            // set function pointer
-            if ( aParameters->truncate_bsplines() )
+            // If B-spline mesh is given
+            if ( aBSplineMesh != nullptr )
             {
-                mTMatrixFunction = &T_Matrix_Base::calculate_truncated_t_matrix;
-            }
-            else
-            {
-                mTMatrixFunction = &T_Matrix_Base::calculate_untruncated_t_matrix;
-            }
-        }
+                this->init_basis_index();
+                this->init_unity_matrix();
+                this->init_child_matrices();
+                this->init_truncation_weights();
+                this->init_lagrange_matrix();
 
-        //-------------------------------------------------------------------------------
-
-        T_Matrix(
-                const Parameters*   aParameters,
-                Lagrange_Mesh_Base* aLagrangeMesh )
-                : T_Matrix_Base( aParameters, aLagrangeMesh )
-        {
-            this->init_lagrange_parameter_coordinates();
-
-            switch ( N )
-            {
-                case 2:
+                // set function pointer
+                if ( aParameters->truncate_bsplines() )
                 {
-                    mEvalNGeo   = &N_quad4;
-                    mEvalN      = &T_Matrix<N>::lagrange_shape_2d;
-                    mGetCorners = &get_child_corner_nodes_2d;
-
-                    break;
+                    mTMatrixFunction = &T_Matrix_Base::calculate_truncated_t_matrix;
                 }
-                case 3:
+                else
                 {
-                    mEvalNGeo   = &N_hex8;
-                    mEvalN      = &T_Matrix<N>::lagrange_shape_3d;
-                    mGetCorners = &get_child_corner_nodes_3d;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "unknown number of dimensions" );
-                    break;
+                    mTMatrixFunction = &T_Matrix_Base::calculate_untruncated_t_matrix;
                 }
             }
-
-            this->init_lagrange_refinement_matrices();
-            this->init_lagrange_change_order_matrices();
         }
 
 //-------------------------------------------------------------------------------

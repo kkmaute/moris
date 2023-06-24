@@ -18,25 +18,14 @@ namespace moris::hmr
 {
 
     //-------------------------------------------------------------------------------
-    
+
     T_Matrix_Base::T_Matrix_Base(
             const Parameters*   aParameters,
-            BSpline_Mesh_Base*  aBSplineMesh,
-            Lagrange_Mesh_Base* aLagrangeMesh )
+            Lagrange_Mesh_Base* aLagrangeMesh,
+            BSpline_Mesh_Base*  aBSplineMesh )
             : mParameters( aParameters )
+            , mLagrangeMesh( aLagrangeMesh )
             , mBSplineMesh( aBSplineMesh )
-            , mLagrangeMesh( aLagrangeMesh )
-    {
-        this->init_lagrange_coefficients();
-    }
-
-    //-------------------------------------------------------------------------------
-
-    T_Matrix_Base::T_Matrix_Base(
-            const Parameters*   aParameters,
-            Lagrange_Mesh_Base* aLagrangeMesh )
-            : mParameters( aParameters )
-            , mLagrangeMesh( aLagrangeMesh )
     {
         this->init_lagrange_coefficients();
     }

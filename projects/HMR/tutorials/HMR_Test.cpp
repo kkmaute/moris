@@ -107,7 +107,7 @@ main(
 //
 //                    // create T-Matrix object
 //                    moris::hmr::T_Matrix * tTMatrix
-//                    = new moris::hmr::T_Matrix( tParameters, tBSplineMesh, tLagrangeMesh );
+//                    = new moris::hmr::T_Matrix( tParameters, tLagrangeMesh, tBSplineMesh );
 //
 //                    // ask Lagrange mesh for number of nodes per element
 //                    moris::luint tNumberOfNodes
