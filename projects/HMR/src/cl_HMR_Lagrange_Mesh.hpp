@@ -165,8 +165,8 @@ namespace moris::hmr
                         mTMatrix( Ik ) = new T_Matrix_Advanced< N >(
                                 mParameters,
                                 mLagrangeMeshForTMatrix( Ik ),
-                                this,
-                                tMesh);
+                                tMesh,
+                                this );
                     }
                     else
                     {
