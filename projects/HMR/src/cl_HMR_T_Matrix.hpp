@@ -1008,11 +1008,8 @@ namespace moris::hmr
                 // save coordinate into memory
                 for ( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
-                    // Define a custom ternary operator to subtract two lunit since they are unsigned
-                    moris_index tDifference = ( tIJKLagrange[iDimension] > tIJKBSpline[iDimension] )
-                            ? ( tIJKLagrange[iDimension] - tIJKBSpline[iDimension] )
-                            : -( tIJKBSpline[iDimension] - tIJKLagrange[iDimension] );
-                    moris_index tIJKValue = tIJK[ iDimension ] + tDifference ;
+                    // Get modified ijk value based on difference between Lagrange and B-spline element ijk
+                    moris_index tIJKValue = tIJK[ iDimension ] + tIJKLagrange[iDimension] - tIJKBSpline[iDimension];
 
                     // fill in node ijk positions in element
                     mLagrangeParamModified(iDimension, iNodeIndex ) = 2 * tScale * tIJKValue - 1.0;
