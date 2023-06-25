@@ -174,8 +174,8 @@ namespace moris
 
             virtual const luint*
             get_bspline_element_ijk_level(
-                    moris_index const & aDiscretizationMeshIndex,
-                    moris_index const & aBsplineElementIndex,
+                    moris_index         aDiscretizationMeshIndex,
+                    moris_index         aBsplineElementIndex,
                     uint                aLevel );
 
             // -----------------------------------------------------------------------------
@@ -191,8 +191,8 @@ namespace moris
 
             virtual void
             get_extended_t_matrix(
-                    moris_index const &                         aDiscretizationMeshIndex,
-                    moris_index const &                         aBSplineCellIndex,
+                    moris_index                                 aDiscretizationMeshIndex,
+                    moris_index                                 aBSplineCellIndex,
                     moris::mtk::Cell&                           aLagrangeCell,
                     moris::Cell< moris::Cell< mtk::Vertex* > >& tBsplineBasis,
                     moris::Cell< Matrix< DDRMat > >&            tWeights );
@@ -212,9 +212,9 @@ namespace moris
 
             virtual void
             get_L2_projection_matrix(
-                    moris_index const &                         aDiscretizationMeshIndex,
-                    moris_index const &                         aRootBSplineCellIndex,
-                    moris_index const &                         aExtendedBSplineCellIndex,
+                    moris_index                                 aDiscretizationMeshIndex,
+                    moris_index                                 aRootBSplineCellIndex,
+                    moris_index                                 aExtendedBSplineCellIndex,
                     moris::Cell< moris::Cell< mtk::Vertex* > >& tRootBsplineBasis,
                     moris::Cell< mtk::Vertex* >&                tExtendedBsplineBasis,
                     moris::Cell< Matrix< DDRMat > >&            tWeights );

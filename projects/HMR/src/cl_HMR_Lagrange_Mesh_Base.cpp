@@ -3777,6 +3777,34 @@ namespace moris::hmr
 
     //------------------------------------------------------------------------------
 
+    const luint*
+    Lagrange_Mesh_Base::get_bspline_element_ijk_level(
+            moris_index         aDiscretizationMeshIndex,
+            moris_index         aBsplineElementIndex,
+            uint                aLevel )
+    {
+        // get B-Spline pattern of this mesh
+        uint tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
+
+        // get Lagrange pattern of this mesh
+        uint tLagrangePattern = this->get_activation_pattern();
+
+        // set the activation pattern to that of the B-spline mesh
+        mBackgroundMesh->set_activation_pattern( tBSplinePattern );
+
+        // use the b-spline mesh index to get the correct b-spline element
+        Element*                 tBsplineElement    = mBSplineMeshes( aDiscretizationMeshIndex )->get_element_including_aura( aBsplineElementIndex );
+        aLevel = tBsplineElement->get_level(); // FIXME what is going on here?
+
+        // set the activation pattern back to the pattern of the Lagrange mesh
+        mBackgroundMesh->set_activation_pattern( tLagrangePattern );
+
+        // get the i-j-k indices of the b-spline element
+        return tBsplineElement->get_ijk();
+    }
+
+    //------------------------------------------------------------------------------
+
     void Lagrange_Mesh_Base::get_elements_in_interpolation_cluster(
             moris_index const aElementIndex,
             moris_index const aDiscretizationMeshIndex,

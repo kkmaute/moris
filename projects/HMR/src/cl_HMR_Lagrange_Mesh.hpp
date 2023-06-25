@@ -458,8 +458,68 @@ namespace moris::hmr
                             ( double ) tElapsedTime / 1000 );
             MORIS_LOG_INFO( " " );
         }
+
+
+        //------------------------------------------------------------------------------
+
+        void get_extended_t_matrix(
+                moris_index                                 aDiscretizationMeshIndex,
+                moris_index                                 aBSplineCellIndex,
+                Element&                                    aLagrangeCell,
+                moris::Cell< moris::Cell< mtk::Vertex* > >& aBsplineBasis,
+                moris::Cell< Matrix< DDRMat > >&            aWeights ) override
+        {
+            // get B-Spline pattern of this mesh
+            uint tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
+
+            // get Lagrange pattern of this mesh
+            uint tLagrangePattern = this->get_activation_pattern();
+
+            // set the activation pattern to that of the B-spline mesh
+            mBackgroundMesh->set_activation_pattern( tBSplinePattern );
+
+            // get pointer to b-spline and background elements
+            Element* tBsplineElement = mBSplineMeshes( 0 )->get_element_including_aura( aBSplineCellIndex );
+
+            mTMatrix( aDiscretizationMeshIndex )->evaluate_extended_t_matrix(tBsplineElement, &aLagrangeCell, aBsplineBasis, aWeights );
+
+            // set the activation pattern back to the pattern of the Lagrange mesh
+            mBackgroundMesh->set_activation_pattern( tLagrangePattern );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void get_L2_projection_matrix(
+                moris_index                                 aDiscretizationMeshIndex,
+                moris_index                                 aRootBSplineCellIndex,
+                moris_index                                 aExtendedBSplineCellIndex,
+                moris::Cell< moris::Cell< mtk::Vertex* > >& aRootBsplineBasis,
+                moris::Cell< mtk::Vertex* >&                aExtendedBsplineBasis,
+                moris::Cell< Matrix< DDRMat > >&            aWeights ) override
+        {
+            // get B-Spline pattern of this mesh
+            uint tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
+
+            // get Lagrange pattern of this mesh
+            uint tLagrangePattern = this->get_activation_pattern();
+
+            // set the activation pattern to that of the B-spline mesh
+            mBackgroundMesh->set_activation_pattern( tBSplinePattern );
+
+            // get pointer to b-spline and background elements
+            Element* tRootBsplineElement     = mBSplineMeshes( aDiscretizationMeshIndex )->get_element_including_aura( aRootBSplineCellIndex );
+            Element* tExtendedBsplineElement = mBSplineMeshes( aDiscretizationMeshIndex )->get_element_including_aura( aExtendedBSplineCellIndex );
+
+            // ask the t-matrix object to compute the weights
+            mTMatrix( aDiscretizationMeshIndex )->evaluate_L2_projection( tRootBsplineElement, tExtendedBsplineElement, aRootBsplineBasis, aExtendedBsplineBasis, aWeights );
+
+            // set the activation pattern back to the pattern of the Lagrange mesh
+            mBackgroundMesh->set_activation_pattern( tLagrangePattern );
+        }
+
+        //------------------------------------------------------------------------------
+
     };
-// ----------------------------------------------------------------------------
 
     template < uint N, uint P >
     inline

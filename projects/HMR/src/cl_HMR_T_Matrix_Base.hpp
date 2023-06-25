@@ -57,8 +57,14 @@ namespace moris::hmr
         //! parameter coordinates for lagrange element / natural coordinates
         Matrix< DDRMat > mLagrangeParam;
 
+        //! Modified parameter coordinates for lagrange element / natural coordinates
+        Matrix< DDRMat > mLagrangeParamModified;
+
         //! T-Matrix for B-Spline to Lagrange conversion
         Matrix< DDRMat > mTMatrixLagrange;
+
+        //! Modified T-Matrix for B-Spline to Lagrange conversion
+        Matrix< DDRMat > mTMatrixLagrangeModified;
 
         //! weights needed for truncation
         Matrix< DDRMat > mTruncationWeights;
@@ -139,6 +145,20 @@ namespace moris::hmr
                 Matrix< DDRMat >& aTMatrixTransposed,
                 Cell< Basis* >&   aDOFs );
 
+        /**
+         * Evaluates an extended T-matrix
+         *
+         * @param aBsplineElement B-spline element
+         * @param aLagrangeElement Lagrange element
+         * @param aBsplineBasis B-spline basis
+         * @param aWeights Weights
+         */
+        void evaluate_extended_t_matrix(
+                Element*                                    aBsplineElement,
+                Element*                                    aLagrangeElement,
+                moris::Cell< moris::Cell< mtk::Vertex* > >& aBsplineBasis,
+                moris::Cell< Matrix< DDRMat > >&            aWeights );
+
         //-------------------------------------------------------------------------------
 
         void calculate_untruncated_t_matrix(
@@ -201,8 +221,13 @@ namespace moris::hmr
          */
         void lagrange_shape_3d( const Matrix< DDRMat > & aXi,
                                       Matrix< DDRMat > & aN ) const;
+
+        /**
+         * Recompute the Lagrange matrix for extended T-matrices
+         */
+        virtual void recompute_lagrange_matrix() = 0;
+
     };
 }
 
 #endif /* SRC_HMR_CL_HMR_T_MATRIX_BASE_HPP_ */
-

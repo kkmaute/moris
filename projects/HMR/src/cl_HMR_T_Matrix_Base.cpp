@@ -654,4 +654,137 @@ namespace moris::hmr
             }    // end loop over all nodes of this element
         }        // end loop over all elements
     }
+
+    //-------------------------------------------------------------------------------
+
+    void
+    T_Matrix_Base::evaluate_extended_t_matrix(
+            Element*                                    aBsplineElement,
+            Element*                                    aLagrangeElement,
+            moris::Cell< moris::Cell< mtk::Vertex* > >& aBsplineBasis,
+            moris::Cell< Matrix< DDRMat > >&            aWeights )
+    {
+        Background_Element_Base* aBSpBackgroundElement = aBsplineElement->get_background_element();
+
+        // evaluate
+        this->recompute_lagrange_matrix();
+
+        // get B-Spline pattern of this mesh
+        uint tBSplinePattern = mBSplineMesh->get_activation_pattern();
+
+        // select pattern
+        mLagrangeMesh->select_activation_pattern();
+
+        // unflag all nodes on this mesh
+        mLagrangeMesh->unflag_all_basis();
+
+        // number of nodes per element
+        uint tNumberOfNodesPerElement = mLagrangeMesh->get_number_of_basis_per_element();
+
+        // unity matrix
+        Matrix< DDRMat > tEye;
+        eye( tNumberOfNodesPerElement, tNumberOfNodesPerElement, tEye );
+
+        // calculate transposed Lagrange T-Matrix
+        Matrix< DDRMat > tL( mTMatrixLagrangeModified );
+
+        // get pointer to background element
+        auto tBackgroundElement = aLagrangeElement->get_background_element();
+
+        // initialize refinement Matrix
+        Matrix< DDRMat > tR;
+
+        bool tLagrangeEqualBspline    = false;
+        bool tFirstLagrangeRefinement = true;
+
+        while ( !tBackgroundElement->is_active( tBSplinePattern ) )
+        {
+            if ( tFirstLagrangeRefinement )
+            {
+                // right multiply refinement matrix
+                tR                       = this->get_refinement_matrix( tBackgroundElement->get_child_index() );
+                tFirstLagrangeRefinement = false;
+                tLagrangeEqualBspline    = true;
+            }
+            else
+            {
+                tR = tR * this->get_refinement_matrix( tBackgroundElement->get_child_index() );
+            }
+
+            // jump to parent
+            tBackgroundElement = tBackgroundElement->get_parent();
+        }
+
+        // calculate the B-Spline T-Matrix
+        Matrix< DDRMat > tB;
+        Cell< Basis* >   tDOFs;
+
+        this->calculate_t_matrix(
+                aBSpBackgroundElement->get_memory_index(),
+                tB,
+                tDOFs );
+
+        Matrix< DDRMat > tT;
+
+        if ( tLagrangeEqualBspline )
+        {
+            // transposed T-Matrix
+            tT = tR * tL * tB;
+        }
+        else
+        {
+            tT = tL * tB;
+        }
+
+        // number of columns in T-Matrix
+        uint tNCols = tT.n_cols();
+
+        // epsilon to count T-Matrix
+        real tEpsilon = 1e-12;
+
+        // resize the arrays
+        aBsplineBasis.resize(tNumberOfNodesPerElement );
+        aWeights.resize(tNumberOfNodesPerElement );
+
+        // loop over all nodes of this element
+        for ( uint k = 0; k < tNumberOfNodesPerElement; ++k )
+        {
+            // initialize counter
+            uint tCount = 0;
+
+            // reserve DOF cell
+            Cell< mtk::Vertex* > tNodeDOFs( tNCols, nullptr );
+
+            // reserve matrix with coefficients
+            Matrix< DDRMat > tCoefficients( tNCols, 1 );
+
+            // loop over all nonzero entries
+            for ( uint i = 0; i < tNCols; ++i )
+            {
+                if ( std::abs( tT( k, i ) ) > tEpsilon )
+                {
+                    // copy entry of T-Matrix
+                    tCoefficients( tCount ) = tT( k, i );
+
+                    // copy pointer of dof and convert to mtk::Vertex
+                    tNodeDOFs( tCount ) = tDOFs( i );
+
+                    // flag this DOF
+                    tDOFs( i )->flag();
+
+                    // increment counter
+                    ++tCount;
+                }
+            }
+
+            tCoefficients.resize( tCount, 1 );
+            tNodeDOFs.resize( tCount );
+
+            aBsplineBasis(k ) = tNodeDOFs;
+            aWeights(k )      = tCoefficients;
+        }
+    }
+
+    //-------------------------------------------------------------------------------
+
 }

@@ -488,6 +488,165 @@ namespace moris::hmr
         {
         }
 
+        /**
+         * @brief evaluate the L2 projection weights converting extended basis to root basis
+         *
+         * @param aRootBsplineElement
+         * @param aExtendedBsplineElement
+         * @param aRootBsplineBasis
+         * @param aExtendedBsplineBasis
+         * @param aWeights
+         */
+        void evaluate_L2_projection(
+                Element*                                    aRootBsplineElement,
+                Element*                                    aExtendedBsplineElement,
+                moris::Cell< moris::Cell< mtk::Vertex* > >& aRootBsplineBasis,
+                moris::Cell< mtk::Vertex* >&                aExtendedBsplineBasis,
+                moris::Cell< Matrix< DDRMat > >&            aWeights )
+        {
+            // Background_Element_Base* aRootBSpBackgroundElement = aRootBsplineElement->get_background_element();
+            // Background_Element_Base* aExtendedBSpBackgroundElement = aExtendedBsplineElement->get_background_element();
+
+            const luint* tRootIJK     = aRootBsplineElement->get_ijk();
+            const luint* tExtendedIJK = aExtendedBsplineElement->get_ijk();
+
+            // get dimensions
+            uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
+
+            // number of bspline coefficients per direction
+            uint tNodesPerDirection = mBSplineOrder + 1;
+
+            // initialize 1D matrices to find the projection matrix in 1D
+            moris::Cell< Matrix< DDRMat > > tMatrices1D( tNumberOfDimensions, Matrix< DDRMat >( tNodesPerDirection, tNodesPerDirection, MORIS_REAL_MAX ) );
+
+            // loop over the dimensions and create the i,j,k 1D matrices
+            for ( uint iDim = 0; iDim < tNumberOfDimensions; iDim++ )
+            {
+                real tShift = tRootIJK[ iDim ] < tExtendedIJK[ iDim ] ? real( -tRootIJK[ iDim ] + tExtendedIJK[ iDim ] ) : -real( -tExtendedIJK[ iDim ] + tRootIJK[ iDim ] );
+
+                // find the shift in each direction
+                this->get_extension_matrix_1d( tShift, tMatrices1D( iDim ) );
+            }
+
+            // calculate number of basis per element
+            uint tNumberOfBasis = std::pow( tNodesPerDirection, tNumberOfDimensions );
+
+            // initialize the projection matrix with the correct size
+            Matrix< DDRMat > tL2ProjectionMatrix( tNumberOfBasis, tNumberOfBasis );
+
+            // Apply a tensor product to get the final weights
+            if ( N == 2 )
+            {
+                uint b = 0;
+                for ( uint l = 0; l < tNodesPerDirection; ++l )
+                {
+                    for ( uint k = 0; k < tNodesPerDirection; ++k )
+                    {
+                        uint a = 0;
+                        for ( uint j = 0; j < tNodesPerDirection; ++j )
+                        {
+                            for ( uint i = 0; i < tNodesPerDirection; ++i )
+                            {
+                                tL2ProjectionMatrix( mBasisIndex( a ), mBasisIndex( b ) ) = tMatrices1D( 0 )( i, k ) * tMatrices1D( 1 )( j, l );
+                                ++a;
+                            }
+                        }
+                        ++b;
+                    }
+                }
+            }
+            else if ( N == 3 )
+            {
+                uint b = 0;
+                for ( uint p = 0; p < tNodesPerDirection; ++p )
+                {
+                    for ( uint q = 0; q < tNodesPerDirection; ++q )
+                    {
+                        for ( uint l = 0; l < tNodesPerDirection; ++l )
+                        {
+                            uint a = 0;
+                            for ( uint k = 0; k < tNodesPerDirection; ++k )
+                            {
+                                for ( uint j = 0; j < tNodesPerDirection; ++j )
+                                {
+                                    for ( uint i = 0; i < tNodesPerDirection; ++i )
+                                    {
+                                        tL2ProjectionMatrix( mBasisIndex( a ), mBasisIndex( b ) ) = tMatrices1D( 0 )( i, l ) * tMatrices1D( 1 )( j, q ) * tMatrices1D( 2 )( k, p );
+                                        ++a;
+                                    }
+                                }
+                            }
+                            ++b;
+                        }
+                    }
+                }
+            }
+
+            // initialize the basis for the root cell and extended cell
+            moris::Cell< Basis* > tRootBasis;
+            moris::Cell< Basis* > tExtendedBasis;
+
+            //reserve enough memory for each of them
+            tRootBasis.reserve(tNumberOfBasis);
+            tExtendedBasis.reserve(tNumberOfBasis);
+
+            // fill out the cell data
+            for ( uint i = 0; i < tNumberOfBasis; i++ )
+            {
+                // get the basis
+                Basis* tBasis = aRootBsplineElement->get_basis( i );
+
+                //if it is active add it to the cell
+                if ( tBasis->is_active() )
+                {
+                    tRootBasis.push_back( tBasis );
+                }
+
+                // get the basis
+                tBasis = aExtendedBsplineElement->get_basis( i );
+
+                //if it is active add it to the cell
+                if ( tBasis->is_active() )
+                {
+                    tExtendedBasis.push_back( tBasis);
+                }
+            }
+
+            // resize the output cells
+            aWeights.resize(tNumberOfBasis );
+            aRootBsplineBasis.resize(tNumberOfBasis );
+            aExtendedBsplineBasis.resize(tNumberOfBasis );
+
+            // loop over the basis and eliminate the zero values
+            for ( uint iExtendedBasisIndex = 0; iExtendedBasisIndex < tNumberOfBasis; iExtendedBasisIndex++ )
+            {
+                // set size for each of the extended basis
+                aExtendedBsplineBasis(iExtendedBasisIndex ) = tExtendedBasis(iExtendedBasisIndex );
+                aWeights(iExtendedBasisIndex ).set_size(tNumberOfBasis, 1 );
+                aRootBsplineBasis(iExtendedBasisIndex ).resize(tNumberOfBasis );
+
+                // find all the basis and weights of the root that hve non-zero values
+                uint tNonzeroCount = 0;
+                for ( uint iRootBasisIndex = 0; iRootBasisIndex < tNumberOfBasis; iRootBasisIndex++ )
+                {
+                    // if the wieght is non-zero add it to the cell
+                    if ( std::abs( tL2ProjectionMatrix( iExtendedBasisIndex, iRootBasisIndex ) ) > MORIS_REAL_EPS )
+                    {
+                        // assign the output values
+                        aWeights(iExtendedBasisIndex )(tNonzeroCount )          = tL2ProjectionMatrix(iExtendedBasisIndex, iRootBasisIndex );
+                        aRootBsplineBasis(iExtendedBasisIndex )(tNonzeroCount ) = tRootBasis(iRootBasisIndex );
+
+                        //increment the non-zero count
+                        tNonzeroCount++;
+                    }
+                }
+
+                // resize the output cells to the correct non-zero size
+                aWeights(iExtendedBasisIndex ).resize(tNonzeroCount, 1 );
+                aRootBsplineBasis(iExtendedBasisIndex ).resize(tNonzeroCount );
+            }
+        }
+
     private:
 
         /**
@@ -1054,6 +1213,44 @@ namespace moris::hmr
             return tN( 0 );
         }
 
+        //------------------------------------------------------------------------------
+
+        static real b_spline_shape_1d_extended( const uint& aOrder,
+                                              const uint&                               aK,
+                                              const real&                               aXi )
+        {
+            switch ( aOrder )
+            {
+                // linear interpolation
+                case 1:
+                {
+                    // local ordering of basis function
+                    switch ( aK )
+                    {
+                        case 0:
+                        {
+                            return 0.5 * ( 1.0 - aXi );
+                        }
+                        case 1:
+                        {
+                            return 0.5 * ( 1.0 + aXi );
+                        }
+                        default:
+                        {
+                            MORIS_ERROR( false, "The specified local basis %u is not implemented", aK );
+                            return 0.0;
+                        }
+                    }
+                }
+
+                default:
+                {
+                    MORIS_ERROR( false, "The specified order %u is not implemented", aOrder );
+                    return 0.0;
+                }
+            }
+        }
+
 //------------------------------------------------------------------------------
 
         /**
@@ -1583,6 +1780,64 @@ namespace moris::hmr
 
             return aXihat;
         }
+
+        //------------------------------------------------------------------------------
+
+        void recompute_lagrange_matrix() override
+        {
+            // get number of basis per element of B-Spline mesh
+            uint tNumberOfBasis = mBSplineIJK.n_cols();
+
+            // get number of Lagrange nodes
+            uint tNumberOfNodes = mLagrangeParam.n_cols();
+
+            // initialize T-Matrix for B-Spline to Lagrange conversion
+            mTMatrixLagrangeModified.set_size( tNumberOfNodes, tNumberOfBasis, 1 );
+
+            // get order of B-Spline mesh
+            uint tOrder = mBSplineMesh->get_order();
+
+            // loop over all Lagrange nodes
+            for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; iNodeIndex++ )
+            {
+                // loop over all B-Spline Basis
+                for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBasis; iBasisIndex++ )
+                {
+                    // loop over all dimensions
+                    for ( uint iDimension = 0; iDimension < N; iDimension++ )
+                    {
+                        mTMatrixLagrangeModified(iNodeIndex, iBasisIndex ) *= this->b_spline_shape_1d_extended(
+                                tOrder,
+                                mBSplineIJK(iDimension, iBasisIndex ),
+                                mLagrangeParamModified(iDimension, iNodeIndex ) );
+                    }
+                }
+            }
+        }
+
+        //-------------------------------------------------------------------------------
+
+        void get_extension_matrix_1d( real const & aShift, Matrix< DDRMat >& aExtensionMatrix )
+        {
+            switch ( mBSplineOrder )
+            {
+                case 1:
+                    aExtensionMatrix = { { 1.0 - aShift, aShift }, { -aShift, 1.0 + aShift } };
+                    break;
+                case 2:
+                    aExtensionMatrix = { { 0.5 * ( aShift - 2.0 ) * ( aShift - 1.0 ), aShift * ( -aShift + 2.0 ), 0.5 * aShift * ( aShift - 1.0 ) },    //
+                            { 0.5 * aShift * ( aShift - 1.0 ), -( aShift - 1.0 ) * ( aShift + 1.0 ), 0.5 * aShift * ( aShift + 1 ) },                       //
+                            { 0.5 * aShift * ( aShift + 1.0 ), -aShift * ( aShift + 2.0 ), 0.5 * ( aShift + 1 ) * ( aShift + 2 ) } };
+                    break;
+
+                default:
+                    MORIS_ERROR( false, "B-spline order not known for extension matrix" );
+                    break;
+            }
+        }
+
+        //-------------------------------------------------------------------------------
+
     };
 }
 
