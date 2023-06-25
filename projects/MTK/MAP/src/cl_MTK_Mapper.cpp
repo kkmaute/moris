@@ -388,22 +388,9 @@ namespace moris
             // containers for source and target data
             Matrix< DDRMat > tElementSourceData( tNumberOfNodesPerElement, aFieldSource->get_number_of_fields() );
 
-            hmr::T_Matrix_Base* tTMatrix;
-            switch ( tSourceMesh->get_HMR_database()->get_parameters()->get_number_of_dimensions() )
-            {
-                case 2:
-                    tTMatrix = new hmr::T_Matrix< 2 >(
-                            tSourceMesh->get_HMR_database()->get_parameters(),
-                            tTargetLagrangeMesh );
-                    break;
-                case 3:
-                    tTMatrix = new hmr::T_Matrix< 3 >(
-                            tSourceMesh->get_HMR_database()->get_parameters(),
-                            tTargetLagrangeMesh );
-                    break;
-                default:
-                    MORIS_ERROR( false, "Number of dimensions not known" );
-            }
+            // Create T-matrix
+            hmr::Factory tFactory( tTargetMesh->get_HMR_database()->get_parameters() );
+            hmr::T_Matrix_Base* tTMatrix = tFactory.create_t_matrix( tTargetLagrangeMesh );
 
             // loop over all elements
             for ( luint Ie = 0; Ie < tNumberOfElements; ++Ie )
@@ -507,23 +494,11 @@ namespace moris
             // get number of elements
             uint tNumberOfElements = tSourceLagrangeMesh->get_number_of_elements();
 
-            hmr::T_Matrix_Base* tTMatrix;
-            switch ( tSourceMesh->get_HMR_database()->get_parameters()->get_number_of_dimensions() )
-            {
-                case 2:
-                    tTMatrix = new hmr::T_Matrix< 2 >(
-                            tSourceMesh->get_HMR_database()->get_parameters(),
-                            tTargetLagrangeMesh );
-                    break;
-                case 3:
-                    tTMatrix = new hmr::T_Matrix< 3 >(
-                            tSourceMesh->get_HMR_database()->get_parameters(),
-                            tTargetLagrangeMesh );
-                    break;
-                default:
-                    MORIS_ERROR( false, "Number of dimensions not known" );
-            }
+            // Create T-matrix
+            hmr::Factory tFactory( tSourceMesh->get_HMR_database()->get_parameters() );
+            hmr::T_Matrix_Base* tTMatrix = tFactory.create_t_matrix( tSourceLagrangeMesh );
 
+            // Get change order matrix from T-matrix
             uint             tTargetMeshOrder = tTargetMesh->get_order();
             Matrix< DDRMat > tT               = tTMatrix->get_change_order_matrix( tTargetMeshOrder );
 
