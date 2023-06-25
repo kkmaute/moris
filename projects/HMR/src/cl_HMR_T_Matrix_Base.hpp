@@ -186,6 +186,16 @@ namespace moris::hmr
          */
         void init_lagrange_coefficients();
 
+        /**
+         * Initializes the modified lagrange parameter coordinates
+         *
+         * @param aLagrangeElement Lagrange element
+         * @param aBSplineElement B-spline element
+         */
+        virtual void init_modified_lagrange_parameter_coordinates(
+                Element* aLagrangeElement,
+                Element* aBSplineElement ) = 0;
+
         const Matrix< DDRMat> & get_child_matrix( const Cell< uint > & aChildIndices );
 
 

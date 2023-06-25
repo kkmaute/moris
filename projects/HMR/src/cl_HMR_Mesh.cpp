@@ -1104,7 +1104,7 @@ namespace moris::hmr
             moris::Cell< moris::Cell< mtk::Vertex* > >& tBsplineBasis,
             moris::Cell< Matrix< DDRMat > >&            tWeights )
     {
-        Element& aHMRLagrangeCell = reinterpret_cast< Element& >( aLagrangeCell );
+        Element& aHMRLagrangeCell = dynamic_cast< Element& >( aLagrangeCell );
         mMesh->get_extended_t_matrix( aDiscretizationMeshIndex,
                                       aBSplineCellIndex,
                                       aHMRLagrangeCell,

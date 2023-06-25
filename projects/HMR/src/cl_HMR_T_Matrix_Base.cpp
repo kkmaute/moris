@@ -667,6 +667,7 @@ namespace moris::hmr
         Background_Element_Base* aBSpBackgroundElement = aBsplineElement->get_background_element();
 
         // evaluate
+        this->init_modified_lagrange_parameter_coordinates( aLagrangeElement, aBsplineElement );
         this->recompute_lagrange_matrix();
 
         // get B-Spline pattern of this mesh

@@ -481,7 +481,8 @@ namespace moris::hmr
             // get pointer to b-spline and background elements
             Element* tBsplineElement = mBSplineMeshes( 0 )->get_element_including_aura( aBSplineCellIndex );
 
-            mTMatrix( aDiscretizationMeshIndex )->evaluate_extended_t_matrix(tBsplineElement, &aLagrangeCell, aBsplineBasis, aWeights );
+            // Evaluate extended T-matrix
+            mTMatrix( aDiscretizationMeshIndex )->evaluate_extended_t_matrix( tBsplineElement, &aLagrangeCell, aBsplineBasis, aWeights );
 
             // set the activation pattern back to the pattern of the Lagrange mesh
             mBackgroundMesh->set_activation_pattern( tLagrangePattern );

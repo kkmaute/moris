@@ -510,17 +510,14 @@ namespace moris::hmr
             const luint* tRootIJK     = aRootBsplineElement->get_ijk();
             const luint* tExtendedIJK = aExtendedBsplineElement->get_ijk();
 
-            // get dimensions
-            uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
-
             // number of bspline coefficients per direction
             uint tNodesPerDirection = mBSplineOrder + 1;
 
             // initialize 1D matrices to find the projection matrix in 1D
-            moris::Cell< Matrix< DDRMat > > tMatrices1D( tNumberOfDimensions, Matrix< DDRMat >( tNodesPerDirection, tNodesPerDirection, MORIS_REAL_MAX ) );
+            moris::Cell< Matrix< DDRMat > > tMatrices1D( N, Matrix< DDRMat >( tNodesPerDirection, tNodesPerDirection, MORIS_REAL_MAX ) );
 
             // loop over the dimensions and create the i,j,k 1D matrices
-            for ( uint iDim = 0; iDim < tNumberOfDimensions; iDim++ )
+            for ( uint iDim = 0; iDim < N; iDim++ )
             {
                 real tShift = tRootIJK[ iDim ] < tExtendedIJK[ iDim ] ? real( -tRootIJK[ iDim ] + tExtendedIJK[ iDim ] ) : -real( -tExtendedIJK[ iDim ] + tRootIJK[ iDim ] );
 
@@ -529,7 +526,7 @@ namespace moris::hmr
             }
 
             // calculate number of basis per element
-            uint tNumberOfBasis = std::pow( tNodesPerDirection, tNumberOfDimensions );
+            uint tNumberOfBasis = std::pow( tNodesPerDirection, N );
 
             // initialize the projection matrix with the correct size
             Matrix< DDRMat > tL2ProjectionMatrix( tNumberOfBasis, tNumberOfBasis );
@@ -974,7 +971,56 @@ namespace moris::hmr
             delete tBackElement;
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
+
+        void init_modified_lagrange_parameter_coordinates(
+                Element* aLagrangeElement,
+                Element* aBSplineElement ) override
+        {
+            // number of nodes per direction
+            uint tNodesPerDirection = mLagrangeMesh->get_order() + 1;
+
+            // number of nodes
+            mNumberOfNodes = std::pow( tNodesPerDirection, N );
+
+            // create background element for reference
+            Background_Element_Base* tBackElement = this->create_background_element();
+
+            // create a Lagrange element
+            Element* tReferenceElement = mLagrangeMesh->create_element( tBackElement );
+
+            // assign memory for parameter coordinates
+            mLagrangeParamModified.set_size( mLagrangeParam.n_rows(), mLagrangeParam.n_cols() );
+
+            // scaling factor
+            real tScale = 1.0 / ( (real)mLagrangeMesh->get_order() );
+
+            // container for ijk position of basis
+            luint tIJK[ 3 ];
+            const luint* tIJKBSpline  = aBSplineElement->get_ijk();
+            const luint* tIJKLagrange = aLagrangeElement->get_ijk();
+
+            for ( uint iNodeIndex = 0; iNodeIndex < mNumberOfNodes ; iNodeIndex++ )
+            {
+                // get position from element
+                tReferenceElement->get_ijk_of_basis(iNodeIndex, tIJK );
+
+                // save coordinate into memory
+                for ( uint iDimension = 0; iDimension < N; iDimension++ )
+                {
+                    // Define a custom ternary operator to subtract two lunit since they are unsigned
+                    moris_index tDifference = ( tIJKLagrange[iDimension] > tIJKBSpline[iDimension] )
+                            ? ( tIJKLagrange[iDimension] - tIJKBSpline[iDimension] )
+                            : -( tIJKBSpline[iDimension] - tIJKLagrange[iDimension] );
+                    moris_index tIJKValue = tIJK[ iDimension ] + tDifference ;
+
+                    // fill in node ijk positions in element
+                    mLagrangeParamModified(iDimension, iNodeIndex ) = 2 * tScale * tIJKValue - 1.0;
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
 
         /**
          * calculates the matrix that converts B-Spline DOFs per element to Lagrange DOFs.
@@ -1002,9 +1048,10 @@ namespace moris::hmr
                     // loop over all dimensions
                     for ( uint iDimensionIndex = 0; iDimensionIndex < N; iDimensionIndex++ )
                     {
-                        mTMatrixLagrange( iNodeIndex, iBasisIndex ) *= T_Matrix::b_spline_shape_1d( tOrder,
-                                                                                                    mBSplineIJK( iDimensionIndex, iBasisIndex ),
-                                                                                                    mLagrangeParam( iDimensionIndex, iNodeIndex ) );
+                        mTMatrixLagrange( iNodeIndex, iBasisIndex ) *= T_Matrix::b_spline_shape_1d(
+                                tOrder,
+                                mBSplineIJK( iDimensionIndex, iBasisIndex ),
+                                mLagrangeParam( iDimensionIndex, iNodeIndex ) );
                     }
                 }
             }
@@ -1215,9 +1262,10 @@ namespace moris::hmr
 
         //------------------------------------------------------------------------------
 
-        static real b_spline_shape_1d_extended( const uint& aOrder,
-                                              const uint&                               aK,
-                                              const real&                               aXi )
+        static real b_spline_shape_1d_extended(
+                uint aOrder,
+                uint aK,
+                real aXi )
         {
             switch ( aOrder )
             {
@@ -1806,10 +1854,10 @@ namespace moris::hmr
                     // loop over all dimensions
                     for ( uint iDimension = 0; iDimension < N; iDimension++ )
                     {
-                        mTMatrixLagrangeModified(iNodeIndex, iBasisIndex ) *= this->b_spline_shape_1d_extended(
+                        mTMatrixLagrangeModified( iNodeIndex, iBasisIndex ) *= this->b_spline_shape_1d_extended(
                                 tOrder,
-                                mBSplineIJK(iDimension, iBasisIndex ),
-                                mLagrangeParamModified(iDimension, iNodeIndex ) );
+                                mBSplineIJK( iDimension, iBasisIndex ),
+                                mLagrangeParamModified( iDimension, iNodeIndex ) );
                     }
                 }
             }
