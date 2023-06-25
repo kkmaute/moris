@@ -320,7 +320,7 @@ namespace moris::hmr
             Lagrange_Mesh_Base * aLagrangeMeshFine)
     {
         // Use Advanced T-matrices
-        if ( mParameters->use_advanced_t_matrices() )
+        if ( mParameters->use_advanced_t_matrices() and aLagrangeMeshFine )
         {
             return new T_Matrix_Advanced< N >( mParameters, aLagrangeMeshFine, aBSplineMesh, aLagrangeMesh );
         }
