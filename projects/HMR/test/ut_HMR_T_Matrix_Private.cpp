@@ -220,7 +220,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr],[hmr_t_matrix]")
                         tOrder );
 
                 // create T-Matrix object
-                auto tTMatrix = new moris::hmr::T_Matrix< 2 >( tParameters, tLagrangeMesh, tBSplineMesh );
+                auto tTMatrix = new moris::hmr::T_Matrix< 2 >( tLagrangeMesh, tBSplineMesh );
 
                 // ask Lagrange mesh for number of nodes per element
                 moris::luint tNumberOfNodes = tLagrangeMesh->get_number_of_nodes_on_proc();

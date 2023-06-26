@@ -322,13 +322,13 @@ namespace moris::hmr
         // Use Advanced T-matrices
         if ( mParameters->use_advanced_t_matrices() and aLagrangeMeshFine )
         {
-            return new T_Matrix_Advanced< N >( mParameters, aLagrangeMeshFine, aBSplineMesh, aLagrangeMesh );
+            return new T_Matrix_Advanced< N >( aLagrangeMeshFine, aBSplineMesh, aLagrangeMesh, mParameters->truncate_bsplines() );
         }
 
         // Use regular T-matrices
         else
         {
-            return new T_Matrix< N >( mParameters, aLagrangeMesh, aBSplineMesh );
+            return new T_Matrix< N >( aLagrangeMesh, aBSplineMesh, mParameters->truncate_bsplines() );
         }
     }
 

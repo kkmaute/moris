@@ -34,13 +34,20 @@ namespace moris::hmr
 
     public:
 
-        // constructor
+        /**
+         * Constructor
+         *
+         * @param aLagrangeMesh Lagrange mesh pointer (fine)
+         * @param aBSplineMesh B-spline Mesh pointer
+         * @param aLagrangeMeshCoarse Lagrange mesh pointer (coarse)
+         * @param aTruncate Whether or not to truncate B-splines
+         */
         T_Matrix_Advanced(
-                const Parameters   * aParameters,
                 Lagrange_Mesh_Base * aLagrangeMesh,
                 BSpline_Mesh_Base  * aBSplineMesh,
-                Lagrange_Mesh_Base * aLagrangeMeshCoarse)
-                : T_Matrix< N >( aParameters, aLagrangeMesh, aBSplineMesh )
+                Lagrange_Mesh_Base * aLagrangeMeshCoarse,
+                bool                 aTruncate = true )
+                : T_Matrix< N >( aLagrangeMesh, aBSplineMesh, aTruncate )
                 , mLagrangeMeshCoarse( aLagrangeMeshCoarse )
         {
         }

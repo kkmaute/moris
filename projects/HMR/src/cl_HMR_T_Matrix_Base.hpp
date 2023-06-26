@@ -26,9 +26,6 @@ namespace moris::hmr
     class T_Matrix_Base
     {
     public:
-        //! ref to settings container
-        const Parameters   * mParameters;
-
         //! ref to Lagrange Mesh
         Lagrange_Mesh_Base * mLagrangeMesh;
 
@@ -99,14 +96,14 @@ namespace moris::hmr
         /**
          * Constructor initializing Lagrange coefficients
          *
-         * @param aParameters HMR Parameters
          * @param aLagrangeMesh Lagrange mesh pointer
          * @param aBSplineMesh B-spline Mesh pointer
+         * @param aTruncate Whether or not to truncate B-splines
          */
         T_Matrix_Base(
-                const Parameters*   aParameters,
                 Lagrange_Mesh_Base* aLagrangeMesh,
-                BSpline_Mesh_Base*  aBSplineMesh = nullptr );
+                BSpline_Mesh_Base*  aBSplineMesh = nullptr,
+                bool                aTruncate = true );
 
         // destructor
         virtual ~T_Matrix_Base();

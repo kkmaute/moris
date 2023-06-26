@@ -20,14 +20,23 @@ namespace moris::hmr
     //-------------------------------------------------------------------------------
 
     T_Matrix_Base::T_Matrix_Base(
-            const Parameters*   aParameters,
             Lagrange_Mesh_Base* aLagrangeMesh,
-            BSpline_Mesh_Base*  aBSplineMesh )
-            : mParameters( aParameters )
-            , mLagrangeMesh( aLagrangeMesh )
+            BSpline_Mesh_Base*  aBSplineMesh,
+            bool                aTruncate )
+            : mLagrangeMesh( aLagrangeMesh )
             , mBSplineMesh( aBSplineMesh )
     {
         this->init_lagrange_coefficients();
+
+        // set function pointer
+        if ( aTruncate )
+        {
+            mTMatrixFunction = &T_Matrix_Base::calculate_truncated_t_matrix;
+        }
+        else
+        {
+            mTMatrixFunction = &T_Matrix_Base::calculate_untruncated_t_matrix;
+        }
     }
 
     //-------------------------------------------------------------------------------

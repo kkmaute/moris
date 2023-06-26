@@ -33,17 +33,17 @@ namespace moris::hmr
     public:
 
         /**
-         * Constructor initializing necessary matrices
-         * 
-         * @param aParameters HMR Parameters
+         * Constructor
+         *
          * @param aLagrangeMesh Lagrange mesh pointer
          * @param aBSplineMesh B-spline Mesh pointer
+         * @param aTruncate Whether or not to truncate B-splines
          */
         T_Matrix(
-                const Parameters*   aParameters,
                 Lagrange_Mesh_Base* aLagrangeMesh,
-                BSpline_Mesh_Base*  aBSplineMesh = nullptr )
-                : T_Matrix_Base( aParameters, aLagrangeMesh, aBSplineMesh )
+                BSpline_Mesh_Base*  aBSplineMesh = nullptr,
+                bool                aTruncate = true )
+                : T_Matrix_Base( aLagrangeMesh, aBSplineMesh, aTruncate )
         {
             // Initializations
             this->init_lagrange_parameter_coordinates();
@@ -58,16 +58,6 @@ namespace moris::hmr
                 this->init_child_matrices();
                 this->init_truncation_weights();
                 this->init_lagrange_matrix();
-
-                // set function pointer
-                if ( aParameters->truncate_bsplines() )
-                {
-                    mTMatrixFunction = &T_Matrix_Base::calculate_truncated_t_matrix;
-                }
-                else
-                {
-                    mTMatrixFunction = &T_Matrix_Base::calculate_untruncated_t_matrix;
-                }
             }
         }
 
