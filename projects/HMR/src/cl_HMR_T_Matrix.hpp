@@ -250,43 +250,26 @@ namespace moris::hmr
             mBasisIndex.set_size( tNumberOfBasis, 1 );
             mBSplineIJK.set_size( N, tNumberOfBasis );
 
-            // loop over all basis
-            if ( N == 2 )
+            // Array of ijk position of basis
+            luint tIJK[ N ];
+            for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBasis; iBasisIndex++ )
             {
-                // container for ijk position of basis
-                luint tIJ[ 2 ];
-                for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBasis; iBasisIndex++ )
+                // Get position from element
+                tElement->get_ijk_of_basis( iBasisIndex, tIJK );
+
+                // Loop over dimensions
+                uint tIndex = 0;
+                for ( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
-                    // get position from element
-                    tElement->get_ijk_of_basis( iBasisIndex, tIJ );
+                    // Calculate index in matrix
+                    tIndex += tIJK[ iDimension ] * std::pow( tNodesPerDirection, iDimension );
 
-                    // calculate index in matrix
-                    uint tIndex = tIJ[ 0 ] + tIJ[ 1 ] * tNodesPerDirection;
-
-                    mBasisIndex( tIndex ) = iBasisIndex;
-                    mBSplineIJK( 0, iBasisIndex )   = tIJ[ 0 ];
-                    mBSplineIJK( 1, iBasisIndex )   = tIJ[ 1 ];
+                    // Store IJK
+                    mBSplineIJK( iDimension, iBasisIndex ) = tIJK[ iDimension ];
                 }
-            }
-            else if ( N == 3 )
-            {
-                // container for ijk position of basis
-                luint tIJK[ 3 ];
-                for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBasis; iBasisIndex++ )
-                {
-                    // get position from element
-                    tElement->get_ijk_of_basis( iBasisIndex, tIJK );
 
-                    // calculate index in matrix
-                    uint tIndex =
-                            tIJK[ 0 ] + tNodesPerDirection * ( tIJK[ 1 ] + tIJK[ 2 ] * tNodesPerDirection );
-
-                    mBasisIndex( tIndex ) = iBasisIndex;
-
-                    mBSplineIJK( 0, iBasisIndex ) = tIJK[ 0 ];
-                    mBSplineIJK( 1, iBasisIndex ) = tIJK[ 1 ];
-                    mBSplineIJK( 2, iBasisIndex ) = tIJK[ 2 ];
-                }
+                // Assign basis index
+                mBasisIndex( tIndex ) = iBasisIndex;
             }
 
             // tidy up
@@ -512,7 +495,7 @@ namespace moris::hmr
                     moris_index tIJKValue = tIJK[ iDimension ] + tIJKLagrange[iDimension] - tIJKBSpline[iDimension];
 
                     // fill in node ijk positions in element
-                    mLagrangeParamModified(iDimension, iNodeIndex ) = 2 * tScale * tIJKValue - 1.0;
+                    mLagrangeParamModified( iDimension, iNodeIndex ) = 2 * tScale * tIJKValue - 1.0;
                 }
             }
         }
@@ -589,18 +572,18 @@ namespace moris::hmr
             for ( uint iChildIndex = 0; iChildIndex < tNumberOfChildren; iChildIndex++ )
             {
                 // get matrix with  corner nodes
-                get_child_corner_nodes( iChildIndex, tCorners );
+                this->get_child_corner_nodes( iChildIndex, tCorners );
 
                 for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; iNodeIndex++ )
                 {
                     // evaluate shape function for "geometry"
-                    evaluate_geometry_interpolation( mLagrangeParam.get_column( iNodeIndex ), tNGeo );
+                    this->evaluate_geometry_interpolation( mLagrangeParam.get_column( iNodeIndex ), tNGeo );
 
                     // get parameter coordinates
                     Matrix< DDRMat > tXi = tNGeo * tCorners;
 
                     // evaluate shape function
-                    evaluate_shape_function( tXi, tN );
+                    this->evaluate_shape_function( tXi, tN );
 
                     // copy result into matrix
                     mLagrangeRefinementMatrix( iChildIndex ).set_row( iNodeIndex, tN.get_row( 0 ) );
@@ -649,7 +632,7 @@ namespace moris::hmr
                     }
 
                     // evaluate shape function
-                    evaluate_shape_function( tPoint,tN );
+                    this->evaluate_shape_function( tPoint,tN );
 
                     for ( uint iNodeThisMesh = 0; iNodeThisMesh < tNumberOfNodesThisMesh; iNodeThisMesh++ )
                     {
