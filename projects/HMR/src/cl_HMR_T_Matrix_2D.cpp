@@ -231,7 +231,7 @@ namespace moris::hmr
     // -----------------------------------------------------------------------------------------------------------------
 
     template<>
-    void T_Matrix< 2 >::evaluate_truncation_weights( const Matrix< DDRMat>& aWeights )
+    void T_Matrix< 2 >::evaluate_truncation_weights( const Matrix< DDRMat >& aWeights )
     {
         // init counter
         uint tTruncationWeightIndex = 0;
@@ -242,6 +242,37 @@ namespace moris::hmr
             for ( real iWeightJ : aWeights )
             {
                 mTruncationWeights( tTruncationWeightIndex++ ) = iWeightI * iWeightJ;
+            }
+        }
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+
+    template<>
+    void T_Matrix< 2 >::populate_child_matrices( const Matrix< DDRMat >& aTL, const Matrix< DDRMat >& aTR )
+    {
+        // Number of coefficients
+        uint tNumCoefficients = aTL.n_rows();
+
+        // Tensor product
+        uint tChildCol = 0;
+        for ( uint iTRow2 = 0; iTRow2 < tNumCoefficients; iTRow2++ )
+        {
+            for ( uint iTRow1 = 0; iTRow1 < tNumCoefficients; iTRow1++ )
+            {
+                uint tChildRow = 0;
+                for ( uint iTCol2 = 0; iTCol2 < tNumCoefficients; iTCol2++ )
+                {
+                    for ( uint iTCol1 = 0; iTCol1 < tNumCoefficients; iTCol1++ )
+                    {
+                        mChild( 0 )( mBasisIndex( tChildRow ), mBasisIndex( tChildCol ) ) = aTL( iTRow1, iTCol1 ) * aTL( iTRow2, iTCol2 );
+                        mChild( 1 )( mBasisIndex( tChildRow ), mBasisIndex( tChildCol ) ) = aTR( iTRow1, iTCol1 ) * aTL( iTRow2, iTCol2 );
+                        mChild( 2 )( mBasisIndex( tChildRow ), mBasisIndex( tChildCol ) ) = aTL( iTRow1, iTCol1 ) * aTR( iTRow2, iTCol2 );
+                        mChild( 3 )( mBasisIndex( tChildRow ), mBasisIndex( tChildCol ) ) = aTR( iTRow1, iTCol1 ) * aTR( iTRow2, iTCol2 );
+                        tChildRow++;
+                    }
+                }
+                tChildCol++;
             }
         }
     }

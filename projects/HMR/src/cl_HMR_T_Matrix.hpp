@@ -363,64 +363,10 @@ namespace moris::hmr
             // container for child relation matrices ( transposed! )
             mChild.resize( tNumberOfChildren, tEmpty );
 
-            // populate child matrices. Tensor product
-            if ( N == 2 )
-            {
-                uint tChildCol = 0;
-                for ( uint iTRow2 = 0; iTRow2 < tNumCoefficients; iTRow2++ )
-                {
-                    for ( uint iTRow1 = 0; iTRow1 < tNumCoefficients; iTRow1++ )
-                    {
-                        uint tChildRow = 0;
-                        for ( uint iTCol2 = 0; iTCol2 < tNumCoefficients; iTCol2++ )
-                        {
-                            for ( uint iTCol1 = 0; iTCol1 < tNumCoefficients; iTCol1++ )
-                            {
-                                mChild( 0 )( mBasisIndex( tChildRow ), mBasisIndex( tChildCol ) ) = TL( iTRow1, iTCol1 ) * TL( iTRow2, iTCol2 );
-                                mChild( 1 )( mBasisIndex( tChildRow ), mBasisIndex( tChildCol ) ) = TR( iTRow1, iTCol1 ) * TL( iTRow2, iTCol2 );
-                                mChild( 2 )( mBasisIndex( tChildRow ), mBasisIndex( tChildCol ) ) = TL( iTRow1, iTCol1 ) * TR( iTRow2, iTCol2 );
-                                mChild( 3 )( mBasisIndex( tChildRow ), mBasisIndex( tChildCol ) ) = TR( iTRow1, iTCol1 ) * TR( iTRow2, iTCol2 );
-                                tChildRow++;
-                            }
-                        }
-                        tChildCol++;
-                    }
-                }
-            }
-            else if ( N == 3 )
-            {
-                uint tChildCol = 0;
-                for ( uint iTRow3 = 0; iTRow3 < tNumCoefficients; iTRow3++ )
-                {
-                    for ( uint iTRow2 = 0; iTRow2 < tNumCoefficients; iTRow2++ )
-                    {
-                        for ( uint iTRow1 = 0; iTRow1 < tNumCoefficients; iTRow1++ )
-                        {
-                            uint tChildRow = 0;
-                            for ( uint iTCol3 = 0; iTCol3 < tNumCoefficients; iTCol3++ )
-                            {
-                                for ( uint iTCol2 = 0; iTCol2 < tNumCoefficients; iTCol2++ )
-                                {
-                                    for ( uint iTCol1 = 0; iTCol1 < tNumCoefficients; iTCol1++ )
-                                    {
-                                        mChild( 0 )( mBasisIndex( tChildRow ), mBasisIndex( tChildCol ) ) = TL( iTRow1, iTCol1 ) * TL( iTRow2, iTCol2 ) * TL( iTRow3, iTCol3 );
-                                        mChild( 1 )( mBasisIndex( tChildRow ), mBasisIndex( tChildCol ) ) = TR( iTRow1, iTCol1 ) * TL( iTRow2, iTCol2 ) * TL( iTRow3, iTCol3 );
-                                        mChild( 2 )( mBasisIndex( tChildRow ), mBasisIndex( tChildCol ) ) = TL( iTRow1, iTCol1 ) * TR( iTRow2, iTCol2 ) * TL( iTRow3, iTCol3 );
-                                        mChild( 3 )( mBasisIndex( tChildRow ), mBasisIndex( tChildCol ) ) = TR( iTRow1, iTCol1 ) * TR( iTRow2, iTCol2 ) * TL( iTRow3, iTCol3 );
-                                        mChild( 4 )( mBasisIndex( tChildRow ), mBasisIndex( tChildCol ) ) = TL( iTRow1, iTCol1 ) * TL( iTRow2, iTCol2 ) * TR( iTRow3, iTCol3 );
-                                        mChild( 5 )( mBasisIndex( tChildRow ), mBasisIndex( tChildCol ) ) = TR( iTRow1, iTCol1 ) * TL( iTRow2, iTCol2 ) * TR( iTRow3, iTCol3 );
-                                        mChild( 6 )( mBasisIndex( tChildRow ), mBasisIndex( tChildCol ) ) = TL( iTRow1, iTCol1 ) * TR( iTRow2, iTCol2 ) * TR( iTRow3, iTCol3 );
-                                        mChild( 7 )( mBasisIndex( tChildRow ), mBasisIndex( tChildCol ) ) = TR( iTRow1, iTCol1 ) * TR( iTRow2, iTCol2 ) * TR( iTRow3, iTCol3 );
-                                        tChildRow++;
-                                    }
-                                }
-                            }
-                            tChildCol++;
-                        }
-                    }
-                }
-            }
+            // populate child matrices.
+            this->populate_child_matrices( TL, TR );
 
+            // Child multiplication
             this->child_multiplication();
         }
 
@@ -720,7 +666,7 @@ namespace moris::hmr
         {
             // create a prototype for a background element
             luint tIJK[ N ] = { 0 };
-            Background_Element_Base* aBackElement = new Background_Element< N >(
+            return new Background_Element< N >(
                     nullptr,
                     0,
                     tIJK,
@@ -728,8 +674,6 @@ namespace moris::hmr
                     0,
                     0,
                     gNoProcOwner );
-
-            return aBackElement;
         }
 
 //------------------------------------------------------------------------------
@@ -959,6 +903,17 @@ namespace moris::hmr
             MORIS_ERROR( false, "Don't know how to evaluate truncation weights for a T-matrix of dimension %u", N );
         }
 
+        /**
+         * Populates the child matrices based on the given left and right matrix
+         *
+         * @param aTL Left matrix
+         * @param aTR Right matrix
+         */
+        void populate_child_matrices( const Matrix< DDRMat >& aTL, const Matrix< DDRMat >& aTR )
+        {
+            MORIS_ERROR( false, "Don't know how to populate child matrices for a T-matrix of dimension %u", N );
+        }
+
     };
 
     /**
@@ -974,6 +929,8 @@ namespace moris::hmr
     template<> Matrix< DDRMat > T_Matrix< 3 >::get_supporting_points( uint aOrder );
     template<> void T_Matrix< 2 >::evaluate_truncation_weights( const Matrix< DDRMat>& aWeights );
     template<> void T_Matrix< 3 >::evaluate_truncation_weights( const Matrix< DDRMat>& aWeights );
+    template<> void T_Matrix< 2 >::populate_child_matrices( const Matrix< DDRMat >& aTL, const Matrix< DDRMat>& aTR );
+    template<> void T_Matrix< 3 >::populate_child_matrices( const Matrix< DDRMat >& aTL, const Matrix< DDRMat>& aTR );
 
 }
 
