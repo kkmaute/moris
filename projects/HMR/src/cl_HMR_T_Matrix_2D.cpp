@@ -135,4 +135,99 @@ namespace moris::hmr
 
     // -----------------------------------------------------------------------------------------------------------------
 
+    template<>
+    Matrix< DDRMat > T_Matrix< 2 >::get_supporting_points( const uint aOrder )
+    {
+        // the following lines are needed to get the interpolation points
+        Matrix< DDRMat > aXihat( 2, std::pow( aOrder + 1, 2 ) );
+
+        switch ( aOrder )
+        {
+            case 1:
+            {
+                // quad 4
+                aXihat( 0, 0 ) = -1.000000;
+                aXihat( 1, 0 ) = -1.000000;
+                aXihat( 0, 1 ) = 1.000000;
+                aXihat( 1, 1 ) = -1.000000;
+                aXihat( 0, 2 ) = 1.000000;
+                aXihat( 1, 2 ) = 1.000000;
+                aXihat( 0, 3 ) = -1.000000;
+                aXihat( 1, 3 ) = 1.000000;
+                break;
+            }
+            case 2:
+            {
+                // quad 9
+                aXihat( 0, 0 ) = -1.000000;
+                aXihat( 1, 0 ) = -1.000000;
+                aXihat( 0, 1 ) = 1.000000;
+                aXihat( 1, 1 ) = -1.000000;
+                aXihat( 0, 2 ) = 1.000000;
+                aXihat( 1, 2 ) = 1.000000;
+                aXihat( 0, 3 ) = -1.000000;
+                aXihat( 1, 3 ) = 1.000000;
+                aXihat( 0, 4 ) = 0.000000;
+                aXihat( 1, 4 ) = -1.000000;
+                aXihat( 0, 5 ) = 1.000000;
+                aXihat( 1, 5 ) = 0.000000;
+                aXihat( 0, 6 ) = 0.000000;
+                aXihat( 1, 6 ) = 1.000000;
+                aXihat( 0, 7 ) = -1.000000;
+                aXihat( 1, 7 ) = 0.000000;
+                aXihat( 0, 8 ) = 0.000000;
+                aXihat( 1, 8 ) = 0.000000;
+                break;
+            }
+            case 3:
+            {
+                // quad 16
+                real c = 1.0 / 3.0;
+
+                aXihat( 0, 0 )  = -1.000000;
+                aXihat( 1, 0 )  = -1.000000;
+                aXihat( 0, 1 )  = 1.000000;
+                aXihat( 1, 1 )  = -1.000000;
+                aXihat( 0, 2 )  = 1.000000;
+                aXihat( 1, 2 )  = 1.000000;
+                aXihat( 0, 3 )  = -1.000000;
+                aXihat( 1, 3 )  = 1.000000;
+                aXihat( 0, 4 )  = -c;
+                aXihat( 1, 4 )  = -1.000000;
+                aXihat( 0, 5 )  = c;
+                aXihat( 1, 5 )  = -1.000000;
+                aXihat( 0, 6 )  = 1.000000;
+                aXihat( 1, 6 )  = -c;
+                aXihat( 0, 7 )  = 1.000000;
+                aXihat( 1, 7 )  = c;
+                aXihat( 0, 8 )  = c;
+                aXihat( 1, 8 )  = 1.000000;
+                aXihat( 0, 9 )  = -c;
+                aXihat( 1, 9 )  = 1.000000;
+                aXihat( 0, 10 ) = -1.000000;
+                aXihat( 1, 10 ) = c;
+                aXihat( 0, 11 ) = -1.000000;
+                aXihat( 1, 11 ) = -c;
+                aXihat( 0, 12 ) = -c;
+                aXihat( 1, 12 ) = -c;
+                aXihat( 0, 13 ) = c;
+                aXihat( 1, 13 ) = -c;
+                aXihat( 0, 14 ) = c;
+                aXihat( 1, 14 ) = c;
+                aXihat( 0, 15 ) = -c;
+                aXihat( 1, 15 ) = c;
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false, "something went wrong while creating T-Matrices." );
+                break;
+            }
+        }
+
+        return aXihat;
+    }
+
+    // -----------------------------------------------------------------------------------------------------------------
+
 }
