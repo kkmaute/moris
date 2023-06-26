@@ -22,7 +22,7 @@ namespace moris::hmr
 
     template <>
     inline
-    void Background_Element< 2, 4, 8, 4, 0 >::get_neighbors_from_same_level(
+    void Background_Element< 2 >::get_neighbors_from_same_level(
             uint aOrder,
             Cell< Background_Element_Base * > & aNeighbors )
     {

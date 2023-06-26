@@ -8,7 +8,7 @@
  *
  */
 
-#ifndef SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_EDGED_3D_HPP_
+#ifndef SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_EDGES_3D_HPP_
 #define SRC_HMR_FN_HMR_BACKGROUND_ELEMENT_EDGES_3D_HPP_
 
 #include "typedefs.hpp"
@@ -21,7 +21,7 @@ namespace moris::hmr
 
     template <>
     inline
-    void Background_Element< 3, 8, 26, 6, 12 >::create_edges()
+    void Background_Element< 3 >::create_edges()
     {
         // step 1: copy existing edges from neighbors 0 to tE5
         moris_index tE0  = 0;

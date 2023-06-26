@@ -754,40 +754,16 @@ namespace moris::hmr
 
         Background_Element_Base* create_background_element()
         {
-            Background_Element_Base* aBackElement = nullptr;
-
             // create a prototype for a background element
-            switch ( N )
-            {
-                case ( 2 ):
-                {
-                    luint tIJ[ 2 ] = { 0, 0 };
-                    aBackElement   = new Background_Element< 2, 4, 8, 4, 0 >( nullptr,
-                                                                              0,
-                                                                              tIJ,
-                                                                              0,
-                                                                              0,
-                                                                              0,
-                                                                              gNoProcOwner );
-                    break;
-                }
-                case ( 3 ):
-                {
-                    luint tIJK[ 3 ] = { 0, 0, 0 };
-                    aBackElement    = new Background_Element< 3, 8, 26, 6, 12 >( nullptr,
-                                                                                 0,
-                                                                                 tIJK,
-                                                                                 0,
-                                                                                 0,
-                                                                                 0,
-                                                                                 gNoProcOwner );
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "unknown number of dimensions." );
-                }
-            }
+            luint tIJK[ N ] = { 0 };
+            Background_Element_Base* aBackElement = new Background_Element< N >(
+                    nullptr,
+                    0,
+                    tIJK,
+                    0,
+                    0,
+                    0,
+                    gNoProcOwner );
 
             return aBackElement;
         }

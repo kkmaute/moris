@@ -246,7 +246,7 @@ namespace moris::hmr
                 {
                     tIJK[ 0 ] = i;
                     this->insert_zero_level_element( tCount++,
-                            new Background_Element< 3, 8, 26, 6, 12 >( (Background_Element_Base*)nullptr,
+                            new Background_Element< 3 >( (Background_Element_Base*)nullptr,
                                     mActivePattern,
                                     tIJK,
                                     this->calc_domain_id_of_element( 0, i, j, k ),
@@ -861,7 +861,7 @@ namespace moris::hmr
                 tCIJK[ 0 ] = tIJK( 0, 0 );
                 tCIJK[ 1 ] = tIJK( 1, 0 );
                 tCIJK[ 2 ] = tIJK( 2, 0 );
-                aElement->insert_child( new Background_Element< 3, 8, 26, 6, 12 >(
+                aElement->insert_child( new Background_Element< 3 >(
                         aElement,
                         mActivePattern,
                         tCIJK,
@@ -874,7 +874,7 @@ namespace moris::hmr
                 tCIJK[ 0 ] = tIJK( 0, 1 );
                 tCIJK[ 1 ] = tIJK( 1, 1 );
                 tCIJK[ 2 ] = tIJK( 2, 1 );
-                aElement->insert_child( new Background_Element< 3, 8, 26, 6, 12 >(
+                aElement->insert_child( new Background_Element< 3 >(
                         aElement,
                         mActivePattern,
                         tCIJK,
@@ -887,7 +887,7 @@ namespace moris::hmr
                 tCIJK[ 0 ] = tIJK( 0, 2 );
                 tCIJK[ 1 ] = tIJK( 1, 2 );
                 tCIJK[ 2 ] = tIJK( 2, 2 );
-                aElement->insert_child( new Background_Element< 3, 8, 26, 6, 12 >(
+                aElement->insert_child( new Background_Element< 3 >(
                         aElement,
                         mActivePattern,
                         tCIJK,
@@ -900,7 +900,7 @@ namespace moris::hmr
                 tCIJK[ 0 ] = tIJK( 0, 3 );
                 tCIJK[ 1 ] = tIJK( 1, 3 );
                 tCIJK[ 2 ] = tIJK( 2, 3 );
-                aElement->insert_child( new Background_Element< 3, 8, 26, 6, 12 >(
+                aElement->insert_child( new Background_Element< 3 >(
                         aElement,
                         mActivePattern,
                         tCIJK,
@@ -913,7 +913,7 @@ namespace moris::hmr
                 tCIJK[ 0 ] = tIJK( 0, 4 );
                 tCIJK[ 1 ] = tIJK( 1, 4 );
                 tCIJK[ 2 ] = tIJK( 2, 4 );
-                aElement->insert_child( new Background_Element< 3, 8, 26, 6, 12 >(
+                aElement->insert_child( new Background_Element< 3 >(
                         aElement,
                         mActivePattern,
                         tCIJK,
@@ -926,7 +926,7 @@ namespace moris::hmr
                 tCIJK[ 0 ] = tIJK( 0, 5 );
                 tCIJK[ 1 ] = tIJK( 1, 5 );
                 tCIJK[ 2 ] = tIJK( 2, 5 );
-                aElement->insert_child( new Background_Element< 3, 8, 26, 6, 12 >(
+                aElement->insert_child( new Background_Element< 3 >(
                         aElement,
                         mActivePattern,
                         tCIJK,
@@ -939,7 +939,7 @@ namespace moris::hmr
                 tCIJK[ 0 ] = tIJK( 0, 6 );
                 tCIJK[ 1 ] = tIJK( 1, 6 );
                 tCIJK[ 2 ] = tIJK( 2, 6 );
-                aElement->insert_child( new Background_Element< 3, 8, 26, 6, 12 >(
+                aElement->insert_child( new Background_Element< 3 >(
                         aElement,
                         mActivePattern,
                         tCIJK,
@@ -952,7 +952,7 @@ namespace moris::hmr
                 tCIJK[ 0 ] = tIJK( 0, 7 );
                 tCIJK[ 1 ] = tIJK( 1, 7 );
                 tCIJK[ 2 ] = tIJK( 2, 7 );
-                aElement->insert_child( new Background_Element< 3, 8, 26, 6, 12 >(
+                aElement->insert_child( new Background_Element< 3 >(
                         aElement,
                         mActivePattern,
                         tCIJK,
