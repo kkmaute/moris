@@ -123,6 +123,8 @@ set(LIB_SOURCES
     cl_HMR_Paramfile.cpp
     cl_HMR_STK.cpp
     cl_HMR_T_Matrix_Base.cpp
+    cl_HMR_T_Matrix_2D.cpp
+    cl_HMR_T_Matrix_3D.cpp
     cl_HMR_Cell_Cluster.cpp
     cl_HMR_Side_Cluster.cpp
    )

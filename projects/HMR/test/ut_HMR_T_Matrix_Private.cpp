@@ -240,7 +240,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr],[hmr_t_matrix]")
                     // get node coordinate
                     auto tXY = tNode->get_coords();
 
-                    tTMatrix->lagrange_shape_2d( tXY, tN );
+                    tTMatrix->evaluate_shape_function( tXY, tN );
 
                     // epsilon environment
                     moris::real tEpsilon = 1e-12;
@@ -342,7 +342,7 @@ TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr],[hmr_t_matrix]")
                     // shape function vector
                     moris::Matrix< moris::DDRMat > tN( tNumberOfNodes, 1 );
 
-                    tTMatrix->lagrange_shape_3d( tXYZ, tN );
+                    tTMatrix->evaluate_shape_function( tXYZ, tN );
 
                     // epsilon environment
                     moris::real tEpsilon = 1e-12;

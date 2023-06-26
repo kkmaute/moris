@@ -94,12 +94,6 @@ namespace moris::hmr
                                                        Matrix< DDRMat > & aTMatrixTransposed,
                                                        Cell< Basis* >   & aDOFs );
 
-        //! pointer to function for geometry interpolation
-        void ( * mEvalNGeo )( const Matrix< DDRMat > & aXi, Matrix< DDRMat > & aN );
-
-        //! pointer to corner node function
-        void ( * mGetCorners )(  uint aChildIndex, Matrix< DDRMat > & aXi );
-
     public:
 
         /**
@@ -207,30 +201,6 @@ namespace moris::hmr
         static real b_spline_shape_1d( uint aOrder,
                                 uint aK,
                                 real aXi );
-
-        //------------------------------------------------------------------------------
-
-        /**
-         * 1D shape function
-         */
-        real lagrange_shape_1d( uint aBasisNumber,
-                                real aXi ) const;
-
-        //------------------------------------------------------------------------------
-
-        /**
-         * 2D shape function
-         */
-        void lagrange_shape_2d( const Matrix< DDRMat > & aXi,
-                                      Matrix< DDRMat > & aN ) const;
-
-        //------------------------------------------------------------------------------
-
-        /**
-         * 3D shape function
-         */
-        void lagrange_shape_3d( const Matrix< DDRMat > & aXi,
-                                      Matrix< DDRMat > & aN ) const;
 
         /**
          * Recompute the Lagrange matrix for extended T-matrices
