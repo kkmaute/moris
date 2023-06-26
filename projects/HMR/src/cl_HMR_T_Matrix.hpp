@@ -482,34 +482,8 @@ namespace moris::hmr
             // allocate weights
             mTruncationWeights.set_size( static_cast<uint>( std::pow( tNumberOfChildren, N ) ), 1 );
 
-            // init counter
-            uint tTruncationWeightIndex = 0;
-
-            if ( N == 2 )
-            {
-                // loop over all positions
-                for ( real iWeightI : tWeights )
-                {
-                    for ( real iWeightJ : tWeights )
-                    {
-                        mTruncationWeights( tTruncationWeightIndex++ ) = iWeightI * iWeightJ;
-                    }
-                }
-            }
-            else if ( N == 3 )
-            {
-                // loop over all positions
-                for ( real iWeightI : tWeights )
-                {
-                    for ( real iWeightJ : tWeights )
-                    {
-                        for ( real iWeightK : tWeights )
-                        {
-                            mTruncationWeights( tTruncationWeightIndex++ ) = iWeightI * iWeightJ * iWeightK;
-                        }
-                    }
-                }
-            }
+            // Evaluate weights
+            evaluate_truncation_weights( tWeights );
         }
 
 //------------------------------------------------------------------------------
@@ -985,6 +959,16 @@ namespace moris::hmr
             return {0, 0};
         }
 
+        /**
+         * Evaluates the 2D/3D truncation weights based on the 1D weights and stores them internally
+         *
+         * @param aWeights 1D truncation weights
+         */
+        void evaluate_truncation_weights( const Matrix< DDRMat >& aWeights )
+        {
+            MORIS_ERROR( false, "Don't know how to evaluate truncation weights for a T-matrix of dimension %u", N );
+        }
+
     };
 
     /**
@@ -998,6 +982,8 @@ namespace moris::hmr
     template<> void T_Matrix< 3 >::get_child_corner_nodes( uint aChildIndex, Matrix< DDRMat >& aXi );
     template<> Matrix< DDRMat > T_Matrix< 2 >::get_supporting_points( uint aOrder );
     template<> Matrix< DDRMat > T_Matrix< 3 >::get_supporting_points( uint aOrder );
+    template<> void T_Matrix< 2 >::evaluate_truncation_weights( const Matrix< DDRMat>& aWeights );
+    template<> void T_Matrix< 3 >::evaluate_truncation_weights( const Matrix< DDRMat>& aWeights );
 
 }
 
