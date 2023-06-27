@@ -30,6 +30,12 @@ namespace moris::hmr
     template< uint P, uint Q, uint R >
     class BSpline_Element : public Element
     {
+        //! Number of dimensions
+        static constexpr uint N = ( P > 0 ) + ( Q > 0 ) + ( R > 0 );
+
+        //! Number of bases
+        static constexpr uint B = ( P + 1 ) * ( Q + 1 ) * ( R + 1 );
+
         //! pointer to nodes
         Basis**     mBasis;
 
@@ -62,8 +68,8 @@ namespace moris::hmr
             MORIS_ASSERT( ! mHaveBasis, "Basis container of element already initiated" );
 
             mHaveBasis = true;
-            mBasis = new Basis *[ (P + 1) * (Q + 1) * (R + 1) ];
-            for ( uint iBasisIndex = 0; iBasisIndex < (P + 1) * (Q + 1) * (R + 1); iBasisIndex++ )
+            mBasis = new Basis *[ B ];
+            for ( uint iBasisIndex = 0; iBasisIndex < B; iBasisIndex++ )
             {
                 mBasis[ iBasisIndex ] = nullptr;
             }
@@ -153,7 +159,7 @@ namespace moris::hmr
                     ( long unsigned int ) mElement->get_hmr_index( mActivationPattern ),
                     ( long unsigned int ) mElement->get_hmr_id(),
                     ( long unsigned int ) mElement->get_parent()->get_hmr_id() );
-            for ( uint iBasisIndex = 0; iBasisIndex < (P + 1) * (Q + 1) * (R + 1); iBasisIndex++ )
+            for ( uint iBasisIndex = 0; iBasisIndex < B; iBasisIndex++ )
             {
                 // get node
                 Basis* tNode = this->get_basis( iBasisIndex );
@@ -244,7 +250,7 @@ namespace moris::hmr
          */
         uint get_number_of_vertices() const override
         {
-            return (P + 1) * (Q + 1) * (R + 1);
+            return B;
         }
 
 //------------------------------------------------------------------------------
@@ -282,7 +288,22 @@ namespace moris::hmr
         /**
          * returns a Mat with the basis coords
          */
-        Matrix< DDRMat > get_vertex_coords() const override ;
+        Matrix< DDRMat > get_vertex_coords() const override
+        {
+            MORIS_ERROR(false, "get_vertex_coords(): to make this Bspline_Element function work, turn on calculate_basis_coordinates() in collect_basis()");
+
+            Matrix< DDRMat > aCoords( B, N );
+            for ( uint iBasisIndex = 0; iBasisIndex < B; iBasisIndex++ )
+            {
+                const real * tXYZ = mBasis[ iBasisIndex ]->get_xyz();
+
+                for( uint iCoordinateIndex = 0; iCoordinateIndex < N; iCoordinateIndex++ )
+                {
+                    aCoords( iBasisIndex, iCoordinateIndex ) = tXYZ[ iCoordinateIndex ];
+                }
+            }
+            return aCoords;
+        }
 
 //------------------------------------------------------------------------------
     };
@@ -398,27 +419,6 @@ namespace moris::hmr
     {
         MORIS_ERROR( false, "get_interpolation_order() not available for this element.");
         return mtk::Interpolation_Order::UNDEFINED;
-    }
-
-//------------------------------------------------------------------------------
-
-    template< uint P, uint Q, uint R >
-    inline
-    Matrix< DDRMat > BSpline_Element< P, Q, R >::get_vertex_coords() const
-    {
-        MORIS_ERROR(false, "get_vertex_coords(): to make this Bspline_Element function work, turn on calculate_basis_coordinates() in collect_basis()");
-
-        Matrix< DDRMat > aCoords( (P + 1) * (Q + 1) * (R + 1), (P > 0) + (Q > 0) + (R > 0) );
-        for ( uint iBasisIndex = 0; iBasisIndex < (P + 1) * (Q + 1) * (R + 1); iBasisIndex++ )
-        {
-            const real * tXYZ = mBasis[ iBasisIndex ]->get_xyz();
-
-            for( uint iCoordinateIndex = 0; iCoordinateIndex < (P > 0) + (Q > 0) + (R > 0); iCoordinateIndex++ )
-            {
-                aCoords( iBasisIndex, iCoordinateIndex ) = tXYZ[ iCoordinateIndex ];
-            }
-        }
-        return aCoords;
     }
 
 //------------------------------------------------------------------------------
