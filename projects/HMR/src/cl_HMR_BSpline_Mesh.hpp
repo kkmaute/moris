@@ -25,13 +25,18 @@ namespace moris::hmr
     // ----------------------------------------------------------------------------
 
     /**
-     * \brief the BSpline_Mesh class calculates B-Splines for a given
-     *  background mesh.
+     * B-spline element class
      *
+     * @tparam P Polynomial degree in x-direction
+     * @tparam Q Polynomial degree in y-direction
+     * @tparam R Polynomial degree in z-direction
      */
-    template< uint N, uint P >
+    template< uint P, uint Q, uint R >
     class BSpline_Mesh : public BSpline_Mesh_Base
     {
+        //! Number of dimensions
+        static constexpr uint N = ( P > 0 ) + ( Q > 0 ) + ( R > 0 );
+
         //! Lookup table containing offset for node IDs
         luint mBasisLevelOffset[ gMaxNumberOfLevels ];
 
@@ -198,36 +203,47 @@ namespace moris::hmr
         void calculate_lookup_tables()
         {
             // calculate number of basis on first level
-            for( uint k = 0; k < N; ++k )
+            mNumberOfBasisPerDimensionIncludingPadding[ 0 ][ 0 ] += P;
+            if ( Q > 0 )
             {
-                mNumberOfBasisPerDimensionIncludingPadding[ 0 ][ k ] =
-                        mNumberOfElementsPerDimensionIncludingAura[ 0 ][ k ] + P;
+                mNumberOfBasisPerDimensionIncludingPadding[ 0 ][ 1 ] += Q;
+            }
+            if ( R > 0 )
+            {
+                mNumberOfBasisPerDimensionIncludingPadding[ 0 ][ 1 ] += R;
             }
 
             // calculate number of basis on higher levels
-            for( uint l = 1; l < gMaxNumberOfLevels; ++l )
+            for( uint iLevel = 1; iLevel < gMaxNumberOfLevels; iLevel++ )
             {
-                for( uint k = 0; k < N; ++k )
+                mNumberOfBasisPerDimensionIncludingPadding[ iLevel ][ 0 ] =
+                        2 * mNumberOfBasisPerDimensionIncludingPadding[ iLevel - 1 ][ 0 ] + P;
+                if ( Q > 0 )
                 {
-                    mNumberOfBasisPerDimensionIncludingPadding[ l ][ k ] =
-                            2*mNumberOfBasisPerDimensionIncludingPadding[ l-1 ][ k ] + P;
+                    mNumberOfBasisPerDimensionIncludingPadding[ iLevel ][ 1 ] =
+                            2 * mNumberOfBasisPerDimensionIncludingPadding[ iLevel - 1 ][ 1 ] + Q;
+                }
+                if ( R > 0 )
+                {
+                    mNumberOfBasisPerDimensionIncludingPadding[ iLevel ][ 2 ] =
+                            2 * mNumberOfBasisPerDimensionIncludingPadding[ iLevel - 1 ][ 2 ] + Q;
                 }
             }
 
             // calculate basis level offset
             mBasisLevelOffset[ 0 ] = 0;
 
-            for( uint l = 1; l < gMaxNumberOfLevels; ++l )
+            for( uint iLevel = 1; iLevel < gMaxNumberOfLevels; iLevel++ )
             {
                 // calculate number of nodes on this level
                 luint tNumberOfBasis = 1;
-                for( uint k = 0; k < N; ++k )
+                for( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
-                    tNumberOfBasis *= mNumberOfBasisPerDimensionIncludingPadding[ l-1 ][ k ];
+                    tNumberOfBasis *= mNumberOfBasisPerDimensionIncludingPadding[ iLevel - 1 ][ iDimension ];
                 }
 
                 // add number of nodes to offset table
-                mBasisLevelOffset[ l ] = mBasisLevelOffset[ l-1 ] + tNumberOfBasis;
+                mBasisLevelOffset[ iLevel ] = mBasisLevelOffset[ iLevel - 1 ] + tNumberOfBasis;
             }
         }
 
@@ -242,11 +258,11 @@ namespace moris::hmr
         {
             Matrix< DDLUMat > tIJK = mBackgroundMesh->get_subdomain_offset_of_proc();
 
-            for( uint l = 0; l < gMaxNumberOfLevels; ++l )
+            for( uint iLevel = 0; iLevel < gMaxNumberOfLevels; iLevel++ )
             {
-                for( uint k = 0; k < N; ++k )
+                for( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
-                    mMySubdomainOffset[ l ][ k ] = tIJK( k, l );
+                    mMySubdomainOffset[ iLevel ][ iDimension ] = tIJK(iDimension, iLevel );
                 }
             }
         }
@@ -265,11 +281,11 @@ namespace moris::hmr
             Matrix< DDLUMat > tMat = mBackgroundMesh->get_number_of_elements_per_direction();
 
             // convert matrix to fixed size array
-            for( uint l = 0; l < gMaxNumberOfLevels; ++l )
+            for( uint iLevel = 0; iLevel < gMaxNumberOfLevels; iLevel++ )
             {
-                for( uint k = 0; k < N; ++k )
+                for( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
-                    mNumberOfElementsPerDimensionIncludingAura[ l ][ k ] = tMat( k, l );
+                    mNumberOfElementsPerDimensionIncludingAura[ iLevel ][ iDimension ] = tMat(iDimension, iLevel );
                 }
             }
         }
@@ -293,17 +309,17 @@ namespace moris::hmr
             real tDeltaX[ gMaxNumberOfLevels ][ N ];
 
             // calculate width for first level
-            for( uint k = 0; k < N; ++k )
+            for( uint iDimension = 0; iDimension < N; iDimension++ )
             {
-                tDeltaX[ 0 ][ k ] = tDomainDimensions( k ) / ( ( real ) ( tNumberOfElements( k ) ) );
+                tDeltaX[ 0 ][ iDimension ] = tDomainDimensions(iDimension ) / ( ( real ) ( tNumberOfElements(iDimension ) ) );
             }
 
             // loop over all higher levels
-            for( uint l = 1; l < gMaxNumberOfLevels; ++l )
+            for( uint iLevel = 1; iLevel < gMaxNumberOfLevels; iLevel++ )
             {
-                for( uint k = 0; k < N; ++k )
+                for( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
-                    tDeltaX[ l ][ k ] = 0.5*tDeltaX[ l-1 ][ k ];
+                    tDeltaX[ iLevel ][ iDimension ] = 0.5 * tDeltaX[ iLevel-1 ][ iDimension ];
                 }
             }
 
@@ -317,22 +333,19 @@ namespace moris::hmr
             Matrix< DDRMat > tOffsetCoords = mBackgroundMesh->get_domain_offset();
 
             // unflatten coordinates to a normal array
-            for( uint k = 0; k < N; ++k )
+            for( uint iDimension = 0; iDimension < N; iDimension++ )
             {
-                tOffset[ k ] = tOffsetCoords( k );
+                tOffset[ iDimension ] = tOffsetCoords(iDimension );
             }
 
             // coordinate shift for B-Spline
             // 0.5 - 0.5*P
-
-            real tOff = real( P );
-
-            real tShift[ gMaxNumberOfLevels ];
-
-            for ( double & iShift : tShift )
+            real tShift[ gMaxNumberOfLevels ][ N ];
+            for ( uint iLevel = 0; iLevel < gMaxNumberOfLevels; iLevel++ )
             {
-                iShift = 0.5 - tOff + 0.5 * P;
-                tOff *= 2;
+                tShift[ iLevel ][ 0 ] = 0.5 * ( P + 1 ) - std::pow( 2, iLevel ) * P;
+                tShift[ iLevel ][ 1 ] = 0.5 * ( Q + 1 ) - std::pow( 2, iLevel ) * Q;
+                tShift[ iLevel ][ 2 ] = 0.5 * ( R + 1 ) - std::pow( 2, iLevel ) * R;
             }
 
             // loop over all nodes
@@ -348,11 +361,11 @@ namespace moris::hmr
                 real tXYZ[ N ];
 
                 // loop over all dimensions
-                for( uint k = 0; k < N; ++k )
+                for( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
-                    tXYZ[ k ] = ( tShift[ tLevel ] + ( real ) ( tIJK[ k ]
-                                                                      + mMySubdomainOffset[ tLevel ][ k ] ) )
-                                                                      * tDeltaX[ tLevel ][ k ] + tOffset[ k ];
+                    tXYZ[ iDimension ] = ( tShift[ tLevel ][ iDimension ] + ( real ) ( tIJK[ iDimension ]
+                                                                      + mMySubdomainOffset[ tLevel ][ iDimension ] ) )
+                                                                      * tDeltaX[ tLevel ][ iDimension ] + tOffset[ iDimension ];
                 }
 
                 // write XYZ coordinate into node
@@ -371,10 +384,10 @@ namespace moris::hmr
         Element * create_element( Background_Element_Base* aBackgroundElement ) override
         {
             // Check for dimension less than or equal to 3 and degree less than or equal to 3
-            MORIS_ERROR( N <= 3 and P <= 3, "Don't know how to create B-Spline element.");
+            MORIS_ERROR( P <= 3 and Q <= 3 and R <= 3, "Don't know how to create B-Spline element.");
 
             // Create element
-            Element * aBSplineElement = new BSpline_Element< P, (N > 1) * P, (N > 2) * P >( aBackgroundElement, mActivationPattern );
+            Element * aBSplineElement = new BSpline_Element< P, Q, R >( aBackgroundElement, mActivationPattern );
 
             // Return element
             return aBSplineElement;
@@ -384,7 +397,7 @@ namespace moris::hmr
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template <>
-    Basis * BSpline_Mesh< 2, 1 >::create_basis(
+    Basis * BSpline_Mesh< 1, 1, 0 >::create_basis(
             const luint* aIJK,
             uint         aLevel,
             uint         aOwner )
@@ -395,7 +408,7 @@ namespace moris::hmr
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template <>
-    Basis * BSpline_Mesh< 2, 2 >::create_basis(
+    Basis * BSpline_Mesh< 2, 2, 0 >::create_basis(
             const luint* aIJK,
             uint         aLevel,
             uint         aOwner )
@@ -406,7 +419,7 @@ namespace moris::hmr
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template <>
-    Basis * BSpline_Mesh< 2, 3 >::create_basis(
+    Basis * BSpline_Mesh< 3, 3, 0 >::create_basis(
             const luint* aIJK,
             uint         aLevel,
             uint         aOwner )
@@ -417,7 +430,7 @@ namespace moris::hmr
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template <>
-    Basis * BSpline_Mesh< 2, 4 >::create_basis(
+    Basis * BSpline_Mesh< 4, 4, 0 >::create_basis(
             const luint* aIJK,
             uint         aLevel,
             uint         aOwner )
@@ -428,7 +441,7 @@ namespace moris::hmr
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template <>
-    Basis * BSpline_Mesh< 2, 5 >::create_basis(
+    Basis * BSpline_Mesh< 5, 5, 0 >::create_basis(
             const luint* aIJK,
             uint         aLevel,
             uint         aOwner )
@@ -439,7 +452,7 @@ namespace moris::hmr
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template <>
-    Basis * BSpline_Mesh< 3, 1 >::create_basis(
+    Basis * BSpline_Mesh< 1, 1, 1 >::create_basis(
             const luint* aIJK,
             uint         aLevel,
             uint         aOwner )
@@ -451,7 +464,7 @@ namespace moris::hmr
 
     template <>
     Basis*
-    BSpline_Mesh< 3, 2 >::create_basis(
+    BSpline_Mesh< 2, 2, 2 >::create_basis(
             const luint* aIJK,
             uint         aLevel,
             uint         aOwner )
@@ -462,7 +475,7 @@ namespace moris::hmr
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template <>
-    Basis * BSpline_Mesh< 3, 3 >::create_basis(
+    Basis * BSpline_Mesh< 3, 3, 3 >::create_basis(
             const luint* aIJK,
             uint         aLevel,
             uint         aOwner )
@@ -473,7 +486,7 @@ namespace moris::hmr
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template <>
-    Basis * BSpline_Mesh< 3, 4 >::create_basis(
+    Basis * BSpline_Mesh< 4, 4, 4 >::create_basis(
             const luint* aIJK,
             uint         aLevel,
             uint         aOwner )
@@ -484,7 +497,7 @@ namespace moris::hmr
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
     template <>
-    Basis * BSpline_Mesh< 3, 5 >::create_basis(
+    Basis * BSpline_Mesh< 5, 5, 5 >::create_basis(
             const luint* aIJK,
             uint         aLevel,
             uint         aOwner )

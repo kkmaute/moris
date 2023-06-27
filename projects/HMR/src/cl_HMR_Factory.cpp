@@ -200,31 +200,31 @@ namespace moris::hmr
                 {
                     case( 1 ):
                     {
-                        return new BSpline_Mesh< 2, 1 >( mParameters,
+                        return new BSpline_Mesh< 1, 1, 0 >( mParameters,
                                                           aBackgroundMesh,
                                                           aActivationPattern );
                     }
                     case( 2 ):
                     {
-                        return new BSpline_Mesh< 2, 2 >( mParameters,
+                        return new BSpline_Mesh< 2, 2, 0 >( mParameters,
                                                           aBackgroundMesh,
                                                           aActivationPattern );
                     }
                     case( 3 ):
                     {
-                        return new BSpline_Mesh< 2, 3 >( mParameters,
+                        return new BSpline_Mesh< 3, 3, 0 >( mParameters,
                                                           aBackgroundMesh,
                                                           aActivationPattern );
                     }
                     case( 4 ):
                     {
-                        return new BSpline_Mesh< 2, 4 >( mParameters,
+                        return new BSpline_Mesh< 4, 4, 0 >( mParameters,
                                                           aBackgroundMesh,
                                                           aActivationPattern );
                     }
                     case( 5 ):
                     {
-                        return new BSpline_Mesh< 2, 5 >( mParameters,
+                        return new BSpline_Mesh< 5, 5, 0 >( mParameters,
                                                           aBackgroundMesh,
                                                           aActivationPattern );
                     }
@@ -243,31 +243,31 @@ namespace moris::hmr
                 {
                     case( 1 ):
                     {
-                        return new BSpline_Mesh< 3, 1 >( mParameters,
+                        return new BSpline_Mesh< 1, 1, 1 >( mParameters,
                                                           aBackgroundMesh,
                                                           aActivationPattern );
                     }
                     case( 2 ):
                     {
-                        return new BSpline_Mesh< 3, 2 >( mParameters,
+                        return new BSpline_Mesh< 2, 2, 2 >( mParameters,
                                                           aBackgroundMesh,
                                                           aActivationPattern );
                     }
                     case( 3 ):
                     {
-                        return new BSpline_Mesh< 3, 3 >( mParameters,
+                        return new BSpline_Mesh< 3, 3, 3 >( mParameters,
                                                          aBackgroundMesh,
                                                          aActivationPattern );
                     }
                     case( 4 ):
                     {
-                        return new BSpline_Mesh< 3, 4 >( mParameters,
+                        return new BSpline_Mesh< 4, 4, 4 >( mParameters,
                                                           aBackgroundMesh,
                                                           aActivationPattern );
                     }
                     case( 5 ):
                     {
-                        return new BSpline_Mesh< 3, 5 >( mParameters,
+                        return new BSpline_Mesh< 5, 5, 5 >( mParameters,
                                                           aBackgroundMesh,
                                                           aActivationPattern );
                     }
