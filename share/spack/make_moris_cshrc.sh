@@ -23,6 +23,8 @@ setenv PETSC_INSTALLED `spack find petsc     | awk 'BEGIN{n=0}{ n=n+1; if ($2 ==
 setenv   MKL_INSTALLED `spack find intel-mkl | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 setenv OBLAS_INSTALLED `spack find openblas  | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 setenv SLEPC_INSTALLED `spack find slepc     | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
+setenv  DOXY_INSTALLED `spack find doxygen   | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
+setenv CLANG_INSTALLED `spack find llvm      | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 
 setenv Trilinos_DIR `spack location --install-dir trilinos`
 
@@ -78,12 +80,27 @@ if ( $OBLAS_INSTALLED == "1" ) then
 setenv OPENBLAS_DIR `spack location --install-dir openblas`"/lib"
 echo "setenv OPENBLAS_DIR"     $OPENBLAS_DIR                                   >> $HOME/.cshrc_moris
 endif
+if ( $DOXY_INSTALLED == "1" ) then
+setenv DOXYGEN_DIR `spack location --install-dir doxygen`
+echo "setenv DOXYGEN_DIR"     $DOXYGEN_DIR                                     >> $HOME/.cshrc_moris
+endif
+if ( $CLANG_INSTALLED == "1" ) then
+setenv CLANG_DIR `spack location --install-dir llvm`
+echo "setenv CLANG_DIR"       $CLANG_DIR                                       >> $HOME/.cshrc_moris
+endif
 
 echo ""                                                                        >> $HOME/.cshrc_moris
 echo 'setenv PATH $MPI_HOME/bin/:$PATH'                                        >> $HOME/.cshrc_moris 
 echo 'setenv PATH $NETCDF_DIR/bin/:$PATH'                                      >> $HOME/.cshrc_moris 
 echo 'setenv PATH $Trilinos_DIR/bin/:$PATH'                                    >> $HOME/.cshrc_moris 
 echo 'setenv PATH $CMAKE_DIR/bin/:$PATH'                                       >> $HOME/.cshrc_moris 
+if ( $DOXY_INSTALLED == "1" ) then
+echo 'setenv PATH $DOXYGEN_DIR/bin/:$PATH'                                     >> $HOME/.cshrc_moris 
+endif
+if ( $CLANG_INSTALLED == "1" ) then
+echo 'setenv PATH $CLANG_DIR/bin/:$PATH'                                       >> $HOME/.cshrc_moris 
+endif
+
 echo ""                                                                        >> $HOME/.cshrc_moris
 echo "setenv LD_LIBRARY_PATH $GCCLIB/lib64"                                    >> $HOME/.cshrc_moris 
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$MPI_HOME/lib64'                >> $HOME/.cshrc_moris 
