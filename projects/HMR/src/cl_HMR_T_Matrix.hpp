@@ -625,11 +625,8 @@ namespace moris::hmr
                 // populate matrix
                 for ( uint iNodeOtherMesh = 0; iNodeOtherMesh < tNumberOfNodesOtherMesh; iNodeOtherMesh++ )
                 {
-                    // copy coordinates into point TODO can we be more efficient?
-                    for ( uint iDimension = 0; iDimension < N; iDimension++ )
-                    {
-                        tPoint( iDimension ) = tXi(iDimension, iNodeOtherMesh );
-                    }
+                    // copy coordinates into point
+                    tXi.get_column( iNodeOtherMesh, tPoint );
 
                     // evaluate shape function
                     this->evaluate_shape_function( tPoint,tN );
