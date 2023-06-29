@@ -390,7 +390,7 @@ namespace moris
              * Save nodal T-matrices for IG-mesh nodes to .hdf5 or .dat file
              */
             void
-            save_IG_node_TMatrices_to_file( std::string tFileName );
+            save_IG_global_T_matrix_to_file( std::string tFileName );
 
             // ----------------------------------------------------------------------------
 
