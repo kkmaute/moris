@@ -37,6 +37,9 @@ namespace moris::hmr
         //! Number of dimensions
         static constexpr uint N = ( P > 0 ) + ( Q > 0 ) + ( R > 0 );
 
+        //! Container of degrees, used to avoid repeated conditionals
+        static constexpr uint PQR[ 3 ] = { P, Q, R };
+
         //! Lookup table containing offset for node IDs
         luint mBasisLevelOffset[ gMaxNumberOfLevels ];
 
@@ -202,47 +205,31 @@ namespace moris::hmr
          */
         void calculate_lookup_tables()
         {
-            // calculate number of basis on first level
-            mNumberOfBasisPerDimensionIncludingPadding[ 0 ][ 0 ] += P;
-            if ( Q > 0 )
+            // Number of basis on level 0
+            for ( uint iDimension = 0; iDimension < N; iDimension++ )
             {
-                mNumberOfBasisPerDimensionIncludingPadding[ 0 ][ 1 ] += Q;
-            }
-            if ( R > 0 )
-            {
-                mNumberOfBasisPerDimensionIncludingPadding[ 0 ][ 1 ] += R;
+                mNumberOfBasisPerDimensionIncludingPadding[ 0 ][ iDimension ] = mNumberOfElementsPerDimensionIncludingAura[ 0 ][ iDimension ] + PQR[ iDimension ];
             }
 
-            // calculate number of basis on higher levels
-            for( uint iLevel = 1; iLevel < gMaxNumberOfLevels; iLevel++ )
-            {
-                mNumberOfBasisPerDimensionIncludingPadding[ iLevel ][ 0 ] =
-                        2 * mNumberOfBasisPerDimensionIncludingPadding[ iLevel - 1 ][ 0 ] + P;
-                if ( Q > 0 )
-                {
-                    mNumberOfBasisPerDimensionIncludingPadding[ iLevel ][ 1 ] =
-                            2 * mNumberOfBasisPerDimensionIncludingPadding[ iLevel - 1 ][ 1 ] + Q;
-                }
-                if ( R > 0 )
-                {
-                    mNumberOfBasisPerDimensionIncludingPadding[ iLevel ][ 2 ] =
-                            2 * mNumberOfBasisPerDimensionIncludingPadding[ iLevel - 1 ][ 2 ] + Q;
-                }
-            }
-
-            // calculate basis level offset
+            // Basis level offset on level 0
             mBasisLevelOffset[ 0 ] = 0;
 
             for( uint iLevel = 1; iLevel < gMaxNumberOfLevels; iLevel++ )
             {
-                // calculate number of nodes on this level
+                // Start counting number of bases
                 luint tNumberOfBasis = 1;
-                for( uint iDimension = 0; iDimension < N; iDimension++ )
+
+                for ( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
+                    // Calculate number of basis on higher levels
+                    mNumberOfBasisPerDimensionIncludingPadding[ iLevel ][ iDimension ] =
+                            2 * mNumberOfBasisPerDimensionIncludingPadding[ iLevel - 1 ][ iDimension ] + PQR[ iDimension ];
+
+                    // Calculate number of nodes on this level
                     tNumberOfBasis *= mNumberOfBasisPerDimensionIncludingPadding[ iLevel - 1 ][ iDimension ];
                 }
 
-                // add number of nodes to offset table
+                // Add number of nodes to offset table
                 mBasisLevelOffset[ iLevel ] = mBasisLevelOffset[ iLevel - 1 ] + tNumberOfBasis;
             }
         }
@@ -343,9 +330,10 @@ namespace moris::hmr
             real tShift[ gMaxNumberOfLevels ][ N ];
             for ( uint iLevel = 0; iLevel < gMaxNumberOfLevels; iLevel++ )
             {
-                tShift[ iLevel ][ 0 ] = 0.5 * ( P + 1 ) - std::pow( 2, iLevel ) * P;
-                tShift[ iLevel ][ 1 ] = 0.5 * ( Q + 1 ) - std::pow( 2, iLevel ) * Q;
-                tShift[ iLevel ][ 2 ] = 0.5 * ( R + 1 ) - std::pow( 2, iLevel ) * R;
+                for ( uint iDimension = 0; iDimension < N; iDimension++ )
+                {
+                    tShift[ iLevel ][ iDimension ] = 0.5 * ( PQR[ iDimension ] + 1 ) - std::pow( 2, iLevel ) * PQR[ iDimension ];
+                }
             }
 
             // loop over all nodes
