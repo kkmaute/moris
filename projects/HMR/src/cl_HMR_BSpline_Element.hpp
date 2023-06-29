@@ -329,10 +329,22 @@ namespace moris::hmr
 
 //------------------------------------------------------------------------------
 
+    /**
+     * Gets the node IDs needed for VTK output
+     *
+     * @tparam P Polynomial degree in x-direction
+     * @tparam Q Polynomial degree in y-direction
+     * @tparam R Polynomial degree in z-direction
+     * @param aBasis
+     */
     template< uint P, uint Q, uint R >
     void BSpline_Element< P, Q, R >::get_basis_indices_for_vtk( Matrix< DDLUMat > & aBasis )
     {
-        // do nothing
+        // Loop over all bases
+        for ( uint iBasisIndex = 0; iBasisIndex < B; iBasisIndex++ )
+        {
+            aBasis( iBasisIndex ) = mBasis[ iBasisIndex ]->get_memory_index();
+        }
     }
 
 //------------------------------------------------------------------------------

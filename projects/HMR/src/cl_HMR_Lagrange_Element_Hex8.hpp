@@ -75,28 +75,6 @@ namespace moris::hmr
     }
 
 // ----------------------------------------------------------------------------
-
-    /**
-     * node IDs needed for VTK output
-     *
-     * @param[out] moris::Matrix< DDLUMat >
-     *
-     * @return void
-     *
-     */
-    template<>
-    inline
-    void
-    Lagrange_Element< 3, 8 >::get_basis_indices_for_vtk(
-        Matrix< DDLUMat > & aBasis )
-    {
-        // loop over all nodes
-        for( uint k=0; k<8; ++k )
-        {
-            aBasis( k ) = mNodes[ k ]->get_memory_index();
-        }
-    }
-// ----------------------------------------------------------------------------
     template<>
     inline
     void

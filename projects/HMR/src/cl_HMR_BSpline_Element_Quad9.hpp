@@ -33,27 +33,6 @@ namespace moris::hmr
 // ----------------------------------------------------------------------------
 
     /**
-     * node IDs needed for VTK output
-     *
-     * @param[out] Matrix< DDLUMat >
-     *
-     * @return void
-     *
-     */
-    template<>
-    void
-    BSpline_Element< 2, 2, 0 >::get_basis_indices_for_vtk(
-        Matrix< DDLUMat > & aBasis )
-    {
-        // loop over all nodes
-        for( uint k=0; k<9; ++k )
-        {
-            aBasis( k ) = mBasis[ k ]->get_memory_index();
-        }
-    }
-// ----------------------------------------------------------------------------
-
-    /**
      * returns the ijk position of a given basis
      *
      * @param[in]  aBasisNumber   element local number of basis

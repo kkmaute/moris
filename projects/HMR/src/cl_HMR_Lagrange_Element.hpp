@@ -503,10 +503,13 @@ namespace moris::hmr
     //------------------------------------------------------------------------------
 
     template< uint N, uint D >
-    inline void
-    Lagrange_Element< N, D >::get_basis_indices_for_vtk( Matrix< DDLUMat >& aBasis )
+    void Lagrange_Element< N, D >::get_basis_indices_for_vtk( Matrix< DDLUMat >& aBasis )
     {
-        // do nothing
+        // Loop over all bases
+        for ( uint iBasisIndex = 0; iBasisIndex < D; iBasisIndex++ )
+        {
+            aBasis( iBasisIndex ) = mNodes[ iBasisIndex ]->get_memory_index();
+        }
     }
 
     //------------------------------------------------------------------------------
