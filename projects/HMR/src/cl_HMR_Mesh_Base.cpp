@@ -585,7 +585,7 @@ namespace moris::hmr
                     mAllElementsOnProc( aElementAncestors( k ) )->get_background_element();
 
             // encode path and overwrite aElementAncestor with Ancestor Index
-            tElement->endcode_pedigree_path(
+            tElement->encode_pedigree_path(
                     aElementAncestors( k ),
                     aElementPedigree,
                     tMemoryCount );

@@ -2348,7 +2348,7 @@ namespace moris::hmr
 
                 // calculate path o
                 tEdge->get_hmr_leader()->get_background_element()
-                                                               ->endcode_pedigree_path( tAncestorListSend( p )( tElementCount( p )++ ),
+                                                               ->encode_pedigree_path( tAncestorListSend( p )( tElementCount( p )++ ),
                                                                        tPedigreeListSend( p ),
                                                                        tMemoryCount( p ) );
             }
@@ -2605,7 +2605,7 @@ namespace moris::hmr
 
                             // calculate path of facet
                             tFacet->get_hmr_leader()->get_background_element()
-                                                                            ->endcode_pedigree_path( tAncestorListSend( p )( tElementCounter++ ),
+                                                                            ->encode_pedigree_path( tAncestorListSend( p )( tElementCounter++ ),
                                                                                     tPedigreeListSend( p ),
                                                                                     tMemoryCounter );
                         }
@@ -2822,7 +2822,7 @@ namespace moris::hmr
 
                             // calculate path of facet
                             tEdge->get_hmr_leader()->get_background_element()
-                                                                           ->endcode_pedigree_path(
+                                                                           ->encode_pedigree_path(
                                                                                    tAncestorListSend( p )( tElementCounter++ ),
                                                                                    tPedigreeListSend( p ),
                                                                                    tMemoryCounter );

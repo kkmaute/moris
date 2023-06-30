@@ -545,13 +545,16 @@ namespace moris::hmr
 // -----------------------------------------------------------------------------
 
         // counts fagged basis
-        void count_descendants( luint & aBasisCount )
+        luint count_descendants() override
         {
+            // Initialize counter
+            luint tBasisCount = 0;
+
             // test if self has been flagged
             if ( mFlag )
             {
                 // add self to counter
-                ++aBasisCount;
+                tBasisCount++;
 
                 // test if children exist
                 if ( mChildrenFlag )
@@ -562,7 +565,7 @@ namespace moris::hmr
                         // test if child exists
                         if ( mChildren[ k ] != nullptr )
                         {
-                            mChildren[ k ]->count_descendants( aBasisCount );
+                            tBasisCount += mChildren[k]->count_descendants();
                         }
                     }
                 }
@@ -570,13 +573,15 @@ namespace moris::hmr
                 // flag this basis
                 mFlag = false;
             }
+
+            return tBasisCount;
         }
 
 // -----------------------------------------------------------------------------
 
         // counts inflagged basis
         void collect_descendants( Cell< Basis* > & aBasisList,
-                                  luint          & aBasisCount )
+                                  luint          & aBasisCount ) override
         {
             // test if self has been flagged
             if ( ! mFlag )

@@ -943,7 +943,7 @@ namespace moris::hmr
          * creates a bitset that describes the pedigree path
          *
          */
-        virtual void endcode_pedigree_path(
+        virtual void encode_pedigree_path(
                 luint&            aAncestorID,
                 Matrix< DDUMat >& aPedigreeList,
                 luint&            aCounter ) = 0;

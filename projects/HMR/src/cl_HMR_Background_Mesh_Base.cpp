@@ -473,7 +473,7 @@ namespace moris::hmr
                         {
                             if ( tElement->is_queued_for_refinement() )
                             {
-                                tElement->endcode_pedigree_path( tAncestorListSend( p )( tElementCounter++ ),
+                                tElement->encode_pedigree_path( tAncestorListSend( p )( tElementCounter++ ),
                                         tPedigreeListSend( p ),
                                         tMemoryCounter );
                             }
