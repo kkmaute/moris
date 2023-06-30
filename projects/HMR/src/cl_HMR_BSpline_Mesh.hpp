@@ -390,7 +390,7 @@ namespace moris::hmr
             uint         aLevel,
             uint         aOwner )
     {
-        return new BSpline< 2, 9, 8 >( aIJK, aLevel, aOwner );
+        return new BSpline< 1, 1, 0 >( aIJK, aLevel, aOwner );
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -401,7 +401,7 @@ namespace moris::hmr
             uint         aLevel,
             uint         aOwner )
     {
-        return new BSpline< 2, 16, 8 >( aIJK, aLevel, aOwner );
+        return new BSpline< 2, 2, 0 >( aIJK, aLevel, aOwner );
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -412,7 +412,7 @@ namespace moris::hmr
             uint         aLevel,
             uint         aOwner )
     {
-        return new BSpline< 2, 25, 8 >( aIJK, aLevel, aOwner );
+        return new BSpline< 3, 3, 0 >( aIJK, aLevel, aOwner );
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -423,7 +423,7 @@ namespace moris::hmr
             uint         aLevel,
             uint         aOwner )
     {
-        return new BSpline< 2, 36, 8 >( aIJK, aLevel, aOwner );
+        return new BSpline< 4, 4, 0 >( aIJK, aLevel, aOwner );
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -434,7 +434,7 @@ namespace moris::hmr
             uint         aLevel,
             uint         aOwner )
     {
-        return new BSpline< 2, 49, 8 >( aIJK, aLevel, aOwner );
+        return new BSpline< 5, 5, 0 >( aIJK, aLevel, aOwner );
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -445,7 +445,7 @@ namespace moris::hmr
             uint         aLevel,
             uint         aOwner )
     {
-        return new BSpline< 3, 27, 26 >( aIJK, aLevel, aOwner );
+        return new BSpline< 1, 1, 1 >( aIJK, aLevel, aOwner );
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -457,7 +457,7 @@ namespace moris::hmr
             uint         aLevel,
             uint         aOwner )
     {
-        return new BSpline< 3, 64, 26 >( aIJK, aLevel, aOwner );
+        return new BSpline< 2, 2, 2 >( aIJK, aLevel, aOwner );
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -468,7 +468,7 @@ namespace moris::hmr
             uint         aLevel,
             uint         aOwner )
     {
-        return new BSpline< 3, 125, 26 >( aIJK, aLevel, aOwner );
+        return new BSpline< 3, 3, 3 >( aIJK, aLevel, aOwner );
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -479,7 +479,7 @@ namespace moris::hmr
             uint         aLevel,
             uint         aOwner )
     {
-        return new BSpline< 3, 216, 26 >( aIJK, aLevel, aOwner );
+        return new BSpline< 4, 4, 4 >( aIJK, aLevel, aOwner );
     }
 
     // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -490,7 +490,7 @@ namespace moris::hmr
             uint         aLevel,
             uint         aOwner )
     {
-        return new BSpline< 3, 343, 26 >( aIJK, aLevel, aOwner );
+        return new BSpline< 5, 5, 5 >( aIJK, aLevel, aOwner );
     }
 
     // ----------------------------------------------------------------------------

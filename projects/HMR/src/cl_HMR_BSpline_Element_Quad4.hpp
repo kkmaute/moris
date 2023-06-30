@@ -465,7 +465,7 @@ namespace moris::hmr
 
                             // create child
                             tBasis->insert_child( tChildIndex,
-                                                    new BSpline< 2, 9, 8 >( tIJ, tLevel, gNoProcOwner ) );
+                                                    new BSpline< 1, 1, 0 >( tIJ, tLevel, gNoProcOwner ) );
 
                             // increment basis counter
                             tBasisCounter++;
