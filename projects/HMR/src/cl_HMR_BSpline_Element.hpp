@@ -36,6 +36,9 @@ namespace moris::hmr
         //! Number of bases
         static constexpr uint B = ( P + 1 ) * ( Q + 1 ) * ( R + 1 );
 
+        //! Container of bases in each direction, used to avoid repeated conditionals
+        static constexpr uint BXYZ[ 3 ] = { P + 1, Q + 1, R + 1 };
+
         //! pointer to nodes
         Basis**     mBasis;
 
@@ -210,10 +213,25 @@ namespace moris::hmr
          * @param[out] aIJK           proc local ijk position of this basis
          *
          * @return void
-         *
          */
         void get_ijk_of_basis( uint   aBasisNumber,
-                               luint* aIJK ) override;
+                               luint* aIJK ) override
+        {
+            // Get position of element on background mesh
+            const luint * tElIJK = mElement->get_ijk();
+
+            // Get element local coordinate with element offset
+            for ( uint iDimension = 0; iDimension < N; iDimension++ )
+            {
+                uint tIJK = aBasisNumber;
+                for ( uint iPreviousDimension = 0; iPreviousDimension < iDimension; iPreviousDimension++ )
+                {
+                    tIJK /= BXYZ[ iPreviousDimension ];
+                }
+
+                aIJK[ iDimension ] = ( tIJK % BXYZ[ iDimension ] ) + tElIJK[ iDimension ];
+            }
+        }
 
 //------------------------------------------------------------------------------
 
@@ -370,17 +388,6 @@ namespace moris::hmr
     {
         MORIS_ERROR( false, "Don't know how to create B-Splines for children.");
         return 0;
-    }
-
-//------------------------------------------------------------------------------
-
-    template< uint P, uint Q, uint R >
-    inline
-    void BSpline_Element< P, Q, R >::get_ijk_of_basis(
-            uint   aBasisNumber,
-            luint* aIJK )
-    {
-        MORIS_ERROR( false, "Don't know how to get ijk of basis.");
     }
 
 //------------------------------------------------------------------------------
