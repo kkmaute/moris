@@ -107,7 +107,10 @@ namespace moris::hmr
         Basis * create_basis(
                 const luint * aIJK,
                 uint          aLevel,
-                uint          aOwner ) override;
+                uint          aOwner ) override
+        {
+            return new BSpline< P, Q, R >( aIJK, aLevel, aOwner );
+        }
 
         // ----------------------------------------------------------------------------
 
@@ -372,128 +375,12 @@ namespace moris::hmr
         Element * create_element( Background_Element_Base* aBackgroundElement ) override
         {
             // Check for dimension less than or equal to 3 and degree less than or equal to 3
-            MORIS_ERROR( P <= 3 and Q <= 3 and R <= 3, "Don't know how to create B-Spline element.");
+            MORIS_ERROR( P <= 3 and Q <= 3 and R <= 3, "Don't know how to create B-Spline element." );
 
             // Create element
-            Element * aBSplineElement = new BSpline_Element< P, Q, R >( aBackgroundElement, mActivationPattern );
-
-            // Return element
-            return aBSplineElement;
+            return new BSpline_Element< P, Q, R >( aBackgroundElement, mActivationPattern );
         }
     };
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template <>
-    Basis * BSpline_Mesh< 1, 1, 0 >::create_basis(
-            const luint* aIJK,
-            uint         aLevel,
-            uint         aOwner )
-    {
-        return new BSpline< 1, 1, 0 >( aIJK, aLevel, aOwner );
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template <>
-    Basis * BSpline_Mesh< 2, 2, 0 >::create_basis(
-            const luint* aIJK,
-            uint         aLevel,
-            uint         aOwner )
-    {
-        return new BSpline< 2, 2, 0 >( aIJK, aLevel, aOwner );
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template <>
-    Basis * BSpline_Mesh< 3, 3, 0 >::create_basis(
-            const luint* aIJK,
-            uint         aLevel,
-            uint         aOwner )
-    {
-        return new BSpline< 3, 3, 0 >( aIJK, aLevel, aOwner );
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template <>
-    Basis * BSpline_Mesh< 4, 4, 0 >::create_basis(
-            const luint* aIJK,
-            uint         aLevel,
-            uint         aOwner )
-    {
-        return new BSpline< 4, 4, 0 >( aIJK, aLevel, aOwner );
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template <>
-    Basis * BSpline_Mesh< 5, 5, 0 >::create_basis(
-            const luint* aIJK,
-            uint         aLevel,
-            uint         aOwner )
-    {
-        return new BSpline< 5, 5, 0 >( aIJK, aLevel, aOwner );
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template <>
-    Basis * BSpline_Mesh< 1, 1, 1 >::create_basis(
-            const luint* aIJK,
-            uint         aLevel,
-            uint         aOwner )
-    {
-        return new BSpline< 1, 1, 1 >( aIJK, aLevel, aOwner );
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template <>
-    Basis*
-    BSpline_Mesh< 2, 2, 2 >::create_basis(
-            const luint* aIJK,
-            uint         aLevel,
-            uint         aOwner )
-    {
-        return new BSpline< 2, 2, 2 >( aIJK, aLevel, aOwner );
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template <>
-    Basis * BSpline_Mesh< 3, 3, 3 >::create_basis(
-            const luint* aIJK,
-            uint         aLevel,
-            uint         aOwner )
-    {
-        return new BSpline< 3, 3, 3 >( aIJK, aLevel, aOwner );
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template <>
-    Basis * BSpline_Mesh< 4, 4, 4 >::create_basis(
-            const luint* aIJK,
-            uint         aLevel,
-            uint         aOwner )
-    {
-        return new BSpline< 4, 4, 4 >( aIJK, aLevel, aOwner );
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template <>
-    Basis * BSpline_Mesh< 5, 5, 5 >::create_basis(
-            const luint* aIJK,
-            uint         aLevel,
-            uint         aOwner )
-    {
-        return new BSpline< 5, 5, 5 >( aIJK, aLevel, aOwner );
-    }
-
-    // ----------------------------------------------------------------------------
 
 } /* namespace moris */
 
