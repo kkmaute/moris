@@ -265,9 +265,9 @@ namespace moris
 
                 tLinProblem->assemble_residual_and_jacobian();
 
-                tLinSolver->set_param( "KSPType" ) = std::string( "fgmres" );
-                tLinSolver->set_param( "PCType" )  = std::string( "none" );
-                tLinSolver->set_param( "ILUFill" ) = 3;
+                tLinSolver->set_param( "KSPType" )             = std::string( "fgmres" );
+                tLinSolver->set_param( "PCType" )              = std::string( "none" );
+                tLinSolver->set_param( "ILUFill" )             = 3;
                 tLinSolver->set_param( "ouput_eigenspectrum" ) = (uint)1;
 
                 tLinSolver->solve_linear_system( tLinProblem );
