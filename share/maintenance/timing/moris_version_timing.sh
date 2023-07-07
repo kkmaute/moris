@@ -1,11 +1,4 @@
 #!/bin/sh
-
-#====================================================================================
-# Copyright (c) 2022 University of Colorado
-# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-#
-#====================================================================================
-
 #=================================================================================
 # start of user input
 #=================================================================================
@@ -16,16 +9,22 @@ export MORISROOT=$HOME/codes/morisGit
 # build directory
 here=$MORISROOT/build_opt
 
+# branch: master or xtk_refactor or main
+branch=main
+
 # file with list of examples 
-exalist=$MORISROOT/share/scripts/TimingExampleList
+exalist=$MORISROOT/share/maintenance/timing/TimingExampleList
 
 # file with git versions to processed in additon to current one; leave empty 
 # if only current git version should be checked
-gitlist=$HOME/bin/CheckGitList
+#gitlist=$MORISROOT/share/maintenance/timing/CheckGitList
+gitlist=
 
 #=================================================================================
 # end of user input
 #=================================================================================
+
+git checkout $branch
 
 vlist=`cat $gitlist`
 vlist=$vlist" "`git log | head -1 | awk '{print $2}'`
@@ -42,6 +41,12 @@ if [ ! "$1" = "skip" ];then
     for vers in $vlist;do
 
         id=`expr $id + 1`
+
+        make clean >& /dev/null
+
+        git checkout $branch
+        
+        git pull
         
         tmpdate=`git log | awk -v gh=$vers  'BEGIN{n=0} 
         { 
@@ -61,14 +66,10 @@ if [ ! "$1" = "skip" ];then
         echo " processing $id ( $vers / $date )"
 
         echo " ==============================================="
+                
+        git checkout $vers
         
         make clean >& /dev/null
-
-        git checkout master
-        
-        git pull
-        
-        git checkout $vers
         
         make -j 4 >& compile.$date
         
@@ -103,7 +104,8 @@ for exa in $exalist; do
 
    rm -f $fname
 
-   grep $exa $ctestlist | grep Passed | awk -v file=$fname 'BEGIN{mxt=10000.0;curnum=0}
+   # important: keep whitespace before $exa
+   grep " $exa" $ctestlist | grep Passed | awk -v file=$fname 'BEGIN{mxt=10000.0;curnum=0}
    {
         time=$(NF-1)
         split($0,a,":") 
@@ -118,4 +120,3 @@ for exa in $exalist; do
 done
 
   
-

@@ -1,0 +1,101 @@
+This file details how to compile and perform timing tests on old moris version
+prior to October 2021 and the new version (github) 
+
+#-------------------------------------------------------------------------------------
+
+1. Rename temporaily current moris folder if exists
+
+mv moris moris_github
+
+#-------------------------------------------------------------------------------------
+
+2. Clone moris from titan either master (old name for main) or xtk_refactor branch or the github main branch
+
+Option: master         git clone titan:/home/git/codes/moris
+
+Option: xtk_refactor   git clone --branch xtk_refactor titan:/home/git/codes/moris  
+
+Option: githup         git clone https://github.com/kkmaute/moris  
+
+#-------------------------------------------------------------------------------------
+
+3. Rename moris folders
+
+Option: master         mv moris moris_titan
+
+Option: xtk_refactor   mv moris moris_titan_xtk_refactor  
+ 
+Option: githup         mv moris moris_github   (only if moris_github does not exist yet)
+
+#-------------------------------------------------------------------------------------
+
+4. Create soft link to either moris_titan or the moris_titan_xtk_refactor folder or the moris_github folder
+
+rm morisGit
+
+Option: master         ln -s moris_titan morisGit
+
+Option: xtk_refactor   ln -s moris_titan_xtk_refactor morisGit
+
+Option: githup         ln -s moris_github morisGit
+
+#-------------------------------------------------------------------------------------
+
+The following steps can be either preformed in the moris_titan or the moris_titan_xtk_refactor folder
+
+#-------------------------------------------------------------------------------------
+
+5. Source environment variable file 
+
+cd morisGit
+
+Option: master         source $MORISROOT/share/maintenance/timing/CSHRC_OLD
+
+Option: xtk_refactor   source $MORISROOT/share/maintenance/timing/CSHRC_OLD
+
+Option: githup         source ~/.cshrc_moris
+
+#-------------------------------------------------------------------------------------
+
+6. Setup list of version to be considered for timing runs
+
+Option: master         rm -f $MORISROOT/share/maintenance/timing/CheckGitList; ln -s $MORISROOT/share/maintenance/timing/CheckGitList_titan $MORISROOT/share/maintenance/timing/CheckGitList
+
+Option: xtk_refactor   rm -f $MORISROOT/share/maintenance/timing/CheckGitList; ln -s $MORISROOT/share/maintenance/timing/CheckGitList_titan_xtk_refactor $MORISROOT/share/maintenance/timing/CheckGitList
+
+Option: githup         rm -f $MORISROOT/share/maintenance/timing/CheckGitList; ln -s $MORISROOT/share/maintenance/timing/CheckGitList_github $MORISROOT/share/maintenance/timing/CheckGitList
+
+#-------------------------------------------------------------------------------------
+
+6a. Optional: to add version to the list of timing runs do:
+
+git log >& gitlog
+
+Grab git hash for particular versions based on dates
+
+#-------------------------------------------------------------------------------------
+
+7. Create build_opt folder and change to this folder
+
+cd $MORISROOT; mkdir build_opt; cd build_opt
+
+#-------------------------------------------------------------------------------------
+
+8. Build moris makefiles with the desired setting
+
+cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_MKL=ON -DMORIS_USE_OPENBLAS=OFF ..
+cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_MKL=ON -DMORIS_USE_OPENBLAS=OFF ..
+
+#-------------------------------------------------------------------------------------
+
+9. Peform timing runs (if the script moris_version_timing.sh needs to be edited copy it from moris_github into home directory)
+   Edit file if only current version should be checked
+
+sh $MORISROOT/share/maintenance/timing/moris_version_timing.sh > & log.timingruns &
+
+#-------------------------------------------------------------------------------------
+
+10. Combine timing runs from different versions use Matlab script located in $MORISROOT/share/maintenance/timing
+
+CombineTimingResults.m
+
