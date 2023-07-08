@@ -1070,28 +1070,32 @@ namespace moris::hmr
             moris::Cell< moris::Cell< mtk::Cell* > >&  aCells,
             moris::Cell< moris::Cell< moris_index > >& aCellIndices,
             moris::Cell< moris_index >&                aLagToBspCellIndices,
-            moris::Cell< uint >&                       aBspCellRefineLevels )
+            moris::Cell< uint >&                       aBspCellRefineLevels,
+            moris::Cell< mtk::Cell* >&                 aBspCells )
     {
         mMesh->get_lagrange_elements_in_bspline_elements(
                 aDiscretizationMeshIndex,
                 aCells,
                 aCellIndices,
                 aLagToBspCellIndices,
-                aBspCellRefineLevels );
+                aBspCellRefineLevels,
+                aBspCells );
     }
 
     // ----------------------------------------------------------------------------
 
     const luint*
     Mesh::get_bspline_element_ijk_level(
-            moris_index         aDiscretizationMeshIndex,
-            moris_index         aBsplineElementIndex,
-            uint                aLevel )
+            moris_index      aDiscretizationMeshIndex,
+            const mtk::Cell* aBsplineElement,
+            uint&            aLevel )
     {
-        return mMesh->get_bspline_element_ijk_level(
-                aDiscretizationMeshIndex,
-                aBsplineElementIndex,
-                aLevel );
+        // get the HMR cell
+        const Element* aHMRCell = dynamic_cast< const Element* >( aBsplineElement );
+
+        // get level and ijk 
+        aLevel = aHMRCell->get_level(); 
+        return aHMRCell->get_ijk();
     }
 
     // ----------------------------------------------------------------------------
@@ -1117,15 +1121,18 @@ namespace moris::hmr
     void
     Mesh::get_L2_projection_matrix(
             moris_index                                 aDiscretizationMeshIndex,
-            moris_index                                 aRootBSplineCellIndex,
-            moris_index                                 aExtendedBSplineCellIndex,
-            moris::Cell< moris::Cell< mtk::Vertex* > >& tRootBsplineBasis,
-            moris::Cell< mtk::Vertex* >&                tExtendedBsplineBasis,
+            const mtk::Cell*                            aRootBSplineCell,
+            const mtk::Cell*                            aExtendedBSplineCell,
+            moris::Cell< moris::Cell< const mtk::Vertex* > >& tRootBsplineBasis,
+            moris::Cell< const mtk::Vertex* >&                tExtendedBsplineBasis,
             moris::Cell< Matrix< DDRMat > >&            tWeights )
     {
+        const Element* aHMRRootCell = dynamic_cast< const Element* >( aRootBSplineCell );
+        const Element* aHMRExtendedCell = dynamic_cast<const Element* >( aExtendedBSplineCell );
+
         mMesh->get_L2_projection_matrix( aDiscretizationMeshIndex,
-                                         aRootBSplineCellIndex,
-                                         aExtendedBSplineCellIndex,
+                                         aHMRRootCell,
+                                         aHMRExtendedCell,
                                          tRootBsplineBasis,
                                          tExtendedBsplineBasis,
                                          tWeights );
