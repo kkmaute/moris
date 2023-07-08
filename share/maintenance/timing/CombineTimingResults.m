@@ -3,8 +3,8 @@ function main
 clear all
 close all
 
-titan='/home/maute/codes/moris_titan/build_opt';
-titan_xtk_refactor='/home/maute/codes/moris_titan_xtk_refactor/build_opt';
+titan=''; %'/home/maute/codes/moris_titan/build_opt';
+titan_xtk_refactor=''; %'/home/maute/codes/moris_titan_xtk_refactor/build_opt';
 github='/home/maute/codes/moris_github/build_opt';
 
 
@@ -17,13 +17,21 @@ for i=1:length(testcases)
     
     if size(testcases{i})==0; continue;end
     
-    fname=sprintf('%s/%s',titan,testcases{i});
-    mat_titan=textread(fname);
-    num_titan=size(mat_titan,1);
+    num_titan=0;
+    mat_titan=[];
+    if length(titan)>0
+        fname=sprintf('%s/%s',titan,testcases{i});
+        mat_titan=textread(fname);
+        num_titan=size(mat_titan,1);
+    end
     
-    fname=sprintf('%s/%s',titan_xtk_refactor,testcases{i});
-    mat_titan_xtk_refactor=textread(fname);
-    num_titan_xtk_refactor=size(mat_titan_xtk_refactor,1);
+    num_titan_xtk_refactor=0;
+    mat_titan_xtk_refactor=[];
+    if length(titan_xtk_refactor) > 0
+        fname=sprintf('%s/%s',titan_xtk_refactor,testcases{i});
+        mat_titan_xtk_refactor=textread(fname);
+        num_titan_xtk_refactor=size(mat_titan_xtk_refactor,1);
+    end
     
     fname=sprintf('%s/%s',github,testcases{i});
     mat_github=textread(fname);
@@ -41,8 +49,12 @@ for i=1:length(testcases)
     
     figure(2)
     clf
-    plotdays(mat_titan,'ks'); hold on
-    plotdays(mat_titan_xtk_refactor,'b*'); hold on
+    if length(titan)>0
+        plotdays(mat_titan,'ks'); hold on
+    end
+    if length(titan_xtk_refactor) >0
+        plotdays(mat_titan_xtk_refactor,'b*'); hold on
+    end
     plotdays(mat_github,'rs'); hold on
     title(replace(testcases{i},'_','-'));
     saveas(gcf, [testcases{i} '_F2.png']);
