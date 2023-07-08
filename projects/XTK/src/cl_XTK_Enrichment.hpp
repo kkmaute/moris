@@ -1079,6 +1079,17 @@ namespace xtk
 
         void
         construct_enriched_basis_in_subphase_group_map(); 
+
+        // ----------------------------------------------------------------------------------
+        
+        /**
+         * @brief Get the enrichment data struct 
+         * 
+         * @return Cell< Enrichment_Data >& 
+         */
+
+        moris::Cell< Enrichment_Data > const &
+        get_enrichment_data() const;
     };
 }    // namespace xtk
 #endif /* XTK_SRC_XTK_CL_XTK_ENRICHMENT_HPP_ */
