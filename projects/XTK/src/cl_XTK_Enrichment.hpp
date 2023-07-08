@@ -107,7 +107,7 @@ namespace xtk
 
         // FIXME: for SPG based enrichment, the above needs to go eventually
         Cell< moris::Matrix< IndexMat > > mSubphaseGroupIndsInEnrichedBasis;    // input: enriched BF index || output: list of SPG indices in which enriched BF is active
-        Matrix< IdMat >                   mBulkPhaseInEnrichedBasis;            // input: enriched BF index || output: // FIXME: ?
+        Matrix< IdMat >                   mBulkPhaseInEnrichedBasis;            // input: enriched BF index || output: bulk phase basis function interpolates into
         
         // transpose of the above map, it is empty by default
         moris::Cell< moris::Cell< moris_index > > mEnrichedBasisInSubphaseGroup; // input: SPG index || output: list of enriched BF indices active in the SPG
@@ -133,7 +133,7 @@ namespace xtk
         moris::Cell< moris::Cell< moris_index > > mSubphaseGroupBGBasisEnrLev;     // input: SPG index || output: list of enrichment levels for the respective BFs active on the given subphase group
 
         // total number of basis enrichment levels (i.e. number of enriched Basis functions)
-        uint mNumEnrichmentLevels;
+        uint mNumEnrichedBasisFunctions;
 
         // Vertex interpolations for this enrichment ordered by background vertex index
         Cell< mtk::Vertex_Interpolation* > mBGVertexInterpolations;
