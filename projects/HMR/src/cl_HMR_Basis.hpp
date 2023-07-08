@@ -801,7 +801,7 @@ namespace moris::hmr
 
             //------------------------------------------------------------------------------
 
-            virtual bool is_active()
+            virtual bool is_active() const 
             {
                 MORIS_ERROR( false, "is_active() not available for selected basis type." );
                 return false;
