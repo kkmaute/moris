@@ -1672,6 +1672,14 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
+        /**
+         * @brief updates the memeber data mCommunicationTable, it is accessed by the basis processor object
+         * 
+         * @param aNewCommunicationTable 
+         */
+        void
+        update_communication_table( moris::Cell< moris_id > const & aNewCommunicationTable );
+
       private:
         // ----------------------------------------------------------------------------------
 

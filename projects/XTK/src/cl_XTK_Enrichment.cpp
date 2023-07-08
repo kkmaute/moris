@@ -4803,5 +4803,12 @@ namespace xtk
         }
     }
 
+    //-------------------------------------------------------------------------------------
+
+    moris::Cell< Enrichment_Data > const &
+    Enrichment::get_enrichment_data() const
+    {
+        return mEnrichmentData;
+    }
 
 }    // namespace xtk

@@ -98,6 +98,7 @@ set(HEADERS
     fn_XTK_find_in_cell.hpp
     fn_XTK_match_normal_to_side_ordinal.hpp 
     cl_XTK_Basis_Processor.hpp
+    cl_XTK_HMR_Helper.hpp
     )                                                                                                                                                                                                                                                                   
 
 
@@ -171,7 +172,8 @@ cl_XTK_Diagnostics.cpp
 
 cl_XTK_Integration_Mesh_Cleanup.cpp 
 
-cl_XTK_Basis_Processor.cpp)
+cl_XTK_Basis_Processor.cpp
+cl_XTK_HMR_Helper.cpp)
 
 # List library dependencies
 set(LIB_DEPENDENCIES 
