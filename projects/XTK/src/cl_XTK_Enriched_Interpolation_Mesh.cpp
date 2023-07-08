@@ -1196,6 +1196,19 @@ namespace xtk
 
     // ----------------------------------------------------------------------------
 
+
+    moris_index
+    Enriched_Interpolation_Mesh::get_enr_basis_id_from_enr_basis_index(
+            moris_index const & aMeshIndex,
+            moris_index const & aBasisIndex ) const
+    {
+        moris_index tLocalMeshIndex = this->get_local_mesh_index( aMeshIndex );
+
+        return mEnrichCoeffLocToGlob( tLocalMeshIndex )( aBasisIndex );
+    }
+
+    // ----------------------------------------------------------------------------
+
     moris::Cell< Interpolation_Cell_Unzipped const * >
     Enriched_Interpolation_Mesh::get_enriched_cells_from_base_cell( moris::mtk::Cell const * aBaseCells ) const
     {
@@ -3520,5 +3533,13 @@ namespace xtk
         }
 
         return tSetCells;
+    }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Enriched_Interpolation_Mesh::update_communication_table( moris::Cell< moris_id > const & aNewCommunicationTable )
+    {
+        mXTKModel->get_cut_integration_mesh()->update_communication_table( aNewCommunicationTable );
     }
 }    // namespace xtk
