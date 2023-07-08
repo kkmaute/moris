@@ -107,6 +107,34 @@ namespace moris::hmr
 
     template<>
     inline void
+    Background_Mesh< 3 >::calc_ijk_from_global_id(
+            const uint&  aLevel,
+            const luint& aID,
+            luint*       aIJK ) const
+    {
+        MORIS_ASSERT( aLevel < gMaxNumberOfLevels,
+                "calc_ijk_from_global_id(), Requested refinement level larger than maximal refinement level" );
+
+        // subtract level offset from ID
+        luint tID = aID - mDomain.mLevelOffset[ aLevel ];
+
+        // help variable
+        luint tPlane = mDomain.mNumberOfElementsPerDimension[ aLevel ][ 0 ]
+                     * mDomain.mNumberOfElementsPerDimension[ aLevel ][ 1 ];
+
+        // calculate global ijk position
+        aIJK[ 2 ] = tID / tPlane;
+        tID -= aIJK[ 2 ] * tPlane;
+
+        aIJK[ 1 ] = tID / mDomain.mNumberOfElementsPerDimension[ aLevel ][ 0 ];
+        aIJK[ 0 ] = tID - aIJK[ 1 ] * mDomain.mNumberOfElementsPerDimension[ aLevel ][ 0 ];
+    }
+
+    //--------------------------------------------------------------------------------
+
+
+    template<>
+    inline void
     Background_Mesh< 3 >::calc_element_ids(
             uint                     aLevel,
             const Matrix< DDLUMat >& aIJK,
