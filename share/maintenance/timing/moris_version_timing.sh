@@ -26,8 +26,12 @@ gitlist=
 
 git checkout $branch
 
-vlist=`cat $gitlist`
-vlist=$vlist" "`git log | head -1 | awk '{print $2}'`
+if [ $gitlist ];then
+    vlist=`cat $gitlist`
+    vlist=$vlist" "`git log | head -1 | awk '{print $2}'`
+else
+    vlist=`git log | head -1 | awk '{print $2}'`
+fi
 
 id=0
 
