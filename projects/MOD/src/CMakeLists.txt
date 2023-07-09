@@ -51,7 +51,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
-add_library(${MOD}-lib STATIC ${LIB_SOURCES})
+add_library(${MOD}-lib ${LIB_LINK_MODE} ${LIB_SOURCES})
 target_link_libraries(${MOD}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${MOD}-lib PROPERTIES OUTPUT_NAME ${MOD})
 

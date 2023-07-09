@@ -136,6 +136,17 @@ list(APPEND MORIS_INCDIRS "${SRC}" "snippets" "${INC}" "/usr/include")
 option(MORIS_HAVE_PARALLEL
     "Build MORIS with support for MPI communication." ON )
 
+# SHARED lib support.
+# option(MORIS_HAVE_SHARED
+#    "Build MORIS with support for SHARED libraries." OFF )
+SET(MORIS_HAVE_SHARED OFF)
+  if (${MORIS_HAVE_SHARED})
+     message(STATUS "MORIS_HAVE_SHARED = ${MORIS_HAVE_SHARED}")
+     SET(LIB_LINK_MODE SHARED)
+  else()
+     SET(LIB_LINK_MODE STATIC)
+  endif()
+
 # MPI package.
 set(MORIS_MPI_LIBS "MPICH" "OPENMPI")
 set(MORIS_USE_MPI "OPENMPI" CACHE STRING "Set MPI package: ${MORIS_MPI_LIBS}")
@@ -553,17 +564,18 @@ endif()
 
 
 # Add some strict compiler checks.
+# GAH - may want to only do this for development of the package as this fails for deprecated warnings in Trilinos
 check_cxx_compiler_flag("-pedantic" HAVE_PEDANTIC )
 if (HAVE_PEDANTIC)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -pedantic" )
+#    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -pedantic" )
 endif()
 check_cxx_compiler_flag("-pedantic-errors" HAVE_PEDANTIC )
 if (HAVE_PEDANTIC)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -pedantic-errors" )
+#    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -pedantic-errors" )
 endif()
 check_cxx_compiler_flag("-Wall" HAVE_PEDANTIC )
 if (HAVE_PEDANTIC)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wall" )
+#    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wall" )
 endif()
 check_cxx_compiler_flag("-Wextra" HAVE_PEDANTIC )
 if (HAVE_PEDANTIC)
@@ -571,7 +583,7 @@ if (HAVE_PEDANTIC)
 endif()
 check_cxx_compiler_flag("-Werror" HAVE_PEDANTIC )
 if (HAVE_PEDANTIC)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Werror" )
+#    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Werror" )
 endif()
 
 # Define exceptions to strict error checking
@@ -1137,4 +1149,8 @@ install(EXPORT ${MORIS}Targets
 
 install(FILES "include/catch.hpp"
     DESTINATION ${HEADER_INSTALL_DIR}/${MORIS} )
+
+# Install moris_macros.cmake file - GAH
+install(FILES ${CMAKE_SOURCE_DIR}/share/cmake/utilities/moris_macros.cmake
+    DESTINATION ${CONFIG_INSTALL_DIR}/utilities )
 

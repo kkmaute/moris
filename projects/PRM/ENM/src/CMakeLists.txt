@@ -45,7 +45,7 @@ set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 # Enums Target
 
 # Create library
-add_library(${ENM}-lib STATIC ${LIB_SOURCES})
+add_library(${ENM}-lib ${LIB_LINK_MODE} ${LIB_SOURCES})
 target_include_directories(${ENM}-lib PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:${${ENM}_HEADER_INSTALL_DIR}> )

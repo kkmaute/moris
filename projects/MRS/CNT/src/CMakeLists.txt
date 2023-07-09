@@ -33,7 +33,7 @@ set(LIB_SOURCES
 # Containers Library
 
 #add_library(${CNT}-lib INTERFACE)
-add_library(${CNT}-lib STATIC ${LIB_SOURCES})
+add_library(${CNT}-lib ${LIB_LINK_MODE} ${LIB_SOURCES})
 target_include_directories(${CNT}-lib INTERFACE
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	$<INSTALL_INTERFACE:${${CNT}_HEADER_INSTALL_DIR}> )

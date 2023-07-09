@@ -79,7 +79,7 @@ list(APPEND LIB_SOURCES "${CMAKE_CURRENT_BINARY_DIR}/cl_Git_info.cpp")
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # IOS Target
 #add_library(${IOS}-lib INTERFACE)
-add_library(${IOS}-lib STATIC ${LIB_SOURCES})
+add_library(${IOS}-lib ${LIB_LINK_MODE} ${LIB_SOURCES})
 target_include_directories(${IOS}-lib INTERFACE
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	$<INSTALL_INTERFACE:${${IOS}_HEADER_INSTALL_DIR}> )
