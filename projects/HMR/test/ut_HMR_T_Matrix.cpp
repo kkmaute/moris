@@ -10,13 +10,9 @@
 
 #include <catch.hpp>
 
-#define private public
 #include "cl_HMR_T_Matrix.hpp" //HMR/src
-#undef private
-
 #include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Element.hpp" //HMR/src
 #include "cl_HMR_Factory.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
@@ -32,6 +28,24 @@
 
 namespace moris::hmr
 {
+    // Test class for T-matrix
+    template< uint N >
+    class T_Matrix_Test : public T_Matrix< N >
+    {
+    public:
+
+        // Constructor
+        using T_Matrix< N >::T_Matrix;
+
+        // Test evaluation
+        void evaluate_shape_function_test( const Matrix< DDRMat >& aXi, Matrix< DDRMat >& aN )
+        {
+            T_Matrix< N >::evaluate_shape_function( aXi, aN );
+        }
+    };
+
+    // -----------------------------------------------------------------------------------------------------------------
+
     TEST_CASE( "HMR B-spline Shape Function", "[moris], [hmr], [bspline]" )
     {
         for ( uint tOrder = 1; tOrder <= 5; tOrder++ )
@@ -163,7 +177,7 @@ namespace moris::hmr
                             tOrder );
 
                     // create T-Matrix object
-                    auto tTMatrix = new moris::hmr::T_Matrix< 2 >( tLagrangeMesh, tBSplineMesh );
+                    auto tTMatrix = new T_Matrix_Test< 2 >( tLagrangeMesh, tBSplineMesh );
 
                     // ask Lagrange mesh for number of nodes per element
                     moris::luint tNumberOfNodes = tLagrangeMesh->get_number_of_nodes_on_proc();
@@ -183,7 +197,7 @@ namespace moris::hmr
                         // get node coordinate
                         auto tXY = tNode->get_coords();
 
-                        tTMatrix->evaluate_shape_function( tXY, tN );
+                        tTMatrix->evaluate_shape_function_test( tXY, tN );
 
                         // epsilon environment
                         moris::real tEpsilon = 1e-12;
@@ -265,7 +279,7 @@ namespace moris::hmr
                             tOrder );
 
                     // create T-Matrix object
-                    auto tTMatrix = tFactory.create_t_matrix< 3 >( tLagrangeMesh, tBSplineMesh );
+                    auto tTMatrix = new T_Matrix_Test< 3 >( tLagrangeMesh, tBSplineMesh );
 
                     // ask Lagrange mesh for number of nodes per element
                     moris::luint tNumberOfNodes = tLagrangeMesh->get_number_of_nodes_on_proc();
@@ -285,7 +299,7 @@ namespace moris::hmr
                         // shape function vector
                         moris::Matrix< moris::DDRMat > tN( tNumberOfNodes, 1 );
 
-                        tTMatrix->evaluate_shape_function( tXYZ, tN );
+                        tTMatrix->evaluate_shape_function_test( tXYZ, tN );
 
                         // epsilon environment
                         moris::real tEpsilon = 1e-12;

@@ -15,9 +15,7 @@
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
-#include "typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
-#include "cl_Cell.hpp" //CNT/src
 #include "fn_eye.hpp"
 #include "fn_HMR_bspline_shape.hpp"
 
@@ -223,6 +221,18 @@ namespace moris::hmr
                 aWeights(iExtendedBasisIndex ).resize(tNonzeroCount, 1 );
                 aRootBsplineBasis(iExtendedBasisIndex ).resize(tNonzeroCount );
             }
+        }
+
+    protected:
+        /**
+         * Evaluates a shape function at a given point
+         *
+         * @param aXi Local coordinates
+         * @param aN Evaluated shape function
+         */
+        void evaluate_shape_function( const Matrix< DDRMat >& aXi, Matrix< DDRMat >& aN )
+        {
+            MORIS_ERROR( false, "Don't know how to evaluate a shape function for a T-matrix of dimension %u", N );
         }
 
     private:
@@ -746,17 +756,6 @@ namespace moris::hmr
         void evaluate_geometry_interpolation( const Matrix< DDRMat >& aXi, Matrix< DDRMat>& aN )
         {
             MORIS_ERROR( false, "Don't know how to evaluate a geometry interpolation for a T-matrix of dimension %u", N );
-        }
-
-        /**
-         * Evaluates a shape function at a given point
-         *
-         * @param aXi Local coordinates
-         * @param aN Evaluated shape function
-         */
-        void evaluate_shape_function( const Matrix< DDRMat >& aXi, Matrix< DDRMat >& aN )
-        {
-            MORIS_ERROR( false, "Don't know how to evaluate a shape function for a T-matrix of dimension %u", N );
         }
 
         /**
