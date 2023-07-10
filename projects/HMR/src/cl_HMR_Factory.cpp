@@ -33,7 +33,6 @@
 #include "cl_HMR_Lagrange_Facet_Quad9.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Mesh.hpp" //HMR/src
 #include "cl_HMR_T_Matrix.hpp"
-#include "cl_HMR_T_Matrix_Advanced.hpp"
 
 namespace moris::hmr
 {
@@ -308,27 +307,6 @@ namespace moris::hmr
                              ( unsigned int )  mParameters->get_number_of_dimensions() );
                 return nullptr;
             }
-        }
-    }
-
-    //-------------------------------------------------------------------------------
-
-    template< uint N >
-    T_Matrix< N >* Factory::create_t_matrix(
-            Lagrange_Mesh_Base * aLagrangeMesh,
-            BSpline_Mesh_Base  * aBSplineMesh,
-            Lagrange_Mesh_Base * aLagrangeMeshFine)
-    {
-        // Use Advanced T-matrices
-        if ( mParameters->use_advanced_t_matrices() and aLagrangeMeshFine )
-        {
-            return new T_Matrix_Advanced< N >( aLagrangeMeshFine, aBSplineMesh, aLagrangeMesh, mParameters->truncate_bsplines() );
-        }
-
-        // Use regular T-matrices
-        else
-        {
-            return new T_Matrix< N >( aLagrangeMesh, aBSplineMesh, mParameters->truncate_bsplines() );
         }
     }
 

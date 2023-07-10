@@ -8,6 +8,10 @@
  *
  */
 
+#define private public
+#include "cl_HMR_T_Matrix.hpp" //HMR/src
+#undef private
+
 #include <catch.hpp>
 #include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
@@ -23,12 +27,6 @@
 #include "cl_Matrix.hpp" //LINALG/src
 #include "op_times.hpp" //LINALG/src
 #include "fn_norm.hpp"
-
-#define protected public
-#define private   public
-#include "../../../HMR/src/cl_HMR_T_Matrix.hpp" //HMR/src
-#undef protected
-#undef private
 
 TEST_CASE("HMR_T_Matrix_Private", "[moris],[mesh],[hmr],[hmr_t_matrix]")
 {

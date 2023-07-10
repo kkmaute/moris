@@ -14,7 +14,7 @@
 #include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_T_Matrix_Base.hpp"
+#include "cl_HMR_T_Matrix_Advanced.hpp"
 #include "cl_HMR_Parameters.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Matrix.hpp" //LINALG/src
@@ -106,7 +106,20 @@ namespace moris::hmr
         T_Matrix< N >* create_t_matrix(
                 Lagrange_Mesh_Base* aLagrangeMesh,
                 BSpline_Mesh_Base*  aBSplineMesh = nullptr,
-                Lagrange_Mesh_Base* aLagrangeMeshFine = nullptr );
+                Lagrange_Mesh_Base* aLagrangeMeshFine = nullptr )
+        {
+            // Use Advanced T-matrices
+            if ( mParameters->use_advanced_t_matrices() and aLagrangeMeshFine )
+            {
+                return new T_Matrix_Advanced< N >( aLagrangeMeshFine, aBSplineMesh, aLagrangeMesh, mParameters->truncate_bsplines() );
+            }
+
+            // Use regular T-matrices
+            else
+            {
+                return new T_Matrix< N >( aLagrangeMesh, aBSplineMesh, mParameters->truncate_bsplines() );
+            }
+        }
 
     };
 }
