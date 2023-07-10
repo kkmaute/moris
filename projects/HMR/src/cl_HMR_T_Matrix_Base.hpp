@@ -189,16 +189,6 @@ namespace moris::hmr
 
         const Matrix< DDRMat> & get_child_matrix( const Cell< uint > & aChildIndices );
 
-
-        //------------------------------------------------------------------------------
-
-        /**
-         * 1D shape function
-         */
-        static real b_spline_shape_1d( uint aOrder,
-                                uint aK,
-                                real aXi );
-
         /**
          * Recompute the Lagrange matrix for extended T-matrices
          */

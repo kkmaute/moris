@@ -290,56 +290,6 @@ namespace moris::hmr
 
     //-------------------------------------------------------------------------------
 
-    real T_Matrix_Base::b_spline_shape_1d(
-            uint aOrder,
-            uint aK,
-            real aXi )
-    {
-        // max number of entries in lookup table
-        uint tSteps = 2 * ( aOrder + 1 );
-
-        // temporary matrix that contains B-Spline segments
-        Matrix< DDRMat > tDeltaXi( tSteps, 1, 0 );
-        for ( uint i = 0; i < tSteps; ++i )
-        {
-            tDeltaXi( i ) = ( ( (real)i ) - ( (real)aOrder ) ) * 2.0 - 1.0;
-        }
-
-        // temporary matrix that contains evaluated values
-        Matrix< DDRMat > tN( aOrder + 1, 1, 0 );
-
-        // initialize zero order values
-        for ( uint i = 0; i <= aOrder; ++i )
-        {
-            if ( tDeltaXi( i + aK ) <= aXi && aXi < tDeltaXi( i + aK + 1 ) )
-            {
-                tN( i ) = 1.0;
-            }
-        }
-
-        // loop over all orders
-        for ( uint r = 1; r <= aOrder; ++r )
-        {
-            // copy values of tN into old matrix
-            Matrix< DDRMat > tNold( tN );
-
-            // loop over all contributions
-            for ( uint i = 0; i <= aOrder - r; ++i )
-            {
-                // help values
-                real tA = aXi - tDeltaXi( i + aK );
-                real tB = tDeltaXi( i + aK + r + 1 ) - aXi;
-
-                tN( i ) = 0.5 * ( tA * tNold( i ) + tB * ( tNold( i + 1 ) ) ) / ( (real)r );
-            }
-        }
-
-        // first value in entry is shape value
-        return tN( 0 );
-    }
-
-    //-------------------------------------------------------------------------------
-
     void T_Matrix_Base::init_lagrange_coefficients()
     {
         // number of Lagrange nodes per direction

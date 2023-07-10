@@ -19,6 +19,7 @@
 #include "cl_Matrix.hpp" //LINALG/src
 #include "cl_Cell.hpp" //CNT/src
 #include "fn_eye.hpp"
+#include "fn_HMR_bspline_shape.hpp"
 
 namespace moris::hmr
 {
@@ -528,7 +529,7 @@ namespace moris::hmr
                     // loop over all dimensions
                     for ( uint iDimensionIndex = 0; iDimensionIndex < N; iDimensionIndex++ )
                     {
-                        mTMatrixLagrange( iNodeIndex, iBasisIndex ) *= T_Matrix::b_spline_shape_1d(
+                        mTMatrixLagrange( iNodeIndex, iBasisIndex ) *= bspline_shape(
                                 tOrder,
                                 mBSplineIJK( iDimensionIndex, iBasisIndex ),
                                 mLagrangeParam( iDimensionIndex, iNodeIndex ) );
@@ -659,98 +660,6 @@ namespace moris::hmr
 //------------------------------------------------------------------------------
 
         /**
-         * 1D shape function
-         */
-        static real b_spline_shape_1d(
-                uint aOrder,
-                uint aK,
-                real aXi )
-        {
-            // max number of entries in lookup table
-            uint tSteps = 2 * ( aOrder + 1 );
-
-            // temporary matrix that contains B-Spline segments
-            Matrix< DDRMat > tDeltaXi( tSteps, 1, 0 );
-            for ( uint i = 0; i < tSteps; ++i )
-            {
-                tDeltaXi( i ) = ( ( (real)i ) - ( (real)aOrder ) ) * 2.0 - 1.0;
-            }
-
-            // temporary matrix that contains evaluated values
-            Matrix< DDRMat > tN( aOrder + 1, 1, 0 );
-
-            // initialize zero order values
-            for ( uint i = 0; i <= aOrder; ++i )
-            {
-                if ( tDeltaXi( i + aK ) <= aXi && aXi < tDeltaXi( i + aK + 1 ) )
-                {
-                    tN( i ) = 1.0;
-                }
-            }
-
-            // loop over all orders
-            for ( uint r = 1; r <= aOrder; ++r )
-            {
-                // copy values of tN into old matrix
-                Matrix< DDRMat > tNold( tN );
-
-                // loop over all contributions
-                for ( uint i = 0; i <= aOrder - r; ++i )
-                {
-                    // help values
-                    real tA = aXi - tDeltaXi( i + aK );
-                    real tB = tDeltaXi( i + aK + r + 1 ) - aXi;
-
-                    tN( i ) = 0.5 * ( tA * tNold( i ) + tB * ( tNold( i + 1 ) ) ) / ( (real)r );
-                }
-            }
-
-            // first value in entry is shape value
-            return tN( 0 );
-        }
-
-        //------------------------------------------------------------------------------
-
-        static real b_spline_shape_1d_extended(
-                uint aOrder,
-                uint aK,
-                real aXi )
-        {
-            switch ( aOrder )
-            {
-                // linear interpolation
-                case 1:
-                {
-                    // local ordering of basis function
-                    switch ( aK )
-                    {
-                        case 0:
-                        {
-                            return 0.5 * ( 1.0 - aXi );
-                        }
-                        case 1:
-                        {
-                            return 0.5 * ( 1.0 + aXi );
-                        }
-                        default:
-                        {
-                            MORIS_ERROR( false, "The specified local basis %u is not implemented", aK );
-                            return 0.0;
-                        }
-                    }
-                }
-
-                default:
-                {
-                    MORIS_ERROR( false, "The specified order %u is not implemented", aOrder );
-                    return 0.0;
-                }
-            }
-        }
-
-//------------------------------------------------------------------------------
-
-        /**
          * 1D Lagrange Shape function
          *
          * @param aBasisNumber Basis number
@@ -796,7 +705,7 @@ namespace moris::hmr
                     // loop over all dimensions
                     for ( uint iDimension = 0; iDimension < N; iDimension++ )
                     {
-                        mTMatrixLagrangeModified( iNodeIndex, iBasisIndex ) *= this->b_spline_shape_1d_extended(
+                        mTMatrixLagrangeModified( iNodeIndex, iBasisIndex ) *= bspline_shape_extended(
                                 tOrder,
                                 mBSplineIJK( iDimension, iBasisIndex ),
                                 mLagrangeParamModified( iDimension, iNodeIndex ) );
