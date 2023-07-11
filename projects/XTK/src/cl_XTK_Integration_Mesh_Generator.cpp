@@ -4362,7 +4362,8 @@ namespace xtk
                 aBsplineMeshInfo->mExtractionCellsInBsplineCells,
                 aBsplineMeshInfo->mExtractionCellsIndicesInBsplineCells,
                 aBsplineMeshInfo->mExtractionCellToBsplineCell,
-                aBsplineMeshInfo->mBsplineCellLevels );
+                aBsplineMeshInfo->mBsplineCellLevels, 
+                aBsplineMeshInfo->mBsplineCells);
     }
 
     // ----------------------------------------------------------------------------------

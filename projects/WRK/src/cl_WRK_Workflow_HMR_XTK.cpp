@@ -386,7 +386,7 @@ namespace moris
             //            tMeshCheckerXTK.print_diagnostics();
 
             // mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_MPC_to_hdf5();
-            // mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_IG_node_TMatrices_to_file();
+            // mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0).get_integration_mesh()->save_IG_global_T_matrix_to_file();
 
 
             // get the MIG parameter list
@@ -525,7 +525,7 @@ namespace moris
             std::string tTmatrixFileName = aXTKPerformer->get_global_T_matrix_output_file_name();
             if ( tTmatrixFileName != "" )
             {
-                mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_integration_mesh()->save_IG_node_TMatrices_to_file( tTmatrixFileName );
+                mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_integration_mesh()->save_IG_global_T_matrix_to_file( tTmatrixFileName );
 
                 // return flag stopping the workflow after the T-Matrix output
                 return true;

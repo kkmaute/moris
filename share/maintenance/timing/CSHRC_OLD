@@ -1,0 +1,135 @@
+###########################################################################
+#                                                                         #  
+#  My .cshrc file for the caspar cluster                                  #
+#                                                                         #
+###########################################################################
+
+set prompt="%m %# "
+set history=200 savehist=200
+set filec
+
+# set limits
+limit coredumpsize 0
+limit memorylocked unlimited
+limit stacksize unlimited
+limit descriptors  unlimited
+
+# Clear out paths
+setenv PATH
+setenv LD_LIBRARY_PATH
+
+# Basic Path ------------------------------------------------------------------------
+
+setenv PATH $HOME/bin/
+setenv PATH $PATH/:/usr/local/bin
+setenv PATH $PATH/:/usr/local/sbin
+setenv PATH $PATH/:/usr/bin
+setenv PATH $PATH/:/usr/sbin
+setenv PATH $PATH/:/bin
+setenv PATH $PATH/:/sbin
+
+# Default PATH directories -----------------------------------------------------
+
+setenv LD_LIBRARY_PATH /lib64/:/lib/:/usr/lib64/:/usr/lib/
+
+# Tools ------------------------------------------------------------------------
+
+# NEdit
+setenv EDITOR nedit
+
+# moris
+setenv MORISROOT     $HOME/codes/morisGit/
+setenv MORISOUTPUT   $HOME/codes/morisGit/build_dbg/
+setenv MORISBUILDOPT build_opt
+setenv MORISBUILDDBG build_dbg
+
+# Eclipse
+setenv PATH $PATH/:$HOME/apps/eclipse/eclipse
+
+# Doxygen
+setenv PATH $PATH/:$HOME/tpls/doxygen/bin/
+
+# HDF5
+setenv HDF5_ROOT $HOME/tpls/HDF5/gcc-parallel/
+setenv HDF5ROOT  $HOME/tpls/HDF5/gcc-parallel/
+setenv HDF5_DIR  $HOME/tpls/HDF5/gcc-parallel/
+
+# netcdf
+setenv PATH $PATH/:$HOME/tpls/netcdf/gcc-parallel/bin/
+
+# oprofile 
+setenv PATH $PATH/:$HOME/tpls/oprofile/bin/
+
+#doxygen
+setenv PATH $PATH/:$HOME/tpls/doxygen/bin/
+
+# PETSC
+setenv PETSC_DIR $HOME/tpls/petsc/gcc-parallel
+
+# boost
+setenv BOOST_ROOT /usr
+setenv BOOSTROOT /usr
+setenv BOOSTDIR /usr
+
+# ViennaCL
+setenv ViennaCL_DIR $HOME/tpls/ViennaCL
+
+# GCMMA
+setenv GCMMA_DIR $HOME/tpls/gcmma
+
+# SuperLU
+setenv SUPERLUDIR $HOME/tpls/SuperLU/gcc-parallel/
+
+# SuperLU-DIST
+setenv SuperLU_DIST_DIR $HOME/tpls/SuperLU-DIST/gcc-parallel/
+
+# Trilinos 
+setenv PATH $PATH/:$HOME/tpls/trilinos/gcc-parallel/bin/
+setenv Trilinos_DIR $HOME/tpls/trilinos/gcc-parallel/
+setenv Trilinos_DEBUG_DIR $HOME/tpls/trilinos-dbg/gcc-parallel/
+
+# Armadillo
+setenv Armadillo_DIR $HOME/tpls/armadillo
+
+# Eigen3
+setenv Eigen3_DIR $HOME/tpls/eigen
+
+# MKL
+setenv MKL_DIR $HOME/tpls/mkl
+setenv MKLROOT $HOME/tpls/mkl
+
+# BLAS and LAPACK
+setenv LAPACK_DIR $HOME/tpls/lapack
+
+# SNOPT
+setenv SNOPT_DIR $HOME/tpls/Snopt
+
+# LBFGSB
+setenv LBFGSB_DIR $HOME/tpls/LBFGS
+
+# ARPACK
+setenv ARPACK_DIR $HOME/tpls/ARPACK
+setenv ARPACKROOT $HOME/tpls/ARPACK
+
+# set Compiler ----------------------------------------------------------------
+setenv CVERS 'gcc'
+
+setenv CC  gcc
+setenv CXX g++
+setenv FC  gfortran
+setenv F77 gfortran
+
+setenv PATH $PATH/:/usr/lib64/mpi/gcc/openmpi3/bin/
+setenv LD_LIBRARY_PATH /usr/lib64/mpi/gcc/openmpi3/lib64/:$LD_LIBRARY_PATH/
+
+setenv OMPI_MCA_rmaps_base_oversubscribe 1
+setenv OMP_NUM_THREADS 1
+setenv OMPI_MCA_btl vader,self
+
+# Add Libraries ---------------------------------------------------------------
+
+# MKL
+setenv LD_LIBRARY_PATH $HOME/tpls/mkl/lib/intel64/:$LD_LIBRARY_PATH/
+
+# TPLS LAPACK
+setenv LD_LIBRARY_PATH $HOME/tpls/lapack/lib64/:$LD_LIBRARY_PATH/

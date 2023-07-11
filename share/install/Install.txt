@@ -49,7 +49,11 @@
 * Prerequisites on OS installation:
 *
 * The following packages should be installed; 
-* if not, install them with spack (see option below)
+* if not, install them as packages of your OS or with spack (see option below)
+* for OpenSuse OS: see prerequisites file in moris/share/install folder
+
+* git (OS)
+* make (OS)
 *
 * patch 
 * pkg-config
@@ -143,7 +147,11 @@ spack external find
 
 * get moris (main branch)
 
-git clone git@github.com:kkmaute/moris 
+git clone git@github.com:kkmaute/moris
+
+or (for non-developers)
+
+git clone https://github.com/kkmaute/moris
 
 *------------------------------------------------------------
 
@@ -202,6 +210,13 @@ spack add openblas
 
 spack add cmake@master
 
+* add doxygen (optional)
+
+spack add doxygen
+
+* add clang for clang formater (optional)
+
+spack add llvm~gold
 
 *------------------------------------------------------------
 
@@ -257,22 +272,32 @@ setenv PYIDIR $WORKSPACE/spack/opt/spack/linux-opensuse_leap15-zen/gcc-7.5.0/pyt
 
 ln -s $PYIDIR/lib64/python3.10/lib-dynload $PYIDIR/lib/python3.10/.
 
+* if soft link fails, create directory $PYIDIR/lib/python3.10/lib-dynload and copy files 
+* from $PYIDIR/lib64/python3.10/lib-dynload into this directory
+
 unsetenv PYIDIR
 
 spack location --install-dir python
 
 *------------------------------------------------------------
 
-* install moris dependencies; 
+* install moris; NOTE: different procedure for users and developers 
 * add -j <num procs> to limit the number of processors
+
+* for users
+spack install moris
 
 * for developers
 spack install --only dependencies moris
 
+* for developers
 spack install openblas
 
-* for users
-spack install moris
+* for developers if doxygen (optional)
+spack install doxygen
+
+* for developers if llvm (optional)
+spack install llvm
 
 *------------------------------------------------------------
 

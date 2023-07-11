@@ -641,16 +641,11 @@ namespace moris
         }
 
         tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
+#ifdef MORIS_USE_MUMPS
+        tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Mumps" );
+#else
         tParameterlist( 0 )( 0 ).set( "Solver_Type", "Amesos_Superludist" );
-
-        // tParameterlist( 0 )( 0 ).set("Solver Type", "MINRES" );
-        // tParameterlist( 0 )( 0 ).set("Maximum Restarts",    1e-04 );
-        // tParameterlist( 0 )( 0 ).set("Maximum Iterations",    10000 );
-        // tParameterlist( 0 )( 0 ).set("Verbosity", 33 );
-
-        // tParameterlist( 0 )( 0 ).set("ifpack_prec_type", "ILUT" );
-        // tParameterlist( 0 )( 0 ).set("fact: drop tolerance",  1e-10 );
-        // tParameterlist( 0 )( 0 ).set("fact: ilut level-of-fill",  25.0 );
+#endif
 
         tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
 
@@ -670,34 +665,7 @@ namespace moris
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Indices", "0" );
         tParameterlist( 5 )( 0 ).set( "TSA_Output_Criteria", "Output_Criterion" );
 
-        /*
-        tParameterlist( 0 )(0) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::PETSC );
-tParameterlist( 0 )(0).set( "KSPType", std::string( "fgmres" ) );
-tParameterlist( 0 )(0).set( "KSPTol" , 1e-8 );
-tParameterlist( 0 )(0).set( "PCType", std::string( "mg" ) );
-tParameterlist( 0 )(0).set( "ILUFill", 0 );
-
-tParameterlist( 0 )(0).set( "MG_use_schwarz_smoother", true );
-tParameterlist( 0 )(0).set( "MG_schwarz_smoothing_iters", 1 );
-tParameterlist( 0 )(0).set( "ASM_volume_fraction_threshold", 0.95 );
-
-tParameterlist( 1 )(0) = moris::prm::create_linear_solver_parameter_list();
-tParameterlist( 2 )(0) = moris::prm::create_nonlinear_algorithm_parameter_list();
-// tParameterlist( 2 )(0).set( "NLA_rel_residual", 1e-05 );
-
-tParameterlist( 3 )(0) = moris::prm::create_nonlinear_solver_parameter_list();
-tParameterlist( 3 )(0).set("NLA_DofTypes"      , std::string("TEMP") );
-
-tParameterlist( 4 )(0) = moris::prm::create_time_solver_algorithm_parameter_list();
-tParameterlist( 5 )(0) = moris::prm::create_time_solver_parameter_list();
-tParameterlist( 5 )(0).set("TSA_DofTypes"       , std::string("TEMP") );
-tParameterlist( 5 )(0).set("TSA_Output_Indices" , std::string("0") );
-tParameterlist( 5 )(0).set("TSA_Output_Criteria" , std::string("Output_Criterion") );
-         */
-
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
-        // tParameterlist( 6 )(0).set("SOL_save_operator_to_matlab"       , "Mat1.dat" );
-        // tParameterlist( 6 )(0).set("SOL_TPL_Type"       , static_cast< uint >( sol::MapType::Petsc ) );
     }
 
     void

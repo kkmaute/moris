@@ -199,7 +199,7 @@ namespace moris::hmr
          *
          * @return bool   true if active
          */
-        bool is_active()
+        bool is_active() const
         {
             return mActiveFlag;
         }

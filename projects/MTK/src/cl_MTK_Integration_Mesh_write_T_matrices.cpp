@@ -44,8 +44,8 @@ namespace moris
             // initialize arrays of T-matrix information
             uint tNumIgCells = 0;
             Matrix< IdMat >                                tIgCellIds;
-            moris::Cell< moris::Cell< Matrix< IdMat > > >  tIGtoBSIds;
-            moris::Cell< moris::Cell< Matrix< DDRMat > > > tIGtoBSWeights;
+            moris::Cell< moris::Cell< Matrix< IdMat > > >  tIGtoBSIds; // outer cell: B-spline mesh index | inner cell: IG cell index | matrix/vector: assembly map
+            moris::Cell< moris::Cell< Matrix< DDRMat > > > tIGtoBSWeights; // outer cell: B-spline mesh index | inner cell: IG cell index | matrix: extraction operator
 
             // -------------------------------------
             // get T-Matrices
@@ -147,7 +147,7 @@ namespace moris
         // ----------------------------------------------------------------------------
 
         void
-        Integration_Mesh::save_IG_node_TMatrices_to_file( std::string aFileName )
+        Integration_Mesh::save_IG_global_T_matrix_to_file( std::string aFileName )
         {
             // trace this function
             Tracer tTracer( "MTK", "Save Nodal T-Matrices to File" );
@@ -579,7 +579,7 @@ namespace moris
                     } // end for: unzipped IP vertices on cluster
                 } // end for: clusters in set
             } // end for: sets in mesh
-        } // Integration_Mesh::get_IP_to_BS_nodal_T_matrices()
+        } // end function: Integration_Mesh::get_IP_to_BS_nodal_T_matrices()
 
         // ----------------------------------------------------------------------------
 

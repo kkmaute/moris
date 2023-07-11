@@ -364,7 +364,8 @@ namespace moris::hmr
                 moris::Cell< moris::Cell< mtk::Cell* > >&  aCells,
                 moris::Cell< moris::Cell< moris_index > >& aCellIndices,
                 moris::Cell< moris_index >&                aLagToBspCellIndices,
-                moris::Cell< uint >&                       aBspCellRefineLevels );
+                moris::Cell< uint >&                       aBspCellRefineLevels,
+                moris::Cell< mtk::Cell* >&                 aBspCells );
 
         // ----------------------------------------------------------------------------
 
@@ -381,19 +382,19 @@ namespace moris::hmr
         virtual void
         get_L2_projection_matrix(
                 moris_index                                 aDiscretizationMeshIndex,
-                moris_index                                 aRootBSplineCellIndex,
-                moris_index                                 aExtendedBSplineCellIndex,
-                moris::Cell< moris::Cell< mtk::Vertex* > >& tRootBsplineBasis,
-                moris::Cell< mtk::Vertex* >&                tExtendedBsplineBasis,
+                const mtk::Cell*                            aRootBSplineCell,
+                const mtk::Cell*                            aExtendedBSplineCell,
+                moris::Cell< moris::Cell< const mtk::Vertex* > >& tRootBsplineBasis,
+                moris::Cell< const mtk::Vertex* >&                tExtendedBsplineBasis,
                 moris::Cell< Matrix< DDRMat > >&            tWeights ) override;
 
         // ----------------------------------------------------------------------------
 
         virtual const luint*
         get_bspline_element_ijk_level(
-                moris_index         aDiscretizationMeshIndex,
-                moris_index         aBsplineElementIndex,
-                uint                aLevel ) override;
+                moris_index      aDiscretizationMeshIndex,
+                const mtk::Cell* aBsplineElement,
+                uint&            aLevel ) override;
 
         // ----------------------------------------------------------------------------
 

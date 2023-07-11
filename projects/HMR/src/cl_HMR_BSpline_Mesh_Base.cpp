@@ -2216,6 +2216,20 @@ namespace moris::hmr
        }
        tFile << std::endl;
 
+       // write mtk index
+       tFile << "SCALARS MTK_INDEX int" << std::endl;
+       tFile << "LOOKUP_TABLE default" << std::endl;
+       for ( auto tBasis : mAllBasisOnProc )
+       {
+           if ( tBasis->is_flagged() )
+           {
+               tIChar = swap_byte_endian( (int)tBasis->get_index() );
+
+               tFile.write( (char*)&tIChar, sizeof( int ) );
+           }
+       }
+       tFile << std::endl;
+
        // write active index
        tFile << "SCALARS ACTIVE_INDEX int" << std::endl;
        tFile << "LOOKUP_TABLE default" << std::endl;

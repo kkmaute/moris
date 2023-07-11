@@ -326,6 +326,18 @@ namespace xtk
                 moris_index const & aBasisId ) const;
 
         //------------------------------------------------------------------------------
+        /**
+         * @brief Get the enr basis id from enr basis index 
+         * 
+         * @param aMeshIndex Bspline mesh index
+         * @param aBasisIndex index of the basis
+         * @return moris_index Id of the basis
+         */
+        moris_index
+        get_enr_basis_id_from_enr_basis_index(
+                moris_index const & aMeshIndex,
+                moris_index const & aBasisIndex ) const;
+        //------------------------------------------------------------------------------
 
         /**
          * @brief Convert a entity indices to entity ids
@@ -424,6 +436,39 @@ namespace xtk
                 moris_index const &     aMeshIndex,
                 const mtk::Leader_Follower aIsLeader = mtk::Leader_Follower::LEADER );
 
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Checks whether a basis exists on a partition of the mesh
+         *
+         * @param aMeshIndex
+         * @param aBasisId
+         * @return true
+         * @return false
+         */
+        bool
+        basis_exists_on_partition( moris_index const & aMeshIndex,
+                moris_index const &                    aBasisId );
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * @brief Add a basis function to the mesh. this is used by ghost to add basis functions in the aura returns the index
+         *
+         * @param aMeshIndex
+         * @param aBasisIdToAdd
+         * @param aBasisOwner
+         * @param aBasisBulkPhase
+         * @return moris_index
+         */
+        moris_index
+        add_basis_function(
+                moris_index const & aMeshIndex,
+                moris_index const & aBasisIdToAdd,
+                moris_index const & aBasisOwner,
+                moris_index const & aBasisBulkPhase );
+
+
       protected:
         //------------------------------------------------------------------------------
         // functions used by enrichment for construction of the mesh
@@ -514,38 +559,6 @@ namespace xtk
          */
         Cell< moris_index > const &
         get_not_owned_vertex_indices() const;
-
-        //------------------------------------------------------------------------------
-
-        /**
-         * @brief Checks whether a basis exists on a partition of the mesh
-         *
-         * @param aMeshIndex
-         * @param aBasisId
-         * @return true
-         * @return false
-         */
-        bool
-        basis_exists_on_partition( moris_index const & aMeshIndex,
-                moris_index const &                    aBasisId );
-
-        //------------------------------------------------------------------------------
-
-        /**
-         * @brief Add a basis function to the mesh. this is used by ghost to add basis functions in the aura returns the index
-         *
-         * @param aMeshIndex
-         * @param aBasisIdToAdd
-         * @param aBasisOwner
-         * @param aBasisBulkPhase
-         * @return moris_index
-         */
-        moris_index
-        add_basis_function(
-                moris_index const & aMeshIndex,
-                moris_index const & aBasisIdToAdd,
-                moris_index const & aBasisOwner,
-                moris_index const & aBasisBulkPhase );
 
         //------------------------------------------------------------------------------
 
@@ -963,6 +976,11 @@ namespace xtk
 
         moris::Cell< mtk::Cell const * >
         get_set_cells( std::string aSetLabel ) const;
+
+        //------------------------------------------------------------------------------
+
+        void
+        update_communication_table( moris::Cell<moris_id> const & aNewCommunicationTable ); 
     };
 }    // namespace xtk
 

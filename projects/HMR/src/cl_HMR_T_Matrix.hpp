@@ -77,10 +77,10 @@ namespace moris::hmr
          * @param aWeights
          */
         void evaluate_L2_projection(
-                Element*                                    aRootBsplineElement,
-                Element*                                    aExtendedBsplineElement,
-                moris::Cell< moris::Cell< mtk::Vertex* > >& aRootBsplineBasis,
-                moris::Cell< mtk::Vertex* >&                aExtendedBsplineBasis,
+                const Element*                                    aRootBsplineElement,
+                const Element*                                    aExtendedBsplineElement,
+                moris::Cell< moris::Cell< const mtk::Vertex* > >& aRootBsplineBasis,
+                moris::Cell< const mtk::Vertex* >&                aExtendedBsplineBasis,
                 moris::Cell< Matrix< DDRMat > >&            aWeights )
         {
             // Background_Element_Base* aRootBSpBackgroundElement = aRootBsplineElement->get_background_element();
@@ -159,8 +159,8 @@ namespace moris::hmr
             }
 
             // initialize the basis for the root cell and extended cell
-            moris::Cell< Basis* > tRootBasis;
-            moris::Cell< Basis* > tExtendedBasis;
+            moris::Cell< const Basis* > tRootBasis;
+            moris::Cell< const Basis* > tExtendedBasis;
 
             //reserve enough memory for each of them
             tRootBasis.reserve(tNumberOfBases);
@@ -170,7 +170,7 @@ namespace moris::hmr
             for ( uint i = 0; i < tNumberOfBases; i++ )
             {
                 // get the basis
-                Basis* tBasis = aRootBsplineElement->get_basis( i );
+                const Basis* tBasis = aRootBsplineElement->get_basis( i );
 
                 //if it is active add it to the cell
                 if ( tBasis->is_active() )
@@ -179,12 +179,12 @@ namespace moris::hmr
                 }
 
                 // get the basis
-                tBasis = aExtendedBsplineElement->get_basis( i );
+                const Basis* tBasisExtended = aExtendedBsplineElement->get_basis( i );
 
                 //if it is active add it to the cell
-                if ( tBasis->is_active() )
+                if ( tBasisExtended->is_active() )
                 {
-                    tExtendedBasis.push_back( tBasis);
+                    tExtendedBasis.push_back( tBasisExtended);
                 }
             }
 
@@ -731,6 +731,31 @@ namespace moris::hmr
                     aExtensionMatrix = { { 0.5 * ( aShift - 2.0 ) * ( aShift - 1.0 ), aShift * ( -aShift + 2.0 ), 0.5 * aShift * ( aShift - 1.0 ) },    //
                             { 0.5 * aShift * ( aShift - 1.0 ), -( aShift - 1.0 ) * ( aShift + 1.0 ), 0.5 * aShift * ( aShift + 1 ) },                       //
                             { 0.5 * aShift * ( aShift + 1.0 ), -aShift * ( aShift + 2.0 ), 0.5 * ( aShift + 1 ) * ( aShift + 2 ) } };
+                    break;
+                case 3:
+                    aExtensionMatrix = {
+                        {                                                                                                             //
+                                -1.0 / 6.0 * std::pow( aShift, 3.0 ) + 1.0 * std::pow( aShift, 2.0 ) - 11.0 / 6.0 * aShift + 1.0,     //
+                                +0.5 * std::pow( aShift, 3.0 ) - 2.5 * std::pow( aShift, 2.0 ) + 3.0 * aShift + 0.0,                  //
+                                -0.5 * std::pow( aShift, 3.0 ) + 2.0 * std::pow( aShift, 2.0 ) - 1.5 * aShift + 0.0,                  //
+                                +1.0 / 6.0 * std::pow( aShift, 3.0 ) - 0.5 * std::pow( aShift, 2.0 ) + 1.0 / 3.0 * aShift + 0.0 },    //
+                        {                                                                                                             //
+                                -1.0 / 6.0 * std::pow( aShift, 3.0 ) + 0.5 * std::pow( aShift, 2.0 ) - 1.0 / 3.0 * aShift + 0.0,      //
+                                +0.5 * std::pow( aShift, 3.0 ) - 1.0 * std::pow( aShift, 2.0 ) - 0.5 * aShift + 1.0,                  //
+                                -0.5 * std::pow( aShift, 3.0 ) + 0.5 * std::pow( aShift, 2.0 ) + 1.0 * aShift + 0.0,                  //
+                                +1.0 / 6.0 * std::pow( aShift, 3.0 ) - 0.0 * std::pow( aShift, 2.0 ) - 1.0 / 6.0 * aShift + 0.0 },    //
+                        {                                                                                                             //
+                                -1.0 / 6.0 * std::pow( aShift, 3.0 ) - 0.0 * std::pow( aShift, 2.0 ) + 1.0 / 6.0 * aShift + 0.0,      //
+                                +0.5 * std::pow( aShift, 3.0 ) + 0.5 * std::pow( aShift, 2.0 ) - 1.0 * aShift + 0.0,                  //
+                                -0.5 * std::pow( aShift, 3.0 ) - 1.0 * std::pow( aShift, 2.0 ) + 0.5 * aShift + 1.0,                  //
+                                +1.0 / 6.0 * std::pow( aShift, 3.0 ) + 0.5 * std::pow( aShift, 2.0 ) + 1.0 / 3.0 * aShift + 0.0 },
+                        {                                                                                                             //
+                                -1.0 / 6.0 * std::pow( aShift, 3.0 ) - 0.5 * std::pow( aShift, 2.0 ) - 1.0 / 3.0 * aShift + 0.0,      //
+                                +0.5 * std::pow( aShift, 3.0 ) + 2.0 * std::pow( aShift, 2.0 ) + 1.5 * aShift + 0.0,                  //
+                                -0.5 * std::pow( aShift, 3.0 ) - 2.5 * std::pow( aShift, 2.0 ) - 3.0 * aShift + 0.0,                  //
+                                +1.0 / 6.0 * std::pow( aShift, 3.0 ) + 1.0 * std::pow( aShift, 2.0 ) + 11.0 / 6.0 * aShift + 1.0 }
+                        //
+                    };
                     break;
 
                 default:

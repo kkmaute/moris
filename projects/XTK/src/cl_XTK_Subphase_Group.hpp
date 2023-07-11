@@ -245,6 +245,8 @@ namespace xtk
         // input: SPG index || output: B-spline element local SPG index of the SPG on the coarsest B-spline mesh which contains the SPG index input
         moris::Cell< moris_index > mSpgToMsdIndex; 
 
+        // input: Bspline Cell index || output: Bspline cell pointer( it is a child pointer to hmr element)
+        moris::Cell< mtk::Cell* > mBsplineCells;
 
         // ----------------------------------------------------------------------------------
 
