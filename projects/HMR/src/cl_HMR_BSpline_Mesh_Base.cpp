@@ -34,7 +34,7 @@ namespace moris::hmr
                  aBackgroundMesh,
                  aOrder,
                  aActivationPattern )
-    , mNumberOfChildrenPerBasis( std::pow( aOrder + 2,aParameters->get_number_of_dimensions() ) )
+    , mNumberOfChildrenPerBasis( std::pow( aOrder + 2,aParameters->get_number_of_dimensions() ) ) // TODO unequal order
     , mNumberOfElementsPerBasis( std::pow( aOrder+1,aParameters->get_number_of_dimensions() ) )
     {
         this->calculate_child_stencil();
@@ -2265,7 +2265,7 @@ namespace moris::hmr
         uint tNumberOfChildren = this->get_number_of_children_per_basis();
 
         // get order
-        uint tOrder = this->get_order();
+        uint tOrder = Mesh_Base::get_order();
 
         uint tNumberOfChildrenPerDirection = tOrder + 2;
 

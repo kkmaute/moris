@@ -155,7 +155,7 @@ namespace moris::hmr
                 if ( tMesh )
                 {
                     // Check if Lagrange order is less than B-spline order for advanced T-matrices
-                    uint tBSplineOrder = tMesh->get_order();
+                    uint tBSplineOrder = tMesh->get_min_order();
                     if ( P < tBSplineOrder and mParameters->use_advanced_t_matrices() )
                     {
                         mLagrangeMeshForTMatrix( Ik ) = tFactory.create_lagrange_mesh(
@@ -426,7 +426,7 @@ namespace moris::hmr
 
                 if( tMesh != nullptr )
                 {
-                    uint tBSplineOrder = tMesh->get_order();
+                    uint tBSplineOrder = tMesh->get_min_order();
 
                     if( P < tBSplineOrder and mParameters->use_advanced_t_matrices() )
                     {

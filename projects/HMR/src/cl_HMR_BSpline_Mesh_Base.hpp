@@ -73,6 +73,36 @@ namespace moris::hmr
          */
         virtual ~BSpline_Mesh_Base(){};
 
+        /**
+         * Gets the polynomial order in a specific direction
+         * @note Name hiding from base HMR mesh is intentional, a B-spline mesh cannot operate with a singular order
+         *
+         * @param aDimensionIndex Dimension index (0, 1, or 2)
+         * @return Polynomial order
+         */
+        virtual uint get_order( uint aDimensionIndex ) = 0;
+
+        /**
+         * Gets the minimum polynomial order of this mesh
+         *
+         * @return Minimum polynomial order
+         */
+        virtual uint get_min_order() = 0;
+
+        /**
+         * Gets the maximum polynomial order of this mesh
+         *
+         * @return Maximum polynomial order
+         */
+        virtual uint get_max_order() = 0;
+
+        /**
+         * Gets the number of bases in a B-spline element on this mesh
+         *
+         * @return Number of bases
+         */
+        virtual uint get_number_of_bases() = 0;
+
         // ----------------------------------------------------------------------------
 
         /**

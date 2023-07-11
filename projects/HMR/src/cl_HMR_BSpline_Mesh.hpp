@@ -71,7 +71,7 @@ namespace moris::hmr
         : BSpline_Mesh_Base(
                 aParameters,
                 aBackgroundMesh,
-                P,
+                this->get_min_order(),
                 aActivationPattern )
         {
             // ask background mesh for number of elements per ijk-direction
@@ -96,6 +96,35 @@ namespace moris::hmr
         {
             mActiveBasisOnProc.clear();
             this->delete_pointers();
+        }
+
+        // ----------------------------------------------------------------------------
+
+        uint get_order( uint aDimensionIndex ) override
+        {
+            return PQR[ aDimensionIndex ];
+        }
+
+        // ----------------------------------------------------------------------------
+
+        uint get_min_order() override
+        {
+            // Ignores zero
+            return std::min( { P - 1, Q - 1, R - 1 } ) + 1;
+        }
+
+        // ----------------------------------------------------------------------------
+
+        uint get_max_order() override
+        {
+            return std::max( { P, Q, R } );
+        }
+
+        // ----------------------------------------------------------------------------
+
+        uint get_number_of_bases() override
+        {
+            return ( P + 1 ) * ( Q + 1 ) * ( R + 1 );
         }
 
     private:

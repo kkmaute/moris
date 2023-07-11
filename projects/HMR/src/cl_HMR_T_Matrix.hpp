@@ -90,7 +90,7 @@ namespace moris::hmr
             const luint* tExtendedIJK = aExtendedBsplineElement->get_ijk();
 
             // number of bspline coefficients per direction
-            uint tNodesPerDirection = mBSplineOrder + 1;
+            uint tNodesPerDirection = mBSplineMesh->Mesh_Base::get_order() + 1;
 
             // initialize 1D matrices to find the projection matrix in 1D
             moris::Cell< Matrix< DDRMat > > tMatrices1D( N, Matrix< DDRMat >( tNodesPerDirection, tNodesPerDirection, MORIS_REAL_MAX ) );
@@ -105,10 +105,10 @@ namespace moris::hmr
             }
 
             // calculate number of basis per element
-            uint tNumberOfBasis = std::pow( tNodesPerDirection, N );
+            uint tNumberOfBases = mBSplineMesh->get_number_of_bases();
 
             // initialize the projection matrix with the correct size
-            Matrix< DDRMat > tL2ProjectionMatrix( tNumberOfBasis, tNumberOfBasis );
+            Matrix< DDRMat > tL2ProjectionMatrix( tNumberOfBases, tNumberOfBases );
 
             // Apply a tensor product to get the final weights
             if ( N == 2 )
@@ -163,11 +163,11 @@ namespace moris::hmr
             moris::Cell< Basis* > tExtendedBasis;
 
             //reserve enough memory for each of them
-            tRootBasis.reserve(tNumberOfBasis);
-            tExtendedBasis.reserve(tNumberOfBasis);
+            tRootBasis.reserve(tNumberOfBases);
+            tExtendedBasis.reserve(tNumberOfBases);
 
             // fill out the cell data
-            for ( uint i = 0; i < tNumberOfBasis; i++ )
+            for ( uint i = 0; i < tNumberOfBases; i++ )
             {
                 // get the basis
                 Basis* tBasis = aRootBsplineElement->get_basis( i );
@@ -189,21 +189,21 @@ namespace moris::hmr
             }
 
             // resize the output cells
-            aWeights.resize(tNumberOfBasis );
-            aRootBsplineBasis.resize(tNumberOfBasis );
-            aExtendedBsplineBasis.resize(tNumberOfBasis );
+            aWeights.resize(tNumberOfBases );
+            aRootBsplineBasis.resize(tNumberOfBases );
+            aExtendedBsplineBasis.resize(tNumberOfBases );
 
             // loop over the basis and eliminate the zero values
-            for ( uint iExtendedBasisIndex = 0; iExtendedBasisIndex < tNumberOfBasis; iExtendedBasisIndex++ )
+            for ( uint iExtendedBasisIndex = 0; iExtendedBasisIndex < tNumberOfBases; iExtendedBasisIndex++ )
             {
                 // set size for each of the extended basis
                 aExtendedBsplineBasis(iExtendedBasisIndex ) = tExtendedBasis(iExtendedBasisIndex );
-                aWeights(iExtendedBasisIndex ).set_size(tNumberOfBasis, 1 );
-                aRootBsplineBasis(iExtendedBasisIndex ).resize(tNumberOfBasis );
+                aWeights(iExtendedBasisIndex ).set_size(tNumberOfBases, 1 );
+                aRootBsplineBasis(iExtendedBasisIndex ).resize(tNumberOfBases );
 
                 // find all the basis and weights of the root that hve non-zero values
                 uint tNonzeroCount = 0;
-                for ( uint iRootBasisIndex = 0; iRootBasisIndex < tNumberOfBasis; iRootBasisIndex++ )
+                for ( uint iRootBasisIndex = 0; iRootBasisIndex < tNumberOfBases; iRootBasisIndex++ )
                 {
                     // if the wieght is non-zero add it to the cell
                     if ( std::abs( tL2ProjectionMatrix( iExtendedBasisIndex, iRootBasisIndex ) ) > MORIS_REAL_EPS )
@@ -248,22 +248,16 @@ namespace moris::hmr
             // create a prototype of a B-Spline Element
             Element* tElement = mBSplineMesh->create_element( tBackElement );
 
-            // B-Spline order
-            mBSplineOrder = mBSplineMesh->get_order();
-
-            // number of bspline coefficients per direction
-            uint tNodesPerDirection = mBSplineOrder + 1;
-
             // calculate number of basis per element
-            uint tNumberOfBasis = static_cast<uint>( std::pow( tNodesPerDirection, N ) );
+            uint tNumberOfBases = mBSplineMesh->get_number_of_bases();
 
             // initialize index matrix
-            mBasisIndex.set_size( tNumberOfBasis, 1 );
-            mBSplineIJK.set_size( N, tNumberOfBasis );
+            mBasisIndex.set_size( tNumberOfBases, 1 );
+            mBSplineIJK.set_size( N, tNumberOfBases );
 
             // Array of ijk position of basis
             luint tIJK[ N ];
-            for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBasis; iBasisIndex++ )
+            for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBases; iBasisIndex++ )
             {
                 // Get position from element
                 tElement->get_ijk_of_basis( iBasisIndex, tIJK );
@@ -272,8 +266,9 @@ namespace moris::hmr
                 uint tIndex = 0;
                 for ( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
-                    // Calculate index in matrix
-                    tIndex += tIJK[ iDimension ] * std::pow( tNodesPerDirection, iDimension );
+                    // Calculate index in matrix TODO ask B-spline mesh for this
+                    tIndex += tIJK[ iDimension ] * std::pow(
+                            mBSplineMesh->get_order( iDimension ) + 1, iDimension );
 
                     // Store IJK
                     mBSplineIJK( iDimension, iBasisIndex ) = tIJK[ iDimension ];
@@ -296,12 +291,11 @@ namespace moris::hmr
         void init_unity_matrix()
         {
             // get number of basis per element
-            uint tNumberOfBasis = static_cast<uint>(
-                    std::pow( mBSplineMesh->get_order() + 1, N ) );
+            uint tNumberOfBases = mBSplineMesh->get_number_of_bases();
 
             // Set unity and zero matrices
-            eye( tNumberOfBasis, tNumberOfBasis, mEye );
-            mZero.set_size( tNumberOfBasis, 1, 0.0 );
+            eye( tNumberOfBases, tNumberOfBases, mEye );
+            mZero.set_size( tNumberOfBases, 1, 0.0 );
         }
 
 //-------------------------------------------------------------------------------
@@ -310,8 +304,8 @@ namespace moris::hmr
          */
         void init_child_matrices()
         {
-            // get order of mesh
-            uint tOrder = mBSplineMesh->get_order();
+            // Get B-spline order TODO unequal order
+            uint tOrder = mBSplineMesh->get_max_order();
 
             // create temporary matrix
             Matrix< DDRMat > tFactors( tOrder + 1, tOrder + 2, 0.0 );
@@ -346,13 +340,13 @@ namespace moris::hmr
             }
 
             // determine number of children
-            uint tNumberOfChildren = static_cast<uint>( std::pow( 2, N ) );
+            uint tNumberOfChildren = static_cast< uint >( std::pow( 2, N ) );
 
             // determine number of basis per element
-            uint tNumberOfBasis = static_cast<uint>( std::pow( tOrder + 1, N ) );
+            uint tNumberOfBases = mBSplineMesh->get_number_of_bases();
 
             // empty matrix
-            Matrix< DDRMat > tEmpty( tNumberOfBasis, tNumberOfBasis, 0.0 );
+            Matrix< DDRMat > tEmpty( tNumberOfBases, tNumberOfBases, 0.0 );
 
             // container for child relation matrices ( transposed! )
             mChild.resize( tNumberOfChildren, tEmpty );
@@ -391,8 +385,8 @@ namespace moris::hmr
 
         void init_truncation_weights()
         {
-            // get order of mesh
-            uint tOrder = mBSplineMesh->get_order();
+            // Get B-spline order TODO unequal order
+            uint tOrder = mBSplineMesh->get_max_order();
 
             // number of children per direction
             uint tNumberOfChildren = tOrder + 2;
@@ -410,10 +404,10 @@ namespace moris::hmr
             }
 
             // allocate weights
-            mTruncationWeights.set_size( static_cast<uint>( std::pow( tNumberOfChildren, N ) ), 1 );
+            mTruncationWeights.set_size( static_cast< uint >( std::pow( tNumberOfChildren, N ) ), 1 );
 
             // Evaluate weights
-            evaluate_truncation_weights( tWeights );
+            this->evaluate_truncation_weights( tWeights );
         }
 
 //------------------------------------------------------------------------------
@@ -519,28 +513,28 @@ namespace moris::hmr
         void init_lagrange_matrix()
         {
             // get number of basis per element of B-Spline mesh
-            uint tNumberOfBasis = mBSplineIJK.n_cols();
+            uint tNumberOfBases = mBSplineMesh->get_number_of_bases();
 
             // get number of Lagrange nodes
             uint tNumberOfNodes = mLagrangeParam.n_cols();
 
             // initialize T-Matrix for B-Spline to Lagrange conversion
-            mTMatrixLagrange.set_size( tNumberOfNodes, tNumberOfBasis, 1 );
+            mTMatrixLagrange.set_size( tNumberOfNodes, tNumberOfBases, 1 );
 
-            // get order of B-Spline mesh
-            uint tOrder = mBSplineMesh->get_order();
-
-            // loop over all Lagrange nodes
-            for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; iNodeIndex++ )
+            // Loop over all dimensions
+            for ( uint iDimensionIndex = 0; iDimensionIndex < N; iDimensionIndex++ )
             {
+                // get order of B-Spline mesh
+                uint tBSplineOrder = mBSplineMesh->get_order( iDimensionIndex );
+
                 // loop over all B-Spline Basis
-                for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBasis; iBasisIndex++ )
+                for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBases; iBasisIndex++ )
                 {
-                    // loop over all dimensions
-                    for ( uint iDimensionIndex = 0; iDimensionIndex < N; iDimensionIndex++ )
+                    // Loop over all Lagrange nodes
+                    for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; iNodeIndex++ )
                     {
                         mTMatrixLagrange( iNodeIndex, iBasisIndex ) *= bspline_shape(
-                                tOrder,
+                                tBSplineOrder,
                                 mBSplineIJK( iDimensionIndex, iBasisIndex ),
                                 mLagrangeParam( iDimensionIndex, iNodeIndex ) );
                     }
@@ -695,28 +689,28 @@ namespace moris::hmr
         void recompute_lagrange_matrix() override
         {
             // get number of basis per element of B-Spline mesh
-            uint tNumberOfBasis = mBSplineIJK.n_cols();
+            uint tNumberOfBases = mBSplineMesh->get_number_of_bases();
 
             // get number of Lagrange nodes
             uint tNumberOfNodes = mLagrangeParam.n_cols();
 
             // initialize T-Matrix for B-Spline to Lagrange conversion
-            mTMatrixLagrangeModified.set_size( tNumberOfNodes, tNumberOfBasis, 1 );
+            mTMatrixLagrangeModified.set_size( tNumberOfNodes, tNumberOfBases, 1 );
 
-            // get order of B-Spline mesh
-            uint tOrder = mBSplineMesh->get_order();
-
-            // loop over all Lagrange nodes
-            for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; iNodeIndex++ )
+            // Loop over all dimensions
+            for ( uint iDimension = 0; iDimension < N; iDimension++ )
             {
+                // get order of B-Spline mesh
+                uint tBSplineOrder = mBSplineMesh->get_order( iDimension );
+
                 // loop over all B-Spline Basis
-                for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBasis; iBasisIndex++ )
+                for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBases; iBasisIndex++ )
                 {
-                    // loop over all dimensions
-                    for ( uint iDimension = 0; iDimension < N; iDimension++ )
+                    // Loop over all Lagrange nodes
+                    for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; iNodeIndex++ )
                     {
                         mTMatrixLagrangeModified( iNodeIndex, iBasisIndex ) *= bspline_shape_extended(
-                                tOrder,
+                                tBSplineOrder,
                                 mBSplineIJK( iDimension, iBasisIndex ),
                                 mLagrangeParamModified( iDimension, iNodeIndex ) );
                     }
@@ -728,7 +722,7 @@ namespace moris::hmr
 
         void get_extension_matrix_1d( real const & aShift, Matrix< DDRMat >& aExtensionMatrix )
         {
-            switch ( mBSplineOrder )
+            switch ( mBSplineMesh->Mesh_Base::get_order() )
             {
                 case 1:
                     aExtensionMatrix = { { 1.0 - aShift, aShift }, { -aShift, 1.0 + aShift } };

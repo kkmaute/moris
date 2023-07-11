@@ -69,9 +69,6 @@ namespace moris::hmr
         //! Lagrange coefficients for interpolation
         Matrix< DDRMat > mLagrangeCoefficients;
 
-        //! order of B-Spline Mesh
-        uint        mBSplineOrder;
-
         //! order of Lagrange Mesh
         uint        mLagrangeOrder;
 

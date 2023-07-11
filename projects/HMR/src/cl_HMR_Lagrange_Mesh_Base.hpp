@@ -553,7 +553,7 @@ namespace moris::hmr
          */
         uint get_bspline_order( const uint aMeshIndex )
         {
-            return mBSplineMeshes( aMeshIndex )->get_order();
+            return mBSplineMeshes( aMeshIndex )->get_min_order();
         }
 
         // ----------------------------------------------------------------------------

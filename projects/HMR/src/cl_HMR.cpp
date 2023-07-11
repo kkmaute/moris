@@ -601,7 +601,7 @@ namespace moris::hmr
         save_scalar_to_hdf5_file(
                 tFileID,
                 "BSplineOrder",
-                tMesh->get_order(),
+                tMesh->get_min_order(),
                 tStatus );
 
         // get number of nodes of this mesh
@@ -1131,7 +1131,7 @@ namespace moris::hmr
                 "load_field_from_hdf5_file(), file and BSpline number of coefficients does not match. Check BSpline Mesh Index" );
 
         // get pointer to B-Spline mesh
-        uint tBSplineOrder = tMesh->get_lagrange_mesh()->get_bspline_mesh( aBSpineIndex )->get_order();
+        uint tBSplineOrder = tMesh->get_lagrange_mesh()->get_bspline_mesh( aBSpineIndex )->get_min_order();
 
         // set order of B-Splines
         aField->set_bspline_order( tBSplineOrder );
@@ -1253,7 +1253,7 @@ namespace moris::hmr
         }
 
         // finally, we set the order of the B-Spline coefficients
-        aField->set_bspline_order( tHmrMesh->get_lagrange_mesh()->get_bspline_mesh( aBSpineIndex )->get_order() );
+        aField->set_bspline_order( tHmrMesh->get_lagrange_mesh()->get_bspline_mesh( aBSpineIndex )->get_min_order() );
 
         // delete mesh pointer
         delete tMesh;
@@ -1514,7 +1514,6 @@ namespace moris::hmr
             //                    mDatabase->flag_parent( e );
             //                }
         }
-        std::cout << "cells found: " << aCells.size() << std::endl;
     }
 
     // ----------------------------------------------------------------------------
