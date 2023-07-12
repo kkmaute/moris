@@ -138,13 +138,13 @@ namespace moris::hmr
             if ( aLevel < gMaxNumberOfLevels )
             {
                 luint tIJK[ N ];
-                luint tOffset[ N ];
+                luint tDimensionOffset[ N ];
                 for ( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
                     tIJK[ iDimension ] = aIJK[ iDimension ] + mMySubdomainOffset[ aLevel ][ iDimension ];
-                    tOffset[ iDimension ] = mNumberOfBasisPerDimensionIncludingPadding[ aLevel ][ iDimension ];
+                    tDimensionOffset[ iDimension ] = mNumberOfBasisPerDimensionIncludingPadding[ aLevel ][ iDimension ];
                 }
-                return this->calculate_basis_identifier( tIJK, tOffset );
+                return this->calculate_basis_identifier( tIJK, tDimensionOffset ) + mBasisLevelOffset[ aLevel ];
             }
             else
             {
@@ -425,13 +425,13 @@ namespace moris::hmr
          *
          * @tparam D Number of dimensions of the IJK and offset arrays
          * @param aIJK IJK position
-         * @param aOffset Offset array for each dimension
+         * @param aDimensionOffset Offset array for each dimension
          * @return Unique basis identifier
          */
         template< uint D = N >
         static luint calculate_basis_identifier(
                 const luint* aIJK,
-                const luint* aOffset )
+                const luint* aDimensionOffset )
         {
             luint tIdentifier = 0;
             for ( uint iDimension = 0; iDimension < D; iDimension++)
@@ -439,7 +439,7 @@ namespace moris::hmr
                 luint tOffsetTerm = aIJK[ iDimension ];
                 for ( uint iPreviousDimension = 0; iPreviousDimension < iDimension; iPreviousDimension++ )
                 {
-                    tOffsetTerm *= aOffset[ iPreviousDimension ];
+                    tOffsetTerm *= aDimensionOffset[ iPreviousDimension ];
                 }
                 tIdentifier += tOffsetTerm;
             }
