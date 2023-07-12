@@ -264,18 +264,23 @@ spack install texinfo
 
 spack install python
 
-* identify python installation under spack/opt/spack/linux-opensuse..../gcc-7.5.0/
+* check if the following command works
 
-setenv PYIDIR $WORKSPACE/spack/opt/spack/linux-opensuse_leap15-zen/gcc-7.5.0/python-3.10.8-5lrlebeza4fdp634rsxkfejolsdbs4dj/
+spack location --install-dir python
+
+* if yes, skip the following steps; otherwise
+
+* identify python installation under spack/opt/spack/linux-opensuse15-zen4/gcc-11.3.0/python-3.10.12....
+
+setenv PYIDIR $WORKSPACE/spack/opt/spack/linux-opensuse15-zen3/gcc-11.3.0/python-3.10.12....
 
 * if not 3.10 replace 3.10 with actual version number (major-minor)
 
-ln -s $PYIDIR/lib64/python3.10/lib-dynload $PYIDIR/lib/python3.10/.
-
-* if soft link fails, create directory $PYIDIR/lib/python3.10/lib-dynload and copy files 
-* from $PYIDIR/lib64/python3.10/lib-dynload into this directory
+cp -R $PYIDIR/lib64/python3.10/lib-dynload $PYIDIR/lib/python3.10/.
 
 unsetenv PYIDIR
+
+* check again if the following command works
 
 spack location --install-dir python
 

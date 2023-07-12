@@ -38,8 +38,8 @@ setenv LD_LIBRARY_PATH /lib64/:/lib/:/usr/lib64/:/usr/lib/
 setenv EDITOR nedit
 
 # moris
-setenv MORISROOT     $HOME/codes/morisGit/
-setenv MORISOUTPUT   $HOME/codes/morisGit/build_dbg/
+setenv MORISROOT     $HOME/codes/moris/
+setenv MORISOUTPUT   $HOME/codes/moris/build_dbg/
 setenv MORISBUILDOPT build_opt
 setenv MORISBUILDDBG build_dbg
 
