@@ -33,9 +33,10 @@ namespace moris::hmr
     : Mesh_Base( aParameters,
                  aBackgroundMesh,
                  aOrder,
-                 aActivationPattern )
+                 aActivationPattern,
+                 std::pow( aOrder + 1, aParameters->get_number_of_dimensions() ) ) // TODO unequal order
     , mNumberOfChildrenPerBasis( std::pow( aOrder + 2,aParameters->get_number_of_dimensions() ) ) // TODO unequal order
-    , mNumberOfElementsPerBasis( std::pow( aOrder+1,aParameters->get_number_of_dimensions() ) )
+    , mNumberOfElementsPerBasis( std::pow( aOrder + 1,aParameters->get_number_of_dimensions() ) )
     {
         this->calculate_child_stencil();
     }
@@ -395,7 +396,7 @@ namespace moris::hmr
         Cell< Basis* > tBasisOnThisLevel;
 
         // collect basis from given level
-        this->preprocess_basis_from_level( tElementsOnThisLevel,
+        this->preprocess_bases_from_level( tElementsOnThisLevel,
                                            tBasisOnThisLevel );
 
         // determine state of each basis
@@ -418,408 +419,6 @@ namespace moris::hmr
         tBasisOnThisLevel.clear();
     }
 
-//------------------------------------------------------------------------------
-
-    void BSpline_Mesh_Base::preprocess_basis_from_level(
-            Cell< Element * > & aElements,
-            Cell< Basis * >   & aBasis )
-    {
-        // reset flags for basis
-        for( Element * tElement : aElements )
-        {
-            // loop over all basis from this element
-            for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
-            {
-                // get pointer to basis
-                Basis * tBasis = tElement->get_basis( k );
-
-                if( tBasis != nullptr )
-                {
-                    // unflag this basis
-                    tBasis->unflag();
-
-                    // unuse this basis
-                    tBasis->unuse();
-
-                    // counts this element
-                    tBasis->increment_element_counter();
-                }
-            }
-        }
-
-       // initialize basis counter
-       luint tBasisCount = 0;
-
-       // get my rank
-       moris_id tMyRank = par_rank();
-
-       for( Element * tElement : aElements )
-       {
-           // loop over all basis from this element
-           for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
-           {
-               // get pointer to basis
-               Basis * tBasis = tElement->get_basis( k );
-
-               if( tBasis != nullptr )
-               {
-                   // test if basis has been counted
-                   if ( ! tBasis->is_flagged() )
-                   {
-                       // count this basis
-                       ++tBasisCount;
-
-                       // flag this basis
-                       tBasis->flag();
-                   }
-               }
-           }
-
-           // use basis if element is owned
-           if( tElement->get_owner() == tMyRank )
-           {
-               // loop over all basis from this element
-               for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
-               {
-                   // get pointer to basis
-                   Basis * tBasis = tElement->get_basis( k );
-                   if( tBasis != nullptr )
-                   {
-                       tBasis->use();
-                   }
-               }
-           }
-       }
-
-       // assign memory for basis container
-       aBasis.resize( tBasisCount, nullptr );
-
-       // reset counter
-       tBasisCount = 0;
-
-       // loop over all elements
-       for( Element * tElement : aElements )
-       {
-           // loop over all basis from this element
-           for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
-           {
-               // get pointer to basis
-               Basis * tBasis = tElement->get_basis( k );
-
-               if( tBasis != nullptr )
-               {
-                   // test if this basis has been processed already
-                   if ( tBasis->is_flagged() )
-                   {
-                       // copy pointer to basis
-                       aBasis( tBasisCount++ ) = tBasis;
-
-                       // unflag this basis
-                       tBasis->unflag();
-                   }
-               }
-           }
-
-           // init neighbor container
-           if( tElement->is_refined() )
-           {
-               // loop over all basis
-               for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
-               {
-                   // get pointer to basis
-                   Basis * tBasis = tElement->get_basis( k );
-
-                   if( tBasis != nullptr )
-                   {
-                       // assign memory of neighbor container for this basis
-                       tBasis->init_neighbor_container();
-                   }
-               }
-           }
-       } // end loop over elements
-
-       // link elements to basis
-       for( auto tBasis : aBasis )
-       {
-           // initialize element container
-           tBasis->init_element_container();
-       }
-
-       // loop over all elements
-       for( Element * tElement : aElements )
-       {
-           // loop over all basis from this element
-           for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
-           {
-               Basis * tBasis = tElement->get_basis( k );
-
-               if( tBasis != nullptr )
-               {
-                   // insert this element into basis
-                   tBasis->insert_element( tElement );
-               }
-           }
-       }
-
-       // delete_unused_basis (nice feature, not sure if worth the effort)
-       //this->delete_unused_basis( aLevel, aBackgroundElements, aBasis );              // FIXME Saves Memory
-
-       // link basis with neighbors
-       for( Element * tElement : aElements )
-       {
-           // calculate basis neighborship
-           if ( tElement->is_refined() )
-           {
-               // determine basis neighborship
-               tElement->link_basis_with_neighbors( mAllElementsOnProc );
-           }
-       }
-
-       // reset flag of all basis
-       for( auto tBasis : aBasis )
-       {
-           // initialize element container
-           tBasis->unflag();
-       }
-    }
-
-//------------------------------------------------------------------------------
-
-    void BSpline_Mesh_Base::delete_unused_basis(
-            uint                               aLevel,
-            Cell< Background_Element_Base* > & aBackgroundElements,
-            Cell< Basis* >                   & aBasis )
-    {
-        // start timer
-        tic tTimer;
-
-        // reset counter for debugging output
-        luint tDeleteCount = 0;
-
-        if ( aLevel > 0 )
-        {
-            // step 1: remove basis from parents
-
-            // collect basis from upper level
-            Cell< Basis* > tParents;
-
-            this->collect_basis_from_level( aLevel -1, tParents );
-
-            // loop over all parents
-            for( auto tParent : tParents )
-            {
-                // loop over all children of this parent
-                for( uint k=0; k<mNumberOfChildrenPerBasis; ++k )
-                {
-                    // get pointer to child
-                    Basis* tChild = tParent->get_child( k );
-
-                    // test if child exists
-                    if( tChild != nullptr )
-                    {
-                        // test if basis is not used
-                        if ( ! tChild->is_used() )
-                        {
-                            // write null into child
-                            tParent->insert_child( k, nullptr );
-                        }
-                    }
-                }
-            }
-
-            // tidy up memory
-            tParents.clear();
-
-            // step 2: remove basis from basis neighbors
-            for( auto tBasis : aBasis )
-            {
-                // loop over all neighbors
-                // ( number of neighbors per basis = mNumberOfNeighborsPerElement)
-                for( uint k=0; k<mNumberOfNeighborsPerElement; ++k )
-                {
-                   // get pointer to neighbor
-                   Basis* tNeighbor = tBasis->get_neighbor( k );
-
-                   // test if neighbor exists
-                   if ( tNeighbor != nullptr )
-                   {
-                       // test if neighbor is not used
-                       if( ! tNeighbor->is_used() )
-                       {
-                           // write nullptr into neighbor
-                           tBasis->insert_neighbor( k, nullptr );
-                       }
-                   }
-                }
-            }
-
-            // step 3: remove basis from elements
-            for( auto tBackElement : aBackgroundElements )
-            {
-                // get pointer to element
-                Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
-
-                // loop over all basis
-                for( uint k=0; k<mNumberOfBasisPerElement; ++k )
-                {
-                    // get pointer to basis
-                    Basis* tBasis = tElement->get_basis( k );
-
-                    // test if basis exists
-                    if( tBasis != nullptr )
-                    {
-                        // test if basis is not used
-                        if ( ! tBasis->is_used() )
-                        {
-                            // write null into element
-                            tElement->insert_basis( k, nullptr );
-                        }
-                    }
-                }
-            }
-
-            // step 4: count active basis
-
-            // init counter
-            luint tBasisCount = 0;
-            for( auto tBasis: aBasis )
-            {
-                // test if basis is used
-                if ( tBasis->is_used() )
-                {
-                    // increment counter
-                    ++tBasisCount;
-                }
-            }
-
-            // initialize output array
-            Cell< Basis* > tBasisOut( tBasisCount, nullptr );
-
-            // reset counter
-            tBasisCount = 0;
-
-            for( auto tBasis: aBasis )
-            {
-                // test if basis is used
-                if ( tBasis->is_used() )
-                {
-                    // increment counter
-                    tBasisOut( tBasisCount++ ) = tBasis;
-                }
-                else
-                {
-                    delete tBasis;
-                    ++tDeleteCount;
-                }
-            }
-
-            // remember number of basis for verbose output
-            luint tNumberOfAllBasis = aBasis.size();
-
-            // move output
-            aBasis.clear();
-            aBasis = std::move( tBasisOut );
-
-            // stop timer
-            real tElapsedTime = tTimer.toc<moris::chronos::milliseconds>().wall;
-
-            // print output
-            MORIS_LOG_INFO( "%s Deleted %lu unused basis of %lu total on level %u.",
-                    proc_string().c_str(),
-                    ( long unsigned int ) tDeleteCount,
-                    ( long unsigned int ) tNumberOfAllBasis,
-                    ( unsigned int )      aLevel);
-
-            MORIS_LOG_INFO( "Deleting took %5.3f seconds.",
-                    ( double ) tElapsedTime / 1000 );
-        }
-    }
-
-//------------------------------------------------------------------------------
-
-    void BSpline_Mesh_Base::collect_basis_from_level(
-            uint             aLevel,
-            Cell< Basis* > & aBasis )
-    {
-        Cell< Element * > tElements;
-
-        this->collect_active_and_refined_elements_from_level( aLevel, tElements );
-
-        // reset flags for basis
-        for( Element * tElement : tElements )
-        {
-            // loop over all basis from this element
-            for( uint k=0; k<mNumberOfBasisPerElement; ++k )
-            {
-                // get pointer to basis
-                Basis* tBasis = tElement->get_basis( k );
-
-                // test if basis exists
-                if ( tBasis != nullptr )
-                {
-                    // unflag this basis
-                    tBasis->unflag();
-                }
-            }
-        }
-
-        // initialize basis counter
-        luint tBasisCount = 0;
-
-        // count basis on this level
-        for( Element * tElement : tElements )
-        {
-            for( uint k=0; k<mNumberOfBasisPerElement; ++k )
-            {
-                // get pointer to basis
-                Basis* tBasis = tElement->get_basis( k );
-
-                // test if basis exists
-                if ( tBasis != nullptr )
-                {
-                    // test if basis has been counted
-                    if ( ! tBasis->is_flagged() )
-                    {
-                        // count this basis
-                        ++tBasisCount;
-
-                        // flag this basis
-                        tBasis->flag();
-                    }
-                }
-            }
-        }
-
-        // assign memory for basis container
-        aBasis.resize( tBasisCount, nullptr );
-
-        // reset basis counter
-        tBasisCount = 0;
-
-        // add basis to container
-        for( Element * tElement : tElements )
-        {
-            for( uint k=0; k<mNumberOfBasisPerElement; ++k )
-            {
-                // get pointer to basis
-                Basis* tBasis = tElement->get_basis( k );
-
-                // test if basis exists
-                if ( tBasis != nullptr )
-                {
-                    // test if basis has been added
-                    if ( tBasis->is_flagged() )
-                    {
-                        // count this basis
-                        aBasis( tBasisCount++ ) = tBasis;
-
-                        // flag this basis
-                        tBasis->unflag();
-                    }
-                }
-            }
-        }
-    }
 //------------------------------------------------------------------------------
 
     void BSpline_Mesh_Base::determine_basis_state( Cell< Basis* > & aBasis )
@@ -957,7 +556,7 @@ namespace moris::hmr
         {
             // make children from last step to parents
             Cell< Basis* > tBasis;
-            this->collect_basis_from_level( l, tBasis );
+            this->collect_bases_from_level( l, tBasis );
 
             // loop over all basis on this level
             for( auto tParent: tBasis )
@@ -1020,7 +619,7 @@ namespace moris::hmr
         {
             if ( tElement->get_owner() == tMyRank )
             {
-                for( uint k=0; k<mNumberOfBasisPerElement; ++k )
+                for( uint k=0; k<mNumberOfBasesPerElement; ++k )
                 {
                     tElement->get_basis( k )->use();
                 }
@@ -1615,39 +1214,6 @@ namespace moris::hmr
 
 //------------------------------------------------------------------------------
 
-    void BSpline_Mesh_Base::flag_refined_basis_of_owned_elements()
-    {
-        if( mParameters->use_multigrid() )
-        {
-            auto tMyRank = par_rank();
-
-            // loop over all elements
-            for( Element * tElement : mAllElementsOnProc )
-            {
-                // element must be neither padding or deactive
-                if( tElement->get_owner() == tMyRank )
-                {
-                    if( tElement->is_refined() and ! tElement->is_padding() )
-                    {
-                        // loop over all basis of this element
-                        for( uint k=0; k<mNumberOfBasisPerElement; ++k )
-                        {
-                            // get pointer to basis
-                            Basis * tBasis = tElement->get_basis( k );
-
-                            // flag basis if it is refined
-                            if( tBasis->is_refined() )
-                            {
-                                tBasis->flag();
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-//------------------------------------------------------------------------------
-
     void BSpline_Mesh_Base::synchronize_flags( const Matrix< IdMat > & aCommTable )
     {
         // get number of ranks
@@ -1861,7 +1427,6 @@ namespace moris::hmr
         // reset counter
         mNumberOfActiveBasisOnProc  = 0;
         mNumberOfRefinedBasisOnProc = 0;
-        mNumberOfBasis              = 0;
         mMaxLevel                   = 0;
 
         if( mParameters->use_multigrid() )
@@ -1875,7 +1440,6 @@ namespace moris::hmr
                 // count basis
                 if( tBasis->is_used() )
                 {
-                    ++mNumberOfBasis;
                     if ( tBasis->is_active() )
                     {
                         ++mNumberOfActiveBasisOnProc;
@@ -1902,7 +1466,6 @@ namespace moris::hmr
                 // count basis
                 if( tBasis->is_used() )
                 {
-                    ++mNumberOfBasis;
                     if ( tBasis->is_active() )
                     {
                         tBasis->set_active_index( mNumberOfActiveBasisOnProc );                       //FIXME
@@ -1927,7 +1490,6 @@ namespace moris::hmr
                 // count basis
                 if( tBasis->is_used() )
                 {
-                    ++mNumberOfBasis;
                     if ( tBasis->is_active() )
                     {
                         ++mNumberOfActiveBasisOnProc;
@@ -2016,15 +1578,12 @@ namespace moris::hmr
        // get my rank
        moris_id tMyRank = par_rank();
 
-       for( auto tElement : mAllElementsOnProc )
+       // Flag all bases of elements on this proc
+       for ( auto tElement : mAllElementsOnProc )
        {
-           if( tElement->get_owner() == tMyRank )
+           if ( tElement->get_owner() == tMyRank )
            {
-               // flag all basis of this element
-               for( uint k=0; k<mNumberOfBasisPerElement; ++k )
-               {
-                   tElement->get_basis( k )->flag();
-               }
+               tElement->flag_all_bases();
            }
        }
 

@@ -37,9 +37,6 @@ namespace moris::hmr
         //! Cell of basis that are assigned an HMR index ( moris ID );
         Cell< Basis* > mIndexedBasis;
 
-        //! number of basis used by this proc
-        luint mNumberOfBasis = 0;
-
         //! number of all basis (including unused on padding)
         luint mNumberOfAllBasis = 0;
 
@@ -101,7 +98,7 @@ namespace moris::hmr
          *
          * @return Number of bases
          */
-        virtual uint get_number_of_bases() = 0;
+        virtual uint get_number_of_bases_per_element() = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -208,7 +205,7 @@ namespace moris::hmr
         /**
          * special function for multigrid
          */
-        void flag_refined_basis_of_owned_elements();
+        virtual void flag_refined_basis_of_owned_elements() = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -324,8 +321,8 @@ namespace moris::hmr
          * @param[ in    ]  aLevel   level to be investigated
          * @param[ inout ]  aBasis   cell containing found basis
          */
-        void collect_basis_from_level( uint aLevel,
-                Cell< Basis* >&                    aBasis );
+        virtual void collect_bases_from_level( uint aLevel,
+                Cell< Basis* >&                    aBasis ) = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -334,16 +331,19 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
         /**
-         * Provides a cell of all basis on current level.
-         * Also:
-         *     - resets general purpose flags
-         *     - determine if basis is used by this proc
-         *     - creates basis to element connectivity
-         *     - determines basis ownership
-         *     - determines basis neighbors for relevant basis
+         * Provides a cell of all bases on the current level. Also:
+         *      - resets general purpose flags
+         *      - determines if bases are used by this proc
+         *      - creates basis to element connectivity
+         *      - determines basis ownership
+         *      - determines basis neighbors for relevant bases
+         *
+         * @param aElements Elements on this mesh
+         * @param aBases Bases to fill for the current level
          */
-        void preprocess_basis_from_level( Cell< Element* >& aBackgroundElements,
-                Cell< Basis* >&                             aBasis );
+        virtual void preprocess_bases_from_level(
+                Cell< Element* >& aElements,
+                Cell< Basis* >&   aBases ) = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -381,9 +381,9 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        void delete_unused_basis( uint     aLevel,
+        virtual void delete_unused_bases( uint     aLevel,
                 Cell< Background_Element_Base* >& aBackgroundElements,
-                Cell< Basis* >&                   aBasis );
+                Cell< Basis* >&                   aBasis ) = 0;
 
         // ----------------------------------------------------------------------------
 

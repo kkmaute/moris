@@ -72,7 +72,7 @@ namespace moris::hmr
         uint tLevel = tElement->get_level();
 
         // get number of basis per element
-        uint tNumberOfBasisPerElement = mBSplineMesh->get_number_of_basis_per_element();
+        uint tNumberOfBasisPerElement = mBSplineMesh->get_number_of_bases_per_element();
 
         // help index for total number of basis
         uint tMaxNumberOfBasis = ( tLevel + 1 ) * tNumberOfBasisPerElement;
@@ -141,7 +141,7 @@ namespace moris::hmr
         uint tLevel = tElement->get_level();
 
         // get number of basis per element
-        uint tNumberOfBasisPerElement = mBSplineMesh->get_number_of_basis_per_element();
+        uint tNumberOfBasisPerElement = mBSplineMesh->get_number_of_bases_per_element();
 
         // help index for total number of basis
         uint tNumberOfBasis = ( tLevel + 1 ) * tNumberOfBasisPerElement;
@@ -351,7 +351,7 @@ namespace moris::hmr
         mLagrangeMesh->unflag_all_basis();
 
         // number of nodes per element
-        uint tNumberOfNodesPerElement = mLagrangeMesh->get_number_of_basis_per_element();
+        uint tNumberOfNodesPerElement = mLagrangeMesh->get_number_of_bases_per_element();
 
         // unity matrix
         Matrix< DDRMat > tEye;
@@ -495,7 +495,7 @@ namespace moris::hmr
         mLagrangeMesh->unflag_all_basis();
 
         // number of nodes per element
-        uint tNumberOfNodesPerElement = mLagrangeMesh->get_number_of_basis_per_element();
+        uint tNumberOfNodesPerElement = mLagrangeMesh->get_number_of_bases_per_element();
 
         // loop over all elements
         for ( luint iElementIndex = 0; iElementIndex < tNumberOfElements; iElementIndex++ )
@@ -561,7 +561,7 @@ namespace moris::hmr
         mLagrangeMesh->unflag_all_basis();
 
         // number of nodes per element
-        uint tNumberOfNodesPerElement = mLagrangeMesh->get_number_of_basis_per_element();
+        uint tNumberOfNodesPerElement = mLagrangeMesh->get_number_of_bases_per_element();
 
         // unity matrix
         Matrix< DDRMat > tEye;

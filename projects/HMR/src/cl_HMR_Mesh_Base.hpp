@@ -47,7 +47,7 @@ namespace moris::hmr
         const uint mNumberOfDimensions;
 
         //! Quad4, Quad9, Hex8 or Hex27 is supported
-        const uint mNumberOfBasisPerElement;
+        const uint mNumberOfBasesPerElement;
 
         //! 2, 8 or26
         const uint mNumberOfNeighborsPerElement;
@@ -86,17 +86,21 @@ namespace moris::hmr
 
       public:
         // ----------------------------------------------------------------------------
+
         /**
-         * Default Mesh constructor
+         * Default mesh constructor
          *
-         * @param[in] aParameters         container of user defined settings
-         * @param[in] aBackgroundMesh   pointer to background mesh
-         * @param[in] aOrder            polynomial degree of mesh
+         * @param aParameters Container of user defined settings
+         * @param aBackgroundMesh Pointer to background mesh
+         * @param aOrder Polynomial degree of mesh
+         * @param aActivationPattern Activation pattern of this mesh
+         * @param aNumberOfBasesPerElement Number of bases per element on this mesh
          */
         Mesh_Base( const Parameters*  aParameters,
                 Background_Mesh_Base* aBackgroundMesh,
-                uint           aOrder,
-                uint           aActivationPattern );
+                uint                  aOrder,
+                uint                  aActivationPattern,
+                uint                  aNumberOfBasesPerElement );
 
         // ----------------------------------------------------------------------------
 
@@ -314,17 +318,6 @@ namespace moris::hmr
         get_order() const
         {
             return mOrder;
-        }
-
-        // ----------------------------------------------------------------------------
-
-        /**
-         * returns the number of basis per element
-         */
-        uint
-        get_number_of_basis_per_element() const
-        {
-            return mNumberOfBasisPerElement;
         }
 
         // ----------------------------------------------------------------------------

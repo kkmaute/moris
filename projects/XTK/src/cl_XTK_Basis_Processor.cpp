@@ -1854,7 +1854,7 @@ namespace xtk
                         tStartRange,
                         aMeshIndex );
 
-                tStartRange = tStartRange + mHMRHelper( aMeshIndex )->get_number_of_basis_per_element();
+                tStartRange = tStartRange + mHMRHelper( aMeshIndex )->get_number_of_bases_per_element();
             }
         }
     }
@@ -1872,7 +1872,7 @@ namespace xtk
         Bspline_Mesh_Info*                     tBsplineMeshInfo = mXTKModelPtr->mEnrichment->mBsplineMeshInfos( aMeshIndex );
         moris::Cell< mtk::Cell* > const &      tSPGBsplineCells = tBsplineMeshInfo->mBsplineCells;
         moris::Cell< Subphase_Group* > const & tSPGs            = tBsplineMeshInfo->mSubphaseGroups;
-        uint                                   tNumberOfBasis   = mHMRHelper( aMeshIndex )->get_number_of_basis_per_element();
+        uint                                   tNumberOfBasis   = mHMRHelper( aMeshIndex )->get_number_of_bases_per_element();
 
         // get the communication table and map
         uint tCommTableSize = mCommTable.size();
@@ -1997,9 +1997,9 @@ namespace xtk
             uint tBGExtenedBasisOrdinal = std::distance( tExtenedBGBspIndices.begin(), tIterator );
 
             // resize the extened to root basis relationship to proper size
-            mBasisData( aMeshIndex ).mFollowerToLeaderBasis( iEnrichedBasis ).reserve( mHMRHelper( aMeshIndex )->get_number_of_basis_per_element() );
-            mBasisData( aMeshIndex ).mFollowerToLeaderBasisWeights( iEnrichedBasis ).reserve( mHMRHelper( aMeshIndex )->get_number_of_basis_per_element() );
-            mBasisData( aMeshIndex ).mFollowerToLeaderBasisOwners( iEnrichedBasis ).reserve( mHMRHelper( aMeshIndex )->get_number_of_basis_per_element() );
+            mBasisData( aMeshIndex ).mFollowerToLeaderBasis( iEnrichedBasis ).reserve( mHMRHelper( aMeshIndex )->get_number_of_bases_per_element() );
+            mBasisData( aMeshIndex ).mFollowerToLeaderBasisWeights( iEnrichedBasis ).reserve( mHMRHelper( aMeshIndex )->get_number_of_bases_per_element() );
+            mBasisData( aMeshIndex ).mFollowerToLeaderBasisOwners( iEnrichedBasis ).reserve( mHMRHelper( aMeshIndex )->get_number_of_bases_per_element() );
 
             // loop over the all the root basis and if the projection coefficient is not zero, then add it to the follower to leader basis relationship
             for ( uint iRootBasisOrd = 0; iRootBasisOrd < tL2Projection.n_cols(); iRootBasisOrd++ )

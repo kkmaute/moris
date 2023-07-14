@@ -105,7 +105,7 @@ namespace moris::hmr
             }
 
             // calculate number of basis per element
-            uint tNumberOfBases = mBSplineMesh->get_number_of_bases();
+            uint tNumberOfBases = mBSplineMesh->get_number_of_bases_per_element();
 
             // initialize the projection matrix with the correct size
             Matrix< DDRMat > tL2ProjectionMatrix( tNumberOfBases, tNumberOfBases );
@@ -249,7 +249,7 @@ namespace moris::hmr
             Element* tElement = mBSplineMesh->create_element( tBackElement );
 
             // calculate number of basis per element
-            uint tNumberOfBases = mBSplineMesh->get_number_of_bases();
+            uint tNumberOfBases = mBSplineMesh->get_number_of_bases_per_element();
 
             // initialize index matrix
             mBasisIndex.set_size( tNumberOfBases, 1 );
@@ -291,7 +291,7 @@ namespace moris::hmr
         void init_unity_matrix()
         {
             // get number of basis per element
-            uint tNumberOfBases = mBSplineMesh->get_number_of_bases();
+            uint tNumberOfBases = mBSplineMesh->get_number_of_bases_per_element();
 
             // Set unity and zero matrices
             eye( tNumberOfBases, tNumberOfBases, mEye );
@@ -343,7 +343,7 @@ namespace moris::hmr
             uint tNumberOfChildren = static_cast< uint >( std::pow( 2, N ) );
 
             // determine number of basis per element
-            uint tNumberOfBases = mBSplineMesh->get_number_of_bases();
+            uint tNumberOfBases = mBSplineMesh->get_number_of_bases_per_element();
 
             // empty matrix
             Matrix< DDRMat > tEmpty( tNumberOfBases, tNumberOfBases, 0.0 );
@@ -513,7 +513,7 @@ namespace moris::hmr
         void init_lagrange_matrix()
         {
             // get number of basis per element of B-Spline mesh
-            uint tNumberOfBases = mBSplineMesh->get_number_of_bases();
+            uint tNumberOfBases = mBSplineMesh->get_number_of_bases_per_element();
 
             // get number of Lagrange nodes
             uint tNumberOfNodes = mLagrangeParam.n_cols();
@@ -689,7 +689,7 @@ namespace moris::hmr
         void recompute_lagrange_matrix() override
         {
             // get number of basis per element of B-Spline mesh
-            uint tNumberOfBases = mBSplineMesh->get_number_of_bases();
+            uint tNumberOfBases = mBSplineMesh->get_number_of_bases_per_element();
 
             // get number of Lagrange nodes
             uint tNumberOfNodes = mLagrangeParam.n_cols();
