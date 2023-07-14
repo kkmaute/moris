@@ -30,7 +30,7 @@ namespace moris::hmr
         static constexpr uint N = ( P > 0 ) + ( Q > 0 ) + ( R > 0 );
 
         //! Number of children
-        static constexpr uint C = ( P + 2 ) * ( Q + 2 ) * ( R + 2 );
+        static constexpr uint C = ( P + 2 - ( P == 0 ) ) * ( Q + 2 - ( Q == 0 ) ) * ( R + 2 - ( R == 0 ) );
 
         //! Number of neighbors
         static constexpr uint B = ( N == 1 ? 2 : ( N == 2 ? 8 : 26 ) );
