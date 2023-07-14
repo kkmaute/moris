@@ -75,7 +75,8 @@ namespace moris::hmr
                 aParameters,
                 aBackgroundMesh,
                 this->get_min_order(),
-                aActivationPattern )
+                aActivationPattern,
+                B )
         {
             // ask background mesh for number of elements per ijk-direction
             this->get_number_of_elements_per_dimension();

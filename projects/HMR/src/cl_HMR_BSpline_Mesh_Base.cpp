@@ -29,12 +29,13 @@ namespace moris::hmr
             const Parameters*     aParameters,
             Background_Mesh_Base* aBackgroundMesh,
             uint                  aOrder,
-            uint                  aActivationPattern )
+            uint                  aActivationPattern,
+            uint                  aNumberOfBasesPerElement )
     : Mesh_Base( aParameters,
                  aBackgroundMesh,
                  aOrder,
                  aActivationPattern,
-                 std::pow( aOrder + 1, aParameters->get_number_of_dimensions() ) ) // TODO unequal order
+                 aNumberOfBasesPerElement )
     , mNumberOfChildrenPerBasis( std::pow( aOrder + 2,aParameters->get_number_of_dimensions() ) ) // TODO unequal order
     , mNumberOfElementsPerBasis( std::pow( aOrder + 1,aParameters->get_number_of_dimensions() ) )
     {

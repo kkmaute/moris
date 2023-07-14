@@ -51,17 +51,20 @@ namespace moris::hmr
 
 
         /**
-         * Default Mesh constructor
+         * Default mesh constructor
          *
-         * @param[in] aParameters         container of user defined settings
-         * @param[in] aBackgroundMesh   pointer to background mesh
-         * @param[in] aOrder            polynomial degree of mesh
+         * @param aParameters Container of user defined settings
+         * @param aBackgroundMesh Pointer to background mesh
+         * @param aOrder Polynomial degree of mesh
+         * @param aActivationPattern Activation pattern of this mesh
+         * @param aNumberOfBasesPerElement Number of bases per element on this mesh
          */
         BSpline_Mesh_Base(
                 const Parameters*     aParameters,
                 Background_Mesh_Base* aBackgroundMesh,
                 uint                  aOrder,
-                uint                  aActivationPattern );
+                uint                  aActivationPattern,
+                uint                  aNumberOfBasesPerElement );
 
         // ----------------------------------------------------------------------------
 
