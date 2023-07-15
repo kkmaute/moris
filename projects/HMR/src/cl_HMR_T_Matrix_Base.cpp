@@ -170,9 +170,6 @@ namespace moris::hmr
             }
         }
 
-        // ask B-Spline mesh for number of children per basis
-        auto tNumberOfChildrenPerBasis = mBSplineMesh->get_number_of_children_per_basis();
-
         // initialize child indices and size counter
         Cell< uint > tChildIndices;
         uint                tSizeCounter = 1;
@@ -195,8 +192,11 @@ namespace moris::hmr
                 // test if basis is active
                 if ( tBasis->is_active() )
                 {
+                    // Get number of children of basis
+                    uint tNumberOfChildrenOfBasis = tBasis->get_number_of_children();
+
                     // loop over all children of this basis
-                    for ( uint iChildNumber = 0; iChildNumber < tNumberOfChildrenPerBasis; iChildNumber++ )
+                    for ( uint iChildNumber = 0; iChildNumber < tNumberOfChildrenOfBasis; iChildNumber++ )
                     {
                         // get pointer to child of basis
                         Basis* tChild = tBasis->get_child( iChildNumber );

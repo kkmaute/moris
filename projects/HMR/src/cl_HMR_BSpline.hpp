@@ -422,6 +422,11 @@ namespace moris::hmr
             mChildrenFlag = true;
         }
 
+        uint get_number_of_children() override
+        {
+            return mChildrenFlag * C;
+        }
+
 // -----------------------------------------------------------------------------
 
         /**
