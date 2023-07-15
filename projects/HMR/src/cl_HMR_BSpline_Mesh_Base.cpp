@@ -36,10 +36,8 @@ namespace moris::hmr
                  aOrder,
                  aActivationPattern,
                  aNumberOfBasesPerElement )
-    , mNumberOfChildrenPerBasis( std::pow( aOrder + 2,aParameters->get_number_of_dimensions() ) ) // TODO unequal order
     , mNumberOfElementsPerBasis( std::pow( aOrder + 1,aParameters->get_number_of_dimensions() ) )
     {
-        this->calculate_child_stencil();
     }
 
 //------------------------------------------------------------------------------
@@ -133,7 +131,7 @@ namespace moris::hmr
         tic tTimer;
 
         // get parents for each basis
-        this->link_basis_to_parents();
+        this->link_bases_to_parents();
 
         // statement 0 : a basis can not be active and refined at the same time
         bool  tTestForStateContratiction = true;
@@ -539,68 +537,6 @@ namespace moris::hmr
         // calculate basis coordinates
 //            this->calculate_basis_coordinates();
 
-    }
-//------------------------------------------------------------------------------
-
-    void BSpline_Mesh_Base::link_basis_to_parents()
-    {
-        // ask background mesh for max number of levels
-        uint tMaxLevel = mBackgroundMesh->get_max_level();
-
-        // Cell containing children
-        Cell< Basis* > tChildren;
-
-        // start with level 0
-
-        // loop over all levels but the last
-        for( uint l=0; l<tMaxLevel; ++l )
-        {
-            // make children from last step to parents
-            Cell< Basis* > tBasis;
-            this->collect_bases_from_level( l, tBasis );
-
-            // loop over all basis on this level
-            for( auto tParent: tBasis )
-            {
-                // test if parent has children
-                if ( tParent->has_children() )
-                {
-                    // loop over all children
-                    for( uint k=0; k<mNumberOfChildrenPerBasis; ++k )
-                    {
-                        Basis * tChild = tParent->get_child( k );
-
-                        // pointer may be null because we deleted unused basis
-                        if( tChild != nullptr )
-                        {
-                            // increment parent counter for child
-                            tChild->increment_parent_counter();
-                        }
-                    }
-                }
-            }
-
-            // loop over all basis on this level
-            for( auto tParent: tBasis )
-            {
-                // test if parent has children
-                if ( tParent->has_children() )
-                {
-                    // loop over all children
-                    for( uint k=0; k<mNumberOfChildrenPerBasis; ++k )
-                    {
-                        Basis * tChild = tParent->get_child( k );
-
-                        // pointer may be null because we deleted unused basis
-                        if( tChild != nullptr )
-                        {
-                            // copy pointer of parent to child
-                            tParent->get_child( k )->insert_parent( tParent );
-                        }
-                    }
-                }
-            }
-        }
     }
 
 //------------------------------------------------------------------------------
@@ -1177,7 +1113,7 @@ namespace moris::hmr
         if( mParameters->use_multigrid() )
         {
             // get parents for each basis
-            this->link_basis_to_parents();
+            this->link_bases_to_parents();
         }
 
         // stop timer
@@ -1830,62 +1766,6 @@ namespace moris::hmr
        MORIS_LOG_INFO( "Creation took %5.3f seconds.",
                ( double ) tElapsedTime / 1000 );
        MORIS_LOG_INFO( " " );
-    }
-//------------------------------------------------------------------------------
-
-    void BSpline_Mesh_Base::calculate_child_stencil()
-    {
-        // number of children in nd
-        uint tNumberOfChildren = this->get_number_of_children_per_basis();
-
-        // get order
-        uint tOrder = Mesh_Base::get_order();
-
-        uint tNumberOfChildrenPerDirection = tOrder + 2;
-
-        // allocate matrix
-        mChildStencil.set_size( tNumberOfChildren, 1 );
-
-        uint tChild = 0;
-
-        switch ( mParameters->get_number_of_dimensions() )
-        {
-            case( 2 ) :
-            {
-                for ( uint j=0; j< tNumberOfChildrenPerDirection ; ++j )
-                {
-                    for( uint i=0; i<tNumberOfChildrenPerDirection; ++i )
-                    {
-                        mChildStencil( tChild++ ) =  nchoosek( tOrder+1, i ) * nchoosek( tOrder+1, j ) / std::pow( 2, tOrder ) / std::pow( 2, tOrder );
-                    }
-                }
-                break;
-            }
-            case( 3 ) :
-            {
-                for( uint k=0; k< tNumberOfChildrenPerDirection; ++k )
-                {
-                    for ( uint j=0; j< tNumberOfChildrenPerDirection ; ++j )
-                    {
-                        for( uint i=0; i<tNumberOfChildrenPerDirection; ++i )
-                        {
-                            mChildStencil( tChild++ ) = nchoosek( tOrder+1, i ) * nchoosek( tOrder+1, j ) * nchoosek( tOrder+1, k ) / std::pow( 2, tOrder )
-                                                                                                                                    / std::pow( 2, tOrder )
-                                                                                                                                    / std::pow( 2, tOrder );
-                        }
-                    }
-                }
-                break;
-            }
-            default :
-            {
-                MORIS_ERROR( false, "Ivalid dimension.");
-                break;
-            }
-        }
-
-        //print(mChildStencil,"mChildStencil");
-        //mChildStencil = mChildStencil / std::pow( 2, tOrder );
     }
 
 //------------------------------------------------------------------------------

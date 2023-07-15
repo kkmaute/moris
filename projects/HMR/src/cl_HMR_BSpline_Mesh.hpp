@@ -37,6 +37,9 @@ namespace moris::hmr
         
         //! Number of bases per element
         static constexpr uint B = ( P + 1 ) * ( Q + 1 ) * ( R + 1 );
+        
+        //! Number of children per basis
+        static constexpr uint C = ( P + 2 - ( P == 0 ) ) * ( Q + 2 - ( Q == 0 ) ) * ( R + 2 - ( R == 0 ) );
 
         //! Container of degrees, used to avoid repeated conditionals
         static constexpr uint PQR[ 3 ] = { P, Q, R };
@@ -78,6 +81,9 @@ namespace moris::hmr
                 aActivationPattern,
                 B )
         {
+            // Calculate child stencil
+            this->calculate_child_stencil();
+
             // ask background mesh for number of elements per ijk-direction
             this->get_number_of_elements_per_dimension();
 
@@ -571,6 +577,67 @@ namespace moris::hmr
 
         //------------------------------------------------------------------------------
 
+        void link_bases_to_parents() override
+        {
+            // ask background mesh for max number of levels
+            uint tMaxLevel = mBackgroundMesh->get_max_level();
+
+            // Cell containing children
+            Cell< Basis* > tChildren;
+
+            // loop over all levels but the last
+            for ( uint iLevel = 0; iLevel < tMaxLevel; iLevel++ )
+            {
+                // make children from last step to parents
+                Cell< Basis* > tBasis;
+                this->collect_bases_from_level( iLevel, tBasis );
+
+                // loop over all basis on this level
+                for ( auto tParent: tBasis )
+                {
+                    // test if parent has children
+                    if ( tParent->has_children() )
+                    {
+                        // loop over all children
+                        for ( uint iChildIndex = 0; iChildIndex < C; iChildIndex++ )
+                        {
+                            Basis * tChild = tParent->get_child( iChildIndex );
+
+                            // pointer may be null because we deleted unused basis
+                            if ( tChild != nullptr )
+                            {
+                                // increment parent counter for child
+                                tChild->increment_parent_counter();
+                            }
+                        }
+                    }
+                }
+
+                // loop over all basis on this level
+                for ( auto tParent: tBasis )
+                {
+                    // test if parent has children
+                    if ( tParent->has_children() )
+                    {
+                        // loop over all children
+                        for ( uint iChildIndex = 0; iChildIndex < C; iChildIndex++ )
+                        {
+                            Basis * tChild = tParent->get_child( iChildIndex );
+
+                            // pointer may be null because we deleted unused basis
+                            if ( tChild != nullptr )
+                            {
+                                // copy pointer of parent to child
+                                tParent->get_child( iChildIndex )->insert_parent( tParent );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         void delete_unused_bases(
                 uint                               aLevel,
                 Cell< Background_Element_Base* > & aBackgroundElements,
@@ -595,10 +662,10 @@ namespace moris::hmr
                 for ( auto tParent : tParents )
                 {
                     // loop over all children of this parent
-                    for ( uint k=0; k<mNumberOfChildrenPerBasis; ++k )
+                    for ( uint iChildIndex = 0; iChildIndex < C; iChildIndex++ )
                     {
                         // get pointer to child
-                        Basis* tChild = tParent->get_child( k );
+                        Basis* tChild = tParent->get_child( iChildIndex );
 
                         // test if child exists
                         if ( tChild != nullptr )
@@ -607,7 +674,7 @@ namespace moris::hmr
                             if ( ! tChild->is_used() )
                             {
                                 // write null into child
-                                tParent->insert_child( k, nullptr );
+                                tParent->insert_child( iChildIndex, nullptr );
                             }
                         }
                     }
@@ -837,6 +904,63 @@ namespace moris::hmr
                             }
                         }
                     }
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        /**
+         * Calculates child stencil for multigrid
+         */
+        void calculate_child_stencil()
+        {
+            // allocate matrix
+            mChildStencil.set_size( C, 1 );
+
+            // Start child counter
+            uint tChildCounter = 0;
+
+            // Switch over dimensions
+            switch ( N )
+            {
+                case ( 2 ):
+                {
+                    for ( uint iChildI = 0; iChildI < P + 2; iChildI++ )
+                    {
+                        for ( uint iChildJ = 0; iChildJ < Q + 2; iChildJ++ )
+                        {
+                            mChildStencil( tChildCounter++ ) =  nchoosek( P + 1, iChildI )
+                                    * nchoosek( Q + 1, iChildJ )
+                                    / std::pow( 2, P )
+                                    / std::pow( 2, Q );
+                        }
+                    }
+                    break;
+                }
+                case ( 3 ):
+                {
+                    for ( uint iChildI = 0; iChildI < P + 2; iChildI++ )
+                    {
+                        for ( uint iChildJ = 0; iChildJ < Q + 2; iChildJ++ )
+                        {
+                            for ( uint iChildK = 0; iChildK < R + 2; iChildK++ )
+                            {
+                                mChildStencil( tChildCounter++ ) = nchoosek( P + 1, iChildI )
+                                        * nchoosek( Q + 1, iChildJ )
+                                        * nchoosek( R + 1, iChildK )
+                                        / std::pow( 2, P )
+                                        / std::pow( 2, Q )
+                                        / std::pow( 2, R );
+                            }
+                        }
+                    }
+                    break;
+                }
+                default :
+                {
+                    MORIS_ERROR( false, "Invalid dimension." );
+                    break;
                 }
             }
         }

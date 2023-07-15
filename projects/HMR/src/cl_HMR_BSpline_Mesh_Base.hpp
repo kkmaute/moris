@@ -25,9 +25,6 @@ namespace moris::hmr
     {
       protected:
 
-        //! number of children per basis
-        const uint mNumberOfChildrenPerBasis;
-
         //! max number of elements connected to basis
         const uint mNumberOfElementsPerBasis;
 
@@ -124,17 +121,6 @@ namespace moris::hmr
          * @return void
          */
         void save_to_vtk( const std::string& aFilePath );
-
-        // ----------------------------------------------------------------------------
-
-        /**
-         * returns how many children a basis has
-         */
-        uint
-        get_number_of_children_per_basis() const
-        {
-            return mNumberOfChildrenPerBasis;
-        }
 
         // ----------------------------------------------------------------------------
 
@@ -360,7 +346,7 @@ namespace moris::hmr
         /**
          * Links B-Splines to parents. Needed for testing.
          */
-        void link_basis_to_parents();
+        virtual void link_bases_to_parents() = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -387,10 +373,6 @@ namespace moris::hmr
         virtual void delete_unused_bases( uint     aLevel,
                 Cell< Background_Element_Base* >& aBackgroundElements,
                 Cell< Basis* >&                   aBasis ) = 0;
-
-        // ----------------------------------------------------------------------------
-
-        void calculate_child_stencil();
     };
     //------------------------------------------------------------------------------
 } /* namespace moris */
