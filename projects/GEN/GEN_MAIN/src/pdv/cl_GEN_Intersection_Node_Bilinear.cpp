@@ -626,6 +626,14 @@ namespace moris
             Matrix< DDRMat > tBasis;
             tInterpolation->eval_N( tCellCoordinate, tBasis );
 
+            // check that aAncestorIndex <= number of basis
+            // note: here only bi and tri-linear interpolation used irrespective of interpolation of background cell; thus only
+            // corner nodes values are used; level set values of other nodes do not influence intersection position
+            if ( aAncestorIndex >= tNumBases )
+            {
+                return 0.0;
+            }
+
             // compute derivative of residual
             real tDResidualDPhi = tBasis( aAncestorIndex );
 
