@@ -4,7 +4,7 @@
 #=================================================================================
 
 # overwrite MORISROOT with director of moris git version
-export MORISROOT=$HOME/codes/morisGit
+export MORISROOT=$HOME/codes/moris
 
 # build directory
 here=$MORISROOT/build_opt
