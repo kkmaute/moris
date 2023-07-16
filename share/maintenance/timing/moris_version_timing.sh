@@ -4,7 +4,7 @@
 #=================================================================================
 
 # overwrite MORISROOT with director of moris git version
-export MORISROOT=$HOME/codes/morisGit
+export MORISROOT=$HOME/codes/moris
 
 # build directory
 here=$MORISROOT/build_opt
@@ -17,8 +17,8 @@ exalist=$MORISROOT/share/maintenance/timing/TimingExampleList
 
 # file with git versions to processed in additon to current one; leave empty 
 # if only current git version should be checked
-#gitlist=$MORISROOT/share/maintenance/timing/CheckGitList
-gitlist=
+gitlist=$MORISROOT/share/maintenance/timing/CheckGitList
+#gitlist=
 
 #=================================================================================
 # end of user input
@@ -34,9 +34,6 @@ else
 fi
 
 id=0
-
-#export boxdir=/data/home/maute/work/FemdocMorisComparision/Box/moris
-#export bspdir=/data/home/maute/work/FemdocMorisComparision/SphereInBox/moris
 
 cd $here
 
@@ -73,21 +70,16 @@ if [ ! "$1" = "skip" ];then
                 
         git checkout $vers
         
-        make clean >& /dev/null
+        rm -r -f cmake CMakeCache.txt CMakeDoxyfile.in CMakeDoxygenDefaults.cmake
+        rm -r -f CMakeFiles cmake_install.cmake CTestTestfile.cmake generated
+        rm -r -f lib Makefile share
+
+        cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..  >& /dev/null
+        cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..  >& /dev/null
         
         make -j 4 >& compile.$date
         
         ctest -V >& ctest.$date
-        
-        #cd $boxdir
-        
-        #moris.sh opt 1 box >& log.$date
-     
-        #cd bspdir
-        
-        #moris.sh opt 1 Bsphere >& log.$date
-       
-        #cd $here 
         
     done
 
@@ -120,7 +112,7 @@ for exa in $exalist; do
         if ( time    < mxt    ){ mid=b[2]; mxt=time}
         if ( numdate > curnum ){ cid=b[2]; cur=time; curnum=numdate}
    }
-   END{print file": min-id = "mid" mxt = "mxt" cid = "cid" cur = "cur" delta = "cur-mxt" ratio [%] = "(cur-mxt)/cur*100} ' 
+   END{print file": min-id = "mid" mxt = "mxt" cid = "cid" cur = "cur" delta = "cur-mxt" ratio [%] = "(cur-mxt)/(1e-12+cur)*100} ' 
 done
 
   
