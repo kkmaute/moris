@@ -45,7 +45,13 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    Basis_Processor::~Basis_Processor() {}
+    Basis_Processor::~Basis_Processor()
+    {
+        for ( auto& iHMRHelper : mHMRHelper )
+        {
+            delete iHMRHelper;
+        }
+    }
 
     // ----------------------------------------------------------------------------------
 
