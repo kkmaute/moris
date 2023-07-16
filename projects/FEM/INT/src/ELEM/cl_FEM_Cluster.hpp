@@ -65,10 +65,10 @@ namespace moris
             Matrix< DDUMat > mComputeResidualAndIQI;
 
             // pointer to the fem set
-            Set *mSet;
+            Set *mSet = nullptr;
 
             // element type
-            Element_Type mElementType;
+            Element_Type mElementType = Element_Type::UNDEFINED;
 
             // acceptable volume error
             // IG cells with a relative volume below this threshold are ignored
@@ -81,7 +81,7 @@ namespace moris
             std::map< std::tuple< fem::Measure_Type, mtk::Primary_Void, mtk::Leader_Follower >, uint > mClusterMEAMap;
 
             // flag to easily differentiate between ACTUAL FEM and VIS clusters for debugging
-            bool mIsVisCluster;
+            bool mIsVisCluster = false;
 
             friend class Element_Bulk;
             friend class Element_Sideset;
