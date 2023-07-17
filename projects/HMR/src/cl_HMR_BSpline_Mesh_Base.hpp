@@ -227,6 +227,13 @@ namespace moris::hmr
                 uint         aLevel,
                 const luint* aIJK ) = 0;
 
+        /**
+         * Evaluates the truncation weights on this mesh for 2D/3D based on 1D weights
+         *
+         * @param aTruncationWeights Truncation weights to size and fill
+         */
+        virtual void evaluate_truncation_weights( Matrix< DDRMat >& aTruncationWeights ) = 0;
+
         // ----------------------------------------------------------------------------
 
         /**

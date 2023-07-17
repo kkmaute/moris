@@ -138,8 +138,6 @@ namespace moris::hmr
             return ( P + 1 ) * ( Q + 1 ) * ( R + 1 );
         }
 
-    private:
-
         // ----------------------------------------------------------------------------
 
         luint calculate_basis_id(
@@ -162,6 +160,39 @@ namespace moris::hmr
                 return gNoEntityID;
             }
         }
+
+        // ----------------------------------------------------------------------------
+
+        void evaluate_truncation_weights( Matrix< DDRMat >& aTruncationWeights ) override
+        {
+            // Calculate scale factor
+            real tScale = 1.0;
+            for ( uint iDimension = 0; iDimension < N; iDimension++ )
+            {
+                tScale /= std::pow( 2, PQR[ iDimension ] );
+            }
+
+            // Allocate weights with scale factor
+            aTruncationWeights.set_size( C, 1, tScale );
+
+            // Perform multiplication
+            uint tTruncationWeightIndex = 0;
+            for ( uint iChildI = 0; iChildI < P + 2 - ( P == 0 ); iChildI++ )
+            {
+                for ( uint iChildJ = 0; iChildJ < Q + 2 - ( Q == 0 ); iChildJ++ )
+                {
+                    for ( uint iChildK = 0; iChildK < R + 2 - ( R == 0 ); iChildK++ )
+                    {
+                        aTruncationWeights( tTruncationWeightIndex++ ) *=
+                                nchoosek( P + 1, iChildI )
+                                * nchoosek( Q + 1, iChildJ )
+                                * nchoosek( R + 1, iChildK );
+                    }
+                }
+            }
+        }
+
+    private:
 
         /**
          *  Private function, creates the mNodeLevelOffset lookup table.

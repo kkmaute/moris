@@ -231,24 +231,6 @@ namespace moris::hmr
     // -----------------------------------------------------------------------------------------------------------------
 
     template<>
-    void T_Matrix< 2 >::evaluate_truncation_weights( const Matrix< DDRMat >& aWeights )
-    {
-        // init counter
-        uint tTruncationWeightIndex = 0;
-
-        // loop over all positions
-        for ( real iWeightI : aWeights )
-        {
-            for ( real iWeightJ : aWeights )
-            {
-                mTruncationWeights( tTruncationWeightIndex++ ) = iWeightI * iWeightJ;
-            }
-        }
-    }
-
-    // -----------------------------------------------------------------------------------------------------------------
-
-    template<>
     void T_Matrix< 2 >::populate_child_matrices( const Matrix< DDRMat >& aTL, const Matrix< DDRMat >& aTR )
     {
         // Number of coefficients

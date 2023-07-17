@@ -56,7 +56,7 @@ namespace moris::hmr
                 this->init_basis_index();
                 this->init_unity_matrix();
                 this->init_child_matrices();
-                this->init_truncation_weights();
+                aBSplineMesh->evaluate_truncation_weights( mTruncationWeights );
                 this->init_lagrange_matrix();
             }
         }
@@ -366,7 +366,7 @@ namespace moris::hmr
         void child_multiplication()
         {
             // determine number of children
-            uint tNumberOfChildren = static_cast<uint>( std::pow( 2, N ) );
+            uint tNumberOfChildren = static_cast< uint >( std::pow( 2, N ) );
             mChildMultiplied.resize( tNumberOfChildren );
 
             for ( uint Ik = 0; Ik < tNumberOfChildren; ++Ik )
@@ -382,35 +382,6 @@ namespace moris::hmr
                     mChildMultiplied( iChildRow )( iChildCol ) = mChild( iChildRow ) * mChild( iChildCol );
                 }
             }
-        }
-
-//------------------------------------------------------------------------------
-
-        void init_truncation_weights()
-        {
-            // Get B-spline order TODO unequal order
-            uint tOrder = mBSplineMesh->get_max_order();
-
-            // number of children per direction
-            uint tNumberOfChildren = tOrder + 2;
-
-            // matrix containing 1D weights
-            Matrix< DDRMat > tWeights( tNumberOfChildren, 1 );
-
-            // scale factor for 1D weights
-            real tScale = 1.0 / ( (real)std::pow( 2, tOrder ) );
-
-            // calculate 1D weights
-            for ( uint iChildIndex = 0; iChildIndex < tNumberOfChildren; iChildIndex++ )
-            {
-                tWeights( iChildIndex ) = tScale * nchoosek( tOrder + 1, iChildIndex );
-            }
-
-            // allocate weights
-            mTruncationWeights.set_size( static_cast< uint >( std::pow( tNumberOfChildren, N ) ), 1 );
-
-            // Evaluate weights
-            this->evaluate_truncation_weights( tWeights );
         }
 
 //------------------------------------------------------------------------------
@@ -804,16 +775,6 @@ namespace moris::hmr
         }
 
         /**
-         * Evaluates the 2D/3D truncation weights based on the 1D weights and stores them internally
-         *
-         * @param aWeights 1D truncation weights
-         */
-        void evaluate_truncation_weights( const Matrix< DDRMat >& aWeights )
-        {
-            MORIS_ERROR( false, "Don't know how to evaluate truncation weights for a T-matrix of dimension %u", N );
-        }
-
-        /**
          * Populates the child matrices based on the given left and right matrix
          *
          * @param aTL Left matrix
@@ -837,8 +798,6 @@ namespace moris::hmr
     template<> void T_Matrix< 3 >::get_child_corner_nodes( uint aChildIndex, Matrix< DDRMat >& aXi );
     template<> Matrix< DDRMat > T_Matrix< 2 >::get_supporting_points( uint aOrder );
     template<> Matrix< DDRMat > T_Matrix< 3 >::get_supporting_points( uint aOrder );
-    template<> void T_Matrix< 2 >::evaluate_truncation_weights( const Matrix< DDRMat>& aWeights );
-    template<> void T_Matrix< 3 >::evaluate_truncation_weights( const Matrix< DDRMat>& aWeights );
     template<> void T_Matrix< 2 >::populate_child_matrices( const Matrix< DDRMat >& aTL, const Matrix< DDRMat>& aTR );
     template<> void T_Matrix< 3 >::populate_child_matrices( const Matrix< DDRMat >& aTL, const Matrix< DDRMat>& aTR );
 
