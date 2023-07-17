@@ -36,7 +36,6 @@ namespace moris::hmr
                  aOrder,
                  aActivationPattern,
                  aNumberOfBasesPerElement )
-    , mNumberOfElementsPerBasis( std::pow( aOrder + 1,aParameters->get_number_of_dimensions() ) )
     {
     }
 
@@ -416,75 +415,6 @@ namespace moris::hmr
         }
 
         tBasisOnThisLevel.clear();
-    }
-
-//------------------------------------------------------------------------------
-
-    void BSpline_Mesh_Base::determine_basis_state( Cell< Basis* > & aBasis )
-    {
-        // loop over all basis
-        for( Basis * tBasis : aBasis )
-        {
-            // only process basis that are used by this proc
-            if ( tBasis->is_used() )
-            {
-                // test number of elements per basis
-                uint tNumberOfElements = tBasis->get_element_counter();
-
-                // apply deactive lemma
-                if ( tNumberOfElements < mNumberOfElementsPerBasis )
-                {
-                    // mark this basis as deactive
-                    tBasis->set_deactive_flag();
-                }
-                else
-                {
-                    // check if any connected element is deactive
-                    bool tHasDeactiveElement = false;
-
-                    for( uint k=0; k<mNumberOfElementsPerBasis; ++k )
-                    {
-                        if ( tBasis->get_element( k )->is_deactive() )
-                        {
-                            tHasDeactiveElement = true;
-                            break;
-                        }
-                    }
-
-                    if ( tHasDeactiveElement )
-                    {
-                        tBasis->set_deactive_flag();
-                    }
-                    else
-                    {
-                        bool tIsActive = false;
-
-                        // loop over all basis and check if one is active
-                        for( uint k=0; k<mNumberOfElementsPerBasis; ++k )
-                        {
-                            if ( tBasis->get_element( k )->is_active() )
-                            {
-                                tIsActive = true;
-
-                                // break loop
-                                break;
-                            }
-                        }
-
-                        if ( tIsActive )
-                        {
-                            // flag this basis as active
-                            tBasis->set_active_flag();
-                        }
-                        else
-                        {
-                            // flag this basis as refined
-                            tBasis->set_refined_flag();
-                        }
-                    }
-                }
-            }
-        }
     }
 
 //------------------------------------------------------------------------------

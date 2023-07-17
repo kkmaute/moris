@@ -25,9 +25,6 @@ namespace moris::hmr
     {
       protected:
 
-        //! max number of elements connected to basis
-        const uint mNumberOfElementsPerBasis;
-
         //! Cell containing all basis this proc knows about
         Cell< Basis* > mAllCoarsestBasisOnProc;
 
@@ -337,9 +334,11 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
         /**
-         * identifies basis that are flagged for refinement
+         * Identifies bases that are flagged for refinement on the current level
+         *
+         * @param aBases Bases on the current level
          */
-        void determine_basis_state( Cell< Basis* >& aBasis );
+        virtual void determine_basis_state( Cell< Basis* >& aBases ) = 0;
 
         // ----------------------------------------------------------------------------
 

@@ -577,6 +577,75 @@ namespace moris::hmr
 
         //------------------------------------------------------------------------------
 
+        void determine_basis_state( Cell< Basis* > & aBases ) override
+        {
+            // loop over all basis
+            for( Basis * tBasis : aBases )
+            {
+                // only process basis that are used by this proc
+                if ( tBasis->is_used() )
+                {
+                    // test number of elements per basis
+                    uint tNumberOfElements = tBasis->get_element_counter();
+
+                    // apply deactive lemma
+                    if ( tNumberOfElements < B )
+                    {
+                        // mark this basis as deactive
+                        tBasis->set_deactive_flag();
+                    }
+                    else
+                    {
+                        // check if any connected element is deactive
+                        bool tHasDeactiveElement = false;
+
+                        for ( uint iElementIndex = 0; iElementIndex < B; iElementIndex++ )
+                        {
+                            if ( tBasis->get_element( iElementIndex )->is_deactive() )
+                            {
+                                tHasDeactiveElement = true;
+                                break;
+                            }
+                        }
+
+                        if ( tHasDeactiveElement )
+                        {
+                            tBasis->set_deactive_flag();
+                        }
+                        else
+                        {
+                            bool tIsActive = false;
+
+                            // loop over all basis and check if one is active
+                            for ( uint iElementIndex = 0; iElementIndex < B; iElementIndex++ )
+                            {
+                                if ( tBasis->get_element( iElementIndex )->is_active() )
+                                {
+                                    tIsActive = true;
+
+                                    // break loop
+                                    break;
+                                }
+                            }
+
+                            if ( tIsActive )
+                            {
+                                // flag this basis as active
+                                tBasis->set_active_flag();
+                            }
+                            else
+                            {
+                                // flag this basis as refined
+                                tBasis->set_refined_flag();
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
         void link_bases_to_parents() override
         {
             // ask background mesh for max number of levels
