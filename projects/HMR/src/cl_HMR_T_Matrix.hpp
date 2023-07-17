@@ -15,6 +15,7 @@
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
+#include "fn_HMR_calculate_basis_identifier.hpp"
 #include "cl_Matrix.hpp" //LINALG/src
 #include "fn_eye.hpp"
 #include "fn_HMR_bspline_shape.hpp"
@@ -257,25 +258,27 @@ namespace moris::hmr
 
             // Array of ijk position of basis
             luint tIJK[ N ];
-            for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBases; iBasisIndex++ )
+            luint tOffset[ N ];
+            for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < tNumberOfBases; iBasisIndexInElement++ )
             {
-                // Get position from element
-                tElement->get_ijk_of_basis( iBasisIndex, tIJK );
+                // Get IJK position from element
+                tElement->get_ijk_of_basis( iBasisIndexInElement, tIJK );
 
                 // Loop over dimensions
-                uint tIndex = 0;
                 for ( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
-                    // Calculate index in matrix TODO ask B-spline mesh for this
-                    tIndex += tIJK[ iDimension ] * std::pow(
-                            mBSplineMesh->get_order( iDimension ) + 1, iDimension );
-
                     // Store IJK
-                    mBSplineIJK( iDimension, iBasisIndex ) = tIJK[ iDimension ];
+                    mBSplineIJK( iDimension, iBasisIndexInElement ) = tIJK[ iDimension ];
+
+                    // Get offset
+                    tOffset[ iDimension ] = mBSplineMesh->get_order( iDimension ) + 1;
                 }
 
+                // Get basis index for storage in T-matrix
+                luint tBasisIndex = calculate_basis_identifier< N >( tIJK, tOffset );
+
                 // Assign basis index
-                mBasisIndex( tIndex ) = iBasisIndex;
+                mBasisIndex( tBasisIndex ) = iBasisIndexInElement;
             }
 
             // tidy up

@@ -16,6 +16,7 @@
 #include "cl_HMR_BSpline_Element.hpp" //HMR/src
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
+#include "fn_HMR_calculate_basis_identifier.hpp"
 #include "HMR_Globals.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
 #include "cl_Stopwatch.hpp" //CHR/src
@@ -154,7 +155,7 @@ namespace moris::hmr
                     tIJK[ iDimension ] = aIJK[ iDimension ] + mMySubdomainOffset[ aLevel ][ iDimension ];
                     tDimensionOffset[ iDimension ] = mNumberOfBasisPerDimensionIncludingPadding[ aLevel ][ iDimension ];
                 }
-                return this->calculate_basis_identifier( tIJK, tDimensionOffset ) + mBasisLevelOffset[ aLevel ];
+                return calculate_basis_identifier< N >( tIJK, tDimensionOffset ) + mBasisLevelOffset[ aLevel ];
             }
             else
             {
@@ -402,7 +403,7 @@ namespace moris::hmr
                     tElement->get_ijk_of_basis( iBasisIndex, tIJK );
 
                     // Get basis index
-                    luint tCoarseBasisIndex = this->calculate_basis_identifier( tIJK, mNumberOfCoarsestBasisOnProc );
+                    luint tCoarseBasisIndex = calculate_basis_identifier< N >( tIJK, mNumberOfCoarsestBasisOnProc );
 
                     // Insert point to basis into element
                     tElement->insert_basis( iBasisIndex, mAllCoarsestBasisOnProc( tCoarseBasisIndex ) );
@@ -1049,35 +1050,6 @@ namespace moris::hmr
 
             // Create element
             return new BSpline_Element< P, Q, R >( aBackgroundElement, mActivationPattern );
-        }
-
-        // ----------------------------------------------------------------------------
-
-        /**
-         * Calculates a unique basis identifier for a given IJK position and offsets.
-         * Can be an index or an ID depending on the offset.
-         *
-         * @tparam D Number of dimensions of the IJK and offset arrays
-         * @param aIJK IJK position
-         * @param aDimensionOffset Offset array for each dimension
-         * @return Unique basis identifier
-         */
-        template< uint D = N >
-        static luint calculate_basis_identifier(
-                const luint* aIJK,
-                const luint* aDimensionOffset )
-        {
-            luint tIdentifier = 0;
-            for ( uint iDimension = 0; iDimension < D; iDimension++)
-            {
-                luint tOffsetTerm = aIJK[ iDimension ];
-                for ( uint iPreviousDimension = 0; iPreviousDimension < iDimension; iPreviousDimension++ )
-                {
-                    tOffsetTerm *= aDimensionOffset[ iPreviousDimension ];
-                }
-                tIdentifier += tOffsetTerm;
-            }
-            return tIdentifier;
         }
 
         // ----------------------------------------------------------------------------
