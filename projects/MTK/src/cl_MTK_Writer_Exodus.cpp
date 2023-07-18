@@ -314,8 +314,7 @@ namespace moris
         Writer_Exodus::save_mesh()
         {
             // check that mesh is open
-            MORIS_ERROR( mExoID > 0, "Exodus cannot be saved as it is not open\n." );
-
+            MORIS_ERROR( mExoID > 0, "Writer_Exodus::save_mesh() - Exodus cannot be saved as it is not open\n." );
             // close mesh
             ex_close( mExoID );
 
