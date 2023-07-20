@@ -6,7 +6,7 @@
 #
 
 set(EXAMPLE_MAIN Main_Shape_Sensitivity_Bspline)
-set(EXAMPLE_FILE Shape_Sensitivity_Bspline)
+set(EXAMPLE_FILES Shape_Sensitivity_Bspline_2D Shape_Sensitivity_Bspline_3D)
 set(EXAMPLE_PROCS 1)
 
 # List source files
@@ -90,7 +90,10 @@ foreach(TPL ${SO_TPLS})
     list(APPEND SO_INCLUDES ${MORIS_${TPL}_INCLUDE_DIRS})
 endforeach()
 
-dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
+# create dynamically linked .so files
+foreach(EXAMPLE_FILE ${EXAMPLE_FILES})
+    dynamic_link_input(${EXAMPLE_FILE} ${EXAMPLE_FILE} ${EXAMPLE_FILE}.cpp ${SO_INCLUDES})
+endforeach()
 
 # Add parallel tests
 if(MORIS_HAVE_PARALLEL_TESTS)
