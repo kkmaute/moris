@@ -69,9 +69,6 @@ namespace moris::hmr
         //! Lagrange coefficients for interpolation
         Matrix< DDRMat > mLagrangeCoefficients;
 
-        //! order of B-Spline Mesh
-        uint        mBSplineOrder;
-
         //! order of Lagrange Mesh
         uint        mLagrangeOrder;
 
@@ -188,16 +185,6 @@ namespace moris::hmr
                 Element* aBSplineElement ) = 0;
 
         const Matrix< DDRMat> & get_child_matrix( const Cell< uint > & aChildIndices );
-
-
-        //------------------------------------------------------------------------------
-
-        /**
-         * 1D shape function
-         */
-        static real b_spline_shape_1d( uint aOrder,
-                                uint aK,
-                                real aXi );
 
         /**
          * Recompute the Lagrange matrix for extended T-matrices

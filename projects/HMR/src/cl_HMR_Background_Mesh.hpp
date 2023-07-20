@@ -328,6 +328,21 @@ namespace moris::hmr
         //--------------------------------------------------------------------------------
 
         /**
+         * @brief This function takes mDomainID as input and computes the global ijk of the element
+         *
+         * @param aLevel
+         * @param aID
+         * @param aIJK
+         */
+
+        virtual void calc_ijk_from_global_id(
+                const uint&  aLevel,
+                const luint& aID,
+                luint*       aIJK ) const override;
+
+        //--------------------------------------------------------------------------------
+
+        /**
          * Unets element active flag, sets element flag,
          * initializes children, and removes refinement queue flag
          *
@@ -1364,6 +1379,17 @@ namespace moris::hmr
     {
         MORIS_ERROR( false, "Don't know how to calculate IDs yet." );
         return 0;
+    }
+
+    //--------------------------------------------------------------------------------
+    template< uint N >
+    inline void
+    Background_Mesh< N >::calc_ijk_from_global_id(
+            const uint&  aLevel,
+            const luint& aID,
+            luint*       aIJK ) const
+    {
+        MORIS_ERROR( false, "Don't know how to calculate IDs yet." );
     }
 
     //--------------------------------------------------------------------------------

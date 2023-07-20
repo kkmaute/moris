@@ -1,39 +1,39 @@
 #!/bin/sh
-
-#====================================================================================
-# Copyright (c) 2022 University of Colorado
-# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
-#
-#====================================================================================
-
 #=================================================================================
 # start of user input
 #=================================================================================
 
 # overwrite MORISROOT with director of moris git version
-export MORISROOT=$HOME/codes/morisGit
+export MORISROOT=$HOME/codes/moris
 
 # build directory
 here=$MORISROOT/build_opt
 
+# branch: master or xtk_refactor or main
+branch=main
+
 # file with list of examples 
-exalist=$MORISROOT/share/scripts/TimingExampleList
+exalist=$MORISROOT/share/maintenance/timing/TimingExampleList
 
 # file with git versions to processed in additon to current one; leave empty 
 # if only current git version should be checked
-gitlist=$HOME/bin/CheckGitList
+gitlist=$MORISROOT/share/maintenance/timing/CheckGitList
+#gitlist=
 
 #=================================================================================
 # end of user input
 #=================================================================================
 
-vlist=`cat $gitlist`
-vlist=$vlist" "`git log | head -1 | awk '{print $2}'`
+git checkout $branch
+
+if [ $gitlist ];then
+    vlist=`cat $gitlist`
+    vlist=$vlist" "`git log | head -1 | awk '{print $2}'`
+else
+    vlist=`git log | head -1 | awk '{print $2}'`
+fi
 
 id=0
-
-#export boxdir=/data/home/maute/work/FemdocMorisComparision/Box/moris
-#export bspdir=/data/home/maute/work/FemdocMorisComparision/SphereInBox/moris
 
 cd $here
 
@@ -42,6 +42,12 @@ if [ ! "$1" = "skip" ];then
     for vers in $vlist;do
 
         id=`expr $id + 1`
+
+        make clean >& /dev/null
+
+        git checkout $branch
+        
+        git pull
         
         tmpdate=`git log | awk -v gh=$vers  'BEGIN{n=0} 
         { 
@@ -61,28 +67,19 @@ if [ ! "$1" = "skip" ];then
         echo " processing $id ( $vers / $date )"
 
         echo " ==============================================="
-        
-        make clean >& /dev/null
-
-        git checkout master
-        
-        git pull
-        
+                
         git checkout $vers
+        
+        rm -r -f cmake CMakeCache.txt CMakeDoxyfile.in CMakeDoxygenDefaults.cmake
+        rm -r -f CMakeFiles cmake_install.cmake CTestTestfile.cmake generated
+        rm -r -f lib Makefile share
+
+        cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..  >& /dev/null
+        cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..  >& /dev/null
         
         make -j 4 >& compile.$date
         
         ctest -V >& ctest.$date
-        
-        #cd $boxdir
-        
-        #moris.sh opt 1 box >& log.$date
-     
-        #cd bspdir
-        
-        #moris.sh opt 1 Bsphere >& log.$date
-       
-        #cd $here 
         
     done
 
@@ -103,7 +100,8 @@ for exa in $exalist; do
 
    rm -f $fname
 
-   grep $exa $ctestlist | grep Passed | awk -v file=$fname 'BEGIN{mxt=10000.0;curnum=0}
+   # important: keep whitespace before $exa
+   grep " $exa" $ctestlist | grep Passed | awk -v file=$fname 'BEGIN{mxt=10000.0;curnum=0}
    {
         time=$(NF-1)
         split($0,a,":") 
@@ -114,8 +112,7 @@ for exa in $exalist; do
         if ( time    < mxt    ){ mid=b[2]; mxt=time}
         if ( numdate > curnum ){ cid=b[2]; cur=time; curnum=numdate}
    }
-   END{print file": min-id = "mid" mxt = "mxt" cid = "cid" cur = "cur" delta = "cur-mxt" ratio [%] = "(cur-mxt)/cur*100} ' 
+   END{print file": min-id = "mid" mxt = "mxt" cid = "cid" cur = "cur" delta = "cur-mxt" ratio [%] = "(cur-mxt)/(1e-12+cur)*100} ' 
 done
 
   
-

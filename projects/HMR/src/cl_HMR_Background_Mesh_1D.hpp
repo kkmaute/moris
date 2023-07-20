@@ -160,7 +160,29 @@ namespace moris::hmr
         }
     }
 
+    //--------------------------------------------------------------------------------
+
+    template<>
+    inline void
+    Background_Mesh< 1 >::calc_ijk_from_global_id(
+            const uint&  aLevel,
+            const luint& aID,
+            luint*       aIJK ) const
+    {
+        if ( aLevel < gMaxNumberOfLevels )
+        {
+            // calculate global i position
+            luint tI = aID - mDomain.mLevelOffset[ aLevel ];
+        }
+        else
+        {
+            // return no value
+            return gNoEntityID;
+        }
+    }
+
     //-------------------------------------------------------------------------------
-} /* namespace moris */
+}    // namespace moris::hmr
+
 
 #endif /* SRC_HMR_CL_HMR_BACKGROUND_MESH_1D_HPP_ */

@@ -15,16 +15,26 @@
 
 namespace moris::hmr
 {
-//------------------------------------------------------------------------------
+
     /**
-     * \brief BSpline Class
+     * B-spline class
      *
-     * uint N: number of dimensions (1, 2, or 3)
-     * uint C: number of children   ( (P+2)^N)
+     * @tparam P Polynomial degree in x-direction
+     * @tparam Q Polynomial degree in y-direction
+     * @tparam R Polynomial degree in z-direction
      */
-    template< uint N, uint C, uint B  >
+    template< uint P, uint Q, uint R  >
     class BSpline : public Basis
     {
+        //! Number of dimensions
+        static constexpr uint N = ( P > 0 ) + ( Q > 0 ) + ( R > 0 );
+
+        //! Number of children
+        static constexpr uint C = ( P + 2 ) * ( Q + 2 ) * ( R + 2 );
+
+        //! Number of neighbors
+        static constexpr uint B = ( N == 1 ? 2 : ( N == 2 ? 8 : 26 ) );
+
         //! memory position in active cell
         luint   mActiveIndex = gNoEntityID;
 
@@ -189,7 +199,7 @@ namespace moris::hmr
          *
          * @return bool   true if active
          */
-        bool is_active()
+        bool is_active() const
         {
             return mActiveFlag;
         }
@@ -535,13 +545,16 @@ namespace moris::hmr
 // -----------------------------------------------------------------------------
 
         // counts fagged basis
-        void count_descendants( luint & aBasisCount )
+        luint count_descendants() override
         {
+            // Initialize counter
+            luint tBasisCount = 0;
+
             // test if self has been flagged
             if ( mFlag )
             {
                 // add self to counter
-                ++aBasisCount;
+                tBasisCount++;
 
                 // test if children exist
                 if ( mChildrenFlag )
@@ -552,7 +565,7 @@ namespace moris::hmr
                         // test if child exists
                         if ( mChildren[ k ] != nullptr )
                         {
-                            mChildren[ k ]->count_descendants( aBasisCount );
+                            tBasisCount += mChildren[k]->count_descendants();
                         }
                     }
                 }
@@ -560,13 +573,15 @@ namespace moris::hmr
                 // flag this basis
                 mFlag = false;
             }
+
+            return tBasisCount;
         }
 
 // -----------------------------------------------------------------------------
 
         // counts inflagged basis
         void collect_descendants( Cell< Basis* > & aBasisList,
-                                  luint          & aBasisCount )
+                                  luint          & aBasisCount ) override
         {
             // test if self has been flagged
             if ( ! mFlag )

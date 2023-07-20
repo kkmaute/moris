@@ -11,7 +11,6 @@
 #ifndef SRC_HMR_CL_HMR_BSPLINE_MESH_BASE_HPP_
 #define SRC_HMR_CL_HMR_BSPLINE_MESH_BASE_HPP_
 
-#include "cl_HMR_BSpline.hpp"      //HMR/src
 #include "cl_HMR_Element.hpp"      //HMR/src
 #include "cl_HMR_Mesh_Base.hpp"    //HMR/src
 
@@ -24,18 +23,8 @@ namespace moris::hmr
      */
     class BSpline_Mesh_Base : public Mesh_Base
     {
-
-        // ----------------------------------------------------------------------------
-
-      public:
-        // ----------------------------------------------------------------------------
-
-        bool test_sanity();
-
-        // ----------------------------------------------------------------------------
-
       protected:
-        // ----------------------------------------------------------------------------
+
         //! number of children per basis
         const uint mNumberOfChildrenPerBasis;
 
@@ -51,23 +40,8 @@ namespace moris::hmr
         //! number of basis used by this proc
         luint mNumberOfBasis = 0;
 
-        //! number of elements used by this proc
-        // luint mNumberOfElements = 0;
-
         //! number of all basis (including unused on padding)
         luint mNumberOfAllBasis = 0;
-
-        //! number of basis on coarsest level
-        luint mNumberOfCoarsestBasisOnProc[ 3 ] = { 0, 0, 0 };
-
-        //! Lookup table containing offset for node IDs
-        luint mBasisLevelOffset[ gMaxNumberOfLevels ];
-
-        //! a container that remembers the number of basis per level
-        luint mNumberOfBasisPerLevel[ gMaxNumberOfLevels ] = { 0 };
-
-        //! counts the number of basis used and owned
-        // luint mNumberOfOwnedBasis = 0;
 
         luint          mNumberOfActiveBasisOnProc  = 0;
         luint          mNumberOfRefinedBasisOnProc = 0;
@@ -76,10 +50,8 @@ namespace moris::hmr
 
         Matrix< DDRMat > mChildStencil;
 
-        // ----------------------------------------------------------------------------
-
       public:
-        // ----------------------------------------------------------------------------
+
 
         /**
          * Default Mesh constructor
@@ -88,8 +60,9 @@ namespace moris::hmr
          * @param[in] aBackgroundMesh   pointer to background mesh
          * @param[in] aOrder            polynomial degree of mesh
          */
-        BSpline_Mesh_Base( const Parameters* aParameters,
-                Background_Mesh_Base*        aBackgroundMesh,
+        BSpline_Mesh_Base(
+                const Parameters*     aParameters,
+                Background_Mesh_Base* aBackgroundMesh,
                 uint                  aOrder,
                 uint                  aActivationPattern );
 
@@ -99,6 +72,36 @@ namespace moris::hmr
          * Virtual destructor. Does nothing.
          */
         virtual ~BSpline_Mesh_Base(){};
+
+        /**
+         * Gets the polynomial order in a specific direction
+         * @note Name hiding from base HMR mesh is intentional, a B-spline mesh cannot operate with a singular order
+         *
+         * @param aDimensionIndex Dimension index (0, 1, or 2)
+         * @return Polynomial order
+         */
+        virtual uint get_order( uint aDimensionIndex ) = 0;
+
+        /**
+         * Gets the minimum polynomial order of this mesh
+         *
+         * @return Minimum polynomial order
+         */
+        virtual uint get_min_order() = 0;
+
+        /**
+         * Gets the maximum polynomial order of this mesh
+         *
+         * @return Maximum polynomial order
+         */
+        virtual uint get_max_order() = 0;
+
+        /**
+         * Gets the number of bases in a B-spline element on this mesh
+         *
+         * @return Number of bases
+         */
+        virtual uint get_number_of_bases() = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -230,84 +233,16 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-      protected:
-        // ----------------------------------------------------------------------------
-
         /**
-         * creates a basis depending on polynomial order and dimension
+         * Calculates domain-wide unique node ID. Useful for debugging.
          *
-         * @param[in]   aIJK        ijk position of node
-         * @param[in]   aLevel      level on which basis exists
-         * @param[in]   aOwner      owner of basis
-         */
-        virtual Basis* create_basis( const luint* aIJK,
-                uint                       aLevel,
-                uint                       aOwner ) = 0;
-
-        // ----------------------------------------------------------------------------
-        /**
-         * Returns the pointer to a basis on the coarsest level. 2D case.
-         */
-        Basis* get_coarsest_basis_by_ij( luint aI,
-                luint                          aJ );
-
-        // ----------------------------------------------------------------------------
-
-        /**
-         * Returns the pointer to a basis on the coarsest level. 3D case.
-         */
-        Basis* get_coarsest_basis_by_ijk( luint aI,
-                luint                           aJ,
-                luint                           aK );
-
-        // ----------------------------------------------------------------------------
-
-        /**
-         * calculates domain wide unique node ID (1D case)
-         * Useful for debugging.
-         *
-         * @param[in]  aLevel    level of node
-         * @param[in]  aI        proc local i-position of node
-         *
-         * @return uint          domain wide unique ID
+         * @param aLevel Level of node
+         * @param aIJK Processor-local ijk-positions of node
+         * @return Domain wide unique ID
          */
         virtual luint calculate_basis_id(
-                uint  aLevel,
-                luint aI ) = 0;
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        /**
-         * calculates domain wide unique node ID (2D case)
-         * Useful for debugging.
-         *
-         * @param[in]  aLevel    level of node
-         * @param[in]  aI        proc local i-position of node
-         * @param[in]  aJ        proc local j-position of node
-         * @return uint          domain wide unique ID
-         */
-        virtual luint calculate_basis_id(
-                uint  aLevel,
-                luint aI,
-                luint aJ ) = 0;
-
-        // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-        /**
-         * calculates domain wide unique node ID (3D case)
-         * Useful for debugging.
-         *
-         * @param[in]  aLevel    level of node
-         * @param[in]  aI        proc local i-position of node
-         * @param[in]  aJ        proc local j-position of node
-         * @param[in]  aK        proc local k-position of node
-         * @return uint          domain wide unique ID
-         */
-        virtual luint calculate_basis_id(
-                uint  aLevel,
-                luint aI,
-                luint aJ,
-                luint aK ) = 0;
+                uint         aLevel,
+                const luint* aIJK ) = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -319,20 +254,33 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        void collect_active_and_refined_elements_from_level( uint aLevel,
-                Cell< Element* >&                                        aElements );
-
-        // ----------------------------------------------------------------------------
-
-      private:
-        // ----------------------------------------------------------------------------
+        void collect_active_and_refined_elements_from_level(
+                uint              aLevel,
+                Cell< Element* >& aElements );
 
         /**
-         * Creates the lookup table needed for basis IDs
-         * This table contains the maximal possible offset. E.g. a uniform refined mesh.
-         * Function seems to be equal to calculate_lookup_tables()
+         *
+         * This test returns true if the activation pattern of the basis
+         * seems correct. The rule is as follows
+         *
+         *  A basis is:
+         *
+         *      - active, if all connected elements are either active,
+         *                refined or padding, and at least one element is active
+         *
+         *      - refined, if all connected elements are refined or padding
+         *
+         *      - deactive, if at least one element is deactive ( or does not exist)
+         *
+         *
+         *  Form these rules, some statements ( see comments in source ) have been developed.
+         *  Note that fulfilling the checked statements are NECESSARY, BUT NOT SUFFICIENT conditions.
+         *
+         *  This test is not meant to be run during runtime.
          */
-        void calculate_basis_level_offset();
+        bool test_sanity();
+
+      private:
 
         // ----------------------------------------------------------------------------
         /**
@@ -349,7 +297,7 @@ namespace moris::hmr
          *
          * @return void
          */
-        void create_basis_on_level_zero();
+        virtual void create_basis_on_level_zero() = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -358,7 +306,7 @@ namespace moris::hmr
          *
          * @return void
          */
-        void link_basis_to_elements_on_level_zero();
+        virtual void link_basis_to_elements_on_level_zero() = 0;
 
         // ----------------------------------------------------------------------------
 

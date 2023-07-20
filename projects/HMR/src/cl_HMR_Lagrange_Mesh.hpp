@@ -155,7 +155,7 @@ namespace moris::hmr
                 if ( tMesh )
                 {
                     // Check if Lagrange order is less than B-spline order for advanced T-matrices
-                    uint tBSplineOrder = tMesh->get_order();
+                    uint tBSplineOrder = tMesh->get_min_order();
                     if ( P < tBSplineOrder and mParameters->use_advanced_t_matrices() )
                     {
                         mLagrangeMeshForTMatrix( Ik ) = tFactory.create_lagrange_mesh(
@@ -426,7 +426,7 @@ namespace moris::hmr
 
                 if( tMesh != nullptr )
                 {
-                    uint tBSplineOrder = tMesh->get_order();
+                    uint tBSplineOrder = tMesh->get_min_order();
 
                     if( P < tBSplineOrder and mParameters->use_advanced_t_matrices() )
                     {
@@ -490,32 +490,17 @@ namespace moris::hmr
 
         //------------------------------------------------------------------------------
 
-        void get_L2_projection_matrix(
+        void
+        get_L2_projection_matrix(
                 moris_index                                 aDiscretizationMeshIndex,
-                moris_index                                 aRootBSplineCellIndex,
-                moris_index                                 aExtendedBSplineCellIndex,
-                moris::Cell< moris::Cell< mtk::Vertex* > >& aRootBsplineBasis,
-                moris::Cell< mtk::Vertex* >&                aExtendedBsplineBasis,
+                const Element*                              aRootBSplineCell,
+                const Element*                              aExtendedBSplineCell,
+                moris::Cell< moris::Cell< const mtk::Vertex* > >& aRootBsplineBasis,
+                moris::Cell< const mtk::Vertex* >&                aExtendedBsplineBasis,
                 moris::Cell< Matrix< DDRMat > >&            aWeights ) override
         {
-            // get B-Spline pattern of this mesh
-            uint tBSplinePattern = mBSplineMeshes( aDiscretizationMeshIndex )->get_activation_pattern();
-
-            // get Lagrange pattern of this mesh
-            uint tLagrangePattern = this->get_activation_pattern();
-
-            // set the activation pattern to that of the B-spline mesh
-            mBackgroundMesh->set_activation_pattern( tBSplinePattern );
-
-            // get pointer to b-spline and background elements
-            Element* tRootBsplineElement     = mBSplineMeshes( aDiscretizationMeshIndex )->get_element_including_aura( aRootBSplineCellIndex );
-            Element* tExtendedBsplineElement = mBSplineMeshes( aDiscretizationMeshIndex )->get_element_including_aura( aExtendedBSplineCellIndex );
-
             // ask the t-matrix object to compute the weights
-            mTMatrix( aDiscretizationMeshIndex )->evaluate_L2_projection( tRootBsplineElement, tExtendedBsplineElement, aRootBsplineBasis, aExtendedBsplineBasis, aWeights );
-
-            // set the activation pattern back to the pattern of the Lagrange mesh
-            mBackgroundMesh->set_activation_pattern( tLagrangePattern );
+            mTMatrix( aDiscretizationMeshIndex )->evaluate_L2_projection( aRootBSplineCell, aExtendedBSplineCell, aRootBsplineBasis, aExtendedBsplineBasis, aWeights );
         }
 
         //------------------------------------------------------------------------------

@@ -33,7 +33,6 @@
 #include "cl_HMR_Lagrange_Facet_Quad9.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Mesh.hpp" //HMR/src
 #include "cl_HMR_T_Matrix.hpp"
-#include "cl_HMR_T_Matrix_Advanced.hpp"
 
 namespace moris::hmr
 {
@@ -200,31 +199,31 @@ namespace moris::hmr
                 {
                     case( 1 ):
                     {
-                        return new BSpline_Mesh< 2, 1 >( mParameters,
+                        return new BSpline_Mesh< 1, 1, 0 >( mParameters,
                                                           aBackgroundMesh,
                                                           aActivationPattern );
                     }
                     case( 2 ):
                     {
-                        return new BSpline_Mesh< 2, 2 >( mParameters,
+                        return new BSpline_Mesh< 2, 2, 0 >( mParameters,
                                                           aBackgroundMesh,
                                                           aActivationPattern );
                     }
                     case( 3 ):
                     {
-                        return new BSpline_Mesh< 2, 3 >( mParameters,
+                        return new BSpline_Mesh< 3, 3, 0 >( mParameters,
                                                           aBackgroundMesh,
                                                           aActivationPattern );
                     }
                     case( 4 ):
                     {
-                        return new BSpline_Mesh< 2, 4 >( mParameters,
+                        return new BSpline_Mesh< 4, 4, 0 >( mParameters,
                                                           aBackgroundMesh,
                                                           aActivationPattern );
                     }
                     case( 5 ):
                     {
-                        return new BSpline_Mesh< 2, 5 >( mParameters,
+                        return new BSpline_Mesh< 5, 5, 0 >( mParameters,
                                                           aBackgroundMesh,
                                                           aActivationPattern );
                     }
@@ -243,31 +242,31 @@ namespace moris::hmr
                 {
                     case( 1 ):
                     {
-                        return new BSpline_Mesh< 3, 1 >( mParameters,
+                        return new BSpline_Mesh< 1, 1, 1 >( mParameters,
                                                           aBackgroundMesh,
                                                           aActivationPattern );
                     }
                     case( 2 ):
                     {
-                        return new BSpline_Mesh< 3, 2 >( mParameters,
+                        return new BSpline_Mesh< 2, 2, 2 >( mParameters,
                                                           aBackgroundMesh,
                                                           aActivationPattern );
                     }
                     case( 3 ):
                     {
-                        return new BSpline_Mesh< 3, 3 >( mParameters,
+                        return new BSpline_Mesh< 3, 3, 3 >( mParameters,
                                                          aBackgroundMesh,
                                                          aActivationPattern );
                     }
                     case( 4 ):
                     {
-                        return new BSpline_Mesh< 3, 4 >( mParameters,
+                        return new BSpline_Mesh< 4, 4, 4 >( mParameters,
                                                           aBackgroundMesh,
                                                           aActivationPattern );
                     }
                     case( 5 ):
                     {
-                        return new BSpline_Mesh< 3, 5 >( mParameters,
+                        return new BSpline_Mesh< 5, 5, 5 >( mParameters,
                                                           aBackgroundMesh,
                                                           aActivationPattern );
                     }
@@ -308,27 +307,6 @@ namespace moris::hmr
                              ( unsigned int )  mParameters->get_number_of_dimensions() );
                 return nullptr;
             }
-        }
-    }
-
-    //-------------------------------------------------------------------------------
-
-    template< uint N >
-    T_Matrix< N >* Factory::create_t_matrix(
-            Lagrange_Mesh_Base * aLagrangeMesh,
-            BSpline_Mesh_Base  * aBSplineMesh,
-            Lagrange_Mesh_Base * aLagrangeMeshFine)
-    {
-        // Use Advanced T-matrices
-        if ( mParameters->use_advanced_t_matrices() and aLagrangeMeshFine )
-        {
-            return new T_Matrix_Advanced< N >( aLagrangeMeshFine, aBSplineMesh, aLagrangeMesh, mParameters->truncate_bsplines() );
-        }
-
-        // Use regular T-matrices
-        else
-        {
-            return new T_Matrix< N >( aLagrangeMesh, aBSplineMesh, mParameters->truncate_bsplines() );
         }
     }
 

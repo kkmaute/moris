@@ -17,7 +17,7 @@ set(TEST_SOURCES
     ut_HMR_BSpline_Mesh_Private.cpp
     ut_HMR_Lagrange_Mesh.cpp
     ut_HMR_Node_Sharing.cpp
-    ut_HMR_T_Matrix_Private.cpp
+    ut_HMR_T_Matrix.cpp
     ut_HMR_SideSets.cpp
     ut_HMR_L2.cpp
     ut_HMR_Integration_Mesh.cpp

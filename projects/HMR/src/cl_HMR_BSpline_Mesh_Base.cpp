@@ -28,19 +28,16 @@ namespace moris::hmr
     BSpline_Mesh_Base::BSpline_Mesh_Base (
             const Parameters*     aParameters,
             Background_Mesh_Base* aBackgroundMesh,
-            uint                   aOrder,
-            uint                   aActivationPattern )
+            uint                  aOrder,
+            uint                  aActivationPattern )
     : Mesh_Base( aParameters,
                  aBackgroundMesh,
                  aOrder,
                  aActivationPattern )
-    , mNumberOfChildrenPerBasis( std::pow( aOrder + 2,aParameters->get_number_of_dimensions() ) )
+    , mNumberOfChildrenPerBasis( std::pow( aOrder + 2,aParameters->get_number_of_dimensions() ) ) // TODO unequal order
     , mNumberOfElementsPerBasis( std::pow( aOrder+1,aParameters->get_number_of_dimensions() ) )
     {
         this->calculate_child_stencil();
-
-        //FIXME this function is equal to calculate_lookup_tables(). This function is called in the child class
-        //this->calculate_basis_level_offset();
     }
 
 //------------------------------------------------------------------------------
@@ -126,57 +123,6 @@ namespace moris::hmr
 
 //------------------------------------------------------------------------------
 
-    Basis * BSpline_Mesh_Base::get_coarsest_basis_by_ij( luint aI,
-                                                         luint aJ )
-    {
-        MORIS_ASSERT( aI < mNumberOfCoarsestBasisOnProc[ 0 ] && aJ < mNumberOfCoarsestBasisOnProc[ 1 ],
-                "get_coarsest_basis_by_ij(), requested basis outside of the domain limits");
-
-//            if ( aI < mNumberOfCoarsestBasisOnProc[ 0 ] && aJ < mNumberOfCoarsestBasisOnProc[ 1 ] )
-//            {
-            return mAllCoarsestBasisOnProc( aI + aJ*mNumberOfCoarsestBasisOnProc[ 0 ] );
-//            }
-//            else
-//            {
-//                return nullptr;
-//            }
-    }
-
-//------------------------------------------------------------------------------
-
-    Basis * BSpline_Mesh_Base::get_coarsest_basis_by_ijk( luint aI,
-                                                          luint aJ,
-                                                          luint aK )
-    {
-        MORIS_ASSERT( aI < mNumberOfCoarsestBasisOnProc[ 0 ] && aJ < mNumberOfCoarsestBasisOnProc[ 1 ] && aK < mNumberOfCoarsestBasisOnProc[ 2 ],
-                "get_coarsest_basis_by_ij(), requested basis outside of the domain limits");
-
-        return mAllCoarsestBasisOnProc( aI + mNumberOfCoarsestBasisOnProc[ 0 ] *
-                                      ( aJ + aK * mNumberOfCoarsestBasisOnProc[ 1 ] ) );
-    }
-
-//------------------------------------------------------------------------------
-
-    /**
-     *
-     * This test returns true if the activation pattern of the basis
-     * seems correct. The rule is as follows
-     *
-     *  A basis is:
-     *
-     *      - active, if all connected elements are either active,
-     *                refined or padding, and at least one element is active
-     *
-     *      - refined, if all connected elements are refined or padding
-     *
-     *      - deactive, if at least one element is deactive ( or does not exist)
-     *
-     *
-     *  Form these rules, some statements ( see comments in source ) have been developed.
-     *  Note that fulfilling the checked statements are NECESSARY, BUT NOT SUFFICIENT conditions.
-     *
-     *  This test is not meant to be run during runtime.
-     */
     bool BSpline_Mesh_Base::test_sanity()
     {
         this->calculate_basis_coordinates();
@@ -207,7 +153,7 @@ namespace moris::hmr
         for( auto tBasis : mAllBasisOnProc )
         {
             // the statements
-            if ( tBasis->is_active() && tBasis->is_refined() )
+            if ( tBasis->is_active() and tBasis->is_refined() )
             {
                 // contradiciton is detected
                 tTestForStateContratiction = false;
@@ -220,7 +166,7 @@ namespace moris::hmr
                 if( tBasis->get_level() == 0 )
                 {
                     // on the top level, only active or refined basis are allowed
-                    tTestTopLevelState = tTestTopLevelState && ( tBasis->is_active() || tBasis->is_refined() );
+                    tTestTopLevelState = tTestTopLevelState and ( tBasis->is_active() or tBasis->is_refined() );
 
                     /* if( par_rank() == 0 )
                     {
@@ -259,21 +205,21 @@ namespace moris::hmr
                             }
 
                             // set active parent flag for statement 3
-                            tAllParentsAreActive = tAllParentsAreActive && tParent->is_active();
+                            tAllParentsAreActive = tAllParentsAreActive and tParent->is_active();
                         }
                     }
 
                     // test for statement 2
                     if ( tBasis->is_active() )
                     {
-                        tHaveRefinedParent =  tHaveRefinedParent && tRefinedParetFlag;
+                        tHaveRefinedParent =  tHaveRefinedParent and tRefinedParetFlag;
                     }
 
                     // test for statement 3
                     if ( tAllParentsAreActive )
                     {
-                        tDeactiveTest  = tDeactiveTest && ( ! tBasis->is_active() && ! tBasis->is_refined() );
-                        if ( ! ( ! tBasis->is_active() && ! tBasis->is_refined() ) )
+                        tDeactiveTest  = tDeactiveTest and ( ! tBasis->is_active() and ! tBasis->is_refined() );
+                        if ( ! ( ! tBasis->is_active() and ! tBasis->is_refined() ) )
                         {
                             const real* tXY = tBasis->get_xyz();
 
@@ -286,24 +232,20 @@ namespace moris::hmr
                 // test for statement 4
                 if ( tBasis->is_refined() )
                 {
-
-                    // reset basis counter
-                    luint tCounter = 0;
-
                     // needed for descendant counter
                     tBasis->flag_descendants();
 
                     // test how many descendants exist
-                    tBasis->count_descendants( tCounter );
+                    luint tDescendantCounter = tBasis->count_descendants();
 
                     // initialize container of descendants
-                    Cell< Basis* > tChildren( tCounter, nullptr );
+                    Cell< Basis* > tChildren( tDescendantCounter, nullptr );
 
                     // reset basis counter
-                    tCounter = 0;
+                    tDescendantCounter = 0;
 
                     // collect  descendants
-                    tBasis->collect_descendants( tChildren, tCounter );
+                    tBasis->collect_descendants( tChildren, tDescendantCounter );
 
                     // reset foun flag
                     bool tFoundActiveChild = false;
@@ -323,7 +265,7 @@ namespace moris::hmr
                     }
 
                     // set statement 4
-                    tRefinedHasActiveChild = tRefinedHasActiveChild && tFoundActiveChild;
+                    tRefinedHasActiveChild = tRefinedHasActiveChild and tFoundActiveChild;
                 }
             }
         }
@@ -331,10 +273,10 @@ namespace moris::hmr
         // tidy up flag table
         this->unflag_all_basis();
 
-        bool aPassedTest = tTestForStateContratiction &&
-                           tTestTopLevelState &&
-                           tHaveRefinedParent &&
-                           tDeactiveTest &&
+        bool aPassedTest = tTestForStateContratiction and
+                           tTestTopLevelState and
+                           tHaveRefinedParent and
+                           tDeactiveTest and
                            tRefinedHasActiveChild ;
 
        // stop timer
@@ -375,46 +317,6 @@ namespace moris::hmr
 // private:
 //------------------------------------------------------------------------------
 
-    void BSpline_Mesh_Base::calculate_basis_level_offset()
-    {
-        // first level is zero
-        mBasisLevelOffset[ 0 ] = 0;
-
-        // get number of elements from Background Mesh
-        Matrix< DDLUMat > tNumberOfElements = mBackgroundMesh->get_number_of_elements_per_direction();
-
-        // get basis per direction
-        luint tBasisPerDirection[ 3 ];
-
-        for( uint k=0; k<mNumberOfDimensions; ++k )
-        {
-            tBasisPerDirection[ k ] = tNumberOfElements( k, 0 ) + mOrder;
-        }
-
-        // loop over all higher levels
-        for( uint l=0; l<gMaxNumberOfLevels-1; ++l )
-        {
-            // number of basis on this level
-            luint tBasisOnLastLevel = 1;
-
-            // loop over all dimensions
-            for (  uint k=0; k<mNumberOfDimensions; ++k )
-            {
-                tBasisOnLastLevel       *= tBasisPerDirection[ k ];
-
-                tBasisPerDirection[ k ] *= 2;
-                tBasisPerDirection[ k ] += mOrder;
-            }
-
-            // increment delta
-
-            // add offset to table
-            mBasisLevelOffset[ l+1 ] = mBasisLevelOffset[ l ] + tBasisOnLastLevel;
-        }
-    }
-
-//------------------------------------------------------------------------------
-
     void BSpline_Mesh_Base::create_basis()
     {
         // basis on first level are created separately
@@ -447,94 +349,6 @@ namespace moris::hmr
 
 //------------------------------------------------------------------------------
 
-    void BSpline_Mesh_Base::create_basis_on_level_zero()
-    {
-        // ask mesh for relevant ijk positions
-        Matrix< DDLUMat > tIJK = mBackgroundMesh ->get_number_of_elements_per_direction_on_proc();
-
-        // initialize basis counter
-        luint tCount = 0;
-
-        if( mNumberOfDimensions == 2)
-        {
-            // unroll min and max i and j
-            mNumberOfCoarsestBasisOnProc[ 0 ] = tIJK( 0, 0 ) + mOrder;
-
-            mNumberOfCoarsestBasisOnProc[ 1 ] = tIJK( 1, 0 ) + mOrder ;
-
-            // initialize array
-            mAllCoarsestBasisOnProc.resize( mNumberOfCoarsestBasisOnProc[ 0 ] * mNumberOfCoarsestBasisOnProc[ 1 ],
-                                            nullptr );
-
-            // container with position to be passed to new basis
-            luint tIJ[ 2 ];
-
-            // loop over all j
-            for( luint j = 0; j < mNumberOfCoarsestBasisOnProc[ 1 ]; ++j )
-            {
-                // save j-position
-                tIJ[ 1 ] = j;
-
-                // loop over all i
-                for( luint i = 0; i < mNumberOfCoarsestBasisOnProc[ 0 ]; ++i )
-                {
-                    // save i-position
-                    tIJ[ 0 ] = i;
-
-                    // create new basis
-                    mAllCoarsestBasisOnProc( tCount++ ) = this->create_basis( tIJ,
-                                                                              0,
-                                                                              gNoProcOwner );
-                }
-            }
-
-        }
-        else if( mNumberOfDimensions == 3)
-        {
-            // unroll min and max i and j
-            mNumberOfCoarsestBasisOnProc[ 0 ] = tIJK( 0, 0 ) + mOrder;
-
-            mNumberOfCoarsestBasisOnProc[ 1 ] = tIJK( 1, 0 ) + mOrder ;
-
-            mNumberOfCoarsestBasisOnProc[ 2 ] = tIJK( 2, 0 ) + mOrder ;
-
-            // initialize array
-            mAllCoarsestBasisOnProc.resize( mNumberOfCoarsestBasisOnProc[ 0 ]
-                                            *mNumberOfCoarsestBasisOnProc[ 1 ]
-                                            *mNumberOfCoarsestBasisOnProc[ 2 ],
-                                            nullptr );
-
-            // container with position to be passed to new basis
-            luint tIJK[ 3 ];
-
-            // loop over all k
-            for( luint k = 0; k < mNumberOfCoarsestBasisOnProc[ 2 ]; ++k )
-            {
-                tIJK[ 2 ] = k;
-                // loop over all j
-                for( luint j = 0; j < mNumberOfCoarsestBasisOnProc[ 1 ]; ++j )
-                {
-                    // save j-position
-                    tIJK[ 1 ] = j;
-
-                    // loop over all i
-                    for( luint i = 0; i < mNumberOfCoarsestBasisOnProc[ 0 ]; ++i )
-                    {
-                        // save i-position
-                        tIJK[ 0 ] = i;
-
-                        // create new basis
-                        mAllCoarsestBasisOnProc( tCount++ ) = this->create_basis( tIJK,
-                                                                                  0,
-                                                                                  gNoProcOwner );
-                    }
-                }
-            }
-        }
-    }
-
-//------------------------------------------------------------------------------
-
     void BSpline_Mesh_Base::collect_active_and_refined_elements_from_level(
             uint                aLevel,
             Cell< Element * > & aElements )
@@ -547,26 +361,26 @@ namespace moris::hmr
                                                                    tBackgroundElements );
 
         // count Elements
-        luint tCount = 0;
+        luint tElementCount = 0;
 
         for( Background_Element_Base* tBackElement : tBackgroundElements )
         {
             if( ! tBackElement->is_deactive( mActivationPattern ) )
             {
-                ++tCount;
+                tElementCount++;
             }
         }
 
         // allocate cell
-        aElements.resize( tCount, nullptr );
+        aElements.resize( tElementCount, nullptr );
 
         // reset counter
-        tCount = 0;
+        tElementCount = 0;
         for( Background_Element_Base* tBackElement : tBackgroundElements )
         {
             if( ! tBackElement->is_deactive( mActivationPattern ) )
             {
-                aElements( tCount++ ) = mAllElementsOnProc( tBackElement->get_memory_index() );
+                aElements( tElementCount++ ) = mAllElementsOnProc( tBackElement->get_memory_index() );
             }
         }
     }
@@ -593,7 +407,7 @@ namespace moris::hmr
             for( auto tElement : tElementsOnThisLevel )
             {
                 // test if background element has children and is refined on pattern
-                if ( tElement->get_background_element()->has_children() && tElement->is_refined() )
+                if ( tElement->get_background_element()->has_children() and tElement->is_refined() )
                 {
                     // refine B-Spline element
                     mAllElementsOnProc( tElement->get_memory_index() )->refine( mAllElementsOnProc );
@@ -634,7 +448,7 @@ namespace moris::hmr
         }
 
        // initialize basis counter
-       luint tCount = 0;
+       luint tBasisCount = 0;
 
        // get my rank
        moris_id tMyRank = par_rank();
@@ -653,7 +467,7 @@ namespace moris::hmr
                    if ( ! tBasis->is_flagged() )
                    {
                        // count this basis
-                       ++tCount;
+                       ++tBasisCount;
 
                        // flag this basis
                        tBasis->flag();
@@ -678,10 +492,10 @@ namespace moris::hmr
        }
 
        // assign memory for basis container
-       aBasis.resize( tCount, nullptr );
+       aBasis.resize( tBasisCount, nullptr );
 
        // reset counter
-       tCount = 0;
+       tBasisCount = 0;
 
        // loop over all elements
        for( Element * tElement : aElements )
@@ -698,7 +512,7 @@ namespace moris::hmr
                    if ( tBasis->is_flagged() )
                    {
                        // copy pointer to basis
-                       aBasis( tCount++ ) = tBasis;
+                       aBasis( tBasisCount++ ) = tBasis;
 
                        // unflag this basis
                        tBasis->unflag();
@@ -867,22 +681,22 @@ namespace moris::hmr
             // step 4: count active basis
 
             // init counter
-            luint tCount = 0;
+            luint tBasisCount = 0;
             for( auto tBasis: aBasis )
             {
                 // test if basis is used
                 if ( tBasis->is_used() )
                 {
                     // increment counter
-                    ++tCount;
+                    ++tBasisCount;
                 }
             }
 
             // initialize output array
-            Cell< Basis* > tBasisOut( tCount, nullptr );
+            Cell< Basis* > tBasisOut( tBasisCount, nullptr );
 
             // reset counter
-            tCount = 0;
+            tBasisCount = 0;
 
             for( auto tBasis: aBasis )
             {
@@ -890,7 +704,7 @@ namespace moris::hmr
                 if ( tBasis->is_used() )
                 {
                     // increment counter
-                    tBasisOut( tCount++ ) = tBasis;
+                    tBasisOut( tBasisCount++ ) = tBasis;
                 }
                 else
                 {
@@ -950,7 +764,7 @@ namespace moris::hmr
         }
 
         // initialize basis counter
-        luint tCount = 0;
+        luint tBasisCount = 0;
 
         // count basis on this level
         for( Element * tElement : tElements )
@@ -967,7 +781,7 @@ namespace moris::hmr
                     if ( ! tBasis->is_flagged() )
                     {
                         // count this basis
-                        ++tCount;
+                        ++tBasisCount;
 
                         // flag this basis
                         tBasis->flag();
@@ -977,10 +791,10 @@ namespace moris::hmr
         }
 
         // assign memory for basis container
-        aBasis.resize( tCount, nullptr );
+        aBasis.resize( tBasisCount, nullptr );
 
         // reset basis counter
-        tCount = 0;
+        tBasisCount = 0;
 
         // add basis to container
         for( Element * tElement : tElements )
@@ -997,7 +811,7 @@ namespace moris::hmr
                     if ( tBasis->is_flagged() )
                     {
                         // count this basis
-                        aBasis( tCount++ ) = tBasis;
+                        aBasis( tBasisCount++ ) = tBasis;
 
                         // flag this basis
                         tBasis->unflag();
@@ -1077,62 +891,6 @@ namespace moris::hmr
 
 //------------------------------------------------------------------------------
 
-    void BSpline_Mesh_Base::link_basis_to_elements_on_level_zero()
-    {
-        if ( mNumberOfDimensions == 2 )
-        {
-            // loop over all elements
-            for ( auto tElement : mAllCoarsestElementsOnProc )
-            {
-                // init basis container
-                tElement->init_basis_container();
-
-                // loop over all basis of this element
-                for ( uint k = 0; k < mNumberOfBasisPerElement; ++k )
-                {
-                    // get IJ position of this basis
-                    luint tIJ[ 2 ];
-
-                    tElement->get_ijk_of_basis( k, tIJ );
-
-                    // insert pointer to basis into element
-                    tElement->insert_basis( k, this->get_coarsest_basis_by_ij( tIJ[ 0 ],
-                                                                               tIJ[ 1 ] ) );
-                }
-            }
-        }
-        else if ( mNumberOfDimensions == 3 )
-        {
-            {
-                // loop over all elements
-                for ( auto tElement : mAllCoarsestElementsOnProc )
-                {
-                    // init basis container
-                    tElement->init_basis_container();
-
-                    // loop over all basis of this element
-                    for ( uint k = 0; k<mNumberOfBasisPerElement; ++k )
-                    {
-                        // get IJK position of this basis
-                        luint tIJK[ 3 ];
-                        tElement->get_ijk_of_basis( k, tIJK );
-
-                        // insert pointer to basis into element
-                        tElement->insert_basis( k, this->get_coarsest_basis_by_ijk( tIJK[ 0 ],
-                                                                                    tIJK[ 1 ],
-                                                                                    tIJK[ 2 ] ) );
-                    }
-                }
-            }
-        }
-        else
-        {
-            MORIS_ERROR( false, "BSpline Mesh: unknown number of dimensions");
-        }
-    }
-
-//------------------------------------------------------------------------------
-
     void BSpline_Mesh_Base::collect_basis()
     {
         // loop over all coarsest basis
@@ -1142,31 +900,29 @@ namespace moris::hmr
             tBasis->flag_descendants();
         }
 
-        // initialize counter
-        mNumberOfAllBasis = 0;
-
         // loop over all coarsest basis
+        mNumberOfAllBasis = 0;
         for( auto tBasis : mAllCoarsestBasisOnProc )
         {
             // collect descendants
-            tBasis->count_descendants( mNumberOfAllBasis );
+            mNumberOfAllBasis += tBasis->count_descendants();
         }
 
         // assign memory for cell
         mAllBasisOnProc.resize( mNumberOfAllBasis, nullptr );
 
         // reset counter
-        luint tCount = 0;
+        luint tDescendantCount = 0;
 
         // loop over all coarsest basis
         for( auto tBasis : mAllCoarsestBasisOnProc )
         {
             // collect descendants
-            tBasis->collect_descendants( mAllBasisOnProc, tCount );
+            tBasis->collect_descendants( mAllBasisOnProc, tDescendantCount );
         }
 
         // reset counter
-        tCount = 0;
+        luint tBasisIndex = 0;
 
         // unflag all basis and set index
         for( auto tBasis : mAllBasisOnProc )
@@ -1175,7 +931,7 @@ namespace moris::hmr
            tBasis->unflag();
 
             // set memory index
-            tBasis->set_memory_index( tCount++ );
+            tBasis->set_memory_index( tBasisIndex++ );
         }
 
         // This function seems not to be needed, however for debugging purposes the basis can be stored in a vtk file.
@@ -1276,34 +1032,14 @@ namespace moris::hmr
 
     void BSpline_Mesh_Base::calculate_basis_ids()
     {
-        if ( mNumberOfDimensions == 2 )
+        // loop over all basis
+        for ( auto tBasis : mAllBasisOnProc )
         {
-            // loop over all basis
-            for( auto tBasis : mAllBasisOnProc )
-            {
-                // get position of basis
-                const luint * tIJ = tBasis->get_ijk();
+            // get position of basis
+            const luint* tIJK = tBasis->get_ijk();
 
-                // calc id and write into basis
-                tBasis->set_domain_id( this->calculate_basis_id( tBasis->get_level(),
-                                                                 tIJ[ 0 ],
-                                                                 tIJ[ 1 ] ) );
-            }
-        }
-        else if ( mNumberOfDimensions == 3 )
-        {
-            // loop over all basis
-            for( auto tBasis : mAllBasisOnProc )
-            {
-                // get position of basis
-                const luint * tIJK = tBasis->get_ijk();
-
-                // calc id and write into basis
-                tBasis->set_domain_id( this->calculate_basis_id( tBasis->get_level(),
-                                                                 tIJK[ 0 ],
-                                                                 tIJK[ 1 ],
-                                                                 tIJK[ 2 ] ) );
-            }
+            // calc id and write into basis
+            tBasis->set_domain_id( this->calculate_basis_id( tBasis->get_level(), tIJK ) );
         }
     }
 
@@ -1325,7 +1061,7 @@ namespace moris::hmr
         this->flag_refined_basis_of_owned_elements();
 
         // reset all indices
-        for( Basis * tBasis: mAllBasisOnProc )
+        for ( Basis * tBasis: mAllBasisOnProc )
         {
             tBasis->set_local_index( gNoEntityID );
             tBasis->set_domain_index( gNoEntityID );
@@ -1346,52 +1082,52 @@ namespace moris::hmr
         }
 
         // counter for basis
-        luint tCount = 0;
+        luint tBasisIndex = 0;
 
         // set local index of basis
         for ( Basis * tBasis : mActiveBasisOnProc )
         {
-            if( tBasis->is_flagged() )
+            if ( tBasis->is_flagged() )
             {
                 // set index of basis
-                tBasis->set_local_index( tCount++ );
+                tBasis->set_local_index( tBasisIndex++ );
             }
         }
 
-        if( mParameters->use_multigrid() )
+        if ( mParameters->use_multigrid() )
         {
             for ( Basis * tBasis : mRefinedBasisOnProc )
             {
                 if( tBasis->is_flagged() )
                 {
                     // set index of basis
-                    tBasis->set_local_index( tCount++ );
+                    tBasis->set_local_index( tBasisIndex++ );
                 }
             }
         }
 
         // allocate container
-        mIndexedBasis.resize( tCount, nullptr );
+        mIndexedBasis.resize( tBasisIndex, nullptr );
 
         // reset counter
-        tCount = 0;
+        tBasisIndex = 0;
 
         // copy indexed basis into container
         for ( Basis * tBasis : mActiveBasisOnProc )
         {
             if( tBasis->is_flagged() )
             {
-                mIndexedBasis( tCount++ ) = tBasis;
+                mIndexedBasis( tBasisIndex++ ) = tBasis;
             }
         }
 
-        if( mParameters->use_multigrid() )
+        if ( mParameters->use_multigrid() )
         {
             for ( Basis * tBasis : mRefinedBasisOnProc )
             {
                 if( tBasis->is_flagged() )
                 {
-                    mIndexedBasis( tCount++ ) = tBasis;
+                    mIndexedBasis( tBasisIndex++ ) = tBasis;
                 }
             }
         }
@@ -1399,26 +1135,25 @@ namespace moris::hmr
         if ( tNumberOfProcs == 1 )
         {
             // reset counter
-            tCount = 0;
+            tBasisIndex = 0;
 
             for ( Basis * tBasis : mActiveBasisOnProc )
             {
                 if( tBasis->is_flagged() )
                 {
                     // set index of basis
-                    tBasis->set_domain_index( tCount++ );
+                    tBasis->set_domain_index( tBasisIndex++ );
                 }
             }
-           // tNumberOfActiveBasis = tCount;
 
-            if( mParameters->use_multigrid() )
+            if ( mParameters->use_multigrid() )
             {
                 for ( Basis * tBasis : mRefinedBasisOnProc )
                 {
                     if( tBasis->is_flagged() )
                     {
                         // set index of basis
-                        tBasis->set_domain_index( tCount++ );
+                        tBasis->set_domain_index( tBasisIndex++ );
                     }
                 }
             }
@@ -1435,20 +1170,18 @@ namespace moris::hmr
             for ( Basis * tBasis : mActiveBasisOnProc )
             {
                 // test if basis is active, flagged and owned
-                if ( tBasis->get_owner() == tMyRank && tBasis->is_flagged() )
+                if ( tBasis->get_owner() == tMyRank and tBasis->is_flagged() )
                 {
                     tBasis->set_domain_index( tActiveCount++ );
                 }
             }
-
-            // tNumberOfActiveBasis = tCount;
 
             if( mParameters->use_multigrid() )
             {
                 for ( Basis * tBasis : mRefinedBasisOnProc )
                 {
                     // test if basis is active, flagged and owned
-                    if ( tBasis->get_owner() == tMyRank && tBasis->is_flagged() )
+                    if ( tBasis->get_owner() == tMyRank and tBasis->is_flagged() )
                     {
                         tBasis->set_domain_index( tRefinedCount++ );                          //FIXME should this be active count too?
                     }
@@ -1536,13 +1269,13 @@ namespace moris::hmr
             // - - - - - - - - - - - - - - - -
 
             // Step 5: create map for communication
-            Matrix< DDUMat > tProcIndex( tNumberOfProcs, 1, tNumberOfProcs );
+            Matrix< DDUMat > tProcIndices( tNumberOfProcs, 1, tNumberOfProcs );
 
             uint tCommLength = aCommTable.length();
 
             for( uint k=0; k<tCommLength; ++k )
             {
-                tProcIndex( aCommTable( k ) ) = k;
+                tProcIndices( aCommTable( k ) ) = k;
             }
 
             // - - - - - - - - - - - - - - - -
@@ -1574,7 +1307,7 @@ namespace moris::hmr
                 }
                 if ( tNumberOfBasis  > 0 )
                 {
-                    ++tCount;
+                    ++tBasisIndex;
                     tSendIndex( p ).set_size( tNumberOfBasis, 1 );
                     tSendBasis( p ).set_size( tNumberOfBasis, 1 );
                 }
@@ -1585,7 +1318,7 @@ namespace moris::hmr
             // Step 7: create lists with basis of which index is requested
 
             // reset counter
-            tCount = 0;
+            tBasisIndex = 0;
 
             // reset counter
             Matrix< DDLUMat > tProcCount( tCommLength, 1, 0 );
@@ -1603,18 +1336,15 @@ namespace moris::hmr
                     if( tOwner != tMyRank )
                     {
                         // get index of owner
-                        uint tIndex = tProcIndex( tOwner );
-
-                        // get counter
-                        uint tCount = tProcCount( tIndex );
+                        uint tProcIndex = tProcIndices( tOwner );
 
                         // pointer to element
                         this->get_reference_element_of_basis( tBasis,
-                                                              tSendIndex( tIndex )( tCount ),
-                                                              tSendBasis( tIndex )( tCount ) );
+                                                              tSendIndex( tProcIndex )( tProcCount( tProcIndex ) ),
+                                                              tSendBasis( tProcIndex )( tProcCount( tProcIndex ) ) );
 
                         // increment counter
-                        ++tProcCount( tIndex );
+                        ++tProcCount( tProcIndex );
                     }
                 }
             }
@@ -1634,15 +1364,12 @@ namespace moris::hmr
                         if( tOwner != tMyRank )
                         {
                             // get index of owner
-                            uint tIndex = tProcIndex( tOwner );
-
-                            // get counter
-                            uint tCount = tProcCount( tIndex );
+                            uint tIndex = tProcIndices( tOwner );
 
                             // pointer to element
                             this->get_reference_element_of_basis( tBasis,
-                                                                  tSendIndex( tIndex )( tCount ),
-                                                                  tSendBasis( tIndex )( tCount ) );
+                                                                  tSendIndex( tIndex )( tProcCount( tIndex ) ),
+                                                                  tSendBasis( tIndex )( tProcCount( tIndex ) ) );
 
                             // increment counter
                             ++tProcCount( tIndex );
@@ -1691,7 +1418,7 @@ namespace moris::hmr
                 tSendPedigree( p ).set_size( tProcCount( p ), 1 );
 
                 // reset counter
-                tCount = 0;
+                tBasisIndex = 0;
 
                 // loop over all elements
                 for( luint k=0; k<tNumberOfElements; ++k )
@@ -1701,9 +1428,9 @@ namespace moris::hmr
                                                                             ->get_background_element();
 
                     // encode path and overwrite tSendElement with Ancestor Index
-                    tElement->endcode_pedigree_path( tSendIndex( p )( k ),
+                    tElement->encode_pedigree_path( tSendIndex( p )( k ),
                                                      tSendPedigree( p ),
-                                                     tCount );
+                                                     tBasisIndex );
                 }
             }
 
@@ -1733,7 +1460,7 @@ namespace moris::hmr
                 tSendIndex( p ).set_size( tNumberOfElements, 1 );
 
                 // reset counter
-                tCount = 0;
+                luint tPedigreeCount = 0;
 
                 // loop over all elements
                 for( luint k=0; k<tNumberOfElements; ++k )
@@ -1742,7 +1469,7 @@ namespace moris::hmr
                     Element* tElement = mAllElementsOnProc( mBackgroundMesh->decode_pedigree_path(
                                                    tReceiveIndex( p )( k ),
                                                    tReceivePedigree( p ),
-                                                   tCount )->get_memory_index() );
+                                                   tPedigreeCount )->get_memory_index() );
 
                     // write index of requested basis into matrix
                     tSendIndex( p )( k )= tElement->get_basis( tReceiveBasis( p )( k ) )
@@ -1782,13 +1509,13 @@ namespace moris::hmr
                     if( tOwner != tMyRank )
                     {
                         // get index of owner
-                        uint tIndex = tProcIndex( tOwner );
+                        uint tIndex = tProcIndices( tOwner );
 
                         // get counter
-                        tCount = tProcCount( tIndex );
+                        tBasisIndex = tProcCount( tIndex );
 
                         // write index into baCommunicationListasis
-                        tBasis->set_domain_index( tReceiveIndex( tIndex )( tCount ) );
+                        tBasis->set_domain_index( tReceiveIndex( tIndex )( tBasisIndex ) );
 
                         // increment counter
                         ++tProcCount( tIndex );
@@ -1810,13 +1537,13 @@ namespace moris::hmr
                         if( tOwner != tMyRank )
                         {
                             // get index of owner
-                            uint tIndex = tProcIndex( tOwner );
+                            uint tIndex = tProcIndices( tOwner );
 
                             // get counter
-                            tCount = tProcCount( tIndex );
+                            tBasisIndex = tProcCount( tIndex );
 
                             // write index into baCommunicationListasis
-                            tBasis->set_domain_index( tReceiveIndex( tIndex )( tCount ) );
+                            tBasis->set_domain_index( tReceiveIndex( tIndex )( tBasisIndex ) );
 
                             // increment counter
                             ++tProcCount( tIndex );
@@ -1825,25 +1552,25 @@ namespace moris::hmr
                 }
             }
             // perform a small sanity test :
-            tCount = 0;
+            tBasisIndex = 0;
 
             // loop over all basis
             for( auto tBasis : mAllBasisOnProc )
             {
                 // test if basis is used, active and has no id
                 if (       tBasis->is_flagged()
-                        && tBasis->is_active()
-                        && tBasis->get_hmr_index() == gNoEntityID )
+                        and tBasis->is_active()
+                        and tBasis->get_hmr_index() == gNoEntityID )
                 {
                     std::cout << par_rank() << " bad basis " << tBasis->get_hmr_id() << " " << tBasis->get_owner() << std::endl;
 
                     // increment counter
-                    ++tCount;
+                    ++tBasisIndex;
                 }
             }
 
-            MORIS_ERROR( tCount == 0, "%s ERROR.\n               Could not identify indices of %lu basis.\n               This might happen if a proc uses an active basis that does not belong to\n               itself or any direct neighbor. Suggestion: use denser mesh on top level.\n\n",
-                                      proc_string().c_str(), ( long unsigned int ) tCount );
+            MORIS_ERROR( tBasisIndex == 0, "%s ERROR.\n               Could not identify indices of %lu basis.\n               This might happen if a proc uses an active basis that does not belong to\n               itself or any direct neighbor. Suggestion: use denser mesh on top level.\n\n",
+                                      proc_string().c_str(), ( long unsigned int ) tBasisIndex );
         } // end if parallel
 
        // insert parents if we are in multigrid
@@ -1900,7 +1627,7 @@ namespace moris::hmr
                 // element must be neither padding or deactive
                 if( tElement->get_owner() == tMyRank )
                 {
-                    if( tElement->is_refined() && ! tElement->is_padding() )
+                    if( tElement->is_refined() and ! tElement->is_padding() )
                     {
                         // loop over all basis of this element
                         for( uint k=0; k<mNumberOfBasisPerElement; ++k )
@@ -1977,9 +1704,6 @@ namespace moris::hmr
             Cell< Matrix< DDUMat > >  tSendBasis   ( tCommLength, tEmptyUint  );
             Cell< Matrix< DDUMat > >  tSendPedigree( tCommLength, tEmptyUint  );
 
-            // reset counter
-            luint tCount = 0;
-
             // assign memory for Index and Basis
             for( uint p=0; p<tCommLength; ++p )
             {
@@ -1988,7 +1712,6 @@ namespace moris::hmr
 
                 if (  tNumberOfBasis  > 0 )
                 {
-                    ++tCount;
                     tSendIndex( p ).set_size( tNumberOfBasis, 1 );
                     tSendBasis( p ).set_size( tNumberOfBasis, 1 );
                 }
@@ -1998,10 +1721,10 @@ namespace moris::hmr
             Matrix< DDLUMat > tProcCount( tCommLength, 1, 0 );
 
             // this table converts the proc id to an index
-            Matrix< DDUMat > tProcIndex( tNumberOfProcs, 1, tNumberOfProcs );
+            Matrix< DDUMat > tProcIndices( tNumberOfProcs, 1, tNumberOfProcs );
             for( uint k=0; k<tCommLength; ++k )
             {
-                tProcIndex( aCommTable( k ) ) = k;
+                tProcIndices( aCommTable( k ) ) = k;
             }
 
             // loop over all basis
@@ -2017,18 +1740,15 @@ namespace moris::hmr
                     if( tOwner != tMyRank )
                     {
                         // get index of owner
-                        uint tIndex = tProcIndex( tOwner );
-
-                        // get counter
-                        uint tCount = tProcCount( tIndex );
+                        uint tProcIndex = tProcIndices( tOwner );
 
                         // pointer to element
                         this->get_reference_element_of_basis( tBasis,
-                                                              tSendIndex( tIndex )( tCount ),
-                                                              tSendBasis( tIndex )( tCount ) );
+                                                              tSendIndex( tProcIndex )( tProcCount( tProcIndex ) ),
+                                                              tSendBasis( tProcIndex )( tProcCount( tProcIndex ) ) );
 
                         // increment counter
-                        ++tProcCount( tIndex );
+                        ++tProcCount( tProcIndex );
                     }
                 }
             }
@@ -2074,7 +1794,7 @@ namespace moris::hmr
                 tSendPedigree( p ).set_size( tProcCount( p ), 1 );
 
                 // reset counter
-                tCount = 0;
+                luint tPedigreeCount = 0;
 
                 // loop over all elements
                 for( luint k=0; k<tNumberOfElements; ++k )
@@ -2084,9 +1804,9 @@ namespace moris::hmr
                                                                  ->get_background_element();
 
                     // encode path and overwrite tSendElement with Ancestor Index
-                    tElement->endcode_pedigree_path( tSendIndex( p )( k ),
+                    tElement->encode_pedigree_path( tSendIndex( p )( k ),
                                                      tSendPedigree( p ),
-                                                     tCount );
+                                                     tPedigreeCount );
                 }
             }
 
@@ -2116,7 +1836,7 @@ namespace moris::hmr
                 tSendIndex( p ).set_size( tNumberOfElements, 1 );
 
                 // reset counter
-                tCount = 0;
+                luint tPedigreeCount = 0;
 
                 // loop over all elements
                 for( luint k=0; k<tNumberOfElements; ++k )
@@ -2125,7 +1845,7 @@ namespace moris::hmr
                     Element * tElement = mAllElementsOnProc( mBackgroundMesh->decode_pedigree_path(
                                                                  tReceiveIndex( p )( k ),
                                                                  tReceivePedigree( p ),
-                                                                 tCount )->get_memory_index() );
+                                                                 tPedigreeCount )->get_memory_index() );
 
                     // now we flag this basis
                     tElement->get_basis( tReceiveBasis( p )( k ) )->flag();
@@ -2225,7 +1945,7 @@ namespace moris::hmr
             // populate container
             for( auto tBasis : mAllBasisOnProc )
             {
-                if ( tBasis->is_active() && tBasis->is_used() )
+                if ( tBasis->is_active() and tBasis->is_used() )
                 {
                     tBasis->set_active_index( mNumberOfActiveBasisOnProc );
 
@@ -2244,27 +1964,27 @@ namespace moris::hmr
         Matrix< DDLUMat > tBasisIDs( tNumberOfBasis, 1 );
 
         // initialize counter
-        luint tCount = 0;
+        luint tBasisCount = 0;
 
         // populate container
         for( auto tBasis : mAllBasisOnProc )
         {
-            if ( tBasis->is_used() && ( tBasis->is_active() || tBasis->is_refined() ) )
+            if ( tBasis->is_used() and ( tBasis->is_active() or tBasis->is_refined() ) )
                 // still have doubled basis if they are not used
                 // by proc however, that does not matter since
                 // they are no DOFs
             {
-                tBasisIDs( tCount++ ) = tBasis->get_hmr_id();
+                tBasisIDs( tBasisCount++ ) = tBasis->get_hmr_id();
             }
         }
 
-        tBasisIDs.resize( tCount, 1 );
+        tBasisIDs.resize( tBasisCount, 1 );
 
         // make basis unique
         Matrix< DDLUMat > tBasisUniqueIDs;
         unique( tBasisIDs, tBasisUniqueIDs );
 
-        return tBasisUniqueIDs.length() == tCount;
+        return tBasisUniqueIDs.length() == tBasisCount;
     }
 
 //------------------------------------------------------------------------------
@@ -2375,17 +2095,17 @@ namespace moris::hmr
        int tOne = swap_byte_endian( (int) 1 );
 
        // reset counter
-       int tCount = 0;
+       int tBasisCount = 0;
 
        for( auto tBasis : mAllBasisOnProc )
        {
            if( tBasis->is_flagged() )
            {
-               tIChar = swap_byte_endian( tCount );
+               tIChar = swap_byte_endian( tBasisCount );
                tFile.write( ( char* ) &tOne, sizeof(int));
                tFile.write( ( char *) &tIChar, sizeof(int));
 
-               ++tCount;
+               ++tBasisCount;
            }
        }
 
@@ -2496,6 +2216,20 @@ namespace moris::hmr
        }
        tFile << std::endl;
 
+       // write mtk index
+       tFile << "SCALARS MTK_INDEX int" << std::endl;
+       tFile << "LOOKUP_TABLE default" << std::endl;
+       for ( auto tBasis : mAllBasisOnProc )
+       {
+           if ( tBasis->is_flagged() )
+           {
+               tIChar = swap_byte_endian( (int)tBasis->get_index() );
+
+               tFile.write( (char*)&tIChar, sizeof( int ) );
+           }
+       }
+       tFile << std::endl;
+
        // write active index
        tFile << "SCALARS ACTIVE_INDEX int" << std::endl;
        tFile << "LOOKUP_TABLE default" << std::endl;
@@ -2545,7 +2279,7 @@ namespace moris::hmr
         uint tNumberOfChildren = this->get_number_of_children_per_basis();
 
         // get order
-        uint tOrder = this->get_order();
+        uint tOrder = Mesh_Base::get_order();
 
         uint tNumberOfChildrenPerDirection = tOrder + 2;
 
@@ -2670,7 +2404,7 @@ namespace moris::hmr
         // step 2: count connected vertices
 
         // reset counter
-        uint tCount = 0;
+        uint tBasisCount = 0;
 
         // loop over all elements of this basis
         for( uint e=0; e<tNumberOfElements; ++e )
@@ -2685,13 +2419,13 @@ namespace moris::hmr
                 {
                     tVertex->unflag();
 
-                    ++tCount;
+                    ++tBasisCount;
                 }
             }
         }
 
         // return counter
-        return tCount;
+        return tBasisCount;
     }
 
 } /* namespace moris */

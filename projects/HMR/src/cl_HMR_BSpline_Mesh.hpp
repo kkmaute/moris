@@ -22,16 +22,22 @@
 
 namespace moris::hmr
 {
-    // ----------------------------------------------------------------------------
-
     /**
-     * \brief the BSpline_Mesh class calculates B-Splines for a given
-     *  background mesh.
+     * B-spline element class
      *
+     * @tparam P Polynomial degree in x-direction
+     * @tparam Q Polynomial degree in y-direction
+     * @tparam R Polynomial degree in z-direction
      */
-    template< uint N, uint P >
+    template< uint P, uint Q, uint R >
     class BSpline_Mesh : public BSpline_Mesh_Base
     {
+        //! Number of dimensions
+        static constexpr uint N = ( P > 0 ) + ( Q > 0 ) + ( R > 0 );
+
+        //! Container of degrees, used to avoid repeated conditionals
+        static constexpr uint PQR[ 3 ] = { P, Q, R };
+
         //! Lookup table containing offset for node IDs
         luint mBasisLevelOffset[ gMaxNumberOfLevels ];
 
@@ -43,6 +49,9 @@ namespace moris::hmr
 
         //! Lookup table containing number of basis per dimension for each level
         luint mNumberOfBasisPerDimensionIncludingPadding[ gMaxNumberOfLevels ][ N ];
+
+        //! number of basis on coarsest level
+        luint mNumberOfCoarsestBasisOnProc[ N ] = { 0 };
 
     public:
 
@@ -62,7 +71,7 @@ namespace moris::hmr
         : BSpline_Mesh_Base(
                 aParameters,
                 aBackgroundMesh,
-                P,
+                this->get_min_order(),
                 aActivationPattern )
         {
             // ask background mesh for number of elements per ijk-direction
@@ -89,106 +98,59 @@ namespace moris::hmr
             this->delete_pointers();
         }
 
-    protected:
-
         // ----------------------------------------------------------------------------
 
-        /**
-         * creates a basis depending on polynomial order and dimension
-         */
-        Basis * create_basis(
-                const luint * aIJK,
-                uint          aLevel,
-                uint          aOwner ) override;
-
-        // ----------------------------------------------------------------------------
-
-        /**
-         * calculates domain wide unique basisID (1D case)
-         * Useful for debugging.
-         *
-         * @param[in]  aLevel    level of basis
-         * @param[in]  aI        proc local i-position of basis
-         * @return uint          domain wide unique ID
-         */
-        luint calculate_basis_id(
-                uint  aLevel,
-                luint aI ) override
+        uint get_order( uint aDimensionIndex ) override
         {
-            if( aLevel < gMaxNumberOfLevels && N == 1 )
-            {
-                return  aI + mMySubdomainOffset[ aLevel ][ 0 ];
-            }
-            else
-            {
-                return gNoEntityID;
-            }
+            return PQR[ aDimensionIndex ];
         }
 
         // ----------------------------------------------------------------------------
 
-        /**
-         * calculates domain wide unique basisID (2D case)
-         * Useful for debugging.
-         *
-         * @param[in]  aLevel    level of basis
-         * @param[in]  aI        proc local i-position of basis
-         * @param[in]  aJ        proc local j-position of basis
-         * @return uint          domain wide unique ID
-         */
-        luint calculate_basis_id(
-                uint  aLevel,
-                luint aI,
-                luint aJ ) override
+        uint get_min_order() override
         {
-            if( aLevel < gMaxNumberOfLevels && N == 2 )
-            {
-                return  aI + mMySubdomainOffset[ aLevel ][ 0 ] +
-                        ( aJ + mMySubdomainOffset[ aLevel ][ 1 ] ) *
-                        (  mNumberOfBasisPerDimensionIncludingPadding[ aLevel ][ 0 ] ) +
-                        mBasisLevelOffset[ aLevel ];
-            }
-            else
-            {
-                return gNoEntityID;
-            }
+            // Ignores zero
+            return std::min( { P - 1, Q - 1, R - 1 } ) + 1;
         }
 
         // ----------------------------------------------------------------------------
-        /**
-         * calculates domain wide unique basisID (3D case)
-         * Useful for debugging.
-         *
-         * @param[in]  aLevel    level of basis
-         * @param[in]  aI        proc local i-position of basis
-         * @param[in]  aJ        proc local j-position of basis
-         * @param[in]  aK        proc local k-position of basis
-         * @return uint          domain wide unique ID
-         */
-        luint calculate_basis_id(
-                uint  aLevel,
-                luint aI,
-                luint aJ,
-                luint aK ) override
+
+        uint get_max_order() override
         {
-            if( aLevel < gMaxNumberOfLevels && N == 3 )
-            {
-                return aI + mMySubdomainOffset[ aLevel ][ 0 ] +
-                        ( mNumberOfBasisPerDimensionIncludingPadding[ aLevel ][ 0 ] ) *
-                        ( ( aJ + mMySubdomainOffset[ aLevel ][ 1 ] ) +
-                                ( aK + mMySubdomainOffset[ aLevel ][ 2 ] ) *
-                                ( mNumberOfBasisPerDimensionIncludingPadding[ aLevel ][ 1 ] ) ) +
-                                mBasisLevelOffset[ aLevel ];
-            }
-            else
-            {
-                return gNoEntityID;
-            }
+            return std::max( { P, Q, R } );
         }
 
         // ----------------------------------------------------------------------------
+
+        uint get_number_of_bases() override
+        {
+            return ( P + 1 ) * ( Q + 1 ) * ( R + 1 );
+        }
+
     private:
+
         // ----------------------------------------------------------------------------
+
+        luint calculate_basis_id(
+                uint         aLevel,
+                const luint* aIJK ) override
+        {
+            if ( aLevel < gMaxNumberOfLevels )
+            {
+                luint tIJK[ N ];
+                luint tDimensionOffset[ N ];
+                for ( uint iDimension = 0; iDimension < N; iDimension++ )
+                {
+                    tIJK[ iDimension ] = aIJK[ iDimension ] + mMySubdomainOffset[ aLevel ][ iDimension ];
+                    tDimensionOffset[ iDimension ] = mNumberOfBasisPerDimensionIncludingPadding[ aLevel ][ iDimension ];
+                }
+                return this->calculate_basis_identifier( tIJK, tDimensionOffset ) + mBasisLevelOffset[ aLevel ];
+            }
+            else
+            {
+                return gNoEntityID;
+            }
+        }
 
         /**
          *  Private function, creates the mNodeLevelOffset lookup table.
@@ -197,37 +159,32 @@ namespace moris::hmr
          */
         void calculate_lookup_tables()
         {
-            // calculate number of basis on first level
-            for( uint k = 0; k < N; ++k )
+            // Number of basis on level 0
+            for ( uint iDimension = 0; iDimension < N; iDimension++ )
             {
-                mNumberOfBasisPerDimensionIncludingPadding[ 0 ][ k ] =
-                        mNumberOfElementsPerDimensionIncludingAura[ 0 ][ k ] + P;
+                mNumberOfBasisPerDimensionIncludingPadding[ 0 ][ iDimension ] = mNumberOfElementsPerDimensionIncludingAura[ 0 ][ iDimension ] + PQR[ iDimension ];
             }
 
-            // calculate number of basis on higher levels
-            for( uint l = 1; l < gMaxNumberOfLevels; ++l )
-            {
-                for( uint k = 0; k < N; ++k )
-                {
-                    mNumberOfBasisPerDimensionIncludingPadding[ l ][ k ] =
-                            2*mNumberOfBasisPerDimensionIncludingPadding[ l-1 ][ k ] + P;
-                }
-            }
-
-            // calculate basis level offset
+            // Basis level offset on level 0
             mBasisLevelOffset[ 0 ] = 0;
 
-            for( uint l = 1; l < gMaxNumberOfLevels; ++l )
+            for( uint iLevel = 1; iLevel < gMaxNumberOfLevels; iLevel++ )
             {
-                // calculate number of nodes on this level
+                // Start counting number of bases
                 luint tNumberOfBasis = 1;
-                for( uint k = 0; k < N; ++k )
+
+                for ( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
-                    tNumberOfBasis *= mNumberOfBasisPerDimensionIncludingPadding[ l-1 ][ k ];
+                    // Calculate number of basis on higher levels
+                    mNumberOfBasisPerDimensionIncludingPadding[ iLevel ][ iDimension ] =
+                            2 * mNumberOfBasisPerDimensionIncludingPadding[ iLevel - 1 ][ iDimension ] + PQR[ iDimension ];
+
+                    // Calculate number of nodes on this level
+                    tNumberOfBasis *= mNumberOfBasisPerDimensionIncludingPadding[ iLevel - 1 ][ iDimension ];
                 }
 
-                // add number of nodes to offset table
-                mBasisLevelOffset[ l ] = mBasisLevelOffset[ l-1 ] + tNumberOfBasis;
+                // Add number of nodes to offset table
+                mBasisLevelOffset[ iLevel ] = mBasisLevelOffset[ iLevel - 1 ] + tNumberOfBasis;
             }
         }
 
@@ -242,11 +199,11 @@ namespace moris::hmr
         {
             Matrix< DDLUMat > tIJK = mBackgroundMesh->get_subdomain_offset_of_proc();
 
-            for( uint l = 0; l < gMaxNumberOfLevels; ++l )
+            for( uint iLevel = 0; iLevel < gMaxNumberOfLevels; iLevel++ )
             {
-                for( uint k = 0; k < N; ++k )
+                for( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
-                    mMySubdomainOffset[ l ][ k ] = tIJK( k, l );
+                    mMySubdomainOffset[ iLevel ][ iDimension ] = tIJK(iDimension, iLevel );
                 }
             }
         }
@@ -265,11 +222,11 @@ namespace moris::hmr
             Matrix< DDLUMat > tMat = mBackgroundMesh->get_number_of_elements_per_direction();
 
             // convert matrix to fixed size array
-            for( uint l = 0; l < gMaxNumberOfLevels; ++l )
+            for( uint iLevel = 0; iLevel < gMaxNumberOfLevels; iLevel++ )
             {
-                for( uint k = 0; k < N; ++k )
+                for( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
-                    mNumberOfElementsPerDimensionIncludingAura[ l ][ k ] = tMat( k, l );
+                    mNumberOfElementsPerDimensionIncludingAura[ iLevel ][ iDimension ] = tMat(iDimension, iLevel );
                 }
             }
         }
@@ -293,17 +250,17 @@ namespace moris::hmr
             real tDeltaX[ gMaxNumberOfLevels ][ N ];
 
             // calculate width for first level
-            for( uint k = 0; k < N; ++k )
+            for( uint iDimension = 0; iDimension < N; iDimension++ )
             {
-                tDeltaX[ 0 ][ k ] = tDomainDimensions( k ) / ( ( real ) ( tNumberOfElements( k ) ) );
+                tDeltaX[ 0 ][ iDimension ] = tDomainDimensions(iDimension ) / ( ( real ) ( tNumberOfElements(iDimension ) ) );
             }
 
             // loop over all higher levels
-            for( uint l = 1; l < gMaxNumberOfLevels; ++l )
+            for( uint iLevel = 1; iLevel < gMaxNumberOfLevels; iLevel++ )
             {
-                for( uint k = 0; k < N; ++k )
+                for( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
-                    tDeltaX[ l ][ k ] = 0.5*tDeltaX[ l-1 ][ k ];
+                    tDeltaX[ iLevel ][ iDimension ] = 0.5 * tDeltaX[ iLevel-1 ][ iDimension ];
                 }
             }
 
@@ -317,22 +274,20 @@ namespace moris::hmr
             Matrix< DDRMat > tOffsetCoords = mBackgroundMesh->get_domain_offset();
 
             // unflatten coordinates to a normal array
-            for( uint k = 0; k < N; ++k )
+            for( uint iDimension = 0; iDimension < N; iDimension++ )
             {
-                tOffset[ k ] = tOffsetCoords( k );
+                tOffset[ iDimension ] = tOffsetCoords(iDimension );
             }
 
             // coordinate shift for B-Spline
             // 0.5 - 0.5*P
-
-            real tOff = real( P );
-
-            real tShift[ gMaxNumberOfLevels ];
-
-            for ( double & iShift : tShift )
+            real tShift[ gMaxNumberOfLevels ][ N ];
+            for ( uint iLevel = 0; iLevel < gMaxNumberOfLevels; iLevel++ )
             {
-                iShift = 0.5 - tOff + 0.5 * P;
-                tOff *= 2;
+                for ( uint iDimension = 0; iDimension < N; iDimension++ )
+                {
+                    tShift[ iLevel ][ iDimension ] = 0.5 * ( PQR[ iDimension ] + 1 ) - std::pow( 2, iLevel ) * PQR[ iDimension ];
+                }
             }
 
             // loop over all nodes
@@ -348,15 +303,100 @@ namespace moris::hmr
                 real tXYZ[ N ];
 
                 // loop over all dimensions
-                for( uint k = 0; k < N; ++k )
+                for( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
-                    tXYZ[ k ] = ( tShift[ tLevel ] + ( real ) ( tIJK[ k ]
-                                                                      + mMySubdomainOffset[ tLevel ][ k ] ) )
-                                                                      * tDeltaX[ tLevel ][ k ] + tOffset[ k ];
+                    tXYZ[ iDimension ] = ( tShift[ tLevel ][ iDimension ] + ( real ) ( tIJK[ iDimension ]
+                                                                      + mMySubdomainOffset[ tLevel ][ iDimension ] ) )
+                                                                      * tDeltaX[ tLevel ][ iDimension ] + tOffset[ iDimension ];
                 }
 
                 // write XYZ coordinate into node
                 tBasis->set_xyz( tXYZ );
+            }
+        }
+
+        // ----------------------------------------------------------------------------
+
+        void create_basis_on_level_zero() override
+        {
+            // Ask mesh for relevant ijk positions
+            Matrix< DDLUMat > tNumElementsPerDirection = mBackgroundMesh->get_number_of_elements_per_direction_on_proc();
+
+            // Unroll min and max i and j
+            luint tTotalNumberOfCoarsestBases = 1;
+            for ( uint iDimension = 0; iDimension < N; iDimension++ )
+            {
+                mNumberOfCoarsestBasisOnProc[ iDimension ] = tNumElementsPerDirection( iDimension, 0 ) + PQR[ iDimension ];
+                tTotalNumberOfCoarsestBases *= mNumberOfCoarsestBasisOnProc[ iDimension ];
+            }
+
+            // Size array
+            mAllCoarsestBasisOnProc.resize( tTotalNumberOfCoarsestBases, nullptr );
+
+            // Populate array
+            luint tIJK[ N ];
+            luint tBasisIndex = 0;
+            populate_bases< N >( tIJK, tBasisIndex );
+        }
+
+        /**
+         * Populates the container of coarse basis pointers based on IJK positions
+         *
+         * @tparam D Number of dimensions left to process
+         * @param aIJK IJK position to fill and use
+         * @param aBasisIndex Index in the basis container to fill next
+         */
+        template< uint D, std::enable_if_t< ( D > 0 ) >* = nullptr >
+        void populate_bases( luint* aIJK, luint& aBasisIndex )
+        {
+            // Loop over IJK
+            for ( uint i = 0; i < mNumberOfCoarsestBasisOnProc[ D - 1 ]; i++ )
+            {
+                // Assign this IJK value
+                aIJK[ D - 1 ] = i;
+
+                // Go to next dimension
+                populate_bases< D - 1 >( aIJK, aBasisIndex );
+            }
+        }
+
+        /**
+         * 0 specialization for populating coarse basis container, creates a new B-spline basis
+         *
+         * @tparam D Number of dimensions left to process (0)
+         * @param aIJK IJK position
+         * @param aBasisIndex Index in the basis container to fill
+         */
+        template< uint D, std::enable_if_t< ( D == 0 ) >* = nullptr >
+        void populate_bases( luint* aIJK, luint& aBasisIndex )
+        {
+            // Create new basis
+            mAllCoarsestBasisOnProc( aBasisIndex++ ) = new BSpline< P, Q, R >( aIJK, 0, gNoProcOwner );
+        }
+
+        //------------------------------------------------------------------------------
+
+        void link_basis_to_elements_on_level_zero() override
+        {
+            // loop over all elements
+            for ( auto tElement : mAllCoarsestElementsOnProc )
+            {
+                // init basis container
+                tElement->init_basis_container();
+
+                // loop over all basis of this element
+                for ( uint iBasisIndex = 0; iBasisIndex < mNumberOfBasisPerElement; iBasisIndex++ )
+                {
+                    // Get IJK position of this basis
+                    luint tIJK[ N ];
+                    tElement->get_ijk_of_basis( iBasisIndex, tIJK );
+
+                    // Get basis index
+                    luint tCoarseBasisIndex = this->calculate_basis_identifier( tIJK, mNumberOfCoarsestBasisOnProc );
+
+                    // Insert point to basis into element
+                    tElement->insert_basis( iBasisIndex, mAllCoarsestBasisOnProc( tCoarseBasisIndex ) );
+                }
             }
         }
 
@@ -371,129 +411,44 @@ namespace moris::hmr
         Element * create_element( Background_Element_Base* aBackgroundElement ) override
         {
             // Check for dimension less than or equal to 3 and degree less than or equal to 3
-            MORIS_ERROR( N <= 3 and P <= 3, "Don't know how to create B-Spline element.");
+            MORIS_ERROR( P <= 3 and Q <= 3 and R <= 3, "Don't know how to create B-Spline element." );
 
             // Create element
-            Element * aBSplineElement = new BSpline_Element< P, (N > 1) * P, (N > 2) * P >( aBackgroundElement, mActivationPattern );
-
-            // Return element
-            return aBSplineElement;
+            return new BSpline_Element< P, Q, R >( aBackgroundElement, mActivationPattern );
         }
+
+        // ----------------------------------------------------------------------------
+
+        /**
+         * Calculates a unique basis identifier for a given IJK position and offsets.
+         * Can be an index or an ID depending on the offset.
+         *
+         * @tparam D Number of dimensions of the IJK and offset arrays
+         * @param aIJK IJK position
+         * @param aDimensionOffset Offset array for each dimension
+         * @return Unique basis identifier
+         */
+        template< uint D = N >
+        static luint calculate_basis_identifier(
+                const luint* aIJK,
+                const luint* aDimensionOffset )
+        {
+            luint tIdentifier = 0;
+            for ( uint iDimension = 0; iDimension < D; iDimension++)
+            {
+                luint tOffsetTerm = aIJK[ iDimension ];
+                for ( uint iPreviousDimension = 0; iPreviousDimension < iDimension; iPreviousDimension++ )
+                {
+                    tOffsetTerm *= aDimensionOffset[ iPreviousDimension ];
+                }
+                tIdentifier += tOffsetTerm;
+            }
+            return tIdentifier;
+        }
+
+        // ----------------------------------------------------------------------------
+
     };
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template <>
-    Basis * BSpline_Mesh< 2, 1 >::create_basis(
-            const luint* aIJK,
-            uint         aLevel,
-            uint         aOwner )
-    {
-        return new BSpline< 2, 9, 8 >( aIJK, aLevel, aOwner );
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template <>
-    Basis * BSpline_Mesh< 2, 2 >::create_basis(
-            const luint* aIJK,
-            uint         aLevel,
-            uint         aOwner )
-    {
-        return new BSpline< 2, 16, 8 >( aIJK, aLevel, aOwner );
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template <>
-    Basis * BSpline_Mesh< 2, 3 >::create_basis(
-            const luint* aIJK,
-            uint         aLevel,
-            uint         aOwner )
-    {
-        return new BSpline< 2, 25, 8 >( aIJK, aLevel, aOwner );
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template <>
-    Basis * BSpline_Mesh< 2, 4 >::create_basis(
-            const luint* aIJK,
-            uint         aLevel,
-            uint         aOwner )
-    {
-        return new BSpline< 2, 36, 8 >( aIJK, aLevel, aOwner );
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template <>
-    Basis * BSpline_Mesh< 2, 5 >::create_basis(
-            const luint* aIJK,
-            uint         aLevel,
-            uint         aOwner )
-    {
-        return new BSpline< 2, 49, 8 >( aIJK, aLevel, aOwner );
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template <>
-    Basis * BSpline_Mesh< 3, 1 >::create_basis(
-            const luint* aIJK,
-            uint         aLevel,
-            uint         aOwner )
-    {
-        return new BSpline< 3, 27, 26 >( aIJK, aLevel, aOwner );
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template <>
-    Basis*
-    BSpline_Mesh< 3, 2 >::create_basis(
-            const luint* aIJK,
-            uint         aLevel,
-            uint         aOwner )
-    {
-        return new BSpline< 3, 64, 26 >( aIJK, aLevel, aOwner );
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template <>
-    Basis * BSpline_Mesh< 3, 3 >::create_basis(
-            const luint* aIJK,
-            uint         aLevel,
-            uint         aOwner )
-    {
-        return new BSpline< 3, 125, 26 >( aIJK, aLevel, aOwner );
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template <>
-    Basis * BSpline_Mesh< 3, 4 >::create_basis(
-            const luint* aIJK,
-            uint         aLevel,
-            uint         aOwner )
-    {
-        return new BSpline< 3, 216, 26 >( aIJK, aLevel, aOwner );
-    }
-
-    // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
-    template <>
-    Basis * BSpline_Mesh< 3, 5 >::create_basis(
-            const luint* aIJK,
-            uint         aLevel,
-            uint         aOwner )
-    {
-        return new BSpline< 3, 343, 26 >( aIJK, aLevel, aOwner );
-    }
-
-    // ----------------------------------------------------------------------------
-
 } /* namespace moris */
 
 #endif /* SRC_HMR_CL_HMR_BSPLINE_MESH_HPP_ */

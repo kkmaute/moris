@@ -553,7 +553,7 @@ namespace moris::hmr
          */
         uint get_bspline_order( const uint aMeshIndex )
         {
-            return mBSplineMeshes( aMeshIndex )->get_order();
+            return mBSplineMeshes( aMeshIndex )->get_min_order();
         }
 
         // ----------------------------------------------------------------------------
@@ -854,9 +854,10 @@ namespace moris::hmr
                 moris::Cell< moris::Cell< mtk::Cell* > >&  aCells,
                 moris::Cell< moris::Cell< moris_index > >& aCellIndices,
                 moris::Cell< moris_index >&                aLagToBspCellIndices,
-                moris::Cell< uint >&                       aBspCellRefineLevels );
+                moris::Cell< uint >&                       aBspCellRefineLevels,
+                moris::Cell< mtk::Cell* >&                 aBsplineCells );
 
-         // -----------------------------------------------------------------------------
+        // -----------------------------------------------------------------------------
 
         /**
          * @brief evaluate the b-spline basis function at a given lagrange element
@@ -888,31 +889,13 @@ namespace moris::hmr
          */
         virtual void get_L2_projection_matrix(
                 moris_index                                 aDiscretizationMeshIndex,
-                moris_index                                 aRootBSplineCellIndex,
-                moris_index                                 aExtendedBSplineCellIndex,
-                moris::Cell< moris::Cell< mtk::Vertex* > >& aRootBsplineBasis,
-                moris::Cell< mtk::Vertex* >&                aExtendedBsplineBasis,
+                const Element*                              aRootBSplineCell,
+                const Element*                              aExtendedBSplineCell,
+                moris::Cell< moris::Cell< const mtk::Vertex* > >& aRootBsplineBasis,
+                moris::Cell< const mtk::Vertex* >&                aExtendedBsplineBasis,
                 moris::Cell< Matrix< DDRMat > >&            aWeights ) = 0;
 
-
         // -----------------------------------------------------------------------------
-
-        /**
-         * @brief Get the bspline element ijk level object
-         *
-         * @param aDiscretizationMeshIndex
-         * @param aBsplineElementIndex
-         * @param aLevel
-         * @return const luint*
-         */
-
-        const luint*
-        get_bspline_element_ijk_level(
-            moris_index         aDiscretizationMeshIndex,
-            moris_index         aBsplineElementIndex,
-            uint                aLevel );
-
-         // -----------------------------------------------------------------------------
 
         /**
          * collect Lagrange elements on an BSpline interpolation element

@@ -225,7 +225,7 @@ namespace moris
             tDynRes->vec_put_scalar( 0.0 );
 
             // assemble dynamic residual
-            mSolverInterface->assemble_RHS( tDynRes, fem::Time_Continuity_Flag::DEFAULT );
+            mSolverInterface->assemble_RHS( tDynRes, fem::Time_Continuity_Flag::TIME_CONTINUITY_ONLY );
 
             MORIS_LOG_INFO( "Norm of dynamic residual: %e", tDynRes->vec_norm2()( 0 ) );
             MORIS_LOG_INFO( "Norm of total residual  : %e", mPointVectorRHS->vec_norm2()( 0 ) );

@@ -37,23 +37,23 @@ TEST_CASE("HMR_Bspline_Mesh", "[moris],[mesh],[hmr],[BsplineMesh]")
             auto tParameters = new moris::hmr::Parameters;
 
             // set number of elements
-            moris::Matrix< moris::DDLUMat > tNumberOfElements;
+            moris::Matrix< moris::DDLUMat > tNumberOfElementsPerDimension;
             if( moris::par_size() == 1 )
             {
-                tNumberOfElements.set_size( 2, 1, 3 );
+                tNumberOfElementsPerDimension.set_size( 2, 1, 3 );
 
             }
             else if ( moris::par_size() == 2 )
             {
-                tNumberOfElements.set_size( 2, 1, 6 );
+                tNumberOfElementsPerDimension.set_size( 2, 1, 6 );
 
             }
             else if ( moris::par_size() == 4 )
             {
-                tNumberOfElements.set_size( 2, 1, 10 );
+                tNumberOfElementsPerDimension.set_size( 2, 1, 10 );
             }
 
-            tParameters->set_number_of_elements_per_dimension( tNumberOfElements );
+            tParameters->set_number_of_elements_per_dimension( tNumberOfElementsPerDimension );
 
             // deactivate truncation
             tParameters->set_bspline_truncation( false );

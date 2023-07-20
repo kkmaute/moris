@@ -1066,6 +1066,20 @@ namespace moris::hmr
 
         //------------------------------------------------------------------------------
 
+        /**
+         * @brief This function takes mDomainID as input and computes the global ijk of the element
+         *
+         * @param aLevel
+         * @param aID
+         * @param aIJK
+         */
+
+        virtual void calc_ijk_from_global_id(
+                const uint&  aLevel,
+                const luint& aID,
+                luint*       aIJK ) const = 0;
+
+
       protected:
         //------------------------------------------------------------------------------
 
@@ -1083,7 +1097,6 @@ namespace moris::hmr
                 luint aID ) const = 0;
 
         //--------------------------------------------------------------------------------
-
         /**
          *  After the coarsest mesh has been generated, this function tells
          * the neighbor procs which elements are to be tagged as padding.

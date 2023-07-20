@@ -1,7 +1,7 @@
 zypper in gcc-11
 zypper in g++-11
 zypper in gfortran-11
-zypper in git make patch makeinfo pkg-config
+zypper in git gitk make patch makeinfo pkg-config
 zypper in kdiff3 gnuplot
 zypper in valgrind valgrind-devel
 zypper in bc zip

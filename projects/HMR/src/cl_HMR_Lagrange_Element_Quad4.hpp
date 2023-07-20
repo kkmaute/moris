@@ -70,29 +70,6 @@ namespace moris::hmr
 // ----------------------------------------------------------------------------
 
     /**
-     * node IDs needed for VTK output
-     *
-     * @param[out] moris::Matrix< DDLUMat >
-     *
-     * @return void
-     *
-     */
-    template<>
-    inline
-    void
-    Lagrange_Element< 2, 4 >::get_basis_indices_for_vtk(
-        Matrix< DDLUMat > & aBasis )
-    {
-        // loop over all nodes
-        for( uint k=0; k<4; ++k )
-        {
-            aBasis( k ) = mNodes[ k ]->get_memory_index();
-        }
-    }
-
-// ----------------------------------------------------------------------------
-
-    /**
      * returns the ijk position of a given basis
      *
      * @param[in]  aBasisNumber   element local number of basis

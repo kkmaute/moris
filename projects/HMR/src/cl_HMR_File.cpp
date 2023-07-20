@@ -345,8 +345,8 @@ namespace moris::hmr
         {
             tPatternList( Ik+1 ) = aLagrangeMesh->get_bspline_mesh( Ik )->get_activation_pattern();
             tPatternBspMat( Ik ) = aLagrangeMesh->get_bspline_mesh( Ik )->get_activation_pattern();
-            tOrderList( Ik+1 )   = aLagrangeMesh->get_bspline_mesh( Ik )->get_order();
-            tOrderBspMat( Ik )   = aLagrangeMesh->get_bspline_mesh( Ik )->get_order();
+            tOrderList( Ik+1 )   = aLagrangeMesh->get_bspline_mesh( Ik )->get_min_order();
+            tOrderBspMat( Ik )   = aLagrangeMesh->get_bspline_mesh( Ik )->get_min_order();
         }
 
         MORIS_ERROR( tPatternLagMat.max() != MORIS_UINT_MAX, "File::save_refinement_pattern(); the pattern list is not initialized correctly and has a MORIS_UINT_MAX entry" );

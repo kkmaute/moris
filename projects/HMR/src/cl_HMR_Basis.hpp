@@ -801,7 +801,7 @@ namespace moris::hmr
 
             //------------------------------------------------------------------------------
 
-            virtual bool is_active()
+            virtual bool is_active() const 
             {
                 MORIS_ERROR( false, "is_active() not available for selected basis type." );
                 return false;
@@ -946,9 +946,10 @@ namespace moris::hmr
 
             //------------------------------------------------------------------------------
 
-            virtual void count_descendants( luint & aBasisCount )
+            virtual luint count_descendants()
             {
                 MORIS_ERROR( false, " count_descendants() not available for selected basis type." );
+                return 0;
             }
 
             //------------------------------------------------------------------------------
