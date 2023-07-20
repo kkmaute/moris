@@ -44,7 +44,6 @@ set(HEADERS
     cl_HMR_Field_Param.hpp
     cl_HMR_Field.hpp
     cl_HMR_File.hpp
-    cl_HMR_Knot.hpp
     cl_HMR_Lagrange_Edge.hpp
     cl_HMR_Lagrange_Edge2.hpp
     cl_HMR_Lagrange_Edge3.hpp
