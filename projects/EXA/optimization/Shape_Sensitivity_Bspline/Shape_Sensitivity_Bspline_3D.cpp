@@ -40,8 +40,7 @@
 // case 5: na                   |  var: 0-8  + b-spline
 // case 6: var: 0-8 + b-spline  |  var: 9-15 + b-spline
 
-//extern uint tGeoModel;
-uint tGeoModel = 6;
+extern uint tGeoModel;
 
 #ifdef __cplusplus
 extern "C" {
@@ -150,12 +149,14 @@ namespace moris
         if ( aFIManager->get_IG_geometry_interpolator()->valx()( 1 ) < 0.2 )
         {
             aPropMatrix = { { 0.0 },
-                { aParameters( 0 )( 0 ) }, {0.0} };
+                { aParameters( 0 )( 0 ) },
+                { 0.0 } };
         }
         else
         {
             aPropMatrix = { { 0.0 },
-                { 0.0 }, { 0.0 } };
+                { 0.0 },
+                { 0.0 } };
         }
     }
 
@@ -310,7 +311,7 @@ namespace moris
                 tParameterlist( 1 )( 1 ).set( "constant_parameters", "0.65, -1.0, -1.0, .707106781, .707106781, 0.0" );
                 break;
             case 1:
-                tParameterlist( 1 )( 1 ).set( "constant_parameters", " -1.0, -1.0, .707106781, .707106781, 0.0" );  
+                tParameterlist( 1 )( 1 ).set( "constant_parameters", " -1.0, -1.0, .707106781, .707106781, 0.0" );
                 tParameterlist( 1 )( 1 ).set( "field_variable_indices", "0" );
                 tParameterlist( 1 )( 1 ).set( "adv_indices", "0" );
                 break;
@@ -503,7 +504,7 @@ namespace moris
         // fill the computation part of the parameter list
         tParameterList( 5 ).resize( 1 );
         tParameterList( 5 )( 0 ) = prm::create_computation_parameter_list();
-        //tParameterList( 5 )( 0 ).set("finite_difference_scheme", static_cast< uint >( fem::FDScheme_Type::POINT_3_CENTRAL ) );
+        // tParameterList( 5 )( 0 ).set("finite_difference_scheme", static_cast< uint >( fem::FDScheme_Type::POINT_3_CENTRAL ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------
