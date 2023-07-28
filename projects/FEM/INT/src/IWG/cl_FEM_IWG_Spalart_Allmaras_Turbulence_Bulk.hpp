@@ -35,15 +35,17 @@ namespace moris
                 // local constitutive enums
                 enum class IWG_Constitutive_Type
                 {
-                        SPALART_ALLMARAS_TURBULENCE,
-                        MAX_ENUM
+                    SPALART_ALLMARAS_TURBULENCE,
+                    MAX_ENUM
                 };
 
                 // local stabilization enums
                 enum class IWG_Stabilization_Type
                 {
-                        SUPG,
-                        MAX_ENUM
+                    SUPG,
+                    DIFFUSION_CROSSWIND,
+                    DIFFUSION_ISOTROPIC,
+                    MAX_ENUM
                 };
 
             public:

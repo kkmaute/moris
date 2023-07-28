@@ -57,6 +57,7 @@ set(TEST_SOURCES
     
     UT_FEM_SP_Fluid.cpp
     UT_FEM_SP_YZBeta_Advection.cpp
+    UT_FEM_SP_Crosswind.cpp
     
     UT_FEM_IWG_Advection_Bulk.cpp
     UT_FEM_IWG_Diffusion_Bulk.cpp
@@ -125,6 +126,7 @@ set(TEST_SOURCES
     UT_FEM_IQI_Dof.cpp
     UT_FEM_IQI_Strain_Energy.cpp
     UT_FEM_IQI_Power_Dissipation.cpp
+    UT_FEM_IQI_Power_Dissipation_Bulk.cpp
   
     UT_FEM_Input.cpp
     UT_FEM_Geometry_Interpolator.cpp
