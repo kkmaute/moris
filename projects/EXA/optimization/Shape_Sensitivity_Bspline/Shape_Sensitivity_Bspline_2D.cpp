@@ -558,10 +558,10 @@ namespace moris
         tParameterlist( 0 )( 0 ) = moris::prm::create_opt_problem_parameter_list();
         tParameterlist( 0 )( 0 ).set( "is_optimization_problem", true );
         tParameterlist( 0 )( 0 ).set( "problem", "user_defined" );
-        tParameterlist( 0 )( 0 ).set( "library", "Shape_Sensitivity_Bspline.so" );
+        tParameterlist( 0 )( 0 ).set( "library", "Shape_Sensitivity_Bspline_2D.so" );
 
         tParameterlist( 2 )( 0 ) = moris::prm::create_sweep_parameter_list();
-        tParameterlist( 2 )( 0 ).set( "hdf5_path", "shape_opt_test.hdf5" );
+        tParameterlist( 2 )( 0 ).set( "hdf5_path", "shape_opt_test_2D.hdf5" );
         tParameterlist( 2 )( 0 ).set( "evaluate_objective_gradients", true );
         tParameterlist( 2 )( 0 ).set( "evaluate_constraint_gradients", true );
         tParameterlist( 2 )( 0 ).set( "num_evaluations_per_adv", "1" );

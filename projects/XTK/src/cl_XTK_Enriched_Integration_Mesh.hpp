@@ -92,12 +92,12 @@ namespace xtk
         Matrix< IndexMat >                                                        mBulkPhaseToDblSideIndex;
         moris::Cell< Matrix< IndexMat > >                                         mLeaderDoubleSideSetColor;
         moris::Cell< Matrix< IndexMat > >                                         mFollowerDoubleSideSetColor;
-        moris::Cell< moris::Cell< moris_index > >                                 mColorLeaderDoubleSideSet; /*transpose of mLeaderDoubleSideSetColor*/
-        moris::Cell< moris::Cell< moris_index > >                                 mColorFollowerDoubleSideSet;  /*transpose of mFollowerDoubleSideSetColor*/
+        moris::Cell< moris::Cell< moris_index > >                                 mColorLeaderDoubleSideSet;   /*transpose of mLeaderDoubleSideSetColor*/
+        moris::Cell< moris::Cell< moris_index > >                                 mColorFollowerDoubleSideSet; /*transpose of mFollowerDoubleSideSetColor*/
 
         // Fields
-        moris::Cell< xtk::Field >                                                    mFields; // list of global fields
-        moris::Cell< moris::Cell< xtk::Field > >                                     mSideSetFields; // outer cell: set ordinal || inner cell: list of fields on that set
+        moris::Cell< xtk::Field >                                                    mFields;                        // list of global fields
+        moris::Cell< moris::Cell< xtk::Field > >                                     mSideSetFields;                 // outer cell: set ordinal || inner cell: list of fields on that set
         moris::Cell< std::unordered_map< std::string, moris_index > >                mGlobalSetFieldLabelToIndex;    // outer cell: index indicating set type
         moris::Cell< moris::Cell< std::unordered_map< std::string, moris_index > > > mSetWiseFieldLabelToIndex;      // outer cell: set type || inner cell: set ordinal
 
@@ -203,9 +203,10 @@ namespace xtk
          * @return Interface side set name
          */
         std::string
-        get_interface_side_set_name( moris_index aGeomIndex,
-                moris_index                      aBulkPhaseIndex0,
-                moris_index                      aBulkPhaseIndex1 );
+        get_interface_side_set_name(
+                moris_index aGeomIndex,
+                moris_index aBulkPhaseIndex0,
+                moris_index aBulkPhaseIndex1 );
 
         //------------------------------------------------------------------------------
         /**
@@ -290,9 +291,10 @@ namespace xtk
         create_cell_id_fields();
 
         void
-        add_mesh_field_real_scalar_data_loc_inds( std::string const &aFieldName,
-                enum EntityRank const                               &aFieldEntityRank,
-                Matrix< DDRMat > const                              &aFieldData );
+        add_mesh_field_real_scalar_data_loc_inds(
+                std::string const      &aFieldName,
+                enum EntityRank const  &aFieldEntityRank,
+                Matrix< DDRMat > const &aFieldData );
         //------------------------------------------------------------------------------
 
         /**
@@ -497,9 +499,10 @@ namespace xtk
          * @return Side set index
          */
         moris_index
-        create_side_set_from_dbl_side_set( moris_index const &aDblSideSetIndex,
-                std::string const                            &aSideSetName,
-                bool                                          aCollectSets = true );
+        create_side_set_from_dbl_side_set(
+                moris_index const &aDblSideSetIndex,
+                std::string const &aSideSetName,
+                bool               aCollectSets = true );
 
         /**
          * @brief Create a block set from a single sided side set
@@ -538,7 +541,9 @@ namespace xtk
         //------------------------------------------------------------------------------
         // Parallel functions
         //------------------------------------------------------------------------------
-        moris_id allocate_entity_ids( moris::size_t aNumReqs, enum EntityRank aEntityRank );
+        moris_id allocate_entity_ids(
+                moris::size_t   aNumReqs,
+                enum EntityRank aEntityRank );
 
         //------------------------------------------------------------------------------
 
@@ -643,8 +648,9 @@ namespace xtk
         //------------------------------------------------------------------------------
 
         moris_index
-        get_dbl_side_set_index( moris_index aPhase0,
-                moris_index                 aPhase1 );
+        get_dbl_side_set_index(
+                moris_index aPhase0,
+                moris_index aPhase1 );
 
         //------------------------------------------------------------------------------
 
@@ -654,9 +660,10 @@ namespace xtk
         //------------------------------------------------------------------------------
 
         void
-        add_side_to_cluster( std::shared_ptr< xtk::Side_Cluster > aSideCluster,
-                moris_index                                       aCellIndex,
-                moris_index                                       aSideOrdinal );
+        add_side_to_cluster(
+                std::shared_ptr< xtk::Side_Cluster > aSideCluster,
+                moris_index                          aCellIndex,
+                moris_index                          aSideOrdinal );
 
         //------------------------------------------------------------------------------
 
@@ -676,14 +683,16 @@ namespace xtk
         //------------------------------------------------------------------------------
 
         Cell< moris_index >
-        register_block_set_names_with_cell_topo( moris::Cell< std::string > const &aBlockSetNames,
-                enum CellTopology                                                  aBlockTopology );
+        register_block_set_names_with_cell_topo(
+                moris::Cell< std::string > const &aBlockSetNames,
+                enum CellTopology                 aBlockTopology );
 
         //------------------------------------------------------------------------------
 
         void
-        set_block_set_colors( moris_index const &aBlockSetIndex,
-                Matrix< IndexMat > const        &aBlockSetColors );
+        set_block_set_colors(
+                moris_index const        &aBlockSetIndex,
+                Matrix< IndexMat > const &aBlockSetColors );
 
         //------------------------------------------------------------------------------
 
@@ -693,8 +702,9 @@ namespace xtk
         //------------------------------------------------------------------------------
 
         void
-        set_side_set_colors( moris_index const &aSideSetIndex,
-                Matrix< IndexMat > const       &aSideSetColors );
+        set_side_set_colors(
+                moris_index const        &aSideSetIndex,
+                Matrix< IndexMat > const &aSideSetColors );
 
         //------------------------------------------------------------------------------
 
@@ -704,9 +714,10 @@ namespace xtk
         //------------------------------------------------------------------------------
 
         void
-        set_double_side_set_colors( moris_index const &aDblSideSetIndex,
-                Matrix< IndexMat > const              &aLeaderSideColors,
-                Matrix< IndexMat > const              &aFollowerSideColors );
+        set_double_side_set_colors(
+                moris_index const        &aDblSideSetIndex,
+                Matrix< IndexMat > const &aLeaderSideColors,
+                Matrix< IndexMat > const &aFollowerSideColors );
 
         //------------------------------------------------------------------------------
 
@@ -731,29 +742,39 @@ namespace xtk
         //------------------------------------------------------------------------------
 
         void
-        set_vertex_set_color( moris_index const &aVertexSetIndex,
-                Matrix< IndexMat > const        &aVertexSetColors );
+        set_vertex_set_color(
+                moris_index const        &aVertexSetIndex,
+                Matrix< IndexMat > const &aVertexSetColors );
 
         //------------------------------------------------------------------------------
 
         void
-        construct_color_to_set_relationship( moris::Cell< Matrix< IndexMat > > const &aSetColors,
-                moris::Cell< moris::Cell< moris_index > >                            &aColorToSetIndex );
+        construct_color_to_set_relationship(
+                moris::Cell< Matrix< IndexMat > > const   &aSetColors,
+                moris::Cell< moris::Cell< moris_index > > &aColorToSetIndex );
 
         //------------------------------------------------------------------------------
 
         void
-        create_interface_side_sets_from_interface_double_side_set( moris_index const &aBulkphase0,
-                moris_index const                                                    &aBulkphase1 );
+        create_interface_side_sets_from_interface_double_side_set(
+                moris_index const &aBulkphase0,
+                moris_index const &aBulkphase1 );
+
+        //------------------------------------------------------------------------------
+
+        uint
+        get_num_elements_in_side_set( const std::string &aSideSetName );
 
         //------------------------------------------------------------------------------
         // Internal Additional Field Functions
         //------------------------------------------------------------------------------
+
         /*
          * Returns an index in the data structure for a given entity rank (i.e. NODE = 0)
          */
         moris_index
         get_entity_rank_field_index( const enum moris::EntityRank aEntityRank );
+
         //------------------------------------------------------------------------------
         /**
          * @return  whether a field exists or not
@@ -763,7 +784,9 @@ namespace xtk
                 const std::string            aLabel,
                 const enum moris::EntityRank aEntityRank,
                 const moris::moris_index     aSetOrdinal );
-    };
+
+
+    };    // class Enriched_Integration_Mesh
 
 }    // namespace xtk
 

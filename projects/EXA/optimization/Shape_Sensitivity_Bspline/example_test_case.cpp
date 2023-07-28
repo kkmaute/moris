@@ -25,7 +25,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char* argv[] );
 //---------------------------------------------------------------
 
 extern "C" void
-check_results( uint aTestCaseIndex )
+check_results( uint aTestCaseIndex, std::string aHDF5FileName)
 {
     MORIS_LOG_INFO( "" );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processors.", aTestCaseIndex, par_size() );
@@ -38,7 +38,7 @@ check_results( uint aTestCaseIndex )
     Matrix< DDRMat > tConstraintsFD;
 
     // Sweep HDF5 file
-    hid_t  tFileID = open_hdf5_file( "shape_opt_test.hdf5" );
+    hid_t  tFileID = open_hdf5_file( aHDF5FileName );
     herr_t tStatus = 0;
 
     // Read analytical sensitivities
@@ -83,7 +83,7 @@ check_results( uint aTestCaseIndex )
 
 // ---------------------------------------------------------------------------------------------------------------------------------------------------
 
-TEST_CASE( "Shape_Sensitivity_Bspline",
+TEST_CASE( "Shape_Sensitivity_Bspline_2D",
         "[moris],[example],[optimization],[sweep]" )
 {
     // remove files from previous test runs
@@ -98,7 +98,7 @@ TEST_CASE( "Shape_Sensitivity_Bspline",
     int argc = 2;
 
     char tString1[] = "";
-    char tString2[] = "Shape_Sensitivity_Bspline.so";
+    char tString2[] = "Shape_Sensitivity_Bspline_2D.so";
 
     char* argv[ 2 ] = { tString1, tString2 };
 
@@ -114,7 +114,43 @@ TEST_CASE( "Shape_Sensitivity_Bspline",
             REQUIRE( tRet == 0 );
 
             // check results
-            check_results( tGeoModel );
+            check_results( tGeoModel, "shape_opt_test_2D.hdf5" );
+        }
+    }
+}
+
+TEST_CASE( "Shape_Sensitivity_Bspline_3D",
+        "[moris],[example],[optimization],[sweep]" )
+{
+    // remove files from previous test runs
+    // FIXME: should be made independent of OS; note std::remove does not take wild cards
+    if ( par_rank() == 0 )
+    {
+        MORIS_ERROR( std::system( "rm -f *exo*" ) == 0, "Shape_Sensitivity_Bspline - removing *exo* files failed" );
+        MORIS_ERROR( std::system( "rm -f *hdf5*" ) == 0, "Shape_Sensitivity_Bspline - removing *hdf5* files failed" );
+    }
+
+    // define command line call
+    int argc = 2;
+
+    char tString1[] = "";
+    char tString2[] = "Shape_Sensitivity_Bspline_3D.so";
+
+    char* argv[ 2 ] = { tString1, tString2 };
+
+    if ( par_size() == 1 )
+    {
+        // loop over all test configurations
+        for ( tGeoModel = 0; tGeoModel < 7; ++tGeoModel )
+        {
+            // call to performance manager main interface
+            int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
+
+            // catch test statements should follow
+            REQUIRE( tRet == 0 );
+
+            // check results
+            check_results( tGeoModel, "shape_opt_test_3D.hdf5" );
         }
     }
 }

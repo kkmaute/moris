@@ -45,7 +45,13 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    Basis_Processor::~Basis_Processor() {}
+    Basis_Processor::~Basis_Processor()
+    {
+        for ( auto& iHMRHelper : mHMRHelper )
+        {
+            delete iHMRHelper;
+        }
+    }
 
     // ----------------------------------------------------------------------------------
 
@@ -283,7 +289,7 @@ namespace xtk
         }
 
         // add the field data to the mesh
-        mXTKModelPtr->mEnrichedIntegMesh( 0 )->add_field_data( tFieldIndex, EntityRank::ELEMENT, tCellIdField, MORIS_INDEX_MAX );
+        mXTKModelPtr->mEnrichedIntegMesh( 0 )->add_field_data( tFieldIndex, EntityRank::ELEMENT, tCellIdField );
 
         //---------------------------------------------------------------------------------- */
 
