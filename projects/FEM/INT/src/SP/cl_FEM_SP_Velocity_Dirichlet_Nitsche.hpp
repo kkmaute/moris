@@ -57,6 +57,19 @@ namespace moris
                             mtk::Primary_Void::PRIMARY,
                             mtk::Leader_Follower::LEADER );
 
+            // default tuple for leader volume to define cluster measure
+            std::tuple< fem::Measure_Type, mtk::Primary_Void, mtk::Leader_Follower > mLeaderVolumeTuple =
+                    std::make_tuple(
+                            fem::Measure_Type::CELL_MEASURE,
+                            mtk::Primary_Void::PRIMARY,
+                            mtk::Leader_Follower::LEADER );
+
+            std::tuple< fem::Measure_Type, mtk::Primary_Void, mtk::Leader_Follower > mInterfaceSurfaceTuple =
+                    std::make_tuple(
+                            fem::Measure_Type::CELL_SIDE_MEASURE,
+                            mtk::Primary_Void::PRIMARY,
+                            mtk::Leader_Follower::LEADER );
+
             // property type for the SP
             enum class Property_Type
             {
@@ -69,15 +82,22 @@ namespace moris
             /*
              * Rem: mParameters( 0 )      - alpha_N
              *      mParameters( 1 )( 0 ) - alpha_time
+             *      mParameters( 2 )( 0 ) - geometry formulation for cluster measure
+             *                              0: cluster edge length
+             *                              1: surface measure / primary volume
              */
 
             // parameters
             real mAlphaN    = 0.0;
             real mAlphaTime = 0.0;
+            uint mGeometryFormulation = 0;
 
             // set parameter bool
             bool mSetAlphaN    = false;
             bool mSetAlphaTime = false;
+
+            // pointer to function for geometry measure
+            real ( SP_Velocity_Dirichlet_Nitsche::*mGeometryMeasureFunc )() = nullptr;
 
           public:
             //------------------------------------------------------------------------------
@@ -161,6 +181,16 @@ namespace moris
             {
                 MORIS_ERROR( false, "SP_Velocity_Dirichlet_Nitsche::eval_dSPdLeaderDV - not implemented." );
             }
+
+          private:
+
+            //------------------------------------------------------------------------------
+            /**
+             * evaluate the specified geometry measure for the stabilization parameter
+             * @param[ out ] real value of specified geometry measure
+             */
+            real eval_geometry_measure_edge_length();
+            real eval_geometry_measure_relative_edge_length();
 
             //------------------------------------------------------------------------------
         };
