@@ -412,7 +412,7 @@ namespace moris
             }
             else if ( aIndex == 1 )
             {
-                Tracer tTracer( "FEM", "Model", "Perform Sensitivity Analysis" );
+                Tracer tTracer( "MDL", "Model", "Perform Sensitivity Analysis" );
 
                 this->perform_sensitivity_analysis();
             }
