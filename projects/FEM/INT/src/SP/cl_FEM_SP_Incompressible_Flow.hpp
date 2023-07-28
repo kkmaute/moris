@@ -28,6 +28,13 @@ namespace moris
 {
     namespace fem
     {
+    /*
+     * Stabilization parameter for incompressible NS
+     * from Schott et al. (2015) DOI: 10.1002/nme.4789
+     * see also: Whiting (1999) PhD thesis
+     *
+     * Note: contribution from strong form of residual is applied in IWG
+     */
         //------------------------------------------------------------------------------
 
         class SP_Incompressible_Flow : public Stabilization_Parameter
@@ -49,11 +56,6 @@ namespace moris
                 INV_PERMEABILITY,    // inverse of the permeability for flow through porous media
                 MAX_ENUM
             };
-
-            // pointer to function for G evaluation
-            void ( *mEvalGFunc )(
-                    Matrix< DDRMat >&       aG,
-                    const Matrix< DDRMat >& aInvSpaceJacobian ) = nullptr;
 
             /*
              * Rem: mParameters( 0 ) - CI = 36,60,128 for linear, quadratic, cubic;
@@ -86,19 +88,6 @@ namespace moris
              * set parameters
              */
             void set_parameters( moris::Cell< Matrix< DDRMat > > aParameters );
-
-            //------------------------------------------------------------------------------
-            /**
-             * set space dimension
-             * @param[ in ] aSpaceDim a spatial dimension
-             */
-            void set_space_dim( uint aSpaceDim );
-
-            //------------------------------------------------------------------------------
-            /**
-             * set function pointers for evaluation
-             */
-            void set_function_pointers();
 
             //------------------------------------------------------------------------------
             /**
@@ -151,35 +140,6 @@ namespace moris
             {
                 MORIS_ERROR( false, "SP_Incompressible_Flow::eval_dSPdLeaderDV - not implemented." );
             }
-
-            //------------------------------------------------------------------------------
-
-          private:
-            //------------------------------------------------------------------------------
-            /**
-             * evaluate G
-             * where Gij = sum_d dxi_d/dx_i dxi_d/dx_j, d = 1, ..., nSpaceDim
-             * @param[ in ] aG a matrix to fill with G
-             */
-            void eval_G( Matrix< DDRMat >& aG );
-
-            /**
-             * evaluate G in 2d
-             * @param[ in ] aG                a matrix to fill with G
-             * @param[ in ] aInvSpaceJacobian inverse jacobian matrix
-             */
-            static void eval_G_2d(
-                    Matrix< DDRMat >&       aG,
-                    const Matrix< DDRMat >& aInvSpaceJacobian );
-
-            /**
-             * evaluate G in 3d
-             * @param[ in ] aG                a matrix to fill with G
-             * @param[ in ] aInvSpaceJacobian inverse jacobian matrix
-             */
-            static void eval_G_3d(
-                    Matrix< DDRMat >&       aG,
-                    const Matrix< DDRMat >& aSpaceJacobian );
 
             //------------------------------------------------------------------------------
         };

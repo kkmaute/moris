@@ -817,6 +817,15 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        const Matrix< DDRMat >&
+        Geometry_Interpolator::metric_tensor()
+        {
+            // call space interpolator
+            return mSpaceInterpolator->metric_tensor();
+        }
+
+        //------------------------------------------------------------------------------
+
         void
         Geometry_Interpolator::space_jacobian_and_matrices_for_second_derivatives(
                 Matrix< DDRMat >&       aJt,
