@@ -11,6 +11,7 @@
 #include "cl_FEM_IWG_Incompressible_NS_Velocity_Bulk.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
+#include "fn_FEM_IWG_Crosswind_Stabilization_Tools.hpp"
 
 #include "fn_trans.hpp"
 #include "fn_norm.hpp"
@@ -47,8 +48,9 @@ namespace moris
             mStabilizationParam.resize( static_cast< uint >( IWG_Stabilization_Type::MAX_ENUM ), nullptr );
 
             // populate the stabilization map
-            mStabilizationMap[ "IncompressibleFlow" ] =
-                    static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW );
+            mStabilizationMap[ "IncompressibleFlow" ] = static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW );
+            mStabilizationMap[ "DiffusionCrosswind" ] = static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_CROSSWIND );
+            mStabilizationMap[ "DiffusionIsotropic" ] = static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_ISOTROPIC );
         }
 
         //------------------------------------------------------------------------------
@@ -98,13 +100,24 @@ namespace moris
             const std::shared_ptr< Property >& tDensityProp = tIncFluidCM->get_property( "Density" );
 
             // get the incompressible flow stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPSUPSPSPG =
+            const std::shared_ptr< Stabilization_Parameter >& tSPSUPG =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
 
-            // compute the residual strong form
+            // get the crosswind diffusion stabilization parameter
+            const std::shared_ptr< Stabilization_Parameter >& tSPCrosswind =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_CROSSWIND ) );
+
+            // get the isotropic stabilization parameter
+            const std::shared_ptr< Stabilization_Parameter >& tSPIsotropic =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_ISOTROPIC ) );
+
+            // compute the strong form residual for momentum
             Matrix< DDRMat > tRM;
+            this->compute_residual_strong_form_momentum( tRM );
+
+            // compute the strong form of the residual for continuity
             real             tRC;
-            this->compute_residual_strong_form( tRM, tRC );
+            this->compute_residual_strong_form_continuity( tRC );
 
             // get the density value
             const real tDensity = tDensityProp->val()( 0 );
@@ -138,11 +151,11 @@ namespace moris
 
             // compute the residual
             tRes += aWStar
-                  * ( tDensity * tVelocityFI->N_trans()
-                                  * ( trans( tVelocityFI->gradt( 1 ) ) + trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() )
-                          + trans( tIncFluidCM->testStrain() ) * tPre * tIncFluidCM->flux()
-                          + trans( tujvij ) * tDensity * tSPSUPSPSPG->val()( 0 ) * tRM
-                          + trans( tVelocityFI->div_operator() ) * tSPSUPSPSPG->val()( 1 ) * tRC );
+                    * ( tDensity * tVelocityFI->N_trans() * trans( tVelocityFI->gradt( 1 ) )                              //
+                            + tDensity * tVelocityFI->N_trans() * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() //
+                            + tIncFluidCM->testStrain_trans() * tPre * tIncFluidCM->flux()                              //
+                            + trans( tujvij ) * tDensity * tSPSUPG->val()( 0 ) * tRM                                    // SUPG contribution
+                            + trans( tVelocityFI->div_operator() ) * tSPSUPG->val()( 1 ) * tRC );              // LSIC contribution
 
             // if gravity
             if ( tGravityProp != nullptr )
@@ -175,6 +188,78 @@ namespace moris
             if ( tLoadProp != nullptr )
             {
                 tRes -= aWStar * ( tVelocityFI->N_trans() * tLoadProp->val() );
+            }
+
+            // if crosswind stabilization
+            if( tSPCrosswind != nullptr || tSPIsotropic != nullptr )
+            {
+                // bool for crosswind or isotropic
+                bool tIsCrosswind = tSPCrosswind != nullptr;
+
+                // get space dimension
+                uint tSpaceDim = tVelocityFI->get_number_of_fields();
+
+                // get dynamic viscosity property from CM
+                const std::shared_ptr< Property >& tDynViscosityProp = //
+                        tIncFluidCM->get_property( "Viscosity" );
+
+                // get zero tolerance for isotropic or crosswind
+                real tEpsilon;
+                real tSPValue;
+                if( tIsCrosswind )
+                {
+                    // get zero tolerance for crosswind
+                    tEpsilon = tSPCrosswind->val()( 1 );
+
+                    // get the value of SP
+                    tSPValue = tSPCrosswind->val()( 0 );
+                }
+                else
+                {
+                    // get zero tolerance for isotropic
+                    tEpsilon = tSPIsotropic->val()( 1 );
+
+                    // get the value of SP
+                    tSPValue = tSPIsotropic->val()( 0 );
+                }
+
+                // compute crosswind projection of velocity gradient
+                Matrix< DDRMat > tcgradxv;
+                compute_cgradxw( mResidualDofType( 0 ), mResidualDofType( 0 ), //
+                        mLeaderFIManager, tSpaceDim, tEpsilon, tIsCrosswind,   //
+                        tcgradxv );
+
+                // compute strong residual based coefficient per space direction
+                uint tNumCoeffPerSpaceDir = tVelocityFI->get_number_of_space_time_coefficients() / tSpaceDim;
+
+                // loop over space direction
+                for( uint iSpaceDim = 0; iSpaceDim < tSpaceDim; iSpaceDim++ )
+                {
+                    // get start and stop index per direction
+                    uint tStartCoeffIndexPerDir = tLeaderResStartIndex + iSpaceDim * tNumCoeffPerSpaceDir;
+                    uint tStopCoeffIndexPerDir  = tLeaderResStartIndex + ( iSpaceDim + 1 ) * tNumCoeffPerSpaceDir - 1;
+
+                    // compute the norm of the gradient of v in direction
+                    real tNormDir = std::max( norm( tVelocityFI->gradx( 1 )( { 0, tSpaceDim - 1 }, { iSpaceDim, iSpaceDim } ) ), tEpsilon );
+
+                    // compute the abs of the strong form of the residual
+                    real tRAbsDir = std::max( std::abs( tRM( iSpaceDim ) ), tEpsilon );
+
+                    // compute full crosswind stabilization parameter value
+                    real tCrosswindDir = std::max( tSPValue * tRAbsDir / tNormDir - tDynViscosityProp->val()( 0 ), 0.0 );
+
+                    // if crosswind spabilization parameter greater than zero
+                    if( tCrosswindDir > 0.0 )
+                    {
+                        // get sub-matrix of residual in direction
+                        auto tResDir = mSet->get_residual()( 0 )( { tStartCoeffIndexPerDir, tStopCoeffIndexPerDir } );
+
+                        // add contribution to residual per space direction
+                        tResDir += aWStar * ( //
+                                trans( tVelocityFI->dnNdxn( 1 ) ) * tCrosswindDir * //
+                                tcgradxv( { iSpaceDim * tSpaceDim, ( iSpaceDim + 1 ) * tSpaceDim - 1 }, { 0, 0 } ) );
+                    }
+                }
             }
 
             // check for nan, infinity
@@ -234,8 +319,16 @@ namespace moris
             const real tDensity = tDensityProp->val()( 0 );
 
             // get the incompressible flow stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter >& tSPSUPSPSPG =
+            const std::shared_ptr< Stabilization_Parameter >& tSPSUPG =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
+
+            // get the crosswind diffusion stabilization parameter
+            const std::shared_ptr< Stabilization_Parameter >& tSPCrosswind =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_CROSSWIND ) );
+
+            // get the isotropic diffusion stabilization parameter
+            const std::shared_ptr< Stabilization_Parameter >& tSPIsotropic =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_ISOTROPIC ) );
 
             // build multiplication matrix for sigma_ij epsilon_ij
             Matrix< DDRMat > tPre;
@@ -257,10 +350,13 @@ namespace moris
                 tPre( 5, 5 ) = 2.0;
             }
 
-            // compute the residual strong form
+            // compute the residual strong form for momentum
             Matrix< DDRMat > tRM;
+            this->compute_residual_strong_form_momentum( tRM );
+
+            // compute residual strong form for continuity
             real             tRC;
-            this->compute_residual_strong_form( tRM, tRC );
+            this->compute_residual_strong_form_continuity( tRC );
 
             // compute the Jacobian for dof dependencies
             uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
@@ -298,7 +394,7 @@ namespace moris
                     tJac += aWStar
                           * ( tDensity * tVelocityFI->N_trans()
                                           * ( tdnNdtn + trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->N() + tujvij )
-                                  + tDensity * tujvijrM * tSPSUPSPSPG->val()( 0 ) );
+                                  + tDensity * tujvijrM * tSPSUPG->val()( 0 ) );
 
                     // if permeability
                     if ( tInvPermeabProp != nullptr )
@@ -308,15 +404,18 @@ namespace moris
                     }
                 }
 
-                // compute the Jacobian strong form
+                // compute the Jacobian strong form for momentum
                 Matrix< DDRMat > tJM;
+                compute_jacobian_strong_form_momentum( tDofType, tJM );
+
+                // compute the Jacobian strong form for continuity
                 Matrix< DDRMat > tJC;
-                compute_jacobian_strong_form( tDofType, tJM, tJC );
+                compute_jacobian_strong_form_continuity( tDofType, tJC );
 
                 // compute the Jacobian contribution from strong form
-                tJac += aWStar
-                      * ( trans( tujvij ) * tDensity * tSPSUPSPSPG->val()( 0 ) * tJM
-                              + trans( tVelocityFI->div_operator() ) * tSPSUPSPSPG->val()( 1 ) * tJC );
+                tJac += aWStar * (                                             //
+                        trans( tujvij ) * tDensity * tSPSUPG->val()( 0 ) * tJM //
+                        + trans( tVelocityFI->div_operator() ) * tSPSUPG->val()( 1 ) * tJC );
 
                 // if property has dependency on the dof type
                 if ( tDensityProp->check_dof_dependency( tDofType ) )
@@ -325,7 +424,7 @@ namespace moris
                     tJac += aWStar
                           * ( tVelocityFI->N_trans() * trans( tVelocityFI->gradt( 1 ) )
                                   + tVelocityFI->N_trans() * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val()
-                                  + trans( tujvij ) * tSPSUPSPSPG->val()( 0 ) * tRM )
+                                  + trans( tujvij ) * tSPSUPG->val()( 0 ) * tRM )
                           * tDensityProp->dPropdDOF( tDofType );
                 }
 
@@ -333,18 +432,17 @@ namespace moris
                 if ( tIncFluidCM->check_dof_dependency( tDofType ) )
                 {
                     // compute the Jacobian
-                    tJac += aWStar * ( trans( tIncFluidCM->testStrain() ) * tPre * tIncFluidCM->dFluxdDOF( tDofType ) );
+                    tJac += aWStar * ( tIncFluidCM->testStrain_trans() * tPre * tIncFluidCM->dFluxdDOF( tDofType ) );
                     // FIXME add dteststrainddof
                 }
 
                 // if stabilization parameter has dependency on the dof type
-                if ( tSPSUPSPSPG->check_dof_dependency( tDofType ) )
+                if ( tSPSUPG->check_dof_dependency( tDofType ) )
                 {
                     // compute the Jacobian
-                    tJac += aWStar
-                          * ( trans( tujvij ) * tDensity * tRM * tSPSUPSPSPG->dSPdLeaderDOF( tDofType ).get_row( 0 )
-                                  + trans( tVelocityFI->div_operator() ) * tRC
-                                            * tSPSUPSPSPG->dSPdLeaderDOF( tDofType ).get_row( 1 ) );
+                    tJac += aWStar * (
+                            trans( tujvij ) * tDensity * tRM * tSPSUPG->dSPdLeaderDOF( tDofType ).get_row( 0 ) //
+                            +  trans( tVelocityFI->div_operator() ) * tRC * tSPSUPG->dSPdLeaderDOF( tDofType ).get_row( 1 ) );
                 }
 
                 // if permeability depends on DoF type
@@ -442,6 +540,168 @@ namespace moris
                                       * tGravityProp->dPropdDOF( tDofType ) );
                     }
                 }
+
+                // if crosswind or isotropic diffusion stabilization
+                if( tSPCrosswind != nullptr || tSPIsotropic != nullptr )
+                {
+                    // bool for crosswind or isotropic
+                    bool tIsCrosswind = tSPCrosswind != nullptr;
+
+                    // get space dimension
+                    uint tSpaceDim = tVelocityFI->get_number_of_fields();
+
+                    // get dynamic viscosity property from CM
+                    const std::shared_ptr< Property >& tDynViscosityProp = //
+                            tIncFluidCM->get_property( "Viscosity" );
+
+                    // get zero tolerance for isotropic or crosswind
+                    real tEpsilon;
+                    real tSPValue;
+                    if( tIsCrosswind )
+                    {
+                        // get zero tolerance for crosswind
+                        tEpsilon = tSPCrosswind->val()( 1 );
+
+                        // get the value of SP
+                        tSPValue = tSPCrosswind->val()( 0 );
+                    }
+                    else
+                    {
+                        // get zero tolerance for isotropic
+                        tEpsilon = tSPIsotropic->val()( 1 );
+
+                        // get the value of SP
+                        tSPValue = tSPIsotropic->val()( 0 );
+                    }
+
+                    // compute crosswind projection of velocity gradient
+                    Matrix< DDRMat > tcgradxv;
+                    compute_cgradxw( mResidualDofType( 0 ), mResidualDofType( 0 ), //
+                            mLeaderFIManager, tSpaceDim, tEpsilon, tIsCrosswind,   //
+                            tcgradxv );
+
+                    // if derivative dof is velocity dof
+                    Matrix< DDRMat > tdcgradvdv;
+                    if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 )  )
+                    {
+                        // compute derivative of crosswind projection of velocity gradient
+                        compute_dcgradxwdu( mResidualDofType( 0 ), mResidualDofType( 0 ),      //
+                                mLeaderFIManager, tDofType, tSpaceDim, tEpsilon, tIsCrosswind, //
+                                tdcgradvdv );
+                    }
+
+                    // compute strong residual based coefficient in total and per space direction
+                    Field_Interpolator* tDerivativeFI =
+                            mLeaderFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
+
+                    uint tNumCoeff = tDerivativeFI->get_number_of_space_time_coefficients();
+                    uint tNumCoeffPerSpaceDir = tVelocityFI->get_number_of_space_time_coefficients() / tSpaceDim;
+
+                    // loop over space direction
+                    for( uint iSpaceDim = 0; iSpaceDim < tSpaceDim; iSpaceDim++ )
+                    {
+                        // get start and stop index per direction for local coefficients
+                        uint tStartIndexLocalCoeff = iSpaceDim * tNumCoeffPerSpaceDir;
+                        uint tStopIndexLocalCoeff  = ( iSpaceDim + 1 ) * tNumCoeffPerSpaceDir - 1;
+
+                        // get start and stop index per direction for global coefficients
+                        uint tStartIndexGlobalCoeff = tLeaderResStartIndex + tStartIndexLocalCoeff;
+                        uint tStopIndexGlobalCoeff  = tLeaderResStartIndex + tStopIndexLocalCoeff;
+
+                        // get start and stop index for c gradx(v)
+                        uint tStartIndexCgradxv = iSpaceDim * tSpaceDim;
+                        uint tStopIndexCgradxv = ( iSpaceDim + 1 ) * tSpaceDim - 1;
+
+                        // compute the norm of the gradient of v in direction
+                        real tNormDir = std::max( norm( tVelocityFI->gradx( 1 )( { 0, tSpaceDim - 1 }, { iSpaceDim, iSpaceDim } ) ), tEpsilon );
+
+                        // compute the abs of the strong form of the residual
+                        real tRAbsDir = std::max( std::abs( tRM( iSpaceDim ) ), tEpsilon );
+
+                        // compute full crosswind stabilization parameter value
+                        real tCrosswindDir = std::max( tSPValue * tRAbsDir / tNormDir - tDynViscosityProp->val()( 0 ), 0.0 );
+
+                        // if full crosswind stabilization parameter value greater than zero
+                        if( tCrosswindDir > 0.0 )
+                        {
+                            // extract sub-matrix from jacobian
+                            auto tJacDir = mSet->get_jacobian()(
+                                    { tStartIndexGlobalCoeff, tStopIndexGlobalCoeff },//
+                                    { tLeaderDepStartIndex, tLeaderDepStopIndex } );
+
+                            // add contribution to jacobian
+                            tJacDir += aWStar * ( trans( tVelocityFI->dnNdxn( 1 ) ) * //
+                                    tcgradxv( { tStartIndexCgradxv, tStopIndexCgradxv }, { 0, 0 } )
+                                    * tSPValue * //
+                                    tRM( iSpaceDim ) * tJM( { iSpaceDim, iSpaceDim }, { 0, tNumCoeff - 1 } ) / //
+                                    ( tNormDir * tRAbsDir ) );
+
+                            // if derivative dof is velocity dof
+                            if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) )
+                            {
+                                // add contribution from c gradv to jacobian per direction
+                                tJacDir += aWStar * ( trans( tVelocityFI->dnNdxn( 1 ) ) * tCrosswindDir * //
+                                        tdcgradvdv( { tStartIndexCgradxv, tStopIndexCgradxv }, { 0, tNumCoeff-1 } ) );
+
+                                // if norm of velocity gradient larger than zero
+                                if( tNormDir > tEpsilon )
+                                {
+                                    // get gradient of v in direction
+                                    const Matrix< DDRMat > tGradDir = //
+                                            tVelocityFI->gradx( 1 )( { 0, tSpaceDim - 1 }, { iSpaceDim, iSpaceDim } );
+
+                                    // compute deno for the derivative of the norm of the gradient
+                                    const real tNormDirDeno = std::max( std::pow( tNormDir, 3.0 ), tEpsilon );
+                                    // FIXME protect against too small values in deno?!?
+
+                                    // compute the derivative of the norm of the gradient
+                                    Matrix< DDRMat > tdNormGradDirdu( 1, tNumCoeff, 0.0 );
+                                    tdNormGradDirdu( { 0, 0 }, { tStartIndexLocalCoeff, tStopIndexLocalCoeff } ) = //
+                                            - trans( tGradDir ) * tVelocityFI->dnNdxn( 1 ) / tNormDirDeno;
+
+                                    // add contribution to jacobian per direction
+                                    tJacDir += aWStar * ( trans( tVelocityFI->dnNdxn( 1 ) ) *
+                                            ( tcgradxv( { tStartIndexCgradxv, tStopIndexCgradxv }, { 0, 0 } ) * //
+                                                    tSPValue * tRAbsDir * tdNormGradDirdu ) );
+                                }
+                            }
+
+                            // if dynamic viscosity depends on dof
+                            if ( tDynViscosityProp->check_dof_dependency( tDofType ) )
+                            {
+                                // get the derivative of the viscosity property
+                                const Matrix< DDRMat > & tdDynViscosityPropdu = //
+                                        tDynViscosityProp->dPropdDOF( tDofType );
+
+                                // compute derivative of crosswind stabilization parameter
+                                tJacDir -= aWStar * ( //
+                                        trans( tVelocityFI->dnNdxn( 1 ) ) * //
+                                        tcgradxv( { tStartIndexCgradxv, tStopIndexCgradxv }, { 0, 0 } ) * //
+                                        tdDynViscosityPropdu( { 0, 0 }, { 0, tNumCoeff - 1 } ) );
+                            }
+
+                            // if crosswind diffusion and SP depends on dof
+                            if ( tIsCrosswind && tSPCrosswind->check_dof_dependency( tDofType ) )
+                            {
+                                // compute derivative of crosswind stabilization parameter
+                                tJacDir += aWStar * ( //
+                                        trans( tVelocityFI->dnNdxn( 1 ) ) * //
+                                        tcgradxv( { tStartIndexCgradxv, tStopIndexCgradxv }, { 0, 0 } )
+                                        * tRAbsDir * tSPCrosswind->dSPdLeaderDOF( tDofType ) / tNormDir );
+                            }
+
+                            // if isotropic diffusion and SP depends on dof
+                            if ( !tIsCrosswind && tSPIsotropic->check_dof_dependency( tDofType ) )
+                            {
+                                // compute derivative of crosswind stabilization parameter
+                                tJacDir += aWStar * ( //
+                                        trans( tVelocityFI->dnNdxn( 1 ) ) * //
+                                        tcgradxv( { tStartIndexCgradxv, tStopIndexCgradxv }, { 0, 0 } )
+                                        * tRAbsDir * tSPIsotropic->dSPdLeaderDOF( tDofType ) / tNormDir );
+                            }
+                        }
+                    }
+                }
             }
 
             // check for nan, infinity
@@ -479,7 +739,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        IWG_Incompressible_NS_Velocity_Bulk::compute_residual_strong_form( Matrix< DDRMat >& aRM, real& aRC )
+        IWG_Incompressible_NS_Velocity_Bulk::compute_residual_strong_form_momentum( Matrix< DDRMat >& aRM )
         {
             // get the velocity and pressure FIs
             Field_Interpolator* tVelocityFI =
@@ -498,9 +758,6 @@ namespace moris
             const std::shared_ptr< Property >& tInvPermeabProp =
                     mLeaderProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
 
-            const std::shared_ptr< Property >& tMassSourceProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
-
             // get the body load property
             const std::shared_ptr< Property >& tLoadProp =
                     mLeaderProp( static_cast< uint >( IWG_Property_Type::BODY_LOAD ) );
@@ -517,24 +774,14 @@ namespace moris
 
             // compute the residual strong form of momentum equation
             aRM = tDensity * trans( tVelocityFI->gradt( 1 ) )
-                + tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val()
-                - tIncFluidCM->divflux();
-
-            // compute the residual strong form of continuity equation
-            aRC = tVelocityFI->div();
+            + tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val()
+            - tIncFluidCM->divflux();
 
             // if body load
             if ( tLoadProp != nullptr )
             {
                 // add contribution of body load term to momentum residual
                 aRM -= tLoadProp->val();
-            }
-
-            // if mass source
-            if ( tMassSourceProp != nullptr )
-            {
-                // add mass source to continuity residual
-                aRC -= tMassSourceProp->val()( 0 ) / tDensity;
             }
 
             // if permeability
@@ -560,7 +807,7 @@ namespace moris
 
                     // add contribution to residual
                     aRM -= tDensity * tGravityProp->val() * tThermalExpProp->val()
-                         * ( tTempFI->val() - tRefTempProp->val() );
+                                         * ( tTempFI->val() - tRefTempProp->val() );
                 }
             }
         }
@@ -568,10 +815,43 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void
-        IWG_Incompressible_NS_Velocity_Bulk::compute_jacobian_strong_form(
+        IWG_Incompressible_NS_Velocity_Bulk::compute_residual_strong_form_continuity( real & aRC )
+        {
+            // get the velocity and pressure FIs
+            Field_Interpolator* tVelocityFI =
+                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+
+            // get the mass source property
+            const std::shared_ptr< Property >& tMassSourceProp =
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
+
+            // get the incompressible fluid constitutive model
+            const std::shared_ptr< Constitutive_Model >& tIncFluidCM =
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+
+            // get the density property from CM
+            const std::shared_ptr< Property >& tDensityProp = tIncFluidCM->get_property( "Density" );
+
+            // get the density value
+            real tDensity = tDensityProp->val()( 0 );
+
+            // compute the residual strong form of continuity equation
+            aRC = tVelocityFI->div();
+
+            // if mass source
+            if ( tMassSourceProp != nullptr )
+            {
+                // add mass source to continuity residual
+                aRC -= tMassSourceProp->val()( 0 ) / tDensity;
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        IWG_Incompressible_NS_Velocity_Bulk::compute_jacobian_strong_form_momentum(
                 const moris::Cell< MSI::Dof_Type >& aDofTypes,
-                Matrix< DDRMat >&                   aJM,
-                Matrix< DDRMat >&                   aJC )
+                Matrix< DDRMat >&                   aJM )
         {
             // get the res dof and the derivative dof FIs
             Field_Interpolator* tVelocityFI =
@@ -580,8 +860,6 @@ namespace moris
 
             // init aJM and aJC
             aJM.set_size( tVelocityFI->get_number_of_fields(), tDerFI->get_number_of_space_time_coefficients() );
-
-            aJC.set_size( 1, tDerFI->get_number_of_space_time_coefficients() );
 
             // get the properties
             const std::shared_ptr< Property >& tGravityProp =
@@ -595,9 +873,6 @@ namespace moris
 
             const std::shared_ptr< Property >& tInvPermeabProp =
                     mLeaderProp( static_cast< uint >( IWG_Property_Type::INV_PERMEABILITY ) );
-
-            const std::shared_ptr< Property >& tMassSourceProp =
-                    mLeaderProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
 
             // get the body load property
             const std::shared_ptr< Property >& tLoadProp =
@@ -626,15 +901,11 @@ namespace moris
 
                 // compute the Jacobian strong form of momentum equation
                 aJM = tDensity * tdnNdtn + tDensity * trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->N()
-                    + tDensity * tujvij;
-
-                // compute the Jacobian strong form of continuity equation
-                aJC = tVelocityFI->div_operator();
+                                    + tDensity * tujvij;
             }
             else
             {
                 aJM.fill( 0.0 );
-                aJC.fill( 0.0 );
             }
 
             // if density depends on dof type
@@ -642,7 +913,7 @@ namespace moris
             {
                 // compute contribution to Jacobian strong form
                 aJM += trans( tVelocityFI->gradt( 1 ) ) * tDensityProp->dPropdDOF( aDofTypes )
-                     + trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() * tDensityProp->dPropdDOF( aDofTypes );
+                                     + trans( tVelocityFI->gradx( 1 ) ) * tVelocityFI->val() * tDensityProp->dPropdDOF( aDofTypes );
             }
 
             // if permeability
@@ -671,24 +942,6 @@ namespace moris
                 {
                     // add contribution to momentum Jacobian
                     aJM -= tLoadProp->dPropdDOF( aDofTypes );
-                }
-            }
-
-            // if mass source
-            if ( tMassSourceProp != nullptr )
-            {
-                // if DoF dependency of source term
-                if ( tMassSourceProp->check_dof_dependency( aDofTypes ) )
-                {
-                    // add contribution to continuity Jacobian
-                    aJC -= tMassSourceProp->dPropdDOF( aDofTypes ) / tDensity;
-                }
-
-                // if density depends on dof type
-                if ( tDensityProp->check_dof_dependency( aDofTypes ) )
-                {
-                    // add contribution to Jacobian
-                    aJC += tMassSourceProp->val() * tDensityProp->dPropdDOF( aDofTypes ) / std::pow( tDensity, 2 );
                 }
             }
 
@@ -734,14 +987,14 @@ namespace moris
                     {
                         // add contribution to Jacobian
                         aJM -= tDensity * tGravityProp->val() * ( tTempFI->val() - tRefTempProp->val() )
-                             * tThermalExpProp->dPropdDOF( aDofTypes );
+                                             * tThermalExpProp->dPropdDOF( aDofTypes );
                     }
 
                     if ( tRefTempProp->check_dof_dependency( aDofTypes ) )
                     {
                         // add contribution to Jacobian
                         aJM += tDensity * tGravityProp->val() * tThermalExpProp->val()
-                             * tRefTempProp->dPropdDOF( aDofTypes );
+                                             * tRefTempProp->dPropdDOF( aDofTypes );
                     }
 
                     // if gravity property has dependency on the dof type
@@ -749,8 +1002,8 @@ namespace moris
                     {
                         // compute the Jacobian
                         aJM -= tDensity * tThermalExpProp->val()( 0 )
-                             * ( tTempFI->val()( 0 ) - tRefTempProp->val()( 0 ) )
-                             * tGravityProp->dPropdDOF( aDofTypes );
+                                             * ( tTempFI->val()( 0 ) - tRefTempProp->val()( 0 ) )
+                                             * tGravityProp->dPropdDOF( aDofTypes );
                     }
 
                     // if density depends on dof type
@@ -758,8 +1011,66 @@ namespace moris
                     {
                         // add density contribution to residual strong form
                         aJM -= tGravityProp->val() * tThermalExpProp->val() * ( tTempFI->val() - tRefTempProp->val() )
-                             * tDensityProp->dPropdDOF( aDofTypes );
+                                             * tDensityProp->dPropdDOF( aDofTypes );
                     }
+                }
+            }
+        }
+
+        //------------------------------------------------------------------------------
+
+        void
+        IWG_Incompressible_NS_Velocity_Bulk::compute_jacobian_strong_form_continuity(
+                const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                Matrix< DDRMat >&                   aJC )
+        {
+            // get the res dof and the derivative dof FIs
+            Field_Interpolator* tVelocityFI =
+                    mLeaderFIManager->get_field_interpolators_for_type( mResidualDofType( 0 )( 0 ) );
+            Field_Interpolator* tDerFI = mLeaderFIManager->get_field_interpolators_for_type( aDofTypes( 0 ) );
+
+            // init aJC
+            aJC.set_size( 1, tDerFI->get_number_of_space_time_coefficients() );
+
+            const std::shared_ptr< Property >& tMassSourceProp =
+                    mLeaderProp( static_cast< uint >( IWG_Property_Type::MASS_SOURCE ) );
+
+            // get the incompressible fluid constitutive model
+            const std::shared_ptr< Constitutive_Model >& tIncFluidCM =
+                    mLeaderCM( static_cast< uint >( IWG_Constitutive_Type::INCOMPRESSIBLE_FLUID ) );
+
+            // get the density property from CM
+            const std::shared_ptr< Property >& tDensityProp = tIncFluidCM->get_property( "Density" );
+
+            // get the density value
+            real tDensity = tDensityProp->val()( 0 );
+
+            // if derivative wrt to residual dof type (here velocity)
+            if ( aDofTypes( 0 ) == mResidualDofType( 0 )( 0 ) )
+            {
+                // compute the Jacobian strong form of continuity equation
+                aJC = tVelocityFI->div_operator();
+            }
+            else
+            {
+                aJC.fill( 0.0 );
+            }
+
+            // if mass source
+            if ( tMassSourceProp != nullptr )
+            {
+                // if DoF dependency of source term
+                if ( tMassSourceProp->check_dof_dependency( aDofTypes ) )
+                {
+                    // add contribution to continuity Jacobian
+                    aJC -= tMassSourceProp->dPropdDOF( aDofTypes ) / tDensity;
+                }
+
+                // if density depends on dof type
+                if ( tDensityProp->check_dof_dependency( aDofTypes ) )
+                {
+                    // add contribution to Jacobian
+                    aJC += tMassSourceProp->val() * tDensityProp->dPropdDOF( aDofTypes ) / std::pow( tDensity, 2 );
                 }
             }
         }

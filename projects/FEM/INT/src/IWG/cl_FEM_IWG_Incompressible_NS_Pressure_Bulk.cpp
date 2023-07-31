@@ -79,24 +79,18 @@ namespace moris
                     mLeaderProp( static_cast< uint >( IWG_Property_Type::PRESSURE_SPRING ) );
 
             // get the incompressible flow stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tIncFlowSP =
+            const std::shared_ptr< Stabilization_Parameter > & tSPPSPG =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
 
             // get the density
             real tDensity = tIncFluidCM->get_property( "Density" )->val()(0);
-
-            // compute residual strong form
-            Matrix< DDRMat > tRM;
-            this->compute_residual_strong_form( tRM );
 
             // get residual vector
             auto tRes = mSet->get_residual()( 0 )(
                     { tLeaderResStartIndex, tLeaderResStopIndex } );
 
             // compute the residual weak form
-            tRes += aWStar * (
-                    tPressureFI->N_trans() * tVelocityFI->div() +
-                    trans( tPressureFI->dnNdxn( 1 ) ) * tIncFlowSP->val()( 0 ) * tRM );
+            tRes += aWStar * ( tPressureFI->N_trans() * tVelocityFI->div() );
 
             // if source term is defined
             if ( tMassSourceProp != nullptr )
@@ -111,6 +105,17 @@ namespace moris
                 // add contribution of source term
                 tRes += aWStar * (
                         tPressureSpringProp->val()( 0 ) * tPressureFI->N_trans() * tPressureFI->val() );
+            }
+
+            // if PSPG stabilization
+            if( tSPPSPG != nullptr )
+            {
+                // compute residual strong form for momentum
+                Matrix< DDRMat > tRM;
+                this->compute_residual_strong_form_momentum( tRM );
+
+                // compute the residual weak form
+                tRes += aWStar * ( trans( tPressureFI->dnNdxn( 1 ) ) * tSPPSPG->val()( 0 ) * tRM );
             }
 
             // check for nan, infinity
@@ -152,15 +157,19 @@ namespace moris
             const std::shared_ptr< Property > & tDensityProp = tIncFluidCM->get_property( "Density" );
 
             // get the incompressible flow stabilization parameter
-            const std::shared_ptr< Stabilization_Parameter > & tIncFlowSP =
+            const std::shared_ptr< Stabilization_Parameter > & tSPPSPG =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::INCOMPRESSIBLE_FLOW ) );
 
             // get the density
             real tDensity = tDensityProp->val()( 0 );
 
-            // compute the residual strong form
+            // if PSPG stabilization
             Matrix< DDRMat > tRM;
-            compute_residual_strong_form( tRM );
+            if( tSPPSPG != nullptr )
+            {
+                // compute residual strong form for momentum
+                this->compute_residual_strong_form_momentum( tRM );
+            }
 
             // compute the Jacobian for dof dependencies
             uint tNumDofDependencies = mRequestedLeaderGlobalDofTypes.size();
@@ -186,17 +195,8 @@ namespace moris
                     Field_Interpolator * tVelocityFI = mLeaderFIManager->get_field_interpolators_for_type( tDofType( 0 ) );
 
                     // compute the Jacobian
-                    tJac += aWStar * (
-                            tPressureFI->N_trans() * tVelocityFI->div_operator() );
+                    tJac += aWStar * ( tPressureFI->N_trans() * tVelocityFI->div_operator() );
                 }
-
-                // compute the Jacobian strong form
-                Matrix< DDRMat > tJM;
-                compute_jacobian_strong_form( tDofType, tJM );
-
-                // compute the Jacobian contribution from strong form
-                tJac += aWStar * (
-                        trans( tPressureFI->dnNdxn( 1 ) ) * tIncFlowSP->val()( 0 ) * tJM );
 
                 // if source term has dependency on the dof type
                 if ( tMassSourceProp != nullptr )
@@ -238,12 +238,23 @@ namespace moris
                     }
                 }
 
-                // if stabilization parameter has dependency on the dof type
-                if ( tIncFlowSP->check_dof_dependency( tDofType ) )
+                // if PSPG stabilization
+                if( tSPPSPG != nullptr )
                 {
-                    // compute the Jacobian
-                    tJac += aWStar * (
-                            trans( tPressureFI->dnNdxn( 1 ) ) * tRM * tIncFlowSP->dSPdLeaderDOF( tDofType ).get_row( 0 ) );
+                    // compute the Jacobian strong form for momentum
+                    Matrix< DDRMat > tJM;
+                    compute_jacobian_strong_form_momentum( tDofType, tJM );
+
+                    // compute the Jacobian contribution from strong form
+                    tJac += aWStar * ( trans( tPressureFI->dnNdxn( 1 ) ) * tSPPSPG->val()( 0 ) * tJM );
+
+                    // if stabilization parameter has dependency on the dof type
+                    if ( tSPPSPG->check_dof_dependency( tDofType ) )
+                    {
+                        // compute the Jacobian
+                        tJac += aWStar * (
+                                trans( tPressureFI->dnNdxn( 1 ) ) * tRM * tSPPSPG->dSPdLeaderDOF( tDofType ).get_row( 0 ) );
+                    }
                 }
             }
 
@@ -278,7 +289,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Incompressible_NS_Pressure_Bulk::compute_residual_strong_form(
+        void IWG_Incompressible_NS_Pressure_Bulk::compute_residual_strong_form_momentum(
                 Matrix< DDRMat > & aRM )
         {
             // get the velocity and pressure FIs
@@ -354,7 +365,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IWG_Incompressible_NS_Pressure_Bulk::compute_jacobian_strong_form(
+        void IWG_Incompressible_NS_Pressure_Bulk::compute_jacobian_strong_form_momentum(
                 const moris::Cell< MSI::Dof_Type > & aDofTypes,
                 Matrix< DDRMat >                   & aJM )
         {

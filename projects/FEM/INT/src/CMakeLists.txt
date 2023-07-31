@@ -108,6 +108,7 @@ set(HEADERS
     SP/cl_FEM_SP_Convective_Ghost.hpp  
     SP/cl_FEM_SP_SUPG_Advection.hpp
     SP/cl_FEM_SP_YZBeta_Advection.hpp
+    SP/cl_FEM_SP_Crosswind.hpp
     SP/cl_FEM_SP_GGLS_Diffusion.hpp
     SP/cl_FEM_SP_Velocity_Dirichlet_Nitsche.hpp
     SP/cl_FEM_SP_Velocity_SlipBoundary_Nitsche.hpp
@@ -177,6 +178,7 @@ set(HEADERS
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.hpp
     IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Interface.hpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp
+    IWG/fn_FEM_IWG_Crosswind_Stabilization_Tools.hpp
     
     IWG/cl_FEM_IWG_Compressible_NS_Density_Bulk.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Bulk.hpp
@@ -232,6 +234,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_Effective_Conductivity.hpp
     IQI/cl_FEM_IQI_Spalart_Allmaras_Coefficient.hpp
     IQI/cl_FEM_IQI_Power_Dissipation.hpp
+    IQI/cl_FEM_IQI_Power_Dissipation_Bulk.hpp
     IQI/cl_FEM_IQI_Total_Pressure.hpp
     IQI/cl_FEM_IQI_Mass_Flow.hpp
     IQI/cl_FEM_IQI_Thermal_Energy_Convective_Flux.hpp
@@ -242,6 +245,10 @@ set(HEADERS
     IQI/cl_FEM_IQI_Advection_Strong_Residual.hpp
     IQI/cl_FEM_IQI_Strong_Residual_SA.hpp
     IQI/cl_FEM_IQI_Strong_Residual_Incompressible_NS.hpp
+    IQI/cl_FEM_IQI_SP_Crosswind_Incompressible_NS.hpp
+    IQI/cl_FEM_IQI_Res_Crosswind_Incompressible_NS.hpp
+    IQI/cl_FEM_IQI_Res_SUPG_Incompressible_NS.hpp
+    IQI/cl_FEM_IQI_SP_Crosswind_SA.hpp
     IQI/cl_FEM_IQI_Zienkiewicz_Zhu.hpp
     IQI/cl_FEM_IQI_Jump_Dof.hpp
     IQI/cl_FEM_IQI_Jump_Traction.hpp
@@ -322,6 +329,7 @@ set(LIB_SOURCES
     SP/cl_FEM_SP_Time_Velocity_Ghost.cpp
     SP/cl_FEM_SP_SUPG_Advection.cpp
     SP/cl_FEM_SP_YZBeta_Advection.cpp
+    SP/cl_FEM_SP_Crosswind.cpp
     SP/cl_FEM_SP_GGLS_Diffusion.cpp
     SP/cl_FEM_SP_Velocity_Dirichlet_Nitsche.cpp
     SP/cl_FEM_SP_Velocity_SlipBoundary_Nitsche.cpp
@@ -393,6 +401,7 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.cpp
     IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Interface.cpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Interface.cpp
+    IWG/fn_FEM_IWG_Crosswind_Stabilization_Tools.cpp
     
     IWG/cl_FEM_IWG_Compressible_NS_Density_Bulk.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Bulk.cpp
@@ -455,6 +464,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Effective_Conductivity.cpp
     IQI/cl_FEM_IQI_Spalart_Allmaras_Coefficient.cpp
     IQI/cl_FEM_IQI_Power_Dissipation.cpp
+    IQI/cl_FEM_IQI_Power_Dissipation_Bulk.cpp
     IQI/cl_FEM_IQI_Total_Pressure.cpp
     IQI/cl_FEM_IQI_Mass_Flow.cpp
     IQI/cl_FEM_IQI_Thermal_Energy_Convective_Flux.cpp
@@ -465,6 +475,10 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Advection_Strong_Residual.cpp
     IQI/cl_FEM_IQI_Strong_Residual_SA.cpp
     IQI/cl_FEM_IQI_Strong_Residual_Incompressible_NS.cpp
+    IQI/cl_FEM_IQI_SP_Crosswind_Incompressible_NS.cpp
+    IQI/cl_FEM_IQI_Res_Crosswind_Incompressible_NS.cpp
+    IQI/cl_FEM_IQI_Res_SUPG_Incompressible_NS.cpp
+    IQI/cl_FEM_IQI_SP_Crosswind_SA.cpp
     IQI/cl_FEM_IQI_Zienkiewicz_Zhu.cpp
     IQI/cl_FEM_IQI_Jump_Dof.cpp
     IQI/cl_FEM_IQI_Jump_Traction.cpp

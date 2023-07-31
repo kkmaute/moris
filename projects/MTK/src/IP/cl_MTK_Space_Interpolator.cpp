@@ -127,6 +127,8 @@ namespace moris
             mInvSpaceJacEval    = true;
             mSpaceJacDerivEval  = true;
             mSpaceDetJDerivEval = true;
+
+            mMetricTensorEval = true;
         }
 
         //------------------------------------------------------------------------------
@@ -141,6 +143,8 @@ namespace moris
             mInvSpaceJacEval    = true;
             mSpaceJacDerivEval  = true;
             mSpaceDetJDerivEval = true;
+
+            mMetricTensorEval = true;
         }
 
         //------------------------------------------------------------------------------
@@ -1949,9 +1953,84 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        const Matrix< DDRMat >&
+        Space_Interpolator::metric_tensor()
+        {
+            // if metric tensor needs to be evaluated
+            if ( mMetricTensorEval )
+            {
+                // get the space jacobian from IP geometry interpolator
+                const Matrix< DDRMat >& tInvSpaceJacobian = this->inverse_space_jacobian();
+
+                // evaluate metric tensor
+                ( this->*mMetricTensorFunc )( tInvSpaceJacobian );
+
+                // set bool for evaluation
+                mMetricTensorEval = false;
+            }
+
+            // return member value
+            return mMetricTensor;
+        }
+
+        void
+        Space_Interpolator::eval_metric_tensor_1d(
+                const Matrix< DDRMat >& aInvSpaceJacobian )
+        {
+            // fill aGij = sum_d dxi_d/dx_i dxi_d/dx_j
+            mMetricTensor( 0, 0 ) = aInvSpaceJacobian( 0, 0 );
+        }
+
+        void
+        Space_Interpolator::eval_metric_tensor_2d(
+                const Matrix< DDRMat >& aInvSpaceJacobian )
+        {
+            // fill aGij = sum_d dxi_d/dx_i dxi_d/dx_j
+            mMetricTensor( 0, 0 ) = std::pow( aInvSpaceJacobian( 0, 0 ), 2.0 ) + //
+                    std::pow( aInvSpaceJacobian( 0, 1 ), 2.0 );
+            mMetricTensor( 0, 1 ) = aInvSpaceJacobian( 0, 0 ) * aInvSpaceJacobian( 1, 0 ) + //
+                    aInvSpaceJacobian( 0, 1 ) * aInvSpaceJacobian( 1, 1 );
+            mMetricTensor( 1, 0 ) = mMetricTensor( 0, 1 );
+            mMetricTensor( 1, 1 ) = std::pow( aInvSpaceJacobian( 1, 0 ), 2.0 ) + //
+                    std::pow( aInvSpaceJacobian( 1, 1 ), 2.0 );
+        }
+
+        void
+        Space_Interpolator::eval_metric_tensor_3d(
+                const Matrix< DDRMat >& aInvSpaceJacobian )
+        {
+            // fill aGij = sum_d dxi_d/dx_i dxi_d/dx_j
+            mMetricTensor( 0, 0 ) = std::pow( aInvSpaceJacobian( 0, 0 ), 2.0 ) + //
+                    std::pow( aInvSpaceJacobian( 0, 1 ), 2.0 ) +                 //
+                    std::pow( aInvSpaceJacobian( 0, 2 ), 2.0 );
+            mMetricTensor( 0, 1 ) = aInvSpaceJacobian( 0, 0 ) * aInvSpaceJacobian( 1, 0 ) + //
+                    aInvSpaceJacobian( 0, 1 ) * aInvSpaceJacobian( 1, 1 ) +                 //
+                    aInvSpaceJacobian( 0, 2 ) * aInvSpaceJacobian( 1, 2 );
+            mMetricTensor( 0, 2 ) = aInvSpaceJacobian( 0, 0 ) * aInvSpaceJacobian( 2, 0 ) + //
+                    aInvSpaceJacobian( 0, 1 ) * aInvSpaceJacobian( 2, 1 ) +                 //
+                    aInvSpaceJacobian( 0, 2 ) * aInvSpaceJacobian( 2, 2 );
+            mMetricTensor( 1, 0 ) = mMetricTensor( 0, 1 );
+            mMetricTensor( 1, 1 ) = std::pow( aInvSpaceJacobian( 1, 0 ), 2.0 ) + //
+                    std::pow( aInvSpaceJacobian( 1, 1 ), 2.0 ) +                 //
+                    std::pow( aInvSpaceJacobian( 1, 2 ), 2.0 );
+            mMetricTensor( 1, 2 ) = aInvSpaceJacobian( 1, 0 ) * aInvSpaceJacobian( 2, 0 ) + //
+                    aInvSpaceJacobian( 1, 1 ) * aInvSpaceJacobian( 2, 1 ) +                 //
+                    aInvSpaceJacobian( 1, 2 ) * aInvSpaceJacobian( 2, 2 );
+            mMetricTensor( 2, 0 ) = mMetricTensor( 0, 2 );
+            mMetricTensor( 2, 1 ) = mMetricTensor( 1, 2 );
+            mMetricTensor( 2, 2 ) = std::pow( aInvSpaceJacobian( 2, 0 ), 2.0 ) + //
+                    std::pow( aInvSpaceJacobian( 2, 1 ), 2.0 ) +                 //
+                    std::pow( aInvSpaceJacobian( 2, 2 ), 2.0 );
+        }
+
+        //------------------------------------------------------------------------------
+
         void
         Space_Interpolator::set_function_pointers()
         {
+        	// set size for metric tensor
+            mMetricTensor.set_size( mNumSpaceDim, mNumSpaceDim );
+
             switch ( mInterpolationShape )
             {
                 case CellShape::GENERAL:
@@ -1967,6 +2046,7 @@ namespace moris
                             mInvSpaceJacFunc               = &Space_Interpolator::eval_inverse_space_jacobian_1d;
                             mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_1d;
                             mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_1d;
+                            mMetricTensorFunc              = &Space_Interpolator::eval_metric_tensor_1d;
                             break;
                         }
                         case 2:
@@ -1993,6 +2073,7 @@ namespace moris
                             }
                             mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_2d;
                             mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_2d;
+                            mMetricTensorFunc              = &Space_Interpolator::eval_metric_tensor_2d;
                             break;
                         }
 
@@ -2018,6 +2099,7 @@ namespace moris
                             }
                             mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_3d;
                             mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_3d;
+                            mMetricTensorFunc              = &Space_Interpolator::eval_metric_tensor_3d;
                             break;
                         }
                         default:
@@ -2386,6 +2468,7 @@ namespace moris
                             mInvSpaceJacFunc               = &Space_Interpolator::eval_inverse_space_jacobian_1d;
                             mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_1d;
                             mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_1d;
+                            mMetricTensorFunc              = &Space_Interpolator::eval_metric_tensor_1d;
                             break;
                         }
                         case 2:
@@ -2412,6 +2495,7 @@ namespace moris
                             }
                             mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_2d;
                             mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_2d;
+                            mMetricTensorFunc              = &Space_Interpolator::eval_metric_tensor_2d;
                             break;
                         }
 

@@ -84,6 +84,8 @@ namespace moris
             bool mSpaceJacDerivEval  = true;
             bool mSpaceDetJDerivEval = true;
 
+            bool mMetricTensorEval = true;
+
             // storage
             Matrix< DDRMat > mValx;
 
@@ -97,6 +99,8 @@ namespace moris
             real             mSpaceDetJ;
             Matrix< DDRMat > mSpaceJacDeriv;
             real             mSpaceDetJDeriv;
+
+            Matrix< DDRMat > mMetricTensor;
 
             Matrix< DDRMat > mMappedPoint;
 
@@ -136,6 +140,10 @@ namespace moris
                     Matrix< DDRMat >&       aJ3ct,
                     const Matrix< DDRMat >& ad3NdXi3,
                     const Matrix< DDRMat >& aXHat );
+
+            // pointer to function for metric tensor
+            void ( Space_Interpolator::*mMetricTensorFunc )(
+                    const Matrix< DDRMat >& aInvSpaceJacobian ) = nullptr;
 
             //------------------------------------------------------------------------------
 
@@ -636,6 +644,27 @@ namespace moris
                     Matrix< DDRMat >&       aLt,
                     const Matrix< DDRMat >& ad2NdXi2,
                     const Matrix< DDRMat >& aXHat );
+
+            //------------------------------------------------------------------------------
+            /**
+             * get the metric tensor at a given evaluation point in space
+             * where Gij = sum_d dxi_d/dx_i dxi_d/dx_j, d = 1, ..., nSpaceDim
+             * @param[ out ] mMetricTensor   metric tensor
+             */
+            const Matrix< DDRMat >& metric_tensor();
+
+            /**
+             * get the metric tensor at a given evaluation point in space
+             * @param[ in ] aInvSpaceJacobian  inverse of space jacobian
+             */
+            void eval_metric_tensor_1d(
+                    const Matrix< DDRMat >& aInvSpaceJacobian );
+
+            void eval_metric_tensor_2d(
+                    const Matrix< DDRMat >& aInvSpaceJacobian );
+
+            void eval_metric_tensor_3d(
+                    const Matrix< DDRMat >& aInvSpaceJacobian );
 
             //------------------------------------------------------------------------------
 

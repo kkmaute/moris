@@ -15,6 +15,7 @@
 #include "fn_trans.hpp"
 #include "fn_dot.hpp"
 #include "fn_eye.hpp"
+#include "fn_FEM_IWG_Crosswind_Stabilization_Tools.hpp"
 
 namespace moris
 {
@@ -42,6 +43,8 @@ namespace moris
             // populate the stabilization map
             mStabilizationMap[ "SUPG" ]   = static_cast< uint >( IWG_Stabilization_Type::SUPG );
             mStabilizationMap[ "YZBeta" ] = static_cast< uint >( IWG_Stabilization_Type::YZBETA );
+            mStabilizationMap[ "DiffusionCrosswind" ] = static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_CROSSWIND );
+            mStabilizationMap[ "DiffusionIsotropic" ] = static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_ISOTROPIC );
         }
 
         //------------------------------------------------------------------------------
@@ -79,32 +82,102 @@ namespace moris
             const std::shared_ptr< Stabilization_Parameter > & tSPYZBeta =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::YZBETA ) );
 
+            // get the crosswind diffusion stabilization parameter
+            const std::shared_ptr< Stabilization_Parameter > & tSPCrosswind =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_CROSSWIND ) );
+
+            // get the isotropic diffusion stabilization parameter
+            const std::shared_ptr< Stabilization_Parameter > & tSPIsotropic =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_ISOTROPIC ) );
+
             // compute the residual strong form if either SUPG or YZBeta is used
             Matrix< DDRMat > tRT;
-            if ( tSPSUPG || tSPYZBeta )
+            if ( tSPSUPG || tSPYZBeta || tSPCrosswind || tSPIsotropic )
             {
                 this->compute_residual_strong_form( tRT );
             }
 
+            // get sub-matrix of residual
+            auto tRes = mSet->get_residual()( 0 )( { tLeaderResStartIndex, tLeaderResStopIndex } );
+
             // compute the residual
-            mSet->get_residual()( 0 )(
-                    { tLeaderResStartIndex, tLeaderResStopIndex } ) += aWStar *
+            tRes += aWStar *
                     tFITemp->N_trans() * tFIVelocity->val_trans() * tCMDiffusion->gradEnergy();
 
             // compute SUPG contribution to residual
             if ( tSPSUPG )
             {
-                mSet->get_residual()( 0 )(
-                        { tLeaderResStartIndex, tLeaderResStopIndex } ) += aWStar *
+                tRes += aWStar *
                         tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 );
             }
 
             // compute YZBeta contribution to residual
             if ( tSPYZBeta )
             {
-                mSet->get_residual()( 0 )(
-                        { tLeaderResStartIndex, tLeaderResStopIndex } ) += aWStar *
+                tRes += aWStar *
                         tSPYZBeta->val()( 0 ) * std::abs(tRT( 0, 0 )) * trans( tFITemp->dnNdxn( 1 ) ) * tCMDiffusion->gradEnergy();
+            }
+
+            // if crosswind stabilization
+            if( tSPCrosswind || tSPIsotropic )
+            {
+                // bool for crosswind or isotropic
+                bool tIsCrosswind = tSPCrosswind != nullptr;
+
+                // get conductivity property from CM
+                const std::shared_ptr< Property >& tPropConductivity = //
+                        tCMDiffusion->get_property( "Conductivity" );
+
+                // get zero tolerance for isotropic or crosswind
+                real tEpsilon;
+                real tSPValue;
+                if( tIsCrosswind )
+                {
+                    // get zero tolerance for crosswind
+                    tEpsilon = tSPCrosswind->val()( 1 );
+
+                    // get the value of SP
+                    tSPValue = tSPCrosswind->val()( 0 );
+                }
+                else
+                {
+                    // get zero tolerance for isotropic
+                    tEpsilon = tSPIsotropic->val()( 1 );
+
+                    // get the value of SP
+                    tSPValue = tSPIsotropic->val()( 0 );
+                }
+
+                // compute the norm of the viscosity gradient
+                real tNorm = std::max( norm( tFITemp->gradx( 1 ) ), tEpsilon );
+
+                // compute the abs of the strong form of the residual
+                real tRAbs = std::max( std::abs( tRT( 0 ) ), tEpsilon );
+
+                // compute full crosswind stabilization parameter value
+                real tCrosswind = std::max( tSPValue * tRAbs / tNorm - tPropConductivity->val()( 0 ), 0.0 );
+
+                // id crosswind stabilization parameter is greater than zero
+                if( tCrosswind > 0.0 )
+                {
+                    // get the velocity FI
+                    // FIXME protect dof type
+                    Field_Interpolator* tFIVelocity = //
+                            mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+
+                    // get space dimension
+                    uint tSpaceDim = tFIVelocity->get_number_of_fields();
+
+                    // compute crosswind projection of temperature gradient
+                    // FIXME protect velocity dof type
+                    Matrix< DDRMat > tcgradxt;
+                    compute_cgradxw( { MSI::Dof_Type::VX }, mResidualDofType( 0 ), //
+                            mLeaderFIManager, tSpaceDim, tEpsilon, tIsCrosswind,   //
+                            tcgradxt );
+
+                    // add contribution to residual
+                    tRes += aWStar * trans( tFITemp->dnNdxn( 1 ) ) * tCrosswind * tcgradxt;
+                }
             }
 
             // check for nan, infinity
@@ -146,9 +219,17 @@ namespace moris
             const std::shared_ptr< Stabilization_Parameter > & tSPYZBeta =
                     mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::YZBETA ) );
 
+            // get the crosswind diffusion stabilization parameter
+            const std::shared_ptr< Stabilization_Parameter > & tSPCrosswind =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_CROSSWIND ) );
+
+            // get the isotropic diffusion stabilization parameter
+            const std::shared_ptr< Stabilization_Parameter > & tSPIsotropic =
+                    mStabilizationParam( static_cast< uint >( IWG_Stabilization_Type::DIFFUSION_ISOTROPIC ) );
+
             // compute the residual strong form if either SUPG or YZBeta is used
             Matrix< DDRMat > tRT;
-            if ( tSPSUPG || tSPYZBeta )
+            if ( tSPSUPG || tSPYZBeta || tSPCrosswind || tSPIsotropic )
             {
                 this->compute_residual_strong_form( tRT );
             }
@@ -168,7 +249,7 @@ namespace moris
                 const uint tLeaderDepStopIndex  = mSet->get_jac_dof_assembly_map()( tLeaderDofIndex )( tDofDepIndex, 1 );
 
                 // get sub-matrix
-                auto jac = mSet->get_jacobian()(
+                auto tJac = mSet->get_jacobian()(
                         { tLeaderResStartIndex, tLeaderResStopIndex },
                         { tLeaderDepStartIndex, tLeaderDepStopIndex } );
 
@@ -177,13 +258,13 @@ namespace moris
                 if( tDofType( 0 ) == MSI::Dof_Type::VX )
                 {
                     // add contribution to Jacobian
-                    jac += aWStar *
+                    tJac += aWStar *
                             tFITemp->N_trans() * trans( tCMDiffusion->gradEnergy() ) * tFIVelocity->N();
 
                     // consider SUPG term
                     if ( tSPSUPG )
                     {
-                        jac += aWStar *
+                        tJac += aWStar *
                                 tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->N() * tRT( 0, 0 );
                     }
                 }
@@ -192,14 +273,14 @@ namespace moris
                 if( tCMDiffusion->check_dof_dependency( tDofType ) )
                 {
                     // add contribution to Jacobian
-                    jac += aWStar *
+                    tJac += aWStar *
                             ( tFITemp->N_trans() * tFIVelocity->val_trans() * tCMDiffusion->dGradEnergydDOF( tDofType ) );
                 }
 
                 // compute the Jacobian strong form
 
                 Matrix< DDRMat > tJT;
-                if ( tSPSUPG || tSPYZBeta )
+                if ( tSPSUPG || tSPYZBeta || tSPCrosswind || tSPIsotropic )
                 {
                     this->compute_jacobian_strong_form( tDofType, tJT );
                 }
@@ -208,14 +289,14 @@ namespace moris
                 if ( tSPSUPG )
                 {
                     // contribution due to the dof dependence of strong form
-                    jac += aWStar * (
+                    tJac += aWStar * (
                             tSPSUPG->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tJT );
 
                     // if SUPG stabilization parameter depends on dof type
                     if( tSPSUPG->check_dof_dependency( tDofType ) )
                     {
                         // add contribution to Jacobian
-                        jac += aWStar * (
+                        tJac += aWStar * (
                                 trans( tFITemp->dnNdxn( 1 ) ) * tFIVelocity->val() * tRT( 0, 0 ) * tSPSUPG->dSPdLeaderDOF( tDofType ) );
                     }
                 }
@@ -226,21 +307,134 @@ namespace moris
                     // contribution from strong form of residual
                     const real tSign = tRT( 0, 0 ) < 0 ? -1.0 : 1.0;
 
-                    jac += tSign * aWStar * (
+                    tJac += tSign * aWStar * (
                             tSPYZBeta->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tCMDiffusion->gradEnergy() * tJT );
 
                     // contribution from spatial gradient of energy
                     if( tCMDiffusion->check_dof_dependency( tDofType ) )
                     {
-                        jac += aWStar * std::abs(tRT( 0, 0 )) * (
+                        tJac += aWStar * std::abs( tRT( 0, 0 ) ) * (
                                 tSPYZBeta->val()( 0 ) * trans( tFITemp->dnNdxn( 1 ) ) * tCMDiffusion->dGradEnergydDOF( tDofType ) );
                     }
 
                     // if YZBeta stabilization parameter depends on dof type
                     if( tSPYZBeta->check_dof_dependency( tDofType ) )
                     {
-                        jac += aWStar * std::abs(tRT( 0, 0 )) * (
+                        tJac += aWStar * std::abs( tRT( 0, 0 ) ) * (
                                 trans( tFITemp->dnNdxn( 1 ) ) * tCMDiffusion->gradEnergy() * tSPYZBeta->dSPdLeaderDOF( tDofType ) );
+                    }
+                }
+
+                // if isotropic or crosswind diffusion stabilization
+                if( tSPCrosswind || tSPIsotropic )
+                {
+                    // bool for crosswind or isotropic
+                    bool tIsCrosswind = tSPCrosswind != nullptr;
+
+                    // get conductivity property from CM
+                    const std::shared_ptr< Property >& tPropConductivity = //
+                            tCMDiffusion->get_property( "Conductivity" );
+
+                    // get zero tolerance for isotropic or crosswind
+                    real tEpsilon;
+                    real tSPValue;
+                    if( tIsCrosswind )
+                    {
+                        // get zero tolerance for crosswind
+                        tEpsilon = tSPCrosswind->val()( 1 );
+
+                        // get the value of SP
+                        tSPValue = tSPCrosswind->val()( 0 );
+                    }
+                    else
+                    {
+                        // get zero tolerance for isotropic
+                        tEpsilon = tSPIsotropic->val()( 1 );
+
+                        // get the value of SP
+                        tSPValue = tSPIsotropic->val()( 0 );
+                    }
+
+                    // compute the norm of the gradient of the viscosity
+                    real tNorm = std::max( norm( tFITemp->gradx( 1 ) ), tEpsilon );
+
+                    // compute the norm of the gradient of the strong form of the residual
+                    real tRAbs = std::max( std::abs( tRT( 0 ) ), tEpsilon );
+
+                    // compute full crosswind stabilization parameter value
+                    real tCrosswind = std::max( tSPValue * tRAbs / tNorm - tPropConductivity->val()( 0 ), 0.0 );
+
+                    // if crosswind stabilization is greater than zero
+                    if ( tCrosswind > 0.0 )
+                    {
+                        // get the velocity FI
+                        // FIXME protect dof type
+                        Field_Interpolator* tFIVelocity = //
+                                mLeaderFIManager->get_field_interpolators_for_type( MSI::Dof_Type::VX );
+
+                        // get space dimension
+                        uint tSpaceDim = tFIVelocity->get_number_of_fields();
+
+                        // compute crosswind projection of velocity gradient
+                        // FIXME protect dof type
+                        Matrix< DDRMat > tcgradxt;
+                        compute_cgradxw( { MSI::Dof_Type::VX }, mResidualDofType( 0 ), //
+                                mLeaderFIManager, tSpaceDim, tEpsilon, tIsCrosswind,   //
+                                tcgradxt );
+
+                        // compute derivative of crosswind projection of velocity gradient
+                        // FIXME protect dof type
+                        Matrix< DDRMat > tdcgradtdu;
+                        compute_dcgradxwdu( { MSI::Dof_Type::VX }, mResidualDofType( 0 ),      //
+                                mLeaderFIManager, tDofType, tSpaceDim, tEpsilon, tIsCrosswind, //
+                                tdcgradtdu );
+
+                        // add contribution to jacobian per direction
+                        tJac += aWStar * trans( tFITemp->dnNdxn( 1 ) ) * tCrosswind * tdcgradtdu;
+
+                        // if derivative dof is velocity dof
+                        if ( tDofType( 0 ) == mResidualDofType( 0 )( 0 ) && tNorm > tEpsilon )
+                        {
+                            // check deno value not too small
+                            // FIXME introduce inconsistent derivative
+                            const real tNormDeno = std::max( std::pow( tNorm, 3.0 ), tEpsilon );
+
+                            // add contribution of derivative of crosswind stabilization to jacobian
+                            tJac -= aWStar * trans( tFITemp->dnNdxn( 1 ) ) * tcgradxt * //
+                                    tSPValue * tRAbs * trans( tFITemp->gradx( 1 ) ) * tFITemp->dnNdxn( 1 ) / tNormDeno;
+                        }
+
+                        // if absolute value of strong form residual greater than zero
+                        if( tRAbs > tEpsilon )
+                        {
+                            // add contribution of derivative of crosswind stabilization to jacobian
+                            tJac += aWStar * trans( tFITemp->dnNdxn( 1 ) ) * tcgradxt * //
+                                    tSPValue * tRT( 0 ) * tJT / ( tNorm * tRAbs );
+                        }
+
+                        // if conductivity depends on dof
+                        if ( tPropConductivity->check_dof_dependency( tDofType ) )
+                        {
+                            // add contribution of derivative of crosswind stabilization to jacobian
+                            tJac -= aWStar * trans( tFITemp->dnNdxn( 1 ) ) * tcgradxt *//
+                                    tPropConductivity->dPropdDOF( tDofType );
+                        }
+
+                        // if crosswind diffusion and SP depends on dof
+                        if ( tIsCrosswind && tSPCrosswind->check_dof_dependency( tDofType ) )
+                        {
+                            // add contribution of derivative of crosswind stabilization to jacobian
+                            tJac += aWStar * trans( tFITemp->dnNdxn( 1 ) ) * tcgradxt * //
+                                    tRAbs * tSPCrosswind->dSPdLeaderDOF( tDofType ) / tNorm ;
+                        }
+
+                        // if isotropic diffusion and SP depends on dof
+                        if ( !tIsCrosswind && tSPIsotropic->check_dof_dependency( tDofType ) )
+                        {
+                            // add contribution of derivative of crosswind stabilization to jacobian
+                            tJac += aWStar * trans( tFITemp->dnNdxn( 1 ) ) * tcgradxt * //
+                                    tRAbs * tSPIsotropic->dSPdLeaderDOF( tDofType ) / tNorm ;
+                        }
                     }
                 }
             }
