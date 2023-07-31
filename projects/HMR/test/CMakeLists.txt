@@ -13,6 +13,7 @@ set(TEST_SOURCES
     main.cpp
     ut_HMR_Background_Mesh.cpp
     ut_HMR_Background_Mesh_Private.cpp
+    ut_HMR_BSpline.cpp
     ut_HMR_BSpline_Mesh.cpp
     ut_HMR_BSpline_Mesh_Private.cpp
     ut_HMR_Lagrange_Mesh.cpp
