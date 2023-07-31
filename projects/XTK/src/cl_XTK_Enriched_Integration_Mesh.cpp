@@ -1225,15 +1225,6 @@ namespace xtk
                 moris::moris_index      tFieldIndex = this->get_field_index( tFieldName, this->get_facet_rank(), iSideSet );
                 Matrix< DDRMat > const &tFieldData  = this->get_field_data( tFieldIndex, this->get_facet_rank(), iSideSet );
 
-// debug
-if ( par_rank() == 15 && tSideSetName == "iside_b0_1_b1_0" && tFieldName == "SideClusterSize" )
-{
-    std::cout << "Number of elements on set: " << this->get_num_elements_in_side_set( tSideSetName ) << std::endl;
-    std::cout << "Field data size: " << tFieldData.numel() << std::endl;
-    // moris::print( tFieldData, "tFieldData" );
-    // continue;
-}
-
                 // write data to mesh (unless it is empty)
                 if ( tFieldData.numel() > 0 )
                 {
