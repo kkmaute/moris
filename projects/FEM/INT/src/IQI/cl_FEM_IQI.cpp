@@ -2186,7 +2186,7 @@ namespace moris
 
                 // check for correctness of perturbation size for backward FD
                 MORIS_ASSERT( tDeltaH < aCoefficientToPerturb - tMinIP,
-                        "ERROR: backward perturbation size exceed limits of interpolation element:\n",
+                        "ERROR: backward perturbation size exceed limits of interpolation element:\n"
                         "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
                         aSpatialDirection,
                         tMinIP,

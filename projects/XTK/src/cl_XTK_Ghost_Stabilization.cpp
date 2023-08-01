@@ -1201,27 +1201,27 @@ namespace xtk
 
         // check that reserved size was appropriate
         MORIS_ASSERT( aGhostSetupData.mLeaderSideIpCells.size() < tReserveSize,
-                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mLeaderSideIpCells too small, increase by %f\n",
+                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mLeaderSideIpCells too small, increase by %zu\n",
                 aGhostSetupData.mLeaderSideIpCells.size() / tReserveSize );
 
         MORIS_ASSERT( aGhostSetupData.mFollowerSideIpCells.size() < tReserveSize,
-                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mFollowerSideIpCells too small, increase by %f\n",
+                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mFollowerSideIpCells too small, increase by %zu\n",
                 aGhostSetupData.mFollowerSideIpCells.size() / tReserveSize );
 
         MORIS_ASSERT( aGhostSetupData.mLeaderSideIgCellSideOrds.size() < tReserveSize,
-                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mLeaderSideIgCellSideOrds too small, increase by %f\n",
+                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mLeaderSideIgCellSideOrds too small, increase by %zu\n",
                 aGhostSetupData.mLeaderSideIgCellSideOrds.size() / tReserveSize );
 
         MORIS_ASSERT( aGhostSetupData.mFollowerSideIgCellSideOrds.size() < tReserveSize,
-                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mFollowerSideIgCellSideOrds too small, increase by %f\n",
+                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mFollowerSideIgCellSideOrds too small, increase by %zu\n",
                 aGhostSetupData.mFollowerSideIgCellSideOrds.size() / tReserveSize );
 
         MORIS_ASSERT( aGhostSetupData.mNonTrivialFlag.size() < tReserveSize,
-                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mTrivialFlag too small, increase by %f\n",
+                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mTrivialFlag too small, increase by %zu\n",
                 aGhostSetupData.mNonTrivialFlag.size() / tReserveSize );
 
         MORIS_ASSERT( aGhostSetupData.mTransitionLocation.size() < tReserveSize,
-                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mTransitionLocation too small, increase by %f\n",
+                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mTransitionLocation too small, increase by %zu\n",
                 aGhostSetupData.mTransitionLocation.size() / tReserveSize );
 
         // free up unused memory
@@ -1559,7 +1559,7 @@ namespace xtk
 
             // check that reserved size was appropriate
             MORIS_ASSERT( aGhostSetupData.mLeaderSideIpCellsNew( iBspMesh ).size() < tReserveSize,
-                    "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of aGhostSetupData too small, increased by %f\n",
+                    "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of aGhostSetupData too small, increased by %zu\n",
                     aGhostSetupData.mLeaderSideIpCellsNew( iBspMesh ).size() / tReserveSize );
 
             // free up unused memory

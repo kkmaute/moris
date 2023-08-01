@@ -554,7 +554,7 @@ namespace moris::mtk
 
             if ( !tOutput )
             {
-                MORIS_LOG_ERROR( "Cell number %u of the mesh, is inconsistent, tCoordsEqual: %d ,tSameCellId: %d,tVertexIdAndIndexEqual: %d  ",
+                MORIS_LOG_ERROR( "Cell number %zu of the mesh, is inconsistent, tCoordsEqual: %d ,tSameCellId: %d,tVertexIdAndIndexEqual: %d  ",
                         iCell,
                         tCoordsEqual,
                         tSameCellId,

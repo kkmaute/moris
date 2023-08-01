@@ -115,7 +115,7 @@ namespace moris
         std::string tError = "Could not open HDF5 file " + tPath;
 
         // throw error if file does not exist
-        MORIS_ERROR( tFile, tError.c_str() );
+        MORIS_ERROR( tFile, "%s", tError.c_str() );
 
         // close file
         tFile.close();
@@ -602,7 +602,7 @@ namespace moris
             std::string tMessage = "ERROR in reading from file: vector "
                     + aLabel + " has the wrong datatype.\n";
 
-            MORIS_ERROR( false, tMessage.c_str() );
+            MORIS_ERROR( false, "%s", tMessage.c_str() );
         }
 
         // get handler to dataspace

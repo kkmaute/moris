@@ -16,6 +16,7 @@
 #include <iostream>
 #include <stdexcept>
 #include <cstdio>
+#include <cstdarg>
 #include <string>
 
 // MORIS header files.
@@ -39,7 +40,7 @@ namespace moris
         error( std::string const & msg )
         {
             MORIS_LOG_ERROR( "*** Error: " );
-            MORIS_LOG_ERROR( msg.c_str() );
+            MORIS_LOG_ERROR( "%s", msg.c_str() );
 
             throw;
         }
@@ -90,7 +91,7 @@ namespace moris
             tString += "***\n";
             tString += "*** ---------------------------------------------------------------------------";
 
-            MORIS_LOG_ERROR( tString.c_str() );
+            MORIS_LOG_ERROR( "%s", tString.c_str() );
 
             throw exception;
         }
@@ -134,7 +135,9 @@ namespace moris
          * @param[in] check     Check that raised assertion.
          * @param[in] msg       Error message to build exception.
          */
-        template< typename... Args >
+#ifdef __GNUC__
+        __attribute__ ((format (printf, 5, 6)))
+#endif
         inline void
         moris_assert(
                 const std::string&   file,
@@ -142,16 +145,22 @@ namespace moris
                 const std::string&   function,
                 const std::string&   check,
                 const char*          format,
-                const Args... aArgs )
+                ... )
         {
+            va_list args, args2;
+            va_start(args, format);
+
             // Determine size of string
-            auto tSize = snprintf( nullptr, 0, format, aArgs... );
+            va_copy(args2, args);
+            auto tSize = vsnprintf( nullptr, 0, format, args2 );
+            va_end(args2);
 
             // create char pointer with size of string length + 1 for \0
             std::unique_ptr< char[] > tMsg( new char[ tSize + 1 ] );
 
             // write string into buffered char pointer
-            snprintf( tMsg.get(), tSize + 1, format, aArgs... );
+            vsnprintf( tMsg.get(), tSize + 1, format, args );
+            va_end(args);
 
             moris::assert::moris_assert(
                     file,
@@ -170,7 +179,9 @@ namespace moris
          * @param[in] check     Check that raised assertion.
          * @param[in] msg       Error message to build exception.
          */
-        template< typename... Args >
+#ifdef __GNUC__
+        __attribute__ ((format (printf, 5, 6)))
+#endif
         inline void
         moris_warning(
                 std::string const &   file,
@@ -178,8 +189,11 @@ namespace moris
                 std::string const &   function,
                 std::string const &   check,
                 const char*           format,
-                const Args... aArgs )
+                ... )
         {
+            va_list args, args2;
+            va_start(args, format);
+
             std::stringstream location;
             location << file << ":" << line << " (line " << line << ")";
 
@@ -190,13 +204,16 @@ namespace moris
             reason << "Assertion " << check << " may indicate an problem.";
 
             // Determine size of string
-            auto tSize = snprintf( nullptr, 0, format, aArgs... );
+            va_copy(args2, args);
+            auto tSize = vsnprintf( nullptr, 0, format, args2 );
+            va_end(args2);
 
             // create char pointer with size of string length + 1 for \0
             std::unique_ptr< char[] > tMsg( new char[ tSize + 1 ] );
 
             // write string into buffered char pointer
-            snprintf( tMsg.get(), tSize + 1, format, aArgs... );
+            vsnprintf( tMsg.get(), tSize + 1, format, args );
+            va_end(args);
 
             const std::runtime_error exception( std::string( tMsg.get(), tMsg.get() + tSize ).c_str() );
 
@@ -232,7 +249,7 @@ namespace moris
             tString += "***\n";
             tString += "*** ---------------------------------------------------------------------------";
 
-            MORIS_LOG_WARNING( tString.c_str() );
+            MORIS_LOG_WARNING( "%s", tString.c_str() );
         }
     }    // namespace assert
 }    // namespace moris

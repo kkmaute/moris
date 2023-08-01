@@ -3340,7 +3340,7 @@ if ( par_rank() == 15 && tSideSetName == "iside_b0_1_b1_0" && tFieldName == "Sid
                     // check that the number of cells reportedly attached to the current facet are as expected
                     MORIS_ERROR( tNumCellsAttachedToFacet == 1 || tNumCellsAttachedToFacet == 2,
                             "Enriched_Integration_Mesh::setup_side_cluster_groups() - "
-                            "There are %i cells attached to a facet. This shouldn't happen. Each facet is connected to either one or two facets." );
+                            "There are %i cells attached to a facet. This shouldn't happen. Each facet is connected to either one or two facets.", tNumCellsAttachedToFacet );
 
                     // treat side clusters on outer mesh boundaries and at interfaces differently
                     if ( tNumCellsAttachedToFacet == 1 )    // case: outer mesh boundary
@@ -3495,7 +3495,7 @@ if ( par_rank() == 15 && tSideSetName == "iside_b0_1_b1_0" && tFieldName == "Sid
 
             // log how good the memory reservation works
             MORIS_LOG_INFO(
-                    "B-spline Mesh %i: Number of side cluster groups: Estimated: %i | Actual: %i",
+                    "B-spline Mesh %i: Number of side cluster groups: Estimated: %i | Actual: %zu",
                     tDMI,
                     tApproxNumSideClusterGroups,
                     mDblSideClusterGroups( tDMI ).size() );
@@ -3751,7 +3751,7 @@ if ( par_rank() == 15 && tSideSetName == "iside_b0_1_b1_0" && tFieldName == "Sid
 
             // log how good the memory reservation works
             MORIS_LOG_INFO(
-                    "B-spline Mesh %i: Number of dbl-side cluster groups: Estimated: %i | Actual: %i",
+                    "B-spline Mesh %i: Number of dbl-side cluster groups: Estimated: %i | Actual: %zu",
                     tDMI,
                     tApproxNumDblSideClusterGroups,
                     mDblSideClusterGroups( tDMI ).size() );

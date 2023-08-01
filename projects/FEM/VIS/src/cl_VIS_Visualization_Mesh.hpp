@@ -249,7 +249,7 @@ namespace moris
                         tSet->get_set_type() == SetType::BULK,
                         "VIS::Visualization_Mesh::get_set_cells() - "
                         "'%s' is not a bulk set. Cannot retrieve cells for this set.",
-                        aSetName );
+                        aSetName.c_str() );
 
                 // initialize list of cells on set to return
                 uint                            tNumCellsOnSet = tSet->get_num_cells_on_set( mOnlyPrimary );

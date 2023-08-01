@@ -48,7 +48,7 @@ namespace moris
         {
             MORIS_ASSERT( mValues.numel() > aNodeIndex,
                     "Geometry_SDF::get_field_value() - "
-                    "Node index out of bounds, mValues numel: %i , aNodeIndex %i",
+                    "Node index out of bounds, mValues numel: %zu , aNodeIndex %i",
                     mValues.numel(),
                     aNodeIndex );
             return mValues( aNodeIndex );

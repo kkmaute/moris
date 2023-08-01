@@ -313,7 +313,7 @@ namespace moris
 
                 if ( tExit != 0 )
                 {
-                    MORIS_LOG_ERROR( "When calling SNOPT Fortran subroutine, unable to set parameter :  %-5i", it->first.c_str() );
+                    MORIS_LOG_ERROR( "When calling SNOPT Fortran subroutine, unable to set parameter :  %s", it->first.c_str() );
                     assert::error( "In cl_Algorithm_SQP.cpp" );
                 }
             }
