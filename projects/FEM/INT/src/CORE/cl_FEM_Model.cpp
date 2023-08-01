@@ -791,7 +791,7 @@ namespace moris
                             tComputationParameterList.get< bool >( "print_physics_model" );
 
                     // if print FEM model
-                    if ( tPrintPhysics )
+                    if ( tPrintPhysics && par_rank() == 0 )
                     {
                         // phase info
                         std::cout << "Phase info " << std::endl;
