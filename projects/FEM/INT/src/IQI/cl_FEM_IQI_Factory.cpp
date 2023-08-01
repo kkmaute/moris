@@ -52,6 +52,7 @@
 #include "cl_FEM_IQI_Jump_Dof.hpp"
 #include "cl_FEM_IQI_Jump_Traction.hpp"
 #include "cl_FEM_IQI_Traction.hpp"
+#include "cl_FEM_IQI_Linear_Elasticity_Damage.hpp"
 
 namespace moris
 {
@@ -197,6 +198,8 @@ namespace moris
                 case IQI_Type::TRACTION:
                     return std::make_shared< IQI_Traction >();
 
+                case IQI_Type::LINEAR_ELASTICITY_DAMAGE:
+                    return std::make_shared< IQI_Linear_Elasticity_Damage >();
 
                 default:
                     MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );

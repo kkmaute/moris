@@ -48,6 +48,7 @@ set(TEST_SOURCES
     UT_FEM_CM_Compressible_Fluid_Ideal.cpp
     UT_FEM_CM_Compressible_Newtonian_Fluid.cpp
     UT_FEM_CM_Compressible_Fluid_VdW.cpp
+    UT_FEM_CM_Struc_Linear_Isotropic_Damage.cpp
     UT_FEM_CM_Struc_Linear_Isotropic.cpp
     UT_FEM_CM_Struc_Linear_Isotropic_Axisymmetric.cpp
     UT_FEM_CM_Spalart_Allmaras_Turbulence.cpp
@@ -77,6 +78,8 @@ set(TEST_SOURCES
     
     UT_FEM_IWG_Struc_Linear_Interface_SLM_Constraint_and_Mixed.cpp
     UT_FEM_IWG_Struc_Linear_Interface_SLM_L2.cpp
+    
+    UT_FEM_IWG_Nonlocal_Bulk.cpp
     
     #UT_FEM_IWG_Struc_Linear_Ghost.cpp
     UT_FEM_IWG_Struc_Linear_Virtual_Work_Ghost.cpp
