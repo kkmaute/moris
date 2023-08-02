@@ -21,7 +21,7 @@
 #include "cl_FEM_IWG.hpp"
 #include "cl_FEM_Set.hpp"
 #include "cl_FEM_CM_Struc_Linear_Isotropic_Damage.hpp"
-#include "cl_FEM_IWG_Nonlocal_Bulk.hpp"
+#include "cl_FEM_IWG_History_Bulk.hpp"
 #undef protected
 #undef private
 // LINALG/src
@@ -40,13 +40,13 @@
 using namespace moris;
 using namespace fem;
 
-TEST_CASE( "IWG_Nonlocal_Bulk", "[IWG_Nonlocal_Bulk]" )
+TEST_CASE( "IWG_History_Bulk", "[IWG_History_Bulk]" )
 {
     // define an epsilon environment
     real tEpsilon = 1E-5;
 
     // define a perturbation relative size
-    real tPerturbation = 1E-4;
+    real tPerturbation = 1E-5;
 
     // init geometry inputs
     //------------------------------------------------------------------------------
@@ -92,9 +92,6 @@ TEST_CASE( "IWG_Nonlocal_Bulk", "[IWG_Nonlocal_Bulk]" )
         { { 0.0 } }
     };
 
-    // damage characteristic length
-    moris::Cell< Matrix< DDRMat > > tDamageCharactLength = { { { 0.1 } }, { { 3.0 } } };
-
     // create the properties
     std::shared_ptr< fem::Property > tPropEMod = std::make_shared< fem::Property >();
     tPropEMod->set_parameters( { { { 1.0 } } } );
@@ -120,12 +117,11 @@ TEST_CASE( "IWG_Nonlocal_Bulk", "[IWG_Nonlocal_Bulk]" )
     fem::IWG_Factory tIWGFactory;
 
     std::shared_ptr< fem::IWG > tIWG =
-            tIWGFactory.create_IWG( fem::IWG_Type::NONLOCAL_BULK );
-    tIWG->set_residual_dof_type( tNlEqStrainDofTypes );
+            tIWGFactory.create_IWG( fem::IWG_Type::HISTORY_BULK );
+    tIWG->set_residual_dof_type( tHistoryDofTypes );
     tIWG->set_dof_type_list( tDofTypes, mtk::Leader_Follower::LEADER );
     tIWG->set_property( tPropWeight, "Weight" );
     tIWG->set_constitutive_model( tCMLeader, "ElasticDamage" );
-    tIWG->set_parameters( tDamageCharactLength );
 
     // init set info
     //------------------------------------------------------------------------------
@@ -373,18 +369,18 @@ TEST_CASE( "IWG_Nonlocal_Bulk", "[IWG_Nonlocal_Bulk]" )
                 if ( !tCheckJacobian )
                 {
                     std::cout << "Case: Geometry " << iSpaceDim
-                              << " Order " << iInterpOrder
-                              << " iGP " << iGP << std::endl;
+                            << " Order " << iInterpOrder
+                            << " iGP " << iGP << std::endl;
                 }
 
-                    // require check is true
-                    REQUIRE( tCheckJacobian );
-                    }
+                // require check is true
+                REQUIRE( tCheckJacobian );
+            }
 
-                    // clean up
-                    tLeaderFIs.clear();
-                    //}
-                    //}
+            // clean up
+            tLeaderFIs.clear();
+            //}
+            //}
         }
     }
 } /*END_TEST_CASE*/

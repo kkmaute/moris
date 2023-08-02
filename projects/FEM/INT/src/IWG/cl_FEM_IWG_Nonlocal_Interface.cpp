@@ -27,10 +27,6 @@ namespace moris
             // set sint for symmetric/unsymmetric Nitsche
             mBeta = aBeta;
 
-            //            // set size for the constitutive model pointer cell
-            //            mLeaderCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-            //            mFollowerCM.resize( static_cast< uint >( IWG_Constitutive_Type::MAX_ENUM ), nullptr );
-            //
             // set size for the property pointer cell
             mLeaderProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
             mFollowerProp.resize( static_cast< uint >( IWG_Property_Type::MAX_ENUM ), nullptr );
@@ -60,6 +56,7 @@ namespace moris
             // set a characteristic length
             mCharacteristicLength = aParameters( 0 )( 0 );
 
+            // FIXME add higher order
             //            // set a order if provided by default 1
             //            if ( mParameters.size() > 1 )
             //            {
@@ -129,17 +126,17 @@ namespace moris
 
             // compute leader residual
             mSet->get_residual()( 0 )(
-                    { tLeaderResStartIndex, tLeaderResStopIndex } ) +=
-                    aWStar * tWeight * ( -tFILeader->N_trans() * tTraction                                                                                                                        //
-                                                         + mBeta * tLeaderWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * mNormal * tJump / mOrderCoeff( mOrder )    //
-                                                         + tNitsche * tFILeader->N_trans() * tJump );                                                                                                             //
+            		{ tLeaderResStartIndex, tLeaderResStopIndex } ) +=
+            				aWStar * tWeight * ( -tFILeader->N_trans() * tTraction                                                                                                                        //
+            						+ mBeta * tLeaderWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFILeader->dnNdxn( 1 ) ) * mNormal * tJump / mOrderCoeff( mOrder )    //
+									+ tNitsche * tFILeader->N_trans() * tJump );                                                                                                             //
 
             // compute follower residual
             mSet->get_residual()( 0 )(
-                    { tFollowerResStartIndex, tFollowerResStopIndex } ) +=
-                    aWStar * tWeight * ( +tFIFollower->N_trans() * tTraction                                                                                                                          //
-                                                         + mBeta * tFollowerWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * mNormal * tJump / mOrderCoeff( mOrder )    //
-                                                         - tNitsche * tFIFollower->N_trans() * tJump );                                                                                                               //
+            		{ tFollowerResStartIndex, tFollowerResStopIndex } ) +=
+            				aWStar * tWeight * ( +tFIFollower->N_trans() * tTraction                                                                                                                          //
+            						+ mBeta * tFollowerWeight * std::pow( mCharacteristicLength, 2.0 * mOrder ) * trans( tFIFollower->dnNdxn( 1 ) ) * mNormal * tJump / mOrderCoeff( mOrder )    //
+									- tNitsche * tFIFollower->N_trans() * tJump );                                                                                                               //
 
             // check for nan, infinity
             MORIS_ASSERT( isfinite( mSet->get_residual()( 0 ) ),

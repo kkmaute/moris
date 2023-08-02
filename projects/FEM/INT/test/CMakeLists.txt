@@ -80,6 +80,8 @@ set(TEST_SOURCES
     UT_FEM_IWG_Struc_Linear_Interface_SLM_L2.cpp
     
     UT_FEM_IWG_Nonlocal_Bulk.cpp
+    UT_FEM_IWG_Nonlocal_Interface.cpp
+    UT_FEM_IWG_History_Bulk.cpp
     
     #UT_FEM_IWG_Struc_Linear_Ghost.cpp
     UT_FEM_IWG_Struc_Linear_Virtual_Work_Ghost.cpp
