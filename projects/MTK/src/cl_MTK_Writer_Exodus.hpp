@@ -68,6 +68,11 @@ namespace moris
             // map exodus element indices to position in exodus file
             Matrix< IndexMat > mExodusElementIndexOrderMap;
 
+            // punch card marking which facets on a given side set are actually present in the final exodus mesh
+            // note: facets within the aura may not be part of it
+            // input: (1) ordinal of side set in exo mesh, (2) index of facet within side set of enr. IG mesh || output: true for facets in exo mesh
+            moris::Cell< moris::Cell< bool > > mFacetUsedInExodus;
+
             // name of temporary file
             std::string mTempFileName;
 
