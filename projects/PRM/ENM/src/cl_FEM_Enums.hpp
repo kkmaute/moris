@@ -47,6 +47,8 @@ namespace moris
             OLSSON,           // Olsson et al. (2007) reinitialization
             NONLOCAL_BULK,    // Nonlocal
             HISTORY_BULK,     // History
+            NONLOCAL_INTERFACE_SYMMETRIC_NITSCHE,
+            NONLOCAL_INTERFACE_UNSYMMETRIC_NITSCHE,
 
             SPATIALDIFF_BULK,                             // spatial diffusion bulk
             SPATIALDIFF_PC_BULK,                          // spatial diffusion bulk with phase change

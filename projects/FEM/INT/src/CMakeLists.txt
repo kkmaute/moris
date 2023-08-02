@@ -85,6 +85,7 @@ set(HEADERS
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff.hpp
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Neo_Hookean.hpp
+    CM/cl_FEM_CM_Struc_Linear_Isotropic_Damage.hpp
     CM/cl_FEM_CM_Struc_Linear_Isotropic.hpp
     CM/cl_FEM_CM_Struc_Linear_MoriTanaka.hpp
     CM/cl_FEM_CM_Struc_Linear.hpp
@@ -153,6 +154,9 @@ set(HEADERS
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.hpp 
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche.hpp 
     IWG/cl_FEM_IWG_Struc_Stress.hpp
+    IWG/cl_FEM_IWG_History_Bulk.hpp
+    IWG/cl_FEM_IWG_Nonlocal_Bulk.hpp
+    IWG/cl_FEM_IWG_Nonlocal_Interface.hpp
     
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Bulk.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Dirichlet.hpp
@@ -253,6 +257,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_Jump_Dof.hpp
     IQI/cl_FEM_IQI_Jump_Traction.hpp
     IQI/cl_FEM_IQI_Traction.hpp
+    IQI/cl_FEM_IQI_Linear_Elasticity_Damage.hpp
      
     MEA/cl_FEM_Cluster_Measure.hpp
     )
@@ -303,6 +308,7 @@ set(LIB_SOURCES
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.cpp
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff.cpp
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Neo_Hookean.cpp
+    CM/cl_FEM_CM_Struc_Linear_Isotropic_Damage.cpp
     CM/cl_FEM_CM_Struc_Linear_Isotropic.cpp
     CM/cl_FEM_CM_Struc_Linear_MoriTanaka.cpp
     CM/cl_FEM_CM_Struc_Linear.cpp
@@ -376,6 +382,9 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche.cpp
     IWG/cl_FEM_IWG_Struc_Stress.cpp
+    IWG/cl_FEM_IWG_History_Bulk.cpp
+    IWG/cl_FEM_IWG_Nonlocal_Bulk.cpp
+    IWG/cl_FEM_IWG_Nonlocal_Interface.cpp
     
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Bulk.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Dirichlet.cpp
@@ -483,6 +492,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Jump_Dof.cpp
     IQI/cl_FEM_IQI_Jump_Traction.cpp
     IQI/cl_FEM_IQI_Traction.cpp
+    IQI/cl_FEM_IQI_Linear_Elasticity_Damage.cpp
    
     MEA/cl_FEM_Cluster_Measure.cpp
     
