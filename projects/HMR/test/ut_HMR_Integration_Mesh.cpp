@@ -19,12 +19,12 @@
 
 namespace moris::hmr
 {
-    inline real LevelSetFunction( const Matrix< DDRMat >& aPoint )
+    static real LevelSetFunction1( const Matrix< DDRMat >& aPoint )
     {
         return norm( aPoint ) - 0.5;
     }
 
-    inline real LevelSetFunction1( const Matrix< DDRMat >& aPoint )
+    static real LevelSetFunction2( const Matrix< DDRMat >& aPoint )
     {
         return norm( aPoint ) - 4.1;
     }
@@ -73,7 +73,7 @@ namespace moris::hmr
         // Refine 
         for ( uint iRefinement = 0; iRefinement < 3; iRefinement++ )
         {
-            tField->evaluate_scalar_function( LevelSetFunction );
+            tField->evaluate_scalar_function( LevelSetFunction1 );
             tHMR.flag_surface_elements_on_working_pattern( tField );
             tHMR.perform_refinement_based_on_working_pattern( 0 );
         }
@@ -225,7 +225,7 @@ namespace moris::hmr
             // Refine
             for ( uint iRefinement = 0; iRefinement < 2; iRefinement++ )
             {
-                tField->evaluate_scalar_function( LevelSetFunction );
+                tField->evaluate_scalar_function( LevelSetFunction1 );
                 tHMR.flag_surface_elements_on_working_pattern( tField );
                 tHMR.perform_refinement_based_on_working_pattern( 0 );
             }
@@ -296,7 +296,7 @@ namespace moris::hmr
             // create field
             std::shared_ptr< Field > tField = tMesh->create_field( "Circle", tBSplineMeshIndex );
 
-            tField->evaluate_scalar_function( LevelSetFunction );
+            tField->evaluate_scalar_function( LevelSetFunction1 );
 
             // refine
             for ( uint iRefinement = 0; iRefinement < 2; iRefinement++ )
@@ -304,7 +304,7 @@ namespace moris::hmr
                 tHMR.flag_surface_elements_on_working_pattern( tField );
                 tHMR.perform_refinement_based_on_working_pattern( 0 );
 
-                tField->evaluate_scalar_function( LevelSetFunction );
+                tField->evaluate_scalar_function( LevelSetFunction1 );
             }
 
             // finalize
@@ -325,7 +325,7 @@ namespace moris::hmr
             // create field
             std::shared_ptr< Field > tField1 = tMesh1->create_field( "Circle", tBSplineMeshIndex );
 
-            tField1->evaluate_scalar_function( LevelSetFunction1 );
+            tField1->evaluate_scalar_function( LevelSetFunction2 );
 
             // refine
             for ( uint iRefinement = 0; iRefinement < 2; iRefinement++ )
@@ -333,7 +333,7 @@ namespace moris::hmr
                 tHMR.flag_surface_elements_on_working_pattern( tField1 );
                 tHMR.perform_refinement_based_on_working_pattern( 0 );
 
-                tField1->evaluate_scalar_function( LevelSetFunction1 );
+                tField1->evaluate_scalar_function( LevelSetFunction2 );
             }
 
             // finalize

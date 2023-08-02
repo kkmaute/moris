@@ -32,132 +32,133 @@
 #undef protected
 #undef private
 
-TEST_CASE("HMR_Bspline_Mesh_Private", "[moris],[mesh],[hmr],[BSplineMesh_private],[BsplineMesh]")
+namespace moris::hmr
 {
-//-------------------------------------------------------------------------------
 
-    if(  moris::par_size() == 1  ||  moris::par_size() == 2  || moris::par_size() == 4 )
+    TEST_CASE( "HMR_Bspline_Mesh_Private", "[moris],[mesh],[hmr],[BSplineMesh_private],[BsplineMesh]" )
     {
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-        SECTION("B-Spline Mesh test basis numbering")
+        if ( par_size() == 1 || par_size() == 2 || par_size() == 4 )
         {
-            std::string tMorisRoot = moris::get_base_moris_dir();
+            //-------------------------------------------------------------------------------
 
-            // do this for first and second dimension
-            for( uint tDimension=2; tDimension<=3; ++tDimension )
+            SECTION( "B-Spline Mesh test basis numbering" )
             {
-                // do this for first second and third order
-                for( uint tOrder=1; tOrder<3; ++tOrder )
+                std::string tMorisRoot = get_base_moris_dir();
+
+                // do this for first and second dimension
+                for ( uint tDimension = 2; tDimension <= 3; ++tDimension )
                 {
-                    for( uint tMultigrid = 0; tMultigrid<2; ++tMultigrid )
+                    // do this for first second and third order
+                    for ( uint tOrder = 1; tOrder < 3; ++tOrder )
                     {
-                        // The parameter object controls the behavior of HMR.
-                        moris::hmr::Parameters tParameters;
-
-                        tParameters.set_multigrid(  tMultigrid == 1  );
-
-                        moris::Matrix< moris::DDLUMat > tNumberOfElements(  tDimension, 1,  2*tOrder );
-                        tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
-
-                        moris::Matrix< moris::DDRMat > tDomainOffset( tDimension, 1, 0.0 );
-                        tParameters.set_domain_offset( tDomainOffset );
-
-                        tParameters.set_lagrange_orders  ( { {1} });
-                        tParameters.set_lagrange_patterns({ {0} });
-
-                        tParameters.set_bspline_orders   ( { {tOrder} } );
-                        tParameters.set_bspline_patterns ( { {0} } );
-
-                        // set buffer
-                        tParameters.set_refinement_buffer( tOrder );
-                        tParameters.set_staircase_buffer( tOrder );
-
-                        moris::Cell< moris::Matrix< moris::DDSMat > > tLagrangeToBSplineMesh( 1 );
-                        tLagrangeToBSplineMesh( 0 ) = { {0} };
-
-                        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
-
-                        // create HMR Object
-                        moris::hmr::HMR tHMR( tParameters );
-
-                        // refine the mesh three times
-                        for( uint k=0; k<3; ++k )
+                        for ( uint tMultigrid = 0; tMultigrid < 2; ++tMultigrid )
                         {
-                            tHMR.flag_element( 0 );
-                            tHMR.perform_refinement_based_on_working_pattern( 0 );
-                        }
+                            // The parameter object controls the behavior of HMR.
+                            Parameters tParameters;
 
-                        // finish mesh
-                        tHMR.finalize();
+                            tParameters.set_multigrid( tMultigrid == 1 );
 
-                        // create matrix with IDs
-                        moris::Matrix< moris::IdMat > tActiveBasis;
-                        moris::Matrix< moris::IdMat > tRefinedBasis;
+                            Matrix< DDLUMat > tNumberOfElements( tDimension, 1, 2 * tOrder );
+                            tParameters.set_number_of_elements_per_dimension( tNumberOfElements );
 
-                        // reset counter
-                        moris::uint tCount = 0;
+                            Matrix< DDRMat > tDomainOffset( tDimension, 1, 0.0 );
+                            tParameters.set_domain_offset( tDomainOffset );
 
-                        moris::hmr::BSpline_Mesh_Base * tMesh = tHMR.mDatabase->mBSplineMeshes( 0 );
+                            tParameters.set_lagrange_orders( { { 1 } } );
+                            tParameters.set_lagrange_patterns( { { 0 } } );
 
-                        moris::Cell< moris::hmr::Basis *  > & mActiveBasisOnProc = tMesh->mActiveBasisOnProc;
+                            tParameters.set_bspline_orders( { { tOrder } } );
+                            tParameters.set_bspline_patterns( { { 0 } } );
 
-                        tActiveBasis.set_size( mActiveBasisOnProc.size(), 1 );
+                            // set buffer
+                            tParameters.set_refinement_buffer( tOrder );
+                            tParameters.set_staircase_buffer( tOrder );
 
-                        // loop over all active basis
-                        for( moris::hmr::Basis * tBasis :  mActiveBasisOnProc )
-                        {
-                            tActiveBasis( tCount++ ) = tBasis->get_id();
-                        }
+                            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+                            tLagrangeToBSplineMesh( 0 ) = { { 0 } };
 
-                        if( tParameters.use_multigrid() )
-                        {
-                            moris::Cell< moris::hmr::Basis *  > & mRefinedBasisOnProc = tMesh->mRefinedBasisOnProc;
+                            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
 
-                            tCount = 0;
-                            tRefinedBasis.set_size( mRefinedBasisOnProc.size(), 1 );
+                            // create HMR Object
+                            HMR tHMR( tParameters );
 
-                            for( moris::hmr::Basis * tBasis :  mRefinedBasisOnProc )
+                            // refine the mesh three times
+                            for ( uint k = 0; k < 3; ++k )
                             {
-                                tRefinedBasis( tCount++ ) = tBasis->get_id();
+                                tHMR.flag_element( 0 );
+                                tHMR.perform_refinement_based_on_working_pattern( 0 );
                             }
+
+                            // finish mesh
+                            tHMR.finalize();
+
+                            // create matrix with IDs
+                            Matrix< IdMat > tActiveBasis;
+                            Matrix< IdMat > tRefinedBasis;
+
+                            // reset counter
+                            uint tCount = 0;
+
+                            BSpline_Mesh_Base* tMesh = tHMR.mDatabase->mBSplineMeshes( 0 );
+
+                            Cell< Basis* >& mActiveBasisOnProc = tMesh->mActiveBasisOnProc;
+
+                            tActiveBasis.set_size( mActiveBasisOnProc.size(), 1 );
+
+                            // loop over all active basis
+                            for ( Basis* tBasis: mActiveBasisOnProc )
+                            {
+                                tActiveBasis( tCount++ ) = tBasis->get_id();
+                            }
+
+                            if ( tParameters.use_multigrid() )
+                            {
+                                Cell< Basis* >& mRefinedBasisOnProc = tMesh->mRefinedBasisOnProc;
+
+                                tCount = 0;
+                                tRefinedBasis.set_size( mRefinedBasisOnProc.size(), 1 );
+
+                                for ( Basis* tBasis: mRefinedBasisOnProc )
+                                {
+                                    tRefinedBasis( tCount++ ) = tBasis->get_id();
+                                }
+                            }
+
+                            std::string tFilePath = tMorisRoot + "/projects/HMR/test/data/hmr_bspline_ids_" + std::to_string(
+                                    tDimension ) + std::to_string( tOrder ) + std::to_string( tMultigrid ) + ".hdf5";
+
+                            /*
+                            hid_t tFile = create_hdf5_file( tFilePath  );
+                            herr_t tStatus = 0;
+                            save_matrix_to_hdf5_file( tFile, "ActiveBasis", tActiveBasis, tStatus );
+    
+                            if( tParameters.use_multigrid() )
+                            {
+                                save_matrix_to_hdf5_file( tFile, "RefinedBasis", tRefinedBasis, tStatus );
+                            }
+                            close_hdf5_file( tFile ); */
+
+                            Matrix< IdMat > tActiveBasisExpect;
+                            Matrix< IdMat > tRefinedBasisExpect;
+
+                            hid_t tFile = open_hdf5_file( tFilePath );
+                            herr_t tStatus = 0;
+                            load_matrix_from_hdf5_file( tFile, "ActiveBasis", tActiveBasisExpect, tStatus );
+                            REQUIRE( all_true( tActiveBasis == tActiveBasisExpect ) );
+                            if ( tParameters.use_multigrid() )
+                            {
+                                load_matrix_from_hdf5_file( tFile, "RefinedBasis", tRefinedBasisExpect,
+                                                                   tStatus );
+                                REQUIRE( all_true( tRefinedBasis == tRefinedBasisExpect ) );
+                            }
+
+                            close_hdf5_file( tFile );
                         }
-
-                        std::string tFilePath =  tMorisRoot + "/projects/HMR/test/data/hmr_bspline_ids_"
-                                + std::to_string( tDimension )
-                        + std::to_string( tOrder )
-                        + std::to_string( tMultigrid )
-                        + ".hdf5";
-
-                        /*
-                        hid_t tFile = create_hdf5_file( tFilePath  );
-                        herr_t tStatus = 0;
-                        save_matrix_to_hdf5_file( tFile, "ActiveBasis", tActiveBasis, tStatus );
-
-                        if( tParameters.use_multigrid() )
-                        {
-                            save_matrix_to_hdf5_file( tFile, "RefinedBasis", tRefinedBasis, tStatus );
-                        }
-                        close_hdf5_file( tFile ); */
-
-                        moris::Matrix< moris::IdMat > tActiveBasisExpect;
-                        moris::Matrix< moris::IdMat > tRefinedBasisExpect;
-
-                        hid_t  tFile = moris::open_hdf5_file( tFilePath  );
-                        herr_t tStatus = 0;
-                        moris::load_matrix_from_hdf5_file( tFile,  "ActiveBasis", tActiveBasisExpect, tStatus );
-                        REQUIRE( moris::all_true( tActiveBasis == tActiveBasisExpect ) );
-                        if( tParameters.use_multigrid() )
-                        {
-                            moris::load_matrix_from_hdf5_file( tFile,  "RefinedBasis", tRefinedBasisExpect, tStatus );
-                            REQUIRE( moris::all_true( tRefinedBasis == tRefinedBasisExpect ) );
-                        }
-
-                        moris::close_hdf5_file( tFile );
                     }
                 }
             }
         }
     }
 }
-
