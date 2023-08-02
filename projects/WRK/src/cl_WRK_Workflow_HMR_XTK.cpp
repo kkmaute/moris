@@ -497,7 +497,7 @@ namespace moris
                     auto tItrMax = std::max_element( tdIQIdAdv.data(), tdIQIdAdv.data() + tdIQIdAdv.numel() );
                     auto tIndMax = std::distance( tdIQIdAdv.data(), tItrMax );
 
-                    MORIS_LOG_INFO( "Criteria(%i): norm = %e   min = %e  (index = %i)   max = %e  (index = %i)",
+                    MORIS_LOG_INFO( "Criteria(%i): norm = %e   min = %e  (index = %li)   max = %e  (index = %li)",
                             i,
                             norm( tdIQIdAdv ),
                             tdIQIdAdv.min(),

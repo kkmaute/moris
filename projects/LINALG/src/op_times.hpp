@@ -43,7 +43,7 @@ namespace moris
             -> decltype( aA.matrix_data() * aB.matrix_data() )
     {
 
-        MORIS_ASSERT( aA.n_cols() == aB.n_rows(), "Dimension mismatch in matrix multiplication. %-5i vs %-5i", aA.n_cols(), aB.n_rows() );
+        MORIS_ASSERT( aA.n_cols() == aB.n_rows(), "Dimension mismatch in matrix multiplication. %-5zu vs %-5zu", aA.n_cols(), aB.n_rows() );
         return aA.matrix_data() * aB.matrix_data();
     }
 
@@ -62,7 +62,7 @@ namespace moris
             const Matrix< Matrix_Type_B >&    aB )
             -> decltype( aA.matrix_data() * aB.matrix_data() )
     {
-        MORIS_ASSERT( aA.n_cols() == aB.n_rows(), "Dimension mismatch in matrix multiplication. %-5i vs %-5i", aA.n_cols(), aB.n_rows() );
+        MORIS_ASSERT( aA.n_cols() == aB.n_rows(), "Dimension mismatch in matrix multiplication. %-5zu vs %-5zu", aA.n_cols(), aB.n_rows() );
         return aA.matrix_data() * aB.matrix_data();
     }
 

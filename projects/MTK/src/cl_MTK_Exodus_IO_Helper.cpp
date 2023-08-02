@@ -88,12 +88,12 @@ namespace moris
                 MORIS_LOG_INFO( " Parameters read from %s \n", aFileName.c_str());
                 MORIS_LOG_INFO( " Exodus ID:      %d",mExoFileId);
                 MORIS_LOG_INFO( " Title:          %s",init_params.title);
-                MORIS_LOG_INFO( " num_dim:        %d",init_params.num_dim);
-                MORIS_LOG_INFO( " num_nodes:      %d",init_params.num_nodes);
-                MORIS_LOG_INFO( " num_elem:       %d",init_params.num_elem);
-                MORIS_LOG_INFO( " num_elem_blk:   %d",init_params.num_elem_blk);
-                MORIS_LOG_INFO( " num_node_sets:  %d",init_params.num_node_sets);
-                MORIS_LOG_INFO( " num_side_sets:  %d",init_params.num_side_sets);
+                MORIS_LOG_INFO( " num_dim:        %zu",init_params.num_dim);
+                MORIS_LOG_INFO( " num_nodes:      %zu",init_params.num_nodes);
+                MORIS_LOG_INFO( " num_elem:       %zu",init_params.num_elem);
+                MORIS_LOG_INFO( " num_elem_blk:   %zu",init_params.num_elem_blk);
+                MORIS_LOG_INFO( " num_node_sets:  %zu",init_params.num_node_sets);
+                MORIS_LOG_INFO( " num_side_sets:  %zu",init_params.num_side_sets);
             }
 
             // Word sizes
@@ -1009,7 +1009,7 @@ namespace moris
 
                 if (mVerbose)
                 {
-                    MORIS_LOG_INFO( " Side set # %d | %d has %d sides, will be surface %d",mSideSetIds[i],mSideSetNamePtrs[i],mSideSetNEntries[i],mSideSetIds[i]);
+                    MORIS_LOG_INFO( " Side set # %d | %s has %d sides, will be surface %d",mSideSetIds[i],mSideSetNamePtrs[i],mSideSetNEntries[i],mSideSetIds[i]);
                 }
 
                 ex_put_set(

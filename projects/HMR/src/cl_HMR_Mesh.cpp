@@ -1688,7 +1688,7 @@ namespace moris::hmr
 
         MORIS_ERROR( tIter != mEntityGlobalToLocalMap( (uint)aEntityRank + aIndex ).end(),
                 "HMR::Mesh::get_loc_entity_ind_from_entity_glb_id() - "
-                "Provided Entity Id is not in the map. aEntityId = %u EntityRank = %u on process %u. Has the map been initialized?; Size of map: %i",
+                "Provided Entity Id is not in the map. aEntityId = %u EntityRank = %u on process %u. Has the map been initialized?; Size of map: %zu",
                 aEntityId,
                 (uint)aEntityRank,
                 par_rank(),

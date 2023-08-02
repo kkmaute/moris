@@ -1276,7 +1276,7 @@ namespace moris
         Mesh_Core_STK::get_mtk_cell( moris_index aCellIndex )
         {
             MORIS_ASSERT( aCellIndex < (moris_index)mSTKMeshData->mMtkCells.size(),
-                    "Provided cell index out of bounds: aCellIndex = %u , mSTKMeshData->mMtkCells.size() = %u ",
+                    "Provided cell index out of bounds: aCellIndex = %u , mSTKMeshData->mMtkCells.size() = %zu ",
                     aCellIndex,
                     mSTKMeshData->mMtkCells.size() );
 
@@ -1289,7 +1289,7 @@ namespace moris
         Mesh_Core_STK::get_mtk_cell( moris_index aCellIndex ) const
         {
             MORIS_ASSERT( aCellIndex < (moris_index)mSTKMeshData->mMtkCells.size(),
-                    "Provided cell index out of bounds: aCellIndex = %u , mSTKMeshData->mMtkCells.size() = %u ",
+                    "Provided cell index out of bounds: aCellIndex = %u , mSTKMeshData->mMtkCells.size() = %zu ",
                     aCellIndex,
                     mSTKMeshData->mMtkCells.size() );
 

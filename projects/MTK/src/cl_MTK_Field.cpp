@@ -228,7 +228,7 @@ namespace moris
             // check that input vector has proper size
             MORIS_ERROR(
                     aValues.n_rows() == mValues.n_rows() && aValues.n_cols() == mValues.n_cols(),
-                    "mtk::Field::set_value_vector - input vector has incorrect size: %d vs %d vs %d.\n",
+                    "mtk::Field::set_value_vector - input vector has incorrect size: %zu vs %zu vs %d.\n",
                     aValues.n_rows(),
                     mValues.n_rows(),
                     mMeshPair.get_interpolation_mesh()->get_num_nodes() );
@@ -281,7 +281,7 @@ namespace moris
 
             // check whether vector has the correct size
             MORIS_ERROR( (sint)aCoefficients.n_rows() == mNumberOfCoefficients,
-                    "mtk::Field::set_coefficients - coefficient vector has incorrect length: %d vs %d \n",
+                    "mtk::Field::set_coefficients - coefficient vector has incorrect length: %zu vs %d \n",
                     aCoefficients.n_rows(),
                     mNumberOfCoefficients );
 

@@ -719,7 +719,7 @@ namespace moris
                             // check
                             MORIS_ASSERT( tPDVAssemblyIndex < (moris_index)tDerivatives.numel(),
                                     "FEM::Cluster::compute_cluster_cell_measure_derivative() - "
-                                    "tPDVAssemblyIndex is out of bounds. Assembly index is %i, but number of PDVs only is: %i",
+                                    "tPDVAssemblyIndex is out of bounds. Assembly index is %i, but number of PDVs only is: %zu",
                                     tPDVAssemblyIndex,
                                     tDerivatives.numel() );
 

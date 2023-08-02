@@ -187,7 +187,7 @@ namespace moris
                 std::string tError = "The requested parameter '" + tKey + "' can not be set because it does not exist.\n";
 
                 // throw error
-                MORIS_ERROR( false, tError.c_str() );
+                MORIS_ERROR( false, "%s", tError.c_str() );
             }
             else
             {
@@ -305,7 +305,7 @@ namespace moris
                 std::string tError = "The requested parameter '" + aKey + "' does not exist.\n";
 
                 // throw error
-                MORIS_ERROR( false, tError.c_str() );
+                MORIS_ERROR( false, "%s", tError.c_str() );
             }
 
             return it->second;
@@ -334,7 +334,7 @@ namespace moris
                 std::string tError = "The requested parameter '" + aKey + "' does not exist.\n";
 
                 // throw error
-                MORIS_ERROR( false, tError.c_str() );
+                MORIS_ERROR( false, "%s", tError.c_str() );
             }
 
             return ( it->second ).which();
@@ -363,7 +363,7 @@ namespace moris
                 std::string tError = "The requested parameter '" + aKey + "' does not exist.\n";
 
                 // throw error
-                MORIS_ERROR( false, tError.c_str() );
+                MORIS_ERROR( false, "%s", tError.c_str() );
             }
 
             // check if the requested type is correct
@@ -371,7 +371,7 @@ namespace moris
             {
                 // create error message
                 std::string tError = "The parameter '" + aKey + "' was requested with an incorrect type.\n";
-                MORIS_ERROR( false, tError.c_str() );
+                MORIS_ERROR( false, "%s", tError.c_str() );
             }
 
             return boost::get< Key >( it->second );

@@ -196,7 +196,7 @@ namespace moris
             //  fixme can not check the number of cols for aXiHat
 
             MORIS_ASSERT( aXiHat.n_rows() == mNumSpaceBases,
-                    " Space_Interpolator::set_space_param_coeff - Wrong input size (aXiHat). %-5i vs %-5i ",
+                    " Space_Interpolator::set_space_param_coeff - Wrong input size (aXiHat). %-5zu vs %-5i ",
                     aXiHat.n_rows(),
                     mNumSpaceBases );
 

@@ -2399,7 +2399,7 @@ namespace moris::mtk
             if ( !tOutput )
             {
                 // Log n error message
-                MORIS_LOG_ERROR( "Cell number %u of the mesh, is inconsistent, Equal Cell ID: %d,Equal Vertices %d ",
+                MORIS_LOG_ERROR( "Cell number %zu of the mesh, is inconsistent, Equal Cell ID: %d,Equal Vertices %d ",
                     iCell,
                     tSameCellId,
                     tVertexIdAndIndexEqual );
@@ -2510,7 +2510,7 @@ namespace moris::mtk
 
             if ( !tOutput )
             {
-                MORIS_LOG_ERROR( "Cell cluster number %u of the mesh, is inconsistent, equal cluster measure %d , equal ip cell %d, equal vertices %d, primary cells %d, void cells %d, local coordinates %d",
+                MORIS_LOG_ERROR( "Cell cluster number %zu of the mesh, is inconsistent, equal cluster measure %d , equal ip cell %d, equal vertices %d, primary cells %d, void cells %d, local coordinates %d",
                     iCluster,
                     tEqualClusterMeasure,
                     tEqualIPCell,
@@ -2721,7 +2721,7 @@ namespace moris::mtk
 
                     if ( !tOutput )
                     {
-                        MORIS_LOG_ERROR( "cell cluster number %u of the mesh on the block set, is inconsistent, tEqualClusterMeasure %d,tEqualIPCell %d, Vertices %d, Primary cells ",
+                        MORIS_LOG_ERROR( "cell cluster number %u of the mesh on the block set, is inconsistent, tEqualClusterMeasure %d,tEqualIPCell %d, Vertices %d, Primary cells %d ",
                             iCluster,
                             tEqualClusterMeasure,
                             tEqualIPCell,

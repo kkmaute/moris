@@ -12,22 +12,32 @@
 #define PROJECTS_MRS_IOS_SRC_IO_TOOLS_HPP_
 
 #include <cstdio>
+#include <cstdarg>
 #include <string>
 #include <fstream>
 #include <memory>
 
-template< typename... Args >
+#ifdef __GNUC__
+__attribute__ ((format (printf, 1, 2)))
+#endif
+inline
 std::string
-print_log( const char* aFormat, const Args... aArgs )
+print_log( const char* aFormat, ... )
 {
+    va_list args, args2;
+    va_start(args, aFormat);
+
     // Determine size of string
-    auto tSize = snprintf( nullptr, 0, aFormat, aArgs... );
+    va_copy(args2, args);
+    auto tSize = vsnprintf( nullptr, 0, aFormat, args2 );
+    va_end(args2);
 
     // create char pointer with size of string length + 1 for \0
     std::unique_ptr< char[] > tMsg( new char[ tSize + 1 ] );
 
     // write string into buffered char pointer
-    snprintf( tMsg.get(), tSize + 1, aFormat, aArgs... );
+    vsnprintf( tMsg.get(), tSize + 1, aFormat, args );
+    va_end(args);
 
     return ( std::string( tMsg.get(), tMsg.get() + tSize ).c_str() );
 }

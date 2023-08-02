@@ -126,7 +126,7 @@ namespace moris
                         MORIS_ERROR( false,
                                 "VIS_Factory::initialize() - "
                                 "Mesh set with name '%s' is neither a block, side, nor dbl. side set. Unable to handle case.",
-                                mAllRequestedSetNames( iSet ) );
+                                mAllRequestedSetNames( iSet ).c_str() );
                     }
                 }    // end switch: type of mtk-mesh
             }        // end for: each requested set
