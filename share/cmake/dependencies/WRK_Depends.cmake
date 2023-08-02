@@ -34,6 +34,7 @@ include(${MORIS_DEPENDS_DIR}/MDL_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MAP_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/MIG_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/OPT_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/FEM_Depends.cmake)
 
 # added as temp fix for hmr exe, test, and tutorials
 include(${MORIS_DEPENDS_DIR}/DLA_Depends.cmake)
