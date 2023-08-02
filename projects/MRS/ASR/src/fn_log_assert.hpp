@@ -136,7 +136,7 @@ namespace moris
          * @param[in] msg       Error message to build exception.
          */
 #ifdef __GNUC__
-        __attribute__ ((format (printf, 5, 6)))
+        __attribute__( ( format( printf, 5, 6 ) ) )
 #endif
         inline void
         moris_assert(
@@ -148,19 +148,19 @@ namespace moris
                 ... )
         {
             va_list args, args2;
-            va_start(args, format);
+            va_start( args, format );
 
             // Determine size of string
-            va_copy(args2, args);
+            va_copy( args2, args );
             auto tSize = vsnprintf( nullptr, 0, format, args2 );
-            va_end(args2);
+            va_end( args2 );
 
             // create char pointer with size of string length + 1 for \0
             std::unique_ptr< char[] > tMsg( new char[ tSize + 1 ] );
 
             // write string into buffered char pointer
             vsnprintf( tMsg.get(), tSize + 1, format, args );
-            va_end(args);
+            va_end( args );
 
             moris::assert::moris_assert(
                     file,
@@ -180,7 +180,7 @@ namespace moris
          * @param[in] msg       Error message to build exception.
          */
 #ifdef __GNUC__
-        __attribute__ ((format (printf, 5, 6)))
+        __attribute__( ( format( printf, 5, 6 ) ) )
 #endif
         inline void
         moris_warning(
@@ -192,7 +192,7 @@ namespace moris
                 ... )
         {
             va_list args, args2;
-            va_start(args, format);
+            va_start( args, format );
 
             std::stringstream location;
             location << file << ":" << line << " (line " << line << ")";
@@ -204,16 +204,16 @@ namespace moris
             reason << "Assertion " << check << " may indicate an problem.";
 
             // Determine size of string
-            va_copy(args2, args);
+            va_copy( args2, args );
             auto tSize = vsnprintf( nullptr, 0, format, args2 );
-            va_end(args2);
+            va_end( args2 );
 
             // create char pointer with size of string length + 1 for \0
             std::unique_ptr< char[] > tMsg( new char[ tSize + 1 ] );
 
             // write string into buffered char pointer
             vsnprintf( tMsg.get(), tSize + 1, format, args );
-            va_end(args);
+            va_end( args );
 
             const std::runtime_error exception( std::string( tMsg.get(), tMsg.get() + tSize ).c_str() );
 

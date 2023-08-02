@@ -78,4 +78,3 @@ namespace moris
 }    // namespace moris
 
 #endif /* PROJECTS_LINALG_OP_TIMES_HPP_ */
-

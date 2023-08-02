@@ -18,19 +18,19 @@ namespace moris
     namespace mtk
     {
         Exodus_IO_Helper::Exodus_IO_Helper(
-                const std::string & aExodusFile,
-                const int           aTimeStepIndex,
-                const bool          aBuildGlobal,
-                const bool          aVerbose)
+                const std::string &aExodusFile,
+                const int          aTimeStepIndex,
+                const bool         aBuildGlobal,
+                const bool         aVerbose )
         {
-            mVerbose       = aVerbose;
-            mBuildGlobal   = aBuildGlobal;
+            mVerbose     = aVerbose;
+            mBuildGlobal = aBuildGlobal;
 
             mTimeStepIndex = aTimeStepIndex;
 
-            mTitle           = get_file_name(aExodusFile);
-            int cpu_ws       = sizeof( real );         // word size in bytes of the floating point variables used in moris
-            int io_ws        = 0;                      // word size as stored in exodus
+            mTitle           = get_file_name( aExodusFile );
+            int   cpu_ws     = sizeof( real );    // word size in bytes of the floating point variables used in moris
+            int   io_ws      = 0;                 // word size as stored in exodus
             float exoVersion = 0.0;
 
             mExoFileId = ex_open(
@@ -38,12 +38,12 @@ namespace moris
                     EX_WRITE,
                     &cpu_ws,
                     &io_ws,
-                    &exoVersion);
+                    &exoVersion );
 
-            MORIS_ERROR(mExoFileId!=-1,"Cannot open exodus file: %s",mTitle.c_str());
+            MORIS_ERROR( mExoFileId != -1, "Cannot open exodus file: %s", mTitle.c_str() );
 
             MORIS_ERROR( cpu_ws == io_ws,
-                    "Word size of floating point variables stored in exodus file and used in moris are not the same.");
+                    "Word size of floating point variables stored in exodus file and used in moris are not the same." );
 
             get_init_mesh_data();
             get_init_global();
@@ -66,57 +66,57 @@ namespace moris
 
         Exodus_IO_Helper::~Exodus_IO_Helper()
         {
-            ex_close(mExoFileId);
+            ex_close( mExoFileId );
         }
 
         // ---------------------------------------------------------------------------------------------
 
         void
         Exodus_IO_Helper::create_new_exo_with_elem_cmaps_from_existing_exo(
-                std::string    & aFileName,
-                Matrix<IdMat>  & aElementIds,
-                Matrix<IdMat>  & aElementSideOrds,
-                Matrix<IdMat>  & aSharedProcIds)
+                std::string     &aFileName,
+                Matrix< IdMat > &aElementIds,
+                Matrix< IdMat > &aElementSideOrds,
+                Matrix< IdMat > &aSharedProcIds )
         {
             // retrieve initialization parameters from existing exodus file
             ex_init_params init_params;
-            ex_get_init_ext(mExoFileId, &init_params);
+            ex_get_init_ext( mExoFileId, &init_params );
 
-            if (mVerbose)
+            if ( mVerbose )
             {
-                MORIS_LOG_INFO( " \n===================================================");
-                MORIS_LOG_INFO( " Parameters read from %s \n", aFileName.c_str());
-                MORIS_LOG_INFO( " Exodus ID:      %d",mExoFileId);
-                MORIS_LOG_INFO( " Title:          %s",init_params.title);
-                MORIS_LOG_INFO( " num_dim:        %zu",init_params.num_dim);
-                MORIS_LOG_INFO( " num_nodes:      %zu",init_params.num_nodes);
-                MORIS_LOG_INFO( " num_elem:       %zu",init_params.num_elem);
-                MORIS_LOG_INFO( " num_elem_blk:   %zu",init_params.num_elem_blk);
-                MORIS_LOG_INFO( " num_node_sets:  %zu",init_params.num_node_sets);
-                MORIS_LOG_INFO( " num_side_sets:  %zu",init_params.num_side_sets);
+                MORIS_LOG_INFO( " \n===================================================" );
+                MORIS_LOG_INFO( " Parameters read from %s \n", aFileName.c_str() );
+                MORIS_LOG_INFO( " Exodus ID:      %d", mExoFileId );
+                MORIS_LOG_INFO( " Title:          %s", init_params.title );
+                MORIS_LOG_INFO( " num_dim:        %zu", init_params.num_dim );
+                MORIS_LOG_INFO( " num_nodes:      %zu", init_params.num_nodes );
+                MORIS_LOG_INFO( " num_elem:       %zu", init_params.num_elem );
+                MORIS_LOG_INFO( " num_elem_blk:   %zu", init_params.num_elem_blk );
+                MORIS_LOG_INFO( " num_node_sets:  %zu", init_params.num_node_sets );
+                MORIS_LOG_INFO( " num_side_sets:  %zu", init_params.num_side_sets );
             }
 
             // Word sizes
-            int cpu_ws = sizeof( moris::real );         // word size in bytes of the floating point variables used in moris
-            int io_ws  = sizeof( moris::real );         // word size as stored in exodus
+            int cpu_ws = sizeof( moris::real );    // word size in bytes of the floating point variables used in moris
+            int io_ws  = sizeof( moris::real );    // word size as stored in exodus
 
             // Create the file name
-            std::string tNewTitle = get_file_name(aFileName.c_str());
+            std::string tNewTitle = get_file_name( aFileName.c_str() );
 
             // Create a new exodus file (clobber if already there)
             int tNewExoFileId = ex_create(
                     tNewTitle.c_str(),
                     EX_CLOBBER,
                     &cpu_ws,
-                    &io_ws);
+                    &io_ws );
 
             // Put file initialization information
-            mErrFlag = ex_put_init_info(tNewExoFileId,
+            mErrFlag = ex_put_init_info( tNewExoFileId,
                     par_size(),
                     1,
-                    const_cast<char *>("p"));
+                    const_cast< char * >( "p" ) );
 
-            MORIS_ASSERT(!mErrFlag,"ex_put_init_info failed");
+            MORIS_ASSERT( !mErrFlag, "ex_put_init_info failed" );
 
             // Put global information on the file
             mErrFlag = ex_put_init_global( tNewExoFileId,
@@ -126,36 +126,36 @@ namespace moris
                     mNumNodeSetsGlobal, /* II.  */
                     mNumSideSetsGlobal );
 
-            MORIS_ASSERT(!mErrFlag,"ex_put_init_global failed");
+            MORIS_ASSERT( !mErrFlag, "ex_put_init_global failed" );
 
             // Initialize information about the mesh (local information)
-            mErrFlag = ex_put_init(tNewExoFileId,
+            mErrFlag = ex_put_init( tNewExoFileId,
                     init_params.title,
                     init_params.num_dim,
                     init_params.num_nodes,
                     init_params.num_elem,
                     init_params.num_elem_blk,
                     init_params.num_node_sets,
-                    init_params.num_side_sets);
+                    init_params.num_side_sets );
 
-            MORIS_ASSERT(!mErrFlag,"ex_put_init failed");
+            MORIS_ASSERT( !mErrFlag, "ex_put_init failed" );
 
             // Put information about global blk ids and blk counts
-            mErrFlag = ex_put_eb_info_global(tNewExoFileId,
+            mErrFlag = ex_put_eb_info_global( tNewExoFileId,
                     this->mGlobalElemBlkIds.data(),
-                    this->mGlobalElemBlkCnts.data());
+                    this->mGlobalElemBlkCnts.data() );
 
-            MORIS_ASSERT(!mErrFlag,"ex_put_eb_info_global failed");
+            MORIS_ASSERT( !mErrFlag, "ex_put_eb_info_global failed" );
 
             // Put the global node sets on the new file
-            if (mGlobalNodesetIds.size())
+            if ( mGlobalNodesetIds.size() )
             {
-                mErrFlag = ex_put_ns_param_global(tNewExoFileId,
+                mErrFlag = ex_put_ns_param_global( tNewExoFileId,
                         this->mGlobalNodesetIds.data(),
                         this->mNumGlobalNodeCounts.data(),
-                        this->mNumGlobalNodeDfCounts.data());
+                        this->mNumGlobalNodeDfCounts.data() );
 
-                MORIS_ASSERT(!mErrFlag,"ex_put_ns_param_global failed");
+                MORIS_ASSERT( !mErrFlag, "ex_put_ns_param_global failed" );
             }
 
             // TODO: SIDE SETS and BLOCKSET copying
@@ -171,15 +171,15 @@ namespace moris
                     this->mNumBorderElems,
                     this->mNumNodeCmaps,
                     this->mNumElemCmaps,
-                    par_rank());
+                    par_rank() );
 
-            MORIS_ASSERT(!mErrFlag,"ex_put_loadbal_param failed");
+            MORIS_ASSERT( !mErrFlag, "ex_put_loadbal_param failed" );
 
-            mElemCmapIds.resize(1,1);
-            mElemCmapIds(0,0) = 2;
+            mElemCmapIds.resize( 1, 1 );
+            mElemCmapIds( 0, 0 ) = 2;
 
-            mElemCmapElemCnts.resize(1,1);
-            mElemCmapElemCnts(0,0) = aElementIds.numel();
+            mElemCmapElemCnts.resize( 1, 1 );
+            mElemCmapElemCnts( 0, 0 ) = aElementIds.numel();
 
             // Put communication map parameters
             mErrFlag = ex_put_cmap_params(
@@ -188,29 +188,29 @@ namespace moris
                     mNodeCmapNodeCnts.data(),
                     mElemCmapIds.data(),
                     mElemCmapElemCnts.data(),
-                    par_rank());
+                    par_rank() );
 
             // Put node communication map
             mErrFlag = ex_put_node_cmap(
                     tNewExoFileId,
-                    mNodeCmapIds(0),
-                    mNodeCmapNodeIds(0).data(),
-                    mNodeCmapProcIds(0).data(),
-                    par_rank());
+                    mNodeCmapIds( 0 ),
+                    mNodeCmapNodeIds( 0 ).data(),
+                    mNodeCmapProcIds( 0 ).data(),
+                    par_rank() );
 
             // put node map
-            mErrFlag =ne_put_node_map(
+            mErrFlag = ne_put_node_map(
                     tNewExoFileId,
                     mNodeMapi.data(),
                     mNodeMapb.data(),
                     mNodeMape.data(),
-                    par_rank());
+                    par_rank() );
 
             // put node id map
             mErrFlag = ex_put_id_map(
                     tNewExoFileId,
                     EX_NODE_MAP,
-                    mNodeNumMap.data());
+                    mNodeNumMap.data() );
 
             // put the element communication maps
             mErrFlag = ex_put_elem_cmap(
@@ -219,26 +219,26 @@ namespace moris
                     aElementIds.data(),
                     aElementSideOrds.data(),
                     aSharedProcIds.data(),
-                    par_rank());
+                    par_rank() );
 
             // put the element id map
             mErrFlag = ex_put_id_map(
                     tNewExoFileId,
                     EX_ELEM_MAP,
-                    mElemNumMap.data());
+                    mElemNumMap.data() );
 
             // Coordinates
-            copy_coordinates(tNewExoFileId);
+            copy_coordinates( tNewExoFileId );
 
             // Copy sets
             copy_node_sets( tNewExoFileId );
             copy_side_sets( tNewExoFileId );
-            copy_block_sets(tNewExoFileId );
+            copy_block_sets( tNewExoFileId );
 
             // Copy fields
-            copy_nodal_fields(tNewExoFileId,  init_params);
+            copy_nodal_fields( tNewExoFileId, init_params );
 
-            ex_close(tNewExoFileId);
+            ex_close( tNewExoFileId );
         }
 
         // ---------------------------------------------------------------------------------------------
@@ -246,7 +246,7 @@ namespace moris
         void
         Exodus_IO_Helper::get_init_mesh_data()
         {
-            char *tTitleChar = new char[ std::max((int)mTitle.length(),(int)MAX_LINE_LENGTH) + 1];
+            char *tTitleChar = new char[ std::max( (int)mTitle.length(), (int)MAX_LINE_LENGTH ) + 1 ];
 
             mErrFlag = ex_get_init(
                     mExoFileId,
@@ -256,24 +256,24 @@ namespace moris
                     &mNumElem,
                     &mNumElemBlk,
                     &mNumNodeSets,
-                    &mNumSideSets);
+                    &mNumSideSets );
 
-            MORIS_ERROR(!mErrFlag, "Error reading initial global data!");
+            MORIS_ERROR( !mErrFlag, "Error reading initial global data!" );
 
-            delete [] tTitleChar;
+            delete[] tTitleChar;
 
-            if (mVerbose)
+            if ( mVerbose )
             {
                 int tRank = par_rank();
 
-                MORIS_LOG_INFO( " [%d] Parameters read from exodus file",tRank);
-                MORIS_LOG_INFO( " [%d] Title:          %s",tRank,mTitle.c_str());
-                MORIS_LOG_INFO( " [%d] num_dim:        %d",tRank,mNumDim);
-                MORIS_LOG_INFO( " [%d] num_nodes:      %d",tRank,mNumNodes);
-                MORIS_LOG_INFO( " [%d] num_elem:       %d",tRank,mNumElem);
-                MORIS_LOG_INFO( " [%d] num_elem_blk:   %d",tRank,mNumElemBlk);
-                MORIS_LOG_INFO( " [%d] num_node_sets:  %d",tRank,mNumNodeSets);
-                MORIS_LOG_INFO( " [%d] num_side_sets:  %d",tRank,mNumSideSets);
+                MORIS_LOG_INFO( " [%d] Parameters read from exodus file", tRank );
+                MORIS_LOG_INFO( " [%d] Title:          %s", tRank, mTitle.c_str() );
+                MORIS_LOG_INFO( " [%d] num_dim:        %d", tRank, mNumDim );
+                MORIS_LOG_INFO( " [%d] num_nodes:      %d", tRank, mNumNodes );
+                MORIS_LOG_INFO( " [%d] num_elem:       %d", tRank, mNumElem );
+                MORIS_LOG_INFO( " [%d] num_elem_blk:   %d", tRank, mNumElemBlk );
+                MORIS_LOG_INFO( " [%d] num_node_sets:  %d", tRank, mNumNodeSets );
+                MORIS_LOG_INFO( " [%d] num_side_sets:  %d", tRank, mNumSideSets );
             }
         }
 
@@ -282,9 +282,9 @@ namespace moris
         void
         Exodus_IO_Helper::get_load_bal_parameters()
         {
-            if (par_size() > 1 && mBuildGlobal)
+            if ( par_size() > 1 && mBuildGlobal )
             {
-                mErrFlag =ex_get_loadbal_param(
+                mErrFlag = ex_get_loadbal_param(
                         mExoFileId,
                         &mNumInternalNodes,
                         &mNumBorderNodes,
@@ -293,25 +293,25 @@ namespace moris
                         &mNumBorderElems,
                         &mNumNodeCmaps,
                         &mNumElemCmaps,
-                        par_rank() // The ID of the processor for which info is to be read
+                        par_rank()    // The ID of the processor for which info is to be read
                 );
 
-                if (mErrFlag)
+                if ( mErrFlag )
                 {
-                    printf("after ex_get_init, error = %d\n", mErrFlag);
+                    printf( "after ex_get_init, error = %d\n", mErrFlag );
                 }
 
-                if (mVerbose)
+                if ( mVerbose )
                 {
                     int tRank = par_rank();
 
-                    MORIS_LOG_INFO( " [%d] num_internal_nodes = %d",tRank,mNumInternalNodes);
-                    MORIS_LOG_INFO( " [%d] num_border_nodes   = %d",tRank,mNumBorderNodes);
-                    MORIS_LOG_INFO( " [%d] num_external_nodes = %d",tRank,mNumExternalNodes);
-                    MORIS_LOG_INFO( " [%d] num_internal_elems = %d",tRank,mNumInternalElems);
-                    MORIS_LOG_INFO( " [%d] num_border_elems   = %d",tRank,mNumBorderElems);
-                    MORIS_LOG_INFO( " [%d] num_node_cmaps     = %d",tRank,mNumNodeCmaps);
-                    MORIS_LOG_INFO( " [%d] num_elem_cmaps     = %d",tRank,mNumElemCmaps);
+                    MORIS_LOG_INFO( " [%d] num_internal_nodes = %d", tRank, mNumInternalNodes );
+                    MORIS_LOG_INFO( " [%d] num_border_nodes   = %d", tRank, mNumBorderNodes );
+                    MORIS_LOG_INFO( " [%d] num_external_nodes = %d", tRank, mNumExternalNodes );
+                    MORIS_LOG_INFO( " [%d] num_internal_elems = %d", tRank, mNumInternalElems );
+                    MORIS_LOG_INFO( " [%d] num_border_elems   = %d", tRank, mNumBorderElems );
+                    MORIS_LOG_INFO( " [%d] num_node_cmaps     = %d", tRank, mNumNodeCmaps );
+                    MORIS_LOG_INFO( " [%d] num_elem_cmaps     = %d", tRank, mNumElemCmaps );
                 }
             }
         }
@@ -321,13 +321,13 @@ namespace moris
         void
         Exodus_IO_Helper::get_cmap_params()
         {
-            if (par_size() > 1 && mBuildGlobal)
+            if ( par_size() > 1 && mBuildGlobal )
             {
                 // Allocate space based on information from load balance parameter calls
-                mNodeCmapIds.resize(1,mNumNodeCmaps);
-                mNodeCmapNodeCnts.resize(1,mNumNodeCmaps);
-                mElemCmapIds.resize(1,mNumElemCmaps);
-                mElemCmapElemCnts.resize(1,mNumElemCmaps);
+                mNodeCmapIds.resize( 1, mNumNodeCmaps );
+                mNodeCmapNodeCnts.resize( 1, mNumNodeCmaps );
+                mElemCmapIds.resize( 1, mNumElemCmaps );
+                mElemCmapElemCnts.resize( 1, mNumElemCmaps );
 
                 // get the cmap parameters
                 mErrFlag = ex_get_cmap_params(
@@ -336,11 +336,11 @@ namespace moris
                         mNodeCmapNodeCnts.data(),
                         mElemCmapIds.data(),
                         mElemCmapElemCnts.data(),
-                        par_rank());
+                        par_rank() );
 
-                MORIS_ERROR(!mErrFlag, "Error reading cmap parameters!");
+                MORIS_ERROR( !mErrFlag, "Error reading cmap parameters!" );
 
-                if (mVerbose)
+                if ( mVerbose )
                 {
                     //               print(node_cmap_ids,"node_cmap_ids");
                     //               print(node_cmap_node_cnts,"node_cmap_node_cnts");
@@ -355,34 +355,34 @@ namespace moris
         void
         Exodus_IO_Helper::get_node_cmap()
         {
-            if (par_size() > 1 && mBuildGlobal)
+            if ( par_size() > 1 && mBuildGlobal )
             {
-                mNodeCmapNodeIds.resize(mNumNodeCmaps);
-                mNodeCmapProcIds.resize(mNumNodeCmaps);
+                mNodeCmapNodeIds.resize( mNumNodeCmaps );
+                mNodeCmapProcIds.resize( mNumNodeCmaps );
 
-                for (unsigned int i=0; i<mNodeCmapNodeIds.size(); ++i)
+                for ( unsigned int i = 0; i < mNodeCmapNodeIds.size(); ++i )
                 {
-                    mNodeCmapNodeIds(i).resize(1,mNodeCmapNodeCnts(i));
-                    mNodeCmapProcIds(i).resize(1,mNodeCmapNodeCnts(i));
+                    mNodeCmapNodeIds( i ).resize( 1, mNodeCmapNodeCnts( i ) );
+                    mNodeCmapProcIds( i ).resize( 1, mNodeCmapNodeCnts( i ) );
 
                     mErrFlag = ex_get_node_cmap(
                             mExoFileId,
-                            mNodeCmapIds(i),
-                            mNodeCmapNodeIds(i).data(),
-                            mNodeCmapProcIds(i).data(),
-                            par_rank());
+                            mNodeCmapIds( i ),
+                            mNodeCmapNodeIds( i ).data(),
+                            mNodeCmapProcIds( i ).data(),
+                            par_rank() );
 
-                    MORIS_ERROR(!mErrFlag, "Error reading node cmap node and processor ids!");
+                    MORIS_ERROR( !mErrFlag, "Error reading node cmap node and processor ids!" );
 
-                    if (mVerbose)
+                    if ( mVerbose )
                     {
-                        for (unsigned int j=0; j<mNodeCmapNodeIds.size(); ++j)
-                            print(mNodeCmapNodeIds(j),"node_cmap_node_ids(j)");
+                        for ( unsigned int j = 0; j < mNodeCmapNodeIds.size(); ++j )
+                            print( mNodeCmapNodeIds( j ), "node_cmap_node_ids(j)" );
 
                         // This is basically a vector, all entries of which are = node_cmap_ids[i]
                         // Not sure if it's always guaranteed to be that or what...
-                        for (unsigned int j=0; j<mNodeCmapProcIds.size(); ++j)
-                            print(mNodeCmapNodeIds(j),"node_cmap_node_ids(j)");
+                        for ( unsigned int j = 0; j < mNodeCmapProcIds.size(); ++j )
+                            print( mNodeCmapNodeIds( j ), "node_cmap_node_ids(j)" );
                     }
                 }
             }
@@ -393,27 +393,27 @@ namespace moris
         void
         Exodus_IO_Helper::get_init_global()
         {
-            if (par_size() > 1 && mBuildGlobal)
+            if ( par_size() > 1 && mBuildGlobal )
             {
-                mErrFlag =ex_get_init_global(
+                mErrFlag = ex_get_init_global(
                         mExoFileId,
                         &mNumNodesGlobal,
                         &mNumElemsGlobal,
                         &mNumElemBlksGlobal,
                         &mNumNodeSetsGlobal,
-                        &mNumSideSetsGlobal);
+                        &mNumSideSetsGlobal );
 
-                MORIS_ERROR(!mErrFlag, "Error reading initial global data!");
+                MORIS_ERROR( !mErrFlag, "Error reading initial global data!" );
 
-                if (mVerbose)
+                if ( mVerbose )
                 {
                     int tRank = par_rank();
 
-                    MORIS_LOG_INFO( " [%d] num_nodes_global     = %d",tRank,mNumNodesGlobal);
-                    MORIS_LOG_INFO( " [%d] num_elems_global     = %d",tRank,mNumElemsGlobal);
-                    MORIS_LOG_INFO( " [%d] num_elem_blks_global = %d",tRank,mNumElemBlksGlobal);
-                    MORIS_LOG_INFO( " [%d] num_node_sets_global = %d",tRank,mNumNodeSetsGlobal);
-                    MORIS_LOG_INFO( " [%d] num_side_sets_global = %d",tRank,mNumSideSetsGlobal);
+                    MORIS_LOG_INFO( " [%d] num_nodes_global     = %d", tRank, mNumNodesGlobal );
+                    MORIS_LOG_INFO( " [%d] num_elems_global     = %d", tRank, mNumElemsGlobal );
+                    MORIS_LOG_INFO( " [%d] num_elem_blks_global = %d", tRank, mNumElemBlksGlobal );
+                    MORIS_LOG_INFO( " [%d] num_node_sets_global = %d", tRank, mNumNodeSetsGlobal );
+                    MORIS_LOG_INFO( " [%d] num_side_sets_global = %d", tRank, mNumSideSetsGlobal );
                 }
             }
         }
@@ -423,30 +423,29 @@ namespace moris
         void
         Exodus_IO_Helper::get_eb_info_global()
         {
-            if (par_size() > 1 && mBuildGlobal)
+            if ( par_size() > 1 && mBuildGlobal )
             {
-                mGlobalElemBlkIds.resize(mNumElemBlksGlobal);
-                mGlobalElemBlkCnts.resize(mNumElemBlksGlobal);
+                mGlobalElemBlkIds.resize( mNumElemBlksGlobal );
+                mGlobalElemBlkCnts.resize( mNumElemBlksGlobal );
 
-                if (mNumElemBlksGlobal > 0)
+                if ( mNumElemBlksGlobal > 0 )
                 {
                     mErrFlag = ex_get_eb_info_global(
                             mExoFileId,
                             mGlobalElemBlkIds.data(),
-                            mGlobalElemBlkCnts.data());
+                            mGlobalElemBlkCnts.data() );
 
-                    MORIS_ERROR(!mErrFlag, "Error reading global element block info!");
+                    MORIS_ERROR( !mErrFlag, "Error reading global element block info!" );
                 }
 
-                if (mVerbose)
+                if ( mVerbose )
                 {
-                    std::cout << "[" << par_rank() << "] " << "Global Element Block IDs and Counts:" << std::endl;
-                    for (std::size_t bn=0; bn<mGlobalElemBlkIds.size(); ++bn)
+                    std::cout << "[" << par_rank() << "] "
+                              << "Global Element Block IDs and Counts:" << std::endl;
+                    for ( std::size_t bn = 0; bn < mGlobalElemBlkIds.size(); ++bn )
                     {
-                        std::cout << "  [" << par_rank() << "] " <<
-                                "global_elem_blk_ids["<<bn<<"]=" << mGlobalElemBlkIds[bn] <<
-                                ", global_elem_blk_cnts["<<bn<<"]=" << mGlobalElemBlkCnts[bn] <<
-                                std::endl;
+                        std::cout << "  [" << par_rank() << "] "
+                                  << "global_elem_blk_ids[" << bn << "]=" << mGlobalElemBlkIds[ bn ] << ", global_elem_blk_cnts[" << bn << "]=" << mGlobalElemBlkCnts[ bn ] << std::endl;
                     }
                 }
             }
@@ -457,27 +456,27 @@ namespace moris
         void
         Exodus_IO_Helper::get_node_coords()
         {
-            mX.resize(mNumNodes,1);
-            mY.resize(mNumNodes,1);
+            mX.resize( mNumNodes, 1 );
+            mY.resize( mNumNodes, 1 );
 
-            if (mNumDim < 3)
+            if ( mNumDim < 3 )
             {
-                mErrFlag = ex_get_coord(mExoFileId,
+                mErrFlag = ex_get_coord( mExoFileId,
                         mX.data(),
                         mY.data(),
-                        nullptr);
+                        nullptr );
             }
             else
             {
-                mZ.resize(mNumNodes,1);
+                mZ.resize( mNumNodes, 1 );
 
-                mErrFlag = ex_get_coord(mExoFileId,
+                mErrFlag = ex_get_coord( mExoFileId,
                         mX.data(),
                         mY.data(),
-                        mZ.data());
+                        mZ.data() );
             }
 
-            MORIS_ERROR(!mErrFlag, "get_node_coords filed");
+            MORIS_ERROR( !mErrFlag, "get_node_coords filed" );
         }
 
         // ---------------------------------------------------------------------------------------------
@@ -485,32 +484,30 @@ namespace moris
         void
         Exodus_IO_Helper::get_ns_param_global()
         {
-            if (par_size() > 1 && mBuildGlobal)
+            if ( par_size() > 1 && mBuildGlobal )
             {
-                if (mNumNodeSetsGlobal > 0)
+                if ( mNumNodeSetsGlobal > 0 )
                 {
-                    mGlobalNodesetIds.resize(mNumNodeSetsGlobal);
-                    mNumGlobalNodeCounts.resize(mNumNodeSetsGlobal);
-                    mNumGlobalNodeDfCounts.resize(mNumNodeSetsGlobal);
+                    mGlobalNodesetIds.resize( mNumNodeSetsGlobal );
+                    mNumGlobalNodeCounts.resize( mNumNodeSetsGlobal );
+                    mNumGlobalNodeDfCounts.resize( mNumNodeSetsGlobal );
 
                     mErrFlag = ex_get_ns_param_global(
                             mExoFileId,
                             mGlobalNodesetIds.data(),
                             mNumGlobalNodeCounts.data(),
-                            mNumGlobalNodeDfCounts.data());
+                            mNumGlobalNodeDfCounts.data() );
 
-                    MORIS_ERROR(!mErrFlag, "Error reading global nodeset parameters!");
+                    MORIS_ERROR( !mErrFlag, "Error reading global nodeset parameters!" );
 
-                    if (mVerbose)
+                    if ( mVerbose )
                     {
-                        std::cout << "[" << par_rank() << "] " << "Global Nodeset IDs, Node Counts, and DF counts:" << std::endl;
-                        for (std::size_t bn=0; bn<mGlobalNodesetIds.size(); ++bn)
+                        std::cout << "[" << par_rank() << "] "
+                                  << "Global Nodeset IDs, Node Counts, and DF counts:" << std::endl;
+                        for ( std::size_t bn = 0; bn < mGlobalNodesetIds.size(); ++bn )
                         {
                             std::cout << "  [" << par_rank() << "] "
-                                    << "global_nodeset_ids["<<bn<<"]=" << mGlobalNodesetIds[bn] <<
-                                    ", num_global_node_counts["<<bn<<"]=" << mNumGlobalNodeCounts[bn] <<
-                                    ", num_global_node_df_counts["<<bn<<"]=" << mNumGlobalNodeDfCounts[bn] <<
-                                    std::endl;
+                                      << "global_nodeset_ids[" << bn << "]=" << mGlobalNodesetIds[ bn ] << ", num_global_node_counts[" << bn << "]=" << mNumGlobalNodeCounts[ bn ] << ", num_global_node_df_counts[" << bn << "]=" << mNumGlobalNodeDfCounts[ bn ] << std::endl;
                         }
                     }
                 }
@@ -522,20 +519,20 @@ namespace moris
         void
         Exodus_IO_Helper::get_node_map()
         {
-            if (par_size() > 1 && mBuildGlobal)
+            if ( par_size() > 1 && mBuildGlobal )
             {
-                mNodeMapi.resize(mNumInternalNodes,1);
-                mNodeMapb.resize(mNumBorderNodes,1);
-                mNodeMape.resize(mNumExternalNodes,1);
+                mNodeMapi.resize( mNumInternalNodes, 1 );
+                mNodeMapb.resize( mNumBorderNodes, 1 );
+                mNodeMape.resize( mNumExternalNodes, 1 );
 
-                mErrFlag =ne_get_node_map(
+                mErrFlag = ne_get_node_map(
                         mExoFileId,
                         mNodeMapi.data(),
                         mNodeMapb.data(),
                         mNodeMape.data(),
-                        par_rank());
+                        par_rank() );
 
-                MORIS_ERROR(!mErrFlag, "ne_get_node_map failed!");
+                MORIS_ERROR( !mErrFlag, "ne_get_node_map failed!" );
             }
         }
 
@@ -544,14 +541,14 @@ namespace moris
         void
         Exodus_IO_Helper::get_node_id_map()
         {
-            mNodeNumMap.resize(1,mNumNodes);
+            mNodeNumMap.resize( 1, mNumNodes );
 
             mErrFlag = ex_get_id_map(
                     mExoFileId,
                     EX_NODE_MAP,
-                    mNodeNumMap.data());
+                    mNodeNumMap.data() );
 
-            MORIS_ERROR(!mErrFlag, "get_node_id_map failed.");
+            MORIS_ERROR( !mErrFlag, "get_node_id_map failed." );
         }
 
         // ---------------------------------------------------------------------------------------------
@@ -559,12 +556,12 @@ namespace moris
         void
         Exodus_IO_Helper::get_elem_id_map()
         {
-            mElemNumMap.resize(1,mNumElem);
+            mElemNumMap.resize( 1, mNumElem );
 
             mErrFlag = ex_get_id_map(
                     mExoFileId,
                     EX_ELEM_MAP,
-                    mElemNumMap.data());
+                    mElemNumMap.data() );
         }
 
         // ---------------------------------------------------------------------------------------------
@@ -573,62 +570,67 @@ namespace moris
         Exodus_IO_Helper::get_set_information()
         {
             // Read node sets
-            if (mNumNodeSets > 0)
+            if ( mNumNodeSets > 0 )
             {
                 // Node set information
-                mNodeSetIds.resize(mNumNodeSets);
+                mNodeSetIds.resize( mNumNodeSets );
 
                 mErrFlag = ex_get_ids(
                         mExoFileId,
                         EX_NODE_SET,
-                        mNodeSetIds.data());
+                        mNodeSetIds.data() );
 
-                MORIS_ASSERT(!mErrFlag,"ex_get_ids for node sets sets failed");
+                MORIS_ASSERT( !mErrFlag, "ex_get_ids for node sets sets failed" );
 
                 setup_names(
-                        int(mNumNodeSets),
+                        int( mNumNodeSets ),
                         mNodeSetNamesMemory,
-                        mNodeSetNamePtrs);
+                        mNodeSetNamePtrs );
 
                 mErrFlag = ex_get_names(
                         mExoFileId,
                         EX_NODE_SET,
-                        mNodeSetNamePtrs.data());
+                        mNodeSetNamePtrs.data() );
 
-                MORIS_ASSERT(!mErrFlag,"ex_get_names for node sets sets failed");
+                MORIS_ASSERT( !mErrFlag, "ex_get_names for node sets sets failed" );
 
-                mNodeSetNEntries.resize(mNumNodeSets);
-                mNodeSetNodeIds.resize(mNumNodeSets);
-                mNodeSetDistFactors.resize(mNumNodeSets);
+                mNodeSetNEntries.resize( mNumNodeSets );
+                mNodeSetNodeIds.resize( mNumNodeSets );
+                mNodeSetDistFactors.resize( mNumNodeSets );
 
-                for (size_t i = 0; i < mNodeSetIds.size(); ++i)
+                for ( size_t i = 0; i < mNodeSetIds.size(); ++i )
                 {
                     mErrFlag = ex_get_set_param(
                             mExoFileId,
                             EX_NODE_SET,
-                            mNodeSetIds[i],
-                            &mNodeSetNEntries[i],
-                            &mNodeSetDistFactors[i]);
+                            mNodeSetIds[ i ],
+                            &mNodeSetNEntries[ i ],
+                            &mNodeSetDistFactors[ i ] );
 
-                    MORIS_ASSERT(!mErrFlag,"ex_get_set_param for node sets failed");
+                    MORIS_ASSERT( !mErrFlag, "ex_get_set_param for node sets failed" );
 
-                    if (mVerbose) {
+                    if ( mVerbose )
+                    {
                         MORIS_LOG_INFO( " [%d] node set #%d | %s has %d sides, will be surface %d",
-                                par_rank(),mNodeSetIds[i],mNodeSetNamePtrs[i],mNodeSetNEntries[i],mNodeSetIds[i]);
+                                par_rank(),
+                                mNodeSetIds[ i ],
+                                mNodeSetNamePtrs[ i ],
+                                mNodeSetNEntries[ i ],
+                                mNodeSetIds[ i ] );
                     }
 
-                    if ( mNodeSetNEntries[i] > 0 )
+                    if ( mNodeSetNEntries[ i ] > 0 )
                     {
-                        mNodeSetNodeIds[i] = Matrix<IndexMat>(1,mNodeSetNEntries[i]);
+                        mNodeSetNodeIds[ i ] = Matrix< IndexMat >( 1, mNodeSetNEntries[ i ] );
 
                         mErrFlag = ex_get_set(
                                 mExoFileId,
                                 EX_NODE_SET,
-                                mNodeSetIds[i],
-                                mNodeSetNodeIds[i].data(),
-                                nullptr);
+                                mNodeSetIds[ i ],
+                                mNodeSetNodeIds[ i ].data(),
+                                nullptr );
 
-                        MORIS_ASSERT(!mErrFlag,"ex_get_set for node sets failed");
+                        MORIS_ASSERT( !mErrFlag, "ex_get_set for node sets failed" );
                     }
                 }
             }
@@ -636,141 +638,151 @@ namespace moris
             // Read side sets
             if ( mNumSideSets > 0 )
             {
-                mSideSetIds.resize(mNumSideSets);
+                mSideSetIds.resize( mNumSideSets );
 
                 mErrFlag = ex_get_ids(
                         mExoFileId,
                         EX_SIDE_SET,
-                        mSideSetIds.data());
+                        mSideSetIds.data() );
 
-                MORIS_ASSERT(!mErrFlag,"ex_get_ids for side sets failed");
+                MORIS_ASSERT( !mErrFlag, "ex_get_ids for side sets failed" );
 
                 // get/put side set names
                 setup_names(
-                        int(mNumSideSets),
+                        int( mNumSideSets ),
                         SideSetNamesMemory,
-                        mSideSetNamePtrs);
+                        mSideSetNamePtrs );
 
                 mErrFlag = ex_get_names(
                         mExoFileId,
                         EX_SIDE_SET,
-                        mSideSetNamePtrs.data());
+                        mSideSetNamePtrs.data() );
 
-                MORIS_ASSERT(!mErrFlag,"ex_get_names for side sets failed");
+                MORIS_ASSERT( !mErrFlag, "ex_get_names for side sets failed" );
 
                 // Put the side set data into the new file
 
-                mSideSetNEntries.resize(mNumSideSets);
-                mSideSetElemIds.resize(mNumSideSets);
-                mSideSetSideOrd.resize(mNumSideSets);
-                mSideSetDistFactors.resize(mNumSideSets);
+                mSideSetNEntries.resize( mNumSideSets );
+                mSideSetElemIds.resize( mNumSideSets );
+                mSideSetSideOrd.resize( mNumSideSets );
+                mSideSetDistFactors.resize( mNumSideSets );
 
-                for (size_t i = 0; i < mSideSetIds.size(); ++i)
+                for ( size_t i = 0; i < mSideSetIds.size(); ++i )
                 {
                     mErrFlag = ex_get_set_param(
                             mExoFileId,
                             EX_SIDE_SET,
-                            mSideSetIds[i],
-                            &mSideSetNEntries[i],
-                            &mSideSetDistFactors[i] );
+                            mSideSetIds[ i ],
+                            &mSideSetNEntries[ i ],
+                            &mSideSetDistFactors[ i ] );
 
-                    MORIS_ASSERT(!mErrFlag,"ex_get_set_param for side sets failed");
+                    MORIS_ASSERT( !mErrFlag, "ex_get_set_param for side sets failed" );
 
-                    if (mVerbose) {
+                    if ( mVerbose )
+                    {
                         MORIS_LOG_INFO( " [%d] side set #%d | %s has %d sides, will be surface %d",
-                                par_rank(),mSideSetIds[i],mSideSetNamePtrs[i],mSideSetNEntries[i],mSideSetIds[i]);
+                                par_rank(),
+                                mSideSetIds[ i ],
+                                mSideSetNamePtrs[ i ],
+                                mSideSetNEntries[ i ],
+                                mSideSetIds[ i ] );
                     }
 
-                    if ( mSideSetNEntries[i] )
+                    if ( mSideSetNEntries[ i ] )
                     {
-                        mSideSetElemIds[i] = Matrix<IndexMat> (1,mSideSetNEntries[i]);
-                        mSideSetSideOrd[i] = Matrix<IndexMat> (1,mSideSetNEntries[i]);
+                        mSideSetElemIds[ i ] = Matrix< IndexMat >( 1, mSideSetNEntries[ i ] );
+                        mSideSetSideOrd[ i ] = Matrix< IndexMat >( 1, mSideSetNEntries[ i ] );
 
                         mErrFlag = ex_get_set(
                                 mExoFileId,
                                 EX_SIDE_SET,
-                                mSideSetIds[i],
-                                mSideSetElemIds[i].data(),
-                                mSideSetSideOrd[i].data());
+                                mSideSetIds[ i ],
+                                mSideSetElemIds[ i ].data(),
+                                mSideSetSideOrd[ i ].data() );
 
-                        MORIS_ASSERT(!mErrFlag,"ex_get_set for side sets failed");
+                        MORIS_ASSERT( !mErrFlag, "ex_get_set for side sets failed" );
                     }
                 }
             }
 
             // Read block sets
-            if (mNumElemBlk > 0)
+            if ( mNumElemBlk > 0 )
             {
-                mBlockIds.resize(mNumElemBlk);
+                mBlockIds.resize( mNumElemBlk );
 
                 mErrFlag = ex_get_ids(
                         mExoFileId,
                         EX_ELEM_BLOCK,
-                        mBlockIds.data());
+                        mBlockIds.data() );
 
-                MORIS_ASSERT(!mErrFlag,"ex_get_ids for element blocks failed");
+                MORIS_ASSERT( !mErrFlag, "ex_get_ids for element blocks failed" );
 
                 setup_names(
-                        int(mNumElemBlk),
+                        int( mNumElemBlk ),
                         mBlockNamesMemory,
-                        mBlockNamesPtrs);
+                        mBlockNamesPtrs );
 
                 mErrFlag = ex_get_names(
                         mExoFileId,
                         EX_ELEM_BLOCK,
-                        mBlockNamesPtrs.data());
+                        mBlockNamesPtrs.data() );
 
-                MORIS_ASSERT(!mErrFlag,"ex_get_names for element blocks failed");
+                MORIS_ASSERT( !mErrFlag, "ex_get_names for element blocks failed" );
 
                 setup_names(
-                        int(mNumElemBlk),
+                        int( mNumElemBlk ),
                         mBlockElemTypeNamesMemory,
-                        mBlockElemTypeNamesPtrs);
+                        mBlockElemTypeNamesPtrs );
 
-                mBlockSetNEntries.resize(mNumElemBlk);
-                mBlockSetNNodesPerEntry.resize(mNumElemBlk);
-                mBlockSetNedgesPerEntry.resize(mNumElemBlk);
-                mBlockSetNfacesPerEntry.resize(mNumElemBlk);
-                mBlockSetNattrPerEntry.resize(mNumElemBlk);
-                mBlockSetNodeConn.resize(mNumElemBlk);
-                mBlockSetEdgeConn.resize(mNumElemBlk);
-                mBlockSetFaceConn.resize(mNumElemBlk);
+                mBlockSetNEntries.resize( mNumElemBlk );
+                mBlockSetNNodesPerEntry.resize( mNumElemBlk );
+                mBlockSetNedgesPerEntry.resize( mNumElemBlk );
+                mBlockSetNfacesPerEntry.resize( mNumElemBlk );
+                mBlockSetNattrPerEntry.resize( mNumElemBlk );
+                mBlockSetNodeConn.resize( mNumElemBlk );
+                mBlockSetEdgeConn.resize( mNumElemBlk );
+                mBlockSetFaceConn.resize( mNumElemBlk );
 
-                for (size_t i = 0; i < mBlockIds.size(); ++i)
+                for ( size_t i = 0; i < mBlockIds.size(); ++i )
                 {
                     mErrFlag = ex_get_block(
                             mExoFileId,
                             EX_ELEM_BLOCK,
-                            mBlockIds[i],
-                            mBlockElemTypeNamesPtrs[i],
-                            &mBlockSetNEntries[i],
-                            &mBlockSetNNodesPerEntry[i],
-                            &mBlockSetNedgesPerEntry[i],
-                            &mBlockSetNfacesPerEntry[i],
-                            &mBlockSetNattrPerEntry[i]);
+                            mBlockIds[ i ],
+                            mBlockElemTypeNamesPtrs[ i ],
+                            &mBlockSetNEntries[ i ],
+                            &mBlockSetNNodesPerEntry[ i ],
+                            &mBlockSetNedgesPerEntry[ i ],
+                            &mBlockSetNfacesPerEntry[ i ],
+                            &mBlockSetNattrPerEntry[ i ] );
 
-                    MORIS_ASSERT(!mErrFlag,"ex_get_block failed");
+                    MORIS_ASSERT( !mErrFlag, "ex_get_block failed" );
 
-                    if (mVerbose) {
+                    if ( mVerbose )
+                    {
                         MORIS_LOG_INFO( " [%d] block set #%d | %s has %d elements of type %s",
-                                par_rank(),mBlockIds[i],mBlockNamesPtrs[i],mBlockSetNEntries[i],mBlockElemTypeNamesPtrs[i]);
+                                par_rank(),
+                                mBlockIds[ i ],
+                                mBlockNamesPtrs[ i ],
+                                mBlockSetNEntries[ i ],
+                                mBlockElemTypeNamesPtrs[ i ] );
                     }
 
-                    if ( mBlockSetNEntries[i] > 0 )
+                    if ( mBlockSetNEntries[ i ] > 0 )
                     {
-                        mBlockSetNodeConn[i] = Matrix<IndexMat>(1,mBlockSetNEntries[i]*mBlockSetNNodesPerEntry[i]);
-                        mBlockSetEdgeConn[i] = Matrix<IndexMat>(1,mBlockSetNEntries[i]*mBlockSetNedgesPerEntry[i]);
-                        mBlockSetFaceConn[i] = Matrix<IndexMat>(1,mBlockSetNEntries[i]*mBlockSetNfacesPerEntry[i]);
+                        mBlockSetNodeConn[ i ] = Matrix< IndexMat >( 1, mBlockSetNEntries[ i ] * mBlockSetNNodesPerEntry[ i ] );
+                        mBlockSetEdgeConn[ i ] = Matrix< IndexMat >( 1, mBlockSetNEntries[ i ] * mBlockSetNedgesPerEntry[ i ] );
+                        mBlockSetFaceConn[ i ] = Matrix< IndexMat >( 1, mBlockSetNEntries[ i ] * mBlockSetNfacesPerEntry[ i ] );
 
                         mErrFlag = ex_get_conn(
                                 mExoFileId,
                                 EX_ELEM_BLOCK,
-                                mBlockIds[i],
-                                mBlockSetNodeConn[i].data(),
-                                mBlockSetEdgeConn[i].data(),
-                                mBlockSetFaceConn[i].data());
+                                mBlockIds[ i ],
+                                mBlockSetNodeConn[ i ].data(),
+                                mBlockSetEdgeConn[ i ].data(),
+                                mBlockSetFaceConn[ i ].data() );
 
-                        MORIS_ASSERT(!mErrFlag,"ex_get_conn failed");
+                        MORIS_ASSERT( !mErrFlag, "ex_get_conn failed" );
                     }
                 }
             }
@@ -784,52 +796,52 @@ namespace moris
             mErrFlag = ex_get_variable_param(
                     mExoFileId,
                     EX_NODAL,
-                    &mNumNodalVars);
+                    &mNumNodalVars );
 
-            MORIS_ASSERT(!mErrFlag,"ex_get_variable_param failed");
+            MORIS_ASSERT( !mErrFlag, "ex_get_variable_param failed" );
 
             // get number of time steps stored in exodus file
-            mNumTimeSteps = ex_inquire_int(mExoFileId, EX_INQ_TIME);
+            mNumTimeSteps = ex_inquire_int( mExoFileId, EX_INQ_TIME );
 
-            MORIS_ASSERT(mNumTimeSteps >= 0,"ex_inquire_int with EX_INQ_TIME failed.");
+            MORIS_ASSERT( mNumTimeSteps >= 0, "ex_inquire_int with EX_INQ_TIME failed." );
 
-            if(mVerbose)
+            if ( mVerbose )
             {
-                MORIS_LOG_INFO( " [%d] number of nodal variables = %d",par_rank(),mNumNodalVars);
-                MORIS_LOG_INFO( " [%d] number of time steps      = %d",par_rank(),mNumTimeSteps);
+                MORIS_LOG_INFO( " [%d] number of nodal variables = %d", par_rank(), mNumNodalVars );
+                MORIS_LOG_INFO( " [%d] number of time steps      = %d", par_rank(), mNumTimeSteps );
             }
 
-            if(mNumNodalVars == 0)
+            if ( mNumNodalVars == 0 )
             {
-                return ;
+                return;
             }
 
             setup_names(
                     mNumNodalVars,
                     mNodeFieldNamesMemory,
-                    mNodeFieldNamePtrs);
+                    mNodeFieldNamePtrs );
 
             mErrFlag = ex_get_variable_names(
                     mExoFileId,
                     EX_NODAL,
                     mNumNodalVars,
-                    mNodeFieldNamePtrs.data());
+                    mNodeFieldNamePtrs.data() );
 
-            MORIS_ASSERT(!mErrFlag,"ex_get_variable_names failed");
+            MORIS_ASSERT( !mErrFlag, "ex_get_variable_names failed" );
 
-            mFieldsNodalVars.resize(mNumNodalVars);
+            mFieldsNodalVars.resize( mNumNodalVars );
 
             // loop over all nodal variable field and allocate memory
-            for (int i = 0; i < mNumNodalVars; ++i)
+            for ( int i = 0; i < mNumNodalVars; ++i )
             {
-                auto name = mNodeFieldNamePtrs[std::size_t(i)];
+                auto name = mNodeFieldNamePtrs[ std::size_t( i ) ];
 
-                if (mVerbose)
+                if ( mVerbose )
                 {
-                    MORIS_LOG_INFO( " [%d] Nodal variables #%d : %s",par_rank(),i,name);
+                    MORIS_LOG_INFO( " [%d] Nodal variables #%d : %s", par_rank(), i, name );
                 }
 
-                mFieldsNodalVars[i] = Matrix<DDRMat>(mNumNodes, 1);
+                mFieldsNodalVars[ i ] = Matrix< DDRMat >( mNumNodes, 1 );
             }
 
             // read nodal variable fields
@@ -843,24 +855,25 @@ namespace moris
         {
             MORIS_ERROR( mTimeStepIndex < mNumTimeSteps, "Requested time step does not exist." );
 
-            for (int i = 0; i < mNumNodalVars; ++i)
+            for ( int i = 0; i < mNumNodalVars; ++i )
             {
                 mErrFlag = ex_get_var(
                         mExoFileId,
                         mTimeStepIndex + 1,
-                        EX_NODAL, i + 1,
+                        EX_NODAL,
+                        i + 1,
                         0,
                         mNumNodes,
-                        mFieldsNodalVars[i].data());
+                        mFieldsNodalVars[ i ].data() );
 
-                MORIS_ASSERT(!mErrFlag,"ex_get_var failed");
+                MORIS_ASSERT( !mErrFlag, "ex_get_var failed" );
 
                 mErrFlag = ex_get_time(
                         mExoFileId,
                         mTimeStepIndex + 1,
                         &mTimeValue );
 
-                MORIS_ASSERT(!mErrFlag,"ex_get_time failed");
+                MORIS_ASSERT( !mErrFlag, "ex_get_time failed" );
             }
         }
 
@@ -872,40 +885,40 @@ namespace moris
             mErrFlag = ex_get_variable_param(
                     mExoFileId,
                     EX_GLOBAL,
-                    &mNumGlobalVars);
+                    &mNumGlobalVars );
 
-            MORIS_ASSERT(!mErrFlag,"ex_get_variable_param failed");
+            MORIS_ASSERT( !mErrFlag, "ex_get_variable_param failed" );
 
             // get number of time steps stored in exodus file
-            mNumTimeSteps = ex_inquire_int(mExoFileId, EX_INQ_TIME);
+            mNumTimeSteps = ex_inquire_int( mExoFileId, EX_INQ_TIME );
 
-            MORIS_ASSERT(mNumTimeSteps >= 0,"ex_inquire_int with EX_INQ_TIME failed.");
+            MORIS_ASSERT( mNumTimeSteps >= 0, "ex_inquire_int with EX_INQ_TIME failed." );
 
-            if(mVerbose)
+            if ( mVerbose )
             {
-                MORIS_LOG_INFO( " [%d] number of global variables = %d",par_rank(),mNumGlobalVars);
-                MORIS_LOG_INFO( " [%d] number of time steps       = %d",par_rank(),mNumTimeSteps);
+                MORIS_LOG_INFO( " [%d] number of global variables = %d", par_rank(), mNumGlobalVars );
+                MORIS_LOG_INFO( " [%d] number of time steps       = %d", par_rank(), mNumTimeSteps );
             }
 
-            if(mNumGlobalVars == 0)
+            if ( mNumGlobalVars == 0 )
             {
-                return ;
+                return;
             }
 
             setup_names(
                     mNumGlobalVars,
                     mGlobalVariableNamesMemory,
-                    mGlobalVariableNamePtrs);
+                    mGlobalVariableNamePtrs );
 
             mErrFlag = ex_get_variable_names(
                     mExoFileId,
                     EX_GLOBAL,
                     mNumGlobalVars,
-                    mGlobalVariableNamePtrs.data());
+                    mGlobalVariableNamePtrs.data() );
 
-            MORIS_ASSERT(!mErrFlag,"ex_get_variable_names failed");
+            MORIS_ASSERT( !mErrFlag, "ex_get_variable_names failed" );
 
-            mGlobalVariables.resize(mNumGlobalVars,1);
+            mGlobalVariables.resize( mNumGlobalVars, 1 );
 
             // read read global variables
             this->reload_global_variables();
@@ -921,137 +934,140 @@ namespace moris
             mErrFlag = ex_get_var(
                     mExoFileId,
                     mTimeStepIndex + 1,
-                    EX_GLOBAL, 1,
+                    EX_GLOBAL,
+                    1,
                     0,
                     mNumGlobalVars,
-                    mGlobalVariables.data());
+                    mGlobalVariables.data() );
 
-            MORIS_ASSERT(!mErrFlag,"ex_get_var failed");
+            MORIS_ASSERT( !mErrFlag, "ex_get_var failed" );
 
             mErrFlag = ex_get_time(
                     mExoFileId,
                     mTimeStepIndex + 1,
                     &mTimeValue );
 
-            MORIS_ASSERT(!mErrFlag,"ex_get_time failed");
+            MORIS_ASSERT( !mErrFlag, "ex_get_time failed" );
         }
 
         // ---------------------------------------------------------------------------------------------
 
         void
-        Exodus_IO_Helper::copy_coordinates(int tNewExoFileId)
+        Exodus_IO_Helper::copy_coordinates( int tNewExoFileId )
         {
-            const char *tmp[3] = {"x", "y", "z"};
-            char *coord_names[3];
+            const char *tmp[ 3 ] = { "x", "y", "z" };
+            char       *coord_names[ 3 ];
 
-            memcpy(coord_names, tmp, sizeof coord_names);
+            memcpy( coord_names, tmp, sizeof coord_names );
 
             mErrFlag = ex_put_coord_names(
                     tNewExoFileId,
-                    coord_names);
+                    coord_names );
 
-            mErrFlag = ex_put_coord(tNewExoFileId,
+            mErrFlag = ex_put_coord( tNewExoFileId,
                     mX.data(),
                     mY.data(),
-                    mZ.data());
+                    mZ.data() );
         }
 
         // ---------------------------------------------------------------------------------------------
 
         void
-        Exodus_IO_Helper::copy_node_sets(int aNewExoFileId)
+        Exodus_IO_Helper::copy_node_sets( int aNewExoFileId )
         {
             // Put the names onto the new file
             ex_put_names(
                     aNewExoFileId,
                     EX_NODE_SET,
-                    mNodeSetNamePtrs.data());
+                    mNodeSetNamePtrs.data() );
 
             // Put the side set data into the new file
-            for (size_t i = 0; i < mNodeSetIds.size(); ++i) {
+            for ( size_t i = 0; i < mNodeSetIds.size(); ++i )
+            {
 
                 ex_put_set_param(
                         aNewExoFileId,
                         EX_NODE_SET,
-                        mNodeSetIds[i],
-                        mNodeSetNEntries[i],
-                        mNodeSetDistFactors[i]);
+                        mNodeSetIds[ i ],
+                        mNodeSetNEntries[ i ],
+                        mNodeSetDistFactors[ i ] );
 
                 ex_put_set(
                         aNewExoFileId,
                         EX_NODE_SET,
-                        mNodeSetIds[i],
-                        mNodeSetNodeIds[i].data(),
-                        nullptr);
+                        mNodeSetIds[ i ],
+                        mNodeSetNodeIds[ i ].data(),
+                        nullptr );
             }
         }
 
         // ---------------------------------------------------------------------------------------------
 
         void
-        Exodus_IO_Helper::copy_side_sets(int aNewExoFileId)
+        Exodus_IO_Helper::copy_side_sets( int aNewExoFileId )
         {
             // Copy over the side sets
             ex_put_names(
                     aNewExoFileId,
                     EX_SIDE_SET,
-                    mSideSetNamePtrs.data());
+                    mSideSetNamePtrs.data() );
 
             // Put the side set data into the new file
-            for (size_t i = 0; i < mSideSetIds.size(); ++i) {
+            for ( size_t i = 0; i < mSideSetIds.size(); ++i )
+            {
 
                 ex_put_set_param(
                         aNewExoFileId,
                         EX_SIDE_SET,
-                        mSideSetIds[i],
-                        mSideSetNEntries[i],
-                        mSideSetDistFactors[i]);
+                        mSideSetIds[ i ],
+                        mSideSetNEntries[ i ],
+                        mSideSetDistFactors[ i ] );
 
-                if (mVerbose)
+                if ( mVerbose )
                 {
-                    MORIS_LOG_INFO( " Side set # %d | %s has %d sides, will be surface %d",mSideSetIds[i],mSideSetNamePtrs[i],mSideSetNEntries[i],mSideSetIds[i]);
+                    MORIS_LOG_INFO( " Side set # %d | %s has %d sides, will be surface %d", mSideSetIds[ i ], mSideSetNamePtrs[ i ], mSideSetNEntries[ i ], mSideSetIds[ i ] );
                 }
 
                 ex_put_set(
                         aNewExoFileId,
                         EX_SIDE_SET,
-                        mSideSetIds[i],
-                        mSideSetElemIds[i].data(),
-                        mSideSetSideOrd[i].data());
+                        mSideSetIds[ i ],
+                        mSideSetElemIds[ i ].data(),
+                        mSideSetSideOrd[ i ].data() );
             }
         }
 
         // ---------------------------------------------------------------------------------------------
 
         void
-        Exodus_IO_Helper::copy_block_sets(int aNewExoFileId)
+        Exodus_IO_Helper::copy_block_sets( int aNewExoFileId )
         {
-            ex_put_names(aNewExoFileId, EX_ELEM_BLOCK, mBlockNamesPtrs.data());
+            ex_put_names( aNewExoFileId, EX_ELEM_BLOCK, mBlockNamesPtrs.data() );
 
-            for (size_t i = 0; i < mBlockIds.size(); ++i)
+            for ( size_t i = 0; i < mBlockIds.size(); ++i )
             {
                 mErrFlag = ex_put_block(
                         aNewExoFileId,
                         EX_ELEM_BLOCK,
-                        mBlockIds[i],
-                        mBlockElemTypeNamesPtrs[i],
-                        mBlockSetNEntries[i],
-                        mBlockSetNNodesPerEntry[i],
-                        mBlockSetNedgesPerEntry[i],
-                        mBlockSetNfacesPerEntry[i],
-                        mBlockSetNattrPerEntry[i]);
+                        mBlockIds[ i ],
+                        mBlockElemTypeNamesPtrs[ i ],
+                        mBlockSetNEntries[ i ],
+                        mBlockSetNNodesPerEntry[ i ],
+                        mBlockSetNedgesPerEntry[ i ],
+                        mBlockSetNfacesPerEntry[ i ],
+                        mBlockSetNattrPerEntry[ i ] );
 
-                MORIS_ASSERT(!mErrFlag,"ex_put_block failed");
+                MORIS_ASSERT( !mErrFlag, "ex_put_block failed" );
 
                 mErrFlag = ex_put_conn(
                         aNewExoFileId,
                         EX_ELEM_BLOCK,
-                        mBlockIds[i],
-                        mBlockSetNodeConn[i].data(),
-                        mBlockSetEdgeConn[i].data(),
-                        mBlockSetFaceConn[i].data());
+                        mBlockIds[ i ],
+                        mBlockSetNodeConn[ i ].data(),
+                        mBlockSetEdgeConn[ i ].data(),
+                        mBlockSetFaceConn[ i ].data() );
 
-                MORIS_ASSERT(!mErrFlag,"ex_put_conn failed");
+                MORIS_ASSERT( !mErrFlag, "ex_put_conn failed" );
             }
         }
 
@@ -1059,17 +1075,17 @@ namespace moris
 
         void
         Exodus_IO_Helper::copy_nodal_fields(
-                int              aNewExoFileId,
-                ex_init_params & init_params)
+                int             aNewExoFileId,
+                ex_init_params &init_params )
         {
-            if(mVerbose)
+            if ( mVerbose )
             {
                 std::cout << mNumNodalVars << " nodal variables\n";
             }
 
-            if(mNumNodalVars == 0)
+            if ( mNumNodalVars == 0 )
             {
-                return ;
+                return;
             }
 
             int time_step = 0;
@@ -1077,22 +1093,23 @@ namespace moris
             ex_put_variable_param(
                     aNewExoFileId,
                     EX_NODAL,
-                    mNumNodalVars);
+                    mNumNodalVars );
 
             ex_put_variable_names(
                     aNewExoFileId,
                     EX_NODAL,
                     mNumNodalVars,
-                    mNodeFieldNamePtrs.data());
+                    mNodeFieldNamePtrs.data() );
 
-            for (int i = 0; i < mNumNodalVars; ++i) {
+            for ( int i = 0; i < mNumNodalVars; ++i )
+            {
 
-                auto name = mNodeFieldNamePtrs[std::size_t(i)];
+                auto name = mNodeFieldNamePtrs[ std::size_t( i ) ];
 
-                if (mVerbose)
+                if ( mVerbose )
                 {
                     std::cout << "Loading nodal variable \"" << name << "\" at time step "
-                            << time_step << '\n';
+                              << time_step << '\n';
                 }
 
                 ex_put_var(
@@ -1102,7 +1119,7 @@ namespace moris
                         i + 1,
                         /*obj_id*/ 0,
                         mNumNodes,
-                        mFieldsNodalVars[i].data());
+                        mFieldsNodalVars[ i ].data() );
             }
         }
 
@@ -1115,69 +1132,71 @@ namespace moris
             uint tNumNodes = this->get_number_of_nodes();
 
             // init min and max coordinate locations;
-            real tXMin = mX(0);
-            real tXMax = mX(0);
-            real tYMin = mY(0);
-            real tYMax = mY(0);
+            real tXMin = mX( 0 );
+            real tXMax = mX( 0 );
+            real tYMin = mY( 0 );
+            real tYMax = mY( 0 );
             real tZMin = 0.0;
             real tZMax = 0.0;
 
-            if( mNumDim == 3 )
+            if ( mNumDim == 3 )
             {
-                tZMin = mZ(0);
-                tZMax = mZ(0);
+                tZMin = mZ( 0 );
+                tZMax = mZ( 0 );
             }
 
             // looping through nodes to find min and max coordinate locations
             for ( uint iNode = 1; iNode < tNumNodes; iNode++ )
             {
                 // is this nodal location larger or smaller in all coordinate directions?
-                if( mX(iNode) < tXMin )
+                if ( mX( iNode ) < tXMin )
                 {
-                    tXMin = mX(iNode);
+                    tXMin = mX( iNode );
                 }
 
-                if( mX(iNode) > tXMax )
+                if ( mX( iNode ) > tXMax )
                 {
-                    tXMax = mX(iNode);
+                    tXMax = mX( iNode );
                 }
 
-                if( mY(iNode) < tYMin )
+                if ( mY( iNode ) < tYMin )
                 {
-                    tYMin = mY(iNode);
+                    tYMin = mY( iNode );
                 }
 
-                if( mY(iNode) > tYMax )
+                if ( mY( iNode ) > tYMax )
                 {
-                    tYMax = mY(iNode);
+                    tYMax = mY( iNode );
                 }
 
                 // is this a 3D problem?
-                if( mNumDim == 3)
+                if ( mNumDim == 3 )
                 {
-                    if( mZ(iNode) < tZMin )
+                    if ( mZ( iNode ) < tZMin )
                     {
-                        tZMin = mZ(iNode);
+                        tZMin = mZ( iNode );
                     }
 
-                    if( mZ(iNode) > tZMax )
+                    if ( mZ( iNode ) > tZMax )
                     {
-                        tZMax = mZ(iNode);
+                        tZMax = mZ( iNode );
                     }
                 }
             }
 
             // determining the characteristic length of the problem
-            if( mNumDim < 3 )
+            if ( mNumDim < 3 )
             {
                 mCharLength = std::pow( std::pow( tXMax - tXMin, 2 )
-                                      + std::pow( tYMax - tYMin, 2 ), 0.5 );
+                                                + std::pow( tYMax - tYMin, 2 ),
+                        0.5 );
             }
             else
             {
                 mCharLength = std::pow( std::pow( tXMax - tXMin, 2 )
-                                      + std::pow( tYMax - tYMin, 2 )
-                                      + std::pow( tZMax - tZMin, 2 ), 0.5 );
+                                                + std::pow( tYMax - tYMin, 2 )
+                                                + std::pow( tZMax - tZMin, 2 ),
+                        0.5 );
             }
         }
 
@@ -1185,11 +1204,11 @@ namespace moris
 
         std::string
         Exodus_IO_Helper::get_file_name(
-                const std::string & base,
-                const std::string & other)
+                const std::string &base,
+                const std::string &other )
         {
             // initialize string
-            std::string output(base);
+            std::string output( base );
 
             // add extra string
             if ( other.size() > 0 )
@@ -1201,47 +1220,47 @@ namespace moris
             uint tNprocs = par_size();
 
             // for parallel runs: add processor and rank with leading zeros
-            if ( tNprocs > 1)
+            if ( tNprocs > 1 )
             {
                 // add total number of processors
-                output += "." + std::to_string(tNprocs);
+                output += "." + std::to_string( tNprocs );
 
                 // write processor rank with leading zeros
-                char tRankChar[128];
+                char tRankChar[ 128 ];
 
-                uint tProcs = std::floor(std::log10(tNprocs));
+                uint tProcs = std::floor( std::log10( tNprocs ) );
 
-                switch (tProcs)
+                switch ( tProcs )
                 {
                     case 0:
                     {
-                        sprintf(tRankChar,".%d",par_rank());
+                        sprintf( tRankChar, ".%d", par_rank() );
                         break;
                     }
                     case 1:
                     {
-                        sprintf(tRankChar,".%02d",par_rank());
+                        sprintf( tRankChar, ".%02d", par_rank() );
                         break;
                     }
                     case 2:
                     {
-                        sprintf(tRankChar,".%03d",par_rank());
+                        sprintf( tRankChar, ".%03d", par_rank() );
                         break;
                     }
                     case 3:
                     {
-                        sprintf(tRankChar,".%04d",par_rank());
+                        sprintf( tRankChar, ".%04d", par_rank() );
                         break;
                     }
                     case 4:
                     {
-                        sprintf(tRankChar,".%05d",par_rank());
+                        sprintf( tRankChar, ".%05d", par_rank() );
                         break;
                     }
                     default:
                     {
-                        MORIS_ERROR(false,
-                                "Exodus_IO_Helper::get_file_name - too many processors for defining name.\n");
+                        MORIS_ERROR( false,
+                                "Exodus_IO_Helper::get_file_name - too many processors for defining name.\n" );
                     }
                 }
 
@@ -1256,38 +1275,39 @@ namespace moris
 
         void
         Exodus_IO_Helper::setup_names(
-                int nnames, std::vector<char>& storage,
-                std::vector<char*>           & ptrs)
+                int                    nnames,
+                std::vector< char >   &storage,
+                std::vector< char * > &ptrs )
         {
             constexpr auto max_name_length = MAX_STR_LENGTH + 1;
 
-            storage = std::vector<char>(std::size_t(nnames * max_name_length), '\0');
-            ptrs    = std::vector<char*>(std::size_t(nnames), nullptr);
+            storage = std::vector< char >( std::size_t( nnames * max_name_length ), '\0' );
+            ptrs    = std::vector< char    *>( std::size_t( nnames ), nullptr );
 
-            for (int i = 0; i < nnames; ++i)
+            for ( int i = 0; i < nnames; ++i )
             {
-                ptrs[std::size_t(i)] = storage.data() + max_name_length * i;
+                ptrs[ std::size_t( i ) ] = storage.data() + max_name_length * i;
             }
         }
 
         // ---------------------------------------------------------------------------------------------
 
-        moris::Matrix<DDRMat>
+        moris::Matrix< DDRMat >
         Exodus_IO_Helper::get_nodal_coordinate( uint aNodeId )
         {
             // find index of node given its nodeId
-            uint tIndex = this->get_node_index_by_Id(aNodeId);
+            uint tIndex = this->get_node_index_by_Id( aNodeId );
 
             // initialize nodal coordinate vector
-            Matrix<DDRMat> tNodalVec(mNumDim,1,0);
+            Matrix< DDRMat > tNodalVec( mNumDim, 1, 0 );
 
             // fill nodal coordinate vector
-            tNodalVec(0,0) = mX( tIndex );
-            tNodalVec(1,0) = mY( tIndex );
+            tNodalVec( 0, 0 ) = mX( tIndex );
+            tNodalVec( 1, 0 ) = mY( tIndex );
 
-            if (mNumDim == 3)
+            if ( mNumDim == 3 )
             {
-                tNodalVec(2,0) = mZ( tIndex );
+                tNodalVec( 2, 0 ) = mZ( tIndex );
             }
 
             return tNodalVec;
@@ -1299,23 +1319,23 @@ namespace moris
         Exodus_IO_Helper::get_nodal_field_value(
                 uint aNodeId,
                 uint aFieldIndex,
-                uint aTimeStepIndex)
+                uint aTimeStepIndex )
         {
             // find index of node given its nodeId
-            uint tIndex = this->get_node_index_by_Id(aNodeId);
+            uint tIndex = this->get_node_index_by_Id( aNodeId );
 
             // check that field exists
-            MORIS_ERROR( aFieldIndex < mFieldsNodalVars.size(), "Nodal field index out of bounds.");
+            MORIS_ERROR( aFieldIndex < mFieldsNodalVars.size(), "Nodal field index out of bounds." );
 
             // check if loaded time step is requested time step; if not load new time step
-            if ( aTimeStepIndex != (uint) mTimeStepIndex )
+            if ( aTimeStepIndex != (uint)mTimeStepIndex )
             {
                 mTimeStepIndex = aTimeStepIndex;
 
                 this->reload_nodal_fields();
             }
 
-            return mFieldsNodalVars[aFieldIndex](tIndex);
+            return mFieldsNodalVars[ aFieldIndex ]( tIndex );
         }
 
         // ---------------------------------------------------------------------------------------------
@@ -1340,14 +1360,14 @@ namespace moris
 
         real
         Exodus_IO_Helper::get_nodal_field_value_by_coords(
-                moris::Matrix<DDRMat> aCoords,
-                uint                  aFieldIndex,
-                uint                  aTimeStepIndex,
-                real                  aThreshold )
+                moris::Matrix< DDRMat > aCoords,
+                uint                    aFieldIndex,
+                uint                    aTimeStepIndex,
+                real                    aThreshold )
         {
             // are the coordinate incorrectly defined?
             MORIS_ERROR( aCoords.numel() > 1 && aCoords.numel() < 4,
-                    "Exodus_IO_Helper::get_nodal_field_value_by_coords - incorrectly defined nodal coordinates.");
+                    "Exodus_IO_Helper::get_nodal_field_value_by_coords - incorrectly defined nodal coordinates." );
 
             // find index of node given its nodeId
             uint tNumNodes = this->get_number_of_nodes();
@@ -1366,14 +1386,16 @@ namespace moris
                 // if problem is 2d or 3d
                 if ( mNumDim < 3 )
                 {
-                    tDistance = std::pow( std::pow( mX(iNode) - aCoords(0), 2 )
-                                        + std::pow( mY(iNode) - aCoords(1), 2 ), 0.5);
+                    tDistance = std::pow( std::pow( mX( iNode ) - aCoords( 0 ), 2 )
+                                                  + std::pow( mY( iNode ) - aCoords( 1 ), 2 ),
+                            0.5 );
                 }
                 else
                 {
-                    tDistance = std::pow( std::pow( mX(iNode) - aCoords(0), 2 )
-                                        + std::pow( mY(iNode) - aCoords(1), 2 )
-                                        + std::pow( mZ(iNode) - aCoords(2), 2 ), 0.5);
+                    tDistance = std::pow( std::pow( mX( iNode ) - aCoords( 0 ), 2 )
+                                                  + std::pow( mY( iNode ) - aCoords( 1 ), 2 )
+                                                  + std::pow( mZ( iNode ) - aCoords( 2 ), 2 ),
+                            0.5 );
                 }
 
                 // is this distance less than one the smallest distances?
@@ -1390,42 +1412,41 @@ namespace moris
             // the minimum distance must be less than the stipulated tolerance.
             // aThreshold is defaulted to 1e-6 but can be stipulated
             MORIS_ERROR( tDistanceMin < aThreshold * mCharLength,
-                    "Exodus_IO_Helper::get_nodal_field_value_by_coords - stipulated location does not match any nodal location.");
+                    "Exodus_IO_Helper::get_nodal_field_value_by_coords - stipulated location does not match any nodal location." );
 
             // check that field exists
-            MORIS_ERROR( aFieldIndex < mFieldsNodalVars.size(), "Nodal field index out of bounds.");
+            MORIS_ERROR( aFieldIndex < mFieldsNodalVars.size(), "Nodal field index out of bounds." );
 
             // check if loaded time step is requested time step; if not load new time step
-            if ( aTimeStepIndex != (uint) mTimeStepIndex )
+            if ( aTimeStepIndex != (uint)mTimeStepIndex )
             {
                 mTimeStepIndex = aTimeStepIndex;
 
                 this->reload_nodal_fields();
             }
 
-            return mFieldsNodalVars[aFieldIndex](tMinNodeIndex);
+            return mFieldsNodalVars[ aFieldIndex ]( tMinNodeIndex );
         }
 
         // ---------------------------------------------------------------------------------------------
 
-        const
-        Matrix<DDRMat> &
+        const Matrix< DDRMat > &
         Exodus_IO_Helper::get_nodal_field_vector(
                 uint aFieldIndex,
-                uint aTimeStepIndex)
+                uint aTimeStepIndex )
         {
             // check that field exists
-            MORIS_ERROR( aFieldIndex < mFieldsNodalVars.size(), "Nodal field index out of bounds.");
+            MORIS_ERROR( aFieldIndex < mFieldsNodalVars.size(), "Nodal field index out of bounds." );
 
             // check if loaded time step is requested time step; if not load new time step
-            if ( aTimeStepIndex != (uint) mTimeStepIndex )
+            if ( aTimeStepIndex != (uint)mTimeStepIndex )
             {
                 mTimeStepIndex = aTimeStepIndex;
 
                 this->reload_nodal_fields();
             }
 
-            return mFieldsNodalVars[aFieldIndex];
+            return mFieldsNodalVars[ aFieldIndex ];
         }
 
         //------------------------------------------------------------------------------
@@ -1436,43 +1457,43 @@ namespace moris
                 uint aTimeStepIndex )
         {
             // check that field exists
-            MORIS_ERROR( aGlobalVariableIndex < (uint) mNumGlobalVars, "Global variable index out of bounds.");
+            MORIS_ERROR( aGlobalVariableIndex < (uint)mNumGlobalVars, "Global variable index out of bounds." );
 
             // check if loaded time step is requested time step; if not load new time step
-            if ( aTimeStepIndex != (uint) mTimeStepIndex )
+            if ( aTimeStepIndex != (uint)mTimeStepIndex )
             {
                 mTimeStepIndex = aTimeStepIndex;
 
                 this->reload_global_variables();
             }
 
-            return mGlobalVariables(aGlobalVariableIndex);
+            return mGlobalVariables( aGlobalVariableIndex );
         }
 
         //------------------------------------------------------------------------------
 
-        const char*
+        const char *
         Exodus_IO_Helper::get_global_variable_name( uint aGlobalVariableIndex )
         {
             // check that field exists
-            MORIS_ERROR( aGlobalVariableIndex < (uint) mNumGlobalVars, "Global variable index out of bounds.");
+            MORIS_ERROR( aGlobalVariableIndex < (uint)mNumGlobalVars, "Global variable index out of bounds." );
 
-            return mGlobalVariableNamePtrs[aGlobalVariableIndex];
+            return mGlobalVariableNamePtrs[ aGlobalVariableIndex ];
         }
 
         //------------------------------------------------------------------------------
 
         uint
-        Exodus_IO_Helper::get_node_index_by_Id( uint aNodeId)
+        Exodus_IO_Helper::get_node_index_by_Id( uint aNodeId )
         {
             // find index of node given its nodeId
-            auto tItr = std::find(mNodeNumMap.data(),mNodeNumMap.data()+mNumNodes,aNodeId);
+            auto tItr = std::find( mNodeNumMap.data(), mNodeNumMap.data() + mNumNodes, aNodeId );
 
             // compute index
-            uint tIndex = std::distance(mNodeNumMap.data(),tItr);
+            uint tIndex = std::distance( mNodeNumMap.data(), tItr );
 
             // check that exactly one node index was found
-            MORIS_ASSERT( tIndex < (uint) mNumNodes, "Node not found");
+            MORIS_ASSERT( tIndex < (uint)mNumNodes, "Node not found" );
 
             return tIndex;
         }
@@ -1482,11 +1503,11 @@ namespace moris
         uint
         Exodus_IO_Helper::get_field_index_by_name( std::string aFileName )
         {
-            if (mNumNodalVars > 0 )
+            if ( mNumNodalVars > 0 )
             {
-                for ( uint i=0;i<(uint)mNumNodalVars;++i)
+                for ( uint i = 0; i < (uint)mNumNodalVars; ++i )
                 {
-                    if (aFileName.compare( mNodeFieldNamePtrs[std::size_t(i)] ) == 0 )
+                    if ( aFileName.compare( mNodeFieldNamePtrs[ std::size_t( i ) ] ) == 0 )
                     {
                         return i;
                     }
@@ -1495,11 +1516,11 @@ namespace moris
 
             // check that field index was found
             MORIS_ERROR( false,
-                    "Exodus_IO_Helper::get_field_index_by_name - field %s not found.",aFileName.c_str());
+                    "Exodus_IO_Helper::get_field_index_by_name - field %s not found.",
+                    aFileName.c_str() );
 
             return 0;
         }
 
-    }
-}
-
+    }    // namespace mtk
+}    // namespace moris

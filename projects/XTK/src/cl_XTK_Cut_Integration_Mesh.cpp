@@ -2644,13 +2644,13 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Cut_Integration_Mesh::update_communication_table(moris::Cell<moris_id> const & aNewCommunicationTable)
+    Cut_Integration_Mesh::update_communication_table( moris::Cell< moris_id > const & aNewCommunicationTable )
     {
         // resize the communication table
-        mCommunicationTable.resize(aNewCommunicationTable.size(),1);
+        mCommunicationTable.resize( aNewCommunicationTable.size(), 1 );
 
         // copy the new communication table to the old one
-        std::copy(aNewCommunicationTable.begin(), aNewCommunicationTable.end(), mCommunicationTable.begin());
+        std::copy( aNewCommunicationTable.begin(), aNewCommunicationTable.end(), mCommunicationTable.begin() );
 
         // set the flag that the communication table has been constructed
         mCommMapHasBeenConstructed = false;

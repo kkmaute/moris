@@ -29,8 +29,8 @@ namespace moris::hmr
 
     Mesh::Mesh(
             std::shared_ptr< Database > aDatabase,
-            uint                 aLagrangeOrder,
-            uint                 aLagrangePattern )
+            uint                        aLagrangeOrder,
+            uint                        aLagrangePattern )
     {
         // copy database pointer
         mDatabase = aDatabase;
@@ -89,7 +89,7 @@ namespace moris::hmr
 
     Mesh::Mesh(
             std::shared_ptr< Database > aDatabase,
-            uint                 aLagrangeMeshIndex )
+            uint                        aLagrangeMeshIndex )
     {
         // copy database pointer
         mDatabase = aDatabase;
@@ -113,9 +113,9 @@ namespace moris::hmr
 
     Mesh::Mesh(
             std::shared_ptr< Database > aDatabase,
-            uint                 aOrder,
-            uint                 aLagrangePattern,
-            uint                 aBsplinePattern )
+            uint                        aOrder,
+            uint                        aLagrangePattern,
+            uint                        aBsplinePattern )
     {
         // copy database pointer
         mDatabase = aDatabase;
@@ -172,10 +172,10 @@ namespace moris::hmr
 
     Mesh::Mesh(
             std::shared_ptr< Database > aDatabase,
-            uint                 aLagrangeOrder,
-            uint                 aLagrangePattern,
-            uint                 aBSplineOrder,
-            uint                 aBSplinePattern )
+            uint                        aLagrangeOrder,
+            uint                        aLagrangePattern,
+            uint                        aBSplineOrder,
+            uint                        aBSplinePattern )
     {
         // copy database pointer
         mDatabase = aDatabase;
@@ -261,7 +261,7 @@ namespace moris::hmr
     std::shared_ptr< Field >
     Mesh::create_field(
             const std::string& aLabel,
-            uint        aBSplineIndex )
+            uint               aBSplineIndex )
     {
         // fixme: this is not the best solution. See also
         // https://forum.libcinder.org/topic/solution-calling-shared-from-this-in-the-constructor
@@ -282,21 +282,24 @@ namespace moris::hmr
     // MTK
     //-----------------------------------------------------------------------------
 
-    uint Mesh::get_spatial_dim() const
+    uint
+    Mesh::get_spatial_dim() const
     {
         return mDatabase->get_parameters()->get_number_of_dimensions();
     }
 
     //-----------------------------------------------------------------------------
 
-    uint Mesh::get_order()
+    uint
+    Mesh::get_order()
     {
         return mMesh->get_order();
     }
 
     //-----------------------------------------------------------------------------
 
-    uint Mesh::get_discretization_order( uint aDiscretizationIndex )
+    uint
+    Mesh::get_discretization_order( uint aDiscretizationIndex )
     {
         return mMesh->get_bspline_order( aDiscretizationIndex );
     }
@@ -985,8 +988,8 @@ namespace moris::hmr
         }
         else
         {
-            Element* tLeader = tFacet->get_hmr_leader();
-            Element* tFollower  = tFacet->get_hmr_follower();
+            Element* tLeader   = tFacet->get_hmr_leader();
+            Element* tFollower = tFacet->get_hmr_follower();
 
             if ( tLeader->is_active() && tFollower->is_active() )
             {
@@ -1093,8 +1096,8 @@ namespace moris::hmr
         // get the HMR cell
         const Element* aHMRCell = dynamic_cast< const Element* >( aBsplineElement );
 
-        // get level and ijk 
-        aLevel = aHMRCell->get_level(); 
+        // get level and ijk
+        aLevel = aHMRCell->get_level();
         return aHMRCell->get_ijk();
     }
 
@@ -1110,32 +1113,32 @@ namespace moris::hmr
     {
         Element& aHMRLagrangeCell = dynamic_cast< Element& >( aLagrangeCell );
         mMesh->get_extended_t_matrix( aDiscretizationMeshIndex,
-                                      aBSplineCellIndex,
-                                      aHMRLagrangeCell,
-                                      tBsplineBasis,
-                                      tWeights );
+                aBSplineCellIndex,
+                aHMRLagrangeCell,
+                tBsplineBasis,
+                tWeights );
     }
 
     // ----------------------------------------------------------------------------
 
     void
     Mesh::get_L2_projection_matrix(
-            moris_index                                 aDiscretizationMeshIndex,
-            const mtk::Cell*                            aRootBSplineCell,
-            const mtk::Cell*                            aExtendedBSplineCell,
+            moris_index                                       aDiscretizationMeshIndex,
+            const mtk::Cell*                                  aRootBSplineCell,
+            const mtk::Cell*                                  aExtendedBSplineCell,
             moris::Cell< moris::Cell< const mtk::Vertex* > >& tRootBsplineBasis,
             moris::Cell< const mtk::Vertex* >&                tExtendedBsplineBasis,
-            moris::Cell< Matrix< DDRMat > >&            tWeights )
+            moris::Cell< Matrix< DDRMat > >&                  tWeights )
     {
-        const Element* aHMRRootCell = dynamic_cast< const Element* >( aRootBSplineCell );
-        const Element* aHMRExtendedCell = dynamic_cast<const Element* >( aExtendedBSplineCell );
+        const Element* aHMRRootCell     = dynamic_cast< const Element* >( aRootBSplineCell );
+        const Element* aHMRExtendedCell = dynamic_cast< const Element* >( aExtendedBSplineCell );
 
         mMesh->get_L2_projection_matrix( aDiscretizationMeshIndex,
-                                         aHMRRootCell,
-                                         aHMRExtendedCell,
-                                         tRootBsplineBasis,
-                                         tExtendedBsplineBasis,
-                                         tWeights );
+                aHMRRootCell,
+                aHMRExtendedCell,
+                tRootBsplineBasis,
+                tExtendedBsplineBasis,
+                tWeights );
     }
 
     //-----------------------------------------------------------------------------
@@ -2495,4 +2498,4 @@ namespace moris::hmr
 
     //-------------------------------------------------------------------------------
 
-} /* namespace moris */
+}    // namespace moris::hmr

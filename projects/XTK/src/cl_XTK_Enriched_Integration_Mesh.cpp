@@ -31,7 +31,6 @@
 
 namespace xtk
 {
-
     //------------------------------------------------------------------------------
 
     Enriched_Integration_Mesh::Enriched_Integration_Mesh( Model *aXTKModel )
@@ -2251,7 +2250,7 @@ namespace xtk
                 {
                     std::cout << "\n      Leader Interpolation Cell: " << std::setw( 9 ) <<    //
                             mDoubleSideSets( iSS )( i )->get_interpolation_cell( mtk::Leader_Follower::LEADER ).get_id();
-                    std::cout << " | Follower Interpolation Cell: " << std::setw( 9 ) <<       //
+                    std::cout << " | Follower Interpolation Cell: " << std::setw( 9 ) <<    //
                             mDoubleSideSets( iSS )( i )->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER ).get_id();
                 }
             }
@@ -3331,7 +3330,8 @@ namespace xtk
                     // check that the number of cells reportedly attached to the current facet are as expected
                     MORIS_ERROR( tNumCellsAttachedToFacet == 1 || tNumCellsAttachedToFacet == 2,
                             "Enriched_Integration_Mesh::setup_side_cluster_groups() - "
-                            "There are %i cells attached to a facet. This shouldn't happen. Each facet is connected to either one or two facets.", tNumCellsAttachedToFacet );
+                            "There are %i cells attached to a facet. This shouldn't happen. Each facet is connected to either one or two facets.",
+                            tNumCellsAttachedToFacet );
 
                     // treat side clusters on outer mesh boundaries and at interfaces differently
                     if ( tNumCellsAttachedToFacet == 1 )    // case: outer mesh boundary
@@ -3372,7 +3372,7 @@ namespace xtk
 
                 }    // end for: each side cluster in set
 
-            }        // end for: each side set
+            }    // end for: each side set
 
             // go through SPGs and collect side cluster groups related to each one
             for ( uint iSPG = 0; iSPG < tNumSPGs; iSPG++ )
@@ -3733,9 +3733,9 @@ namespace xtk
                         }
                     }    // end for: each follower cluster group constructed on the current SPG
 
-                }        // end for: each SPG on current B-spline mesh
+                }    // end for: each SPG on current B-spline mesh
 
-            }            // end for: each dbl sided side set
+            }    // end for: each dbl sided side set
 
             // free unused memory
             mDblSideClusterGroups( tDMI ).shrink_to_fit();
@@ -3844,7 +3844,7 @@ namespace xtk
 
         }    // end for: each side set
 
-    }        // end function: Enriched_Integration_Mesh::visualize_cluster_measures()
+    }    // end function: Enriched_Integration_Mesh::visualize_cluster_measures()
 
     //------------------------------------------------------------------------------
 
@@ -3984,7 +3984,7 @@ namespace xtk
 
             }    // end for: each B-spline mesh
 
-        }        // end for: each side set
+        }    // end for: each side set
 
         //----------------------------------------------------------------
         // Generate and write SPG fields
@@ -4692,7 +4692,7 @@ namespace xtk
 
         // count up number of elements in side clusters
         uint tNumElemsInSideSet = 0;
-        for( auto iCluster : mSideSets( tSideSetOrdinal ) )
+        for ( auto iCluster : mSideSets( tSideSetOrdinal ) )
         {
             tNumElemsInSideSet += iCluster->get_num_primary_cells();
         }

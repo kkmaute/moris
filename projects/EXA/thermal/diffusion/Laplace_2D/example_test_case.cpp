@@ -29,7 +29,7 @@ bool gPrintReferenceValues = false;
 
 //---------------------------------------------------------------
 
-int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] );
+int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] );
 
 //---------------------------------------------------------------
 
@@ -38,9 +38,9 @@ check_results(
         std::string aExoFileName,
         uint        aTestCaseIndex )
 {
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processor.", aTestCaseIndex, par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     // open and query exodus output file (set verbose to true to get basic mesh information)
     moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, false, true );
@@ -78,7 +78,7 @@ check_results(
     // define reference values for dimension, number of nodes and number of elements
     Cell< uint > tReferenceNumDims  = { 2, 2 };
     Cell< uint > tReferenceNumNodes = { 126, 25 };
-    Cell< uint > tReferenceNumElems = { 52, 4};
+    Cell< uint > tReferenceNumElems = { 52, 4 };
 
     // check dimension, number of nodes and number of elements
     uint tNumDims  = tExoIO.get_number_of_dimensions();
@@ -105,14 +105,14 @@ check_results(
     real tL2ErrorActual       = tExoIO.get_global_variable( 0, 0 );
     real tDiffusiveFluxActual = tExoIO.get_global_variable( 1, 0 );
 
-    Cell<real> tL2ErrorReference = { 6.65582e-07, 6.65582e-07 };
-    Cell<real> tDiffusiveFluxReference = { 0.0504293, 0.0504293 };
+    Cell< real > tL2ErrorReference       = { 6.65582e-07, 6.65582e-07 };
+    Cell< real > tDiffusiveFluxReference = { 0.0504293, 0.0504293 };
 
-    real tRelL2Difference = ( tL2ErrorActual - tL2ErrorReference( aTestCaseIndex ) ) /  tL2ErrorReference( aTestCaseIndex ) ;
-    real tRelFluxDifference = ( tDiffusiveFluxActual - tDiffusiveFluxReference( aTestCaseIndex ) ) /  tDiffusiveFluxReference( aTestCaseIndex ) ;
+    real tRelL2Difference   = ( tL2ErrorActual - tL2ErrorReference( aTestCaseIndex ) ) / tL2ErrorReference( aTestCaseIndex );
+    real tRelFluxDifference = ( tDiffusiveFluxActual - tDiffusiveFluxReference( aTestCaseIndex ) ) / tDiffusiveFluxReference( aTestCaseIndex );
 
     MORIS_LOG_INFO( "Check nodal temperature:  reference %12.5e, actual %12.5e, percent error %12.5e.",
-            tL2ErrorReference( aTestCaseIndex ) ,
+            tL2ErrorReference( aTestCaseIndex ),
             tL2ErrorActual,
             tRelL2Difference * 100.0 );
 
@@ -125,8 +125,8 @@ check_results(
     CHECK( tRelFluxDifference < 1.0e-6 );
 }
 
-TEST_CASE("Laplace",
-        "[moris],[example],[thermal],[Laplace_2D],[Laplace]")
+TEST_CASE( "Laplace",
+        "[moris],[example],[thermal],[Laplace_2D],[Laplace]" )
 {
     // define command line call
     int argc = 2;
@@ -134,20 +134,20 @@ TEST_CASE("Laplace",
     char tString1[] = "";
     char tString2[] = "./Laplace.so";
 
-    char * argv[2] = {tString1,tString2};
+    char *argv[ 2 ] = { tString1, tString2 };
 
     // call to performance manager main interface
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // check
-    REQUIRE( tRet ==  0 );
+    REQUIRE( tRet == 0 );
 
-     // set interpolation order
+    // set interpolation order
     gInterpolationOrder = 1;
 
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Executing HeatConduction: Interpolation order 1 - %i Processors.", par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     // check results
     switch ( par_size() )
@@ -181,4 +181,3 @@ TEST_CASE("Laplace",
         }
     }
 }
-

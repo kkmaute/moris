@@ -1986,13 +1986,13 @@ namespace moris
                 const Matrix< DDRMat >& aInvSpaceJacobian )
         {
             // fill aGij = sum_d dxi_d/dx_i dxi_d/dx_j
-            mMetricTensor( 0, 0 ) = std::pow( aInvSpaceJacobian( 0, 0 ), 2.0 ) + //
-                    std::pow( aInvSpaceJacobian( 0, 1 ), 2.0 );
-            mMetricTensor( 0, 1 ) = aInvSpaceJacobian( 0, 0 ) * aInvSpaceJacobian( 1, 0 ) + //
-                    aInvSpaceJacobian( 0, 1 ) * aInvSpaceJacobian( 1, 1 );
+            mMetricTensor( 0, 0 ) = std::pow( aInvSpaceJacobian( 0, 0 ), 2.0 ) +    //
+                                    std::pow( aInvSpaceJacobian( 0, 1 ), 2.0 );
+            mMetricTensor( 0, 1 ) = aInvSpaceJacobian( 0, 0 ) * aInvSpaceJacobian( 1, 0 ) +    //
+                                    aInvSpaceJacobian( 0, 1 ) * aInvSpaceJacobian( 1, 1 );
             mMetricTensor( 1, 0 ) = mMetricTensor( 0, 1 );
-            mMetricTensor( 1, 1 ) = std::pow( aInvSpaceJacobian( 1, 0 ), 2.0 ) + //
-                    std::pow( aInvSpaceJacobian( 1, 1 ), 2.0 );
+            mMetricTensor( 1, 1 ) = std::pow( aInvSpaceJacobian( 1, 0 ), 2.0 ) +    //
+                                    std::pow( aInvSpaceJacobian( 1, 1 ), 2.0 );
         }
 
         void
@@ -2000,27 +2000,27 @@ namespace moris
                 const Matrix< DDRMat >& aInvSpaceJacobian )
         {
             // fill aGij = sum_d dxi_d/dx_i dxi_d/dx_j
-            mMetricTensor( 0, 0 ) = std::pow( aInvSpaceJacobian( 0, 0 ), 2.0 ) + //
-                    std::pow( aInvSpaceJacobian( 0, 1 ), 2.0 ) +                 //
-                    std::pow( aInvSpaceJacobian( 0, 2 ), 2.0 );
-            mMetricTensor( 0, 1 ) = aInvSpaceJacobian( 0, 0 ) * aInvSpaceJacobian( 1, 0 ) + //
-                    aInvSpaceJacobian( 0, 1 ) * aInvSpaceJacobian( 1, 1 ) +                 //
-                    aInvSpaceJacobian( 0, 2 ) * aInvSpaceJacobian( 1, 2 );
-            mMetricTensor( 0, 2 ) = aInvSpaceJacobian( 0, 0 ) * aInvSpaceJacobian( 2, 0 ) + //
-                    aInvSpaceJacobian( 0, 1 ) * aInvSpaceJacobian( 2, 1 ) +                 //
-                    aInvSpaceJacobian( 0, 2 ) * aInvSpaceJacobian( 2, 2 );
+            mMetricTensor( 0, 0 ) = std::pow( aInvSpaceJacobian( 0, 0 ), 2.0 ) +    //
+                                    std::pow( aInvSpaceJacobian( 0, 1 ), 2.0 ) +    //
+                                    std::pow( aInvSpaceJacobian( 0, 2 ), 2.0 );
+            mMetricTensor( 0, 1 ) = aInvSpaceJacobian( 0, 0 ) * aInvSpaceJacobian( 1, 0 ) +    //
+                                    aInvSpaceJacobian( 0, 1 ) * aInvSpaceJacobian( 1, 1 ) +    //
+                                    aInvSpaceJacobian( 0, 2 ) * aInvSpaceJacobian( 1, 2 );
+            mMetricTensor( 0, 2 ) = aInvSpaceJacobian( 0, 0 ) * aInvSpaceJacobian( 2, 0 ) +    //
+                                    aInvSpaceJacobian( 0, 1 ) * aInvSpaceJacobian( 2, 1 ) +    //
+                                    aInvSpaceJacobian( 0, 2 ) * aInvSpaceJacobian( 2, 2 );
             mMetricTensor( 1, 0 ) = mMetricTensor( 0, 1 );
-            mMetricTensor( 1, 1 ) = std::pow( aInvSpaceJacobian( 1, 0 ), 2.0 ) + //
-                    std::pow( aInvSpaceJacobian( 1, 1 ), 2.0 ) +                 //
-                    std::pow( aInvSpaceJacobian( 1, 2 ), 2.0 );
-            mMetricTensor( 1, 2 ) = aInvSpaceJacobian( 1, 0 ) * aInvSpaceJacobian( 2, 0 ) + //
-                    aInvSpaceJacobian( 1, 1 ) * aInvSpaceJacobian( 2, 1 ) +                 //
-                    aInvSpaceJacobian( 1, 2 ) * aInvSpaceJacobian( 2, 2 );
+            mMetricTensor( 1, 1 ) = std::pow( aInvSpaceJacobian( 1, 0 ), 2.0 ) +    //
+                                    std::pow( aInvSpaceJacobian( 1, 1 ), 2.0 ) +    //
+                                    std::pow( aInvSpaceJacobian( 1, 2 ), 2.0 );
+            mMetricTensor( 1, 2 ) = aInvSpaceJacobian( 1, 0 ) * aInvSpaceJacobian( 2, 0 ) +    //
+                                    aInvSpaceJacobian( 1, 1 ) * aInvSpaceJacobian( 2, 1 ) +    //
+                                    aInvSpaceJacobian( 1, 2 ) * aInvSpaceJacobian( 2, 2 );
             mMetricTensor( 2, 0 ) = mMetricTensor( 0, 2 );
             mMetricTensor( 2, 1 ) = mMetricTensor( 1, 2 );
-            mMetricTensor( 2, 2 ) = std::pow( aInvSpaceJacobian( 2, 0 ), 2.0 ) + //
-                    std::pow( aInvSpaceJacobian( 2, 1 ), 2.0 ) +                 //
-                    std::pow( aInvSpaceJacobian( 2, 2 ), 2.0 );
+            mMetricTensor( 2, 2 ) = std::pow( aInvSpaceJacobian( 2, 0 ), 2.0 ) +    //
+                                    std::pow( aInvSpaceJacobian( 2, 1 ), 2.0 ) +    //
+                                    std::pow( aInvSpaceJacobian( 2, 2 ), 2.0 );
         }
 
         //------------------------------------------------------------------------------
@@ -2028,7 +2028,7 @@ namespace moris
         void
         Space_Interpolator::set_function_pointers()
         {
-        	// set size for metric tensor
+            // set size for metric tensor
             mMetricTensor.set_size( mNumSpaceDim, mNumSpaceDim );
 
             switch ( mInterpolationShape )

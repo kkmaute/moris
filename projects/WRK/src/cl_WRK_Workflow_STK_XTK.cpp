@@ -34,15 +34,14 @@ namespace moris
 {
     namespace wrk
     {
-
         //--------------------------------------------------------------------------------------------------------------
 
-        Workflow_STK_XTK::Workflow_STK_XTK( wrk::Performer_Manager * aPerformerManager )
-        : Workflow( aPerformerManager )
+        Workflow_STK_XTK::Workflow_STK_XTK( wrk::Performer_Manager* aPerformerManager )
+                : Workflow( aPerformerManager )
         {
             Tracer tTracer( "Workflow", "STK_XTK", "Initialize" );
-            MORIS_LOG_SPEC("Par_Rank",par_rank());
-            MORIS_LOG_SPEC("Par_Size",par_size());
+            MORIS_LOG_SPEC( "Par_Rank", par_rank() );
+            MORIS_LOG_SPEC( "Par_Size", par_size() );
 
             // Performer set for this workflow
             mPerformerManager->mGENPerformer.resize( 1 );
@@ -55,8 +54,8 @@ namespace moris
 
             // load the meshes
             mPerformerManager->mMTKPerformer( 0 ) = std::make_shared< mtk::Mesh_Manager >();
-            this->create_stk(tSTKParameterList);
-            mPerformerManager->mMTKPerformer( 0 )->register_mesh_pair(mIpMesh.get(),mIgMesh.get());
+            this->create_stk( tSTKParameterList );
+            mPerformerManager->mMTKPerformer( 0 )->register_mesh_pair( mIpMesh.get(), mIgMesh.get() );
 
             // moris::mtk::Cell tCell
 
@@ -72,7 +71,7 @@ namespace moris
             mPerformerManager->mGENPerformer( 0 ) = std::make_shared< ge::Geometry_Engine >(
                     tGENParameterList,
                     mPerformerManager->mLibrary,
-                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh(0) );
+                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ) );
 
             // create MTK performer - will be used for XTK mesh
             mPerformerManager->mMTKPerformer( 1 ) = std::make_shared< mtk::Mesh_Manager >();
@@ -86,23 +85,24 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void Workflow_STK_XTK::initialize(
-                Matrix<DDRMat>& aADVs,
-                Matrix<DDRMat>& aLowerBounds,
-                Matrix<DDRMat>& aUpperBounds,
-                Matrix< IdMat  >& aIjklIDs)
+        void
+        Workflow_STK_XTK::initialize(
+                Matrix< DDRMat >& aADVs,
+                Matrix< DDRMat >& aLowerBounds,
+                Matrix< DDRMat >& aUpperBounds,
+                Matrix< IdMat >&  aIjklIDs )
         {
             // Stage 2: Initialize Level set field in GEN -----------------------------------------------
             // Trace GEN
             Tracer tTracer( "GEN", "Levelset", "InitializeADVs" );
 
-                mPerformerManager->mGENPerformer( 0 )->distribute_advs(
-                        mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair(0),{} );
+            mPerformerManager->mGENPerformer( 0 )->distribute_advs(
+                    mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair( 0 ), {} );
 
-                // Get ADVs
-                aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
-                aLowerBounds = mPerformerManager->mGENPerformer( 0 )->get_lower_bounds();
-                aUpperBounds = mPerformerManager->mGENPerformer( 0 )->get_upper_bounds();
+            // Get ADVs
+            aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
+            aLowerBounds = mPerformerManager->mGENPerformer( 0 )->get_lower_bounds();
+            aUpperBounds = mPerformerManager->mGENPerformer( 0 )->get_upper_bounds();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -111,7 +111,7 @@ namespace moris
         Workflow_STK_XTK::perform( Matrix< DDRMat >& aNewADVs )
         {
             // Set new advs in GE
-            mPerformerManager->mGENPerformer( 0 )->set_advs(aNewADVs);
+            mPerformerManager->mGENPerformer( 0 )->set_advs( aNewADVs );
 
             // Stage 1: HMR refinement
 
@@ -120,23 +120,23 @@ namespace moris
 
             // Compute level set data in GEN
             mPerformerManager->mGENPerformer( 0 )->reset_mesh_information(
-                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ));
+                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ) );
 
             // Output GEN fields, if requested
             mPerformerManager->mGENPerformer( 0 )->output_fields(
-                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ));
+                    mPerformerManager->mMTKPerformer( 0 )->get_interpolation_mesh( 0 ) );
 
             // XTK perform - decompose - enrich - ghost - multigrid
             mPerformerManager->mXTKPerformer( 0 )->perform_decomposition();
             mPerformerManager->mXTKPerformer( 0 )->perform_enrichment();
 
             // Assign PDVs
-            mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair(0) );
+            mPerformerManager->mGENPerformer( 0 )->create_pdvs( mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ) );
 
             // Stage 3: MDL perform ---------------------------------------------------------------------
 
             mPerformerManager->mMDLPerformer( 0 )->set_design_variable_interface(
-                                mPerformerManager->mGENPerformer( 0 )->get_design_variable_interface() );
+                    mPerformerManager->mGENPerformer( 0 )->get_design_variable_interface() );
 
             mPerformerManager->mMDLPerformer( 0 )->initialize();
 
@@ -148,14 +148,14 @@ namespace moris
             moris::Cell< moris::Matrix< DDRMat > > tVal = mPerformerManager->mMDLPerformer( 0 )->get_IQI_values();
 
             // Communicate IQIs
-            for( uint iIQIIndex = 0; iIQIIndex < tVal.size(); iIQIIndex++ )
+            for ( uint iIQIIndex = 0; iIQIIndex < tVal.size(); iIQIIndex++ )
             {
                 tVal( iIQIIndex )( 0 ) = sum_all( tVal( iIQIIndex )( 0 ) );
             }
 
             moris::Matrix< DDRMat > tMat( tVal.size(), 1, 0.0 );
 
-            for( uint Ik = 0; Ik < tVal.size(); Ik ++ )
+            for ( uint Ik = 0; Ik < tVal.size(); Ik++ )
             {
                 tMat( Ik ) = tVal( Ik )( 0 );
             }
@@ -165,40 +165,47 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix<DDRMat> Workflow_STK_XTK::compute_dcriteria_dadv()
+        Matrix< DDRMat >
+        Workflow_STK_XTK::compute_dcriteria_dadv()
         {
             mPerformerManager->mGENPerformer( 0 )->communicate_requested_IQIs();
 
             mPerformerManager->mMDLPerformer( 0 )->perform( 1 );
 
-            Matrix<DDRMat> tDCriteriaDAdv = mPerformerManager->mGENPerformer( 0 )->get_dcriteria_dadv();
+            Matrix< DDRMat > tDCriteriaDAdv = mPerformerManager->mGENPerformer( 0 )->get_dcriteria_dadv();
 
-            if (par_rank() == 0)
+            if ( par_rank() == 0 )
             {
-                MORIS_LOG_INFO ( "--------------------------------------------------------------------------------");
-                MORIS_LOG_INFO ( "Gradients of design criteria wrt ADVs:");
+                MORIS_LOG_INFO( "--------------------------------------------------------------------------------" );
+                MORIS_LOG_INFO( "Gradients of design criteria wrt ADVs:" );
 
-                for (uint i=0;i<tDCriteriaDAdv.n_rows();++i)
+                for ( uint i = 0; i < tDCriteriaDAdv.n_rows(); ++i )
                 {
-                    Matrix<DDRMat> tDIQIDAdv = tDCriteriaDAdv.get_row(i);
+                    Matrix< DDRMat > tDIQIDAdv = tDCriteriaDAdv.get_row( i );
 
-                    auto tItrMin = std::min_element(tDIQIDAdv.data(),tDIQIDAdv.data()+tDIQIDAdv.numel());
-                    auto tIndMin = std::distance(tDIQIDAdv.data(),tItrMin);
+                    auto tItrMin = std::min_element( tDIQIDAdv.data(), tDIQIDAdv.data() + tDIQIDAdv.numel() );
+                    auto tIndMin = std::distance( tDIQIDAdv.data(), tItrMin );
 
-                    auto tItrMax = std::max_element(tDIQIDAdv.data(),tDIQIDAdv.data()+tDIQIDAdv.numel());
-                    auto tIndMax = std::distance(tDIQIDAdv.data(),tItrMax);
+                    auto tItrMax = std::max_element( tDIQIDAdv.data(), tDIQIDAdv.data() + tDIQIDAdv.numel() );
+                    auto tIndMax = std::distance( tDIQIDAdv.data(), tItrMax );
 
-                    MORIS_LOG_INFO ( "Criteria(%i): norm = %e   min = %e  (index = %li)   max = %e  (index = %li)",
-                                     i, norm(tDIQIDAdv),tDIQIDAdv.min(),tIndMin,tDIQIDAdv.max(),tIndMax);
+                    MORIS_LOG_INFO( "Criteria(%i): norm = %e   min = %e  (index = %li)   max = %e  (index = %li)",
+                            i,
+                            norm( tDIQIDAdv ),
+                            tDIQIDAdv.min(),
+                            tIndMin,
+                            tDIQIDAdv.max(),
+                            tIndMax );
                 }
 
-                MORIS_LOG_INFO ( "--------------------------------------------------------------------------------");
+                MORIS_LOG_INFO( "--------------------------------------------------------------------------------" );
             }
 
             return tDCriteriaDAdv;
         }
 
-        void Workflow_STK_XTK::create_xtk()
+        void
+        Workflow_STK_XTK::create_xtk()
         {
             // get the parameter list
             ModuleParameterList tXTKParameterList = mPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::XTK );
@@ -217,20 +224,19 @@ namespace moris
         }
 
         void
-        Workflow_STK_XTK::create_stk(Cell< Cell<ParameterList> > & aParameterLists)
+        Workflow_STK_XTK::create_stk( Cell< Cell< ParameterList > >& aParameterLists )
         {
-            Tracer tTracer( "STK", "Mesh", "InitializeMesh" );
-            std::string tMeshFile = aParameterLists(0)(0).get<std::string>("input_file");
+            Tracer            tTracer( "STK", "Mesh", "InitializeMesh" );
+            std::string       tMeshFile     = aParameterLists( 0 )( 0 ).get< std::string >( "input_file" );
             mtk::MtkMeshData* tSuppMeshData = nullptr;
 
             mtk::Cell_Cluster_Input* tCellClusterData = nullptr;
 
             // construct the meshes
-            mIpMesh = std::make_shared<mtk::Interpolation_Mesh_STK>( tMeshFile, tSuppMeshData, true );
-            mIgMesh = std::make_shared<mtk::Integration_Mesh_STK> ( *mIpMesh, tCellClusterData);
+            mIpMesh = std::make_shared< mtk::Interpolation_Mesh_STK >( tMeshFile, tSuppMeshData, true );
+            mIgMesh = std::make_shared< mtk::Integration_Mesh_STK >( *mIpMesh, tCellClusterData );
         }
 
         //--------------------------------------------------------------------------------------------------------------
-    } /* namespace mdl */
+    }    // namespace wrk
 } /* namespace moris */
-

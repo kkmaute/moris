@@ -262,15 +262,15 @@ namespace moris
         void
         log_section( const char* format, ... )
 #ifdef __GNUC__
-        __attribute__ ((format (printf, 2, 3)))
+                __attribute__( ( format( printf, 2, 3 ) ) )
 #endif
         {
             va_list args;
-            va_start(args, format);
+            va_start( args, format );
 
             // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
             std::string tString = print_log( format, args );
-            va_end(args);
+            va_end( args );
 
             // only processor mOutputRank prints message
             if ( logger_par_rank() == mOutputRank )
@@ -299,13 +299,13 @@ namespace moris
         void
         log( const char* format, ... )
 #ifdef __GNUC__
-        __attribute__ ((format (printf, 2, 3)))
+                __attribute__( ( format( printf, 2, 3 ) ) )
 #endif
         {
             va_list args;
-            va_start(args, format);
+            va_start( args, format );
             std::string tString = print_log( format, args );
-            va_end(args);
+            va_end( args );
 
             // only processor mOutputRank prints message
             if ( logger_par_rank() == mOutputRank )
@@ -333,13 +333,13 @@ namespace moris
         void
         log_info( const char* format, ... )
 #ifdef __GNUC__
-        __attribute__ ((format (printf, 2, 3)))
+                __attribute__( ( format( printf, 2, 3 ) ) )
 #endif
         {
             va_list args;
-            va_start(args, format);
+            va_start( args, format );
             std::string tString = print_log( format, args );
-            va_end(args);
+            va_end( args );
 
             // only processor mOutputRank prints message
             if ( logger_par_rank() == mOutputRank )
@@ -382,15 +382,15 @@ namespace moris
         void
         log_debug( const char* format, ... )
 #ifdef __GNUC__
-        __attribute__ ((format (printf, 2, 3)))
+                __attribute__( ( format( printf, 2, 3 ) ) )
 #endif
         {
             // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
 
             va_list args;
-            va_start(args, format);
+            va_start( args, format );
             std::string tString = print_log( format, args );
-            va_end(args);
+            va_end( args );
 
             // only processor mOutputRank prints message
             if ( logger_par_rank() == mOutputRank )
@@ -421,15 +421,15 @@ namespace moris
         void
         log_warning( const char* format, ... )
 #ifdef __GNUC__
-        __attribute__ ((format (printf, 2, 3)))
+                __attribute__( ( format( printf, 2, 3 ) ) )
 #endif
         {
             // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
 
             va_list args;
-            va_start(args, format);
+            va_start( args, format );
             std::string tString = print_log( format, args );
-            va_end(args);
+            va_end( args );
 
             // only processor mOutputRank prints message
             if ( logger_par_rank() == mOutputRank )
@@ -461,15 +461,15 @@ namespace moris
         void
         log_error( const char* format, ... )
 #ifdef __GNUC__
-        __attribute__ ((format (printf, 2, 3)))
+                __attribute__( ( format( printf, 2, 3 ) ) )
 #endif
         {
             // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
 
             va_list args;
-            va_start(args, format);
+            va_start( args, format );
             std::string tString = print_log( format, args );
-            va_end(args);
+            va_end( args );
 
             // switch based on OutputFormat provided
             if ( ( mDirectOutputFormat == 3 ) || ( mDirectOutputFormat == 2 ) )

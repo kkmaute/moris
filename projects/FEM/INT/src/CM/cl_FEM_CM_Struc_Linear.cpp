@@ -20,7 +20,6 @@ namespace moris
 {
     namespace fem
     {
-
         //------------------------------------------------------------------------------
 
         CM_Struc_Linear::CM_Struc_Linear()

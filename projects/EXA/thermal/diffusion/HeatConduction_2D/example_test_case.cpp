@@ -29,7 +29,7 @@ bool gPrintReferenceValues = false;
 
 //---------------------------------------------------------------
 
-int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] );
+int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] );
 
 //---------------------------------------------------------------
 
@@ -38,9 +38,9 @@ check_results(
         std::string aExoFileName,
         uint        aTestCaseIndex )
 {
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processor.", aTestCaseIndex, par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     // open and query exodus output file (set verbose to true to get basic mesh information)
     moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, true, true );
@@ -163,11 +163,10 @@ check_results(
             tRelTempDifference * 100.0 );
 
     REQUIRE( tRelTempDifference < 1.0e-5 );
-
 }
 
-TEST_CASE("HeatConduction",
-        "[moris],[example],[structure],[HeatConduction_2D],[HeatConduction]")
+TEST_CASE( "HeatConduction",
+        "[moris],[example],[structure],[HeatConduction_2D],[HeatConduction]" )
 {
     // define command line call
     int argc = 2;
@@ -175,20 +174,20 @@ TEST_CASE("HeatConduction",
     char tString1[] = "";
     char tString2[] = "./HeatConduction.so";
 
-    char * argv[2] = {tString1,tString2};
+    char *argv[ 2 ] = { tString1, tString2 };
 
     // call to performance manager main interface
     int tRet = fn_WRK_Workflow_Main_Interface( argc, argv );
 
     // check
-    REQUIRE( tRet ==  0 );
+    REQUIRE( tRet == 0 );
 
-     // set interpolation order
+    // set interpolation order
     gInterpolationOrder = 1;
 
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Executing HeatConduction: Interpolation order 1 - %i Processors.", par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     // call to performance manager main interface
     fn_WRK_Workflow_Main_Interface( argc, argv );
@@ -225,4 +224,3 @@ TEST_CASE("HeatConduction",
         }
     }
 }
-

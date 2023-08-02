@@ -536,7 +536,7 @@ namespace moris
             if ( tElementalTmatrixFileName != "" )
             {
                 uint tNumBsplineMeshes = mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_interpolation_mesh()->get_num_interpolations();
-                mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_integration_mesh()->save_elemental_T_matrices_to_file( tElementalTmatrixFileName,  tNumBsplineMeshes );
+                mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_integration_mesh()->save_elemental_T_matrices_to_file( tElementalTmatrixFileName, tNumBsplineMeshes );
 
                 // return flag stopping the workflow after the T-Matrix output
                 return true;

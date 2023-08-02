@@ -30,10 +30,9 @@ check_results(
         std::string aExoFileName,
         uint        aTestCaseIndex )
 {
-
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processor.", aTestCaseIndex, par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     // open and query exodus output file (set verbose to true to get basic mesh information)
     moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, false, false );

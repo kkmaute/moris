@@ -20,7 +20,6 @@
 
 namespace moris::mtk
 {
-
     // ----------------------------------------------------------------------------
     Interpolation_Mesh_Editor::Interpolation_Mesh_Editor( moris::mtk::Interpolation_Mesh& aMTKMesh )
             : mInputMesh( aMTKMesh )
