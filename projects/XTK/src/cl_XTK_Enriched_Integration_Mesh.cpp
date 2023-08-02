@@ -4692,7 +4692,7 @@ namespace xtk
 
         // count up number of elements in side clusters
         uint tNumElemsInSideSet = 0;
-        for( auto iCluster : mSideSets( tSideSetOrdinal ) )
+        for ( auto iCluster : mSideSets( tSideSetOrdinal ) )
         {
             tNumElemsInSideSet += iCluster->get_num_primary_cells();
         }
