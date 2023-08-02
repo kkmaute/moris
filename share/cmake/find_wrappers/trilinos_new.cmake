@@ -69,8 +69,6 @@ if(NOT TRILINOS_FOUND_ONCE)
         if(TRILINOS_DEBUG_DIR)
             set(TRILINOS_PATH "${TRILINOS_DEBUG_DIR}")
         else()
-            message(WARNING 
-                "\nmoris will use the release version of Trilinos unless the Trilinos_DEBUG_DIR environment variable is set.\n" )
             set(TRILINOS_PATH "${TRILINOS_DIR}")
         endif()
     endif()
