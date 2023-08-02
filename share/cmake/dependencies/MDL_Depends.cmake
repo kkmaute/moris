@@ -31,6 +31,7 @@ include(${MORIS_DEPENDS_DIR}/TSA_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/SDF_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/VIS_Depends.cmake)
 include(${MORIS_DEPENDS_DIR}/PRM_Depends.cmake)
+include(${MORIS_DEPENDS_DIR}/MSI_Depends.cmake)
 
 # needed for tests
 include(${MORIS_DEPENDS_DIR}/LINALG_Depends.cmake)
