@@ -265,12 +265,12 @@ namespace moris
                 __attribute__( ( format( printf, 2, 3 ) ) )
 #endif
         {
-            va_list args;
-            va_start( args, format );
+            va_list tArgs;
+            va_start( tArgs, format );
 
             // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
-            std::string tString = print_log( format, args );
-            va_end( args );
+            std::string tString = print_log( format, tArgs );
+            va_end( tArgs );
 
             // only processor mOutputRank prints message
             if ( logger_par_rank() == mOutputRank )
