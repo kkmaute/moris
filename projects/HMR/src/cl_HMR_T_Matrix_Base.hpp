@@ -25,7 +25,8 @@ namespace moris::hmr
      */
     class T_Matrix_Base
     {
-    public:
+    protected:
+
         //! ref to Lagrange Mesh
         Lagrange_Mesh_Base * mLagrangeMesh;
 
@@ -97,7 +98,7 @@ namespace moris::hmr
          * @param aBSplineMesh B-spline Mesh pointer
          * @param aTruncate Whether or not to truncate B-splines
          */
-        T_Matrix_Base(
+        explicit T_Matrix_Base(
                 Lagrange_Mesh_Base* aLagrangeMesh,
                 BSpline_Mesh_Base*  aBSplineMesh = nullptr,
                 bool                aTruncate = true );
