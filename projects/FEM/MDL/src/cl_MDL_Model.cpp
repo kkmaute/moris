@@ -79,7 +79,7 @@ namespace moris
             // STEP 1: create the FEM model
             // - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
             {
-                Tracer tTracer( "MDL", "Model", "Creat eEquation Model" );
+                Tracer tTracer( "MDL", "Model", "Create Equation Model" );
 
                 // build the FEM model from FEM parameter list
                 mEquationModel = std::make_shared< fem::FEM_Model >(
