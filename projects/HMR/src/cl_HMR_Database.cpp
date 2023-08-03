@@ -191,8 +191,6 @@ namespace moris::hmr
             // reset counter
             luint tCount = 0;
 
-            std::cout << "coppy pattern " << aPatternListUniqueMat( Ik ) << " level " << tNumberOfLevels << std::endl;
-
             // select B-Spline pattern
             mBackgroundMesh->set_activation_pattern( aPatternListUniqueMat( Ik ) );
 
@@ -1147,7 +1145,7 @@ namespace moris::hmr
         Matrix< DDRMat > tElementSourceData( tNumberOfNodesPerElement, aSource->get_number_of_dimensions() );
 
         // Create T-matrix
-        Factory tFactory( mParameters );
+        Factory        tFactory( mParameters );
         T_Matrix_Base* tTMatrix = tFactory.create_t_matrix( tTargetMesh );
 
         // loop over all elements
@@ -1243,7 +1241,7 @@ namespace moris::hmr
         uint tNumberOfElements = tSourceMesh->get_number_of_elements();
 
         // create T-matrix object
-        Factory tFactory( mParameters );
+        Factory        tFactory( mParameters );
         T_Matrix_Base* tTMatrix = tFactory.create_t_matrix( tSourceMesh );
 
         // Get target mesh order and change order matrix
@@ -1752,4 +1750,4 @@ namespace moris::hmr
     }
 
     // ----------------------------------------------------------------------------
-} /* namespace moris */
+}    // namespace moris::hmr
