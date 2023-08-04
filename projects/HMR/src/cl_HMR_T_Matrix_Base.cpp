@@ -10,7 +10,6 @@
 
 #include "cl_HMR_T_Matrix.hpp"    //HMR/src
 #include "HMR_Globals.hpp"    //HMR/src
-#include "HMR_Tools.hpp"
 #include "fn_eye.hpp"
 #include "fn_inv.hpp"      //LINALG/src
 
@@ -25,18 +24,9 @@ namespace moris::hmr
             bool                aTruncate )
             : mLagrangeMesh( aLagrangeMesh )
             , mBSplineMesh( aBSplineMesh )
+            , mTruncate( aTruncate )
     {
         this->init_lagrange_coefficients();
-
-        // set function pointer
-        if ( aTruncate )
-        {
-            mTMatrixFunction = &T_Matrix_Base::calculate_truncated_t_matrix;
-        }
-        else
-        {
-            mTMatrixFunction = &T_Matrix_Base::calculate_untruncated_t_matrix;
-        }
     }
 
     //-------------------------------------------------------------------------------
@@ -52,9 +42,14 @@ namespace moris::hmr
             Matrix< DDRMat >& aTMatrixTransposed,
             Cell< Basis* >&   aDOFs )
     {
-        ( this->*mTMatrixFunction )( aElementMemoryIndex,
-                aTMatrixTransposed,
-                aDOFs );
+        if ( mTruncate )
+        {
+            this->calculate_truncated_t_matrix( aElementMemoryIndex, aTMatrixTransposed, aDOFs );
+        }
+        else
+        {
+            this->calculate_untruncated_t_matrix( aElementMemoryIndex, aTMatrixTransposed, aDOFs );
+        }
     }
 
     //-------------------------------------------------------------------------------
