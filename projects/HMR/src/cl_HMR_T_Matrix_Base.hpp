@@ -85,7 +85,7 @@ namespace moris::hmr
         //! pointer to T-Matrix calculation function
         //! points to either calculate_untruncated_t_matrix
         //! or calculate_truncated_t_matrix
-        void ( T_Matrix_Base:: *mTMatrixFunction )( luint aMemoryIndex,
+        void ( T_Matrix_Base:: *mTMatrixFunction )( luint aElementMemoryIndex,
                                                        Matrix< DDRMat > & aTMatrixTransposed,
                                                        Cell< Basis* >   & aDOFs );
 
@@ -127,13 +127,6 @@ namespace moris::hmr
             return mLagrangeChangeOrderMatrix( aOrder );
         }
 
-        //-------------------------------------------------------------------------------
-
-        void calculate_t_matrix(
-                luint             aMemoryIndex,
-                Matrix< DDRMat >& aTMatrixTransposed,
-                Cell< Basis* >&   aDOFs );
-
         /**
          * Evaluates an extended T-matrix
          *
@@ -148,27 +141,28 @@ namespace moris::hmr
                 moris::Cell< moris::Cell< mtk::Vertex* > >& aBsplineBasis,
                 moris::Cell< Matrix< DDRMat > >&            aWeights );
 
-        //-------------------------------------------------------------------------------
-
-        void calculate_untruncated_t_matrix(
-                luint             aMemoryIndex,
-                Matrix< DDRMat >& aTMatrixTransposed,
-                Cell< Basis* >&   aDOFs );
-
-        //-------------------------------------------------------------------------------
-
-        void calculate_truncated_t_matrix(
-                luint             aMemoryIndex,
-                Matrix< DDRMat >& aTMatrixTransposed,
-                Cell< Basis* >&   aDOFs );
-
         virtual void evaluate( uint aBSplineMeshIndex,
                                bool aBool = true);
 
         void evaluate_trivial( uint aBSplineMeshIndex,
                                bool aBool );
 
+        void calculate_t_matrix(
+                luint             aElementMemoryIndex,
+                Matrix< DDRMat >& aTMatrixTransposed,
+                Cell< Basis* >&   aDOFs );
+
     private:
+
+        void calculate_untruncated_t_matrix(
+                luint             aElementMemoryIndex,
+                Matrix< DDRMat >& aTMatrixTransposed,
+                Cell< Basis* >&   aDOFs );
+
+        void calculate_truncated_t_matrix(
+                luint             aElementMemoryIndex,
+                Matrix< DDRMat >& aTMatrixTransposed,
+                Cell< Basis* >&   aDOFs );
 
         /**
          * Initializes lagrange coefficients for Lagrange interpolation

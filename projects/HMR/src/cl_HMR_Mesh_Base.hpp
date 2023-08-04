@@ -218,7 +218,6 @@ namespace moris::hmr
         const Element*
         get_element( luint aElementIndex ) const
         {
-            std::cout << mAllElementsOnProc.size() << ", " << mNumberOfElements << std::endl;
             return mAllElementsOnProc( mBackgroundMesh->get_element( aElementIndex )
                                                ->get_memory_index() );
         }

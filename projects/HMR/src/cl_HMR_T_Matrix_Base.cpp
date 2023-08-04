@@ -48,11 +48,11 @@ namespace moris::hmr
     //-------------------------------------------------------------------------------
 
     void T_Matrix_Base::calculate_t_matrix(
-            luint             aMemoryIndex,
+            luint             aElementMemoryIndex,
             Matrix< DDRMat >& aTMatrixTransposed,
             Cell< Basis* >&   aDOFs )
     {
-        ( this->*mTMatrixFunction )( aMemoryIndex,
+        ( this->*mTMatrixFunction )( aElementMemoryIndex,
                 aTMatrixTransposed,
                 aDOFs );
     }
@@ -60,13 +60,13 @@ namespace moris::hmr
     //-------------------------------------------------------------------------------
 
     void T_Matrix_Base::calculate_untruncated_t_matrix(
-            luint      aMemoryIndex,
+            luint      aElementMemoryIndex,
             Matrix< DDRMat >& aTMatrixTransposed,
             Cell< Basis* >&   aDOFs )
     {
         aDOFs.clear();
 
-        Element* tElement = mBSplineMesh->get_element_by_memory_index( aMemoryIndex );
+        Element* tElement = mBSplineMesh->get_element_by_memory_index( aElementMemoryIndex );
 
         // get level of element
         uint tLevel = tElement->get_level();
@@ -127,7 +127,7 @@ namespace moris::hmr
     //-------------------------------------------------------------------------------
 
     void T_Matrix_Base::calculate_truncated_t_matrix(
-            luint             aMemoryIndex,
+            luint             aElementMemoryIndex,
             Matrix< DDRMat >& aTMatrixTransposed,
             Cell< Basis* >&   aDOFs )
     {
@@ -135,7 +135,7 @@ namespace moris::hmr
         aDOFs.clear();
 
         // Get element from memory
-        Element* tElement = mBSplineMesh->get_element_by_memory_index( aMemoryIndex );
+        Element* tElement = mBSplineMesh->get_element_by_memory_index( aElementMemoryIndex );
 
         // get level of element
         uint tLevel = tElement->get_level();
