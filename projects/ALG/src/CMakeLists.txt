@@ -16,6 +16,7 @@ set(HEADERS
     algorithms.hpp
     fn_equal_to.hpp
     fn_equal_to.tpp
+	fn_check_equal.hpp
     fn_hash_value.hpp
     fn_num_digits.hpp
     fn_clip_value.hpp )

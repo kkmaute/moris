@@ -16,7 +16,7 @@
 #include "cl_GEN_Pdv_Host_Manager.hpp"
 #include "cl_GEN_BSpline_Field.hpp"
 #include "fn_GEN_create_geometries.hpp"
-#include "fn_GEN_check_equal.hpp"
+#include "fn_check_equal.hpp"
 #include "fn_GEN_create_simple_mesh.hpp"
 #include "cl_GEN_Mesh_Field_Geometry.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"

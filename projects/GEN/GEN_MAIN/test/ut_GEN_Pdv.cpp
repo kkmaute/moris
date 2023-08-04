@@ -25,7 +25,7 @@
 #undef protected
 #undef private
 
-#include "fn_GEN_check_equal.hpp"
+#include "fn_check_equal.hpp"
 
 namespace moris
 {
