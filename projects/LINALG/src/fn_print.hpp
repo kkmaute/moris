@@ -38,6 +38,13 @@
  */
 #define PRINTFANCY( matrix ) moris::print_fancy( matrix, #matrix );
 
+/**
+ * \def PRINTLIST( matrix )
+ * Prints a moris::Matrix as a std::initializer_list with the argument name as a title
+ * \param matrix Matrix to print
+ */
+#define PRINTLIST( matrix ) moris::print_std_initializer_list( matrix, #matrix );
+
 namespace moris
 {
     /**
@@ -198,8 +205,9 @@ namespace moris
      * @param aTitle Title of matrix
      */
     template< typename Matrix_Type >
-    void print_std_initializer_list(Matrix< Matrix_Type > const & aMatrix,
-                                    std::string aTitle)
+    void print_std_initializer_list(
+            const Matrix< Matrix_Type >& aMatrix,
+            std::string                  aTitle )
     {
         std::cout << "\n" << aTitle + ": " << std::endl;
         size_t tNumRows = aMatrix.n_rows();
