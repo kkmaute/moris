@@ -44,7 +44,8 @@ namespace moris
             {
                 if ( !equal_to( aMatrix1( iRowIndex, iColumnIndex ), aMatrix2( iRowIndex, iColumnIndex ), aErrorFactor ) )
                 {
-                    std::cout << aMatrix1( iRowIndex, iColumnIndex ) << " =/= " << aMatrix2( iRowIndex, iColumnIndex ) << std::endl;
+                    std::cout << "( " << iRowIndex << ", " << iColumnIndex << " ): "
+                        << aMatrix1( iRowIndex, iColumnIndex ) << " =/= " << aMatrix2( iRowIndex, iColumnIndex ) << std::endl;
                     tAllMatrixEntriesEqual = false;
                 }
             }
