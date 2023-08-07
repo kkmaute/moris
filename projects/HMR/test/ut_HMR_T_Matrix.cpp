@@ -82,10 +82,6 @@ namespace moris::hmr
                     // Loop over truncation
                     for ( bool iTruncation : { false, true } )
                     {
-
-                        // activate truncation
-                        tParameters->set_bspline_truncation( iTruncation );
-
                         // create factory
                         Factory tFactory( tParameters );
 
@@ -112,11 +108,11 @@ namespace moris::hmr
                         T_Matrix_Base* tTMatrix;
                         if ( iNumberOfDimensions == 2 )
                         {
-                            tTMatrix = new T_Matrix_Test< 2 >( tLagrangeMesh, tBSplineMesh );
+                            tTMatrix = new T_Matrix_Test< 2 >( tLagrangeMesh, tBSplineMesh, iTruncation );
                         }
                         else
                         {
-                            tTMatrix = new T_Matrix_Test< 3 >( tLagrangeMesh, tBSplineMesh );
+                            tTMatrix = new T_Matrix_Test< 3 >( tLagrangeMesh, tBSplineMesh, iTruncation );
                         }
 
                         // ask Lagrange mesh for number of nodes per element
