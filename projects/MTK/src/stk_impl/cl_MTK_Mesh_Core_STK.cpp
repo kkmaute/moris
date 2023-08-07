@@ -1214,11 +1214,8 @@ namespace moris
                     }
                 }
 
-                // assemble error message
-                std::string tError = "Could not find" + tRank + "field " + aFieldName;
-
                 // throw error
-                MORIS_ERROR( tField != NULL, tError.c_str() );
+                MORIS_ERROR( tField != NULL, "Could not find %s field %s", +tRank.c_str(), aFieldName.c_str() );
             }
             // Loop over entities and access field value
             for ( size_t i = 0; i < tNumEntities; i++ )

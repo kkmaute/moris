@@ -19,7 +19,6 @@
 
 namespace moris::hmr
 {
-
     //--------------------------------------------------------------------------------
 
     // creates a parameter list with default inputs
@@ -384,7 +383,7 @@ namespace moris::hmr
     {
         if ( par_rank() == 0 )
         {
-            MORIS_ERROR( false, aMessage.c_str() );
+            MORIS_ERROR( false, "%s", aMessage.c_str() );
         }
     }
 
@@ -893,12 +892,9 @@ namespace moris::hmr
     Parameters::get_refinement_function( uint aFunctionIndex )
     {
         MORIS_ASSERT( aFunctionIndex < mRefinementFunctions.size(),
-                ( "A user-defined refinement function with index " +       //
-                        std::to_string( aFunctionIndex ) +                 //
-                        " was requested for use, but only " +              //
-                        std::to_string( mRefinementFunctions.size() ) +    //
-                        " user-defined refinement functions were provided to HMR." )
-                        .c_str() );
+                "A user-defined refinement function with index %i was requested for use, but only %li user-defined refinement functions were provided to HMR.",
+                aFunctionIndex,
+                mRefinementFunctions.size() );
 
         return mRefinementFunctions( aFunctionIndex );
     }
@@ -926,4 +922,4 @@ namespace moris::hmr
 
     //--------------------------------------------------------------------------------
 
-} /* namespace moris */
+}    // namespace moris::hmr

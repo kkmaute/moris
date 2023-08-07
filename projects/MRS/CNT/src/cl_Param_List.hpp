@@ -181,58 +181,51 @@ namespace moris
             auto it = mParamMap.find( tKey );
 
             // if key does not exist in map
-            if ( it == mParamMap.end() )
+            MORIS_ERROR( it != mParamMap.end(),
+                    "The requested parameter %s can not be set because it does not exist.\n",
+                    tKey.c_str() );
+
+            // if variant type is string remove whitespaces
+            if ( aVal.type() == typeid( std::string ) )
             {
-                // create error message
-                std::string tError = "The requested parameter '" + tKey + "' can not be set because it does not exist.\n";
+                std::string tVal( boost::get< std::string >( aVal ) );
 
-                // throw error
-                MORIS_ERROR( false, "%s", tError.c_str() );
+                // remove whitespaces from string
+                split_trim_string( tVal, ",;" );
+
+                // overwrite input argument
+                aVal = tVal;
             }
-            else
+
+            // if variant type is pair of strings remove whitespaces
+            if ( aVal.type() == typeid( std::pair< std::string, std::string > ) )
             {
-                // if variant type is string remove whitespaces
-                if ( aVal.type() == typeid( std::string ) )
-                {
-                    std::string tVal( boost::get< std::string >( aVal ) );
+                std::pair< std::string, std::string > tVal( boost::get< std::pair< std::string, std::string > >( aVal ) );
 
-                    // remove whitespaces from string
-                    split_trim_string( tVal, ",;" );
+                // extract elements of pair
+                std::string tFirst  = tVal.first;
+                std::string tSecond = tVal.second;
 
-                    // overwrite input argument
-                    aVal = tVal;
-                }
+                // remove whitespaces from strings
+                split_trim_string( tFirst, ",;" );
+                split_trim_string( tSecond, ",;" );
 
-                // if variant type is pair of strings remove whitespaces
-                if ( aVal.type() == typeid( std::pair< std::string, std::string > ) )
-                {
-                    std::pair< std::string, std::string > tVal( boost::get< std::pair< std::string, std::string > >( aVal ) );
-
-                    // extract elements of pair
-                    std::string tFirst  = tVal.first;
-                    std::string tSecond = tVal.second;
-
-                    // remove whitespaces from strings
-                    split_trim_string( tFirst, ",;" );
-                    split_trim_string( tSecond, ",;" );
-
-                    // overwrite input argument with new pair
-                    aVal = make_pair( tFirst, tSecond );
-                }
-
-                // if variant type is const char* convert it into a string and remove whitespaces
-                if ( aVal.type() == typeid( const char* ) )
-                {
-                    std::string tVal( boost::get< const char* >( aVal ) );
-
-                    // remove whitespaces from string
-                    split_trim_string( tVal, ",;" );
-
-                    // overwrite input argument string
-                    aVal = tVal;
-                }
-                it->second = aVal;
+                // overwrite input argument with new pair
+                aVal = make_pair( tFirst, tSecond );
             }
+
+            // if variant type is const char* convert it into a string and remove whitespaces
+            if ( aVal.type() == typeid( const char* ) )
+            {
+                std::string tVal( boost::get< const char* >( aVal ) );
+
+                // remove whitespaces from string
+                split_trim_string( tVal, ",;" );
+
+                // overwrite input argument string
+                aVal = tVal;
+            }
+            it->second = aVal;
         }
 
         //------------------------------------------------------------------------------
@@ -299,14 +292,9 @@ namespace moris
             auto it = mParamMap.find( aKey );
 
             // check if parameter exists
-            if ( it == mParamMap.end() )
-            {
-                // create error message
-                std::string tError = "The requested parameter '" + aKey + "' does not exist.\n";
-
-                // throw error
-                MORIS_ERROR( false, "%s", tError.c_str() );
-            }
+            MORIS_ERROR( it != mParamMap.end(),
+                    "The requested parameter %s does not exist.\n",
+                    aKey.c_str() );
 
             return it->second;
         }
@@ -327,15 +315,10 @@ namespace moris
         {
             auto it = mParamMap.find( aKey );
 
-            // check if parameter exists
-            if ( it == mParamMap.end() )
-            {
-                // create error message
-                std::string tError = "The requested parameter '" + aKey + "' does not exist.\n";
-
-                // throw error
-                MORIS_ERROR( false, "%s", tError.c_str() );
-            }
+            // throw error
+            MORIS_ERROR( it != mParamMap.end(),
+                    "The requested parameter %s does not exist.\n",
+                    aKey.c_str() );
 
             return ( it->second ).which();
         }
@@ -356,23 +339,15 @@ namespace moris
         {
             auto it = mParamMap.find( aKey );
 
-            // check if parameter exists
-            if ( it == mParamMap.end() )
-            {
-                // create error message
-                std::string tError = "The requested parameter '" + aKey + "' does not exist.\n";
+            // check if key exists
+            MORIS_ERROR( it != mParamMap.end(),
+                    "The requested parameter %s does not exist.\n",
+                    aKey.c_str() );
 
-                // throw error
-                MORIS_ERROR( false, "%s", tError.c_str() );
-            }
-
-            // check if the requested type is correct
-            if ( boost::get< Key >( &( it->second ) ) == nullptr )
-            {
-                // create error message
-                std::string tError = "The parameter '" + aKey + "' was requested with an incorrect type.\n";
-                MORIS_ERROR( false, "%s", tError.c_str() );
-            }
+            // check if value exists
+            MORIS_ERROR( boost::get< Key >( &( it->second ) ),
+                    "The parameter %s was requested with an incorrect type.\n",
+                    aKey.c_str() );
 
             return boost::get< Key >( it->second );
         }

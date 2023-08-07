@@ -16,7 +16,6 @@ namespace moris
 {
     namespace fem
     {
-
         //------------------------------------------------------------------------------
 
         SP_Velocity_Dirichlet_Nitsche::SP_Velocity_Dirichlet_Nitsche()
@@ -83,7 +82,7 @@ namespace moris
                 }
                 default:
                 {
-                    MORIS_ERROR( false, "SP_Velocity_Dirichlet_Nitsche::set_parameters - wrong required formulation of cluster measure.");
+                    MORIS_ERROR( false, "SP_Velocity_Dirichlet_Nitsche::set_parameters - wrong required formulation of cluster measure." );
                     break;
                 }
             }
@@ -95,7 +94,7 @@ namespace moris
         SP_Velocity_Dirichlet_Nitsche::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
                 moris::Cell< std::string >&                  aDofStrings,
-                mtk::Leader_Follower                            aIsLeader )
+                mtk::Leader_Follower                         aIsLeader )
         {
             // switch on leader follower
             switch ( aIsLeader )
@@ -122,9 +121,9 @@ namespace moris
                         else
                         {
                             // create error message
-                            std::string tErrMsg =
-                                    std::string( "SP_Velocity_Dirichlet_Nitsche::set_dof_type_list - Unknown aDofString : " ) + tDofString;
-                            MORIS_ERROR( false, tErrMsg.c_str() );
+                            MORIS_ERROR( false,
+                                    " SP_Velocity_Dirichlet_Nitsche::set_dof_type_list - Unknown aDofString : %s",
+                                    tDofString.c_str() );
                         }
                     }
                     break;
@@ -138,7 +137,8 @@ namespace moris
                 }
 
                 default:
-                    MORIS_ERROR( false, "SP_Velocity_Dirichlet_Nitsche::set_dof_type_list - unknown leader follower type." );
+                    MORIS_ERROR( false,
+                            "SP_Velocity_Dirichlet_Nitsche::set_dof_type_list - unknown leader follower type." );
             }
         }
 
@@ -327,9 +327,10 @@ namespace moris
         SP_Velocity_Dirichlet_Nitsche::eval_geometry_measure_edge_length()
         {
             return mCluster->get_cluster_measure(
-                    std::get< 0 >( mElementSizeTuple ),
-                    std::get< 1 >( mElementSizeTuple ),
-                    std::get< 2 >( mElementSizeTuple ) )->val()( 0 );
+                                   std::get< 0 >( mElementSizeTuple ),
+                                   std::get< 1 >( mElementSizeTuple ),
+                                   std::get< 2 >( mElementSizeTuple ) )
+                    ->val()( 0 );
         }
 
         //------------------------------------------------------------------------------
@@ -340,16 +341,18 @@ namespace moris
             // get leader volume cluster measure value
             const real tLeaderVolume =    //
                     mCluster->get_cluster_measure(
-                            std::get< 0 >( mLeaderVolumeTuple ),
-                            std::get< 1 >( mLeaderVolumeTuple ),
-                            std::get< 2 >( mLeaderVolumeTuple ) )->val()( 0 );
+                                    std::get< 0 >( mLeaderVolumeTuple ),
+                                    std::get< 1 >( mLeaderVolumeTuple ),
+                                    std::get< 2 >( mLeaderVolumeTuple ) )
+                            ->val()( 0 );
 
             // get interface surface cluster measure value
             const real tInterfaceSurface =    //
                     mCluster->get_cluster_measure(
-                            std::get< 0 >( mInterfaceSurfaceTuple ),
-                            std::get< 1 >( mInterfaceSurfaceTuple ),
-                            std::get< 2 >( mInterfaceSurfaceTuple ) )->val()( 0 );
+                                    std::get< 0 >( mInterfaceSurfaceTuple ),
+                                    std::get< 1 >( mInterfaceSurfaceTuple ),
+                                    std::get< 2 >( mInterfaceSurfaceTuple ) )
+                            ->val()( 0 );
 
             return tLeaderVolume / tInterfaceSurface;
         }

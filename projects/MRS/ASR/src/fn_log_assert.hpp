@@ -16,7 +16,6 @@
 #include <iostream>
 #include <stdexcept>
 #include <cstdio>
-#include <cstdarg>
 #include <string>
 
 // MORIS header files.
@@ -135,9 +134,7 @@ namespace moris
          * @param[in] check     Check that raised assertion.
          * @param[in] msg       Error message to build exception.
          */
-#ifdef __GNUC__
-        __attribute__( ( format( printf, 5, 6 ) ) )
-#endif
+        template< typename... Args >
         inline void
         moris_assert(
                 const std::string&   file,
@@ -145,29 +142,36 @@ namespace moris
                 const std::string&   function,
                 const std::string&   check,
                 const char*          format,
-                ... )
+                const Args... aArgs )
         {
-            va_list args, args2;
-            va_start( args, format );
+            // initialize string for assert message
+            std::string tString;
 
-            // Determine size of string
-            va_copy( args2, args );
-            auto tSize = vsnprintf( nullptr, 0, format, args2 );
-            va_end( args2 );
+            // check for print argument
+            if constexpr ( sizeof...( Args ) != 0 )
+            {
+                // Determine size of string
+                auto tSize = snprintf( nullptr, 0, format, aArgs... );
 
-            // create char pointer with size of string length + 1 for \0
-            std::unique_ptr< char[] > tMsg( new char[ tSize + 1 ] );
+                // create char pointer with size of string length + 1 for \0
+                std::unique_ptr< char[] > tMsg( new char[ tSize + 1 ] );
 
-            // write string into buffered char pointer
-            vsnprintf( tMsg.get(), tSize + 1, format, args );
-            va_end( args );
+                // write string into buffered char pointer
+                snprintf( tMsg.get(), tSize + 1, format, aArgs... );
+
+                tString = std::string( tMsg.get(), tMsg.get() + tSize );
+            }
+            else
+            {
+                tString = format;
+            }
 
             moris::assert::moris_assert(
                     file,
                     line,
                     function,
                     check,
-                    std::runtime_error( std::string( tMsg.get(), tMsg.get() + tSize ).c_str() ) );
+                    std::runtime_error( tString.c_str() ) );
         }
 
         /**
@@ -179,9 +183,7 @@ namespace moris
          * @param[in] check     Check that raised assertion.
          * @param[in] msg       Error message to build exception.
          */
-#ifdef __GNUC__
-        __attribute__( ( format( printf, 5, 6 ) ) )
-#endif
+        template< typename... Args >
         inline void
         moris_warning(
                 std::string const &   file,
@@ -189,11 +191,8 @@ namespace moris
                 std::string const &   function,
                 std::string const &   check,
                 const char*           format,
-                ... )
+                const Args... aArgs )
         {
-            va_list args, args2;
-            va_start( args, format );
-
             std::stringstream location;
             location << file << ":" << line << " (line " << line << ")";
 
@@ -203,23 +202,31 @@ namespace moris
             std::stringstream reason;
             reason << "Assertion " << check << " may indicate an problem.";
 
-            // Determine size of string
-            va_copy( args2, args );
-            auto tSize = vsnprintf( nullptr, 0, format, args2 );
-            va_end( args2 );
-
-            // create char pointer with size of string length + 1 for \0
-            std::unique_ptr< char[] > tMsg( new char[ tSize + 1 ] );
-
-            // write string into buffered char pointer
-            vsnprintf( tMsg.get(), tSize + 1, format, args );
-            va_end( args );
-
-            const std::runtime_error exception( std::string( tMsg.get(), tMsg.get() + tSize ).c_str() );
-
-            // build information for printing
+            // initialize string for warning message
             std::string tString;
 
+            // check for print argument
+            if constexpr ( sizeof...( Args ) != 0 )
+            {
+                // Determine size of string
+                auto tSize = snprintf( nullptr, 0, format, aArgs... );
+
+                // create char pointer with size of string length + 1 for \0
+                std::unique_ptr< char[] > tMsg( new char[ tSize + 1 ] );
+
+                // write string into buffered char pointer
+                snprintf( tMsg.get(), tSize + 1, format, aArgs... );
+
+                tString = std::string( tMsg.get(), tMsg.get() + tSize );
+            }
+            else
+            {
+                tString = format;
+            }
+
+            const std::runtime_error exception( tString.c_str() );
+
+            // build information for printing
             tString = "\n";
             tString = "*** ---------------------------------------------------------------------------\n";
             tString += "*** \n";

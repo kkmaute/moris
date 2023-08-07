@@ -34,21 +34,22 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Turbulent_Kinematic_Viscosity::set_dof_type_list(
-                moris::Cell< moris::Cell< MSI::Dof_Type > > & aDofTypes,
-                moris::Cell< std::string >                  & aDofStrings,
-                mtk::Leader_Follower                             aIsLeader )
+        void
+        IQI_Turbulent_Kinematic_Viscosity::set_dof_type_list(
+                moris::Cell< moris::Cell< MSI::Dof_Type > > &aDofTypes,
+                moris::Cell< std::string >                  &aDofStrings,
+                mtk::Leader_Follower                         aIsLeader )
         {
             // switch on leader follower
             switch ( aIsLeader )
             {
-                case mtk::Leader_Follower::LEADER :
+                case mtk::Leader_Follower::LEADER:
                 {
                     // set dof type list
                     mLeaderDofTypes = aDofTypes;
 
                     // loop on dof type
-                    for( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
+                    for ( uint iDof = 0; iDof < aDofTypes.size(); iDof++ )
                     {
                         // get dof string
                         std::string tDofString = aDofStrings( iDof );
@@ -57,23 +58,22 @@ namespace moris
                         MSI::Dof_Type tDofType = aDofTypes( iDof )( 0 );
 
                         // if viscosity
-                        if( tDofString == "Viscosity" )
+                        if ( tDofString == "Viscosity" )
                         {
                             mLeaderDofViscosity = tDofType;
                         }
                         else
                         {
                             // create error message
-                            std::string tErrMsg =
-                                    std::string( "IQI_Turbulent_Kinematic_Viscosity::set_dof_type_list - Unknown aDofString : ") +
-                                    tDofString;
-                            MORIS_ERROR( false , tErrMsg.c_str() );
+                            MORIS_ERROR( false,
+                                    "IQI_Turbulent_Kinematic_Viscosity::set_dof_type_list - Unknown aDofString : %s",
+                                    tDofString.c_str() );
                         }
                     }
                     break;
                 }
 
-                case mtk::Leader_Follower::FOLLOWER :
+                case mtk::Leader_Follower::FOLLOWER:
                 {
                     // set dof type list
                     mFollowerDofTypes = aDofTypes;
@@ -81,24 +81,26 @@ namespace moris
                 }
 
                 default:
-                    MORIS_ERROR( false, "IQI_Turbulent_Kinematic_Viscosity::set_dof_type_list - unknown leader follower type." );
+                    MORIS_ERROR( false,
+                            "IQI_Turbulent_Kinematic_Viscosity::set_dof_type_list - unknown leader follower type." );
             }
         }
 
         //------------------------------------------------------------------------------
 
-        void IQI_Turbulent_Kinematic_Viscosity::compute_QI( Matrix< DDRMat > & aQI )
+        void
+        IQI_Turbulent_Kinematic_Viscosity::compute_QI( Matrix< DDRMat > &aQI )
         {
             // get field interpolator for modified viscosity
-            Field_Interpolator * tFIModViscosity =
+            Field_Interpolator *tFIModViscosity =
                     mLeaderFIManager->get_field_interpolators_for_type( mLeaderDofViscosity );
 
             // get the density property
-            const std::shared_ptr< Property > & tPropDensity =
+            const std::shared_ptr< Property > &tPropDensity =
                     mLeaderProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // get the kinematic viscosity property
-            const std::shared_ptr< Property > & tPropKinViscosity =
+            const std::shared_ptr< Property > &tPropKinViscosity =
                     mLeaderProp( static_cast< uint >( Property_Type::KINEMATIC_VISCOSITY ) );
 
             // compute fv1
@@ -113,21 +115,22 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        void IQI_Turbulent_Kinematic_Viscosity::compute_QI( real aWStar )
+        void
+        IQI_Turbulent_Kinematic_Viscosity::compute_QI( real aWStar )
         {
             // get index for QI
             sint tQIIndex = mSet->get_QI_assembly_index( mName );
 
             // get field interpolator for modified viscosity
-            Field_Interpolator * tFIModViscosity =
+            Field_Interpolator *tFIModViscosity =
                     mLeaderFIManager->get_field_interpolators_for_type( mLeaderDofViscosity );
 
             // get the density property
-            const std::shared_ptr< Property > & tPropDensity =
+            const std::shared_ptr< Property > &tPropDensity =
                     mLeaderProp( static_cast< uint >( Property_Type::DENSITY ) );
 
             // get the kinematic viscosity property
-            const std::shared_ptr< Property > & tPropKinViscosity =
+            const std::shared_ptr< Property > &tPropKinViscosity =
                     mLeaderProp( static_cast< uint >( Property_Type::KINEMATIC_VISCOSITY ) );
 
             // compute fv1
@@ -140,6 +143,5 @@ namespace moris
             mSet->get_QI()( tQIIndex ) += aWStar * ( tPropDensity->val() * tFIModViscosity->val() * tFv1 );
         }
         //------------------------------------------------------------------------------
-    }/* end_namespace_fem */
-}/* end_namespace_moris */
-
+    }    // namespace fem
+}    // namespace moris

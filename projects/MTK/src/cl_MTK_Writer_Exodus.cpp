@@ -314,13 +314,14 @@ namespace moris
         Writer_Exodus::save_mesh()
         {
             // check that mesh is open
-            MORIS_ERROR( mExoID > 0, "Writer_Exodus::save_mesh() - Exodus cannot be saved as it is not open\n." );
+            MORIS_ERROR( mExoID > 0,
+                    "Writer_Exodus::save_mesh() - Exodus cannot be saved as it is not open\n." );
+
             // close mesh
             ex_close( mExoID );
 
             // write log information
-            std::string tMessage = "Copying " + mTempFileName + " to " + mPermFileName + ".";
-            MORIS_LOG( tMessage.c_str() );
+            MORIS_LOG( "Copying %s to %s.", mTempFileName.c_str(), mPermFileName.c_str() );
 
             // copy temporary file on permanent file
             std::ifstream src( mTempFileName.c_str(), std::ios::binary );
@@ -364,7 +365,8 @@ namespace moris
             int tFieldIndex = mNodalFieldNamesMap[ aFieldName ];
 
             MORIS_ASSERT( mNodalFieldNamesMap.size() == mNodalFieldNamesMap.size(),
-                    aFieldName.append( " is not a point field name on this mesh!" ).c_str() );
+                    "%s is not a point field name on this mesh!",
+                    aFieldName.c_str() );
 
             // Write the field
             int tErrMsg = ex_put_var(
@@ -402,16 +404,15 @@ namespace moris
             int tFieldIndex = mNodalFieldNamesMap[ aFieldName ];
 
             MORIS_ASSERT( mNodalFieldNamesMap.size() == mNodalFieldNamesMap.size(),
-                    aFieldName.append( " is not a nodal field name on this mesh!" ).c_str() );
+                    "%s is not a nodal field name on this mesh!",
+                    aFieldName.c_str() );
 
             // Check number of field values = number of nodes
             MORIS_ERROR( aFieldValues.numel() == mMesh->get_num_nodes(),
-                    aFieldName.append( " field was attempted to be written with "    //
-                                       + std::to_string( aFieldValues.numel() )      //
-                                       + " values, but there are "                   //
-                                       + std::to_string( mMesh->get_num_nodes() )    //
-                                       + " nodes in this mesh." )
-                            .c_str() );
+                    "%s field was attempted to be written with %li values, but there are %i nodes in this mesh.",
+                    aFieldName.c_str(),
+                    aFieldValues.numel(),
+                    mMesh->get_num_nodes() );
 
             // Ensure that time step is larger than or equal 1
             int tTimeStep = mTimeStep > 1 ? mTimeStep : 1;
@@ -446,7 +447,9 @@ namespace moris
                 return;
             }
 
-            MORIS_ERROR( mBlockNamesMap.key_exists( aBlockName ), aBlockName.append( " is not a block name on this mesh!" ).c_str() );
+            MORIS_ERROR( mBlockNamesMap.key_exists( aBlockName ),
+                    "%s is not a block name on this mesh!",
+                    aBlockName.c_str() );
 
             // Block name to local index of non-empty blocks
             int tBlockIndex = mBlockNamesMap[ aBlockName ];
@@ -466,13 +469,11 @@ namespace moris
 
             // Check number of field values = number of elements
             MORIS_ERROR( aFieldValues.numel() == mMesh->get_set_cells( aBlockName ).size(),
-                    aFieldName.append( " field was attempted to be written with "                       //
-                                       + std::to_string( aFieldValues.numel() )                         //
-                                       + " values, but there are "                                      //
-                                       + std::to_string( mMesh->get_set_cells( aBlockName ).size() )    //
-                                       + " elements in block "                                          //
-                                       + aBlockName + "." )
-                            .c_str() );
+                    "%s field was attempted to be written with %li values, but there are %li  elements in block %s",
+                    aFieldName.c_str(),
+                    aFieldValues.numel(),
+                    mMesh->get_set_cells( aBlockName ).size(),
+                    aBlockName.c_str() );
 
             // Check that number of field values = number of element stored in mesh
             ex_block tBlockInfo;
@@ -520,7 +521,7 @@ namespace moris
             }
 
             // Check that side set is valid
-            MORIS_ERROR( 
+            MORIS_ERROR(
                     mSideSetNamesMap.key_exists( aSideSetName ),
                     "Writer_Exodus::write_side_set_field() - "
                     "The side set (%s) the data (size: %i) is supposed to be written to does not exist in exodus mesh.",
@@ -532,7 +533,7 @@ namespace moris
 
             // Field name to index
             int tFieldIndex = mSideSetFieldNamesMap[ aFieldName ];
-            MORIS_ERROR( 
+            MORIS_ERROR(
                     (uint)tFieldIndex < mSideSetFieldNamesMap.size(),
                     "Writer_Exodus::write_side_set_field() - '%s' is not an elemental field name on this mesh.",
                     aFieldName.c_str() );
@@ -552,8 +553,9 @@ namespace moris
 
             // clean out field values which are not used
             Matrix< DDRMat > tUsedFieldValues( tNumUsedFacets, 1 );
-            uint tCounter = 0;
-            for( uint iFieldValue = 0; iFieldValue < tNumFieldEntries; iFieldValue++ )
+            uint             tCounter = 0;
+
+            for ( uint iFieldValue = 0; iFieldValue < tNumFieldEntries; iFieldValue++ )
             {
                 if ( mFacetUsedInExodus( tSideSetIndex )( iFieldValue ) )
                 {
@@ -1169,7 +1171,7 @@ namespace moris
                     // Get mesh-based index
                     moris_index tIgElemIndex = tIgElemIndices( iIgElemInSideSet );
 
-                    // Check that mesh-based index an exodus index has been assigned; 
+                    // Check that mesh-based index an exodus index has been assigned;
                     // if not it is not part of a block on this processor and will be skipped
                     if ( mMtkExodusElementIndexMap( tIgElemIndex ) != MORIS_INDEX_MAX )
                     {
@@ -1177,7 +1179,7 @@ namespace moris
                         moris_index tIgElemIndexInExo = mMtkExodusElementIndexMap( tIgElemIndex );
 
                         // Check that position has been assigned
-                        MORIS_ASSERT( 
+                        MORIS_ASSERT(
                                 mExodusElementIndexOrderMap( tIgElemIndexInExo ) != MORIS_INDEX_MAX,
                                 "Writer_Exodus::write_side_sets() - Exodus element index has not been assigned a position in exodus file." );
 
@@ -1218,7 +1220,7 @@ namespace moris
 
             }    // end for: each side set
 
-        }        // end function: Writer_Exodus::write_side_sets()
+        }    // end function: Writer_Exodus::write_side_sets()
 
         //--------------------------------------------------------------------------------------------------------------
         // Static (for now)

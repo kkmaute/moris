@@ -209,9 +209,9 @@ namespace moris
                 }
                 else
                 {
-                    std::string tErrMsg =
-                            std::string( "CM_Fluid_Compressible_Ideal::set_dof_type_list - Unknown aDofString : " ) + tDofString;
-                    MORIS_ERROR( false, tErrMsg.c_str() );
+                    MORIS_ERROR( false,
+                            "CM_Fluid_Compressible_Ideal::set_dof_type_list - Unknown aDofString : %s",
+                            tDofString.c_str() );
                 }
             }
         }
@@ -1489,4 +1489,3 @@ namespace moris
 
     } /* namespace fem */
 } /* namespace moris */
-

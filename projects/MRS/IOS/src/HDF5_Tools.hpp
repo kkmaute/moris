@@ -111,11 +111,8 @@ namespace moris
         // test if file exists
         std::ifstream tFile( tPath );
 
-        // create error message
-        std::string tError = "Could not open HDF5 file " + tPath;
-
         // throw error if file does not exist
-        MORIS_ERROR( tFile, "%s", tError.c_str() );
+        MORIS_ERROR( tFile, "Could not open HDF5 file %s", tPath.c_str() );
 
         // close file
         tFile.close();
@@ -401,14 +398,9 @@ namespace moris
         hid_t tDataType = H5Dget_type( tDataSet );
 
         // make sure that data type fits to type of matrix
-        if ( H5Tget_class( tDataType )
-                != H5Tget_class( get_hdf5_datatype( (typename Matrix< T >::Data_Type)0 ) ) )
-        {
-            std::string tMessage = "ERROR in reading from file: matrix "
-                                 + aLabel + " has the wrong data type.\n";
-
-            MORIS_ERROR( false, tMessage.c_str() );
-        }
+        MORIS_ERROR( H5Tget_class( tDataType ) == H5Tget_class( get_hdf5_datatype( (typename Matrix< T >::Data_Type)0 ) ),
+                "ERROR in reading from file: matrix %s has the wrong data type.",
+                aLabel.c_str() );
 
         // get handler to data space
         hid_t tDataSpace = H5Dget_space( tDataSet );
@@ -597,13 +589,9 @@ namespace moris
         hid_t tDataType = H5Dget_type( tDataSet );
 
         // make sure that datatype fits to type of vector
-        if ( H5Tget_class( tDataType ) != H5Tget_class( get_hdf5_datatype( (T)0 ) ) )
-        {
-            std::string tMessage = "ERROR in reading from file: vector "
-                                 + aLabel + " has the wrong datatype.\n";
-
-            MORIS_ERROR( false, "%s", tMessage.c_str() );
-        }
+        MORIS_ERROR( H5Tget_class( tDataType ) == H5Tget_class( get_hdf5_datatype( (T)0 ) ),
+                "ERROR in reading from file: vector %s has the wrong datatype.\n",
+                aLabel.c_str() );
 
         // get handler to dataspace
         hid_t tDataSpace = H5Dget_space( tDataSet );
