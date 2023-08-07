@@ -43,7 +43,7 @@ namespace moris::hmr
         Matrix< DDUMat > mLagrangeIJK;
 
         //! ordering scheme for Elements
-        Matrix< DDUMat > mBasisIndex;
+        Matrix< DDUMat > mBasisIndices;
 
         // unity matrix
         Matrix< DDRMat > mEye;
@@ -52,7 +52,7 @@ namespace moris::hmr
         Matrix< DDRMat > mZero;
 
         // cell containing child matrices ( transposed )
-        Cell< Matrix< DDRMat > > mChild;
+        Cell< Matrix< DDRMat > > mChildMatrices;
         Cell< Cell< Matrix< DDRMat > > >mChildMultiplied;
 
         //! parameter coordinates for lagrange element / natural coordinates

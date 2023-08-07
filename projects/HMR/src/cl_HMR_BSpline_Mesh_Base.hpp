@@ -228,6 +228,16 @@ namespace moris::hmr
                 const luint* aIJK ) = 0;
 
         /**
+         * Evaluates the child matrices for an element on this mesh
+         *
+         * @param aBasisIndices Basis indices
+         * @param aChildMatrices Child matrices to fill
+         */
+        virtual void evaluate_child_matrices(
+                const Matrix< DDUMat >&   aBasisIndices,
+                Cell< Matrix< DDRMat > >& aChildMatrices ) = 0;
+
+        /**
          * Evaluates the truncation weights on this mesh for 2D/3D based on 1D weights
          *
          * @param aTruncationWeights Truncation weights to size and fill

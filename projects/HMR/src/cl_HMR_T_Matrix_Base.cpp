@@ -108,7 +108,7 @@ namespace moris::hmr
             }
 
             // left-multiply T-Matrix with child matrix
-            tT = tT * mChild( tParent->get_background_element()->get_child_index() );
+            tT = tT * mChildMatrices( tParent->get_background_element()->get_child_index() );
 
             // jump to next
             tParent = mBSplineMesh->get_parent_of_element( tParent );
@@ -279,7 +279,7 @@ namespace moris::hmr
         else
         {
             MORIS_ERROR( false, "only child matrices for level 1 and 2 implemented yet." );
-            return mChild( 0 );
+            return mChildMatrices( 0 );
         }
     }
 

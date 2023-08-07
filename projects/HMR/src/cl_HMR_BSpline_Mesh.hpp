@@ -135,7 +135,7 @@ namespace moris::hmr
 
         uint get_number_of_bases_per_element() override
         {
-            return ( P + 1 ) * ( Q + 1 ) * ( R + 1 );
+            return B;
         }
 
         // ----------------------------------------------------------------------------
@@ -158,6 +158,91 @@ namespace moris::hmr
             else
             {
                 return gNoEntityID;
+            }
+        }
+
+        // ----------------------------------------------------------------------------
+
+        void evaluate_child_matrices(
+                const Matrix< DDUMat >&   aBasisIndices,
+                Cell< Matrix< DDRMat > >& aChildMatrices )
+        {
+            // Number of children per element
+            uint tNumberOfChildren = std::pow( 2, N );
+
+            // Calculate weight scaling factor
+            real tScale = 1.0;
+            for ( uint iDimension = 0; iDimension < N; iDimension++ )
+            {
+                tScale /= std::pow( 2, PQR[ iDimension ] );
+            }
+
+            // Loop over dimensions
+            for ( uint iDimension = 0; iDimension < N; iDimension++ )
+            {
+                // Number of B-spline coefficients in this direction
+                uint tNumCoefficients = PQR[ iDimension ] + 1;
+
+                // Create temporary factors matrix to help with left/right
+                Matrix< DDRMat > tFactors( tNumCoefficients, tNumCoefficients + 1, 0.0 );
+
+                // Set factors matrix
+                for ( uint iCoefficient = 0; iCoefficient <= tNumCoefficients; iCoefficient++ )
+                {
+                    for ( uint iOrder = 0; iOrder <= PQR[ iDimension ]; iOrder++ )
+                    {
+                        uint k = PQR[ iDimension ] - 2 * iOrder + iCoefficient;
+                        if ( k <= tNumCoefficients )
+                        {
+                            tFactors( iOrder, iCoefficient ) = nchoosek( tNumCoefficients, k );
+                        }
+                    }
+                }
+
+                // left and right matrices
+                Matrix< DDRMat > TL( tNumCoefficients, tNumCoefficients, 0.0 );
+                Matrix< DDRMat > TR( tNumCoefficients, tNumCoefficients, 0.0 );
+
+                // Fill matrices
+                for ( uint iOrder = 0; iOrder <= PQR[ iDimension ]; iOrder++ )
+                {
+                    TL.set_column( iOrder, tFactors.get_column( iOrder ) );
+                    TR.set_column( iOrder, tFactors.get_column( iOrder + 1 ) );
+                }
+
+                // determine number of basis per element
+                uint tNumberOfBases = this->get_number_of_bases_per_element();
+
+                // empty matrix
+                Matrix< DDRMat > tScaleMat( tNumberOfBases, tNumberOfBases, tScale );
+
+                // container for child relation matrices ( transposed! )
+                aChildMatrices.resize( tNumberOfChildren, tScaleMat );
+
+                // Left and right matrices
+                Cell< Matrix< DDRMat > > tT( 2, Matrix< DDRMat > ( tNumCoefficients, tNumCoefficients ) );
+
+                // Fill matrices
+                for ( uint iCoefficient = 0; iCoefficient < tNumCoefficients; iCoefficient++ )
+                {
+                    tT( 0 ).set_column( iCoefficient, tFactors.get_column( iCoefficient ) );
+                    tT( 1 ).set_column( iCoefficient, tFactors.get_column( iCoefficient + 1 ) );
+                }
+
+                // Tensor product
+                for ( uint tChildCol = 0; tChildCol < B; tChildCol++ )
+                {
+                    for ( uint tChildRow = 0; tChildRow < B; tChildRow++ )
+                    {
+                        uint tTRow = ( tChildCol / (uint) std::pow( tNumCoefficients, iDimension ) ) % tNumCoefficients;
+                        uint tTCol = ( tChildRow / (uint) std::pow( tNumCoefficients, iDimension ) ) % tNumCoefficients;
+                        for ( uint iChildIndex = 0; iChildIndex < tNumberOfChildren; iChildIndex++ )
+                        {
+                            aChildMatrices( iChildIndex )( aBasisIndices( tChildRow ), aBasisIndices( tChildCol ) )
+                                *= tT( ( iChildIndex / ( uint )std::pow( 2, iDimension ) ) % 2 )( tTRow, tTCol );
+                        }
+                    }
+                }
             }
         }
 
