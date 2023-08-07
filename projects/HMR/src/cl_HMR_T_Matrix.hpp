@@ -53,12 +53,17 @@ namespace moris::hmr
             // If B-spline mesh is given
             if ( aBSplineMesh != nullptr )
             {
-                this->init_basis_index();
                 this->init_unity_matrix();
-                mBSplineMesh->evaluate_child_matrices( mBasisIndices, mChildMatrices );
-                this->child_multiplication();
-                aBSplineMesh->evaluate_truncation_weights( mTruncationWeights );
+                this->init_basis_index();
                 this->init_lagrange_matrix();
+                if ( aTruncate )
+                {
+                    aBSplineMesh->evaluate_truncation_weights( mTruncationWeights );
+                }
+                else
+                {
+                    mBSplineMesh->evaluate_child_matrices( mBasisIndices, mChildMatrices );
+                }
             }
         }
 
@@ -300,29 +305,6 @@ namespace moris::hmr
             // Set unity and zero matrices
             eye( tNumberOfBases, tNumberOfBases, mEye );
             mZero.set_size( tNumberOfBases, 1, 0.0 );
-        }
-
-//-------------------------------------------------------------------------------
-
-        void child_multiplication()
-        {
-            // determine number of children
-            uint tNumberOfChildren = static_cast< uint >( std::pow( 2, N ) );
-            mChildMultiplied.resize( tNumberOfChildren );
-
-            for ( uint Ik = 0; Ik < tNumberOfChildren; ++Ik )
-            {
-                mChildMultiplied( Ik ).resize( tNumberOfChildren );
-            }
-
-            // multiply child matrices
-            for ( uint iChildRow = 0; iChildRow < tNumberOfChildren; iChildRow++ )
-            {
-                for ( uint iChildCol = 0; iChildCol < tNumberOfChildren; iChildCol++ )
-                {
-                    mChildMultiplied( iChildRow )( iChildCol ) = mChildMatrices( iChildRow ) * mChildMatrices( iChildCol );
-                }
-            }
         }
 
 //------------------------------------------------------------------------------

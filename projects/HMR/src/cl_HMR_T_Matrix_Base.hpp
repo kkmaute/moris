@@ -53,7 +53,6 @@ namespace moris::hmr
 
         // cell containing child matrices ( transposed )
         Cell< Matrix< DDRMat > > mChildMatrices;
-        Cell< Cell< Matrix< DDRMat > > >mChildMultiplied;
 
         //! parameter coordinates for lagrange element / natural coordinates
         Matrix< DDRMat > mLagrangeParam;
@@ -195,8 +194,6 @@ namespace moris::hmr
         virtual void init_modified_lagrange_parameter_coordinates(
                 Element* aLagrangeElement,
                 Element* aBSplineElement ) = 0;
-
-        const Matrix< DDRMat> & get_child_matrix( const Cell< uint > & aChildIndices );
 
         /**
          * Recompute the Lagrange matrix for extended T-matrices
