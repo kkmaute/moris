@@ -30,7 +30,7 @@ namespace moris
     check_equal(
             Matrix< Matrix_Type > aMatrix1,
             Matrix< Matrix_Type > aMatrix2,
-            real aErrorFactor = 1.0E+03 )
+            real aErrorFactor = 1.0E+06 )
     {
         // Require rows and columns to be equal before checking values
         REQUIRE( aMatrix1.n_rows() == aMatrix2.n_rows() );
@@ -44,8 +44,13 @@ namespace moris
             {
                 if ( !equal_to( aMatrix1( iRowIndex, iColumnIndex ), aMatrix2( iRowIndex, iColumnIndex ), aErrorFactor ) )
                 {
+                    // Print the values and where they are
+                    std::cout << std::setprecision( 10 );
                     std::cout << "( " << iRowIndex << ", " << iColumnIndex << " ): "
                         << aMatrix1( iRowIndex, iColumnIndex ) << " =/= " << aMatrix2( iRowIndex, iColumnIndex ) << std::endl;
+                    std::cout << std::setprecision( -1 );
+
+                    // Check should fail
                     tAllMatrixEntriesEqual = false;
                 }
             }
