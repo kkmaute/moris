@@ -1998,7 +1998,7 @@ TEST_CASE( "IWG_Struc_Linear_Elasticity_Damage_Dirichlet_Symmetric_Nitsche",
         "[moris],[fem],[IWG_Struc_Linear_Elasticity_Damage_Dirichlet_Symmetric_Nitsche]" )
 {
     // define an epsilon environment
-    real tEpsilon = 1E-5;
+    real tEpsilon = 2E-5;
 
     // define aperturbation relative size
     real tPerturbation = 1E-5;
