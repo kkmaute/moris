@@ -137,7 +137,7 @@ TEST_CASE( "Homogenization_2D",
         }
         default:
         {
-            MORIS_ERROR( false, "This 2D Example can only be run in serial.", par_size() );
+            MORIS_ERROR( false, "This 2D Example can only be run in serial." );
         }
     }
 }

@@ -62,6 +62,9 @@ namespace moris
             mMSIParameterList.insert( "VISCOSITY", 0 );
             mMSIParameterList.insert( "STRESS_DOF", 0 );
 
+            mMSIParameterList.insert( "NLEQSTRAIN", 0 );
+            mMSIParameterList.insert( "HISTORY", 0 );
+
             // General MSI parameters
             mMSIParameterList.insert( "order_adofs_by_host", false );
 

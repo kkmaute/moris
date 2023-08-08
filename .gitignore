@@ -53,6 +53,7 @@ CMakeCache.txt
 *.idea
 .vscode
 .history
+.spack-env
 
 # don't commit mail map for now
 .mailmap

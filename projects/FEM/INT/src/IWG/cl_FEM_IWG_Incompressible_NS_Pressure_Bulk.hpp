@@ -105,7 +105,7 @@ namespace moris
                  * compute the residual strong form
                  * @param[ in ] aRM a matrix to fill with RM
                  */
-                void compute_residual_strong_form( Matrix< DDRMat > & aRM );
+                void compute_residual_strong_form_momentum( Matrix< DDRMat > & aRM );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -114,7 +114,7 @@ namespace moris
                  *                        the derivative is requested
                  * @param[ in ] aJM       a matrix to fill with dRMdDof
                  */
-                void compute_jacobian_strong_form(
+                void compute_jacobian_strong_form_momentum(
                         const moris::Cell< MSI::Dof_Type > & aDofTypes,
                         Matrix< DDRMat >                   & aJM );
 

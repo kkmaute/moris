@@ -1222,7 +1222,7 @@ namespace moris::hmr
             if ( mParameters->get_renumber_lagrange_nodes() )
             {
                 MORIS_ERROR( tExodusNodeId - 1 < (uint)tReverseMap.size( 0 ),
-                        "Node ID in Exodus mesh exceeds size of Reverse_Map_1.hdf5 field mesh: Node ID %-5i versus %-5i.",
+                        "Node ID in Exodus mesh exceeds size of Reverse_Map_1.hdf5 field mesh: Node ID %-5i versus %-5zu.",
                         tExodusNodeId,
                         tReverseMap.size( 0 ) );
 
@@ -2741,4 +2741,4 @@ namespace moris::hmr
     }
 
     // ----------------------------------------------------------------------------
-} /* namespace moris */
+}    // namespace moris::hmr

@@ -152,6 +152,15 @@ namespace moris
                 return aMSIParameterList.get< moris::sint >( "STRESS_DOF" );
             }
 
+            else if ( aDofType == Dof_Type::NLEQSTRAIN )
+            {
+                return aMSIParameterList.get< moris::sint >( "NLEQSTRAIN" );
+            }
+            else if ( aDofType == Dof_Type::HISTORY )
+            {
+                return aMSIParameterList.get< moris::sint >( "HISTORY" );
+            }
+
             else if ( aDofType == Dof_Type::UNDEFINED )
             {
                 return MORIS_INDEX_MAX;

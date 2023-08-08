@@ -62,6 +62,9 @@ namespace moris
             LAMBDAX,      //< x component of the Lagrange multiplier traction
             LAMBDAY,      //< y component of the Lagrange multiplier traction
             LAMBDAZ,      //< z component of the Lagrange multiplier traction
+
+            NLEQSTRAIN,    //< nonlocal equivalent strain for nonlocal damage model
+            HISTORY,       //< nonlocal equivalent strain history for nonlocal damage model
            
             //L2,           //< Least Squares type
             UNDEFINED,    //< Undefined
@@ -110,6 +113,9 @@ namespace moris
             tMSIDofTypeMap[ "VISCOSITY" ]  = MSI::Dof_Type::VISCOSITY;
             tMSIDofTypeMap[ "STRESS_DOF" ] = MSI::Dof_Type::STRESS_DOF;
 
+            tMSIDofTypeMap[ "NLEQSTRAIN" ] = MSI::Dof_Type::NLEQSTRAIN;
+            tMSIDofTypeMap[ "HISTORY" ]    = MSI::Dof_Type::HISTORY;
+
             tMSIDofTypeMap[ "UNDEFINED" ] = MSI::Dof_Type::UNDEFINED;
 
             return tMSIDofTypeMap;
@@ -157,6 +163,9 @@ namespace moris
 
             tMSIDofTypeMap[ MSI::Dof_Type::VISCOSITY ]  = "VISCOSITY";
             tMSIDofTypeMap[ MSI::Dof_Type::STRESS_DOF ] = "STRESS_DOF";
+
+            tMSIDofTypeMap[ MSI::Dof_Type::NLEQSTRAIN ] = "NLEQSTRAIN";
+            tMSIDofTypeMap[ MSI::Dof_Type::HISTORY ]    = "HISTORY";
 
             tMSIDofTypeMap[ MSI::Dof_Type::UNDEFINED ] = "UNDEFINED";
 

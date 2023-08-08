@@ -1214,11 +1214,8 @@ namespace moris
                     }
                 }
 
-                // assemble error message
-                std::string tError = "Could not find" + tRank + "field " + aFieldName;
-
                 // throw error
-                MORIS_ERROR( tField != NULL, tError.c_str() );
+                MORIS_ERROR( tField != NULL, "Could not find %s field %s", +tRank.c_str(), aFieldName.c_str() );
             }
             // Loop over entities and access field value
             for ( size_t i = 0; i < tNumEntities; i++ )
@@ -1276,7 +1273,7 @@ namespace moris
         Mesh_Core_STK::get_mtk_cell( moris_index aCellIndex )
         {
             MORIS_ASSERT( aCellIndex < (moris_index)mSTKMeshData->mMtkCells.size(),
-                    "Provided cell index out of bounds: aCellIndex = %u , mSTKMeshData->mMtkCells.size() = %u ",
+                    "Provided cell index out of bounds: aCellIndex = %u , mSTKMeshData->mMtkCells.size() = %zu ",
                     aCellIndex,
                     mSTKMeshData->mMtkCells.size() );
 
@@ -1289,7 +1286,7 @@ namespace moris
         Mesh_Core_STK::get_mtk_cell( moris_index aCellIndex ) const
         {
             MORIS_ASSERT( aCellIndex < (moris_index)mSTKMeshData->mMtkCells.size(),
-                    "Provided cell index out of bounds: aCellIndex = %u , mSTKMeshData->mMtkCells.size() = %u ",
+                    "Provided cell index out of bounds: aCellIndex = %u , mSTKMeshData->mMtkCells.size() = %zu ",
                     aCellIndex,
                     mSTKMeshData->mMtkCells.size() );
 

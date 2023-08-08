@@ -497,7 +497,7 @@ namespace moris
                     auto tItrMax = std::max_element( tdIQIdAdv.data(), tdIQIdAdv.data() + tdIQIdAdv.numel() );
                     auto tIndMax = std::distance( tdIQIdAdv.data(), tItrMax );
 
-                    MORIS_LOG_INFO( "Criteria(%i): norm = %e   min = %e  (index = %i)   max = %e  (index = %i)",
+                    MORIS_LOG_INFO( "Criteria(%i): norm = %e   min = %e  (index = %li)   max = %e  (index = %li)",
                             i,
                             norm( tdIQIdAdv ),
                             tdIQIdAdv.min(),
@@ -536,7 +536,7 @@ namespace moris
             if ( tElementalTmatrixFileName != "" )
             {
                 uint tNumBsplineMeshes = mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_interpolation_mesh()->get_num_interpolations();
-                mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_integration_mesh()->save_elemental_T_matrices_to_file( tElementalTmatrixFileName,  tNumBsplineMeshes );
+                mPerformerManager->mMTKPerformer( 1 )->get_mesh_pair( 0 ).get_integration_mesh()->save_elemental_T_matrices_to_file( tElementalTmatrixFileName, tNumBsplineMeshes );
 
                 // return flag stopping the workflow after the T-Matrix output
                 return true;

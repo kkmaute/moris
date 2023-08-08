@@ -55,6 +55,8 @@ namespace moris
             enum class IWG_Stabilization_Type
             {
                 INCOMPRESSIBLE_FLOW,
+                DIFFUSION_CROSSWIND,
+                DIFFUSION_ISOTROPIC,
                 MAX_ENUM
             };
 
@@ -101,25 +103,38 @@ namespace moris
           private:
             //------------------------------------------------------------------------------
             /**
-             * compute the residual strong form
+             * compute the residual strong form for momentum
              * @param[ in ] aRM a matrix to fill with RM
+             */
+            void compute_residual_strong_form_momentum(
+                    Matrix< DDRMat >& aRM );
+
+            /**
+             * compute the residual strong form for continuity
              * @param[ in ] aRC a matrix to fill with RC
              */
-            void compute_residual_strong_form(
-                    Matrix< DDRMat >& aRM,
+            void compute_residual_strong_form_continuity(
                     real&             aRC );
 
             //------------------------------------------------------------------------------
             /**
-             * compute the residual strong form
+             * compute the jacobian strong form for momentum
              * @param[ in ] aDofTypes a list of dof type wrt which
              *                        the derivative is requested
              * @param[ in ] aJM       a matrix to fill with dRMdDof
+             */
+            void compute_jacobian_strong_form_momentum(
+                    const moris::Cell< MSI::Dof_Type >& aDofTypes,
+                    Matrix< DDRMat >&                   aJM );
+
+            /**
+             * compute the jacobian strong form for continuity
+             * @param[ in ] aDofTypes a list of dof type wrt which
+             *                        the derivative is requested
              * @param[ in ] aJC       a matrix to fill with dRCdDof
              */
-            void compute_jacobian_strong_form(
+            void compute_jacobian_strong_form_continuity(
                     const moris::Cell< MSI::Dof_Type >& aDofTypes,
-                    Matrix< DDRMat >&                   aJM,
                     Matrix< DDRMat >&                   aJC );
 
             //------------------------------------------------------------------------------

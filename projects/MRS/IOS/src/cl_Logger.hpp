@@ -261,10 +261,10 @@ namespace moris
 
         template< typename... Args >
         void
-        log_section( const Args... aArgs )
+        log_section( const char* tFormat, const Args... aArgs )
         {
-            // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
-            std::string tString = print_log( aArgs... );
+            // build log message
+            std::string tString = print_log( tFormat, aArgs... );
 
             // only processor mOutputRank prints message
             if ( logger_par_rank() == mOutputRank )
@@ -292,9 +292,10 @@ namespace moris
 
         template< typename... Args >
         void
-        log( const Args... aArgs )
+        log( const char* tFormat, const Args... aArgs )
         {
-            std::string tString = print_log( aArgs... );
+            // build log message
+            std::string tString = print_log( tFormat, aArgs... );
 
             // only processor mOutputRank prints message
             if ( logger_par_rank() == mOutputRank )
@@ -321,9 +322,10 @@ namespace moris
 
         template< typename... Args >
         void
-        log_info( const Args... aArgs )
+        log_info( const char* tFormat, const Args... aArgs )
         {
-            std::string tString = print_log( aArgs... );
+            // build log message
+            std::string tString = print_log( tFormat, aArgs... );
 
             // only processor mOutputRank prints message
             if ( logger_par_rank() == mOutputRank )
@@ -365,11 +367,10 @@ namespace moris
 
         template< typename... Args >
         void
-        log_debug( const Args... aArgs )
+        log_debug( const char* tFormat, const Args... aArgs )
         {
-            // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
-
-            std::string tString = print_log( aArgs... );
+            // build log message
+            std::string tString = print_log( tFormat, aArgs... );
 
             // only processor mOutputRank prints message
             if ( logger_par_rank() == mOutputRank )
@@ -399,11 +400,10 @@ namespace moris
 
         template< typename... Args >
         void
-        log_warning( const Args... aArgs )
+        log_warning( const char* tFormat, const Args... aArgs )
         {
-            // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
-
-            std::string tString = print_log( aArgs... );
+            // build log message
+            std::string tString = print_log( tFormat, aArgs... );
 
             // only processor mOutputRank prints message
             if ( logger_par_rank() == mOutputRank )
@@ -434,11 +434,10 @@ namespace moris
 
         template< typename... Args >
         void
-        log_error( const Args... aArgs )
+        log_error( const char* tFormat, const Args... aArgs )
         {
-            // MORIS_ASSERT(mStream.is_open(),"Logger error, the output file stream ofstream is not open);
-
-            std::string tString = print_log( aArgs... );
+            // build log message
+            std::string tString = print_log( tFormat, aArgs... );
 
             // switch based on OutputFormat provided
             if ( ( mDirectOutputFormat == 3 ) || ( mDirectOutputFormat == 2 ) )
@@ -661,15 +660,23 @@ namespace moris
 
 extern moris::Logger gLogger;
 
+// dummy macro used to check format and print argument
+#ifdef __GNUC__
+__attribute__( ( format( printf, 1, 2 ) ) )
+#endif
+void
+check_args( const char* tFormat, ... );
+
 /**
  * Log an section severity message.
  *
  * @include "IOS/src/cl_Logger/log.inc"
  */
-#define MORIS_SECTION( ... )                \
-    do                                      \
-    {                                       \
-        gLogger.log_section( __VA_ARGS__ ); \
+#define MORIS_SECTION( ... )                    \
+    do                                          \
+    {                                           \
+        if ( false ) check_args( __VA_ARGS__ ); \
+        gLogger.log_section( __VA_ARGS__ );     \
     } while ( false )
 
 // -----------------------------------------------------------------------------
@@ -679,13 +686,14 @@ extern moris::Logger gLogger;
  *
  * @include "IOS/src/cl_Logger/log.inc"
  */
-#define MORIS_LOG( ... )                        \
-    do                                          \
-    {                                           \
-        if ( gLogger.get_severity_level() < 3 ) \
-        {                                       \
-            gLogger.log_info( __VA_ARGS__ );    \
-        }                                       \
+#define MORIS_LOG( ... )                            \
+    do                                              \
+    {                                               \
+        if ( gLogger.get_severity_level() < 3 )     \
+        {                                           \
+            if ( false ) check_args( __VA_ARGS__ ); \
+            gLogger.log_info( __VA_ARGS__ );        \
+        }                                           \
     } while ( false )
 
 // -----------------------------------------------------------------------------
@@ -695,13 +703,14 @@ extern moris::Logger gLogger;
  *
  * @include "IOS/src/cl_Logger/log.inc"
  */
-#define MORIS_LOG_INFO( ... )                   \
-    do                                          \
-    {                                           \
-        if ( gLogger.get_severity_level() < 2 ) \
-        {                                       \
-            gLogger.log_info( __VA_ARGS__ );    \
-        }                                       \
+#define MORIS_LOG_INFO( ... )                       \
+    do                                              \
+    {                                               \
+        if ( gLogger.get_severity_level() < 2 )     \
+        {                                           \
+            if ( false ) check_args( __VA_ARGS__ ); \
+            gLogger.log_info( __VA_ARGS__ );        \
+        }                                           \
     } while ( false )
 
 // -----------------------------------------------------------------------------
@@ -741,10 +750,11 @@ extern moris::Logger gLogger;
  * @include "IOS/src/cl_Logger/log_debug.inc"
  */
 #if defined( MORIS_HAVE_DEBUG )
-#define MORIS_LOG_DEBUG( ... )            \
-    do                                    \
-    {                                     \
-        gLogger.log_debug( __VA_ARGS__ ); \
+#define MORIS_LOG_DEBUG( ... )                  \
+    do                                          \
+    {                                           \
+        if ( false ) check_args( __VA_ARGS__ ); \
+        gLogger.log_debug( __VA_ARGS__ );       \
     } while ( false )
 #else
 #define MORIS_LOG_DEBUG( ... )
@@ -757,13 +767,14 @@ extern moris::Logger gLogger;
  *
  * @include "IOS/src/cl_Logger/log_warning.inc"
  */
-#define MORIS_LOG_WARNING( ... )                \
-    do                                          \
-    {                                           \
-        if ( gLogger.get_severity_level() < 3 ) \
-        {                                       \
-            gLogger.log_warning( __VA_ARGS__ ); \
-        }                                       \
+#define MORIS_LOG_WARNING( ... )                    \
+    do                                              \
+    {                                               \
+        if ( gLogger.get_severity_level() < 3 )     \
+        {                                           \
+            if ( false ) check_args( __VA_ARGS__ ); \
+            gLogger.log_warning( __VA_ARGS__ );     \
+        }                                           \
     } while ( false )
 
 // -----------------------------------------------------------------------------
@@ -773,13 +784,14 @@ extern moris::Logger gLogger;
  *
  * @include "IOS/src/cl_Logger/log_error.inc"
  */
-#define MORIS_LOG_ERROR( ... )                  \
-    do                                          \
-    {                                           \
-        if ( gLogger.get_severity_level() < 4 ) \
-        {                                       \
-            gLogger.log_error( __VA_ARGS__ );   \
-        }                                       \
+#define MORIS_LOG_ERROR( ... )                      \
+    do                                              \
+    {                                               \
+        if ( gLogger.get_severity_level() < 4 )     \
+        {                                           \
+            if ( false ) check_args( __VA_ARGS__ ); \
+            gLogger.log_error( __VA_ARGS__ );       \
+        }                                           \
     } while ( false )
 
 #endif /* MORIS_IOS_CL_LOGGER_HPP_ */

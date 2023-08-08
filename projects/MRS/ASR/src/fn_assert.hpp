@@ -15,6 +15,13 @@
 #include "fn_log_assert.hpp"    // ASR/src
 #include "exceptions.hpp"
 
+// dummy macro used to check format and print argument
+#ifdef __GNUC__
+__attribute__( ( format( printf, 1, 2 ) ) )
+#endif
+void
+check_args( const char* tFormat, ... );
+
 /**
  * @brief Assertion, only active if DEBUG is defined.
  */
@@ -24,6 +31,7 @@
     {                                                                                             \
         if ( !( check ) )                                                                         \
         {                                                                                         \
+            if ( false ) check_args( __VA_ARGS__ );                                               \
             moris::assert::moris_assert( __FILE__, __LINE__, __FUNCTION__, #check, __VA_ARGS__ ); \
         }                                                                                         \
     } while ( false )
@@ -40,6 +48,7 @@
     {                                                                                              \
         if ( !( check ) )                                                                          \
         {                                                                                          \
+            if ( false ) check_args( __VA_ARGS__ );                                                \
             moris::assert::moris_warning( __FILE__, __LINE__, __FUNCTION__, #check, __VA_ARGS__ ); \
         }                                                                                          \
     } while ( false )
@@ -55,6 +64,7 @@
     {                                                                                             \
         if ( !( check ) )                                                                         \
         {                                                                                         \
+            if ( false ) check_args( __VA_ARGS__ );                                               \
             moris::assert::moris_assert( __FILE__, __LINE__, __FUNCTION__, #check, __VA_ARGS__ ); \
         }                                                                                         \
     } while ( false )

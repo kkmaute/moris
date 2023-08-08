@@ -31,9 +31,9 @@ check_results_serial(
         uint        aTestCaseIndex )
 {
 
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processor.", aTestCaseIndex, par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     // open and query exodus output file (set verbose to true to get basic mesh information)
     moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, false, false );
@@ -86,10 +86,9 @@ check_results_parallel(
         std::string aExoFileName,
         uint        aTestCaseIndex )
 {
-
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processor.", aTestCaseIndex, par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     // open and query exodus output file (set verbose to true to get basic mesh information)
     moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, false, false );
@@ -169,7 +168,7 @@ TEST_CASE( "Leveset Boxbeam Adaptive Refinement",
     // FIXME: should be made independent of OS; note std::remove does not take wild cards
     if ( par_rank() == 0 )
     {
-        MORIS_ERROR( std::system( "rm -f *exo*" )  == 0, "Leveset Boxbeam Adaptive Refinement - removing *exo* files failed" );
+        MORIS_ERROR( std::system( "rm -f *exo*" ) == 0, "Leveset Boxbeam Adaptive Refinement - removing *exo* files failed" );
         MORIS_ERROR( std::system( "rm -f *hdf5*" ) == 0, "Leveset Boxbeam Adaptive Refinement - removing *hdf5* files failed" );
     }
 

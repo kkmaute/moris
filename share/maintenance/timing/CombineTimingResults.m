@@ -3,10 +3,9 @@ function main
 clear all
 close all
 
-titan=''; %'/home/maute/codes/moris_titan/build_opt';
-titan_xtk_refactor=''; %'/home/maute/codes/moris_titan_xtk_refactor/build_opt';
-github='/home/maute/codes/moris_github/build_opt';
-
+titan              =''; %'/home/maute/codes/moris_titan/build_opt';
+titan_xtk_refactor =''; %'/home/maute/codes/moris_titan_xtk_refactor/build_opt';
+github             ='/home/maute/codes/moris/build_opt';
 
 cd(github)
 
@@ -72,12 +71,11 @@ end
 
 function [outvec]=convdate(datevec)
 
-
 for i=1:length(datevec)
     
     digits=dec2base(datevec(i),10) - '0';
     
-    outvec(i) = daysact(datetime(2020,1,1),datetime(2000+10*digits(1)+digits(2),10*digits(3)+digits(4),10*digits(5)+digits(6)));
+    outvec(i) = datenum(datetime(2000+10*digits(1)+digits(2),10*digits(3)+digits(4),10*digits(5)+digits(6)))-datenum(datetime(2020,1,1));
     
 end
 

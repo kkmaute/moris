@@ -290,7 +290,7 @@ namespace moris
                         tIsConverged = true;
 
                         // log task
-                        MORIS_LOG_INFO( "%s", task );
+                        MORIS_LOG_INFO( "Task: %s", task );
 
                         // leave inner iteration
                         break;

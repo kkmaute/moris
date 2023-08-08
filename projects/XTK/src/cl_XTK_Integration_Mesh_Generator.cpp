@@ -848,7 +848,7 @@ namespace xtk
             if ( !tFoundNonInterfaceNode )
             {
                 MORIS_LOG_WARNING(
-                        "IMG::deduce_ig_cell_bulk_phase_index() - Did not find a non-interface node for this element, set to dummy: %i",
+                        "IMG::deduce_ig_cell_bulk_phase_index() - Did not find a non-interface node for this element, set to dummy: %zu",
                         mGeometryEngine->get_num_phases() );
                 return mGeometryEngine->get_num_phases();
             }
@@ -4362,8 +4362,8 @@ namespace xtk
                 aBsplineMeshInfo->mExtractionCellsInBsplineCells,
                 aBsplineMeshInfo->mExtractionCellsIndicesInBsplineCells,
                 aBsplineMeshInfo->mExtractionCellToBsplineCell,
-                aBsplineMeshInfo->mBsplineCellLevels, 
-                aBsplineMeshInfo->mBsplineCells);
+                aBsplineMeshInfo->mBsplineCellLevels,
+                aBsplineMeshInfo->mBsplineCells );
     }
 
     // ----------------------------------------------------------------------------------

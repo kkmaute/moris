@@ -343,8 +343,7 @@ namespace moris
             }
 
             // Log mesh writing message
-            std::string tMessage = "Writing " + tMeshFileName + " to " + tMeshFilePath + ".";
-            MORIS_LOG( tMessage.c_str() );
+            MORIS_LOG( "Writing %s to %s.", tMeshFileName.c_str(), tMeshFilePath.c_str() );
 
             // writes the exodus mesh to file (only the mesh as a geometric entity without any output data)
             mWriter( aVisMeshIndex )->write_mesh( tMeshFilePath, tMeshFileName, tMeshTempPath, tMeshTempName );
@@ -851,7 +850,7 @@ namespace moris
             for ( uint iFieldType = 0; iFieldType < (uint)Field_Type::END_ENUM; iFieldType++ )
             {
                 // get the requested IQIs for the current type
-                Cell< std::string > const & tIQINamesForType = aIQINames( iFieldType );
+                Cell< std::string > const & tIQINamesForType   = aIQINames( iFieldType );
                 Cell< std::string > const & tFieldNamesForType = aFieldNames( iFieldType );
 
                 // get the number of fields for the current type
@@ -901,16 +900,16 @@ namespace moris
                 else if ( tElementalFieldTypes.find( tFieldType ) != tElementalFieldTypes.end() )
                 {
                     this->compute_and_write_elemental_fields_on_set(
-                            aVisMeshIndex, 
-                            aFemSet, 
-                            tFieldType, 
-                            tIQINamesForType, 
+                            aVisMeshIndex,
+                            aFemSet,
+                            tFieldType,
+                            tIQINamesForType,
                             tFieldNamesForType );
                 }
 
             }    // end for: each field type
 
-        }        // end function: VIS::Output_Manager::compute_fields_for_set()
+        }    // end function: VIS::Output_Manager::compute_fields_for_set()
 
         //-----------------------------------------------------------------------------------------------------------
 

@@ -126,7 +126,7 @@ namespace moris
                         MORIS_ERROR( false,
                                 "VIS_Factory::initialize() - "
                                 "Mesh set with name '%s' is neither a block, side, nor dbl. side set. Unable to handle case.",
-                                mAllRequestedSetNames( iSet ) );
+                                mAllRequestedSetNames( iSet ).c_str() );
                     }
                 }    // end switch: type of mtk-mesh
             }        // end for: each requested set
@@ -373,9 +373,9 @@ namespace moris
 
                 }    // end for: each IG cell on current block set
 
-            }        // end for: each block set
+            }    // end for: each block set
 
-        }            // end function: VIS_Factory::create_visualization_vertices_standard()
+        }    // end function: VIS_Factory::create_visualization_vertices_standard()
 
         //-----------------------------------------------------------------------------------------------------------
 
@@ -518,9 +518,9 @@ namespace moris
 
                 }    // end for: each cluster on current block set
 
-            }        // end for: each block set
+            }    // end for: each block set
 
-        }            // end function: VIS_Factory::create_visualization_vertices_full_discontinuous()
+        }    // end function: VIS_Factory::create_visualization_vertices_full_discontinuous()
 
         //-----------------------------------------------------------------------------------------------------------
 
@@ -631,7 +631,7 @@ namespace moris
 
             }    // end for: each block set
 
-        }        // end function: VIS_Factory::create_visualization_cells()
+        }    // end function: VIS_Factory::create_visualization_cells()
 
         //-----------------------------------------------------------------------------------------------------------
 
@@ -816,9 +816,9 @@ namespace moris
 
                 }    // end for: clusters on set
 
-            }        // end for: each set
+            }    // end for: each set
 
-        }            // end function: VIS_Factory::create_visualization_clusters()
+        }    // end function: VIS_Factory::create_visualization_clusters()
 
 
         //-----------------------------------------------------------------------------------------------------------
@@ -980,7 +980,7 @@ namespace moris
 
                         }    // end for: each vertex in the side cluster
 
-                    }        // end for: each IG cell the side cluster is attached to
+                    }    // end for: each IG cell the side cluster is attached to
 
                     // store pointer list of VIS vertices in the VIS cluster being constructed
                     tVisSideCluster->add_vertex_to_cluster( tClusterVisVertices );
@@ -1021,9 +1021,9 @@ namespace moris
 
                 }    // end for: each side cluster in fem/mtk set
 
-            }        // end for: each set in FEM mesh
+            }    // end for: each set in FEM mesh
 
-        }            // end function: VIS_Factory::create_visualization_side_clusters()
+        }    // end function: VIS_Factory::create_visualization_side_clusters()
 
         //-----------------------------------------------------------------------------------------------------------
 
@@ -1167,36 +1167,36 @@ namespace moris
                     map< moris_index, moris_index > tFemVertexIndexToPosInFemFollowerClusterMap;
                     for ( uint iVertInFemLeaderCluster = 0; iVertInFemLeaderCluster < tNumFemVerticesInLeaderCluster; iVertInFemLeaderCluster++ )
                     {
-                        moris_index tFemLeaderVertexIndex = tFemLeaderVertices( iVertInFemLeaderCluster )->get_index();
+                        moris_index tFemLeaderVertexIndex                                  = tFemLeaderVertices( iVertInFemLeaderCluster )->get_index();
                         tFemVertexIndexToPosInFemLeaderClusterMap[ tFemLeaderVertexIndex ] = iVertInFemLeaderCluster;
                     }
                     for ( uint iVertInFemFollowerCluster = 0; iVertInFemFollowerCluster < tNumFemVerticesInFollowerCluster; iVertInFemFollowerCluster++ )
                     {
-                        moris_index tFemFollowerVertexIndex = tFemFollowerVertices( iVertInFemFollowerCluster )->get_index();
+                        moris_index tFemFollowerVertexIndex                                    = tFemFollowerVertices( iVertInFemFollowerCluster )->get_index();
                         tFemVertexIndexToPosInFemFollowerClusterMap[ tFemFollowerVertexIndex ] = iVertInFemFollowerCluster;
                     }
 
-                    // initialize sets that will carry a list of FEM vertex indices that correspond to the VIS vertices 
+                    // initialize sets that will carry a list of FEM vertex indices that correspond to the VIS vertices
                     // which are attached to the IG cells that carry the respective sides of the dbl side cluster
                     std::set< moris_index > tActiveFemVertexIndicesOnVisLeaderCluster;
                     std::set< moris_index > tActiveFemVertexIndicesOnVisFollowerCluster;
-            
+
                     // go through the IG cells the leader and follower side clusters are attached to and collect the FEM vertices on these cells
                     for ( uint iFacet = 0; iFacet < tNumFacetsInSideClusters; iFacet++ )
                     {
                         // access the FEM cells attached to the current facet
-                        const moris::mtk::Cell* tLeaderFemCell = tFemCellsInLeaderCluster( iFacet );
+                        const moris::mtk::Cell* tLeaderFemCell   = tFemCellsInLeaderCluster( iFacet );
                         const moris::mtk::Cell* tFollowerFemCell = tFemCellsInFollowerCluster( iFacet );
 
                         // get the current FEM cells' vertex indices
-                        Matrix< IndexMat > tLeaderCellFemVertInds = tLeaderFemCell->get_vertex_inds();
+                        Matrix< IndexMat > tLeaderCellFemVertInds   = tLeaderFemCell->get_vertex_inds();
                         Matrix< IndexMat > tFollowerCellFemVertInds = tFollowerFemCell->get_vertex_inds();
 
                         // go through the FEM vertices in the leader cell, and store them in the list
                         for ( uint iVertOnLeaderCell = 0; iVertOnLeaderCell < tLeaderCellFemVertInds.numel(); iVertOnLeaderCell++ )
                         {
                             moris_index tFemLeaderVertexIndex = tLeaderCellFemVertInds( iVertOnLeaderCell );
-                            tActiveFemVertexIndicesOnVisLeaderCluster.insert( tFemLeaderVertexIndex ); 
+                            tActiveFemVertexIndicesOnVisLeaderCluster.insert( tFemLeaderVertexIndex );
                             // NOTE: std::set's make sure that each index will only appear once in the set;
                             // NOTE: hence, inserting the same vertex index twice does nothing
                         }
@@ -1205,15 +1205,15 @@ namespace moris
                         for ( uint iVertOnFollowerCell = 0; iVertOnFollowerCell < tFollowerCellFemVertInds.numel(); iVertOnFollowerCell++ )
                         {
                             moris_index tFemFollowerVertexIndex = tFollowerCellFemVertInds( iVertOnFollowerCell );
-                            tActiveFemVertexIndicesOnVisFollowerCluster.insert( tFemFollowerVertexIndex ); 
+                            tActiveFemVertexIndicesOnVisFollowerCluster.insert( tFemFollowerVertexIndex );
                         }
 
-                    } // end for: each facet on the dbl side cluster, collect the the used vertices on each side
+                    }    // end for: each facet on the dbl side cluster, collect the the used vertices on each side
 
-                    // the intersection of the active fem vertices on each side are the shared vertices, 
+                    // the intersection of the active fem vertices on each side are the shared vertices,
                     // i.e. the interface vertices which we are looking for
                     std::set< moris_index > tFemVerticesOnInterface;
-                    std::set_intersection( 
+                    std::set_intersection(
                             tActiveFemVertexIndicesOnVisLeaderCluster.begin(),
                             tActiveFemVertexIndicesOnVisLeaderCluster.end(),
                             tActiveFemVertexIndicesOnVisFollowerCluster.begin(),
@@ -1221,18 +1221,18 @@ namespace moris
                             std::inserter( tFemVerticesOnInterface, tFemVerticesOnInterface.begin() ) );
 
                     /* count number interface nodes and give them a position within the list of FEM vertices on the interface
-                     * NOTE: this position map is used for both the leader and follower side clusters to have matching ordering 
+                     * NOTE: this position map is used for both the leader and follower side clusters to have matching ordering
                      * of the VIS vertices on the interface, such that the vertex pairing is trivial*/
-                    moris_index tInterfaceVertexCounter = 0;
+                    moris_index                     tInterfaceVertexCounter = 0;
                     map< moris_index, moris_index > tFemVertexIndexToPosInVisClusterMap;
-                    for ( const moris_index & iInterfaceFemVertexIndex : tFemVerticesOnInterface )
+                    for ( const moris_index& iInterfaceFemVertexIndex : tFemVerticesOnInterface )
                     {
                         tFemVertexIndexToPosInVisClusterMap[ iInterfaceFemVertexIndex ] = tInterfaceVertexCounter;
                         tInterfaceVertexCounter++;
                     }
 
-                    uint tNumInterfaceVertices = (uint) tInterfaceVertexCounter;
-                
+                    uint tNumInterfaceVertices = (uint)tInterfaceVertexCounter;
+
                     // initialize list of VIS vertices constructed from the mtk/fem vertices on the interface
                     moris::Cell< mtk::Vertex const * > tLeaderClusterVisVertices( tNumInterfaceVertices, nullptr );
                     moris::Cell< mtk::Vertex const * > tFollowerClusterVisVertices( tNumInterfaceVertices, nullptr );
@@ -1266,9 +1266,9 @@ namespace moris
                             // get the corresponding FEM/MTK vertex's index
                             moris_index tFemLeaderVertexIndex = tLeaderVisVertex->get_base_vertex()->get_index();
 
-                            // check if this vertex is part of the interface 
+                            // check if this vertex is part of the interface
                             bool tVertexIsOnInterface = tFemVertexIndexToPosInVisClusterMap.key_exists( tFemLeaderVertexIndex );
-                            
+
                             // if vertex does not sit on the interface, skip it
                             if ( !tVertexIsOnInterface )
                             {
@@ -1278,7 +1278,7 @@ namespace moris
                             // get the vertex's position within cluster
                             moris_index tVertexPosInCluster = tFemVertexIndexToPosInVisClusterMap.find( tFemLeaderVertexIndex );
 
-                            // add vertex to the list of VIS vertices in the 
+                            // add vertex to the list of VIS vertices in the
                             tLeaderClusterVisVertices( tVertexPosInCluster ) = tLeaderVisVertex;
 
                         }    // end for: each active vertex on the leader side cluster
@@ -1295,9 +1295,9 @@ namespace moris
                             // get the corresponding FEM/MTK vertex's index
                             moris_index tFemFollowerVertexIndex = tFollowerVisVertex->get_base_vertex()->get_index();
 
-                            // check if this vertex is part of the interface 
+                            // check if this vertex is part of the interface
                             bool tVertexIsOnInterface = tFemVertexIndexToPosInVisClusterMap.key_exists( tFemFollowerVertexIndex );
-                            
+
                             // if vertex does not sit on the interface, skip it
                             if ( !tVertexIsOnInterface )
                             {
@@ -1307,12 +1307,12 @@ namespace moris
                             // get the vertex's position within cluster
                             moris_index tVertexPosInCluster = tFemVertexIndexToPosInVisClusterMap.find( tFemFollowerVertexIndex );
 
-                            // add vertex to the list of VIS vertices in the 
+                            // add vertex to the list of VIS vertices in the
                             tFollowerClusterVisVertices( tVertexPosInCluster ) = tFollowerVisVertex;
 
                         }    // end for: each active vertex on the follower side cluster
 
-                    }        // end for: each facet in the dbl side cluster
+                    }    // end for: each facet in the dbl side cluster
 
                     // store pointer lists of VIS vertices in the VIS cluster being constructed
                     tVisLeaderSideCluster->add_vertex_to_cluster( tLeaderClusterVisVertices );
@@ -1385,9 +1385,9 @@ namespace moris
 
                 }    // end for: each dbl side cluster in set
 
-            }        // end for: each double sided side set requested for output
+            }    // end for: each double sided side set requested for output
 
-        }            // end function: VIS_Factory::create_visualization_double_side_clusters()
+        }    // end function: VIS_Factory::create_visualization_double_side_clusters()
 
         //-----------------------------------------------------------------------------------------------------------
 

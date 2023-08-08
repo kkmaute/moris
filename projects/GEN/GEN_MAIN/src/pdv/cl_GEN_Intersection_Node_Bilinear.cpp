@@ -564,11 +564,40 @@ namespace moris
         real
         Intersection_Node_Bilinear::compute_intersection_derivative( uint aAncestorIndex )
         {
-            // Locked interface geometry
-            std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
-
             // number of nodes to be used for interpolation
             uint tNumBases;
+
+            // determine number of basis for bi or tri-linear interpolation based on spatial dimensions
+            switch ( mAncestorNodeCoordinates( 0 ).numel() )
+            {
+                case 2:
+                {
+                    tNumBases = 4;
+                    break;
+                }
+                case 3:
+                {
+                    tNumBases = 8;
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false,
+                            "Intersection_Node_Bilinear::compute_intersection_derivative - Improper spatial dimensions." );
+                }
+            }
+
+            // check that aAncestorIndex <= number of basis
+            // note: here only bi and tri-linear interpolation used irrespective of interpolation of background cell; thus only
+            // corner nodes values are used; level set values of other nodes do not influence intersection position
+            if ( aAncestorIndex >= tNumBases )
+            {
+                // return zero as only corner node level set values influence intersection
+                return 0.0;
+            }
+
+            // Locked interface geometry
+            std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
             // build interpolator
             mtk::Interpolation_Function_Factory tFactory;
@@ -576,26 +605,22 @@ namespace moris
             mtk::Interpolation_Function_Base* tInterpolation;
 
             // create interpolation function based on spatial dimension  of problem
-            switch ( mAncestorNodeCoordinates( 0 ).numel() )
+            switch ( tNumBases )
             {
-                case 2:
+                case 4:
                 {
                     tInterpolation = tFactory.create_interpolation_function(
                             mtk::Geometry_Type::QUAD,
                             mtk::Interpolation_Type::LAGRANGE,
                             mtk::Interpolation_Order::LINEAR );
-
-                    tNumBases = 4;
                     break;
                 }
-                case 3:
+                case 8:
                 {
                     tInterpolation = tFactory.create_interpolation_function(
                             mtk::Geometry_Type::HEX,
                             mtk::Interpolation_Type::LAGRANGE,
                             mtk::Interpolation_Order::LINEAR );
-
-                    tNumBases = 8;
                     break;
                 }
                 default:

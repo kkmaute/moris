@@ -82,7 +82,7 @@ namespace moris
                     mPointVectorRHS->save_vector_to_matlab_file( tResFileName.c_str() );
 
                     // log that output was successful
-                    MORIS_LOG_INFO( "Saved Residual to Matlab File: ", tResFileName.c_str() );
+                    MORIS_LOG_INFO( "Saved Residual to Matlab File: %s ", tResFileName.c_str() );
                 }
             }
         }
@@ -157,7 +157,7 @@ namespace moris
                     mMassMat->save_matrix_to_matlab_file( tMassFileName.c_str() );
 
                     // log that output was successful
-                    MORIS_LOG_INFO( "Saved Jacobian to Matlab File: ", tJacFileName.c_str() );
+                    MORIS_LOG_INFO( "Saved Jacobian to Matlab File: %s ", tJacFileName.c_str() );
                 }
             }
         }
@@ -225,7 +225,7 @@ namespace moris
             tDynRes->vec_put_scalar( 0.0 );
 
             // assemble dynamic residual
-            mSolverInterface->assemble_RHS( tDynRes, fem::Time_Continuity_Flag::DEFAULT );
+            mSolverInterface->assemble_RHS( tDynRes, fem::Time_Continuity_Flag::TIME_CONTINUITY_ONLY );
 
             MORIS_LOG_INFO( "Norm of dynamic residual: %e", tDynRes->vec_norm2()( 0 ) );
             MORIS_LOG_INFO( "Norm of total residual  : %e", mPointVectorRHS->vec_norm2()( 0 ) );

@@ -97,6 +97,10 @@ namespace moris
             // project level set field
             real tVal = std::exp( -2.0 * mPhiGradient * mLevelSetSign * tFI->val()( 0 ) / mPhiBound );
 
+            // check for nan, infinity
+            MORIS_ASSERT( std::isfinite( tVal ),
+                    "IQI_Heat_Method_Penalty::compute_QI - project level set field value is NAN or INF, exiting!" );
+
             // Compute phi tilde
             moris::real      tPhiTilde   = ( 2.0 / ( 1.0 + tVal ) - 1.0 ) * mPhiBound;
             Matrix< DDRMat > tPhiTildeDx = ( 4.0 * mPhiGradient * tVal ) / std::pow( 1.0 + tVal, 2 ) * mLevelSetSign * tFI->gradx( 1 );
@@ -184,6 +188,10 @@ namespace moris
                             "IQI_Heat_Method_Penalty::compute_QI - incorrect vector index." );
                 }
             }
+
+            // check for nan, infinity
+            MORIS_ASSERT( isfinite( aQI ),
+                    "IQI_Heat_Method_Penalty::compute_QI - IQI is NAN or INF, exiting!" );
         }
 
         //------------------------------------------------------------------------------

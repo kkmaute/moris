@@ -14,7 +14,6 @@ namespace moris
 {
     namespace ge
     {
-
         //--------------------------------------------------------------------------------------------------------------
 
         User_Defined_Field::User_Defined_Field(
@@ -104,7 +103,7 @@ namespace moris
                 // Check for size
                 MORIS_ERROR( mSensitivities.n_cols() == mFieldVariables.size(),
                         "A user-defined geometry must have a sensitivity vector with a length equal to the total "
-                        "number of geometry variables (ADVs + constants). sensitivities: %i   geom variables: %i \n",
+                        "number of geometry variables (ADVs + constants). sensitivities: %zu   geom variables: %zu \n",
                         mSensitivities.n_cols(),
                         mFieldVariables.size() );
 

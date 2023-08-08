@@ -85,12 +85,12 @@ Linear_Solver_Amesos::solve_linear_system()
     if ( !mParameterList.get< bool >( "symbolic_factorization" ) || !mIsPastFirstSolve )
     {
         error = mAmesosSolver->SymbolicFactorization();
-        MORIS_ERROR( error == 0, "SYMBOLIC FACTORIZATION in Linear Solver Trilinos Amesos returned an error %i. Exiting linear solve" );
+        MORIS_ERROR( error == 0, "SYMBOLIC FACTORIZATION in Linear Solver Trilinos Amesos returned an error %i. Exiting linear solve", error );
     }
 
     // Perform numeric factorization
     error = mAmesosSolver->NumericFactorization();
-    MORIS_ERROR( error == 0, "NUMERIC FACTORIZATION in Linear Solver Trilinos Amesos returned an error %i. Exiting linear solve" );
+    MORIS_ERROR( error == 0, "NUMERIC FACTORIZATION in Linear Solver Trilinos Amesos returned an error %i. Exiting linear solve", error );
 
     // Solve linear system
     error = mAmesosSolver->Solve();

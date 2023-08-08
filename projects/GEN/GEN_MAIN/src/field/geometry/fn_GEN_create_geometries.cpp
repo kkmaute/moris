@@ -258,6 +258,7 @@ namespace moris
             else if ( tGeometryType == "nodal_field" )
             {
                 MORIS_ERROR( aMTKMesh != nullptr, "Mesh is a null ptr for nodal field geometry" );
+
                 return std::make_shared< ge::Mesh_Field_Geometry >( aMTKMesh, tParameters.mName, EntityRank::NODE );
             }
             else if ( tGeometryType == "nodal_field_from_file" )
@@ -416,7 +417,7 @@ namespace moris
             }
             else
             {
-                MORIS_ERROR( false, tGeometryType.append( " is not recognized as a valid Geometry type in fn_GEN_create_geometry." ).c_str() );
+                MORIS_ERROR( false, "%s is not recognized as a valid Geometry type in fn_GEN_create_geometry.", tGeometryType.c_str() );
                 return nullptr;
             }
         }
@@ -441,4 +442,3 @@ namespace moris
 
     }    // namespace ge
 }    // namespace moris
-

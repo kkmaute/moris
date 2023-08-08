@@ -44,7 +44,6 @@ set(HEADERS
     cl_HMR_Field_Param.hpp
     cl_HMR_Field.hpp
     cl_HMR_File.hpp
-    cl_HMR_Knot.hpp
     cl_HMR_Lagrange_Edge.hpp
     cl_HMR_Lagrange_Edge2.hpp
     cl_HMR_Lagrange_Edge3.hpp
@@ -148,7 +147,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
-add_library(${HMR}-lib STATIC ${LIB_SOURCES})
+add_library(${HMR}-lib ${LIB_LINK_MODE} ${LIB_SOURCES})
 target_include_directories(${HMR}-lib PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:${${HMR}_HEADER_INSTALL_DIR}> )

@@ -47,6 +47,8 @@ namespace moris
             OLSSON,           // Olsson et al. (2007) reinitialization
             NONLOCAL_BULK,    // Nonlocal
             HISTORY_BULK,     // History
+            NONLOCAL_INTERFACE_SYMMETRIC_NITSCHE,
+            NONLOCAL_INTERFACE_UNSYMMETRIC_NITSCHE,
 
             SPATIALDIFF_BULK,                             // spatial diffusion bulk
             SPATIALDIFF_PC_BULK,                          // spatial diffusion bulk with phase change
@@ -175,6 +177,7 @@ namespace moris
             EFFECTIVE_CONDUCTIVITY,
             SPALART_ALLMARAS_COEFFICIENT,
             POWER_DISSIPATION,
+            POWER_DISSIPATION_BULK,
             TOTAL_PRESSURE,
             MASS_FLOW,
             THERMAL_ENERGY_CONVECTIVE_FLUX,
@@ -187,6 +190,11 @@ namespace moris
             ADVECTION_STRONG_RESIDUAL,
             STRONG_RESIDUAL_SA,
             STRONG_RESIDUAL_INCOMPRESSIBLE_NS,
+
+            SP_CROSSWIND_INCOMPRESSIBLE_NS,
+            SP_CROSSWIND_SA,
+            RES_CROSSWIND_INCOMPRESSIBLE_NS,
+            RES_SUPG_INCOMPRESSIBLE_NS,
 
             MAX_STRESS,
             MAX_NORMAL_STRESS,
@@ -304,6 +312,7 @@ namespace moris
             SUPG_ADVECTION,
             SUPG_SPALART_ALLMARAS_TURBULENCE,
             YZBETA_ADVECTION,
+            CROSSWIND,
             TURBULENCE_DIRICHLET_NITSCHE,
             SPALART_ALLMARAS_NITSCHE_INTERFACE,
             PENALTY_CONTACT,

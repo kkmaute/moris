@@ -161,14 +161,12 @@ namespace moris
                     uint tIdnx = aNodeIndices( tNodeIndex );
 
                     MORIS_ASSERT( mIpPdvHosts.size() > tIdnx,
-                            "Pdv_Host_Manager::get_ip_pdv_value - %s",
-                            "IP PDV host does not exist at node with index. size to small %d\n",
+                            "Pdv_Host_Manager::get_ip_pdv_value - IP PDV host does not exist at node with index. size to small %d\n",
                             tIdnx );
 
                     // check that PDV host exists
                     MORIS_ASSERT( mIpPdvHosts( tIdnx ),
-                            "Pdv_Host_Manager::get_ip_pdv_value - %s",
-                            "IP PDV host does not exist at node with index %d\n",
+                            "Pdv_Host_Manager::get_ip_pdv_value - IP PDV host does not exist at node with index %d\n",
                             tIdnx );
 
                     aDvValues( tPdvTypeIndex )( tNodeIndex ) =
@@ -220,8 +218,7 @@ namespace moris
 
                     // check that PDV host exists
                     MORIS_ASSERT( mIpPdvHosts( tIdnx ),
-                            "Pdv_Host_Manager::get_ip_pdv_value - %s",
-                            "IP PDV host does not exist at node with index %d\n",
+                            "Pdv_Host_Manager::get_ip_pdv_value - IP PDV host does not exist at node with index %d\n",
                             tIdnx );
 
                     aDvValues( tPdvTypeIndex )( tNodeIndex ) =
@@ -364,8 +361,7 @@ namespace moris
 
                     // check that PDV host exists
                     MORIS_ASSERT( mIpPdvHosts( tIdnx ),
-                            "Pdv_Host_Manager::get_ip_pdv_value - %s",
-                            "IP PDV host does not exist at node with index %d\n",
+                            "Pdv_Host_Manager::get_ip_pdv_value - IP PDV host does not exist at node with index %d\n",
                             tIdnx );
 
                     aDvIds( tPdvTypeIndex )( tNode ) =    //
@@ -651,8 +647,7 @@ namespace moris
         {
             // Check that PDV host exists
             MORIS_ASSERT( mIpPdvHosts( aNodeIndex ),
-                    "Pdv_Host_Manager::create_interpolation_pdv - %s",
-                    "IP PDV host does not exist at node with index %d\n",
+                    "Pdv_Host_Manager::create_interpolation_pdv - IP PDV host does not exist at node with index %d\n",
                     aNodeIndex );
 
             // Create PDV with given type and property
@@ -672,7 +667,7 @@ namespace moris
 
             // check for consistent lengths of ID vector and matrix of sensitivities
             MORIS_ERROR( aADVIds.n_cols() == tNumAdvs,
-                    "Pdv_Host_Manager::compute_diqi_dadv - inconsistent number of ADVs (%d) vs. sensitivity values for interpolation PDVs (%d)",
+                    "Pdv_Host_Manager::compute_diqi_dadv - inconsistent number of ADVs (%d) vs. sensitivity values for interpolation PDVs (%zu)",
                     tNumAdvs,
                     aADVIds.n_cols() );
 
@@ -999,7 +994,7 @@ namespace moris
 
                                 // check that processor exists in communication table
                                 MORIS_ASSERT( tProcIdPos != -1,
-                                        "Pdv_Host_Manager::communicate_check_if_owned_pdv_exists: Processor does ",
+                                        "Pdv_Host_Manager::communicate_check_if_owned_pdv_exists: Processor does "
                                         "not exist in communication table" );
 
                                 // Add +1 to the processor number of shared dofs per processor
@@ -1338,7 +1333,7 @@ namespace moris
                                 moris::sint tProcIdPos = tCommTableMap( tProcIndex );
 
                                 MORIS_ASSERT( tProcIdPos != -1,
-                                        "Pdv_Host_Manager::communicate_shared_interpolation_pdv_ids: Processor ",
+                                        "Pdv_Host_Manager::communicate_shared_interpolation_pdv_ids: Processor "
                                         "does not exist in communication table" );
 
                                 // Add +1 to the processor number of shared dv per processor
