@@ -29,7 +29,7 @@
  * \param matrix2 Comparison matrix 2
  * \param errorfactor error factor (variadic, but only first argument is used)
  */
-#define CHECK_EQUAL( matrix1, matrix2, ... ) moris::check_equal( matrix1, matrix2, GET_FACTOR( __VA_ARGS__ 1.0E+06, 1.0E+06 ), __FILE__, __LINE__ )
+#define CHECK_EQUAL( matrix1, matrix2, ... ) moris::check_equal( matrix1, matrix2, GET_FACTOR( __VA_ARGS__ 1.0E+06, 1.0E+06 ), #matrix1, #matrix2, __FILE__, __LINE__ )
 
 namespace moris
 {
@@ -47,6 +47,8 @@ namespace moris
             Matrix< Matrix_Type > aMatrix1,
             Matrix< Matrix_Type > aMatrix2,
             real aErrorFactor = 1.0E+06,
+            std::string aMatrix1Name = "",
+            std::string aMatrix2Name = "",
             std::string aFile = "",
             uint aLine = 0 )
     {
@@ -65,13 +67,14 @@ namespace moris
                     // If this is first value check to fail, print where this function was called from
                     if ( tAllMatrixEntriesEqual )
                     {
-                        std::cout << "CHECK_EQUAL() failed at " << aFile.c_str() << ":" << aLine << std::endl;
+                        std::cout << "CHECK_EQUAL() failed at " << aFile << ":" << aLine << std::endl;
                     }
 
-                    // Print the values and where they are
-                    std::cout << std::setprecision( 10 );
-                    std::cout << "( " << iRowIndex << ", " << iColumnIndex << " ): "
-                        << aMatrix1( iRowIndex, iColumnIndex ) << " =/= " << aMatrix2( iRowIndex, iColumnIndex ) << std::endl;
+                    // Print the entry location and the values of each matrix
+                    std::cout << std::setprecision( 15 - ( int ) log10( aErrorFactor ) );
+                    std::cout << "  ( " << iRowIndex << ", " << iColumnIndex << " ) value does not match:" << std::endl;
+                    std::cout << "    " << aMatrix1( iRowIndex, iColumnIndex ) << " from " << aMatrix1Name << std::endl;
+                    std::cout << "    " << aMatrix2( iRowIndex, iColumnIndex ) << " from " << aMatrix2Name << std::endl;
                     std::cout << std::setprecision( -1 );
 
                     // Check should fail
