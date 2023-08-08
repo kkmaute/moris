@@ -188,7 +188,7 @@ namespace moris::hmr
                         // Read expected T-matrix from HDF5 file and check with calculated values
                         Matrix< DDRMat > tTMatrixExpected;
                         load_matrix_from_hdf5_file(tFileID,tLabel,tTMatrixExpected,tStatus );
-                        check_equal( tTMatrixCalculated, tTMatrixExpected );
+                        CHECK_EQUAL( tTMatrixCalculated, tTMatrixExpected, );
 
                         // tidy up memory
                         delete tTMatrix;

@@ -15,6 +15,22 @@
 #include "catch.hpp"
 #include "fn_equal_to.hpp"
 
+/**
+ * \def GET_FACTOR( errorfactor, ... )
+ * Pretty cool trick to grab just the first variadic argument. Don't call this, it's only used for CHECK_EQUAL.
+ */
+#define GET_FACTOR( errorfactor, ... ) errorfactor
+
+/**
+ * \def CHECK_EQUAL( matrix1, matrix2, errorfactor = 1.0E+06 )
+ * Checks for moris matrices being equal using catch, printing the file and line number of the calling test if it fails
+ * Note that you must have a comma after the second matrix if you want to use the default error factor.
+ * \param matrix1 Comparison matrix 1
+ * \param matrix2 Comparison matrix 2
+ * \param errorfactor error factor (variadic, but only first argument is used)
+ */
+#define CHECK_EQUAL( matrix1, matrix2, ... ) moris::check_equal( matrix1, matrix2, GET_FACTOR( __VA_ARGS__ 1.0E+06, 1.0E+06 ), __FILE__, __LINE__ )
+
 namespace moris
 {
     /**
@@ -30,7 +46,9 @@ namespace moris
     check_equal(
             Matrix< Matrix_Type > aMatrix1,
             Matrix< Matrix_Type > aMatrix2,
-            real aErrorFactor = 1.0E+06 )
+            real aErrorFactor = 1.0E+06,
+            std::string aFile = "",
+            uint aLine = 0 )
     {
         // Require rows and columns to be equal before checking values
         REQUIRE( aMatrix1.n_rows() == aMatrix2.n_rows() );
@@ -44,6 +62,12 @@ namespace moris
             {
                 if ( !equal_to( aMatrix1( iRowIndex, iColumnIndex ), aMatrix2( iRowIndex, iColumnIndex ), aErrorFactor ) )
                 {
+                    // If this is first value check to fail, print where this function was called from
+                    if ( tAllMatrixEntriesEqual )
+                    {
+                        std::cout << "CHECK_EQUAL() failed at " << aFile.c_str() << ":" << aLine << std::endl;
+                    }
+
                     // Print the values and where they are
                     std::cout << std::setprecision( 10 );
                     std::cout << "( " << iRowIndex << ", " << iColumnIndex << " ): "

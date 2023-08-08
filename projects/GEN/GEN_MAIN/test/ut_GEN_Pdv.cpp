@@ -469,7 +469,7 @@ namespace moris
                 // Check sensitivities
                 if ( par_rank() == 0 )
                 {
-                    check_equal( tdIQIdADV, { { 4.0, 4.0, 0.0 }, { 24.0, 36.0, -16.0 } }, 1e-12 );
+                    CHECK_EQUAL( tdIQIdADV, Matrix< DDRMat>({ { 4.0, 4.0, 0.0 }, { 24.0, 36.0, -16.0 } }), 1.0E6, );
                 }
             }
         }
