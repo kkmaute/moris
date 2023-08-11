@@ -10,7 +10,6 @@
 
 #include "cl_HMR_T_Matrix.hpp"    //HMR/src
 #include "HMR_Globals.hpp"    //HMR/src
-#include "HMR_Tools.hpp"
 #include "fn_eye.hpp"
 #include "fn_inv.hpp"      //LINALG/src
 
@@ -25,18 +24,9 @@ namespace moris::hmr
             bool                aTruncate )
             : mLagrangeMesh( aLagrangeMesh )
             , mBSplineMesh( aBSplineMesh )
+            , mTruncate( aTruncate )
     {
         this->init_lagrange_coefficients();
-
-        // set function pointer
-        if ( aTruncate )
-        {
-            mTMatrixFunction = &T_Matrix_Base::calculate_truncated_t_matrix;
-        }
-        else
-        {
-            mTMatrixFunction = &T_Matrix_Base::calculate_untruncated_t_matrix;
-        }
     }
 
     //-------------------------------------------------------------------------------
@@ -48,31 +38,36 @@ namespace moris::hmr
     //-------------------------------------------------------------------------------
 
     void T_Matrix_Base::calculate_t_matrix(
-            luint             aMemoryIndex,
+            luint             aElementMemoryIndex,
             Matrix< DDRMat >& aTMatrixTransposed,
             Cell< Basis* >&   aDOFs )
     {
-        ( this->*mTMatrixFunction )( aMemoryIndex,
-                aTMatrixTransposed,
-                aDOFs );
+        if ( mTruncate )
+        {
+            this->calculate_truncated_t_matrix( aElementMemoryIndex, aTMatrixTransposed, aDOFs );
+        }
+        else
+        {
+            this->calculate_untruncated_t_matrix( aElementMemoryIndex, aTMatrixTransposed, aDOFs );
+        }
     }
 
     //-------------------------------------------------------------------------------
 
     void T_Matrix_Base::calculate_untruncated_t_matrix(
-            luint      aMemoryIndex,
+            luint      aElementMemoryIndex,
             Matrix< DDRMat >& aTMatrixTransposed,
             Cell< Basis* >&   aDOFs )
     {
         aDOFs.clear();
 
-        Element* tElement = mBSplineMesh->get_element_by_memory_index( aMemoryIndex );
+        Element* tElement = mBSplineMesh->get_element_by_memory_index( aElementMemoryIndex );
 
         // get level of element
         uint tLevel = tElement->get_level();
 
         // get number of basis per element
-        uint tNumberOfBasisPerElement = mBSplineMesh->get_number_of_basis_per_element();
+        uint tNumberOfBasisPerElement = mBSplineMesh->get_number_of_bases_per_element();
 
         // help index for total number of basis
         uint tMaxNumberOfBasis = ( tLevel + 1 ) * tNumberOfBasisPerElement;
@@ -113,7 +108,7 @@ namespace moris::hmr
             }
 
             // left-multiply T-Matrix with child matrix
-            tT = tT * mChild( tParent->get_background_element()->get_child_index() );
+            tT = tT * mChildMatrices( tParent->get_background_element()->get_child_index() );
 
             // jump to next
             tParent = mBSplineMesh->get_parent_of_element( tParent );
@@ -127,7 +122,7 @@ namespace moris::hmr
     //-------------------------------------------------------------------------------
 
     void T_Matrix_Base::calculate_truncated_t_matrix(
-            luint             aMemoryIndex,
+            luint             aElementMemoryIndex,
             Matrix< DDRMat >& aTMatrixTransposed,
             Cell< Basis* >&   aDOFs )
     {
@@ -135,13 +130,13 @@ namespace moris::hmr
         aDOFs.clear();
 
         // Get element from memory
-        Element* tElement = mBSplineMesh->get_element_by_memory_index( aMemoryIndex );
+        Element* tElement = mBSplineMesh->get_element_by_memory_index( aElementMemoryIndex );
 
         // get level of element
         uint tLevel = tElement->get_level();
 
         // get number of basis per element
-        uint tNumberOfBasisPerElement = mBSplineMesh->get_number_of_basis_per_element();
+        uint tNumberOfBasisPerElement = mBSplineMesh->get_number_of_bases_per_element();
 
         // help index for total number of basis
         uint tNumberOfBasis = ( tLevel + 1 ) * tNumberOfBasisPerElement;
@@ -170,21 +165,11 @@ namespace moris::hmr
             }
         }
 
-        // ask B-Spline mesh for number of children per basis
-        auto tNumberOfChildrenPerBasis = mBSplineMesh->get_number_of_children_per_basis();
-
-        // initialize child indices and size counter
-        Cell< uint > tChildIndices;
-        uint                tSizeCounter = 1;
-
         // jump to next parent
         if ( tLevel > 0 )
         {
+            // Get parent of element
             Element* tParent = mBSplineMesh->get_parent_of_element( tElement );
-
-            // Size child indices/matrix
-            tChildIndices.resize( tSizeCounter++, tParent->get_background_element()->get_child_index() );
-            Matrix< DDRMat > const & tChildMatrix = this->get_child_matrix( tChildIndices );
 
             // loop over all basis of this level
             for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBasisPerElement; iBasisIndex++ )
@@ -195,8 +180,11 @@ namespace moris::hmr
                 // test if basis is active
                 if ( tBasis->is_active() )
                 {
+                    // Get number of children of basis
+                    uint tNumberOfChildrenOfBasis = tBasis->get_number_of_children();
+
                     // loop over all children of this basis
-                    for ( uint iChildNumber = 0; iChildNumber < tNumberOfChildrenPerBasis; iChildNumber++ )
+                    for ( uint iChildNumber = 0; iChildNumber < tNumberOfChildrenOfBasis; iChildNumber++ )
                     {
                         // get pointer to child of basis
                         Basis* tChild = tBasis->get_child( iChildNumber );
@@ -225,7 +213,7 @@ namespace moris::hmr
                                         //         + mTruncationWeights( j ) * tTmatrixTransposed.get_column( i ).matrix_data() );
                                         aTMatrixTransposed.set_column( tCount,
                                                 aTMatrixTransposed.get_column( tCount ).matrix_data()
-                                                        + mTruncationWeights( j ) * tChildMatrix.get_column( tCounter_2 ).matrix_data() );
+                                                        + mTruncationWeights( j ) * mEye.get_column( tCounter_2 ).matrix_data() );
 #else
                                         /*                                                tTMatrixTruncatedTransposed.set_column( tCount,
                                                 tTMatrixTruncatedTransposed.get_column( tCount )
@@ -234,7 +222,7 @@ namespace moris::hmr
                                         //                                                aTMatrixTransposed.matrix_data().col( tCount ) = aTMatrixTransposed.matrix_data().col( tCount )
                                         //                                                          + mTruncationWeights( j ) * tTmatrixTransposed.matrix_data().col( i );
                                         aTMatrixTransposed.matrix_data().col( tDOFCount ) = aTMatrixTransposed.matrix_data().col( tDOFCount )
-                                                                                       + mTruncationWeights( iChildNumber ) * tChildMatrix.matrix_data().col( iBasisSearchIndex );
+                                                                                       + mTruncationWeights( iChildNumber ) * mEye.matrix_data().col( iBasisSearchIndex );
 #endif
                                         break;
                                     }
@@ -262,30 +250,6 @@ namespace moris::hmr
         // Shrink output to exact size
         aTMatrixTransposed.resize( tNumberOfBasisPerElement, tDOFCount );
         aDOFs.resize( tDOFCount, nullptr );
-    }
-
-    //-------------------------------------------------------------------------------
-
-    const Matrix< DDRMat >& T_Matrix_Base::get_child_matrix( const Cell< uint >& aChildIndices )
-    {
-        uint tSize = aChildIndices.size();
-        if ( tSize == 1 )
-        {
-            return mEye;
-        }
-        else if ( tSize == 2 )
-        {
-            return mChild( aChildIndices( 0 ) );
-        }
-        else if ( tSize == 3 )
-        {
-            return mChildMultiplied( aChildIndices( 0 ) )( aChildIndices( 1 ) );
-        }
-        else
-        {
-            MORIS_ERROR( false, "only child matrices for level 1 and 2 implemented yet." );
-            return mChild( 0 );
-        }
     }
 
     //-------------------------------------------------------------------------------
@@ -351,7 +315,7 @@ namespace moris::hmr
         mLagrangeMesh->unflag_all_basis();
 
         // number of nodes per element
-        uint tNumberOfNodesPerElement = mLagrangeMesh->get_number_of_basis_per_element();
+        uint tNumberOfNodesPerElement = mLagrangeMesh->get_number_of_bases_per_element();
 
         // unity matrix
         Matrix< DDRMat > tEye;
@@ -495,7 +459,7 @@ namespace moris::hmr
         mLagrangeMesh->unflag_all_basis();
 
         // number of nodes per element
-        uint tNumberOfNodesPerElement = mLagrangeMesh->get_number_of_basis_per_element();
+        uint tNumberOfNodesPerElement = mLagrangeMesh->get_number_of_bases_per_element();
 
         // loop over all elements
         for ( luint iElementIndex = 0; iElementIndex < tNumberOfElements; iElementIndex++ )
@@ -561,7 +525,7 @@ namespace moris::hmr
         mLagrangeMesh->unflag_all_basis();
 
         // number of nodes per element
-        uint tNumberOfNodesPerElement = mLagrangeMesh->get_number_of_basis_per_element();
+        uint tNumberOfNodesPerElement = mLagrangeMesh->get_number_of_bases_per_element();
 
         // unity matrix
         Matrix< DDRMat > tEye;

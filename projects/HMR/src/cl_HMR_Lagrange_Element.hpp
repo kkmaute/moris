@@ -277,6 +277,20 @@ namespace moris::hmr
             mNodes[ aIndex ] = aBasis;
         }
 
+        /**
+         * Flags all bases in this element
+         */
+        void flag_all_bases() override
+        {
+            if ( mHaveBasis )
+            {
+                for ( uint iNodeIndex = 0; iNodeIndex < D; iNodeIndex++ )
+                {
+                    mNodes[ iNodeIndex ]->flag();
+                }
+            }
+        }
+
         //------------------------------------------------------------------------------
 
         /**

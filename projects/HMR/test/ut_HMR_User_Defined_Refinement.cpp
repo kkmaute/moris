@@ -10,374 +10,364 @@
 
 #include <catch.hpp>
 #include "cl_HMR.hpp"
-#include "cl_HMR_Database.hpp"
 #include "cl_HMR_Field.hpp"
-#include "HMR_Globals.hpp"
 #include "cl_HMR_Mesh.hpp"
-#include "cl_MTK_Interpolation_Mesh.hpp"
-#include "cl_MTK_Integration_Mesh.hpp"
 
 #include "cl_Communication_Manager.hpp"    // COM/src
 #include "cl_Communication_Tools.hpp"      // COM/src
 #include "typedefs.hpp"                    // COR/src
-#include "banner.hpp"                      // COR/src
 #include "cl_Matrix.hpp"                   // LINALG/src
-#include "linalg_typedefs.hpp"             // LINALG/src
 #include "fn_norm.hpp"
-#include "fn_equal_to.hpp"
 
 #include "fn_PRM_HMR_Parameters.hpp"
 
-using namespace moris;
-using namespace hmr;
-
-inline moris::real
-LevelSetFunction( const moris::Matrix< moris::DDRMat >& aPoint )
+namespace moris::hmr
 {
-    return ( norm( aPoint ) - 1.3 ) * ( -1.0 );
-}
 
-inline moris::real
-LevelSetFunction_2( const moris::Matrix< moris::DDRMat >& aPoint )
-{
-    return ( norm( aPoint ) - 1.4 ) * ( -1.0 );
-}
-
-inline int
-user_defined_refinement(
-        Element*                aElement,
-        const Matrix< DDRMat >& aElementLocalValues )
-{
-    int aDoRefine = -1;
-
-    // abs variable field threshold
-    real lsth = 0.0;
-
-    // abs variable field bandwidth (absolute)
-    real lsbwabs = 0.225;
-
-    // maximum refinement level
-    uint maxlevel = 4;
-
-    // min refinement level
-    uint minlevel = 0;
-
-    // max refinement level along interface
-    uint maxifcref = 4;
-
-    // max refinement level in volume
-    uint maxvolref = 1;
-
-    // current refinement level of element
-    uint curlevel = aElement->get_level();
-
-    // refinement strategy
-    if ( aElementLocalValues.max() >= lsth - lsbwabs )
+    static real LevelSetFunction1( const Matrix< DDRMat >& aPoint )
     {
-        // for volume refinement
-        if ( aElementLocalValues.min() >= lsth + lsbwabs )
+        return ( norm( aPoint ) - 1.3 ) * ( -1.0 );
+    }
+
+    static real LevelSetFunction2( const Matrix< DDRMat >& aPoint )
+    {
+        return ( norm( aPoint ) - 1.4 ) * ( -1.0 );
+    }
+
+    static int user_defined_refinement(
+            Element* aElement,
+            const Matrix< DDRMat >& aElementLocalValues )
+    {
+        int aDoRefine = -1;
+
+        // abs variable field threshold
+        real lsth = 0.0;
+
+        // abs variable field bandwidth (absolute)
+        real lsbwabs = 0.225;
+
+        // maximum refinement level
+        uint maxlevel = 4;
+
+        // min refinement level
+        uint minlevel = 0;
+
+        // max refinement level along interface
+        uint maxifcref = 4;
+
+        // max refinement level in volume
+        uint maxvolref = 1;
+
+        // current refinement level of element
+        uint curlevel = aElement->get_level();
+
+        // refinement strategy
+        if ( aElementLocalValues.max() >= lsth - lsbwabs )
         {
-            if ( curlevel < maxvolref && curlevel < maxlevel )
+            // for volume refinement
+            if ( aElementLocalValues.min() >= lsth + lsbwabs )
             {
-                aDoRefine = 1;    // refine
+                if ( curlevel < maxvolref && curlevel < maxlevel )
+                {
+                    aDoRefine = 1;    // refine
+                }
+                else if ( curlevel == maxvolref || curlevel == minlevel )
+                {
+                    aDoRefine = 0;    // keep
+                }
+                else
+                {
+                    aDoRefine = -1;    // coarsen
+                }
             }
-            else if ( curlevel == maxvolref || curlevel == minlevel )
-            {
-                aDoRefine = 0;    // keep
-            }
+                // for interface refinement
             else
             {
-                aDoRefine = -1;    // coarsen
+                if ( curlevel < maxifcref && curlevel < maxlevel )
+                {
+                    aDoRefine = 1;    // refine
+                }
+                else if ( curlevel == maxifcref || curlevel == minlevel )
+                {
+                    aDoRefine = 0;    // keep
+                }
+                else
+                {
+                    aDoRefine = -1;    // coarsen
+                }
             }
         }
-        // for interface refinement
         else
         {
-            if ( curlevel < maxifcref && curlevel < maxlevel )
+            if ( curlevel < minlevel )
             {
                 aDoRefine = 1;    // refine
             }
-            else if ( curlevel == maxifcref || curlevel == minlevel )
+            else if ( curlevel == minlevel )
             {
                 aDoRefine = 0;    // keep
             }
-            else
+        }
+
+        return aDoRefine;
+    }
+
+    static real Colors(
+            const Matrix< DDRMat >& aCoordinates )
+    {
+        real tVal = -1.0;
+        if ( aCoordinates( 0 ) > 0.1117 && aCoordinates( 1 ) <= -0.11 )
+        {
+            tVal = 0.0;
+        }
+        else if ( std::sqrt(
+                std::pow( aCoordinates( 0 ) - 2.0, 2 ) + std::pow( aCoordinates( 1 ) - 2.0, 2 ) ) - 1.2 <= 0.0 )
+        {
+            tVal = 1.0;
+        }
+        else if ( aCoordinates( 0 ) - aCoordinates( 1 ) + 1.5 <= 0.0 )
+        {
+            tVal = 2.0;
+        }
+        else if ( std::sqrt(
+                std::pow( aCoordinates( 0 ) + 2.0, 2 ) + std::pow( aCoordinates( 1 ) + 2.0, 2 ) ) - 2.6 <= 0.0 )
+        {
+            tVal = 3.0;
+        }
+        else
+        {
+            tVal = 4.0;
+        }
+
+        return tVal;
+    }
+
+    /* ------------------------------------------------------------------------ */
+
+    static int user_defined_refinement_color(
+            Element* aElement,
+            const Matrix< DDRMat >& aElementLocalValues )
+    {
+        int aDoRefine = -1;
+
+        real tMaxVal = aElementLocalValues.max();
+        real tMinVal = aElementLocalValues.min();
+
+        if ( tMaxVal != tMinVal )
+        {
+            aDoRefine = 1;
+        }
+        else
+        {
+            aDoRefine = 0;
+        }
+
+        return aDoRefine;
+    }
+
+    TEST_CASE( "HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined_Refinement]" )
+    {
+        //    gLogger.set_severity_level( 0 );
+        // can only perform test for 1, 2 or 4 procs
+        // do this test for 2 and 3 dimensions
+        if ( par_size() == 1 )
+        {
+            for ( uint tDimension = 2; tDimension <= 2; ++tDimension )
             {
-                aDoRefine = -1;    // coarsen
+                for ( uint tOrder = 1; tOrder <= 2; tOrder++ )
+                {
+                    //------------------------------------------------------------------------------
+                    //  HMR Parameters setup
+                    //------------------------------------------------------------------------------
+
+                    uint tLagrangeMeshIndex = 0;
+
+                    // Dummy parameter list
+                    ParameterList tParam = prm::create_hmr_parameter_list();
+
+                    // The parameter object controls the behavior of HMR.
+                    Parameters tParameters;
+
+                    // set values to parameters
+                    Matrix< DDLUMat > tNumberOfElements;
+
+                    // set element size
+                    tNumberOfElements.set_size( tDimension, 1, 8 );
+
+                    tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
+
+                    tParameters.set_domain_dimensions( { { 2 }, { 2 } } );
+                    tParameters.set_domain_offset( { { 0.0 }, { 0.0 } } );
+
+                    // B-Spline truncation is turned on by default.
+                    // It is recommended to leave this setting as is.
+                    tParameters.set_bspline_truncation( true );
+
+                    tParameters.set_lagrange_orders( { { 1 } } );
+                    tParameters.set_lagrange_patterns( { { 0 } } );
+
+                    tParameters.set_bspline_orders( { { 1 } } );
+                    tParameters.set_bspline_patterns( { { 0 } } );
+
+                    tParameters.set_staircase_buffer( 2 );
+
+                    tParameters.set_lagrange_input_mesh( { { 0 } } );
+
+                    tParameters.set_initial_refinement( { { 1 } } );
+                    tParameters.set_initial_refinement_patterns( { { 0 } } );
+
+                    Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+                    tLagrangeToBSplineMesh( 0 ) = { { 0 } };
+
+                    tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+                    tParameters.set_refinement_functions( { &user_defined_refinement } );
+
+                    //------------------------------------------------------------------------------
+                    //  HMR Initialization
+                    //------------------------------------------------------------------------------
+
+                    // create the HMR object by passing the settings to the constructor
+                    HMR tHMR( tParameters );
+
+                    // std::shared_ptr< Database >
+                    auto tDatabase = tHMR.get_database();
+
+                    // initial refinement
+                    tHMR.perform_initial_refinement();
+
+                    //-----------------------------------------------------------------
+                    // First refinement with field 1
+                    std::shared_ptr< Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+
+                    // create field
+                    std::shared_ptr< Field > tField = tMesh->create_field( "Circle", tLagrangeMeshIndex );
+
+                    tField->evaluate_scalar_function( LevelSetFunction1 );
+
+                    tHMR.based_on_field_put_elements_on_queue( tField->get_node_values(), 0, 0 );
+
+                    tHMR.perform_refinement_based_on_working_pattern( 0, true );
+
+                    //-----------------------------------------------------------------
+                    // Second refinement with field 2
+                    tField->evaluate_scalar_function( LevelSetFunction2 );
+
+                    tHMR.based_on_field_put_elements_on_queue( tField->get_node_values(), 0, 0 );
+
+                    tHMR.perform_refinement_based_on_working_pattern( 0, true );
+
+                    // calculate T-Matrices etc
+                    tDatabase->finalize();
+
+                    tField->evaluate_scalar_function( LevelSetFunction1 );
+                    tHMR.save_to_exodus( 0, "UserDefinedRef.exo" );
+
+                    uint tNumElements = tMesh->get_num_elems();
+
+                    // perform test
+                    REQUIRE( tNumElements == 1390 );
+                }
             }
         }
     }
-    else
+
+    TEST_CASE( "Color refinement", "[moris],[mesh],[hmr],[Color refinement]" )
     {
-        if ( curlevel < minlevel )
+        //    gLogger.set_severity_level( 0 );
+        // can only perform test for 1, 2 or 4 procs
+        // do this test for 2 and 3 dimensions
+        if ( par_size() == 1 )
         {
-            aDoRefine = 1;    // refine
-        }
-        else if ( curlevel == minlevel )
-        {
-            aDoRefine = 0;    // keep
-        }
-    }
+            uint tDimension = 2;
 
-    return aDoRefine;
-}
+            //------------------------------------------------------------------------------
+            //  HMR Parameters setup
+            //------------------------------------------------------------------------------
 
-inline moris::real
-Colors(
-        const moris::Matrix< DDRMat >& aCoordinates )
-{
-    moris::real tVal = -1.0;
-    if ( aCoordinates( 0 ) > 0.1117 && aCoordinates( 1 ) <= -0.11 )
-    {
-        tVal = 0.0;
-    }
-    else if ( std::sqrt( std::pow( aCoordinates( 0 ) - 2.0, 2 ) + std::pow( aCoordinates( 1 ) - 2.0, 2 ) ) - 1.2 <= 0.0 )
-    {
-        tVal = 1.0;
-    }
-    else if ( aCoordinates( 0 ) - aCoordinates( 1 ) + 1.5 <= 0.0 )
-    {
-        tVal = 2.0;
-    }
-    else if ( std::sqrt( std::pow( aCoordinates( 0 ) + 2.0, 2 ) + std::pow( aCoordinates( 1 ) + 2.0, 2 ) ) - 2.6 <= 0.0 )
-    {
-        tVal = 3.0;
-    }
-    else
-    {
-        tVal = 4.0;
-    }
+            uint tLagrangeMeshIndex = 0;
 
-    return tVal;
-}
+            // Dummy parameter list
+            ParameterList tParam = prm::create_hmr_parameter_list();
 
-/* ------------------------------------------------------------------------ */
+            // The parameter object controls the behavior of HMR.
+            Parameters tParameters;
 
-inline int
-user_defined_refinement_color( Element* aElement,
-        const Matrix< DDRMat >&         aElementLocalValues )
-{
-    int aDoRefine = -1;
+            // set values to parameters
+            Matrix< DDLUMat > tNumberOfElements;
 
-    moris::real tMaxVal = aElementLocalValues.max();
-    moris::real tMinVal = aElementLocalValues.min();
+            // set element size
+            tNumberOfElements.set_size( tDimension, 1, 20 );
 
-    if ( tMaxVal != tMinVal )
-    {
-        aDoRefine = 1;
-    }
-    else
-    {
-        aDoRefine = 0;
-    }
+            tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
 
-    return aDoRefine;
-}
+            tParameters.set_domain_dimensions( { { 4 }, { 4 } } );
+            tParameters.set_domain_offset( { { -2.0 }, { -2.0 } } );
 
-TEST_CASE( "HMR_User_Defined_Refinement", "[moris],[mesh],[hmr],[HMR_User_Defined_Refinement]" )
-{
-    //    gLogger.set_severity_level( 0 );
-    // can only perform test for 1, 2 or 4 procs
-    // do this test for 2 and 3 dimensions
-    if ( par_size() == 1 )
-    {
-        for ( moris::uint tDimension = 2; tDimension <= 2; ++tDimension )
-        {
-            for ( moris::uint tOrder = 1; tOrder <= 2; tOrder++ )
+            // B-Spline truncation is turned on by default.
+            // It is recommended to leave this setting as is.
+            tParameters.set_bspline_truncation( true );
+
+            tParameters.set_lagrange_orders( { { 1 } } );
+            tParameters.set_lagrange_patterns( { { 0 } } );
+
+            tParameters.set_bspline_orders( { { 1 } } );
+            tParameters.set_bspline_patterns( { { 0 } } );
+
+            tParameters.set_staircase_buffer( 1 );
+
+            tParameters.set_lagrange_input_mesh( { { 0 } } );
+
+            tParameters.set_initial_refinement( { { 1 } } );
+            tParameters.set_initial_refinement_patterns( { { 0 } } );
+
+            Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
+            tLagrangeToBSplineMesh( 0 ) = { { 0 } };
+
+            tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
+
+            tParameters.set_refinement_functions( { &user_defined_refinement_color } );
+
+            //------------------------------------------------------------------------------
+            //  HMR Initialization
+            //------------------------------------------------------------------------------
+
+            // create the HMR object by passing the settings to the constructor
+            HMR tHMR( tParameters );
+
+            // std::shared_ptr< Database >
+            auto tDatabase = tHMR.get_database();
+
+            // initial refinement
+            tHMR.perform_initial_refinement();
+
+            //-----------------------------------------------------------------
+            // First refinement with field 1
+            std::shared_ptr< Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
+
+            // create field
+            std::shared_ptr< Field > tField = tMesh->create_field( "Color", tLagrangeMeshIndex );
+
+            for ( uint Ik = 0; Ik < 3; Ik++ )
             {
-                //------------------------------------------------------------------------------
-                //  HMR Parameters setup
-                //------------------------------------------------------------------------------
-
-                uint tLagrangeMeshIndex = 0;
-
-                // Dummy parameter list
-                ParameterList tParam = prm::create_hmr_parameter_list();
-
-                // The parameter object controls the behavior of HMR.
-                moris::hmr::Parameters tParameters;
-
-                // set values to parameters
-                moris::Matrix< moris::DDLUMat > tNumberOfElements;
-
-                // set element size
-                tNumberOfElements.set_size( tDimension, 1, 8 );
-
-                tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
-
-                tParameters.set_domain_dimensions( { { 2 }, { 2 } } );
-                tParameters.set_domain_offset( { { 0.0 }, { 0.0 } } );
-
-                // B-Spline truncation is turned on by default.
-                // It is recommended to leave this setting as is.
-                tParameters.set_bspline_truncation( true );
-
-                tParameters.set_lagrange_orders( { { 1 } } );
-                tParameters.set_lagrange_patterns( { { 0 } } );
-
-                tParameters.set_bspline_orders( { { 1 } } );
-                tParameters.set_bspline_patterns( { { 0 } } );
-
-                tParameters.set_staircase_buffer( 2 );
-
-                tParameters.set_lagrange_input_mesh( { { 0 } } );
-
-                tParameters.set_initial_refinement( { { 1 } } );
-                tParameters.set_initial_refinement_patterns( { { 0 } } );
-
-                Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-                tLagrangeToBSplineMesh( 0 ) = { { 0 } };
-
-                tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
-
-                tParameters.set_refinement_functions( { &user_defined_refinement } );
-
-                //------------------------------------------------------------------------------
-                //  HMR Initialization
-                //------------------------------------------------------------------------------
-
-                // create the HMR object by passing the settings to the constructor
-                moris::hmr::HMR tHMR( tParameters );
-
-                // std::shared_ptr< Database >
-                auto tDatabase = tHMR.get_database();
-
-                // initial refinement
-                tHMR.perform_initial_refinement();
-
-                //-----------------------------------------------------------------
-                // First refinement with field 1
-                std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
-
-                // create field
-                std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Circle", tLagrangeMeshIndex );
-
-                tField->evaluate_scalar_function( LevelSetFunction );
+                tField->evaluate_scalar_function( Colors );
 
                 tHMR.based_on_field_put_elements_on_queue( tField->get_node_values(), 0, 0 );
 
                 tHMR.perform_refinement_based_on_working_pattern( 0, true );
-
-                //-----------------------------------------------------------------
-                // Second refinement with field 2
-                tField->evaluate_scalar_function( LevelSetFunction_2 );
-
-                tHMR.based_on_field_put_elements_on_queue( tField->get_node_values(), 0, 0 );
-
-                tHMR.perform_refinement_based_on_working_pattern( 0, true );
-
-                // calculate T-Matrices etc
-                tDatabase->finalize();
-
-                tField->evaluate_scalar_function( LevelSetFunction );
-                tHMR.save_to_exodus( 0, "UserDefinedRef.exo" );
-
-                uint tNumElements = tMesh->get_num_elems();
-
-                // perform test
-                REQUIRE( tNumElements == 1120 );
-                //             REQUIRE( tNumNodes == 722 );
-                //             REQUIRE( tNumCoeffs == 584 );
             }
-        }
-    }
-}
 
-TEST_CASE( "Color refinement", "[moris],[mesh],[hmr],[Color refinement]" )
-{
-    //    gLogger.set_severity_level( 0 );
-    // can only perform test for 1, 2 or 4 procs
-    // do this test for 2 and 3 dimensions
-    if ( par_size() == 1 )
-    {
-        moris::uint tDimension = 2;
-
-        //------------------------------------------------------------------------------
-        //  HMR Parameters setup
-        //------------------------------------------------------------------------------
-
-        uint tLagrangeMeshIndex = 0;
-
-        // Dummy parameter list
-        ParameterList tParam = prm::create_hmr_parameter_list();
-
-        // The parameter object controls the behavior of HMR.
-        moris::hmr::Parameters tParameters;
-
-        // set values to parameters
-        moris::Matrix< moris::DDLUMat > tNumberOfElements;
-
-        // set element size
-        tNumberOfElements.set_size( tDimension, 1, 20 );
-
-        tParameters.set_number_of_elements_per_dimension( { tNumberOfElements } );
-
-        tParameters.set_domain_dimensions( { { 4 }, { 4 } } );
-        tParameters.set_domain_offset( { { -2.0 }, { -2.0 } } );
-
-        // B-Spline truncation is turned on by default.
-        // It is recommended to leave this setting as is.
-        tParameters.set_bspline_truncation( true );
-
-        tParameters.set_lagrange_orders( { { 1 } } );
-        tParameters.set_lagrange_patterns( { { 0 } } );
-
-        tParameters.set_bspline_orders( { { 1 } } );
-        tParameters.set_bspline_patterns( { { 0 } } );
-
-        tParameters.set_staircase_buffer( 1 );
-
-        tParameters.set_lagrange_input_mesh( { { 0 } } );
-
-        tParameters.set_initial_refinement( { { 1 } } );
-        tParameters.set_initial_refinement_patterns( { { 0 } } );
-
-        Cell< Matrix< DDSMat > > tLagrangeToBSplineMesh( 1 );
-        tLagrangeToBSplineMesh( 0 ) = { { 0 } };
-
-        tParameters.set_lagrange_to_bspline_mesh( tLagrangeToBSplineMesh );
-
-        tParameters.set_refinement_functions( { &user_defined_refinement_color } );
-
-        //------------------------------------------------------------------------------
-        //  HMR Initialization
-        //------------------------------------------------------------------------------
-
-        // create the HMR object by passing the settings to the constructor
-        moris::hmr::HMR tHMR( tParameters );
-
-        // std::shared_ptr< Database >
-        auto tDatabase = tHMR.get_database();
-
-        // initial refinement
-        tHMR.perform_initial_refinement();
-
-        //-----------------------------------------------------------------
-        // First refinement with field 1
-        std::shared_ptr< moris::hmr::Mesh > tMesh = tHMR.create_mesh( tLagrangeMeshIndex );
-
-        // create field
-        std::shared_ptr< moris::hmr::Field > tField = tMesh->create_field( "Color", tLagrangeMeshIndex );
-
-        for ( uint Ik = 0; Ik < 3; Ik++ )
-        {
             tField->evaluate_scalar_function( Colors );
 
-            tHMR.based_on_field_put_elements_on_queue( tField->get_node_values(), 0, 0 );
+            // calculate T-Matrices etc
+            tDatabase->finalize();
 
-            tHMR.perform_refinement_based_on_working_pattern( 0, true );
+            tHMR.save_to_exodus( 0, "UserDefinedRefColor.exo" );
+
+            uint tNumElements = tMesh->get_num_elems();
+
+            // perform test
+            REQUIRE( tNumElements == 5011 );
         }
-
-        tField->evaluate_scalar_function( Colors );
-
-        // calculate T-Matrices etc
-        tDatabase->finalize();
-
-        tHMR.save_to_exodus( 0, "UserDefinedRefColor.exo" );
-
-        // uint tNumElements = tMesh->get_num_elems();
-
-        // perform test
-        // REQUIRE( tNumElements == 1120 );
     }
 }

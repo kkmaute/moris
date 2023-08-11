@@ -842,13 +842,22 @@ namespace moris::hmr
             //------------------------------------------------------------------------------
 
             /**
-             * reserves the memory for the neighbor container
+             * reserves the memory for the children container
              *
              * @return void
              */
-            virtual void init_children_container( )
+            virtual void init_children_container()
             {
                 MORIS_ERROR( false, "init_children_container() not available for selected basis type." );
+            }
+
+            /**
+             * Gets the number of children of this basis
+             */
+            virtual uint get_number_of_children()
+            {
+                MORIS_ERROR( false, "get_number_of_children() not available for selected basis type." );
+                return 0;
             }
 
             //------------------------------------------------------------------------------

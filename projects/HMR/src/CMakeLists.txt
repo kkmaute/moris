@@ -84,6 +84,7 @@ set(HEADERS
     fn_HMR_Background_Element_Neighbors_2D.hpp
     fn_HMR_Background_Element_Neighbors_3D.hpp
     fn_HMR_bspline_shape.hpp
+    fn_HMR_calculate_basis_identifier.hpp
     fn_HMR_Exec_dump_fields.hpp
     fn_HMR_Exec_dump_meshes.hpp
     fn_HMR_Exec_initialize_fields.hpp

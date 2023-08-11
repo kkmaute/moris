@@ -25,20 +25,11 @@ namespace moris::hmr
     {
       protected:
 
-        //! number of children per basis
-        const uint mNumberOfChildrenPerBasis;
-
-        //! max number of elements connected to basis
-        const uint mNumberOfElementsPerBasis;
-
         //! Cell containing all basis this proc knows about
         Cell< Basis* > mAllCoarsestBasisOnProc;
 
         //! Cell of basis that are assigned an HMR index ( moris ID );
         Cell< Basis* > mIndexedBasis;
-
-        //! number of basis used by this proc
-        luint mNumberOfBasis = 0;
 
         //! number of all basis (including unused on padding)
         luint mNumberOfAllBasis = 0;
@@ -54,17 +45,20 @@ namespace moris::hmr
 
 
         /**
-         * Default Mesh constructor
+         * Default mesh constructor
          *
-         * @param[in] aParameters         container of user defined settings
-         * @param[in] aBackgroundMesh   pointer to background mesh
-         * @param[in] aOrder            polynomial degree of mesh
+         * @param aParameters Container of user defined settings
+         * @param aBackgroundMesh Pointer to background mesh
+         * @param aOrder Polynomial degree of mesh
+         * @param aActivationPattern Activation pattern of this mesh
+         * @param aNumberOfBasesPerElement Number of bases per element on this mesh
          */
         BSpline_Mesh_Base(
                 const Parameters*     aParameters,
                 Background_Mesh_Base* aBackgroundMesh,
                 uint                  aOrder,
-                uint                  aActivationPattern );
+                uint                  aActivationPattern,
+                uint                  aNumberOfBasesPerElement );
 
         // ----------------------------------------------------------------------------
 
@@ -101,7 +95,7 @@ namespace moris::hmr
          *
          * @return Number of bases
          */
-        virtual uint get_number_of_bases() = 0;
+        virtual uint get_number_of_bases_per_element() = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -124,17 +118,6 @@ namespace moris::hmr
          * @return void
          */
         void save_to_vtk( const std::string& aFilePath );
-
-        // ----------------------------------------------------------------------------
-
-        /**
-         * returns how many children a basis has
-         */
-        uint
-        get_number_of_children_per_basis() const
-        {
-            return mNumberOfChildrenPerBasis;
-        }
 
         // ----------------------------------------------------------------------------
 
@@ -208,7 +191,7 @@ namespace moris::hmr
         /**
          * special function for multigrid
          */
-        void flag_refined_basis_of_owned_elements();
+        virtual void flag_refined_basis_of_owned_elements() = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -243,6 +226,23 @@ namespace moris::hmr
         virtual luint calculate_basis_id(
                 uint         aLevel,
                 const luint* aIJK ) = 0;
+
+        /**
+         * Evaluates the child matrices for an element on this mesh
+         *
+         * @param aBasisIndices Basis indices
+         * @param aChildMatrices Child matrices to fill
+         */
+        virtual void evaluate_child_matrices(
+                const Matrix< DDUMat >&   aBasisIndices,
+                Cell< Matrix< DDRMat > >& aChildMatrices ) = 0;
+
+        /**
+         * Evaluates the truncation weights on this mesh for 2D/3D based on 1D weights
+         *
+         * @param aTruncationWeights Truncation weights to size and fill
+         */
+        virtual void evaluate_truncation_weights( Matrix< DDRMat >& aTruncationWeights ) = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -324,8 +324,8 @@ namespace moris::hmr
          * @param[ in    ]  aLevel   level to be investigated
          * @param[ inout ]  aBasis   cell containing found basis
          */
-        void collect_basis_from_level( uint aLevel,
-                Cell< Basis* >&                    aBasis );
+        virtual void collect_bases_from_level( uint aLevel,
+                Cell< Basis* >&                    aBasis ) = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -334,30 +334,35 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
         /**
-         * Provides a cell of all basis on current level.
-         * Also:
-         *     - resets general purpose flags
-         *     - determine if basis is used by this proc
-         *     - creates basis to element connectivity
-         *     - determines basis ownership
-         *     - determines basis neighbors for relevant basis
+         * Provides a cell of all bases on the current level. Also:
+         *      - resets general purpose flags
+         *      - determines if bases are used by this proc
+         *      - creates basis to element connectivity
+         *      - determines basis ownership
+         *      - determines basis neighbors for relevant bases
+         *
+         * @param aElements Elements on this mesh
+         * @param aBases Bases to fill for the current level
          */
-        void preprocess_basis_from_level( Cell< Element* >& aBackgroundElements,
-                Cell< Basis* >&                             aBasis );
+        virtual void preprocess_bases_from_level(
+                Cell< Element* >& aElements,
+                Cell< Basis* >&   aBases ) = 0;
 
         // ----------------------------------------------------------------------------
 
         /**
-         * identifies basis that are flagged for refinement
+         * Identifies bases that are flagged for refinement on the current level
+         *
+         * @param aBases Bases on the current level
          */
-        void determine_basis_state( Cell< Basis* >& aBasis );
+        virtual void determine_basis_state( Cell< Basis* >& aBases ) = 0;
 
         // ----------------------------------------------------------------------------
 
         /**
          * Links B-Splines to parents. Needed for testing.
          */
-        void link_basis_to_parents();
+        virtual void link_bases_to_parents() = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -381,13 +386,9 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        void delete_unused_basis( uint     aLevel,
+        virtual void delete_unused_bases( uint     aLevel,
                 Cell< Background_Element_Base* >& aBackgroundElements,
-                Cell< Basis* >&                   aBasis );
-
-        // ----------------------------------------------------------------------------
-
-        void calculate_child_stencil();
+                Cell< Basis* >&                   aBasis ) = 0;
     };
     //------------------------------------------------------------------------------
 } /* namespace moris */

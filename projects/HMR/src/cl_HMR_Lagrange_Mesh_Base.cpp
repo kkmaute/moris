@@ -47,8 +47,9 @@ namespace moris::hmr
     : Mesh_Base( aParameters,
             aBackgroundMesh,
             aOrder,
-            aActivationPattern ),
-            mBSplineMeshes( aBSplineMeshes ) // initialize member cell of associated B-Spline meshes by copying aBSplineMeshes into it
+            aActivationPattern,
+            std::pow( aOrder + 1, aParameters->get_number_of_dimensions() ) ),
+        mBSplineMeshes( aBSplineMeshes ) // initialize member cell of associated B-Spline meshes by copying aBSplineMeshes into it
     {
         mNumBSplineMeshes = mBSplineMeshes.size();
 
@@ -255,7 +256,7 @@ namespace moris::hmr
             if ( ! tElement->is_padding() )
             {
                 // loop over all nodes of element
-                for( uint k=0; k<mNumberOfBasisPerElement; ++k )
+                for( uint k=0; k<mNumberOfBasesPerElement; ++k )
                 {
                     // get pointer to node
                     Basis* tNode = tElement->get_basis( k );
@@ -291,7 +292,7 @@ namespace moris::hmr
             if ( tElement->is_padding() )
             {
                 // loop over all nodes of element
-                for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
+                for( uint k = 0; k < mNumberOfBasesPerElement; ++k )
                 {
                     // get pointer to node
                     Basis* tNode = tElement->get_basis( k );
@@ -333,7 +334,7 @@ namespace moris::hmr
             if ( ! tElement->is_padding() )
             {
                 // loop over all nodes of element
-                for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
+                for( uint k = 0; k < mNumberOfBasesPerElement; ++k )
                 {
                     // get pointer to node
                     Basis* tNode = tElement->get_basis( k );
@@ -382,7 +383,7 @@ namespace moris::hmr
                 // flag nodes that are used by this proc
                 if ( tBackElement->get_owner() == tMyRank )
                 {
-                    for ( uint k = 0; k < mNumberOfBasisPerElement; ++k )
+                    for ( uint k = 0; k < mNumberOfBasesPerElement; ++k )
                     {
                         tElement->get_basis( k )->use();
                     }
@@ -392,7 +393,7 @@ namespace moris::hmr
                 }
 
                 // flag nodes that are owned and shared on this proc. this includes the aura
-                for ( uint k = 0; k < mNumberOfBasisPerElement; ++k )
+                for ( uint k = 0; k < mNumberOfBasesPerElement; ++k )
                 {
                     tElement->get_basis( k )->use_owned_and_shared();
                 }
@@ -401,7 +402,7 @@ namespace moris::hmr
                 ++mNumberOfElementsIncludingAura;
 
                 // loop over all nodes of this element
-                for ( uint k = 0; k < mNumberOfBasisPerElement; ++k )
+                for ( uint k = 0; k < mNumberOfBasesPerElement; ++k )
                 {
                     // get pointer to node
                     Basis* tNode = tElement->get_basis( k );
@@ -1550,7 +1551,7 @@ namespace moris::hmr
         // can only write element data if vtk map exists
         if ( tCellType != 0 )
         {
-            int tNumberOfNodesPerElement = swap_byte_endian( (int) mNumberOfBasisPerElement );
+            int tNumberOfNodesPerElement = swap_byte_endian( (int) mNumberOfBasesPerElement );
 
             luint tNumberOfAllElementsOnProc = mAllElementsOnProc.size();
 
@@ -1565,10 +1566,10 @@ namespace moris::hmr
 
             // write header for cells
             tFile << "CELLS " << tNumberOfElements << " "
-                    << ( mNumberOfBasisPerElement + 1 )*tNumberOfElements  << std::endl;
+                    << ( mNumberOfBasesPerElement + 1 )*tNumberOfElements  << std::endl;
 
             // matrix containing node indices
-            Matrix< DDLUMat > tNodes( mNumberOfBasisPerElement, 1 );
+            Matrix< DDLUMat > tNodes( mNumberOfBasesPerElement, 1 );
 
             // loop over all elements
             for( luint k=0; k<tNumberOfAllElementsOnProc; ++k )
@@ -1580,7 +1581,7 @@ namespace moris::hmr
                     // ask element for nodes
                     mAllElementsOnProc( k )->get_basis_indices_for_vtk( tNodes );
 
-                    for( uint i=0; i <mNumberOfBasisPerElement; ++i )
+                    for( uint i=0; i <mNumberOfBasesPerElement; ++i )
                     {
                         tIChar = swap_byte_endian( (int) tNodes( i ) );
                         tFile.write((char *) &tIChar, sizeof(int));

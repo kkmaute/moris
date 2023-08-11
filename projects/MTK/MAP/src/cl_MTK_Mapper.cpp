@@ -369,7 +369,7 @@ namespace moris
             auto tNumberOfElements = tTargetLagrangeMesh->get_number_of_elements();
 
             // number of nodes per element
-            auto tNumberOfNodesPerElement = tTargetLagrangeMesh->get_number_of_basis_per_element();
+            auto tNumberOfNodesPerElement = tTargetLagrangeMesh->get_number_of_bases_per_element();
 
             // create unity matrix
             Matrix< DDRMat > tEye;
@@ -505,8 +505,8 @@ namespace moris
             // delete t-Matrix object
             delete tTMatrix;
 
-            uint tNumberOfNodesPerSourceElement = tSourceLagrangeMesh->get_number_of_basis_per_element();
-            uint tNumberOfNodesPerTargetElement = tTargetLagrangeMesh->get_number_of_basis_per_element();
+            uint tNumberOfNodesPerSourceElement = tSourceLagrangeMesh->get_number_of_bases_per_element();
+            uint tNumberOfNodesPerTargetElement = tTargetLagrangeMesh->get_number_of_bases_per_element();
 
             Matrix< DDRMat > tLocalSourceValues( tNumberOfNodesPerSourceElement, 1 );
             Matrix< DDRMat > tN( 1, tNumberOfNodesPerSourceElement );

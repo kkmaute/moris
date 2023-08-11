@@ -140,7 +140,7 @@ namespace xtk
          */
 
         uint
-        get_number_of_basis_per_element();
+        get_number_of_bases_per_element();
 
         //------------------------------------------------------------------------------------
 
