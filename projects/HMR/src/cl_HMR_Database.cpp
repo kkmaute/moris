@@ -1126,7 +1126,7 @@ namespace moris::hmr
         auto tNumberOfElements = tTargetMesh->get_number_of_elements();
 
         // number of nodes per element
-        auto tNumberOfNodesPerElement = tTargetMesh->get_number_of_basis_per_element();
+        auto tNumberOfNodesPerElement = tTargetMesh->get_number_of_bases_per_element();
 
         // create unity matrix
         Matrix< DDRMat > tEye;
@@ -1251,8 +1251,8 @@ namespace moris::hmr
         // delete t-Matrix object
         delete tTMatrix;
 
-        uint tNumberOfNodesPerSourceElement = tSourceMesh->get_number_of_basis_per_element();
-        uint tNumberOfNodesPerTargetElement = tTargetMesh->get_number_of_basis_per_element();
+        uint tNumberOfNodesPerSourceElement = tSourceMesh->get_number_of_bases_per_element();
+        uint tNumberOfNodesPerTargetElement = tTargetMesh->get_number_of_bases_per_element();
 
         Matrix< DDRMat > tLocalSourceValues( tNumberOfNodesPerSourceElement, 1 );
         Matrix< DDRMat > tN( 1, tNumberOfNodesPerSourceElement );
