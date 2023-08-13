@@ -19,7 +19,7 @@
 #endif
 
 #ifdef MORIS_USE_ARMA
-#include "fn_cross_Arma.hpp"
+#include "Arma_Impl/fn_cross_Arma.hpp"
 #endif
 
 namespace moris

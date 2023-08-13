@@ -498,6 +498,8 @@ set(LIB_SOURCES
     
     )
 
+#list(TRANSFORM LIB_SOURCES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+
 # List library dependencies
 set(LIB_DEPENDENCIES
     ${GEN_CORE}-lib
@@ -515,9 +517,9 @@ set(MTK_INCLUDES
 	)
 
 # Include depedency directories
-foreach(MTK_INCLUDE ${MTK_INCLUDES})
-	include_directories(${MORIS_PACKAGE_DIR}/MTK/src/${MTK_INCLUDE})
-endforeach()
+#foreach(MTK_INCLUDE ${MTK_INCLUDES})
+#	include_directories(${MORIS_PACKAGE_DIR}/MTK/src/${MTK_INCLUDE})
+#endforeach()
 
 # Set the output path for library
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
@@ -530,6 +532,18 @@ target_include_directories(${INT}-lib PUBLIC
 	$<INSTALL_INTERFACE:${${INT}_HEADER_INSTALL_DIR}> )
 target_link_libraries(${INT}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${INT}-lib PROPERTIES OUTPUT_NAME ${INT})
+
+
+# Issues in Plato when these libs are added
+add_subdirectory(CM)
+add_subdirectory(CORE)
+add_subdirectory(ELEM)
+add_subdirectory(IP)
+add_subdirectory(IQI)
+add_subdirectory(IWG)
+#add_subdirectory(MEA)
+add_subdirectory(MM)
+add_subdirectory(SP)
 
 foreach(TPL ${INT_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)

@@ -1,4 +1,3 @@
-
 #
 # Copyright (c) 2022 University of Colorado
 # Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
@@ -32,6 +31,7 @@ set(LIB_SOURCES
     cl_Mesh_Enums.cpp
     cl_MTK_Enums.cpp )
 
+
 # List library dependencies
 set(LIB_DEPENDENCIES
     ${ASR}-lib
@@ -52,6 +52,8 @@ target_include_directories(${ENM}-lib PUBLIC
     $<INSTALL_INTERFACE:${${ENM}_HEADER_INSTALL_DIR}> )
 target_link_libraries(${ENM}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${ENM}-lib PROPERTIES OUTPUT_NAME ${ENM})
+
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
 
 foreach(TPL ${MAP_TPL_DEPENDENCIES})
     string(TOLOWER ${TPL} tpl)

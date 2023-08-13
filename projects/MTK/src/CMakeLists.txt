@@ -13,19 +13,19 @@ set(${MTK}_VERSION ${MORIS_VERSION})
 
 # List header dependencies                                                                                                                                                                                                                                                     
 set(MTK_INCLUDES
-    "IP"
+    "IPMTK"
     "IG")
 
 set(MTK_INTERNAL_INCLUDES)
 
 # Include depedency directories
-foreach(MTK_INCLUDES ${MTK_INCLUDES})
-    list(APPEND MTK_INTERNAL_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/${MTK_INCLUDES}")
-	include_directories(${MORIS_PACKAGE_DIR}/MTK/src/${MTK_INCLUDES})
-endforeach()
+#foreach(MTK_INCLUDES ${MTK_INCLUDES})
+#    list(APPEND MTK_INTERNAL_INCLUDES "${CMAKE_CURRENT_SOURCE_DIR}/${MTK_INCLUDES}")
+#	include_directories(${MORIS_PACKAGE_DIR}/MTK/src/${MTK_INCLUDES})
+#endforeach()
 
 # create global list for .../MTK/src/ includes
-set_property(GLOBAL PROPERTY MTK_SRC_LIST "${MTK_INTERNAL_INCLUDES}")
+#set_property(GLOBAL PROPERTY MTK_SRC_LIST "${MTK_INTERNAL_INCLUDES}")
 
 # List header files
 set(HEADERS
@@ -128,31 +128,31 @@ stk_impl/cl_MTK_Vertex_STK.hpp
 stk_impl/cl_MTK_Cell_Cluster_STK.hpp
 stk_impl/cl_MTK_Side_Cluster_STK.hpp
 
-IP/cl_MTK_Interpolation_Function_Base.hpp
-IP/cl_MTK_Interpolation_Function_Factory.hpp
-IP/cl_MTK_Interpolation_Function.hpp
-IP/cl_MTK_Interpolation_Rule.hpp
-IP/cl_MTK_Interpolation_Function_Lagrange_Bar1.hpp
-IP/cl_MTK_Interpolation_Function_Lagrange_Bar2.hpp
-IP/cl_MTK_Interpolation_Function_Lagrange_Bar3.hpp
-IP/cl_MTK_Interpolation_Function_Lagrange_Bar4.hpp
-IP/cl_MTK_Interpolation_Function_Lagrange_Hex27.hpp
-IP/cl_MTK_Interpolation_Function_Lagrange_Hex64.hpp
-IP/cl_MTK_Interpolation_Function_Lagrange_Hex8.hpp
-IP/cl_MTK_Interpolation_Function_Lagrange_Quad16.hpp
-IP/cl_MTK_Interpolation_Function_Lagrange_Quad4.hpp
-IP/cl_MTK_Interpolation_Function_Lagrange_Quad8.hpp
-IP/cl_MTK_Interpolation_Function_Lagrange_Quad9.hpp
-IP/cl_MTK_Interpolation_Function_Lagrange_Tri3.hpp
-IP/cl_MTK_Interpolation_Function_Lagrange_Tri6.hpp
-IP/cl_MTK_Interpolation_Function_Lagrange_Tri10.hpp
-IP/cl_MTK_Interpolation_Function_Lagrange_Tet4.hpp
-IP/cl_MTK_Interpolation_Function_Lagrange_Tet10.hpp
-IP/cl_MTK_Interpolation_Function_Lagrange_Tet20.hpp
-IP/cl_MTK_Interpolation_Function_Constant_Bar2.hpp
-IP/cl_MTK_Interpolation_Function_Constant_Point.hpp
-IP/cl_MTK_Space_Interpolator.hpp
-IP/fn_MTK_Interpolation_Enum_Int_Conversion.hpp
+IPMTK/cl_MTK_Interpolation_Function_Base.hpp
+IPMTK/cl_MTK_Interpolation_Function_Factory.hpp
+IPMTK/cl_MTK_Interpolation_Function.hpp
+IPMTK/cl_MTK_Interpolation_Rule.hpp
+IPMTK/cl_MTK_Interpolation_Function_Lagrange_Bar1.hpp
+IPMTK/cl_MTK_Interpolation_Function_Lagrange_Bar2.hpp
+IPMTK/cl_MTK_Interpolation_Function_Lagrange_Bar3.hpp
+IPMTK/cl_MTK_Interpolation_Function_Lagrange_Bar4.hpp
+IPMTK/cl_MTK_Interpolation_Function_Lagrange_Hex27.hpp
+IPMTK/cl_MTK_Interpolation_Function_Lagrange_Hex64.hpp
+IPMTK/cl_MTK_Interpolation_Function_Lagrange_Hex8.hpp
+IPMTK/cl_MTK_Interpolation_Function_Lagrange_Quad16.hpp
+IPMTK/cl_MTK_Interpolation_Function_Lagrange_Quad4.hpp
+IPMTK/cl_MTK_Interpolation_Function_Lagrange_Quad8.hpp
+IPMTK/cl_MTK_Interpolation_Function_Lagrange_Quad9.hpp
+IPMTK/cl_MTK_Interpolation_Function_Lagrange_Tri3.hpp
+IPMTK/cl_MTK_Interpolation_Function_Lagrange_Tri6.hpp
+IPMTK/cl_MTK_Interpolation_Function_Lagrange_Tri10.hpp
+IPMTK/cl_MTK_Interpolation_Function_Lagrange_Tet4.hpp
+IPMTK/cl_MTK_Interpolation_Function_Lagrange_Tet10.hpp
+IPMTK/cl_MTK_Interpolation_Function_Lagrange_Tet20.hpp
+IPMTK/cl_MTK_Interpolation_Function_Constant_Bar2.hpp
+IPMTK/cl_MTK_Interpolation_Function_Constant_Point.hpp
+IPMTK/cl_MTK_Space_Interpolator.hpp
+IPMTK/fn_MTK_Interpolation_Enum_Int_Conversion.hpp
 
 IG/cl_MTK_Integration_Coeffs.hpp  
 IG/cl_MTK_Integration_Rule.hpp
@@ -264,13 +264,75 @@ stk_impl/cl_MTK_Vertex_Interpolation_STK.cpp
 stk_impl/cl_MTK_Cell_Cluster_STK.cpp
 stk_impl/cl_MTK_Side_Cluster_STK.cpp
 
-IP/cl_MTK_Interpolation_Function_Factory.cpp
-IP/cl_MTK_Interpolation_Rule.cpp
-IP/cl_MTK_Space_Interpolator.cpp
+IPMTK/cl_MTK_Interpolation_Function_Factory.cpp
+IPMTK/cl_MTK_Interpolation_Rule.cpp
+IPMTK/cl_MTK_Space_Interpolator.cpp
 
 IG/cl_MTK_Integration_Rule.cpp
 IG/cl_MTK_Integrator.cpp
 IG/cl_MTK_Integrator_Test_Polynomial.cpp)
+
+set( RLIB_SOURCES
+cl_MTK_Mesh_Factory.cpp
+cl_MTK_Integration_Mesh.cpp
+cl_MTK_Integration_Mesh_write_T_matrices.cpp
+cl_MTK_Block.cpp
+cl_MTK_Mesh_Checker.cpp
+cl_MTK_Exodus_IO_Helper.cpp
+cl_MTK_Field.cpp
+cl_MTK_Field_Analytic.cpp
+cl_MTK_Field_Discrete.cpp
+cl_MTK_Writer_Exodus.cpp
+cl_MTK_Reader_Exodus.cpp
+cl_MTK_Cell_Info_Factory.cpp
+cl_MTK_Block.cpp
+cl_MTK_Cell.cpp
+
+cl_MTK_Cell_Info.cpp
+cl_MTK_Cell_Info_Tri3.cpp
+cl_MTK_Cell_Info_Tri6.cpp
+cl_MTK_Cell_Info_Quad4.cpp
+cl_MTK_Cell_Info_Quad8.cpp
+cl_MTK_Cell_Info_Quad9.cpp
+cl_MTK_Cell_Info_Quad16.cpp
+cl_MTK_Cell_Info_Tet4.cpp
+cl_MTK_Cell_Info_Tet10.cpp
+cl_MTK_Cell_Info_Hex8.cpp
+cl_MTK_Cell_Info_Hex20.cpp
+cl_MTK_Cell_Info_Hex27.cpp
+cl_MTK_Cell_Info_Hex64.cpp
+
+cl_MTK_Mesh_Core.cpp
+cl_MTK_Mesh_Manager.cpp
+cl_MTK_Periodic_Boundary_Condition_Helper.cpp
+cl_MTK_Double_Side_Cluster.cpp
+cl_MTK_Side_Cluster.cpp
+cl_MTK_Mesh_Pair.cpp
+cl_MTK_Intersection_Detect.cpp
+cl_MTK_Cell_ISC.cpp
+cl_MTK_Side_Cluster_ISC_Impl.cpp
+cl_MTK_Intersection_Detect_2D.cpp
+cl_MTK_Intersec_Mesh_Data.cpp
+cl_MTK_Intersection_Mesh.cpp
+
+cl_MTK_Cluster_Group.cpp
+cl_MTK_Cell_Cluster_Group.cpp
+cl_MTK_Side_Cluster_Group.cpp
+cl_MTK_Cell_Cluster_Group_DataBase.cpp
+cl_MTK_Side_Cluster_Group_DataBase.cpp
+
+cl_MTK_Vertex_DataBase.cpp
+cl_MTK_Vertex_Interpolation_DataBase.cpp
+cl_MTK_Cell_DataBase.cpp
+cl_MTK_Cell_Cluster_DataBase.cpp
+cl_MTK_Side_Cluster_DataBase.cpp
+
+cl_MTK_Mesh_DataBase_IP.cpp
+cl_MTK_Interpolation_Mesh_Editor.cpp
+
+cl_MTK_Mesh_DataBase_IG.cpp
+cl_MTK_Integration_Mesh_Editor.cpp
+)
 
 # List library dependencies
 set(LIB_DEPENDENCIES
@@ -294,6 +356,8 @@ target_include_directories(${MTK}-lib PUBLIC
 target_link_libraries(${MTK}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${MTK}-lib PROPERTIES OUTPUT_NAME ${MTK})
 
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
+
 foreach(TPL ${MTK_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
@@ -306,6 +370,10 @@ foreach(TPL ${MTK_TPL_DEPENDENCIES})
     target_compile_definitions(${MTK}-lib
     	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
 endforeach()
+
+add_subdirectory(stk_impl)
+add_subdirectory(IPMTK)
+add_subdirectory(IG)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # mtk Executable

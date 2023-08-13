@@ -15,7 +15,7 @@
 #include "cl_FEM_Set.hpp"                           //FEM/INT/src
 #include "cl_FEM_Set_User_Info.hpp"                 //FEM/INT/src
 #include "cl_FEM_Element_Factory.hpp"               //FEM/INT/src
-#include "cl_MTK_Integrator.hpp"                    //MTK/src
+#include "IG/cl_MTK_Integrator.hpp"                    //MTK/src
 #include "cl_FEM_Field_Interpolator_Manager.hpp"    //FEM/INT/src
 #include "cl_FEM_Interpolation_Element.hpp"         //FEM/INT/src
 #include "cl_FEM_Cluster.hpp"                       //FEM/INT/src

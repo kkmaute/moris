@@ -15,8 +15,8 @@
 #include "typedefs.hpp"
 // MTK/src
 #include "cl_MTK_Enums.hpp"
-#include "cl_MTK_Interpolation_Rule.hpp"
-#include "cl_MTK_Space_Interpolator.hpp"
+#include "../../../../MTK/src/IPMTK/cl_MTK_Interpolation_Rule.hpp"
+#include "../../../../MTK/src/IPMTK/cl_MTK_Space_Interpolator.hpp"
 // FEM/INT/src
 #include "cl_FEM_Enums.hpp"
 // LINALG/src

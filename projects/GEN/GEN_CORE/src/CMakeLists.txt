@@ -13,7 +13,7 @@ set(${GEN_CORE}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-        cl_GEN_Pdv_Enums.hpp
+    cl_GEN_Pdv_Enums.hpp
 		GEN_typedefs.hpp
  )
 
@@ -41,6 +41,8 @@ target_include_directories(${GEN_CORE}-lib PUBLIC
 	$<INSTALL_INTERFACE:${${GEN_CORE}_HEADER_INSTALL_DIR}> )
 target_link_libraries(${GEN_CORE}-lib ${LIB_DEPENDENCIES})
 set_target_properties(${GEN_CORE}-lib PROPERTIES OUTPUT_NAME ${GEN_CORE})
+
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
 
 foreach(TPL ${GEN_CORE_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)

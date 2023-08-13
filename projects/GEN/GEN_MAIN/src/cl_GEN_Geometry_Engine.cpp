@@ -19,7 +19,7 @@
 #include "cl_GEN_BSpline_Property.hpp"
 #include "cl_GEN_Stored_Geometry.hpp"
 #include "fn_GEN_create_properties.hpp"
-#include "cl_GEN_Interpolation.hpp"
+#include "topology/cl_GEN_Interpolation.hpp"
 #include "cl_GEN_Child_Node.hpp"
 #include "cl_GEN_Intersection_Node_Linear.hpp"
 #include "cl_GEN_Intersection_Node_Bilinear.hpp"

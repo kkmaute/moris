@@ -26,6 +26,8 @@ target_include_directories(${COR}-lib INTERFACE
 	$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated/>
 	$<INSTALL_INTERFACE:${${COR}_HEADER_INSTALL_DIR}> )
 
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
+
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Core Executable
 

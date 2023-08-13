@@ -10,7 +10,7 @@
 
 #include "cl_GEN_Intersection_Node_Linear.hpp"
 #include "cl_GEN_Geometry.hpp"
-#include "cl_GEN_Interpolation.hpp"
+#include "topology/cl_GEN_Interpolation.hpp"
 #include "cl_XTK_Linear_Basis_Functions.hpp"
 #include "fn_trans.hpp"
 #include "fn_dot.hpp"

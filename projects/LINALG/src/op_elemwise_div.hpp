@@ -16,7 +16,7 @@
 #endif
 
 #ifdef MORIS_USE_ARMA
-#include "op_elemwise_div_Arma.hpp"
+#include "Arma_Impl/op_elemwise_div_Arma.hpp"
 #endif
 
 namespace moris

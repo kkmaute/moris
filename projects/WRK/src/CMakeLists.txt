@@ -35,9 +35,9 @@ set(GEN_INCLUDES
     )
 
 # Include depedency directories
-foreach(GEN_INCLUDES ${GEN_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
-endforeach()
+#foreach(GEN_INCLUDES ${GEN_INCLUDES})
+#    include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
+#endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Parameters Library
@@ -81,6 +81,8 @@ target_include_directories(${WRK}-lib PUBLIC
     $<INSTALL_INTERFACE:${${WRK}_HEADER_INSTALL_DIR}> )
 target_link_libraries(${WRK}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${WRK}-lib PROPERTIES OUTPUT_NAME ${WRK})
+
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
 
 # Link third party libraries
 foreach(TPL ${WRK_TPL_DEPENDENCIES})

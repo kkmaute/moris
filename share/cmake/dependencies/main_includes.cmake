@@ -16,7 +16,7 @@ endif()
 set(MAIN_CONFIGURED_ONCE "YES")
 
 # Add MAIN to the source directory list
-list(APPEND MORIS_SOURCE_DIRS ${MAIN})
+#list(APPEND MORIS_SOURCE_DIRS ${MAIN})
 
 # Include all libraries for MAIN
 set(MAIN_TPL_DEPENDENCIES

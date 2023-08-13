@@ -18,9 +18,9 @@
 #include "fn_eye.hpp"
 
 // debug - output to hdf5
-#include "paths.hpp"
-#include "HDF5_Tools.hpp"
-#include "fn_FEM_Check.hpp"
+//#include "paths.hpp"
+//#include "HDF5_Tools.hpp"
+//#include "fn_FEM_Check.hpp"
 
 #include "fn_sqrtmat.hpp"
 //#include "../test/FEM_Test_Proxy/fn_FEM_Convert_Dimensions.cpp"

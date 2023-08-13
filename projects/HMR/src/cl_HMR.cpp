@@ -2405,6 +2405,12 @@ namespace moris::hmr
             const uint               aMesh_Index,
             const uint               aBsplineMeshIndex )
     {
+#if 0 // GAH
+GAH : 
+This code brings in moris::mtk::Mapper
+which brings in a ton of dependencies from FEM along with a bunch of unresolved exrernals
+that I cannot figure out. Lets try to just comment it out!
+
         // grab orders of meshes
         uint tSourceLagrangeOrder = aField->get_lagrange_order();
         uint tTargetLagrangeOrder = mDatabase->get_lagrange_mesh_by_index( aMesh_Index )->get_order();
@@ -2518,6 +2524,7 @@ namespace moris::hmr
         // make this field point to the output mesh
         aField->change_mesh( tOutputField->get_mesh(),
                 tOutputField->get_field_index() );
+#endif
     }
 
     // ----------------------------------------------------------------------------

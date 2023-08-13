@@ -10,6 +10,7 @@
 
 # Add source directory
 add_subdirectory(src)
+add_subdirectory(MAP)
 
 # Add test directory
 if(MORIS_USE_TESTS AND BUILD_MTK)

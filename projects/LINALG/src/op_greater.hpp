@@ -16,7 +16,7 @@
 #endif
 
 #ifdef MORIS_USE_ARMA
-#include "op_greater_Arma.hpp"
+#include "Arma_Impl/op_greater_Arma.hpp"
 #endif
 
 namespace moris

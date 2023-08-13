@@ -52,6 +52,8 @@ target_include_directories(${PRM}-lib PUBLIC
 target_link_libraries(${PRM}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${PRM}-lib PROPERTIES OUTPUT_NAME ${PRM})
 
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
+
 # Link third party libraries
 foreach(TPL ${PRM_TPL_DEPENDENCIES})
     string(TOLOWER ${TPL} tpl)

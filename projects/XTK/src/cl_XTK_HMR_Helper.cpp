@@ -15,7 +15,7 @@
 #include "cl_HMR.hpp"
 #include "cl_HMR_Mesh.hpp"
 #include "cl_HMR_Database.hpp"
-#include "cl_WRK_perform_refinement.hpp"
+#include "../../WRK/src/cl_WRK_perform_refinement.hpp"
 #include "HMR_Globals.hpp"
 #include "cl_HMR_Background_Element_Base.hpp"
 

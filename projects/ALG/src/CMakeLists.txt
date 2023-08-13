@@ -47,6 +47,8 @@ target_include_directories(${ALG}-lib PUBLIC
 target_link_libraries(${ALG}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${ALG}-lib PROPERTIES OUTPUT_NAME ${ALG})
 
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
+
 # Link third party libraries
 foreach(TPL ${ALG_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)

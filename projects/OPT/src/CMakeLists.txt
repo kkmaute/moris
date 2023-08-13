@@ -47,6 +47,7 @@ set(LIB_SOURCES
     fn_OPT_create_interface.cpp
     fn_OPT_create_algorithm.cpp)
 
+
 # List library dependencies
 set(LIB_DEPENDENCIES
     ${CNT}-lib
@@ -67,6 +68,8 @@ target_include_directories(${OPT}-lib PUBLIC
 target_link_libraries(${OPT}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${OPT}-lib PROPERTIES OUTPUT_NAME ${OPT})
 target_compile_definitions(${OPT}-lib PUBLIC "-DF77ADD_")
+
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
 
 # Link third party libraries
 foreach(TPL ${OPT_TPL_DEPENDENCIES})

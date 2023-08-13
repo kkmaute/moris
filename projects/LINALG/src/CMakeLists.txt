@@ -79,7 +79,7 @@ op_times.hpp
 fn_rank.hpp
 fn_join_horiz.hpp
 )
-    
+
 if(MORIS_USE_EIGEN)
 list(APPEND HEADERS
 Eigen_Impl/cl_Matrix_Eigen_3x1.hpp
@@ -132,6 +132,11 @@ Eigen_Impl/op_minus_Eigen.hpp
 Eigen_Impl/op_not_equal_Eigen.hpp
 Eigen_Impl/op_plus_Eigen.hpp
 Eigen_Impl/op_times_Eigen.hpp)
+
+target_include_directories(morisCombinedLib PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Eigen_Impl>
+  $<INSTALL_INTERFACE:${${LINALG}_HEADER_INSTALL_DIR}> )
+
 endif()
 
 if(MORIS_USE_ARMA)
@@ -193,6 +198,10 @@ Arma_Impl/fn_join_horiz_Arma.hpp
 Arma_Impl/fn_max_Arma.hpp
 Arma_Impl/fn_min_Arma.hpp
   )
+target_include_directories(morisCombinedLib PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/Arma_Impl>
+  $<INSTALL_INTERFACE:${${LINALG}_HEADER_INSTALL_DIR}> )
+
 endif()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -209,6 +218,8 @@ target_include_directories(${LINALG}-lib INTERFACE
 	$<INSTALL_INTERFACE:${${LINALG}_HEADER_INSTALL_DIR}>
 	)
 target_link_libraries(${LINALG}-lib INTERFACE ${LIB_DEPENDENCIES})
+
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
 
 foreach(TPL ${LINALG_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
@@ -276,6 +287,18 @@ install(FILES ${${LINALG}_CONFIG_BUILD_DIR}/${LINALG}Config.cmake
 # Install header files
 install(FILES ${HEADERS}
     DESTINATION ${${LINALG}_HEADER_INSTALL_DIR} )
+
+if(MORIS_USE_ARMA)
+# GAH - needs to be fixed
+install(FILES ${HEADERS}
+    DESTINATION ${${LINALG}_HEADER_INSTALL_DIR}/Arma_Impl )
+endif()
+
+if(MORIS_USE_EIGEN)
+# GAH - needs to be fixed
+install(FILES ${HEADERS}
+    DESTINATION ${${LINALG}_HEADER_INSTALL_DIR}/Eigen_Impl )
+endif()
 
 # Install library
 install(TARGETS ${LINALG}-lib

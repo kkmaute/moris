@@ -53,6 +53,8 @@ target_include_directories(${TSA}-lib PUBLIC
 target_link_libraries(${TSA}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${TSA}-lib PROPERTIES OUTPUT_NAME ${TSA})
 
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
+
 foreach(TPL ${TSA_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)

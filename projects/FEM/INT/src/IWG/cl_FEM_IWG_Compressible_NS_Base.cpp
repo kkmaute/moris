@@ -18,8 +18,8 @@
 #include "fn_eye.hpp"
 
 // debug - output to hdf5
-#include "paths.hpp"
-#include "HDF5_Tools.hpp"
+//#include "paths.hpp"
+//#include "HDF5_Tools.hpp"
 
 namespace moris
 {

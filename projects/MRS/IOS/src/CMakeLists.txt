@@ -49,7 +49,6 @@ set(LIB_SOURCES
     cl_Ascii.cpp
     )
 
-
 # List library dependencies
 set(LIB_DEPENDENCIES
     ${COR}-lib
@@ -73,16 +72,20 @@ message( STATUS "done with GetGitRevisionDescription " ${MORIS_GIT_BRANCH} "  " 
 
 configure_file("${CMAKE_CURRENT_SOURCE_DIR}/cl_Git_info.cpp.in" "${CMAKE_CURRENT_BINARY_DIR}/cl_Git_info.cpp" @ONLY)
 
-list(APPEND LIB_SOURCES "${CMAKE_CURRENT_BINARY_DIR}/cl_Git_info.cpp")
+#list(APPEND LIB_SOURCES "${CMAKE_CURRENT_BINARY_DIR}/cl_Git_info.cpp")
 #list(APPEND HEADERS moris_git_info.hpp)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # IOS Target
 #add_library(${IOS}-lib INTERFACE)
-add_library(${IOS}-lib ${LIB_LINK_MODE} ${LIB_SOURCES})
+add_library(${IOS}-lib ${LIB_LINK_MODE} ${LIB_SOURCES} ${CMAKE_CURRENT_BINARY_DIR}/cl_Git_info.cpp)
 target_include_directories(${IOS}-lib INTERFACE
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	$<INSTALL_INTERFACE:${${IOS}_HEADER_INSTALL_DIR}> )
+
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
+target_sources(morisCombinedLib PUBLIC ${CMAKE_CURRENT_BINARY_DIR}/cl_Git_info.cpp ${CMAKE_CURRENT_SOURCE_DIR}/cl_Git_info.hpp)
+
 
 target_link_libraries(${IOS}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${IOS}-lib PROPERTIES OUTPUT_NAME ${IOS})

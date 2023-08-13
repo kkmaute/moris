@@ -16,7 +16,7 @@
 #endif
 
 #ifdef MORIS_USE_ARMA
-#include "op_plus_Arma.hpp"
+#include "Arma_Impl/op_plus_Arma.hpp"
 #endif
 
 #include "cl_Matrix.hpp"

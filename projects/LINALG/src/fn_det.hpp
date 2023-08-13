@@ -19,7 +19,7 @@
 #endif
 
 #ifdef MORIS_USE_ARMA
-#include "fn_det_Arma.hpp"
+#include "Arma_Impl/fn_det_Arma.hpp"
 #endif
 
 // ----------------------------------------------------------------------------

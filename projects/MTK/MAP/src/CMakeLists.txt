@@ -48,6 +48,16 @@ target_include_directories(${MAP}-lib PUBLIC
 target_link_libraries(${MAP}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${MAP}-lib PROPERTIES OUTPUT_NAME ${MAP})
 
+#include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
+list(TRANSFORM LIB_SOURCES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+list(TRANSFORM HEADERS PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+
+target_sources(morisCombinedLib PUBLIC ${HEADERS})
+
+target_include_directories(morisCombinedLib PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  $<INSTALL_INTERFACE:include> )
+
 foreach(TPL ${MAP_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)

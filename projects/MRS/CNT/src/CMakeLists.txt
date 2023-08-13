@@ -38,6 +38,8 @@ target_include_directories(${CNT}-lib INTERFACE
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	$<INSTALL_INTERFACE:${${CNT}_HEADER_INSTALL_DIR}> )
 
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
+
 foreach(TPL ${CNT_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)

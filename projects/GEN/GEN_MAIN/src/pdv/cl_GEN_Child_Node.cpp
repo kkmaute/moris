@@ -13,8 +13,8 @@
 
 #include "cl_MTK_Cell.hpp"                              //MTK/src
 #include "cl_MTK_Vertex.hpp"                            //MTK/src
-#include "cl_MTK_Interpolation_Function_Base.hpp"       //MTK/src
-#include "cl_MTK_Interpolation_Function_Factory.hpp"    //MTK/src
+#include "IPMTK/cl_MTK_Interpolation_Function_Base.hpp"       //MTK/src
+#include "IPMTK/cl_MTK_Interpolation_Function_Factory.hpp"    //MTK/src
 #include "cl_MTK_Enums.hpp"                             //MTK/src
 #include "cl_MTK_Cell_Info.hpp"                         //MTK/src
 #include "cl_MTK_Cell_Info_Quad4.hpp"                   //MTK/src

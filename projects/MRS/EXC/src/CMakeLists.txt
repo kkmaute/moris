@@ -22,6 +22,8 @@ add_library(${EXC}-lib INTERFACE)
 target_include_directories(${EXC}-lib INTERFACE
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	$<INSTALL_INTERFACE:${${EXC}_HEADER_INSTALL_DIR}> )
+
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
 	
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Exceptions Executable

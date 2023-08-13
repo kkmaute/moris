@@ -18,7 +18,7 @@
 #endif
 
 #ifdef MORIS_USE_ARMA
-#include "fn_unique_Arma.hpp"
+#include "Arma_Impl/fn_unique_Arma.hpp"
 #endif
 
 namespace moris

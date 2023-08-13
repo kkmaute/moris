@@ -22,6 +22,8 @@ target_include_directories(${CHR}-lib INTERFACE
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	$<INSTALL_INTERFACE:${${CHR}_HEADER_INSTALL_DIR}> )
 
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
+
 foreach(TPL ${CHR_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)

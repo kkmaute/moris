@@ -19,7 +19,7 @@
 #endif
 
 #ifdef MORIS_USE_ARMA
-#include "fn_reshape_Arma.hpp"
+#include "Arma_Impl/fn_reshape_Arma.hpp"
 #endif
 
 namespace moris

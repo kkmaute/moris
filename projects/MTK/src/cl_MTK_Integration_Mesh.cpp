@@ -18,8 +18,8 @@
 #include "assert.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_MTK_Block.hpp"
-#include "cl_MTK_Space_Interpolator.hpp"
-#include "cl_MTK_Integration_Rule.hpp"
+#include "IPMTK/cl_MTK_Space_Interpolator.hpp"
+#include "IG/cl_MTK_Integration_Rule.hpp"
 #include "fn_norm.hpp"
 
 #include "HDF5_Tools.hpp"

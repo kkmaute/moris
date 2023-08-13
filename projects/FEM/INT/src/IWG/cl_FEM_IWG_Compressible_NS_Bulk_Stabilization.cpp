@@ -21,9 +21,9 @@
 #include "fn_sylvester.hpp"
 
 // debug - output to hdf5
-#include "fn_max.hpp"
-#include "paths.hpp"
-#include "HDF5_Tools.hpp"
+//#include "fn_max.hpp"
+//#include "paths.hpp"
+//#include "HDF5_Tools.hpp"
 
 namespace moris
 {

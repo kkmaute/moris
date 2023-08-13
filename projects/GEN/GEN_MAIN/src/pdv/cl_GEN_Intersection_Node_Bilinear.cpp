@@ -10,10 +10,10 @@
 
 #include "cl_GEN_Intersection_Node_Bilinear.hpp"
 #include "cl_GEN_Geometry.hpp"
-#include "cl_GEN_Interpolation.hpp"
+#include "topology/cl_GEN_Interpolation.hpp"
 
-#include "cl_MTK_Interpolation_Function_Base.hpp"       //MTK/src
-#include "cl_MTK_Interpolation_Function_Factory.hpp"    //MTK/src
+#include "IPMTK/cl_MTK_Interpolation_Function_Base.hpp"       //MTK/src
+#include "IPMTK/cl_MTK_Interpolation_Function_Factory.hpp"    //MTK/src
 #include "cl_MTK_Enums.hpp"                             //MTK/src
 
 #include "fn_dot.hpp"

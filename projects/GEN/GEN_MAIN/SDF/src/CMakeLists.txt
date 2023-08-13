@@ -16,6 +16,7 @@ set(HEADERS
     cl_SDF_Triangle_Vertex.hpp
     cl_SDF_Triangle.hpp
     cl_SDF_Object.hpp
+cl_SDF_Generator.hpp
     )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -57,6 +58,8 @@ target_include_directories(${SDF}-lib PUBLIC
 	$<INSTALL_INTERFACE:${${SDF}_HEADER_INSTALL_DIR}> )
 target_link_libraries(${SDF}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${SDF}-lib PROPERTIES OUTPUT_NAME ${SDF})
+
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
 
 foreach(TPL ${SDF_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)

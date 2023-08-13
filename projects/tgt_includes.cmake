@@ -1,0 +1,12 @@
+
+list(TRANSFORM LIB_SOURCES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+list(TRANSFORM HEADERS PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+
+target_sources(morisCombinedLib PUBLIC ${LIB_SOURCES} ${HEADERS})
+
+#target_include_directories(morisCombinedLib PUBLIC
+#  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+#  $<INSTALL_INTERFACE:${${XTK}_HEADER_INSTALL_DIR}> )
+target_include_directories(morisCombinedLib PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+  $<INSTALL_INTERFACE:include> )

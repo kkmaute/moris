@@ -22,10 +22,36 @@ foreach(MORIS_SOURCE_DIR ${MORIS_SOURCE_DIRS})
     set(${DIR_NAME}_EXE_INSTALL_DIR "${EXE_INSTALL_DIR}/${MORIS_SOURCE_DIR}")
 endforeach()
 
-# Add source directories
-# This is done outside of the previous loop because cyclical dependencies may
-# use the variables from packages that haven't been called yet
-foreach(MORIS_SOURCE_DIR ${MORIS_SOURCE_DIRS})
-    add_subdirectory(${MORIS_SOURCE_DIR})
-endforeach()
+#GAH - Add large library "libmorisCombinedLib"
+# Add to it in each subdir
+add_library(morisCombinedLib ${LIB_LINK_MODE})
+target_compile_definitions(morisCombinedLib
+      PUBLIC ${MORIS_DEFINITIONS})
+
+
+add_subdirectory(GEN)
+add_subdirectory(FEM)
+add_subdirectory(SOL)
+add_subdirectory(WRK)
+add_subdirectory(XTK)
+add_subdirectory(TOL)
+add_subdirectory(MTK)
+add_subdirectory(MIG)
+add_subdirectory(ALG)
+add_subdirectory(COM)
+#add_subdirectory(EXA)
+add_subdirectory(HMR)
+add_subdirectory(LINALG)
+add_subdirectory(MOD)
+add_subdirectory(MRS)
+add_subdirectory(OPT)
+add_subdirectory(PRM)
+
+# Install big library and executable
+install(TARGETS morisCombinedLib
+#    EXPORT ${COM}Targets
+    ARCHIVE DESTINATION ${LIB_INSTALL_DIR}
+    LIBRARY DESTINATION ${LIB_INSTALL_DIR}
+    RUNTIME DESTINATION ${EXE_INSTALL_DIR} )
+
 

@@ -27,6 +27,8 @@ target_include_directories(${ASR}-lib INTERFACE
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	$<INSTALL_INTERFACE:${${ASR}_HEADER_INSTALL_DIR}> )
 target_link_libraries(${ASR}-lib INTERFACE ${LIB_DEPENDENCIES})
+
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
 	
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Assert Executable

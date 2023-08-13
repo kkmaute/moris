@@ -73,6 +73,8 @@ target_include_directories(${SOL_CORE}-lib PUBLIC
 target_link_libraries(${SOL_CORE}-lib ${LIB_DEPENDENCIES})
 set_target_properties(${SOL_CORE}-lib PROPERTIES OUTPUT_NAME ${SOL_CORE})
 
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
+
 foreach(TPL ${SOL_CORE_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)

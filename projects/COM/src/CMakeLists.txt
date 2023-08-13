@@ -42,6 +42,8 @@ target_include_directories(${COM}-lib PUBLIC
 target_link_libraries(${COM}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${COM}-lib PROPERTIES OUTPUT_NAME ${COM})
 
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
+
 # Link third party libraries
 foreach(TPL ${COM_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
@@ -115,7 +117,7 @@ install(FILES ${HEADERS}
     DESTINATION ${HEADER_INSTALL_DIR}/${COM} )
 
 # Install library and executable
-install(TARGETS ${COM}-lib
+install(TARGETS ${COM}-lib 
     EXPORT ${COM}Targets
     ARCHIVE DESTINATION ${LIB_INSTALL_DIR}/${COM}
     LIBRARY DESTINATION ${LIB_INSTALL_DIR}/${COM}

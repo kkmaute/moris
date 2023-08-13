@@ -18,7 +18,7 @@
 #endif
 
 #ifdef MORIS_USE_ARMA
-#include "fn_intersect_Arma.hpp"
+#include "Arma_Impl/fn_intersect_Arma.hpp"
 #endif
 
 namespace moris

@@ -16,7 +16,7 @@
 #endif
 
 #ifdef MORIS_USE_ARMA
-#include "op_not_equal_Arma.hpp"
+#include "Arma_Impl/op_not_equal_Arma.hpp"
 #endif
 
 namespace moris

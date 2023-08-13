@@ -12,7 +12,7 @@
 #include "cl_MTK_Mesh_Pair.hpp"
 #include "cl_MTK_Field.hpp"
 #include "cl_MTK_Field_Discrete.hpp"
-#include "cl_MTK_Mapper.hpp"
+//#include "cl_MTK_Mapper.hpp" GAH break dependency
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Dist_Map.hpp"
 #include "fn_trans.hpp"
@@ -241,6 +241,7 @@ namespace moris
         void
         BSpline_Field::import_advs( sol::Dist_Vector* aOwnedADVs )
         {
+#if 0 // GAH
             // Import ADVs as usual
             Field::import_advs( aOwnedADVs );
 
@@ -302,6 +303,7 @@ namespace moris
 
             this->unlock_field();
             this->set_values( tNodalValues );
+#endif
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -317,6 +319,7 @@ namespace moris
         Matrix< DDRMat >
         BSpline_Field::map_to_bsplines( std::shared_ptr< Field > aField )
         {
+#if 0 // GAH
             // Mapper
             mtk::Mapper tMapper;
 
@@ -347,6 +350,7 @@ namespace moris
 
             // Return mapped field
             return tCoefficients;
+#endif
         }
 
         //--------------------------------------------------------------------------------------------------------------

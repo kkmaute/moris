@@ -127,7 +127,7 @@ message(STATUS "CMAKE_MODULE_PATH: ${CMAKE_MODULE_PATH}")
 # -------------------------------------------------------------------------
 ## MORIS Important Include Directories
 
-list(APPEND MORIS_INCDIRS "${SRC}" "snippets" "${INC}" "/usr/include")
+#list(APPEND MORIS_INCDIRS "${SRC}" "snippets" "${INC}" "/usr/include")
 
 # -------------------------------------------------------------------------
 ## Options
@@ -135,6 +135,17 @@ list(APPEND MORIS_INCDIRS "${SRC}" "snippets" "${INC}" "/usr/include")
 # MPI support.
 option(MORIS_HAVE_PARALLEL
     "Build MORIS with support for MPI communication." ON )
+
+# SHARED lib support.
+# option(MORIS_HAVE_SHARED
+#    "Build MORIS with support for SHARED libraries." OFF )
+SET(MORIS_HAVE_SHARED OFF)
+  if (${MORIS_HAVE_SHARED})
+     message(STATUS "MORIS_HAVE_SHARED = ${MORIS_HAVE_SHARED}")
+     SET(LIB_LINK_MODE SHARED)
+  else()
+     SET(LIB_LINK_MODE STATIC)
+  endif()
 
 # MPI package.
 set(MORIS_MPI_LIBS "MPICH" "OPENMPI")

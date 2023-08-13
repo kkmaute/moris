@@ -20,7 +20,7 @@ cl_MIG_Mesh_Editor.hpp
 cl_MIG.cpp
 )
 
-include_directories(${MORIS_PACKAGE_DIR}/include)
+#include_directories(${MORIS_PACKAGE_DIR}/include)
 
 set(GEN_INCLUDES
 	"field"
@@ -30,9 +30,9 @@ set(GEN_INCLUDES
 	)
 
 # Include depedency directories
-foreach(GEN_INCLUDES ${GEN_INCLUDES})
-	include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
-endforeach()
+#foreach(GEN_INCLUDES ${GEN_INCLUDES})
+#	include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
+#endforeach()
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -45,7 +45,6 @@ cl_MIG_Periodic_3D.cpp
 cl_MIG_Mesh_Editor.cpp
 cl_MIG.cpp
 )
-
 
 
 # List library dependencies
@@ -68,6 +67,8 @@ target_include_directories(${MIG}-lib PUBLIC
 	$<INSTALL_INTERFACE:${${MIG}_HEADER_INSTALL_DIR}> )
 target_link_libraries(${MIG}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${MIG}-lib PROPERTIES OUTPUT_NAME ${MIG})
+
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
 
 foreach(TPL ${MIG_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)

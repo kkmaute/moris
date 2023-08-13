@@ -83,6 +83,7 @@ foreach(COMPONENT ${@MORIS@_FIND_COMPONENTS})
 	
 	add_library(@MORIS@::${COMPONENT} INTERFACE IMPORTED GLOBAL)
 	target_link_libraries(@MORIS@::${COMPONENT} INTERFACE ${${COMPONENT}_LIBRARIES})
+message(STATUS "ADDING COMPONENT LIBRARY : ${${COMPONENT}_LIBRARIES} to @MORIS@::${COMPONENT}.")
 endforeach()
 set(@MORIS@_FOUND TRUE)
 
@@ -93,7 +94,12 @@ check_required_components(@MORIS@)
 include("@PACKAGE_CONFIG_INSTALL_DIR@/@MORIS@/@MORIS@Targets.cmake")
 list(INSERT @MORIS@_LIBRARIES 0 @MORIS@_general)
 
+message(STATUS "MORIS_LIBRARIES IS SET TO: ${@MORIS@_LIBRARIES}.")
+
 # Create target for all built moris subpackages
 add_library(@MORIS@::all_libs INTERFACE IMPORTED GLOBAL)
 target_link_libraries(@MORIS@::all_libs INTERFACE ${@MORIS@_LIBRARIES})
+#add_library(@MORIS@::morisCombinedLib ARCHIVE IMPORTED GLOBAL)
+add_library(@MORIS@::morisCombinedLib INTERFACE IMPORTED GLOBAL)
+target_link_libraries(@MORIS@::morisCombinedLib INTERFACE morisCombinedLib)
 

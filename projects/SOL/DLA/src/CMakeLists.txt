@@ -81,6 +81,8 @@ target_include_directories(${DLA}-lib PUBLIC
 target_link_libraries(${DLA}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${DLA}-lib PROPERTIES OUTPUT_NAME ${DLA})
 
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
+
 foreach(TPL ${DLA_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)

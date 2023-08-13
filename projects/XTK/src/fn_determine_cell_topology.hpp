@@ -13,7 +13,7 @@
 
 #include "cl_Mesh_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
-#include "fn_MTK_Interpolation_Enum_Int_Conversion.hpp"
+#include "IPMTK/fn_MTK_Interpolation_Enum_Int_Conversion.hpp"
 
 namespace xtk
 {

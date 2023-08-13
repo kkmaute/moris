@@ -18,7 +18,8 @@
 // LNA/src
 #include "linalg_typedefs.hpp"
 // FEM/INT/src
-#include "cl_MTK_Interpolation_Rule.hpp"
+// GAH - no, need to give the path here!
+#include "../../../../MTK/src/IPMTK/cl_MTK_Interpolation_Rule.hpp"
 #include "cl_FEM_Geometry_Interpolator.hpp"
 // FEM/MSI/src
 #include "cl_MSI_Dof_Type_Enums.hpp"

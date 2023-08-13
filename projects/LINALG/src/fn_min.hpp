@@ -15,7 +15,7 @@
 #include "cl_Matrix.hpp"
 
 #ifdef MORIS_USE_ARMA
-#include "fn_min_Arma.hpp"
+#include "Arma_Impl/fn_min_Arma.hpp"
 #endif
 
 namespace moris

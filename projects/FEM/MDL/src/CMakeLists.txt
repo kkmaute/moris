@@ -50,6 +50,8 @@ target_include_directories(${MDL}-lib PUBLIC
 target_link_libraries(${MDL}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${MDL}-lib PROPERTIES OUTPUT_NAME ${MDL})
 
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
+
 foreach(TPL ${MDL_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)

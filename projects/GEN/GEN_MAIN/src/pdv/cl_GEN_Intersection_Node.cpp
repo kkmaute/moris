@@ -11,8 +11,8 @@
 #include "cl_GEN_Intersection_Node.hpp"
 #include "cl_GEN_Geometry.hpp"
 
-#include "cl_MTK_Interpolation_Function_Base.hpp"       //MTK/src
-#include "cl_MTK_Interpolation_Function_Factory.hpp"    //MTK/src
+#include "IPMTK/cl_MTK_Interpolation_Function_Base.hpp"       //MTK/src
+#include "IPMTK/cl_MTK_Interpolation_Function_Factory.hpp"    //MTK/src
 #include "cl_MTK_Enums.hpp"                             //MTK/src
 
 #include "fn_norm.hpp"

@@ -102,7 +102,7 @@ set(HEADERS
     )                                                                                                                                                                                                                                                                   
 
 
-include_directories(${MORIS_PACKAGE_DIR}/include)
+#include_directories(${MORIS_PACKAGE_DIR}/include)
 
 set(GEN_INCLUDES
 	"field"
@@ -112,12 +112,12 @@ set(GEN_INCLUDES
 	)
 
 # Include depedency directories
-foreach(GEN_INCLUDES ${GEN_INCLUDES})
-	include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
-endforeach()
+#foreach(GEN_INCLUDES ${GEN_INCLUDES})
+#	include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
+#endforeach()
 
 # Include WRK directory
-include_directories(${MORIS_PACKAGE_DIR}/WRK/src)
+#include_directories(${MORIS_PACKAGE_DIR}/WRK/src)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # XTK Library
@@ -201,6 +201,19 @@ target_include_directories(${XTK}-lib PUBLIC
 	$<INSTALL_INTERFACE:${${XTK}_HEADER_INSTALL_DIR}> )
 target_link_libraries(${XTK}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${XTK}-lib PROPERTIES OUTPUT_NAME ${XTK})
+
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
+#list(TRANSFORM LIB_SOURCES PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+#list(TRANSFORM HEADERS PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/")
+
+#target_sources(morisCombinedLib PUBLIC ${LIB_SOURCES} ${HEADERS})
+
+#target_include_directories(morisCombinedLib PUBLIC
+#  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+#  $<INSTALL_INTERFACE:include/XTK> )
+#include_directories(${CMAKE_CURRENT_SOURCE_DIR})
+#  $<INSTALL_INTERFACE:${${XTK}_HEADER_INSTALL_DIR}> )
+
 
 # Link third party libraries
 foreach(TPL ${XTK_TPL_DEPENDENCIES})

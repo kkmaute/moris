@@ -65,6 +65,8 @@ target_include_directories(${MSI}-lib PUBLIC
 target_link_libraries(${MSI}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${MSI}-lib PROPERTIES OUTPUT_NAME ${MSI})
 
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
+
 foreach(TPL ${MSI_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)

@@ -55,6 +55,8 @@ add_library(${MOD}-lib ${LIB_LINK_MODE} ${LIB_SOURCES})
 target_link_libraries(${MOD}-lib PUBLIC ${LIB_DEPENDENCIES})
 set_target_properties(${MOD}-lib PROPERTIES OUTPUT_NAME ${MOD})
 
+include(${CMAKE_SOURCE_DIR}/projects/tgt_includes.cmake)
+
 # Link third party libraries
 foreach(TPL ${MOD_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)

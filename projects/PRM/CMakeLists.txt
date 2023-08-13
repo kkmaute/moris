@@ -10,7 +10,7 @@
 
 # Add source directory
 add_subdirectory(src)
-#add_subdirectory(ENM)
+add_subdirectory(ENM)
 
 # Add test directory
 if(MORIS_USE_TESTS AND BUILD_PRM)
