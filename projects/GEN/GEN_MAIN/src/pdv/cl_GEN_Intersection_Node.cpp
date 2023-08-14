@@ -173,12 +173,9 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Matrix< DDRMat >
-        Intersection_Node::get_dcoordinate_dadv()
+        void
+        Intersection_Node::get_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, Matrix< DDRMat > const& aSensitivityFactor )
         {
-            // Set size
-            mCoordinateSensitivities.set_size( 0, 0 );
-
             // Locked interface geometry
             std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
@@ -193,10 +190,22 @@ namespace moris
 
                 // Ancestor sensitivities
                 tSensitivitiesToAdd =
-                        0.5 * this->get_dxi_dfield_from_ancestor( tAncestorNode ) * mParentVector * tFieldSensitivities;
+                        0.5 * aSensitivityFactor * this->get_dxi_dfield_from_ancestor( tAncestorNode ) * mParentVector * tFieldSensitivities;
+
+                // Resize sensitivities
+                uint tJoinedSensitivityLength = aCoordinateSensitivities.n_cols();
+                aCoordinateSensitivities.resize( tSensitivitiesToAdd.n_rows(),
+                        tJoinedSensitivityLength + tSensitivitiesToAdd.n_cols() );
 
                 // Join sensitivities
-                this->join_coordinate_sensitivities( tSensitivitiesToAdd );
+                for ( uint tCoordinateIndex = 0; tCoordinateIndex < tSensitivitiesToAdd.n_rows(); tCoordinateIndex++ )
+                {
+                    for ( uint tAddedSensitivity = 0; tAddedSensitivity < tSensitivitiesToAdd.n_cols(); tAddedSensitivity++ )
+                    {
+                        aCoordinateSensitivities( tCoordinateIndex, tJoinedSensitivityLength + tAddedSensitivity ) =
+                                tSensitivitiesToAdd( tCoordinateIndex, tAddedSensitivity );
+                    }
+                }
             }
 
             // Add first parent sensitivities, if needed
@@ -205,9 +214,8 @@ namespace moris
                 Matrix< DDRMat > tLocCoord = ( 1.0 - mLocalCoordinate ) *    //
                                              eye( mParentVector.n_rows(), mParentVector.n_rows() );
 
-                tSensitivitiesToAdd = 0.5 * ( tLocCoord + mParentVector * this->get_dxi_dcoordinate_first_parent() ) * mFirstParentNode->get_dcoordinate_dadv();
-
-                this->join_coordinate_sensitivities( tSensitivitiesToAdd );
+                Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + mParentVector * this->get_dxi_dcoordinate_first_parent() );
+                mFirstParentNode->get_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor);
             }
 
             // Add second parent sensitivities, if needed
@@ -216,12 +224,9 @@ namespace moris
                 Matrix< DDRMat > tLocCoord = ( 1.0 + mLocalCoordinate ) *    //
                                              eye( mParentVector.n_rows(), mParentVector.n_rows() );
 
-                tSensitivitiesToAdd = 0.5 * ( tLocCoord + mParentVector * this->get_dxi_dcoordinate_second_parent() ) * mSecondParentNode->get_dcoordinate_dadv();
-
-                this->join_coordinate_sensitivities( tSensitivitiesToAdd );
+                Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + mParentVector * this->get_dxi_dcoordinate_second_parent() );
+                mSecondParentNode->get_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor);
             }
-
-            return mCoordinateSensitivities;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -366,28 +371,6 @@ namespace moris
         Intersection_Node::get_owner()
         {
             return mNodeOwner;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void
-        Intersection_Node::join_coordinate_sensitivities( const Matrix< DDRMat >& aSensitivitiesToAdd )
-        {
-            // Resize sensitivities
-            uint tJoinedSensitivityLength = mCoordinateSensitivities.n_cols();
-            mCoordinateSensitivities.resize(
-                    aSensitivitiesToAdd.n_rows(),
-                    tJoinedSensitivityLength + aSensitivitiesToAdd.n_cols() );
-
-            // Join sensitivities
-            for ( uint tCoordinateIndex = 0; tCoordinateIndex < aSensitivitiesToAdd.n_rows(); tCoordinateIndex++ )
-            {
-                for ( uint tAddedSensitivity = 0; tAddedSensitivity < aSensitivitiesToAdd.n_cols(); tAddedSensitivity++ )
-                {
-                    mCoordinateSensitivities( tCoordinateIndex, tJoinedSensitivityLength + tAddedSensitivity ) =
-                            aSensitivitiesToAdd( tCoordinateIndex, tAddedSensitivity );
-                }
-            }
         }
 
         //--------------------------------------------------------------------------------------------------------------

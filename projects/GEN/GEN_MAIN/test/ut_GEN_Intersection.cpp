@@ -10,6 +10,7 @@
 
 #include "catch.hpp"
 #include "math.h"
+#include "fn_eye.hpp"
 
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Geometry_Engine_Test.hpp"
@@ -369,11 +370,17 @@ namespace moris
                     { { 0, 1, 2, 3, 0, 1, 2, 3, 10, 9, 9, 12 } }
                 };
 
+                Matrix< DDRMat > tHostADVSensitivities;
+                Matrix< DDRMat > tI; 
                 for ( uint tNodeIndex = 9; tNodeIndex < 23; tNodeIndex++ )
                 {
+                    tHostADVSensitivities.set_size( 0.0, 0.0 );
+                    eye( 2, 2, tI );
+                    tPDVHostManager->get_intersection_node( tNodeIndex )->get_dcoordinate_dadv( tHostADVSensitivities, tI );
                     CHECK_EQUAL(
-                            tPDVHostManager->get_intersection_node( tNodeIndex )->get_dcoordinate_dadv(),
-                            tIntersectionSensitivities( tNodeIndex - 9 ), 1E8, );
+                            tHostADVSensitivities,
+                            tIntersectionSensitivities( tNodeIndex - 9 ),
+                            1E8, );
                     CHECK_EQUAL(
                             tPDVHostManager->get_intersection_node( tNodeIndex )->get_coordinate_determining_adv_ids(),
                             tIntersectionIDs( tNodeIndex - 9 ), );

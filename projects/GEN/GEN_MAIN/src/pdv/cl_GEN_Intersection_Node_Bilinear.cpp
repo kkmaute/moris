@@ -187,7 +187,7 @@ namespace moris
                 mIsIntersected = ( std::abs( mLocalCoordinate ) <= 1.0 );
 
                 // check for consistency with parent values
-                // this check is currently useless but should be performed is inconsistency issue (see comment above) is resolved
+                // this check is currently useless but should be performed if inconsistency issue (see comment above) is resolved
                 MORIS_ASSERT( mIsIntersected ? tFirstDiffFromThreshold * tSecondDiffFromThreshold < 0 : tFirstDiffFromThreshold * tSecondDiffFromThreshold > 0,
                         "Intersection_Node_Bilinear::Intersection_Node_Bilinear - inconsistent parent level set values - p1 %e p2 %e loc %e.",
                         tFirstDiffFromThreshold,

@@ -37,9 +37,7 @@ namespace moris
             Matrix< DDRMat >                     mGlobalCoordinates;
 
           private:
-            Matrix< DDRMat > mCoordinateSensitivities;
             Matrix< DDSMat > mCoordinateDeterminingADVIDs;
-
             moris_index mFirstParentNodeIndex;
             moris_index mSecondParentNodeIndex;
 
@@ -89,10 +87,12 @@ namespace moris
             /**
              * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
              * ancestor nodes.
-             *
-             * @return Sensitivities
+             * 
+             * @param aCoordinateSensitivities Coordinate sensitivities matrix that gets appended to
+             * @param aSensitivityFactor Matrix factor to scale this node's sensitivities based on a calling child's position and orientation.
+             * This should be set to identity matrix of number of dimensions for any calls to this function outside of another intersection node.
              */
-            Matrix< DDRMat > get_dcoordinate_dadv();
+            void get_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, const Matrix< DDRMat>& aSensitivityFactor );
 
             /**
              * Gets the IDs of ADVs which one of the ancestors of this intersection node depends on.

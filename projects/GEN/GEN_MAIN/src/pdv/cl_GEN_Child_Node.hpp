@@ -45,9 +45,6 @@ namespace moris
             Cell< Matrix< DDRMat > > mAncestorNodeCoordinates;
             Matrix< DDRMat >         mBasisValues;
 
-            moris::mtk::Cell* mParentCell;
-            Matrix< DDRMat >  mLocalCoordinates;
-
           private:
             Matrix< DDRMat > mLocalCoordinatesInAncestor;
             Matrix< DDRMat > mJoinedSensitivities;
