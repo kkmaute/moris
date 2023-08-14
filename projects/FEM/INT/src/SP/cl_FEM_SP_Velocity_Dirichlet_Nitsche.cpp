@@ -16,7 +16,6 @@ namespace moris
 {
     namespace fem
     {
-
         //------------------------------------------------------------------------------
 
         SP_Velocity_Dirichlet_Nitsche::SP_Velocity_Dirichlet_Nitsche()
@@ -43,8 +42,8 @@ namespace moris
             uint tParamSize = aParameters.size();
 
             // check for proper size of constant function parameters
-            MORIS_ERROR( tParamSize >= 1 && tParamSize < 3,
-                    "SP_Velocity_Dirichlet_Nitsche::set_parameters - either 1 or 2 constant parameters need to be set." );
+            MORIS_ERROR( tParamSize >= 1 && tParamSize <= 3,
+                    "SP_Velocity_Dirichlet_Nitsche::set_parameters - either 1, 2, or 3 constant parameters need to be set." );
 
             // set alphaN
             mAlphaN = aParameters( 0 )( 0 );
@@ -61,6 +60,32 @@ namespace moris
                 // set alpha_time flag to true
                 mSetAlphaTime = true;
             }
+
+            // if geometry measure type is defined
+            if ( tParamSize == 3 )
+            {
+                mGeometryFormulation = mParameters( 2 )( 0 );
+            }
+
+            // set pointer function for geometry measure
+            switch ( mGeometryFormulation )
+            {
+                case 0:
+                {
+                    mGeometryMeasureFunc = &SP_Velocity_Dirichlet_Nitsche::eval_geometry_measure_edge_length;
+                    break;
+                }
+                case 1:
+                {
+                    mGeometryMeasureFunc = &SP_Velocity_Dirichlet_Nitsche::eval_geometry_measure_relative_edge_length;
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "SP_Velocity_Dirichlet_Nitsche::set_parameters - wrong required formulation of cluster measure." );
+                    break;
+                }
+            }
         }
 
         //------------------------------------------------------------------------------
@@ -69,7 +94,7 @@ namespace moris
         SP_Velocity_Dirichlet_Nitsche::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
                 moris::Cell< std::string >&                  aDofStrings,
-                mtk::Leader_Follower                            aIsLeader )
+                mtk::Leader_Follower                         aIsLeader )
         {
             // switch on leader follower
             switch ( aIsLeader )
@@ -96,9 +121,9 @@ namespace moris
                         else
                         {
                             // create error message
-                            std::string tErrMsg =
-                                    std::string( "SP_Velocity_Dirichlet_Nitsche::set_dof_type_list - Unknown aDofString : " ) + tDofString;
-                            MORIS_ERROR( false, tErrMsg.c_str() );
+                            MORIS_ERROR( false,
+                                    " SP_Velocity_Dirichlet_Nitsche::set_dof_type_list - Unknown aDofString : %s",
+                                    tDofString.c_str() );
                         }
                     }
                     break;
@@ -112,7 +137,8 @@ namespace moris
                 }
 
                 default:
-                    MORIS_ERROR( false, "SP_Velocity_Dirichlet_Nitsche::set_dof_type_list - unknown leader follower type." );
+                    MORIS_ERROR( false,
+                            "SP_Velocity_Dirichlet_Nitsche::set_dof_type_list - unknown leader follower type." );
             }
         }
 
@@ -124,6 +150,10 @@ namespace moris
                 mtk::Leader_Follower > >
         SP_Velocity_Dirichlet_Nitsche::get_cluster_measure_tuple_list()
         {
+            if ( mGeometryFormulation == 1 )
+            {
+                return { mLeaderVolumeTuple, mInterfaceSurfaceTuple };
+            }
             return { mElementSizeTuple };
         }
 
@@ -133,11 +163,7 @@ namespace moris
         SP_Velocity_Dirichlet_Nitsche::eval_SP()
         {
             // get element size cluster measure value
-            real tElementSize = mCluster->get_cluster_measure(
-                                                std::get< 0 >( mElementSizeTuple ),
-                                                std::get< 1 >( mElementSizeTuple ),
-                                                std::get< 2 >( mElementSizeTuple ) )
-                                        ->val()( 0 );
+            real tElementSize = ( this->*mGeometryMeasureFunc )();
 
             // get the velocity FI
             Field_Interpolator* tFIVelocity =
@@ -197,11 +223,7 @@ namespace moris
                 const moris::Cell< MSI::Dof_Type >& aDofTypes )
         {
             // get element size cluster measure value
-            real tElementSize = mCluster->get_cluster_measure(
-                                                std::get< 0 >( mElementSizeTuple ),
-                                                std::get< 1 >( mElementSizeTuple ),
-                                                std::get< 2 >( mElementSizeTuple ) )
-                                        ->val()( 0 );
+            real tElementSize = ( this->*mGeometryMeasureFunc )();
 
             // get the dof type index
             uint tDofIndex = mLeaderGlobalDofTypeMap( static_cast< uint >( aDofTypes( 0 ) ) );
@@ -297,6 +319,42 @@ namespace moris
                             ( tElementSize / ( 12.0 * mAlphaTime * tDeltaT ) );
                 }
             }
+        }
+
+        //------------------------------------------------------------------------------
+
+        real
+        SP_Velocity_Dirichlet_Nitsche::eval_geometry_measure_edge_length()
+        {
+            return mCluster->get_cluster_measure(
+                                   std::get< 0 >( mElementSizeTuple ),
+                                   std::get< 1 >( mElementSizeTuple ),
+                                   std::get< 2 >( mElementSizeTuple ) )
+                    ->val()( 0 );
+        }
+
+        //------------------------------------------------------------------------------
+
+        real
+        SP_Velocity_Dirichlet_Nitsche::eval_geometry_measure_relative_edge_length()
+        {
+            // get leader volume cluster measure value
+            const real tLeaderVolume =    //
+                    mCluster->get_cluster_measure(
+                                    std::get< 0 >( mLeaderVolumeTuple ),
+                                    std::get< 1 >( mLeaderVolumeTuple ),
+                                    std::get< 2 >( mLeaderVolumeTuple ) )
+                            ->val()( 0 );
+
+            // get interface surface cluster measure value
+            const real tInterfaceSurface =    //
+                    mCluster->get_cluster_measure(
+                                    std::get< 0 >( mInterfaceSurfaceTuple ),
+                                    std::get< 1 >( mInterfaceSurfaceTuple ),
+                                    std::get< 2 >( mInterfaceSurfaceTuple ) )
+                            ->val()( 0 );
+
+            return tLeaderVolume / tInterfaceSurface;
         }
 
         //------------------------------------------------------------------------------

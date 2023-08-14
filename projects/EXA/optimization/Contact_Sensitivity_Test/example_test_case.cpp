@@ -52,9 +52,9 @@ check_results(
         std::string aHdf5FileName,
         uint        aTestCaseIndex )
 {
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processors.", aTestCaseIndex, par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     //    // open and query exodus output file (set verbose to true to get basic mesh information)
     //    moris::mtk::Exodus_IO_Helper tExoIO(aExoFileName.c_str(),0,false,false);
@@ -365,9 +365,9 @@ TEST_CASE( "Constact_Sensitivity_Test_2D",
     // use Bspline parameterization or primitives
     gUseBspline = false;
 
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Executing Contact Sensitivity Test - 2D: Interpolation order 1 - Dim 2  - Analytic - %i Processors.", par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     if ( par_size() == 1 )
     {
@@ -409,9 +409,9 @@ TEST_CASE( "Constact_Sensitivity_Test_2D",
     // use Bspline parameterization or primitives
     gUseBspline = true;
 
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Executing Contact Sensitivity Test - 2D: Interpolation order 1 - Dim 2  - Bspline - %i Processors.", par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     if ( par_size() == 1 )
     {
@@ -453,9 +453,9 @@ TEST_CASE( "Constact_Sensitivity_Test_2D",
     // use Bspline parameterization or primitives
     gUseBspline = false;
 
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Executing Contact Sensitivity Test - 2D: Interpolation order 1 - Dim 3  - Analytic - %i Processors.", par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     if ( par_size() == 1 )
     {
@@ -497,9 +497,9 @@ TEST_CASE( "Constact_Sensitivity_Test_2D",
     // use Bspline parameterization or primitives
     gUseBspline = true;
 
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Executing Contact Sensitivity Test - 2D: Interpolation order 1 - Dim 3  - Bspline - %i Processors.", par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     if ( par_size() == 1 )
     {

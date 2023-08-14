@@ -85,6 +85,7 @@ set(HEADERS
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff.hpp
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Neo_Hookean.hpp
+    CM/cl_FEM_CM_Struc_Linear_Isotropic_Damage.hpp
     CM/cl_FEM_CM_Struc_Linear_Isotropic.hpp
     CM/cl_FEM_CM_Struc_Linear_MoriTanaka.hpp
     CM/cl_FEM_CM_Struc_Linear.hpp
@@ -108,6 +109,7 @@ set(HEADERS
     SP/cl_FEM_SP_Convective_Ghost.hpp  
     SP/cl_FEM_SP_SUPG_Advection.hpp
     SP/cl_FEM_SP_YZBeta_Advection.hpp
+    SP/cl_FEM_SP_Crosswind.hpp
     SP/cl_FEM_SP_GGLS_Diffusion.hpp
     SP/cl_FEM_SP_Velocity_Dirichlet_Nitsche.hpp
     SP/cl_FEM_SP_Velocity_SlipBoundary_Nitsche.hpp
@@ -152,6 +154,9 @@ set(HEADERS
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.hpp 
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche.hpp 
     IWG/cl_FEM_IWG_Struc_Stress.hpp
+    IWG/cl_FEM_IWG_History_Bulk.hpp
+    IWG/cl_FEM_IWG_Nonlocal_Bulk.hpp
+    IWG/cl_FEM_IWG_Nonlocal_Interface.hpp
     
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Bulk.hpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Dirichlet.hpp
@@ -177,6 +182,7 @@ set(HEADERS
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.hpp
     IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Interface.hpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Interface.hpp
+    IWG/fn_FEM_IWG_Crosswind_Stabilization_Tools.hpp
     
     IWG/cl_FEM_IWG_Compressible_NS_Density_Bulk.hpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Bulk.hpp
@@ -232,6 +238,7 @@ set(HEADERS
     IQI/cl_FEM_IQI_Effective_Conductivity.hpp
     IQI/cl_FEM_IQI_Spalart_Allmaras_Coefficient.hpp
     IQI/cl_FEM_IQI_Power_Dissipation.hpp
+    IQI/cl_FEM_IQI_Power_Dissipation_Bulk.hpp
     IQI/cl_FEM_IQI_Total_Pressure.hpp
     IQI/cl_FEM_IQI_Mass_Flow.hpp
     IQI/cl_FEM_IQI_Thermal_Energy_Convective_Flux.hpp
@@ -242,10 +249,15 @@ set(HEADERS
     IQI/cl_FEM_IQI_Advection_Strong_Residual.hpp
     IQI/cl_FEM_IQI_Strong_Residual_SA.hpp
     IQI/cl_FEM_IQI_Strong_Residual_Incompressible_NS.hpp
+    IQI/cl_FEM_IQI_SP_Crosswind_Incompressible_NS.hpp
+    IQI/cl_FEM_IQI_Res_Crosswind_Incompressible_NS.hpp
+    IQI/cl_FEM_IQI_Res_SUPG_Incompressible_NS.hpp
+    IQI/cl_FEM_IQI_SP_Crosswind_SA.hpp
     IQI/cl_FEM_IQI_Zienkiewicz_Zhu.hpp
     IQI/cl_FEM_IQI_Jump_Dof.hpp
     IQI/cl_FEM_IQI_Jump_Traction.hpp
     IQI/cl_FEM_IQI_Traction.hpp
+    IQI/cl_FEM_IQI_Linear_Elasticity_Damage.hpp
      
     MEA/cl_FEM_Cluster_Measure.hpp
     )
@@ -296,6 +308,7 @@ set(LIB_SOURCES
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic.cpp
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff.cpp
     CM/cl_FEM_CM_Struc_Nonlinear_Isotropic_Neo_Hookean.cpp
+    CM/cl_FEM_CM_Struc_Linear_Isotropic_Damage.cpp
     CM/cl_FEM_CM_Struc_Linear_Isotropic.cpp
     CM/cl_FEM_CM_Struc_Linear_MoriTanaka.cpp
     CM/cl_FEM_CM_Struc_Linear.cpp
@@ -322,6 +335,7 @@ set(LIB_SOURCES
     SP/cl_FEM_SP_Time_Velocity_Ghost.cpp
     SP/cl_FEM_SP_SUPG_Advection.cpp
     SP/cl_FEM_SP_YZBeta_Advection.cpp
+    SP/cl_FEM_SP_Crosswind.cpp
     SP/cl_FEM_SP_GGLS_Diffusion.cpp
     SP/cl_FEM_SP_Velocity_Dirichlet_Nitsche.cpp
     SP/cl_FEM_SP_Velocity_SlipBoundary_Nitsche.cpp
@@ -368,6 +382,9 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Nitsche.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Linear_Contact_Gap_Nitsche.cpp
     IWG/cl_FEM_IWG_Struc_Stress.cpp
+    IWG/cl_FEM_IWG_History_Bulk.cpp
+    IWG/cl_FEM_IWG_Nonlocal_Bulk.cpp
+    IWG/cl_FEM_IWG_Nonlocal_Interface.cpp
     
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Bulk.cpp
     IWG/cl_FEM_IWG_Isotropic_Struc_Nonlinear_Dirichlet.cpp
@@ -393,6 +410,7 @@ set(LIB_SOURCES
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Neumann.cpp
     IWG/cl_FEM_IWG_Incompressible_NS_Velocity_Interface.cpp
     IWG/cl_FEM_IWG_Incompressible_NS_Pressure_Interface.cpp
+    IWG/fn_FEM_IWG_Crosswind_Stabilization_Tools.cpp
     
     IWG/cl_FEM_IWG_Compressible_NS_Density_Bulk.cpp
     IWG/cl_FEM_IWG_Compressible_NS_Velocity_Bulk.cpp
@@ -455,6 +473,7 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Effective_Conductivity.cpp
     IQI/cl_FEM_IQI_Spalart_Allmaras_Coefficient.cpp
     IQI/cl_FEM_IQI_Power_Dissipation.cpp
+    IQI/cl_FEM_IQI_Power_Dissipation_Bulk.cpp
     IQI/cl_FEM_IQI_Total_Pressure.cpp
     IQI/cl_FEM_IQI_Mass_Flow.cpp
     IQI/cl_FEM_IQI_Thermal_Energy_Convective_Flux.cpp
@@ -465,10 +484,15 @@ set(LIB_SOURCES
     IQI/cl_FEM_IQI_Advection_Strong_Residual.cpp
     IQI/cl_FEM_IQI_Strong_Residual_SA.cpp
     IQI/cl_FEM_IQI_Strong_Residual_Incompressible_NS.cpp
+    IQI/cl_FEM_IQI_SP_Crosswind_Incompressible_NS.cpp
+    IQI/cl_FEM_IQI_Res_Crosswind_Incompressible_NS.cpp
+    IQI/cl_FEM_IQI_Res_SUPG_Incompressible_NS.cpp
+    IQI/cl_FEM_IQI_SP_Crosswind_SA.cpp
     IQI/cl_FEM_IQI_Zienkiewicz_Zhu.cpp
     IQI/cl_FEM_IQI_Jump_Dof.cpp
     IQI/cl_FEM_IQI_Jump_Traction.cpp
     IQI/cl_FEM_IQI_Traction.cpp
+    IQI/cl_FEM_IQI_Linear_Elasticity_Damage.cpp
    
     MEA/cl_FEM_Cluster_Measure.cpp
     
@@ -500,7 +524,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
-add_library(${INT}-lib STATIC ${LIB_SOURCES})
+add_library(${INT}-lib ${LIB_LINK_MODE} ${LIB_SOURCES})
 target_include_directories(${INT}-lib PUBLIC
 	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR};${INT_INTERNAL_INCLUDES};>"
 	$<INSTALL_INTERFACE:${${INT}_HEADER_INSTALL_DIR}> )

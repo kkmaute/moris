@@ -31,7 +31,6 @@
 
 namespace xtk
 {
-
     //------------------------------------------------------------------------------
 
     Enriched_Integration_Mesh::Enriched_Integration_Mesh( Model *aXTKModel )
@@ -1225,15 +1224,6 @@ namespace xtk
                 moris::moris_index      tFieldIndex = this->get_field_index( tFieldName, this->get_facet_rank(), iSideSet );
                 Matrix< DDRMat > const &tFieldData  = this->get_field_data( tFieldIndex, this->get_facet_rank(), iSideSet );
 
-// debug
-if ( par_rank() == 15 && tSideSetName == "iside_b0_1_b1_0" && tFieldName == "SideClusterSize" )
-{
-    std::cout << "Number of elements on set: " << this->get_num_elements_in_side_set( tSideSetName ) << std::endl;
-    std::cout << "Field data size: " << tFieldData.numel() << std::endl;
-    // moris::print( tFieldData, "tFieldData" );
-    // continue;
-}
-
                 // write data to mesh (unless it is empty)
                 if ( tFieldData.numel() > 0 )
                 {
@@ -2260,7 +2250,7 @@ if ( par_rank() == 15 && tSideSetName == "iside_b0_1_b1_0" && tFieldName == "Sid
                 {
                     std::cout << "\n      Leader Interpolation Cell: " << std::setw( 9 ) <<    //
                             mDoubleSideSets( iSS )( i )->get_interpolation_cell( mtk::Leader_Follower::LEADER ).get_id();
-                    std::cout << " | Follower Interpolation Cell: " << std::setw( 9 ) <<       //
+                    std::cout << " | Follower Interpolation Cell: " << std::setw( 9 ) <<    //
                             mDoubleSideSets( iSS )( i )->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER ).get_id();
                 }
             }
@@ -3340,7 +3330,8 @@ if ( par_rank() == 15 && tSideSetName == "iside_b0_1_b1_0" && tFieldName == "Sid
                     // check that the number of cells reportedly attached to the current facet are as expected
                     MORIS_ERROR( tNumCellsAttachedToFacet == 1 || tNumCellsAttachedToFacet == 2,
                             "Enriched_Integration_Mesh::setup_side_cluster_groups() - "
-                            "There are %i cells attached to a facet. This shouldn't happen. Each facet is connected to either one or two facets." );
+                            "There are %i cells attached to a facet. This shouldn't happen. Each facet is connected to either one or two facets.",
+                            tNumCellsAttachedToFacet );
 
                     // treat side clusters on outer mesh boundaries and at interfaces differently
                     if ( tNumCellsAttachedToFacet == 1 )    // case: outer mesh boundary
@@ -3381,7 +3372,7 @@ if ( par_rank() == 15 && tSideSetName == "iside_b0_1_b1_0" && tFieldName == "Sid
 
                 }    // end for: each side cluster in set
 
-            }        // end for: each side set
+            }    // end for: each side set
 
             // go through SPGs and collect side cluster groups related to each one
             for ( uint iSPG = 0; iSPG < tNumSPGs; iSPG++ )
@@ -3495,7 +3486,7 @@ if ( par_rank() == 15 && tSideSetName == "iside_b0_1_b1_0" && tFieldName == "Sid
 
             // log how good the memory reservation works
             MORIS_LOG_INFO(
-                    "B-spline Mesh %i: Number of side cluster groups: Estimated: %i | Actual: %i",
+                    "B-spline Mesh %i: Number of side cluster groups: Estimated: %i | Actual: %zu",
                     tDMI,
                     tApproxNumSideClusterGroups,
                     mDblSideClusterGroups( tDMI ).size() );
@@ -3742,16 +3733,16 @@ if ( par_rank() == 15 && tSideSetName == "iside_b0_1_b1_0" && tFieldName == "Sid
                         }
                     }    // end for: each follower cluster group constructed on the current SPG
 
-                }        // end for: each SPG on current B-spline mesh
+                }    // end for: each SPG on current B-spline mesh
 
-            }            // end for: each dbl sided side set
+            }    // end for: each dbl sided side set
 
             // free unused memory
             mDblSideClusterGroups( tDMI ).shrink_to_fit();
 
             // log how good the memory reservation works
             MORIS_LOG_INFO(
-                    "B-spline Mesh %i: Number of dbl-side cluster groups: Estimated: %i | Actual: %i",
+                    "B-spline Mesh %i: Number of dbl-side cluster groups: Estimated: %i | Actual: %zu",
                     tDMI,
                     tApproxNumDblSideClusterGroups,
                     mDblSideClusterGroups( tDMI ).size() );
@@ -3853,7 +3844,7 @@ if ( par_rank() == 15 && tSideSetName == "iside_b0_1_b1_0" && tFieldName == "Sid
 
         }    // end for: each side set
 
-    }        // end function: Enriched_Integration_Mesh::visualize_cluster_measures()
+    }    // end function: Enriched_Integration_Mesh::visualize_cluster_measures()
 
     //------------------------------------------------------------------------------
 
@@ -3993,7 +3984,7 @@ if ( par_rank() == 15 && tSideSetName == "iside_b0_1_b1_0" && tFieldName == "Sid
 
             }    // end for: each B-spline mesh
 
-        }        // end for: each side set
+        }    // end for: each side set
 
         //----------------------------------------------------------------
         // Generate and write SPG fields
@@ -4701,7 +4692,7 @@ if ( par_rank() == 15 && tSideSetName == "iside_b0_1_b1_0" && tFieldName == "Sid
 
         // count up number of elements in side clusters
         uint tNumElemsInSideSet = 0;
-        for( auto iCluster : mSideSets( tSideSetOrdinal ) )
+        for ( auto iCluster : mSideSets( tSideSetOrdinal ) )
         {
             tNumElemsInSideSet += iCluster->get_num_primary_cells();
         }

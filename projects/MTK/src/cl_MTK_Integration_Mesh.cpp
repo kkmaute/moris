@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 University of Colorado 
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
- * 
- * ------------------------------------------------------------------------------------ 
- * 
- * cl_MTK_Integration_Mesh.cpp  
- * 
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ * ------------------------------------------------------------------------------------
+ *
+ * cl_MTK_Integration_Mesh.cpp
+ *
  */
 
 #include <string>
@@ -32,25 +32,25 @@ namespace moris
 
         Integration_Mesh::~Integration_Mesh()
         {
-            for( auto tListofBlocks : mListOfBlocks )
+            for ( auto tListofBlocks : mListOfBlocks )
             {
                 delete tListofBlocks;
             }
             mListOfBlocks.clear();
 
-            for( auto tListofSideSets : mListOfSideSets )
+            for ( auto tListofSideSets : mListOfSideSets )
             {
                 delete tListofSideSets;
             }
             mListOfSideSets.clear();
 
-            for( auto tListofDoubleSideSets : mListOfDoubleSideSets )
+            for ( auto tListofDoubleSideSets : mListOfDoubleSideSets )
             {
                 delete tListofDoubleSideSets;
             }
             mListOfDoubleSideSets.clear();
 
-            for(auto p:mDoubleSideClusters)
+            for ( auto p : mDoubleSideClusters )
             {
                 delete p;
             }
@@ -60,23 +60,25 @@ namespace moris
         // ----------------------------------------------------------------------------
 
         void
-        Integration_Mesh::get_Mesh_GEN_map( moris::Cell<moris_index> &aMesh_GEN_map)
+        Integration_Mesh::get_Mesh_GEN_map( moris::Cell< moris_index > &aMesh_GEN_map )
         {
-            std::cout<<"in integrtion mesh class"<<std::endl;
-            
+            std::cout << "in integrtion mesh class" << std::endl;
+
             aMesh_GEN_map = this->mMesh_GEN_map;
         }
 
         // ----------------------------------------------------------------------------
 
-        moris::uint Integration_Mesh::get_num_sets() const
+        moris::uint
+        Integration_Mesh::get_num_sets() const
         {
             return mListOfAllSets.size();
         }
 
         // ----------------------------------------------------------------------------
 
-        moris::mtk::Set * Integration_Mesh::get_set_by_name( std::string aSetLabel ) const
+        moris::mtk::Set *
+        Integration_Mesh::get_set_by_name( std::string aSetLabel ) const
         {
             moris_index tSetIndex = mSetNameToIndexMap.find( aSetLabel );
 
@@ -85,20 +87,20 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        moris::mtk::Set * Integration_Mesh::get_set_by_index( moris_index aIndex ) const
+        moris::mtk::Set *
+        Integration_Mesh::get_set_by_index( moris_index aIndex ) const
         {
             return mListOfAllSets( aIndex );
         }
 
         // ----------------------------------------------------------------------------
 
-        moris_index Integration_Mesh::get_set_index_by_name( std::string aSetLabel )
+        moris_index
+        Integration_Mesh::get_set_index_by_name( std::string aSetLabel )
         {
-            if ( ! mSetNameToIndexMap.key_exists( aSetLabel ) )
+            if ( !mSetNameToIndexMap.key_exists( aSetLabel ) )
             {
-                std::string tErrMsg = "Integration_Mesh::get_set_index_by_name - Set with name does not exists: " + aSetLabel;
-
-                MORIS_ERROR( false, tErrMsg.c_str() );
+                MORIS_ERROR( false, "Integration_Mesh::get_set_index_by_name - Set with name does not exists: %s", aSetLabel.c_str() );
             }
 
             return mSetNameToIndexMap.find( aSetLabel );
@@ -106,97 +108,99 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        moris::Cell<moris::mtk::Set*> const &
-        Integration_Mesh::get_block_sets_with_color(moris_index const & aColor)
+        moris::Cell< moris::mtk::Set * > const &
+        Integration_Mesh::get_block_sets_with_color( moris_index const &aColor )
         {
-            MORIS_ASSERT(aColor <= mMaxColor,"Color above maximum color value");
-            return mBlockSetToColor(aColor);
+            MORIS_ASSERT( aColor <= mMaxColor, "Color above maximum color value" );
+            return mBlockSetToColor( aColor );
         }
 
         // ----------------------------------------------------------------------------
 
         void
         Integration_Mesh::get_block_set_names_with_color(
-                moris_index const        & aColor,
-                moris::Cell<std::string> & aSetNames)
+                moris_index const          &aColor,
+                moris::Cell< std::string > &aSetNames )
         {
-            MORIS_ASSERT(aColor <= mMaxColor,"Color above maximum color value");
+            MORIS_ASSERT( aColor <= mMaxColor, "Color above maximum color value" );
 
-            uint tNumSets = mBlockSetToColor(aColor).size();
+            uint tNumSets = mBlockSetToColor( aColor ).size();
             aSetNames.resize( tNumSets );
-            for(uint iS=0;iS<tNumSets;iS++)
+            for ( uint iS = 0; iS < tNumSets; iS++ )
             {
-                aSetNames(iS) = mBlockSetToColor(aColor)(iS)->get_set_name();
+                aSetNames( iS ) = mBlockSetToColor( aColor )( iS )->get_set_name();
             }
         }
 
         // ----------------------------------------------------------------------------
 
-        moris::Cell<moris::mtk::Set*> const &
-        Integration_Mesh::get_side_sets_with_color(moris_index const & aColor)
+        moris::Cell< moris::mtk::Set * > const &
+        Integration_Mesh::get_side_sets_with_color( moris_index const &aColor )
         {
-            MORIS_ASSERT(aColor <= mMaxColor,"Color above maximum color value");
-            return mSideSetToColor(aColor);
+            MORIS_ASSERT( aColor <= mMaxColor, "Color above maximum color value" );
+            return mSideSetToColor( aColor );
         }
 
         // ----------------------------------------------------------------------------
 
-        moris::Cell<moris::mtk::Set*> const &
-        Integration_Mesh::get_double_side_sets_with_color(moris_index const & aColor)
+        moris::Cell< moris::mtk::Set * > const &
+        Integration_Mesh::get_double_side_sets_with_color( moris_index const &aColor )
         {
-            MORIS_ASSERT(aColor <= mMaxColor,"Color above maximum color value");
-            return mDoubleSideSetToColor(aColor);
+            MORIS_ASSERT( aColor <= mMaxColor, "Color above maximum color value" );
+            return mDoubleSideSetToColor( aColor );
         }
 
         // ----------------------------------------------------------------------------
 
 
-        moris::Cell<moris::mtk::Set*> const &
-        Integration_Mesh::get_all_sets_with_color(moris_index const & aColor)
+        moris::Cell< moris::mtk::Set * > const &
+        Integration_Mesh::get_all_sets_with_color( moris_index const &aColor )
         {
-            MORIS_ASSERT(aColor <= mMaxColor,"Color above maximum color value");
-            return mAllSetToColor(aColor);
+            MORIS_ASSERT( aColor <= mMaxColor, "Color above maximum color value" );
+            return mAllSetToColor( aColor );
         }
 
         // ----------------------------------------------------------------------------
         void
         Integration_Mesh::print_sets_by_colors()
         {
-            for(moris::uint i = 0; i < mBlockSetToColor.size(); i++)
+            for ( moris::uint i = 0; i < mBlockSetToColor.size(); i++ )
             {
-                std::cout<<"\n Color: "<<std::setw(8)<<i<<std::endl;
-                std::cout<<"    Blocks: "<<std::endl;
-                for(moris::uint iS = 0; iS <mBlockSetToColor(i).size(); iS++ )
+                std::cout << "\n Color: " << std::setw( 8 ) << i << std::endl;
+                std::cout << "    Blocks: " << std::endl;
+                for ( moris::uint iS = 0; iS < mBlockSetToColor( i ).size(); iS++ )
                 {
-                    std::cout<<"            "<<mBlockSetToColor(i)(iS)->get_set_name()<<std::endl;
+                    std::cout << "            " << mBlockSetToColor( i )( iS )->get_set_name() << std::endl;
                 }
 
-                std::cout<<"    Side Sets: "<<std::endl;
-                for(moris::uint iS = 0; iS <mSideSetToColor(i).size(); iS++ )
+                std::cout << "    Side Sets: " << std::endl;
+                for ( moris::uint iS = 0; iS < mSideSetToColor( i ).size(); iS++ )
                 {
-                    std::cout<<"            "<<mSideSetToColor(i)(iS)->get_set_name()<<std::endl;
+                    std::cout << "            " << mSideSetToColor( i )( iS )->get_set_name() << std::endl;
                 }
 
-                std::cout<<"    Double Side Sets: "<<std::endl;
-                for(moris::uint iS = 0; iS <mDoubleSideSetToColor(i).size(); iS++ )
+                std::cout << "    Double Side Sets: " << std::endl;
+                for ( moris::uint iS = 0; iS < mDoubleSideSetToColor( i ).size(); iS++ )
                 {
-                    std::cout<<"            "<<mDoubleSideSetToColor(i)(iS)->get_set_name()<<std::endl;
+                    std::cout << "            " << mDoubleSideSetToColor( i )( iS )->get_set_name() << std::endl;
                 }
             }
         }
         // ----------------------------------------------------------------------------
 
-        std::string Integration_Mesh::get_block_set_label(moris_index aBlockSetOrdinal) const
+        std::string
+        Integration_Mesh::get_block_set_label( moris_index aBlockSetOrdinal ) const
         {
-            MORIS_ERROR(0, "get_block_set_label has no default implementation");
+            MORIS_ERROR( 0, "get_block_set_label has no default implementation" );
             return "ERROR";
         }
 
         // ----------------------------------------------------------------------------
 
-        moris_index Integration_Mesh::get_block_set_index(std::string aBlockSetLabel) const
+        moris_index
+        Integration_Mesh::get_block_set_index( std::string aBlockSetLabel ) const
         {
-            MORIS_ERROR(0, "get_block_set_index has no default implementation");
+            MORIS_ERROR( 0, "get_block_set_index has no default implementation" );
             return MORIS_INDEX_MAX;
         }
 
@@ -226,36 +230,36 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        moris_index Integration_Mesh::get_double_sided_set_index(std::string aDoubleSideSetLabel) const
+        moris_index
+        Integration_Mesh::get_double_sided_set_index( std::string aDoubleSideSetLabel ) const
         {
-            MORIS_ERROR( false, "not implemented");
+            MORIS_ERROR( false, "not implemented" );
             return 0;
         }
-
 
 
         // ----------------------------------------------------------------------------
 
         void
-        Integration_Mesh::add_double_side_set(mtk::Set* aDblSideSet)
+        Integration_Mesh::add_double_side_set( mtk::Set *aDblSideSet )
         {
-            //add double sided set to the list
-            mListOfDoubleSideSets.push_back(aDblSideSet); 
+            // add double sided set to the list
+            mListOfDoubleSideSets.push_back( aDblSideSet );
 
-            //reconstruct list of all sets by adding double sided set and a corresponding index
-            this->collect_all_sets();  
+            // reconstruct list of all sets by adding double sided set and a corresponding index
+            this->collect_all_sets();
         }
 
         // ----------------------------------------------------------------------------
 
-        void 
+        void
         Integration_Mesh::collect_all_sets( bool aSetShape )
         {
             // reset
             mListOfAllSets.clear();
             mSetNameToIndexMap.clear();
 
-            // reserve enough space 
+            // reserve enough space
             mListOfAllSets.reserve( mListOfBlocks.size() + mListOfSideSets.size() + mListOfDoubleSideSets.size() );
 
             uint tCounter = 0;
@@ -266,13 +270,13 @@ namespace moris
             // Append side sets to list of all sets
             mListOfAllSets.append( mListOfSideSets );
 
-            //FIXME implement cell topology for side set
+            // FIXME implement cell topology for side set
 
             // Append double side sets to list of all sets
             mListOfAllSets.append( mListOfDoubleSideSets );
 
             // iterate through all sets and register their index in the map
-            for( uint Ik = 0; Ik < mListOfAllSets.size(); Ik++ )
+            for ( uint Ik = 0; Ik < mListOfAllSets.size(); Ik++ )
             {
                 mListOfAllSets( Ik )->set_set_index( Ik );
 
@@ -280,7 +284,7 @@ namespace moris
             }
 
             // add the cell topology to the set
-            for( uint Ik = 0; Ik < mListOfBlocks.size(); Ik++ )
+            for ( uint Ik = 0; Ik < mListOfBlocks.size(); Ik++ )
             {
                 std::string tSetName = mListOfAllSets( tCounter )->get_set_name();
 
@@ -297,22 +301,22 @@ namespace moris
             if ( aSetShape == true )
             {
                 // add the cell topology to the set
-                for( uint Ik = 0; Ik < mListOfSideSets.size(); Ik++ )
+                for ( uint Ik = 0; Ik < mListOfSideSets.size(); Ik++ )
                 {
                     std::string tSetName = mListOfAllSets( tCounter )->get_set_name();
 
                     // set the sideset cell topology and shape
-                    mListOfAllSets( tCounter   )->set_IG_cell_shape( CellShape::STRAIGHT );
+                    mListOfAllSets( tCounter )->set_IG_cell_shape( CellShape::STRAIGHT );
                     mListOfAllSets( tCounter++ )->set_IP_cell_shape( CellShape::STRAIGHT );
                 }
 
                 // add the cell topology to the set
-                for( uint Ik = 0; Ik < mListOfDoubleSideSets.size(); Ik++ )
+                for ( uint Ik = 0; Ik < mListOfDoubleSideSets.size(); Ik++ )
                 {
                     std::string tSetName = mListOfAllSets( tCounter )->get_set_name();
 
                     // set the sideset cell topology and shape
-                    mListOfAllSets( tCounter   )->set_IG_cell_shape( CellShape::STRAIGHT );
+                    mListOfAllSets( tCounter )->set_IG_cell_shape( CellShape::STRAIGHT );
                     mListOfAllSets( tCounter++ )->set_IP_cell_shape( CellShape::STRAIGHT );
                 }
             }
@@ -327,16 +331,16 @@ namespace moris
         {
             // determine maximum color for the sets (for data sizing)
             mMaxColor = 0;
-            for(moris::uint i = 0; i < mListOfAllSets.size() ; i++)
+            for ( moris::uint i = 0; i < mListOfAllSets.size(); i++ )
             {
-                Matrix<IndexMat> const & tSetColors = mListOfAllSets(i)->get_set_colors();
+                Matrix< IndexMat > const &tSetColors = mListOfAllSets( i )->get_set_colors();
 
                 // if the max set color is greater than current max
                 // replace the current max
-                if(tSetColors.numel() > 0)
+                if ( tSetColors.numel() > 0 )
                 {
                     moris_index tMaxSetColor = tSetColors.max();
-                    if(mMaxColor < tMaxSetColor)
+                    if ( mMaxColor < tMaxSetColor )
                     {
                         mMaxColor = tMaxSetColor;
                     }
@@ -350,57 +354,57 @@ namespace moris
             mAllSetToColor.clear();
 
             // size outer cell size of member data
-            mBlockSetToColor.resize(mMaxColor + 1);
-            mSideSetToColor.resize(mMaxColor + 1);
-            mDoubleSideSetToColor.resize(mMaxColor + 1);
-            mAllSetToColor.resize(mMaxColor + 1);
+            mBlockSetToColor.resize( mMaxColor + 1 );
+            mSideSetToColor.resize( mMaxColor + 1 );
+            mDoubleSideSetToColor.resize( mMaxColor + 1 );
+            mAllSetToColor.resize( mMaxColor + 1 );
 
-            // iterate through block sets 
-            for(moris::uint i = 0; i < mListOfBlocks.size(); i++)
+            // iterate through block sets
+            for ( moris::uint i = 0; i < mListOfBlocks.size(); i++ )
             {
-                Matrix<IndexMat> const & tSetColors = mListOfBlocks(i)->get_set_colors();
+                Matrix< IndexMat > const &tSetColors = mListOfBlocks( i )->get_set_colors();
 
                 // iterate through the colors and add to related color grouping
-                for(moris::uint j = 0; j < tSetColors.numel(); j++)
+                for ( moris::uint j = 0; j < tSetColors.numel(); j++ )
                 {
-                    mBlockSetToColor(tSetColors(j)).push_back(mListOfBlocks(i));
-                    mAllSetToColor(tSetColors(j)).push_back(mListOfBlocks(i));
+                    mBlockSetToColor( tSetColors( j ) ).push_back( mListOfBlocks( i ) );
+                    mAllSetToColor( tSetColors( j ) ).push_back( mListOfBlocks( i ) );
                 }
             }
 
-            // iterate through side sets 
-            for(moris::uint i = 0; i < mListOfSideSets.size(); i++)
+            // iterate through side sets
+            for ( moris::uint i = 0; i < mListOfSideSets.size(); i++ )
             {
-                Matrix<IndexMat> const & tSetColors = mListOfSideSets(i)->get_set_colors();
+                Matrix< IndexMat > const &tSetColors = mListOfSideSets( i )->get_set_colors();
 
                 // iterate through the colors and add to related color grouping
-                for(moris::uint j = 0; j < tSetColors.numel(); j++)
+                for ( moris::uint j = 0; j < tSetColors.numel(); j++ )
                 {
-                    mSideSetToColor(tSetColors(j)).push_back(mListOfSideSets(i));
-                    mAllSetToColor(tSetColors(j)).push_back(mListOfSideSets(i));
+                    mSideSetToColor( tSetColors( j ) ).push_back( mListOfSideSets( i ) );
+                    mAllSetToColor( tSetColors( j ) ).push_back( mListOfSideSets( i ) );
                 }
             }
 
-            // iterate through double side sets 
-            for(moris::uint i = 0; i < mListOfDoubleSideSets.size(); i++)
+            // iterate through double side sets
+            for ( moris::uint i = 0; i < mListOfDoubleSideSets.size(); i++ )
             {
-                Matrix<IndexMat> const & tSetColors = mListOfDoubleSideSets(i)->get_set_colors();
+                Matrix< IndexMat > const &tSetColors = mListOfDoubleSideSets( i )->get_set_colors();
 
                 // iterate through the colors and add to related color grouping
-                for(moris::uint j = 0; j < tSetColors.numel(); j++)
+                for ( moris::uint j = 0; j < tSetColors.numel(); j++ )
                 {
-                    mDoubleSideSetToColor(tSetColors(j)).push_back(mListOfDoubleSideSets(i));
-                    mAllSetToColor(tSetColors(j)).push_back(mListOfDoubleSideSets(i));
+                    mDoubleSideSetToColor( tSetColors( j ) ).push_back( mListOfDoubleSideSets( i ) );
+                    mAllSetToColor( tSetColors( j ) ).push_back( mListOfDoubleSideSets( i ) );
                 }
             }
         }
 
         // ----------------------------------------------------------------------------
         void
-        Integration_Mesh::add_double_sided_cluster(mtk::Double_Side_Cluster* aDblSidedCluster)
+        Integration_Mesh::add_double_sided_cluster( mtk::Double_Side_Cluster *aDblSidedCluster )
         {
             // add double sided cluster to the double sided cluster list
-            mDoubleSideClusters.push_back(aDblSidedCluster);
+            mDoubleSideClusters.push_back( aDblSidedCluster );
         }
 
         // ----------------------------------------------------------------------------
@@ -411,79 +415,78 @@ namespace moris
             // get number of integration vertices
             uint tNumVertices = this->get_num_nodes();
 
-            std::cout<<"Num Nodes: "<<tNumVertices<<std::endl;
+            std::cout << "Num Nodes: " << tNumVertices << std::endl;
 
-            Matrix< IdMat >tIdentifierMat( tNumVertices, 1, -1);
+            Matrix< IdMat > tIdentifierMat( tNumVertices, 1, -1 );
 
-            Matrix< IdMat >  tBSToIPMap( this->get_num_basis_functions( 0 ), 1, gNoID );
-            Matrix< IdMat >  tIPToIGMap( tNumVertices, 1, gNoID );
+            Matrix< IdMat >                 tBSToIPMap( this->get_num_basis_functions( 0 ), 1, gNoID );
+            Matrix< IdMat >                 tIPToIGMap( tNumVertices, 1, gNoID );
             moris::Cell< Matrix< IdMat > >  tBSToIPIds( tNumVertices );
-            moris::Cell< Matrix< DDRMat > >  tBSToIPWeights( tNumVertices );
+            moris::Cell< Matrix< DDRMat > > tBSToIPWeights( tNumVertices );
 
             moris::Cell< Matrix< IdMat > >  tNodeDOFs( tNumVertices );
-            moris::Cell< Matrix< DDRMat > >  tMPCs( tNumVertices );
+            moris::Cell< Matrix< DDRMat > > tMPCs( tNumVertices );
 
             this->create_MPC_maps( tBSToIPMap, tIPToIGMap );
 
             this->build_hanging_node_MPC( tBSToIPIds, tBSToIPWeights, tBSToIPMap, tIPToIGMap );
 
             // loop over all bulk sets
-            for( uint Ik = 0; Ik < this->get_num_blocks(); Ik ++ )
+            for ( uint Ik = 0; Ik < this->get_num_blocks(); Ik++ )
             {
                 // get num clusters on set
                 uint tNumClustersOnSet = this->get_set_by_index( Ik )->get_num_clusters_on_set();
 
-                if( tNumClustersOnSet > 0 )
+                if ( tNumClustersOnSet > 0 )
                 {
-                    //Geometry_Type tGeoType = aCell->get_geometry_type();
-                    //Interpolation_Order tIPOrder = aCell->get_interpolation_order();
+                    // Geometry_Type tGeoType = aCell->get_geometry_type();
+                    // Interpolation_Order tIPOrder = aCell->get_interpolation_order();
 
                     // creating interpolation rule
-                    Interpolation_Rule tInterpolationRule(mtk::Geometry_Type::HEX,
+                    Interpolation_Rule tInterpolationRule( mtk::Geometry_Type::HEX,
                             Interpolation_Type::LAGRANGE,
                             mtk::Interpolation_Order::LINEAR,
                             Interpolation_Type::LAGRANGE,
-                            Interpolation_Order::LINEAR);
+                            Interpolation_Order::LINEAR );
 
                     // create a space interpolator
-                    Space_Interpolator tSpaceInterpolator(tInterpolationRule);
+                    Space_Interpolator tSpaceInterpolator( tInterpolationRule );
 
                     // loop over all clusters in set
-                    for( uint Ii = 0; Ii < tNumClustersOnSet; Ii++ )
+                    for ( uint Ii = 0; Ii < tNumClustersOnSet; Ii++ )
                     {
-                        const Cluster * tCluster = this->get_set_by_index( Ik )->get_clusters_by_index( Ii );
+                        const Cluster *tCluster = this->get_set_by_index( Ik )->get_clusters_by_index( Ii );
 
-                        moris::Matrix<moris::DDRMat> tLocalCoords = tCluster->get_vertices_local_coordinates_wrt_interp_cell();
+                        moris::Matrix< moris::DDRMat > tLocalCoords = tCluster->get_vertices_local_coordinates_wrt_interp_cell();
 
                         moris::Cell< moris::mtk::Vertex const * > tIGVertices = tCluster->get_vertices_in_cluster();
 
                         // get number of vertices on the treated mesh cluster
                         uint tNumNodes = tLocalCoords.n_rows();
 
-                        const moris::mtk::Cell & tInterpolationCell = tCluster->get_interpolation_cell();
+                        const moris::mtk::Cell &tInterpolationCell = tCluster->get_interpolation_cell();
 
-                        moris::Cell< Vertex *> tIPVertices = tInterpolationCell.get_vertex_pointers();
+                        moris::Cell< Vertex * > tIPVertices = tInterpolationCell.get_vertex_pointers();
 
                         Matrix< IdMat > tIdentifierMat( tIGVertices.size(), 1, 0 );
 
 
-
-                        for( uint Iv = 0; Iv < tIPVertices.size(); Iv++ )
+                        for ( uint Iv = 0; Iv < tIPVertices.size(); Iv++ )
                         {
-                            if( tIPVertices( Iv )->get_interpolation( 0 )->get_ids().numel() > 1 )
+                            if ( tIPVertices( Iv )->get_interpolation( 0 )->get_ids().numel() > 1 )
                             {
                                 tIdentifierMat( Iv ) = 1;
                             }
                         }
 
-                        Matrix< IndexMat > tHangingNodeIdentifier(tNumVertices, 1, 0);
-                        if( !tCluster->is_trivial() )
+                        Matrix< IndexMat > tHangingNodeIdentifier( tNumVertices, 1, 0 );
+                        if ( !tCluster->is_trivial() )
                         {
                             Matrix< IndexMat > tHangingNodeIndices = tCluster->get_hanging_nodes();
 
-                            print( tHangingNodeIndices,"tHangingNodeIndices");
+                            print( tHangingNodeIndices, "tHangingNodeIndices" );
 
-                            for( uint Iv = 0; Iv < tHangingNodeIndices.numel(); Iv++ )
+                            for ( uint Iv = 0; Iv < tHangingNodeIndices.numel(); Iv++ )
                             {
                                 tHangingNodeIdentifier( tHangingNodeIndices( Iv ) ) = 1;
                             }
@@ -494,13 +497,13 @@ namespace moris
                         real tEpsilon = 1e-12;
 
                         // loop over the vertices on the treated mesh cluster
-                        for( uint Iv = 0; Iv < tNumNodes; Iv++ )
+                        for ( uint Iv = 0; Iv < tNumNodes; Iv++ )
                         {
                             tSpaceInterpolator.set_space_time( trans( tLocalCoords.get_row( Iv ) ) );
 
-                            const Matrix< DDRMat > & tN = tSpaceInterpolator.NXi();
+                            const Matrix< DDRMat > &tN = tSpaceInterpolator.NXi();
 
-                            moris_id tIGVertexId = tIGVertices( Iv )->get_id();
+                            moris_id tIGVertexId    = tIGVertices( Iv )->get_id();
                             moris_id tIGVertexIndex = tIGVertices( Iv )->get_index();
 
                             uint tNCols = tN.n_cols();
@@ -508,15 +511,15 @@ namespace moris
                             tMPCs( tIGVertexIndex ).set_size( tNCols, 1, -1.0 );
                             tNodeDOFs( tIGVertexIndex ).set_size( tNCols, 1, gNoID );
 
-                            std::cout<<"tIGVertexId: "<<tIGVertexId<<" "<<tIGVertexIndex<<std::endl;
+                            std::cout << "tIGVertexId: " << tIGVertexId << " " << tIGVertexIndex << std::endl;
 
-                            if( tHangingNodeIdentifier( tIGVertexIndex ) == 1 )
+                            if ( tHangingNodeIdentifier( tIGVertexIndex ) == 1 )
                             {
                                 // fixme add hanging - hanging node
 
                                 uint tCount = 0;
                                 // loop over all nonzero entries
-                                for( uint i=0; i<tNCols; i++ )
+                                for ( uint i = 0; i < tNCols; i++ )
                                 {
                                     if ( std::abs( tN( i ) ) > tEpsilon )
                                     {
@@ -533,18 +536,17 @@ namespace moris
                             }
                             else
                             {
-                                if( tIdentifierMat( Iv ) == 1 )
+                                if ( tIdentifierMat( Iv ) == 1 )
                                 {
-                                    for( uint Ib = 0; Ib < tBSToIPWeights( tIGVertexId ).numel(); Ib++ )
+                                    for ( uint Ib = 0; Ib < tBSToIPWeights( tIGVertexId ).numel(); Ib++ )
                                     {
-                                        tMPCs( tIGVertexIndex )(Ib) = tBSToIPWeights( tIGVertexId )(Ib);
-                                        tNodeDOFs( tIGVertexIndex )(Ib) = tBSToIPIds( tIGVertexId )(Ib);
+                                        tMPCs( tIGVertexIndex )( Ib )     = tBSToIPWeights( tIGVertexId )( Ib );
+                                        tNodeDOFs( tIGVertexIndex )( Ib ) = tBSToIPIds( tIGVertexId )( Ib );
                                     }
-
                                 }
                                 else
                                 {
-                                    tMPCs( tIGVertexIndex )( 0 ) = 1.0;
+                                    tMPCs( tIGVertexIndex )( 0 )     = 1.0;
                                     tNodeDOFs( tIGVertexIndex )( 0 ) = tIGVertexId;
                                 }
                                 //                                tMPCs( tIGVertexIndex ).resize( 1, 1 );
@@ -555,18 +557,18 @@ namespace moris
                 }
             }
 
-            print(tNodeDOFs,"tNodeDOFs");
-            print(tMPCs,"tMPCs");
+            print( tNodeDOFs, "tNodeDOFs" );
+            print( tMPCs, "tMPCs" );
 
-            Matrix< IdMat >  tIDs        ( 1, tNumVertices );
-            Matrix< IdMat >  tMPCIDs     ( tMPCs( 0 ).numel(), tNumVertices );
+            Matrix< IdMat >  tIDs( 1, tNumVertices );
+            Matrix< IdMat >  tMPCIDs( tMPCs( 0 ).numel(), tNumVertices );
             Matrix< DDRMat > tMPCWeightss( tMPCs( 0 ).numel(), tNumVertices );
 
-            for( uint Ik = 0; Ik < tNumVertices; Ik++ )
+            for ( uint Ik = 0; Ik < tNumVertices; Ik++ )
             {
                 tIDs( Ik ) = Ik + 1;
 
-                for( uint Ii = 0; Ii < tMPCs( 0 ).numel(); Ii++ )
+                for ( uint Ii = 0; Ii < tMPCs( 0 ).numel(); Ii++ )
                 {
                     tMPCIDs( Ii, Ik )      = tNodeDOFs( Ik )( Ii );
                     tMPCWeightss( Ii, Ik ) = tMPCs( Ik )( Ii );
@@ -585,7 +587,7 @@ namespace moris
             hid_t tFileID = H5Fcreate( aFileName.c_str(),
                     H5F_ACC_TRUNC,
                     H5P_DEFAULT,
-                    H5P_DEFAULT);
+                    H5P_DEFAULT );
 
             // error handler
             herr_t tStatus;
@@ -619,52 +621,51 @@ namespace moris
 
             // close file
             tStatus = H5Fclose( tFileID );
-
         }
 
         // ----------------------------------------------------------------------------
 
         void
         Integration_Mesh::create_MPC_maps(
-                Matrix< IdMat > & tBSToIPMap,
-                Matrix< IdMat > & tIPToIGMap)
+                Matrix< IdMat > &tBSToIPMap,
+                Matrix< IdMat > &tIPToIGMap )
         {
-            Matrix< DDSMat > tIdentifierMatBS( tBSToIPMap.numel(),1 ,0 );
-            Matrix< DDSMat > tIdentifierMatIP( tIPToIGMap.numel(),1 ,0 );
+            Matrix< DDSMat > tIdentifierMatBS( tBSToIPMap.numel(), 1, 0 );
+            Matrix< DDSMat > tIdentifierMatIP( tIPToIGMap.numel(), 1, 0 );
 
             // loop over all bulk sets
-            for( uint Ik = 0; Ik < this->get_num_blocks(); Ik ++ )
+            for ( uint Ik = 0; Ik < this->get_num_blocks(); Ik++ )
             {
                 // get num clusters on set
                 uint tNumClustersOnSet = this->get_set_by_index( Ik )->get_num_clusters_on_set();
 
-                if( tNumClustersOnSet > 0 )
+                if ( tNumClustersOnSet > 0 )
                 {
                     // loop over all clusters in set
-                    for( uint Ii = 0; Ii < tNumClustersOnSet; Ii++ )
+                    for ( uint Ii = 0; Ii < tNumClustersOnSet; Ii++ )
                     {
-                        const Cluster * tCluster = this->get_set_by_index( Ik )->get_clusters_by_index( Ii );
+                        const Cluster *tCluster = this->get_set_by_index( Ik )->get_clusters_by_index( Ii );
 
-                        const moris::mtk::Cell & tInterpolationCell = tCluster->get_interpolation_cell();
+                        const moris::mtk::Cell &tInterpolationCell = tCluster->get_interpolation_cell();
 
-                        moris::Cell< Vertex *> tIPVertices = tInterpolationCell.get_vertex_pointers();
+                        moris::Cell< Vertex * > tIPVertices = tInterpolationCell.get_vertex_pointers();
 
                         moris::Cell< moris::mtk::Vertex const * > tIGVertices = tCluster->get_vertices_in_cluster();
 
-                        std::cout<<" IGVert: "<<tIGVertices.size()<<" IPVert: "<<tIPVertices.size()<<std::endl;
+                        std::cout << " IGVert: " << tIGVertices.size() << " IPVert: " << tIPVertices.size() << std::endl;
 
-                        for( uint Ij = 0; Ij < tIPVertices.size(); Ij++)
+                        for ( uint Ij = 0; Ij < tIPVertices.size(); Ij++ )
                         {
-                            MORIS_ASSERT( tIPVertices( Ij )->has_interpolation( 0 ), "Vertex does not have interpolation");
+                            MORIS_ASSERT( tIPVertices( Ij )->has_interpolation( 0 ), "Vertex does not have interpolation" );
 
                             uint tIP_ID = tIPVertices( Ij )->get_id();
 
                             // build BSpline to iP map
-                            if( tIPVertices( Ij )->get_interpolation( 0 )->get_ids().numel() == 1 )
+                            if ( tIPVertices( Ij )->get_interpolation( 0 )->get_ids().numel() == 1 )
                             {
                                 moris_id tBSId = tIPVertices( Ij )->get_interpolation( 0 )->get_ids()( 0 );
 
-                                if( tIdentifierMatBS( tBSId ) == 0)
+                                if ( tIdentifierMatBS( tBSId ) == 0 )
                                 {
                                     tBSToIPMap( tBSId ) = tIP_ID;
 
@@ -676,7 +677,7 @@ namespace moris
                             // assume corner vertices are first 8
                             uint tIG_ID = tIGVertices( Ij )->get_id();
 
-                            if( tIdentifierMatIP( tIP_ID ) == 0 )
+                            if ( tIdentifierMatIP( tIP_ID ) == 0 )
                             {
                                 tIPToIGMap( tIP_ID ) = tIG_ID;
 
@@ -692,47 +693,47 @@ namespace moris
 
         void
         Integration_Mesh::build_hanging_node_MPC(
-                moris::Cell< Matrix< IdMat > > & tBSToIPIds,
-                moris::Cell< Matrix< DDRMat > > & tBSToIPWeights,
-                const Matrix< IdMat > & tBSToIPMap,
-                const Matrix< IdMat > & tIPToIGMap)
+                moris::Cell< Matrix< IdMat > >  &tBSToIPIds,
+                moris::Cell< Matrix< DDRMat > > &tBSToIPWeights,
+                const Matrix< IdMat >           &tBSToIPMap,
+                const Matrix< IdMat >           &tIPToIGMap )
         {
             // loop over all bulk sets
-            for( uint Ik = 0; Ik < this->get_num_blocks(); Ik ++ )
+            for ( uint Ik = 0; Ik < this->get_num_blocks(); Ik++ )
             {
                 // get num clusters on set
                 uint tNumClustersOnSet = this->get_set_by_index( Ik )->get_num_clusters_on_set();
 
-                if( tNumClustersOnSet > 0 )
+                if ( tNumClustersOnSet > 0 )
                 {
                     // loop over all clusters in set
-                    for( uint Ii = 0; Ii < tNumClustersOnSet; Ii++ )
+                    for ( uint Ii = 0; Ii < tNumClustersOnSet; Ii++ )
                     {
-                        const Cluster * tCluster = this->get_set_by_index( Ik )->get_clusters_by_index( Ii );
+                        const Cluster *tCluster = this->get_set_by_index( Ik )->get_clusters_by_index( Ii );
 
-                        const moris::mtk::Cell & tInterpolationCell = tCluster->get_interpolation_cell();
+                        const moris::mtk::Cell &tInterpolationCell = tCluster->get_interpolation_cell();
 
-                        moris::Cell< Vertex *> tIPVertices = tInterpolationCell.get_vertex_pointers();
+                        moris::Cell< Vertex * > tIPVertices = tInterpolationCell.get_vertex_pointers();
 
                         moris::Cell< moris::mtk::Vertex const * > tIGVertices = tCluster->get_vertices_in_cluster();
 
-                        for( uint Ij = 0; Ij < tIPVertices.size(); Ij++)
+                        for ( uint Ij = 0; Ij < tIPVertices.size(); Ij++ )
                         {
                             // build BSpline to iP map
-                            if( tIPVertices( Ij )->get_interpolation( 0 )->get_ids().numel() > 1 )
+                            if ( tIPVertices( Ij )->get_interpolation( 0 )->get_ids().numel() > 1 )
                             {
                                 uint tIG_ID = tIGVertices( Ij )->get_id();
 
-                                Matrix< IdMat > tBSId = tIPVertices( Ij )->get_interpolation( 0 )->get_ids();
-                                Matrix< DDRMat > tBSWeights= *tIPVertices( Ij )->get_interpolation( 0 )->get_weights();
+                                Matrix< IdMat >  tBSId      = tIPVertices( Ij )->get_interpolation( 0 )->get_ids();
+                                Matrix< DDRMat > tBSWeights = *tIPVertices( Ij )->get_interpolation( 0 )->get_weights();
 
                                 tBSToIPIds( tIG_ID ).resize( tBSId.numel(), 1 );
                                 tBSToIPWeights( tIG_ID ).resize( tBSId.numel(), 1 );
 
-                                for( uint Ia = 0; Ia < tBSId.numel(); Ia++ )
+                                for ( uint Ia = 0; Ia < tBSId.numel(); Ia++ )
                                 {
                                     tBSToIPWeights( tIG_ID )( Ia ) = tBSWeights( Ia );
-                                    tBSToIPIds    ( tIG_ID )( Ia ) = tIPToIGMap( tBSToIPMap( tBSId( Ia ) ) );
+                                    tBSToIPIds( tIG_ID )( Ia )     = tIPToIGMap( tBSToIPMap( tBSId( Ia ) ) );
                                 }
                             }
                         }
@@ -747,38 +748,38 @@ namespace moris
         moris::Cell< moris::mtk::Set * > const &
         Integration_Mesh::get_list_of_sets( SetType aSetType ) const
         {
-            //Determine the set type
+            // Determine the set type
             switch ( aSetType )
             {
-                //Bulk sets
-                case SetType::BULK :
+                // Bulk sets
+                case SetType::BULK:
                 {
                     return mListOfBlocks;
                 }
 
-                //Side Sets
-                case SetType::SIDESET :
+                // Side Sets
+                case SetType::SIDESET:
                 {
                     return mListOfSideSets;
                 }
 
-                //Double Sided Sets
-                case SetType::DOUBLE_SIDED_SIDESET :
+                // Double Sided Sets
+                case SetType::DOUBLE_SIDED_SIDESET:
                 {
                     return mListOfDoubleSideSets;
                 }
 
-                //All sets
-                case SetType::END_ENUM :
+                // All sets
+                case SetType::END_ENUM:
                 {
                     return mListOfAllSets;
                 }
 
-                //Incorrect Input
-                default :
+                // Incorrect Input
+                default:
                 {
-                    MORIS_ERROR(0,"Incorrect aSetType");
-                    moris::Cell< moris::mtk::Set * > * tDummyCell = new moris::Cell< moris::mtk::Set * > (0);
+                    MORIS_ERROR( 0, "Incorrect aSetType" );
+                    moris::Cell< moris::mtk::Set * > *tDummyCell = new moris::Cell< moris::mtk::Set * >( 0 );
                     return *tDummyCell;
                 }
             }
@@ -786,45 +787,44 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        moris::Cell<moris::Cell<moris::mtk::Set *>> const &
+        moris::Cell< moris::Cell< moris::mtk::Set * > > const &
         Integration_Mesh::get_list_of_set_to_color( SetType aSetType ) const
         {
-            //Determine the set type
+            // Determine the set type
             switch ( aSetType )
             {
-                //Bulk sets
-                case SetType::BULK :
+                // Bulk sets
+                case SetType::BULK:
                 {
                     return mBlockSetToColor;
                 }
 
-                //Side Sets
-                case SetType::SIDESET :
+                // Side Sets
+                case SetType::SIDESET:
                 {
                     return mSideSetToColor;
                 }
 
-                //Double Sided Sets
-                case SetType::DOUBLE_SIDED_SIDESET :
+                // Double Sided Sets
+                case SetType::DOUBLE_SIDED_SIDESET:
                 {
                     return mDoubleSideSetToColor;
                 }
 
-                //All sets
-                case SetType::END_ENUM :
+                // All sets
+                case SetType::END_ENUM:
                 {
                     return mAllSetToColor;
                 }
 
-                //Incorrect Input
-                default :
+                // Incorrect Input
+                default:
                 {
-                    MORIS_ERROR(0,"Incorrect aSetType");
-                    moris::Cell<moris::Cell<moris::mtk::Set *>> *tDummyCell = new moris::Cell<moris::Cell<moris::mtk::Set *>> (0);
+                    MORIS_ERROR( 0, "Incorrect aSetType" );
+                    moris::Cell< moris::Cell< moris::mtk::Set * > > *tDummyCell = new moris::Cell< moris::Cell< moris::mtk::Set * > >( 0 );
                     return *tDummyCell;
                 }
             }
-
         }
 
         // ----------------------------------------------------------------------------
@@ -849,16 +849,15 @@ namespace moris
         Integration_Mesh::delete_visualization_sets()
         {
             // lambda function to determine if the set name has a ghost in it
-            auto tIsGhostVisualization = []( moris::mtk::Set * aSet)->bool { return std::strstr( aSet->get_set_name().c_str(), "ghost" ) ; };
+            auto tIsGhostVisualization = []( moris::mtk::Set *aSet ) -> bool { return std::strstr( aSet->get_set_name().c_str(), "ghost" ); };
 
-            //use erase remove idiom to remove sets that have the name as the ghost
-            //FIXME : a proper insert function needs to be implemented that we don't use data
-            mListOfBlocks.data().erase(std::remove_if(mListOfBlocks.begin(), mListOfBlocks.end(), tIsGhostVisualization),mListOfBlocks.end()) ;
+            // use erase remove idiom to remove sets that have the name as the ghost
+            // FIXME : a proper insert function needs to be implemented that we don't use data
+            mListOfBlocks.data().erase( std::remove_if( mListOfBlocks.begin(), mListOfBlocks.end(), tIsGhostVisualization ), mListOfBlocks.end() );
 
-            mListOfSideSets.data().erase(std::remove_if(mListOfSideSets.begin(), mListOfSideSets.end(), tIsGhostVisualization),mListOfSideSets.end()) ;
+            mListOfSideSets.data().erase( std::remove_if( mListOfSideSets.begin(), mListOfSideSets.end(), tIsGhostVisualization ), mListOfSideSets.end() );
 
-            mListOfAllSets.data().erase(std::remove_if(mListOfAllSets.begin(), mListOfAllSets.end(), tIsGhostVisualization),mListOfAllSets.end()) ;
+            mListOfAllSets.data().erase( std::remove_if( mListOfAllSets.begin(), mListOfAllSets.end(), tIsGhostVisualization ), mListOfAllSets.end() );
         }
     } /*end namespace mtk*/
-}/*end namespace moris*/
-
+} /*end namespace moris*/

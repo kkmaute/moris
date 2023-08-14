@@ -646,9 +646,9 @@ namespace moris
             moris_index tIgNodeIndex = mIGNodes( aNodeIndex )->get_index();
 
             // sanity check the input
-            MORIS_ASSERT( aXYZPdvAssemblyIndex != MORIS_INDEX_MAX, 
-                "FEM_Model::set_integration_xyz_pdv_assembly_index() - "
-                "Trying to assign MORIS_INDEX_MAX in XYZ Local PDV assembly map. This shouldn't happen." );
+            MORIS_ASSERT( aXYZPdvAssemblyIndex != MORIS_INDEX_MAX,
+                    "FEM_Model::set_integration_xyz_pdv_assembly_index() - "
+                    "Trying to assign MORIS_INDEX_MAX in XYZ Local PDV assembly map. This shouldn't happen." );
 
             // assign assembly index in map
             mXYZLocalAssemblyIndices( tIgNodeIndex, (uint)aPdvType ) = aXYZPdvAssemblyIndex;
@@ -791,7 +791,7 @@ namespace moris
                             tComputationParameterList.get< bool >( "print_physics_model" );
 
                     // if print FEM model
-                    if ( tPrintPhysics )
+                    if ( tPrintPhysics && par_rank() == 0 )
                     {
                         // phase info
                         std::cout << "Phase info " << std::endl;
@@ -2525,7 +2525,8 @@ namespace moris
                     tIQIIndex++;
                 }
                 MORIS_ASSERT( tIQIIndex < mIQIs.size(),
-                        ( "IQI was not found with the requested name " + mRequestedIQINames( tRequestedIQIIndex ) ).c_str() );
+                        "IQI was not found with the requested name %s",
+                        mRequestedIQINames( tRequestedIQIIndex ).c_str() );
 
                 // Set normalization
                 std::string tNormalization = mParameterList( 4 )( tIQIIndex ).get< std::string >( "normalization" );
@@ -2550,12 +2551,10 @@ namespace moris
                         mIQIs( tRequestedIQIIndex )->set_reference_value( string_to_mat< DDRMat >( tNormalization )( 0 ) );
                     } catch ( ... )
                     {
-                        // create error message
-                        std::string tErrMsg =
-                                "FEM_Model::normalize_IQIs() - Unknown normalization: " + tNormalization + ". Must be 'none', 'time', 'design', or a reference value.";
-
                         // error
-                        MORIS_ERROR( false, tErrMsg.c_str() );
+                        MORIS_ERROR( false,
+                                "FEM_Model::normalize_IQIs() - Unknown normalization: %s. Must be 'none', 'time', 'design', or a reference value.",
+                                tNormalization.c_str() );
                     }
                 }
             }
@@ -3780,7 +3779,7 @@ namespace moris
                 moris_index tAssemblyIndex = mXYZLocalAssemblyIndices( aVertexIndex, tXYZIndex );
 
                 // sanity check the output
-                MORIS_ASSERT( tAssemblyIndex != MORIS_INDEX_MAX, 
+                MORIS_ASSERT( tAssemblyIndex != MORIS_INDEX_MAX,
                         "FEM_Model::get_local_xyz_pdv_assembly_indices() - "
                         "Local PDV assembly index is MORIS_INDEX_MAX. It has likely not been assigned." );
 

@@ -191,8 +191,6 @@ namespace moris::hmr
             // reset counter
             luint tCount = 0;
 
-            std::cout << "coppy pattern " << aPatternListUniqueMat( Ik ) << " level " << tNumberOfLevels << std::endl;
-
             // select B-Spline pattern
             mBackgroundMesh->set_activation_pattern( aPatternListUniqueMat( Ik ) );
 
@@ -1128,7 +1126,7 @@ namespace moris::hmr
         auto tNumberOfElements = tTargetMesh->get_number_of_elements();
 
         // number of nodes per element
-        auto tNumberOfNodesPerElement = tTargetMesh->get_number_of_basis_per_element();
+        auto tNumberOfNodesPerElement = tTargetMesh->get_number_of_bases_per_element();
 
         // create unity matrix
         Matrix< DDRMat > tEye;
@@ -1147,7 +1145,7 @@ namespace moris::hmr
         Matrix< DDRMat > tElementSourceData( tNumberOfNodesPerElement, aSource->get_number_of_dimensions() );
 
         // Create T-matrix
-        Factory tFactory( mParameters );
+        Factory        tFactory( mParameters );
         T_Matrix_Base* tTMatrix = tFactory.create_t_matrix( tTargetMesh );
 
         // loop over all elements
@@ -1243,7 +1241,7 @@ namespace moris::hmr
         uint tNumberOfElements = tSourceMesh->get_number_of_elements();
 
         // create T-matrix object
-        Factory tFactory( mParameters );
+        Factory        tFactory( mParameters );
         T_Matrix_Base* tTMatrix = tFactory.create_t_matrix( tSourceMesh );
 
         // Get target mesh order and change order matrix
@@ -1253,8 +1251,8 @@ namespace moris::hmr
         // delete t-Matrix object
         delete tTMatrix;
 
-        uint tNumberOfNodesPerSourceElement = tSourceMesh->get_number_of_basis_per_element();
-        uint tNumberOfNodesPerTargetElement = tTargetMesh->get_number_of_basis_per_element();
+        uint tNumberOfNodesPerSourceElement = tSourceMesh->get_number_of_bases_per_element();
+        uint tNumberOfNodesPerTargetElement = tTargetMesh->get_number_of_bases_per_element();
 
         Matrix< DDRMat > tLocalSourceValues( tNumberOfNodesPerSourceElement, 1 );
         Matrix< DDRMat > tN( 1, tNumberOfNodesPerSourceElement );
@@ -1752,4 +1750,4 @@ namespace moris::hmr
     }
 
     // ----------------------------------------------------------------------------
-} /* namespace moris */
+}    // namespace moris::hmr

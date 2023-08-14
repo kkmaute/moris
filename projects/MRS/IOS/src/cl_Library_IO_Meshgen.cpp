@@ -762,7 +762,7 @@ namespace moris
                 MORIS_ERROR( false,
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "Geometry type '%s' unknown. Currently supported options are: 'pre_defined', 'image_file' and 'object_file'.",
-                        tGeomType );
+                        tGeomType.c_str() );
             }
 
         }    // end for: loop over geometries in input file

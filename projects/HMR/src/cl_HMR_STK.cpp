@@ -49,7 +49,7 @@ namespace moris::hmr
         uint tNumberOfNodes           = mMesh->get_number_of_nodes_on_proc();
 
         // get number of nodes per element
-        uint tNumberOfNodesPerElement = mMesh->get_number_of_basis_per_element();
+        uint tNumberOfNodesPerElement = mMesh->get_number_of_bases_per_element();
 
         // - - - - - - - - - - - - - - - - - - - - - - - - - - -
         // STEP 2: Allocate Matrices

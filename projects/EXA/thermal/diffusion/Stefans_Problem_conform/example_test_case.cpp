@@ -233,7 +233,7 @@ TEST_CASE( "Comsol_conform_Linear",
         }
         default:
         {
-            MORIS_ERROR( false, "This 2D Example can only be run in serial.", par_size() );
+            MORIS_ERROR( false, "This 2D Example can only be run in serial." );
         }
     }
 }
@@ -274,8 +274,7 @@ TEST_CASE( "Comsol_conform_Quadratic",
         }
         default:
         {
-            MORIS_ERROR( false, "This 2D Example can only be run in serial.", par_size() );
+            MORIS_ERROR( false, "This 2D Example can only be run in serial." );
         }
     }
 }
-

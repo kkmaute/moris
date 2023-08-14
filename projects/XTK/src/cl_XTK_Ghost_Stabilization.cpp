@@ -354,7 +354,7 @@ namespace xtk
 
             /* ---------------------------------------------------------------------------------------- */
             /* Step 0: Figure out which T-matrices need to be communicated with whom */
-            
+
             // unzipped vertices in ghost that do not have interpolation
             Cell< mtk::Vertex* > tGhostVerticesWithoutInterpolation;
 
@@ -363,11 +363,11 @@ namespace xtk
             Cell< mtk::Cell const * > tGhostIpCellConnectedToVertex;
 
             // find those UIPVs without a T-matrix wrt the current B-spline mesh
-            this->collect_unzipped_IP_vertices_without_interpolation( 
-                        aGhostSetupData,
-                        tGhostVerticesWithoutInterpolation, 
-                        tGhostIpCellConnectedToVertex, 
-                        tMeshIndex );
+            this->collect_unzipped_IP_vertices_without_interpolation(
+                    aGhostSetupData,
+                    tGhostVerticesWithoutInterpolation,
+                    tGhostIpCellConnectedToVertex,
+                    tMeshIndex );
 
             /* ---------------------------------------------------------------------------------------- */
             /* The following steps are only necessary if code runs in parallel */
@@ -385,20 +385,20 @@ namespace xtk
                 /* Prepare requests for non-owned entities */
 
                 // initialize lists of information that identifies entities (on other procs)
-                Cell< Cell< moris_index > > tIPVertIndsToProcs;      // UIPV indices for communication (local to current proc, just used for construction of arrays)
-                Cell< Matrix< IdMat > >     tBaseVertexIds;          // base IP vertex IDs the UIPVs are constructed from
-                Cell< Matrix< IdMat > >     tUnzippedIpCellIds;      // UIPC IDs these vertices belong to
+                Cell< Cell< moris_index > > tIPVertIndsToProcs;    // UIPV indices for communication (local to current proc, just used for construction of arrays)
+                Cell< Matrix< IdMat > >     tBaseVertexIds;        // base IP vertex IDs the UIPVs are constructed from
+                Cell< Matrix< IdMat > >     tUnzippedIpCellIds;    // UIPC IDs these vertices belong to
 
                 // initialize a map relating position in communication array to position in list of all requested
                 Cell< Cell< moris_index > > tNotOwnedIPVertIndsInNotOwnedList;
 
                 // fill identifying information
-                this->prepare_requests_for_T_matrices_without_interpolation( 
+                this->prepare_requests_for_T_matrices_without_interpolation(
                         tGhostVerticesWithoutInterpolation,
                         tGhostIpCellConnectedToVertex,
                         tNotOwnedIPVertIndsInNotOwnedList,
-                        tIPVertIndsToProcs, 
-                        tBaseVertexIds, 
+                        tIPVertIndsToProcs,
+                        tBaseVertexIds,
                         tUnzippedIpCellIds );
 
                 /* ---------------------------------------------------------------------------------------- */
@@ -409,7 +409,7 @@ namespace xtk
                 Cell< Matrix< IdMat > > tReceivedUnzippedIpCellIds;
 
                 // communicate information
-                moris::communicate_mats( tCommTable, tBaseVertexIds,      tReceivedBaseVertexIds );
+                moris::communicate_mats( tCommTable, tBaseVertexIds, tReceivedBaseVertexIds );
                 moris::communicate_mats( tCommTable, tUnzippedIpCellIds, tReceivedUnzippedIpCellIds );
 
                 // clear memory not needed anymore
@@ -449,8 +449,8 @@ namespace xtk
 
                 // communicate answers
                 moris::communicate_mats( tCommTable, tTMatrixWeights, tReceivedTMatrixWeights );
-                moris::communicate_mats( tCommTable, tTMatrixIds,     tReceivedTMatrixIds );
-                moris::communicate_mats( tCommTable, tTMatrixOwners , tReceivedTMatrixOwners  );
+                moris::communicate_mats( tCommTable, tTMatrixIds, tReceivedTMatrixIds );
+                moris::communicate_mats( tCommTable, tTMatrixOwners, tReceivedTMatrixOwners );
                 moris::communicate_mats( tCommTable, tTMatrixOffsets, tReceivedTMatrixOffsets );
 
                 // clear unused memory
@@ -472,11 +472,11 @@ namespace xtk
                         tReceivedTMatrixOffsets,
                         tMeshIndex );
 
-            } // end if: parallel
+            }    // end if: parallel
 
-        } // end for: every B-spline mesh index
+        }    // end for: every B-spline mesh index
 
-    } // end function: Ghost_Stabilization::identify_and_setup_aura_vertices_in_ghost
+    }    // end function: Ghost_Stabilization::identify_and_setup_aura_vertices_in_ghost
 
     // ----------------------------------------------------------------------------------
 
@@ -504,12 +504,12 @@ namespace xtk
             for ( uint iGhostCluster = 0; iGhostCluster < tDblSideSetClusters.size(); iGhostCluster++ )
             {
                 // get the leader and follower UIPCs
-                mtk::Cell const & tLeaderIpCell = tDblSideSetClusters( iGhostCluster )->get_interpolation_cell( mtk::Leader_Follower::LEADER );
-                mtk::Cell const & tFollowerIpCell  = tDblSideSetClusters( iGhostCluster )->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER );
+                mtk::Cell const & tLeaderIpCell   = tDblSideSetClusters( iGhostCluster )->get_interpolation_cell( mtk::Leader_Follower::LEADER );
+                mtk::Cell const & tFollowerIpCell = tDblSideSetClusters( iGhostCluster )->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER );
 
                 // get the vertices attached to leader/follower UIPCs
-                Cell< mtk::Vertex* > tLeaderVertices = tLeaderIpCell.get_vertex_pointers();
-                Cell< mtk::Vertex* > tFollowerVertices  = tFollowerIpCell.get_vertex_pointers();
+                Cell< mtk::Vertex* > tLeaderVertices   = tLeaderIpCell.get_vertex_pointers();
+                Cell< mtk::Vertex* > tFollowerVertices = tFollowerIpCell.get_vertex_pointers();
 
                 // iterate through leader vertices and place them in the correct list
                 for ( uint iVertOnLeader = 0; iVertOnLeader < tLeaderVertices.size(); iVertOnLeader++ )
@@ -531,7 +531,7 @@ namespace xtk
                             aGhostIpCellConnectedToVertex.push_back( &tLeaderIpCell );
                         }
                     }
-                } // end for: leader vertices
+                }    // end for: leader vertices
 
                 // iterate through follower vertices and place them in the correct list
                 for ( uint iVertOnFollower = 0; iVertOnFollower < tFollowerVertices.size(); iVertOnFollower++ )
@@ -553,9 +553,9 @@ namespace xtk
                             aGhostIpCellConnectedToVertex.push_back( &tFollowerIpCell );
                         }
                     }
-                } // end for: follower vertices
-            } // end for: ghost clusters
-        } // end for: ghost sets
+                }    // end for: follower vertices
+            }        // end for: ghost clusters
+        }            // end for: ghost sets
 
         // size out unused memory
         aGhostVerticesWithoutInterpolation.shrink_to_fit();
@@ -564,11 +564,11 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    void 
+    void
     Ghost_Stabilization::prepare_requests_for_T_matrices_without_interpolation(
             Cell< mtk::Vertex* > const &      aGhostVerticesWithoutInterpolation,
             Cell< mtk::Cell const * > const & aGhostIpCellConnectedToVertex,
-            Cell< Cell< moris_index > > &     aNotOwnedIPVertIndsInNotOwnedList,
+            Cell< Cell< moris_index > >&      aNotOwnedIPVertIndsInNotOwnedList,
             Cell< Cell< moris_index > >&      aIPVertIndsToProcs,
             Cell< Matrix< IdMat > >&          aBaseVertexIds,
             Cell< Matrix< IdMat > >&          aUnzippedIpCellIds )
@@ -635,19 +635,19 @@ namespace xtk
                 moris_index tPosInNotOwnedArray = aNotOwnedIPVertIndsInNotOwnedList( iProc )( iVert );
 
                 // get the UIPV on the executing proc and its base vertex ID
-                mtk::Vertex const* tUIPV = aGhostVerticesWithoutInterpolation( tPosInNotOwnedArray );
-                moris_id tBaseVertId = tUIPV->get_base_vertex()->get_id();
+                mtk::Vertex const * tUIPV       = aGhostVerticesWithoutInterpolation( tPosInNotOwnedArray );
+                moris_id            tBaseVertId = tUIPV->get_base_vertex()->get_id();
 
                 // get the index and ID of the UIPC the current UIPV is attached to
-                mtk::Cell const* tUIPC = aGhostIpCellConnectedToVertex( tPosInNotOwnedArray );
-                moris_id tUipcId = tUIPC->get_id();
+                mtk::Cell const * tUIPC   = aGhostIpCellConnectedToVertex( tPosInNotOwnedArray );
+                moris_id          tUipcId = tUIPC->get_id();
 
                 // store the identifying information in the output arrays
-                aBaseVertexIds( iProc )( iVert ) = tBaseVertId;
+                aBaseVertexIds( iProc )( iVert )     = tBaseVertId;
                 aUnzippedIpCellIds( iProc )( iVert ) = tUipcId;
             }
-        } // end for: processors in comm-table
-    } // end function: Ghost_Stabilization::prepare_requests_for_T_matrices_without_interpolation()
+        }    // end for: processors in comm-table
+    }        // end function: Ghost_Stabilization::prepare_requests_for_T_matrices_without_interpolation()
 
     // ----------------------------------------------------------------------------------
 
@@ -659,13 +659,13 @@ namespace xtk
             Cell< Matrix< IdMat > >&        aTMatrixIds,
             Cell< Matrix< IdMat > >&        aTMatrixOwners,
             Cell< Matrix< IndexMat > >&     aTMatrixOffsets,
-            const moris_index               aMeshIndex  )
+            const moris_index               aMeshIndex )
     {
         // access the enriched ip mesh
         Enriched_Interpolation_Mesh& tEnrInterpMesh = mXTKModel->get_enriched_interp_mesh();
 
         // get size of the communication table
-        uint tCommTableSize  = mXTKModel->get_communication_table().numel();
+        uint tCommTableSize = mXTKModel->get_communication_table().numel();
 
         // initialize communication arrays with correct size
         aTMatrixWeights.resize( tCommTableSize );
@@ -674,13 +674,12 @@ namespace xtk
         aTMatrixOffsets.resize( tCommTableSize );
 
         // check that the received data is complete
-        MORIS_ASSERT( 
-                aReceivedBaseVertexIds.size() == tCommTableSize && 
-                aReceivedUnzippedIpCellIds.size() == tCommTableSize,
+        MORIS_ASSERT(
+                aReceivedBaseVertexIds.size() == tCommTableSize && aReceivedUnzippedIpCellIds.size() == tCommTableSize,
                 "Ghost_Stabilization::prepare_answers_for_T_matrices() - Received information incomplete." );
 
         // initialize array storing pointers to the collected vertex interpolations
-        Cell< Cell< Vertex_Enrichment const* > > tVertexInterpolations( tCommTableSize );
+        Cell< Cell< Vertex_Enrichment const * > > tVertexInterpolations( tCommTableSize );
 
         // stores for each processor how big the linear arrays storing the T-matrix information will be
         Cell< moris_index > tDataSize( tCommTableSize, 0 );
@@ -706,14 +705,14 @@ namespace xtk
                 moris_id tUipcId       = aReceivedUnzippedIpCellIds( iProc )( iVert );
 
                 // get the UIPV
-                moris_index tVertexIndex = this->get_enriched_interpolation_vertex( tBaseVertexId, tUipcId );
-                Interpolation_Vertex_Unzipped const* tUIPV = tEnrInterpMesh.get_unzipped_vertex_pointer( tVertexIndex );
+                moris_index                           tVertexIndex = this->get_enriched_interpolation_vertex( tBaseVertexId, tUipcId );
+                Interpolation_Vertex_Unzipped const * tUIPV        = tEnrInterpMesh.get_unzipped_vertex_pointer( tVertexIndex );
 
                 // get the enriched T-matrix
-                Vertex_Enrichment const* tTMatrix = tUIPV->get_xtk_interpolation( aMeshIndex );
+                Vertex_Enrichment const * tTMatrix = tUIPV->get_xtk_interpolation( aMeshIndex );
 
                 // check that the enriched T-matrix is actually known
-                MORIS_ASSERT( tTMatrix->get_base_vertex_interpolation() != nullptr, 
+                MORIS_ASSERT( tTMatrix->get_base_vertex_interpolation() != nullptr,
                         "Ghost_Stabilization::prepare_answers_for_T_matrices() - "
                         "Owning (this) proc has a nullptr for the vertex interpolation on unzipped vertex #%i (ID: %i).",
                         tVertexIndex,
@@ -731,32 +730,32 @@ namespace xtk
                 // set the offset for the linear arrays using the size of the nodal T-matrices
                 tDataSize( iProc ) = tDataSize( iProc ) + tNumBasisIdsOnTMat;
 
-            } // end for: each vertex on the current proc communicated with
+            }    // end for: each vertex on the current proc communicated with
 
             // store the size of the total array as the last offset
             aTMatrixOffsets( iProc )( tNumReceivedReqs ) = tDataSize( iProc );
 
-        } // end for: each proc communicated with
+        }    // end for: each proc communicated with
 
         // initialize return data size
-        for( uint iProc = 0; iProc < tCommTableSize; iProc++ )
+        for ( uint iProc = 0; iProc < tCommTableSize; iProc++ )
         {
             aTMatrixWeights( iProc ).resize( tDataSize( iProc ), 1 );
             aTMatrixIds( iProc ).resize( tDataSize( iProc ), 1 );
-            aTMatrixOwners ( iProc ).resize( tDataSize( iProc ), 1 );
+            aTMatrixOwners( iProc ).resize( tDataSize( iProc ), 1 );
         }
 
         // populate the T-matrix data
-        for( uint iProc = 0; iProc < tCommTableSize; iProc++ )
+        for ( uint iProc = 0; iProc < tCommTableSize; iProc++ )
         {
             // get the number of T-matrices requested from the current proc position
             uint tNumReceivedReqs = aReceivedBaseVertexIds( iProc ).numel();
 
             // answer all of them
-            for( uint iVert = 0; iVert < tNumReceivedReqs; iVert++ )
+            for ( uint iVert = 0; iVert < tNumReceivedReqs; iVert++ )
             {
                 // access the enriched T-matrix
-                Vertex_Enrichment const* tEnrTMat = tVertexInterpolations( iProc )( iVert );
+                Vertex_Enrichment const * tEnrTMat = tVertexInterpolations( iProc )( iVert );
 
                 // get the range of where the T-matrix information sits in the linear array
                 moris_index tStart = aTMatrixOffsets( iProc )( iVert );
@@ -765,7 +764,7 @@ namespace xtk
                 // fill the communication arrays
                 aTMatrixWeights( iProc )( { tStart, tEnd }, { 0, 0 } ) = tEnrTMat->get_basis_weights().matrix_data();
                 aTMatrixIds( iProc )( { tStart, tEnd }, { 0, 0 } )     = tEnrTMat->get_basis_ids().matrix_data();
-                aTMatrixOwners ( iProc )( { tStart, tEnd }, { 0, 0 } ) = tEnrTMat->get_owners().matrix_data();
+                aTMatrixOwners( iProc )( { tStart, tEnd }, { 0, 0 } )  = tEnrTMat->get_owners().matrix_data();
             }
         }
 
@@ -775,7 +774,7 @@ namespace xtk
         aTMatrixOwners.shrink_to_fit();
         aTMatrixOffsets.shrink_to_fit();
 
-    } // end function: Ghost_Stabilization::prepare_answers_for_T_matrices()
+    }    // end function: Ghost_Stabilization::prepare_answers_for_T_matrices()
 
     // ----------------------------------------------------------------------------------
 
@@ -788,7 +787,7 @@ namespace xtk
             Cell< Matrix< IdMat > > const &     aReceivedTMatrixIds,
             Cell< Matrix< IdMat > > const &     aReceivedTMatrixOwners,
             Cell< Matrix< IndexMat > > const &  aReceivedTMatrixOffsets,
-            const moris_index                   aMeshIndex  )
+            const moris_index                   aMeshIndex )
     {
         // access the enriched ip mesh
         Enriched_Interpolation_Mesh& tEnrInterpMesh = mXTKModel->get_enriched_interp_mesh();
@@ -812,8 +811,8 @@ namespace xtk
             for ( uint iVert = 0; iVert < tNumReceivedEntityIds; iVert++ )
             {
                 // get the vertex
-                moris_index tVertexIndex = aIPVertIndsToProcs( iProc )( iVert );
-                Interpolation_Vertex_Unzipped& tVertex = tEnrInterpMesh.get_xtk_interp_vertex( tVertexIndex );
+                moris_index                    tVertexIndex = aIPVertIndsToProcs( iProc )( iVert );
+                Interpolation_Vertex_Unzipped& tVertex      = tEnrInterpMesh.get_xtk_interp_vertex( tVertexIndex );
 
                 // get access to the enriched T-matrix
                 Vertex_Enrichment* tEnrTMat = tVertex.get_xtk_interpolation( aMeshIndex );
@@ -824,13 +823,13 @@ namespace xtk
                 uint        tSize  = (uint)( tEnd - tStart + 1 );
 
                 // extract the information from the linear communication arrays
-                Matrix< IdMat > tBasisIds      = aReceivedTMatrixIds( iProc )( { tStart, tEnd }, { 0, 0 } );
-                Matrix< IdMat > tBasisOwners   = aReceivedTMatrixOwners( iProc )( { tStart, tEnd }, { 0, 0 } );
+                Matrix< IdMat >  tBasisIds     = aReceivedTMatrixIds( iProc )( { tStart, tEnd }, { 0, 0 } );
+                Matrix< IdMat >  tBasisOwners  = aReceivedTMatrixOwners( iProc )( { tStart, tEnd }, { 0, 0 } );
                 Matrix< DDRMat > tBasisWeights = aReceivedTMatrixWeights( iProc )( { tStart, tEnd }, { 0, 0 } );
 
                 // collect the indices for the basis IDs received
                 Matrix< IndexMat > tBasisIndices( tSize, 1, -1 );
-                for( uint iBF = 0; iBF < tSize; iBF++ )
+                for ( uint iBF = 0; iBF < tSize; iBF++ )
                 {
                     // check that this basis is indeed owned by another proc
                     moris_id tBasisOwner = tBasisOwners( iBF );
@@ -842,10 +841,10 @@ namespace xtk
                     if ( !tEnrInterpMesh.basis_exists_on_partition( aMeshIndex, tBasisId ) )
                     {
                         // get the bulk-phase the basis interpolates into
-                        moris_index tUipcIndexInNotOwnedData = aNotOwnedIPVertIndsInNotOwnedList( iProc )( iVert );
-                        moris_index tUipcIndex = aGhostIpCellConnectedToVertex( tUipcIndexInNotOwnedData )->get_index();
-                        Interpolation_Cell_Unzipped* tEnrIpCell = tEnrInterpMesh.get_enriched_interpolation_cells()( tUipcIndex );
-                        moris_index tBulkPhase = tEnrIpCell->get_bulkphase_index();
+                        moris_index                  tUipcIndexInNotOwnedData = aNotOwnedIPVertIndsInNotOwnedList( iProc )( iVert );
+                        moris_index                  tUipcIndex               = aGhostIpCellConnectedToVertex( tUipcIndexInNotOwnedData )->get_index();
+                        Interpolation_Cell_Unzipped* tEnrIpCell               = tEnrInterpMesh.get_enriched_interpolation_cells()( tUipcIndex );
+                        moris_index                  tBulkPhase               = tEnrIpCell->get_bulkphase_index();
 
                         // add basis ID to partition
                         tEnrInterpMesh.add_basis_function( aMeshIndex, tBasisId, tBasisOwner, tBulkPhase );
@@ -866,7 +865,7 @@ namespace xtk
                 std::unordered_map< moris_index, moris_index >& tVertEnrichMap = tEnrTMat->get_basis_map();
                 for ( uint iBF = 0; iBF < tSize; iBF++ )
                 {
-                    moris_index tBasisIndex = tBasisIndices( iBF );
+                    moris_index tBasisIndex       = tBasisIndices( iBF );
                     tVertEnrichMap[ tBasisIndex ] = iBF;
                 }
 
@@ -876,11 +875,11 @@ namespace xtk
                 tEnrTMat->add_basis_owners( tBasisIndices, tBasisOwners );
                 tEnrTMat->add_base_vertex_interpolation( nullptr );    // base vertex interpolation does not exists (other  proc)
 
-            } // end for: each vertex communicated with current proc
+            }    // end for: each vertex communicated with current proc
 
-        } // end for: each proc answers are received from
+        }    // end for: each proc answers are received from
 
-    } // end function: Ghost_Stabilization::handle_requested_T_matrix_answers()
+    }    // end function: Ghost_Stabilization::handle_requested_T_matrix_answers()
 
     // ----------------------------------------------------------------------------------
 
@@ -914,8 +913,8 @@ namespace xtk
                 moris::mtk::Cell const & tFollowerIpCell = tDblSideSetClusters( iC )->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER );
 
                 // get the vertices attached to leader/follower cells
-                moris::Cell< mtk::Vertex* > tLeaderVertices = tLeaderIpCell.get_vertex_pointers();
-                moris::Cell< mtk::Vertex* > tFollowerVertices  = tFollowerIpCell.get_vertex_pointers();
+                moris::Cell< mtk::Vertex* > tLeaderVertices   = tLeaderIpCell.get_vertex_pointers();
+                moris::Cell< mtk::Vertex* > tFollowerVertices = tFollowerIpCell.get_vertex_pointers();
 
                 // iterate through leader vertices and place them in the correct list
                 for ( uint iV = 0; iV < tLeaderVertices.size(); iV++ )
@@ -1201,27 +1200,27 @@ namespace xtk
 
         // check that reserved size was appropriate
         MORIS_ASSERT( aGhostSetupData.mLeaderSideIpCells.size() < tReserveSize,
-                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mLeaderSideIpCells too small, increase by %f\n",
+                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mLeaderSideIpCells too small, increase by %zu\n",
                 aGhostSetupData.mLeaderSideIpCells.size() / tReserveSize );
 
         MORIS_ASSERT( aGhostSetupData.mFollowerSideIpCells.size() < tReserveSize,
-                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mFollowerSideIpCells too small, increase by %f\n",
+                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mFollowerSideIpCells too small, increase by %zu\n",
                 aGhostSetupData.mFollowerSideIpCells.size() / tReserveSize );
 
         MORIS_ASSERT( aGhostSetupData.mLeaderSideIgCellSideOrds.size() < tReserveSize,
-                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mLeaderSideIgCellSideOrds too small, increase by %f\n",
+                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mLeaderSideIgCellSideOrds too small, increase by %zu\n",
                 aGhostSetupData.mLeaderSideIgCellSideOrds.size() / tReserveSize );
 
         MORIS_ASSERT( aGhostSetupData.mFollowerSideIgCellSideOrds.size() < tReserveSize,
-                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mFollowerSideIgCellSideOrds too small, increase by %f\n",
+                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mFollowerSideIgCellSideOrds too small, increase by %zu\n",
                 aGhostSetupData.mFollowerSideIgCellSideOrds.size() / tReserveSize );
 
         MORIS_ASSERT( aGhostSetupData.mNonTrivialFlag.size() < tReserveSize,
-                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mTrivialFlag too small, increase by %f\n",
+                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mTrivialFlag too small, increase by %zu\n",
                 aGhostSetupData.mNonTrivialFlag.size() / tReserveSize );
 
         MORIS_ASSERT( aGhostSetupData.mTransitionLocation.size() < tReserveSize,
-                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mTransitionLocation too small, increase by %f\n",
+                "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of mTransitionLocation too small, increase by %zu\n",
                 aGhostSetupData.mTransitionLocation.size() / tReserveSize );
 
         // free up unused memory
@@ -1559,7 +1558,7 @@ namespace xtk
 
             // check that reserved size was appropriate
             MORIS_ASSERT( aGhostSetupData.mLeaderSideIpCellsNew( iBspMesh ).size() < tReserveSize,
-                    "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of aGhostSetupData too small, increased by %f\n",
+                    "Ghost_Stabilization::construct_ghost_double_side_sets_in_mesh: initial reservation of aGhostSetupData too small, increased by %zu\n",
                     aGhostSetupData.mLeaderSideIpCellsNew( iBspMesh ).size() / tReserveSize );
 
             // free up unused memory
@@ -1990,7 +1989,7 @@ namespace xtk
         };
 
         // allocate space in integration cell side ordinals
-        moris_index tSideOrdinal                        = aGhostSetupData.mFollowerSideIgCellSideOrdsNew( aBsplineMeshListIndex )( aBulkPhaseIndex )( aGhostFacetIndexInSet );
+        moris_index tSideOrdinal                           = aGhostSetupData.mFollowerSideIgCellSideOrdsNew( aBsplineMeshListIndex )( aBulkPhaseIndex )( aGhostFacetIndexInSet );
         tFollowerSideCluster->mIntegrationCellSideOrdinals = { { tSideOrdinal } };
 
         // assign bulk cluster corresponding to new side cluster
@@ -2551,14 +2550,14 @@ namespace xtk
         {
             case 2:
             {
-                aPermutedFollowerVertices   = { aFollowerVertices( 1 ), aFollowerVertices( 0 ) };
-                aPermutedAdjMastVertices = { aLeaderVertices( 0 ), aLeaderVertices( 1 ) };
+                aPermutedFollowerVertices = { aFollowerVertices( 1 ), aFollowerVertices( 0 ) };
+                aPermutedAdjMastVertices  = { aLeaderVertices( 0 ), aLeaderVertices( 1 ) };
                 break;
             }
             default:
             {
-                aPermutedFollowerVertices   = { aFollowerVertices( 0 ), aFollowerVertices( 3 ), aFollowerVertices( 2 ), aFollowerVertices( 1 ) };
-                aPermutedAdjMastVertices = { aLeaderVertices( 0 ), aLeaderVertices( 3 ), aLeaderVertices( 2 ), aLeaderVertices( 1 ) };
+                aPermutedFollowerVertices = { aFollowerVertices( 0 ), aFollowerVertices( 3 ), aFollowerVertices( 2 ), aFollowerVertices( 1 ) };
+                aPermutedAdjMastVertices  = { aLeaderVertices( 0 ), aLeaderVertices( 3 ), aLeaderVertices( 2 ), aLeaderVertices( 1 ) };
             }
         }
     }

@@ -159,7 +159,7 @@ namespace xtk
     //------------------------------------------------------------------------------------
 
     uint
-    HMR_Helper::get_number_of_basis_per_element()
+    HMR_Helper::get_number_of_bases_per_element()
     {
         return mNumberOfBasis;
     }

@@ -218,7 +218,7 @@ namespace moris
                 mObjectives = this->compute_objectives();
 
                 MORIS_ASSERT( mObjectives.numel() == mNumObjectives,
-                        "compute_design_criteria - Number of objectives is incorrect (%i vs %i).\n",
+                        "compute_design_criteria - Number of objectives is incorrect (%zu vs %i).\n",
                         mObjectives.numel(),
                         mNumObjectives );
 
@@ -226,7 +226,7 @@ namespace moris
                 mConstraints = this->compute_constraints();
 
                 MORIS_ASSERT( mConstraints.numel() == mNumConstraints,
-                        "compute_design_criteria - Number of constraints is incorrect (%i vs %i).\n",
+                        "compute_design_criteria - Number of constraints is incorrect (%zu vs %i).\n",
                         mConstraints.numel(),
                         mNumConstraints );
             }

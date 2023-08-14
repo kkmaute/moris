@@ -77,9 +77,9 @@ check_results(
         std::string aHdf5FileName,
         uint        aTestCaseIndex )
 {
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processors.", aTestCaseIndex, par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     //    // open and query exodus output file (set verbose to true to get basic mesh information)
     //    moris::mtk::Exodus_IO_Helper tExoIO(aExoFileName.c_str(),0,false,false);
@@ -400,9 +400,9 @@ TEST_CASE( "Bedding_Sensitivity_Test",
     // problem dimension: 2D or 3D
     gDim = 2;
 
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Executing Contact Sensitivity Test - 2D - %i Processors.", par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     if ( par_size() == 2 )
     {
@@ -438,9 +438,9 @@ TEST_CASE( "Bedding_Sensitivity_Test",
     // problem dimension: 2D or 3D
     gDim = 3;
 
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Executing Contact Sensitivity Test - 3D - %i Processors.", par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     if ( par_size() == 1 )
     {

@@ -146,7 +146,7 @@ namespace moris
         Equation_Model::compute_explicit_and_implicit_dQIdp()
         {
             // Trace this function
-            Tracer tTracer( "MSI", "EquationModel", "ComputedQIdpExplAndImpl" );
+            Tracer tTracer( "MSI", "Equation Model", "Compute dQI/dp explicit and implicit" );
 
             // get local number of equation sets
             uint tNumSets = mFemSets.size();
@@ -162,6 +162,12 @@ namespace moris
 
                 // initialize treated equation set
                 mFemSets( tSetIndex )->initialize_set();
+
+                // log which set is currently being treated
+                if ( tNumEqObjOnSet > 0 )
+                {
+                    MORIS_LOG_SPEC( "Process FEM set", mFemSets( tSetIndex )->get_set_name() );
+                }
 
                 // loop over equation objects on treated equation set
                 for ( uint tEqObjIndex = 0; tEqObjIndex < tNumEqObjOnSet; tEqObjIndex++ )

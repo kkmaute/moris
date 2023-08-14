@@ -51,6 +51,8 @@ namespace moris
                 {
                     SUPG,
                     YZBETA,
+                    DIFFUSION_CROSSWIND,
+                    DIFFUSION_ISOTROPIC,
                     MAX_ENUM
                 };
 

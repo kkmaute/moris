@@ -41,51 +41,6 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        SP_Incompressible_Flow::set_space_dim( uint aSpaceDim )
-        {
-            // check that space dimension is 1, 2, 3
-            MORIS_ERROR( aSpaceDim > 0 && aSpaceDim < 4,
-                    "SP_Incompressible_Flow::set_space_dim - wrong space dimension." );
-
-            // set space dimension
-            mSpaceDim = aSpaceDim;
-
-            // set function pointer
-            this->set_function_pointers();
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void
-        SP_Incompressible_Flow::set_function_pointers()
-        {
-            // switch on space dimensions
-            switch ( mSpaceDim )
-            {
-                // if 2D
-                case 2:
-                {
-                    mEvalGFunc = this->eval_G_2d;
-                    break;
-                }
-
-                // if 3D
-                case 3:
-                {
-                    mEvalGFunc = this->eval_G_3d;
-                    break;
-                }
-
-                // default
-                default:
-                    MORIS_ERROR( false, "SP_Incompressible_Flow::set_function_pointers - only support 2 and 3D." );
-                    break;
-            }
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void
         SP_Incompressible_Flow::set_parameters( moris::Cell< Matrix< DDRMat > > aParameters )
         {
             // set mParameters
@@ -218,9 +173,9 @@ namespace moris
                 tInvPermeab = tInvPermeabProp->val()( 0 );
             }
 
-            // evaluate Gij = sum_k dxi_k/dx_i dxi_k/dx_j
-            Matrix< DDRMat > tG;
-            this->eval_G( tG );
+            // evaluate the metric tensor Gij = sum_k dxi_k/dx_i dxi_k/dx_j
+            const Matrix< DDRMat > & tG = //
+                    mLeaderFIManager->get_IP_geometry_interpolator()->metric_tensor();
 
             // get flattened G to row vector
             Matrix< DDRMat > tFlatG = trans( vectorize( tG ) );
@@ -229,12 +184,12 @@ namespace moris
             real tTrG = sum( diag_vec( tG ) );
 
             // evaluate tauM = mPPVal( 0 )
-            Matrix< DDRMat > tvivjGij = trans( tVelocityFI->val() ) * tG * tVelocityFI->val();
-            Matrix< DDRMat > tGijGij  = tFlatG * trans( tFlatG );
+            Matrix< DDRMat > tvivjGij = tVelocityFI->val_trans() * tG * tVelocityFI->val();
+            real tGijGij = dot( tFlatG, tFlatG );
 
             real tPPVal =
                     std::pow( tDensity, 2.0 ) * tvivjGij( 0 )             //
-                    + mCI * std::pow( tViscosity, 2.0 ) * tGijGij( 0 )    //
+                    + mCI * std::pow( tViscosity, 2.0 ) * tGijGij         //
                     + std::pow( tInvPermeab, 2.0 );
 
             // if time solve
@@ -302,8 +257,8 @@ namespace moris
             }
 
             // evaluate Gij = sum_d dxi_d/dx_i dxi_d/dx_j
-            Matrix< DDRMat > tG;
-            this->eval_G( tG );
+            const Matrix< DDRMat > & tG = //
+                    mLeaderFIManager->get_IP_geometry_interpolator()->metric_tensor();
 
             // get flattened G to row vector
             Matrix< DDRMat > tFlatG = trans( vectorize( tG ) );
@@ -312,12 +267,12 @@ namespace moris
             real tTrG = sum( diag_vec( tG ) );
 
             // evaluate
-            Matrix< DDRMat > tvivjGij = trans( tVelocityFI->val() ) * tG * tVelocityFI->val();
-            Matrix< DDRMat > tGijGij  = tFlatG * trans( tFlatG );
+            Matrix< DDRMat > tvivjGij = tVelocityFI->val_trans() * tG * tVelocityFI->val();
+            real tGijGij = dot( tFlatG, tFlatG );
 
             real tPPVal =
                     std::pow( tDensity, 2.0 ) * tvivjGij( 0 )             //
-                    + mCI * std::pow( tViscosity, 2.0 ) * tGijGij( 0 )    //
+                    + mCI * std::pow( tViscosity, 2.0 ) * tGijGij         //
                     + std::pow( tInvPermeab, 2.0 );
 
             // if time solve
@@ -340,7 +295,7 @@ namespace moris
                 if ( aDofTypes( 0 ) == mLeaderDofVelocity )
                 {
                     mdPPdLeaderDof( tDofIndex ).get_row( 0 ) =
-                            tPreFactor * std::pow( tDensity, 2.0 ) * ( 2.0 * trans( tFI->val() ) * tG * tFI->N() );
+                            tPreFactor * std::pow( tDensity, 2.0 ) * ( 2.0 * tFI->val_trans() * tG * tFI->N() );
                 }
                 else
                 {
@@ -396,70 +351,6 @@ namespace moris
             {
                 mdPPdLeaderDof( tDofIndex ).fill( 0.0 );
             }
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        SP_Incompressible_Flow::eval_G( Matrix< DDRMat >& aG )
-        {
-            // get the space jacobian from IP geometry interpolator
-            const Matrix< DDRMat >& tInvSpaceJacobian =
-                    mLeaderFIManager->get_IP_geometry_interpolator()->inverse_space_jacobian();
-
-            // evaluate Gij = sum_d dxi_d/dx_i dxi_d/dx_j
-            this->mEvalGFunc( aG, tInvSpaceJacobian );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        SP_Incompressible_Flow::eval_G_2d(
-                Matrix< DDRMat >&       aG,
-                const Matrix< DDRMat >& aInvSpaceJacobian )
-        {
-            // set size for aG
-            aG.set_size( 2, 2 );
-
-            // fill aGij = sum_d dxi_d/dx_i dxi_d/dx_j
-            aG( 0, 0 ) = std::pow( aInvSpaceJacobian( 0, 0 ), 2.0 ) + std::pow( aInvSpaceJacobian( 0, 1 ), 2.0 );
-            aG( 0, 1 ) = aInvSpaceJacobian( 0, 0 ) * aInvSpaceJacobian( 1, 0 ) + aInvSpaceJacobian( 0, 1 ) * aInvSpaceJacobian( 1, 1 );
-            aG( 1, 0 ) = aG( 0, 1 );
-            aG( 1, 1 ) = std::pow( aInvSpaceJacobian( 1, 0 ), 2.0 ) + std::pow( aInvSpaceJacobian( 1, 1 ), 2.0 );
-        }
-
-        //------------------------------------------------------------------------------
-
-        void
-        SP_Incompressible_Flow::eval_G_3d(
-                Matrix< DDRMat >&       aG,
-                const Matrix< DDRMat >& aInvSpaceJacobian )
-        {
-            // set size for aG
-            aG.set_size( 3, 3 );
-
-            // fill aGij = sum_d dxi_d/dx_i dxi_d/dx_j
-            aG( 0, 0 ) = std::pow( aInvSpaceJacobian( 0, 0 ), 2.0 )
-                       + std::pow( aInvSpaceJacobian( 0, 1 ), 2.0 )
-                       + std::pow( aInvSpaceJacobian( 0, 2 ), 2.0 );
-            aG( 0, 1 ) = aInvSpaceJacobian( 0, 0 ) * aInvSpaceJacobian( 1, 0 )
-                       + aInvSpaceJacobian( 0, 1 ) * aInvSpaceJacobian( 1, 1 )
-                       + aInvSpaceJacobian( 0, 2 ) * aInvSpaceJacobian( 1, 2 );
-            aG( 0, 2 ) = aInvSpaceJacobian( 0, 0 ) * aInvSpaceJacobian( 2, 0 )
-                       + aInvSpaceJacobian( 0, 1 ) * aInvSpaceJacobian( 2, 1 )
-                       + aInvSpaceJacobian( 0, 2 ) * aInvSpaceJacobian( 2, 2 );
-            aG( 1, 0 ) = aG( 0, 1 );
-            aG( 1, 1 ) = std::pow( aInvSpaceJacobian( 1, 0 ), 2.0 )
-                       + std::pow( aInvSpaceJacobian( 1, 1 ), 2.0 )
-                       + std::pow( aInvSpaceJacobian( 1, 2 ), 2.0 );
-            aG( 1, 2 ) = aInvSpaceJacobian( 1, 0 ) * aInvSpaceJacobian( 2, 0 )
-                       + aInvSpaceJacobian( 1, 1 ) * aInvSpaceJacobian( 2, 1 )
-                       + aInvSpaceJacobian( 1, 2 ) * aInvSpaceJacobian( 2, 2 );
-            aG( 2, 0 ) = aG( 0, 2 );
-            aG( 2, 1 ) = aG( 1, 2 );
-            aG( 2, 2 ) = std::pow( aInvSpaceJacobian( 2, 0 ), 2.0 )
-                       + std::pow( aInvSpaceJacobian( 2, 1 ), 2.0 )
-                       + std::pow( aInvSpaceJacobian( 2, 2 ), 2.0 );
         }
 
         //------------------------------------------------------------------------------

@@ -84,8 +84,8 @@ namespace moris::hmr
             uint tCoarseOrder = this->mLagrangeMeshCoarse->get_order();
 
             // number of nodes per element
-            uint tNumberOfNodesPerElement = this->mLagrangeMesh->get_number_of_basis_per_element();
-            uint tNumberOfCoarseNodesPerElement = this->mLagrangeMeshCoarse->get_number_of_basis_per_element();
+            uint tNumberOfNodesPerElement = this->mLagrangeMesh->get_number_of_bases_per_element();
+            uint tNumberOfCoarseNodesPerElement = this->mLagrangeMeshCoarse->get_number_of_bases_per_element();
 
             // unity matrix
             Matrix< DDRMat > tEye;

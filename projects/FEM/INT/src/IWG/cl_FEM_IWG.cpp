@@ -22,7 +22,6 @@ namespace moris
 {
     namespace fem
     {
-
         //------------------------------------------------------------------------------
 
         void
@@ -204,7 +203,7 @@ namespace moris
 
         void
         IWG::set_phase_name(
-                std::string       aPhaseName,
+                std::string          aPhaseName,
                 mtk::Leader_Follower aIsLeader )
         {
             switch ( aIsLeader )
@@ -254,7 +253,7 @@ namespace moris
         void
         IWG::set_field_interpolator_manager(
                 Field_Interpolator_Manager* aFieldInterpolatorManager,
-                mtk::Leader_Follower           aIsLeader )
+                mtk::Leader_Follower        aIsLeader )
         {
             switch ( aIsLeader )
             {
@@ -354,7 +353,7 @@ namespace moris
         void
         IWG::set_field_interpolator_manager_previous_time(
                 Field_Interpolator_Manager* aFieldInterpolatorManager,
-                mtk::Leader_Follower           aIsLeader )
+                mtk::Leader_Follower        aIsLeader )
         {
             switch ( aIsLeader )
             {
@@ -448,7 +447,7 @@ namespace moris
         void
         IWG::set_dof_type_list(
                 const moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
-                mtk::Leader_Follower                                  aIsLeader )
+                mtk::Leader_Follower                               aIsLeader )
         {
             switch ( aIsLeader )
             {
@@ -504,7 +503,7 @@ namespace moris
         void
         IWG::set_dv_type_list(
                 const moris::Cell< moris::Cell< PDV_Type > >& aDvTypes,
-                mtk::Leader_Follower                             aIsLeader )
+                mtk::Leader_Follower                          aIsLeader )
         {
             switch ( aIsLeader )
             {
@@ -560,7 +559,7 @@ namespace moris
         void
         IWG::set_field_type_list(
                 const moris::Cell< moris::Cell< mtk::Field_Type > >& aDofTypes,
-                mtk::Leader_Follower                                    aIsLeader )
+                mtk::Leader_Follower                                 aIsLeader )
         {
             switch ( aIsLeader )
             {
@@ -617,7 +616,7 @@ namespace moris
         IWG::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
-                mtk::Leader_Follower           aIsLeader )
+                mtk::Leader_Follower        aIsLeader )
         {
             // check that aPropertyString makes sense
             MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
@@ -665,7 +664,7 @@ namespace moris
         IWG::set_material_model(
                 std::shared_ptr< Material_Model > aMaterialModel,
                 std::string                       aMaterialModelString,
-                mtk::Leader_Follower                 aIsLeader )
+                mtk::Leader_Follower              aIsLeader )
         {
             // check that aConstitutiveString makes sense
             MORIS_ERROR( mMaterialMap.find( aMaterialModelString ) != mMaterialMap.end(),
@@ -713,7 +712,7 @@ namespace moris
         IWG::set_constitutive_model(
                 std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                 std::string                           aConstitutiveString,
-                mtk::Leader_Follower                     aIsLeader )
+                mtk::Leader_Follower                  aIsLeader )
         {
             // check that aConstitutiveString makes sense
             MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
@@ -785,12 +784,12 @@ namespace moris
                 moris::Cell< moris::Cell< mtk::Field_Type > >& aFieldTypes )
         {
             // init counters for dof and dv types
-            uint tLeaderDofCounter   = 0;
-            uint tFollowerDofCounter    = 0;
-            uint tLeaderDvCounter    = 0;
-            uint tFollowerDvCounter     = 0;
-            uint tLeaderFieldCounter = 0;
-            uint tFollowerFieldCounter  = 0;
+            uint tLeaderDofCounter     = 0;
+            uint tFollowerDofCounter   = 0;
+            uint tLeaderDvCounter      = 0;
+            uint tFollowerDvCounter    = 0;
+            uint tLeaderFieldCounter   = 0;
+            uint tFollowerFieldCounter = 0;
 
             // get number of direct leader dof dependencies
             for ( uint iDof = 0; iDof < mLeaderDofTypes.size(); iDof++ )
@@ -2271,7 +2270,7 @@ namespace moris
                             mSet->get_jacobian()(
                                     { tFollowerResStartIndex, tFollowerResStopIndex },
                                     { tLeaderDepStartIndex + tDofCounter, tLeaderDepStartIndex + tDofCounter } ) +=
-                                    tFDScheme( 1 )( iPoint ) *                                                              //
+                                    tFDScheme( 1 )( iPoint ) *                                                                    //
                                     mSet->get_residual()( 0 )( { tFollowerResStartIndex, tFollowerResStopIndex }, { 0, 0 } ) /    //
                                     ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
@@ -2385,7 +2384,7 @@ namespace moris
                             mSet->get_jacobian()(
                                     { tFollowerResStartIndex, tFollowerResStopIndex },
                                     { tFollowerDepStartIndex + tDofCounter, tFollowerDepStartIndex + tDofCounter } ) +=
-                                    tFDScheme( 1 )( iPoint ) *                                                              //
+                                    tFDScheme( 1 )( iPoint ) *                                                                    //
                                     mSet->get_residual()( 0 )( { tFollowerResStartIndex, tFollowerResStopIndex }, { 0, 0 } ) /    //
                                     ( tFDScheme( 2 )( 0 ) * tDeltaH );
                         }
@@ -2853,7 +2852,7 @@ namespace moris
 
                 // check for correctness of perturbation size for backward FD
                 MORIS_ASSERT( tDeltaH < aCoefficientToPerturb - tMinIP,
-                        "ERROR: backward perturbation size exceed limits of interpolation element:\n",
+                        "ERROR: backward perturbation size exceed limits of interpolation element:\n"
                         "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
                         aSpatialDirection,
                         tMinIP,
@@ -2871,7 +2870,7 @@ namespace moris
 
                     // check for correctness of perturbation size for forward FD
                     MORIS_ASSERT( tDeltaH < tMaxIP - aCoefficientToPerturb,
-                            "ERROR: forward perturbation size exceeds limits of interpolation element:\n",
+                            "ERROR: forward perturbation size exceeds limits of interpolation element:\n"
                             "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
                             aSpatialDirection,
                             tMinIP,
@@ -3435,8 +3434,8 @@ namespace moris
                 moris::Cell< Matrix< IndexMat > >& aVertexIndices )
         {
             // unpack vertex indices
-            Matrix< IndexMat >& aLeaderVertexIndices = aVertexIndices( 0 );
-            Matrix< IndexMat >& aFollowerVertexIndices  = aVertexIndices( 1 );
+            Matrix< IndexMat >& aLeaderVertexIndices   = aVertexIndices( 0 );
+            Matrix< IndexMat >& aFollowerVertexIndices = aVertexIndices( 1 );
 
             // storage residual value
             Matrix< DDRMat > tResidualStore = mSet->get_residual()( 0 );
@@ -3589,8 +3588,8 @@ namespace moris
                         for ( uint iPoint = tStartPoint; iPoint < tNumFDPoints; iPoint++ )
                         {
                             // reset the perturbed coefficients
-                            Matrix< DDRMat > tLeaderCoeffPert = tLeaderCoeff;
-                            Matrix< DDRMat > tFollowerCoeffPert  = tFollowerCoeff;
+                            Matrix< DDRMat > tLeaderCoeffPert   = tLeaderCoeff;
+                            Matrix< DDRMat > tFollowerCoeffPert = tFollowerCoeff;
 
                             // perturb the coefficient
                             tLeaderCoeffPert( iCoeffRow, iCoeffCol ) +=
@@ -3606,9 +3605,9 @@ namespace moris
                             Matrix< DDRMat > tXCoords  = tLeaderCoeffPert.get_row( iCoeffRow );
                             Matrix< DDRMat > tXiCoords = tLeaderParamCoeff.get_row( iCoeffRow );
                             tLeaderIPGI->update_local_coordinates( tXCoords, tXiCoords );
-                            Matrix< DDRMat > tLeaderParamCoeffPert               = tLeaderParamCoeff;
-                            tLeaderParamCoeffPert.get_row( iCoeffRow )           = tXiCoords.matrix_data();
-                            Matrix< DDRMat > tFollowerParamCoeffPert                = tFollowerParamCoeff;
+                            Matrix< DDRMat > tLeaderParamCoeffPert                     = tLeaderParamCoeff;
+                            tLeaderParamCoeffPert.get_row( iCoeffRow )                 = tXiCoords.matrix_data();
+                            Matrix< DDRMat > tFollowerParamCoeffPert                   = tFollowerParamCoeff;
                             tFollowerParamCoeffPert.get_row( tFollowerNodeLocalIndex ) = tXiCoords.matrix_data();
 
                             tLeaderIGGI->set_space_param_coeff( tLeaderParamCoeffPert );
@@ -3648,7 +3647,7 @@ namespace moris
                                 mSet->get_drdpgeo()(
                                         { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop },
                                         { tPdvAssemblyIndex, tPdvAssemblyIndex } ) +=
-                                        tFDScheme( 1 )( iPoint ) *                                                                          //
+                                        tFDScheme( 1 )( iPoint ) *                                                                                //
                                         mSet->get_residual()( 0 )( { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop }, { 0, 0 } ) /    //
                                         ( tFDScheme( 2 )( 0 ) * tDeltaH );
                             }
@@ -3892,7 +3891,7 @@ namespace moris
                     mSet->get_drdpgeo()(
                             { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop },
                             { 0, tEndPdvIndex } ) +=
-                            tFDScheme( 1 )( iPoint ) *                                                                          //
+                            tFDScheme( 1 )( iPoint ) *                                                                                //
                             mSet->get_residual()( 0 )( { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop }, { 0, 0 } ) *    //
                             tClusterMeasure->dMEAdPDV() / ( tFDScheme( 2 )( 0 ) * tDeltaCM );
 
@@ -4212,7 +4211,7 @@ namespace moris
                                 mSet->get_drdpmat()(
                                         { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop },
                                         { tPdvIndex, tPdvIndex } ) +=
-                                        tFDScheme( 1 )( iPoint ) *                                                                          //
+                                        tFDScheme( 1 )( iPoint ) *                                                                                //
                                         mSet->get_residual()( 0 )( { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop }, { 0, 0 } ) /    //
                                         ( tFDScheme( 2 )( 0 ) * tDeltaH );
                             }
@@ -4351,7 +4350,7 @@ namespace moris
                                 mSet->get_drdpmat()(
                                         { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop },
                                         { tPdvIndex, tPdvIndex } ) +=
-                                        tFDScheme( 1 )( iPoint ) *                                                                          //
+                                        tFDScheme( 1 )( iPoint ) *                                                                                //
                                         mSet->get_residual()( 0 )( { tFollowerResDofAssemblyStart, tFollowerResDofAssemblyStop }, { 0, 0 } ) /    //
                                         ( tFDScheme( 2 )( 0 ) * tDeltaH );
                             }

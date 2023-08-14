@@ -15,6 +15,7 @@
 #include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
 #include "cl_HMR_Parameters.hpp" //HMR/src
+#include "fn_HMR_calculate_basis_identifier.hpp"
 #include "cl_Matrix.hpp" //LINALG/src
 #include "fn_eye.hpp"
 #include "fn_HMR_bspline_shape.hpp"
@@ -52,11 +53,17 @@ namespace moris::hmr
             // If B-spline mesh is given
             if ( aBSplineMesh != nullptr )
             {
-                this->init_basis_index();
                 this->init_unity_matrix();
-                this->init_child_matrices();
-                this->init_truncation_weights();
+                this->init_basis_index();
                 this->init_lagrange_matrix();
+                if ( aTruncate )
+                {
+                    aBSplineMesh->evaluate_truncation_weights( mTruncationWeights );
+                }
+                else
+                {
+                    mBSplineMesh->evaluate_child_matrices( mBasisIndices, mChildMatrices );
+                }
             }
         }
 
@@ -105,7 +112,7 @@ namespace moris::hmr
             }
 
             // calculate number of basis per element
-            uint tNumberOfBases = mBSplineMesh->get_number_of_bases();
+            uint tNumberOfBases = mBSplineMesh->get_number_of_bases_per_element();
 
             // initialize the projection matrix with the correct size
             Matrix< DDRMat > tL2ProjectionMatrix( tNumberOfBases, tNumberOfBases );
@@ -123,7 +130,7 @@ namespace moris::hmr
                         {
                             for ( uint i = 0; i < tNodesPerDirection; ++i )
                             {
-                                tL2ProjectionMatrix( mBasisIndex( a ), mBasisIndex( b ) ) = tMatrices1D( 0 )( i, k ) * tMatrices1D( 1 )( j, l );
+                                tL2ProjectionMatrix( mBasisIndices( a ), mBasisIndices( b ) ) = tMatrices1D( 0 )( i, k ) * tMatrices1D( 1 )( j, l );
                                 ++a;
                             }
                         }
@@ -147,7 +154,7 @@ namespace moris::hmr
                                 {
                                     for ( uint i = 0; i < tNodesPerDirection; ++i )
                                     {
-                                        tL2ProjectionMatrix( mBasisIndex( a ), mBasisIndex( b ) ) = tMatrices1D( 0 )( i, l ) * tMatrices1D( 1 )( j, q ) * tMatrices1D( 2 )( k, p );
+                                        tL2ProjectionMatrix( mBasisIndices( a ), mBasisIndices( b ) ) = tMatrices1D( 0 )( i, l ) * tMatrices1D( 1 )( j, q ) * tMatrices1D( 2 )( k, p );
                                         ++a;
                                     }
                                 }
@@ -249,33 +256,35 @@ namespace moris::hmr
             Element* tElement = mBSplineMesh->create_element( tBackElement );
 
             // calculate number of basis per element
-            uint tNumberOfBases = mBSplineMesh->get_number_of_bases();
+            uint tNumberOfBases = mBSplineMesh->get_number_of_bases_per_element();
 
             // initialize index matrix
-            mBasisIndex.set_size( tNumberOfBases, 1 );
+            mBasisIndices.set_size( tNumberOfBases, 1 );
             mBSplineIJK.set_size( N, tNumberOfBases );
 
             // Array of ijk position of basis
             luint tIJK[ N ];
-            for ( uint iBasisIndex = 0; iBasisIndex < tNumberOfBases; iBasisIndex++ )
+            luint tOffset[ N ];
+            for ( uint iBasisIndexInElement = 0; iBasisIndexInElement < tNumberOfBases; iBasisIndexInElement++ )
             {
-                // Get position from element
-                tElement->get_ijk_of_basis( iBasisIndex, tIJK );
+                // Get IJK position from element
+                tElement->get_ijk_of_basis( iBasisIndexInElement, tIJK );
 
                 // Loop over dimensions
-                uint tIndex = 0;
                 for ( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
-                    // Calculate index in matrix TODO ask B-spline mesh for this
-                    tIndex += tIJK[ iDimension ] * std::pow(
-                            mBSplineMesh->get_order( iDimension ) + 1, iDimension );
-
                     // Store IJK
-                    mBSplineIJK( iDimension, iBasisIndex ) = tIJK[ iDimension ];
+                    mBSplineIJK( iDimension, iBasisIndexInElement ) = tIJK[ iDimension ];
+
+                    // Get offset
+                    tOffset[ iDimension ] = mBSplineMesh->get_order( iDimension ) + 1;
                 }
 
+                // Get basis index for storage in T-matrix
+                luint tBasisIndex = calculate_basis_identifier< N >( tIJK, tOffset );
+
                 // Assign basis index
-                mBasisIndex( tIndex ) = iBasisIndex;
+                mBasisIndices( tBasisIndex ) = iBasisIndexInElement;
             }
 
             // tidy up
@@ -291,123 +300,11 @@ namespace moris::hmr
         void init_unity_matrix()
         {
             // get number of basis per element
-            uint tNumberOfBases = mBSplineMesh->get_number_of_bases();
+            uint tNumberOfBases = mBSplineMesh->get_number_of_bases_per_element();
 
             // Set unity and zero matrices
             eye( tNumberOfBases, tNumberOfBases, mEye );
             mZero.set_size( tNumberOfBases, 1, 0.0 );
-        }
-
-//-------------------------------------------------------------------------------
-        /**
-         * pre-calculates the child relation matrices
-         */
-        void init_child_matrices()
-        {
-            // Get B-spline order TODO unequal order
-            uint tOrder = mBSplineMesh->get_max_order();
-
-            // create temporary matrix
-            Matrix< DDRMat > tFactors( tOrder + 1, tOrder + 2, 0.0 );
-
-            // number of bspline coefficients per direction
-            uint tNumCoefficients = tOrder + 1;
-
-            // weight factor
-            real tWeight = 1.0 / std::pow( 2, tOrder );
-
-            for ( uint iCoefficient = 0; iCoefficient <= tNumCoefficients; iCoefficient++ )
-            {
-                for ( uint iOrder = 0; iOrder <= tOrder; iOrder++ )
-                {
-                    uint k = tOrder - 2 * iOrder + iCoefficient;
-                    if ( k <= tNumCoefficients )
-                    {
-                        tFactors( iOrder, iCoefficient ) = tWeight * nchoosek( tNumCoefficients, k );
-                    }
-                }
-            }
-
-            // left and right matrices
-            Matrix< DDRMat > TL( tNumCoefficients, tNumCoefficients, 0.0 );
-            Matrix< DDRMat > TR( tNumCoefficients, tNumCoefficients, 0.0 );
-
-            // Fill matrices
-            for ( uint iOrder = 0; iOrder <= tOrder; iOrder++ )
-            {
-                TL.set_column( iOrder, tFactors.get_column( iOrder ) );
-                TR.set_column( iOrder, tFactors.get_column( iOrder + 1 ) );
-            }
-
-            // determine number of children
-            uint tNumberOfChildren = static_cast< uint >( std::pow( 2, N ) );
-
-            // determine number of basis per element
-            uint tNumberOfBases = mBSplineMesh->get_number_of_bases();
-
-            // empty matrix
-            Matrix< DDRMat > tEmpty( tNumberOfBases, tNumberOfBases, 0.0 );
-
-            // container for child relation matrices ( transposed! )
-            mChild.resize( tNumberOfChildren, tEmpty );
-
-            // populate child matrices.
-            this->populate_child_matrices( TL, TR );
-
-            // Child multiplication
-            this->child_multiplication();
-        }
-
-//-------------------------------------------------------------------------------
-
-        void child_multiplication()
-        {
-            // determine number of children
-            uint tNumberOfChildren = static_cast<uint>( std::pow( 2, N ) );
-            mChildMultiplied.resize( tNumberOfChildren );
-
-            for ( uint Ik = 0; Ik < tNumberOfChildren; ++Ik )
-            {
-                mChildMultiplied( Ik ).resize( tNumberOfChildren );
-            }
-
-            // multiply child matrices
-            for ( uint iChildRow = 0; iChildRow < tNumberOfChildren; iChildRow++ )
-            {
-                for ( uint iChildCol = 0; iChildCol < tNumberOfChildren; iChildCol++ )
-                {
-                    mChildMultiplied( iChildRow )( iChildCol ) = mChild( iChildRow ) * mChild( iChildCol );
-                }
-            }
-        }
-
-//------------------------------------------------------------------------------
-
-        void init_truncation_weights()
-        {
-            // Get B-spline order TODO unequal order
-            uint tOrder = mBSplineMesh->get_max_order();
-
-            // number of children per direction
-            uint tNumberOfChildren = tOrder + 2;
-
-            // matrix containing 1D weights
-            Matrix< DDRMat > tWeights( tNumberOfChildren, 1 );
-
-            // scale factor for 1D weights
-            real tScale = 1.0 / ( (real)std::pow( 2, tOrder ) );
-
-            // calculate 1D weights
-            for ( uint iChildIndex = 0; iChildIndex < tNumberOfChildren; iChildIndex++ )
-            {
-                tWeights( iChildIndex ) = tScale * nchoosek( tOrder + 1, iChildIndex );
-            }
-
-            // allocate weights
-            mTruncationWeights.set_size( static_cast< uint >( std::pow( tNumberOfChildren, N ) ), 1 );
-
-            // Evaluate weights
-            this->evaluate_truncation_weights( tWeights );
         }
 
 //------------------------------------------------------------------------------
@@ -513,7 +410,7 @@ namespace moris::hmr
         void init_lagrange_matrix()
         {
             // get number of basis per element of B-Spline mesh
-            uint tNumberOfBases = mBSplineMesh->get_number_of_bases();
+            uint tNumberOfBases = mBSplineMesh->get_number_of_bases_per_element();
 
             // get number of Lagrange nodes
             uint tNumberOfNodes = mLagrangeParam.n_cols();
@@ -689,7 +586,7 @@ namespace moris::hmr
         void recompute_lagrange_matrix() override
         {
             // get number of basis per element of B-Spline mesh
-            uint tNumberOfBases = mBSplineMesh->get_number_of_bases();
+            uint tNumberOfBases = mBSplineMesh->get_number_of_bases_per_element();
 
             // get number of Lagrange nodes
             uint tNumberOfNodes = mLagrangeParam.n_cols();
@@ -800,27 +697,6 @@ namespace moris::hmr
             return {0, 0};
         }
 
-        /**
-         * Evaluates the 2D/3D truncation weights based on the 1D weights and stores them internally
-         *
-         * @param aWeights 1D truncation weights
-         */
-        void evaluate_truncation_weights( const Matrix< DDRMat >& aWeights )
-        {
-            MORIS_ERROR( false, "Don't know how to evaluate truncation weights for a T-matrix of dimension %u", N );
-        }
-
-        /**
-         * Populates the child matrices based on the given left and right matrix
-         *
-         * @param aTL Left matrix
-         * @param aTR Right matrix
-         */
-        void populate_child_matrices( const Matrix< DDRMat >& aTL, const Matrix< DDRMat >& aTR )
-        {
-            MORIS_ERROR( false, "Don't know how to populate child matrices for a T-matrix of dimension %u", N );
-        }
-
     };
 
     /**
@@ -834,10 +710,6 @@ namespace moris::hmr
     template<> void T_Matrix< 3 >::get_child_corner_nodes( uint aChildIndex, Matrix< DDRMat >& aXi );
     template<> Matrix< DDRMat > T_Matrix< 2 >::get_supporting_points( uint aOrder );
     template<> Matrix< DDRMat > T_Matrix< 3 >::get_supporting_points( uint aOrder );
-    template<> void T_Matrix< 2 >::evaluate_truncation_weights( const Matrix< DDRMat>& aWeights );
-    template<> void T_Matrix< 3 >::evaluate_truncation_weights( const Matrix< DDRMat>& aWeights );
-    template<> void T_Matrix< 2 >::populate_child_matrices( const Matrix< DDRMat >& aTL, const Matrix< DDRMat>& aTR );
-    template<> void T_Matrix< 3 >::populate_child_matrices( const Matrix< DDRMat >& aTL, const Matrix< DDRMat>& aTR );
 
 }
 

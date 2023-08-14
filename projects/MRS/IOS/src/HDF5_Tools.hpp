@@ -22,7 +22,7 @@
 #include "cl_Communication_Manager.hpp"
 #include "cl_Communication_Tools.hpp"
 
-//#include "assert.hpp"
+// #include "assert.hpp"
 
 #include "typedefs.hpp"           //COR/src
 #include "cl_Matrix.hpp"          //LINALG/src
@@ -111,11 +111,8 @@ namespace moris
         // test if file exists
         std::ifstream tFile( tPath );
 
-        // create error message
-        std::string tError = "Could not open HDF5 file " + tPath;
-
         // throw error if file does not exist
-        MORIS_ERROR( tFile, tError.c_str() );
+        MORIS_ERROR( tFile, "Could not open HDF5 file %s", tPath.c_str() );
 
         // close file
         tFile.close();
@@ -401,14 +398,9 @@ namespace moris
         hid_t tDataType = H5Dget_type( tDataSet );
 
         // make sure that data type fits to type of matrix
-        if ( H5Tget_class( tDataType )
-                != H5Tget_class( get_hdf5_datatype( (typename Matrix< T >::Data_Type)0 ) ) )
-        {
-            std::string tMessage = "ERROR in reading from file: matrix "
-                                 + aLabel + " has the wrong data type.\n";
-
-            MORIS_ERROR( false, tMessage.c_str() );
-        }
+        MORIS_ERROR( H5Tget_class( tDataType ) == H5Tget_class( get_hdf5_datatype( (typename Matrix< T >::Data_Type)0 ) ),
+                "ERROR in reading from file: matrix %s has the wrong data type.",
+                aLabel.c_str() );
 
         // get handler to data space
         hid_t tDataSpace = H5Dget_space( tDataSet );
@@ -490,16 +482,16 @@ namespace moris
      * see also
      * https://support.hdfgroup.org/ftp/HDF5/examples/misc-examples/
      */
-    template < typename T >
+    template< typename T >
     void
     save_vector_to_hdf5_file(
-            hid_t               & aFileID,
-            const std::string   & aLabel,
-            const std::vector< T >   & aVector,
-            herr_t              & aStatus )
+            hid_t&                  aFileID,
+            const std::string&      aLabel,
+            const std::vector< T >& aVector,
+            herr_t&                 aStatus )
     {
         // check datatype
-        MORIS_ASSERT(  test_size_of_datatype( ( T ) 0 ), "Sizes of MORIS data type and HDF5 data type do not match." );
+        MORIS_ASSERT( test_size_of_datatype( (T)0 ), "Sizes of MORIS data type and HDF5 data type do not match." );
 
         // test if dataset exists
         if ( dataset_exists( aFileID, aLabel ) )
@@ -507,20 +499,20 @@ namespace moris
             // create message
             std::string tMessage = "The dataset " + aLabel + " can not be created because it already exist.";
 
-            //MORIS_ERROR( false, tMessage.c_str() );
+            // MORIS_ERROR( false, tMessage.c_str() );
         }
 
         // get dimensions from vector
         hsize_t tSize = aVector.size();
 
         // create data space
-        hid_t  tDataSpace = H5Screate_simple( 1, &tSize, NULL);
+        hid_t tDataSpace = H5Screate_simple( 1, &tSize, NULL );
 
         // select data type for vector to save
-        hid_t tDataType = H5Tcopy( get_hdf5_datatype( ( T ) 0 ) );
+        hid_t tDataType = H5Tcopy( get_hdf5_datatype( (T)0 ) );
 
         // set data type to little endian
-        aStatus = H5Tset_order( tDataType, H5T_ORDER_LE );
+        aStatus        = H5Tset_order( tDataType, H5T_ORDER_LE );
         hid_t tDataSet = 0;
 
         // create new dataset
@@ -534,7 +526,7 @@ namespace moris
                 H5P_DEFAULT );
 
         // test if vector is not empty
-        if( tSize > 0 )
+        if ( tSize > 0 )
         {
             // write data into dataset
             aStatus = H5Dwrite(
@@ -543,7 +535,7 @@ namespace moris
                     H5S_ALL,
                     H5S_ALL,
                     H5P_DEFAULT,
-                    aVector.data());
+                    aVector.data() );
         }
 
         // close open hids
@@ -569,25 +561,25 @@ namespace moris
      * see also
      * https://support.hdfgroup.org/ftp/HDF5/examples/misc-examples/
      */
-    template < typename T >
+    template< typename T >
     void
     load_vector_from_hdf5_file(
-            hid_t               & aFileID,
-            const std::string   & aLabel,
-            std::vector< T >    & aVector,
-            herr_t              & aStatus )
+            hid_t&             aFileID,
+            const std::string& aLabel,
+            std::vector< T >&  aVector,
+            herr_t&            aStatus )
     {
         // check datatype
-        MORIS_ASSERT(  test_size_of_datatype( (T) 0 ), "Sizes of MORIS data type and HDF5 data type do not match." );
+        MORIS_ASSERT( test_size_of_datatype( (T)0 ), "Sizes of MORIS data type and HDF5 data type do not match." );
 
         // test if dataset exists
-        if ( ! dataset_exists( aFileID, aLabel ) )
+        if ( !dataset_exists( aFileID, aLabel ) )
         {
             std::ostringstream tErrorMessage;
             tErrorMessage << "\n\n************** ERROR IN FILE: " << __FILE__ << ", FUNCTION: " << __PRETTY_FUNCTION__
-                    << ", LINE: " << __LINE__
-                    << ", MESSAGE: The dataset " + aLabel + " can not be opened because it does not exist.";
-            throw std::runtime_error(tErrorMessage.str().c_str());
+                          << ", LINE: " << __LINE__
+                          << ", MESSAGE: The dataset " + aLabel + " can not be opened because it does not exist.";
+            throw std::runtime_error( tErrorMessage.str().c_str() );
         }
 
         // open the data set
@@ -597,13 +589,9 @@ namespace moris
         hid_t tDataType = H5Dget_type( tDataSet );
 
         // make sure that datatype fits to type of vector
-        if ( H5Tget_class( tDataType ) !=  H5Tget_class( get_hdf5_datatype( ( T ) 0 ) ) )
-        {
-            std::string tMessage = "ERROR in reading from file: vector "
-                    + aLabel + " has the wrong datatype.\n";
-
-            MORIS_ERROR( false, tMessage.c_str() );
-        }
+        MORIS_ERROR( H5Tget_class( tDataType ) == H5Tget_class( get_hdf5_datatype( (T)0 ) ),
+                "ERROR in reading from file: vector %s has the wrong datatype.\n",
+                aLabel.c_str() );
 
         // get handler to dataspace
         hid_t tDataSpace = H5Dget_space( tDataSet );
@@ -612,13 +600,13 @@ namespace moris
         hsize_t tDims[ 1 ];
 
         // ask hdf for dimensions
-        aStatus  = H5Sget_simple_extent_dims( tDataSpace, tDims, NULL);
+        aStatus = H5Sget_simple_extent_dims( tDataSpace, tDims, NULL );
 
         // allocate memory for output
-        aVector.resize( tDims[0] );
+        aVector.resize( tDims[ 0 ] );
 
         // test if vector is not empty
-        if( tDims[ 0 ] > 0 )
+        if ( tDims[ 0 ] > 0 )
         {
             // read data from file
             aStatus = H5Dread(
@@ -629,7 +617,7 @@ namespace moris
                     H5P_DEFAULT,
                     aVector.data() );
         }
-        else if( aStatus == 2 )
+        else if ( aStatus == 2 )
         {
             // all good, reset status
             aStatus = 0;

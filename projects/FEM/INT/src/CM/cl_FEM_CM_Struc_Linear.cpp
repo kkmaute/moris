@@ -20,7 +20,6 @@ namespace moris
 {
     namespace fem
     {
-
         //------------------------------------------------------------------------------
 
         CM_Struc_Linear::CM_Struc_Linear()
@@ -391,8 +390,7 @@ namespace moris
 
                 // check that a unique definition of temperature is provided
                 MORIS_ASSERT( !mPropTemp || !tFITemp,
-                        "CM_Struc_Linear::eval_strain_2d - %",
-                        "cannot specify both temperature as dof and as a property.\n" );
+                        "CM_Struc_Linear::eval_strain_2d - cannot specify both temperature as dof and as a property.\n" );
 
                 // check if temperature as a property is defined
                 if ( mPropTemp )
@@ -454,8 +452,7 @@ namespace moris
 
                 // check that a unique definition of temperature is provided
                 MORIS_ASSERT( !mPropTemp || !tFITemp,
-                        "CM_Struc_Linear::eval_strain_2d - %",
-                        "cannot specify both temperature as dof and as a property.\n" );
+                        "CM_Struc_Linear::eval_strain_2d - cannot specify both temperature as dof and as a property.\n" );
 
                 // check if temperature as a property is defined
                 if ( mPropTemp )

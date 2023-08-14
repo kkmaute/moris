@@ -44,7 +44,6 @@ set(HEADERS
     cl_HMR_Field_Param.hpp
     cl_HMR_Field.hpp
     cl_HMR_File.hpp
-    cl_HMR_Knot.hpp
     cl_HMR_Lagrange_Edge.hpp
     cl_HMR_Lagrange_Edge2.hpp
     cl_HMR_Lagrange_Edge3.hpp
@@ -85,6 +84,7 @@ set(HEADERS
     fn_HMR_Background_Element_Neighbors_2D.hpp
     fn_HMR_Background_Element_Neighbors_3D.hpp
     fn_HMR_bspline_shape.hpp
+    fn_HMR_calculate_basis_identifier.hpp
     fn_HMR_Exec_dump_fields.hpp
     fn_HMR_Exec_dump_meshes.hpp
     fn_HMR_Exec_initialize_fields.hpp
@@ -147,7 +147,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
-add_library(${HMR}-lib STATIC ${LIB_SOURCES})
+add_library(${HMR}-lib ${LIB_LINK_MODE} ${LIB_SOURCES})
 target_include_directories(${HMR}-lib PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
     $<INSTALL_INTERFACE:${${HMR}_HEADER_INSTALL_DIR}> )

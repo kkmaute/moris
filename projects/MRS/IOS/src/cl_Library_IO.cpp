@@ -213,7 +213,7 @@ namespace moris
                     std::string tError = dlerror();
 
                     // throw error
-                    MORIS_ERROR( mLibraryHandle, tError.c_str() );
+                    MORIS_ERROR( mLibraryHandle, "%s", tError.c_str() );
                 }
                 
                 // if loading succeeded set the shared object library to initialized

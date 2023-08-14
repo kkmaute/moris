@@ -139,7 +139,7 @@ Linear_Solver::solver_linear_system(
 
         // generate .hdf5 file
         std::string tHdf5FilePath = this->get_LHS_output_filename() + ".hdf5";
-        MORIS_LOG_INFO( "Save LHS to file: ", tHdf5FilePath.c_str() );
+        MORIS_LOG_INFO( "Save LHS to file: %s ", tHdf5FilePath.c_str() );
         hid_t  tFileID = create_hdf5_file( tHdf5FilePath );
         herr_t tStatus = 0;
 

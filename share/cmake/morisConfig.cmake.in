@@ -42,6 +42,7 @@ set(@MORIS@_VERSION "@MORIS_VERSION@")
 set(MORIS "@MORIS@")
 set(MORIS_USE_MPI "@MORIS_USE_MPI@")
 set(MORIS_HAVE_PARALLEL "@MORIS_HAVE_PARALLEL@")
+set(MORIS_HAVE_SHARED "@MORIS_HAVE_SHARED@")
 list(APPEND CMAKE_MODULE_PATH ${PACKAGE_PREFIX_DIR}/share/find_modules)
 list(APPEND CMAKE_MODULE_PATH ${PACKAGE_PREFIX_DIR}/share/find_wrappers)
 include(${PACKAGE_PREFIX_DIR}/share/utilities/moris_macros.cmake)
@@ -93,6 +94,6 @@ include("@PACKAGE_CONFIG_INSTALL_DIR@/@MORIS@/@MORIS@Targets.cmake")
 list(INSERT @MORIS@_LIBRARIES 0 @MORIS@_general)
 
 # Create target for all built moris subpackages
-add_library(@MORIS@::@MORIS@ INTERFACE IMPORTED GLOBAL)
-target_link_libraries(@MORIS@::@MORIS@ INTERFACE ${@MORIS@_LIBRARIES})
+add_library(@MORIS@::all_libs INTERFACE IMPORTED GLOBAL)
+target_link_libraries(@MORIS@::all_libs INTERFACE ${@MORIS@_LIBRARIES})
 

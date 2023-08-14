@@ -35,7 +35,7 @@ namespace moris
         SP_Robin_Nitsche::set_dof_type_list(
                 moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
                 moris::Cell< std::string >&                  aDofStrings,
-                mtk::Leader_Follower                            aIsLeader )
+                mtk::Leader_Follower                         aIsLeader )
         {
             // switch on leader follower
             switch ( aIsLeader )
@@ -62,9 +62,9 @@ namespace moris
                         else
                         {
                             // create error message
-                            std::string tErrMsg =
-                                    std::string( "SP_Velocity_SlipBoundary_Nitsche::set_dof_type_list - Unknown aDofString : " ) + tDofString;
-                            MORIS_ERROR( false, tErrMsg.c_str() );
+                            MORIS_ERROR( false,
+                                    "SP_Velocity_SlipBoundary_Nitsche::set_dof_type_list - Unknown aDofString : %s",
+                                    tDofString.c_str() );
                         }
                     }
                     break;
@@ -78,7 +78,8 @@ namespace moris
                 }
 
                 default:
-                    MORIS_ERROR( false, "SP_Velocity_SlipBoundary_Nitsche::set_dof_type_list - unknown leader follower type." );
+                    MORIS_ERROR( false,
+                            "SP_Velocity_SlipBoundary_Nitsche::set_dof_type_list - unknown leader follower type." );
             }
         }
 
@@ -163,4 +164,3 @@ namespace moris
         //------------------------------------------------------------------------------
     } /* namespace fem */
 } /* namespace moris */
-

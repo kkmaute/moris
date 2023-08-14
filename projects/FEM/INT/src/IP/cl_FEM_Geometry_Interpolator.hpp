@@ -643,6 +643,14 @@ namespace moris
                     Matrix< DDRMat >& aParamCoordinates );
 
             //------------------------------------------------------------------------------
+            /**
+             * get metric tensor
+             * @param[ out ] aG   metric tensor
+             * Gij = sum_d dxi_d/dx_i dxi_d/dx_j, d = 1, ..., nSpaceDim
+             */
+            const Matrix< DDRMat >& metric_tensor();
+
+            //------------------------------------------------------------------------------
 
           private:
             //------------------------------------------------------------------------------

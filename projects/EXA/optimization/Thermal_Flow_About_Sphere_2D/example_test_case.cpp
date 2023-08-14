@@ -44,9 +44,9 @@ check_results(
         std::string aHdf5FileName,
         uint        aTestCaseIndex )
 {
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processors.", aTestCaseIndex, par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     // open and query exodus output file (set verbose to true to get basic mesh information)
     moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, false, false );
@@ -349,9 +349,9 @@ TEST_CASE( "Thermal_Flow_About_Sphere_2D",
     // set interpolation order
     gInterpolationOrder = 1;
 
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Executing Thermal Flow about Sphere - 2D: Interpolation order 1 - %i Processors.", par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     if ( par_size() == 1 )
     {
@@ -383,9 +383,9 @@ TEST_CASE( "Thermal_Flow_About_Sphere_2D",
     // set interpolation order
     gInterpolationOrder = 2;
 
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Executing Heat Method - 2D: Interpolation order 1 - %i Processors.", par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     if ( par_size() == 1 )
     {

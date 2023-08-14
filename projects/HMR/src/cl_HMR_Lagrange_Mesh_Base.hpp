@@ -129,6 +129,16 @@ namespace moris::hmr
         uint create_sint_scalar_field_data( const std::string & aLabel,
                 const enum EntityRank aEntityRank = EntityRank::NODE );
 
+        /**
+         * Gets the number of bases per element on this mesh
+         *
+         * @return Number of bases per element
+         */
+        uint get_number_of_bases_per_element() const
+        {
+            return mNumberOfBasesPerElement;
+        }
+
         // ----------------------------------------------------------------------------
 
         /**
@@ -242,7 +252,7 @@ namespace moris::hmr
         //            {
         //                uint tNumberElementsWoithoutAura = this->get_number_of_elements();
         //
-        //                uint tNumBasisPerElement = this->get_number_of_basis_per_element();
+        //                uint tNumBasisPerElement = this->get_number_of_bases_per_element();
         //
         //                Matrix< DDSMat > tBasisExistMat( )
         //
@@ -646,14 +656,14 @@ namespace moris::hmr
                     aBoundingBoxSize,
                     tElementMemoryIndex );
 
-            aNodeIndices.set_size( tElementMemoryIndex.numel() * mNumberOfBasisPerElement, 1 );
+            aNodeIndices.set_size( tElementMemoryIndex.numel() * mNumberOfBasesPerElement, 1 );
 
             for( uint Ik = 0; Ik < tElementMemoryIndex.numel(); Ik ++ )
             {
                 Element * tElement = this->get_element_by_memory_index( tElementMemoryIndex( Ik ) );
 
                 // loop over all nodes connected to element
-                for( uint k = 0; k < mNumberOfBasisPerElement; ++k  )
+                for( uint k = 0; k < mNumberOfBasesPerElement; ++k  )
                 {
                     // unflag basis
                     tElement->get_basis( k )->unflag();
@@ -666,7 +676,7 @@ namespace moris::hmr
                 Element * tElement = this->get_element_by_memory_index( tElementMemoryIndex( Ik ) );
 
                 // loop over all nodes connected to element
-                for( uint k = 0; k < mNumberOfBasisPerElement; ++k  )
+                for( uint k = 0; k < mNumberOfBasesPerElement; ++k  )
                 {
                     // get node pointer
                     Basis * tNode = tElement->get_basis( k );

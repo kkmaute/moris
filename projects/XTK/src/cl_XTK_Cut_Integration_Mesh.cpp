@@ -2498,7 +2498,7 @@ namespace xtk
                 MORIS_ASSERT(
                         mIntegrationCellGroups( tIgCellGroupIndex )->mIgCellGroup.size() == (uint)aReceivedNumIgCellsInParentCell( iProcInCommTable )( iIgCellGroup ),
                         "Cut_Integration_Mesh::prepare_answers_for_owned_IG_cell_IDs() - "
-                        "Proc #%i: %i IG cells are in integration cell group %i, but the parent cell is marked to have %i IG cells (for communication).",
+                        "Proc #%i: %zu IG cells are in integration cell group %i, but the parent cell is marked to have %i IG cells (for communication).",
                         par_rank(),
                         mIntegrationCellGroups( tIgCellGroupIndex )->mIgCellGroup.size(),
                         tIgCellGroupIndex,
@@ -2539,7 +2539,7 @@ namespace xtk
             // check that all requests have been answered
             MORIS_ASSERT( tNumIgCellGroupsCommunicatedWithProc == aNotOwnedIgCellGroups( iProcInCommTable ).size(),
                     "Cut_Integration_Mesh::handle_requested_IG_cell_ID_answers() - "
-                    "Proc #%i: Number of IG cell groups reportedly owned by proc %i is %i, but only answers for %i IG cell groups were received.",
+                    "Proc #%i: Number of IG cell groups reportedly owned by proc %i is %lu, but only answers for %i IG cell groups were received.",
                     par_rank(),
                     tCommTable( iProcInCommTable ),
                     aNotOwnedIgCellGroups( iProcInCommTable ).size(),
@@ -2644,13 +2644,13 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     void
-    Cut_Integration_Mesh::update_communication_table(moris::Cell<moris_id> const & aNewCommunicationTable)
+    Cut_Integration_Mesh::update_communication_table( moris::Cell< moris_id > const & aNewCommunicationTable )
     {
         // resize the communication table
-        mCommunicationTable.resize(aNewCommunicationTable.size(),1);
+        mCommunicationTable.resize( aNewCommunicationTable.size(), 1 );
 
         // copy the new communication table to the old one
-        std::copy(aNewCommunicationTable.begin(), aNewCommunicationTable.end(), mCommunicationTable.begin());
+        std::copy( aNewCommunicationTable.begin(), aNewCommunicationTable.end(), mCommunicationTable.begin() );
 
         // set the flag that the communication table has been constructed
         mCommMapHasBeenConstructed = false;

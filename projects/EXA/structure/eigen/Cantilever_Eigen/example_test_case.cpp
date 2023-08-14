@@ -44,9 +44,9 @@ check_results(
         std::string aExoFileName,
         uint        aTestCaseIndex )
 {
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Checking Results - Test Case %d on %i processor.", aTestCaseIndex, par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     // open and query exodus output file (set verbose to true to get basic mesh information)
     moris::mtk::Exodus_IO_Helper tExoIO( aExoFileName.c_str(), 0, true, false );
@@ -178,9 +178,9 @@ TEST_CASE( "Cantilever_Eigen_Pardiso",
     // set interpolation order
     gOrder = 1;
 
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Executing EigenProblem: Interpolation order 1 - %i Processors.", par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     // set eigen algorithm
     gPrecSolver = "Amesos_Pardiso";
@@ -214,9 +214,9 @@ TEST_CASE( "Cantilever_Eigen_Umfpack",
     // set interpolation order
     gOrder = 1;
 
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
     MORIS_LOG_INFO( "Executing EigenProblem: Interpolation order 1 - %i Processors.", par_size() );
-    MORIS_LOG_INFO( "" );
+    MORIS_LOG_INFO( " " );
 
     // set eigen algorithm
     gPrecSolver = "Amesos_Umfpack";

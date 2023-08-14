@@ -262,6 +262,16 @@ namespace moris
                 const Matrix< DDRMat > & effective_dynamic_viscosity(
                         enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
+                /**
+                 * get the derivative of the effective dynamic viscosity wrt dof type
+                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
+                 * @param[ in ] aCMFunctionType enum for specific type of which effective dynamic viscosity
+                 * @param[ out ] mdeffconddu derivative of the effective dynamic viscosity wrt dof types
+                 */
+                const Matrix< DDRMat > & deffdynviscdu(
+                        const moris::Cell< MSI::Dof_Type > & aDofType,
+                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
+
                 //--------------------------------------------------------------------------------------------------------------
             private:
 
@@ -270,15 +280,6 @@ namespace moris
                  * evaluate the effective dynamic viscosity mu_eff = mu + mu_t
                  */
                 void eval_effective_dynamic_viscosity();
-
-//                /**
-//                 * get the the effective dynamic viscosity mu_eff = mu + mu_t
-//                 * @param[ in ]  aCMFunctionType  enum indicating which effective conductivity is called,
-//                 *               if there are several
-//                 * @param[ out ] mEffDynVisc effective conductivity
-//                 */
-//                const Matrix< DDRMat > & effective_dynamic_viscosity(
-//                        enum CM_Function_Type aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //------------------------------------------------------------------------------
                 /**
@@ -304,15 +305,6 @@ namespace moris
                  */
                 void eval_deffdynviscdu( const moris::Cell< MSI::Dof_Type > & aDofTypes );
 
-                /**
-                 * get the derivative of the effective dynamic viscosity wrt dof type
-                 * @param[ in ] aDofTypes  a dof type wrt which the derivative is evaluated
-                 * @param[ in ] aCMFunctionType enum for specific type of which effective dynamic viscosity
-                 * @param[ out ] mdeffconddu derivative of the effective dynamic viscosity wrt dof types
-                 */
-                const Matrix< DDRMat > & deffdynviscdu(
-                        const moris::Cell< MSI::Dof_Type > & aDofType,
-                        enum CM_Function_Type                aCMFunctionType = CM_Function_Type::DEFAULT );
 
                 //------------------------------------------------------------------------------
                 /**

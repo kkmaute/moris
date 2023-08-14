@@ -688,7 +688,7 @@ namespace moris::hmr
          * @return       void
          */
         void collect_elements_on_level_including_aura(
-                uint                       aLevel,
+                uint                              aLevel,
                 Cell< Background_Element_Base* >& aElementList );
 
         //--------------------------------------------------------------------------------
@@ -703,7 +703,7 @@ namespace moris::hmr
          * @return       void
          */
         void collect_elements_on_level_within_proc_domain(
-                uint                       aLevel,
+                uint                              aLevel,
                 Cell< Background_Element_Base* >& aElementList );
 
         //--------------------------------------------------------------------------------
@@ -720,8 +720,8 @@ namespace moris::hmr
          *  @param[out]  aElementList     cell with element pointers on aura
          */
         void collect_active_elements_from_aura(
-                uint                       aProcNeighbor,
-                uint                       aMode,
+                uint                              aProcNeighbor,
+                uint                              aMode,
                 Cell< Background_Element_Base* >& aElementList );
 
         //--------------------------------------------------------------------------------
@@ -798,7 +798,7 @@ namespace moris::hmr
             const Matrix< DDUMat > & aPedigreeList,
             luint             & aCounter ); */
         Background_Element_Base* decode_pedigree_path(
-                luint            aAncestorID,
+                luint                   aAncestorID,
                 const Matrix< DDUMat >& aPedigreeList,
                 luint&                  aCounter );
 
@@ -884,7 +884,7 @@ namespace moris::hmr
          */
         void unite_patterns(
                 const moris::Cell< uint >& aSourcePattern,
-                      uint                 aTarget );
+                uint                       aTarget );
 
         // -----------------------------------------------------------------------------
 
@@ -935,7 +935,7 @@ namespace moris::hmr
          * @return       void
          */
         void collect_elements_on_level(
-                uint                       aLevel,
+                uint                              aLevel,
                 Cell< Background_Element_Base* >& aElementList );
 
         //--------------------------------------------------------------------------------
@@ -1035,8 +1035,8 @@ namespace moris::hmr
          * Side set numbers see Exodus II : A Finite Element Data Model, p. 13
          */
         void collect_side_set_elements(
-                uint                       aPattern,
-                uint                       aSideOrdinal,
+                uint                              aPattern,
+                uint                              aSideOrdinal,
                 Cell< Background_Element_Base* >& aElements );
         //------------------------------------------------------------------------------
 
@@ -1059,7 +1059,7 @@ namespace moris::hmr
         //------------------------------------------------------------------------------
 
         virtual void get_element_in_bounding_box_memory_index(
-                uint                    aPattern,
+                uint                           aPattern,
                 const moris::Matrix< DDRMat >& aPoint,
                 const moris::Matrix< DDRMat >& aBoundingBoxSize,
                 moris::Matrix< DDLUMat >&      aElementMemoryIndex ) = 0;
@@ -1079,6 +1079,13 @@ namespace moris::hmr
                 const luint& aID,
                 luint*       aIJK ) const = 0;
 
+        //--------------------------------------------------------------------------------
+
+        /**
+         * reset refinement queue.
+         */
+        void
+        clear_refinement_queue();
 
       protected:
         //------------------------------------------------------------------------------
@@ -1379,7 +1386,8 @@ namespace moris::hmr
                 Background_Element_Base* aElement,
                 luint&                   aElementCounter,
                 uint                     aHalfBuffer );
+
         //------------------------------------------------------------------------------
     };
-} /* namespace moris */
+}    // namespace moris::hmr
 #endif /* SRC_HMR_CL_HMR_BACKGROUND_MESH_BASE_HPP_ */

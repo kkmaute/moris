@@ -16,6 +16,7 @@ set(HEADERS
     algorithms.hpp
     fn_equal_to.hpp
     fn_equal_to.tpp
+	fn_check_equal.hpp
     fn_hash_value.hpp
     fn_num_digits.hpp
     fn_clip_value.hpp )
@@ -37,7 +38,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library and set properties
-add_library(${ALG}-lib STATIC ${LIB_SOURCES})
+add_library(${ALG}-lib ${LIB_LINK_MODE} ${LIB_SOURCES})
 target_include_directories(${ALG}-lib PUBLIC 
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
 	$<INSTALL_INTERFACE:${${ALG}_LIB_INSTALL_DIR}>

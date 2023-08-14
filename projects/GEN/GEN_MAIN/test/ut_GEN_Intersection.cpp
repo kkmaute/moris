@@ -17,7 +17,7 @@
 #include "cl_GEN_Pdv_Host_Manager.hpp"
 #include "cl_GEN_BSpline_Field.hpp"
 #include "fn_GEN_create_geometries.hpp"
-#include "fn_GEN_check_equal.hpp"
+#include "fn_check_equal.hpp"
 #include "fn_GEN_create_simple_mesh.hpp"
 #include "cl_GEN_Mesh_Field_Geometry.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
@@ -189,9 +189,9 @@ namespace moris
                                     CHECK( tLocalCoordinate == Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ).margin( 1e-9 ) );
 
                                     // Check global coordinates
-                                    check_equal(
+                                    CHECK_EQUAL(
                                             tGeometryEngine.get_queued_intersection_global_coordinates(),
-                                            tIntersectionGlobalCoordinates( tIntersectionCount ) );
+                                            tIntersectionGlobalCoordinates( tIntersectionCount ), );
                                 }
 
                                 // Admit intersection
@@ -230,9 +230,9 @@ namespace moris
 
                         CHECK( tGeometryEngine.get_queued_intersection_local_coordinate() == Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ) );
 
-                        check_equal(
+                        CHECK_EQUAL(
                                 tGeometryEngine.get_queued_intersection_global_coordinates(),
-                                tIntersectionGlobalCoordinates( tIntersectionCount ) );
+                                tIntersectionGlobalCoordinates( tIntersectionCount ), );
 
                         // Admit intersection on intersection 1
                         tGeometryEngine.admit_queued_intersection( 9 + tIntersectionCount++ );
@@ -257,9 +257,9 @@ namespace moris
 
                         CHECK( tGeometryEngine.get_queued_intersection_local_coordinate() == Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ) );
 
-                        check_equal(
+                        CHECK_EQUAL(
                                 tGeometryEngine.get_queued_intersection_global_coordinates(),
-                                tIntersectionGlobalCoordinates( tIntersectionCount ) );
+                                tIntersectionGlobalCoordinates( tIntersectionCount ), );
 
                         // Admit intersection on intersection 1
                         tGeometryEngine.admit_queued_intersection( 9 + tIntersectionCount++ );
@@ -377,14 +377,13 @@ namespace moris
                     tHostADVSensitivities.set_size( 0.0, 0.0 );
                     eye( 2, 2, tI );
                     tPDVHostManager->get_intersection_node( tNodeIndex )->get_dcoordinate_dadv( tHostADVSensitivities, tI );
-                    check_equal(
+                    CHECK_EQUAL(
                             tHostADVSensitivities,
                             tIntersectionSensitivities( tNodeIndex - 9 ),
-                            1e-9 );
-                    check_equal(
+                            1E8, );
+                    CHECK_EQUAL(
                             tPDVHostManager->get_intersection_node( tNodeIndex )->get_coordinate_determining_adv_ids(),
-                            tIntersectionIDs( tNodeIndex - 9 ),
-                            1e-9 );
+                            tIntersectionIDs( tNodeIndex - 9 ), );
                 }
 
                 //------------------------------------------------------------------------------------------------------
@@ -491,9 +490,9 @@ namespace moris
                                     CHECK( tLocalCoordinate == Approx( tIntersectionLocalCoordinates( tIntersectionCount ) ) );
 
                                     // Check global coordinates
-                                    check_equal(
+                                    CHECK_EQUAL(
                                             tGeometryEngine.get_queued_intersection_global_coordinates(),
-                                            tIntersectionGlobalCoordinates( tIntersectionCount ) );
+                                            tIntersectionGlobalCoordinates( tIntersectionCount ), );
                                 }
 
                                 // Admit intersection
@@ -920,7 +919,7 @@ namespace moris
                 REQUIRE( tIntersectionQueued == true );
 
                 // CHECK(tGeometryEngine.get_queued_intersection_local_coordinate() == Approx(-0.520518));
-                // check_equal(tGeometryEngine.get_queued_intersection_global_coordinates(), {{-0.304805898, -0.5}});
+                // CHECK_EQUAL(tGeometryEngine.get_queued_intersection_global_coordinates(), {{-0.304805898, -0.5}},);
 
                 // Clean up
                 delete tMesh;

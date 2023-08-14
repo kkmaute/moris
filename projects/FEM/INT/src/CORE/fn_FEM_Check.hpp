@@ -44,7 +44,7 @@ namespace moris
             // check that matrices to compare have same size
             MORIS_ERROR(
                     ( aMatrixCheck.n_rows() == aMatrixRef.n_rows() ) && ( aMatrixCheck.n_cols() == aMatrixRef.n_cols() ),
-                    "fem::check() - matrices to check do not share same dimensions - check: %i x %i ref: %i x %i.",
+                    "fem::check() - matrices to check do not share same dimensions - check: %zu x %zu ref: %zu x %zu.",
                     aMatrixCheck.n_rows(),
                     aMatrixCheck.n_cols(),
                     aMatrixRef.n_rows(),

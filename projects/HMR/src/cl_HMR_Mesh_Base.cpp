@@ -15,16 +15,17 @@ namespace moris::hmr
     //------------------------------------------------------------------------------
 
     Mesh_Base::Mesh_Base (
-            const Parameters           * aParameters,
-            Background_Mesh_Base       * aBackgroundMesh,
-            uint aOrder,
-            uint aActivationPattern )
+            const Parameters*     aParameters,
+            Background_Mesh_Base* aBackgroundMesh,
+            uint                  aOrder,
+            uint                  aActivationPattern,
+            uint                  aNumberOfBasesPerElement )
     : mParameters( aParameters ),
       mBackgroundMesh( aBackgroundMesh ),
       mOrder( aOrder ),
       mNumberOfDimensions( mParameters->get_number_of_dimensions() ),
-      mNumberOfBasisPerElement( pow( aOrder+1, mParameters->get_number_of_dimensions() ) ),
-      mNumberOfNeighborsPerElement( pow( 3, mParameters->get_number_of_dimensions() ) - 1 ),
+      mNumberOfBasesPerElement( aNumberOfBasesPerElement ),
+      mNumberOfNeighborsPerElement( std::pow( 3, mParameters->get_number_of_dimensions() ) - 1 ),
       mActivationPattern( aActivationPattern )
     {
     }
@@ -175,7 +176,7 @@ namespace moris::hmr
             Element * tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
 
             // loop over all nodes connected to element
-            for( uint k = 0; k < mNumberOfBasisPerElement; ++k  )
+            for( uint k = 0; k < mNumberOfBasesPerElement; ++k  )
             {
                 // get node pointer
                 Basis* tNode = tElement->get_basis( k );
@@ -202,7 +203,7 @@ namespace moris::hmr
             Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
 
             // loop over all nodes connected to element
-            for( uint k = 0; k < mNumberOfBasisPerElement; ++k  )
+            for( uint k = 0; k < mNumberOfBasesPerElement; ++k  )
             {
                 // get node pointer
                 Basis* tNode = tElement->get_basis( k );
@@ -454,7 +455,7 @@ namespace moris::hmr
                 Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
 
                 // loop over all basis
-                for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
+                for( uint k = 0; k < mNumberOfBasesPerElement; ++k )
                 {
                     // get pointer to basis
                     Basis* tBasis = tElement->get_basis( k );
@@ -488,7 +489,7 @@ namespace moris::hmr
                 Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
 
                 // loop over all basis
-                for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
+                for( uint k = 0; k < mNumberOfBasesPerElement; ++k )
                 {
                     // get pointer to basis
                     Basis* tBasis = tElement->get_basis( k );
@@ -627,10 +628,10 @@ namespace moris::hmr
         uint tID = aBasis->get_hmr_id();
 
         // set basis to invalid value
-        aElementLocalBasisIndex = mNumberOfBasisPerElement;
+        aElementLocalBasisIndex = mNumberOfBasesPerElement;
 
         // find out local node id on element
-        for( uint k = 0; k < mNumberOfBasisPerElement; ++k )
+        for( uint k = 0; k < mNumberOfBasesPerElement; ++k )
         {
             // get pointer to basis
             Basis* tBasis = tElement->get_basis( k );
@@ -649,7 +650,7 @@ namespace moris::hmr
             }
         }
 
-        MORIS_ASSERT( aElementLocalBasisIndex != mNumberOfBasisPerElement,
+        MORIS_ASSERT( aElementLocalBasisIndex != mNumberOfBasesPerElement,
                 "something went wrong in Mesh_Base::get_reference_element_of_basis()" );
 
         // get pointer to background element
@@ -676,7 +677,7 @@ namespace moris::hmr
         else
         { */
         // copy all basis
-        tNumberOfBasisPerElement = mNumberOfBasisPerElement;
+        tNumberOfBasisPerElement = mNumberOfBasesPerElement;
         //}
 
         // set size of output matrix
@@ -708,7 +709,7 @@ namespace moris::hmr
     /*uint
     Mesh_Base::get_number_of_serendipity_basis()
     {
-        switch ( mNumberOfBasisPerElement )
+        switch ( mNumberOfBasesPerElement )
         {
 
             case( 9 ) : // QUAD9 -> QUAD8

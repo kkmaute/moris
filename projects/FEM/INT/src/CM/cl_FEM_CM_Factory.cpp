@@ -15,6 +15,7 @@
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic_Phase_Change.hpp"
 #include "cl_FEM_CM_Diffusion_Linear_Isotropic_Turbulence.hpp"
 #include "cl_FEM_CM_Struc_Linear_Isotropic.hpp"
+#include "cl_FEM_CM_Struc_Linear_Isotropic_Damage.hpp"
 #include "cl_FEM_CM_Struc_Nonlinear_Isotropic.hpp"
 #include "cl_FEM_CM_Struc_Nonlinear_Isotropic_Saint_Venant_Kirchhoff.hpp"
 #include "cl_FEM_CM_Struc_Nonlinear_Isotropic_Neo_Hookean.hpp"
@@ -47,6 +48,9 @@ namespace moris
 
                 case  Constitutive_Type::STRUC_LIN_ISO :
                     return std::make_shared< CM_Struc_Linear_Isotropic >();
+
+                case Constitutive_Type::STRUC_LIN_ISO_DAMAGE:
+                	return std::make_shared< CM_Struc_Linear_Isotropic_Damage >();
 
                 case Constitutive_Type::STRUC_LIN_MT:
                     return std::make_shared< CM_Struc_Linear_MoriTanaka >();

@@ -18,23 +18,24 @@ namespace moris
     {
         //--------------------------------------------------------------------------------------------------------------
 
-        std::shared_ptr<Criteria_Interface> create_interface(
-                Cell<ParameterList> aParameterLists,
-                Cell<std::shared_ptr<Criteria_Interface>> aInterfaces)
+        std::shared_ptr< Criteria_Interface >
+        create_interface(
+                Cell< ParameterList >                         aParameterLists,
+                Cell< std::shared_ptr< Criteria_Interface > > aInterfaces )
         {
             // Get number of interfaces
             uint tNumInterfaces = aParameterLists.size() + aInterfaces.size() - 1;
 
             // Single interface without manager
-            if (tNumInterfaces == 0)
+            if ( tNumInterfaces == 0 )
             {
-                if (aParameterLists.size() > 0)
+                if ( aParameterLists.size() > 0 )
                 {
-                    return create_interface(aParameterLists(0));
+                    return create_interface( aParameterLists( 0 ) );
                 }
                 else
                 {
-                    return aInterfaces(0);
+                    return aInterfaces( 0 );
                 }
             }
 
@@ -42,32 +43,34 @@ namespace moris
             else
             {
                 uint tNumCreatedInterfaces = aInterfaces.size();
-                aInterfaces.resize(tNumInterfaces);
-                for (uint tInterfaceIndex = tNumCreatedInterfaces; tInterfaceIndex < tNumInterfaces; tInterfaceIndex++)
+                aInterfaces.resize( tNumInterfaces );
+                for ( uint tInterfaceIndex = tNumCreatedInterfaces; tInterfaceIndex < tNumInterfaces; tInterfaceIndex++ )
                 {
-                    aInterfaces(tInterfaceIndex) = create_interface(aParameterLists(tInterfaceIndex + 1));
+                    aInterfaces( tInterfaceIndex ) = create_interface( aParameterLists( tInterfaceIndex + 1 ) );
                 }
-                return std::make_shared<Interface_Manager>(aParameterLists(0), aInterfaces);
+                return std::make_shared< Interface_Manager >( aParameterLists( 0 ), aInterfaces );
             }
         }
 
         //--------------------------------------------------------------------------------------------------------------
 
-        std::shared_ptr<Criteria_Interface> create_interface(ParameterList aParameterList)
+        std::shared_ptr< Criteria_Interface >
+        create_interface( ParameterList aParameterList )
         {
-            std::string tInterfaceType = aParameterList.get<std::string>("type");
-            if (!tInterfaceType.compare("user_defined"))
+            std::string tInterfaceType = aParameterList.get< std::string >( "type" );
+            if ( !tInterfaceType.compare( "user_defined" ) )
             {
-                return std::make_shared<Interface_User_Defined>(aParameterList);
+                return std::make_shared< Interface_User_Defined >( aParameterList );
             }
             else
             {
-                MORIS_ERROR(false, tInterfaceType.append(" is not recognized as a valid Criteria_Interface type in fn_OPT_create_interface.").c_str());
+                MORIS_ERROR( false,
+                        "%s is not recognized as a valid Criteria_Interface type in fn_OPT_create_interface.",
+                        tInterfaceType.c_str() );
                 return nullptr;
             }
         }
 
         //--------------------------------------------------------------------------------------------------------------
-    }
-}
-
+    }    // namespace opt
+}    // namespace moris

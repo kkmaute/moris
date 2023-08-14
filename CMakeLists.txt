@@ -143,6 +143,10 @@ set(MORIS_USE_MPI "OPENMPI" CACHE STRING "Set MPI package: ${MORIS_MPI_LIBS}")
 # MPI execution command
 set(MORIS_EXECUTE_COMMAND "mpirun" CACHE STRING "The command used to execute MORIS tests.")
 
+# SHARED lib support.
+option(MORIS_HAVE_SHARED
+    "Build MORIS with support for SHARED libraries." OFF )
+
 option(MORIS_USE_ARMA
     "Use the Armadillo library as the dense linear algebra package." ON )
 
@@ -174,6 +178,9 @@ option(MORIS_HAVE_SYMBOLIC
 
 option(MORIS_HAVE_SYMBOLIC_STRONG
     "Use symbolic information (strong) in executable." OFF )
+
+option(MORIS_HAVE_PEDANTIC 
+    "Use strict compiler checking" ON)
 
 option(MORIS_USE_ACML
     "Use the AMD ACML library as the linear algebra package." OFF )
@@ -551,37 +558,36 @@ if (MORIS_HAVE_TRILINOS_OLD)
     set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -DMORIS_HAVE_TRILINOS_OLD ")
 endif()
 
+# Set compiler flags for strict error checking
+if (MORIS_HAVE_PEDANTIC)
+    
+    # Add some strict compiler checks.
+    check_cxx_compiler_flag("-pedantic" HAVE_PEDANTIC )
+    if (HAVE_PEDANTIC)
+        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -pedantic" )
+    endif()
+    check_cxx_compiler_flag("-pedantic-errors" HAVE_PEDANTIC )
+    if (HAVE_PEDANTIC)
+        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -pedantic-errors" )
+    endif()
+    check_cxx_compiler_flag("-Wall" HAVE_PEDANTIC )
+    if (HAVE_PEDANTIC)
+        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wall" )
+    endif()
+    check_cxx_compiler_flag("-Wextra" HAVE_PEDANTIC )
+    #if (HAVE_PEDANTIC)
+    #    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wextra" )
+    #endif()
+    check_cxx_compiler_flag("-Werror" HAVE_PEDANTIC )
+    if (HAVE_PEDANTIC)
+        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Werror" )
+    endif()
 
-# Add some strict compiler checks.
-check_cxx_compiler_flag("-pedantic" HAVE_PEDANTIC )
-if (HAVE_PEDANTIC)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -pedantic" )
-endif()
-check_cxx_compiler_flag("-pedantic-errors" HAVE_PEDANTIC )
-if (HAVE_PEDANTIC)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -pedantic-errors" )
-endif()
-check_cxx_compiler_flag("-Wall" HAVE_PEDANTIC )
-if (HAVE_PEDANTIC)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wall" )
-endif()
-check_cxx_compiler_flag("-Wextra" HAVE_PEDANTIC )
-if (HAVE_PEDANTIC)
-    #set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wextra" )
-endif()
-check_cxx_compiler_flag("-Werror" HAVE_PEDANTIC )
-if (HAVE_PEDANTIC)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Werror" )
-endif()
-
-# Define exceptions to strict error checking
-check_cxx_compiler_flag("-Wno-unused-parameter" HAVE_EXCEPTION )
-if (HAVE_EXCEPTION)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-unused-parameter" )
-endif()
-check_cxx_compiler_flag("-Wno-format-security" HAVE_EXCEPTION )
-if (HAVE_EXCEPTION)
-    set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-format-security" )
+    # Define exceptions to strict error checking
+    check_cxx_compiler_flag("-Wno-unused-parameter" HAVE_EXCEPTION )
+    if (HAVE_EXCEPTION)
+        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Wno-unused-parameter" )
+    endif()
 endif()
 
 # Check for C++17 and lower version support.
@@ -634,6 +640,12 @@ endif()
 check_cxx_compiler_flag(-fPIC HAVE_FPIC)
 if (HAVE_FPIC)
     set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -fPIC")
+endif()
+
+if (MORIS_HAVE_SHARED)
+     SET(LIB_LINK_MODE SHARED)
+else()
+     SET(LIB_LINK_MODE STATIC)
 endif()
 
 # Attempt
@@ -1138,3 +1150,6 @@ install(EXPORT ${MORIS}Targets
 install(FILES "include/catch.hpp"
     DESTINATION ${HEADER_INSTALL_DIR}/${MORIS} )
 
+# Install moris_macros.cmake file
+install(FILES ${CMAKE_SOURCE_DIR}/share/cmake/utilities/moris_macros.cmake
+    DESTINATION ${CONFIG_INSTALL_DIR}/utilities )

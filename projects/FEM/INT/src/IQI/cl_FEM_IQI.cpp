@@ -184,7 +184,7 @@ namespace moris
 
         void
         IQI::set_phase_name(
-                std::string       aPhaseName,
+                std::string          aPhaseName,
                 mtk::Leader_Follower aIsLeader )
         {
             switch ( aIsLeader )
@@ -246,7 +246,7 @@ namespace moris
         void
         IQI::set_field_interpolator_manager(
                 Field_Interpolator_Manager* aFieldInterpolatorManager,
-                mtk::Leader_Follower           aIsLeader )
+                mtk::Leader_Follower        aIsLeader )
         {
             switch ( aIsLeader )
             {
@@ -331,7 +331,7 @@ namespace moris
         void
         IQI::set_dof_type_list(
                 const moris::Cell< moris::Cell< MSI::Dof_Type > >& aDofTypes,
-                mtk::Leader_Follower                                  aIsLeader )
+                mtk::Leader_Follower                               aIsLeader )
         {
             switch ( aIsLeader )
             {
@@ -429,7 +429,7 @@ namespace moris
         void
         IQI::set_dv_type_list(
                 const moris::Cell< moris::Cell< PDV_Type > >& aDvTypes,
-                mtk::Leader_Follower                             aIsLeader )
+                mtk::Leader_Follower                          aIsLeader )
         {
             switch ( aIsLeader )
             {
@@ -569,7 +569,7 @@ namespace moris
         void
         IQI::set_field_type_list(
                 const moris::Cell< moris::Cell< mtk::Field_Type > >& aDofTypes,
-                mtk::Leader_Follower                                    aIsLeader )
+                mtk::Leader_Follower                                 aIsLeader )
         {
             switch ( aIsLeader )
             {
@@ -595,7 +595,7 @@ namespace moris
         void
         IQI::set_field_interpolator_manager_eigen_vector(
                 Field_Interpolator_Manager* aFieldInterpolatorManager,
-                mtk::Leader_Follower           aIsLeader )
+                mtk::Leader_Follower        aIsLeader )
         {
             switch ( aIsLeader )
             {
@@ -648,7 +648,7 @@ namespace moris
         IQI::set_property(
                 std::shared_ptr< Property > aProperty,
                 std::string                 aPropertyString,
-                mtk::Leader_Follower           aIsLeader )
+                mtk::Leader_Follower        aIsLeader )
         {
             // check that aPropertyString makes sense
             MORIS_ERROR( mPropertyMap.find( aPropertyString ) != mPropertyMap.end(),
@@ -696,7 +696,7 @@ namespace moris
         IQI::set_constitutive_model(
                 std::shared_ptr< Constitutive_Model > aConstitutiveModel,
                 std::string                           aConstitutiveString,
-                mtk::Leader_Follower                     aIsLeader )
+                mtk::Leader_Follower                  aIsLeader )
         {
             // check that aConstitutiveString makes sense
             MORIS_ERROR( mConstitutiveMap.find( aConstitutiveString ) != mConstitutiveMap.end(),
@@ -768,12 +768,12 @@ namespace moris
 
         {
             // init counters for dof and dv types
-            uint tLeaderDofCounter   = 0;
-            uint tFollowerDofCounter    = 0;
-            uint tLeaderDvCounter    = 0;
-            uint tFollowerDvCounter     = 0;
-            uint tLeaderFieldCounter = 0;
-            uint tFollowerFieldCounter  = 0;
+            uint tLeaderDofCounter     = 0;
+            uint tFollowerDofCounter   = 0;
+            uint tLeaderDvCounter      = 0;
+            uint tFollowerDvCounter    = 0;
+            uint tLeaderFieldCounter   = 0;
+            uint tFollowerFieldCounter = 0;
 
             // get number of direct leader dof dependencies
             for ( uint iDof = 0; iDof < mLeaderDofTypes.size(); iDof++ )
@@ -2186,7 +2186,7 @@ namespace moris
 
                 // check for correctness of perturbation size for backward FD
                 MORIS_ASSERT( tDeltaH < aCoefficientToPerturb - tMinIP,
-                        "ERROR: backward perturbation size exceed limits of interpolation element:\n",
+                        "ERROR: backward perturbation size exceed limits of interpolation element:\n"
                         "dim: %d  minIP: %e  maxIP: %e  cordIG: %e  maxPert: %e  delta: %e  precPert: %e\n.",
                         aSpatialDirection,
                         tMinIP,

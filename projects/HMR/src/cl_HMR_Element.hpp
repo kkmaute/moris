@@ -604,6 +604,11 @@ namespace moris::hmr
           return mElement->get_ijk();
         }
 
+        /**
+         * Flags all bases in this element
+         */
+        virtual void flag_all_bases() = 0;
+
         //------------------------------------------------------------------------------
 
     protected:

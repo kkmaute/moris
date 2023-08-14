@@ -33,6 +33,7 @@
 #include "cl_FEM_IQI_Effective_Conductivity.hpp"
 #include "cl_FEM_IQI_Spalart_Allmaras_Coefficient.hpp"
 #include "cl_FEM_IQI_Power_Dissipation.hpp"
+#include "cl_FEM_IQI_Power_Dissipation_Bulk.hpp"
 #include "cl_FEM_IQI_Total_Pressure.hpp"
 #include "cl_FEM_IQI_Mass_Flow.hpp"
 #include "cl_FEM_IQI_Stabilization.hpp"
@@ -43,10 +44,15 @@
 #include "cl_FEM_IQI_Advection_Strong_Residual.hpp"
 #include "cl_FEM_IQI_Strong_Residual_SA.hpp"
 #include "cl_FEM_IQI_Strong_Residual_Incompressible_NS.hpp"
+#include "cl_FEM_IQI_SP_Crosswind_Incompressible_NS.hpp"
+#include "cl_FEM_IQI_Res_Crosswind_Incompressible_NS.hpp"
+#include "cl_FEM_IQI_Res_SUPG_Incompressible_NS.hpp"
+#include "cl_FEM_IQI_SP_Crosswind_SA.hpp"
 #include "cl_FEM_IQI_Zienkiewicz_Zhu.hpp"
 #include "cl_FEM_IQI_Jump_Dof.hpp"
 #include "cl_FEM_IQI_Jump_Traction.hpp"
 #include "cl_FEM_IQI_Traction.hpp"
+#include "cl_FEM_IQI_Linear_Elasticity_Damage.hpp"
 
 namespace moris
 {
@@ -160,6 +166,8 @@ namespace moris
                     return std::make_shared< IQI_Homogenized_Constitutive >();
                 case IQI_Type::POWER_DISSIPATION:
                     return std::make_shared< IQI_Power_Dissipation >();
+                case IQI_Type::POWER_DISSIPATION_BULK:
+                    return std::make_shared< IQI_Power_Dissipation_Bulk >();
 
                 case IQI_Type::HEAT_METHOD_PENALTY:
                     return std::make_shared< IQI_Heat_Method_Penalty >();
@@ -171,6 +179,15 @@ namespace moris
                 case IQI_Type::STRONG_RESIDUAL_INCOMPRESSIBLE_NS:
                     return std::make_shared< IQI_Strong_Residual_Incompressible_NS >();
 
+                case IQI_Type::SP_CROSSWIND_INCOMPRESSIBLE_NS:
+                    return std::make_shared< IQI_SP_Crosswind_Incompressible_NS >();
+                case IQI_Type::RES_CROSSWIND_INCOMPRESSIBLE_NS:
+                    return std::make_shared< IQI_Res_Crosswind_Incompressible_NS >();
+                case IQI_Type::RES_SUPG_INCOMPRESSIBLE_NS:
+                    return std::make_shared< IQI_Res_SUPG_Incompressible_NS >();
+                case IQI_Type::SP_CROSSWIND_SA:
+                    return std::make_shared< IQI_SP_Crosswind_SA >();
+
                 case IQI_Type::ZIENKIEWICZ_ZHU_VON_MISES_STRESS:
                     return std::make_shared< IQI_Zienkiewicz_Zhu >( Stress_Type::VON_MISES_STRESS );
 
@@ -181,6 +198,8 @@ namespace moris
                 case IQI_Type::TRACTION:
                     return std::make_shared< IQI_Traction >();
 
+                case IQI_Type::LINEAR_ELASTICITY_DAMAGE:
+                    return std::make_shared< IQI_Linear_Elasticity_Damage >();
 
                 default:
                     MORIS_ERROR( false, " IQI_Factory::create_IQI - No IQI type specified. " );
