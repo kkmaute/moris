@@ -16,9 +16,9 @@ namespace moris
     {
         Geometric_Proximity::Geometric_Proximity() {}
 
-        Geometric_Proximity::Geometric_Proximity( moris_index const & aNumGeometries )
+        Geometric_Proximity::Geometric_Proximity( moris_index const &aNumGeometries )
                 : mAssociatedVertexIndex( MORIS_INDEX_MAX )
-                , mGeometricProximity( 1, aNumGeometries, MORIS_INDEX_MAX )
+                , mGeometricProximity( aNumGeometries, MORIS_INDEX_MAX )
         {
         }
 
@@ -29,9 +29,13 @@ namespace moris
         //-----------------------------------------------------------------------------------------
 
         void
-        Geometric_Proximity::set_geometric_proximity( moris_index aGeometricProximity, moris_index aGeometryIndex )
+        Geometric_Proximity::set_geometric_proximity(
+                moris_index aGeometricProximity,
+                moris_index aGeometryIndex )
         {
-            MORIS_ASSERT( aGeometryIndex < (moris_index)mGeometricProximity.numel(), "Geometry index out of bounds" );
+            MORIS_ASSERT( aGeometryIndex < (moris_index)mGeometricProximity.size(),
+                    "Geometry index out of bounds" );
+
             mGeometricProximity( aGeometryIndex ) = aGeometricProximity;
         }
 
@@ -47,4 +51,3 @@ namespace moris
 
     }    // namespace ge
 }    // namespace moris
-
