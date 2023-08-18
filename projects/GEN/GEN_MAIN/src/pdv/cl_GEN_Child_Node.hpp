@@ -46,7 +46,6 @@ namespace moris
             Matrix< DDRMat >         mBasisValues;
 
           private:
-            Matrix< DDRMat > mLocalCoordinatesInAncestor;
             Matrix< DDRMat > mJoinedSensitivities;
 
           public:
@@ -54,7 +53,7 @@ namespace moris
              * Constructor
              *
              * @param aAncestorNodeIndices Node indices of the ancestors of this child node
-             * @param aAncestorNodeCoordinates Coordinates of the ancestors of this child node
+             * @param aAncestorNodeCoordinates Global coordinates of the ancestors of thissh s child node
              * @param aBasisFunction Basis function of the ancestor topology
              * @param aLocalCoordinatesInAncestor Local coordinate of this child inside of the ancestor element
              */
