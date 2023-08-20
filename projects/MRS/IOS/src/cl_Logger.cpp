@@ -405,14 +405,16 @@ namespace moris
     Logger::get_iteration(
             const std::string& aEntityBase,
             const std::string& aEntityType,
-            const std::string& aEntityAction )
+            const std::string& aEntityAction,
+            bool               aGetLastInstance )
     {
         // initialize
-        uint tIndentLevel   = 0;
         bool tInstanceFound = false;
+        uint tInstanceLevel = 0;
+        uint tIndentLevel   = 0;
 
         // go through global clock stack from bottom and look for requested instance
-        while ( tIndentLevel <= mGlobalClock.mIndentationLevel && tInstanceFound == false )
+        while ( tIndentLevel <= mGlobalClock.mIndentationLevel )
         {
             // check if Instance matches the instance searched for
             if (
@@ -421,6 +423,13 @@ namespace moris
                     and ( aEntityAction == mGlobalClock.mCurrentAction[ tIndentLevel ] or aEntityAction == LOGGER_ARBITRARY_DESCRIPTOR ) )
             {
                 tInstanceFound = true;
+                tInstanceLevel = tIndentLevel;
+
+                // stop searching if only first instance to be found
+                if ( !aGetLastInstance )
+                {
+                    break;
+                }
             }
 
             // increment cursor
@@ -430,7 +439,7 @@ namespace moris
         // return iteration count if the instance was found
         if ( tInstanceFound )
         {
-            return mGlobalClock.mCurrentIteration[ tIndentLevel - 1 ];
+            return mGlobalClock.mCurrentIteration[ tInstanceLevel ];
         }
 
         return 0;
