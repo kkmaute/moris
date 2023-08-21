@@ -575,9 +575,6 @@ namespace moris
         tParameterlist.resize( 3 );
 
         tParameterlist( 0 ).push_back( prm::create_gen_parameter_list() );
-        tParameterlist( 0 )( 0 ).set( "isocontour_threshold", 0.0 );
-        tParameterlist( 0 )( 0 ).set( "isocontour_tolerance", 1.0e-12 );
-        tParameterlist( 0 )( 0 ).set( "intersection_tolerance", 1.0e-12 );
         tParameterlist( 0 )( 0 ).set( "IQI_types",
                 "IQIInputThermalEnergy,"
                 "IQIDiffusiveLower,"
@@ -600,6 +597,9 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Func_Sphere" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementSphere );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
+        tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
         tParameterlist( 1 )( tGeoCounter ).set( "multilinear_intersections", true );
         tParameterlist( 1 )( tGeoCounter ).set( "discretization_mesh_index", 0 );
         tParameterlist( 1 )( tGeoCounter ).set( "discretization_lower_bound", -2.0 );

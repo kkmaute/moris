@@ -478,7 +478,6 @@ namespace moris
 
         tParameterlist( 0 )( 0 ).set( "print_phase_table", true );
         tParameterlist( 0 )( 0 ).set( "intersection_tolerance", 1e-8 );
-        tParameterlist( 0 )( 0 ).set( "isocontour_tolerance", 1e-8 );
 
         // init geometry counter
         uint tGeoCounter = 0;
@@ -488,6 +487,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Box_2D3D" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "1" );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1e-8 );
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Box" );
 
         tGeoCounter++;

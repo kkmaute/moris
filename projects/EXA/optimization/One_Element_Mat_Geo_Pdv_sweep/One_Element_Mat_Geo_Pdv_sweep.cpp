@@ -430,8 +430,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy,IQIBulkVolume" );    //,IQIPerimeter_InterfaceVoid,IQIHeatMethodPenalty");
         // tParameterlist(0)(0).set("output_mesh_file", tGENOutputFile );
         tParameterlist( 0 )( 0 ).set( "time_offset", 10.0 );
-        tParameterlist( 0 )( 0 ).set( "isocontour_tolerance", 10e-14 );
-        tParameterlist( 0 )( 0 ).set( "isocontour_threshold", 0.5 );    // FIXME     this has to change
         tParameterlist( 0 )( 0 ).set( "PDV_types", "LS1" );
         tParameterlist( 0 )( 0 ).set( "initial_advs", "2.0; 0.0; 1.0; 0.0" );
         tParameterlist( 0 )( 0 ).set( "lower_bounds", "-5.0; -1.0; -2.0; -1.0" );
@@ -451,6 +449,8 @@ namespace moris
         tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "type", "plane" );
         // tParameterlist(1)( tGeoCounter ).set("constant_parameters", "0.0, 0.0, 2.0");
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 10e-14 );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.5 );    // FIXME     this has to change
         tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", "0, 1, 2, 3" );
         tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", "0, 1, 2, 3" );
 
