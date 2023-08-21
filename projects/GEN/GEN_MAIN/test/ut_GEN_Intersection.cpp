@@ -533,7 +533,7 @@ namespace moris
         {
             if ( par_size() == 1 )
             {
-                // This tests a patholgoical case where the curved bi-linear interpolation results in an edge with the same signed parent nodes to have an intersection point
+                // This tests a pathological case where the curved bi-linear interpolation results in an edge with the same signed parent nodes to have an intersection point
                 // My mesh is one element where the geometry is a user defined nodal field (best way to control everything in this problem).
                 // The isocontour threshold is away from 0. If this test fails, it is probably because someone modified the logic in cl_GEN_Intersection_Node.cpp which determins
                 // if an entity is intersected.
@@ -593,11 +593,14 @@ namespace moris
                 Cell< std::shared_ptr< ge::Geometry > > tGeometry( 1 );
                 tGeometry( 0 ) = std::make_shared< moris::ge::Mesh_Field_Geometry >( tMeshData, tLSFName );
                 tGeometry( 0 )->set_intersection_interpolation( "multilinear" );
+                tGeometry( 0 )->set_isocontour_threshold( 0.5 );
+                tGeometry( 0 )->set_isocontour_tolerance( 1e-13 );
+                
 
                 moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
                 tGeometryEngineParameters.mGeometries          = tGeometry;
-                tGeometryEngineParameters.mIsocontourThreshold = 0.5;
-                tGeometryEngineParameters.mIsocontourTolerance = 1e-13;
+                // tGeometryEngineParameters.mIsocontourThreshold = 0.5;
+                // tGeometryEngineParameters.mIsocontourTolerance = 1e-13; BRENDAN
 
                 moris::ge::Geometry_Engine tGeometryEngine( tMeshData, tGeometryEngineParameters );
 

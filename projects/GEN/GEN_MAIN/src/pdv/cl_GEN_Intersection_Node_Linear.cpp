@@ -29,18 +29,14 @@ namespace moris
                 uint                                 aSecondNodeIndex,
                 const Matrix< DDRMat >&              aFirstNodeCoordinates,
                 const Matrix< DDRMat >&              aSecondNodeCoordinates,
-                std::shared_ptr< Geometry >          aInterfaceGeometry,
-                real                                 aIsocontourThreshold,
-                real                                 aIsocontourTolerance,
-                real                                 aIntersectionTolerance )
+                std::shared_ptr< Geometry >          aInterfaceGeometry )
                 : Intersection_Node(
                         get_local_coordinate(
                                 aFirstNodeIndex,
                                 aSecondNodeIndex,
                                 aFirstNodeCoordinates,
                                 aSecondNodeCoordinates,
-                                aInterfaceGeometry,
-                                aIsocontourThreshold ),
+                                aInterfaceGeometry ),
                         aFirstNode,
                         aSecondNode,
                         aFirstNodeIndex,
@@ -50,10 +46,7 @@ namespace moris
                         { { aFirstNodeIndex, aSecondNodeIndex } },
                         { aFirstNodeCoordinates, aSecondNodeCoordinates },
                         Element_Intersection_Type::Linear_1D,
-                        aInterfaceGeometry,
-                        aIsocontourThreshold,
-                        aIsocontourTolerance,
-                        aIntersectionTolerance )
+                        aInterfaceGeometry )
         {
         }
 
@@ -85,16 +78,19 @@ namespace moris
 
         real
         Intersection_Node_Linear::get_dxi_dfield_from_ancestor( uint aAncestorIndex )
-        {
+        {           
             // Locked interface geometry
             std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+
+            // get isocontour threshold from geometry
+            real tIsocontourThreshold = tLockedInterfaceGeometry->get_isocontour_threshold();
 
             // Get geometry field values
             real tPhi0 = tLockedInterfaceGeometry->get_field_value( mAncestorNodeIndices( 0 ), mAncestorNodeCoordinates( 0 ) );
             real tPhi1 = tLockedInterfaceGeometry->get_field_value( mAncestorNodeIndices( 1 ), mAncestorNodeCoordinates( 1 ) );
 
             // Compute sensitivity of the local coordinate with respect to the field value
-            return 2 * ( ( tPhi0 - mIsocontourThreshold ) * ( aAncestorIndex == 1 ) - ( tPhi1 - mIsocontourThreshold ) * ( aAncestorIndex == 0 ) ) / std::pow( ( tPhi1 - tPhi0 ), 2 );
+            return 2 * ( ( tPhi0 - tIsocontourThreshold ) * ( aAncestorIndex == 1 ) - ( tPhi1 - tIsocontourThreshold ) * ( aAncestorIndex == 0 ) ) / std::pow( ( tPhi1 - tPhi0 ), 2 );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -140,15 +136,17 @@ namespace moris
                 uint                        aSecondNodeIndex,
                 const Matrix< DDRMat >&     aFirstNodeCoordinates,
                 const Matrix< DDRMat >&     aSecondNodeCoordinates,
-                std::shared_ptr< Geometry > aInterfaceGeometry,
-                real                        aIsocontourThreshold )
+                std::shared_ptr< Geometry > aInterfaceGeometry )
         {
             // Interface geometry values
             Matrix< DDRMat > tInterfaceGeometryValues = { { aInterfaceGeometry->get_field_value( aFirstNodeIndex, aFirstNodeCoordinates ) },
                 { aInterfaceGeometry->get_field_value( aSecondNodeIndex, aSecondNodeCoordinates ) } };
 
+            // Get isocontour threshold
+            real tIsocontourThreshold = aInterfaceGeometry->get_isocontour_threshold();
+
             // Interpolate
-            Matrix< DDRMat > tLocalCoordinates = Interpolation::linear_interpolation_value( tInterfaceGeometryValues, aIsocontourThreshold );
+            Matrix< DDRMat > tLocalCoordinates = Interpolation::linear_interpolation_value( tInterfaceGeometryValues, tIsocontourThreshold );
 
             return tLocalCoordinates( 0 );
         }

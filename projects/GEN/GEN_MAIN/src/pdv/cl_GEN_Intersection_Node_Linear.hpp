@@ -44,10 +44,7 @@ namespace moris
                     uint                                 aSecondNodeIndex,
                     const Matrix< DDRMat >&              aFirstNodeCoordinates,
                     const Matrix< DDRMat >&              aSecondNodeCoordinates,
-                    std::shared_ptr< Geometry >          aInterfaceGeometry,
-                    real                                 aIsocontourThreshold   = 0.0,
-                    real                                 aIsocontourTolerance   = 0.0,
-                    real                                 aIntersectionTolerance = 0.0 );
+                    std::shared_ptr< Geometry >          aInterfaceGeometry );
 
             /**
              * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -102,8 +99,7 @@ namespace moris
                     uint                        aSecondNodeIndex,
                     const Matrix< DDRMat >&     aFirstNodeCoordinates,
                     const Matrix< DDRMat >&     aSecondNodeCoordinates,
-                    std::shared_ptr< Geometry > aInterfaceGeometry,
-                    real                        aIsocontourThreshold );
+                    std::shared_ptr< Geometry > aInterfaceGeometry );
         };
     }    // namespace ge
 }    // namespace moris

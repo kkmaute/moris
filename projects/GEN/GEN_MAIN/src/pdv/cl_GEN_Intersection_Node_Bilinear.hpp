@@ -56,10 +56,7 @@ namespace moris
                     const Matrix< DDUMat >&              aAncestorNodeIndices,
                     const Cell< Matrix< DDRMat > >&      aAncestorNodeCoordinates,
                     const Element_Intersection_Type      aInterpolationType,
-                    std::shared_ptr< Geometry >          aInterfaceGeometry,
-                    real                                 aIsocontourThreshold   = 0.0,
-                    real                                 aIsocontourTolerance   = 0.0,
-                    real                                 aIntersectionTolerance = 0.0 );
+                    std::shared_ptr< Geometry >          aInterfaceGeometry );
 
             virtual ~Intersection_Node_Bilinear();
 
@@ -106,16 +103,14 @@ namespace moris
                     const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates,
                     const Matrix< DDUMat >&         aAncestorNodeIndices,
                     const Cell< Matrix< DDRMat > >& aAncestorNodeCoordinates,
-                    std::shared_ptr< Geometry >     aInterfaceGeometry,
-                    real                            aIsocontourThreshold );
+                    std::shared_ptr< Geometry >     aInterfaceGeometry );
 
             real compute_intersection(
                     const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
                     const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates,
                     const Matrix< DDUMat >&         aAncestorNodeIndices,
                     const Cell< Matrix< DDRMat > >& aAncestorNodeCoordinates,
-                    std::shared_ptr< Geometry >     aInterfaceGeometry,
-                    real                            aIsocontourThreshold );
+                    std::shared_ptr< Geometry >     aInterfaceGeometry );
 
             real compute_intersection_derivative( uint aAncestorIndex );
         };

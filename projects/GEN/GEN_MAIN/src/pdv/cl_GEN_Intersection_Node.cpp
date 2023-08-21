@@ -37,9 +37,6 @@ namespace moris
                 Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
                 const Element_Intersection_Type      aAncestorBasisFunction,
                 std::shared_ptr< Geometry >          aInterfaceGeometry,
-                real                                 aIsocontourThreshold,
-                real                                 aIsocontourTolerance,
-                real                                 aIntersectionTolerance,
                 bool                                 aDetermineIsIntersected )
                 : Child_Node(
                         aAncestorNodeIndices,
@@ -49,7 +46,6 @@ namespace moris
                 , mLocalCoordinate( aLocalCoordinate )
                 , mIsIntersected( false )
                 , mInterfaceGeometry( aInterfaceGeometry )
-                , mIsocontourThreshold( aIsocontourThreshold )
                 , mFirstParentNode( aFirstParentNode )
                 , mSecondParentNode( aSecondParentNode )
                 , mFirstParentNodeIndex( aFirstParentNodeIndex )
@@ -97,6 +93,10 @@ namespace moris
                             "Intersection_Node::Intersection_Node - Interpolation type not implemented." );
             }
 
+            // get isocontour threshold from geometry
+            real tIsocontourThreshold = aInterfaceGeometry->get_isocontour_threshold();
+            real tIntersectionTolerance = aInterfaceGeometry->get_intersection_tolerance();
+
             // Parent basis
             Matrix< DDRMat > tFirstParentBasisValues;
             Matrix< DDRMat > tSecondParentBasisValues;
@@ -125,14 +125,14 @@ namespace moris
 
             real tParentLength = norm( mParentVector );
 
-            real tFirstDiffFromThreshold  = tFirstParentPhi - aIsocontourThreshold;
-            real tSecondDiffFromThreshold = tSecondParentPhi - aIsocontourThreshold;
+            real tFirstDiffFromThreshold  = tFirstParentPhi - tIsocontourThreshold;
+            real tSecondDiffFromThreshold = tSecondParentPhi - tIsocontourThreshold;
 
-            mFirstParentOnInterface = std::abs( tFirstDiffFromThreshold ) < aIntersectionTolerance
-                                   or 0.5 * tParentLength * std::abs( 1 + aLocalCoordinate ) < aIntersectionTolerance;
+            mFirstParentOnInterface = std::abs( tFirstDiffFromThreshold ) < tIntersectionTolerance
+                                   or 0.5 * tParentLength * std::abs( 1 + aLocalCoordinate ) < tIntersectionTolerance;
 
-            mSecondParentOnInterface = std::abs( tSecondDiffFromThreshold ) < aIntersectionTolerance
-                                    or 0.5 * tParentLength * std::abs( 1 - aLocalCoordinate ) < aIntersectionTolerance;
+            mSecondParentOnInterface = std::abs( tSecondDiffFromThreshold ) < tIntersectionTolerance
+                                    or 0.5 * tParentLength * std::abs( 1 - aLocalCoordinate ) < tIntersectionTolerance;
 
             // Determine if edge is intersected
             if ( mFirstParentOnInterface or mSecondParentOnInterface )

@@ -390,9 +390,7 @@ namespace moris
                                     0,
                                     tFirstParentCoordinates,
                                     tSecondParentCoordinates,
-                                    tCircle,
-                                    0.0,
-                                    0.0 );
+                                    tCircle );
 
                     // Add intersection node to PDV host manager
                     tPDVHostManager.set_intersection_node( tNodeIndex, tIntersectionNode );

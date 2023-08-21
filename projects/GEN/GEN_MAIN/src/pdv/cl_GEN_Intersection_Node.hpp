@@ -62,9 +62,6 @@ namespace moris
              * @param aAncestorNodeCoordinates Coordinates of the ancestors of this intersection node
              * @param aAncestorBasisFunction Basis function of the ancestor topology
              * @param aInterfaceGeometry Geometry that intersects the parent to create this node
-             * @param aIsocontourThreshold Threshold for determining the intersection location of this node
-             * @param aIsocontourTolerance Tolerance for determining interface parent nodes based on geometry value
-             * @param aIntersectionTolerance Tolerance for determining interface parent nodes with intersection distance
              * @param aDetermineIsIntersected Flag whether determination of intersection should be performed
              */
             Intersection_Node(
@@ -79,9 +76,6 @@ namespace moris
                     Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
                     const Element_Intersection_Type      aAncestorBasisFunction,
                     std::shared_ptr< Geometry >          aInterfaceGeometry,
-                    real                                 aIsocontourThreshold,
-                    real                                 aIsocontourTolerance,
-                    real                                 aIntersectionTolerance,
                     bool                                 aDetermineIsIntersected = true );
 
             /**
