@@ -397,13 +397,12 @@ namespace moris
 
         // main gen parameter list
         tParameterList( 0 ).push_back( prm::create_gen_parameter_list() );
-        tParameterList( 0 )( 0 ).set("isocontour_tolerance", 1e-12 );
-        tParameterList( 0 )( 0 ).set("number_of_phases"    , 2 );
-        tParameterList( 0 )( 0 ).set("phase_function_name" , tGetPhaseIndex );
-        tParameterList( 0 )( 0 ).set("initial_advs", "0.35,1.0" );
-        tParameterList( 0 )( 0 ).set("lower_bounds", "0.35,1.0" );
-        tParameterList( 0 )( 0 ).set("upper_bounds", "0.35,1.0" );
-        tParameterList( 0 )( 0 ).set("IQI_types"   ,
+        tParameterList( 0 )( 0 ).set( "number_of_phases"    , 2 );
+        tParameterList( 0 )( 0 ).set( "phase_function_name" , tGetPhaseIndex );
+        tParameterList( 0 )( 0 ).set( "initial_advs", "0.35,1.0" );
+        tParameterList( 0 )( 0 ).set( "lower_bounds", "0.35,1.0" );
+        tParameterList( 0 )( 0 ).set( "upper_bounds", "0.35,1.0" );
+        tParameterList( 0 )( 0 ).set( "IQI_types"   ,
                                      "IQIVolumeInterface1,"
                                      "IQIVolumeMat0,IQIVolumeMat1,"
                                      "IQISidesetMeasure,"
@@ -420,6 +419,7 @@ namespace moris
         tParameterList( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
         tParameterList( 1 )( tGeoCounter ).set( "field_function_name",       "Plane" );
         tParameterList( 1 )( tGeoCounter ).set( "sensitivity_function_name", "PlaneGrad");
+        tParameterList( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1e-12 );
         tParameterList( 1 )( tGeoCounter ).set( "field_variable_indices",    "0,1");
         tParameterList( 1 )( tGeoCounter ).set( "adv_indices",               "0,1");
         tGeoCounter++;

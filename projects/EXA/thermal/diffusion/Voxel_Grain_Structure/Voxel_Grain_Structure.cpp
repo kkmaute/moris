@@ -280,7 +280,6 @@ namespace moris
         tParameterlist( 1 ).resize( 1 );
 
         tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "intersection_mode", "LEVEL_SET" );
         tParameterlist( 0 )( 0 ).set( "number_of_phases", (sint)( tNumBulkPhases + 1 ) );
         tParameterlist( 0 )( 0 ).set( "phase_function_name", "get_phase_index" );
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", "Voxel_Grain_Structure_Gen.exo" );
@@ -294,6 +293,7 @@ namespace moris
         tParameterlist( 1 )( 0 ).set( "voxel_field_file", tPath );
         tParameterlist( 1 )( 0 ).set( "domain_dimensions", "4.0,4.0,4.0" );
         tParameterlist( 1 )( 0 ).set( "domain_offset", "-2.0,-2.0,-2.0" );
+        tParameterlist( 1 )( 0 ).set( "intersection_mode", "LEVEL_SET" );
         tParameterlist( 1 )( 0 ).set( "number_of_refinements", "0" );
         tParameterlist( 1 )( 0 ).set( "refinement_mesh_index", "0" );
         tParameterlist( 1 )( 0 ).set( "discretization_mesh_index", -1 );

@@ -477,7 +477,6 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "phase_table", moris::ios::stringify( tPhaseMap ) );
 
         tParameterlist( 0 )( 0 ).set( "print_phase_table", true );
-        tParameterlist( 0 )( 0 ).set( "intersection_tolerance", 1e-8 );
 
         // init geometry counter
         uint tGeoCounter = 0;
@@ -488,6 +487,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "1" );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1e-8 );
+        tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1e-8 );
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Box" );
 
         tGeoCounter++;
@@ -495,6 +495,8 @@ namespace moris
         // initialize fins as swiss cheese geometry
         tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Hole_Pattern_2D3D" );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1e-8 );
+        tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1e-8 );
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Level_Set_Field" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "1" );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );

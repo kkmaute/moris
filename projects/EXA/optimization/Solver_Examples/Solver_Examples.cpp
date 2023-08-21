@@ -356,11 +356,9 @@ namespace moris
         tParameterlist( 0 )( 0 ) = prm::create_gen_parameter_list();
         tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIMaxTemp_1,IQIMaxTemp_2,IQIStrainEnergy_1,IQIStrainEnergy_2,IQIVolume_1" );
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", tGENOutputFile );
-        tParameterlist( 0 )( 0 ).set("initial_advs"      , std::to_string( 0.4 ) );
-        tParameterlist( 0 )( 0 ).set("lower_bounds"      , std::to_string( 0.1 ) );
-        tParameterlist( 0 )( 0 ).set("upper_bounds"      , std::to_string( 0.7 ) );
-
-        tParameterlist( 0 )( 0 ).set("isocontour_tolerance", 1e-12);      // Interface tolerance based on geometry value
+        tParameterlist( 0 )( 0 ).set( "initial_advs"      , std::to_string( 0.4 ) );
+        tParameterlist( 0 )( 0 ).set( "lower_bounds"      , std::to_string( 0.1 ) );
+        tParameterlist( 0 )( 0 ).set( "upper_bounds"      , std::to_string( 0.7 ) );
 
         // init geometry counter
         uint tGeoCounter = 0;
@@ -375,6 +373,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", "0");
         tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", "0");
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0.0, 1.0, 0.0");
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1e-12 );      // Interface tolerance based on geometry value
         tGeoCounter++;
     }
 
