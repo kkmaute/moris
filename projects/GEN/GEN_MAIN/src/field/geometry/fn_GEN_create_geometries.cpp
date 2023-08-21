@@ -233,6 +233,9 @@ namespace moris
             tParameters.mDiscretizationMeshIndex  = aGeometryParameterList.get< sint >( "discretization_mesh_index" );
             tParameters.mDiscretizationLowerBound = aGeometryParameterList.get< real >( "discretization_lower_bound" );
             tParameters.mDiscretizationUpperBound = aGeometryParameterList.get< real >( "discretization_upper_bound" );
+            tParameters.mIsocontourThreshold      = aGeometryParameterList.get< real >( "isocontour_threshold" );
+            tParameters.mIsocontourTolerance      = aGeometryParameterList.get< real >( "isocontour_tolerance" );
+            tParameters.mIntersectionTolerance    = aGeometryParameterList.get< real >( "intersection_tolerance" );
 
             // Build Geometry
             if ( tGeometryType == "circle" )
@@ -317,6 +320,14 @@ namespace moris
             }
             else if ( tGeometryType == "user_defined" )
             {
+
+                // Get intersection mode
+                std::string tIntersectionModeString = aGeometryParameterList.get< std::string >( "intersection_mode" );
+
+                map< std::string, Intersection_Mode > tIntersectionModeMap = get_intersection_mode_map();
+
+                tParameters.mIntersectionMode = tIntersectionModeMap[ tIntersectionModeString ];
+
                 // Check if library is given
                 MORIS_ERROR( aLibrary != nullptr, "Library must be given in order to create a user-defined geometry." );
 

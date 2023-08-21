@@ -599,8 +599,6 @@ namespace moris
 
                 moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
                 tGeometryEngineParameters.mGeometries          = tGeometry;
-                // tGeometryEngineParameters.mIsocontourThreshold = 0.5;
-                // tGeometryEngineParameters.mIsocontourTolerance = 1e-13; BRENDAN
 
                 moris::ge::Geometry_Engine tGeometryEngine( tMeshData, tGeometryEngineParameters );
 

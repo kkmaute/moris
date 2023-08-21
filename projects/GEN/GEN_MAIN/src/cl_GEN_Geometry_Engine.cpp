@@ -123,15 +123,6 @@ namespace moris
                     mGeometries,
                     mLibrary );
 
-            // Get intersection mode
-            // Intersection_Mode tIntersectionMode = mGeometries( mActiveGeometryIndex )->get_intersection_mode();
-            /*std::string tIntersectionModeString = aParameterLists( 0 )( 0 ).get< std::string >( "intersection_mode" );
-
-            map< std::string, Intersection_Mode > tIntersectionModeMap = get_intersection_mode_map();
-
-            mIntersectionMode = tIntersectionModeMap[ tIntersectionModeString ];
-            BRENDAN */
-
             // Set requested PDVs
             Cell< std::string > tRequestedPdvNames = string_to_cell< std::string >( aParameterLists( 0 )( 0 ).get< std::string >( "PDV_types" ) );
             Cell< PDV_Type >    tRequestedPdvTypes( tRequestedPdvNames.size() );

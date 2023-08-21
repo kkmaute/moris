@@ -177,7 +177,7 @@ namespace moris
     std::string tFrameSets = "HMR_dummy_n_p11,HMR_dummy_c_p11";
 
     std::string tDirichletSets = "iside_b0_11_b1_15";
-    std::string tLoadSets     = "iside_b0_11_b1_15";
+    std::string tLoadSets      = "iside_b0_11_b1_15";
 
     std::string tInterfaceVoidSets = "iside_b0_9_b1_8";
 
