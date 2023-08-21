@@ -57,8 +57,8 @@ namespace moris
                 // set alpha_time
                 mAlphaTime = aParameters( 1 )( 0 );
 
-                // set alpha_time flag to true
-                mSetAlphaTime = true;
+                // set alpha_time flag to true only if mAlphaTime > 0.0
+                mSetAlphaTime = mAlphaTime > MORIS_REAL_EPS ? true : false;
             }
 
             // if geometry measure type is defined

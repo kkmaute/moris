@@ -540,11 +540,21 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        // request/get the iteration of a logged instance
+        /**
+         * request/get the iteration id of a logged instance; by default iteration id
+         * of first instance is returned.
+         *
+         * @param aEntityBase Entity base
+         * @param aEntityType Entity type
+         * @param aEntityAction Entity action
+         * @param aGetLastInstance Flag (if true) iteration id of last instance is returned
+         */
+
         uint get_iteration(
                 const std::string& aEntityBase,
                 const std::string& aEntityType,
-                const std::string& aEntityAction );
+                const std::string& aEntityAction,
+                bool               aGetLastInstance = false );
 
         //------------------------------------------------------------------------------
 

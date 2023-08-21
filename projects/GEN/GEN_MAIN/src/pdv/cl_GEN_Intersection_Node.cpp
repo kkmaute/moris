@@ -174,7 +174,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        Intersection_Node::get_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, Matrix< DDRMat > const& aSensitivityFactor )
+        Intersection_Node::get_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, Matrix< DDRMat > const & aSensitivityFactor )
         {
             // Locked interface geometry
             std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
@@ -215,7 +215,7 @@ namespace moris
                                              eye( mParentVector.n_rows(), mParentVector.n_rows() );
 
                 Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + mParentVector * this->get_dxi_dcoordinate_first_parent() );
-                mFirstParentNode->get_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor);
+                mFirstParentNode->get_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
             }
 
             // Add second parent sensitivities, if needed
@@ -225,7 +225,7 @@ namespace moris
                                              eye( mParentVector.n_rows(), mParentVector.n_rows() );
 
                 Matrix< DDRMat > tSensitivityFactor = 0.5 * ( tLocCoord + mParentVector * this->get_dxi_dcoordinate_second_parent() );
-                mSecondParentNode->get_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor);
+                mSecondParentNode->get_dcoordinate_dadv( aCoordinateSensitivities, tSensitivityFactor );
             }
         }
 
