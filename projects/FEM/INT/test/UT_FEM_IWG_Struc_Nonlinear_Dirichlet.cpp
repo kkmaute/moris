@@ -410,24 +410,25 @@ TEST_CASE( "IWG_Struc_NL_Dirichlet_Unsymmetric_Nitsche_Neo_Hookean_SE",
 //---------------------------------------------------------------------------------------------
 
 // FIXME: PF versions do not work - error in jacobian
-/*
-TEST_CASE( "IWG_Struc_NL_Dirichlet_Symmetric_Nitsche_Neo_Hookean_PF",
-        "[moris],[fem],[IWG_Struc_NL_Dirichlet_Symmetric_Nitsche_Neo_Hookean_PF]" )
-{
-    Test_IWG_Struc_NL_Dirichlet(
-            fem::Constitutive_Type::STRUC_NON_LIN_ISO_NEO_HOOKEAN,
-            IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_PF );
 
-} /* END_TEST_CASE */
+// TEST_CASE( "IWG_Struc_NL_Dirichlet_Symmetric_Nitsche_Neo_Hookean_PF",
+//         "[moris],[fem],[IWG_Struc_NL_Dirichlet_Symmetric_Nitsche_Neo_Hookean_PF]" )
+//{
+//     Test_IWG_Struc_NL_Dirichlet(
+//             fem::Constitutive_Type::STRUC_NON_LIN_ISO_NEO_HOOKEAN,
+//             IWG_Type::STRUC_NON_LINEAR_DIRICHLET_SYMMETRIC_NITSCHE_PF );
+//
+// } /* END_TEST_CASE */
 
 //---------------------------------------------------------------------------------------------
 
-TEST_CASE( "IWG_Struc_NL_Dirichlet_Unsymmetric_Nitsche_Neo_Hookean_PF",
-        "[moris],[fem],[IWG_Struc_NL_Dirichlet_Unsymmetric_Nitsche_Neo_Hookean_PF]" )
-{
-    Test_IWG_Struc_NL_Dirichlet(
-            fem::Constitutive_Type::STRUC_NON_LIN_ISO_NEO_HOOKEAN,
-            IWG_Type::STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_PF );
+// FIXME: PF versions do not work - error in jacobian
 
-} /* END_TEST_CASE */
-* /
+// TEST_CASE( "IWG_Struc_NL_Dirichlet_Unsymmetric_Nitsche_Neo_Hookean_PF",
+//         "[moris],[fem],[IWG_Struc_NL_Dirichlet_Unsymmetric_Nitsche_Neo_Hookean_PF]" )
+//{
+//     Test_IWG_Struc_NL_Dirichlet(
+//             fem::Constitutive_Type::STRUC_NON_LIN_ISO_NEO_HOOKEAN,
+//             IWG_Type::STRUC_NON_LINEAR_DIRICHLET_UNSYMMETRIC_NITSCHE_PF );
+//
+// } /* END_TEST_CASE */
