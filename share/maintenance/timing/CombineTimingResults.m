@@ -5,9 +5,12 @@ close all
 
 titan              =''; %'/home/maute/codes/moris_titan/build_opt';
 titan_xtk_refactor =''; %'/home/maute/codes/moris_titan_xtk_refactor/build_opt';
-github             ='/home/maute/codes/moris/build_opt/TimingResults';
+github             = [getenv('MORISROOT'), '/build_opt/TimingResults'];
 
 cd(github)
+if not(isfolder('plots'))
+    mkdir('plots')
+end
 
 testcases=ls('*.timing');
 testcases=split(testcases);
@@ -44,7 +47,7 @@ for i=1:length(testcases)
     plot( [num_titan num_titan],[0 max(timings(:,2))],'k-'); hold on
     plot( [num_titan+num_titan_xtk_refactor num_titan+num_titan_xtk_refactor],[0 max(timings(:,2))],'k-');
     title(replace(testcases{i},'_','-'));
-    saveas(gcf, [testcases{i} '_F1.png']);
+    saveas(gcf, ['plots/', testcases{i}, '_F1.png']);
     
     figure(2)
     clf
@@ -56,7 +59,7 @@ for i=1:length(testcases)
     end
     plotdays(mat_github,'rs'); hold on
     title(replace(testcases{i},'_','-'));
-    saveas(gcf, [testcases{i} '_F2.png']);
+    saveas(gcf, ['plots/', testcases{i}, '_F2.png']);
 end
 end
 
