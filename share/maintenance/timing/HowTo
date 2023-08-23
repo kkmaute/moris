@@ -94,8 +94,13 @@ cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_MKL=ON -DMORIS_USE_OPEN
 sh $MORISROOT/share/maintenance/timing/moris_version_timing.sh > & log.timingruns &
 
 #-------------------------------------------------------------------------------------
+  
+10. Optional add new test to list of example used to check timing
 
-10. Combine timing runs from different versions use Matlab script located in $MORISROOT/share/maintenance/timing
+grep proc <log file of "ctest -V" run> | grep Test | grep # | awk '{print $4}'
+
+#-------------------------------------------------------------------------------------
+  
+11. Combine timing runs from different versions use Matlab script located in $MORISROOT/share/maintenance/timing
 
 CombineTimingResults.m
-

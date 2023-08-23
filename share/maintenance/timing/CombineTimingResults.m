@@ -5,7 +5,7 @@ close all
 
 titan              =''; %'/home/maute/codes/moris_titan/build_opt';
 titan_xtk_refactor =''; %'/home/maute/codes/moris_titan_xtk_refactor/build_opt';
-github             ='/home/maute/codes/moris/build_opt';
+github             ='/home/maute/codes/moris/build_opt/TimingResults';
 
 cd(github)
 

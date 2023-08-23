@@ -1,5 +1,12 @@
 #!/bin/sh
 #=================================================================================
+#
+# script to perform timing test for moris 
+#
+# 1. copy this file to your $HOME
+# 2. edit information in section below
+# 3. run script with no other major job or process running on your machine
+#
 # start of user input
 #=================================================================================
 
@@ -24,6 +31,8 @@ gitlist=$MORISROOT/share/maintenance/timing/CheckGitList
 # end of user input
 #=================================================================================
 
+cd $MORISROOT
+
 git checkout $branch
 
 if [ $gitlist ];then
@@ -36,6 +45,10 @@ fi
 id=0
 
 cd $here
+
+if [ ! -d "TimingResults" ];then
+    mkdir TimingResults
+fi    
 
 if [ ! "$1" = "skip" ];then
 
@@ -77,13 +90,15 @@ if [ ! "$1" = "skip" ];then
         cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..  >& /dev/null
         cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..  >& /dev/null
         
-        make -j 4 >& compile.$date
+        make -j 4 >& TimingResults/compile.$date
         
-        ctest -V >& ctest.$date
+        ctest -V >& TimingResults/ctest.$date
         
     done
 
 fi  
+
+cd TimingResults
 
 exalist=`cat $exalist`
 
