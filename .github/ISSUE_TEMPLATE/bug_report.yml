@@ -21,18 +21,18 @@ body:
   - type: checkboxes
     id: minimal
     attributes:
-    label: Minimal Example
-    description: The included input file should use the minimimum number of elements that still recreates this bug. If it occurs many iterations into an optimization problem, you need to include all necessary restart files to continue from that iteration.
-    options:
-      - label: I have included a minimal example for recreating this bug
-      required: true
+      label: Minimal Example
+      description: The included input file should use the minimimum number of elements that still recreates this bug. If it occurs many iterations into an optimization problem, you need to include all necessary restart files to continue from that iteration.
+      options:
+        - label: I have included a minimal example for recreating this bug
+        required: true
   - type: checkboxes
     id: valgrind
     attributes:
-    label: Memory Check
-    description: If you are experiencing unexpected behaivor, it can sometimes be due to a memory leak. If possible, please use Valgrind to see if you have memory leaks and update the description accordingly.
-    options:
-      - label: I have checked for memory leaks
+      label: Memory Check
+      description: If you are experiencing unexpected behaivor, it can sometimes be due to a memory leak. If possible, please use Valgrind to see if you have memory leaks and update the description accordingly.
+      options:
+        - label: I have checked for memory leaks
   - type: dropdown
     id: os
     attributes:
