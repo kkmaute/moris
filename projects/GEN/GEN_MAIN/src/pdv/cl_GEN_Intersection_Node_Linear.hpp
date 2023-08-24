@@ -94,7 +94,7 @@ namespace moris
              * @param aIsocontourThreshold Threshold for determining the intersection location of this node
              * @return Local coordinates
              */
-            real get_local_coordinate(
+            real compute_local_coordinate(
                     uint                        aFirstNodeIndex,
                     uint                        aSecondNodeIndex,
                     const Matrix< DDRMat >&     aFirstNodeCoordinates,

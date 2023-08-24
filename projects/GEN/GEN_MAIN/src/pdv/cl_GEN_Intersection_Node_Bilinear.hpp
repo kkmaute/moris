@@ -98,14 +98,8 @@ namespace moris
              * @param aIsocontourThreshold Threshold for determining the intersection location of this node
              * @return Local coordinates
              */
-            real get_local_coordinate(
-                    const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
-                    const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates,
-                    const Matrix< DDUMat >&         aAncestorNodeIndices,
-                    const Cell< Matrix< DDRMat > >& aAncestorNodeCoordinates,
-                    std::shared_ptr< Geometry >     aInterfaceGeometry );
 
-            real compute_intersection(
+            real compute_local_coordinate(
                     const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
                     const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates,
                     const Matrix< DDUMat >&         aAncestorNodeIndices,
@@ -118,4 +112,3 @@ namespace moris
 }    // namespace moris
 
 #endif    // MORIS_CL_GEN_INTERSECTION_NODE_BILINEAR_HPP
-

@@ -37,7 +37,7 @@ namespace moris
                 const Element_Intersection_Type      aInterpolationType,
                 std::shared_ptr< Geometry >          aInterfaceGeometry )
                 : Intersection_Node(
-                        get_local_coordinate(
+                        compute_local_coordinate(
                                 aFirstParentNodeLocalCoordinates,
                                 aSecondParentNodeLocalCoordinates,
                                 aAncestorNodeIndices,
@@ -241,27 +241,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         real
-        Intersection_Node_Bilinear::get_local_coordinate(
-                const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
-                const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates,
-                const Matrix< DDUMat >&         aAncestorNodeIndices,
-                const Cell< Matrix< DDRMat > >& aAncestorNodeCoordinates,
-                std::shared_ptr< Geometry >     aInterfaceGeometry )
-        {
-
-            // use Newton to compute intersection
-            return this->compute_intersection(
-                    aFirstParentNodeLocalCoordinates,
-                    aSecondParentNodeLocalCoordinates,
-                    aAncestorNodeIndices,
-                    aAncestorNodeCoordinates,
-                    aInterfaceGeometry );
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        real
-        Intersection_Node_Bilinear::compute_intersection(
+        Intersection_Node_Bilinear::compute_local_coordinate(
                 const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
                 const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates,
                 const Matrix< DDUMat >&         aAncestorNodeIndices,

@@ -31,7 +31,7 @@ namespace moris
                 const Matrix< DDRMat >&              aSecondNodeCoordinates,
                 std::shared_ptr< Geometry >          aInterfaceGeometry )
                 : Intersection_Node(
-                        get_local_coordinate(
+                        compute_local_coordinate(
                                 aFirstNodeIndex,
                                 aSecondNodeIndex,
                                 aFirstNodeCoordinates,
@@ -131,7 +131,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         real
-        Intersection_Node_Linear::get_local_coordinate(
+        Intersection_Node_Linear::compute_local_coordinate(
                 uint                        aFirstNodeIndex,
                 uint                        aSecondNodeIndex,
                 const Matrix< DDRMat >&     aFirstNodeCoordinates,
