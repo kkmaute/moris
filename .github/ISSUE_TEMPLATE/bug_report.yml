@@ -6,10 +6,11 @@ body:
   - type: dropdown
     id: type
     attributes:
-      label: Problem type
+      label: Problem Type
       options:
         - Error
         - Unexpected behavior
+      default: 0
   - type: textarea
     id: description
     attributes:
@@ -20,8 +21,8 @@ body:
   - type: textarea
     id: command
     attributes:
-      label: Command line to reproduce error
-      description: Enter command that reproduces the issue.
+      label: Command Line
+      description: Enter the command that reproduces the issue.
     validations:
       required: true
   - type: checkboxes
@@ -42,7 +43,7 @@ body:
   - type: dropdown
     id: os
     attributes:
-      label: Operating system
+      label: Operating System
       description: What operating system are you using?
       options:
         - Linux
