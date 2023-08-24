@@ -2,7 +2,6 @@ name: Bug Report
 description: Report a bug in MORIS
 title: "[Bug]: "
 labels: ["bug"]
-assignees: ""
 body:
   - type: dropdown
     id: type
@@ -25,7 +24,7 @@ body:
       description: The included input file should use the minimimum number of elements that still recreates this bug. If it occurs many iterations into an optimization problem, you need to include all necessary restart files to continue from that iteration.
       options:
         - label: I have included a minimal example for recreating this bug
-        required: true
+          required: true
   - type: checkboxes
     id: valgrind
     attributes:
@@ -61,5 +60,6 @@ body:
         - label: Parallel
   - type: textarea
     id: dependence
+    attributes:
       label: Dependence
       description: Does this bug only occur for specific mesh refinement levels, processor numbers, etc.? If so, include that information here.
