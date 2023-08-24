@@ -17,6 +17,13 @@ body:
       description: Please upload a *minimal* input file for recreating this problem. If possible, also include an asssociated log file. You can attach files by clicking this area to highlight it and then dragging files in. If additional files are needed or the files are too large, include a cloud storage link where these files can be found.
     validations:
       required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Command line to reproduce error
+      description: Enter command that reproduces the issue.
+    validations:
+      required: true
   - type: checkboxes
     id: minimal
     attributes:
@@ -28,10 +35,10 @@ body:
   - type: checkboxes
     id: valgrind
     attributes:
-      label: Memory Check
-      description: If you are experiencing unexpected behaivor, it can sometimes be due to a memory leak. If possible, please use Valgrind to see if you have memory leaks and update the description accordingly.
+      label: Memory Violation and Leak Check
+      description: If you are experiencing unexpected behaivor, it can sometimes be due to a memory issue (violation or leak). If possible, please use Valgrind to see if you have memory leaks and update the description accordingly.
       options:
-        - label: I have checked for memory leaks
+        - label: I have checked for memory violations and leaks
   - type: dropdown
     id: os
     attributes:
