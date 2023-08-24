@@ -18,7 +18,7 @@ body:
     validations:
       required: true
   - type: textarea
-    id: description
+    id: command
     attributes:
       label: Command line to reproduce error
       description: Enter command that reproduces the issue.
