@@ -36,7 +36,7 @@ namespace moris
                 const Cell< Matrix< DDRMat > >&      aAncestorNodeCoordinates,
                 const Element_Intersection_Type      aInterpolationType,
                 std::shared_ptr< Geometry >          aInterfaceGeometry )
-                : Intersection_Node(
+                : Intersection_Node_Level_Set(
                         compute_local_coordinate(
                                 aFirstParentNodeLocalCoordinates,
                                 aSecondParentNodeLocalCoordinates,

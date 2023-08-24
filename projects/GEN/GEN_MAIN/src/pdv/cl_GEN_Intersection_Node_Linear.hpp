@@ -11,15 +11,15 @@
 #ifndef MORIS_CL_GEN_INTERSECTION_NODE_LINEAR_HPP
 #define MORIS_CL_GEN_INTERSECTION_NODE_LINEAR_HPP
 
-#include "cl_GEN_Intersection_Node.hpp"
+#include "cl_GEN_Intersection_Node_Level_Set.hpp"
 
 namespace moris
 {
     namespace ge
     {
         class Geometry;
-
-        class Intersection_Node_Linear : public Intersection_Node
+        
+        class Intersection_Node_Linear : public Intersection_Node_Level_Set
         {
 
           public:
@@ -105,4 +105,3 @@ namespace moris
 }    // namespace moris
 
 #endif    // MORIS_CL_GEN_INTERSECTION_NODE_LINEAR_HPP
-

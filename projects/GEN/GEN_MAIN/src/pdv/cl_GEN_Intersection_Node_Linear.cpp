@@ -30,7 +30,7 @@ namespace moris
                 const Matrix< DDRMat >&              aFirstNodeCoordinates,
                 const Matrix< DDRMat >&              aSecondNodeCoordinates,
                 std::shared_ptr< Geometry >          aInterfaceGeometry )
-                : Intersection_Node(
+                : Intersection_Node_Level_Set(
                         compute_local_coordinate(
                                 aFirstNodeIndex,
                                 aSecondNodeIndex,
@@ -78,7 +78,7 @@ namespace moris
 
         real
         Intersection_Node_Linear::get_dxi_dfield_from_ancestor( uint aAncestorIndex )
-        {           
+        {
             // Locked interface geometry
             std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 

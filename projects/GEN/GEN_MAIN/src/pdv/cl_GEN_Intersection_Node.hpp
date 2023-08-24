@@ -27,8 +27,8 @@ namespace moris
             real                      mLocalCoordinate;
             bool                      mIsIntersected;
             std::weak_ptr< Geometry > mInterfaceGeometry;
-            real                      mIsocontourThreshold;
             Matrix< DDRMat >          mParentVector;
+            Matrix< DDSMat >          mCoordinateDeterminingADVIDs;
 
             std::shared_ptr< Intersection_Node > mFirstParentNode;
             std::shared_ptr< Intersection_Node > mSecondParentNode;
@@ -37,9 +37,8 @@ namespace moris
             Matrix< DDRMat >                     mGlobalCoordinates;
 
           private:
-            Matrix< DDSMat > mCoordinateDeterminingADVIDs;
-            moris_index      mFirstParentNodeIndex;
-            moris_index      mSecondParentNodeIndex;
+            moris_index mFirstParentNodeIndex;
+            moris_index mSecondParentNodeIndex;
 
             moris_id mPDVStartingID;
             bool     mPDVStartingIDSet = false;
@@ -86,14 +85,14 @@ namespace moris
              * @param aSensitivityFactor Matrix factor to scale this node's sensitivities based on a calling child's position and orientation.
              * This should be set to identity matrix of number of dimensions for any calls to this function outside of another intersection node.
              */
-            void get_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, const Matrix< DDRMat >& aSensitivityFactor );
+            virtual void get_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, const Matrix< DDRMat >& aSensitivityFactor ) = 0;
 
             /**
              * Gets the IDs of ADVs which one of the ancestors of this intersection node depends on.
              *
              * @return ADV IDs
              */
-            Matrix< DDSMat > get_coordinate_determining_adv_ids();
+            virtual Matrix< DDSMat > get_coordinate_determining_adv_ids() = 0;
 
             /**
              * Returns if the parent edge is intersected (if the local coordinate of the intersection lies between
@@ -200,6 +199,14 @@ namespace moris
                 return mSecondParentNodeIndex;
             }
 
+          protected:
+            /**
+             * Function for appending to the depending ADV IDs member variable, eliminating duplicate code
+             *
+             * @param aIDsToAdd IDs to add
+             */
+            void join_adv_ids( const Matrix< DDSMat >& aIDsToAdd );
+
           private:
             /**
              * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
@@ -232,13 +239,6 @@ namespace moris
              * @param aSensitivitiesToAdd Sensitivities to add
              */
             void join_coordinate_sensitivities( const Matrix< DDRMat >& aSensitivitiesToAdd );
-
-            /**
-             * Function for appending to the depending ADV IDs member variable, eliminating duplicate code
-             *
-             * @param aIDsToAdd IDs to add
-             */
-            void join_adv_ids( const Matrix< DDSMat >& aIDsToAdd );
         };
     }    // namespace ge
 }    // namespace moris

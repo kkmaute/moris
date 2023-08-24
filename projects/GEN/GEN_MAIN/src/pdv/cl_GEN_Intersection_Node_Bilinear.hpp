@@ -11,7 +11,7 @@
 #ifndef MORIS_CL_GEN_INTERSECTION_NODE_BILINEAR_HPP
 #define MORIS_CL_GEN_INTERSECTION_NODE_BILINEAR_HPP
 
-#include "cl_GEN_Intersection_Node.hpp"
+#include "cl_GEN_Intersection_Node_Level_Set.hpp"
 
 namespace moris
 {
@@ -19,7 +19,7 @@ namespace moris
     {
         class Geometry;
 
-        class Intersection_Node_Bilinear : public Intersection_Node
+        class Intersection_Node_Bilinear : public Intersection_Node_Level_Set
         {
           private:
             Matrix< DDRMat > mParentLocalCoordinates;
