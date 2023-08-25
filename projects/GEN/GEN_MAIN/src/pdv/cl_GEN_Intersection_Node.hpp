@@ -20,7 +20,6 @@ namespace moris
         class Geometry;
 
         //------------------------------------------------------------------------------
-
         class Intersection_Node : public Child_Node
         {
           protected:
@@ -218,7 +217,7 @@ namespace moris
           private:
             /**
              * Computes the global coordinates of the intersection and the parents.
-             * Used by setup() to set global coordinate member data. Implementation provided by child class.
+             * Used by initialize() to set global coordinate member data. Implementation provided by child class.
              *
              * @return Matrix< DDRMat > Global location of the intersection node and its parents
              */
@@ -226,7 +225,7 @@ namespace moris
 
             /**
              * Computes the vector from the first parent to the second parent
-             * Used by setup to set mParentVector member data. Implementation provided by child class.
+             * Used by initialize() to set mParentVector member data. Implementation provided by child class.
              *
              * @return Matrix< DDRMat >
              */
@@ -234,12 +233,30 @@ namespace moris
 
             /**
              * Determines if the first parent is on an interface.
-             * Used by setup() to set mFirstParentOnInterface. Implementation provided by child class.
+             * Used by initialize() to set mFirstParentOnInterface. Implementation provided by child class.
              *
              * @return true if the first parent is on the interface
              * @return false if the first parent is not on the interface
              */
-            virtual bool determine_first_parent_on_interface() = 0;           
+            virtual bool determine_first_parent_on_interface() = 0;
+
+            /**
+             * Determines if the second parent is on an interface.
+             * Used by initialize() to set mSecondParentOnInterface. Implementation provided by child class.
+             *
+             * @return true if the second parent is on the interface
+             * @return false if the second parent is not on the interface
+             */
+            virtual bool determine_second_parent_on_interface() = 0;
+
+            /**
+             * Determines if the parent nodes are intersected.
+             * Used by initialize() to set mIsIntersected. Implementation provided by child class.
+             *
+             * @return if the parent nodes are intersected
+             * @return false if there is no intersection detected
+             */
+            virtual bool determine_is_intersected() = 0;
 
             /**
              * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field

@@ -143,9 +143,8 @@ namespace moris
 
             return mCoordinateDeterminingADVIDs;
         }
-
+        
         //--------------------------------------------------------------------------------------------------------------
-
 
     }    // namespace ge
 
