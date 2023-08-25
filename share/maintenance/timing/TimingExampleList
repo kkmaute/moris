@@ -6,6 +6,9 @@ Heated_Sphere-1-procs
 Heated_Sphere-4-procs
 Two_Material_Bar-1-procs
 Single_Phase_Hollow_Cylinder_Static-1-procs
+Fick_Problem
+Comsol_conform
+Comsol_cut
 Grain_Structure-1-procs
 Voxel_Grain_Structure-1-procs
 Field_Example-1-procs
@@ -19,7 +22,10 @@ Two_Bar_Truss-1-procs
 Bar_Lin_Disp_Quad_Diff-1-procs
 Beam_Temperature_Field-1-procs
 Axisymmetric_Problem-1-procs
+Homogenization_2D
+Homogenization_3D
 Zienkiewicz_Zhu_Elemental_Field-1-procs
+single_element
 AxisymmetricProblem-1-procs
 Cantilever_Eigen-1-procs
 Heated_Channel_2D-1-procs
@@ -37,11 +43,14 @@ Shape_Sensitivity_Circle_Sweep_Thermoelastic-2-procs
 Shape_Sensitivity_Two_Material_Sweep_Thermoelastic-1-procs
 SA_Cut_Bar_Static-1-procs
 SA_Cut_PCBar_Transient-1-procs
+SIMP
 Levelset_Boxbeam-1-procs
 Levelset_Boxbeam-3-procs
 Levelset_Boxbeam_Adaptive_Refinement-1-procs
 Levelset_Boxbeam_Adaptive_Refinement-4-procs
 Levelset_Boxbeam_Adaptive_Refinement_Restart-1-procs
+Mach_Leading_Edge
+Solver_Examples
 HeatMethod-1-procs
 SA_Cluster_Measure-1-procs
 Channel2D-1-procs

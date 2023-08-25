@@ -6,6 +6,8 @@
 # 1. copy this file to your $HOME
 # 2. edit information in section below
 # 3. run script with no other major job or process running on your machine
+# 
+# to just process existing timing results use: moris_version_timing.sh "skip"
 #
 # start of user input
 #=================================================================================
@@ -24,7 +26,7 @@ exalist=$MORISROOT/share/maintenance/timing/TimingExampleList
 
 # file with git versions to processed in additon to current one; leave empty 
 # if only current git version should be checked
-gitlist=$MORISROOT/share/maintenance/timing/CheckGitList
+gitlist=$MORISROOT/share/maintenance/timing/CheckGitList_github
 #gitlist=
 
 #=================================================================================
