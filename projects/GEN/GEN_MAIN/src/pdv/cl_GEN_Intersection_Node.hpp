@@ -205,7 +205,10 @@ namespace moris
              * Must be called by lowest level child class constructors.
              *
              */
-            void initialize();
+            void initialize(
+                    const Element_Intersection_Type aAncestorBasisFunction,
+                    const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
+                    const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates );
 
             /**
              * Function for appending to the depending ADV IDs member variable, eliminating duplicate code
@@ -217,7 +220,7 @@ namespace moris
           private:
             /**
              * Computes the global coordinates of the intersection and the parents.
-             * Used by initialize() to set global coordinate member data. Implementation provided by child class.
+             * Used by initialize() to set mGlobalCoordinates member data. Implementation provided by child class.
              *
              * @return Matrix< DDRMat > Global location of the intersection node and its parents
              */
@@ -225,11 +228,14 @@ namespace moris
 
             /**
              * Computes the vector from the first parent to the second parent
-             * Used by initialize() to set mParentVector member data. Implementation provided by child class.
+             * Used by initialize() to set mParentVector member data.
              *
-             * @return Matrix< DDRMat >
+             * @return Matrix< DDRMat > vector from the first parent to the second parent. Size determined by dimensionality of problem.
              */
-            virtual Matrix< DDRMat > compute_parent_vector() = 0;
+            Matrix< DDRMat > compute_parent_vector(
+                    const Element_Intersection_Type aAncestorBasisFunction,
+                    const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
+                    const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates );
 
             /**
              * Determines if the first parent is on an interface.
@@ -238,7 +244,9 @@ namespace moris
              * @return true if the first parent is on the interface
              * @return false if the first parent is not on the interface
              */
-            virtual bool determine_first_parent_on_interface() = 0;
+            virtual bool determine_first_parent_on_interface( 
+              const Element_Intersection_Type aAncestorBasisFunction,
+              const Matrix< DDRMat >& aFirstParentNodeLocalCoordinates ) = 0;
 
             /**
              * Determines if the second parent is on an interface.
@@ -247,7 +255,9 @@ namespace moris
              * @return true if the second parent is on the interface
              * @return false if the second parent is not on the interface
              */
-            virtual bool determine_second_parent_on_interface() = 0;
+            virtual bool determine_second_parent_on_interface( 
+              const Element_Intersection_Type aAncestorBasisFunction,
+              const Matrix< DDRMat >& aSecondParentNodeLocalCoordinates ) = 0;
 
             /**
              * Determines if the parent nodes are intersected.

@@ -67,15 +67,7 @@ namespace moris
              *
              * @return Matrix< DDRMat > Global location of the intersection node and its parents
              */
-            virtual Matrix< DDRMat > compute_global_coordinates() override;
-
-            /**
-             * Computes the vector from the first parent to the second parent
-             * Used by setup to set mParentVector member data. Implementation provided by child class.
-             *
-             * @return Matrix< DDRMat >
-             */
-            Matrix< DDRMat > compute_parent_vector() override;
+            Matrix< DDRMat > compute_global_coordinates() override;
 
             /**
              * Determines if the first parent is on an interface.
@@ -84,7 +76,9 @@ namespace moris
              * @return true if the first parent is on the interface
              * @return false if the first parent is not on the interface
              */
-            bool determine_first_parent_on_interface() override;
+            bool determine_first_parent_on_interface( 
+              const Element_Intersection_Type aAncestorBasisFunction,
+              const Matrix< DDRMat >& aFirstParentNodeLocalCoordinates ) override;
 
             /**
              * Determines if the second parent is on an interface.
@@ -93,7 +87,9 @@ namespace moris
              * @return true if the second parent is on the interface
              * @return false if the second parent is not on the interface
              */
-            virtual bool determine_second_parent_on_interface() override;
+            bool determine_second_parent_on_interface( 
+              const Element_Intersection_Type aAncestorBasisFunction,
+              const Matrix< DDRMat >& aSecondParentNodeLocalCoordinates ) override;
 
             /**
              * Determines if the parent nodes are intersected.

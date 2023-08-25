@@ -43,7 +43,6 @@ namespace moris
                         aAncestorBasisFunction,
                         aInterfaceGeometry,
                         aDetermineIsIntersected )
-                , mAncestorBasisFunction( aAncestorBasisFunction )
         {
         }
 
