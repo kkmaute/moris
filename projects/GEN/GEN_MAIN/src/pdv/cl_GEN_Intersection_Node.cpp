@@ -50,6 +50,8 @@ namespace moris
                 , mSecondParentNode( aSecondParentNode )
                 , mFirstParentNodeIndex( aFirstParentNodeIndex )
                 , mSecondParentNodeIndex( aSecondParentNodeIndex )
+                , mFirstParentNodeLocalCoordinates( aFirstParentNodeLocalCoordinates )
+                , mSecondParentNodeLocalCoordinates( aSecondParentNodeLocalCoordinates )
         {
             // check whether intersection computation should be performed
             if ( !aDetermineIsIntersected )
@@ -169,6 +171,14 @@ namespace moris
 
             // Delete interpolator
             delete tInterpolation;
+        }
+
+        void
+        Intersection_Node::initialize()
+        {
+            mGlobalCoordinates      = get_global_coordinates();
+            mParentVector           = compute_parent_vector();
+            mFirstParentOnInterface = determine_first_parent_on_interface();
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -32,14 +32,16 @@ namespace moris
 
             std::shared_ptr< Intersection_Node > mFirstParentNode;
             std::shared_ptr< Intersection_Node > mSecondParentNode;
+            moris_index                          mFirstParentNodeIndex;
+            moris_index                          mSecondParentNodeIndex;
             bool                                 mFirstParentOnInterface;
             bool                                 mSecondParentOnInterface;
+            Matrix< DDRMat >                     mFirstParentNodeLocalCoordinates;
+            Matrix< DDRMat >                     mSecondParentNodeLocalCoordinates;
             Matrix< DDRMat >                     mGlobalCoordinates;
 
-          private:
-            moris_index mFirstParentNodeIndex;
-            moris_index mSecondParentNodeIndex;
 
+          private:
             moris_id mPDVStartingID;
             bool     mPDVStartingIDSet = false;
 
@@ -76,7 +78,6 @@ namespace moris
                     const Element_Intersection_Type      aAncestorBasisFunction,
                     std::shared_ptr< Geometry >          aInterfaceGeometry,
                     bool                                 aDetermineIsIntersected = true );
-
             /**
              * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
              * ancestor nodes.
@@ -201,6 +202,13 @@ namespace moris
 
           protected:
             /**
+             * Computes basic member data for all intersection node derived classes.
+             * Must be called by lowest level child class constructors.
+             *
+             */
+            void initialize();
+
+            /**
              * Function for appending to the depending ADV IDs member variable, eliminating duplicate code
              *
              * @param aIDsToAdd IDs to add
@@ -208,6 +216,31 @@ namespace moris
             void join_adv_ids( const Matrix< DDSMat >& aIDsToAdd );
 
           private:
+            /**
+             * Computes the global coordinates of the intersection and the parents.
+             * Used by setup() to set global coordinate member data. Implementation provided by child class.
+             *
+             * @return Matrix< DDRMat > Global location of the intersection node and its parents
+             */
+            virtual Matrix< DDRMat > compute_global_coordinates() = 0;
+
+            /**
+             * Computes the vector from the first parent to the second parent
+             * Used by setup to set mParentVector member data. Implementation provided by child class.
+             *
+             * @return Matrix< DDRMat >
+             */
+            virtual Matrix< DDRMat > compute_parent_vector() = 0;
+
+            /**
+             * Determines if the first parent is on an interface.
+             * Used by setup() to set mFirstParentOnInterface. Implementation provided by child class.
+             *
+             * @return true if the first parent is on the interface
+             * @return false if the first parent is not on the interface
+             */
+            virtual bool determine_first_parent_on_interface() = 0;           
+
             /**
              * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
              * values on each of its ancestors.

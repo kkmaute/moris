@@ -94,13 +94,13 @@ namespace moris
             }
 
             // check that number of node indices and number of nodal coodinates of ancestor nodes are identical
-            MORIS_ASSERT( aAncestorNodeCoordinates.size() == aAncestorNodeIndices.numel(),
+            MORIS_ASSERT( mAncestorNodeCoordinates.size() == mAncestorNodeIndices.numel(),
                     "Intersection_Node_Bilinear::compute_intersection - inconsistent ancestor node information." );
 
             // check that number of bases to be used less or equal number of ancestor nodes
-            MORIS_ASSERT( aAncestorNodeCoordinates.size() >= tNumBases,
+            MORIS_ASSERT( mAncestorNodeCoordinates.size() >= tNumBases,
                     "Intersection_Node_Bilinear::compute_intersection - number of ancestor nodes insufficient." );
-
+            
             // allocate matrix for level set values at background cell nodes
             Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
 
@@ -204,6 +204,9 @@ namespace moris
 
             // delete interpolator
             delete tInterpolation;
+
+            // call required setup function
+            initialize();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -213,6 +216,190 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+
+        Matrix< DDRMat >
+        Intersection_Node_Bilinear::compute_global_coordinates()
+        {
+            // Global coordinates of intersection and parents
+            Matrix< DDRMat > tGlobalCoordinates = mBasisValues( 0 ) * mAncestorNodeCoordinates( 0 );
+
+            for ( uint tBasisIndex = 1; tBasisIndex < mBasisValues.length(); tBasisIndex++ )
+            {
+                tGlobalCoordinates += mBasisValues( tBasisIndex ) * mAncestorNodeCoordinates( tBasisIndex );
+            }
+
+            return tGlobalCoordinates;
+        }
+            
+        Matrix< DDRMat >
+        Intersection_Node_Bilinear::compute_parent_vector()
+        {
+            // initialize number of basis used by interpolation
+            uint tNumBases;
+
+            // build interpolator
+            mtk::Interpolation_Function_Factory tFactory;
+
+            mtk::Interpolation_Function_Base* tInterpolation;
+
+            // create interpolation function based on spatial dimension  of problem
+            switch ( mAncestorNodeCoordinates( 0 ).numel() )
+            {
+                case 2:
+                {
+                    tInterpolation = tFactory.create_interpolation_function(
+                            mtk::Geometry_Type::QUAD,
+                            mtk::Interpolation_Type::LAGRANGE,
+                            mtk::Interpolation_Order::LINEAR );
+
+                    tNumBases = 4;
+                    break;
+                }
+                case 3:
+                {
+                    tInterpolation = tFactory.create_interpolation_function(
+                            mtk::Geometry_Type::HEX,
+                            mtk::Interpolation_Type::LAGRANGE,
+                            mtk::Interpolation_Order::LINEAR );
+
+                    tNumBases = 8;
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false,
+                            "Intersection_Node_Bilinear::Intersection_Node_Bilinear - Interpolation type not implemented." );
+                }
+            }
+
+            // check that number of node indices and number of nodal coodinates of ancestor nodes are identical
+            MORIS_ASSERT( mAncestorNodeCoordinates.size() == mAncestorNodeIndices.numel(),
+                    "Intersection_Node_Bilinear::compute_intersection - inconsistent ancestor node information." );
+
+            // check that number of bases to be used less or equal number of ancestor nodes
+            MORIS_ASSERT( mAncestorNodeCoordinates.size() >= tNumBases,
+                    "Intersection_Node_Bilinear::compute_intersection - number of ancestor nodes insufficient." );
+
+            // lock interface geometry
+            std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+            
+            // allocate matrix for level set values at background cell nodes
+            Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
+
+            // get level set values of corner nodes
+            for ( uint in = 0; in < tNumBases; ++in )
+            {
+                tPhiBCNodes( in ) = tLockedInterfaceGeometry->get_field_value( mAncestorNodeIndices( in ), mAncestorNodeCoordinates( in ) );
+            }
+
+            // check that dimension of ancestor node coordinate equals dimension of parent node coordinates
+            MORIS_ASSERT( mFirstParentNodeLocalCoordinates.numel() == mAncestorNodeCoordinates( 0 ).numel(),
+                    "Intersection_Node_Bilinear::compute_intersection - inconsistent coordinate dimensions." );
+            
+            // compute level set value at parent nodes
+            Matrix< DDRMat > tFirstParentBasis;
+            Matrix< DDRMat > tSecondParentBasis;
+
+            tInterpolation->eval_N( mFirstParentNodeLocalCoordinates, tFirstParentBasis );
+            tInterpolation->eval_N( mSecondParentNodeLocalCoordinates, tSecondParentBasis );
+            
+            Matrix< DDRMat > tFirstParentGlobalCoordinates  = tFirstParentBasis( 0 ) * mAncestorNodeCoordinates( 0 );
+            Matrix< DDRMat > tSecondParentGlobalCoordinates = tSecondParentBasis( 0 ) * mAncestorNodeCoordinates( 0 );
+
+            for ( uint tBasisIndex = 1; tBasisIndex < mBasisValues.length(); tBasisIndex++ )
+            {
+                tFirstParentGlobalCoordinates += tFirstParentBasis( tBasisIndex ) * mAncestorNodeCoordinates( tBasisIndex );
+                tSecondParentGlobalCoordinates += tSecondParentBasis( tBasisIndex ) * mAncestorNodeCoordinates( tBasisIndex );
+            }
+            
+            Matrix< DDRMat> tParentVector      = trans( tSecondParentGlobalCoordinates - tFirstParentGlobalCoordinates );
+
+            return tParentVector;
+        }
+        
+        bool
+        Intersection_Node_Bilinear::determine_first_parent_on_interface()
+        {
+            // initialize number of basis used by interpolation
+            uint tNumBases;
+
+            // build interpolator
+            mtk::Interpolation_Function_Factory tFactory;
+
+            mtk::Interpolation_Function_Base* tInterpolation;
+
+            // create interpolation function based on spatial dimension  of problem
+            switch ( mAncestorNodeCoordinates( 0 ).numel() )
+            {
+                case 2:
+                {
+                    tInterpolation = tFactory.create_interpolation_function(
+                            mtk::Geometry_Type::QUAD,
+                            mtk::Interpolation_Type::LAGRANGE,
+                            mtk::Interpolation_Order::LINEAR );
+
+                    tNumBases = 4;
+                    break;
+                }
+                case 3:
+                {
+                    tInterpolation = tFactory.create_interpolation_function(
+                            mtk::Geometry_Type::HEX,
+                            mtk::Interpolation_Type::LAGRANGE,
+                            mtk::Interpolation_Order::LINEAR );
+
+                    tNumBases = 8;
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false,
+                            "Intersection_Node_Bilinear::Intersection_Node_Bilinear - Interpolation type not implemented." );
+                }
+            }
+            // check that number of node indices and number of nodal coodinates of ancestor nodes are identical
+            MORIS_ASSERT( mAncestorNodeCoordinates.size() == mAncestorNodeIndices.numel(),
+                    "Intersection_Node_Bilinear::compute_intersection - inconsistent ancestor node information." );
+
+            // check that number of bases to be used less or equal number of ancestor nodes
+            MORIS_ASSERT( mAncestorNodeCoordinates.size() >= tNumBases,
+                    "Intersection_Node_Bilinear::compute_intersection - number of ancestor nodes insufficient." );
+
+            // lock interface geometry
+            std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+            
+            // allocate matrix for level set values at background cell nodes
+            Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
+
+            // get level set values of corner nodes
+            for ( uint in = 0; in < tNumBases; ++in )
+            {
+                tPhiBCNodes( in ) = tLockedInterfaceGeometry->get_field_value( mAncestorNodeIndices( in ), mAncestorNodeCoordinates( in ) );
+            }
+
+            // check that dimension of ancestor node coordinate equals dimension of parent node coordinates
+            MORIS_ASSERT( mFirstParentNodeLocalCoordinates.numel() == mAncestorNodeCoordinates( 0 ).numel(),
+                    "Intersection_Node_Bilinear::compute_intersection - inconsistent coordinate dimensions." );
+
+            // get isocontour threshold from geometry
+            real tIsocontourThreshold = tLockedInterfaceGeometry->get_isocontour_threshold();
+            real tIntersectionTolerance = tLockedInterfaceGeometry->get_intersection_tolerance();
+            
+            // compute level set value at parent nodes
+            Matrix< DDRMat > tFirstParentBasis;
+            Matrix< DDRMat > tSecondParentBasis;
+
+            tInterpolation->eval_N( mFirstParentNodeLocalCoordinates, tFirstParentBasis );
+
+            real tFirstParentPhi  = dot( tFirstParentBasis, tPhiBCNodes );
+
+            real tFirstDiffFromThreshold  = tFirstParentPhi - tIsocontourThreshold;
+
+            bool tFirstParentOnInterface = std::abs( tFirstDiffFromThreshold ) < tIntersectionTolerance
+                                   or 0.5 * norm( mParentVector ) * std::abs( 1 + mLocalCoordinate ) < tIntersectionTolerance;
+
+            return tFirstParentOnInterface;
+        }
 
         real
         Intersection_Node_Bilinear::get_dxi_dfield_from_ancestor( uint aAncestorIndex )

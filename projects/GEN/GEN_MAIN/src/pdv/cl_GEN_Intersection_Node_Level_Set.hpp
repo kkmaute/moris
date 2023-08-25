@@ -23,6 +23,9 @@ namespace moris
 
         class Intersection_Node_Level_Set : public Intersection_Node
         {
+          protected:
+            const Element_Intersection_Type mAncestorBasisFunction;
+
           public:
             /**
              * Constructor
@@ -75,6 +78,31 @@ namespace moris
             Matrix< DDSMat > get_coordinate_determining_adv_ids() override;
 
           private:
+            /**
+             * Computes the global coordinates of the intersection and the parents.
+             * Used by setup() to set global coordinate member data. Implementation provided by child class.
+             *
+             * @return Matrix< DDRMat > Global location of the intersection node and its parents
+             */
+            virtual Matrix< DDRMat > compute_global_coordinates() = 0;
+
+            /**
+             * Computes the vector from the first parent to the second parent
+             * Used by setup to set mParentVector member data. Implementation provided by child class.
+             *
+             * @return Matrix< DDRMat >
+             */
+            virtual Matrix< DDRMat > compute_parent_vector() = 0;
+
+            /**
+             * Determines if the first parent is on an interface. Used by setup() to assign member data.
+             * Should be implemented by the lowest level child class.
+             *
+             * @return true if the first parent is on the interface
+             * @return false if the first parent is not on the interface
+             */
+            virtual bool determine_first_parent_on_interface() = 0;
+
             /**
              * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
              * values on each of its ancestors.
