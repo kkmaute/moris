@@ -1104,19 +1104,10 @@ namespace moris
                                 par_rank() );
 
                         // Check if PDF of given type exists
-                        if ( !mIpPdvHosts( tLocalPdvInd )->get_pdv_exists( tPdvType ) )
-                        {
-                            MORIS_ERROR( false,
-                                    "Pdv_Host_Manager::communicate_check_if_owned_pdv_exists - PDV missing on Node with ID %d on Proc %d.",
-                                    tReqPdvHostId,
-                                    par_rank() );
-                            // if ( par_rank() == 2 )
-                            //{
-                            //     std::cout << "Nodes with missing PDVs: " << tReqPdvHostId << " for type " << (sint) tPdvType << std::endl;
-                            //     mIpPdvHosts( tLocalPdvInd )->print_state();
-                            // }
-                            // mIpPdvHosts(tLocalPdvInd)->create_pdv(tPdvType, 0.0 );
-                        }
+                        MORIS_ERROR( mIpPdvHosts( tLocalPdvInd )->get_pdv_exists( tPdvType ),
+                                "Pdv_Host_Manager::communicate_check_if_owned_pdv_exists - PDV missing on Node with ID %d on Proc %d.\n",
+                                tReqPdvHostId,
+                                par_rank() );
                     }
                 }
             }
