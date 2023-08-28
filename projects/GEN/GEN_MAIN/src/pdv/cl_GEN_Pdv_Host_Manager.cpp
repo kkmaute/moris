@@ -1438,7 +1438,7 @@ namespace moris
                                 "Pdv host does not exist on this processor" );
 
                         // Check that PDV Id is valid
-                        MORIS_ASSERT( mIpPdvHosts( tLocalPdvInd )->get_pdv_id( tPdvType ) > 0,
+                        MORIS_ASSERT( mIpPdvHosts( tLocalPdvInd )->get_pdv_id( tPdvType ) != gNoID,
                                 "Pdv_Host_Manager::communicate_shared_interpolation_pdv_ids() - %s",
                                 "Local Pdv Id is invalid" );
 
