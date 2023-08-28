@@ -486,13 +486,12 @@ namespace moris
             //-------------------------------------------------------------------------------
 
           private:
-            //-------------------------------------------------------------------------------
 
-            void communicate_check_if_owned_pdv_exists();
-
-            //-------------------------------------------------------------------------------
-
-            void get_num_pdvs();
+            /**
+             * Counts the number of owned and shared PDVs, including both interpolation PDVs and intersection nodes.
+             * These values are stored in mNumOwnedPdvs and mNumOwnedAndSharedPdvs.
+             */
+            void count_owned_and_shared_pdvs();
 
             //-------------------------------------------------------------------------------
 
