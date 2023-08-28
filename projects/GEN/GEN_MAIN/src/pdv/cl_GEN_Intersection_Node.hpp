@@ -25,7 +25,6 @@ namespace moris
           protected:
             real                      mLocalCoordinate;
             bool                      mIsIntersected;
-            std::weak_ptr< Geometry > mInterfaceGeometry;
             Matrix< DDRMat >          mParentVector;
             Matrix< DDSMat >          mCoordinateDeterminingADVIDs;
 
@@ -35,8 +34,6 @@ namespace moris
             moris_index                          mSecondParentNodeIndex;
             bool                                 mFirstParentOnInterface;
             bool                                 mSecondParentOnInterface;
-            Matrix< DDRMat >                     mFirstParentNodeLocalCoordinates;
-            Matrix< DDRMat >                     mSecondParentNodeLocalCoordinates;
             Matrix< DDRMat >                     mGlobalCoordinates;
 
 
@@ -61,7 +58,6 @@ namespace moris
              * @param aAncestorNodeIndices Node indices of the ancestors of this intersection node
              * @param aAncestorNodeCoordinates Coordinates of the ancestors of this intersection node
              * @param aAncestorBasisFunction Basis function of the ancestor topology
-             * @param aInterfaceGeometry Geometry that intersects the parent to create this node
              * @param aDetermineIsIntersected Flag whether determination of intersection should be performed
              */
             Intersection_Node(
@@ -75,7 +71,6 @@ namespace moris
                     Matrix< DDUMat >                     aAncestorNodeIndices,
                     Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
                     const Element_Intersection_Type      aAncestorBasisFunction,
-                    std::shared_ptr< Geometry >          aInterfaceGeometry,
                     bool                                 aDetermineIsIntersected = true );
             /**
              * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the

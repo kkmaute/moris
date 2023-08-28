@@ -24,8 +24,9 @@ namespace moris
         class Intersection_Node_Level_Set : public Intersection_Node
         {
           protected:
-            real                            mFirstDiffFromThreshold;
-            real                            mSecondDiffFromThreshold;
+            std::weak_ptr< Geometry > mInterfaceGeometry;
+            real                      mFirstDiffFromThreshold;
+            real                      mSecondDiffFromThreshold;
 
           public:
             /**
@@ -94,9 +95,9 @@ namespace moris
              * @return true if the first parent is on the interface
              * @return false if the first parent is not on the interface
              */
-            virtual bool determine_first_parent_on_interface( 
-              const Element_Intersection_Type aAncestorBasisFunction,
-              const Matrix< DDRMat >& aFirstParentNodeLocalCoordinates ) = 0;
+            virtual bool determine_first_parent_on_interface(
+                    const Element_Intersection_Type aAncestorBasisFunction,
+                    const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates ) = 0;
 
             /**
              * Determines if the second parent is on an interface.
@@ -105,9 +106,9 @@ namespace moris
              * @return true if the second parent is on the interface
              * @return false if the second parent is not on the interface
              */
-            virtual bool determine_second_parent_on_interface( 
-              const Element_Intersection_Type aAncestorBasisFunction,
-              const Matrix< DDRMat >& aSecondParentNodeLocalCoordinates ) = 0;
+            virtual bool determine_second_parent_on_interface(
+                    const Element_Intersection_Type aAncestorBasisFunction,
+                    const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates ) = 0;
 
             /**
              * Determines if the parent nodes are intersected.

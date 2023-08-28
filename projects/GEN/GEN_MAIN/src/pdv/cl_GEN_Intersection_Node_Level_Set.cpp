@@ -41,8 +41,8 @@ namespace moris
                         aAncestorNodeIndices,
                         aAncestorNodeCoordinates,
                         aAncestorBasisFunction,
-                        aInterfaceGeometry,
                         aDetermineIsIntersected )
+                , mInterfaceGeometry( aInterfaceGeometry )
         {
         }
 

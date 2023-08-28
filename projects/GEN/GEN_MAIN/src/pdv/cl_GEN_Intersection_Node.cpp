@@ -36,7 +36,6 @@ namespace moris
                 Matrix< DDUMat >                     aAncestorNodeIndices,
                 Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
                 const Element_Intersection_Type      aAncestorBasisFunction,
-                std::shared_ptr< Geometry >          aInterfaceGeometry,
                 bool                                 aDetermineIsIntersected )
                 : Child_Node(
                         aAncestorNodeIndices,
@@ -45,13 +44,10 @@ namespace moris
                         0.5 * ( ( 1 - aLocalCoordinate ) * aFirstParentNodeLocalCoordinates + ( 1 + aLocalCoordinate ) * aSecondParentNodeLocalCoordinates ) )
                 , mLocalCoordinate( aLocalCoordinate )
                 , mIsIntersected( false )
-                , mInterfaceGeometry( aInterfaceGeometry )
                 , mFirstParentNode( aFirstParentNode )
                 , mSecondParentNode( aSecondParentNode )
                 , mFirstParentNodeIndex( aFirstParentNodeIndex )
                 , mSecondParentNodeIndex( aSecondParentNodeIndex )
-                , mFirstParentNodeLocalCoordinates( aFirstParentNodeLocalCoordinates )
-                , mSecondParentNodeLocalCoordinates( aSecondParentNodeLocalCoordinates )
         {
         }
 
