@@ -508,8 +508,7 @@ namespace moris
                                         tNodeIndex,
                                         tNodeId,
                                         tNodeOwner,
-                                        tNodeCoordinates,
-                                        mUniqueIpPdvTypes( tMeshSetIndex ) );
+                                        tNodeCoordinates );
 
                         // create map for global IDs to local Indices for non-unzipped mesh
                         mIPBaseVertexIdtoIndMap[ tNodeId ] = tNodeIndex;

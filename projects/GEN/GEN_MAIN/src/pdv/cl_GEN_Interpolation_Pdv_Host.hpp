@@ -48,8 +48,7 @@ namespace moris
                     const moris_index&      aNodeIndex,
                     const moris_id&         aNodeId,
                     const moris_index&      aNodeOwner,
-                    const Matrix< DDRMat >& aCoordinates,
-                    const Cell< PDV_Type >& aPDVTypes );
+                    const Matrix< DDRMat >& aCoordinates );
 
             /**
              * destructor
