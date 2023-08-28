@@ -199,55 +199,55 @@ namespace moris
                 tPDVHostManager.mPdvTypeMap( 4 ) = 1;
 
                 // ----------------- Interpolation PDVs ---------------------- //
+                Cell< Matrix< DDSMat > > tIpNodeIndicesPerSet( 2 );
+                Cell< Matrix< DDSMat > > tIpNodeIdsPerSet( 2 );
+                Cell< Matrix< DDSMat > > tIpNodeOwnersPerSet( 2 );
+                Cell< Matrix< DDRMat > > tNodeCoordinatesPerSet( 2 );
+                Cell< Cell< Cell< PDV_Type > > > tIpPdvTypes( 2 );
 
-                Cell< Matrix< DDSMat > > tIpNodeIndicesPerSet( 1 );
-                tIpNodeIndicesPerSet( 0 ).resize( 4, 1 );
+                // Resizes for nodes in this set (each proc has its own set for this test)
+                uint tMyRank = par_rank();
+                tIpNodeIndicesPerSet( tMyRank ).resize( 4, 1 );
+                tIpNodeIdsPerSet( tMyRank ).resize( 4, 1 );
+                tIpNodeOwnersPerSet( tMyRank ).resize( 4, 1 );
+                tNodeCoordinatesPerSet( tMyRank ).resize( 4, 3 );
+                
+                // Fill in info common to each set
+                tIpNodeIndicesPerSet( tMyRank ) = { { 0, 1, 2, 3 } };
+                tNodeCoordinatesPerSet( tMyRank ).fill( 0.0 );
 
-                Cell< Matrix< DDSMat > > tIpNodeIdsPerSet( 1 );
-                tIpNodeIdsPerSet( 0 ).resize( 4, 1 );
+                // Communication table
+                tPDVHostManager.mCommTable.set_size( 2, 1, 1 );
+                tPDVHostManager.mCommTable( tMyRank ) = 0;
 
-                Cell< Matrix< DDSMat > > tIpNodeOwnersPerSet( 1 );
-                tIpNodeOwnersPerSet( 0 ).resize( 4, 1 );
-
-                // define and fill coordinates for all nodes with zeros
-                Cell< Matrix< DDRMat > > tNodeCoordinatesPerSet( 1 );
-                tNodeCoordinatesPerSet( 0 ).resize( 4, 3 );
-                tNodeCoordinatesPerSet( 0 ).fill( 0.0 );
-
-                // PDV_Type types per set
-                Cell< Cell< Cell< PDV_Type > > > tIpPdvTypes( 1 );
-                tIpPdvTypes( 0 ).resize( 2 );
+                // PDV types on set 0
+                tIpPdvTypes( 0 ).resize( 1 );
                 tIpPdvTypes( 0 )( 0 ).resize( 1 );
-                tIpPdvTypes( 0 )( 1 ).resize( 1 );
                 tIpPdvTypes( 0 )( 0 )( 0 ) = PDV_Type::DENSITY;
-                tIpPdvTypes( 0 )( 1 )( 0 ) = PDV_Type::TEMPERATURE;
+
+                // PDV types on set 1
+                tIpPdvTypes( 1 ).resize( 2 );
+                tIpPdvTypes( 1 )( 0 ).resize( 1 );
+                tIpPdvTypes( 1 )( 1 ).resize( 1 );
+                tIpPdvTypes( 1 )( 0 )( 0 ) = PDV_Type::TEMPERATURE;
+                tIpPdvTypes( 1 )( 1 )( 0 ) = PDV_Type::DENSITY;
 
                 if ( par_rank() == 0 )
                 {
-                    // Node indices per set
-                    tIpNodeIndicesPerSet( 0 ) = { { 0, 1, 2, 3 } };
-
+                    // Node IDs and owners
                     tIpNodeIdsPerSet( 0 ) = { { 0, 1, 2, 3 } };
-
                     tIpNodeOwnersPerSet( 0 ) = { { 0, 0, 0, 1 } };
 
-                    tPDVHostManager.mCommTable.set_size( 2, 1, 0 );
-                    tPDVHostManager.mCommTable( 1, 0 ) = 1;
-
+                    // Vertex ID to index map
                     tPDVHostManager.mIPVertexIdtoIndMap[ 2 ] = 2;
                 }
                 else if ( par_rank() == 1 )
                 {
-                    // Node indices per set
-                    tIpNodeIndicesPerSet( 0 ) = { { 0, 1, 2, 3 } };
+                    // Node IDs and owners
+                    tIpNodeIdsPerSet( 1 ) = { { 2, 3, 4, 5 } };
+                    tIpNodeOwnersPerSet( 1 ) = { { 0, 1, 1, 1 } };
 
-                    tIpNodeIdsPerSet( 0 ) = { { 2, 3, 4, 5 } };
-
-                    tIpNodeOwnersPerSet( 0 ) = { { 0, 1, 1, 1 } };
-
-                    tPDVHostManager.mCommTable.set_size( 2, 1, 1 );
-                    tPDVHostManager.mCommTable( 1, 0 ) = 0;
-
+                    // Vertex ID to index map
                     tPDVHostManager.mIPVertexIdtoIndMap[ 3 ] = 1;
                 }
 
@@ -260,15 +260,15 @@ namespace moris
                         tIpPdvTypes );
 
                 // Set PDVs
-                for ( uint tMeshSetIndex = 0; tMeshSetIndex < 1; tMeshSetIndex++ )
+                for ( uint tMeshSetIndex = 0; tMeshSetIndex < 2; tMeshSetIndex++ )
                 {
-                    for ( uint tNodeIndex = 0; tNodeIndex < 4; tNodeIndex++ )
+                    for ( uint tNodeIndex = 0; tNodeIndex < tIpNodeIndicesPerSet( tMeshSetIndex ).length(); tNodeIndex++ )
                     {
-                        for ( uint tPdvIndex = 0; tPdvIndex < 2; tPdvIndex++ )
+                        for ( uint tPdvGroupIndex = 0; tPdvGroupIndex < tIpPdvTypes( tMeshSetIndex ).size(); tPdvGroupIndex++ )
                         {
                             tPDVHostManager.create_interpolation_pdv(
                                     (uint)tIpNodeIndicesPerSet( tMeshSetIndex )( tNodeIndex ),
-                                    tIpPdvTypes( tMeshSetIndex )( tPdvIndex )( 0 ),
+                                    tIpPdvTypes( tMeshSetIndex )( tPdvGroupIndex )( 0 ),
                                     (real)tMeshSetIndex );
                         }
                     }
@@ -279,10 +279,13 @@ namespace moris
 
                 // ------------------- Check global map ----------------------- //
                 const Matrix< DDSMat >& tLocalGlobalMap   = tPDVHostManager.get_my_local_global_map();
-                const Matrix< DDSMat >& tLocalGlobalOSMap = tPDVHostManager.get_my_local_global_overlapping_map();
+                const Matrix< DDSMat >& tLocalGlobalOverlappingMap = tPDVHostManager.get_my_local_global_overlapping_map();
+
+                PRINT( tLocalGlobalMap );
+                PRINT( tLocalGlobalOverlappingMap );
 
                 REQUIRE( tLocalGlobalMap.length() == 6 );
-                REQUIRE( tLocalGlobalOSMap.length() == 8 );
+                REQUIRE( tLocalGlobalOverlappingMap.length() == 8 );
 
                 if ( par_rank() == 0 )
                 {
@@ -293,14 +296,14 @@ namespace moris
                     CHECK( tLocalGlobalMap( 4 ) == 4 );
                     CHECK( tLocalGlobalMap( 5 ) == 5 );
 
-                    CHECK( tLocalGlobalOSMap( 0 ) == 0 );
-                    CHECK( tLocalGlobalOSMap( 1 ) == 1 );
-                    CHECK( tLocalGlobalOSMap( 2 ) == 2 );
-                    CHECK( tLocalGlobalOSMap( 3 ) == 6 );
-                    CHECK( tLocalGlobalOSMap( 4 ) == 3 );
-                    CHECK( tLocalGlobalOSMap( 5 ) == 4 );
-                    CHECK( tLocalGlobalOSMap( 6 ) == 5 );
-                    CHECK( tLocalGlobalOSMap( 7 ) == 9 );
+                    CHECK( tLocalGlobalOverlappingMap( 0 ) == 0 );
+                    CHECK( tLocalGlobalOverlappingMap( 1 ) == 1 );
+                    CHECK( tLocalGlobalOverlappingMap( 2 ) == 2 );
+                    CHECK( tLocalGlobalOverlappingMap( 3 ) == 6 );
+                    CHECK( tLocalGlobalOverlappingMap( 4 ) == 3 );
+                    CHECK( tLocalGlobalOverlappingMap( 5 ) == 4 );
+                    CHECK( tLocalGlobalOverlappingMap( 6 ) == 5 );
+                    CHECK( tLocalGlobalOverlappingMap( 7 ) == 9 );
                 }
                 if ( par_rank() == 1 )
                 {
@@ -311,14 +314,14 @@ namespace moris
                     CHECK( tLocalGlobalMap( 4 ) == 10 );
                     CHECK( tLocalGlobalMap( 5 ) == 11 );
 
-                    CHECK( tLocalGlobalOSMap( 0 ) == 2 );
-                    CHECK( tLocalGlobalOSMap( 1 ) == 6 );
-                    CHECK( tLocalGlobalOSMap( 2 ) == 7 );
-                    CHECK( tLocalGlobalOSMap( 3 ) == 8 );
-                    CHECK( tLocalGlobalOSMap( 4 ) == 5 );
-                    CHECK( tLocalGlobalOSMap( 5 ) == 9 );
-                    CHECK( tLocalGlobalOSMap( 6 ) == 10 );
-                    CHECK( tLocalGlobalOSMap( 7 ) == 11 );
+                    CHECK( tLocalGlobalOverlappingMap( 0 ) == 2 );
+                    CHECK( tLocalGlobalOverlappingMap( 1 ) == 6 );
+                    CHECK( tLocalGlobalOverlappingMap( 2 ) == 7 );
+                    CHECK( tLocalGlobalOverlappingMap( 3 ) == 8 );
+                    CHECK( tLocalGlobalOverlappingMap( 4 ) == 5 );
+                    CHECK( tLocalGlobalOverlappingMap( 5 ) == 9 );
+                    CHECK( tLocalGlobalOverlappingMap( 6 ) == 10 );
+                    CHECK( tLocalGlobalOverlappingMap( 7 ) == 11 );
                 }
             }
         }
@@ -405,10 +408,10 @@ namespace moris
 
                 // ------------------- Check global map ----------------------- //
                 const Matrix< DDSMat >& tLocalGlobalMap   = tPDVHostManager.get_my_local_global_map();
-                const Matrix< DDSMat >& tLocalGlobalOSMap = tPDVHostManager.get_my_local_global_overlapping_map();
+                const Matrix< DDSMat >& tLocalGlobalOverlappingMap = tPDVHostManager.get_my_local_global_overlapping_map();
 
                 REQUIRE( tLocalGlobalMap.length() == tNumOwnedNodes * 2 );
-                REQUIRE( tLocalGlobalOSMap.length() == ( tNumOwnedNodes + 1 ) * 2 );
+                REQUIRE( tLocalGlobalOverlappingMap.length() == ( tNumOwnedNodes + 1 ) * 2 );
 
                 if ( par_rank() == 0 )
                 {
@@ -419,14 +422,14 @@ namespace moris
                     CHECK( tLocalGlobalMap( 4 ) == 4 );
                     CHECK( tLocalGlobalMap( 5 ) == 5 );
 
-                    CHECK( tLocalGlobalOSMap( 0 ) == 0 );
-                    CHECK( tLocalGlobalOSMap( 1 ) == 1 );
-                    CHECK( tLocalGlobalOSMap( 2 ) == 2 );
-                    CHECK( tLocalGlobalOSMap( 3 ) == 3 );
-                    CHECK( tLocalGlobalOSMap( 4 ) == 4 );
-                    CHECK( tLocalGlobalOSMap( 5 ) == 5 );
-                    CHECK( tLocalGlobalOSMap( 6 ) == 6 );
-                    CHECK( tLocalGlobalOSMap( 7 ) == 7 );
+                    CHECK( tLocalGlobalOverlappingMap( 0 ) == 0 );
+                    CHECK( tLocalGlobalOverlappingMap( 1 ) == 1 );
+                    CHECK( tLocalGlobalOverlappingMap( 2 ) == 2 );
+                    CHECK( tLocalGlobalOverlappingMap( 3 ) == 3 );
+                    CHECK( tLocalGlobalOverlappingMap( 4 ) == 4 );
+                    CHECK( tLocalGlobalOverlappingMap( 5 ) == 5 );
+                    CHECK( tLocalGlobalOverlappingMap( 6 ) == 6 );
+                    CHECK( tLocalGlobalOverlappingMap( 7 ) == 7 );
                 }
 
                 if ( par_rank() == 1 )
@@ -438,14 +441,14 @@ namespace moris
                     CHECK( tLocalGlobalMap( 4 ) == 10 );
                     CHECK( tLocalGlobalMap( 5 ) == 11 );
 
-                    CHECK( tLocalGlobalOSMap( 0 ) == 4 );
-                    CHECK( tLocalGlobalOSMap( 1 ) == 5 );
-                    CHECK( tLocalGlobalOSMap( 2 ) == 6 );
-                    CHECK( tLocalGlobalOSMap( 3 ) == 7 );
-                    CHECK( tLocalGlobalOSMap( 4 ) == 8 );
-                    CHECK( tLocalGlobalOSMap( 5 ) == 9 );
-                    CHECK( tLocalGlobalOSMap( 6 ) == 10 );
-                    CHECK( tLocalGlobalOSMap( 7 ) == 11 );
+                    CHECK( tLocalGlobalOverlappingMap( 0 ) == 4 );
+                    CHECK( tLocalGlobalOverlappingMap( 1 ) == 5 );
+                    CHECK( tLocalGlobalOverlappingMap( 2 ) == 6 );
+                    CHECK( tLocalGlobalOverlappingMap( 3 ) == 7 );
+                    CHECK( tLocalGlobalOverlappingMap( 4 ) == 8 );
+                    CHECK( tLocalGlobalOverlappingMap( 5 ) == 9 );
+                    CHECK( tLocalGlobalOverlappingMap( 6 ) == 10 );
+                    CHECK( tLocalGlobalOverlappingMap( 7 ) == 11 );
                 }
 
                 // Set owned ADV IDs
