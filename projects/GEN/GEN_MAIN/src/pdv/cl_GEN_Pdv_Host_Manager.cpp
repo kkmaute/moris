@@ -1006,24 +1006,25 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        uint
-        Pdv_Host_Manager::communicate_pdv_offsets( const moris::uint& aNumOwnedPdvs )
+        uint Pdv_Host_Manager::communicate_offsets( uint aNumOwnedIDs )
         {
-            // Get list containing the number of owned pdvs of each processor
-            Matrix< DDUMat > tNumOwnedPdvsList;
+            // Create list containing the number of owned IDs on each processor
+            Matrix< DDUMat > tNumOwnedIDsPerProcessor;
 
-            comm_gather_and_broadcast( aNumOwnedPdvs, tNumOwnedPdvsList );
+            // Broadcast number of owned IDs
+            comm_gather_and_broadcast( aNumOwnedIDs, tNumOwnedIDsPerProcessor );
 
-            Matrix< DDUMat > tOwnedPdvsOffsetList( tNumOwnedPdvsList.numel(), 1, 0 );
+            // Create ID offset list
+            Matrix< DDUMat > tOffsetList( tNumOwnedIDsPerProcessor.numel(), 1, 0 );
 
             // Loop over all entries to create the offsets. Starting with 1
-            for ( moris::uint Ij = 1; Ij < tOwnedPdvsOffsetList.numel(); Ij++ )
+            for ( uint iProcessorIndex = 1; iProcessorIndex < tOffsetList.numel(); iProcessorIndex++ )
             {
-                // Add the number of owned pdvs of the previous processor to the offset of the previous processor
-                tOwnedPdvsOffsetList( Ij, 0 ) = tOwnedPdvsOffsetList( Ij - 1, 0 ) + tNumOwnedPdvsList( Ij - 1, 0 );
+                // Add the number of owned IDs of the previous processor to the offset of the previous processor
+                tOffsetList( iProcessorIndex ) = tOffsetList( iProcessorIndex - 1 ) + tNumOwnedIDsPerProcessor( iProcessorIndex - 1 );
             }
 
-            return tOwnedPdvsOffsetList( par_rank(), 0 );
+            return tOffsetList( par_rank() );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1257,7 +1258,6 @@ namespace moris
 
                         // Get index of PDV host on this processor
                         auto tIter = mIPBaseVertexIdtoIndMap.find( tReqPdvHostId );
-
                         moris::uint tPdvHostIndex = tIter->second;
 
                         // Check that host id exists
@@ -1282,8 +1282,18 @@ namespace moris
                                 tReqPdvHostId,
                                 par_rank() );
 
-                        // Re-use owned IDs of PDV host, replace with PDV ID for given type on list of requesting processor
-                        tOwnedIds( iCommunicationProcIndex )( iOwnedPdvIndex ) = mIpPdvHosts( tPdvHostIndex )->get_pdv_id( tPdvType );
+                        // Re-use owned IDs of PDV host, send back IDs for given type on list of requesting processor
+                        if ( mIpPdvHosts( tPdvHostIndex )->get_pdv_exists( tPdvType ) )
+                        {
+                            // Send back PDV ID
+                            tOwnedIds( iCommunicationProcIndex )( iOwnedPdvIndex ) = mIpPdvHosts( tPdvHostIndex )->get_pdv_id( tPdvType );
+                        }
+                        else
+                        {
+                            // Send back no ID, telling sharer to become owner
+                            tOwnedIds( iCommunicationProcIndex )( iOwnedPdvIndex ) = gNoID;
+                        }
+
                     }
                 }
 
@@ -1615,7 +1625,7 @@ namespace moris
             // If parallel, need to communicate PDV offsets to each processor
             if ( par_size() > 1 )
             {
-                tPdvOffset = this->communicate_pdv_offsets( mNumOwnedPdvs );
+                tPdvOffset = this->communicate_offsets( mNumOwnedPdvs );
             }
 
             // Set owned PDV IDs based on the PDV offset

@@ -493,9 +493,13 @@ namespace moris
              */
             void count_owned_and_shared_pdvs();
 
-            //-------------------------------------------------------------------------------
-
-            uint communicate_pdv_offsets( const moris::uint& aNumOwnedPdvs );
+            /**
+             * Communicate ID offsets, for setting unique PDV IDs across processors
+             *
+             * @param aNumOwnedIDs Number of owned IDs on this processor
+             * @return The offset for this processor
+             */
+            static uint communicate_offsets( uint aNumOwnedIDs );
 
             //-------------------------------------------------------------------------------
 
