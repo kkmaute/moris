@@ -35,8 +35,7 @@ namespace moris
                 const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
                 Matrix< DDUMat >                     aAncestorNodeIndices,
                 Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
-                const Element_Intersection_Type      aAncestorBasisFunction,
-                bool                                 aDetermineIsIntersected )
+                const Element_Intersection_Type      aAncestorBasisFunction )
                 : Child_Node(
                         aAncestorNodeIndices,
                         aAncestorNodeCoordinates,
@@ -57,11 +56,11 @@ namespace moris
                 const Matrix< DDRMat >&         aFirstParentLocalCoordinates,
                 const Matrix< DDRMat >&         aSecondParentLocalCoordinates )
         {
-            mGlobalCoordinates       = compute_global_coordinates();
-            mParentVector            = compute_parent_vector( aAncestorBasisFunction, aFirstParentLocalCoordinates, aSecondParentLocalCoordinates );
-            mFirstParentOnInterface  = determine_first_parent_on_interface( aAncestorBasisFunction, aFirstParentLocalCoordinates );
-            mSecondParentOnInterface = determine_second_parent_on_interface( aAncestorBasisFunction, aSecondParentLocalCoordinates );
-            mIsIntersected           = determine_is_intersected();
+            mGlobalCoordinates       = this->compute_global_coordinates();
+            mParentVector            = this->compute_parent_vector( aAncestorBasisFunction, aFirstParentLocalCoordinates, aSecondParentLocalCoordinates );
+            // mFirstParentOnInterface  = this->determine_first_parent_on_interface( aAncestorBasisFunction, aFirstParentLocalCoordinates );
+            // mSecondParentOnInterface = this->determine_second_parent_on_interface( aAncestorBasisFunction, aSecondParentLocalCoordinates );
+            mIsIntersected           = this->determine_is_intersected(aAncestorBasisFunction, aFirstParentLocalCoordinates, aSecondParentLocalCoordinates);
         }
 
         //--------------------------------------------------------------------------------------------------------------

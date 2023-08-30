@@ -28,8 +28,7 @@ namespace moris
                 Matrix< DDUMat >                     aAncestorNodeIndices,
                 Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
                 const Element_Intersection_Type      aAncestorBasisFunction,
-                std::shared_ptr< Geometry >          aInterfaceGeometry,
-                bool                                 aDetermineIsIntersected )
+                std::shared_ptr< Geometry >          aInterfaceGeometry )
                 : Intersection_Node(
                         aLocalCoordinate,
                         aFirstParentNode,
@@ -40,13 +39,74 @@ namespace moris
                         aSecondParentNodeLocalCoordinates,
                         aAncestorNodeIndices,
                         aAncestorNodeCoordinates,
-                        aAncestorBasisFunction,
-                        aDetermineIsIntersected )
+                        aAncestorBasisFunction )
                 , mInterfaceGeometry( aInterfaceGeometry )
         {
         }
 
+        bool
+        Intersection_Node_Level_Set::determine_is_intersected(
+                const Element_Intersection_Type aAncestorBasisFunction,
+                const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
+                const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates )
+        {
+            // get the difference between the phi value of the first parent and the isocontour threshold
+            real tFirstDiffFromThreshold = this->compute_diff_from_threshold(
+                    aAncestorBasisFunction, aFirstParentNodeLocalCoordinates, mFirstParentNodeIndex );
+            real tSecondDiffFromThreshold = this->compute_diff_from_threshold(
+                    aAncestorBasisFunction, aSecondParentNodeLocalCoordinates, mSecondParentNodeIndex );
 
+            // lock the interface geometry
+            std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+
+            // get the isocontour thresholds from the geometry
+            real tIntersectionTolerance = tLockedInterfaceGeometry->get_intersection_tolerance();
+
+            // Whether or not the first parent is on the interface
+            mFirstParentOnInterface = std::abs( tFirstDiffFromThreshold ) < tIntersectionTolerance
+                                   or 0.5 * norm( mParentVector ) * std::abs( 1 + mLocalCoordinate ) < tIntersectionTolerance;
+
+            // Whether or not the second parent is on the interface
+            mSecondParentOnInterface = std::abs( tSecondDiffFromThreshold ) < tIntersectionTolerance
+                                    or 0.5 * norm( mParentVector ) * std::abs( 1 - mLocalCoordinate ) < tIntersectionTolerance;
+
+            bool tIsIntersected;
+
+            // Determine if edge is intersected
+            if ( mFirstParentOnInterface or mSecondParentOnInterface )
+            {
+                tIsIntersected = true;
+            }
+            // FIXME: This check should be unnecessary as the local edge coordinate should be sufficient
+            // to determine whether edge is intersected; it is only "useful" if parent node's level set value
+            // is determined by method that is different from intersection nodes; for example level set value child node
+            // of child node is computed via analytic field and intersection node via bi-linear interpolation
+            else if ( tFirstDiffFromThreshold * tSecondDiffFromThreshold > 0 )
+            {
+                tIsIntersected = false;
+
+                // check for consistency of parent values and local coordinate
+                MORIS_ASSERT( std::abs( mLocalCoordinate ) > 1,
+                        "Intersection_Node::Intersection_Node - inconsistent parent level set values versus local coordinate - p1 %e p2 %e loc %e.",
+                        tFirstDiffFromThreshold,
+                        tSecondDiffFromThreshold,
+                        mLocalCoordinate );
+            }
+            else
+            {
+                tIsIntersected = ( std::abs( mLocalCoordinate ) <= 1.0 );
+
+                // check for consistency with parent values
+                // this check is currently useless but should be performed is inconsistency issue (see comment above) is resolved
+                MORIS_ASSERT( tIsIntersected ? tFirstDiffFromThreshold * tSecondDiffFromThreshold < 0 : tFirstDiffFromThreshold * tSecondDiffFromThreshold > 0,
+                        "Intersection_Node::Intersection_Node - inconsistent parent level set values - p1 %e p2 %e loc %e.",
+                        tFirstDiffFromThreshold,
+                        tSecondDiffFromThreshold,
+                        mLocalCoordinate );
+            }
+
+            return tIsIntersected;
+        }
 
 
         void
@@ -142,7 +202,7 @@ namespace moris
 
             return mCoordinateDeterminingADVIDs;
         }
-        
+
         //--------------------------------------------------------------------------------------------------------------
 
     }    // namespace ge

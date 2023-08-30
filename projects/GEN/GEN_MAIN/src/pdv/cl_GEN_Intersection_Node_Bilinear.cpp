@@ -42,7 +42,7 @@ namespace moris
                                 aSecondParentNodeLocalCoordinates,
                                 aAncestorNodeIndices,
                                 aAncestorNodeCoordinates,
-                                aInterfaceGeometry),
+                                aInterfaceGeometry ),
                         aFirstParentNode,
                         aSecondParentNode,
                         aFirstParentNodeIndex,
@@ -52,12 +52,11 @@ namespace moris
                         aAncestorNodeIndices,
                         aAncestorNodeCoordinates,
                         aInterpolationType,
-                        aInterfaceGeometry,
-                        false )
+                        aInterfaceGeometry )
         {
             // initialize number of basis used by interpolation
             uint tNumBases;
-            
+
             // check that number of node indices and number of nodal coodinates of ancestor nodes are identical
             MORIS_ASSERT( aAncestorNodeCoordinates.size() == aAncestorNodeIndices.numel(),
                     "Intersection_Node_Bilinear::compute_intersection - inconsistent ancestor node information." );
@@ -89,7 +88,7 @@ namespace moris
             // check that number of bases to be used less or equal number of ancestor nodes
             MORIS_ASSERT( mAncestorNodeCoordinates.size() >= tNumBases,
                     "Intersection_Node_Bilinear::compute_intersection - number of ancestor nodes insufficient." );
-            
+
             // call required setup function
             this->initialize( aInterpolationType, aFirstParentNodeLocalCoordinates, aSecondParentNodeLocalCoordinates );
 
@@ -127,11 +126,12 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
-        
-        bool
-        Intersection_Node_Bilinear::determine_first_parent_on_interface( 
-            const Element_Intersection_Type aAncestorBasisFunction,
-            const Matrix< DDRMat >& aFirstParentNodeLocalCoordinates )
+
+        real
+        Intersection_Node_Bilinear::compute_diff_from_threshold(
+                const Element_Intersection_Type aAncestorBasisFunction,
+                const Matrix< DDRMat >&         aParentNodeLocalCoordinates,
+                moris_index                     aParentNodeIndex )
         {
             // initialize number of basis used by interpolation
             uint tNumBases;
@@ -173,7 +173,7 @@ namespace moris
 
             // lock interface geometry
             std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
-            
+
             // allocate matrix for level set values at background cell nodes
             Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
 
@@ -184,149 +184,20 @@ namespace moris
             }
 
             // check that dimension of ancestor node coordinate equals dimension of parent node coordinates
-            MORIS_ASSERT( aFirstParentNodeLocalCoordinates.numel() == mAncestorNodeCoordinates( 0 ).numel(),
+            MORIS_ASSERT( aParentNodeLocalCoordinates.numel() == mAncestorNodeCoordinates( 0 ).numel(),
                     "Intersection_Node_Bilinear::compute_intersection - inconsistent coordinate dimensions." );
 
             // get isocontour threshold from geometry
             real tIsocontourThreshold = tLockedInterfaceGeometry->get_isocontour_threshold();
-            real tIntersectionTolerance = tLockedInterfaceGeometry->get_intersection_tolerance();
-            
+
             // compute level set value at parent nodes
-            Matrix< DDRMat > tFirstParentBasis;
+            Matrix< DDRMat > tParentBasis;
 
-            tInterpolation->eval_N( aFirstParentNodeLocalCoordinates, tFirstParentBasis );
+            tInterpolation->eval_N( aParentNodeLocalCoordinates, tParentBasis );
 
-            real tFirstParentPhi  = dot( tFirstParentBasis, tPhiBCNodes );
+            real tParentPhi = dot( tParentBasis, tPhiBCNodes );
 
-            mFirstDiffFromThreshold  = tFirstParentPhi - tIsocontourThreshold;
-
-            bool tFirstParentOnInterface = std::abs( mFirstDiffFromThreshold ) < tIntersectionTolerance
-                                   or 0.5 * norm( mParentVector ) * std::abs( 1 + mLocalCoordinate ) < tIntersectionTolerance;
-
-            return tFirstParentOnInterface;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        bool
-        Intersection_Node_Bilinear::determine_second_parent_on_interface( 
-            const Element_Intersection_Type aAncestorBasisFunction,
-            const Matrix< DDRMat >& aSecondParentNodeLocalCoordinates )
-        {
-            // initialize number of basis used by interpolation
-            uint tNumBases;
-
-            // build interpolator
-            mtk::Interpolation_Function_Factory tFactory;
-
-            mtk::Interpolation_Function_Base* tInterpolation;
-
-            // create interpolation function based on spatial dimension of problem
-            switch ( aAncestorBasisFunction )
-            {
-                case Element_Intersection_Type::Linear_2D :
-                {
-                    tInterpolation = tFactory.create_interpolation_function(
-                            mtk::Geometry_Type::QUAD,
-                            mtk::Interpolation_Type::LAGRANGE,
-                            mtk::Interpolation_Order::LINEAR );
-
-                    tNumBases = 4;
-                    break;
-                }
-                case Element_Intersection_Type::Linear_3D :
-                {
-                    tInterpolation = tFactory.create_interpolation_function(
-                            mtk::Geometry_Type::HEX,
-                            mtk::Interpolation_Type::LAGRANGE,
-                            mtk::Interpolation_Order::LINEAR );
-
-                    tNumBases = 8;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false,
-                            "Intersection_Node_Bilinear::Intersection_Node_Bilinear - Interpolation type not implemented." );
-                }
-            }
-
-            // lock interface geometry
-            std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
-            
-            // allocate matrix for level set values at background cell nodes
-            Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
-
-            // get level set values of corner nodes
-            for ( uint in = 0; in < tNumBases; ++in )
-            {
-                tPhiBCNodes( in ) = tLockedInterfaceGeometry->get_field_value( mAncestorNodeIndices( in ), mAncestorNodeCoordinates( in ) );
-            }
-
-            // check that dimension of ancestor node coordinate equals dimension of parent node coordinates
-            MORIS_ASSERT( aSecondParentNodeLocalCoordinates.numel() == mAncestorNodeCoordinates( 0 ).numel(),
-                    "Intersection_Node_Bilinear::compute_intersection - inconsistent coordinate dimensions." );
-
-            // get isocontour threshold from geometry
-            real tIsocontourThreshold = tLockedInterfaceGeometry->get_isocontour_threshold();
-            real tIntersectionTolerance = tLockedInterfaceGeometry->get_intersection_tolerance();
-            
-            // compute level set value at parent nodes
-            Matrix< DDRMat > tSecondParentBasis;
-
-            tInterpolation->eval_N( aSecondParentNodeLocalCoordinates, tSecondParentBasis );
-
-            real tSecondParentPhi  = dot( tSecondParentBasis, tPhiBCNodes );
-
-            mSecondDiffFromThreshold  = tSecondParentPhi - tIsocontourThreshold;
-
-            bool tSecondParentOnInterface = std::abs( mSecondDiffFromThreshold ) < tIntersectionTolerance
-                                   or 0.5 * norm( mParentVector ) * std::abs( 1 - mLocalCoordinate ) < tIntersectionTolerance;
-
-            return tSecondParentOnInterface;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        bool
-        Intersection_Node_Bilinear::determine_is_intersected()
-        {
-            bool tIsIntersected;
-            
-            // Determine if edge is intersected
-            if ( mFirstParentOnInterface or mSecondParentOnInterface )
-            {
-                tIsIntersected = true;
-            }
-            // FIXME: This check should be unnecessary as the local edge coordinate should be sufficient
-            // to determine whether edge is intersected; it is only "useful" if parent node's level set value
-            // is determined by method that is different from intersection nodes; for example level set value child node
-            // of child node is computed via analytic field and intersection node via bi-linear interpolation
-            else if ( mFirstDiffFromThreshold * mSecondDiffFromThreshold > 0 )
-            {
-                tIsIntersected = false;
-
-                // check for consistency of parent values and local coordinate
-                MORIS_ASSERT( std::abs( mLocalCoordinate ) > 1,
-                        "Intersection_Node_Bilinear::Intersection_Node_Bilinear - inconsistent parent level set values versus local coordinate - p1 %e p2 %e loc %e.",
-                        mFirstDiffFromThreshold,
-                        mSecondDiffFromThreshold,
-                        mLocalCoordinate );
-            }
-            else
-            {
-                tIsIntersected = ( std::abs( mLocalCoordinate ) <= 1.0 );
-
-                // check for consistency with parent values
-                // this check is currently useless but should be performed if inconsistency issue (see comment above) is resolved
-                MORIS_ASSERT( tIsIntersected ? mFirstDiffFromThreshold * mSecondDiffFromThreshold < 0 : mFirstDiffFromThreshold * mSecondDiffFromThreshold > 0,
-                        "Intersection_Node_Bilinear::Intersection_Node_Bilinear - inconsistent parent level set values - p1 %e p2 %e loc %e.",
-                        mFirstDiffFromThreshold,
-                        mSecondDiffFromThreshold,
-                        mLocalCoordinate );
-            }
-
-            return tIsIntersected;
+            return tParentPhi - tIsocontourThreshold;
         }
 
         //--------------------------------------------------------------------------------------------------------------

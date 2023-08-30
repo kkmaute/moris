@@ -67,35 +67,15 @@ namespace moris
             Matrix< DDRMat > compute_global_coordinates() override;
 
             /**
-             * Determines if the first parent is on an interface. 
-             * Used by initialize() to assign member data. Implemented provided for parent class.
+             * Compute the difference between the phi value of the first parent node and
+             * the isocontour threshold of the intersecting geometry. Implementation provided here for parent class.
              *
-             * @return true if the first parent is on the interface
-             * @return false if the first parent is not on the interface
+             * @return Phi value of first parent minus the level set value that determines the interface
              */
-            bool determine_first_parent_on_interface( 
-              const Element_Intersection_Type aAncestorBasisFunction,
-              const Matrix< DDRMat >& aFirstParentNodeLocalCoordinates) override;
-
-            /**
-             * Determines if the second parent is on an interface.
-             * Used by initialize() to set mSecondParentOnInterface. Implementation provided here for parent class.
-             *
-             * @return true if the second parent is on the interface
-             * @return false if the second parent is not on the interface
-             */
-            bool determine_second_parent_on_interface( 
-              const Element_Intersection_Type aAncestorBasisFunction,
-              const Matrix< DDRMat >& aSecondParentNodeLocalCoordinates) override; 
-
-            /**
-             * Determines if the parent nodes are intersected.
-             * Used by initialize() to set mIsIntersected. Implementation provided here for parent class.
-             * 
-             * @return if the parent nodes are intersected
-             * @return false if there is no intersection detected
-             */
-            bool determine_is_intersected() override;              
+            real compute_diff_from_threshold(
+                    const Element_Intersection_Type aAncestorBasisFunction,
+                    const Matrix< DDRMat >&         aParentNodeLocalCoordinates,
+                    moris_index                     aParentNodeIndex ) override;
 
             /**
              * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field

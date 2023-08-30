@@ -59,8 +59,7 @@ namespace moris
                     Matrix< DDUMat >                     aAncestorNodeIndices,
                     Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
                     const Element_Intersection_Type      aAncestorBasisFunction,
-                    std::shared_ptr< Geometry >          aInterfaceGeometry,
-                    bool                                 aDetermineIsIntersected = true );
+                    std::shared_ptr< Geometry >          aInterfaceGeometry );
 
             /**
              * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
@@ -89,35 +88,28 @@ namespace moris
             virtual Matrix< DDRMat > compute_global_coordinates() = 0;
 
             /**
-             * Determines if the first parent is on an interface. Used by setup() to assign member data.
-             * Should be implemented by the lowest level child class.
+             * Compute the difference between the phi value of the first parent node and
+             * the isocontour threshold of the intersecting geometry. Implementation provided by child class.
              *
-             * @return true if the first parent is on the interface
-             * @return false if the first parent is not on the interface
+             * @return Phi value of first parent minus the level set value that determines the interface
              */
-            virtual bool determine_first_parent_on_interface(
+            virtual real compute_diff_from_threshold(
                     const Element_Intersection_Type aAncestorBasisFunction,
-                    const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates ) = 0;
-
-            /**
-             * Determines if the second parent is on an interface.
-             * Used by initialize() to set mSecondParentOnInterface. Implementation provided by child class.
-             *
-             * @return true if the second parent is on the interface
-             * @return false if the second parent is not on the interface
-             */
-            virtual bool determine_second_parent_on_interface(
-                    const Element_Intersection_Type aAncestorBasisFunction,
-                    const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates ) = 0;
+                    const Matrix< DDRMat >&         aParentNodeLocalCoordinates,
+                    moris_index               aParentNodeIndex ) = 0;
 
             /**
              * Determines if the parent nodes are intersected.
-             * Used by initialize() to set mIsIntersected. Implementation provided by child class.
+             * Used by initialize() to set mIsIntersected. Also sets mFirstParentOnInterface and mSecondParentOnInterface
+             * Implementation provided here for parent class.
              *
              * @return if the parent nodes are intersected
              * @return false if there is no intersection detected
              */
-            virtual bool determine_is_intersected() = 0;
+            bool determine_is_intersected(
+                    const Element_Intersection_Type aAncestorBasisFunction,
+                    const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
+                    const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates ) override;
 
             /**
              * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field

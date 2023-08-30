@@ -23,10 +23,10 @@ namespace moris
         class Intersection_Node : public Child_Node
         {
           protected:
-            real                      mLocalCoordinate;
-            bool                      mIsIntersected;
-            Matrix< DDRMat >          mParentVector;
-            Matrix< DDSMat >          mCoordinateDeterminingADVIDs;
+            real             mLocalCoordinate;
+            bool             mIsIntersected;
+            Matrix< DDRMat > mParentVector;
+            Matrix< DDSMat > mCoordinateDeterminingADVIDs;
 
             std::shared_ptr< Intersection_Node > mFirstParentNode;
             std::shared_ptr< Intersection_Node > mSecondParentNode;
@@ -58,7 +58,6 @@ namespace moris
              * @param aAncestorNodeIndices Node indices of the ancestors of this intersection node
              * @param aAncestorNodeCoordinates Coordinates of the ancestors of this intersection node
              * @param aAncestorBasisFunction Basis function of the ancestor topology
-             * @param aDetermineIsIntersected Flag whether determination of intersection should be performed
              */
             Intersection_Node(
                     real                                 aLocalCoordinate,
@@ -70,8 +69,7 @@ namespace moris
                     const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
                     Matrix< DDUMat >                     aAncestorNodeIndices,
                     Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
-                    const Element_Intersection_Type      aAncestorBasisFunction,
-                    bool                                 aDetermineIsIntersected = true );
+                    const Element_Intersection_Type      aAncestorBasisFunction );
             /**
              * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
              * ancestor nodes.
@@ -233,35 +231,17 @@ namespace moris
                     const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates );
 
             /**
-             * Determines if the first parent is on an interface.
-             * Used by initialize() to set mFirstParentOnInterface. Implementation provided by child class.
-             *
-             * @return true if the first parent is on the interface
-             * @return false if the first parent is not on the interface
-             */
-            virtual bool determine_first_parent_on_interface( 
-              const Element_Intersection_Type aAncestorBasisFunction,
-              const Matrix< DDRMat >& aFirstParentNodeLocalCoordinates ) = 0;
-
-            /**
-             * Determines if the second parent is on an interface.
-             * Used by initialize() to set mSecondParentOnInterface. Implementation provided by child class.
-             *
-             * @return true if the second parent is on the interface
-             * @return false if the second parent is not on the interface
-             */
-            virtual bool determine_second_parent_on_interface( 
-              const Element_Intersection_Type aAncestorBasisFunction,
-              const Matrix< DDRMat >& aSecondParentNodeLocalCoordinates ) = 0;
-
-            /**
              * Determines if the parent nodes are intersected.
              * Used by initialize() to set mIsIntersected. Implementation provided by child class.
              *
              * @return if the parent nodes are intersected
              * @return false if there is no intersection detected
              */
-            virtual bool determine_is_intersected() = 0;
+            virtual bool determine_is_intersected(
+                const Element_Intersection_Type aAncestorBasisFunction,
+                const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
+                const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates
+            ) = 0;
 
             /**
              * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
