@@ -25,8 +25,6 @@ namespace moris
         {
           protected:
             std::weak_ptr< Geometry > mInterfaceGeometry;
-            real                      mFirstDiffFromThreshold;
-            real                      mSecondDiffFromThreshold;
 
           public:
             /**
