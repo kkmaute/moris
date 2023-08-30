@@ -451,7 +451,7 @@ namespace moris
 
             // determine maximum node index used for sizing the pdv hosts
             moris_index tMax = 0;
-            for ( moris::uint iSet = 0; iSet < tNumSets; iSet++ )
+            for ( uint iSet = 0; iSet < tNumSets; iSet++ )
             {
                 if ( aNodeIndicesPerSet( iSet ).numel() > 0 )
                 {
@@ -474,9 +474,8 @@ namespace moris
                 }
                 mUniqueIpPdvTypes( tMeshSetIndex ).resize( tNumUniquePdvs );
 
-                // Copy PDV types over These are the pdvs for this set
+                // Copy PDV types over to unique list that doesn't consider grouping
                 uint tUniquePdvIndex = 0;
-
                 for ( uint tGroupIndex = 0; tGroupIndex < mIpPdvTypes( tMeshSetIndex ).size(); tGroupIndex++ )
                 {
                     for ( uint tPdvIndex = 0; tPdvIndex < mIpPdvTypes( tMeshSetIndex )( tGroupIndex ).size(); tPdvIndex++ )
@@ -499,7 +498,6 @@ namespace moris
                     Matrix< DDRMat > tNodeCoordinates = aNodeCoordinatesPerSet( tMeshSetIndex ).get_row( tNodeIndexOnSet );
 
                     // Create PDV host unless it already exists
-                    // FIXME: why is it that if it exists it already has the same PDVtypes; this needs to be checked
                     if ( mIpPdvHosts( tNodeIndex ) == nullptr )
                     {
                         mIpPdvHosts( tNodeIndex ) =
@@ -1181,16 +1179,16 @@ namespace moris
                 Cell< Matrix< DDUMat > > tSharedPdvHostIndices( tNumCommProcs );
 
                 // Set size of vectors to store PDV host IDs and indices of shared PDvs
-                for ( moris::uint Ik = 0; Ik < tNumCommProcs; Ik++ )
+                for ( uint iCommunicationProcIndex = 0; iCommunicationProcIndex < tNumCommProcs; iCommunicationProcIndex++ )
                 {
                     // Get number of pdvs shared with current processor
-                    uint tNumberOfSharedPDVs = tNumSharedPdvsPerProc( Ik, 0 );
+                    uint tNumberOfSharedPDVs = tNumSharedPdvsPerProc( iCommunicationProcIndex );
 
                     // if there are any PDVs shared with this processor set size of vectors
                     if ( tNumberOfSharedPDVs != 0 )
                     {
-                        tSharedPdvHostIds( Ik ).set_size( tNumberOfSharedPDVs, 1 );
-                        tSharedPdvHostIndices( Ik ).set_size( tNumberOfSharedPDVs, 1 );
+                        tSharedPdvHostIds( iCommunicationProcIndex ).set_size( tNumberOfSharedPDVs, 1 );
+                        tSharedPdvHostIndices( iCommunicationProcIndex ).set_size( tNumberOfSharedPDVs, 1 );
                     }
                 }
 
@@ -1277,23 +1275,13 @@ namespace moris
                                 "PDV not owned by this processor" );
 
                         // Check if PDF of given type exists
-                        MORIS_ERROR( mIpPdvHosts( tPdvHostIndex )->get_pdv_exists( tPdvType ),
+                        MORIS_ASSERT( mIpPdvHosts( tPdvHostIndex )->get_pdv_exists( tPdvType ),
                                 "Pdv_Host_Manager::communicate_check_if_owned_pdv_exists - PDV missing on Node with ID %d on Proc %d.\n",
                                 tReqPdvHostId,
                                 par_rank() );
 
-                        // Re-use owned IDs of PDV host, send back IDs for given type on list of requesting processor
-                        if ( mIpPdvHosts( tPdvHostIndex )->get_pdv_exists( tPdvType ) )
-                        {
-                            // Send back PDV ID
-                            tOwnedIds( iCommunicationProcIndex )( iOwnedPdvIndex ) = mIpPdvHosts( tPdvHostIndex )->get_pdv_id( tPdvType );
-                        }
-                        else
-                        {
-                            // Send back no ID, telling sharer to become owner
-                            tOwnedIds( iCommunicationProcIndex )( iOwnedPdvIndex ) = gNoID;
-                        }
-
+                        // Send back PDV ID
+                        tOwnedIds( iCommunicationProcIndex )( iOwnedPdvIndex ) = mIpPdvHosts( tPdvHostIndex )->get_pdv_id( tPdvType );
                     }
                 }
 

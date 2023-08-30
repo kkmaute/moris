@@ -1048,8 +1048,10 @@ namespace moris
                     // PDV type and mesh set names/indices from parameter list
                     tPDVTypeGroup( 0 ) = mProperties( tPropertyIndex )->get_pdv_type();
 
+                    // Add nodal data from the interpolation mesh
                     mProperties( tPropertyIndex )->add_nodal_data( tInterpolationMesh );
 
+                    // Assign this property to the PDV hosts for the given sets
                     this->assign_property_to_pdv_hosts(
                             mProperties( tPropertyIndex ),
                             tPDVTypeGroup( 0 ),
@@ -2302,6 +2304,7 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+
         void
         Geometry_Engine::set_integration_pdv_types( mtk::Integration_Mesh* aIntegrationMesh )
         {
@@ -2346,6 +2349,8 @@ namespace moris
             mPDVHostManager.set_requested_integration_pdv_types( tCoordinatePdvs );
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         void
         Geometry_Engine::assign_property_to_pdv_hosts(
                 std::shared_ptr< Property > aPropertyPointer,
@@ -2353,10 +2358,24 @@ namespace moris
                 mtk::Integration_Mesh*      aIntegrationMesh,
                 Matrix< DDUMat >            aSetIndices )
         {
-            for ( uint tSet = 0; tSet < aSetIndices.length(); tSet++ )
+            // Loop over all sets that this property belongs to
+            for ( uint iSet = 0; iSet < aSetIndices.length(); iSet++ )
             {
                 // get the mesh set from index
-                mtk::Set* tSetPointer = aIntegrationMesh->get_set_by_index( aSetIndices( tSet ) );
+                mtk::Set* tSetPointer = aIntegrationMesh->get_set_by_index( aSetIndices( iSet ) );
+
+                // Select sides of interpolation cells to pull from
+                Cell< mtk::Leader_Follower > tSetSides;
+                if ( tSetPointer->get_set_type() == moris::SetType::DOUBLE_SIDED_SIDESET )
+                {
+                    // Need to get both leader and follower sides of double-sided sidesets
+                    tSetSides = { mtk::Leader_Follower::LEADER, mtk::Leader_Follower::FOLLOWER };
+                }
+                else
+                {
+                    // Otherwise, just use leader side
+                    tSetSides = { mtk::Leader_Follower::LEADER };
+                }
 
                 // get the list of cluster on mesh set
                 Cell< mtk::Cluster const * > tClusterPointers = tSetPointer->get_clusters_on_set();
@@ -2367,34 +2386,11 @@ namespace moris
                 // loop over the clusters on mesh set
                 for ( uint iCluster = 0; iCluster < tNumClusters; iCluster++ )
                 {
-                    // get the IP cell from cluster
-                    mtk::Cell const & tIPCell = tClusterPointers( iCluster )->get_interpolation_cell( mtk::Leader_Follower::LEADER );
-
-                    // get the vertices from IP cell
-                    Cell< mtk::Vertex* > tVertices = tIPCell.get_base_cell()->get_vertex_pointers();
-
-                    // get the number of vertices on IP cell
-                    uint tNumVerts = tVertices.size();
-
-                    // loop over vertices on IP cell
-                    for ( uint iVert = 0; iVert < tNumVerts; iVert++ )
-                    {
-                        // get the vertex index
-                        moris_index tVertIndex = tVertices( iVert )->get_index();
-
-                        // ask pdv host manager to assign to vertex a pdv type and a property
-                        mPDVHostManager.create_interpolation_pdv( uint( tVertIndex ), aPdvType, aPropertyPointer );
-                    }
-                }
-
-                // FIXME: this is kind of a hack. recommending rewriting it properly when rewriting GEN (why is it a hack, what should be done about it?)
-                if ( tSetPointer->get_set_type() == moris::SetType::DOUBLE_SIDED_SIDESET )
-                {
-                    // loop over the clusters on mesh set
-                    for ( uint iCluster = 0; iCluster < tNumClusters; iCluster++ )
+                    // Loop over leader/follower
+                    for ( mtk::Leader_Follower iLeaderFollower : tSetSides )
                     {
                         // get the IP cell from cluster
-                        mtk::Cell const & tIPCell = tClusterPointers( iCluster )->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER );
+                        mtk::Cell const & tIPCell = tClusterPointers( iCluster )->get_interpolation_cell( iLeaderFollower );
 
                         // get the vertices from IP cell
                         Cell< mtk::Vertex* > tVertices = tIPCell.get_base_cell()->get_vertex_pointers();
