@@ -72,6 +72,10 @@ namespace moris
             /**
              * Compute the difference between the phi value of the first parent node and
              * the isocontour threshold of the intersecting geometry. Implementation provided here for parent class.
+             * 
+             * @param aAncestorBasisFunction the basis function type of the ancestor nodes
+             * @param aParentNodeLocalCoordinates the parent node whose difference from the threshold that should be comptued
+             * @param aParentNodeIndex Unused variable for this function, as all parent nodes are used
              *
              * @return Phi value of first parent minus the level set value that determines the interface
              */

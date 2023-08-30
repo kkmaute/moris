@@ -58,9 +58,7 @@ namespace moris
         {
             mGlobalCoordinates       = this->compute_global_coordinates();
             mParentVector            = this->compute_parent_vector( aAncestorBasisFunction, aFirstParentLocalCoordinates, aSecondParentLocalCoordinates );
-            // mFirstParentOnInterface  = this->determine_first_parent_on_interface( aAncestorBasisFunction, aFirstParentLocalCoordinates );
-            // mSecondParentOnInterface = this->determine_second_parent_on_interface( aAncestorBasisFunction, aSecondParentLocalCoordinates );
-            mIsIntersected           = this->determine_is_intersected(aAncestorBasisFunction, aFirstParentLocalCoordinates, aSecondParentLocalCoordinates);
+            mIsIntersected           = this->determine_is_intersected( aAncestorBasisFunction, aFirstParentLocalCoordinates, aSecondParentLocalCoordinates );
         }
 
         //--------------------------------------------------------------------------------------------------------------

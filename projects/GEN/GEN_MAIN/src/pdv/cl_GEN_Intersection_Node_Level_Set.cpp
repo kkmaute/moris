@@ -44,13 +44,15 @@ namespace moris
         {
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         bool
         Intersection_Node_Level_Set::determine_is_intersected(
                 const Element_Intersection_Type aAncestorBasisFunction,
                 const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
                 const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates )
         {
-            // get the difference between the phi value of the first parent and the isocontour threshold
+            // get the difference between the phi value of the parents and the isocontour threshold
             real tFirstDiffFromThreshold = this->compute_diff_from_threshold(
                     aAncestorBasisFunction, aFirstParentNodeLocalCoordinates, mFirstParentNodeIndex );
             real tSecondDiffFromThreshold = this->compute_diff_from_threshold(
@@ -108,6 +110,7 @@ namespace moris
             return tIsIntersected;
         }
 
+        //--------------------------------------------------------------------------------------------------------------
 
         void
         Intersection_Node_Level_Set::get_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, Matrix< DDRMat > const & aSensitivityFactor )

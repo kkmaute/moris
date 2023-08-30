@@ -498,18 +498,18 @@ namespace moris
             }
 
             // print debug information
-            for ( uint in = 0; in < tNumBases; ++in )
-            {
-                std::string tStrg = "Anchestor_Node_" + std::to_string( aAncestorNodeIndices( in ) );
-                print( aAncestorNodeCoordinates( in ), tStrg );
-            }
+            // for ( uint in = 0; in < tNumBases; ++in )
+            // {
+            //     std::string tStrg = "Anchestor_Node_" + std::to_string( aAncestorNodeIndices( in ) );
+            //     print( aAncestorNodeCoordinates( in ), tStrg );
+            // }
 
-            print( tPhiBCNodes, "tPhiBCNodes" );
+            // print( tPhiBCNodes, "tPhiBCNodes" );
 
-            fprintf( stderr, "tFirstParentPhi =%e   tSecondParentPhi = %e\n", tFirstParentPhi, tSecondParentPhi );
+            // fprintf( stderr, "tFirstParentPhi =%e   tSecondParentPhi = %e\n", tFirstParentPhi, tSecondParentPhi );
 
-            print( aFirstParentNodeLocalCoordinates, "aFirstParentNodeLocalCoordinates" );
-            print( aSecondParentNodeLocalCoordinates, "aSecondParentNodeLocalCoordinates" );
+            // print( aFirstParentNodeLocalCoordinates, "aFirstParentNodeLocalCoordinates" );
+            // print( aSecondParentNodeLocalCoordinates, "aSecondParentNodeLocalCoordinates" );
 
             MORIS_ERROR( false,
                     "Intersection_Node_Bilinear::compute_intersection - Newton did not convergence: %s %e %s %e %s %e",

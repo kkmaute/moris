@@ -179,8 +179,6 @@ namespace moris
                                     tSecondParentOnInterface = true;
                                 }
                                 CHECK( tGeometryEngine.queued_intersection_first_parent_on_interface() == tFirstParentOnInterface );
-                                bool tDELETETHISBRENDAN = tGeometryEngine.queued_intersection_second_parent_on_interface();
-                                std::cout << tDELETETHISBRENDAN << std::endl;
                                 CHECK( tGeometryEngine.queued_intersection_second_parent_on_interface() == tSecondParentOnInterface );
 
                                 // See if local coordinate is a number
