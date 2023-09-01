@@ -147,10 +147,10 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-    MeshType
+    mtk::MeshType
     Enriched_Integration_Mesh::get_mesh_type() const
     {
-        return MeshType::XTK;
+        return mtk::MeshType::XTK;
     }
 
     // ----------------------------------------------------------------------------
@@ -273,18 +273,18 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     uint
-    Enriched_Integration_Mesh::get_num_entities( enum EntityRank aEntityRank, const moris_index aIndex ) const
+    Enriched_Integration_Mesh::get_num_entities( mtk::EntityRank aEntityRank, const moris_index aIndex ) const
     {
         switch ( aEntityRank )
         {
-            case EntityRank::NODE:
+            case mtk::EntityRank::NODE:
             {
-                return mCutIgMesh->get_num_entities( EntityRank::NODE, 0 );
+                return mCutIgMesh->get_num_entities( mtk::EntityRank::NODE, 0 );
                 break;
             }
-            case EntityRank::ELEMENT:
+            case mtk::EntityRank::ELEMENT:
             {
-                return mCutIgMesh->get_num_entities( EntityRank::ELEMENT, 0 );
+                return mCutIgMesh->get_num_entities( mtk::EntityRank::ELEMENT, 0 );
                 break;
             }
             default:
@@ -300,7 +300,7 @@ namespace xtk
     uint
     Enriched_Integration_Mesh::get_num_owned_cells() const
     {
-        uint tNumEntities = this->get_num_entities( EntityRank::ELEMENT );
+        uint tNumEntities = this->get_num_entities( mtk::EntityRank::ELEMENT );
 
         uint tNumOwnedEntities = 0;
 
@@ -324,11 +324,11 @@ namespace xtk
     Matrix< IndexMat >
     Enriched_Integration_Mesh::get_entity_connected_to_entity_loc_inds(
             moris_index       aEntityIndex,
-            enum EntityRank   aInputEntityRank,
-            enum EntityRank   aOutputEntityRank,
+            mtk::EntityRank   aInputEntityRank,
+            mtk::EntityRank   aOutputEntityRank,
             const moris_index aIndex ) const
     {
-        MORIS_ERROR( aInputEntityRank == EntityRank::ELEMENT && aOutputEntityRank == EntityRank::NODE,
+        MORIS_ERROR( aInputEntityRank == mtk::EntityRank::ELEMENT && aOutputEntityRank == mtk::EntityRank::NODE,
                 "Only support element to node connectivity" );
 
         return this->get_mtk_cell( aEntityIndex ).get_vertex_inds();
@@ -350,7 +350,7 @@ namespace xtk
     Cell< mtk::Vertex const * >
     Enriched_Integration_Mesh::get_all_vertices() const
     {
-        uint                        tNumNodes = this->get_num_entities( EntityRank::NODE );
+        uint                        tNumNodes = this->get_num_entities( mtk::EntityRank::NODE );
         Cell< mtk::Vertex const * > tVertices( tNumNodes );
 
         for ( uint i = 0; i < tNumNodes; i++ )
@@ -365,7 +365,7 @@ namespace xtk
     moris_id
     Enriched_Integration_Mesh::get_glb_entity_id_from_entity_loc_index(
             moris_index       aEntityIndex,
-            enum EntityRank   aEntityRank,
+            mtk::EntityRank   aEntityRank,
             const moris_index aIndex ) const
     {
         return mCutIgMesh->get_glb_entity_id_from_entity_loc_index( aEntityIndex, aEntityRank );
@@ -384,7 +384,7 @@ namespace xtk
     moris_index
     Enriched_Integration_Mesh::get_loc_entity_ind_from_entity_glb_id(
             moris_id          aEntityId,
-            enum EntityRank   aEntityRank,
+            mtk::EntityRank   aEntityRank,
             const moris_index aIndex ) const
     {
         return mCutIgMesh->get_loc_entity_ind_from_entity_glb_id( aEntityId, aEntityRank );
@@ -395,8 +395,8 @@ namespace xtk
     Matrix< IdMat >
     Enriched_Integration_Mesh::get_entity_connected_to_entity_glob_ids(
             moris_id          aEntityId,
-            enum EntityRank   aInputEntityRank,
-            enum EntityRank   aOutputEntityRank,
+            mtk::EntityRank   aInputEntityRank,
+            mtk::EntityRank   aOutputEntityRank,
             const moris_index aIndex ) const
     {
         moris_index tEntityIndex = get_loc_entity_ind_from_entity_glb_id( aEntityId, aInputEntityRank );
@@ -466,30 +466,30 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     Cell< std::string >
-    Enriched_Integration_Mesh::get_set_names( enum EntityRank aSetEntityRank ) const
+    Enriched_Integration_Mesh::get_set_names( mtk::EntityRank aSetEntityRank ) const
     {
         switch ( aSetEntityRank )
         {
-            case EntityRank::NODE:
+            case mtk::EntityRank::NODE:
             {
                 return mVertexSetNames;
                 break;
             }
-            case EntityRank::EDGE:
+            case mtk::EntityRank::EDGE:
             {
-                MORIS_ASSERT( this->get_facet_rank() == EntityRank::EDGE,
+                MORIS_ASSERT( this->get_facet_rank() == mtk::EntityRank::EDGE,
                         "Enriched_Integration_Mesh::get_set_names() - side sets are defined on edges in 2d" );
                 return mSideSetLabels;
                 break;
             }
-            case EntityRank::FACE:
+            case mtk::EntityRank::FACE:
             {
-                MORIS_ASSERT( this->get_facet_rank() == EntityRank::FACE,
+                MORIS_ASSERT( this->get_facet_rank() == mtk::EntityRank::FACE,
                         "Enriched_Integration_Mesh::get_set_names() - side sets are defined on faces in 3d" );
                 return mSideSetLabels;
                 break;
             }
-            case EntityRank::ELEMENT:
+            case mtk::EntityRank::ELEMENT:
             {
                 return mBlockSetNames;
                 break;
@@ -509,12 +509,12 @@ namespace xtk
 
     Matrix< IndexMat >
     Enriched_Integration_Mesh::get_set_entity_loc_inds(
-            enum EntityRank aSetEntityRank,
+            mtk::EntityRank aSetEntityRank,
             std::string     aSetName ) const
     {
         switch ( aSetEntityRank )
         {
-            case EntityRank::NODE:
+            case mtk::EntityRank::NODE:
             {
                 // get the vertex set index
                 auto tSetIndex = mVertexSetLabelToOrd.find( aSetName );
@@ -529,19 +529,19 @@ namespace xtk
                 return tVerticesInSetMat;
                 break;
             }
-            case EntityRank::EDGE:
+            case mtk::EntityRank::EDGE:
             {
-                MORIS_ASSERT( this->get_facet_rank() == EntityRank::EDGE, "side sets are defined on edges in 2d" );
+                MORIS_ASSERT( this->get_facet_rank() == mtk::EntityRank::EDGE, "side sets are defined on edges in 2d" );
                 return Matrix< IndexMat >( 0, 0 );
                 break;
             }
-            case EntityRank::FACE:
+            case mtk::EntityRank::FACE:
             {
-                MORIS_ASSERT( this->get_facet_rank() == EntityRank::FACE, "side sets are defined on faces in 3d" );
+                MORIS_ASSERT( this->get_facet_rank() == mtk::EntityRank::FACE, "side sets are defined on faces in 3d" );
                 return Matrix< IndexMat >( 0, 0 );
                 break;
             }
-            case EntityRank::ELEMENT:
+            case mtk::EntityRank::ELEMENT:
             {
                 return this->get_block_entity_loc_inds( aSetName );
                 break;
@@ -560,7 +560,7 @@ namespace xtk
     Matrix< IndexMat >
     Enriched_Integration_Mesh::get_element_indices_in_block_set( uint aSetIndex )
     {
-        std::string tSetName = this->get_set_names( EntityRank::ELEMENT )( aSetIndex );
+        std::string tSetName = this->get_set_names( mtk::EntityRank::ELEMENT )( aSetIndex );
         return this->get_block_entity_loc_inds( tSetName );
     }
 
@@ -606,9 +606,9 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     moris_id
-    Enriched_Integration_Mesh::get_max_entity_id( enum EntityRank aEntityRank, const moris_index aIndex ) const
+    Enriched_Integration_Mesh::get_max_entity_id( mtk::EntityRank aEntityRank, const moris_index aIndex ) const
     {
-        MORIS_ASSERT( aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT, "Only Elements or Nodes have max id" );
+        MORIS_ASSERT( aEntityRank == mtk::EntityRank::NODE || aEntityRank == mtk::EntityRank::ELEMENT, "Only Elements or Nodes have max id" );
 
         uint tNumEntities = this->get_num_entities( aEntityRank );
 
@@ -803,15 +803,15 @@ namespace xtk
     void
     Enriched_Integration_Mesh::add_mesh_field_real_scalar_data_loc_inds(
             std::string const      &aFieldName,
-            enum EntityRank const  &aFieldEntityRank,
+            mtk::EntityRank const  &aFieldEntityRank,
             Matrix< DDRMat > const &aFieldData )
     {
 
-        MORIS_ASSERT( aFieldEntityRank == EntityRank::ELEMENT, "Only tested for nodal and element scalar field" );
+        MORIS_ASSERT( aFieldEntityRank == mtk::EntityRank::ELEMENT, "Only tested for nodal and element scalar field" );
 
-        moris_index tFieldIndex = this->create_field( aFieldName, EntityRank::ELEMENT, 0 );
+        moris_index tFieldIndex = this->create_field( aFieldName, mtk::EntityRank::ELEMENT, 0 );
 
-        this->add_field_data( tFieldIndex, EntityRank::ELEMENT, aFieldData );
+        this->add_field_data( tFieldIndex, mtk::EntityRank::ELEMENT, aFieldData );
     }
 
     //------------------------------------------------------------------------------
@@ -822,7 +822,7 @@ namespace xtk
         // Fields constructed here
         Cell< std::string > tCellFields = { "cell_id" };
 
-        moris_index tFieldIndex = this->create_field( tCellFields( 0 ), EntityRank::ELEMENT, MORIS_INDEX_MAX );
+        moris_index tFieldIndex = this->create_field( tCellFields( 0 ), mtk::EntityRank::ELEMENT, MORIS_INDEX_MAX );
 
         moris::Matrix< moris::DDRMat > tCellIdField( 1, this->get_num_elems() );
 
@@ -831,7 +831,7 @@ namespace xtk
             tCellIdField( iCell ) = (moris::real)this->get_mtk_cell( iCell ).get_id();
         }
 
-        this->add_field_data( tFieldIndex, EntityRank::ELEMENT, tCellIdField );
+        this->add_field_data( tFieldIndex, mtk::EntityRank::ELEMENT, tCellIdField );
     }
 
     //------------------------------------------------------------------------------
@@ -841,7 +841,7 @@ namespace xtk
     {
         std::unordered_map< std::string, moris_index > tOldSetMap      = mBlockSetLabelToOrd;
         Cell< std::string >                            tOldSetNames    = mBlockSetNames;
-        Cell< enum CellTopology >                      tOldSetTopo     = mBlockSetTopology;
+        Cell< mtk::CellTopology >                      tOldSetTopo     = mBlockSetTopology;
         Cell< Cell< xtk::Cell_Cluster const * > >      tOldSetClusters = mPrimaryBlockSetClusters;
         Cell< moris::Matrix< IndexMat > >              tOldColors      = mBlockSetColors;
 
@@ -980,7 +980,7 @@ namespace xtk
                 tFieldNames( tFieldIndex ) = tBaseStr + tInterpTypeStr + "_ind_" + std::to_string( tActiveBasis( tMeshIndex )( iB ) );
 
                 // declare the field in this mesh
-                tFieldIndices( tFieldIndex ) = this->create_field( tFieldNames( tFieldIndex ), EntityRank::NODE, MORIS_INDEX_MAX );
+                tFieldIndices( tFieldIndex ) = this->create_field( tFieldNames( tFieldIndex ), mtk::EntityRank::NODE, MORIS_INDEX_MAX );
             }
         }
 
@@ -1046,7 +1046,7 @@ namespace xtk
         // iterate through interpolation
         for ( uint iField = 0; iField < tFieldIndices.size(); iField++ )
         {
-            this->add_field_data( tFieldIndices( iField ), EntityRank::NODE, tFieldData( iField ), MORIS_INDEX_MAX );
+            this->add_field_data( tFieldIndices( iField ), mtk::EntityRank::NODE, tFieldData( iField ), MORIS_INDEX_MAX );
         }
 
 #endif
@@ -1123,13 +1123,13 @@ namespace xtk
         //----------------------------------------------------------------
         // write nodal fields
 
-        Cell< std::string > tNodeFields = this->get_field_names( EntityRank::NODE, MORIS_INDEX_MAX );
+        Cell< std::string > tNodeFields = this->get_field_names( mtk::EntityRank::NODE, MORIS_INDEX_MAX );
         tExodusWriter.set_nodal_fields( tNodeFields );
 
         for ( uint iF = 0; iF < tNodeFields.size(); iF++ )
         {
-            moris::moris_index tFieldIndex = this->get_field_index( tNodeFields( iF ), EntityRank::NODE );
-            tExodusWriter.write_nodal_field( tNodeFields( iF ), this->get_field_data( tFieldIndex, EntityRank::NODE, MORIS_INDEX_MAX ) );
+            moris::moris_index tFieldIndex = this->get_field_index( tNodeFields( iF ), mtk::EntityRank::NODE );
+            tExodusWriter.write_nodal_field( tNodeFields( iF ), this->get_field_data( tFieldIndex, mtk::EntityRank::NODE, MORIS_INDEX_MAX ) );
         }
 
         //----------------------------------------------------------------
@@ -1139,20 +1139,20 @@ namespace xtk
         this->create_cell_id_fields();
 
         // get a list of names of all the fields to be written
-        Cell< std::string > tCellFields = this->get_field_names( EntityRank::ELEMENT, MORIS_INDEX_MAX );
+        Cell< std::string > tCellFields = this->get_field_names( mtk::EntityRank::ELEMENT, MORIS_INDEX_MAX );
 
         // set the field names in the exodus file
         tExodusWriter.set_elemental_fields( tCellFields );
 
         // get a list of the labels of all the blocks to be written to exodus
-        Cell< std::string > tBlockNames = this->get_set_names( EntityRank::ELEMENT );
+        Cell< std::string > tBlockNames = this->get_set_names( mtk::EntityRank::ELEMENT );
 
         // write every field
         for ( uint iField = 0; iField < tCellFields.size(); iField++ )
         {
             // get the index of the of the current field in the stored list of fields
-            moris::moris_index      tFieldIndex = this->get_field_index( tCellFields( iField ), EntityRank::ELEMENT, MORIS_INDEX_MAX );
-            Matrix< DDRMat > const &tFieldData  = this->get_field_data( tFieldIndex, EntityRank::ELEMENT, MORIS_INDEX_MAX );
+            moris::moris_index      tFieldIndex = this->get_field_index( tCellFields( iField ), mtk::EntityRank::ELEMENT, MORIS_INDEX_MAX );
+            Matrix< DDRMat > const &tFieldData  = this->get_field_data( tFieldIndex, mtk::EntityRank::ELEMENT, MORIS_INDEX_MAX );
 
             // write field on every block
             for ( uint iBlock = 0; iBlock < this->get_num_blocks(); iBlock++ )
@@ -1255,7 +1255,7 @@ namespace xtk
         Cell< std::string > tCellFields = { "bg_cell_id" };
 
         // set field index
-        moris_index tFieldIndex = this->create_field( tCellFields( 0 ), EntityRank::ELEMENT, MORIS_INDEX_MAX );
+        moris_index tFieldIndex = this->create_field( tCellFields( 0 ), mtk::EntityRank::ELEMENT, MORIS_INDEX_MAX );
 
         moris::Matrix< moris::DDRMat > tCellIdField( 1, this->get_num_elems() );
 
@@ -1275,7 +1275,7 @@ namespace xtk
             }
         }
 
-        this->add_field_data( tFieldIndex, EntityRank::ELEMENT, tCellIdField );
+        this->add_field_data( tFieldIndex, mtk::EntityRank::ELEMENT, tCellIdField );
     }
 
     //------------------------------------------------------------------------------
@@ -1318,11 +1318,11 @@ namespace xtk
 
         for ( uint iF = 0; iF < tCellFields.size(); iF++ )
         {
-            tFieldIndices( iF ) = this->create_field( tCellFields( iF ), EntityRank::ELEMENT, MORIS_INDEX_MAX );
+            tFieldIndices( iF ) = this->create_field( tCellFields( iF ), mtk::EntityRank::ELEMENT, MORIS_INDEX_MAX );
         }
 
-        this->add_field_data( tFieldIndices( 0 ), EntityRank::ELEMENT, tCellToSubphase, MORIS_INDEX_MAX );
-        this->add_field_data( tFieldIndices( 1 ), EntityRank::ELEMENT, tCellToBulkPhase, MORIS_INDEX_MAX );
+        this->add_field_data( tFieldIndices( 0 ), mtk::EntityRank::ELEMENT, tCellToSubphase, MORIS_INDEX_MAX );
+        this->add_field_data( tFieldIndices( 1 ), mtk::EntityRank::ELEMENT, tCellToBulkPhase, MORIS_INDEX_MAX );
     }
 
     //------------------------------------------------------------------------------
@@ -1369,7 +1369,7 @@ namespace xtk
     {
         MORIS_ERROR( aBlocks.size() >= 2, "Union needs to happen between two blocks or more" );
 
-        enum CellTopology tCellTopo = CellTopology::INVALID;
+        mtk::CellTopology tCellTopo = mtk::CellTopology::UNDEFINED;
 
         uint                tCount = 0;
         Cell< moris_index > tBlockIndices( aBlocks.size() );
@@ -1454,7 +1454,7 @@ namespace xtk
 
         std::unordered_map< std::string, moris_index > tOldSetMap      = mBlockSetLabelToOrd;
         Cell< std::string >                            tOldSetNames    = mBlockSetNames;
-        Cell< enum CellTopology >                      tOldSetTopo     = mBlockSetTopology;
+        Cell< mtk::CellTopology >                      tOldSetTopo     = mBlockSetTopology;
         Cell< Cell< xtk::Cell_Cluster const * > >      tOldSetClusters = mPrimaryBlockSetClusters;
         Cell< moris::Matrix< IndexMat > >              tOldColors      = mBlockSetColors;
 
@@ -1585,7 +1585,7 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-    enum CellTopology
+    mtk::CellTopology
     Enriched_Integration_Mesh::get_blockset_topology( const std::string &aSetName )
     {
         moris_index tIndex = this->get_block_set_index( aSetName );
@@ -1594,14 +1594,14 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-    enum CellShape
+    mtk::CellShape
     Enriched_Integration_Mesh::get_IG_blockset_shape( const std::string &aSetName )
     {
         // get the clusters in the set
         Cell< mtk::Cluster const * > tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
 
         // init cell shape
-        CellShape tCellShape = CellShape::EMPTY;
+        mtk::CellShape tCellShape = mtk::CellShape::EMPTY;
 
         // get the number of clusters on the set
         uint tNumClustersInSet = tSetClusters.size();
@@ -1629,7 +1629,7 @@ namespace xtk
             }
 
             // if it made it here without finding a non-empty cluster, something's weird
-            MORIS_ERROR( tCellShape != CellShape::EMPTY,
+            MORIS_ERROR( tCellShape != mtk::CellShape::EMPTY,
                     "Enriched_Integration_Mesh::get_IG_blockset_shape() - No non-void clusters found on Set: %s",
                     aSetName.c_str() );
         }
@@ -1656,14 +1656,14 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-    enum CellShape
+    mtk::CellShape
     Enriched_Integration_Mesh::get_IP_blockset_shape( const std::string &aSetName )
     {
         // get the clusters in the set
         Cell< mtk::Cluster const * > tSetClusters = this->get_set_by_name( aSetName )->get_clusters_on_set();
 
         // init cell shape
-        CellShape tCellShape = CellShape::EMPTY;
+        mtk::CellShape tCellShape = mtk::CellShape::EMPTY;
 
         // if the set isn't empty exist
         if ( tSetClusters.size() > 0 )
@@ -1693,7 +1693,7 @@ namespace xtk
     Matrix< IdMat >
     Enriched_Integration_Mesh::convert_indices_to_ids(
             Matrix< IndexMat > const &aIndices,
-            enum EntityRank           aEntityRank ) const
+            mtk::EntityRank           aEntityRank ) const
     {
         uint            tNRow = aIndices.n_rows();
         uint            tNCol = aIndices.n_cols();
@@ -1713,7 +1713,7 @@ namespace xtk
     Matrix< IndexMat >
     Enriched_Integration_Mesh::convert_ids_to_indices(
             Matrix< IdMat > const &aIds,
-            enum EntityRank        aEntityRank ) const
+            mtk::EntityRank        aEntityRank ) const
     {
         uint            tNRow = aIds.n_rows();
         uint            tNCol = aIds.n_cols();
@@ -1963,7 +1963,7 @@ namespace xtk
 
     Cell< std::string >
     Enriched_Integration_Mesh::get_field_names(
-            enum moris::EntityRank   aEntityRank,
+            mtk::EntityRank   aEntityRank,
             const moris::moris_index aSetOrdinal )
     {
         // initialize output
@@ -2006,7 +2006,7 @@ namespace xtk
     moris::moris_index
     Enriched_Integration_Mesh::create_field(
             std::string            aLabel,
-            enum moris::EntityRank aEntityRank,
+            mtk::EntityRank aEntityRank,
             moris::moris_index     aSetOrdinal )
     {
         // make sure there are no redundant field labels/names
@@ -2315,7 +2315,7 @@ namespace xtk
     Enriched_Integration_Mesh::create_block_set_from_cells_of_side_set(
             moris_index const       &aSideSetIndex,
             std::string const       &aBlockSetName,
-            enum CellTopology const &aCellTopo,
+            mtk::CellTopology const &aCellTopo,
             bool                     aCreateOnlyForVis )
     {
         Cell< std::shared_ptr< xtk::Side_Cluster > > &tSideClusters = mSideSets( aSideSetIndex );
@@ -2392,7 +2392,7 @@ namespace xtk
     moris::moris_index
     Enriched_Integration_Mesh::get_field_index(
             const std::string            aLabel,
-            const enum moris::EntityRank aEntityRank,
+            const mtk::EntityRank aEntityRank,
             const moris::moris_index     aSetOrdinal )
     {
         // first check that the field exists
@@ -2422,7 +2422,7 @@ namespace xtk
     void
     Enriched_Integration_Mesh::add_field_data(
             moris::moris_index      aFieldIndex,
-            enum moris::EntityRank  aEntityRank,
+            mtk::EntityRank  aEntityRank,
             Matrix< DDRMat > const &aFieldData,
             moris::moris_index      aSetOrdinal )
     {
@@ -2444,7 +2444,7 @@ namespace xtk
     Matrix< DDRMat > const &
     Enriched_Integration_Mesh::get_field_data(
             moris::moris_index     aFieldIndex,
-            enum moris::EntityRank aEntityRank,
+            mtk::EntityRank aEntityRank,
             moris::moris_index     aSetOrdinal ) const
     {
         // if field is faceted
@@ -2465,9 +2465,9 @@ namespace xtk
     moris_id
     Enriched_Integration_Mesh::allocate_entity_ids(
             moris::size_t   aNumReqs,
-            enum EntityRank aEntityRank )
+            mtk::EntityRank aEntityRank )
     {
-        MORIS_ASSERT( aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT,
+        MORIS_ASSERT( aEntityRank == mtk::EntityRank::NODE || aEntityRank == mtk::EntityRank::ELEMENT,
                 "Enriched_Integration_Mesh::allocate_entity_ids() - Only Elements or Nodes have ids" );
 
         moris_id tGlobalMax = this->get_max_entity_id( aEntityRank );
@@ -2613,7 +2613,7 @@ namespace xtk
         Enriched_Interpolation_Mesh *tEnrInterpMesh = mModel->mEnrichedInterpMesh( 0 );
 
         // Number of interpolation cells
-        uint tNumInterpCells = tEnrInterpMesh->get_num_entities( EntityRank::ELEMENT );
+        uint tNumInterpCells = tEnrInterpMesh->get_num_entities( mtk::EntityRank::ELEMENT );
 
         // allocate cell cluster member data
         mCellClusters.resize( tNumInterpCells, nullptr );
@@ -2705,7 +2705,7 @@ namespace xtk
         Enriched_Interpolation_Mesh *tEnrInterpMesh = mModel->mEnrichedInterpMesh( 0 );
 
         // Number of interpolation cells
-        uint tNumEnrInterpCells = tEnrInterpMesh->get_num_entities( EntityRank::ELEMENT );
+        uint tNumEnrInterpCells = tEnrInterpMesh->get_num_entities( mtk::EntityRank::ELEMENT );
 
         // perform sanity check
         MORIS_ASSERT( tEnrichment->get_num_enr_ip_cells() == tNumEnrInterpCells,
@@ -2848,7 +2848,7 @@ namespace xtk
         moris_index tProcRank = par_rank();
 
         // get block sets (in background mesh data)
-        Cell< std::string > tBlockSetsNames = tBackgroundMesh.get_set_names( EntityRank::ELEMENT );
+        Cell< std::string > tBlockSetsNames = tBackgroundMesh.get_set_names( mtk::EntityRank::ELEMENT );
 
         // for each block set constructed
         for ( uint iBS = 0; iBS < tBlockSetsNames.size(); iBS++ )
@@ -2861,8 +2861,8 @@ namespace xtk
             Cell< std::string > tPhaseNoChildBlockSetNames = this->split_set_name_by_bulk_phase( tChildNoChildSetNames( 1 ) );
 
             // topology enums // TODO: move outside the loop
-            enum CellTopology tChildTopo  = mModel->get_cut_integration_mesh()->get_child_element_topology();
-            enum CellTopology tParentTopo = mModel->get_parent_cell_topology();
+            mtk::CellTopology tChildTopo  = mModel->get_cut_integration_mesh()->get_child_element_topology();
+            mtk::CellTopology tParentTopo = mModel->get_parent_cell_topology();
 
             // add block set names to member data
             Cell< moris_index > tChildBlockSetOrds   = this->register_block_set_names_with_cell_topo( tPhaseChildBlockSetNames, tChildTopo );
@@ -2941,7 +2941,7 @@ namespace xtk
         Integration_Mesh_Generator   tIGMeshGen;
 
         // rank enum for facets
-        enum EntityRank tFacetRank = mModel->mBackgroundMesh->get_facet_rank();
+        mtk::EntityRank tFacetRank = mModel->mBackgroundMesh->get_facet_rank();
 
         // get side sets (in background mesh data)
         Cell< std::string > tSideSetNames = tBackgroundMesh.get_set_names( tFacetRank );
@@ -2992,7 +2992,7 @@ namespace xtk
                 moris_index      tSideOrd   = tCellOrdsInSideSet( iC );
                 moris_index      tSideIndex = tBackgroundMesh.get_entity_connected_to_entity_loc_inds(
                         tBaseCell->get_index(),
-                        EntityRank::ELEMENT,
+                        mtk::EntityRank::ELEMENT,
                         tBackgroundMesh.get_facet_rank() )( tSideOrd );
 
                 // only place cluster's related to the background cells owned by current proc in sets
@@ -3766,7 +3766,7 @@ namespace xtk
         std::string tClusterVolumeFieldName = "ClusterVolume";
 
         // create a list of Field indices for the Cluster group volume
-        moris_index tClusterVolumeFieldIndex = this->create_field( tClusterVolumeFieldName, EntityRank::ELEMENT );
+        moris_index tClusterVolumeFieldIndex = this->create_field( tClusterVolumeFieldName, mtk::EntityRank::ELEMENT );
 
         // initialize arrays to store fields
         Matrix< DDRMat > tClusterVolumes( 1, this->get_num_elems(), -1.0 );
@@ -3793,7 +3793,7 @@ namespace xtk
         }    // end for: each cluster
 
         // commit field data to exo
-        this->add_field_data( tClusterVolumeFieldIndex, EntityRank::ELEMENT, tClusterVolumes );
+        this->add_field_data( tClusterVolumeFieldIndex, mtk::EntityRank::ELEMENT, tClusterVolumes );
 
         //----------------------------------------------------------------
         // compute and visualize side cluster interface area/length
@@ -3873,7 +3873,7 @@ namespace xtk
         {
             // create list of field names to write to exodus
             tClusterGroupVolumeFields( iBspMesh )       = tVolumeFieldName + std::to_string( iBspMesh );
-            tClusterGroupVolumeFieldIndices( iBspMesh ) = this->create_field( tClusterGroupVolumeFields( iBspMesh ), EntityRank::ELEMENT );
+            tClusterGroupVolumeFieldIndices( iBspMesh ) = this->create_field( tClusterGroupVolumeFields( iBspMesh ), mtk::EntityRank::ELEMENT );
 
             // get the number of cell cluster groups
             uint tNumCellClusters = mCellClusters.size();
@@ -3908,7 +3908,7 @@ namespace xtk
             }    // end for: each cluster
 
             // commit field data to exo
-            this->add_field_data( tClusterGroupVolumeFieldIndices( iBspMesh ), EntityRank::ELEMENT, tClusterGroupVolumes( iBspMesh ) );
+            this->add_field_data( tClusterGroupVolumeFieldIndices( iBspMesh ), mtk::EntityRank::ELEMENT, tClusterGroupVolumes( iBspMesh ) );
 
         }    // end for: each B-spline mesh
 
@@ -4008,8 +4008,8 @@ namespace xtk
         {
             tSpgIndexFieldNames( iBspMesh )   = tSpgIndexFieldName + std::to_string( iBspMesh );
             tSpgIdFieldNames( iBspMesh )      = tSpgIdFieldName + std::to_string( iBspMesh );
-            tSpgIndexFieldIndices( iBspMesh ) = this->create_field( tSpgIndexFieldNames( iBspMesh ), EntityRank::ELEMENT );
-            tSpgIdFieldIndices( iBspMesh )    = this->create_field( tSpgIdFieldNames( iBspMesh ), EntityRank::ELEMENT );
+            tSpgIndexFieldIndices( iBspMesh ) = this->create_field( tSpgIndexFieldNames( iBspMesh ), mtk::EntityRank::ELEMENT );
+            tSpgIdFieldIndices( iBspMesh )    = this->create_field( tSpgIdFieldNames( iBspMesh ), mtk::EntityRank::ELEMENT );
         }
 
         // initialize list that holds the SPG indices for every IG cell for every B-spline mesh
@@ -4040,8 +4040,8 @@ namespace xtk
             }
 
             // commit SPG field data to exo
-            this->add_field_data( tSpgIndexFieldIndices( iBspMesh ), EntityRank::ELEMENT, tSpgIndices( iBspMesh ) );
-            this->add_field_data( tSpgIdFieldIndices( iBspMesh ), EntityRank::ELEMENT, tSpgIds( iBspMesh ) );
+            this->add_field_data( tSpgIndexFieldIndices( iBspMesh ), mtk::EntityRank::ELEMENT, tSpgIndices( iBspMesh ) );
+            this->add_field_data( tSpgIdFieldIndices( iBspMesh ), mtk::EntityRank::ELEMENT, tSpgIds( iBspMesh ) );
         }
     }
 
@@ -4366,7 +4366,7 @@ namespace xtk
     Cell< moris_index >
     Enriched_Integration_Mesh::register_block_set_names_with_cell_topo(
             Cell< std::string > const &aBlockSetNames,
-            enum CellTopology          aBlockTopology )
+            mtk::CellTopology          aBlockTopology )
     {
         uint tNumSetsToRegister = aBlockSetNames.size();
 
@@ -4706,7 +4706,7 @@ namespace xtk
     bool
     Enriched_Integration_Mesh::field_exists(
             const std::string            aLabel,
-            const enum moris::EntityRank aEntityRank,
+            const mtk::EntityRank aEntityRank,
             const moris::moris_index     aSetOrdinal )
     {
         moris::moris_index tIndex = this->get_entity_rank_field_index( aEntityRank );
@@ -4734,24 +4734,24 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     moris_index
-    Enriched_Integration_Mesh::get_entity_rank_field_index( const enum moris::EntityRank aEntityRank )
+    Enriched_Integration_Mesh::get_entity_rank_field_index( const mtk::EntityRank aEntityRank )
     {
-        // MORIS_ERROR( aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT,
+        // MORIS_ERROR( aEntityRank == mtk::EntityRank::NODE || aEntityRank == mtk::EntityRank::ELEMENT,
         //         "Enriched_Integration_Mesh::get_entity_rank_field_index() - Only node and cell fields are supported" );
 
         moris_index tIndex = MORIS_INDEX_MAX;
 
-        if ( aEntityRank == EntityRank::NODE )
+        if ( aEntityRank == mtk::EntityRank::NODE )
         {
             tIndex = 0;
         }
 
-        else if ( aEntityRank == EntityRank::ELEMENT )
+        else if ( aEntityRank == mtk::EntityRank::ELEMENT )
         {
             tIndex = 1;
         }
 
-        else if ( aEntityRank == EntityRank::FACE || aEntityRank == EntityRank::EDGE )
+        else if ( aEntityRank == mtk::EntityRank::FACE || aEntityRank == mtk::EntityRank::EDGE )
         {
             tIndex = 2;
         }

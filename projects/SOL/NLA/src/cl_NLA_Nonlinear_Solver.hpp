@@ -92,7 +92,7 @@ namespace moris
             sint mTimeIter = 0;
 
             tsa::Time_Solver_Algorithm* mMyTimeSolverAlgorithm = nullptr;
-            //        enum NonlinearSolverType mMyNonLinSolverType = NonlinearSolverType::END_ENUM;
+            //        enum NonlinearSolverType mMyNonLinSolverType = NonlinearSolverType::UNDEFINED;
 
           protected:
 

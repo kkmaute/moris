@@ -15,7 +15,6 @@ set(${ENM}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
     cl_FEM_Enums.hpp
-    cl_Mesh_Enums.hpp
     cl_MSI_Dof_Type_Enums.hpp
     cl_MTK_Enums.hpp
     cl_NLA_Nonlinear_Solver_Enums.hpp
@@ -29,7 +28,6 @@ set(HEADERS
 
 # List library source files
 set(LIB_SOURCES
-    cl_Mesh_Enums.cpp
     cl_MTK_Enums.cpp )
 
 # List library dependencies

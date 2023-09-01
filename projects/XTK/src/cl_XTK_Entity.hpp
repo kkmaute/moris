@@ -26,7 +26,7 @@ public:
     {
 
     }
-    Entity(enum EntityRank aEntityRank) :
+    Entity(mtk::EntityRank aEntityRank) :
             mEntityRank(aEntityRank), mEntityLclInd(std::numeric_limits<Integer>::max()), mEntityPhase(std::numeric_limits<Integer>::max())
     {
     }
@@ -62,7 +62,7 @@ public:
 
 private:
     // Local to Simple Mesh
-    enum EntityRank mEntityRank;
+    mtk::EntityRank mEntityRank;
     Integer mEntityLclInd;
     Integer mEntityPhase;
 };

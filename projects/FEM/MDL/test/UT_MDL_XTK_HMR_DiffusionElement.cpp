@@ -260,7 +260,7 @@ namespace moris
             tXTKModel.decompose( tDecompositionMethods );
 
             // Perform the enrichment
-            tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
+            tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
             //        tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
             xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
@@ -506,7 +506,7 @@ namespace moris
             tXTKModel.decompose( tDecompositionMethods );
 
             // Perform the enrichment
-            tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
+            tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
 
             xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
             xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
@@ -796,7 +796,7 @@ namespace moris
             tXTKModel.decompose( tDecompositionMethods );
 
             // Perform the enrichment
-            tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
+            tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
 
             tXTKModel.construct_multigrid();
 
@@ -1081,7 +1081,7 @@ namespace moris
             // Do the cutting
             tXTKModel.decompose( tDecompositionMethods );
 
-            tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
+            tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
 
             tXTKModel.construct_multigrid();
 

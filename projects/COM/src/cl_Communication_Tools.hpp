@@ -25,7 +25,7 @@
 #include "cl_Cell.hpp"    // CON/src
 
 // Mesh specific headers
-// #include "cl_Mesh_Enums.hpp" // MTK/src
+// #include "cl_MTK_Enums.hpp" // MTK/src
 
 // Externally Defined Global Communicator
 extern moris::Comm_Manager gMorisComm;

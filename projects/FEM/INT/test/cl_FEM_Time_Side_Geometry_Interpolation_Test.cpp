@@ -112,7 +112,7 @@ TEST_CASE("Time_Side_Geometry_Interpolation : QUAD4 - QUAD9 - QUAD16", "[moris],
                                                mtk::Interpolation_Order::UNDEFINED );
 
         // create a space and time geometry interpolator
-        Geometry_Interpolator tSideGeoInterp( tSideGeoInterpRule, CellShape::GENERAL, false, true );
+        Geometry_Interpolator tSideGeoInterp( tSideGeoInterpRule, mtk::CellShape::GENERAL, false, true );
 
         // time side geometry type and space ordinal------------------------------------
         Cell< moris::moris_index > tListOfTimeOrdinals = { 0, 1 };
@@ -249,7 +249,7 @@ TEST_CASE( "Time_Side_Geometry_Interpolation : TRI3 - TRI6 - TRI10", "[moris],[f
                                                mtk::Interpolation_Order::UNDEFINED );
 
        // create a space and time geometry interpolator
-       Geometry_Interpolator tSideGeoInterp( tSideGeoInterpRule, CellShape::GENERAL, false, true );
+       Geometry_Interpolator tSideGeoInterp( tSideGeoInterpRule, mtk::CellShape::GENERAL, false, true );
 
        // time side geometry type and space ordinal
        Cell< moris::moris_index > tListOfTimeOrdinals = { 0, 1 };
@@ -399,7 +399,7 @@ TEST_CASE( "Time_Side_Geometry_Interpolation :  TET4 - TET10 - TET20", "[moris],
                                                 mtk::Interpolation_Order::UNDEFINED );
 
          // create a space and time geometry interpolator
-         Geometry_Interpolator tSideGeoInterp( tSideGeoInterpRule, CellShape::GENERAL, false, true );
+         Geometry_Interpolator tSideGeoInterp( tSideGeoInterpRule, mtk::CellShape::GENERAL, false, true );
 
          // time side geometry type and space ordinal
          Cell< moris::moris_index > tListOfTimeOrdinals = { 0, 1 };
@@ -505,7 +505,7 @@ TEST_CASE( "Time_Side_Geometry_Interpolation : HEX8", "[moris],[fem],[TimeSideGe
                                                mtk::Interpolation_Order::UNDEFINED );
 
         // create a space and time geometry interpolator
-        Geometry_Interpolator tSideGeoInterp( tSideGeoInterpRule, CellShape::GENERAL, false, true );
+        Geometry_Interpolator tSideGeoInterp( tSideGeoInterpRule, mtk::CellShape::GENERAL, false, true );
 
         // time side geometry type and space ordinal
         Cell< moris::moris_index > tListOfTimeOrdinals = { 0, 1 };

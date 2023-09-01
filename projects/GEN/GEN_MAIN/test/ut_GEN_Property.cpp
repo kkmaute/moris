@@ -205,7 +205,7 @@ namespace moris
                     CHECK(tBSplineProperty->get_field_value(tNodeIndex, {{}}) == Approx(1.0));
 
                     // Check sensitivities
-                    if ((uint) par_rank() == tMesh->get_entity_owner(tNodeIndex, EntityRank::NODE, 0))
+                    if ((uint) par_rank() == tMesh->get_entity_owner(tNodeIndex, mtk::EntityRank::NODE, 0))
                     {
                         Matrix< DDRMat > tMatrix = trans( tMesh->get_t_matrix_of_node_loc_ind( tNodeIndex, 0 ) );
                         Matrix< DDSMat > tIDs = trans( tMesh->get_coefficient_IDs_of_node( tNodeIndex, 0 ) );

@@ -18,7 +18,7 @@
 #include "../../../MTK/src/cl_MTK_Set.hpp"
 #include "../../../MTK/src/cl_MTK_Vertex.hpp"
 
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 
 #include "cl_VIS_Vertex_Visualization.hpp"
 #include "cl_VIS_Cell_Visualization.hpp"
@@ -76,7 +76,7 @@ namespace moris
 
             map< std::string, moris_index > mSetNameToIndexMap;
 
-            // map< moris_index, std::tuple< enum SetType, moris_index > > tSetNameToTypeIndexMap;
+            // map< moris_index, std::tuple< mtk::SetType, moris_index > > tSetNameToTypeIndexMap;
 
             /// @brief flag indicating whether the mesh is ready for output
             bool mMeshIsFinalized = false;
@@ -169,13 +169,13 @@ namespace moris
             // ----------------------------------------------------------------------------
 
             moris::Cell< std::string >
-            get_set_names( enum EntityRank aSetEntityRank ) const
+            get_set_names( mtk::EntityRank aSetEntityRank ) const
             {
-                if ( aSetEntityRank == EntityRank::ELEMENT )
+                if ( aSetEntityRank == mtk::EntityRank::ELEMENT )
                 {
                     return mBlockSetNames;
                 }
-                else if ( aSetEntityRank == EntityRank::EDGE || aSetEntityRank == EntityRank::FACE )
+                else if ( aSetEntityRank == mtk::EntityRank::EDGE || aSetEntityRank == mtk::EntityRank::FACE )
                 {
                     // TODO: does this need to go?
                     // // construct a list of names for the leader and follower sides of the double sided side sets to be outputted
@@ -197,7 +197,7 @@ namespace moris
                     // return the list of all side set names to be outputted
                     return tAllOutputSideSetNames;
                 }
-                else if ( aSetEntityRank == EntityRank::NODE )
+                else if ( aSetEntityRank == mtk::EntityRank::NODE )
                 {
                     // don't output node sets
                     return Cell< std::string >( 0 );
@@ -246,7 +246,7 @@ namespace moris
                 // get access to this set
                 moris::mtk::Set* tSet = this->get_set_by_index( tSetIndex );
                 MORIS_ERROR(
-                        tSet->get_set_type() == SetType::BULK,
+                        tSet->get_set_type() == mtk::SetType::BULK,
                         "VIS::Visualization_Mesh::get_set_cells() - "
                         "'%s' is not a bulk set. Cannot retrieve cells for this set.",
                         aSetName.c_str() );
@@ -386,10 +386,10 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            MeshType
+            mtk::MeshType
             get_mesh_type() const
             {
-                return MeshType::VIS;
+                return mtk::MeshType::VIS;
             };
 
             // ----------------------------------------------------------------------------
@@ -413,7 +413,7 @@ namespace moris
 
             uint
             get_num_entities(
-                    enum EntityRank   aEntityRank,
+                    mtk::EntityRank   aEntityRank,
                     const moris_index aIndex = 0 ) const
             {
                 MORIS_ERROR( false, "VIS::Visualization_Mesh::get_num_entities() - not implemented for visualization mesh" );
@@ -432,8 +432,8 @@ namespace moris
 
             Matrix< IndexMat >
             get_entity_connected_to_entity_loc_inds( moris_index aEntityIndex,
-                    enum EntityRank                              aInputEntityRank,
-                    enum EntityRank                              aOutputEntityRank,
+                    mtk::EntityRank                              aInputEntityRank,
+                    mtk::EntityRank                              aOutputEntityRank,
                     const moris_index                            aIndex = 0 ) const
             {
                 MORIS_ERROR( false, "VIS::Visualization_Mesh::get_entity_connected_to_entity_loc_inds() - not implemented for visualization mesh" );
@@ -485,14 +485,14 @@ namespace moris
             moris_id
             get_glb_entity_id_from_entity_loc_index(
                     moris_index       aEntityIndex,
-                    enum EntityRank   aEntityRank,
+                    mtk::EntityRank   aEntityRank,
                     const moris_index aBSplineMeshIndex = 0 ) const
             {
                 switch ( aEntityRank )
                 {
-                    case EntityRank::NODE:
+                    case mtk::EntityRank::NODE:
                         return mVertices( aEntityIndex )->get_id();
-                    case EntityRank::ELEMENT:
+                    case mtk::EntityRank::ELEMENT:
                         return mCells( aEntityIndex )->get_id();
                     default:
                         MORIS_ERROR( false, "VIS::Visualization_Mesh::get_glb_entity_id_from_entity_loc_index() - Unknown entity rank." );
@@ -530,7 +530,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            enum CellTopology
+            mtk::CellTopology
             get_blockset_topology( const std::string& aSetName )
             {
                 // TODO: add checks that the set name is actually a blockset + map
@@ -539,7 +539,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            enum CellShape
+            mtk::CellShape
             get_IG_blockset_shape( const std::string& aSetName )
             {
                 // TODO: add checks that the set name is actually a blockset + map
@@ -548,7 +548,7 @@ namespace moris
 
             // ----------------------------------------------------------------------------
 
-            enum CellShape
+            mtk::CellShape
             get_IP_blockset_shape( const std::string& aSetName )
             {
                 // TODO: add checks that the set name is actually a blockset + map
@@ -580,7 +580,7 @@ namespace moris
                 switch ( tSet->get_set_type() )
                 {
                     // bulk sets are not valid for this function
-                    case SetType::BULK:
+                    case mtk::SetType::BULK:
                     {
                         MORIS_ERROR( false,
                                 "VIS::Visualization_Mesh::get_sideset_elems_loc_inds_and_ords() - "
@@ -590,7 +590,7 @@ namespace moris
                     }
 
                     // side set
-                    case SetType::SIDESET:
+                    case mtk::SetType::SIDESET:
                     {
                         // get the index of the set in the list of side sets
                         moris_index tSideSetIndex = mSetLocalToTypeIndex( tSetIndex );
@@ -603,7 +603,7 @@ namespace moris
                     }
 
                     // double side set
-                    case SetType::DOUBLE_SIDED_SIDESET:
+                    case mtk::SetType::DOUBLE_SIDED_SIDESET:
                     {
                         // get the index of the set in the list of double side sets
                         moris_index tDblSideSetIndex = mSetLocalToTypeIndex( tSetIndex );

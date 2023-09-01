@@ -858,7 +858,7 @@ namespace moris
             case Parameter_List_Type::END_ENUM:
                 MORIS_ERROR( false,
                         "Library_IO_Meshgen::create_standard_parameter_list_for_module() - "
-                        "No standard library defined for module END_ENUM" );
+                        "No standard library defined for module UNDEFINED" );
                 break;
 
             // create an empty parameter list for modules that are not needed

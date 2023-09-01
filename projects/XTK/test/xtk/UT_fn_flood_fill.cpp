@@ -17,7 +17,7 @@
 #include "cl_XTK_Enrichment.hpp"
 
 // XTKL: Mesh Includes
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 
 // XTKL: Geometry
 #include "cl_GEN_Geometry_Engine.hpp"

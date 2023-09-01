@@ -144,7 +144,7 @@ namespace moris::mtk
     Interpolation_Mesh_DataBase_IP::get_blockset_topology( const std::string& aSetName )
     {
         MORIS_ERROR( 0, "get_blockset_topology not implemented for Interpolation_Mesh_DataBase_IP" );
-        return CellTopology::END_ENUM;
+        return CellTopology::UNDEFINED;
         // return mIPMesh.get_blockset_topology( aSetName );
     }
 
@@ -153,7 +153,7 @@ namespace moris::mtk
     Interpolation_Mesh_DataBase_IP::get_IG_blockset_shape( const std::string& aSetName )
     {
         MORIS_ERROR( 0, "get_IG_blockset_shape not implemented for Interpolation_Mesh_DataBase_IP" );
-        return CellShape::END_ENUM;
+        return CellShape::UNDEFINED;
         // return mIPMesh.get_IG_blockset_shape( aSetName );
     }
 
@@ -163,7 +163,7 @@ namespace moris::mtk
     Interpolation_Mesh_DataBase_IP::get_IP_blockset_shape( const std::string& aSetName )
     {
         MORIS_ERROR( 0, "get_IP_blockset_shape not implemented for Interpolation_Mesh_DataBase_IP" );
-        return CellShape::END_ENUM;
+        return CellShape::UNDEFINED;
         // return mIPMesh.get_IP_blockset_shape( aSetName );
     }
 

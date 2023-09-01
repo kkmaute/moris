@@ -22,7 +22,7 @@
 #include "cl_MTK_Cell_Info_Hex20.hpp"
 #include "cl_MTK_Cell_Info_Hex27.hpp"
 #include "cl_MTK_Cell_Info_Hex64.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 
 namespace moris
 {

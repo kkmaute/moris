@@ -23,7 +23,7 @@
 #include "cl_Cell.hpp"
 
 #include "cl_XTK_Enums.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_XTK_Output_Options.hpp"
 #include "fn_generate_element_to_element.hpp"
@@ -35,7 +35,7 @@
 #include "cl_MTK_Cell_Info_Factory.hpp"
 
 // MTK includes
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "fn_verify_tet_topology.hpp"
 
@@ -107,16 +107,16 @@ public:
      * Get number of a entity of a given rank
      */
     moris::size_t
-    get_num_entities(enum EntityRank aEntityRank) const;
+    get_num_entities(mtk::EntityRank aEntityRank) const;
 
     // ----------------------------------------------------------------------------------
 
-     enum EntityRank
+     mtk::EntityRank
     get_facet_rank() const;
 
     // ----------------------------------------------------------------------------------
 
-    enum EntityRank
+    mtk::EntityRank
     get_facet_rank_internal() const;
 
     // ----------------------------------------------------------------------------------
@@ -313,7 +313,7 @@ public:
      * Get and entities parent entity rank
      */
     moris::moris_index
-    get_entity_parent_entity_rank(enum EntityRank aEntityRank,
+    get_entity_parent_entity_rank(mtk::EntityRank aEntityRank,
                                   moris::moris_index aCMLocIndex);
 
     // ----------------------------------------------------------------------------------
@@ -322,7 +322,7 @@ public:
      * Get and entities parent entity rank
      */
     moris::moris_index
-    get_entity_parent_entity_proc_ind(enum EntityRank  aEntityRank,
+    get_entity_parent_entity_proc_ind(mtk::EntityRank  aEntityRank,
                                       moris::moris_index aCMLocIndex);
 
     // ----------------------------------------------------------------------------------
@@ -882,7 +882,7 @@ public:
 
     // ----------------------------------------------------------------------------------
 
-    enum CellTopology
+    mtk::CellTopology
     template_to_cell_topology(enum TemplateType aTemplateType);
 
     // ----------------------------------------------------------------------------------
@@ -914,7 +914,7 @@ private:
     // Element To Node and Ancestry Information (This is the only data that is set with templates.
     // all other is generated with an algorithm)
     // All node connectivity is indexed by proc local indexs
-    enum CellTopology                      mElementTopology;
+    mtk::CellTopology                      mElementTopology;
     std::shared_ptr<moris::mtk::Cell_Info> mConnectivity;
 
     moris::size_t                    mNumElem;

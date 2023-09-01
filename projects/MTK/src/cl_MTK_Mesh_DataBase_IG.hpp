@@ -502,7 +502,7 @@ namespace moris
             virtual mtk::Cell* const *
             get_ig_cells_in_cluster(
                     enum ClusterType       aClusterType,
-                    enum mtk::Primary_Void aPrimaryOrVoid,
+                    Primary_Void aPrimaryOrVoid,
                     moris_index            aClusterIndex ) const override;
 
             // ----------------------------------------------------------------------------
@@ -519,7 +519,7 @@ namespace moris
             virtual uint
             get_num_cells_in_cluster(
                     enum ClusterType       aClusterType,
-                    enum mtk::Primary_Void aPrimaryOrVoid,
+                    Primary_Void aPrimaryOrVoid,
                     moris_index            aClusterIndex ) const override;
 
             // ----------------------------------------------------------------------------

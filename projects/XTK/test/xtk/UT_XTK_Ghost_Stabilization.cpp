@@ -39,7 +39,7 @@
 //
 //    // Create Mesh ---------------------------------
 //    std::string tMeshFileName = "generated:1x1x16|sideset:z";
-//    moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName );
+//    moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName );
 //
 //    // create model
 //    size_t tModelDimension = 3;
@@ -50,7 +50,7 @@
 //    Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
 //    tXTKModel.decompose(tDecompositionMethods);
 //
-//    tXTKModel.perform_basis_enrichment(EntityRank::NODE,0);
+//    tXTKModel.perform_basis_enrichment( mtk::EntityRank::NODE,0);
 //
 //    tXTKModel.construct_face_oriented_ghost_penalization_cells();
 //

@@ -96,7 +96,7 @@
 //                tMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobal;
 //                tMeshData.LocaltoGlobalNodeMap    = & aNodeLocalToGlobal;
 //
-//                mtk::Mesh* tMesh = create_interpolation_mesh( MeshType::STK, tMeshData );
+//                mtk::Mesh* tMesh = create_interpolation_mesh( mtk::MeshType::STK, tMeshData );
 //
 //                //1) Create the fem nodes ------------------------------------------------------
 //                //std::cout<<" Create the fem nodes "<<std::endl;
@@ -151,15 +151,15 @@
 //                tElements.reserve( tNumOfElements + 4 + 4 );
 //
 //                // get the block names from the mesh
-//                moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
+//                moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( mtk::EntityRank::ELEMENT);
 //
 //                // Cell containing the block mesh cell ( a cell of mesh cells )
-//                moris::Cell<mtk::Cell const *> tBlockSetElement( tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
+//                moris::Cell<mtk::Cell const *> tBlockSetElement( tMesh->get_set_entity_loc_inds( mtk::EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
 //
 //                // loop on the blocks
 //                for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
 //                {
-//                    Matrix< IndexMat > tBlockSetElementInd = tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
+//                    Matrix< IndexMat > tBlockSetElementInd = tMesh->get_set_entity_loc_inds( mtk::EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
 //
 //                    // loop on the elements in a block
 //                    for( luint k=0; k < tBlockSetElementInd.numel(); ++k )
@@ -507,8 +507,8 @@
 //                    // get a list of elements connected to the ith node
 //                    Matrix<IndexMat> tConnectedElements =
 //                        tMesh->get_entity_connected_to_entity_loc_inds( static_cast< moris_index >( i ),
-//                                                                        EntityRank::NODE,
-//                                                                        EntityRank::ELEMENT );
+//                                                                        mtk::EntityRank::NODE,
+//                                                                        mtk::EntityRank::ELEMENT );
 //
 //                    // number of connected element
 //                    uint tNumConnectElem = tConnectedElements.numel();
@@ -567,7 +567,7 @@
 //                tTempField.set_field_name( tTempFieldName );
 //
 //                // set the entity rank associated with the fields
-//                tTempField.set_field_entity_rank( EntityRank::NODE );
+//                tTempField.set_field_entity_rank( mtk::EntityRank::NODE );
 //
 //                // initialize field information container
 //                moris::mtk::MtkFieldsInfo tFieldsInfo;
@@ -579,11 +579,11 @@
 //                tMeshData.FieldsInfo = &tFieldsInfo;
 //
 //                // create the mesh
-//                mtk::Mesh* tMeshForOutput = create_interpolation_mesh( MeshType::STK, tMeshData );
+//                mtk::Mesh* tMeshForOutput = create_interpolation_mesh( mtk::MeshType::STK, tMeshData );
 //
 //                // add field to the mesh
 //                tMeshForOutput->add_mesh_field_real_scalar_data_loc_inds( tTempFieldName,
-//                                                                          EntityRank::NODE,
+//                                                                          mtk::EntityRank::NODE,
 //                                                                          tTempSolutionField );
 //
 //                // create output mesh

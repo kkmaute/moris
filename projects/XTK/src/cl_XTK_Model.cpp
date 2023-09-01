@@ -276,7 +276,7 @@ namespace xtk
         {
             // get rank of the interpolation basis (B-spline or Lagrange Element)
             // determines which basis functions to perform enrichment on
-            enum EntityRank tBasisRank = get_entity_rank_from_str( mParameterList.get< std::string >( "basis_rank" ) );
+            mtk::EntityRank tBasisRank = mtk::get_entity_rank_from_str( mParameterList.get< std::string >( "basis_rank" ) );
 
             // get flag whether basis enrichments need to be sorted
             bool tSortBasisEnrichmentLevels = mParameterList.get< bool >( "sort_basis_enrichment_levels" );
@@ -513,14 +513,14 @@ namespace xtk
             }
 
             // print summary of mesh size to console
-            MORIS_LOG_SPEC( "All_IG_verts", sum_all( tEnrIntegMesh.get_num_entities( EntityRank::NODE ) ) );
-            MORIS_LOG_SPEC( "All_IG_cells", sum_all( tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT ) ) );
-            MORIS_LOG_SPEC( "All_IP_verts", sum_all( tEnrInterpMesh.get_num_entities( EntityRank::NODE ) ) );
-            MORIS_LOG_SPEC( "All_IP_cells", sum_all( tEnrInterpMesh.get_num_entities( EntityRank::ELEMENT ) ) );
-            MORIS_LOG_SPEC( "My_IG_verts", tEnrIntegMesh.get_num_entities( EntityRank::NODE ) );
-            MORIS_LOG_SPEC( "My_IG_cells", tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT ) );
-            MORIS_LOG_SPEC( "My_IP_verts", tEnrInterpMesh.get_num_entities( EntityRank::NODE ) );
-            MORIS_LOG_SPEC( "My_IP_cells", tEnrInterpMesh.get_num_entities( EntityRank::ELEMENT ) );
+            MORIS_LOG_SPEC( "All_IG_verts", sum_all( tEnrIntegMesh.get_num_entities( mtk::EntityRank::NODE ) ) );
+            MORIS_LOG_SPEC( "All_IG_cells", sum_all( tEnrIntegMesh.get_num_entities( mtk::EntityRank::ELEMENT ) ) );
+            MORIS_LOG_SPEC( "All_IP_verts", sum_all( tEnrInterpMesh.get_num_entities( mtk::EntityRank::NODE ) ) );
+            MORIS_LOG_SPEC( "All_IP_cells", sum_all( tEnrInterpMesh.get_num_entities( mtk::EntityRank::ELEMENT ) ) );
+            MORIS_LOG_SPEC( "My_IG_verts", tEnrIntegMesh.get_num_entities( mtk::EntityRank::NODE ) );
+            MORIS_LOG_SPEC( "My_IG_cells", tEnrIntegMesh.get_num_entities( mtk::EntityRank::ELEMENT ) );
+            MORIS_LOG_SPEC( "My_IP_verts", tEnrInterpMesh.get_num_entities( mtk::EntityRank::NODE ) );
+            MORIS_LOG_SPEC( "My_IP_cells", tEnrInterpMesh.get_num_entities( mtk::EntityRank::ELEMENT ) );
         }
     }
 
@@ -570,7 +570,7 @@ namespace xtk
         moris::Cell< enum Subdivision_Method > tSubdivisionMethods;
 
         moris::uint             tSpatialDimension = this->get_spatial_dim();
-        enum mtk::Geometry_Type tBGCellTopo       = this->get_parent_cell_geometry();
+        mtk::Geometry_Type tBGCellTopo       = this->get_parent_cell_geometry();
         std::string             tDecompStr        = mParameterList.get< std::string >( "decomposition_type" );
         moris::lint             tOctreeRefLevel   = std::stoi( mParameterList.get< std::string >( "octree_refinement_level" ) );
 
@@ -792,7 +792,7 @@ namespace xtk
 
     void
     Model::perform_basis_enrichment(
-            enum EntityRank const &aBasisRank,
+            mtk::EntityRank const &aBasisRank,
             moris_index const     &tBsplineMeshIndex,
             bool                   aSortBasisEnrichmentLevels,
             bool                   aUseSpgBasedEnrichment )
@@ -822,7 +822,7 @@ namespace xtk
 
     void
     Model::perform_basis_enrichment(
-            enum EntityRank const    &aBasisRank,
+            mtk::EntityRank const    &aBasisRank,
             Matrix< IndexMat > const &aBsplineMeshIndices,
             bool                      aSortBasisEnrichmentLevels,
             bool                      aUseSpgBasedEnrichment )
@@ -875,7 +875,7 @@ namespace xtk
 
         //         moris_index tSharedFaceIndex = tElementNeighbors( 1, iN );
 
-        //         if ( !mBackgroundMesh.entity_has_children( tNeighborCellIndex, EntityRank::ELEMENT ) )
+        //         if ( !mBackgroundMesh.entity_has_children( tNeighborCellIndex, mtk::EntityRank::ELEMENT ) )
         //         {
         //             tTransitionFacets.push_back( tSharedFaceIndex );
         //         }
@@ -894,7 +894,7 @@ namespace xtk
         {
             Tracer tTracer( "XTK", "BG Cell Probe", "Cell Id " + std::to_string( tBGCellIds( i ) ) );
 
-            moris_index                  tIndex      = mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tBGCellIds( i ), EntityRank::ELEMENT );
+            moris_index                  tIndex      = mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tBGCellIds( i ), mtk::EntityRank::ELEMENT );
             mtk::Cell                   &tCell       = mBackgroundMesh->get_mtk_cell( tIndex );
             Matrix< IndexMat >           tVertexIds  = tCell.get_vertex_ids();
             moris::Cell< mtk::Vertex * > tVertexPtrs = tCell.get_vertex_pointers();
@@ -963,7 +963,7 @@ namespace xtk
 
     void
     Model::perform_basis_enrichment_internal(
-            enum EntityRank const    &aBasisRank,
+            mtk::EntityRank const    &aBasisRank,
             Matrix< IndexMat > const &aBsplineMeshIndices,
             bool                      aSortBasisEnrichmentLevels,
             bool                      aUseSpgBasedEnrichment )

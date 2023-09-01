@@ -293,7 +293,7 @@ namespace moris
 //                 // call mapping function
 //                 tMapper.perform_mapping(
 //                         tField->get_label(),
-//                         EntityRank::NODE,
+//                         mtk::EntityRank::NODE,
 //                         tField->get_label(),
 //                         tField->get_bspline_rank() );
 //

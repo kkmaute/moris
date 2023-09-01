@@ -29,7 +29,7 @@
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 
 // XTK FIXME
 #include "cl_XTK_Topology.hpp"
@@ -1250,7 +1250,7 @@ namespace moris
         Geometry_Engine::distribute_advs(
                 mtk::Mesh_Pair                               aMeshPair,
                 moris::Cell< std::shared_ptr< mtk::Field > > aFields,
-                enum EntityRank                              aADVEntityRank )
+                mtk::EntityRank                              aADVEntityRank )
         {
             // Tracer
             Tracer tTracer( "GEN", "Distribute ADVs" );
@@ -1340,7 +1340,7 @@ namespace moris
 
                             Matrix< IdMat > tCoeffijklIDs;
 
-                            if ( MeshType::HMR == tMesh->get_mesh_type() )
+                            if ( mtk::MeshType::HMR == tMesh->get_mesh_type() )
                             {
                                 tCoeffijklIDs = tMesh->get_coefficient_ijkl_IDs_of_node(
                                         tNodeIndex,
@@ -1370,7 +1370,7 @@ namespace moris
 
                                     tAllCoefOwners( tCurrentIndex ) = tCoefOwners( tCoefIndex );
 
-                                    if ( tMesh->get_mesh_type() == MeshType::HMR )
+                                    if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
                                     {
                                         tAllCoefijklIDs( tCurrentIndex ) = tCoeffijklIDs( tCoefIndex );
                                     }
@@ -1460,7 +1460,7 @@ namespace moris
                         mLowerBounds( tNumOwnedADVs + tOwnedCoefficient ) = tFields( tFieldIndex )->get_discretization_lower_bound();
                         mUpperBounds( tNumOwnedADVs + tOwnedCoefficient ) = tFields( tFieldIndex )->get_discretization_upper_bound();
 
-                        if ( tMesh->get_mesh_type() == MeshType::HMR )
+                        if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
                         {
                             mOwnedijklIds( tNumOwnedADVs + tOwnedCoefficient ) = tAllCoefijklIDs( tOwnedCoefficients( tOwnedCoefficient ) );
                         }
@@ -1708,7 +1708,7 @@ namespace moris
             communicate_mats( tCommunicationList, tSendingIDs, tReceivingIDs );
             communicate_mats( tCommunicationList, tSendingLowerBounds, tReceivingLowerBounds );
             communicate_mats( tCommunicationList, tSendingUpperBounds, tReceivingUpperBounds );
-            if ( tMesh->get_mesh_type() == MeshType::HMR )
+            if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
             {
                 communicate_mats( tCommunicationList, tSendingijklIDs, tReceivingjklIDs );
             }
@@ -1722,7 +1722,7 @@ namespace moris
             {
                 // Start full IDs with owned IDs on processor 0
                 mFullADVIds = tOwnedADVIds;
-                if ( tMesh->get_mesh_type() == MeshType::HMR )
+                if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
                 {
                     mFullijklIDs = mOwnedijklIds;
                 }
@@ -1743,7 +1743,7 @@ namespace moris
                     mFullADVIds.resize( tFullADVsFilled + tNumReceivedADVs, 1 );
                     mLowerBounds.resize( tFullADVsFilled + tNumReceivedADVs, 1 );
                     mUpperBounds.resize( tFullADVsFilled + tNumReceivedADVs, 1 );
-                    if ( tMesh->get_mesh_type() == MeshType::HMR )
+                    if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
                     {
                         mFullijklIDs.resize( tFullijklIDsFilled + tNumReceivedADVs, 1 );
                     }
@@ -1757,7 +1757,7 @@ namespace moris
                         mUpperBounds( tFullADVsFilled + tADVIndex ) =
                                 tReceivingUpperBounds( tProcessorIndex - 1 )( tADVIndex );
 
-                        if ( tMesh->get_mesh_type() == MeshType::HMR )
+                        if ( tMesh->get_mesh_type() == mtk::MeshType::HMR )
                         {
                             mFullijklIDs( tFullijklIDsFilled + tADVIndex ) =
                                     tReceivingjklIDs( tProcessorIndex - 1 )( tADVIndex );
@@ -1820,7 +1820,7 @@ namespace moris
                 Cell< uint >&    aNumCoeff,
                 uint             aFieldIndex,
                 uint             aDiscretizationMeshIndex,
-                enum MeshType    aMeshType )
+                mtk::MeshType    aMeshType )
         {
 
             Matrix< IdMat > tCommTable = aMeshPair.get_interpolation_mesh()->get_communication_table();
@@ -1890,7 +1890,7 @@ namespace moris
                     tSharedCoeffsPosGlobal( tProcIdPos )( tShredCoeffPosPerProc( tProcIdPos ) ) =
                             aAllCoefIds( Ia );
 
-                    if ( aMeshType == MeshType::HMR )
+                    if ( aMeshType == mtk::MeshType::HMR )
                     {
                         tSharedCoeffsijklIdGlobal( tProcIdPos )( tShredCoeffPosPerProc( tProcIdPos ) ) =
                                 aAllCoefijklIds( Ia );
@@ -1914,7 +1914,7 @@ namespace moris
 
             barrier();
 
-            if ( aMeshType == MeshType::HMR )
+            if ( aMeshType == mtk::MeshType::HMR )
             {
                 communicate_mats(
                         tCommTable,
@@ -1943,7 +1943,7 @@ namespace moris
                         aAllCoefIds( tLocalCoeffInd )    = tID;
                         aAllCoefOwners( tLocalCoeffInd ) = par_rank();
 
-                        if ( aMeshType == MeshType::HMR )
+                        if ( aMeshType == mtk::MeshType::HMR )
                         {
                             aAllCoefijklIds( tLocalCoeffInd ) = tMatsToReceiveijklID( Ik )( Ii );
                         }
@@ -1954,7 +1954,7 @@ namespace moris
                     MORIS_ASSERT( aAllCoefIds( tLocalCoeffInd ) == tID,
                             "communicate_missing_owned_coefficients( ), coefficient IDs are not parallel consistent" );
 
-                    if ( aMeshType == MeshType::HMR )
+                    if ( aMeshType == mtk::MeshType::HMR )
                     {
                         MORIS_ASSERT( aAllCoefijklIds( tLocalCoeffInd ) == tMatsToReceiveijklID( Ik )( Ii ),
                                 "communicate_missing_owned_coefficients( ), coefficient ijkl IDs are not parallel consistent" );
@@ -2143,9 +2143,7 @@ namespace moris
             Cell< Matrix< DDSMat > > tNodeOwnersPerSet( tNumSets );
             Cell< Matrix< DDRMat > > tNodeCoordinatesPerSet( tNumSets );
 
-            Cell< uint > tCounter( tNumSets, 0 );
-
-            uint tNumSpatialDim = 0;
+            Cell< uint > tNumberOfNodesPerSet( tNumSets, 0 );
 
             // Determine if we need to do the below loop
             bool tDoJankLoop = false;
@@ -2176,42 +2174,33 @@ namespace moris
                         const mtk::Cluster* tCluster = tSet->get_clusters_by_index( tClusterIndex );
 
                         // Indices, IDs, and ownership of base cell nodes in cluster
-                        // FIXME this is really bad and slow. especially when building the pdvs; should return const &
                         mtk::Cell const * tBaseCell = tCluster->get_interpolation_cell( mtk::Leader_Follower::LEADER ).get_base_cell();
-
                         Matrix< IndexMat > tNodeIndicesInCluster     = tBaseCell->get_vertex_inds();
                         Matrix< DDRMat >   tNodeCoordinatesInCluster = tBaseCell->get_vertex_coords();
 
-                        // number of base nodes in cluster
-                        uint tNumberOfBaseNodes = tNodeIndicesInCluster.length();
-
-                        tCounter( tMeshSetIndex ) = tCounter( tMeshSetIndex ) + tNumberOfBaseNodes;
-
-                        // number of spatial dimension
-                        tNumSpatialDim = tNodeCoordinatesInCluster.n_cols();
+                        // Add to the number of base nodes on this set
+                        tNumberOfNodesPerSet( tMeshSetIndex ) = tNumberOfNodesPerSet( tMeshSetIndex ) + tNodeIndicesInCluster.length();
 
                         // this is a hack. the hole function is super slow and should be rewritten
                         // hack was implemented intentionally to get something running. Redo completely when rewriting GEN
-                        if ( tSet->get_set_type() == moris::SetType::DOUBLE_SIDED_SIDESET )
+                        if ( tSet->get_set_type() == mtk::SetType::DOUBLE_SIDED_SIDESET )
                         {
-                            mtk::Cell const * tBaseCellFollower = tCluster->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER ).get_base_cell();
+                            // Get base cell follower indices
+                            tBaseCell = tCluster->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER ).get_base_cell();
+                            tNodeIndicesInCluster = tBaseCell->get_vertex_inds();
 
-                            Matrix< IndexMat > tNodeIndicesInCluster = tBaseCellFollower->get_vertex_inds();
-
-                            // number of base nodes in cluster
-                            tNumberOfBaseNodes = tNodeIndicesInCluster.length();
-
-                            tCounter( tMeshSetIndex ) = tCounter( tMeshSetIndex ) + tNumberOfBaseNodes;
+                            // Add to the number of base nodes on this set
+                            tNumberOfNodesPerSet( tMeshSetIndex ) = tNumberOfNodesPerSet( tMeshSetIndex ) + tNodeIndicesInCluster.length();
                         }
                     }
                 }
 
                 for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
                 {
-                    tNodeIndicesPerSet( tMeshSetIndex ).resize( tCounter( tMeshSetIndex ), 1 );
-                    tNodeIdsPerSet( tMeshSetIndex ).resize( tCounter( tMeshSetIndex ), 1 );
-                    tNodeOwnersPerSet( tMeshSetIndex ).resize( tCounter( tMeshSetIndex ), 1 );
-                    tNodeCoordinatesPerSet( tMeshSetIndex ).resize( tCounter( tMeshSetIndex ), tNumSpatialDim );
+                    tNodeIndicesPerSet( tMeshSetIndex ).resize( tNumberOfNodesPerSet( tMeshSetIndex ), 1 );
+                    tNodeIdsPerSet( tMeshSetIndex ).resize( tNumberOfNodesPerSet( tMeshSetIndex ), 1 );
+                    tNodeOwnersPerSet( tMeshSetIndex ).resize( tNumberOfNodesPerSet( tMeshSetIndex ), 1 );
+                    tNodeCoordinatesPerSet( tMeshSetIndex ).resize( tNumberOfNodesPerSet( tMeshSetIndex ), mNumSpatialDimensions );
                 }
 
                 // Loop through sets in integration mesh
@@ -2230,7 +2219,6 @@ namespace moris
                         const mtk::Cluster* tCluster = tSet->get_clusters_by_index( tClusterIndex );
 
                         // Indices, IDs, and ownership of base cell nodes in cluster
-                        // FIXME this is really bad and slow. especially when building the pdvs; should return const &
                         mtk::Cell const * tBaseCell = tCluster->get_interpolation_cell( mtk::Leader_Follower::LEADER ).get_base_cell();
 
                         Matrix< IndexMat > tNodeIndicesInCluster     = tBaseCell->get_vertex_inds();
@@ -2246,21 +2234,21 @@ namespace moris
                                 "Geometry_Engine::create_interpolation_pdv_hosts - inconsistent cluster information.\n" );
 
                         // FIXME we have nodes up to 8 times in this list in 3d
-                        for ( uint tNodeInCluster = 0; tNodeInCluster < tNumberOfBaseNodes; tNodeInCluster++ )
+                        for ( uint iNodeInCluster = 0; iNodeInCluster < tNumberOfBaseNodes; iNodeInCluster++ )
                         {
-                            tNodeIndicesPerSet( tMeshSetIndex )( tCurrentNode ) = tNodeIndicesInCluster( tNodeInCluster );
-                            tNodeIdsPerSet( tMeshSetIndex )( tCurrentNode )     = tNodeIdsInCluster( tNodeInCluster );
-                            tNodeOwnersPerSet( tMeshSetIndex )( tCurrentNode )  = tNodeOwnersInCluster( tNodeInCluster );
+                            tNodeIndicesPerSet( tMeshSetIndex )( tCurrentNode ) = tNodeIndicesInCluster( iNodeInCluster );
+                            tNodeIdsPerSet( tMeshSetIndex )( tCurrentNode )     = tNodeIdsInCluster( iNodeInCluster );
+                            tNodeOwnersPerSet( tMeshSetIndex )( tCurrentNode )  = tNodeOwnersInCluster( iNodeInCluster );
 
                             tNodeCoordinatesPerSet( tMeshSetIndex ).get_row( tCurrentNode ) =
-                                    tNodeCoordinatesInCluster.get_row( tNodeInCluster );
+                                    tNodeCoordinatesInCluster.get_row( iNodeInCluster );
 
                             tCurrentNode++;
                         }
 
                         // this is a hack. the hole function is super slow and should be rewritten
                         // hack was implemented intentionally to get something running. Redo completely when rewriting GEN
-                        if ( tSet->get_set_type() == moris::SetType::DOUBLE_SIDED_SIDESET )
+                        if ( tSet->get_set_type() == mtk::SetType::DOUBLE_SIDED_SIDESET )
                         {
 
                             mtk::Cell const * tBaseCellFollower = tCluster->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER ).get_base_cell();
@@ -2278,14 +2266,14 @@ namespace moris
                                     "Geometry_Engine::create_interpolation_pdv_hosts - inconsistent cluster information.\n" );
 
                             // FIXME we have nodes up to 8 times in this list in 3d
-                            for ( uint tNodeInCluster = 0; tNodeInCluster < tNumberOfBaseNodes; tNodeInCluster++ )
+                            for ( uint iNodeInCluster = 0; iNodeInCluster < tNumberOfBaseNodes; iNodeInCluster++ )
                             {
-                                tNodeIndicesPerSet( tMeshSetIndex )( tCurrentNode ) = tNodeIndicesInCluster( tNodeInCluster );
-                                tNodeIdsPerSet( tMeshSetIndex )( tCurrentNode )     = tNodeIdsInCluster( tNodeInCluster );
-                                tNodeOwnersPerSet( tMeshSetIndex )( tCurrentNode )  = tNodeOwnersInCluster( tNodeInCluster );
+                                tNodeIndicesPerSet( tMeshSetIndex )( tCurrentNode ) = tNodeIndicesInCluster( iNodeInCluster );
+                                tNodeIdsPerSet( tMeshSetIndex )( tCurrentNode )     = tNodeIdsInCluster( iNodeInCluster );
+                                tNodeOwnersPerSet( tMeshSetIndex )( tCurrentNode )  = tNodeOwnersInCluster( iNodeInCluster );
 
                                 tNodeCoordinatesPerSet( tMeshSetIndex ).get_row( tCurrentNode ) =
-                                        tNodeCoordinatesInCluster.get_row( tNodeInCluster );
+                                        tNodeCoordinatesInCluster.get_row( iNodeInCluster );
 
                                 tCurrentNode++;
                             }
@@ -2365,17 +2353,7 @@ namespace moris
                 mtk::Set* tSetPointer = aIntegrationMesh->get_set_by_index( aSetIndices( iSet ) );
 
                 // Select sides of interpolation cells to pull from
-                Cell< mtk::Leader_Follower > tSetSides;
-                if ( tSetPointer->get_set_type() == moris::SetType::DOUBLE_SIDED_SIDESET )
-                {
-                    // Need to get both leader and follower sides of double-sided sidesets
-                    tSetSides = { mtk::Leader_Follower::LEADER, mtk::Leader_Follower::FOLLOWER };
-                }
-                else
-                {
-                    // Otherwise, just use leader side
-                    tSetSides = { mtk::Leader_Follower::LEADER };
-                }
+                Cell< mtk::Leader_Follower > tSetSides = mtk::get_leader_follower( tSetPointer->get_set_type() );
 
                 // get the list of cluster on mesh set
                 Cell< mtk::Cluster const * > tClusterPointers = tSetPointer->get_clusters_on_set();

@@ -14,7 +14,7 @@
 #include "assert.hpp"
 #include "cl_Matrix.hpp"
 
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "MTK_Tools.hpp"
 #include "cl_MTK_Side_Cluster.hpp"
 #include "cl_Map.hpp"
@@ -1605,14 +1605,14 @@ namespace moris
 
             virtual mtk::Cell* const *
             get_ig_cells_in_cluster( enum ClusterType aClusterType,
-                    enum mtk::Primary_Void            aPrimaryOrVoid,
+                    Primary_Void            aPrimaryOrVoid,
                     moris_index                       aClusterIndex ) const;
 
             //--------------------------------------------------------------------------------------------------------------
 
             virtual uint
             get_num_cells_in_cluster( enum ClusterType aClusterType,
-                    enum mtk::Primary_Void             aPrimaryOrVoid,
+                    Primary_Void             aPrimaryOrVoid,
                     moris_index                        aClusterIndex ) const;
 
             //--------------------------------------------------------------------------------------------------------------

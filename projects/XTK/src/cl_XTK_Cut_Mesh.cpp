@@ -20,7 +20,7 @@ namespace xtk
                     mChildrenMeshes(0),
                     mConsistentCounts(false),
                     mNumEntities(4,0),
-                    mChildElementTopo(CellTopology::TET4){}
+                    mChildElementTopo(mtk::CellTopology::TET4){}
     // ----------------------------------------------------------------------------------
     Cut_Mesh::Cut_Mesh(
             Model* aModel,
@@ -31,7 +31,7 @@ namespace xtk
                     mChildrenMeshes(0),
                     mConsistentCounts(false),
                     mNumEntities(4,0),
-                    mChildElementTopo(CellTopology::TET4){}
+                    mChildElementTopo(mtk::CellTopology::TET4){}
     // ----------------------------------------------------------------------------------
     Cut_Mesh::Cut_Mesh(
             Model* aModel,
@@ -43,7 +43,7 @@ namespace xtk
                     mChildrenMeshes(aNumSimpleMesh),
                     mConsistentCounts(false),
                     mNumEntities(4,0),
-                    mChildElementTopo(CellTopology::TET4)
+                    mChildElementTopo(mtk::CellTopology::TET4)
     {
         for(moris::size_t i = 0; i <aNumSimpleMesh; i++)
         {
@@ -116,7 +116,7 @@ namespace xtk
             mChildrenMeshes(i)->convert_tet4_to_tet10_child();
         }
 
-        mChildElementTopo = CellTopology::TET10;
+        mChildElementTopo = mtk::CellTopology::TET10;
     }
     // ----------------------------------------------------------------------------------
     void
@@ -141,15 +141,15 @@ namespace xtk
 
         // Construct a template and initialize this new mesh with the template
 
-        // Set all node parent ranks to EntityRank::NODE which = 0;
+        // Set all node parent ranks to mtk::EntityRank::NODE which = 0;
         moris::Matrix< moris::DDSTMat > tElementNodeParentRanks(1,8);
         tElementNodeParentRanks.fill(0);
 
-        // Set all edge parent ranks to EntityRank::EDGE which = 1;
+        // Set all edge parent ranks to mtk::EntityRank::EDGE which = 1;
         moris::Matrix< moris::DDSTMat > tParentEdgeRanks(1,aParentEntities(1).numel());
 
         // This is needed for HMR because edges in 2-d have rank 2
-        if(mModel->get_background_mesh().get_mesh_type() == MeshType::HMR && mSpatialDim == 2)
+        if(mModel->get_background_mesh().get_mesh_type() == mtk::MeshType::HMR && mSpatialDim == 2)
         {
             tParentEdgeRanks.fill(2);
         }
@@ -158,7 +158,7 @@ namespace xtk
             tParentEdgeRanks.fill(1);
         }
 
-        // Set all node parent ranks to EntityRank::FACE which = 2;
+        // Set all node parent ranks to mtk::EntityRank::FACE which = 2;
         moris::Matrix< moris::DDSTMat > tParentFaceRanks(1,aParentEntities(2).numel());
         tParentFaceRanks.fill(2);
 
@@ -181,7 +181,7 @@ namespace xtk
                 tParentFaceRanks,
                 tInterfaceSides);
 
-        if(mModel->get_background_mesh().get_mesh_type() == MeshType::HMR)
+        if(mModel->get_background_mesh().get_mesh_type() == mtk::MeshType::HMR)
         {
             mChildrenMeshes(aChildMeshIndex)->mark_as_hmr_child_mesh();
         }
@@ -303,7 +303,7 @@ namespace xtk
     moris::Matrix<moris::IndexMat>
     Cut_Mesh::get_extracted_interface_elements_loc_inds()
     {
-        MORIS_ASSERT(mChildElementTopo == CellTopology::TET4,"Interface unzipping only tested on child meshes with tet4s");
+        MORIS_ASSERT(mChildElementTopo == mtk::CellTopology::TET4,"Interface unzipping only tested on child meshes with tet4s");
 
         // hardcoded for tet4s
         moris::uint tNumNodesPerElement = 6;
@@ -392,7 +392,7 @@ namespace xtk
     moris::Matrix< moris::IdMat >
     Cut_Mesh::get_all_element_ids()
     {
-        moris::size_t tNumElems = this->get_num_entities(EntityRank::ELEMENT);
+        moris::size_t tNumElems = this->get_num_entities(mtk::EntityRank::ELEMENT);
         moris::Matrix< moris::IdMat > tElementIds(1,tNumElems);
 
         moris::size_t tCount = 0;
@@ -412,7 +412,7 @@ namespace xtk
     moris::Matrix< moris::IndexMat >
     Cut_Mesh::get_all_element_inds()
     {
-        moris::size_t tNumElems = this->get_num_entities(EntityRank::ELEMENT);
+        moris::size_t tNumElems = this->get_num_entities(mtk::EntityRank::ELEMENT);
         moris::Matrix< moris::IndexMat > tElementInds(1,tNumElems);
 
         moris::size_t tCount = 0;
@@ -433,7 +433,7 @@ namespace xtk
             uint aNumPhases,
             moris::mtk::Mesh const & aBackgroundMeshData)
     {
-        moris::size_t tNumElems = this->get_num_entities(EntityRank::ELEMENT);
+        moris::size_t tNumElems = this->get_num_entities(mtk::EntityRank::ELEMENT);
 
         //Initialize output
         Cell<moris::Matrix<moris::IdMat>> tElementsByPhase(aNumPhases);
@@ -483,12 +483,12 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
     void
-    Cut_Mesh::set_child_element_topology( enum CellTopology aChildCellTopo )
+    Cut_Mesh::set_child_element_topology( mtk::CellTopology aChildCellTopo )
     {
         mChildElementTopo = aChildCellTopo;
     }
     // ----------------------------------------------------------------------------------
-    enum CellTopology
+    mtk::CellTopology
     Cut_Mesh::get_child_element_topology()
     {
         return mChildElementTopo;
@@ -503,7 +503,7 @@ namespace xtk
     moris::size_t
     Cut_Mesh::get_num_entities(
             moris::size_t aChildMeshIndex,
-            enum EntityRank aEntityRank) const
+            mtk::EntityRank aEntityRank) const
     {
         MORIS_ASSERT(aChildMeshIndex < mNumberOfChildrenMesh, "The requested mesh index is out of bounds.");
         return mChildrenMeshes(aChildMeshIndex)->get_num_entities(aEntityRank);
@@ -511,7 +511,7 @@ namespace xtk
     // ----------------------------------------------------------------------------------
     moris::size_t
     Cut_Mesh::get_num_entities(
-            enum EntityRank aEntityRank) const
+            mtk::EntityRank aEntityRank) const
     {
         // Make sure counts are up to date
         get_entity_counts();
@@ -582,7 +582,7 @@ namespace xtk
             moris_index aPhaseIndex1,
             moris_index aIndexFlag) const
     {
-        uint tNumElem = this->get_num_entities(EntityRank::ELEMENT);
+        uint tNumElem = this->get_num_entities(mtk::EntityRank::ELEMENT);
 
         moris::Matrix< moris::IdMat > tFullElementIdAndSideOrdinals(tNumElem,2);
 
@@ -609,7 +609,7 @@ namespace xtk
     moris::Matrix< moris::IndexMat >
     Cut_Mesh::pack_interface_sides_loc_inds() const
     {
-        uint tNumElem = this->get_num_entities(EntityRank::ELEMENT);
+        uint tNumElem = this->get_num_entities(mtk::EntityRank::ELEMENT);
 
         moris::Matrix< moris::IdMat > tFullElementIdAndSideOrdinals(tNumElem,2);
 
@@ -635,10 +635,10 @@ namespace xtk
     moris::Matrix<moris::IdMat>
     Cut_Mesh::get_full_element_to_node_glob_ids()
     {
-        enum CellTopology tChildElementTopo = this->get_child_element_topology();
-        moris::size_t     tNumElements = this->get_num_entities(EntityRank::ELEMENT);
+        mtk::CellTopology tChildElementTopo = this->get_child_element_topology();
+        moris::size_t     tNumElements = this->get_num_entities(mtk::EntityRank::ELEMENT);
         moris::size_t tNumNodesPerElem = 0;
-        if(tChildElementTopo == CellTopology::TET4)
+        if(tChildElementTopo == mtk::CellTopology::TET4)
         {
             tNumNodesPerElem = 4;
         }
@@ -671,7 +671,7 @@ namespace xtk
         {
             moris::mtk::Cell_Info const * tCellInfo = mChildrenMeshes(0)->get_cell_info();
 
-            moris::size_t  tNumElements = this->get_num_entities(EntityRank::ELEMENT);
+            moris::size_t  tNumElements = this->get_num_entities(mtk::EntityRank::ELEMENT);
             moris::uint    tNumNodesPerElem = tCellInfo->get_num_verts();
 
             tElementToNodeInds.resize(tNumElements,tNumNodesPerElem);
@@ -694,15 +694,15 @@ namespace xtk
     Cut_Mesh::get_full_element_to_node_by_phase_glob_ids(moris::uint aNumPhases,
             moris::mtk::Mesh & aBackgroundMeshData)
     {
-        enum CellTopology tChildElementTopo = this->get_child_element_topology();
-        moris::size_t     tNumElements = this->get_num_entities(EntityRank::ELEMENT);
+        mtk::CellTopology tChildElementTopo = this->get_child_element_topology();
+        moris::size_t     tNumElements = this->get_num_entities(mtk::EntityRank::ELEMENT);
 
         moris::size_t tNumNodesPerElem = 0;
-        if(tChildElementTopo == CellTopology::TET4)
+        if(tChildElementTopo == mtk::CellTopology::TET4)
         {
             tNumNodesPerElem = 4;
         }
-        else if(tChildElementTopo == CellTopology::TRI3)
+        else if(tChildElementTopo == mtk::CellTopology::TRI3)
         {
             tNumNodesPerElem = 3;
         }
@@ -907,7 +907,7 @@ namespace xtk
         // count the cells to delete
         for(moris::uint iCM = 0; iCM < aMeshesToDelete.size(); iCM++)
         {
-            tNumCells = tNumCells+mChildrenMeshes(aMeshesToDelete(iCM))->get_num_entities(EntityRank::ELEMENT);
+            tNumCells = tNumCells+mChildrenMeshes(aMeshesToDelete(iCM))->get_num_entities(mtk::EntityRank::ELEMENT);
         }
 
         aCellsToRemoveFromMesh.reserve(tNumCells);
@@ -925,7 +925,7 @@ namespace xtk
         {
 
             Matrix<IndexMat> const & tCellInds = mChildrenMeshes(aMeshesToDelete(iCM))->get_element_inds();
-            for(moris::uint iCell = 0; iCell<mChildrenMeshes(aMeshesToDelete(iCM))->get_num_entities(EntityRank::ELEMENT);iCell++)
+            for(moris::uint iCell = 0; iCell<mChildrenMeshes(aMeshesToDelete(iCM))->get_num_entities(mtk::EntityRank::ELEMENT);iCell++)
             {
                 aCellsToRemoveFromMesh.push_back(tCellInds(iCell));
             }
@@ -972,13 +972,13 @@ namespace xtk
                 tRanks = {0,1,3};
             }
 
-            enum EntityRank tRank = EntityRank::NODE;
+            mtk::EntityRank tRank = mtk::EntityRank::NODE;
             for(auto iR:tRanks)
             {
                 moris::size_t tCount = 0;
 
                 // Cast r to enum
-                tRank = static_cast<EntityRank>(iR);
+                tRank = static_cast<mtk::EntityRank>(iR);
                 for(moris::size_t m = 0; m<mNumberOfChildrenMesh; m++)
                 {
                     tCount += mChildrenMeshes(m)->get_num_entities(tRank);

@@ -13,7 +13,7 @@
 
 #include "assert/fn_xtk_assert.hpp"
 #include "linalg/cl_XTK_Matrix.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 
 using namespace moris;
 namespace xtk
@@ -88,7 +88,7 @@ public:
      */
     virtual moris::real access_field_value_with_entity_index(
                 moris::moris_index aEntityIndex,
-                enum EntityRank aEntityRank) const
+                mtk::EntityRank aEntityRank) const
     {
         XTK_ERROR<<" access_field_value_with_entity_index not implemented. This could be due to a geometry not being based on a mesh.";
         return 0;
@@ -98,7 +98,7 @@ public:
      * Given a local coordinate, node index and entity rank, the function returns a matrix of relevant node coordinates
      *  NOTE: THIS CURRENTLY REQUIRES THE BACKGROUND MESH AND GEOMETRY ARE COINCIDENT (NEEDS AN OBJECT THAT MAPS BETWEEN THE TWO)
      */
-    virtual moris::Matrix< moris::DDRMat > evaluate_sensitivity_dphi_dp(moris::Matrix< moris::DDRMat > const & aLocalCoordinate, moris::size_t aEntityIndex, enum EntityRank aEntityRank)
+    virtual moris::Matrix< moris::DDRMat > evaluate_sensitivity_dphi_dp(moris::Matrix< moris::DDRMat > const & aLocalCoordinate, moris::size_t aEntityIndex, mtk::EntityRank aEntityRank)
     {
 //        XTK_ERROR<<" evaluate_sensitivity_dx_dp not implemented. This could be due to a geometry not being based on a mesh.";
         return moris::Matrix< moris::DDRMat >(1,1,0);

@@ -34,7 +34,7 @@ TEST_CASE("MTK Vertex Communication Tables","[VERTEX_COMM_TABLES]")
     tMeshData.FieldsInfo = tFieldsInfo;
 
     // Create MORIS mesh using MTK database
-    moris::mtk::Mesh* tMesh = mtk::create_interpolation_mesh( MeshType::STK, tMeshFile, &tMeshData );
+    moris::mtk::Mesh* tMesh = mtk::create_interpolation_mesh( moris::mtk::MeshType::STK, tMeshFile, &tMeshData );
 
     // fill in the parallel fields
     tVizTool.populate_parallel_cell_fields_on_mesh(tMesh);

@@ -115,7 +115,7 @@ class Regular_Subdivision_Template
     get_signature() const = 0;
 
     virtual
-    enum CellTopology
+    mtk::CellTopology
     get_ig_cell_topology() const = 0;
 };
 
@@ -197,11 +197,11 @@ class Regular_Subdivision_4_TRIS : public Regular_Subdivision_Template
     {
         return Vertex_Ancestry(
             { 0, 1, 2, 3, 0 },
-            { EntityRank::NODE,
-              EntityRank::NODE,
-              EntityRank::NODE,
-              EntityRank::NODE,
-              EntityRank::ELEMENT } );
+            { mtk::EntityRank::NODE,
+              mtk::EntityRank::NODE,
+              mtk::EntityRank::NODE,
+              mtk::EntityRank::NODE,
+              mtk::EntityRank::ELEMENT } );
     }
 
     Cell< Matrix< DDRMat > >
@@ -232,10 +232,10 @@ class Regular_Subdivision_4_TRIS : public Regular_Subdivision_Template
         return 420;
     }
 
-    enum CellTopology
+    mtk::CellTopology
     get_ig_cell_topology() const
     {
-        return CellTopology::TRI3;
+        return mtk::CellTopology::TRI3;
     }
 };
 
@@ -311,21 +311,21 @@ class Regular_Subdivision_24_TETS : public Regular_Subdivision_Template
     {
         return Vertex_Ancestry(
             { 0, 1, 2, 3, 4, 5, 6, 7, 0, 1, 2, 3, 4, 5, 0 },
-            { EntityRank::NODE,
-                EntityRank::NODE,
-                EntityRank::NODE,
-                EntityRank::NODE,
-                EntityRank::NODE,
-                EntityRank::NODE,
-                EntityRank::NODE,
-                EntityRank::NODE,
-                EntityRank::FACE,
-                EntityRank::FACE,
-                EntityRank::FACE,
-                EntityRank::FACE,
-                EntityRank::FACE,
-                EntityRank::FACE,
-                EntityRank::ELEMENT } );
+            { mtk::EntityRank::NODE,
+                mtk::EntityRank::NODE,
+                mtk::EntityRank::NODE,
+                mtk::EntityRank::NODE,
+                mtk::EntityRank::NODE,
+                mtk::EntityRank::NODE,
+                mtk::EntityRank::NODE,
+                mtk::EntityRank::NODE,
+                mtk::EntityRank::FACE,
+                mtk::EntityRank::FACE,
+                mtk::EntityRank::FACE,
+                mtk::EntityRank::FACE,
+                mtk::EntityRank::FACE,
+                mtk::EntityRank::FACE,
+                mtk::EntityRank::ELEMENT } );
     }
 
     Cell< Matrix< DDRMat > >
@@ -381,10 +381,10 @@ class Regular_Subdivision_24_TETS : public Regular_Subdivision_Template
         return 10000;
     }
 
-    enum CellTopology
+    mtk::CellTopology
     get_ig_cell_topology() const
     {
-        return CellTopology::TET4;
+        return mtk::CellTopology::TET4;
     }
 };
 
@@ -462,7 +462,7 @@ class Regular_Subdivision_Interface : public Decomposition_Algorithm
 
   public:
 
-    Regular_Subdivision_Interface( ParameterList& aParameterList, enum CellTopology aCellTopology );
+    Regular_Subdivision_Interface( ParameterList& aParameterList, mtk::CellTopology aCellTopology );
 
     ~Regular_Subdivision_Interface() {}
 
@@ -561,7 +561,7 @@ class Regular_Subdivision_Interface : public Decomposition_Algorithm
         return mRegularSubdivisionTemplate->get_signature();
     }
 
-    enum CellTopology
+    mtk::CellTopology
     get_ig_cell_topology() const
     {
         return mRegularSubdivisionTemplate->get_ig_cell_topology();

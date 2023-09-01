@@ -20,7 +20,7 @@ namespace moris
         Side_Cluster_Group::Side_Cluster_Group( const moris_index aDiscretizationMeshIndex )
                 : Cluster_Group( aDiscretizationMeshIndex )
         {
-            mClusterType = mtk::Cluster_Type::SIDE;
+            mClusterType = mtk::ClusterType::SIDE;
         }
 
         //------------------------------------------------------------------------------

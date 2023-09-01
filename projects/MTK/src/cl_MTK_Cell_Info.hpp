@@ -16,7 +16,7 @@
 #include "linalg_typedefs.hpp"
 #include "assert.hpp"
 #include "cl_MTK_Enums.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 namespace moris
 {
     namespace mtk

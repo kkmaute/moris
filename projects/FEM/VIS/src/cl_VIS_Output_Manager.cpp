@@ -561,7 +561,7 @@ namespace moris
                 }
 
                 // don't write indices on facets
-                if ( tSet->get_set_type() != SetType::BULK )
+                if ( tSet->get_set_type() != mtk::SetType::BULK )
                 {
                     continue;
                 }

@@ -26,7 +26,7 @@
 // MTK
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Cluster.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include <unordered_map>
 
 // SOL FIXME
@@ -512,7 +512,7 @@ namespace moris
             void distribute_advs(
                     mtk::Mesh_Pair                        aMeshPair,
                     Cell< std::shared_ptr< mtk::Field > > aFields,
-                    enum EntityRank                       aADVEntityRank = EntityRank::BSPLINE );
+                    mtk::EntityRank                       aADVEntityRank = mtk::EntityRank::BSPLINE );
 
             //-------------------------------------------------------------------------------
             
@@ -607,7 +607,7 @@ namespace moris
                     Cell< uint >&    aNumCoeff,
                     uint             aFieldIndex,
                     uint             aDiscretizationMeshIndex,
-                    enum MeshType    aMeshType );
+                    mtk::MeshType    aMeshType );
 
             //-------------------------------------------------------------------------------
             

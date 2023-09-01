@@ -512,13 +512,13 @@ namespace moris::mtk
     {
         switch ( aClusterType )
         {
-            case ClusterType::CELL_CLUSTER:
+            case ClusterType::CELL:
             {
                 MORIS_ASSERT( aClusterIndex < (moris_index)mCellClusters.size(), "index of the vertex specified exceeds the bounds" );
                 return &mIPMesh->get_mtk_cell( aClusterIndex );
                 break;
             }
-            case ClusterType::SIDE_CLUSTER:
+            case ClusterType::SIDE:
             {
                 if ( aClusterIndex < (moris_index)mSideClusters.size() )
                 {
@@ -542,11 +542,11 @@ namespace moris::mtk
     //--------------------------------------------------------------------------------------------------------------
 
     mtk::Cell* const*
-    Integration_Mesh_DataBase_IG::get_ig_cells_in_cluster( enum ClusterType aClusterType, enum mtk::Primary_Void aPrimaryOrVoid, moris_index aClusterIndex ) const
+    Integration_Mesh_DataBase_IG::get_ig_cells_in_cluster( enum ClusterType aClusterType, Primary_Void aPrimaryOrVoid, moris_index aClusterIndex ) const
     {
         switch ( aClusterType )
         {
-            case ClusterType::CELL_CLUSTER:
+            case ClusterType::CELL:
             {
                 switch ( aPrimaryOrVoid )
                 {
@@ -568,7 +568,7 @@ namespace moris::mtk
                 }
                 break;
             }
-            case ClusterType::SIDE_CLUSTER:
+            case ClusterType::SIDE:
             {
                 if ( aClusterIndex < (moris_index)mSideClusters.size() )
                 {
@@ -592,11 +592,11 @@ namespace moris::mtk
     //--------------------------------------------------------------------------------------------------------------
 
     uint 
-    Integration_Mesh_DataBase_IG::get_num_cells_in_cluster( enum ClusterType aClusterType, enum mtk::Primary_Void aPrimaryOrVoid, moris_index aClusterIndex ) const
+    Integration_Mesh_DataBase_IG::get_num_cells_in_cluster( enum ClusterType aClusterType, Primary_Void aPrimaryOrVoid, moris_index aClusterIndex ) const
     {
         switch ( aClusterType )
         {
-            case ClusterType::CELL_CLUSTER:
+            case ClusterType::CELL:
             {
                 switch ( aPrimaryOrVoid )
                 {
@@ -619,7 +619,7 @@ namespace moris::mtk
                 }
                 break;
             }
-            case ClusterType::SIDE_CLUSTER:
+            case ClusterType::SIDE:
             {
                 if ( aClusterIndex < (moris_index)mSideClusters.size() )
                 {
@@ -662,11 +662,11 @@ namespace moris::mtk
     {
         switch ( aClusterType )
         {
-            case ClusterType::CELL_CLUSTER:
+            case ClusterType::CELL:
             {
                 return mCellClusterIsTrivial( aClusterIndex );
             }
-            case ClusterType::SIDE_CLUSTER:
+            case ClusterType::SIDE:
             {
                 if ( aClusterIndex < (moris_index)mSideClusters.size() )
                 {
@@ -694,12 +694,12 @@ namespace moris::mtk
     {
         switch ( aClusterType )
         {
-            case ClusterType::CELL_CLUSTER:
+            case ClusterType::CELL:
             {
                 return mCellClusterToVeretx.memptr() + mCellClusterToVertexOffset( aClusterIndex );
                 break;
             }
-            case ClusterType::SIDE_CLUSTER:
+            case ClusterType::SIDE:
             {
                 if ( aClusterIndex < (moris_index)mSideClusters.size() )
                 {
@@ -727,12 +727,12 @@ namespace moris::mtk
     {
         switch ( aClusterType )
         {
-            case ClusterType::CELL_CLUSTER:
+            case ClusterType::CELL:
             {
                 return mCellClusterToVertexOffset( aClusterIndex + 1 ) - mCellClusterToVertexOffset( aClusterIndex );
                 break;
             }
-            case ClusterType::SIDE_CLUSTER:
+            case ClusterType::SIDE:
             {
                 if ( aClusterIndex < (moris_index)mSideClusters.size() )
                 {
@@ -760,12 +760,12 @@ namespace moris::mtk
     {
         switch ( aClusterType )
         {
-            case ClusterType::CELL_CLUSTER:
+            case ClusterType::CELL:
             {
                 return mCellClusterVertexCoords;
                 break;
             }
-            case ClusterType::SIDE_CLUSTER:
+            case ClusterType::SIDE:
             {
                 if ( aClusterIndex < (moris_index)mSideClusters.size() )
                 {
@@ -793,12 +793,12 @@ namespace moris::mtk
     {
         switch ( aClusterType )
         {
-            case ClusterType::CELL_CLUSTER:
+            case ClusterType::CELL:
             {
                 return mCellClusterIndexToRowNumber.at( aClusterIndex );
                 break;
             }
-            case ClusterType::SIDE_CLUSTER:
+            case ClusterType::SIDE:
             {
                 if ( aClusterIndex < (moris_index)mSideClusters.size() )
                 {

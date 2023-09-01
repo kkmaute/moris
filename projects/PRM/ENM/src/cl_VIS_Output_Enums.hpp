@@ -53,7 +53,7 @@ namespace moris
             tVisFieldTypeMap[ "FACETED_INT" ]   = vis::Field_Type::FACETED_INT;
             tVisFieldTypeMap[ "FACETED_AVG" ]   = vis::Field_Type::FACETED_AVG;
             tVisFieldTypeMap[ "GLOBAL" ]        = vis::Field_Type::GLOBAL;
-            tVisFieldTypeMap[ "END_ENUM" ]      = vis::Field_Type::END_ENUM;
+            tVisFieldTypeMap[ "UNDEFINED" ]      = vis::Field_Type::END_ENUM;
 
             return tVisFieldTypeMap;
         }
