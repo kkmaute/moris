@@ -956,6 +956,7 @@ namespace moris
             Cell< PDV_Type >                 tPDVTypeGroup( 1 );
             Cell< Matrix< DDUMat > >         tMeshSetIndicesPerProperty( mProperties.size() );
 
+            // Create timer
             tic tTimer;
 
             // Loop over properties to create PDVs
@@ -993,11 +994,10 @@ namespace moris
             // Set interpolation PDV types in host manager
             mPDVHostManager.set_interpolation_pdv_types( tPdvTypes );
 
+            // Log timer info
             real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
             MORIS_LOG_INFO( "Assign PDV type to mesh sets on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
-
-            // start timer
-            tic tTimer2;
+            tTimer.reset();
 
             // Get and save communication map from IP mesh
             Matrix< IdMat > tCommTable = tInterpolationMesh->get_communication_table();
@@ -1014,11 +1014,10 @@ namespace moris
                     tIPVertexGlobaToLocalMap,
                     tIGVertexGlobaToLocalMap );
 
-            tElapsedTime = tTimer2.toc< moris::chronos::milliseconds >().wall;
+            // Log timer info
+            tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
             MORIS_LOG_INFO( "Get global-to-local-maps from mtk on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
-
-            // start timer
-            tic tTimer3;
+            tTimer.reset();
 
             // Create PDV hosts
             this->create_interpolation_pdv_hosts(
@@ -1026,23 +1025,22 @@ namespace moris
                     tIntegrationMesh,
                     tPdvTypes );
 
-            tElapsedTime = tTimer3.toc< moris::chronos::milliseconds >().wall;
+            // Log timer info
+            tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
             MORIS_LOG_INFO( "Create interpolation PDV hosts on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
+            tTimer.reset();
 
             // Set integration PDV types
             if ( mShapeSensitivities )
             {
-                // start timer
-                tic tTimer4;
-
+                // Set integration PDV types
                 this->set_integration_pdv_types( tIntegrationMesh );
 
-                tElapsedTime = tTimer4.toc< moris::chronos::milliseconds >().wall;
+                // Log timer info
+                tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
                 MORIS_LOG_INFO( "Set integration PDV types on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
+                tTimer.reset();
             }
-
-            // start timer
-            tic tTimer5;
 
             // Loop over properties to assign PDVs
             for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
@@ -1069,17 +1067,18 @@ namespace moris
                 }
             }
 
-            tElapsedTime = tTimer5.toc< moris::chronos::milliseconds >().wall;
+            // Log timer info
+            tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
             MORIS_LOG_INFO( "Assign property to pdv host on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
-
-            // start timer
-            tic tTimer6;
+            tTimer.reset();
 
             // Create PDV IDs
             mPDVHostManager.create_pdv_ids();
 
-            tElapsedTime = tTimer6.toc< moris::chronos::milliseconds >().wall;
-            MORIS_LOG_INFO( "Compute and comunicate PDV IDs on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
+            // Log timer info
+            tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
+            MORIS_LOG_INFO( "Compute and communicate PDV IDs on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
+            tTimer.reset();
         }
 
         //--------------------------------------------------------------------------------------------------------------
