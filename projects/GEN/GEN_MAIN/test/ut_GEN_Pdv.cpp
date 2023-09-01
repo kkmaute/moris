@@ -132,12 +132,12 @@ namespace moris
                 tIpPdvTypes( 1 )( 1 )( 0 ) = PDV_Type::ELASTIC_MODULUS;
 
                 // Create PDV_Type hosts
+                tPDVHostManager.set_interpolation_pdv_types( tIpPdvTypes );
                 tPDVHostManager.create_interpolation_pdv_hosts(
                         tIpNodeIndicesPerSet,
                         tIpNodeIndicesPerSet,
                         tIpNodeOwnersPerSet,
-                        tNodeCoordinatesPerSet,
-                        tIpPdvTypes );
+                        tNodeCoordinatesPerSet );
 
                 // Set PDVs
                 for ( uint tMeshSetIndex = 0; tMeshSetIndex < 2; tMeshSetIndex++ )
@@ -252,12 +252,12 @@ namespace moris
                 }
 
                 // Create PDV_Type hosts
+                tPDVHostManager.set_interpolation_pdv_types( tIpPdvTypes );
                 tPDVHostManager.create_interpolation_pdv_hosts(
                         tIpNodeIndicesPerSet,
                         tIpNodeIdsPerSet,
                         tIpNodeOwnersPerSet,
-                        tNodeCoordinatesPerSet,
-                        tIpPdvTypes );
+                        tNodeCoordinatesPerSet );
 
                 // Set PDVs
                 for ( uint tMeshSetIndex = 0; tMeshSetIndex < 2; tMeshSetIndex++ )
@@ -540,12 +540,12 @@ namespace moris
             tPDVHostManager.set_communication_table( tCommunicationTable );
 
             // Create PDV_Type hosts
+            tPDVHostManager.set_interpolation_pdv_types( tIpPdvTypes );
             tPDVHostManager.create_interpolation_pdv_hosts(
                     tIpNodeIndicesPerSet,
                     tIpNodeIdsPerSet,
                     tIpNodeOWnersPerSet,
-                    tNodeCoordinatesPerSet,
-                    tIpPdvTypes );
+                    tNodeCoordinatesPerSet );
 
             // Set PDVs
             for ( uint tNodeIndex = 0; tNodeIndex < gNumPDVs; tNodeIndex++ )

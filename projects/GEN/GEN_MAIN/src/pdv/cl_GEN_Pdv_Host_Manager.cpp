@@ -431,23 +431,52 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        void
-        Pdv_Host_Manager::create_interpolation_pdv_hosts(
-                const Cell< Matrix< DDSMat > >&         aNodeIndicesPerSet,
-                const Cell< Matrix< DDSMat > >&         aNodeIdsPerSet,
-                const Cell< Matrix< DDSMat > >&         aNodeOwnersPerSet,
-                const Cell< Matrix< DDRMat > >&         aNodeCoordinatesPerSet,
+        void Pdv_Host_Manager::set_interpolation_pdv_types(
                 const Cell< Cell< Cell< PDV_Type > > >& aPdvTypes )
         {
-            // Check that number of sets is consistent
+            // Get number of sets
             uint tNumSets = aPdvTypes.size();
-
-            MORIS_ERROR( tNumSets == aNodeIndicesPerSet.size(),
-                    "Pdv_Host_Manager::create_interpolation_pdv_hosts - inconsistent number of sets!" );
 
             // Set PDV types
             mIpPdvTypes = aPdvTypes;
             mUniqueIpPdvTypes.resize( tNumSets );
+
+            // Loop over each mesh set
+            for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
+            {
+                // Get number of unique PDV types for this set
+                uint tNumUniquePdvs = 0;
+                for ( uint tGroupIndex = 0; tGroupIndex < mIpPdvTypes( tMeshSetIndex ).size(); tGroupIndex++ )
+                {
+                    tNumUniquePdvs += mIpPdvTypes( tMeshSetIndex )( tGroupIndex ).size();
+                }
+                mUniqueIpPdvTypes( tMeshSetIndex ).resize( tNumUniquePdvs );
+
+                // Copy PDV types over to unique list that doesn't consider grouping
+                uint tUniquePdvIndex = 0;
+                for ( uint tGroupIndex = 0; tGroupIndex < mIpPdvTypes( tMeshSetIndex ).size(); tGroupIndex++ )
+                {
+                    for ( uint tPdvIndex = 0; tPdvIndex < mIpPdvTypes( tMeshSetIndex )( tGroupIndex ).size(); tPdvIndex++ )
+                    {
+                        mUniqueIpPdvTypes( tMeshSetIndex )( tUniquePdvIndex++ ) = mIpPdvTypes( tMeshSetIndex )( tGroupIndex )( tPdvIndex );
+                    }
+                }
+            }
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
+        Pdv_Host_Manager::create_interpolation_pdv_hosts(
+                const Cell< Matrix< DDSMat > >& aNodeIndicesPerSet,
+                const Cell< Matrix< DDSMat > >& aNodeIdsPerSet,
+                const Cell< Matrix< DDSMat > >& aNodeOwnersPerSet,
+                const Cell< Matrix< DDRMat > >& aNodeCoordinatesPerSet )
+        {
+            // Check that number of sets is consistent
+            uint tNumSets = mIpPdvTypes.size();
+            MORIS_ERROR( tNumSets == aNodeIndicesPerSet.size(),
+                    "Pdv_Host_Manager::create_interpolation_pdv_hosts - inconsistent number of sets!" );
 
             // determine maximum node index used for sizing the pdv hosts
             moris_index tMax = 0;
@@ -494,7 +523,6 @@ namespace moris
                     moris_index tNodeIndex = aNodeIndicesPerSet( tMeshSetIndex )( tNodeIndexOnSet );
                     moris_id    tNodeId    = aNodeIdsPerSet( tMeshSetIndex )( tNodeIndexOnSet );
                     moris_index tNodeOwner = aNodeOwnersPerSet( tMeshSetIndex )( tNodeIndexOnSet );
-
                     Matrix< DDRMat > tNodeCoordinates = aNodeCoordinatesPerSet( tMeshSetIndex ).get_row( tNodeIndexOnSet );
 
                     // Create PDV host unless it already exists

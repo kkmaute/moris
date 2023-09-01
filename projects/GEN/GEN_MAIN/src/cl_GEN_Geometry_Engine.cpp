@@ -990,11 +990,15 @@ namespace moris
                 }
             }
 
+            // Set interpolation PDV types in host manager
+            mPDVHostManager.set_interpolation_pdv_types( tPdvTypes );
+
             real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
             MORIS_LOG_INFO( "Assign PDV type to mesh sets on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
 
             // start timer
             tic tTimer2;
+
             // Get and save communication map from IP mesh
             Matrix< IdMat > tCommTable = tInterpolationMesh->get_communication_table();
             mPDVHostManager.set_communication_table( tCommTable );
@@ -1015,6 +1019,7 @@ namespace moris
 
             // start timer
             tic tTimer3;
+
             // Create PDV hosts
             this->create_interpolation_pdv_hosts(
                     tInterpolationMesh,
@@ -1069,6 +1074,7 @@ namespace moris
 
             // start timer
             tic tTimer6;
+
             // Create PDV IDs
             mPDVHostManager.create_pdv_ids();
 
@@ -2138,6 +2144,7 @@ namespace moris
             // Get information from integration mesh
             uint tNumSets = aPdvTypes.size();
 
+            // Size node information cells
             Cell< Matrix< DDSMat > > tNodeIndicesPerSet( tNumSets );
             Cell< Matrix< DDSMat > > tNodeIdsPerSet( tNumSets );
             Cell< Matrix< DDSMat > > tNodeOwnersPerSet( tNumSets );
@@ -2253,8 +2260,7 @@ namespace moris
                     tNodeIndicesPerSet,
                     tNodeIdsPerSet,
                     tNodeOwnersPerSet,
-                    tNodeCoordinatesPerSet,
-                    aPdvTypes );
+                    tNodeCoordinatesPerSet );
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -335,6 +335,18 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
+            //-------------------------------------------------------------------------------
+
+            /**
+             * Create the pdv hosts on interpolation nodes based on the pdv types per set
+             *
+             * @param aNodeIndicesPerSet The node indices contained on a set
+             * @param aNodeCoordinates The node coordinates indexed by node
+             * @param aPdvTypes The PDV types per set, grouped
+             */
+            void set_interpolation_pdv_types(
+                    const Cell< Cell< Cell< PDV_Type > > >& aPdvTypes );
+
             /**
              * Create the pdv hosts on interpolation nodes based on the pdv types per set
              *
@@ -343,11 +355,10 @@ namespace moris
              * @param aPdvTypes The PDV types per set, grouped
              */
             void create_interpolation_pdv_hosts(
-                    const Cell< Matrix< DDSMat > >&         aNodeIndicesPerSet,
-                    const Cell< Matrix< DDSMat > >&         aNodeIdsPerSet,
-                    const Cell< Matrix< DDSMat > >&         aNodeOwnersPerSet,
-                    const Cell< Matrix< DDRMat > >&         aNodeCoordinates,
-                    const Cell< Cell< Cell< PDV_Type > > >& aPdvTypes );
+                    const Cell< Matrix< DDSMat > >& aNodeIndicesPerSet,
+                    const Cell< Matrix< DDSMat > >& aNodeIdsPerSet,
+                    const Cell< Matrix< DDSMat > >& aNodeOwnersPerSet,
+                    const Cell< Matrix< DDRMat > >& aNodeCoordinates );
 
             //-------------------------------------------------------------------------------
 
