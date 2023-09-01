@@ -67,12 +67,6 @@ namespace moris
             // Phase Table
             Phase_Table mPhaseTable;
 
-            // Intersections
-            Intersection_Mode mIntersectionMode;
-            real              mIsocontourThreshold;
-            real              mIsocontourTolerance;
-            real              mIntersectionTolerance;
-
             //
             bool mEvaluateNewChildNodeAsLinear = false;
 

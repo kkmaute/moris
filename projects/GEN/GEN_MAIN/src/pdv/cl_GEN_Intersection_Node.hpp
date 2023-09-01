@@ -20,29 +20,24 @@ namespace moris
         class Geometry;
 
         //------------------------------------------------------------------------------
-
         class Intersection_Node : public Child_Node
         {
           protected:
-            real                      mLocalCoordinate;
-            bool                      mIsIntersected;
-            std::weak_ptr< Geometry > mInterfaceGeometry;
-            real                      mIsocontourThreshold;
-            Matrix< DDRMat >          mParentVector;
+            real             mLocalCoordinate;
+            bool             mIsIntersected;
+            Matrix< DDRMat > mParentVector;
+            Matrix< DDSMat > mCoordinateDeterminingADVIDs;
 
             std::shared_ptr< Intersection_Node > mFirstParentNode;
             std::shared_ptr< Intersection_Node > mSecondParentNode;
+            moris_index                          mFirstParentNodeIndex;
+            moris_index                          mSecondParentNodeIndex;
             bool                                 mFirstParentOnInterface;
             bool                                 mSecondParentOnInterface;
             Matrix< DDRMat >                     mGlobalCoordinates;
 
+
           private:
-            Matrix< DDRMat > mCoordinateSensitivities;
-            Matrix< DDSMat > mCoordinateDeterminingADVIDs;
-
-            moris_index mFirstParentNodeIndex;
-            moris_index mSecondParentNodeIndex;
-
             moris_id mPDVStartingID;
             bool     mPDVStartingIDSet = false;
 
@@ -63,11 +58,6 @@ namespace moris
              * @param aAncestorNodeIndices Node indices of the ancestors of this intersection node
              * @param aAncestorNodeCoordinates Coordinates of the ancestors of this intersection node
              * @param aAncestorBasisFunction Basis function of the ancestor topology
-             * @param aInterfaceGeometry Geometry that intersects the parent to create this node
-             * @param aIsocontourThreshold Threshold for determining the intersection location of this node
-             * @param aIsocontourTolerance Tolerance for determining interface parent nodes based on geometry value
-             * @param aIntersectionTolerance Tolerance for determining interface parent nodes with intersection distance
-             * @param aDetermineIsIntersected Flag whether determination of intersection should be performed
              */
             Intersection_Node(
                     real                                 aLocalCoordinate,
@@ -79,27 +69,23 @@ namespace moris
                     const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
                     Matrix< DDUMat >                     aAncestorNodeIndices,
                     Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
-                    const Element_Intersection_Type      aAncestorBasisFunction,
-                    std::shared_ptr< Geometry >          aInterfaceGeometry,
-                    real                                 aIsocontourThreshold,
-                    real                                 aIsocontourTolerance,
-                    real                                 aIntersectionTolerance,
-                    bool                                 aDetermineIsIntersected = true );
-
+                    const Element_Intersection_Type      aAncestorBasisFunction );
             /**
              * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
              * ancestor nodes.
              *
-             * @return Sensitivities
+             * @param aCoordinateSensitivities Coordinate sensitivities matrix that gets appended to
+             * @param aSensitivityFactor Matrix factor to scale this node's sensitivities based on a calling child's position and orientation.
+             * This should be set to identity matrix of number of dimensions for any calls to this function outside of another intersection node.
              */
-            Matrix< DDRMat > get_dcoordinate_dadv();
+            virtual void get_dcoordinate_dadv( Matrix< DDRMat >& aCoordinateSensitivities, const Matrix< DDRMat >& aSensitivityFactor ) = 0;
 
             /**
              * Gets the IDs of ADVs which one of the ancestors of this intersection node depends on.
              *
              * @return ADV IDs
              */
-            Matrix< DDSMat > get_coordinate_determining_adv_ids();
+            virtual Matrix< DDSMat > get_coordinate_determining_adv_ids() = 0;
 
             /**
              * Returns if the parent edge is intersected (if the local coordinate of the intersection lies between
@@ -206,7 +192,57 @@ namespace moris
                 return mSecondParentNodeIndex;
             }
 
+          protected:
+            /**
+             * Computes basic member data for all intersection node derived classes.
+             * Must be called by lowest level child class constructors.
+             *
+             */
+            void initialize(
+                    const Element_Intersection_Type aAncestorBasisFunction,
+                    const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
+                    const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates );
+
+            /**
+             * Function for appending to the depending ADV IDs member variable, eliminating duplicate code
+             *
+             * @param aIDsToAdd IDs to add
+             */
+            void join_adv_ids( const Matrix< DDSMat >& aIDsToAdd );
+
           private:
+            /**
+             * Computes the global coordinates of the intersection and the parents.
+             * Used by initialize() to set mGlobalCoordinates member data. Implementation provided by child class.
+             *
+             * @return Matrix< DDRMat > Global location of the intersection node and its parents
+             */
+            virtual Matrix< DDRMat > compute_global_coordinates() = 0;
+
+            /**
+             * Computes the vector from the first parent to the second parent
+             * Used by initialize() to set mParentVector member data.
+             *
+             * @return Matrix< DDRMat > vector from the first parent to the second parent. Size determined by dimensionality of problem.
+             */
+            Matrix< DDRMat > compute_parent_vector(
+                    const Element_Intersection_Type aAncestorBasisFunction,
+                    const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
+                    const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates );
+
+            /**
+             * Determines if the parent nodes are intersected.
+             * Used by initialize() to set mIsIntersected. Implementation provided by child class.
+             *
+             * @return if the parent nodes are intersected
+             * @return false if there is no intersection detected
+             */
+            virtual bool determine_is_intersected(
+                const Element_Intersection_Type aAncestorBasisFunction,
+                const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
+                const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates
+            ) = 0;
+
             /**
              * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
              * values on each of its ancestors.
@@ -238,16 +274,8 @@ namespace moris
              * @param aSensitivitiesToAdd Sensitivities to add
              */
             void join_coordinate_sensitivities( const Matrix< DDRMat >& aSensitivitiesToAdd );
-
-            /**
-             * Function for appending to the depending ADV IDs member variable, eliminating duplicate code
-             *
-             * @param aIDsToAdd IDs to add
-             */
-            void join_adv_ids( const Matrix< DDSMat >& aIDsToAdd );
         };
     }    // namespace ge
 }    // namespace moris
 
 #endif    // MORIS_CL_GEN_INTERSECTION_NODE_HPP
-

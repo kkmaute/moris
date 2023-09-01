@@ -56,6 +56,75 @@ namespace moris
         }
 
         //--------------------------------------------------------------------------------------------------------------
+        
+        void
+        Geometry::set_intersection_mode( Intersection_Mode aIntersectionMode )
+        {
+            mParameters.mIntersectionMode = aIntersectionMode;
+        }
 
+        //--------------------------------------------------------------------------------------------------------------
+
+        Intersection_Mode
+        Geometry::get_intersection_mode()
+        {
+            return mParameters.mIntersectionMode;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+        
+        void
+        Geometry::set_isocontour_threshold( real aIsocontourThreshold )
+        {
+            mParameters.mIsocontourThreshold = aIsocontourThreshold;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        real
+        Geometry::get_isocontour_threshold()
+        {
+            return mParameters.mIsocontourThreshold;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
+        Geometry::set_isocontour_tolerance( real aIsocontourTolerance )
+        {
+            MORIS_ERROR( aIsocontourTolerance > 1e-14,
+                "Geometry_Engine::Geometry_Engine - Isocontour tolerance should be larger than 1e-14" );
+            mParameters.mIsocontourTolerance = aIsocontourTolerance;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        real
+        Geometry::get_isocontour_tolerance()
+        {
+            return mParameters.mIsocontourTolerance;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        void
+        Geometry::set_intersection_tolerance( real aIntersectionTolerance )
+        {
+            MORIS_ERROR( aIntersectionTolerance > 1e-14,
+                "Geometry_Engine::Geometry_Engine - Intersection tolerance should be larger than 1e-14" );
+            mParameters.mIntersectionTolerance = aIntersectionTolerance;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        real
+        Geometry::get_intersection_tolerance()
+        {
+            return mParameters.mIntersectionTolerance;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        
     }    // namespace ge
 }    // namespace moris

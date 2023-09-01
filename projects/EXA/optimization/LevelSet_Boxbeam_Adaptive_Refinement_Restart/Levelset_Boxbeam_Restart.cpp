@@ -625,7 +625,6 @@ namespace moris
         // tParameterlist(0)(0).set("IQI_types"       , "IQIBulkStrainEnergy_Frame,IQIBulkStrainEnergy_Interior,IQIBulkVolume_Interior,IQIPerimeter_InterfaceVoid,IQIH1ErrorConst,IQIH1Error");
         tParameterlist( 0 )( 0 ).set( "output_mesh_file", tGENOutputFile );
         tParameterlist( 0 )( 0 ).set( "time_offset", 10.0 );
-        tParameterlist( 0 )( 0 ).set( "isocontour_tolerance", 10e-14 );
 
         Matrix< DDUMat > tPhaseMap( 4, 1, 0 );
         tPhaseMap( 1 ) = 1;
@@ -643,6 +642,7 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Box_2D3D" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "1,0" );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0,1" );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 10e-14 );
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Box" );
 
         tGeoCounter++;

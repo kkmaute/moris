@@ -59,16 +59,7 @@ namespace moris
             Tracer tTracer( "GEN", "Create geometry engine" );
 
             // Level set options
-            mIsocontourThreshold          = aParameterLists( 0 )( 0 ).get< real >( "isocontour_threshold" );
-            mIsocontourTolerance          = aParameterLists( 0 )( 0 ).get< real >( "isocontour_tolerance" );
-            mIntersectionTolerance        = aParameterLists( 0 )( 0 ).get< real >( "intersection_tolerance" );
             mEvaluateNewChildNodeAsLinear = aParameterLists( 0 )( 0 ).get< bool >( "evaluate_new_pts_as_linear" );
-
-            MORIS_ERROR( mIsocontourTolerance > 1e-14,
-                    "Geometry_Engine::Geometry_Engine - Isocontour tolerance should be larger than 1e-14" );
-
-            MORIS_ERROR( mIntersectionTolerance > 1e-14,
-                    "Geometry_Engine::Geometry_Engine - Intersection tolerance should be larger than 1e-14" );
 
             // Requested IQIs
             mRequestedIQIs = string_to_cell< std::string >( aParameterLists( 0 )( 0 ).get< std::string >( "IQI_types" ) );
@@ -132,13 +123,6 @@ namespace moris
                     mGeometries,
                     mLibrary );
 
-            // Get intersection mode
-            std::string tIntersectionModeString = aParameterLists( 0 )( 0 ).get< std::string >( "intersection_mode" );
-
-            map< std::string, Intersection_Mode > tIntersectionModeMap = get_intersection_mode_map();
-
-            mIntersectionMode = tIntersectionModeMap[ tIntersectionModeString ];
-
             // Set requested PDVs
             Cell< std::string > tRequestedPdvNames = string_to_cell< std::string >( aParameterLists( 0 )( 0 ).get< std::string >( "PDV_types" ) );
             Cell< PDV_Type >    tRequestedPdvTypes( tRequestedPdvNames.size() );
@@ -169,21 +153,11 @@ namespace moris
                 : mGeometries( aParameters.mGeometries )
                 , mProperties( aParameters.mProperties )
                 , mPhaseTable( create_phase_table( aParameters.mGeometries.size(), aParameters.mBulkPhases ) )
-                , mIntersectionMode( aParameters.mIntersectionMode )
-                , mIsocontourThreshold( aParameters.mIsocontourThreshold )
-                , mIsocontourTolerance( aParameters.mIsocontourTolerance )
-                , mIntersectionTolerance( aParameters.mIntersectionTolerance )
                 , mInitialPrimitiveADVs( aParameters.mADVs )
                 , mTimeOffset( aParameters.mTimeOffset )
         {
             // Tracer
             Tracer tTracer( "GEN", "Create geometry engine" );
-
-            MORIS_ERROR( mIsocontourTolerance > 1e-14,
-                    "Geometry_Engine::Geometry_Engine - Isocontour tolerance should be larger than 1e-14" );
-
-            MORIS_ERROR( mIntersectionTolerance > 1e-14,
-                    "Geometry_Engine::Geometry_Engine - Intersection tolerance should be larger than 1e-14" );
 
             mtk::Integration_Mesh* tIntegrationMesh = create_integration_mesh_from_interpolation_mesh(
                     aMesh->get_mesh_type(),
@@ -393,10 +367,14 @@ namespace moris
 
             bool tIsIntersected = false;
 
-            switch ( mIntersectionMode )
+            switch ( mGeometries( mActiveGeometryIndex )->get_intersection_mode() )
             {
                 case Intersection_Mode::LEVEL_SET:
                 {
+                    // get the current geometries level set parameters
+                    real tIsocontourThreshold = mGeometries( mActiveGeometryIndex )->get_isocontour_threshold();
+                    real tIsocontourTolerance = mGeometries( mActiveGeometryIndex )->get_isocontour_tolerance();
+
                     // Initialize by evaluating the first node
                     real tMin = mGeometries( mActiveGeometryIndex )->get_field_value( 0, aNodeCoordinates.get_row( 0 ) );
                     real tMax = tMin;
@@ -411,9 +389,9 @@ namespace moris
                         tMax = std::max( tMax, tEval );
                     }
 
-                    tIsIntersected = ( tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold )
-                                  or ( std::abs( tMax - mIsocontourThreshold ) < mIsocontourTolerance )
-                                  or ( std::abs( tMin - mIsocontourThreshold ) < mIsocontourTolerance );
+                    tIsIntersected = ( tMax >= tIsocontourThreshold and tMin <= tIsocontourThreshold )
+                                  or ( std::abs( tMax - tIsocontourThreshold ) < tIsocontourTolerance )
+                                  or ( std::abs( tMin - tIsocontourThreshold ) < tIsocontourTolerance );
 
                     break;
                 }
@@ -457,9 +435,14 @@ namespace moris
             // MORIS_ASSERT(aNodeIndices.length() > 0,
             //         "Geometry engine must be provided at least 1 node to determine if an element is intersected or not.");
 
+            // get the current geometries intersection mode, isocontour threshold
+            Intersection_Mode tIntersectionMode    = mGeometries( mActiveGeometryIndex )->get_intersection_mode();
+            real              tIsocontourThreshold = mGeometries( mActiveGeometryIndex )->get_isocontour_threshold();
+            real              tIsocontourTolerance = mGeometries( mActiveGeometryIndex )->get_isocontour_tolerance();
+
             bool tIsIntersected = false;
 
-            switch ( mIntersectionMode )
+            switch ( tIntersectionMode )
             {
                 case Intersection_Mode::LEVEL_SET:
                 {
@@ -476,9 +459,9 @@ namespace moris
                         tMax = std::max( tMax, tEval );
                     }
 
-                    tIsIntersected = ( tMax >= mIsocontourThreshold and tMin <= mIsocontourThreshold )
-                                  or ( std::abs( tMax - mIsocontourThreshold ) < mIsocontourTolerance )
-                                  or ( std::abs( tMin - mIsocontourThreshold ) < mIsocontourTolerance );
+                    tIsIntersected = ( tMax >= tIsocontourThreshold and tMin <= tIsocontourThreshold )
+                                  or ( std::abs( tMax - tIsocontourThreshold ) < tIsocontourTolerance )
+                                  or ( std::abs( tMin - tIsocontourThreshold ) < tIsocontourTolerance );
 
                     break;
                 }
@@ -523,8 +506,10 @@ namespace moris
                 const Matrix< DDUMat >&         aBackgroundElementNodeIndices,
                 const Cell< Matrix< DDRMat > >& aBackgroundElementNodeCoordinates )
         {
+            // Get the current geometries intersection mode
+            Intersection_Mode tIntersectionMode = mGeometries( mActiveGeometryIndex )->get_intersection_mode();
             // Queue an intersection node
-            switch ( mIntersectionMode )
+            switch ( tIntersectionMode )
             {
                 case Intersection_Mode::LEVEL_SET:
                 {
@@ -539,10 +524,7 @@ namespace moris
                                     aSecondNodeIndex,
                                     aFirstNodeGlobalCoordinates,
                                     aSecondNodeGlobalCoordinates,
-                                    mGeometries( mActiveGeometryIndex ),
-                                    mIsocontourThreshold,
-                                    mIsocontourTolerance,
-                                    mIntersectionTolerance );
+                                    mGeometries( mActiveGeometryIndex ) );
                             break;
                         }
                         case Intersection_Interpolation::MULTILINEAR:
@@ -560,10 +542,7 @@ namespace moris
                                     aBackgroundElementNodeIndices,
                                     aBackgroundElementNodeCoordinates,
                                     tInterpolationType,
-                                    mGeometries( mActiveGeometryIndex ),
-                                    mIsocontourThreshold,
-                                    mIsocontourTolerance,
-                                    mIntersectionTolerance );
+                                    mGeometries( mActiveGeometryIndex ) );
                             break;
                         }
                         default:
@@ -585,9 +564,7 @@ namespace moris
                                 aSecondNodeIndex,
                                 aFirstNodeGlobalCoordinates,
                                 aSecondNodeGlobalCoordinates,
-                                mGeometries( mActiveGeometryIndex ),
-                                mIsocontourThreshold,
-                                mIsocontourTolerance );
+                                mGeometries( mActiveGeometryIndex ) );
                     }
                     else
                     {
@@ -739,6 +716,10 @@ namespace moris
                 const Cell< Matrix< DDRMat > >&          aParamCoordRelativeToParent,
                 const Matrix< DDRMat >&                  aGlobalNodeCoord )
         {
+            // get current geometries level set info
+            real tIsocontourThreshold = mGeometries( mActiveGeometryIndex )->get_isocontour_threshold();
+            real tIsocontourTolerance = mGeometries( mActiveGeometryIndex )->get_isocontour_tolerance();
+
             // resize proximities
             mVertexGeometricProximity.resize(
                     mVertexGeometricProximity.size() + aNewNodeIndices.size(),
@@ -775,7 +756,7 @@ namespace moris
 
                     moris_index tGeomProxIndex = this->get_geometric_proximity_index( tVertGeomVal );
 
-                    if ( std::abs( tVertGeomVal - mIsocontourThreshold ) < mIsocontourTolerance )
+                    if ( std::abs( tVertGeomVal - tIsocontourThreshold ) < tIsocontourTolerance )
                     {
                         tGeomProxIndex = 1;
                     }
@@ -2466,14 +2447,18 @@ namespace moris
         moris_index
         Geometry_Engine::get_geometric_proximity_index( real const & aGeometricVal )
         {
+            // get current geometries level set info
+            real tIsocontourThreshold = mGeometries( mActiveGeometryIndex )->get_isocontour_threshold();
+            real tIsocontourTolerance = mGeometries( mActiveGeometryIndex )->get_isocontour_tolerance();
+
             // initialize index to 1, i.e. vertex is on interface
             moris_index tGeometricProxIndex = 1;
 
-            if ( aGeometricVal - mIsocontourThreshold < -mIsocontourTolerance )
+            if ( aGeometricVal - tIsocontourThreshold < -tIsocontourTolerance )
             {
                 tGeometricProxIndex = 0;
             }
-            else if ( aGeometricVal - mIsocontourThreshold > mIsocontourTolerance )
+            else if ( aGeometricVal - tIsocontourThreshold > tIsocontourTolerance )
             {
                 tGeometricProxIndex = 2;
             }

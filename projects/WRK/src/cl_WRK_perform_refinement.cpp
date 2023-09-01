@@ -526,7 +526,12 @@ namespace moris
                     //  Perform refinement and update index
                     aHMR->perform_refinement( tLagrangeMeshPattern );
                     aHMR->update_refinement_pattern( tLagrangeMeshPattern );
+
+                    aHMR->get_database()->get_background_mesh()->update_database();
+                    aHMR->get_database()->update_bspline_meshes();
+                    aHMR->get_database()->update_lagrange_meshes();
                 }
+                aHMR->get_database()->get_background_mesh()->clear_refinement_queue();
             }
 
             // refinement loop to ensure that all intersected elements are on same refinement level
@@ -583,7 +588,6 @@ namespace moris
                         "Refinement_Mini_Performer::perform_refinement_old - could not refine all low level elements in %d steps.",
                         tMaxLowLevelRefinementSteps );
             }
-
             aHMR->get_database()->update_bspline_meshes();
             aHMR->get_database()->update_lagrange_meshes();
         }

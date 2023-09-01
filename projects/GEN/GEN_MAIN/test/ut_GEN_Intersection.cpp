@@ -10,6 +10,7 @@
 
 #include "catch.hpp"
 #include "math.h"
+#include "fn_eye.hpp"
 
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Geometry_Engine_Test.hpp"
@@ -369,11 +370,17 @@ namespace moris
                     { { 0, 1, 2, 3, 0, 1, 2, 3, 10, 9, 9, 12 } }
                 };
 
+                Matrix< DDRMat > tHostADVSensitivities;
+                Matrix< DDRMat > tI;
                 for ( uint tNodeIndex = 9; tNodeIndex < 23; tNodeIndex++ )
                 {
+                    tHostADVSensitivities.set_size( 0.0, 0.0 );
+                    eye( 2, 2, tI );
+                    tPDVHostManager->get_intersection_node( tNodeIndex )->get_dcoordinate_dadv( tHostADVSensitivities, tI );
                     CHECK_EQUAL(
-                            tPDVHostManager->get_intersection_node( tNodeIndex )->get_dcoordinate_dadv(),
-                            tIntersectionSensitivities( tNodeIndex - 9 ), 1E8, );
+                            tHostADVSensitivities,
+                            tIntersectionSensitivities( tNodeIndex - 9 ),
+                            1E8, );
                     CHECK_EQUAL(
                             tPDVHostManager->get_intersection_node( tNodeIndex )->get_coordinate_determining_adv_ids(),
                             tIntersectionIDs( tNodeIndex - 9 ), );
@@ -526,7 +533,7 @@ namespace moris
         {
             if ( par_size() == 1 )
             {
-                // This tests a patholgoical case where the curved bi-linear interpolation results in an edge with the same signed parent nodes to have an intersection point
+                // This tests a pathological case where the curved bi-linear interpolation results in an edge with the same signed parent nodes to have an intersection point
                 // My mesh is one element where the geometry is a user defined nodal field (best way to control everything in this problem).
                 // The isocontour threshold is away from 0. If this test fails, it is probably because someone modified the logic in cl_GEN_Intersection_Node.cpp which determins
                 // if an entity is intersected.
@@ -586,11 +593,12 @@ namespace moris
                 Cell< std::shared_ptr< ge::Geometry > > tGeometry( 1 );
                 tGeometry( 0 ) = std::make_shared< moris::ge::Mesh_Field_Geometry >( tMeshData, tLSFName );
                 tGeometry( 0 )->set_intersection_interpolation( "multilinear" );
+                tGeometry( 0 )->set_isocontour_threshold( 0.5 );
+                tGeometry( 0 )->set_isocontour_tolerance( 1e-13 );
+
 
                 moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
-                tGeometryEngineParameters.mGeometries          = tGeometry;
-                tGeometryEngineParameters.mIsocontourThreshold = 0.5;
-                tGeometryEngineParameters.mIsocontourTolerance = 1e-13;
+                tGeometryEngineParameters.mGeometries = tGeometry;
 
                 moris::ge::Geometry_Engine tGeometryEngine( tMeshData, tGeometryEngineParameters );
 

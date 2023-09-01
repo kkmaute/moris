@@ -177,7 +177,7 @@ namespace moris
     std::string tFrameSets = "HMR_dummy_n_p11,HMR_dummy_c_p11";
 
     std::string tDirichletSets = "iside_b0_11_b1_15";
-    std::string tLoadSets     = "iside_b0_11_b1_15";
+    std::string tLoadSets      = "iside_b0_11_b1_15";
 
     std::string tInterfaceVoidSets = "iside_b0_9_b1_8";
 
@@ -936,8 +936,7 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy_Frame,IQIBulkStrainEnergy,IQIBulkVolume,IQIPerimeter_InterfaceVoid,IQIHeatMethodPenalty,IQIMaxStress" );
         // tParameterlist(0)(0).set("output_mesh_file", tGENOutputFile );
         tParameterlist( 0 )( 0 ).set( "time_offset", 10.0 );
-        tParameterlist( 0 )( 0 ).set( "isocontour_tolerance", 10e-14 );
-        tParameterlist( 0 )( 0 ).set( "isocontour_threshold", 1.2 );    // FIXME     this has to change
+        // FIXME     this has to change
         // tParameterlist( 0 )( 0 ).set("PDV_types"         , "LS1");
 
         Matrix< DDUMat > tPhaseMap( 16, 1, 0 );
@@ -967,6 +966,8 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "general_shape_outer" );
         // tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "0,0" );
         // tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0,1" );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 10e-14 );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 1.2 );
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Outer_shape" );
         tGeoCounter++;
 
@@ -974,6 +975,8 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Hole_inner" );
         // tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "0,0" );
         // tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0,1" );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 10e-14 );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 1.2 );
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Inner_Holes" );
         tGeoCounter++;
 
@@ -981,6 +984,8 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Hole_outer" );
         // tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "0,0" );
         // tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0,1" );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 10e-14 );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 1.2 );
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Outer_Holes" );
         tGeoCounter++;
 
@@ -990,6 +995,8 @@ Matrix<DDRMat> compute_objectives(Matrix<DDRMat> aADVs, Matrix<DDRMat> aCriteria
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Level_Set_Field" );
         // tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "0,0" );
         // tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0,1" );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 10e-14 );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 1.2 );
         tParameterlist( 1 )( tGeoCounter ).set( "multilinear_intersections", false );
 
         if ( tIsOpt )

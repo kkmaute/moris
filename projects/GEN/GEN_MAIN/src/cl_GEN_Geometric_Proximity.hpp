@@ -11,7 +11,7 @@
 #ifndef MORIS_CL_Geometric_Proximity_HPP_
 #define MORIS_CL_Geometric_Proximity_HPP_
 
-#include "cl_Matrix.hpp"
+#include "cl_Cell.hpp"
 #include "typedefs.hpp"
 namespace moris
 {
@@ -26,7 +26,7 @@ namespace moris
 
             //-----------------------------------------------------------------------------------------
 
-            Geometric_Proximity( moris_index const & aNumGeometries );
+            Geometric_Proximity( moris_index const &aNumGeometries );
 
             //-----------------------------------------------------------------------------------------
 
@@ -53,10 +53,9 @@ namespace moris
             // 1 - G(x) == threshold
             // 2 - G(x) > threshold
             // Max not set
-            Matrix< IndexMat > mGeometricProximity;
+            moris::Cell< moris_index > mGeometricProximity;
         };
     }    // namespace ge
 }    // namespace moris
 
 #endif    // MORIS_CL_Geometric_Proximity_HPP_
-

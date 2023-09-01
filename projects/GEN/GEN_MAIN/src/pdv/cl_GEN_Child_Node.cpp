@@ -93,19 +93,16 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        Child_Node::Child_Node( moris::mtk::Cell* aCell,
+        Child_Node::Child_Node( moris::mtk::Cell* aParentCell,
                 Matrix< DDRMat >*                 aLocalCoordinates,
                 bool                              aEvaluateAsLinear )
         {
-            mParentCell       = aCell;
-            mLocalCoordinates = *aLocalCoordinates;
-
             // use specifically bi or tri-linear interpolation to compute level set value
             if ( aEvaluateAsLinear )
             {
-                Cell< moris::mtk::Vertex* > tVerts = mParentCell->get_vertex_pointers();
+                Cell< moris::mtk::Vertex* > tVerts = aParentCell->get_vertex_pointers();
 
-                if ( mParentCell->get_cell_info()->get_cell_geometry() == mtk::Geometry_Type::QUAD )
+                if ( aParentCell->get_cell_info()->get_cell_geometry() == mtk::Geometry_Type::QUAD )
                 {
                     mAncestorNodeIndices.resize( 1, 4 );
                     mAncestorNodeCoordinates.resize( 4, Matrix< DDRMat >( 1, 2 ) );
@@ -117,10 +114,10 @@ namespace moris
                     }
 
                     mtk::Cell_Info_Quad4 tQuad4CellInfo;
-                    tQuad4CellInfo.eval_N( mLocalCoordinates, mBasisValues );
+                    tQuad4CellInfo.eval_N( *aLocalCoordinates, mBasisValues );
                 }
 
-                if ( mParentCell->get_cell_info()->get_cell_geometry() == mtk::Geometry_Type::HEX )
+                if ( aParentCell->get_cell_info()->get_cell_geometry() == mtk::Geometry_Type::HEX )
                 {
                     mAncestorNodeIndices.resize( 1, 8 );
                     mAncestorNodeCoordinates.resize( 8, Matrix< DDRMat >( 1, 3 ) );
@@ -132,12 +129,12 @@ namespace moris
                     }
 
                     mtk::Cell_Info_Hex8 tLinearCellInfo;
-                    tLinearCellInfo.eval_N( mLocalCoordinates, mBasisValues );
+                    tLinearCellInfo.eval_N( *aLocalCoordinates, mBasisValues );
                 }
             }
             else
             {
-                Cell< moris::mtk::Vertex* > tVerts = mParentCell->get_vertex_pointers();
+                Cell< moris::mtk::Vertex* > tVerts = aParentCell->get_vertex_pointers();
 
                 mAncestorNodeIndices.resize( 1, tVerts.size() );
                 mAncestorNodeCoordinates.resize( tVerts.size(), Matrix< DDRMat >( 1, 3 ) );
@@ -149,7 +146,7 @@ namespace moris
                 }
 
                 // FIXME: Potential issue here: level set value evaluation needs to be consistent with proximity calculation
-                aCell->get_cell_info()->eval_N( mLocalCoordinates, mBasisValues );
+                aParentCell->get_cell_info()->eval_N( *aLocalCoordinates, mBasisValues );
             }
         }
 
@@ -227,6 +224,7 @@ namespace moris
                 // Join sensitivities
                 uint tJoinedADVLength = tJoinedDeterminingADVs.n_cols();
 
+                // FIXME: excessive resize
                 tJoinedDeterminingADVs.resize( 1, tJoinedADVLength + tAncestorDependingADVs.length() );
 
                 for ( uint tAncestorADV = 0; tAncestorADV < tAncestorDependingADVs.length(); tAncestorADV++ )
@@ -252,4 +250,3 @@ namespace moris
 
     }    // namespace ge
 }    // namespace moris
-

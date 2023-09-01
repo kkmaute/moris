@@ -12,6 +12,7 @@
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_Communication_Tools.hpp"
 #include "fn_trans.hpp"
+#include "fn_eye.hpp"
 
 // detailed logging
 #include "cl_Tracer.hpp"
@@ -779,6 +780,9 @@ namespace moris
                 }
             }
 
+            // Create ADV Host Sensitivities
+            Matrix< DDRMat > tHostADVSensitivities;
+            Matrix< DDRMat > tI;
             // Loop over intersection nodes for inserting
             for ( uint tIntersectionIndex = 0; tIntersectionIndex < mIntersectionNodes.size(); tIntersectionIndex++ )
             {
@@ -789,8 +793,9 @@ namespace moris
                     uint tNumCoordinates      = mIntersectionNodes( tIntersectionIndex )->get_num_pdvs();
 
                     // Parent sensitivities and ADV IDs
-                    Matrix< DDRMat > tHostADVSensitivities =
-                            mIntersectionNodes( tIntersectionIndex )->get_dcoordinate_dadv();
+                    tHostADVSensitivities.set_size( 0.0, 0.0 );
+                    eye( tNumCoordinates, tNumCoordinates, tI );
+                    mIntersectionNodes( tIntersectionIndex )->get_dcoordinate_dadv( tHostADVSensitivities, tI );
 
                     Matrix< DDSMat > tADVIds =
                             mIntersectionNodes( tIntersectionIndex )->get_coordinate_determining_adv_ids();

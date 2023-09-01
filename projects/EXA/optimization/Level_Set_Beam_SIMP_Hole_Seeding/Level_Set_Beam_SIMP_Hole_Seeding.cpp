@@ -638,15 +638,16 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "IQI_types", "IQIBulkStrainEnergy,IQIBulkVolume,IQIPerimeter_InterfaceVoid,IQIHeatMethodPenalty" );
         // tParameterlist(0)(0).set("output_mesh_file", tGENOutputFile );
         tParameterlist( 0 )( 0 ).set( "time_offset", 10.0 );
-        tParameterlist( 0 )( 0 ).set( "isocontour_tolerance", 10e-14 );
-        tParameterlist( 0 )( 0 ).set( "isocontour_threshold", 0.5 );    // FIXME     this has to change
-                                                                        // tParameterlist( 0 )( 0 ).set("PDV_types"         , "LS1");
+        // FIXME     this has to change
+        // tParameterlist( 0 )( 0 ).set("PDV_types"         , "LS1");
 
         // init geometry counter
         uint tGeoCounter = 0;
 
         // initialize fins as swiss cheese geometry
         tParameterlist( 1 ).push_back( prm::create_user_defined_geometry_parameter_list() );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 10e-14 );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.5 );
         tParameterlist( 1 )( tGeoCounter ).set( "field_function_name", "Const_Geometry" );
         tParameterlist( 1 )( tGeoCounter ).set( "name", "Level_Set_Field" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", "0,0" );

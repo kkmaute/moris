@@ -95,11 +95,12 @@ namespace moris::hmr
         /**
          * Default constuctor for element base class
          */
-        Background_Element_Base( Background_Element_Base* aParent,
-                uint                               aActivePattern,
-                luint                              aID,
-                uint                               aLevel,
-                uint                               aOwner )
+        Background_Element_Base(
+                Background_Element_Base* aParent,
+                uint                     aActivePattern,
+                luint                    aID,
+                uint                     aLevel,
+                uint                     aOwner )
                 : mParent( aParent )
                 , mDomainID( aID )
                 , mLevel( aLevel )
@@ -636,13 +637,15 @@ namespace moris::hmr
          * @return void
          *
          */
-        virtual void collect_active_descendants( uint aPattern,
-                Cell< Background_Element_Base* >&            aElementList,
-                luint&                                       aElementCount ) = 0;
+        virtual void collect_active_descendants(
+                uint                              aPattern,
+                Cell< Background_Element_Base* >& aElementList,
+                luint&                            aElementCount ) = 0;
 
-        virtual void collect_active_descendants( uint aPattern,
-                Cell< const Background_Element_Base* >&      aElementList,
-                luint&                                       aElementCount ) const = 0;
+        virtual void collect_active_descendants(
+                uint                                    aPattern,
+                Cell< const Background_Element_Base* >& aElementList,
+                luint&                                  aElementCount ) const = 0;
 
         //--------------------------------------------------------------------------------
 
@@ -748,7 +751,7 @@ namespace moris::hmr
         //--------------------------------------------------------------------------------
 
         virtual void collect_active_descendants_on_side_2(
-                uint                             aPattern,
+                uint                              aPattern,
                 Cell< Background_Element_Base* >& aElementList,
                 luint&                            aElementCount ) = 0;
 
@@ -813,8 +816,9 @@ namespace moris::hmr
          * @param[in]     aLevel    level to be considered
          * @param[inout]  aCount    counter for elements
          */
-        virtual void count_elements_on_level( uint   aLevel,
-                                              luint& aElementCount ) = 0;
+        virtual void count_elements_on_level(
+                uint   aLevel,
+                luint& aElementCount ) = 0;
 
         //--------------------------------------------------------------------------------
 
@@ -848,8 +852,9 @@ namespace moris::hmr
          * @param[ in  ] aOrder       degree of neighborship
          * @param[ out ] aNeighbors   cell containing found neighbors
          */
-        virtual void get_neighbors_from_same_level( uint                              aOrder,
-                                                    Cell< Background_Element_Base* >& aNeighbors ) = 0;
+        virtual void get_neighbors_from_same_level(
+                uint                              aOrder,
+                Cell< Background_Element_Base* >& aNeighbors ) = 0;
 
         //-------------------------------------------------------------------------------
 
@@ -1076,6 +1081,6 @@ namespace moris::hmr
         // reset_flags_of_edges() = 0;
 
     }; /* Background_Element_Base */
-} /* namespace moris */
+}    // namespace moris::hmr
 
 #endif /* SRC_MESH_CL_HMR_ELEMENT_HPP_ */

@@ -85,7 +85,7 @@ Node_Hierarchy_Interface::perform(
         moris::Cell< std::shared_ptr< IG_Cell_Group > > tIgCellGroups;
         this->select_ig_cell_groups( tIgCellGroups );
 
-        // extract the cells from groups into a continuos list
+        // extract the cells from groups into a continuous list
         moris::Cell< moris::mtk::Cell* > tIgCellsInGroups;
         aMeshGenerator->extract_cells_from_cell_groups( tIgCellGroups, tIgCellsInGroups );
 

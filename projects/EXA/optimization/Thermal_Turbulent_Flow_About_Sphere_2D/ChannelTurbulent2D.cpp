@@ -620,9 +620,6 @@ namespace moris
         tParameterlist.resize( 3 );
 
         tParameterlist( 0 ).push_back( prm::create_gen_parameter_list() );
-        tParameterlist( 0 )( 0 ).set( "isocontour_threshold", 0.0 );
-        tParameterlist( 0 )( 0 ).set( "isocontour_tolerance", 1.0e-12 );
-        tParameterlist( 0 )( 0 ).set( "intersection_tolerance", 1.0e-12 );
         tParameterlist( 0 )( 0 ).set( "IQI_types",
                 "IQIOutletThermalEnergy,"
                 "IQIInletTotalPressure,IQIOutletTotalPressure,"
@@ -650,6 +647,9 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "sensitivity_function_name", "Func_Sphere_Deriv" );
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementSphere );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
+        tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
 
         tParameterlist( 1 )( tGeoCounter ).set( "field_variable_indices", "0" );
         tParameterlist( 1 )( tGeoCounter ).set( "adv_indices", "0" );
@@ -661,6 +661,9 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "1,0," + moris_to_string( tGeoShift ) + ",0" );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
+        tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
         tGeoCounter++;
 
         // Out plane
@@ -669,6 +672,9 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "-1,0," + moris_to_string( tChannelLength + tGeoShift ) + ",0" );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
+        tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
         tGeoCounter++;
 
         // Lower plane
@@ -677,6 +683,9 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0,1,0," + moris_to_string( tGeoShift ) );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
+        tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
         tGeoCounter++;
 
         // Upper plane
@@ -685,6 +694,9 @@ namespace moris
         tParameterlist( 1 )( tGeoCounter ).set( "number_of_refinements", tInterfaceRefinementWalls );
         tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0" );
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "0,-1,0," + moris_to_string( tChannelHeight + tGeoShift ) );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.0 );
+        tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 1.0e-12 );
+        tParameterlist( 1 )( tGeoCounter ).set( "intersection_tolerance", 1.0e-12 );
         tGeoCounter++;
     }
 

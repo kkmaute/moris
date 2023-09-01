@@ -61,10 +61,7 @@ namespace moris
             ParameterList tParameterList;
 
             // Level set parameters
-            tParameterList.insert( "intersection_mode", "LEVEL_SET" );       // Level-set isocontour level
-            tParameterList.insert( "isocontour_threshold", 0.0 );            // Level-set isocontour level
-            tParameterList.insert( "isocontour_tolerance", 1e-12 );          // Interface tolerance based on geometry value
-            tParameterList.insert( "intersection_tolerance", 1e-12 );        // Interface tolerance based on intersection distance
+
             tParameterList.insert( "evaluate_new_pts_as_linear", false );    // for the new vertices, should I use full background cell info or only the linear version
             tParameterList.insert( "output_mesh_file", "" );                 // File name for exodus mesh, if default no mesh is written
             tParameterList.insert( "geometry_field_file", "" );              // Base file name (without extension) for saving geometry fields
@@ -108,6 +105,10 @@ namespace moris
         {
             ParameterList tParameterList = create_field_parameter_list();
             tParameterList.insert( "multilinear_intersections", false );
+            tParameterList.insert( "intersection_mode", "LEVEL_SET" );    // Level-set isocontour level
+            tParameterList.insert( "isocontour_threshold", 0.0 );         // Level-set isocontour level
+            tParameterList.insert( "isocontour_tolerance", 1e-12 );       // Interface tolerance based on geometry value
+            tParameterList.insert( "intersection_tolerance", 1e-12 );     // Interface tolerance based on intersection distance
 
             return tParameterList;
         }
@@ -229,10 +230,10 @@ namespace moris
         inline ParameterList
         create_swiss_cheese_slice_parameter_list()
         {
-            ParameterList tParameterList;
+            ParameterList tParameterList = create_geometry_parameter_list();
 
-            tParameterList.insert( "type", "swiss_cheese_slice" );    // Type of geometry, do not change
-            tParameterList.insert( "name", "" );                      // Name of geometry, can change
+            // Sets the type of the geometry
+            tParameterList.set( "type", "swiss_cheese_slice" );    // Type of geometry, do not change
 
             // Must change
             tParameterList.insert( "left_bound", 0.0 );             // Left-most hole center
@@ -254,15 +255,8 @@ namespace moris
             tParameterList.insert( "superellipse_scaling", 1.0 );            // Superellipse scaling
             tParameterList.insert( "superellipse_regularization", 1e-8 );    // Superellipse regularization
             tParameterList.insert( "superellipse_shift", 1e-6 );             // Superellipse shift
-
             tParameterList.insert( "row_offset", 0.0 );                     // Offset to be applied on subsequent rows
-            tParameterList.insert( "number_of_refinements", "" );           // Number of refinement steps using HMR
-            tParameterList.insert( "refinement_mesh_index", "" );           // Refinement pattern
-            tParameterList.insert( "refinement_function_index", -1 );       // Index of user-defined refinement function (-1 = none)
-            tParameterList.insert( "discretization_mesh_index", -1 );       // Index of B-spline mesh to create level set field on (-1 = none)
-            tParameterList.insert( "discretization_lower_bound", -1.0 );    // Lower bound of level set field (if bspline_mesh_index >= 0)
-            tParameterList.insert( "discretization_upper_bound", 1.0 );     // Upper bound of level set field (if bspline_mesh_index >= 0)
-            tParameterList.insert( "multilinear_intersections", false );
+            tParameterList.set( "discretization_mesh_index", -1 );       // Index of B-spline mesh to create level set field on (-1 = none)
 
             return tParameterList;
         }
