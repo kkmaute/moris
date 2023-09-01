@@ -668,6 +668,9 @@ namespace moris
                 Cell< std::shared_ptr< Matrix< DDRMat > > >* aParamCoordRelativeToParent,
                 Cell< Matrix< DDRMat > >*                    aNodeCoordinates )
         {
+            // Tracer
+            Tracer tTracer( "GEN", "Create new child nodes" );
+
             // resize proximities
             mVertexGeometricProximity.resize(
                     mVertexGeometricProximity.size() + aNewNodeIndices->size(),
@@ -716,6 +719,9 @@ namespace moris
                 const Cell< Matrix< DDRMat > >&          aParamCoordRelativeToParent,
                 const Matrix< DDRMat >&                  aGlobalNodeCoord )
         {
+            // Tracer
+            Tracer tTracer( "GEN", "Create new child nodes" );
+
             // get current geometries level set info
             real tIsocontourThreshold = mGeometries( mActiveGeometryIndex )->get_isocontour_threshold();
             real tIsocontourTolerance = mGeometries( mActiveGeometryIndex )->get_isocontour_tolerance();
@@ -956,9 +962,6 @@ namespace moris
             Cell< PDV_Type >                 tPDVTypeGroup( 1 );
             Cell< Matrix< DDUMat > >         tMeshSetIndicesPerProperty( mProperties.size() );
 
-            // Create timer
-            tic tTimer;
-
             // Loop over properties to create PDVs
             for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
             {
@@ -994,11 +997,6 @@ namespace moris
             // Set interpolation PDV types in host manager
             mPDVHostManager.set_interpolation_pdv_types( tPdvTypes );
 
-            // Log timer info
-            real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-            MORIS_LOG_INFO( "Assign PDV type to mesh sets on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
-            tTimer.reset();
-
             // Get and save communication map from IP mesh
             Matrix< IdMat > tCommTable = tInterpolationMesh->get_communication_table();
             mPDVHostManager.set_communication_table( tCommTable );
@@ -1006,18 +1004,11 @@ namespace moris
             // Get and save global to local vertex maps from IP and IG meshes
             std::unordered_map< moris_id, moris_index > tIPVertexGlobaToLocalMap =
                     tInterpolationMesh->get_vertex_glb_id_to_loc_vertex_ind_map();
-
             std::unordered_map< moris_id, moris_index > tIGVertexGlobaToLocalMap =
                     tIntegrationMesh->get_vertex_glb_id_to_loc_vertex_ind_map();
-
             mPDVHostManager.set_vertex_global_to_local_maps(
                     tIPVertexGlobaToLocalMap,
                     tIGVertexGlobaToLocalMap );
-
-            // Log timer info
-            tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-            MORIS_LOG_INFO( "Get global-to-local-maps from mtk on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
-            tTimer.reset();
 
             // Create PDV hosts
             this->create_interpolation_pdv_hosts(
@@ -1025,21 +1016,11 @@ namespace moris
                     tIntegrationMesh,
                     tPdvTypes );
 
-            // Log timer info
-            tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-            MORIS_LOG_INFO( "Create interpolation PDV hosts on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
-            tTimer.reset();
-
             // Set integration PDV types
             if ( mShapeSensitivities )
             {
                 // Set integration PDV types
                 this->set_integration_pdv_types( tIntegrationMesh );
-
-                // Log timer info
-                tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-                MORIS_LOG_INFO( "Set integration PDV types on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
-                tTimer.reset();
             }
 
             // Loop over properties to assign PDVs
@@ -1067,18 +1048,8 @@ namespace moris
                 }
             }
 
-            // Log timer info
-            tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-            MORIS_LOG_INFO( "Assign property to pdv host on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
-            tTimer.reset();
-
             // Create PDV IDs
             mPDVHostManager.create_pdv_ids();
-
-            // Log timer info
-            tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-            MORIS_LOG_INFO( "Compute and communicate PDV IDs on processor %u took %5.3f seconds.", (uint)par_rank(), (double)tElapsedTime / 1000 );
-            tTimer.reset();
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -2140,6 +2111,9 @@ namespace moris
                 mtk::Integration_Mesh*           aIntegrationMesh,
                 Cell< Cell< Cell< PDV_Type > > > aPdvTypes )
         {
+            // Tracer
+            Tracer tTracer( "GEN", "Create interpolation PDV hosts" );
+
             // Get information from integration mesh
             uint tNumSets = aPdvTypes.size();
 
@@ -2267,6 +2241,9 @@ namespace moris
         void
         Geometry_Engine::set_integration_pdv_types( mtk::Integration_Mesh* aIntegrationMesh )
         {
+            // Tracer
+            Tracer tTracer( "GEN", "Set integration PDV types" );
+
             // Get information from integration mesh
             uint tNumSets = aIntegrationMesh->get_num_sets();
 
@@ -2317,6 +2294,9 @@ namespace moris
                 mtk::Integration_Mesh*      aIntegrationMesh,
                 Matrix< DDUMat >            aSetIndices )
         {
+            // Tracer
+            Tracer tTracer( "GEN", "Assign property " + aPropertyPointer->get_name() + " to PDV hosts" );
+
             // Loop over all sets that this property belongs to
             for ( uint iSet = 0; iSet < aSetIndices.length(); iSet++ )
             {
@@ -2366,6 +2346,9 @@ namespace moris
         void
         Geometry_Engine::setup_initial_geometric_proximities( mtk::Interpolation_Mesh* aMesh )
         {
+            // Tracer
+            Tracer tTracer( "GEN", "Setup initial geometric proximities" );
+
             mVertexGeometricProximity =
                     Cell< Geometric_Proximity >( aMesh->get_num_nodes(), Geometric_Proximity( mGeometries.size() ) );
 
@@ -2608,6 +2591,9 @@ namespace moris
                 PHASE_FUNCTION   aPhaseFunction,
                 uint             aNumPhases )
         {
+            // Tracer
+            Tracer tTracer( "GEN", "Create phase table" );
+
             if ( aPhaseFunction )
             {
                 return Phase_Table( aPhaseFunction, aNumPhases );
