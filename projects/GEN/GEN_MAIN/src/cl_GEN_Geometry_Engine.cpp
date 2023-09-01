@@ -986,7 +986,7 @@ namespace moris
                 {
                     uint tMeshSetIndex = tMeshSetIndicesPerProperty( tPropertyIndex )( tIndex );
 
-                    tPdvTypes( tMeshSetIndex ).push_back( tPDVTypeGroup );    // why not use mProperties(tPropertyIndex)->get_pdv_type()
+                    tPdvTypes( tMeshSetIndex ).push_back( tPDVTypeGroup );
                 }
             }
 
@@ -2142,27 +2142,19 @@ namespace moris
             Cell< Matrix< DDSMat > > tNodeIdsPerSet( tNumSets );
             Cell< Matrix< DDSMat > > tNodeOwnersPerSet( tNumSets );
             Cell< Matrix< DDRMat > > tNodeCoordinatesPerSet( tNumSets );
-
             Cell< uint > tNumberOfNodesPerSet( tNumSets, 0 );
 
-            // Determine if we need to do the below loop
-            bool tDoJankLoop = false;
+            // Loop through sets in integration mesh
             for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
             {
-                if ( aPdvTypes( tMeshSetIndex ).size() > 0 )
+                // Determine number of nodes if there are PDVs on this set
+                if ( true )//aPdvTypes( tMeshSetIndex ).size() > 0 )
                 {
-                    tDoJankLoop = true;
-                }
-            }
-
-            // Determine the indices, IDs, and ownerships of base cell nodes in each set of integration mesh
-            // List has redundant entries
-            if ( tDoJankLoop )
-            {
-                // Loop through sets in integration mesh
-                for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
-                {
+                    // Get set pointer
                     mtk::Set* tSet = aIntegrationMesh->get_set_by_index( tMeshSetIndex );
+
+                    // Select sides of interpolation cells to get info from
+                    Cell< mtk::Leader_Follower > tSetSides = mtk::get_leader_follower( tSet->get_set_type() );
 
                     // Get number of clusters on set
                     uint tNumberOfClusters = tSet->get_num_clusters_on_set();
@@ -2173,41 +2165,44 @@ namespace moris
                         // get pointer to cluster
                         const mtk::Cluster* tCluster = tSet->get_clusters_by_index( tClusterIndex );
 
-                        // Indices, IDs, and ownership of base cell nodes in cluster
-                        mtk::Cell const * tBaseCell = tCluster->get_interpolation_cell( mtk::Leader_Follower::LEADER ).get_base_cell();
-                        Matrix< IndexMat > tNodeIndicesInCluster     = tBaseCell->get_vertex_inds();
-                        Matrix< DDRMat >   tNodeCoordinatesInCluster = tBaseCell->get_vertex_coords();
-
-                        // Add to the number of base nodes on this set
-                        tNumberOfNodesPerSet( tMeshSetIndex ) = tNumberOfNodesPerSet( tMeshSetIndex ) + tNodeIndicesInCluster.length();
-
-                        // this is a hack. the hole function is super slow and should be rewritten
-                        // hack was implemented intentionally to get something running. Redo completely when rewriting GEN
-                        if ( tSet->get_set_type() == mtk::SetType::DOUBLE_SIDED_SIDESET )
+                        // Loop over leader/follower
+                        for ( mtk::Leader_Follower iLeaderFollower : tSetSides )
                         {
-                            // Get base cell follower indices
-                            tBaseCell = tCluster->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER ).get_base_cell();
-                            tNodeIndicesInCluster = tBaseCell->get_vertex_inds();
+                            // Get node indices in cluster
+                            mtk::Cell const *  tBaseCell             = tCluster->get_interpolation_cell( iLeaderFollower ).get_base_cell();
+                            Matrix< IndexMat > tNodeIndicesInCluster = tBaseCell->get_vertex_inds();
 
                             // Add to the number of base nodes on this set
                             tNumberOfNodesPerSet( tMeshSetIndex ) = tNumberOfNodesPerSet( tMeshSetIndex ) + tNodeIndicesInCluster.length();
                         }
                     }
                 }
+            }
 
-                for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
+            // Resize node indices, IDs, owners, and coordinates for each set
+            for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
+            {
+                // Resize only if there are PDVs on this set
+                if ( true )//aPdvTypes( tMeshSetIndex ).size() > 0 )
                 {
                     tNodeIndicesPerSet( tMeshSetIndex ).resize( tNumberOfNodesPerSet( tMeshSetIndex ), 1 );
                     tNodeIdsPerSet( tMeshSetIndex ).resize( tNumberOfNodesPerSet( tMeshSetIndex ), 1 );
                     tNodeOwnersPerSet( tMeshSetIndex ).resize( tNumberOfNodesPerSet( tMeshSetIndex ), 1 );
                     tNodeCoordinatesPerSet( tMeshSetIndex ).resize( tNumberOfNodesPerSet( tMeshSetIndex ), mNumSpatialDimensions );
                 }
+            }
 
-                // Loop through sets in integration mesh
-                for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
+            // Loop through sets in integration mesh
+            for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
+            {
+                // Get node information if there are PDVs on this set
+                if ( true )//aPdvTypes( tMeshSetIndex ).size() > 0 )
                 {
                     uint      tCurrentNode = 0;
                     mtk::Set* tSet         = aIntegrationMesh->get_set_by_index( tMeshSetIndex );
+
+                    // Select sides of interpolation cells to get info from
+                    Cell< mtk::Leader_Follower > tSetSides = mtk::get_leader_follower( tSet->get_set_type() );
 
                     // Get number of clusters on set
                     uint tNumberOfClusters = tSet->get_num_clusters_on_set();
@@ -2218,51 +2213,23 @@ namespace moris
                         // get pointer to cluster
                         const mtk::Cluster* tCluster = tSet->get_clusters_by_index( tClusterIndex );
 
-                        // Indices, IDs, and ownership of base cell nodes in cluster
-                        mtk::Cell const * tBaseCell = tCluster->get_interpolation_cell( mtk::Leader_Follower::LEADER ).get_base_cell();
-
-                        Matrix< IndexMat > tNodeIndicesInCluster     = tBaseCell->get_vertex_inds();
-                        Matrix< IndexMat > tNodeIdsInCluster         = tBaseCell->get_vertex_ids();
-                        Matrix< IndexMat > tNodeOwnersInCluster      = tBaseCell->get_vertex_owners();
-                        Matrix< DDRMat >   tNodeCoordinatesInCluster = tBaseCell->get_vertex_coords();
-
-                        // number of base nodes in cluster
-                        uint tNumberOfBaseNodes = tNodeIndicesInCluster.length();
-
-                        // check for consistency
-                        MORIS_ASSERT( tNodeIdsInCluster.length() == tNumberOfBaseNodes && tNodeOwnersInCluster.length() == tNumberOfBaseNodes,
-                                "Geometry_Engine::create_interpolation_pdv_hosts - inconsistent cluster information.\n" );
-
-                        // FIXME we have nodes up to 8 times in this list in 3d
-                        for ( uint iNodeInCluster = 0; iNodeInCluster < tNumberOfBaseNodes; iNodeInCluster++ )
+                        // Loop over leader/follower
+                        for ( mtk::Leader_Follower iLeaderFollower : tSetSides )
                         {
-                            tNodeIndicesPerSet( tMeshSetIndex )( tCurrentNode ) = tNodeIndicesInCluster( iNodeInCluster );
-                            tNodeIdsPerSet( tMeshSetIndex )( tCurrentNode )     = tNodeIdsInCluster( iNodeInCluster );
-                            tNodeOwnersPerSet( tMeshSetIndex )( tCurrentNode )  = tNodeOwnersInCluster( iNodeInCluster );
+                            // Get base interpolation cell
+                            mtk::Cell const * tBaseCell = tCluster->get_interpolation_cell( iLeaderFollower ).get_base_cell();
 
-                            tNodeCoordinatesPerSet( tMeshSetIndex ).get_row( tCurrentNode ) =
-                                    tNodeCoordinatesInCluster.get_row( iNodeInCluster );
-
-                            tCurrentNode++;
-                        }
-
-                        // this is a hack. the hole function is super slow and should be rewritten
-                        // hack was implemented intentionally to get something running. Redo completely when rewriting GEN
-                        if ( tSet->get_set_type() == mtk::SetType::DOUBLE_SIDED_SIDESET )
-                        {
-
-                            mtk::Cell const * tBaseCellFollower = tCluster->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER ).get_base_cell();
-
-                            Matrix< IndexMat > tNodeIndicesInCluster     = tBaseCellFollower->get_vertex_inds();
-                            Matrix< IndexMat > tNodeIdsInCluster         = tBaseCellFollower->get_vertex_ids();
-                            Matrix< IndexMat > tNodeOwnersInCluster      = tBaseCellFollower->get_vertex_owners();
-                            Matrix< DDRMat >   tNodeCoordinatesInCluster = tBaseCellFollower->get_vertex_coords();
+                            // Indices, IDs, and ownership of base cell nodes in cluster
+                            Matrix< IndexMat > tNodeIndicesInCluster     = tBaseCell->get_vertex_inds();
+                            Matrix< IndexMat > tNodeIdsInCluster         = tBaseCell->get_vertex_ids();
+                            Matrix< IndexMat > tNodeOwnersInCluster      = tBaseCell->get_vertex_owners();
+                            Matrix< DDRMat >   tNodeCoordinatesInCluster = tBaseCell->get_vertex_coords();
 
                             // number of base nodes in cluster
-                            tNumberOfBaseNodes = tNodeIndicesInCluster.length();
+                            uint tNumberOfBaseNodes = tNodeIndicesInCluster.length();
 
                             // check for consistency
-                            MORIS_ASSERT( tNodeIdsInCluster.length() == tNumberOfBaseNodes && tNodeOwnersInCluster.length() == tNumberOfBaseNodes,
+                            MORIS_ASSERT( tNodeIdsInCluster.length() == tNumberOfBaseNodes and tNodeOwnersInCluster.length() == tNumberOfBaseNodes,
                                     "Geometry_Engine::create_interpolation_pdv_hosts - inconsistent cluster information.\n" );
 
                             // FIXME we have nodes up to 8 times in this list in 3d
@@ -2271,7 +2238,6 @@ namespace moris
                                 tNodeIndicesPerSet( tMeshSetIndex )( tCurrentNode ) = tNodeIndicesInCluster( iNodeInCluster );
                                 tNodeIdsPerSet( tMeshSetIndex )( tCurrentNode )     = tNodeIdsInCluster( iNodeInCluster );
                                 tNodeOwnersPerSet( tMeshSetIndex )( tCurrentNode )  = tNodeOwnersInCluster( iNodeInCluster );
-
                                 tNodeCoordinatesPerSet( tMeshSetIndex ).get_row( tCurrentNode ) =
                                         tNodeCoordinatesInCluster.get_row( iNodeInCluster );
 
