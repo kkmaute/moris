@@ -21,12 +21,11 @@ namespace moris
 {
     namespace mtk
     {
-
         class Cell;
 
         class Cell_Info
         {
-        public:
+          public:
             Cell_Info() {}
 
             virtual ~Cell_Info() {}
@@ -66,7 +65,7 @@ namespace moris
              * @return Cell shape
              */
             virtual enum CellShape
-            compute_cell_shape(moris::mtk::Cell const *aCell) const = 0;
+            compute_cell_shape( moris::mtk::Cell const *aCell ) const = 0;
 
             // ---------------------------------------------------------------------------------
 
@@ -113,7 +112,7 @@ namespace moris
              * a facet is an edge, for 3D cells a facet is a face
              * @return Vertex to facet map
              */
-            virtual moris::Matrix<moris::IndexMat>
+            virtual moris::Matrix< moris::IndexMat >
             get_node_to_facet_map() const = 0;
 
             // ---------------------------------------------------------------------------------
@@ -123,8 +122,8 @@ namespace moris
              * @param[in] aSideOrdinal Side Ordinal
              * @return Vertex to facet map
              */
-            virtual moris::Matrix<moris::IndexMat>
-            get_node_to_facet_map(moris::uint aSideOrdinal) const = 0;
+            virtual moris::Matrix< moris::IndexMat >
+            get_node_to_facet_map( moris::uint aSideOrdinal ) const = 0;
 
             // ---------------------------------------------------------------------------------
             /*!
@@ -133,7 +132,7 @@ namespace moris
              * For example, a hex16 geometric vertices would be the onese of a hex8.
              * @return Geometric vertex to facet map
              */
-            virtual moris::Matrix<moris::IndexMat>
+            virtual moris::Matrix< moris::IndexMat >
             get_geometric_node_to_facet_map() const;
 
             // ---------------------------------------------------------------------------------
@@ -144,8 +143,8 @@ namespace moris
              * @param[in] aSideOrdinal a side ordinal
              * @return Geometric vertex to facet map
              */
-            virtual moris::Matrix<moris::IndexMat>
-            get_geometric_node_to_facet_map(moris::uint aSideOrdinal) const;
+            virtual moris::Matrix< moris::IndexMat >
+            get_geometric_node_to_facet_map( moris::uint aSideOrdinal ) const;
 
             // ---------------------------------------------------------------------------------
 
@@ -154,7 +153,7 @@ namespace moris
              * and does not exist on 2d cells
              * @return Vertex to face map
              */
-            virtual moris::Matrix<moris::IndexMat>
+            virtual moris::Matrix< moris::IndexMat >
             get_node_to_face_map() const = 0;
 
             // ---------------------------------------------------------------------------------
@@ -164,15 +163,15 @@ namespace moris
              * @param[in] aSideOrdinal a side ordinal
              * @return Vertex to face map on a single side
              */
-            virtual moris::Matrix<moris::IndexMat>
-            get_node_to_face_map(moris::uint aSideOrdinal) const = 0;
+            virtual moris::Matrix< moris::IndexMat >
+            get_node_to_face_map( moris::uint aSideOrdinal ) const = 0;
 
             // ---------------------------------------------------------------------------------
             /*!
              * The vertex to face map is the vertex ordinals on an edge. Edge has dim = 1
              * @return Vertex to edge map
              */
-            virtual moris::Matrix<moris::IndexMat>
+            virtual moris::Matrix< moris::IndexMat >
             get_node_to_edge_map() const = 0;
 
             // ---------------------------------------------------------------------------------
@@ -182,14 +181,14 @@ namespace moris
              * @param[in] aEdgeOrdinal Edge ordinal
              * @return Vertex to edge map on a single side
              */
-            virtual moris::Matrix<moris::IndexMat>
-            get_node_to_edge_map(moris::uint aEdgeOrdinal) const = 0;
+            virtual moris::Matrix< moris::IndexMat >
+            get_node_to_edge_map( moris::uint aEdgeOrdinal ) const = 0;
 
             // ---------------------------------------------------------------------------------
             /*!
              * @return Edges attached to facets (col edge ord, row face ord)
              */
-            virtual moris::Matrix<moris::IndexMat>
+            virtual moris::Matrix< moris::IndexMat >
             get_edge_to_face_map() const;
 
             // ---------------------------------------------------------------------------------
@@ -198,8 +197,8 @@ namespace moris
              * @param[in] aSideOrdinal Side Ordinal
              * @return Outward pointing normal (unit length)
              */
-            virtual moris::Matrix<moris::IndexMat>
-            get_node_map_outward_normal(moris::uint aSideOrdinal) const = 0;
+            virtual moris::Matrix< moris::IndexMat >
+            get_node_map_outward_normal( moris::uint aSideOrdinal ) const = 0;
 
             // ---------------------------------------------------------------------------------
             /*!
@@ -214,47 +213,43 @@ namespace moris
              * @return  Adjacent facet ordinal
              */
             virtual moris::uint
-            get_adjacent_side_ordinal(moris::uint aSideOrdinal) const;
+            get_adjacent_side_ordinal( moris::uint aSideOrdinal ) const;
 
             // ---------------------------------------------------------------------------------
             /*!
              * @param[in] aVertexOrdinal Vertex Ordinal
              * @return Parametric coordinate of the vertex
              */
-            virtual Matrix<DDRMat>
-            get_vertex_loc_coord(moris_index const &aVertexOrdinal) const;
+            virtual Matrix< DDRMat >
+            get_vertex_loc_coord( moris_index const &aVertexOrdinal ) const;
 
             // ---------------------------------------------------------------------------------
 
             // if I draw a straight line from a vertex to another entity on the cell,
             // what is the ordinal and rank of the minimum entity that can describe this path
-            virtual
-            moris::Cell<moris_index>
+            virtual moris::Cell< moris_index >
             get_vertex_path_to_entity_rank_and_ordinal(
-                moris_index aVertexOrdinal,
-                moris_index aOtherEntityOrdinal,
-                moris_index aOtherEntityRank) const;
+                    moris_index aVertexOrdinal,
+                    moris_index aOtherEntityOrdinal,
+                    moris_index aOtherEntityRank ) const;
 
             // edge to entity other entity ordinal should be higher rank (i.e. don't go edge to node (use get_vertex_path_to_entity_rank_and_ordinal for thats))
-            virtual
-            moris::Cell<moris_index>
+            virtual moris::Cell< moris_index >
             get_edge_path_to_entity_rank_and_ordinal(
-                moris_index aEdgeOrdinal,
-                moris_index aOtherEntityOrdinal,
-                moris_index aOtherEntityRank) const;
+                    moris_index aEdgeOrdinal,
+                    moris_index aOtherEntityOrdinal,
+                    moris_index aOtherEntityRank ) const;
 
-            virtual
-            bool
+            virtual bool
             is_entity_connected_to_facet(
-                moris_index aFacetOrdinal,
-                moris_index aOtherEntityOrdinal,
-                moris_index aOtherEntityRank) const;
+                    moris_index aFacetOrdinal,
+                    moris_index aOtherEntityOrdinal,
+                    moris_index aOtherEntityRank ) const;
 
-            virtual
-            moris_index
+            virtual moris_index
             get_shared_vertex_ordinal_between_edges(
-                moris_index aEdgeOrdinal1,
-                moris_index aEdgeOrdinal2 ) const;
+                    moris_index aEdgeOrdinal1,
+                    moris_index aEdgeOrdinal2 ) const;
 
             // ---------------------------------------------------------------------------------
             /*!
@@ -263,15 +258,15 @@ namespace moris
              */
             virtual void
             get_loc_coord_on_side_ordinal(
-                moris::uint const &aSideOrdinal,
-                Matrix<DDRMat> &aXi) const;
+                    moris::uint const &aSideOrdinal,
+                    Matrix< DDRMat >  &aXi ) const;
 
             // ---------------------------------------------------------------------------------
             /*!
-            * @param[out] Parametric coordinate of the all the cell's vertices
-            */
+             * @param[out] Parametric coordinate of the all the cell's vertices
+             */
             virtual void
-            get_loc_coords_of_cell(Matrix<DDRMat> &aXi) const;
+            get_loc_coords_of_cell( Matrix< DDRMat > &aXi ) const;
 
             // ---------------------------------------------------------------------------------
             /*!
@@ -279,10 +274,10 @@ namespace moris
              * @return Cell size
              */
             moris::real
-            compute_cell_size(moris::mtk::Cell const *aCell) const
+            compute_cell_size( moris::mtk::Cell const *aCell ) const
             {
                 // specialized cell size calculation
-                return compute_cell_size_special(aCell);
+                return compute_cell_size_special( aCell );
             }
 
             // ---------------------------------------------------------------------------------
@@ -291,7 +286,7 @@ namespace moris
              * @return Cell size
              */
             moris::real
-            compute_cell_size_general(moris::mtk::Cell const *aCell) const;
+            compute_cell_size_general( moris::mtk::Cell const *aCell ) const;
 
             // ---------------------------------------------------------------------------------
             /*!
@@ -299,7 +294,7 @@ namespace moris
              * @return Cell size
              */
             virtual moris::real
-            compute_cell_size_special(moris::mtk::Cell const *aCell) const = 0;
+            compute_cell_size_special( moris::mtk::Cell const *aCell ) const = 0;
 
             // ---------------------------------------------------------------------------------
             /*!
@@ -307,7 +302,7 @@ namespace moris
              * @return Cell size
              */
             virtual moris::real
-            compute_cell_size_straight(moris::mtk::Cell const *aCell) const;
+            compute_cell_size_straight( moris::mtk::Cell const *aCell ) const;
 
             // ----------------------------------------------------------------------------------
 
@@ -318,10 +313,12 @@ namespace moris
              * @param[in] aDirection      Direction to take derivative (0,1, or 2).
              *
              * @return return the cell size.
-            */
+             */
             virtual moris::real
-            compute_cell_size_deriv(moris::mtk::Cell const *aCell,
-                                             uint aLocalVertexID, uint aDirection) const;
+            compute_cell_size_deriv(
+                    moris::mtk::Cell const *aCell,
+                    uint                    aLocalVertexID,
+                    uint                    aDirection ) const;
 
             // ----------------------------------------------------------------------------------
 
@@ -332,10 +329,12 @@ namespace moris
              * @param[in] aDirection      Direction to take derivative (0,1, or 2).
              *
              * @return return the cell size.
-            */
+             */
             virtual moris::real
-            compute_cell_size_deriv_general(moris::mtk::Cell const *aCell,
-                                             uint aLocalVertexID, uint aDirection) const;
+            compute_cell_size_deriv_general(
+                    moris::mtk::Cell const *aCell,
+                    uint                    aLocalVertexID,
+                    uint                    aDirection ) const;
 
             // ---------------------------------------------------------------------------------
             /*!
@@ -343,8 +342,9 @@ namespace moris
              * @return Cell side size
              */
             virtual moris::real
-            compute_cell_side_size(moris::mtk::Cell const *aCell,
-                    moris_index const &aSideOrd) const = 0;
+            compute_cell_side_size(
+                    moris::mtk::Cell const *aCell,
+                    moris_index const      &aSideOrd ) const = 0;
 
             // ---------------------------------------------------------------------------------
             /**
@@ -369,11 +369,11 @@ namespace moris
              * @param[out] aNXi Interpolation function weights at point aXi
              */
             virtual void
-            eval_N(const Matrix<DDRMat> &aXi,
-                   Matrix<DDRMat> &aNXi) const;
+            eval_N(
+                    const Matrix< DDRMat > &aXi,
+                    Matrix< DDRMat >       &aNXi ) const;
         };
-    } // namespace mtk
-} // namespace moris
+    }    // namespace mtk
+}    // namespace moris
 
 #endif /* PROJECTS_MTK_SRC_CL_MTK_CELL_INFO_HPP_ */
-
