@@ -34,14 +34,14 @@ namespace moris
 
 #ifdef CHECK_MEMORY
         uint mNumResizeCalls     = 0;
+        uint mNumReserveCalls    = 0;
         uint mNumImplicitResizes = 0;
         bool mPushBackMemWarn    = true;
 #endif
 
       public:
+        using value_type = T;
 
-        using value_type = T; 
-        
         /**
          * moris::Cell constructor
          */
@@ -356,6 +356,9 @@ namespace moris
                     "Cell::reserve: Maximum allowable capacity exceeded: %f MB.\n",
                     sizeof( T ) * new_cap / 1e6 );
 
+            MORIS_CHECK_MEMORY( mNumReserveCalls++ < MORIS_CELL_RESERVE_CALL_LIMIT,
+                    "Cell::reserve: number of reserve calls exceeds limit.\n" );
+
             mCell.reserve( new_cap );
         }
 
@@ -567,6 +570,9 @@ namespace moris
                 MORIS_CHECK_MEMORY( mNumResizeCalls++ != MORIS_CELL_RESIZE_CALL_LIMIT,
                         "Cell::push_back: number of resize calls exceeds limit.\n" );
 
+                MORIS_CHECK_MEMORY( mNumReserveCalls++ < MORIS_CELL_RESERVE_CALL_LIMIT,
+                        "Cell::reserve: number of reserve calls exceeds limit.\n" );
+
                 mCell.reserve( mCell.size() + tSizeInc );
             }
 
@@ -739,7 +745,7 @@ namespace moris
 
         //------------------------------------------------------------------
 
-    }; // class Cell
+    };    // class Cell
 
     //------------------------------------------------------------------
 
@@ -819,18 +825,22 @@ namespace moris
 
     // General is_container trait with default value as false
     template< typename T, typename = void >
-    struct is_moris_cell : std::false_type{};
+    struct is_moris_cell : std::false_type
+    {
+    };
 
     // Specialization for moris cell type
     template< typename T >
-    struct is_moris_cell< Cell< T > > : std::true_type{};
+    struct is_moris_cell< Cell< T > > : std::true_type
+    {
+    };
 
     template< typename T >
     std::string
     print_nested_cells( const T& aCell )
     {
         // initialize the return string
-        std::string aReturnStr="";
+        std::string aReturnStr = "";
 
         // Check if the container type is a nested container
         if constexpr ( is_moris_cell< T >::value )
@@ -864,10 +874,10 @@ namespace moris
     //------------------------------------------------------------------
     /**
      * @brief prints out a row vector for infinite nested cells
-     * 
-     * @tparam T 
-     * @param aCell 
-     * @param aStr 
+     *
+     * @tparam T
+     * @param aCell
+     * @param aStr
      */
 
     template< typename T >
@@ -876,7 +886,7 @@ namespace moris
             Cell< T > const & aCell,
             std::string       aStr = "Cell" )
     {
-        std::cout<<aStr<<" = "<<print_nested_cells(aCell)<<std::endl;
+        std::cout << aStr << " = " << print_nested_cells( aCell ) << std::endl;
     }
 
     //------------------------------------------------------------------
