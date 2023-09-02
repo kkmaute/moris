@@ -249,6 +249,9 @@ option(MORIS_USE_INTEL "USE BLANCA" OFF)
 
 option(MORIS_USE_OPENMP "Use OpenMP" OFF)
 
+option(MORIS_USE_NTOP_LIB 
+      " Build with NTOP interface library - experimental" OFF)
+
 # -------------------------------------------------------------------------
 # Package Options
 
