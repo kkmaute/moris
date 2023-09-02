@@ -479,8 +479,10 @@ if (MORIS_HAVE_SYMBOLIC)
     if (MORIS_HAVE_SYMBOLIC_STRONG)
         # add here option to ease debugging
     else()
-        check_cxx_compiler_flag(-Og HAVE_DEBUG)
-        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Og")
+        check_cxx_compiler_flag(-Og HAVE_DEBUG_OG)
+        if (HAVE_DEBUG_OG)
+            set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Og")
+        endif()
     endif()
 
     check_cxx_compiler_flag(-g3 HAVE_DEBUG_3)
