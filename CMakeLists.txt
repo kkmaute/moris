@@ -670,12 +670,18 @@ option(MORIS_USE_MEMORY_DEBUG "Use memkind library for memory debugging)." OFF)
 if (MORIS_USE_MEMORY_DEBUG)
     find_library(MORIS_LIB_MemKind NAMES libmemkind.so.0  HINTS /usr/lib64)
     if ( NOT MORIS_LIB_MemKind )
-        message( FATAL_ERROR "memkind lib not found - do not use MORIS_USE_MEMORY_DEBUG}")
+        message( WARNING "memkind lib not found - do not use MORIS_USE_MEMORY_DEBUG}")
+    else()
+        message(STATUS "MORIS_LIB_MemKind = ${MORIS_LIB_MemKind}")
+        link_libraries(${MORIS_LIB_MemKind})
+        #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_MemKind})
     endif()
+endif()
 
-    message(STATUS "MORIS_LIB_MemKind = ${MORIS_LIB_MemKind}")
-    link_libraries(${MORIS_LIB_MemKind})
-    #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_MemKind})
+# -------------------------------------------------------------------------
+
+if (MORIS_USE_NTOP_LIB)
+    link_libraries(/home/maute/work/NTop_Implicit/lib/libntop_core.so.4)
 endif()
 
 # -------------------------------------------------------------------------
@@ -1052,7 +1058,7 @@ if(MORIS_USE_ARMA)
 endif()
 
 if(MORIS_USE_EIGEN)
-    #include(${MORIS_TPL_DIR}/eigen.cmake)
+    #include(${MORIS_TPL_DIR}/eigen_new.cmake)
 endif()
 
 # -------------------------------------------------------------------------
