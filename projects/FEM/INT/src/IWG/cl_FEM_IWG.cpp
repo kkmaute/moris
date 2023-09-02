@@ -2947,8 +2947,13 @@ namespace moris
             // init perturbation
             real tDeltaH = 0.0;
 
+            // provide adapted perturbation and FD scheme considering ip element boundaries
+            fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
+
             // init FD scheme
             moris::Cell< moris::Cell< real > > tFDScheme;
+            fd_scheme( tUsedFDScheme, tFDScheme );
+            uint tNumFDPoints = tFDScheme( 0 ).size();
 
             // loop over the spatial directions
             for ( uint iCoeffCol = 0; iCoeffCol < tDerNumDimensions; iCoeffCol++ )
@@ -2962,18 +2967,11 @@ namespace moris
                     // if pdv is active
                     if ( tPdvAssemblyIndex != -1 )
                     {
-                        // provide adapted perturbation and FD scheme considering ip element boundaries
-                        fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-
                         tDeltaH = this->check_ig_coordinates_inside_ip_element(
                                 aPerturbation,
                                 tCoeff( iCoeffRow, iCoeffCol ),
                                 iCoeffCol,
                                 tUsedFDScheme );
-
-                        // finalize FD scheme
-                        fd_scheme( tUsedFDScheme, tFDScheme );
-                        uint tNumFDPoints = tFDScheme( 0 ).size();
 
                         // set starting point for FD
                         uint tStartPoint = 0;
@@ -3522,6 +3520,13 @@ namespace moris
             // init FD scheme
             moris::Cell< moris::Cell< real > > tFDScheme;
 
+            // provide adapted perturbation and FD scheme considering ip element boundaries
+            fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
+
+            // finalize FD scheme
+            fd_scheme( tUsedFDScheme, tFDScheme );
+            uint tNumFDPoints = tFDScheme( 0 ).size();
+
             // loop over the IG nodes
             for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
             {
@@ -3545,18 +3550,11 @@ namespace moris
 
                     if ( tPdvAssemblyIndex != -1 )
                     {
-                        // provide adapted perturbation and FD scheme considering ip element boundaries
-                        fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-
                         tDeltaH = this->check_ig_coordinates_inside_ip_element(
                                 aPerturbation,
                                 tLeaderCoeff( iCoeffRow, iCoeffCol ),
                                 iCoeffCol,
                                 tUsedFDScheme );
-
-                        // finalize FD scheme
-                        fd_scheme( tUsedFDScheme, tFDScheme );
-                        uint tNumFDPoints = tFDScheme( 0 ).size();
 
                         // set starting point for FD
                         uint tStartPoint = 0;
