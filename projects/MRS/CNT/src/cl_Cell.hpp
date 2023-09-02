@@ -111,7 +111,7 @@ namespace moris
         {
             MORIS_CHECK_MEMORY(
                     sizeof( T ) * this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ? this->size() > MORIS_CELL_UTILIZATION_FRACTION_LIMIT * this->capacity() : true,
-                    "Cell::~Cell:: At destruction memory used is less than 75 percent of capacity of large matrix: size %d capacity %d\n",
+                    "Cell::~Cell:: At destruction memory used is less than 75 percent of capacity of large matrix: size %zu capacity %zu\n",
                     this->size(),
                     this->capacity() );
         }
@@ -389,7 +389,7 @@ namespace moris
             // check that resize on large cells does not indicate overly conservative initial size allocation
             MORIS_CHECK_MEMORY(
                     sizeof( T ) * this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ? this->size() > MORIS_CELL_RESIZE_FRACTION_LIMIT * this->capacity() : true,
-                    "Cell::shrink_to_fit: Shrink to less than 10 percent of capacity of large matrix: size %d capacity %d.\n",
+                    "Cell::shrink_to_fit: Shrink to less than 10 percent of capacity of large matrix: size %zu capacity %zu.\n",
                     this->size(),
                     this->capacity() );
 
@@ -444,7 +444,7 @@ namespace moris
 
             MORIS_CHECK_MEMORY(
                     sizeof( T ) * this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ? this->size() > MORIS_CELL_UTILIZATION_FRACTION_LIMIT * this->capacity() : true,
-                    "Cell::insert: After insert memory used is less than 75 percent of capacity of large matrix: size %d capacity %d\n",
+                    "Cell::insert: After insert memory used is less than 75 percent of capacity of large matrix: size %zu capacity %zu\n",
                     this->size(),
                     this->capacity() );
         }
@@ -468,7 +468,7 @@ namespace moris
 
             MORIS_CHECK_MEMORY(
                     sizeof( T ) * this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ? this->size() > MORIS_CELL_UTILIZATION_FRACTION_LIMIT * this->capacity() : true,
-                    "Cell::append: After append memory used is less than 75 percent of capacity of large matrix: size %d capacity %d\n",
+                    "Cell::append: After append memory used is less than 75 percent of capacity of large matrix: size %zu capacity %zu\n",
                     this->size(),
                     this->capacity() );
         }
@@ -538,7 +538,7 @@ namespace moris
             if ( sizeof( T ) * this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY && this->size() < MORIS_CELL_UTILIZATION_FRACTION_LIMIT * this->capacity() && mPushBackMemWarn )
             {
                 MORIS_CHECK_MEMORY( false,
-                        "Cell::push_back: After push_back memory used is less than 75 percent of capacity of large matrix: size %d capacity %d\n",
+                        "Cell::push_back: After push_back memory used is less than 75 percent of capacity of large matrix: size %zu capacity %zu\n",
                         this->size(),
                         this->capacity() );
 
@@ -612,7 +612,7 @@ namespace moris
             // check that resize on large cells does not indicate overly conservative initial size allocation
             MORIS_CHECK_MEMORY(
                     sizeof( T ) * this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ? aCount > MORIS_CELL_RESIZE_FRACTION_LIMIT * this->capacity() : true,
-                    "Cell::resize: Resize to less than 10 percent of capacity of large matrix: size %d capacity %d\n",
+                    "Cell::resize: Resize to less than 10 percent of capacity of large matrix: size %zu capacity %zu\n",
                     this->size(),
                     this->capacity() );
 
@@ -624,7 +624,7 @@ namespace moris
 
             MORIS_CHECK_MEMORY(
                     sizeof( T ) * this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ? this->size() > MORIS_CELL_UTILIZATION_FRACTION_LIMIT * this->capacity() : true,
-                    "Cell::resize: After resize memory used is less than 75 percent of capacity of large matrix: size %d capacity %d\n",
+                    "Cell::resize: After resize memory used is less than 75 percent of capacity of large matrix: size %zu capacity %zu\n",
                     this->size(),
                     this->capacity() );
         }

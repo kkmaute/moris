@@ -480,9 +480,7 @@ if (MORIS_HAVE_SYMBOLIC)
         # add here option to ease debugging
     else()
         check_cxx_compiler_flag(-Og HAVE_DEBUG)
-        if (HAVE_DEBUG)
-            set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Og")
-         endif()
+        set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Og")
     endif()
 
     check_cxx_compiler_flag(-g3 HAVE_DEBUG_3)
@@ -892,6 +890,13 @@ endif()
 set(CMAKE_C_COMPILER ${MORIS_C_COMPILER})
 set(CMAKE_CXX_COMPILER ${MORIS_CXX_COMPILER})
 set(CMAKE_CXX_FLAGS ${MORIS_CXX_FLAGS})
+
+# to activaite custom malloc and free
+if (MORIS_USE_CHECK_MEMORY)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=malloc -Wl,--wrap=free -Wl,--wrap=posix_memalign")
+    #set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--wrap=malloc -Wl,--wrap=free -Wl,--wrap=posix_memalign")
+    #set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} -Wl,--wrap=malloc -Wl,--wrap=free -Wl,--wrap=posix_memalign")
+endif()
 
 # Check compiler version.
 # Check for GCC version - earlier versions have insufficient C++11
