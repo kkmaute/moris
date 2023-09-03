@@ -2947,13 +2947,8 @@ namespace moris
             // init perturbation
             real tDeltaH = 0.0;
 
-            // provide adapted perturbation and FD scheme considering ip element boundaries
-            fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-
             // init FD scheme
             moris::Cell< moris::Cell< real > > tFDScheme;
-            fd_scheme( tUsedFDScheme, tFDScheme );
-            uint tNumFDPoints = tFDScheme( 0 ).size();
 
             // loop over the spatial directions
             for ( uint iCoeffCol = 0; iCoeffCol < tDerNumDimensions; iCoeffCol++ )
@@ -2967,18 +2962,26 @@ namespace moris
                     // if pdv is active
                     if ( tPdvAssemblyIndex != -1 )
                     {
+                        // provide adapted perturbation and FD scheme considering ip element boundaries
+                        fem::FDScheme_Type tUsedFDSchemeType = aFDSchemeType;
+
+                        // compute step size and change FD scheme if needed
                         tDeltaH = this->check_ig_coordinates_inside_ip_element(
                                 aPerturbation,
                                 tCoeff( iCoeffRow, iCoeffCol ),
                                 iCoeffCol,
-                                tUsedFDScheme );
+                                tUsedFDSchemeType );
+
+                        // finalize FD scheme
+                        fd_scheme( tUsedFDSchemeType, tFDScheme );
+                        uint tNumFDPoints = tFDScheme( 0 ).size();
 
                         // set starting point for FD
                         uint tStartPoint = 0;
 
                         // if backward or forward add unperturbed contribution
-                        if ( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
-                                ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                        if ( ( tUsedFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                                ( tUsedFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
                             // add unperturbed residual contribution to dRdp
                             mSet->get_drdpgeo()(
@@ -3129,24 +3132,25 @@ namespace moris
                     if ( tPdvAssemblyIndex != -1 )
                     {
                         // provide adapted perturbation and FD scheme considering ip element boundaries
-                        fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
+                        fem::FDScheme_Type tUsedFDSchemeType = aFDSchemeType;
 
+                        // compute step size and change FD scheme if needed
                         tDeltaH = this->check_ig_coordinates_inside_ip_element(
                                 aPerturbation,
                                 tCoeff( iCoeffRow, iCoeffCol ),
                                 iCoeffCol,
-                                tUsedFDScheme );
+                                tUsedFDSchemeType );
 
                         // finalize FD scheme
-                        fd_scheme( tUsedFDScheme, tFDScheme );
+                        fd_scheme( tUsedFDSchemeType, tFDScheme );
                         uint tNumFDPoints = tFDScheme( 0 ).size();
 
                         // set starting point for FD
                         uint tStartPoint = 0;
 
                         // if backward or forward add unperturbed contribution
-                        if ( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
-                                ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                        if ( ( tUsedFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                                ( tUsedFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
                             // add unperturbed residual contribution to dRdp
                             mSet->get_drdpgeo()(
@@ -3305,24 +3309,25 @@ namespace moris
                     if ( tPdvAssemblyIndex != -1 )
                     {
                         // provide adapted perturbation and FD scheme considering ip element boundaries
-                        fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
+                        fem::FDScheme_Type tUsedFDSchemeType = aFDSchemeType;
 
+                        // compute step size and change FD scheme if needed
                         tDeltaH = this->check_ig_coordinates_inside_ip_element(
                                 aPerturbation,
                                 tCoeff( iCoeffRow, iCoeffCol ),
                                 iCoeffCol,
-                                tUsedFDScheme );
+                                tUsedFDSchemeType );
 
                         // finalize FD scheme
-                        fd_scheme( tUsedFDScheme, tFDScheme );
+                        fd_scheme( tUsedFDSchemeType, tFDScheme );
                         uint tNumFDPoints = tFDScheme( 0 ).size();
 
                         // set starting point for FD
                         uint tStartPoint = 0;
 
                         // if backward or forward add unperturbed contribution
-                        if ( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
-                                ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                        if ( ( tUsedFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                                ( tUsedFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
                             // add unperturbed residual contribution to dRdp
                             mSet->get_drdpgeo()(
@@ -3520,13 +3525,6 @@ namespace moris
             // init FD scheme
             moris::Cell< moris::Cell< real > > tFDScheme;
 
-            // provide adapted perturbation and FD scheme considering ip element boundaries
-            fem::FDScheme_Type tUsedFDScheme = aFDSchemeType;
-
-            // finalize FD scheme
-            fd_scheme( tUsedFDScheme, tFDScheme );
-            uint tNumFDPoints = tFDScheme( 0 ).size();
-
             // loop over the IG nodes
             for ( uint iCoeffRow = 0; iCoeffRow < tDerNumBases; iCoeffRow++ )
             {
@@ -3550,18 +3548,26 @@ namespace moris
 
                     if ( tPdvAssemblyIndex != -1 )
                     {
+                        // provide adapted perturbation and FD scheme considering ip element boundaries
+                        fem::FDScheme_Type tUsedFDSchemeType = aFDSchemeType;
+
+                        // compute step size and change FD scheme if needed
                         tDeltaH = this->check_ig_coordinates_inside_ip_element(
                                 aPerturbation,
                                 tLeaderCoeff( iCoeffRow, iCoeffCol ),
                                 iCoeffCol,
-                                tUsedFDScheme );
+                                tUsedFDSchemeType );
+
+                        // finalize FD scheme
+                        fd_scheme( tUsedFDSchemeType, tFDScheme );
+                        uint tNumFDPoints = tFDScheme( 0 ).size();
 
                         // set starting point for FD
                         uint tStartPoint = 0;
 
                         // if backward or forward add unperturbed contribution
-                        if ( ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
-                                ( tUsedFDScheme == fem::FDScheme_Type::POINT_1_FORWARD ) )
+                        if ( ( tUsedFDSchemeType == fem::FDScheme_Type::POINT_1_BACKWARD ) ||    //
+                                ( tUsedFDSchemeType == fem::FDScheme_Type::POINT_1_FORWARD ) )
                         {
                             // add unperturbed leader residual contribution to dRdp
                             mSet->get_drdpgeo()(
