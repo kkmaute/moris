@@ -1154,15 +1154,8 @@ namespace moris
         Pdv_Host_Manager::communicate_shared_interpolation_pdv_ids()
         {
             // Build communication table map to determine the right position for each processor rank.
-            Matrix< DDSMat > tCommTableMap( mCommTable.max() + 1, 1, -1 );
-
+            Cell< moris_id > tCommTableMap = build_communication_table_map( mCommTable );
             moris::uint tNumCommProcs = mCommTable.numel();
-
-            // Loop over communication table to fill the communication table map
-            for ( uint iCommunicationProcIndex = 0; iCommunicationProcIndex < tNumCommProcs; iCommunicationProcIndex++ )
-            {
-                tCommTableMap( mCommTable( iCommunicationProcIndex ), 0 ) = iCommunicationProcIndex;
-            }
 
             // FIXME: cannot have communication within following loop
             // Loop over all different pdv types for IP node pdvs
@@ -1372,15 +1365,8 @@ namespace moris
         Pdv_Host_Manager::communicate_shared_intersection_node_pdv_ids()
         {
             // Build communication table map to determine the right position for each processor rank.
-            Matrix< DDSMat > tCommTableMap( mCommTable.max() + 1, 1, -1 );
-
+            Cell< moris_id > tCommTableMap = build_communication_table_map( mCommTable );
             moris::uint tNumCommProcs = mCommTable.numel();
-
-            // Loop over communication table to fill the communication table map
-            for ( moris::uint Ik = 0; Ik < tNumCommProcs; Ik++ )
-            {
-                tCommTableMap( mCommTable( Ik ), 0 ) = Ik;
-            }
 
             moris::uint tCounter       = 0;
             moris::uint tSharedCounter = 0;

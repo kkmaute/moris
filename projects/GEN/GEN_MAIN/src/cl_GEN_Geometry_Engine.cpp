@@ -2124,14 +2124,18 @@ namespace moris
             Cell< Matrix< DDRMat > > tNodeCoordinatesPerSet( tNumSets );
             Cell< uint > tNumberOfNodesPerSet( tNumSets, 0 );
 
+            // Get communication table and map
+            Matrix< IdMat > tCommTable = aInterpolationMesh->get_communication_table();
+            Cell< moris_id > tCommunicationTableMap = build_communication_table_map( tCommTable );
+
             // Loop through sets in integration mesh
-            for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
+            for ( uint iMeshSetIndex = 0; iMeshSetIndex < tNumSets; iMeshSetIndex++ )
             {
                 // Determine number of nodes if there are PDVs on this set
-                if ( true )//aPdvTypes( tMeshSetIndex ).size() > 0 )
+                if ( true )//aPdvTypes( iMeshSetIndex ).size() > 0 )
                 {
                     // Get set pointer
-                    mtk::Set* tSet = aIntegrationMesh->get_set_by_index( tMeshSetIndex );
+                    mtk::Set* tSet = aIntegrationMesh->get_set_by_index( iMeshSetIndex );
 
                     // Select sides of interpolation cells to get info from
                     Cell< mtk::Leader_Follower > tSetSides = mtk::get_leader_follower( tSet->get_set_type() );
@@ -2153,33 +2157,33 @@ namespace moris
                             Matrix< IndexMat > tNodeIndicesInCluster = tBaseCell->get_vertex_inds();
 
                             // Add to the number of base nodes on this set
-                            tNumberOfNodesPerSet( tMeshSetIndex ) = tNumberOfNodesPerSet( tMeshSetIndex ) + tNodeIndicesInCluster.length();
+                            tNumberOfNodesPerSet( iMeshSetIndex ) = tNumberOfNodesPerSet( iMeshSetIndex ) + tNodeIndicesInCluster.length();
                         }
                     }
                 }
             }
 
             // Resize node indices, IDs, owners, and coordinates for each set
-            for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
+            for ( uint iMeshSetIndex = 0; iMeshSetIndex < tNumSets; iMeshSetIndex++ )
             {
                 // Resize only if there are PDVs on this set
-                if ( true )//aPdvTypes( tMeshSetIndex ).size() > 0 )
+                if ( true )//aPdvTypes( iMeshSetIndex ).size() > 0 )
                 {
-                    tNodeIndicesPerSet( tMeshSetIndex ).resize( tNumberOfNodesPerSet( tMeshSetIndex ), 1 );
-                    tNodeIdsPerSet( tMeshSetIndex ).resize( tNumberOfNodesPerSet( tMeshSetIndex ), 1 );
-                    tNodeOwnersPerSet( tMeshSetIndex ).resize( tNumberOfNodesPerSet( tMeshSetIndex ), 1 );
-                    tNodeCoordinatesPerSet( tMeshSetIndex ).resize( tNumberOfNodesPerSet( tMeshSetIndex ), mNumSpatialDimensions );
+                    tNodeIndicesPerSet( iMeshSetIndex ).resize( tNumberOfNodesPerSet( iMeshSetIndex ), 1 );
+                    tNodeIdsPerSet( iMeshSetIndex ).resize( tNumberOfNodesPerSet( iMeshSetIndex ), 1 );
+                    tNodeOwnersPerSet( iMeshSetIndex ).resize( tNumberOfNodesPerSet( iMeshSetIndex ), 1 );
+                    tNodeCoordinatesPerSet( iMeshSetIndex ).resize( tNumberOfNodesPerSet( iMeshSetIndex ), mNumSpatialDimensions );
                 }
             }
 
             // Loop through sets in integration mesh
-            for ( uint tMeshSetIndex = 0; tMeshSetIndex < tNumSets; tMeshSetIndex++ )
+            for ( uint iMeshSetIndex = 0; iMeshSetIndex < tNumSets; iMeshSetIndex++ )
             {
                 // Get node information if there are PDVs on this set
-                if ( true )//aPdvTypes( tMeshSetIndex ).size() > 0 )
+                if ( true )//aPdvTypes( iMeshSetIndex ).size() > 0 )
                 {
-                    uint      tCurrentNode = 0;
-                    mtk::Set* tSet         = aIntegrationMesh->get_set_by_index( tMeshSetIndex );
+                    // Get set
+                    mtk::Set* tSet = aIntegrationMesh->get_set_by_index( iMeshSetIndex );
 
                     // Select sides of interpolation cells to get info from
                     Cell< mtk::Leader_Follower > tSetSides = mtk::get_leader_follower( tSet->get_set_type() );
@@ -2187,7 +2191,11 @@ namespace moris
                     // Get number of clusters on set
                     uint tNumberOfClusters = tSet->get_num_clusters_on_set();
 
+                    // Start counting shared nodes
+                    uint tNumSharedNodesOnSet = 0;
+
                     // Clusters per set
+                    uint tCurrentNode = 0;
                     for ( uint tClusterIndex = 0; tClusterIndex < tNumberOfClusters; tClusterIndex++ )
                     {
                         // get pointer to cluster
@@ -2201,7 +2209,7 @@ namespace moris
 
                             // Indices, IDs, and ownership of base cell nodes in cluster
                             Matrix< IndexMat > tNodeIndicesInCluster     = tBaseCell->get_vertex_inds();
-                            Matrix< IndexMat > tNodeIdsInCluster         = tBaseCell->get_vertex_ids();
+                            Matrix< IdMat >    tNodeIdsInCluster         = tBaseCell->get_vertex_ids();
                             Matrix< IndexMat > tNodeOwnersInCluster      = tBaseCell->get_vertex_owners();
                             Matrix< DDRMat >   tNodeCoordinatesInCluster = tBaseCell->get_vertex_coords();
 
@@ -2215,16 +2223,35 @@ namespace moris
                             // FIXME we have nodes up to 8 times in this list in 3d
                             for ( uint iNodeInCluster = 0; iNodeInCluster < tNumberOfBaseNodes; iNodeInCluster++ )
                             {
-                                tNodeIndicesPerSet( tMeshSetIndex )( tCurrentNode ) = tNodeIndicesInCluster( iNodeInCluster );
-                                tNodeIdsPerSet( tMeshSetIndex )( tCurrentNode )     = tNodeIdsInCluster( iNodeInCluster );
-                                tNodeOwnersPerSet( tMeshSetIndex )( tCurrentNode )  = tNodeOwnersInCluster( iNodeInCluster );
-                                tNodeCoordinatesPerSet( tMeshSetIndex ).get_row( tCurrentNode ) =
+                                // Set node index/ID/owner info
+                                tNodeIndicesPerSet( iMeshSetIndex )( tCurrentNode ) = tNodeIndicesInCluster( iNodeInCluster );
+                                tNodeIdsPerSet( iMeshSetIndex )( tCurrentNode )     = tNodeIdsInCluster( iNodeInCluster );
+                                tNodeOwnersPerSet( iMeshSetIndex )( tCurrentNode )  = tNodeOwnersInCluster( iNodeInCluster );
+                                tNodeCoordinatesPerSet( iMeshSetIndex ).get_row( tCurrentNode ) =
                                         tNodeCoordinatesInCluster.get_row( iNodeInCluster );
 
+                                // If not owned, need to communicate this node
+                                tNumSharedNodesOnSet += ( tNodeOwnersInCluster( iNodeInCluster ) not_eq par_rank() );
+
+                                // Index in overall lists
                                 tCurrentNode++;
                             }
                         }
                     }
+
+                    // Get shared node IDs on this set
+//                    uint tSharedNodeIndex = 0;
+//                    Matrix< IdMat > tSharedNodeIdsOnSet( tNumSharedNodesOnSet, 1 );
+//                    for ( uint iNodeInSet = 0; iNodeInSet < tNodeOwnersPerSet( iMeshSetIndex ).size(); iNodeInSet++ )
+//                    {
+//                        if ( tNodeOwnersPerSet( iMeshSetIndex )( iNodeInSet ) not_eq par_rank() )
+//                        {
+//                            tSharedNodeIdsOnSet( tSharedNodeIndex++ ) = tNodeIdsPerSet( iMeshSetIndex )( iNodeInSet );
+//                        }
+//                    }
+
+                    // TODO Communicate shared IDs on this set
+
                 }
             }
 

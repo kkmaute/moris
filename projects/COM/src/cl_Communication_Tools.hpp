@@ -427,6 +427,15 @@ namespace moris
     //------------------------------------------------------------------------------
 
     /**
+     * Builds a communication table map that
+     * @param aCommunicationTable List of processors to communicate with
+     * @return Map going from processor to position in the communication table
+     */
+    Cell< moris_id > build_communication_table_map( const Matrix< IdMat >& aCommunicationTable );
+
+    //------------------------------------------------------------------------------
+
+    /**
      *
      * @brief sends and receives matrix to and from each processor in communication list
      *
