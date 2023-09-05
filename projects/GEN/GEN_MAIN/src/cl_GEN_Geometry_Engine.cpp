@@ -2118,9 +2118,9 @@ namespace moris
             uint tNumSets = aPdvTypes.size();
 
             // Size node information cells
-            Cell< Matrix< DDSMat > > tNodeIndicesPerSet( tNumSets );
-            Cell< Matrix< DDSMat > > tNodeIdsPerSet( tNumSets );
-            Cell< Matrix< DDSMat > > tNodeOwnersPerSet( tNumSets );
+            Cell< Cell< uint > > tNodeIndicesPerSet( tNumSets );
+            Cell< Cell< sint > > tNodeIdsPerSet( tNumSets );
+            Cell< Cell< uint > > tNodeOwnersPerSet( tNumSets );
             Cell< Matrix< DDRMat > > tNodeCoordinatesPerSet( tNumSets );
             Cell< uint > tNumberOfNodesPerSet( tNumSets, 0 );
 

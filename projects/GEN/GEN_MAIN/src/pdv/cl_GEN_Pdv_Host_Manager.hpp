@@ -355,9 +355,9 @@ namespace moris
              * @param aPdvTypes The PDV types per set, grouped
              */
             void create_interpolation_pdv_hosts(
-                    const Cell< Matrix< DDSMat > >& aNodeIndicesPerSet,
-                    const Cell< Matrix< DDSMat > >& aNodeIdsPerSet,
-                    const Cell< Matrix< DDSMat > >& aNodeOwnersPerSet,
+                    const Cell< Cell< uint > >& aNodeIndicesPerSet,
+                    const Cell< Cell< sint > >& aNodeIdsPerSet,
+                    const Cell< Cell< uint > >& aNodeOwnersPerSet,
                     const Cell< Matrix< DDRMat > >& aNodeCoordinates );
 
             //-------------------------------------------------------------------------------

@@ -468,9 +468,9 @@ namespace moris
 
         void
         Pdv_Host_Manager::create_interpolation_pdv_hosts(
-                const Cell< Matrix< DDSMat > >& aNodeIndicesPerSet,
-                const Cell< Matrix< DDSMat > >& aNodeIdsPerSet,
-                const Cell< Matrix< DDSMat > >& aNodeOwnersPerSet,
+                const Cell< Cell< uint > >& aNodeIndicesPerSet,
+                const Cell< Cell< sint > >& aNodeIdsPerSet,
+                const Cell< Cell< uint > >& aNodeOwnersPerSet,
                 const Cell< Matrix< DDRMat > >& aNodeCoordinatesPerSet )
         {
             // Check that number of sets is consistent
@@ -479,12 +479,12 @@ namespace moris
                     "Pdv_Host_Manager::create_interpolation_pdv_hosts - inconsistent number of sets!" );
 
             // determine maximum node index used for sizing the pdv hosts
-            moris_index tMax = 0;
-            for ( uint iSet = 0; iSet < tNumSets; iSet++ )
+            uint tMax = 0;
+            for ( uint iSetIndex = 0; iSetIndex < tNumSets; iSetIndex++ )
             {
-                if ( aNodeIndicesPerSet( iSet ).numel() > 0 )
+                if ( aNodeIndicesPerSet( iSetIndex ).size() > 0 )
                 {
-                    tMax = std::max( aNodeIndicesPerSet( iSet ).max(), tMax );
+                    tMax = std::max( *std::max_element( aNodeIndicesPerSet( iSetIndex ).begin(), aNodeIndicesPerSet( iSetIndex ).end() ), tMax );
                 }
             }
 
@@ -514,7 +514,7 @@ namespace moris
                 }
 
                 // get number of nodes in current set
-                uint tNumberOfNodes = aNodeIndicesPerSet( tMeshSetIndex ).numel();
+                uint tNumberOfNodes = aNodeIndicesPerSet( tMeshSetIndex ).size();
 
                 // Create PDV hosts on interpolation nodes
                 for ( uint tNodeIndexOnSet = 0; tNodeIndexOnSet < tNumberOfNodes; tNodeIndexOnSet++ )

@@ -98,18 +98,32 @@ namespace moris
                 tPDVHostManager.mPdvTypeMap( 5 ) = 2;
 
                 // Node indices per set
-                Cell< Matrix< DDSMat > > tIpNodeIndicesPerSet( 2 );
+                Cell< Cell< uint > > tIpNodeIndicesPerSet( 2 );
                 tIpNodeIndicesPerSet( 0 ).resize( 4, 1 );
                 tIpNodeIndicesPerSet( 1 ).resize( 4, 1 );
                 tIpNodeIndicesPerSet( 0 ) = { { 0, 1, 2, 3 } };
                 tIpNodeIndicesPerSet( 1 ) = { { 2, 3, 4, 5 } };
 
+                // Node indices per set to request
+                Cell< Matrix< IndexMat > > tRequestIpNodeIndicesPerSet( 2 );
+                tIpNodeIndicesPerSet( 0 ).resize( 4, 1 );
+                tIpNodeIndicesPerSet( 1 ).resize( 4, 1 );
+                tIpNodeIndicesPerSet( 0 ) = { 0, 1, 2, 3 };
+                tIpNodeIndicesPerSet( 1 ) = { 2, 3, 4, 5 };
+
+                // Node IDs per set
+                Cell< Cell< sint > > tIpNodeIdsPerSet( 2 );
+                tIpNodeIdsPerSet( 0 ).resize( 4, 1 );
+                tIpNodeIdsPerSet( 1 ).resize( 4, 1 );
+                tIpNodeIdsPerSet( 0 ) = { 0, 1, 2, 3 };
+                tIpNodeIdsPerSet( 1 ) = { 2, 3, 4, 5 };
+
                 // Node ownership per set
-                Cell< Matrix< DDSMat > > tIpNodeOwnersPerSet( 2 );
+                Cell< Cell< uint > > tIpNodeOwnersPerSet( 2 );
                 tIpNodeOwnersPerSet( 0 ).resize( 4, 1 );
                 tIpNodeOwnersPerSet( 1 ).resize( 4, 1 );
-                tIpNodeOwnersPerSet( 0 ) = { { 0, 0, 0, 0 } };
-                tIpNodeOwnersPerSet( 1 ) = { { 0, 0, 0, 0 } };
+                tIpNodeOwnersPerSet( 0 ) = { 0, 0, 0, 0 };
+                tIpNodeOwnersPerSet( 1 ) = { 0, 0, 0, 0 };
 
                 // Node coordinates per set
                 Cell< Matrix< DDRMat > > tNodeCoordinatesPerSet( 2 );
@@ -135,7 +149,7 @@ namespace moris
                 tPDVHostManager.set_interpolation_pdv_types( tIpPdvTypes );
                 tPDVHostManager.create_interpolation_pdv_hosts(
                         tIpNodeIndicesPerSet,
-                        tIpNodeIndicesPerSet,
+                        tIpNodeIdsPerSet,
                         tIpNodeOwnersPerSet,
                         tNodeCoordinatesPerSet );
 
@@ -164,7 +178,7 @@ namespace moris
                     for ( uint tPdvIndex = 0; tPdvIndex < 2; tPdvIndex++ )
                     {
                         tPdvValues.clear();
-                        tPDVHostManager.get_ip_pdv_value( tIpNodeIndicesPerSet( tMeshSetIndex ), tIpPdvTypes( tMeshSetIndex )( tPdvIndex ), tPdvValues );
+                        tPDVHostManager.get_ip_pdv_value( tRequestIpNodeIndicesPerSet( tMeshSetIndex ), tIpPdvTypes( tMeshSetIndex )( tPdvIndex ), tPdvValues );
 
                         for ( uint tNodeIndex = 0; tNodeIndex < 4; tNodeIndex++ )
                         {
@@ -199,9 +213,9 @@ namespace moris
                 tPDVHostManager.mPdvTypeMap( 4 ) = 1;
 
                 // ----------------- Interpolation PDVs ---------------------- //
-                Cell< Matrix< DDSMat > > tIpNodeIndicesPerSet( 2 );
-                Cell< Matrix< DDSMat > > tIpNodeIdsPerSet( 2 );
-                Cell< Matrix< DDSMat > > tIpNodeOwnersPerSet( 2 );
+                Cell< Cell< uint > > tIpNodeIndicesPerSet( 2 );
+                Cell< Cell< sint > > tIpNodeIdsPerSet( 2 );
+                Cell< Cell< uint > > tIpNodeOwnersPerSet( 2 );
                 Cell< Matrix< DDRMat > > tNodeCoordinatesPerSet( 2 );
                 Cell< Cell< Cell< PDV_Type > > > tIpPdvTypes( 2 );
 
@@ -262,7 +276,7 @@ namespace moris
                 // Set PDVs
                 for ( uint tMeshSetIndex = 0; tMeshSetIndex < 2; tMeshSetIndex++ )
                 {
-                    for ( uint tNodeIndex = 0; tNodeIndex < tIpNodeIndicesPerSet( tMeshSetIndex ).length(); tNodeIndex++ )
+                    for ( uint tNodeIndex = 0; tNodeIndex < tIpNodeIndicesPerSet( tMeshSetIndex ).size(); tNodeIndex++ )
                     {
                         for ( uint tPdvGroupIndex = 0; tPdvGroupIndex < tIpPdvTypes( tMeshSetIndex ).size(); tPdvGroupIndex++ )
                         {
@@ -506,14 +520,14 @@ namespace moris
             }
 
             // Node indices, IDs, ownership and coordinates per set
-            Cell< Matrix< DDSMat > > tIpNodeIndicesPerSet( 1 );
-            Cell< Matrix< DDSMat > > tIpNodeIdsPerSet( 1 );
-            Cell< Matrix< DDSMat > > tIpNodeOWnersPerSet( 1 );
+            Cell< Cell< uint > > tIpNodeIndicesPerSet( 1 );
+            Cell< Cell< sint > > tIpNodeIdsPerSet( 1 );
+            Cell< Cell< uint > > tIpNodeOwnersPerSet( 1 );
             Cell< Matrix< DDRMat > > tNodeCoordinatesPerSet( 1 );
 
-            tIpNodeIndicesPerSet( 0 ).set_size( gNumPDVs, 1 );
-            tIpNodeIdsPerSet( 0 ).set_size( gNumPDVs, 1 );
-            tIpNodeOWnersPerSet( 0 ).set_size( gNumPDVs, 1, par_rank() );
+            tIpNodeIndicesPerSet( 0 ).resize( gNumPDVs, 1 );
+            tIpNodeIdsPerSet( 0 ).resize( gNumPDVs, 1 );
+            tIpNodeOwnersPerSet( 0 ).resize( gNumPDVs, par_rank() );
             tNodeCoordinatesPerSet( 0 ).resize( gNumPDVs, 3 );
 
             for ( uint tNodeIndex = 0; tNodeIndex < gNumPDVs; tNodeIndex++ )
@@ -544,7 +558,7 @@ namespace moris
             tPDVHostManager.create_interpolation_pdv_hosts(
                     tIpNodeIndicesPerSet,
                     tIpNodeIdsPerSet,
-                    tIpNodeOWnersPerSet,
+                    tIpNodeOwnersPerSet,
                     tNodeCoordinatesPerSet );
 
             // Set PDVs
