@@ -39,12 +39,9 @@ namespace moris
              * @param aSecondParentNodeLocalCoordinates Local coordinates of the second parent node with respect to
              * the given ancestors
              * @param aAncestorNodeIndices Ancestor node indices
-             * @param aAncestorNodeCoordinates Ancestor node coordinates
+             * @param aAncestorNodeCoordinates Ancestor node global coordinates
              * @param aInterpolationType Type of interpolation: bi or tri-linear
              * @param aInterfaceGeometry Geometry that intersects the parent to create this child
-             * @param aIsocontourThreshold Threshold for determining the intersection location of this node
-             * @param aIsocontourTolerance Tolerance for determining interface parent nodes based on geometry value
-             * @param aIntersectionTolerance Tolerance for determining interface parent nodes with intersection distance
              */
             Intersection_Node_Bilinear(
                     std::shared_ptr< Intersection_Node > aFirstParentNode,
@@ -118,7 +115,6 @@ namespace moris
              * @param aAncestorNodeIndices Ancestor node indices
              * @param aAncestorNodeCoordinates Ancestor node coordinates
              * @param aInterfaceGeometry Geometry that intersects the parent to create this child
-             * @param aIsocontourThreshold Threshold for determining the intersection location of this node
              * @return Local coordinates
              */
 
