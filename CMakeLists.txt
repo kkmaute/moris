@@ -249,6 +249,9 @@ option(MORIS_USE_INTEL "USE BLANCA" OFF)
 
 option(MORIS_USE_OPENMP "Use OpenMP" OFF)
 
+option(MORIS_USE_NTOP_LIB 
+      " Build with NTOP interface library - experimental" OFF)
+
 # -------------------------------------------------------------------------
 # Package Options
 
@@ -476,10 +479,10 @@ if (MORIS_HAVE_SYMBOLIC)
     if (MORIS_HAVE_SYMBOLIC_STRONG)
         # add here option to ease debugging
     else()
-        check_cxx_compiler_flag(-Og HAVE_DEBUG)
-        if (HAVE_DEBUG)
+        check_cxx_compiler_flag(-Og HAVE_DEBUG_OG)
+        if (HAVE_DEBUG_OG)
             set(MORIS_CXX_FLAGS "${MORIS_CXX_FLAGS} -Og")
-         endif()
+        endif()
     endif()
 
     check_cxx_compiler_flag(-g3 HAVE_DEBUG_3)
@@ -670,12 +673,18 @@ option(MORIS_USE_MEMORY_DEBUG "Use memkind library for memory debugging)." OFF)
 if (MORIS_USE_MEMORY_DEBUG)
     find_library(MORIS_LIB_MemKind NAMES libmemkind.so.0  HINTS /usr/lib64)
     if ( NOT MORIS_LIB_MemKind )
-        message( FATAL_ERROR "memkind lib not found - do not use MORIS_USE_MEMORY_DEBUG}")
+        message( WARNING "memkind lib not found - do not use MORIS_USE_MEMORY_DEBUG}")
+    else()
+        message(STATUS "MORIS_LIB_MemKind = ${MORIS_LIB_MemKind}")
+        link_libraries(${MORIS_LIB_MemKind})
+        #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_MemKind})
     endif()
+endif()
 
-    message(STATUS "MORIS_LIB_MemKind = ${MORIS_LIB_MemKind}")
-    link_libraries(${MORIS_LIB_MemKind})
-    #list(APPEND MORIS_BASE_LIBS ${MORIS_LIB_MemKind})
+# -------------------------------------------------------------------------
+
+if (MORIS_USE_NTOP_LIB)
+    link_libraries(/home/maute/work/NTop_Implicit/lib/libntop_core.so.4)
 endif()
 
 # -------------------------------------------------------------------------
@@ -884,6 +893,13 @@ set(CMAKE_C_COMPILER ${MORIS_C_COMPILER})
 set(CMAKE_CXX_COMPILER ${MORIS_CXX_COMPILER})
 set(CMAKE_CXX_FLAGS ${MORIS_CXX_FLAGS})
 
+# to activaite custom malloc and free
+if (MORIS_USE_CHECK_MEMORY)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,--wrap=malloc -Wl,--wrap=free -Wl,--wrap=posix_memalign")
+    #set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--wrap=malloc -Wl,--wrap=free -Wl,--wrap=posix_memalign")
+    #set(CMAKE_STATIC_LINKER_FLAGS "${CMAKE_STATIC_LINKER_FLAGS} -Wl,--wrap=malloc -Wl,--wrap=free -Wl,--wrap=posix_memalign")
+endif()
+
 # Check compiler version.
 # Check for GCC version - earlier versions have insufficient C++11
 # support, or bugs. Version info is only available in CMake 2.8.0 and
@@ -1052,7 +1068,7 @@ if(MORIS_USE_ARMA)
 endif()
 
 if(MORIS_USE_EIGEN)
-    #include(${MORIS_TPL_DIR}/eigen.cmake)
+    #include(${MORIS_TPL_DIR}/eigen_new.cmake)
 endif()
 
 # -------------------------------------------------------------------------

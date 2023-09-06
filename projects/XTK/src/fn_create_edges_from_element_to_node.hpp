@@ -205,7 +205,7 @@ namespace xtk
         }
 
         MORIS_CHECK_MEMORY(tNumResize < 2*tNumElements,
-                "Excessive use of resize; increase parameter tMaxEdgePerNode: %d times for %d elements.\n",
+                "Excessive use of resize; increase parameter tMaxEdgePerNode: %zu times for %zu elements.\n",
                 tNumResize,tNumElements);
 
         //Remove excess space from output

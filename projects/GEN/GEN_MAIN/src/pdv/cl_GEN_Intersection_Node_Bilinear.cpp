@@ -54,9 +54,6 @@ namespace moris
                         aInterpolationType,
                         aInterfaceGeometry )
         {
-            // initialize number of basis used by interpolation
-            uint tNumBases;
-
             // check that number of node indices and number of nodal coodinates of ancestor nodes are identical
             MORIS_ASSERT( aAncestorNodeCoordinates.size() == aAncestorNodeIndices.numel(),
                     "Intersection_Node_Bilinear::compute_intersection - inconsistent ancestor node information." );
@@ -65,28 +62,14 @@ namespace moris
             MORIS_ASSERT( aFirstParentNodeLocalCoordinates.numel() == aAncestorNodeCoordinates( 0 ).numel(),
                     "Intersection_Node_Bilinear::compute_intersection - inconsistent coordinate dimensions." );
 
-            // create interpolation function based on spatial dimension  of problem
-            switch ( mAncestorNodeCoordinates( 0 ).numel() )
-            {
-                case 2:
-                {
-                    tNumBases = 4;
-                    break;
-                }
-                case 3:
-                {
-                    tNumBases = 8;
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false,
-                            "Intersection_Node_Bilinear::Intersection_Node_Bilinear - Interpolation type not implemented." );
-                }
-            }
+            MORIS_ASSERT( mAncestorNodeCoordinates( 0 ).numel() == 2 || mAncestorNodeCoordinates( 0 ).numel() == 3,
+                    "Intersection_Node_Bilinear::Intersection_Node_Bilinear - Incorrect nodal dimension." );
 
             // check that number of bases to be used less or equal number of ancestor nodes
-            MORIS_ASSERT( mAncestorNodeCoordinates.size() >= tNumBases,
+            MORIS_ASSERT( mAncestorNodeCoordinates( 0 ).numel() == 2 ? mAncestorNodeCoordinates.size() >= 4 : true,
+                    "Intersection_Node_Bilinear::compute_intersection - number of ancestor nodes insufficient." );
+
+            MORIS_ASSERT( mAncestorNodeCoordinates( 0 ).numel() == 3 ? mAncestorNodeCoordinates.size() >= 8 : true,
                     "Intersection_Node_Bilinear::compute_intersection - number of ancestor nodes insufficient." );
 
             // call required setup function

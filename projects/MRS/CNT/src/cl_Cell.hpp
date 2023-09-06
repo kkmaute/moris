@@ -34,14 +34,14 @@ namespace moris
 
 #ifdef CHECK_MEMORY
         uint mNumResizeCalls     = 0;
+        uint mNumReserveCalls    = 0;
         uint mNumImplicitResizes = 0;
         bool mPushBackMemWarn    = true;
 #endif
 
       public:
+        using value_type = T;
 
-        using value_type = T; 
-        
         /**
          * moris::Cell constructor
          */
@@ -111,7 +111,7 @@ namespace moris
         {
             MORIS_CHECK_MEMORY(
                     sizeof( T ) * this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ? this->size() > MORIS_CELL_UTILIZATION_FRACTION_LIMIT * this->capacity() : true,
-                    "Cell::~Cell:: At destruction memory used is less than 75 percent of capacity of large matrix: size %d capacity %d\n",
+                    "Cell::~Cell:: At destruction memory used is less than 75 percent of capacity of large matrix: size %zu capacity %zu\n",
                     this->size(),
                     this->capacity() );
         }
@@ -356,6 +356,9 @@ namespace moris
                     "Cell::reserve: Maximum allowable capacity exceeded: %f MB.\n",
                     sizeof( T ) * new_cap / 1e6 );
 
+            MORIS_CHECK_MEMORY( mNumReserveCalls++ < MORIS_CELL_RESERVE_CALL_LIMIT,
+                    "Cell::reserve: number of reserve calls exceeds limit.\n" );
+
             mCell.reserve( new_cap );
         }
 
@@ -386,7 +389,7 @@ namespace moris
             // check that resize on large cells does not indicate overly conservative initial size allocation
             MORIS_CHECK_MEMORY(
                     sizeof( T ) * this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ? this->size() > MORIS_CELL_RESIZE_FRACTION_LIMIT * this->capacity() : true,
-                    "Cell::shrink_to_fit: Shrink to less than 10 percent of capacity of large matrix: size %d capacity %d.\n",
+                    "Cell::shrink_to_fit: Shrink to less than 10 percent of capacity of large matrix: size %zu capacity %zu.\n",
                     this->size(),
                     this->capacity() );
 
@@ -441,7 +444,7 @@ namespace moris
 
             MORIS_CHECK_MEMORY(
                     sizeof( T ) * this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ? this->size() > MORIS_CELL_UTILIZATION_FRACTION_LIMIT * this->capacity() : true,
-                    "Cell::insert: After insert memory used is less than 75 percent of capacity of large matrix: size %d capacity %d\n",
+                    "Cell::insert: After insert memory used is less than 75 percent of capacity of large matrix: size %zu capacity %zu\n",
                     this->size(),
                     this->capacity() );
         }
@@ -465,7 +468,7 @@ namespace moris
 
             MORIS_CHECK_MEMORY(
                     sizeof( T ) * this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ? this->size() > MORIS_CELL_UTILIZATION_FRACTION_LIMIT * this->capacity() : true,
-                    "Cell::append: After append memory used is less than 75 percent of capacity of large matrix: size %d capacity %d\n",
+                    "Cell::append: After append memory used is less than 75 percent of capacity of large matrix: size %zu capacity %zu\n",
                     this->size(),
                     this->capacity() );
         }
@@ -535,7 +538,7 @@ namespace moris
             if ( sizeof( T ) * this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY && this->size() < MORIS_CELL_UTILIZATION_FRACTION_LIMIT * this->capacity() && mPushBackMemWarn )
             {
                 MORIS_CHECK_MEMORY( false,
-                        "Cell::push_back: After push_back memory used is less than 75 percent of capacity of large matrix: size %d capacity %d\n",
+                        "Cell::push_back: After push_back memory used is less than 75 percent of capacity of large matrix: size %zu capacity %zu\n",
                         this->size(),
                         this->capacity() );
 
@@ -566,6 +569,9 @@ namespace moris
             {
                 MORIS_CHECK_MEMORY( mNumResizeCalls++ != MORIS_CELL_RESIZE_CALL_LIMIT,
                         "Cell::push_back: number of resize calls exceeds limit.\n" );
+
+                MORIS_CHECK_MEMORY( mNumReserveCalls++ < MORIS_CELL_RESERVE_CALL_LIMIT,
+                        "Cell::reserve: number of reserve calls exceeds limit.\n" );
 
                 mCell.reserve( mCell.size() + tSizeInc );
             }
@@ -606,7 +612,7 @@ namespace moris
             // check that resize on large cells does not indicate overly conservative initial size allocation
             MORIS_CHECK_MEMORY(
                     sizeof( T ) * this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ? aCount > MORIS_CELL_RESIZE_FRACTION_LIMIT * this->capacity() : true,
-                    "Cell::resize: Resize to less than 10 percent of capacity of large matrix: size %d capacity %d\n",
+                    "Cell::resize: Resize to less than 10 percent of capacity of large matrix: size %zu capacity %zu\n",
                     this->size(),
                     this->capacity() );
 
@@ -618,7 +624,7 @@ namespace moris
 
             MORIS_CHECK_MEMORY(
                     sizeof( T ) * this->capacity() > MORIS_CELL_RESIZE_CHECK_LIMIT * MORIS_MAX_CELL_CAPACITY ? this->size() > MORIS_CELL_UTILIZATION_FRACTION_LIMIT * this->capacity() : true,
-                    "Cell::resize: After resize memory used is less than 75 percent of capacity of large matrix: size %d capacity %d\n",
+                    "Cell::resize: After resize memory used is less than 75 percent of capacity of large matrix: size %zu capacity %zu\n",
                     this->size(),
                     this->capacity() );
         }
@@ -739,7 +745,7 @@ namespace moris
 
         //------------------------------------------------------------------
 
-    }; // class Cell
+    };    // class Cell
 
     //------------------------------------------------------------------
 
@@ -819,18 +825,22 @@ namespace moris
 
     // General is_container trait with default value as false
     template< typename T, typename = void >
-    struct is_moris_cell : std::false_type{};
+    struct is_moris_cell : std::false_type
+    {
+    };
 
     // Specialization for moris cell type
     template< typename T >
-    struct is_moris_cell< Cell< T > > : std::true_type{};
+    struct is_moris_cell< Cell< T > > : std::true_type
+    {
+    };
 
     template< typename T >
     std::string
     print_nested_cells( const T& aCell )
     {
         // initialize the return string
-        std::string aReturnStr="";
+        std::string aReturnStr = "";
 
         // Check if the container type is a nested container
         if constexpr ( is_moris_cell< T >::value )
@@ -864,10 +874,10 @@ namespace moris
     //------------------------------------------------------------------
     /**
      * @brief prints out a row vector for infinite nested cells
-     * 
-     * @tparam T 
-     * @param aCell 
-     * @param aStr 
+     *
+     * @tparam T
+     * @param aCell
+     * @param aStr
      */
 
     template< typename T >
@@ -876,7 +886,7 @@ namespace moris
             Cell< T > const & aCell,
             std::string       aStr = "Cell" )
     {
-        std::cout<<aStr<<" = "<<print_nested_cells(aCell)<<std::endl;
+        std::cout << aStr << " = " << print_nested_cells( aCell ) << std::endl;
     }
 
     //------------------------------------------------------------------
