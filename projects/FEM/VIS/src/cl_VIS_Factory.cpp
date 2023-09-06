@@ -22,6 +22,7 @@
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Double_Side_Set.hpp"
 #include "cl_MTK_Vertex.hpp"
+#include "cl_Tracer.hpp"
 
 extern moris::Comm_Manager gMorisComm;
 
@@ -29,6 +30,26 @@ namespace moris
 {
     namespace vis
     {
+        //-----------------------------------------------------------------------------------------------------------
+
+        VIS_Factory::VIS_Factory(
+                std::shared_ptr< mtk::Mesh_Manager > aMesh,
+                uint                                 aMeshPairIndex )
+        {
+            // get access to the integration and interpolation meshes
+            aMesh->get_mesh_pair( aMeshPairIndex, mInterpolationMesh, mIntegrationMesh );
+        }
+
+        //-----------------------------------------------------------------------------------------------------------
+
+        VIS_Factory::~VIS_Factory()
+        {
+            // make sure there is no memory leaking
+            MORIS_ERROR( mVisMesh == nullptr,
+                    "~VIS_Factory() - "
+                    "The constructed VIS mesh has not been handed off to a new owner. Destructing this factory will cause memory to leak." );
+        };
+
         //-----------------------------------------------------------------------------------------------------------
 
         void
