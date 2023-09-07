@@ -168,7 +168,7 @@ namespace moris::vis
          * @return Set index
          */
         moris_index
-        get_set_index_by_name( std::string aSetLabel ) const;
+        get_set_index_by_name( const std::string& aSetLabel ) const;
 
         /**
          * Gets element indices in a block set.
@@ -206,8 +206,8 @@ namespace moris::vis
          */
         uint
         get_num_entities(
-                mtk::EntityRank   aEntityRank,
-                moris_index aIndex = 0 ) const override;
+                mtk::EntityRank aEntityRank,
+                moris_index     aDiscretizationIndex = 0 ) const override;
 
         /**
          * Gets the nodes connected to a given element
@@ -226,7 +226,7 @@ namespace moris::vis
                 moris_index     aEntityIndex,
                 mtk::EntityRank aInputEntityRank,
                 mtk::EntityRank aOutputEntityRank,
-                moris_index     aIndex = 0 ) const override;
+                moris_index     aDiscretizationIndex = 0 ) const override;
         /**
          * VIS mesh does not support getting neighboring elements, calling this function will raise an error.
          */
@@ -253,14 +253,28 @@ namespace moris::vis
          *
          * @param aEntityIndex Local entity index
          * @param aEntityRank Entity rank
-         * @param aBSplineMeshIndex B-spline mesh Index
+         * @param aDiscretizationIndex Discretization mesh index
          * @return Global entity ID
          */
         moris_id
         get_glb_entity_id_from_entity_loc_index(
-                moris_index       aEntityIndex,
-                mtk::EntityRank   aEntityRank,
-                moris_index aBSplineMeshIndex = 0 ) const override;
+                moris_index     aEntityIndex,
+                mtk::EntityRank aEntityRank,
+                moris_index     aDiscretizationIndex = 0 ) const override;
+
+        /**
+         * Get a local entity ID from an entity rank and global ID
+         *
+         * @param aEntityId Global entity ID
+         * @param aEntityRank Entity rank
+         * @param aDiscretizationIndex Discretization mesh index
+         * @return Local entity index
+         */
+        moris_index
+        get_loc_entity_ind_from_entity_glb_id(
+                moris_id        aEntityId,
+                mtk::EntityRank aEntityRank,
+                moris_index     aDiscretizationIndex = 0 ) const override;
 
         /**
          * Gets the owner of a node.

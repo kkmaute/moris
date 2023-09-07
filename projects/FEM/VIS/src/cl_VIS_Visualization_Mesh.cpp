@@ -42,7 +42,7 @@ namespace moris::vis
         }
 
         // delete clusters
-        for ( auto iClustersOnSet : mClustersOnBlockSets )
+        for ( const auto& iClustersOnSet : mClustersOnBlockSets )
         {
             for ( auto iCluster : iClustersOnSet )
             {
@@ -50,7 +50,7 @@ namespace moris::vis
             }
         }
 
-        for ( auto iClustersOnSet : mClustersOnSideSets )
+        for ( const auto& iClustersOnSet : mClustersOnSideSets )
         {
             for ( auto iCluster : iClustersOnSet )
             {
@@ -58,7 +58,7 @@ namespace moris::vis
             }
         }
 
-        for ( auto iClustersOnSet : mLeaderSideClusters )
+        for ( const auto& iClustersOnSet : mLeaderSideClusters )
         {
             for ( auto iCluster : iClustersOnSet )
             {
@@ -66,7 +66,7 @@ namespace moris::vis
             }
         }
 
-        for ( auto iClustersOnSet : mFollowerSideClusters )
+        for ( const auto& iClustersOnSet : mFollowerSideClusters )
         {
             for ( auto iCluster : iClustersOnSet )
             {
@@ -74,7 +74,7 @@ namespace moris::vis
             }
         }
 
-        for ( auto iClustersOnSet : mClustersOnDoubleSideSets )
+        for ( const auto& iClustersOnSet : mClustersOnDoubleSideSets )
         {
             for ( auto iCluster : iClustersOnSet )
             {
@@ -104,14 +104,14 @@ namespace moris::vis
         else if ( aSetEntityRank == mtk::EntityRank::NODE )
         {
             // don't output node sets
-            return Cell< std::string >( 0 );
+            return {};
         }
         else
         {
             MORIS_ERROR( false,
                     "VIS::Visualization_Mesh::get_set_names() - "
                     "Requested entity rank for set not known. Only block sets and side sets exist." );
-            return moris::Cell< std::string >( 0 );
+            return {};
         }
     }
 
@@ -237,7 +237,7 @@ namespace moris::vis
     // ----------------------------------------------------------------------------
 
     moris_index
-    Visualization_Mesh::get_set_index_by_name( std::string aSetLabel ) const
+    Visualization_Mesh::get_set_index_by_name( const std::string& aSetLabel ) const
     {
         return mSetNameToIndexMap.find( aSetLabel );
     }
@@ -279,8 +279,8 @@ namespace moris::vis
 
     uint
     Visualization_Mesh::get_num_entities(
-            mtk::EntityRank   aEntityRank,
-            moris_index       aIndex ) const
+            mtk::EntityRank aEntityRank,
+            moris_index     aDiscretizationIndex ) const
     {
         MORIS_ERROR( false, "VIS::Visualization_Mesh::get_num_entities() - not implemented for visualization mesh" );
         return 0;
@@ -301,7 +301,7 @@ namespace moris::vis
             moris_index     aEntityIndex,
             mtk::EntityRank aInputEntityRank,
             mtk::EntityRank aOutputEntityRank,
-            moris_index     aIndex ) const
+            moris_index     aDiscretizationIndex ) const
     {
         MORIS_ERROR( false, "VIS::Visualization_Mesh::get_entity_connected_to_entity_loc_inds() - not implemented for visualization mesh" );
         return Matrix< IndexMat >( 0, 0 );
@@ -351,6 +351,18 @@ namespace moris::vis
                 MORIS_ERROR( false, "VIS::Visualization_Mesh::get_glb_entity_id_from_entity_loc_index() - Unknown entity rank." );
                 return 0;
         }
+    }
+
+    // ----------------------------------------------------------------------------
+
+    moris_index
+    Visualization_Mesh::get_loc_entity_ind_from_entity_glb_id(
+            moris_id        aEntityId,
+            mtk::EntityRank aEntityRank,
+            moris_index     aDiscretizationIndex ) const
+    {
+        MORIS_ERROR( false, "VIS mesh does not yet implement get_loc_entity_ind_from_entity_glb_id()." );
+        return 0;
     }
 
     // ----------------------------------------------------------------------------

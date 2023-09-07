@@ -573,9 +573,9 @@ namespace moris
              */
             virtual moris_id
             get_glb_entity_id_from_entity_loc_index(
-                    moris_index       aEntityIndex,
-                    enum EntityRank   aEntityRank,
-                    const moris_index aDiscretizationIndex = 0 ) const = 0;
+                    moris_index aEntityIndex,
+                    EntityRank  aEntityRank,
+                    moris_index aDiscretizationIndex = 0 ) const = 0;
 
             // ----------------------------------------------------------------------------
 
@@ -601,9 +601,9 @@ namespace moris
              */
             virtual moris_index
             get_loc_entity_ind_from_entity_glb_id(
-                    moris_id          aEntityId,
-                    enum EntityRank   aEntityRank,
-                    const moris_index aDiscretizationIndex = 0 ) const;
+                    moris_id    aEntityId,
+                    EntityRank  aEntityRank,
+                    moris_index aDiscretizationIndex = 0 ) const = 0;
 
             // ----------------------------------------------------------------------------
 

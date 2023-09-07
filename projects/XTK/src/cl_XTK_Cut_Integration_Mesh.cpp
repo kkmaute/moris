@@ -596,9 +596,9 @@ namespace xtk
 
     moris_id
     Cut_Integration_Mesh::get_glb_entity_id_from_entity_loc_index(
-            moris_index       aEntityIndex,
-            mtk::EntityRank   aEntityRank,
-            const moris_index aDiscretizationIndex ) const
+            moris_index     aEntityIndex,
+            mtk::EntityRank aEntityRank,
+            moris_index     aDiscretizationIndex ) const
     {
         MORIS_ERROR( aEntityRank == mtk::EntityRank::NODE || aEntityRank == mtk::EntityRank::ELEMENT, "Only supported for nodes and cells" );
         if ( aEntityRank == mtk::EntityRank::NODE )
@@ -621,7 +621,8 @@ namespace xtk
     moris_index
     Cut_Integration_Mesh::get_loc_entity_ind_from_entity_glb_id(
             moris_id        aEntityId,
-            mtk::EntityRank aEntityRank ) const
+            mtk::EntityRank aEntityRank,
+            moris_index     aDiscretizationIndex ) const
     {
         // warning element map is set up after integration mesh has been constructed
         MORIS_ERROR( aEntityRank == mtk::EntityRank::NODE || aEntityRank == mtk::EntityRank::ELEMENT, "Only a node map and element map is implemented in XTK" );

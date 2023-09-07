@@ -66,7 +66,7 @@ namespace moris
             // Adof Map (global to local map for enriched vertices)
             moris::Cell< map< moris_id, moris_index > > mAdofMap;
 
-            // vertex map ( used in GEN)
+            // vertex map (used in GEN)
             std::unordered_map< moris_id, moris_index > mVertexGlobalIdToLocalIndex;
 
             // id and owner information
@@ -267,19 +267,32 @@ namespace moris
             // ----------------------------------------------------------------------------
 
             /**
-             * @brief Get the glb entity id from entity loc index object
+             * Get a global entity ID from an entity rank and local index.
              *
-             * @param aEntityIndex
-             * @param aEntityRank
-             * @param aDiscretizationIndex
-             * @return moris_id
+             * @param aEntityIndex Local entity index
+             * @param aEntityRank Entity rank
+             * @param aDiscretizationIndex Discretization mesh index
+             * @return Global entity ID
              */
-
-            virtual moris_id
+            moris_id
             get_glb_entity_id_from_entity_loc_index(
-                    moris_index       aEntityIndex,
-                    enum EntityRank   aEntityRank,
-                    const moris_index aDiscretizationIndex = 0 ) const override;
+                    moris_index aEntityIndex,
+                    EntityRank  aEntityRank,
+                    moris_index aDiscretizationIndex = 0 ) const override;
+
+            /**
+             * Get a local entity ID from an entity rank and global ID
+             *
+             * @param aEntityId Global entity ID
+             * @param aEntityRank Entity rank
+             * @param aDiscretizationIndex Discretization mesh index
+             * @return Local entity index
+             */
+            moris_index
+            get_loc_entity_ind_from_entity_glb_id(
+                    moris_id    aEntityId,
+                    EntityRank  aEntityRank,
+                    moris_index aDiscretizationIndex = 0 ) const override;
 
             // ----------------------------------------------------------------------------
 

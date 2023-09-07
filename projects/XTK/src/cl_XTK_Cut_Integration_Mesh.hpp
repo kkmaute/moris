@@ -987,16 +987,17 @@ namespace xtk
 
         moris_id
         get_glb_entity_id_from_entity_loc_index(
-                moris_index       aEntityIndex,
-                mtk::EntityRank   aEntityRank,
-                const moris_index aDiscretizationIndex = 0 ) const;
+                moris_index     aEntityIndex,
+                mtk::EntityRank aEntityRank,
+                moris_index     aDiscretizationIndex = 0 ) const override;
 
         // ----------------------------------------------------------------------------------
 
         moris_index
         get_loc_entity_ind_from_entity_glb_id(
                 moris_id        aEntityId,
-                mtk::EntityRank aEntityRank ) const;
+                mtk::EntityRank aEntityRank,
+                moris_index     aDiscretizationIndex = 0 ) const override;
 
         // ----------------------------------------------------------------------------------
 

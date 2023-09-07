@@ -99,15 +99,41 @@ namespace moris::mtk
     }
 
     // ----------------------------------------------------------------------------
+
     moris_id
     Interpolation_Mesh_DataBase_IP::get_glb_entity_id_from_entity_loc_index(
-        moris_index       aEntityIndex,
-        enum EntityRank   aEntityRank,
-        const moris_index aDiscretizationIndex ) const
+        moris_index aEntityIndex,
+        EntityRank  aEntityRank,
+        moris_index aDiscretizationIndex ) const
     {
-        MORIS_ERROR( 0, "get_glb_entity_id_from_entity_loc_index not implemented for Interpolation_Mesh_DataBase_IP" );
-        return 0;
-        // return mIPMesh.get_glb_entity_id_from_entity_loc_index( aEntityIndex, aEntityRank, aDiscretizationIndex );
+        switch ( aEntityRank )
+        {
+            case ( EntityRank::NODE ):
+                return mVertexIdList( aEntityIndex );
+            case ( EntityRank::ELEMENT ):
+                return mCellIdList( aEntityIndex );
+            default:
+                MORIS_ERROR( false, "Interpolation_Mesh_DataBase_IP::get_glb_entity_id_from_entity_loc_index() does not support given entity type" );
+                return 0;
+        }
+    }
+
+    // ----------------------------------------------------------------------------
+
+    moris_index
+    Interpolation_Mesh_DataBase_IP::get_loc_entity_ind_from_entity_glb_id(
+            moris_id    aEntityId,
+            EntityRank  aEntityRank,
+            moris_index aDiscretizationIndex ) const
+    {
+        switch ( aEntityRank )
+        {
+            case ( EntityRank::NODE ):
+                return mVertexGlobalIdToLocalIndex.find( aEntityId )->second;
+            default:
+                MORIS_ERROR( false, "Interpolation_Mesh_DataBase_IP::get_loc_entity_ind_from_entity_glb_id() does not support given entity type" );
+                return 0;
+        }
     }
 
     // ----------------------------------------------------------------------------
