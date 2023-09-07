@@ -109,9 +109,7 @@ namespace moris::mtk
     Matrix< DDRMat >
     Integration_Mesh_DataBase_IG::get_node_coordinate( moris_index aNodeIndex ) const
     {
-        MORIS_ERROR( 0, "get_node_coordinate not implemented for Integration_Mesh_DataBase_IG" );
-        return { {} };
-        // return mIGMesh.get_node_coordinate( aNodeIndex );
+        return mVertexCoordinates.get_column( aNodeIndex );
     }
 
     // ----------------------------------------------------------------------------

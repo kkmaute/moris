@@ -93,9 +93,7 @@ namespace moris::mtk
     Matrix< DDRMat >
     Interpolation_Mesh_DataBase_IP::get_node_coordinate( moris_index aNodeIndex ) const
     {
-        MORIS_ERROR( 0, "get_node_coordinate not implemented for Interpolation_Mesh_DataBase_IP" );
-        return { {} };
-        // return mIPMesh.get_node_coordinate( aNodeIndex );
+        return mVertexCoordinates.get_column( aNodeIndex );
     }
 
     // ----------------------------------------------------------------------------
