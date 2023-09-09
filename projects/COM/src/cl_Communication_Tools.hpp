@@ -446,34 +446,34 @@ namespace moris
     template< typename T >
     void
     communicate_scalars(
-            const Matrix< DDUMat >& aCommunicationList,
-            const Matrix< T >&      aScalarsToSend,
-            Matrix< T >&            aScalarsToReceive )
+            const Cell< moris_index >& aCommunicationList,
+            const Cell< T >&           aScalarsToSend,
+            Cell< T >&                 aScalarsToReceive )
     {
         // only call this when we are in parallel mode
         if ( par_size() > 1 )
         {
             // get number of procs to communicate with
-            uint tNumberOfProcs = aCommunicationList.length();
+            uint tNumberOfProcs = aCommunicationList.size();
 
             // get my ID
-            uint tMyRank = par_rank();
+            moris_index tMyRank = par_rank();
 
             // size matrix for storing receiving values
-            aScalarsToReceive.set_size( tNumberOfProcs, 1, 0 );
+            aScalarsToReceive.resize( tNumberOfProcs, 0 );
 
             // Allocate memory for request vector
             MPI_Request* tSendRequest = (MPI_Request*)alloca( sizeof( MPI_Request ) * tNumberOfProcs );
             MPI_Request* tRecvRequest = (MPI_Request*)alloca( sizeof( MPI_Request ) * tNumberOfProcs );
 
             // determine MPI datatype
-            MPI_Datatype tType = get_comm_datatype( (typename Matrix< T >::Data_Type)0 );
+            MPI_Datatype tType = get_comm_datatype( static_cast< T >( 0 ) );
 
             // loop over all procs
             for ( uint k = 0; k < tNumberOfProcs; ++k )
             {
                 // only communicate if proc neighbor exists and is not me
-                if ( ( aCommunicationList( k ) < MORIS_UINT_MAX ) &&    //
+                if ( ( aCommunicationList( k ) < MORIS_SINT_MAX ) &&    //
                         ( aCommunicationList( k ) != tMyRank ) )
                 {
                     // create tag
@@ -506,7 +506,7 @@ namespace moris
             for ( uint k = 0; k < tNumberOfProcs; ++k )
             {
                 // only communicate if proc neighbor exists and is not me
-                if ( ( aCommunicationList( k ) < MORIS_UINT_MAX ) &&    //
+                if ( ( aCommunicationList( k ) < MORIS_SINT_MAX ) &&    //
                         ( aCommunicationList( k ) != tMyRank ) )
                 {
                     // wait until send and receive requests have been processed

@@ -488,7 +488,7 @@ namespace moris
     Cell< moris_id > build_communication_table_map( const Matrix< IdMat >& aCommunicationTable )
     {
         // Start map
-        Cell< moris_id > tCommunicationTableMap;
+        Cell< moris_id > tCommunicationTableMap( aCommunicationTable.max() + 1, -1 );
 
         // Get number of processors
         uint tNumCommunicationProcs = aCommunicationTable.numel();
