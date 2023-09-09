@@ -127,10 +127,20 @@ namespace moris::mtk
         switch ( aEntityRank )
         {
             case ( EntityRank::NODE ):
-                return mVertexGlobalIdToLocalIndex.find( aEntityId )->second;
+            {
+                auto tSearch = mVertexGlobalIdToLocalIndex.find( aEntityId );
+                if ( tSearch not_eq mVertexGlobalIdToLocalIndex.end() )
+                {
+                    return tSearch->second;
+                }
+                else
+                {
+                    return -1;
+                }
+            }
             default:
                 MORIS_ERROR( false, "Interpolation_Mesh_DataBase_IP::get_loc_entity_ind_from_entity_glb_id() does not support given entity type" );
-                return 0;
+                return -1;
         }
     }
 

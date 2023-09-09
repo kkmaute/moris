@@ -314,7 +314,7 @@ namespace moris::mtk
             iCounter++;
 
             mOutputMesh->mVertexIdList.push_back( iVertex->get_id() );
-            mOutputMesh->mVertexOwnerList.push_back( iVertex->get_index() );
+            mOutputMesh->mVertexOwnerList.push_back( iVertex->get_owner() );
         }
     }
 
