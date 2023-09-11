@@ -487,20 +487,27 @@ namespace moris
 
     Cell< moris_id > build_communication_table_map( const Matrix< IdMat >& aCommunicationTable )
     {
-        // Start map
-        Cell< moris_id > tCommunicationTableMap( aCommunicationTable.max() + 1, -1 );
-
-        // Get number of processors
-        uint tNumCommunicationProcs = aCommunicationTable.numel();
-
-        // Loop over communication table to fill the communication table map
-        for ( uint iCommunicationProcIndex = 0; iCommunicationProcIndex < tNumCommunicationProcs; iCommunicationProcIndex++ )
+        if ( par_size() > 1 )
         {
-            tCommunicationTableMap( aCommunicationTable( iCommunicationProcIndex ) ) = iCommunicationProcIndex;
-        }
+            // Start map
+            Cell< moris_id > tCommunicationTableMap( aCommunicationTable.max() + 1, -1 );
 
-        // Return result
-        return tCommunicationTableMap;
+            // Get number of processors
+            uint tNumCommunicationProcs = aCommunicationTable.numel();
+
+            // Loop over communication table to fill the communication table map
+            for ( uint iCommunicationProcIndex = 0; iCommunicationProcIndex < tNumCommunicationProcs; iCommunicationProcIndex++ )
+            {
+                tCommunicationTableMap( aCommunicationTable( iCommunicationProcIndex ) ) = iCommunicationProcIndex;
+            }
+
+            // Return result
+            return tCommunicationTableMap;
+        }
+        else
+        {
+            return {};
+        }
     }
 
     //------------------------------------------------------------------------------
