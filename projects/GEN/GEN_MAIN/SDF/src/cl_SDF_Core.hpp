@@ -139,16 +139,37 @@ namespace moris
 
 //-------------------------------------------------------------------------------
 
+        /**
+         * @brief Takes a point in 3D space and determines which triangles 
+         * in the positive and negative x direction the point could possibly intersect. 
+         * These triangles are added to mData.mCandidateTriangles. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
+         * 
+         * @param aPoint Point in space that lies within the bounding Y-Z plane of the candidate triangles
+         */
             void
             preselect_triangles_x( const Matrix< F31RMat >& aPoint );
 
 //-------------------------------------------------------------------------------
 
+        /**
+         * @brief Takes a point in 3D space and determines which triangles 
+         * in the positive and negative y direction the point could possibly intersect. 
+         * These triangles are added to mData.mCandidateTriangles. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
+         * 
+         * @param aPoint Point in space that lies within the bounding X-Z plane of the candidate triangles
+         */
             void
             preselect_triangles_y( const Matrix< F31RMat >& aPoint );
 
 //-------------------------------------------------------------------------------
 
+        /**
+         * @brief Takes a point in 3D space and determines which triangles 
+         * in the positive and negative z direction the point could possibly intersect. 
+         * These triangles are added to mData.mCandidateTriangles. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
+         * 
+         * @param aPoint Point in space that lies within the bounding X-Y plane of the candidate triangles
+         */    
             void
             preselect_triangles_z( const Matrix< F31RMat >& aPoint );
 

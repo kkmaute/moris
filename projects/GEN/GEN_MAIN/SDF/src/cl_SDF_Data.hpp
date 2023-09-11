@@ -55,7 +55,7 @@ namespace moris
             Matrix< DDUMat > mCandJ;                 //!< temporary variable needed for triangle preselection
 #endif
 
-            Matrix< DDRMat > mCoordsK;                //!< temporary variable needed for voxelizing
+            Matrix< DDRMat > mCoordsK;                //!< temporary variable needed for voxelizing, coordinates of intersection in triangles by a ray
             Matrix< DDUMat > mCandidateTriangles;
 
             moris::Cell< Triangle * > mIntersectedTriangles;

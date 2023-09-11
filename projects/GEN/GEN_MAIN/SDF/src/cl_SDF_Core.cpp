@@ -125,10 +125,9 @@ namespace moris
             // set unsure flag of all nodes to true
             uint tNumberOfNodes = mMesh.get_num_nodes();
 
-            for( uint k=0; k< tNumberOfNodes; ++k )
+            for( uint iNodeIndex = 0; iNodeIndex< tNumberOfNodes; ++iNodeIndex )
             {
-                mMesh.get_vertex( k )->reset();
-
+                mMesh.get_vertex( iNodeIndex )->reset();
             }
             mData.mUnsureNodesCount = tNumberOfNodes;
 
