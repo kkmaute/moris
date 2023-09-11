@@ -526,7 +526,7 @@ namespace moris
                     Matrix< DDRMat > tNodeCoordinates = aNodeCoordinatesPerSet( tMeshSetIndex ).get_row( tNodeIndexOnSet );
 
                     // Create PDV host unless it already exists
-                    if ( mIpPdvHosts( tNodeIndex ) == nullptr )
+                    if ( mIpPdvHosts( tNodeIndex ) == nullptr and tNodeId >= 0 )
                     {
                         mIpPdvHosts( tNodeIndex ) =
                                 std::make_shared< Interpolation_Pdv_Host >(
