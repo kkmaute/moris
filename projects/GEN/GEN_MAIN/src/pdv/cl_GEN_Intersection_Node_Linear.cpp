@@ -11,6 +11,11 @@
 #include "cl_GEN_Intersection_Node_Linear.hpp"
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Interpolation.hpp"
+
+#include "cl_MTK_Interpolation_Function_Base.hpp"       //MTK/src
+#include "cl_MTK_Interpolation_Function_Factory.hpp"    //MTK/src
+#include "cl_MTK_Enums.hpp"                             //MTK/src
+
 #include "cl_XTK_Linear_Basis_Functions.hpp"
 #include "fn_trans.hpp"
 #include "fn_dot.hpp"
@@ -30,8 +35,8 @@ namespace moris
                 const Matrix< DDRMat >&              aFirstNodeCoordinates,
                 const Matrix< DDRMat >&              aSecondNodeCoordinates,
                 std::shared_ptr< Geometry >          aInterfaceGeometry )
-                : Intersection_Node(
-                        get_local_coordinate(
+                : Intersection_Node_Level_Set(
+                        compute_local_coordinate(
                                 aFirstNodeIndex,
                                 aSecondNodeIndex,
                                 aFirstNodeCoordinates,
@@ -48,6 +53,92 @@ namespace moris
                         Element_Intersection_Type::Linear_1D,
                         aInterfaceGeometry )
         {
+            // call required setup function
+            this->initialize( Element_Intersection_Type::Linear_1D, { { -1 } }, { { 1 } } );
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        Matrix< DDRMat >
+        Intersection_Node_Linear::compute_global_coordinates()
+        {
+            // Global coordinates of intersection and parents
+            Matrix< DDRMat > tGlobalCoordinates = mBasisValues( 0 ) * mAncestorNodeCoordinates( 0 );
+
+            for ( uint tBasisIndex = 1; tBasisIndex < mBasisValues.length(); tBasisIndex++ )
+            {
+                tGlobalCoordinates += mBasisValues( tBasisIndex ) * mAncestorNodeCoordinates( tBasisIndex );
+            }
+
+            return tGlobalCoordinates;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        real
+        Intersection_Node_Linear::compute_diff_from_threshold( 
+            const Element_Intersection_Type aAncestorBasisFunction,
+            const Matrix< DDRMat >& aParentNodeLocalCoordinates,
+            moris_index aParentNodeIndex )
+        { 
+            // construct interpolator
+            mtk::Interpolation_Function_Factory tFactory;
+
+            mtk::Interpolation_Function_Base* tInterpolation;
+
+            switch ( aAncestorBasisFunction )
+            {
+                case Element_Intersection_Type::Linear_1D:
+                {
+                    tInterpolation = tFactory.create_interpolation_function(
+                            mtk::Geometry_Type::LINE,
+                            mtk::Interpolation_Type::LAGRANGE,
+                            mtk::Interpolation_Order::LINEAR );
+                    break;
+                }
+                case Element_Intersection_Type::Linear_2D:
+                {
+                    tInterpolation = tFactory.create_interpolation_function(
+                            mtk::Geometry_Type::QUAD,
+                            mtk::Interpolation_Type::LAGRANGE,
+                            mtk::Interpolation_Order::LINEAR );
+                    break;
+                }
+                case Element_Intersection_Type::Linear_3D:
+                {
+                    tInterpolation = tFactory.create_interpolation_function(
+                            mtk::Geometry_Type::HEX,
+                            mtk::Interpolation_Type::LAGRANGE,
+                            mtk::Interpolation_Order::LINEAR );
+                    break;
+                }
+                default:
+                    MORIS_ERROR( false,
+                            "Intersection_NodeLinear::compute_diff_from_threshold - Interpolation type not implemented." );
+            }
+
+            // lock the interface geometry
+            std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+
+            // get the isocontour thresholds from the geometry
+            real tIsocontourThreshold   = tLockedInterfaceGeometry->get_isocontour_threshold();
+
+            // Parent basis
+            Matrix< DDRMat > tParentBasisValues;
+
+            tInterpolation->eval_N( aParentNodeLocalCoordinates, tParentBasisValues );
+
+            Matrix< DDRMat > tParentGlobalCoordinates = tParentBasisValues( 0 ) * mAncestorNodeCoordinates( 0 );
+
+            for ( uint tBasisIndex = 1; tBasisIndex < mBasisValues.length(); tBasisIndex++ )
+            {
+                tParentGlobalCoordinates += tParentBasisValues( tBasisIndex ) * mAncestorNodeCoordinates( tBasisIndex );
+            }
+
+            // First parent on interface
+            real tParentPhi = tLockedInterfaceGeometry->get_field_value( aParentNodeIndex, tParentGlobalCoordinates );
+
+            return tParentPhi - tIsocontourThreshold;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -78,7 +169,7 @@ namespace moris
 
         real
         Intersection_Node_Linear::get_dxi_dfield_from_ancestor( uint aAncestorIndex )
-        {           
+        {
             // Locked interface geometry
             std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
@@ -131,7 +222,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         real
-        Intersection_Node_Linear::get_local_coordinate(
+        Intersection_Node_Linear::compute_local_coordinate(
                 uint                        aFirstNodeIndex,
                 uint                        aSecondNodeIndex,
                 const Matrix< DDRMat >&     aFirstNodeCoordinates,

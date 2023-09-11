@@ -42,7 +42,7 @@ find_path(SUITESPARSE_INCLUDE_DIRS
     )
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(SUITESPARSE DEFAULT_MSG SUITESPARSE_LIBRARIES SUITESPARSE_INCLUDE_DIRS)
+find_package_handle_standard_args(SuiteSparse DEFAULT_MSG SUITESPARSE_LIBRARIES SUITESPARSE_INCLUDE_DIRS)
 
 mark_as_advanced(SUITESPARSE_DIR
     SUITESPARSE_LIBRARIES

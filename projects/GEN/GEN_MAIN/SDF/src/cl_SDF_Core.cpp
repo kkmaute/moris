@@ -163,7 +163,7 @@ namespace moris
                 this->undo_rotation();
             }
 
-            // remainung nodes are pushed outside
+            // remaining nodes are pushed outside
             this->force_unsure_nodes_outside();
 
              // identify elements in surface, volume and candidates
@@ -233,19 +233,21 @@ namespace moris
             // get number of unsure nodes
             uint tNumberOfNodes = mMesh.get_num_nodes();
 
-            // fixme : check if this is neccessary
+            // This loop is currently unnecessary, but may be needed if problems arise
+            /* 
             for( Triangle * tTriangle : mData.mTriangles )
             {
                 tTriangle->unflag();
             }
+            */
 
             // loop over all nodes
-            for( uint k=0; k<tNumberOfNodes; ++k )
+            for( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; ++iNodeIndex )
             {
-                if(  mMesh.get_vertex( k )->is_flagged() )
+                if(  mMesh.get_vertex( iNodeIndex )->is_flagged() )
                 {
                     // get node coordinate
-                    const Matrix< F31RMat > & tPoint = mMesh.get_node_coordinate( k );
+                    const Matrix< F31RMat > & tPoint = mMesh.get_node_coordinate( iNodeIndex );
 
                     // preselect triangles for intersection test
                     if(aAxis == 0)
@@ -263,9 +265,9 @@ namespace moris
                         // intersect ray with triangles and check if node is inside
                         if( mData.mIntersectedTriangles.size() > 0 )
                         {
-                            this->intersect_ray_with_triangles( aAxis, tPoint, k );
+                            this->intersect_ray_with_triangles( aAxis, tPoint, iNodeIndex );
 
-                            this->check_if_node_is_inside( aAxis, k );
+                            this->check_if_node_is_inside( aAxis, iNodeIndex );
                         }
                     }
                 }

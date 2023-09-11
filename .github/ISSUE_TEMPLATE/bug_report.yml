@@ -2,50 +2,54 @@ name: Bug Report
 description: Report a bug in MORIS
 title: "[Bug]: "
 labels: ["bug"]
-assignees: ""
 body:
   - type: dropdown
     id: type
     attributes:
-      label: Problem type
+      label: Problem Type
       options:
         - Error
         - Unexpected behavior
+      default: 0
   - type: textarea
     id: description
     attributes:
       label: Input File and Problem Description
-      description: Please upload a *minimal* input file for recreating this problem. If possible, also include an asssociated log file. If additional files are needed or the files are too large, include a cloud storage link where these files can be found.
-        Tip: You can attach files by clicking this area to highlight it and then dragging files in.
+      description: Please upload a *minimal* input file for recreating this problem. If possible, also include an asssociated log file. You can attach files by clicking this area to highlight it and then dragging files in. If additional files are needed or the files are too large, include a cloud storage link where these files can be found.
+    validations:
+      required: true
+  - type: textarea
+    id: command
+    attributes:
+      label: Command Line
+      description: Enter the command that reproduces the issue.
     validations:
       required: true
   - type: checkboxes
     id: minimal
     attributes:
-    label: Minimal Example
-    description: The included input file should use the minimimum number of elements that still recreates this bug. If it occurs many iterations into an optimization problem, you need to include all necessary restart files to continue from that iteration.
-    options:
-      - label: I have included a minimal example for recreating this bug
-      required: true
+      label: Minimal Example
+      description: The included input file should use the minimimum number of elements that still recreates this bug. If it occurs many iterations into an optimization problem, you need to include all necessary restart files to continue from that iteration.
+      options:
+        - label: I have included a minimal example for recreating this bug
+          required: true
   - type: checkboxes
     id: valgrind
     attributes:
-    label: Memory Check
-    description: If you are experiencing unexpected behaivor, it can sometimes be due to a memory leak. If possible, please use Valgrind to see if you have memory leaks and update the description accordingly.
-    options:
-      - label: I have checked for memory leaks
+      label: Memory Violation and Leak Check
+      description: If you are experiencing unexpected behaivor, it can sometimes be due to a memory issue (violation or leak). If possible, please use Valgrind to see if you have memory leaks and update the description accordingly.
+      options:
+        - label: I have checked for memory violations and leaks
   - type: dropdown
     id: os
     attributes:
-      label: Operating system
+      label: Operating System
       description: What operating system are you using?
       options:
         - Linux
         - Windows
         - Mac
       default: 0
-    validations:
-      required: true
   - type: checkboxes
     id: version
     attributes:
@@ -54,8 +58,6 @@ body:
       options:
         - label: dbg (MORIS_HAVE_DEBUG = TRUE)
         - label: opt (MORIS_HAVE_DEBUG = FALSE)
-      validations:
-        required: true
   - type: checkboxes
     id: parallel
     attributes:
@@ -64,9 +66,8 @@ body:
       options:
         - label: Serial
         - label: Parallel
-      validations:
-        required: true
   - type: textarea
     id: dependence
+    attributes:
       label: Dependence
       description: Does this bug only occur for specific mesh refinement levels, processor numbers, etc.? If so, include that information here.

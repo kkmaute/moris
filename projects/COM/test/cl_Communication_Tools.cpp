@@ -10,24 +10,25 @@
 
 #include <catch.hpp>
 
-#include "typedefs.hpp" // COR/src
-#include "banner.hpp" // COR/src
+#include "typedefs.hpp"    // COR/src
+#include "banner.hpp"      // COR/src
 
-#include "cl_Communication_Tools.hpp" // COM/src
-#include "cl_Communication_Manager.hpp" // COM/src
+#include "cl_Communication_Tools.hpp"      // COM/src
+#include "cl_Communication_Manager.hpp"    // COM/src
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "op_minus.hpp"
+#include "fn_norm.hpp"
 
-//Sam included headers for the sleep timer
-#include <iostream>       // std::cout, std::endl
+// Sam included headers for the sleep timer
+#include <iostream>    // std::cout, std::endl
 
 namespace moris
 {
     TEST_CASE( "moris::send_mat_to_proc",
             "[comm]" )
-                {
+    {
 
         /*SECTION( "moris::Mat send and receive test" )
     {
@@ -112,86 +113,86 @@ namespace moris
         }
 
     } */
-                }
+    }
 
     TEST_CASE( "moris::sum_min_max",
             "[comm],[allreduce]" )
     {
         // check min, max, sum of real value
-        real tLocalReal  = (real) par_rank();
+        real tLocalReal = (real)par_rank();
 
-        real tGlobalRealMax = max_all(tLocalReal);
-        real tGlobalRealMin = min_all(tLocalReal);
-        real tGlobalRealSum = sum_all(tLocalReal);
+        real tGlobalRealMax = max_all( tLocalReal );
+        real tGlobalRealMin = min_all( tLocalReal );
+        real tGlobalRealSum = sum_all( tLocalReal );
 
         real tCheckRealSum = 0.0;
-        for (uint i=0;i<(uint)par_size();++i) tCheckRealSum += (real)i;
+        for ( uint i = 0; i < (uint)par_size(); ++i ) tCheckRealSum += (real)i;
 
-        REQUIRE( tGlobalRealMax == (real)(par_size()-1) );
+        REQUIRE( tGlobalRealMax == (real)( par_size() - 1 ) );
         REQUIRE( tGlobalRealMin == 0.0 );
         REQUIRE( tGlobalRealSum == tCheckRealSum );
 
         // check sum of real matrix
-        Matrix<DDRMat> tLocalRealMat(10,5,(real) par_rank());
-        Matrix<DDRMat> tCheckRealMat(10,5,tCheckRealSum);
+        Matrix< DDRMat > tLocalRealMat( 10, 5, (real)par_rank() );
+        Matrix< DDRMat > tCheckRealMat( 10, 5, tCheckRealSum );
 
-        Matrix<DDRMat> tGlobalRealMatSum = sum_all_matrix(tLocalRealMat);
+        Matrix< DDRMat > tGlobalRealMatSum = sum_all_matrix( tLocalRealMat );
 
-        REQUIRE( norm(tGlobalRealMatSum - tCheckRealMat) < 1e-12 );
+        REQUIRE( norm( tGlobalRealMatSum - tCheckRealMat ) < 1e-12 );
     }
 
     TEST_CASE( "moris::proc_cart",
             "[comm],[proc_cart]" )
     {
 
-        if (moris::par_size()==1 or moris::par_size()==2 or moris::par_size()==4)
+        if ( moris::par_size() == 1 or moris::par_size() == 2 or moris::par_size() == 4 )
         {
-            uint tNumberOfDimensions=3;
-            Matrix < DDUMat >  tProcDims;
-            Matrix < DDUMat >  tProcDimsCompare;
-            Matrix < DDUMat >  tError;
-            Matrix < DDUMat >  tProcCoords;
-            Matrix < IdMat >   tProcNeighbors;
+            uint             tNumberOfDimensions = 3;
+            Matrix< DDUMat > tProcDims;
+            Matrix< DDUMat > tProcDimsCompare;
+            Matrix< DDUMat > tError;
+            Matrix< DDUMat > tProcCoords;
+            Matrix< IdMat >  tProcNeighbors;
 
-            for (uint iDecompMethod=0; iDecompMethod<=2; ++iDecompMethod)
+            for ( uint iDecompMethod = 0; iDecompMethod <= 2; ++iDecompMethod )
             {
-                if (moris::par_size()==1)
+                if ( moris::par_size() == 1 )
                 {
-                    tProcDims={{1}, {1}, {1}};
-                    tProcDimsCompare=tProcDims;
+                    tProcDims        = { { 1 }, { 1 }, { 1 } };
+                    tProcDimsCompare = tProcDims;
                 }
-                else if (moris::par_size()==2)
+                else if ( moris::par_size() == 2 )
                 {
-                    if (iDecompMethod==1)
+                    if ( iDecompMethod == 1 )
                     {
-                        tProcDimsCompare={{2}, {1}, {1}};
+                        tProcDimsCompare = { { 2 }, { 1 }, { 1 } };
                     }
-                    else if (iDecompMethod==2)
+                    else if ( iDecompMethod == 2 )
                     {
-                        tProcDims={{1}, {2}, {1}};
-                        tProcDimsCompare=tProcDims;
+                        tProcDims        = { { 1 }, { 2 }, { 1 } };
+                        tProcDimsCompare = tProcDims;
                     }
-                    else if (iDecompMethod==0)
+                    else if ( iDecompMethod == 0 )
                     {
-                        tProcDims={{1}, {1}, {2}};
-                        tProcDimsCompare=tProcDims;
+                        tProcDims        = { { 1 }, { 1 }, { 2 } };
+                        tProcDimsCompare = tProcDims;
                     }
                 }
                 else
                 {
-                    if (iDecompMethod==1)
+                    if ( iDecompMethod == 1 )
                     {
-                        tProcDimsCompare={{2}, {2}, {1}};
+                        tProcDimsCompare = { { 2 }, { 2 }, { 1 } };
                     }
-                    else if (iDecompMethod==2)
+                    else if ( iDecompMethod == 2 )
                     {
-                        tProcDims={{1}, {2}, {2}};
-                        tProcDimsCompare=tProcDims;
+                        tProcDims        = { { 1 }, { 2 }, { 2 } };
+                        tProcDimsCompare = tProcDims;
                     }
-                    else if (iDecompMethod==0)
+                    else if ( iDecompMethod == 0 )
                     {
-                        tProcDims={{2}, {1}, {2}};
-                        tProcDimsCompare=tProcDims;
+                        tProcDims        = { { 2 }, { 1 }, { 2 } };
+                        tProcDimsCompare = tProcDims;
                     }
                 }
 
@@ -204,10 +205,7 @@ namespace moris
 
                 tError = tProcDims - tProcDimsCompare;
                 REQUIRE( ( tError.max() == 0 && tError.min() == 0 ) );
-
             }
         }
-
     }
-}
-
+}    // namespace moris

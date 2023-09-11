@@ -97,7 +97,7 @@ sh $MORISROOT/share/maintenance/timing/moris_version_timing.sh > & log.timingrun
   
 10. Optional add new test to list of example used to check timing
 
-grep proc <log file of "ctest -V" run> | grep Test | grep # | awk '{print $4}'
+grep Test <log file of "ctest -V" run> | grep # | awk '{print $4}'
 
 #-------------------------------------------------------------------------------------
   

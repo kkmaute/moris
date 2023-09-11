@@ -16,6 +16,7 @@
 #include <string>
 #include <cstring>
 #include <sys/resource.h>
+#include <unistd.h>
 
 #include <sstream>
 #include <iomanip>

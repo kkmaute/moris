@@ -26,6 +26,11 @@ target_include_directories(${COR}-lib INTERFACE
 	$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/generated/>
 	$<INSTALL_INTERFACE:${${COR}_HEADER_INSTALL_DIR}> )
 
+# Add memeory profile as a static library to the interface to be linked against
+if (MORIS_USE_CHECK_MEMORY)
+    add_library(MEM-lib STATIC memoryprofiler.cpp)
+    target_link_libraries(${COR}-lib INTERFACE MEM-lib)
+endif()
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Core Executable
 
@@ -68,9 +73,15 @@ install(FILES ${HEADERS}
     DESTINATION ${${COR}_HEADER_INSTALL_DIR} )
 
 # Install library
-install(TARGETS ${COR}-lib
-    DESTINATION ${${COR}_LIB_INSTALL_DIR}
-    EXPORT ${COR}Targets )
+if (MORIS_USE_CHECK_MEMORY)
+    install(TARGETS ${COR}-lib MEM-lib
+        DESTINATION ${${COR}_LIB_INSTALL_DIR}
+        EXPORT ${COR}Targets )
+else()
+    install(TARGETS ${COR}-lib
+        DESTINATION ${${COR}_LIB_INSTALL_DIR}
+        EXPORT ${COR}Targets )
+endif()
 
 # Export library in to *Targets file
 install(EXPORT ${COR}Targets
