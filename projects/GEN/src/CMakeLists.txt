@@ -17,7 +17,6 @@ set(GEN_INCLUDES
 	"field/geometry"
 	"field/property"
 	"pdv"
-	"topology"
 	)
 
 # Include depedency directories
