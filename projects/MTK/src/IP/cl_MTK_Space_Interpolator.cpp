@@ -869,19 +869,19 @@ namespace moris
         {
             real tDetJ = aSpaceJt( 0, 0 );
 
-            MORIS_ASSERT( 
+            MORIS_ASSERT(
                     tDetJ > sDetJLowerLimit,
                     "Space_Interpolator::eval_space_detJ_bulk_line() - "
                     "Space determinant (bulk 1D) close to zero or negative: %e\n",
                     tDetJ );
 
 #ifdef MORIS_HAVE_DEBUG
-            real tAbsoluteError = std::abs( det( aSpaceJt ) - tDetJ );
+            real tAbsoluteError          = std::abs( det( aSpaceJt ) - tDetJ );
             real tAcceptableMachineError = comp_abs( aSpaceJt ).max() * 1e-14;
-            if( tAbsoluteError > tAcceptableMachineError )
+            if ( tAbsoluteError > tAcceptableMachineError )
             {
                 real tRelativeError = tAbsoluteError / tDetJ;
-                MORIS_ASSERT( 
+                MORIS_ASSERT(
                         tRelativeError < 1e-8,
                         "Space_Interpolator::eval_space_detJ_bulk_line() - "
                         "Inconsistent space determinant (bulk 1D): %e vs %e\n",
@@ -912,19 +912,19 @@ namespace moris
         {
             real tDetJ = aSpaceJt( 0, 0 ) * aSpaceJt( 1, 1 ) - aSpaceJt( 0, 1 ) * aSpaceJt( 1, 0 );
 
-            MORIS_ASSERT( 
+            MORIS_ASSERT(
                     tDetJ > sDetJLowerLimit,
                     "Space_Interpolator::eval_space_detJ_bulk_quad() - "
                     "Space determinant (bulk 2D) close to zero or negative: %e\n",
                     tDetJ );
 
 #ifdef MORIS_HAVE_DEBUG
-            real tAbsoluteError = std::abs( det( aSpaceJt ) - tDetJ );
+            real tAbsoluteError          = std::abs( det( aSpaceJt ) - tDetJ );
             real tAcceptableMachineError = comp_abs( aSpaceJt ).max() * 1e-14;
-            if( tAbsoluteError > tAcceptableMachineError )
+            if ( tAbsoluteError > tAcceptableMachineError )
             {
                 real tRelativeError = tAbsoluteError / tDetJ;
-                MORIS_ASSERT( 
+                MORIS_ASSERT(
                         tRelativeError < 1e-8,
                         "Space_Interpolator::eval_space_detJ_bulk_quad() - "
                         "Inconsistent space determinant (bulk 2D): %e vs %e\n",
@@ -961,19 +961,19 @@ namespace moris
 
             real tDetJ = aSpaceJt( 0, 0 ) * aSpaceJt( 1, 1 );
 
-            MORIS_ASSERT( 
+            MORIS_ASSERT(
                     tDetJ > sDetJLowerLimit,
                     "Space_Interpolator::eval_space_detJ_bulk_quad_rect() - "
                     "Space determinant (bulk 2D) close to zero or negative: %e\n",
                     tDetJ );
 
 #ifdef MORIS_HAVE_DEBUG
-            real tAbsoluteError = std::abs( det( aSpaceJt ) - tDetJ );
+            real tAbsoluteError          = std::abs( det( aSpaceJt ) - tDetJ );
             real tAcceptableMachineError = comp_abs( aSpaceJt ).max() * 1e-14;
-            if( tAbsoluteError > tAcceptableMachineError )
+            if ( tAbsoluteError > tAcceptableMachineError )
             {
                 real tRelativeError = tAbsoluteError / tDetJ;
-                MORIS_ASSERT( 
+                MORIS_ASSERT(
                         tRelativeError < 1e-8,
                         "Space_Interpolator::eval_space_detJ_bulk_quad_rect() - "
                         "Inconsistent space determinant (bulk 2D): %e vs %e\n",
@@ -1011,19 +1011,19 @@ namespace moris
                     - aSpaceJt( 0, 1 ) * ( aSpaceJt( 1, 0 ) * aSpaceJt( 2, 2 ) - aSpaceJt( 1, 2 ) * aSpaceJt( 2, 0 ) )
                     + aSpaceJt( 0, 2 ) * ( aSpaceJt( 1, 0 ) * aSpaceJt( 2, 1 ) - aSpaceJt( 1, 1 ) * aSpaceJt( 2, 0 ) );
 
-            MORIS_ASSERT( 
+            MORIS_ASSERT(
                     tDetJ > sDetJLowerLimit,
                     "Space_Interpolator::eval_space_detJ_bulk_hex() - "
                     "Space determinant (bulk 3D) close to zero or negative: %e\n",
                     tDetJ );
 
 #ifdef MORIS_HAVE_DEBUG
-            real tAbsoluteError = std::abs( det( aSpaceJt ) - tDetJ );
+            real tAbsoluteError          = std::abs( det( aSpaceJt ) - tDetJ );
             real tAcceptableMachineError = comp_abs( aSpaceJt ).max() * 1e-14;
-            if( tAbsoluteError > tAcceptableMachineError )
+            if ( tAbsoluteError > tAcceptableMachineError )
             {
                 real tRelativeError = tAbsoluteError / tDetJ;
-                MORIS_ASSERT( 
+                MORIS_ASSERT(
                         tRelativeError < 1e-8,
                         "Space_Interpolator::eval_space_detJ_bulk_hex() - "
                         "Inconsistent space determinant (bulk 3D): %e vs %e\n",
@@ -1070,19 +1070,19 @@ namespace moris
             // get trace of jacobian
             tDetJ = aSpaceJt( 1, 1 ) * aSpaceJt( 0, 0 ) * aSpaceJt( 2, 2 );
 
-            MORIS_ASSERT( 
+            MORIS_ASSERT(
                     tDetJ > sDetJLowerLimit,
                     "Space_Interpolator::eval_space_detJ_bulk_hex_rect() - "
                     "Space determinant (bulk 3D) close to zero or negative: %e\n",
                     tDetJ );
 
 #ifdef MORIS_HAVE_DEBUG
-            real tAbsoluteError = std::abs( det( aSpaceJt ) - tDetJ );
+            real tAbsoluteError          = std::abs( det( aSpaceJt ) - tDetJ );
             real tAcceptableMachineError = comp_abs( aSpaceJt ).max() * 1e-14;
-            if( tAbsoluteError > tAcceptableMachineError )
+            if ( tAbsoluteError > tAcceptableMachineError )
             {
                 real tRelativeError = tAbsoluteError / tDetJ;
-                MORIS_ASSERT( 
+                MORIS_ASSERT(
                         tRelativeError < 1e-8,
                         "Space_Interpolator::eval_space_detJ_bulk_hex() - "
                         "Inconsistent space determinant (bulk 3D): %e vs %e\n",
@@ -1184,22 +1184,22 @@ namespace moris
                                  +aSpaceJt( 0, 0 ) * ( aSpaceJt( 1, 1 ) * aSpaceJt( 2, 2 ) - aSpaceJt( 2, 1 ) * aSpaceJt( 1, 2 ) )
                                  - aSpaceJt( 0, 1 ) * ( aSpaceJt( 1, 0 ) * aSpaceJt( 2, 2 ) - aSpaceJt( 1, 2 ) * aSpaceJt( 2, 0 ) )
                                  + aSpaceJt( 0, 2 ) * ( aSpaceJt( 1, 0 ) * aSpaceJt( 2, 1 ) - aSpaceJt( 1, 1 ) * aSpaceJt( 2, 0 ) ) )
-                                 / 6.0;
+                       / 6.0;
 
-            MORIS_ASSERT( 
+            MORIS_ASSERT(
                     tDetJ > sDetJLowerLimit,
                     "Space_Interpolator::eval_space_detJ_bulk_tet_param_3() - "
                     "Space determinant (Tet-P3) close to zero or negative: %e\n",
                     tDetJ );
 
 #ifdef MORIS_HAVE_DEBUG
-            real tDetJArma = det( aSpaceJt ) / 6.0;
-            real tAbsoluteError = std::abs( tDetJArma - tDetJ );
+            real tDetJArma               = det( aSpaceJt ) / 6.0;
+            real tAbsoluteError          = std::abs( tDetJArma - tDetJ );
             real tAcceptableMachineError = comp_abs( aSpaceJt ).max() * 1e-14;
-            if( tAbsoluteError > tAcceptableMachineError )
+            if ( tAbsoluteError > tAcceptableMachineError )
             {
                 real tRelativeError = tAbsoluteError / tDetJ;
-                MORIS_ASSERT( 
+                MORIS_ASSERT(
                         tRelativeError < 1e-8,
                         "Space_Interpolator::eval_space_detJ_bulk_hex() - "
                         "Inconsistent space determinant (Tet-P3): %e vs %e\n",
@@ -2596,6 +2596,7 @@ namespace moris
                             }
                             mSecondDerivativeMatricesSpace = this->eval_matrices_for_second_derivative_3d;
                             mThirdDerivativeMatricesSpace  = this->eval_matrices_for_third_derivative_3d;
+                            mMetricTensorFunc              = &Space_Interpolator::eval_metric_tensor_3d;
                             break;
                         }
                         default:
