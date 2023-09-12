@@ -16,8 +16,6 @@
 #include "cl_MTK_Interpolation_Function_Factory.hpp"    //MTK/src
 #include "cl_MTK_Enums.hpp"                             //MTK/src
 
-#include "cl_XTK_Linear_Basis_Functions.hpp"
-#include "fn_trans.hpp"
 #include "fn_dot.hpp"
 
 namespace moris
@@ -50,11 +48,11 @@ namespace moris
                         { { 1 } },
                         { { aFirstNodeIndex, aSecondNodeIndex } },
                         { aFirstNodeCoordinates, aSecondNodeCoordinates },
-                        Element_Intersection_Type::Linear_1D,
+                        Element_Interpolation_Type::Linear_1D,
                         aInterfaceGeometry )
         {
             // call required setup function
-            this->initialize( Element_Intersection_Type::Linear_1D, { { -1 } }, { { 1 } } );
+            this->initialize( Element_Interpolation_Type::Linear_1D, { { -1 } }, { { 1 } } );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -77,7 +75,7 @@ namespace moris
 
         real
         Intersection_Node_Linear::compute_diff_from_threshold( 
-            const Element_Intersection_Type aAncestorBasisFunction,
+            const Element_Interpolation_Type aAncestorBasisFunction,
             const Matrix< DDRMat >& aParentNodeLocalCoordinates,
             moris_index aParentNodeIndex )
         { 
@@ -88,7 +86,7 @@ namespace moris
 
             switch ( aAncestorBasisFunction )
             {
-                case Element_Intersection_Type::Linear_1D:
+                case Element_Interpolation_Type::Linear_1D:
                 {
                     tInterpolation = tFactory.create_interpolation_function(
                             mtk::Geometry_Type::LINE,
@@ -96,7 +94,7 @@ namespace moris
                             mtk::Interpolation_Order::LINEAR );
                     break;
                 }
-                case Element_Intersection_Type::Linear_2D:
+                case Element_Interpolation_Type::Linear_2D:
                 {
                     tInterpolation = tFactory.create_interpolation_function(
                             mtk::Geometry_Type::QUAD,
@@ -104,7 +102,7 @@ namespace moris
                             mtk::Interpolation_Order::LINEAR );
                     break;
                 }
-                case Element_Intersection_Type::Linear_3D:
+                case Element_Interpolation_Type::Linear_3D:
                 {
                     tInterpolation = tFactory.create_interpolation_function(
                             mtk::Geometry_Type::HEX,

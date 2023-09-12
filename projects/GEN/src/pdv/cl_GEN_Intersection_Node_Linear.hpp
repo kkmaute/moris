@@ -77,7 +77,7 @@ namespace moris
              * @return Phi value of first parent minus the level set value that determines the interface
              */
             real compute_diff_from_threshold(
-                    const Element_Intersection_Type aAncestorBasisFunction,
+                    const Element_Interpolation_Type aAncestorBasisFunction,
                     const Matrix< DDRMat >&         aParentNodeLocalCoordinates,
                     moris_index                     aParentNodeIndex ) override;
 

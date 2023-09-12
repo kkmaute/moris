@@ -35,7 +35,7 @@ namespace moris
                 const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
                 Matrix< DDUMat >                     aAncestorNodeIndices,
                 Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
-                const Element_Intersection_Type      aAncestorBasisFunction )
+                const Element_Interpolation_Type     aAncestorBasisFunction )
                 : Child_Node(
                         aAncestorNodeIndices,
                         aAncestorNodeCoordinates,
@@ -52,7 +52,7 @@ namespace moris
 
         void
         Intersection_Node::initialize(
-                const Element_Intersection_Type aAncestorBasisFunction,
+                const Element_Interpolation_Type aAncestorBasisFunction,
                 const Matrix< DDRMat >&         aFirstParentLocalCoordinates,
                 const Matrix< DDRMat >&         aSecondParentLocalCoordinates )
         {
@@ -65,7 +65,7 @@ namespace moris
 
         Matrix< DDRMat >
         Intersection_Node::compute_parent_vector(
-                const Element_Intersection_Type aAncestorBasisFunction,
+                const Element_Interpolation_Type aAncestorBasisFunction,
                 const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
                 const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates )
         {
@@ -76,7 +76,7 @@ namespace moris
 
             switch ( aAncestorBasisFunction )
             {
-                case Element_Intersection_Type::Linear_1D:
+                case Element_Interpolation_Type::Linear_1D:
                 {
                     tInterpolation = tFactory.create_interpolation_function(
                             mtk::Geometry_Type::LINE,
@@ -84,7 +84,7 @@ namespace moris
                             mtk::Interpolation_Order::LINEAR );
                     break;
                 }
-                case Element_Intersection_Type::Linear_2D:
+                case Element_Interpolation_Type::Linear_2D:
                 {
                     tInterpolation = tFactory.create_interpolation_function(
                             mtk::Geometry_Type::QUAD,
@@ -92,7 +92,7 @@ namespace moris
                             mtk::Interpolation_Order::LINEAR );
                     break;
                 }
-                case Element_Intersection_Type::Linear_3D:
+                case Element_Interpolation_Type::Linear_3D:
                 {
                     tInterpolation = tFactory.create_interpolation_function(
                             mtk::Geometry_Type::HEX,

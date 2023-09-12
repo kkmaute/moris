@@ -31,9 +31,6 @@
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "cl_Mesh_Enums.hpp"
 
-// XTK FIXME
-#include "cl_XTK_Topology.hpp"
-
 // SOL FIXME
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_SOL_Dist_Map.hpp"
@@ -529,8 +526,8 @@ namespace moris
                         }
                         case Intersection_Interpolation::MULTILINEAR:
                         {
-                            Element_Intersection_Type tInterpolationType =
-                                    mNumSpatialDimensions == 2 ? Element_Intersection_Type::Linear_2D : Element_Intersection_Type::Linear_3D;
+                            Element_Interpolation_Type tInterpolationType =
+                                    mNumSpatialDimensions == 2 ? Element_Interpolation_Type::Linear_2D : Element_Interpolation_Type::Linear_3D;
 
                             mQueuedIntersectionNode = std::make_shared< Intersection_Node_Bilinear >(
                                     mPDVHostManager.get_intersection_node( aFirstNodeIndex ),
@@ -711,7 +708,7 @@ namespace moris
         void
         Geometry_Engine::create_new_child_nodes(
                 const Cell< moris_index >&               aNewNodeIndices,
-                const Cell< Element_Intersection_Type >& aParentIntersectionType,
+                const Cell< Element_Interpolation_Type >& aParentIntersectionType,
                 const Cell< Matrix< IndexMat > >&        tVertexIndices,
                 const Cell< Matrix< DDRMat > >&          aParamCoordRelativeToParent,
                 const Matrix< DDRMat >&                  aGlobalNodeCoord )

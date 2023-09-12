@@ -69,7 +69,7 @@ namespace moris
                     const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
                     Matrix< DDUMat >                     aAncestorNodeIndices,
                     Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
-                    const Element_Intersection_Type      aAncestorBasisFunction );
+                    const Element_Interpolation_Type     aAncestorBasisFunction );
             /**
              * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
              * ancestor nodes.
@@ -199,7 +199,7 @@ namespace moris
              *
              */
             void initialize(
-                    const Element_Intersection_Type aAncestorBasisFunction,
+                    const Element_Interpolation_Type aAncestorBasisFunction,
                     const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
                     const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates );
 
@@ -226,7 +226,7 @@ namespace moris
              * @return Matrix< DDRMat > vector from the first parent to the second parent. Size determined by dimensionality of problem.
              */
             Matrix< DDRMat > compute_parent_vector(
-                    const Element_Intersection_Type aAncestorBasisFunction,
+                    const Element_Interpolation_Type aAncestorBasisFunction,
                     const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
                     const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates );
 
@@ -238,7 +238,7 @@ namespace moris
              * @return false if there is no intersection detected
              */
             virtual bool determine_is_intersected(
-                const Element_Intersection_Type aAncestorBasisFunction,
+                const Element_Interpolation_Type aAncestorBasisFunction,
                 const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
                 const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates
             ) = 0;

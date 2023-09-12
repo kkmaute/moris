@@ -30,7 +30,7 @@ namespace moris
         Child_Node::Child_Node(
                 Matrix< DDUMat >          aAncestorNodeIndices,
                 Cell< Matrix< DDRMat > >  aAncestorNodeCoordinates,
-                Element_Intersection_Type aBasisFunction,
+                Element_Interpolation_Type aBasisFunction,
                 Matrix< DDRMat >          aLocalCoordinatesInAncestor )
                 : mAncestorNodeIndices( aAncestorNodeIndices )
                 , mAncestorNodeCoordinates( aAncestorNodeCoordinates )
@@ -50,7 +50,7 @@ namespace moris
 
             switch ( aBasisFunction )
             {
-                case Element_Intersection_Type::Linear_1D:
+                case Element_Interpolation_Type::Linear_1D:
                 {
                     tInterpolation = tFactory.create_interpolation_function(
                             mtk::Geometry_Type::LINE,
@@ -60,7 +60,7 @@ namespace moris
                     tInterpolation->eval_N( aLocalCoordinatesInAncestor, mBasisValues );
                     break;
                 }
-                case Element_Intersection_Type::Linear_2D:
+                case Element_Interpolation_Type::Linear_2D:
                 {
                     tInterpolation = tFactory.create_interpolation_function(
                             mtk::Geometry_Type::QUAD,
@@ -70,7 +70,7 @@ namespace moris
                     tInterpolation->eval_N( aLocalCoordinatesInAncestor, mBasisValues );
                     break;
                 }
-                case Element_Intersection_Type::Linear_3D:
+                case Element_Interpolation_Type::Linear_3D:
                 {
                     tInterpolation = tFactory.create_interpolation_function(
                             mtk::Geometry_Type::HEX,

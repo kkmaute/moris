@@ -34,7 +34,7 @@ namespace moris
                 const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
                 const Matrix< DDUMat >&              aAncestorNodeIndices,
                 const Cell< Matrix< DDRMat > >&      aAncestorNodeCoordinates,
-                const Element_Intersection_Type      aInterpolationType,
+                const Element_Interpolation_Type     aInterpolationType,
                 std::shared_ptr< Geometry >          aInterfaceGeometry )
                 : Intersection_Node_Level_Set(
                         compute_local_coordinate(
@@ -112,7 +112,7 @@ namespace moris
 
         real
         Intersection_Node_Bilinear::compute_diff_from_threshold(
-                const Element_Intersection_Type aAncestorBasisFunction,
+                const Element_Interpolation_Type aAncestorBasisFunction,
                 const Matrix< DDRMat >&         aParentNodeLocalCoordinates,
                 moris_index                     aParentNodeIndex )
         {
@@ -127,7 +127,7 @@ namespace moris
             // create interpolation function based on spatial dimension  of problem
             switch ( aAncestorBasisFunction )
             {
-                case Element_Intersection_Type::Linear_2D:
+                case Element_Interpolation_Type::Linear_2D:
                 {
                     tInterpolation = tFactory.create_interpolation_function(
                             mtk::Geometry_Type::QUAD,
@@ -137,7 +137,7 @@ namespace moris
                     tNumBases = 4;
                     break;
                 }
-                case Element_Intersection_Type::Linear_3D:
+                case Element_Interpolation_Type::Linear_3D:
                 {
                     tInterpolation = tFactory.create_interpolation_function(
                             mtk::Geometry_Type::HEX,

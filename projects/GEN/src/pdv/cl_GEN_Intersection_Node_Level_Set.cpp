@@ -27,7 +27,7 @@ namespace moris
                 const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
                 Matrix< DDUMat >                     aAncestorNodeIndices,
                 Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
-                const Element_Intersection_Type      aAncestorBasisFunction,
+                const Element_Interpolation_Type     aAncestorBasisFunction,
                 std::shared_ptr< Geometry >          aInterfaceGeometry )
                 : Intersection_Node(
                         aLocalCoordinate,
@@ -48,7 +48,7 @@ namespace moris
 
         bool
         Intersection_Node_Level_Set::determine_is_intersected(
-                const Element_Intersection_Type aAncestorBasisFunction,
+                const Element_Interpolation_Type aAncestorBasisFunction,
                 const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
                 const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates )
         {

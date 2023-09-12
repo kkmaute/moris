@@ -143,7 +143,6 @@ set(LIB_DEPENDENCIES
 	${LINALG}-lib
 	${MAP}-lib
 	${SDF}-lib
- 	${XTK}-lib
     ${ENM}-lib
     )
 

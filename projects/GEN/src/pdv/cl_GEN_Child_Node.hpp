@@ -12,8 +12,8 @@
 #define MORIS_CL_GEN_CHILD_NODE_HPP
 
 #include "cl_Matrix.hpp"
-#include "cl_XTK_Basis_Function.hpp"
 #include "cl_Cell.hpp"
+
 namespace moris
 {
     namespace mtk
@@ -29,7 +29,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        enum class Element_Intersection_Type
+        enum class Element_Interpolation_Type
         {
             Linear_1D,
             Linear_2D,
@@ -58,10 +58,10 @@ namespace moris
              * @param aLocalCoordinatesInAncestor Local coordinate of this child inside of the ancestor element
              */
             Child_Node(
-                    Matrix< DDUMat >                aAncestorNodeIndices,
-                    Cell< Matrix< DDRMat > >        aAncestorNodeCoordinates,
-                    const Element_Intersection_Type aBasisFunction,
-                    Matrix< DDRMat >                aLocalCoordinatesInAncestor );
+                    Matrix< DDUMat >          aAncestorNodeIndices,
+                    Cell< Matrix< DDRMat > >  aAncestorNodeCoordinates,
+                    Element_Interpolation_Type aBasisFunction,
+                    Matrix< DDRMat >          aLocalCoordinatesInAncestor );
 
             Child_Node(
                     moris::mtk::Cell* aCell,

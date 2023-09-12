@@ -56,7 +56,7 @@ namespace moris
                     const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
                     Matrix< DDUMat >                     aAncestorNodeIndices,
                     Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
-                    const Element_Intersection_Type      aAncestorBasisFunction,
+                    const Element_Interpolation_Type     aAncestorBasisFunction,
                     std::shared_ptr< Geometry >          aInterfaceGeometry );
 
             /**
@@ -96,7 +96,7 @@ namespace moris
              * @return Phi value of first parent minus the level set value that determines the interface
              */
             virtual real compute_diff_from_threshold(
-                    const Element_Intersection_Type aAncestorBasisFunction,
+                    const Element_Interpolation_Type aAncestorBasisFunction,
                     const Matrix< DDRMat >&         aParentNodeLocalCoordinates,
                     moris_index               aParentNodeIndex ) = 0;
 
@@ -109,7 +109,7 @@ namespace moris
              * @return false if there is no intersection detected
              */
             bool determine_is_intersected(
-                    const Element_Intersection_Type aAncestorBasisFunction,
+                    const Element_Interpolation_Type aAncestorBasisFunction,
                     const Matrix< DDRMat >&         aFirstParentNodeLocalCoordinates,
                     const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates ) override;
 

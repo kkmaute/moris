@@ -32,11 +32,6 @@
 // SOL FIXME
 #include "cl_SOL_Dist_Vector.hpp"
 
-namespace xtk
-{
-    class Topology;
-}
-
 namespace moris
 {
     //------------------------------------------------------------------------------------------------------------------
@@ -367,7 +362,7 @@ namespace moris
              */
             void create_new_child_nodes(
                     const Cell< moris_index >&               aNewNodeIndices,
-                    const Cell< Element_Intersection_Type >& aParentIntersectionType,
+                    const Cell< Element_Interpolation_Type >& aParentIntersectionType,
                     const Cell< Matrix< IndexMat > >&        tVertexIndices,
                     const Cell< Matrix< DDRMat > >&          aParamCoordRelativeToParent,
                     const Matrix< DDRMat >&                  aGlobalNodeCoord );

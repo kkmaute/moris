@@ -21,7 +21,6 @@
 #include "fn_GEN_create_simple_mesh.hpp"
 #include "cl_GEN_Mesh_Field_Geometry.hpp"
 #include "cl_MTK_Mesh_Factory.hpp"
-#include "cl_XTK_Quad_4_Topology.hpp"
 
 #include "fn_PRM_GEN_Parameters.hpp"
 
@@ -611,7 +610,7 @@ namespace moris
                 CHECK( tIsIntersected );
 
                 // add a node at the of the cell to the geometry engine (This is emulated XTK adding a node like this in regular subdivision)
-                moris::Cell< Element_Intersection_Type > tElemIntersectionType = { Element_Intersection_Type::Linear_2D };
+                moris::Cell< Element_Interpolation_Type > tElemIntersectionType = { Element_Interpolation_Type::Linear_2D };
 
                 moris::Cell< Matrix< IndexMat > > tVertexIndices = { tCell.get_vertex_inds() };
 
