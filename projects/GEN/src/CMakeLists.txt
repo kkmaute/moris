@@ -13,10 +13,10 @@ set(${GEN}_VERSION ${MORIS_VERSION})
 
 # List header dependencies                                                                                                                                                                                                                                                     
 set(GEN_INCLUDES
-	"field"
-	"field/geometry"
-	"field/property"
-	"pdv"
+	"ADV"
+	"ADV/geometry"
+	"ADV/property"
+	"PDV"
 	)
 
 # Include depedency directories
@@ -32,109 +32,117 @@ include_directories(${MORIS_PACKAGE_DIR}/WRK/src)
 # Geometry Engine Library
 set(HEADERS
 
+	# GEN
 	cl_GEN_Geometry_Engine.hpp
 	cl_GEN_Geometric_Query_Interface.hpp
 	cl_GEN_Phase_Table.hpp
 	cl_GEN_Geometric_Proximity.hpp
     st_GEN_Geometry_Engine_Parameters.hpp
 
-	field/cl_GEN_Field.hpp
-	field/cl_GEN_Field_Analytic.hpp
-	field/cl_GEN_Field_Discrete_Integration.hpp
-	field/cl_GEN_Field_Discrete_Interpolation.hpp
-	field/cl_GEN_User_Defined_Field.hpp
-	field/cl_GEN_BSpline_Field.hpp
+	# ADV
+	ADV/cl_GEN_Field.hpp
+	ADV/cl_GEN_Field_Analytic.hpp
+	ADV/cl_GEN_Field_Discrete_Integration.hpp
+	ADV/cl_GEN_Field_Discrete_Interpolation.hpp
+	ADV/cl_GEN_User_Defined_Field.hpp
+	ADV/cl_GEN_BSpline_Field.hpp
 
-	field/geometry/cl_GEN_Geometry.hpp
-	field/geometry/cl_GEN_Circle.hpp
-	field/geometry/cl_GEN_Superellipse.hpp
-	field/geometry/cl_GEN_Sphere.hpp
-	field/geometry/cl_GEN_Superellipsoid.hpp
-	field/geometry/cl_GEN_Plane.hpp
-	field/geometry/cl_GEN_Mesh_Field_Geometry.hpp
-	field/geometry/cl_GEN_Voxel_Input.hpp
-	field/geometry/cl_GEN_Single_Grain.hpp
-	field/geometry/cl_GEN_User_Defined_Geometry.hpp
-	field/geometry/cl_GEN_BSpline_Geometry.hpp
-	field/geometry/cl_GEN_Stored_Geometry.hpp
-	field/geometry/cl_GEN_Geometry_SDF.hpp
-	field/geometry/cl_GEN_Image_SDF_Geometry.hpp
-	field/geometry/cl_GEN_Multigeometry.hpp
-	field/geometry/cl_GEN_Swiss_Cheese_Slice.hpp
-	field/geometry/fn_GEN_create_geometries.hpp
-    field/geometry/st_GEN_Geometry_Parameters.hpp
+	# ADV/geometry
+	ADV/geometry/cl_GEN_Geometry.hpp
+	ADV/geometry/cl_GEN_Circle.hpp
+	ADV/geometry/cl_GEN_Superellipse.hpp
+	ADV/geometry/cl_GEN_Sphere.hpp
+	ADV/geometry/cl_GEN_Superellipsoid.hpp
+	ADV/geometry/cl_GEN_Plane.hpp
+	ADV/geometry/cl_GEN_Mesh_Field_Geometry.hpp
+	ADV/geometry/cl_GEN_Voxel_Input.hpp
+	ADV/geometry/cl_GEN_Single_Grain.hpp
+	ADV/geometry/cl_GEN_User_Defined_Geometry.hpp
+	ADV/geometry/cl_GEN_BSpline_Geometry.hpp
+	ADV/geometry/cl_GEN_Stored_Geometry.hpp
+	ADV/geometry/cl_GEN_Geometry_SDF.hpp
+	ADV/geometry/cl_GEN_Image_SDF_Geometry.hpp
+	ADV/geometry/cl_GEN_Multigeometry.hpp
+	ADV/geometry/cl_GEN_Swiss_Cheese_Slice.hpp
+	ADV/geometry/fn_GEN_create_geometries.hpp
+	ADV/geometry/st_GEN_Geometry_Parameters.hpp
 
+	# ADV/property
+	ADV/property/cl_GEN_Property.hpp
+	ADV/property/cl_GEN_Constant_Property.hpp
+	ADV/property/cl_GEN_Scaled_Field.hpp
+	ADV/property/cl_GEN_User_Defined_Property.hpp
+	ADV/property/cl_GEN_BSpline_Property.hpp
+	ADV/property/fn_GEN_create_properties.hpp
+	ADV/property/st_GEN_Property_Parameters.hpp
+	ADV/st_GEN_Field_Parameters.hpp
 
-	field/property/cl_GEN_Property.hpp
-	field/property/cl_GEN_Constant_Property.hpp
-	field/property/cl_GEN_Scaled_Field.hpp
-	field/property/cl_GEN_User_Defined_Property.hpp
-	field/property/cl_GEN_BSpline_Property.hpp
-	field/property/fn_GEN_create_properties.hpp
-    field/property/st_GEN_Property_Parameters.hpp
-    field/st_GEN_Field_Parameters.hpp
-
-	pdv/cl_GEN_Pdv_Host_Manager.hpp
-	pdv/cl_GEN_Child_Node.hpp
-	
-	pdv/cl_GEN_Interpolation_Pdv_Host.hpp
-	pdv/cl_GEN_Pdv.hpp
-	pdv/cl_GEN_Pdv_Value.hpp
-	pdv/cl_GEN_Pdv_Property.hpp
-	pdv/cl_GEN_Intersection_Node.hpp
-	pdv/cl_GEN_Intersection_Node_Level_Set.hpp
-	pdv/cl_GEN_Intersection_Node_Linear.hpp
-	pdv/cl_GEN_Intersection_Node_Bilinear.hpp
+	# PDV
+	PDV/cl_GEN_Pdv_Host_Manager.hpp
+	PDV/cl_GEN_Child_Node.hpp
+	PDV/cl_GEN_Interpolation_Pdv_Host.hpp
+	PDV/cl_GEN_Pdv.hpp
+	PDV/cl_GEN_Pdv_Value.hpp
+	PDV/cl_GEN_Pdv_Property.hpp
+	PDV/cl_GEN_Intersection_Node.hpp
+	PDV/cl_GEN_Intersection_Node_Level_Set.hpp
+	PDV/cl_GEN_Intersection_Node_Linear.hpp
+	PDV/cl_GEN_Intersection_Node_Bilinear.hpp
     )
 # List library source files
 set(LIB_SOURCES
 
+	# GEN
 	cl_GEN_Geometry_Engine.cpp
 	cl_GEN_Phase_Table.cpp
 	cl_GEN_Geometric_Proximity.cpp
 
-	field/cl_GEN_Field.cpp
-	field/cl_GEN_Field_Analytic.cpp
-	field/cl_GEN_Field_Discrete_Integration.cpp
-	field/cl_GEN_Field_Discrete_Interpolation.cpp
-	field/cl_GEN_User_Defined_Field.cpp
-	field/cl_GEN_BSpline_Field.cpp
+	# ADV
+	ADV/cl_GEN_Field.cpp
+	ADV/cl_GEN_Field_Analytic.cpp
+	ADV/cl_GEN_Field_Discrete_Integration.cpp
+	ADV/cl_GEN_Field_Discrete_Interpolation.cpp
+	ADV/cl_GEN_User_Defined_Field.cpp
+	ADV/cl_GEN_BSpline_Field.cpp
 
-	field/geometry/cl_GEN_Geometry.cpp
-	field/geometry/cl_GEN_Circle.cpp
-	field/geometry/cl_GEN_Superellipse.cpp
-	field/geometry/cl_GEN_Sphere.cpp
-	field/geometry/cl_GEN_Superellipsoid.cpp
-	field/geometry/cl_GEN_Plane.cpp
-	field/geometry/cl_GEN_Mesh_Field_Geometry.cpp
-	field/geometry/cl_GEN_Voxel_Input.cpp
-	field/geometry/cl_GEN_Single_Grain.cpp
-	field/geometry/cl_GEN_User_Defined_Geometry.cpp
-	field/geometry/cl_GEN_BSpline_Geometry.cpp
-	field/geometry/cl_GEN_Stored_Geometry.cpp
-	field/geometry/cl_GEN_Geometry_SDF.cpp
-	field/geometry/cl_GEN_Image_SDF_Geometry.cpp
-	field/geometry/cl_GEN_Multigeometry.cpp
-	field/geometry/cl_GEN_Swiss_Cheese_Slice.cpp
-	field/geometry/fn_GEN_create_geometries.cpp
+	# ADV/geometry
+	ADV/geometry/cl_GEN_Geometry.cpp
+	ADV/geometry/cl_GEN_Circle.cpp
+	ADV/geometry/cl_GEN_Superellipse.cpp
+	ADV/geometry/cl_GEN_Sphere.cpp
+	ADV/geometry/cl_GEN_Superellipsoid.cpp
+	ADV/geometry/cl_GEN_Plane.cpp
+	ADV/geometry/cl_GEN_Mesh_Field_Geometry.cpp
+	ADV/geometry/cl_GEN_Voxel_Input.cpp
+	ADV/geometry/cl_GEN_Single_Grain.cpp
+	ADV/geometry/cl_GEN_User_Defined_Geometry.cpp
+	ADV/geometry/cl_GEN_BSpline_Geometry.cpp
+	ADV/geometry/cl_GEN_Stored_Geometry.cpp
+	ADV/geometry/cl_GEN_Geometry_SDF.cpp
+	ADV/geometry/cl_GEN_Image_SDF_Geometry.cpp
+	ADV/geometry/cl_GEN_Multigeometry.cpp
+	ADV/geometry/cl_GEN_Swiss_Cheese_Slice.cpp
+	ADV/geometry/fn_GEN_create_geometries.cpp
 
-	field/property/cl_GEN_Property.cpp
-	field/property/cl_GEN_Constant_Property.cpp
-	field/property/cl_GEN_Scaled_Field.cpp
-	field/property/cl_GEN_User_Defined_Property.cpp
-	field/property/cl_GEN_BSpline_Property.cpp
-	field/property/fn_GEN_create_properties.cpp
+	# ADV/property
+	ADV/property/cl_GEN_Property.cpp
+	ADV/property/cl_GEN_Constant_Property.cpp
+	ADV/property/cl_GEN_Scaled_Field.cpp
+	ADV/property/cl_GEN_User_Defined_Property.cpp
+	ADV/property/cl_GEN_BSpline_Property.cpp
+	ADV/property/fn_GEN_create_properties.cpp
 
-	pdv/cl_GEN_Pdv_Host_Manager.cpp
-	pdv/cl_GEN_Interpolation_Pdv_Host.cpp
-	pdv/cl_GEN_Pdv.cpp
-	pdv/cl_GEN_Pdv_Value.cpp
-	pdv/cl_GEN_Pdv_Property.cpp
-	pdv/cl_GEN_Child_Node.cpp
-	pdv/cl_GEN_Intersection_Node.cpp
-	pdv/cl_GEN_Intersection_Node_Level_Set.cpp
-	pdv/cl_GEN_Intersection_Node_Linear.cpp
-	pdv/cl_GEN_Intersection_Node_Bilinear.cpp
+	# PDV
+	PDV/cl_GEN_Pdv_Host_Manager.cpp
+	PDV/cl_GEN_Interpolation_Pdv_Host.cpp
+	PDV/cl_GEN_Pdv.cpp
+	PDV/cl_GEN_Pdv_Value.cpp
+	PDV/cl_GEN_Pdv_Property.cpp
+	PDV/cl_GEN_Child_Node.cpp
+	PDV/cl_GEN_Intersection_Node.cpp
+	PDV/cl_GEN_Intersection_Node_Level_Set.cpp
+	PDV/cl_GEN_Intersection_Node_Linear.cpp
+	PDV/cl_GEN_Intersection_Node_Bilinear.cpp
     )
 
 # List library dependencies
