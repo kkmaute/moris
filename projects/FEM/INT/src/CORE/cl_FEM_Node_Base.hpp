@@ -15,7 +15,7 @@
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_MTK_Vertex.hpp"      //MTK/src
-#include "cl_GEN_Pdv_Enums.hpp"
+#include "GEN_Data_Types.hpp"
 
 namespace moris
 {
@@ -172,7 +172,7 @@ namespace moris
                  */
                 virtual void get_vertex_xyz_active_flags(
                         Matrix< DDSMat >                    & aIsActiveDv,
-                        const moris::Cell < enum PDV_Type > & aPdvTypes )
+                        const moris::Cell < enum ge::PDV_Type > & aPdvTypes )
                 {
                     MORIS_ERROR( false, "Entered virtual function Node_Base::get_vertex_active_flags()" );
                 }
@@ -196,7 +196,7 @@ namespace moris
                  */
                 virtual void get_vertex_xyz_pdv_ids(
                         Matrix< DDSMat >                    & aXYZPdvIds,
-                        const moris::Cell < enum PDV_Type > & aPdvTypes )
+                        const moris::Cell < enum ge::PDV_Type > & aPdvTypes )
                 {
                     MORIS_ERROR( false, "Entered virtual function Node_Base::get_vertex_xyz_pdv_ids()" );
                 }
@@ -214,7 +214,7 @@ namespace moris
 
                 virtual void set_local_xyz_pdv_assembly_index(
                         moris_index   aLocalPdvAssemblyIndex,
-                        enum PDV_Type aPdvType )
+                        enum ge::PDV_Type aPdvType )
                 {
                     MORIS_ERROR( false, "Entered virtual function Node_Base::set_local_xyz_pdv_assembly_index()" );
                 }
@@ -226,7 +226,7 @@ namespace moris
 
                 virtual void get_local_xyz_pdv_assembly_indices(
                                         Matrix< DDSMat >                    & aXYZLocalAssemblyIndices,
-                                        const moris::Cell < enum PDV_Type > & aPdvTypes )
+                                        const moris::Cell < enum ge::PDV_Type > & aPdvTypes )
                 {
                     MORIS_ERROR( false, "Entered virtual function Node_Base::get_local_xyz_pdv_assembly_indices()" );
                 }

@@ -45,7 +45,7 @@
 // FEM/VIS/src
 #include "cl_VIS_Output_Enums.hpp"
 // GEN/src
-#include "cl_GEN_Pdv_Enums.hpp"
+#include "GEN_Data_Types.hpp"
 // Logging package
 #include "cl_Logger.hpp"
 #include "cl_Tracer.hpp"
@@ -235,17 +235,17 @@ namespace moris
             // set size for list IG nodes
             mIGNodes.resize( tNumIGNodes, nullptr );
 
-            moris::Cell< enum PDV_Type > tGeoPdvType;
+            moris::Cell< enum ge::PDV_Type > tGeoPdvType;
             switch ( mSpaceDim )
             {
                 case 1:
-                    tGeoPdvType = { PDV_Type::X_COORDINATE };
+                    tGeoPdvType = { ge::PDV_Type::X_COORDINATE };
                     break;
                 case 2:
-                    tGeoPdvType = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE };
+                    tGeoPdvType = { ge::PDV_Type::X_COORDINATE, ge::PDV_Type::Y_COORDINATE };
                     break;
                 case 3:
-                    tGeoPdvType = { PDV_Type::X_COORDINATE, PDV_Type::Y_COORDINATE, PDV_Type::Z_COORDINATE };
+                    tGeoPdvType = { ge::PDV_Type::X_COORDINATE, ge::PDV_Type::Y_COORDINATE, ge::PDV_Type::Z_COORDINATE };
                     break;
                 default:
                     MORIS_ERROR( false,
@@ -476,7 +476,7 @@ namespace moris
         void
         FEM_Model::get_integration_xyz_active_flags(
                 const Matrix< IndexMat >      &aNodeIndices,
-                const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+                const moris::Cell< ge::PDV_Type > &aRequestedPdvTypes,
                 Matrix< DDSMat >              &aIsActiveDv )
         {
             // Get the number of node indices requested
@@ -507,7 +507,7 @@ namespace moris
         void
         FEM_Model::get_integration_xyz_pdv_ids(
                 const Matrix< IndexMat >      &aNodeIndices,
-                const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+                const moris::Cell< ge::PDV_Type > &aRequestedPdvTypes,
                 Matrix< DDSMat >              &aXYZPdvIds )
         {
             // Get the number of node indices requested
@@ -538,7 +538,7 @@ namespace moris
         void
         FEM_Model::get_integration_xyz_pdv_active_flags_and_ids(
                 const Matrix< IndexMat >      &aNodeIndices,
-                const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+                const moris::Cell< ge::PDV_Type > &aRequestedPdvTypes,
                 Matrix< DDSMat >              &aIsActiveDv,
                 Matrix< DDSMat >              &aXYZPdvIds )
         {
@@ -599,7 +599,7 @@ namespace moris
         void
         FEM_Model::get_integration_xyz_pdv_assembly_indices(
                 const Matrix< IndexMat >      &aNodeIndices,
-                const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+                const moris::Cell< ge::PDV_Type > &aRequestedPdvTypes,
                 Matrix< DDSMat >              &aXYZPdvAssemblyIndices )
         {
             // Get the number of node indices requested
@@ -639,7 +639,7 @@ namespace moris
         void
         FEM_Model::set_integration_xyz_pdv_assembly_index(
                 moris_index   aNodeIndex,
-                enum PDV_Type aPdvType,
+                enum ge::PDV_Type aPdvType,
                 moris_index   aXYZPdvAssemblyIndex )
         {
             // get the index of the underlying node
@@ -704,8 +704,8 @@ namespace moris
                     moris::MSI::get_msi_dof_type_map();
 
             // get string to dv type map
-            moris::map< std::string, PDV_Type > tMSIDvTypeMap =
-                    get_pdv_type_map();
+            moris::map< std::string, ge::PDV_Type > tMSIDvTypeMap =
+                    ge::get_pdv_type_map();
 
             // get string to field type map
             moris::map< std::string, mtk::Field_Type > tFieldTypeMap =
@@ -886,7 +886,7 @@ namespace moris
         FEM_Model::create_properties(
                 std::map< std::string, uint >              &aPropertyMap,
                 moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
-                moris::map< std::string, PDV_Type >        &aDvTypeMap,
+                moris::map< std::string, ge::PDV_Type >        &aDvTypeMap,
                 moris::map< std::string, mtk::Field_Type > &aFieldTypeMap,
                 std::shared_ptr< Library_IO >               aLibrary )
         {
@@ -926,7 +926,7 @@ namespace moris
                 mProperties( iProp )->set_dof_type_list( tDofTypes );
 
                 // set dv dependencies
-                moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
+                moris::Cell< moris::Cell< ge::PDV_Type > > tDvTypes;
                 string_to_cell_of_cell(
                         tPropParameter.get< std::string >( "dv_dependencies" ),
                         tDvTypes,
@@ -1105,7 +1105,7 @@ namespace moris
         FEM_Model::create_material_models(
                 std::map< std::string, uint >            &aPropertyMap,
                 moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, PDV_Type >      &aDvTypeMap )
+                moris::map< std::string, ge::PDV_Type >      &aDvTypeMap )
         {
             // create a constitutive model factory
             MM_Factory tMMFactory;
@@ -1199,7 +1199,7 @@ namespace moris
         FEM_Model::create_constitutive_models(
                 std::map< std::string, uint >            &aPropertyMap,
                 moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, PDV_Type >      &aDvTypeMap )
+                moris::map< std::string, ge::PDV_Type >      &aDvTypeMap )
         {
             // create a constitutive model factory
             CM_Factory tCMFactory;
@@ -1274,7 +1274,7 @@ namespace moris
                 tCM->set_dof_type_list( tDofTypes, tDofTypeNames );
 
                 // set CM dv dependencies
-                moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
+                moris::Cell< moris::Cell< ge::PDV_Type > > tDvTypes;
                 string_to_cell_of_cell(
                         std::get< 0 >( tCMParameter.get< std::pair< std::string, std::string > >( "dv_dependencies" ) ),
                         tDvTypes,
@@ -1355,7 +1355,7 @@ namespace moris
                 std::map< std::string, uint >            &aSPMap,
                 std::map< std::string, uint >            &aPropertyMap,
                 moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, PDV_Type >      &aDvTypeMap )
+                moris::map< std::string, ge::PDV_Type >      &aDvTypeMap )
         {
             // create a stabilization parameter factory
             SP_Factory tSPFactory;
@@ -1438,7 +1438,7 @@ namespace moris
                     mSPs( iSP )->set_dof_type_list( tDofTypes, tDofTypeNames, tIsLeader );
 
                     // set dv dependencies
-                    moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
+                    moris::Cell< moris::Cell< ge::PDV_Type > > tDvTypes;
                     string_to_cell_of_cell(
                             std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dv_dependencies" ) ),
                             tDvTypes,
@@ -1799,7 +1799,7 @@ namespace moris
                         mPhaseInfo( tPhaseIndex ).get_dof_type_list();
 
                 // get dof type list from leader phase
-                const moris::Cell< moris::Cell< PDV_Type > > &tLeaderPdvTypes =
+                const moris::Cell< moris::Cell< ge::PDV_Type > > &tLeaderPdvTypes =
                         mPhaseInfo( tPhaseIndex ).get_dv_type_list();
 
                 // set leader dof dependencies
@@ -1827,7 +1827,7 @@ namespace moris
                             mPhaseInfo( tFollowerPhaseIndex ).get_dof_type_list();
 
                     // get pdv type list from phase
-                    const moris::Cell< moris::Cell< PDV_Type > > &tFollowerPdvTypes =
+                    const moris::Cell< moris::Cell< ge::PDV_Type > > &tFollowerPdvTypes =
                             mPhaseInfo( tFollowerPhaseIndex ).get_dv_type_list();
 
                     // set follower dof dependencies
@@ -1949,7 +1949,7 @@ namespace moris
                             mPhaseInfo( tPhaseIndex ).get_dof_type_list();
 
                     // get dof type list from phase
-                    const moris::Cell< moris::Cell< PDV_Type > > &tDvTypes =
+                    const moris::Cell< moris::Cell< ge::PDV_Type > > &tDvTypes =
                             mPhaseInfo( tPhaseIndex ).get_dv_type_list();
 
                     // set leader dof dependencies
@@ -2569,7 +2569,7 @@ namespace moris
                 std::map< std::string, uint >            &aMMMap,
                 std::map< std::string, uint >            &aPropertyMap,
                 moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, PDV_Type >      &aDvTypeMap )
+                moris::map< std::string, ge::PDV_Type >      &aDvTypeMap )
         {
             // create a material model factory
             MM_Factory tMMFactory;
@@ -2653,7 +2653,7 @@ namespace moris
                 std::map< std::string, uint >            &aPropertyMap,
                 std::map< std::string, uint >            &aMMMap,
                 moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, PDV_Type >      &aDvTypeMap )
+                moris::map< std::string, ge::PDV_Type >      &aDvTypeMap )
         {
             // create a constitutive model factory
             CM_Factory tCMFactory;
@@ -2707,7 +2707,7 @@ namespace moris
                 mCMs( iCM )->set_dof_type_list( tDofTypes, tDofTypeNames );
 
                 // set CM dv dependencies
-                moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
+                moris::Cell< moris::Cell< ge::PDV_Type > > tDvTypes;
                 string_to_cell_of_cell(
                         std::get< 0 >( tCMParameterList( iCM ).get< std::pair< std::string, std::string > >( "dv_dependencies" ) ),
                         tDvTypes,
@@ -2785,7 +2785,7 @@ namespace moris
                 std::map< std::string, uint >            &aPropertyMap,
                 std::map< std::string, uint >            &aCMMap,
                 moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                moris::map< std::string, PDV_Type >      &aDvTypeMap )
+                moris::map< std::string, ge::PDV_Type >      &aDvTypeMap )
         {
             // create a stabilization parameter factory
             SP_Factory tSPFactory;
@@ -2856,7 +2856,7 @@ namespace moris
                     mSPs( iSP )->set_dof_type_list( tDofTypes, tDofTypeNames, tIsLeader );
 
                     // set dv dependencies
-                    moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
+                    moris::Cell< moris::Cell< ge::PDV_Type > > tDvTypes;
                     string_to_cell_of_cell(
                             std::get< 0 >( tSPParameter.get< std::pair< std::string, std::string > >( tIsLeaderString + "_dv_dependencies" ) ),
                             tDvTypes,
@@ -2933,7 +2933,7 @@ namespace moris
                 std::map< std::string, uint >              &aSPMap,
                 std::map< std::string, uint >              &aFieldMap,
                 moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
-                moris::map< std::string, PDV_Type >        &aDvTypeMap,
+                moris::map< std::string, ge::PDV_Type >        &aDvTypeMap,
                 moris::map< std::string, mtk::Field_Type > &aFieldTypeMap )
         {
             // create an IWG factory
@@ -3013,7 +3013,7 @@ namespace moris
                     mIWGs( iIWG )->set_dof_type_list( tDofTypes, tIsLeader );
 
                     // set dv dependencies
-                    moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
+                    moris::Cell< moris::Cell< ge::PDV_Type > > tDvTypes;
                     string_to_cell_of_cell(
                             tIWGParameter.get< std::string >( tIsLeaderString + "_dv_dependencies" ),
                             tDvTypes,
@@ -3162,7 +3162,7 @@ namespace moris
                 std::map< std::string, uint >              &aSPMap,
                 std::map< std::string, uint >              &aFieldMap,
                 moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
-                moris::map< std::string, PDV_Type >        &aDvTypeMap,
+                moris::map< std::string, ge::PDV_Type >        &aDvTypeMap,
                 moris::map< std::string, mtk::Field_Type > &aFieldTypeMap )
         {
             // create an IQI factory
@@ -3248,7 +3248,7 @@ namespace moris
                     mIQIs( iIQI )->set_dof_type_list( tDofTypes, tIsLeader );
 
                     // set dv dependencies
-                    moris::Cell< moris::Cell< PDV_Type > > tDvTypes;
+                    moris::Cell< moris::Cell< ge::PDV_Type > > tDvTypes;
                     string_to_cell_of_cell(
                             tIQIParameter.get< std::string >( tIsLeaderString + "_dv_dependencies" ),
                             tDvTypes,
@@ -3677,7 +3677,7 @@ namespace moris
         FEM_Model::get_vertex_xyz_active_flags(
                 moris_index                         aVertexIndex,
                 Matrix< DDSMat >                   &aIsActiveDv,
-                const moris::Cell< enum PDV_Type > &aPdvTypes )
+                const moris::Cell< enum ge::PDV_Type > &aPdvTypes )
         {
             // get number of requested pdv types
             uint tNumPdvTypes = aPdvTypes.size();
@@ -3736,7 +3736,7 @@ namespace moris
         FEM_Model::get_vertex_xyz_pdv_ids(
                 moris_index                         aVertexIndex,
                 Matrix< DDSMat >                   &aXYZPdvIds,
-                const moris::Cell< enum PDV_Type > &aPdvTypes )
+                const moris::Cell< enum ge::PDV_Type > &aPdvTypes )
         {
             // get number of requested pdv types
             uint tNumPdvTypes = aPdvTypes.size();
@@ -3761,7 +3761,7 @@ namespace moris
         FEM_Model::get_local_xyz_pdv_assembly_indices(
                 moris_index                         aVertexIndex,
                 Matrix< DDSMat >                   &aXYZLocalAssemblyIndices,
-                const moris::Cell< enum PDV_Type > &aPdvTypes )
+                const moris::Cell< enum ge::PDV_Type > &aPdvTypes )
         {
             // get number of requested pdv types
             uint tNumPdvTypes = aPdvTypes.size();

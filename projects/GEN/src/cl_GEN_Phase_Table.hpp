@@ -12,7 +12,7 @@
 #define MORIS_CL_GEN_PHASE_TABLE_HPP_
 
 #include "cl_Matrix.hpp"
-#include "GEN_typedefs.hpp"
+#include "GEN_Data_Types.hpp"
 #include "cl_Library_IO.hpp"
 
 namespace moris

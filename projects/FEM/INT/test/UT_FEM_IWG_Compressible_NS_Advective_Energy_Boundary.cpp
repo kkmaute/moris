@@ -342,7 +342,7 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Energy_Boundary_Ideal",
             tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
+            moris::Cell< moris::Cell< enum ge::PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -749,7 +749,7 @@ TEST_CASE( "IWG_Compressible_NS_Advective_Energy_Boundary_VdW",
             tIWG->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
+            moris::Cell< moris::Cell< enum ge::PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 

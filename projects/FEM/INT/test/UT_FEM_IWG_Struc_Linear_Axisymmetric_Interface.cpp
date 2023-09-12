@@ -303,7 +303,7 @@ TEST_CASE( "IWG_Struc_Axi_Linear_Interface", "[moris],[fem],[axi],[IWG_Struc_Axi
             tIWG->mRequestedFollowerGlobalDofTypes  = tDispDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tLeaderFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );
             Field_Interpolator_Manager tFollowerFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );

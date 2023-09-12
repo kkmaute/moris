@@ -271,7 +271,7 @@ TEST_CASE( "IWG_Interface_SLM_L2", "[moris],[fem],[IWG_Interface_SLM_L2]" )
             tIWG->mRequestedLeaderGlobalDofTypes = tAllDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tAllDofTypes, tDummyDv, tDummyField, tSet );
 

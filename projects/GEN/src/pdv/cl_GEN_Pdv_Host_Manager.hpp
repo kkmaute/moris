@@ -14,7 +14,7 @@
 #include "cl_MSI_Design_Variable_Interface.hpp"
 #include "cl_GEN_Interpolation_Pdv_Host.hpp"
 #include "cl_GEN_Intersection_Node.hpp"
-#include "cl_GEN_Pdv_Enums.hpp"
+#include "GEN_Data_Types.hpp"
 
 #include "cl_Matrix.hpp"
 #include "cl_SOL_Dist_Matrix.hpp"

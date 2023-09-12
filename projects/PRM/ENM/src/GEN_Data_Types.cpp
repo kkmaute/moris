@@ -8,9 +8,9 @@
  *
  */
 
-#include "cl_GEN_Pdv_Enums.hpp"
+#include "GEN_Data_Types.hpp"
 
-namespace moris
+namespace moris::ge
 {
     //------------------------------------------------------------------------------------------------------------------
 

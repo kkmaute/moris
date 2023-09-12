@@ -162,7 +162,7 @@ namespace moris
         moris::Matrix< moris::DDRMat > tHCT  = aParameters( 0 );
         moris::real                    tBeta = aParameters( 0 )( 1 );
 
-        real tLevelSet = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()( 0 );
+        real tLevelSet = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val()( 0 );
 
         real tDensity = ( tLevelSet - phi_sh ) / ( 1 - phi_sh );
 
@@ -182,7 +182,7 @@ namespace moris
         moris::Matrix< moris::DDRMat > tHCT  = aParameters( 0 );
         moris::real                    tBeta = aParameters( 0 )( 1 );
 
-        real tLevelSet = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()( 0 );
+        real tLevelSet = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val()( 0 );
 
         real tDensity = ( tLevelSet - phi_sh ) / ( 1 - phi_sh );
 
@@ -191,7 +191,7 @@ namespace moris
 
         // FIXME density shift missing
 
-        aPropMatrix = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->N() * tBeta * tHCT( 0 ) * std::pow( tDensity, tBeta - 1 ) / ( 1 - phi_sh );
+        aPropMatrix = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->N() * tBeta * tHCT( 0 ) * std::pow( tDensity, tBeta - 1 ) / ( 1 - phi_sh );
         // aPropMatrix = tBeta * tHCT * std::pow( tDensity, tBeta -1 ) / ( 1 - phi_sh );
     }
 
@@ -202,7 +202,7 @@ namespace moris
             moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
-        real tLevelSet = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()( 0 );
+        real tLevelSet = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val()( 0 );
 
         real tDensity = ( tLevelSet - phi_sh ) / ( 1 - phi_sh );
 
@@ -220,7 +220,7 @@ namespace moris
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         MORIS_ERROR( false, "Do not need this one" );
-        aPropMatrix = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->N() / ( 1 - phi_sh );
+        aPropMatrix = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->N() / ( 1 - phi_sh );
     }
 
     //--------------------------------------------------------------------------------------------------------------

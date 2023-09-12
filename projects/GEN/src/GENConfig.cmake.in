@@ -1,0 +1,39 @@
+#
+# Copyright (c) 2022 University of Colorado
+# Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+#
+#------------------------------------------------------------------------------------
+#
+
+### Geometry Engine Config File ###
+
+if(@GEN@_CONFIGURED)
+	return()
+endif()
+
+set(@GEN@_CONFIGURED TRUE)
+
+# CMake configuration
+@PACKAGE_INIT@
+
+# Additional macros
+include(CMakeFindDependencyMacro)
+
+# Compilers and used in build
+set(@GEN@_CXX_COMPILER "@MORIS_CXX_COMPILER@")
+set(@GEN@_C_COMPLIER "@MORIS_C_COMPLIER@")
+
+# Flags used in build
+set(@GEN@_CXX_FLAGS "@MORIS_CXX_FLAGS@" "@GEN_COMPILE_DEFINITIONS@")
+set(@GEN@_C_FLAGS "@MORIS_C_FLAGS@" "@GEN_COMPILE_DEFINITIONS@")
+
+# Find dependencies
+@GEN_CONFIG_TPL_DEPENDENCIES@
+@GEN_CONFIG_MORIS_DEPENDENCIES@
+
+# Create library target
+include("@PACKAGE_GEN_CONFIG_INSTALL_DIR@/@GEN@Targets.cmake")
+
+# Library target list
+set(@GEN@_LIBRARIES @GEN@-lib)
+set(ALL_MRS_LIBS "${ALL_MRS_LIBS};@GEN@-lib")

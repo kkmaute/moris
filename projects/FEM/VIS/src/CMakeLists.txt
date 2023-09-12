@@ -52,7 +52,7 @@ set(GEN_INCLUDES
 
 # Include depedency directories
 foreach(GEN_INCLUDES ${GEN_INCLUDES})  
-    include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
+    include_directories(${MORIS_PACKAGE_DIR}/GEN/src/${GEN_INCLUDES})
 endforeach()
 
 # Set the output path for library

@@ -253,7 +253,7 @@ TEST_CASE( "CM_Fluid", "[CM_Fluid]" )
             tLeaderFIs( 1 )->set_coeff( tLeaderDOFHatP );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -642,7 +642,7 @@ TEST_CASE( "CM_Laminar_With_Turbulence", "[CM_Laminar_With_Turbulence]" )
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatVis );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -1034,7 +1034,7 @@ TEST_CASE( "CM_Laminar_Turbulence_Only", "[CM_Laminar_Turbulence_Only]" )
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatVis );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
@@ -1500,7 +1500,7 @@ TEST_CASE( "CM_Fluid_Turbulence", "[CM_Fluid_Turbulence]" )
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatVis );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 

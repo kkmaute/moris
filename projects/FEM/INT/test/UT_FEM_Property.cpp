@@ -90,8 +90,8 @@ void tValFunction3
     aPropMatrix =  aParameters( 0 )
                          + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::TEMP )->val()
                          + aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::MSI::Dof_Type::UX )->val()
-                         + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::PDV_Type::LS1 )->val()
-                         + aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::PDV_Type::LS2 )->val();
+                         + aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::ge::PDV_Type::LS1 )->val()
+                         + aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::ge::PDV_Type::LS2 )->val();
 }
 void tDerFunction3_TEMP
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
@@ -112,14 +112,14 @@ void tDerFunction3_LS1
         moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
         moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix =  aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::PDV_Type::LS1 )->N();
+    aPropMatrix =  aParameters( 1 ) * aFIManager->get_field_interpolators_for_type( moris::ge::PDV_Type::LS1 )->N();
 }
 void tDerFunction3_LS2
 ( moris::Matrix< moris::DDRMat >                 & aPropMatrix,
         moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
         moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix =  aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::PDV_Type::LS2 )->N();
+    aPropMatrix =  aParameters( 2 ) * aFIManager->get_field_interpolators_for_type( moris::ge::PDV_Type::LS2 )->N();
 }
 
 using namespace moris;
@@ -149,7 +149,7 @@ TEST_CASE( "Property", "[moris],[fem],[Property]" )
     tProperty.set_dof_type_list( tDofTypes );
 
     //set dv types
-    Cell< Cell< PDV_Type > > tDvTypes;
+    Cell< Cell< ge::PDV_Type > > tDvTypes;
     tProperty.set_dv_type_list( tDvTypes );
 
     // set parameter
@@ -244,7 +244,7 @@ TEST_CASE( "Property_with_dependency", "[moris],[fem],[Property_with_dependency]
     tProperty.set_dof_type_list( tDofTypes );
 
     // set dv types
-    Cell< Cell< PDV_Type > > tDvTypes;
+    Cell< Cell< ge::PDV_Type > > tDvTypes;
     tProperty.set_dv_type_list( tDvTypes );
 
     // set parameters
@@ -369,7 +369,7 @@ TEST_CASE( "Property_with_dof_dv_dependency", "[moris],[fem],[Property_with_dof_
     tProperty.set_dof_type_list( tDofTypes );
 
     // set dv types
-    Cell< Cell< PDV_Type > > tDvTypes = {{ PDV_Type::LS1 }, { PDV_Type::LS2 }};
+    Cell< Cell< ge::PDV_Type > > tDvTypes = {{ ge::PDV_Type::LS1 }, { ge::PDV_Type::LS2 }};
     tProperty.set_dv_type_list( tDvTypes );
 
     // set parameters
@@ -409,11 +409,11 @@ TEST_CASE( "Property_with_dof_dv_dependency", "[moris],[fem],[Property_with_dof_
     tDvFI( 0 ) = new Field_Interpolator ( tNumberOfFields,
             tInterpolationRule,
             &tGeomInterpolator,
-            { PDV_Type::LS1 } );
+            { ge::PDV_Type::LS1 } );
     tDvFI( 1 ) = new Field_Interpolator ( tNumberOfFields,
             tInterpolationRule,
             &tGeomInterpolator,
-            { PDV_Type::LS2 } );
+            { ge::PDV_Type::LS2 } );
 
     // set coefficients for field interpolators
     Matrix< DDRMat > tUHat0( 8, 1, 2.0 );
@@ -437,9 +437,9 @@ TEST_CASE( "Property_with_dof_dv_dependency", "[moris],[fem],[Property_with_dof_
     tSet.mLeaderDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
     tSet.mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) ) = 0;
     tSet.mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::UX ) )   = 1;
-    tSet.mLeaderDvTypeMap.set_size( static_cast< int >(PDV_Type::UNDEFINED) + 1, 1, -1 );
-    tSet.mLeaderDvTypeMap( static_cast< int >( PDV_Type::LS1 ) ) = 0;
-    tSet.mLeaderDvTypeMap( static_cast< int >( PDV_Type::LS2 ) )   = 1;
+    tSet.mLeaderDvTypeMap.set_size( static_cast< int >(ge::PDV_Type::UNDEFINED) + 1, 1, -1 );
+    tSet.mLeaderDvTypeMap( static_cast< int >( ge::PDV_Type::LS1 ) ) = 0;
+    tSet.mLeaderDvTypeMap( static_cast< int >( ge::PDV_Type::LS2 ) )   = 1;
     Field_Interpolator_Manager tFIManager( moris::Cell< moris::Cell< enum MSI::Dof_Type > >( 0 ), &tSet );
 
     // populate the field interpolator manager
@@ -470,20 +470,20 @@ TEST_CASE( "Property_with_dof_dv_dependency", "[moris],[fem],[Property_with_dof_
     CHECK( equal_to( tPropertyDerivative( 0, 0 ), 0.375 ) );
 
     // check that property depends on dv LS1
-    REQUIRE( tProperty.check_dv_dependency( { PDV_Type::LS1 } ) );
+    REQUIRE( tProperty.check_dv_dependency( { ge::PDV_Type::LS1 } ) );
 
     // check that property depends on dv LS2
-    REQUIRE( tProperty.check_dv_dependency( { PDV_Type::LS2 } ) );
+    REQUIRE( tProperty.check_dv_dependency( { ge::PDV_Type::LS2 } ) );
 
     // check that property does not depend on dv UNDEFINED
-    REQUIRE( !tProperty.check_dv_dependency( { PDV_Type::UNDEFINED } ) );
+    REQUIRE( !tProperty.check_dv_dependency( { ge::PDV_Type::UNDEFINED } ) );
 
     // evaluate the property derivative wrt to LS1 (in dependencies)
-    tPropertyDerivative = tProperty.dPropdDV( {PDV_Type::LS1} );
+    tPropertyDerivative = tProperty.dPropdDV( {ge::PDV_Type::LS1} );
     CHECK( equal_to( tPropertyDerivative( 0, 0 ), 0.25 ) );
 
     // evaluate the property derivative wrt to LS2 (in dependencies)
-    tPropertyDerivative = tProperty.dPropdDV( {PDV_Type::LS2 } );
+    tPropertyDerivative = tProperty.dPropdDV( {ge::PDV_Type::LS2 } );
     CHECK( equal_to( tPropertyDerivative( 0, 0 ), 0.375 ) );
 
     // clean up
@@ -536,7 +536,7 @@ TEST_CASE( "Property_geometry", "[moris],[fem],[Property_geometry]" )
     tProperty.set_dof_type_list( tDofTypes );
 
     // set dv types
-    Cell< Cell< PDV_Type > > tDvTypes;
+    Cell< Cell< ge::PDV_Type > > tDvTypes;
     tProperty.set_dv_type_list( tDvTypes );
 
     // set parameters

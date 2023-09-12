@@ -284,7 +284,7 @@ TEST_CASE( "IQI_Power_Dissipation","[moris],[fem],[IQI_Power_Dissipation]" )
             tIQI->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 

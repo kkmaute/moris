@@ -4,7 +4,7 @@
  *
  *------------------------------------------------------------------------------------
  *
- * GEN_typedefs.hpp
+ * GEN_Data_Types.hpp
  *
  */
 
@@ -16,12 +16,9 @@
 // Constants
 #define MAX_GEOMETRIES 500
 
-namespace moris
+namespace moris::ge
 {
-    namespace ge
-    {
-        typedef Bitset<MAX_GEOMETRIES> Geometry_Bitset;
-    }
+    typedef Bitset<MAX_GEOMETRIES> Geometry_Bitset;
 }
 
 #endif //MORIS_GEN_TYPEDEFS_HPP

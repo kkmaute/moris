@@ -325,7 +325,7 @@ UT_FEM_IWG_Incompressible_NS_Pressure_Neumann(
             tIWGNeumann->mRequestedLeaderGlobalDofTypes = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
+            moris::Cell< moris::Cell< enum ge::PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 

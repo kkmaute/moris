@@ -306,7 +306,7 @@ Test_IWG_Struc_Linear_Contact_Nitsche( const IWG_Type aIWGType, const real& aDis
             tIWG->mRequestedFollowerGlobalDofTypes  = tDispDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
+            moris::Cell< moris::Cell< enum ge::PDV_Type > >        tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
 
             Field_Interpolator_Manager tLeaderFIManager( tDispDofTypes, tDummyDv, tDummyField, tSet );

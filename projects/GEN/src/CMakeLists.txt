@@ -9,7 +9,7 @@
 # -------------------------------------------------------------------------
 
 # Set version
-set(${GEN_MAIN}_VERSION ${MORIS_VERSION})
+set(${GEN}_VERSION ${MORIS_VERSION})
 
 # List header dependencies                                                                                                                                                                                                                                                     
 set(GEN_INCLUDES
@@ -22,7 +22,7 @@ set(GEN_INCLUDES
 
 # Include depedency directories
 foreach(GEN_INCLUDES ${GEN_INCLUDES})
-	include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
+	include_directories(${MORIS_PACKAGE_DIR}/GEN/src/${GEN_INCLUDES})
 	list(APPEND CMAKE_CURRENT_SOURCE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/${GEN_INCLUDES}")
 endforeach()
 
@@ -114,7 +114,7 @@ set(LIB_SOURCES
 	field/geometry/cl_GEN_BSpline_Geometry.cpp
 	field/geometry/cl_GEN_Stored_Geometry.cpp
 	field/geometry/cl_GEN_Geometry_SDF.cpp
-        field/geometry/cl_GEN_Image_SDF_Geometry.cpp
+	field/geometry/cl_GEN_Image_SDF_Geometry.cpp
 	field/geometry/cl_GEN_Multigeometry.cpp
 	field/geometry/cl_GEN_Swiss_Cheese_Slice.cpp
 	field/geometry/fn_GEN_create_geometries.cpp
@@ -145,7 +145,7 @@ set(LIB_DEPENDENCIES
 	${MAP}-lib
 	${SDF}-lib
  	${XTK}-lib
-    #${WRK}-lib
+    ${ENM}-lib
     )
 
 # Set the output path for library
@@ -153,24 +153,24 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${LIB})
 
 # Create library
-add_library(${GEN_MAIN}-lib ${LIB_LINK_MODE} ${LIB_SOURCES})
-target_include_directories(${GEN_MAIN}-lib PUBLIC
+add_library(${GEN}-lib ${LIB_LINK_MODE} ${LIB_SOURCES})
+target_include_directories(${GEN}-lib PUBLIC
 	"$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR};${CMAKE_CURRENT_SOURCE_DIR}/geometry;>"
-	$<INSTALL_INTERFACE:${${GEN_MAIN}_HEADER_INSTALL_DIR}>
+	$<INSTALL_INTERFACE:${${GEN}_HEADER_INSTALL_DIR}>
 	$<INSTALL_INTERFACE:${HEADER_INSTALL_DIR}/${MORIS}> )
-target_link_libraries(${GEN_MAIN}-lib PUBLIC ${LIB_DEPENDENCIES})
-set_target_properties(${GEN_MAIN}-lib PROPERTIES OUTPUT_NAME ${GEN_MAIN})
+target_link_libraries(${GEN}-lib PUBLIC ${LIB_DEPENDENCIES})
+set_target_properties(${GEN}-lib PROPERTIES OUTPUT_NAME ${GEN})
 
 foreach(TPL ${GEN_TPL_DEPENDENCIES})
 	string(TOLOWER ${TPL} tpl)
     include(${MORIS_TPL_DIR}/${tpl}_new.cmake)
-    target_link_libraries(${GEN_MAIN}-lib
+    target_link_libraries(${GEN}-lib
     	PUBLIC ${MORIS}::${tpl})
     
     string(TOUPPER ${TPL} TPL)
-    target_include_directories(${GEN_MAIN}-lib
+    target_include_directories(${GEN}-lib
     	PUBLIC ${MORIS_${TPL}_LIBRARY_DIRS} ${MORIS_${TPL}_INCLUDE_DIRS})
-    target_compile_definitions(${GEN_MAIN}-lib
+    target_compile_definitions(${GEN}-lib
     	PUBLIC ${MORIS_${TPL}_DEFINITIONS})
 endforeach()
 
@@ -192,7 +192,7 @@ foreach(LIB_TARGET ${LIB_DEPENDENCIES})
 	#string(APPEND XTK_CONFIG_MORIS_DEPENDENCIES
     #		"include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )
 
-    string(APPEND GEN_MAIN_CONFIG_MORIS_DEPENDENCIES
+    string(APPEND GEN_CONFIG_MORIS_DEPENDENCIES
 		"find_package(${LIB} QUIET HINTS \"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/\")\n" )
 endforeach()
 
@@ -202,48 +202,48 @@ foreach(LIB_TARGET ${LIB_DEPENDENCIES})
 	#string(APPEND GEN_CONFIG_MORIS_DEPENDENCIES
 	#	"include(\"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/${LIB}Config.cmake\")\n" )
 
-        string(APPEND GEN_MAIN_CONFIG_MORIS_DEPENDENCIES
+        string(APPEND GEN_CONFIG_MORIS_DEPENDENCIES
 		"find_package(${LIB} HINTS \"\${PACKAGE_PREFIX_DIR}/${${LIB}_CONFIG_INSTALL_DIR}/\")\n" )
 endforeach()
 
 # Properties to be coppied into config file
-get_target_property(GEN_COMPILE_DEFINITIONS ${GEN_MAIN}-lib COMPILE_DEFINITIONS)
+get_target_property(GEN_COMPILE_DEFINITIONS ${GEN}-lib COMPILE_DEFINITIONS)
 
 # Build *Config and *ConfigVersion files
 include(CMakePackageConfigHelpers)
 
 
 configure_package_config_file(
-    ${GEN_MAIN}Config.cmake.in
-    ${${GEN_MAIN}_CONFIG_BUILD_DIR}/${GEN_MAIN}Config.cmake
+    ${GEN}Config.cmake.in
+    ${${GEN}_CONFIG_BUILD_DIR}/${GEN}Config.cmake
     INSTALL_DESTINATION 
-    ${${GEN_MAIN}_CONFIG_INSTALL_DIR}
+    ${${GEN}_CONFIG_INSTALL_DIR}
     PATH_VARS 
-    ${GEN_MAIN}_CONFIG_INSTALL_DIR
+    ${GEN}_CONFIG_INSTALL_DIR
     )
 
 write_basic_package_version_file(
-    ${${GEN_MAIN}_CONFIG_BUILD_DIR}/${GEN_MAIN}ConfigVersion.cmake
+    ${${GEN}_CONFIG_BUILD_DIR}/${GEN}ConfigVersion.cmake
     COMPATIBILITY AnyNewerVersion )
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Geometry Engine Installation
 
 # Install *Config and *ConfigVersion files
-install(FILES ${${GEN_MAIN}_CONFIG_BUILD_DIR}/${GEN_MAIN}Config.cmake 
-    ${${GEN_MAIN}_CONFIG_BUILD_DIR}/${GEN_MAIN}ConfigVersion.cmake
-    DESTINATION ${${GEN_MAIN}_CONFIG_INSTALL_DIR} )
+install(FILES ${${GEN}_CONFIG_BUILD_DIR}/${GEN}Config.cmake
+    ${${GEN}_CONFIG_BUILD_DIR}/${GEN}ConfigVersion.cmake
+    DESTINATION ${${GEN}_CONFIG_INSTALL_DIR} )
 
 # Install header files
 install(FILES ${HEADERS}
-    DESTINATION ${${GEN_MAIN}_HEADER_INSTALL_DIR} )
+    DESTINATION ${${GEN}_HEADER_INSTALL_DIR} )
 
 # Install library
-install(TARGETS ${GEN_MAIN}-lib
-    DESTINATION ${${GEN_MAIN}_LIB_INSTALL_DIR}
-    EXPORT ${GEN_MAIN}Targets )
+install(TARGETS ${GEN}-lib
+    DESTINATION ${${GEN}_LIB_INSTALL_DIR}
+    EXPORT ${GEN}Targets )
 
 # Export library into *Targets file
-install(EXPORT ${GEN_MAIN}Targets
-    DESTINATION ${${GEN_MAIN}_CONFIG_INSTALL_DIR} )
+install(EXPORT ${GEN}Targets
+    DESTINATION ${${GEN}_CONFIG_INSTALL_DIR} )
 

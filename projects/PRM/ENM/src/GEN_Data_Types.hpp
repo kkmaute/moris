@@ -8,13 +8,20 @@
  *
  */
 
-#ifndef MORIS_CL_PDV_Type_ENUMS_HPP_
-#define MORIS_CL_PDV_Type_ENUMS_HPP_
+#pragma once
 
+#include "cl_Bitset.hpp"
 #include "cl_Map.hpp"
 
-namespace moris
+// Constants
+#define MAX_GEOMETRIES 500
+
+namespace moris::ge
 {
+    // Typdefs
+    typedef Bitset< MAX_GEOMETRIES > Geometry_Bitset;
+
+    // Enums
     enum class PDV_Type
     {
         X_COORDINATE,
@@ -28,6 +35,11 @@ namespace moris
         UNDEFINED
     };
 
+    /**
+     * Gets a map going from a std::string to a PDV_Type enum. Used to convert parameter list arguments.
+     *
+     * @return PDV_Type map
+     */
     moris::map< std::string, PDV_Type > get_pdv_type_map();
 
     enum class Intersection_Mode
@@ -37,8 +49,10 @@ namespace moris
         END_ENUM
     };
 
+    /**
+     * Gets a map going from a std::string to a Intersection_Mode enum. Used to convert parameter list arguments.
+     *
+     * @return Intersection_Mode map
+     */
     moris::map< std::string, Intersection_Mode > get_intersection_mode_map();
 }
-
-#endif /* MORIS_CL_PDV_ENUMS_HPP_ */
-

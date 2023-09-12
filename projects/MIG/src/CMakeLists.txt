@@ -31,7 +31,7 @@ set(GEN_INCLUDES
 
 # Include depedency directories
 foreach(GEN_INCLUDES ${GEN_INCLUDES})
-	include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
+	include_directories(${MORIS_PACKAGE_DIR}/GEN/src/${GEN_INCLUDES})
 endforeach()
 
 
@@ -50,7 +50,7 @@ cl_MIG.cpp
 
 # List library dependencies
 set(LIB_DEPENDENCIES
-    ${GEN_MAIN}-lib
+    ${GEN}-lib
 	${COM}-lib
 	${LINALG}-lib
 	${HMR}-lib

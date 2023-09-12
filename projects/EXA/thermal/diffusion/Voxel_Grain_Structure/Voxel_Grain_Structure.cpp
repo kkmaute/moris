@@ -15,7 +15,7 @@
 
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
-#include "GEN_typedefs.hpp"
+#include "GEN_Data_Types.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_FEM_Field_Interpolator_Manager.hpp"
 #include "cl_MSI_Equation_Object.hpp"

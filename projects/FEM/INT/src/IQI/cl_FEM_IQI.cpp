@@ -428,7 +428,7 @@ namespace moris
 
         void
         IQI::set_dv_type_list(
-                const moris::Cell< moris::Cell< PDV_Type > >& aDvTypes,
+                const moris::Cell< moris::Cell< ge::PDV_Type > >& aDvTypes,
                 mtk::Leader_Follower                          aIsLeader )
         {
             switch ( aIsLeader )
@@ -452,7 +452,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< moris::Cell< PDV_Type > >&
+        moris::Cell< moris::Cell< ge::PDV_Type > >&
         IQI::get_dv_type_list(
                 mtk::Leader_Follower aIsLeader )
         {
@@ -482,7 +482,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const moris::Cell< moris::Cell< PDV_Type > >&
+        const moris::Cell< moris::Cell< ge::PDV_Type > >&
         IQI::get_global_dv_type_list(
                 mtk::Leader_Follower aIsLeader )
         {
@@ -763,7 +763,7 @@ namespace moris
         void
         IQI::get_non_unique_dof_dv_and_field_types(
                 moris::Cell< moris::Cell< MSI::Dof_Type > >&   aDofTypes,
-                moris::Cell< moris::Cell< PDV_Type > >&        aDvTypes,
+                moris::Cell< moris::Cell< ge::PDV_Type > >&        aDvTypes,
                 moris::Cell< moris::Cell< mtk::Field_Type > >& aFieldTypes )
 
         {
@@ -818,7 +818,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
-                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< ge::PDV_Type >        tActiveDvTypes;
                     moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
                     tProperty->get_non_unique_dof_dv_and_field_types(
@@ -840,7 +840,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type lists
                     moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
-                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< ge::PDV_Type >        tActiveDvTypes;
                     moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
                     tProperty->get_non_unique_dof_dv_and_field_types(
@@ -862,7 +862,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
-                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< ge::PDV_Type >        tActiveDvTypes;
                     moris::Cell< mtk::Field_Type > tActiveFieldTypes;
                     tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
@@ -883,7 +883,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
-                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< ge::PDV_Type >        tActiveDvTypes;
                     moris::Cell< mtk::Field_Type > tActiveFieldTypes;
                     tCM->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
@@ -904,7 +904,7 @@ namespace moris
                 {
                     // get SP non unique dof type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< ge::PDV_Type >      tActiveDvTypes;
                     tSP->get_non_unique_dof_and_dv_types(
                             tActiveDofTypes,
                             tActiveDvTypes );
@@ -977,7 +977,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
-                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< ge::PDV_Type >        tActiveDvTypes;
                     moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
                     tProperty->get_non_unique_dof_dv_and_field_types(
@@ -999,7 +999,7 @@ namespace moris
                 {
                     // get property non unique dof and dv type list
                     moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
-                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< ge::PDV_Type >        tActiveDvTypes;
                     moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
                     tProperty->get_non_unique_dof_dv_and_field_types(
@@ -1021,7 +1021,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
-                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< ge::PDV_Type >        tActiveDvTypes;
                     moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
                     tCM->get_non_unique_dof_dv_and_field_types(
@@ -1043,7 +1043,7 @@ namespace moris
                 {
                     // get CM non unique dof and dv type lists
                     moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
-                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< ge::PDV_Type >        tActiveDvTypes;
                     moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
                     tCM->get_non_unique_dof_dv_and_field_types(
@@ -1068,7 +1068,7 @@ namespace moris
                 {
                     // get SP non unique leader dof type list
                     moris::Cell< MSI::Dof_Type > tActiveDofTypes;
-                    moris::Cell< PDV_Type >      tActiveDvTypes;
+                    moris::Cell< ge::PDV_Type >      tActiveDvTypes;
 
                     tSP->get_non_unique_dof_and_dv_types(
                             tActiveDofTypes,
@@ -1171,7 +1171,7 @@ namespace moris
                     }
 
                     // get dv types for property
-                    const moris::Cell< moris::Cell< PDV_Type > >& tActiveDvTypes =
+                    const moris::Cell< moris::Cell< ge::PDV_Type > >& tActiveDvTypes =
                             tProperty->get_dv_type_list();
 
                     // loop on property dv type
@@ -1241,7 +1241,7 @@ namespace moris
                     }
 
                     // get dv types for constitutive model
-                    const moris::Cell< moris::Cell< PDV_Type > >& tActiveDvTypes =
+                    const moris::Cell< moris::Cell< ge::PDV_Type > >& tActiveDvTypes =
                             tCM->get_global_dv_type_list();
 
                     // loop on property dv type
@@ -1311,7 +1311,7 @@ namespace moris
                     }
 
                     // get dv types for constitutive model
-                    const moris::Cell< moris::Cell< PDV_Type > >& tActiveDvTypes =
+                    const moris::Cell< moris::Cell< ge::PDV_Type > >& tActiveDvTypes =
                             tSP->get_global_dv_type_list( mtk::Leader_Follower::LEADER );
 
                     // loop on property dv type
@@ -1416,7 +1416,7 @@ namespace moris
                     }
 
                     // get dv types for property
-                    const moris::Cell< moris::Cell< PDV_Type > >& tActiveDvTypes =
+                    const moris::Cell< moris::Cell< ge::PDV_Type > >& tActiveDvTypes =
                             tProperty->get_dv_type_list();
 
                     // loop on property dv type
@@ -1486,7 +1486,7 @@ namespace moris
                     }
 
                     // get dv types for constitutive model
-                    const moris::Cell< moris::Cell< PDV_Type > >& tActiveDvTypes =
+                    const moris::Cell< moris::Cell< ge::PDV_Type > >& tActiveDvTypes =
                             tCM->get_global_dv_type_list();
 
                     // loop on property dv type
@@ -1556,7 +1556,7 @@ namespace moris
                     }
 
                     // get dv types for stabilization parameter
-                    const moris::Cell< moris::Cell< PDV_Type > >& tActiveDvTypes =
+                    const moris::Cell< moris::Cell< ge::PDV_Type > >& tActiveDvTypes =
                             tSP->get_global_dv_type_list( mtk::Leader_Follower::FOLLOWER );
 
                     // loop on property dv type
@@ -1964,7 +1964,7 @@ namespace moris
             uint tNumFDPoints = tFDScheme( 0 ).size();
 
             // get the requested ip pdv types
-            moris::Cell< moris::Cell< PDV_Type > > tRequestedPdvTypes;
+            moris::Cell< moris::Cell< ge::PDV_Type > > tRequestedPdvTypes;
             mSet->get_ip_dv_types_for_set( tRequestedPdvTypes );
 
             // get number of requested dv types

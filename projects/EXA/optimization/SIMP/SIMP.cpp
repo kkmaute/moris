@@ -55,7 +55,7 @@ namespace moris
     {
         moris::Matrix< moris::DDRMat > tHCT  = aParameters( 0 );
         moris::real                    tBeta = aParameters( 0 )( 1 );
-        aPropMatrix                          = tHCT * std::pow( aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->val()( 0 ), tBeta );
+        aPropMatrix                          = tHCT * std::pow( aFIManager->get_field_interpolators_for_type( ge::PDV_Type::DENSITY )->val()( 0 ), tBeta );
     }
 
     void
@@ -66,7 +66,7 @@ namespace moris
     {
         moris::Matrix< moris::DDRMat > tHCT  = aParameters( 0 );
         moris::real                    tBeta = aParameters( 0 )( 1 );
-        aPropMatrix                          = tBeta * tHCT * std::pow( aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->val()( 0 ), tBeta - 1 );
+        aPropMatrix                          = tBeta * tHCT * std::pow( aFIManager->get_field_interpolators_for_type( ge::PDV_Type::DENSITY )->val()( 0 ), tBeta - 1 );
     }
 
     void
@@ -75,7 +75,7 @@ namespace moris
             moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
-        aPropMatrix = aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->val();
+        aPropMatrix = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::DENSITY )->val();
     }
 
     void
@@ -84,7 +84,7 @@ namespace moris
             moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
-        aPropMatrix = aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->N();
+        aPropMatrix = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::DENSITY )->N();
     }
 
     bool

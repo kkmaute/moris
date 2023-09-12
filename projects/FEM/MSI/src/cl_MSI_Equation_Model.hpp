@@ -16,7 +16,7 @@
 
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_GEN_Pdv_Enums.hpp"
+#include "GEN_Data_Types.hpp"
 
 #include "cl_Library_IO.hpp"
 
@@ -540,7 +540,7 @@ namespace moris
             virtual void
             get_integration_xyz_active_flags(
                     const Matrix< IndexMat >&      aNodeIndices,
-                    const moris::Cell< PDV_Type >& aPdvTypes,
+                    const moris::Cell< ge::PDV_Type >& aPdvTypes,
                     Matrix< DDSMat >&              aIsActiveDv )
             {
                 MORIS_ERROR( false,
@@ -558,7 +558,7 @@ namespace moris
             virtual void
             get_integration_xyz_pdv_ids(
                     const Matrix< IndexMat >&      aNodeIndices,
-                    const moris::Cell< PDV_Type >& aPdvTypes,
+                    const moris::Cell< ge::PDV_Type >& aPdvTypes,
                     Matrix< DDSMat >&              aXYZPdvIds )
             {
                 MORIS_ERROR( false,
@@ -578,7 +578,7 @@ namespace moris
             virtual void
             get_integration_xyz_pdv_active_flags_and_ids(
                     const Matrix< IndexMat >&      aNodeIndices,
-                    const moris::Cell< PDV_Type >& aRequestedPdvTypes,
+                    const moris::Cell< ge::PDV_Type >& aRequestedPdvTypes,
                     Matrix< DDSMat >&              aIsActiveDv,
                     Matrix< DDSMat >&              aXYZPdvIds )
             {
@@ -610,7 +610,7 @@ namespace moris
             virtual void
             set_integration_xyz_pdv_assembly_index(
                     moris_index   aNodeIndex,
-                    enum PDV_Type aPdvType,
+                    enum ge::PDV_Type aPdvType,
                     moris_index   aXYZPdvAssemblyIndex )
             {
                 MORIS_ERROR( false,
@@ -628,7 +628,7 @@ namespace moris
             virtual void
             get_integration_xyz_pdv_assembly_indices(
                     const Matrix< IndexMat >&      aNodeIndices,
-                    const moris::Cell< PDV_Type >& aRequestedPdvTypes,
+                    const moris::Cell< ge::PDV_Type >& aRequestedPdvTypes,
                     Matrix< DDSMat >&              aXYZPdvAssemblyIndices )
             {
                 MORIS_ERROR( false,

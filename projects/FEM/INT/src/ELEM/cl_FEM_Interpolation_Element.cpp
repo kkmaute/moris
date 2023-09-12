@@ -217,7 +217,7 @@ namespace moris
             // dv field interpolators------------------------------------------
 
             // get leader dv type list from set
-            const Cell< Cell< PDV_Type > >& tLeaderDvTypeList =
+            const Cell< Cell< ge::PDV_Type > >& tLeaderDvTypeList =
                     mSet->get_dv_type_list( mtk::Leader_Follower::LEADER );
 
             // get number of leader dv types
@@ -227,7 +227,7 @@ namespace moris
             for ( uint iDv = 0; iDv < tLeaderNumDvTypes; iDv++ )
             {
                 // get the dv type group
-                const moris::Cell< PDV_Type >& tDvTypeGroup = tLeaderDvTypeList( iDv );
+                const moris::Cell< ge::PDV_Type >& tDvTypeGroup = tLeaderDvTypeList( iDv );
 
                 // get the pdv values for the ith dv type group
                 // FIXME: the underlying use of the base cell needs to be hidden within PDV
@@ -246,7 +246,7 @@ namespace moris
             }
 
             // get follower dv type list from set
-            const Cell< Cell< PDV_Type > >& tFollowerDvTypeList =
+            const Cell< Cell< ge::PDV_Type > >& tFollowerDvTypeList =
                     mSet->get_dv_type_list( mtk::Leader_Follower::FOLLOWER );
 
             // get number of follower dv types
@@ -256,7 +256,7 @@ namespace moris
             for ( uint iDv = 0; iDv < tFollowerNumDvTypes; iDv++ )
             {
                 // get the dv type group
-                const moris::Cell< PDV_Type >& tDvTypeGroup = tFollowerDvTypeList( iDv );
+                const moris::Cell< ge::PDV_Type >& tDvTypeGroup = tFollowerDvTypeList( iDv );
 
                 // get the pdv values for the ith dv type group
                 Cell< Matrix< DDRMat > > tCoeff_Original;
@@ -364,7 +364,7 @@ namespace moris
                     mSet->mEquationModel->get_design_variable_interface();
 
             // get the list of requested dv types by the opt solver
-            moris::Cell< moris::Cell< enum PDV_Type > > tRequestedDvTypes;
+            moris::Cell< moris::Cell< enum ge::PDV_Type > > tRequestedDvTypes;
             mSet->get_ip_dv_types_for_set( tRequestedDvTypes );
 
             // reset material pdv assembly vector

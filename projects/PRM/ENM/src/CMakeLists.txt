@@ -15,6 +15,7 @@ set(${ENM}_VERSION ${MORIS_VERSION})
 # List header files
 set(HEADERS
     cl_FEM_Enums.hpp
+        GEN_Data_Types.hpp
     cl_Mesh_Enums.hpp
     cl_MSI_Dof_Type_Enums.hpp
     cl_MTK_Enums.hpp
@@ -29,6 +30,7 @@ set(HEADERS
 
 # List library source files
 set(LIB_SOURCES
+        GEN_Data_Types.cpp
     cl_Mesh_Enums.cpp
     cl_MTK_Enums.cpp )
 

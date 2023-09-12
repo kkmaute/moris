@@ -11,7 +11,7 @@
 #ifndef MORIS_CL_GEN_INTERPOLATION_PDV_Type_HOST_HPP_
 #define MORIS_CL_GEN_INTERPOLATION_PDV_Type_HOST_HPP_
 
-#include "cl_GEN_Pdv_Enums.hpp"
+#include "GEN_Data_Types.hpp"
 #include "cl_GEN_Pdv.hpp"
 
 namespace moris

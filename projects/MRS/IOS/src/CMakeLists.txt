@@ -55,7 +55,6 @@ set(LIB_DEPENDENCIES
     ${COR}-lib
     ${COM}-lib
     ${PRM}-lib
-	${GEN_CORE}-lib
     ${MORIS_BASE_LIBS}
      )
 

@@ -91,7 +91,7 @@ void tFIValDvFunction_FDTest
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->val();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( ge::PDV_Type::DENSITY )->val();
 }
 
 void tFIDerDvFunction_FDTest
@@ -99,7 +99,7 @@ void tFIDerDvFunction_FDTest
   moris::Cell< moris::Matrix< moris::DDRMat > >  & aParameters,
   moris::fem::Field_Interpolator_Manager         * aFIManager )
 {
-    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( PDV_Type::DENSITY )->N();
+    aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( ge::PDV_Type::DENSITY )->N();
 }
 
 real density_function_1(const Matrix<DDRMat>& aCoordinates, const Cell<real*>& aPropertyVariables)
@@ -235,13 +235,13 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         // create the properties
         std::shared_ptr< fem::Property > tPropConductivity1 = std::make_shared< fem::Property > ();
         tPropConductivity1->set_parameters( { {{ 1.0 }} } );
-        tPropConductivity1->set_dv_type_list( {{ PDV_Type::DENSITY }} );
+        tPropConductivity1->set_dv_type_list( {{ ge::PDV_Type::DENSITY }} );
         tPropConductivity1->set_val_function( tFIValDvFunction_FDTest );
         tPropConductivity1->set_dv_derivative_functions( { tFIDerDvFunction_FDTest } );
 
         std::shared_ptr< fem::Property > tPropConductivity2 = std::make_shared< fem::Property > ();
         tPropConductivity2->set_parameters( { {{ 1.0 }} } );
-        tPropConductivity2->set_dv_type_list( {{ PDV_Type::DENSITY }} );
+        tPropConductivity2->set_dv_type_list( {{ ge::PDV_Type::DENSITY }} );
         tPropConductivity2->set_val_function( tFIValDvFunction_FDTest );
         tPropConductivity2->set_dv_derivative_functions( { tFIDerDvFunction_FDTest } );
 
@@ -424,20 +424,20 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
         // PDVs and design variable interface
         tGeometryEngine.register_mesh(&tMeshManager);
 
-        Cell<Cell<Cell<PDV_Type>>> tPdvTypes(15);
-        Cell<Cell<Cell<PDV_Type>>> tIGPdvTypes(100);
+        Cell<Cell<Cell<ge::PDV_Type>>> tPdvTypes(15);
+        Cell<Cell<Cell<ge::PDV_Type>>> tIGPdvTypes(100);
         for (uint tBulkSetIndex = 0; tBulkSetIndex < 4; tBulkSetIndex++)
         {
             tPdvTypes(tBulkSetIndex).resize(1);
             tPdvTypes(tBulkSetIndex)(0).resize(1);
-            tPdvTypes(tBulkSetIndex)(0)(0) = PDV_Type::DENSITY;
+            tPdvTypes(tBulkSetIndex)(0)(0) = ge::PDV_Type::DENSITY;
         }
         tGeometryEngine.create_ip_pdv_hosts(tPdvTypes);
 
-        Cell< PDV_Type> tRequestedType( 1, PDV_Type::DENSITY );
+        Cell< ge::PDV_Type> tRequestedType( 1, ge::PDV_Type::DENSITY );
         reinterpret_cast< ge::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
                 create_ig_pdv_hosts(0,Cell< Matrix< DDSMat >>(100), tIGPdvTypes);
-        moris::Cell< PDV_Type > tMatPdvTypes = { PDV_Type::DENSITY };
+        moris::Cell< ge::PDV_Type > tMatPdvTypes = { ge::PDV_Type::DENSITY };
         reinterpret_cast< ge::Pdv_Host_Manager* >(tGeometryEngine.get_design_variable_interface())->
                 set_ip_requested_dv_types( tMatPdvTypes );
 
@@ -456,10 +456,10 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
                                                                                                       Cell<std::shared_ptr<ge::Property>>(0),
                                                                                                       &density_function_2,
                                                                                                       &evaluate_sensitivity);
-        tGeometryEngine.assign_ip_hosts_by_set_index(0, tDensityProperty1, PDV_Type::DENSITY);
-        tGeometryEngine.assign_ip_hosts_by_set_index(1, tDensityProperty1, PDV_Type::DENSITY);
-        tGeometryEngine.assign_ip_hosts_by_set_index(2, tDensityProperty2, PDV_Type::DENSITY);
-        tGeometryEngine.assign_ip_hosts_by_set_index(3, tDensityProperty2, PDV_Type::DENSITY);
+        tGeometryEngine.assign_ip_hosts_by_set_index(0, tDensityProperty1, ge::PDV_Type::DENSITY);
+        tGeometryEngine.assign_ip_hosts_by_set_index(1, tDensityProperty1, ge::PDV_Type::DENSITY);
+        tGeometryEngine.assign_ip_hosts_by_set_index(2, tDensityProperty2, ge::PDV_Type::DENSITY);
+        tGeometryEngine.assign_ip_hosts_by_set_index(3, tDensityProperty2, ge::PDV_Type::DENSITY);
 
         tModel->set_design_variable_interface(tGeometryEngine.get_design_variable_interface());
 

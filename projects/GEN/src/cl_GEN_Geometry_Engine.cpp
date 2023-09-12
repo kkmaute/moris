@@ -13,7 +13,7 @@
 
 // GEN
 #include "cl_GEN_Geometry_Engine.hpp"
-#include "GEN_typedefs.hpp"
+#include "GEN_Data_Types.hpp"
 #include "fn_GEN_create_geometries.hpp"
 #include "cl_GEN_BSpline_Geometry.hpp"
 #include "cl_GEN_BSpline_Property.hpp"
@@ -114,7 +114,7 @@ namespace moris
             }
 
             MORIS_ERROR( mGeometries.size() <= MAX_GEOMETRIES,
-                    "Number of geometries exceeds MAX_GEOMETRIES, please change this in GEN_typedefs.hpp" );
+                    "Number of geometries exceeds MAX_GEOMETRIES, please change this in GEN_Data_Types.hpp" );
 
             // Properties
             mProperties = create_properties(

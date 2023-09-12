@@ -36,7 +36,7 @@ set(GEN_INCLUDES
 
 # Include depedency directories
 foreach(GEN_INCLUDES ${GEN_INCLUDES})
-    include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
+    include_directories(${MORIS_PACKAGE_DIR}/GEN/src/${GEN_INCLUDES})
 endforeach()
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -64,7 +64,7 @@ set(LIB_DEPENDENCIES
     ${INT}-lib 
     ${XTK}-lib
     ${HMR}-lib
-    ${GEN_MAIN}-lib
+    ${GEN}-lib
     ${MDL}-lib
     ${OPT}-lib
     ${MIG}-lib

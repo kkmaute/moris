@@ -16,7 +16,7 @@ endif()
 set(SDF_CONFIGURED_ONCE "YES")
 
 # Add SDF to the source directory list
-list(APPEND MORIS_SOURCE_DIRS ${GEN}/${GEN_MAIN}/${SDF})
+list(APPEND MORIS_SOURCE_DIRS ${GEN}/${SDF})
 
 # Third party libraries needed by SDF library
 set(SDF_TPL_DEPENDENCIES

@@ -28,7 +28,7 @@ set(GEN_INCLUDES
 	)
 
 foreach(GEN_INCLUDES ${GEN_INCLUDES})
-	include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
+	include_directories(${MORIS_PACKAGE_DIR}/GEN/src/${GEN_INCLUDES})
 endforeach()
      
 # Include WRK directory
@@ -37,10 +37,9 @@ include_directories(${MORIS_PACKAGE_DIR}/WRK/src)
 # List test dependencies
 set(TEST_DEPENDENCIES
     test-libs
-    ${GEN_CORE}-lib
     ${COR}-lib
     ${ALG}-lib
-    ${GEN_MAIN}-lib
+    ${GEN}-lib
     ${INT}-lib
     ${DLA}-lib
 	${HMR}-lib
@@ -83,8 +82,7 @@ SET(SO_INCLUDES
     ${INT_SRC_LIST}
     ${MTK_SRC_LIST}
 	${MORIS_PACKAGE_DIR}/FEM/MSI/src 
-	${MORIS_PACKAGE_DIR}/FEM/VIS/src 
-	${MORIS_PACKAGE_DIR}/GEN/GEN_CORE/src 
+	${MORIS_PACKAGE_DIR}/FEM/VIS/src
 	${MORIS_PACKAGE_DIR}/SOL/DLA/src 
 	${MORIS_PACKAGE_DIR}/SOL/TSA/src
 	${MORIS_PACKAGE_DIR}/SOL/NLA/src 

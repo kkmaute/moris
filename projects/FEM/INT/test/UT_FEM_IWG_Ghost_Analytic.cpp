@@ -245,7 +245,7 @@ TEST_CASE( "IWG_Diff_Ghost_Analytic", "[moris],[fem],[IWG_Diff_Ghost_Analytic]" 
             tIWG->mRequestedFollowerGlobalDofTypes  = tDofTypes;
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
             moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tLeaderFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
             Field_Interpolator_Manager tFollowerFIManager( tDofTypes, tDummyDv, tDummyField, tSet );

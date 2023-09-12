@@ -31,7 +31,7 @@ set(GEN_INCLUDES
 
 # Include depedency directories
 foreach(GEN_INCLUDES ${GEN_INCLUDES})  
-    include_directories(${MORIS_PACKAGE_DIR}/GEN/GEN_MAIN/src/${GEN_INCLUDES})
+    include_directories(${MORIS_PACKAGE_DIR}/GEN/src/${GEN_INCLUDES})
 endforeach()
 
 # Set the output path for test
@@ -65,8 +65,7 @@ SET(SO_INCLUDES
     ${INT_SRC_LIST}
     ${MTK_SRC_LIST}
     ${MORIS_PACKAGE_DIR}/FEM/MSI/src 
-	${MORIS_PACKAGE_DIR}/FEM/VIS/src 
-	${MORIS_PACKAGE_DIR}/GEN/GEN_CORE/src 
+	${MORIS_PACKAGE_DIR}/FEM/VIS/src
 	${MORIS_PACKAGE_DIR}/SOL/DLA/src 
 	${MORIS_PACKAGE_DIR}/SOL/TSA/src
 	${MORIS_PACKAGE_DIR}/SOL/NLA/src 

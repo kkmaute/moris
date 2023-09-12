@@ -47,10 +47,10 @@ TEST_CASE(
         std::string tMorisRoot = moris::get_base_moris_dir();
 
         // determine path for object file
-        std::string tObjectPath = tMorisRoot + "/projects/GEN/GEN_MAIN/SDF/test/data/tetrahedron.obj" ;
+        std::string tObjectPath = tMorisRoot + "/projects/GEN/SDF/test/data/tetrahedron.obj" ;
 
         // determine path for mesh file
-        std::string tMeshPath =  tMorisRoot + "/projects/GEN/GEN_MAIN/SDF/test/data/TensorMesh.g" ;
+        std::string tMeshPath =  tMorisRoot + "/projects/GEN/SDF/test/data/TensorMesh.g" ;
 
         // create triangle object
         sdf::Object tObject( tObjectPath );

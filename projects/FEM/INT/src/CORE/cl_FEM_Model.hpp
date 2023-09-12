@@ -22,7 +22,7 @@
 
 #include "fn_PRM_FEM_Parameters.hpp"
 #include "cl_MSI_Dof_Type_Enums.hpp"
-#include "cl_GEN_Pdv_Enums.hpp"
+#include "GEN_Data_Types.hpp"
 
 #include "cl_MSI_Equation_Model.hpp"
 #include "cl_FEM_Phase_User_Info.hpp"
@@ -292,7 +292,7 @@ namespace moris
              */
             void get_integration_xyz_active_flags(
                     const Matrix< IndexMat >      &aNodeIndices,
-                    const moris::Cell< PDV_Type > &aPdvTypes,
+                    const moris::Cell< ge::PDV_Type > &aPdvTypes,
                     Matrix< DDSMat >              &aIsActiveDv );
 
             //------------------------------------------------------------------------------
@@ -305,7 +305,7 @@ namespace moris
              */
             void get_integration_xyz_pdv_ids(
                     const Matrix< IndexMat >      &aNodeIndices,
-                    const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+                    const moris::Cell< ge::PDV_Type > &aRequestedPdvTypes,
                     Matrix< DDSMat >              &aXYZPdvIds );
 
             //------------------------------------------------------------------------------
@@ -320,7 +320,7 @@ namespace moris
              */
             void get_integration_xyz_pdv_active_flags_and_ids(
                     const Matrix< IndexMat >      &aNodeIndices,
-                    const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+                    const moris::Cell< ge::PDV_Type > &aRequestedPdvTypes,
                     Matrix< DDSMat >              &aIsActiveDv,
                     Matrix< DDSMat >              &aXYZPdvIds );
 
@@ -334,7 +334,7 @@ namespace moris
              */
             void get_integration_xyz_pdv_assembly_indices(
                     const Matrix< IndexMat >      &aNodeIndices,
-                    const moris::Cell< PDV_Type > &aRequestedPdvTypes,
+                    const moris::Cell< ge::PDV_Type > &aRequestedPdvTypes,
                     Matrix< DDSMat >              &aXYZPdvAssemblyIndices );
 
             //------------------------------------------------------------------------------
@@ -359,7 +359,7 @@ namespace moris
              */
             void set_integration_xyz_pdv_assembly_index(
                     moris_index   aNodeIndex,
-                    enum PDV_Type aPdvType,
+                    enum ge::PDV_Type aPdvType,
                     moris_index   aXYZPdvAssemblyIndex );
 
             //------------------------------------------------------------------------------
@@ -482,13 +482,13 @@ namespace moris
              * create a list of property pointers
              * @param[ in ] aProperties    a list of property pointers to fill
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
-             * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
+             * @param[ in ] aDvTypeMap     a map from std::string to ge::PDV_Type
              * @param[ in ] aLibrary       a file path for property functions
              */
             void create_properties(
                     std::map< std::string, uint >              &aPropertyMap,
                     moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
-                    moris::map< std::string, PDV_Type >        &aDvTypeMap,
+                    moris::map< std::string, ge::PDV_Type >        &aDvTypeMap,
                     moris::map< std::string, mtk::Field_Type > &aFieldTypeMap,
                     std::shared_ptr< Library_IO >               aLibrary );
 
@@ -505,24 +505,24 @@ namespace moris
              * create a list of material model pointers
              * @param[ in ] aPropertyMap   a map from property name to property index
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
-             * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
+             * @param[ in ] aDvTypeMap     a map from std::string to ge::PDV_Type
              */
             void create_material_models(
                     std::map< std::string, uint >            &aPropertyMap,
                     moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                    moris::map< std::string, PDV_Type >      &aDvTypeMap );
+                    moris::map< std::string, ge::PDV_Type >      &aDvTypeMap );
 
             //------------------------------------------------------------------------------
             /**
              * create a list of constitutive model pointers
              * @param[ in ] aPropertyMap   a map from property name to property index
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
-             * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
+             * @param[ in ] aDvTypeMap     a map from std::string to ge::PDV_Type
              */
             void create_constitutive_models(
                     std::map< std::string, uint >            &aPropertyMap,
                     moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                    moris::map< std::string, PDV_Type >      &aDvTypeMap );
+                    moris::map< std::string, ge::PDV_Type >      &aDvTypeMap );
 
             //------------------------------------------------------------------------------
             /**
@@ -530,13 +530,13 @@ namespace moris
              * @param[ in ] aSPMap         a map from SP name to index in mSPs to fill
              * @param[ in ] aPropertyMap   a map from property name to index in mProperties
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
-             * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
+             * @param[ in ] aDvTypeMap     a map from std::string to ge::PDV_Type
              */
             void create_stabilization_parameters(
                     std::map< std::string, uint >            &aSPMap,
                     std::map< std::string, uint >            &aPropertyMap,
                     moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                    moris::map< std::string, PDV_Type >      &aDvTypeMap );
+                    moris::map< std::string, ge::PDV_Type >      &aDvTypeMap );
 
             //------------------------------------------------------------------------------
             /**
@@ -610,13 +610,13 @@ namespace moris
              * @param[ in ] aMMMap         a map from MM name to index in aMMs
              * @param[ in ] aPropertyMap   a map from property name to property index
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
-             * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
+             * @param[ in ] aDvTypeMap     a map from std::string to ge::PDV_Type
              */
             void create_material_models(
                     std::map< std::string, uint >            &aMMMap,
                     std::map< std::string, uint >            &aPropertyMap,
                     moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                    moris::map< std::string, PDV_Type >      &aDvTypeMap );
+                    moris::map< std::string, ge::PDV_Type >      &aDvTypeMap );
 
             //------------------------------------------------------------------------------
             /**
@@ -624,14 +624,14 @@ namespace moris
              * @param[ in ] aCMMap         a map from CM name to index in aCMs
              * @param[ in ] aPropertyMap   a map from property name to property index
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
-             * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
+             * @param[ in ] aDvTypeMap     a map from std::string to ge::PDV_Type
              */
             void create_constitutive_models(
                     std::map< std::string, uint >            &aCMMap,
                     std::map< std::string, uint >            &aPropertyMap,
                     std::map< std::string, uint >            &aMMMap,
                     moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                    moris::map< std::string, PDV_Type >      &aDvTypeMap );
+                    moris::map< std::string, ge::PDV_Type >      &aDvTypeMap );
 
             //------------------------------------------------------------------------------
             /**
@@ -639,14 +639,14 @@ namespace moris
              * @param[ in ] aPropertyMap   a map from property name to index in mProperties
              * @param[ in ] aCMMap         a map from CM name to index in aCMs
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
-             * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
+             * @param[ in ] aDvTypeMap     a map from std::string to ge::PDV_Type
              */
             void create_stabilization_parameters(
                     std::map< std::string, uint >            &aSPMap,
                     std::map< std::string, uint >            &aPropertyMap,
                     std::map< std::string, uint >            &aCMMap,
                     moris::map< std::string, MSI::Dof_Type > &aMSIDofTypeMap,
-                    moris::map< std::string, PDV_Type >      &aDvTypeMap );
+                    moris::map< std::string, ge::PDV_Type >      &aDvTypeMap );
 
             //------------------------------------------------------------------------------
             /**
@@ -657,7 +657,7 @@ namespace moris
              * @param[ in ] aSPMap         a map from SP name to SP index in aSPs
              * @param[ in ] aFieldMap      a map from SP name to index in aFields
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
-             * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
+             * @param[ in ] aDvTypeMap     a map from std::string to ge::PDV_Type
              * @param[ in ] aFieldTypeMap  a map from std::string to Field_Type
              */
             void create_IWGs(
@@ -668,7 +668,7 @@ namespace moris
                     std::map< std::string, uint >              &aSPMap,
                     std::map< std::string, uint >              &aFieldMap,
                     moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
-                    moris::map< std::string, PDV_Type >        &aDvTypeMap,
+                    moris::map< std::string, ge::PDV_Type >        &aDvTypeMap,
                     moris::map< std::string, mtk::Field_Type > &aFieldTypeMap );
 
             //------------------------------------------------------------------------------
@@ -679,7 +679,7 @@ namespace moris
              * @param[ in ] aSPMap         a map from SP name to index in aSPs
              * @param[ in ] aFieldMap      a map from SP name to index in aFields
              * @param[ in ] aMSIDofTypeMap a map from std::string to MSI::Dof_Type
-             * @param[ in ] aDvTypeMap     a map from std::string to PDV_Type
+             * @param[ in ] aDvTypeMap     a map from std::string to ge::PDV_Type
              * @param[ in ] aFieldTypeMap  a map from std::string to Field_Type
              */
             void create_IQIs(
@@ -689,7 +689,7 @@ namespace moris
                     std::map< std::string, uint >              &aSPMap,
                     std::map< std::string, uint >              &aFieldMap,
                     moris::map< std::string, MSI::Dof_Type >   &aMSIDofTypeMap,
-                    moris::map< std::string, PDV_Type >        &aDvTypeMap,
+                    moris::map< std::string, ge::PDV_Type >        &aDvTypeMap,
                     moris::map< std::string, mtk::Field_Type > &aFieldTypeMap );
 
             //------------------------------------------------------------------------------
@@ -723,7 +723,7 @@ namespace moris
              */
             void get_vertex_xyz_active_flags( moris_index aVeretxIndex,
                     Matrix< DDSMat >                     &aIsActiveDv,
-                    const moris::Cell< enum PDV_Type >   &aPdvTypes );
+                    const moris::Cell< enum ge::PDV_Type >   &aPdvTypes );
 
             //------------------------------------------------------------------------------
             /**
@@ -752,7 +752,7 @@ namespace moris
              */
             void get_vertex_xyz_pdv_ids( moris_index    aVeretxIndex,
                     Matrix< DDSMat >                   &aXYZPdvIds,
-                    const moris::Cell< enum PDV_Type > &aPdvTypes );
+                    const moris::Cell< enum ge::PDV_Type > &aPdvTypes );
 
             //------------------------------------------------------------------------------
             /**
@@ -763,7 +763,7 @@ namespace moris
              */
             void get_local_xyz_pdv_assembly_indices( moris_index aVeretxIndex,
                     Matrix< DDSMat >                            &aXYZLocalAssemblyIndices,
-                    const moris::Cell< enum PDV_Type >          &aPdvTypes );
+                    const moris::Cell< enum ge::PDV_Type >          &aPdvTypes );
 
 
             //------------------------------------------------------------------------------

@@ -184,7 +184,7 @@ namespace moris
             moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
-        aPropMatrix = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()( 0 );
+        aPropMatrix = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val()( 0 );
     }
 
     void
@@ -193,7 +193,7 @@ namespace moris
             moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
-        aPropMatrix = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->N();
+        aPropMatrix = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->N();
     }
 
     //------------------------------------------------------------------------------

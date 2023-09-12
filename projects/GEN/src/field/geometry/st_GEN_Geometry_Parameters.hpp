@@ -12,7 +12,7 @@
 #define MORIS_ST_GEN_GEOMETRY_PARAMETERS_HPP
 
 #include "st_GEN_Field_Parameters.hpp"
-#include "cl_GEN_Pdv_Enums.hpp"
+#include "GEN_Data_Types.hpp"
 
 namespace moris
 {

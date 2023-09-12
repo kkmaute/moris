@@ -453,7 +453,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::set_dv_type_list(
-                moris::Cell< moris::Cell< PDV_Type > > aDvTypes )
+                moris::Cell< moris::Cell< ge::PDV_Type > > aDvTypes )
         {
             // set the dv types
             mDvTypes = aDvTypes;
@@ -524,7 +524,7 @@ namespace moris
                 if( tProperty != nullptr )
                 {
                     // get active dv types
-                    moris::Cell< moris::Cell< PDV_Type > > tActiveDvType = tProperty->get_dv_type_list();
+                    moris::Cell< moris::Cell< ge::PDV_Type > > tActiveDvType = tProperty->get_dv_type_list();
 
                     for ( uint iDV = 0; iDV < tActiveDvType.size(); iDV++ )
                     {
@@ -577,7 +577,7 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        const moris::Cell< moris::Cell< PDV_Type > > & Constitutive_Model::get_global_dv_type_list()
+        const moris::Cell< moris::Cell< ge::PDV_Type > > & Constitutive_Model::get_global_dv_type_list()
         {
             if( mGlobalDvBuild )
             {
@@ -623,7 +623,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         bool Constitutive_Model::check_dv_dependency(
-                const moris::Cell< PDV_Type > & aDvType )
+                const moris::Cell< ge::PDV_Type > & aDvType )
         {
             // set bool for dependency
             bool tDvDependency = false;
@@ -973,7 +973,7 @@ namespace moris
 
         void Constitutive_Model::get_non_unique_dof_dv_and_field_types(
                 moris::Cell< MSI::Dof_Type > & aDofTypes,
-                moris::Cell< PDV_Type >      & aDvTypes,
+                moris::Cell< ge::PDV_Type >      & aDvTypes,
                 moris::Cell< mtk::Field_Type > & aFieldTypes )
         {
             // initialize dof counter
@@ -1009,7 +1009,7 @@ namespace moris
                 {
                     // get property dof type list
                     moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
-                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< ge::PDV_Type >        tActiveDvTypes;
                     moris::Cell< mtk::Field_Type > tActiveFieldTypes;
                     tProperty->get_non_unique_dof_dv_and_field_types(
                             tActiveDofTypes,
@@ -1071,7 +1071,7 @@ namespace moris
                 {
                     // get property dof and dv type list
                     moris::Cell< MSI::Dof_Type >   tActiveDofTypes;
-                    moris::Cell< PDV_Type >        tActiveDvTypes;
+                    moris::Cell< ge::PDV_Type >        tActiveDvTypes;
                     moris::Cell< mtk::Field_Type > tActiveFieldTypes;
 
                     tProperty->get_non_unique_dof_dv_and_field_types(
@@ -2521,7 +2521,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::eval_dFluxdDV_FD(
-                const moris::Cell< PDV_Type > & aDvTypes,
+                const moris::Cell< ge::PDV_Type > & aDvTypes,
                 Matrix< DDRMat >              & adFluxdDV_FD,
                 real                            aPerturbation,
                 fem::FDScheme_Type              aFDSchemeType,
@@ -2596,7 +2596,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         void Constitutive_Model::eval_dStraindDV_FD(
-                const moris::Cell< PDV_Type > & aDvTypes,
+                const moris::Cell< ge::PDV_Type > & aDvTypes,
                 Matrix< DDRMat >              & adStraindDV_FD,
                 real                            aPerturbation,
                 fem::FDScheme_Type              aFDSchemeType,
@@ -3581,7 +3581,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dFluxdDV(
-                const moris::Cell< PDV_Type > & aDvType,
+                const moris::Cell< ge::PDV_Type > & aDvType,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3613,7 +3613,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dStraindDV(
-                const moris::Cell< PDV_Type > & aDvType,
+                const moris::Cell< ge::PDV_Type > & aDvType,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"
@@ -3645,7 +3645,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         const Matrix< DDRMat > & Constitutive_Model::dConstdDV(
-                const moris::Cell< PDV_Type > & aDvType,
+                const moris::Cell< ge::PDV_Type > & aDvType,
                 enum CM_Function_Type aCMFunctionType )
         {
             // check CM function type, base class only supports "DEFAULT"

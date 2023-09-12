@@ -492,7 +492,7 @@ namespace moris
         moris::Matrix< moris::DDRMat > tHCT  = aParameters( 0 );
         moris::real                    tBeta = aParameters( 0 )( 1 );
 
-        real tLevelSet = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()( 0 ) / 2.40;
+        real tLevelSet = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val()( 0 ) / 2.40;
 
         real tDensity = ( tLevelSet - phi_sh_scale ) / ( 1 - phi_sh_scale );
 
@@ -515,7 +515,7 @@ namespace moris
         moris::Matrix< moris::DDRMat > tHCT  = aParameters( 0 );
         moris::real                    tBeta = aParameters( 0 )( 1 );
 
-        real tLevelSet = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()( 0 );
+        real tLevelSet = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val()( 0 );
 
         real tDensity = ( tLevelSet - phi_sh ) / ( 1 - phi_sh );
 
@@ -524,7 +524,7 @@ namespace moris
 
         // FIXME density shift missing
 
-        aPropMatrix = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->N() *    //
+        aPropMatrix = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->N() *    //
                       tBeta * tHCT( 0 ) * std::pow( tDensity, tBeta - 1 ) / ( 1 - phi_sh );
     }
 
@@ -536,7 +536,7 @@ namespace moris
             moris::Cell< moris::Matrix< moris::DDRMat > >& aParameters,
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
-        real tLevelSet = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()( 0 ) / 2.40;
+        real tLevelSet = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val()( 0 ) / 2.40;
 
         real tDensity = ( tLevelSet - phi_sh_scale ) / ( 1 - phi_sh_scale );
 
@@ -557,7 +557,7 @@ namespace moris
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         MORIS_ERROR( false, "Do not need this one" );
-        aPropMatrix = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->N() / ( 1 - phi_sh );
+        aPropMatrix = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->N() / ( 1 - phi_sh );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -569,7 +569,7 @@ namespace moris
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // return absolute value of level set function
-        aPropMatrix = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val();
+        aPropMatrix = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val();
     }
 
     /* ------------------------------------------------------------------------ */
@@ -586,7 +586,7 @@ namespace moris
         // bool tBool = is_in_vicinity_of_load( tCoords );
 
         // get value of design level set function
-        real value = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()( 0 );
+        real value = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val()( 0 );
 
         value = value - phi_sh;
 
@@ -611,7 +611,7 @@ namespace moris
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get value of design level set function
-        real value = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()( 0 );
+        real value = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val()( 0 );
 
         value = value - phi_sh;
 
@@ -622,7 +622,7 @@ namespace moris
             factor = value > 0.0 ? 1.0 : -1.0;
         }
 
-        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->N();
+        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->N();
     }
 
     /* ------------------------------------------------------------------------ */
@@ -635,7 +635,7 @@ namespace moris
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get value of design level set function
-        real value = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()( 0 );
+        real value = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val()( 0 );
 
         value = value - phi_sh;
 
@@ -646,7 +646,7 @@ namespace moris
             factor = value > 0.0 ? 1.0 : -1.0;
         }
 
-        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->gradx( 1 );
+        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->gradx( 1 );
     }
 
     /* ------------------------------------------------------------------------ */
@@ -659,7 +659,7 @@ namespace moris
             moris::fem::Field_Interpolator_Manager*        aFIManager )
     {
         // get value of design level set function
-        real value = aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->val()( 0 );
+        real value = aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->val()( 0 );
 
         value = value - phi_sh;
 
@@ -670,7 +670,7 @@ namespace moris
             factor = value > 0.0 ? 1.0 : -1.0;
         }
 
-        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( PDV_Type::LS1 )->dnNdxn( 1 );
+        aPropMatrix = factor * aFIManager->get_field_interpolators_for_type( ge::PDV_Type::LS1 )->dnNdxn( 1 );
     }
 
     //--------------------------------------------------------------------------------------------------------------

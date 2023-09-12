@@ -15,7 +15,7 @@
 #include "cl_Matrix.hpp"
 #include "cl_GEN_Geometry.hpp"
 #include "cl_GEN_Property.hpp"
-#include "cl_GEN_Pdv_Enums.hpp"
+#include "GEN_Data_Types.hpp"
 
 namespace moris
 {
