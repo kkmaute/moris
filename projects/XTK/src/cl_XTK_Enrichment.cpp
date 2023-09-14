@@ -400,7 +400,7 @@ namespace xtk
 
             Tracer tTracer( "XTK", "Enrichment", "Mesh Index " + std::to_string( tMeshIndex ) );
 
-            // Number of basis functions (= number of B-Splines on the A-mesh ?)
+            // Number of basis functions (= number of B-Splines on the A-mesh )
             moris::size_t tNumBasisFunctions = mBackgroundMeshPtr->get_num_basis_functions( tMeshIndex );
 
             // allocate member variables

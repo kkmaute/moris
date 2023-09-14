@@ -1935,7 +1935,9 @@ namespace moris
 
                     // check for unknown phase
                     MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
-                            "FEM_Model::create_IQIs - Unknown phase name: %s \n",
+                            "FEM_Model::create_IQIs - %s: Unknown %s phase name: %s.",
+                            tIQIName.c_str(),
+                            tIsLeaderString.c_str(),
                             tPhaseName.c_str() );
 
                     // set phase name
