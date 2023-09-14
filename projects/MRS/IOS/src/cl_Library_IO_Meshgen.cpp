@@ -284,6 +284,14 @@ namespace moris
                 tNumBspMeshesSpecified );
 
         // ------------------------------
+        // turn on basis extensions for B-spline meshes if requested
+
+        // get the number of refinements of the Lagrange mesh at the boundary
+        bool tUseBasisExtensions = false;
+        mXmlReader->get( tXtkPath + ".UseCutBasisAgglomeration", tUseBasisExtensions, false );
+        tXtkParamList.set( "activate_basis_agglomeration", tUseBasisExtensions );
+
+        // ------------------------------
         // Lagrange mesh
 
         // get which grid is used for decomposition
