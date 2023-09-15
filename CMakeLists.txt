@@ -684,7 +684,7 @@ endif()
 # -------------------------------------------------------------------------
 
 if (MORIS_USE_NTOP_LIB)
-    link_libraries(/home/maute/work/NTop_Implicit/lib/libntop_core.so.4)
+    link_libraries(/home/maute/codes/ntop/lib/libntop_core.so.4)
 endif()
 
 # -------------------------------------------------------------------------
