@@ -74,7 +74,7 @@
 
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Geom_Field_HMR.hpp"
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Level_Set_Geometry.hpp"
 
 #include "fn_PRM_HMR_Parameters.hpp"
 #include "cl_Plane.hpp"

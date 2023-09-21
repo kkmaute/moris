@@ -15,8 +15,7 @@
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "GEN_Data_Types.hpp"
 #include "fn_GEN_create_geometries.hpp"
-#include "cl_GEN_BSpline_Geometry.hpp"
-#include "cl_GEN_BSpline_Property.hpp"
+#include "cl_GEN_BSpline_Field.hpp"
 #include "cl_GEN_Stored_Geometry.hpp"
 #include "fn_GEN_create_properties.hpp"
 #include "cl_GEN_Interpolation.hpp"
@@ -103,7 +102,7 @@ namespace moris
             // iterate through geometries if any are multilinear, we turn the linear flag on
             for ( moris::uint iGeom = 0; iGeom < mGeometries.size(); iGeom++ )
             {
-                if ( mGeometries( iGeom )->get_intersection_interpolation() == Intersection_Interpolation::MULTILINEAR )
+                if ( mGeometries( iGeom )->get_intersection_interpolation() == Int_Interpolation::MULTILINEAR )
                 {
                     MORIS_LOG_INFO( "New Child Vertices will be evaluated as using linear background cells" );
                     mEvaluateNewChildNodeAsLinear = true;
@@ -512,7 +511,7 @@ namespace moris
                 {
                     switch ( mGeometries( mActiveGeometryIndex )->get_intersection_interpolation() )
                     {
-                        case Intersection_Interpolation::LINEAR:
+                        case Int_Interpolation::LINEAR:
                         {
                             mQueuedIntersectionNode = std::make_shared< Intersection_Node_Linear >(
                                     mPDVHostManager.get_intersection_node( aFirstNodeIndex ),
@@ -524,7 +523,7 @@ namespace moris
                                     mGeometries( mActiveGeometryIndex ) );
                             break;
                         }
-                        case Intersection_Interpolation::MULTILINEAR:
+                        case Int_Interpolation::MULTILINEAR:
                         {
                             Element_Interpolation_Type tInterpolationType =
                                     mNumSpatialDimensions == 2 ? Element_Interpolation_Type::Linear_2D : Element_Interpolation_Type::Linear_3D;
@@ -908,10 +907,8 @@ namespace moris
         Cell< std::shared_ptr< mtk::Field > >
         Geometry_Engine::get_mtk_fields()
         {
-            Cell< std::shared_ptr< mtk::Field > > tFields( mGeometries.size() + mProperties.size() );
-            std::copy( mGeometries.begin(), mGeometries.end(), tFields.begin() );
-            std::copy( mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size() );
-            return tFields;
+            // TODO
+            return {};
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1251,7 +1248,7 @@ namespace moris
             Tracer tTracer( "GEN", "Distribute ADVs" );
 
             // Gather all fields
-            Cell< std::shared_ptr< Field > > tFields( mGeometries.size() + mProperties.size() );
+            Cell< std::shared_ptr< Design_Field > > tFields( mGeometries.size() + mProperties.size() );
             std::copy( mGeometries.begin(), mGeometries.end(), tFields.begin() );
             std::copy( mProperties.begin(), mProperties.end(), tFields.begin() + mGeometries.size() );
 
@@ -1560,46 +1557,44 @@ namespace moris
 
                     if ( not tFieldNameToIndexMap.key_exists( tGeoName ) )
                     {
-                        // Create B-spline geometry FIXME Overwriting the given geometry is obviously wrong
-                        mGeometries( tGeometryIndex ) = std::make_shared< BSpline_Geometry >(
+                        // Create B-spline property FIXME nullptr, parameters, discretization index
+                        auto tBSplineField = std::make_shared< BSpline_Field >(
                                 tNewOwnedADVs,
-                                tSharedCoefficientIndices( tGeometryIndex ),
-                                tSharedADVIds( tGeometryIndex ),
-                                tAllOffsetIDs( tGeometryIndex ),
+                                tSharedCoefficientIndices( mGeometries.size() + tGeometryIndex ),
+                                tSharedADVIds( mGeometries.size() + tGeometryIndex ),
+                                tAllOffsetIDs( mGeometries.size() + tGeometryIndex ),
                                 aMeshPair,
-                                mGeometries( tGeometryIndex ) );
+                                0,
+                                mGeometries( tGeometryIndex )->get_field() );
+                        mGeometries( tGeometryIndex ) = std::make_shared< Level_Set_Geometry >( tBSplineField );
                     }
                     else
                     {
                         uint tMTKFieldIndex = tFieldNameToIndexMap.find( tGeoName );
 
-                        // Create B-spline geometry
-                        mGeometries( tGeometryIndex ) = std::make_shared< BSpline_Geometry >(
+                        // Create B-spline property FIXME nullptr, parameters
+                        auto tBSplineField = std::make_shared< BSpline_Field >(
                                 tNewOwnedADVs,
-                                tSharedCoefficientIndices( tGeometryIndex ),
-                                tSharedADVIds( tGeometryIndex ),
-                                tAllOffsetIDs( tGeometryIndex ),
+                                tSharedCoefficientIndices( mGeometries.size() + tGeometryIndex ),
+                                tSharedADVIds( mGeometries.size() + tGeometryIndex ),
+                                tAllOffsetIDs( mGeometries.size() + tGeometryIndex ),
                                 aMeshPair,
-                                mGeometries( tGeometryIndex ),
+                                mGeometries( tGeometryIndex )->get_field(),
                                 aFields( tMTKFieldIndex ) );
+                        mGeometries( tGeometryIndex ) = std::make_shared< Level_Set_Geometry >( tBSplineField );
                     }
                 }
-                // Store field values if needed. FIXME this is obviously wrong that GEN sets it's own mesh
+
+                // Store field values if needed
                 else if ( mGeometries( tGeometryIndex )->intended_storage() )
                 {
-                    // Create stored geometry FIXME this stored geometry stuff is kind of hacky
-                    mGeometries( tGeometryIndex ) = std::make_shared< Stored_Geometry >(
-                            tMesh,
-                            mGeometries( tGeometryIndex ) );
-
-                    mGeometries( tGeometryIndex )->unlock_field();
-                    mGeometries( tGeometryIndex )->set_mesh_pair( aMeshPair );
+                    // Create stored geometry
+                    auto tStoredField = std::make_shared< Stored_Geometry >( tMesh, mGeometries( tGeometryIndex ) );
+                    mGeometries( tGeometryIndex ) = std::make_shared< Level_Set_Geometry >(
+                            tStoredField );
                 }
                 else
                 {
-                    // Every Field needs a mesh. FIXME setting the mesh here is to late
-                    mGeometries( tGeometryIndex )->unlock_field();
-                    mGeometries( tGeometryIndex )->set_mesh_pair( aMeshPair );
                     mGeometries( tGeometryIndex )->set_num_original_nodes( aMeshPair.get_interpolation_mesh()->get_num_nodes() );
                 }
             }
@@ -1617,28 +1612,31 @@ namespace moris
 
                     if ( not tFieldNameToIndexMap.key_exists( tPropName ) )
                     {
-                        // Create B-spline property
-                        mProperties( tPropertyIndex ) = std::make_shared< BSpline_Property >(
+                        // Create B-spline property FIXME nullptr, parameters, discretization index
+                        auto tBSplineField = std::make_shared< BSpline_Field >(
                                 tNewOwnedADVs,
                                 tSharedCoefficientIndices( mGeometries.size() + tPropertyIndex ),
                                 tSharedADVIds( mGeometries.size() + tPropertyIndex ),
                                 tAllOffsetIDs( mGeometries.size() + tPropertyIndex ),
                                 aMeshPair,
-                                mProperties( tPropertyIndex ) );
+                                0,
+                                mProperties( tPropertyIndex )->get_field() );
+                        mProperties( tPropertyIndex ) = std::make_shared< Property >( tBSplineField );
                     }
                     else
                     {
                         uint tMTKFieldIndex = tFieldNameToIndexMap.find( tPropName );
 
-                        // Create B-spline property
-                        mProperties( tPropertyIndex ) = std::make_shared< BSpline_Property >(
+                        // Create B-spline property FIXME nullptr, parameters
+                        auto tBSplineField = std::make_shared< BSpline_Field >(
                                 tNewOwnedADVs,
                                 tSharedCoefficientIndices( mGeometries.size() + tPropertyIndex ),
                                 tSharedADVIds( mGeometries.size() + tPropertyIndex ),
                                 tAllOffsetIDs( mGeometries.size() + tPropertyIndex ),
                                 aMeshPair,
-                                mProperties( tPropertyIndex ),
+                                mProperties( tPropertyIndex )->get_field(),
                                 aFields( tMTKFieldIndex ) );
+                        mProperties( tPropertyIndex ) = std::make_shared< Property >( tBSplineField );
                     }
                 }
             }

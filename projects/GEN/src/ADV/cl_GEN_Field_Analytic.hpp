@@ -8,91 +8,103 @@
  *
  */
 
-#ifndef MORIS_CL_GEN_FIELD_ANALYTIC_HPP
-#define MORIS_CL_GEN_FIELD_ANALYTIC_HPP
+#pragma once
 
 #include "cl_GEN_Field.hpp"
 
-namespace moris
+namespace moris::ge
 {
-    namespace ge
+    class Field_Analytic : public Field
     {
-        class Field_Analytic : virtual public Field
+      public:
+        /**
+         * Constructor using pointers to ADVs for variable evaluations.
+         *
+         * @tparam Vector_Type Type of vector where ADVs are stored
+         * @param aADVs ADV vector
+         * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
+         * @param aADVIndices The indices of the ADV vector to fill in the field variables
+         * @param aConstants The constant field variables not filled by ADVs
+         * @param aParameters Additional parameters
+         */
+        template< typename Vector_Type >
+        Field_Analytic(
+                Vector_Type&     aADVs,
+                Matrix< DDUMat > aFieldVariableIndices,
+                Matrix< DDUMat > aADVIndices,
+                Matrix< DDRMat > aConstants )
+                : Field( aADVs, aFieldVariableIndices, aADVIndices, aConstants )
         {
-          public:
-            /**
-             * Trivial constructor, necessary for clean virtual inheritance without default constructor in base class
-             */
-            Field_Analytic();
+        }
 
-            /**
-             * Trivial destructor, necessary to avoid memory leaks
-             */
-            virtual ~Field_Analytic();
+        /**
+         * Constructor using only constants (no ADVs).
+         *
+         * @param aConstants The parameters that define this field
+         * @param aParameters Additional parameters
+         */
+        explicit Field_Analytic( Matrix< DDRMat > aConstants );
 
-            /**
-             * Given a node index or coordinate, returns the field value.
-             *
-             * @param aNodeIndex Node index
-             * @param aCoordinates Vector of coordinate values
-             * @return Field value
-             */
-            real get_field_value(
-                    uint                    aNodeIndex,
-                    const Matrix< DDRMat >& aCoordinates );
+        /**
+         * Given a node index or coordinate, returns the field value.
+         *
+         * @param aNodeIndex Node index
+         * @param aCoordinates Vector of coordinate values
+         * @return Field value
+         */
+        real get_field_value(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates ) override;
 
-            /**
-             * Given a node coordinate, returns the field value
-             *
-             * @param aCoordinates vector of coordinate values
-             * @return Field value
-             */
-            virtual real get_field_value( const Matrix< DDRMat >& aCoordinates ) = 0;
+        /**
+         * Given a node coordinate, returns the field value
+         *
+         * @param aCoordinates vector of coordinate values
+         * @return Field value
+         */
+        virtual real get_field_value( const Matrix< DDRMat >& aCoordinates ) = 0;
 
-            /**
-             * Given a node index or coordinates, returns a vector of the field derivatives with respect to its ADVs.
-             *
-             * @param aNodeIndex Node index
-             * @param aCoordinates Vector of coordinate values
-             * @return Vector of sensitivities
-             */
-            const Matrix< DDRMat >& get_dfield_dadvs(
-                    uint                    aNodeIndex,
-                    const Matrix< DDRMat >& aCoordinates );
+        /**
+         * Given a node index or coordinates, returns a vector of the field derivatives with respect to its ADVs.
+         *
+         * @param aNodeIndex Node index
+         * @param aCoordinates Vector of coordinate values
+         * @return Vector of sensitivities
+         */
+        const Matrix< DDRMat >& get_dfield_dadvs(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates ) override;
 
-            /**
-             * Given a node coordinate, returns a vector of the field derivatives with respect to its ADVs.
-             *
-             * @param aCoordinates Vector of coordinate values
-             * @return Vector of sensitivities
-             */
-            virtual const Matrix< DDRMat >& get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates ) = 0;
+        /**
+         * Given a node coordinate, returns a vector of the field derivatives with respect to its ADVs.
+         *
+         * @param aCoordinates Vector of coordinate values
+         * @return Vector of sensitivities
+         */
+        virtual const Matrix< DDRMat >& get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates ) = 0;
 
-            /**
-             * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
-             * coordinates.
-             *
-             * @param aNodeIndex Node index
-             * @param aCoordinates Vector of coordinate values
-             * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
-             */
-            void get_dfield_dcoordinates(
-                    uint                    aNodeIndex,
-                    const Matrix< DDRMat >& aCoordinates,
-                    Matrix< DDRMat >&       aSensitivities );
+        /**
+         * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
+         * coordinates.
+         *
+         * @param aNodeIndex Node index
+         * @param aCoordinates Vector of coordinate values
+         * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
+         */
+        void get_dfield_dcoordinates(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates,
+                Matrix< DDRMat >&       aSensitivities ) override;
 
-            /**
-             * Given nodal coordinates, returns a vector of the field derivatives with respect to the nodal
-             * coordinates.
-             *
-             * @param aCoordinates Vector of coordinate values
-             * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
-             */
-            virtual void get_dfield_dcoordinates(
-                    const Matrix< DDRMat >& aCoordinates,
-                    Matrix< DDRMat >&       aSensitivities ) = 0;
-        };
-    }    // namespace ge
-}    // namespace moris
-
-#endif    // MORIS_CL_GEN_FIELD_ANALYTIC_HPP
+        /**
+         * Given nodal coordinates, returns a vector of the field derivatives with respect to the nodal
+         * coordinates.
+         *
+         * @param aCoordinates Vector of coordinate values
+         * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
+         */
+        virtual void get_dfield_dcoordinates(
+                const Matrix< DDRMat >& aCoordinates,
+                Matrix< DDRMat >&       aSensitivities ) = 0;
+    };
+}

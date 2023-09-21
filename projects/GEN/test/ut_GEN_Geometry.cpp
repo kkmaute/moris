@@ -42,7 +42,7 @@ namespace moris
     namespace ge
     {
         // Check for ellipse location in a swiss cheese
-        void check_swiss_cheese( std::shared_ptr< Geometry > aSwissCheese,
+        void check_swiss_cheese( std::shared_ptr< Level_Set_Geometry > aSwissCheese,
                 real                                         aXCenter,
                 real                                         aYCenter,
                 real                                         aXSemidiameter,
@@ -128,8 +128,8 @@ namespace moris
             sol::Dist_Vector* tDistributedADVs = tDistributedFactory.create_vector( tADVMap, 1, false, true );
 
             // Define circles
-            std::shared_ptr< Geometry > tCircle1;
-            std::shared_ptr< Geometry > tCircle2;
+            std::shared_ptr< Level_Set_Geometry > tCircle1;
+            std::shared_ptr< Level_Set_Geometry > tCircle2;
 
             // Loop over ADV types
             for ( bool tDistributed : { false, true } )
@@ -214,7 +214,7 @@ namespace moris
 
             // Create circles
             Matrix< DDRMat >            tADVs         = { { 3.0, 4.0, 1.0, 2.0, 2.0, 1.0, 0.0, 0.0 } };
-            std::shared_ptr< Geometry > tSuperellipse = create_geometry( tSuperellipseParameterList, tADVs );
+            std::shared_ptr< Level_Set_Geometry > tSuperellipse = create_geometry( tSuperellipseParameterList, tADVs );
 
             // Set coordinates for checking
             Matrix< DDRMat > tCoordinates0 = { { 2.0, 2.0 } };
@@ -318,7 +318,7 @@ namespace moris
 
             // Create sphere
             Matrix< DDRMat >            tADVs   = { { -1.0, 0.0, 1.0, 2.0 } };
-            std::shared_ptr< Geometry > tSphere = create_geometry( tSphereParameterList, tADVs );
+            std::shared_ptr< Level_Set_Geometry > tSphere = create_geometry( tSphereParameterList, tADVs );
 
             // Set coordinates for checking
             Matrix< DDRMat > tCoordinates0 = { { 0.0, 0.0, 0.0 } };
@@ -363,7 +363,7 @@ namespace moris
 
             // Create circles
             Matrix< DDRMat >            tADVs           = { { 3.0, 4.0, 5.0, 1.0, 2.0, 4.0, 3.0 } };
-            std::shared_ptr< Geometry > tSuperellipsoid = create_geometry( tSuperellipsoidParameterList, tADVs );
+            std::shared_ptr< Level_Set_Geometry > tSuperellipsoid = create_geometry( tSuperellipsoidParameterList, tADVs );
 
             // Set coordinates for checking
             Matrix< DDRMat > tCoordinates0 = { { 2.0, 2.0, 5.0 } };
@@ -455,7 +455,7 @@ namespace moris
         {
             // Create user-defined geometry
             Matrix< DDRMat >            tADVs                = { { -1.0, 0.5 } };
-            std::shared_ptr< Geometry > tUserDefinedGeometry = std::make_shared< User_Defined_Geometry >(
+            auto tUserDefinedGeometry = std::make_shared< User_Defined_Field >(
                     tADVs,
                     Matrix< DDUMat >( { { 1, 0 } } ),
                     Matrix< DDUMat >( { { 0, 1 } } ),
@@ -468,12 +468,12 @@ namespace moris
             Matrix< DDRMat > tCoordinates2 = { { 2.0, 2.0 } };
 
             // Check field values
-            CHECK( tUserDefinedGeometry->get_field_value( 0, tCoordinates1 ) == Approx( -0.75 ) );
-            CHECK( tUserDefinedGeometry->get_field_value( 0, tCoordinates2 ) == Approx( -1.5 ) );
+            CHECK( tUserDefinedGeometry->get_field_value( tCoordinates1 ) == Approx( -0.75 ) );
+            CHECK( tUserDefinedGeometry->get_field_value( tCoordinates2 ) == Approx( -1.5 ) );
 
             // Check sensitivity values
-            CHECK_EQUAL( tUserDefinedGeometry->get_dfield_dadvs( 0, tCoordinates1 ), Matrix< DDRMat >( { { 1.0, 3.0 } } ), );
-            CHECK_EQUAL( tUserDefinedGeometry->get_dfield_dadvs( 0, tCoordinates2 ), Matrix< DDRMat >( { { 2.0, 6.0 } } ), );
+            CHECK_EQUAL( tUserDefinedGeometry->get_dfield_dadvs( tCoordinates1 ), Matrix< DDRMat >( { { 1.0, 3.0 } } ), );
+            CHECK_EQUAL( tUserDefinedGeometry->get_dfield_dadvs( tCoordinates2 ), Matrix< DDRMat >( { { 2.0, 6.0 } } ), );
 
             // Change ADVs and coordinates
             tADVs         = { { 2.0, 0.5 } };
@@ -481,12 +481,12 @@ namespace moris
             tCoordinates2 = { { 2.0, -1.0 } };
 
             // Check field values
-            CHECK( tUserDefinedGeometry->get_field_value( 0, tCoordinates1 ) == Approx( 8.0 ) );
-            CHECK( tUserDefinedGeometry->get_field_value( 0, tCoordinates2 ) == Approx( -7.5 ) );
+            CHECK( tUserDefinedGeometry->get_field_value( tCoordinates1 ) == Approx( 8.0 ) );
+            CHECK( tUserDefinedGeometry->get_field_value( tCoordinates2 ) == Approx( -7.5 ) );
 
             // Check sensitivity values
-            CHECK_EQUAL( tUserDefinedGeometry->get_dfield_dadvs( 0, tCoordinates1 ), Matrix< DDRMat >( { { 0.0, 12.0 } } ), );
-            CHECK_EQUAL( tUserDefinedGeometry->get_dfield_dadvs( 0, tCoordinates2 ), Matrix< DDRMat >( { { 2.0, -12.0 } } ), );
+            CHECK_EQUAL( tUserDefinedGeometry->get_dfield_dadvs( tCoordinates1 ), Matrix< DDRMat >( { { 0.0, 12.0 } } ), );
+            CHECK_EQUAL( tUserDefinedGeometry->get_dfield_dadvs( tCoordinates2 ), Matrix< DDRMat >( { { 2.0, -12.0 } } ), );
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -496,7 +496,7 @@ namespace moris
             // Create 2 B-spline circles
             Matrix< DDRMat >                    tADVs( 0, 0 );
             Matrix< DDRMat >                    tRadii = { { 0.5, 0.25 } };
-            Cell< std::shared_ptr< Geometry > > tBSplineGeometries( 2 );
+            Cell< std::shared_ptr< Level_Set_Geometry > > tBSplineGeometries( 2 );
             for ( uint tGeometryIndex = 0; tGeometryIndex < 2; tGeometryIndex++ )
             {
                 ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
@@ -572,7 +572,7 @@ namespace moris
                             for ( uint tGeometryIndex = 0; tGeometryIndex < 2; tGeometryIndex++ )
                             {
                                 // Get geometry back
-                                std::shared_ptr< Geometry > tBSplineGeometry = tGeometryEngine.get_geometry( tGeometryIndex );
+                                std::shared_ptr< Level_Set_Geometry > tBSplineGeometry = tGeometryEngine.get_geometry( tGeometryIndex );
 
                                 // Get ID Offset
                                 uint tOffset = tGeometryIndex * tMesh->get_max_entity_id( EntityRank::BSPLINE, 0 );
@@ -653,7 +653,7 @@ namespace moris
 
             // Set up geometry
             Matrix< DDRMat >            tADVs   = { { 0.0, 0.0, 0.5 } };
-            std::shared_ptr< Geometry > tCircle = create_geometry( tCircleParameterList, tADVs );
+            std::shared_ptr< Level_Set_Geometry > tCircle = create_geometry( tCircleParameterList, tADVs );
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -661,7 +661,7 @@ namespace moris
             Geometry_Engine_Test tGeometryEngine( tMesh, tGeometryEngineParameters );
 
             // Get geometry back
-            std::shared_ptr< Geometry > tStoredCircle = tGeometryEngine.get_geometry( 0 );
+            std::shared_ptr< Level_Set_Geometry > tStoredCircle = tGeometryEngine.get_geometry( 0 );
 
             // Check field values at all nodes
             for ( uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++ )
@@ -737,11 +737,11 @@ namespace moris
 
             // Create multigeometry
             Matrix< DDRMat >                    tADVs       = { { 0.0, 1.0, 2.0, 1.0, 2.0 } };
-            Cell< std::shared_ptr< Geometry > > tGeometries = create_geometries( tCircleParameterLists, tADVs );
+            Cell< std::shared_ptr< Level_Set_Geometry > > tGeometries = create_geometries( tCircleParameterLists, tADVs );
 
             // Should be only one total geometry
             REQUIRE( tGeometries.size() == 1 );
-            std::shared_ptr< Geometry > tMultigeometry = tGeometries( 0 );
+            std::shared_ptr< Level_Set_Geometry > tMultigeometry = tGeometries( 0 );
 
             // Set coordinates for checking
             Matrix< DDRMat > tCoordinates0 = { { 0.0, 0.0 } };
@@ -800,7 +800,7 @@ namespace moris
             // Create swiss cheese
             Matrix< DDRMat > tADVs = { {} };
 
-            std::shared_ptr< Geometry > tSwissCheese = create_geometry( tSwissCheeseParameterList, tADVs );
+            std::shared_ptr< Level_Set_Geometry > tSwissCheese = create_geometry( tSwissCheeseParameterList, tADVs );
 
             // Check holes
             check_swiss_cheese( tSwissCheese, -2.0, -1.0, 0.2, 0.1 );
@@ -923,7 +923,7 @@ namespace moris
 
         void
         check_swiss_cheese(
-                std::shared_ptr< Geometry > aSwissCheese,
+                std::shared_ptr< Level_Set_Geometry > aSwissCheese,
                 real                        aXCenter,
                 real                        aYCenter,
                 real                        aXSemidiameter,

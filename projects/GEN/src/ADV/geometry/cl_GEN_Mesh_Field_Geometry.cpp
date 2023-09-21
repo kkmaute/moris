@@ -22,14 +22,12 @@ namespace moris
         Mesh_Field_Geometry::Mesh_Field_Geometry(mtk::Mesh*  aMesh,
                 std::string aFieldName,
                 EntityRank  aEntityRank,
-                Geometry_Field_Parameters aParameters)
-       : Field(Matrix<DDRMat>(1, 1, 0.0), aParameters)
-         , Geometry(aParameters)
-         , Field_Discrete_Integration(aMesh->get_num_nodes())
-         , mMesh(aMesh)
-         , mFieldName(aFieldName)
-         , mEntityRank(aEntityRank)
-         , mUseOwnData(false)
+                Level_Set_Parameters                         aParameters)
+                 : Field_Discrete_Integration({{}}, aMesh->get_num_nodes())
+                 , mMesh(aMesh)
+                 , mFieldName(aFieldName)
+                 , mEntityRank(aEntityRank)
+                 , mUseOwnData(false)
          {
          }
 
@@ -41,15 +39,13 @@ namespace moris
                 std::string aFileFormat,
                 real        aOffset,
                 EntityRank  aEntityRank,
-                Geometry_Field_Parameters aParameters)
-        : Field(Matrix<DDRMat>(1, 1, 0.0), aParameters)
-        , Geometry(aParameters)
-        , Field_Discrete_Integration( aMesh == nullptr ? 0 : aMesh->get_num_nodes())
-        , mMesh(aMesh)
-        , mFieldName(aFieldName)
-        , mOffset(aOffset)
-        , mEntityRank(aEntityRank)
-        , mUseOwnData(true)
+                 Level_Set_Parameters aParameters)
+                : Field_Discrete_Integration( {{}}, aMesh == nullptr ? 0 : aMesh->get_num_nodes())
+                , mMesh(aMesh)
+                , mFieldName(aFieldName)
+                , mOffset(aOffset)
+                , mEntityRank(aEntityRank)
+                , mUseOwnData(true)
         {
             // initialize error flag
             bool tError=true;

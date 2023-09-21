@@ -331,11 +331,13 @@ namespace moris
             {
                 // Create circle
                 Matrix< DDRMat >            tADVs   = { { 0.0, 0.0, 1.0 } };
-                std::shared_ptr< Geometry > tCircle = std::make_shared< Circle >(
+                auto tCircleField = std::make_shared< Circle >(
                         tADVs,
                         Matrix< DDUMat >( { { 0, 1, 2 } } ),
                         Matrix< DDUMat >( { { 0, 1, 2 } } ),
                         Matrix< DDRMat >( { {} } ) );
+
+                auto tCircleGeometry = std::make_shared< Level_Set_Geometry >( tCircleField );
 
                 // Create PDV_Type host manager (here: test version defined above)
                 Pdv_Host_Manager_Test tPDVHostManager;
@@ -390,7 +392,7 @@ namespace moris
                                     0,
                                     tFirstParentCoordinates,
                                     tSecondParentCoordinates,
-                                    tCircle );
+                                    tCircleGeometry );
 
                     // Add intersection node to PDV host manager
                     tPDVHostManager.set_intersection_node( tNodeIndex, tIntersectionNode );

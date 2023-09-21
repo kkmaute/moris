@@ -4,49 +4,64 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Field.cpp
+ * cl_GEN_Level_Set_Geometry.cpp
  *
  */
 
-#include "cl_GEN_Field.hpp"
+#include "cl_GEN_Level_Set_Geometry.hpp"
 
 namespace moris::ge
 {
+
     //--------------------------------------------------------------------------------------------------------------
 
-    Field::Field( Matrix< DDRMat > aConstants )
-            : ADV_Manager( aConstants )
+    Level_Set_Geometry::Level_Set_Geometry(
+            std::shared_ptr< Field > aField,
+            Level_Set_Parameters     aParameters )
+            : Design_Field( aField, aParameters )
     {
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Field::add_child_node( uint aNodeIndex, std::shared_ptr< Child_Node > aChildNode )
+    Int_Interpolation
+    Level_Set_Geometry::get_intersection_interpolation()
     {
+        return mParameters.mIntersectionInterpolation;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Field::add_nodal_data( mtk::Interpolation_Mesh* aMesh )
+    Intersection_Mode
+    Level_Set_Geometry::get_intersection_mode()
     {
+        return Intersection_Mode::LEVEL_SET;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Field::reset_nodal_data()
+    real
+    Level_Set_Geometry::get_isocontour_threshold()
     {
+        return mParameters.mIsocontourThreshold;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    Field::set_num_original_nodes( uint aNumOriginalNodes )
+    real
+    Level_Set_Geometry::get_isocontour_tolerance()
     {
-        mNumOriginalNodes = aNumOriginalNodes;
+        return mParameters.mIsocontourTolerance;
     }
 
     //--------------------------------------------------------------------------------------------------------------
+
+    real
+    Level_Set_Geometry::get_intersection_tolerance()
+    {
+        return mParameters.mIntersectionTolerance;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
 }

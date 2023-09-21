@@ -40,15 +40,19 @@ set(HEADERS
     st_GEN_Geometry_Engine_Parameters.hpp
 
 	# ADV
+    ADV/cl_GEN_ADV_Manager.hpp
+	ADV/cl_GEN_Design_Field.hpp
 	ADV/cl_GEN_Field.hpp
 	ADV/cl_GEN_Field_Analytic.hpp
 	ADV/cl_GEN_Field_Discrete_Integration.hpp
 	ADV/cl_GEN_Field_Discrete_Interpolation.hpp
 	ADV/cl_GEN_User_Defined_Field.hpp
 	ADV/cl_GEN_BSpline_Field.hpp
+	ADV/fn_GEN_create_field.hpp
 
 	# ADV/geometry
 	ADV/geometry/cl_GEN_Geometry.hpp
+    ADV/geometry/cl_GEN_Level_Set_Geometry.hpp
 	ADV/geometry/cl_GEN_Circle.hpp
 	ADV/geometry/cl_GEN_Superellipse.hpp
 	ADV/geometry/cl_GEN_Sphere.hpp
@@ -65,7 +69,6 @@ set(HEADERS
 	ADV/geometry/cl_GEN_Multigeometry.hpp
 	ADV/geometry/cl_GEN_Swiss_Cheese_Slice.hpp
 	ADV/geometry/fn_GEN_create_geometries.hpp
-	ADV/geometry/st_GEN_Geometry_Parameters.hpp
 
 	# ADV/property
 	ADV/property/cl_GEN_Property.hpp
@@ -74,8 +77,6 @@ set(HEADERS
 	ADV/property/cl_GEN_User_Defined_Property.hpp
 	ADV/property/cl_GEN_BSpline_Property.hpp
 	ADV/property/fn_GEN_create_properties.hpp
-	ADV/property/st_GEN_Property_Parameters.hpp
-	ADV/st_GEN_Field_Parameters.hpp
 
 	# PDV
 	PDV/cl_GEN_Pdv_Host_Manager.hpp
@@ -98,15 +99,19 @@ set(LIB_SOURCES
 	cl_GEN_Geometric_Proximity.cpp
 
 	# ADV
+	ADV/cl_GEN_ADV_Manager.cpp
+	ADV/cl_GEN_Design_Field.cpp
 	ADV/cl_GEN_Field.cpp
 	ADV/cl_GEN_Field_Analytic.cpp
 	ADV/cl_GEN_Field_Discrete_Integration.cpp
 	ADV/cl_GEN_Field_Discrete_Interpolation.cpp
 	ADV/cl_GEN_User_Defined_Field.cpp
 	ADV/cl_GEN_BSpline_Field.cpp
+	ADV/fn_GEN_create_field.cpp
 
 	# ADV/geometry
 	ADV/geometry/cl_GEN_Geometry.cpp
+    ADV/geometry/cl_GEN_Level_Set_Geometry.cpp
 	ADV/geometry/cl_GEN_Circle.cpp
 	ADV/geometry/cl_GEN_Superellipse.cpp
 	ADV/geometry/cl_GEN_Sphere.cpp

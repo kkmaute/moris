@@ -17,7 +17,7 @@ namespace moris
 {
     namespace ge
     {
-        class Geometry;
+        class Level_Set_Geometry;
 
         class Intersection_Node_Linear : public Intersection_Node_Level_Set
         {
@@ -44,7 +44,7 @@ namespace moris
                     uint                                 aSecondNodeIndex,
                     const Matrix< DDRMat >&              aFirstNodeCoordinates,
                     const Matrix< DDRMat >&              aSecondNodeCoordinates,
-                    std::shared_ptr< Geometry >          aInterfaceGeometry );
+                    std::shared_ptr< Level_Set_Geometry >          aInterfaceGeometry );
 
             /**
              * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -122,7 +122,7 @@ namespace moris
                     uint                        aSecondNodeIndex,
                     const Matrix< DDRMat >&     aFirstNodeCoordinates,
                     const Matrix< DDRMat >&     aSecondNodeCoordinates,
-                    std::shared_ptr< Geometry > aInterfaceGeometry );
+                    std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry );
         };
     }    // namespace ge
 }    // namespace moris

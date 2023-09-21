@@ -52,7 +52,7 @@ namespace moris
             
           protected:
 
-            Cell< std::shared_ptr< Geometry > > mGeometries;
+            Cell< std::shared_ptr< Level_Set_Geometry > > mGeometries;
             Cell< std::shared_ptr< Property > > mProperties;
 
             //-------------------------------------------------------------------------------

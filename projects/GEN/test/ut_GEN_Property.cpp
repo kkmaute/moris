@@ -71,8 +71,8 @@ namespace moris
             tCircleParameterList.set("name", "My Circle");
             tCircleParameterList.set("field_variable_indices", "0, 1, 2");
             tCircleParameterList.set("adv_indices", "0, 1, 2");
-            Cell<std::shared_ptr<Geometry>> tGeometries = create_geometries({tCircleParameterList}, tADVs);
-            std::shared_ptr<Geometry> tCircle = tGeometries(0);
+            Cell<std::shared_ptr< Level_Set_Geometry > > tGeometries = create_geometries({tCircleParameterList}, tADVs);
+            std::shared_ptr< Level_Set_Geometry > tCircle = tGeometries(0);
 
             // Set up property
             ParameterList tScaledFieldParameterList = prm::create_gen_property_parameter_list();

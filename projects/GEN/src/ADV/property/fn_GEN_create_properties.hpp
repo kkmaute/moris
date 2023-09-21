@@ -12,7 +12,7 @@
 #define MORIS_FN_GEN_CREATE_PROPERTIES_HPP
 
 #include "cl_GEN_Property.hpp"
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Level_Set_Geometry.hpp"
 #include "cl_Param_List.hpp"
 #include "cl_Library_IO.hpp"
 
@@ -40,7 +40,7 @@ namespace moris
         Cell<std::shared_ptr<Property>> create_properties(
                 Cell<ParameterList>             aPropertyParameterLists,
                 Vector_Type&                    aADVs,
-                Cell<std::shared_ptr<Geometry>> aGeometries = {},
+                Cell<std::shared_ptr< Level_Set_Geometry > > aGeometries = {},
                 std::shared_ptr<Library_IO>     aLibrary = nullptr);
 
         /**

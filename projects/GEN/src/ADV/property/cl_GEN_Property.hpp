@@ -8,87 +8,87 @@
  *
  */
 
-#ifndef MORIS_CL_GEN_PROPERTY_HPP_
-#define MORIS_CL_GEN_PROPERTY_HPP_
+#pragma once
 
-#include "cl_GEN_Field.hpp"
-#include "st_GEN_Property_Parameters.hpp"
+#include "cl_GEN_Design_Field.hpp"
+#include "GEN_Data_Types.hpp"
 
-namespace moris
+namespace moris::ge
 {
-    namespace ge
+    /**
+     * This struct contains additional parameters that are used by properties.
+     */
+    struct Property_Parameters : public Field_Parameters
     {
-        class Property : virtual public Field
-        {
-        private:
-            Property_Parameters mParameters;
-            Cell<std::string> mDependencies;
+        Cell<std::string> mDependencyNames = {};  //! Names of the dependencies of this property
+        PDV_Type mPDVType = PDV_Type::UNDEFINED;  //! The type of PDV that this property will be assigned to
+        bool mInterpolationPDV = true;            //! If the PDV is defined on the interpolation mesh (always true for now)
+        Matrix<DDUMat> mPDVMeshSetIndices = {{}}; //! Mesh set indices for assigning PDVs
+        Cell<std::string> mPDVMeshSetNames = {};  //! Mesh set names for assigning PDVs
+    };
 
-        public:
+    class Property : public Design_Field
+    {
+    private:
+        Property_Parameters mParameters;
 
-            /**
-             * Constructor for property, needs to know about other fields that it depends on.
-             *
-             * @param aFieldDependencies This property's dependencies
-             */
-            Property(Property_Parameters aParameters);
+    public:
 
-            /**
-             * Copy constructor
-             *
-             * @param aProperty Property to copy
-             */
-            Property(std::shared_ptr<Property> aProperty);
+        /**
+         * Constructor taking in a field pointer and a set of parameters.
+         *
+         * @param aField Field for computing nodal values
+         * @param aParameters Field parameters
+         */
+        Property(
+              std::shared_ptr< Field > aField,
+              Property_Parameters      aParameters = {} );
 
-            /**
-             * Updates the dependencies of the property based on the given fields which the property may depend on
-             * (fields may have been mapped/updated).
-             *
-             * @param aAllUpdatedFields All fields (this property will take the ones it needs)
-             */
-            void update_dependencies(Cell<std::shared_ptr<Field>> aAllUpdatedFields);
+        /**
+         * Updates the dependencies of the property based on the given fields which the property may depend on
+         * (fields may have been mapped/updated).
+         *
+         * @param aAllUpdatedFields All fields (this property will take the ones it needs)
+         */
+        void update_dependencies( Cell< std::shared_ptr< Design_Field > > aAllUpdatedFields );
 
-            /**
-             * Gets the PDV type that this property defines.
-             *
-             * @return PDV type
-             */
-            PDV_Type get_pdv_type();
+        /**
+         * Gets the PDV type that this property defines.
+         *
+         * @return PDV type
+         */
+        PDV_Type get_pdv_type();
 
-            /**
-             * Gets if this property's PDV type is defined on the interpolation mesh.
-             *
-             * @return mesh type switch
-             */
-            bool is_interpolation_pdv();
+        /**
+         * Gets if this property's PDV type is defined on the interpolation mesh.
+         *
+         * @return mesh type switch
+         */
+        bool is_interpolation_pdv();
 
-            /**
-             * Gets the mesh set indices where this property's PDV is defined.
-             *
-             * @return Mesh set indices
-             */
-            Matrix<DDUMat> get_pdv_mesh_set_indices();
+        /**
+         * Gets the mesh set indices where this property's PDV is defined.
+         *
+         * @return Mesh set indices
+         */
+        Matrix<DDUMat> get_pdv_mesh_set_indices();
 
-            /**
-             * Gets the mesh set names where this property's PDV is defined.
-             *
-             * @return Mesh set names
-             */
-            Cell<std::string> get_pdv_mesh_set_names();
+        /**
+         * Gets the mesh set names where this property's PDV is defined.
+         *
+         * @return Mesh set names
+         */
+        Cell<std::string> get_pdv_mesh_set_names();
 
-        private:
+    private:
 
-            /**
-             * Sets the dependencies of this property after they have been found by update_dependencies(). By default
-             * does nothing.
-             *
-             * @param aDependencyFields Fields that this property depends on.
-             */
-            virtual void set_dependencies(Cell<std::shared_ptr<Field>> aDependencyFields);
+        /**
+         * Sets the dependencies of this property after they have been found by update_dependencies(). By default
+         * does nothing.
+         *
+         * @param aDependencyFields Fields that this property depends on.
+         */
+        virtual void set_dependencies(Cell<std::shared_ptr<Field>> aDependencyFields);
 
-        };
-    }
+    };
 }
-
-#endif /* MORIS_CL_Property_HPP_ */
-

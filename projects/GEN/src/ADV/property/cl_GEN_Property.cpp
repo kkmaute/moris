@@ -10,85 +10,75 @@
 
 #include "cl_GEN_Property.hpp"
 
-namespace moris
+namespace moris::ge
 {
-    namespace ge
+    //--------------------------------------------------------------------------------------------------------------
+
+    Property::Property(
+            std::shared_ptr< Field > aField,
+            Property_Parameters      aParameters )
+            : Design_Field( aField, aParameters )
     {
+    }
 
-        //--------------------------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------
 
-        Property::Property(Property_Parameters aParameters)
-                : mParameters(aParameters)
+    void Property::update_dependencies( Cell< std::shared_ptr< Design_Field > > aAllUpdatedFields )
+    {
+        // Set up dependency fields
+        uint tNumDependencies = mParameters.mDependencyNames.size();
+        Cell<std::shared_ptr<Field>> tDependencyFields(tNumDependencies);
+
+        // Grab dependencies
+        for (uint tDependencyIndex = 0; tDependencyIndex < tNumDependencies; tDependencyIndex++)
         {
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Property::Property(std::shared_ptr<Property> aProperty)
-                : mParameters(aProperty->mParameters)
-        {
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Property::update_dependencies(Cell<std::shared_ptr<Field>> aAllUpdatedFields)
-        {
-            // Set up dependency fields
-            uint tNumDependencies = mParameters.mDependencyNames.size();
-            Cell<std::shared_ptr<Field>> tDependencyFields(tNumDependencies);
-
-            // Grab dependencies
-            for (uint tDependencyIndex = 0; tDependencyIndex < tNumDependencies; tDependencyIndex++)
+            for (uint tFieldIndex = 0; tFieldIndex < aAllUpdatedFields.size(); tFieldIndex++)
             {
-                for (uint tFieldIndex = 0; tFieldIndex < aAllUpdatedFields.size(); tFieldIndex++)
+                if (aAllUpdatedFields(tFieldIndex)->get_name() == mParameters.mDependencyNames(tDependencyIndex))
                 {
-                    if (aAllUpdatedFields(tFieldIndex)->get_name() == mParameters.mDependencyNames(tDependencyIndex))
-                    {
-                        tDependencyFields(tDependencyIndex) = aAllUpdatedFields(tFieldIndex);
-                    }
+                    tDependencyFields(tDependencyIndex) = aAllUpdatedFields( tFieldIndex )->get_field();
                 }
             }
-
-            // Set dependencies
-            this->set_dependencies(tDependencyFields);
         }
 
-        //--------------------------------------------------------------------------------------------------------------
-
-        PDV_Type Property::get_pdv_type()
-        {
-            return mParameters.mPDVType;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        bool Property::is_interpolation_pdv()
-        {
-            return mParameters.mInterpolationPDV;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Matrix<DDUMat> Property::get_pdv_mesh_set_indices()
-        {
-            return mParameters.mPDVMeshSetIndices;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        Cell<std::string> Property::get_pdv_mesh_set_names()
-        {
-            return mParameters.mPDVMeshSetNames;
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void Property::set_dependencies(Cell<std::shared_ptr<Field>> aDependencyFields)
-        {
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
+        // Set dependencies
+        this->set_dependencies( tDependencyFields );
     }
-}
 
+    //--------------------------------------------------------------------------------------------------------------
+
+    PDV_Type Property::get_pdv_type()
+    {
+        return mParameters.mPDVType;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Property::is_interpolation_pdv()
+    {
+        return mParameters.mInterpolationPDV;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix<DDUMat> Property::get_pdv_mesh_set_indices()
+    {
+        return mParameters.mPDVMeshSetIndices;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Cell<std::string> Property::get_pdv_mesh_set_names()
+    {
+        return mParameters.mPDVMeshSetNames;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Property::set_dependencies(Cell<std::shared_ptr<Field>> aDependencyFields)
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+}

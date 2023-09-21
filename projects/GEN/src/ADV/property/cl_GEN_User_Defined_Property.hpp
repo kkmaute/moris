@@ -18,7 +18,7 @@ namespace moris
 {
     namespace ge
     {
-        class User_Defined_Property : public User_Defined_Field, public Property
+        class User_Defined_Property : public User_Defined_Field
         {
         public:
 
@@ -42,10 +42,8 @@ namespace moris
                     Matrix<DDRMat>            aConstants,
                     Field_Function            aFieldFunction,
                     Sensitivity_Function      aSensitivityFunction,
-                    Property_Field_Parameters aParameters = {})
-                    : Field(aADVs, aPropertyVariableIndices, aADVIndices, aConstants, aParameters)
-                    , User_Defined_Field(aADVs, aPropertyVariableIndices, aADVIndices, aConstants, aFieldFunction, aSensitivityFunction, aParameters)
-                    , Property(aParameters)
+                    Property_Parameters aParameters = {})
+                    : User_Defined_Field(aADVs, aPropertyVariableIndices, aADVIndices, aConstants, aFieldFunction, aSensitivityFunction, aParameters)
             {
             }
 
@@ -59,7 +57,7 @@ namespace moris
             User_Defined_Property(
                     Matrix<DDRMat>            aConstants,
                     Field_Function            aFieldFunction,
-                    Property_Field_Parameters aParameters = {});
+                    Property_Parameters aParameters = {});
 
         };
     }

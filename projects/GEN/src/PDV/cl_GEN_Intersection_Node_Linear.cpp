@@ -9,7 +9,7 @@
  */
 
 #include "cl_GEN_Intersection_Node_Linear.hpp"
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Level_Set_Geometry.hpp"
 #include "cl_GEN_Interpolation.hpp"
 
 #include "cl_MTK_Interpolation_Function_Base.hpp"       //MTK/src
@@ -32,7 +32,7 @@ namespace moris
                 uint                                 aSecondNodeIndex,
                 const Matrix< DDRMat >&              aFirstNodeCoordinates,
                 const Matrix< DDRMat >&              aSecondNodeCoordinates,
-                std::shared_ptr< Geometry >          aInterfaceGeometry )
+                std::shared_ptr< Level_Set_Geometry >          aInterfaceGeometry )
                 : Intersection_Node_Level_Set(
                         compute_local_coordinate(
                                 aFirstNodeIndex,
@@ -116,7 +116,7 @@ namespace moris
             }
 
             // lock the interface geometry
-            std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+            std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
             // get the isocontour thresholds from the geometry
             real tIsocontourThreshold   = tLockedInterfaceGeometry->get_isocontour_threshold();
@@ -169,7 +169,7 @@ namespace moris
         Intersection_Node_Linear::get_dxi_dfield_from_ancestor( uint aAncestorIndex )
         {
             // Locked interface geometry
-            std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+            std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
             // get isocontour threshold from geometry
             real tIsocontourThreshold = tLockedInterfaceGeometry->get_isocontour_threshold();
@@ -188,7 +188,7 @@ namespace moris
         Intersection_Node_Linear::get_dxi_dcoordinate_first_parent()
         {
             // Locked interface geometry
-            std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+            std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
             // Compute sensitivity of the local coordinate with respect to the ancestor coordinates
             Matrix< DDRMat > tCoordinateSensitivities( 1, mGlobalCoordinates.n_cols() );
@@ -205,7 +205,7 @@ namespace moris
         Intersection_Node_Linear::get_dxi_dcoordinate_second_parent()
         {
             // Locked interface geometry
-            std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+            std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
             // Compute sensitivity of the local coordinate with respect to the ancestor coordinates
             Matrix< DDRMat > tCoordinateSensitivities( 1, mGlobalCoordinates.n_cols() );
@@ -225,7 +225,7 @@ namespace moris
                 uint                        aSecondNodeIndex,
                 const Matrix< DDRMat >&     aFirstNodeCoordinates,
                 const Matrix< DDRMat >&     aSecondNodeCoordinates,
-                std::shared_ptr< Geometry > aInterfaceGeometry )
+                std::shared_ptr< Level_Set_Geometry > aInterfaceGeometry )
         {
             // Interface geometry values
             Matrix< DDRMat > tInterfaceGeometryValues = { { aInterfaceGeometry->get_field_value( aFirstNodeIndex, aFirstNodeCoordinates ) },

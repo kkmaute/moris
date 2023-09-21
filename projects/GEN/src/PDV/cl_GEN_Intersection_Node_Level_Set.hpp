@@ -17,14 +17,14 @@ namespace moris
 {
     namespace ge
     {
-        class Geometry;
+        class Level_Set_Geometry;
 
         //------------------------------------------------------------------------------
 
         class Intersection_Node_Level_Set : public Intersection_Node
         {
           protected:
-            std::weak_ptr< Geometry > mInterfaceGeometry;
+            std::weak_ptr< Level_Set_Geometry > mInterfaceGeometry;
 
           public:
             /**
@@ -57,7 +57,7 @@ namespace moris
                     Matrix< DDUMat >                     aAncestorNodeIndices,
                     Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
                     const Element_Interpolation_Type     aAncestorBasisFunction,
-                    std::shared_ptr< Geometry >          aInterfaceGeometry );
+                    std::shared_ptr< Level_Set_Geometry >          aInterfaceGeometry );
 
             /**
              * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the

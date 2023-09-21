@@ -8,120 +8,127 @@
  *
  */
 
-#ifndef MORIS_CL_GEN_FIELD_DISCRETE_INTEGRATION_HPP
-#define MORIS_CL_GEN_FIELD_DISCRETE_INTEGRATION_HPP
+#pragma once
 
 #include "cl_GEN_Field.hpp"
 
-namespace moris
+namespace moris::ge
 {
-    namespace ge
+    class Field_Discrete_Integration : public Field
     {
-        class Field_Discrete_Integration : virtual public Field
-        {
 
-          private:
-            Cell< std::shared_ptr< Child_Node > > mChildNodes;
+      private:
+        Cell< std::shared_ptr< Child_Node > > mChildNodes;
 
-          public:
-            /**
-             * Constructor
-             *
-             * @param aNumOriginalNodes Number of original nodes on the base integration mesh
-             */
-            Field_Discrete_Integration( uint aNumOriginalNodes );
+      public:
 
-            Field_Discrete_Integration(){};
+        /**
+         * Constructor using pointers to ADVs for variable evaluations.
+         *
+         * @tparam Vector_Type Type of vector where ADVs are stored
+         * @param aADVs ADV vector
+         * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
+         * @param aADVIndices The indices of the ADV vector to fill in the field variables
+         * @param aConstants The constant field variables not filled by ADVs
+         */
+        template< typename Vector_Type >
+        Field_Discrete_Integration(
+                Vector_Type&     aADVs,
+                Matrix< DDUMat > aFieldVariableIndices,
+                Matrix< DDUMat > aADVIndices,
+                Matrix< DDRMat > aConstants,
+                uint aNumOriginalNodes );
 
-            /**
-             * Destructor
-             */
-            virtual ~Field_Discrete_Integration(){};
+        /**
+         * Constructor using only constants (no ADVs).
+         *
+         * @param aConstants The parameters that define this field
+         */
+        Field_Discrete_Integration(
+                Matrix< DDRMat > aConstants,
+                uint aNumOriginalNodes );
 
-            /**
-             * Given a node index or coordinate, returns the field value.
-             *
-             * @param aNodeIndex Node index
-             * @param aCoordinates Vector of coordinate values
-             * @return Field value
-             */
-            real get_field_value(
-                    uint                    aNodeIndex,
-                    const Matrix< DDRMat >& aCoordinates );
+        /**
+         * Given a node index or coordinate, returns the field value.
+         *
+         * @param aNodeIndex Node index
+         * @param aCoordinates Vector of coordinate values
+         * @return Field value
+         */
+        real get_field_value(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates ) override;
 
-            /**
-             * Given a node index, returns the field value
-             *
-             * @param aNodeIndex Node index
-             * @return Field value
-             */
-            virtual real get_field_value( uint aNodeIndex ) = 0;
+        /**
+         * Given a node index, returns the field value
+         *
+         * @param aNodeIndex Node index
+         * @return Field value
+         */
+        virtual real get_field_value( uint aNodeIndex ) = 0;
 
-            /**
-             * Given a node index or coordinate, returns a matrix all sensitivities.
-             *
-             * @param aNodeIndex Node index
-             * @param aCoordinates Vector of coordinate values
-             * @return Vector of sensitivities
-             */
-            const Matrix< DDRMat >& get_dfield_dadvs(
-                    uint                    aNodeIndex,
-                    const Matrix< DDRMat >& aCoordinates );
+        /**
+         * Given a node index or coordinate, returns a matrix all sensitivities.
+         *
+         * @param aNodeIndex Node index
+         * @param aCoordinates Vector of coordinate values
+         * @return Vector of sensitivities
+         */
+        const Matrix< DDRMat >& get_dfield_dadvs(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates ) override;
 
-            /**
-             * Given a node index, returns a vector of the field derivatives with respect to its ADVs.
-             *
-             * @param aNodeIndex Node index
-             * @return Vector of sensitivities
-             */
-            virtual const Matrix< DDRMat >& get_dfield_dadvs( uint aNodeIndex ) = 0;
+        /**
+         * Given a node index, returns a vector of the field derivatives with respect to its ADVs.
+         *
+         * @param aNodeIndex Node index
+         * @return Vector of sensitivities
+         */
+        virtual const Matrix< DDRMat >& get_dfield_dadvs( uint aNodeIndex ) = 0;
 
-            /**
-             * Gets the IDs of ADVs which this field depends on for evaluations, including child nodes.
-             *
-             * @param aNodeIndex Node index
-             * @param aCoordinates Node coordinates
-             * @return Determining ADV IDs at this node
-             */
-            Matrix< DDSMat > get_determining_adv_ids(
-                    uint                    aNodeIndex,
-                    const Matrix< DDRMat >& aCoordinates );
+        /**
+         * Gets the IDs of ADVs which this field depends on for evaluations, including child nodes.
+         *
+         * @param aNodeIndex Node index
+         * @param aCoordinates Node coordinates
+         * @return Determining ADV IDs at this node
+         */
+        Matrix< DDSMat > get_determining_adv_ids(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates ) override;
 
-            /**
-             * Gets the IDs of ADVs which this field depends on for evaluations for non-child nodes.
-             *
-             * @param aNodeIndex Node index
-             * @return Determining ADV IDs at this node
-             */
-            virtual Matrix< DDSMat > get_determining_adv_ids( uint aNodeIndex );
+        /**
+         * Gets the IDs of ADVs which this field depends on for evaluations for non-child nodes.
+         *
+         * @param aNodeIndex Node index
+         * @return Determining ADV IDs at this node
+         */
+        virtual Matrix< DDSMat > get_determining_adv_ids( uint aNodeIndex );
 
-            /**
-             * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
-             * coordinates.
-             *
-             * @param aNodeIndex Node index
-             * @param aCoordinates Vector of coordinate values
-             * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
-             */
-            void get_dfield_dcoordinates(
-                    uint                    aNodeIndex,
-                    const Matrix< DDRMat >& aCoordinates,
-                    Matrix< DDRMat >&       aSensitivities );
+        /**
+         * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
+         * coordinates.
+         *
+         * @param aNodeIndex Node index
+         * @param aCoordinates Vector of coordinate values
+         * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
+         */
+        void get_dfield_dcoordinates(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates,
+                Matrix< DDRMat >&       aSensitivities ) override;
 
-            /**
-             * Add a new child node for evaluation.
-             *
-             * @param aNodeIndex Index of the child node
-             * @param aChildNode Contains information about how the child node was created
-             */
-            void add_child_node( uint aNodeIndex, std::shared_ptr< Child_Node > aChildNode );
+        /**
+         * Add a new child node for evaluation.
+         *
+         * @param aNodeIndex Index of the child node
+         * @param aChildNode Contains information about how the child node was created
+         */
+        void add_child_node( uint aNodeIndex, std::shared_ptr< Child_Node > aChildNode ) override;
 
-            /**
-             * Resets all child nodes, called when a new XTK mesh is being created.
-             */
-            void reset_nodal_data();
-        };
-    }    // namespace ge
-}    // namespace moris
-
-#endif    // MORIS_CL_GEN_FIELD_DISCRETE_INTEGRATION_HPP
+        /**
+         * Resets all child nodes, called when a new XTK mesh is being created.
+         */
+        void reset_nodal_data() override;
+    };
+}

@@ -10,79 +10,73 @@
 
 #include "cl_GEN_Sphere.hpp"
 
-namespace moris
+namespace moris::ge
 {
-    namespace ge
+    //--------------------------------------------------------------------------------------------------------------
+
+    Sphere::Sphere(
+            real                      aXCenter,
+            real                      aYCenter,
+            real                      aZCenter,
+            real                      aRadius,
+            Level_Set_Parameters aParameters )
+            : Field_Analytic( Matrix< DDRMat >( { { aXCenter, aYCenter, aZCenter, aRadius } } ) )
     {
+    }
 
-        //--------------------------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------
 
-        Sphere::Sphere(
-                real                      aXCenter,
-                real                      aYCenter,
-                real                      aZCenter,
-                real                      aRadius,
-                Geometry_Field_Parameters aParameters )
-                : Field( Matrix< DDRMat >( { { aXCenter, aYCenter, aZCenter, aRadius } } ), aParameters )
-                , Geometry( aParameters )
-        {
-        }
+    real
+    Sphere::get_field_value( const Matrix< DDRMat >& aCoordinates )
+    {
+        // Get variables
+        real tXCenter = *( mVariables( 0 ) );
+        real tYCenter = *( mVariables( 1 ) );
+        real tZCenter = *( mVariables( 2 ) );
+        real tRadius  = *( mVariables( 3 ) );
 
-        //--------------------------------------------------------------------------------------------------------------
+        // Evaluate field
+        return sqrt( pow( aCoordinates( 0 ) - tXCenter, 2 )
+                       + pow( aCoordinates( 1 ) - tYCenter, 2 )
+                       + pow( aCoordinates( 2 ) - tZCenter, 2 ) )
+             - tRadius;
+    }
 
-        real
-        Sphere::get_field_value( const Matrix< DDRMat >& aCoordinates )
-        {
-            // Get variables
-            real tXCenter = *( mFieldVariables( 0 ) );
-            real tYCenter = *( mFieldVariables( 1 ) );
-            real tZCenter = *( mFieldVariables( 2 ) );
-            real tRadius  = *( mFieldVariables( 3 ) );
+    //--------------------------------------------------------------------------------------------------------------
 
-            // Evaluate field
-            return sqrt( pow( aCoordinates( 0 ) - tXCenter, 2 )
-                           + pow( aCoordinates( 1 ) - tYCenter, 2 )
-                           + pow( aCoordinates( 2 ) - tZCenter, 2 ) )
-                 - tRadius;
-        }
+    const Matrix< DDRMat >&
+    Sphere::get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates )
+    {
+        // Get variables
+        real tXCenter = *( mVariables( 0 ) );
+        real tYCenter = *( mVariables( 1 ) );
+        real tZCenter = *( mVariables( 2 ) );
 
-        //--------------------------------------------------------------------------------------------------------------
+        // Calculate sensitivities
+        real tConstant = sqrt( pow( aCoordinates( 0 ) - tXCenter, 2 )
+                               + pow( aCoordinates( 1 ) - tYCenter, 2 )
+                               + pow( aCoordinates( 2 ) - tZCenter, 2 ) );
 
-        const Matrix< DDRMat >&
-        Sphere::get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates )
-        {
-            // Get variables
-            real tXCenter = *( mFieldVariables( 0 ) );
-            real tYCenter = *( mFieldVariables( 1 ) );
-            real tZCenter = *( mFieldVariables( 2 ) );
+        tConstant = tConstant ? 1.0 / tConstant : 0.0;
 
-            // Calculate sensitivities
-            real tConstant = sqrt( pow( aCoordinates( 0 ) - tXCenter, 2 )
-                                   + pow( aCoordinates( 1 ) - tYCenter, 2 )
-                                   + pow( aCoordinates( 2 ) - tZCenter, 2 ) );
+        mSensitivities( 0 ) = tConstant * ( tXCenter - aCoordinates( 0 ) );
+        mSensitivities( 1 ) = tConstant * ( tYCenter - aCoordinates( 1 ) );
+        mSensitivities( 2 ) = tConstant * ( tZCenter - aCoordinates( 2 ) );
+        mSensitivities( 3 ) = -1;
 
-            tConstant = tConstant ? 1.0 / tConstant : 0.0;
+        return mSensitivities;
+    }
 
-            mSensitivities( 0 ) = tConstant * ( tXCenter - aCoordinates( 0 ) );
-            mSensitivities( 1 ) = tConstant * ( tYCenter - aCoordinates( 1 ) );
-            mSensitivities( 2 ) = tConstant * ( tZCenter - aCoordinates( 2 ) );
-            mSensitivities( 3 ) = -1;
+    //--------------------------------------------------------------------------------------------------------------
 
-            return mSensitivities;
-        }
+    void
+    Sphere::get_dfield_dcoordinates(
+            const Matrix< DDRMat >& aCoordinates,
+            Matrix< DDRMat >&       aSensitivities )
+    {
+        MORIS_ERROR( false, "get_dfield_dcoordinates not implemented for sphere geometry." );
+    }
 
-        //--------------------------------------------------------------------------------------------------------------
+    //--------------------------------------------------------------------------------------------------------------
 
-        void
-        Sphere::get_dfield_dcoordinates(
-                const Matrix< DDRMat >& aCoordinates,
-                Matrix< DDRMat >&       aSensitivities )
-        {
-            MORIS_ERROR( false, "get_dfield_dcoordinates not implemented for sphere geometry." );
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-    }    // namespace ge
-}    // namespace moris
-
+}    // namespace ge

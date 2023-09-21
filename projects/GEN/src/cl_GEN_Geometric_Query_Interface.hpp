@@ -11,7 +11,7 @@
 #ifndef MORIS_CL_GEN_Geometric_Query_Interface_HPP_
 #define MORIS_CL_GEN_Geometric_Query_Interface_HPP_
 
-#include "cl_MTK_Enums.hpp"
+#include "cl_Mesh_Enums.hpp"
 
 namespace moris
 {
@@ -38,11 +38,11 @@ namespace moris
             {
             }
 
-            virtual enum Query_Type get_query_type() const = 0;
+            virtual Query_Type get_query_type() const = 0;
 
             virtual moris_index get_geometric_index() const = 0;
 
-            virtual enum EntityRank get_query_entity_rank() const = 0;
+            virtual EntityRank get_query_entity_rank() const = 0;
 
             virtual Matrix< IndexMat > const & get_query_entity_to_vertex_connectivity() const = 0;
 

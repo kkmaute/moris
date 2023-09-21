@@ -8,83 +8,76 @@
  *
  */
 
-#ifndef MORIS_CL_GEN_MESH_FIELD_GEOMETRY_HPP
-#define MORIS_CL_GEN_MESH_FIELD_GEOMETRY_HPP
+#pragma once
 
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Level_Set_Geometry.hpp"
 #include "cl_GEN_Field_Discrete_Integration.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"
 
-namespace moris
+namespace moris::ge
 {
-    namespace ge
+    class Mesh_Field_Geometry: public Field_Discrete_Integration
     {
-        class Mesh_Field_Geometry: public Geometry, public Field_Discrete_Integration
-        {
-            private:
+        private:
 
-                mtk::Mesh*     mMesh;
-                std::string    mFieldName;
-                real           mOffset;
-                EntityRank     mEntityRank;
+            mtk::Mesh*     mMesh;
+            std::string    mFieldName;
+            real           mOffset;
+            EntityRank     mEntityRank;
 
-                Matrix<DDRMat> mFieldData;
-                bool           mUseOwnData;
+            Matrix<DDRMat> mFieldData;
+            bool           mUseOwnData;
 
-            public:
-                /**
-                 * Constructor
-                 *
-                 * @param aMesh       Mesh with the level set fields
-                 * @param aFieldName  Name of the field
-                 */
-                Mesh_Field_Geometry(mtk::Mesh*  aMesh,
-                        std::string aFieldName,
-                        EntityRank  aEntityRank = EntityRank::NODE,
-                        Geometry_Field_Parameters aParameters = {});
+        public:
+            /**
+             * Constructor
+             *
+             * @param aMesh       Mesh with the level set fields
+             * @param aFieldName  Name of the field
+             */
+            Mesh_Field_Geometry(mtk::Mesh*  aMesh,
+                    std::string aFieldName,
+                    EntityRank  aEntityRank = EntityRank::NODE,
+                  Level_Set_Parameters    aParameters = {});
 
-                /**
-                  * Constructor
-                  *
-                  * @param aMesh In-core mesh
-                  * @param aFileName    Name of the file with field data
-                  * @param aFieldName   Name of the field
-                  * @param aFileFormat  Name of file format (e.g., exodus)
-                  *
-                  */
-                Mesh_Field_Geometry(
-                                mtk::Mesh*  aMesh,
-                                std::string aFileName,
-                                std::string aFieldName,
-                                std::string aFileFormat,
-                                real        aOffset,
-                                EntityRank  aEntityRank = EntityRank::NODE,
-                                Geometry_Field_Parameters aParameters = {});
+            /**
+              * Constructor
+              *
+              * @param aMesh In-core mesh
+              * @param aFileName    Name of the file with field data
+              * @param aFieldName   Name of the field
+              * @param aFileFormat  Name of file format (e.g., exodus)
+              *
+              */
+            Mesh_Field_Geometry(
+                            mtk::Mesh*  aMesh,
+                            std::string aFileName,
+                            std::string aFieldName,
+                            std::string aFileFormat,
+                            real        aOffset,
+                            EntityRank  aEntityRank = EntityRank::NODE,
+                    Level_Set_Parameters aParameters = {});
 
-                /**
-                 * Given a node index, returns the field value.
-                 *
-                 * @param aNodeIndex Node index
-                 * @return Distance to this geometry
-                 */
-                real get_field_value(uint aNodeIndex);
+            /**
+             * Given a node index, returns the field value.
+             *
+             * @param aNodeIndex Node index
+             * @return Distance to this geometry
+             */
+            real get_field_value(uint aNodeIndex);
 
-            private:
+        private:
 
-                /**
-                 * Given a node index, evaluates the sensitivity of the geometry field with respect to all of the
-                 * geometry variables. This is currently not implemented for a mesh field geometry.
-                 *
-                 * @param aNodeIndex Node index
-                 * @return Vector of sensitivities
-                 */
-                const Matrix<DDRMat>& get_dfield_dadvs(uint aNodeIndex);
+            /**
+             * Given a node index, evaluates the sensitivity of the geometry field with respect to all of the
+             * geometry variables. This is currently not implemented for a mesh field geometry.
+             *
+             * @param aNodeIndex Node index
+             * @return Vector of sensitivities
+             */
+            const Matrix<DDRMat>& get_dfield_dadvs(uint aNodeIndex);
 
-        };
-    }
+    };
 }
-
-#endif /* MORIS_CL_GEN_MESH_FIELD_GEOMETRY_HPP */
-

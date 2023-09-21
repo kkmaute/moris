@@ -9,7 +9,7 @@
  */
 
 #include "cl_GEN_Intersection_Node_Bilinear.hpp"
-#include "cl_GEN_Geometry.hpp"
+#include "cl_GEN_Level_Set_Geometry.hpp"
 #include "cl_GEN_Interpolation.hpp"
 
 #include "cl_MTK_Interpolation_Function_Base.hpp"       //MTK/src
@@ -17,7 +17,7 @@
 #include "cl_MTK_Enums.hpp"                             //MTK/src
 
 #include "fn_dot.hpp"
-#include "fn_trans.hpp"
+#include "fn_norm.hpp"
 
 namespace moris
 {
@@ -35,7 +35,7 @@ namespace moris
                 const Matrix< DDUMat >&              aAncestorNodeIndices,
                 const Cell< Matrix< DDRMat > >&      aAncestorNodeCoordinates,
                 const Element_Interpolation_Type     aInterpolationType,
-                std::shared_ptr< Geometry >          aInterfaceGeometry )
+                std::shared_ptr< Level_Set_Geometry >          aInterfaceGeometry )
                 : Intersection_Node_Level_Set(
                         compute_local_coordinate(
                                 aFirstParentNodeLocalCoordinates,
@@ -155,7 +155,7 @@ namespace moris
             }
 
             // lock interface geometry
-            std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+            std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
             // allocate matrix for level set values at background cell nodes
             Matrix< DDRMat > tPhiBCNodes( tNumBases, 1 );
@@ -217,7 +217,7 @@ namespace moris
                 const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates,
                 const Matrix< DDUMat >&         aAncestorNodeIndices,
                 const Cell< Matrix< DDRMat > >& aAncestorNodeCoordinates,
-                std::shared_ptr< Geometry >     aInterfaceGeometry )
+                std::shared_ptr< Level_Set_Geometry >     aInterfaceGeometry )
         {
             // get isocontour threshold from geometry
             real tIsocontourThreshold = aInterfaceGeometry->get_isocontour_threshold();
@@ -546,7 +546,7 @@ namespace moris
             }
 
             // Locked interface geometry
-            std::shared_ptr< Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
+            std::shared_ptr< Level_Set_Geometry > tLockedInterfaceGeometry = mInterfaceGeometry.lock();
 
             // build interpolator
             mtk::Interpolation_Function_Factory tFactory;

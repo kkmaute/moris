@@ -17,7 +17,7 @@ namespace moris
 {
     namespace ge
     {
-        class Geometry;
+        class Level_Set_Geometry;
 
         class Intersection_Node_Bilinear : public Intersection_Node_Level_Set
         {
@@ -56,7 +56,7 @@ namespace moris
                     const Matrix< DDUMat >&              aAncestorNodeIndices,
                     const Cell< Matrix< DDRMat > >&      aAncestorNodeCoordinates,
                     const Element_Interpolation_Type     aInterpolationType,
-                    std::shared_ptr< Geometry >          aInterfaceGeometry );
+                    std::shared_ptr< Level_Set_Geometry >          aInterfaceGeometry );
 
             virtual ~Intersection_Node_Bilinear();
 
@@ -127,7 +127,7 @@ namespace moris
                     const Matrix< DDRMat >&         aSecondParentNodeLocalCoordinates,
                     const Matrix< DDUMat >&         aAncestorNodeIndices,
                     const Cell< Matrix< DDRMat > >& aAncestorNodeCoordinates,
-                    std::shared_ptr< Geometry >     aInterfaceGeometry );
+                    std::shared_ptr< Level_Set_Geometry >     aInterfaceGeometry );
 
             real compute_intersection_derivative( uint aAncestorIndex );
         };

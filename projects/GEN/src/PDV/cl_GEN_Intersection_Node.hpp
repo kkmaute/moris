@@ -17,7 +17,7 @@ namespace moris
 {
     namespace ge
     {
-        class Geometry;
+        class Level_Set_Geometry;
 
         //------------------------------------------------------------------------------
         class Intersection_Node : public Child_Node
@@ -69,7 +69,7 @@ namespace moris
                     const Matrix< DDRMat >&              aSecondParentNodeLocalCoordinates,
                     Matrix< DDUMat >                     aAncestorNodeIndices,
                     Cell< Matrix< DDRMat > >             aAncestorNodeCoordinates,
-                    const Element_Interpolation_Type     aAncestorBasisFunction );
+                    Element_Interpolation_Type           aAncestorBasisFunction );
             /**
              * Gets the sensitivities of this node's global coordinates with respect to the ADVs which affect one of the
              * ancestor nodes.
