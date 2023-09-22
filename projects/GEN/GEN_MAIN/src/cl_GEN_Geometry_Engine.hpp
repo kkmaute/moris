@@ -617,7 +617,7 @@ namespace moris
              * @param aPdvTypes PDV_Type types; set->group->individual
              * @param aMeshIndex Interpolation mesh index
              */
-            void create_interpolation_pdv_hosts(
+            void create_interpolation_pdvs(
                     mtk::Interpolation_Mesh*         aInterpolationMesh,
                     mtk::Integration_Mesh*           aIntegrationMesh,
                     Cell< Cell< Cell< PDV_Type > > > aPdvTypes );
@@ -630,17 +630,6 @@ namespace moris
              * @param aMeshIndex Integration mesh index
              */
             void set_integration_pdv_types( mtk::Integration_Mesh* aIntegrationMesh );
-
-            //-------------------------------------------------------------------------------
-            
-            /**
-             * @brief assign the pdv type and property for each pdv host in a given set
-             */
-            void assign_property_to_pdv_hosts(
-                    std::shared_ptr< Property > aPropertyPointer,
-                    PDV_Type                    aPdvType,
-                    mtk::Integration_Mesh*      aIntegrationMesh,
-                    Matrix< DDUMat >            aSetIndices );
 
             //-------------------------------------------------------------------------------
             

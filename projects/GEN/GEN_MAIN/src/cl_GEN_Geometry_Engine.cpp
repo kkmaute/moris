@@ -958,38 +958,40 @@ namespace moris
             // Initialize PDV type groups and mesh set info from integration mesh
             Cell< Cell< Cell< PDV_Type > > > tPdvTypes( tIntegrationMesh->get_num_sets() );
             Cell< PDV_Type >                 tPDVTypeGroup( 1 );
-            Cell< Matrix< DDUMat > >         tMeshSetIndicesPerProperty( mProperties.size() );
 
             // Loop over properties to create PDVs
             for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
             {
-                // PDV type and mesh set names/indices from parameter list
+                // Get PDV type from property
                 tPDVTypeGroup( 0 ) = mProperties( tPropertyIndex )->get_pdv_type();
 
-                tMeshSetIndicesPerProperty( tPropertyIndex ) = mProperties( tPropertyIndex )->get_pdv_mesh_set_indices();
-                Cell< std::string > tMeshSetNames            = mProperties( tPropertyIndex )->get_pdv_mesh_set_names();
+                // Get mesh set indices and names
+                Matrix< DDUMat > tMeshSetIndices = mProperties( tPropertyIndex )->get_pdv_mesh_set_indices();
+                Cell< std::string > tMeshSetNames = mProperties( tPropertyIndex )->get_pdv_mesh_set_names();
 
                 // Convert mesh set names to indices
-                uint tNumSetIndices = tMeshSetIndicesPerProperty( tPropertyIndex ).length();
-                tMeshSetIndicesPerProperty( tPropertyIndex ).resize( tNumSetIndices + tMeshSetNames.size(), 1 );
+                uint tNumSetIndices = tMeshSetIndices.length();
+                tMeshSetIndices.resize( tNumSetIndices + tMeshSetNames.size(), 1 );
 
                 // number of mesh sets for current property
-                uint tNumberOfSets = tMeshSetIndicesPerProperty( tPropertyIndex ).length();
+                uint tTotalNumberOfSets = tMeshSetIndices.length();
 
-                // Set for each property index the list of mesh set indices
-                for ( uint tIndex = tNumSetIndices; tIndex < tNumberOfSets; tIndex++ )
+                // Set for each property index the list of mesh set indices TODO pass this to property to have it update its own mesh set indices
+                for ( uint tSetIndexPosition = tNumSetIndices; tSetIndexPosition < tTotalNumberOfSets; tSetIndexPosition++ )
                 {
-                    tMeshSetIndicesPerProperty( tPropertyIndex )( tIndex ) =
-                            tIntegrationMesh->get_set_index_by_name( tMeshSetNames( tIndex - tNumSetIndices ) );
+                    tMeshSetIndices( tSetIndexPosition ) =
+                            tIntegrationMesh->get_set_index_by_name( tMeshSetNames( tSetIndexPosition - tNumSetIndices ) );
                 }
 
                 // Assign PDV types to each mesh set
-                for ( uint tIndex = 0; tIndex < tNumberOfSets; tIndex++ )
+                for ( uint tSetIndexPosition = 0; tSetIndexPosition < tTotalNumberOfSets; tSetIndexPosition++ )
                 {
-                    uint tMeshSetIndex = tMeshSetIndicesPerProperty( tPropertyIndex )( tIndex );
-
+                    uint tMeshSetIndex = tMeshSetIndices( tSetIndexPosition );
                     tPdvTypes( tMeshSetIndex ).push_back( tPDVTypeGroup );
                 }
+                
+                // Add nodal data from the interpolation mesh
+                mProperties( tPropertyIndex )->add_nodal_data( tInterpolationMesh );
             }
 
             // Set interpolation PDV types in host manager
@@ -1009,7 +1011,7 @@ namespace moris
                     tIGVertexGlobaToLocalMap );
 
             // Create PDV hosts
-            this->create_interpolation_pdv_hosts(
+            this->create_interpolation_pdvs(
                     tInterpolationMesh,
                     tIntegrationMesh,
                     tPdvTypes );
@@ -1019,31 +1021,6 @@ namespace moris
             {
                 // Set integration PDV types
                 this->set_integration_pdv_types( tIntegrationMesh );
-            }
-
-            // Loop over properties to assign PDVs
-            for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
-            {
-                // Assign PDVs
-                if ( mProperties( tPropertyIndex )->is_interpolation_pdv() )
-                {
-                    // PDV type and mesh set names/indices from parameter list
-                    tPDVTypeGroup( 0 ) = mProperties( tPropertyIndex )->get_pdv_type();
-
-                    // Add nodal data from the interpolation mesh
-                    mProperties( tPropertyIndex )->add_nodal_data( tInterpolationMesh );
-
-                    // Assign this property to the PDV hosts for the given sets
-                    this->assign_property_to_pdv_hosts(
-                            mProperties( tPropertyIndex ),
-                            tPDVTypeGroup( 0 ),
-                            tIntegrationMesh,
-                            tMeshSetIndicesPerProperty( tPropertyIndex ) );
-                }
-                else
-                {
-                    MORIS_ERROR( false, "Assignment of PDVs is only supported with an interpolation mesh right now." );
-                }
             }
 
             // Create PDV IDs
@@ -2104,7 +2081,7 @@ namespace moris
         // PRIVATE
         //--------------------------------------------------------------------------------------------------------------
         void
-        Geometry_Engine::create_interpolation_pdv_hosts(
+        Geometry_Engine::create_interpolation_pdvs(
                 mtk::Interpolation_Mesh*         aInterpolationMesh,
                 mtk::Integration_Mesh*           aIntegrationMesh,
                 Cell< Cell< Cell< PDV_Type > > > aPdvTypes )
@@ -2148,7 +2125,7 @@ namespace moris
                     uint tNumberOfClusters = tSet->get_num_clusters_on_set();
 
                     // Number of nodes on this set
-                    uint tNumberOfNodesOnSet = 0;
+                    uint tNumberOfNodesInSet = 0;
 
                     // Number of shared nodes on this set per proc
                     Cell< uint > tNumSharedNodesPerProc( tCommunicationTable.size() );
@@ -2167,7 +2144,7 @@ namespace moris
                             Matrix< IndexMat > tNodeOwnersInCluster = tBaseCell->get_vertex_owners();
 
                             // Add to the number of base nodes on this set
-                            tNumberOfNodesOnSet += tNodeOwnersInCluster.length();
+                            tNumberOfNodesInSet += tNodeOwnersInCluster.length();
 
                             // Determine if we need to check for shared nodes
                             if ( par_size() > 1 )
@@ -2192,13 +2169,13 @@ namespace moris
                     communicate_scalars( tCommunicationTable, tNumSharedNodesPerProc, tNumOwnedNodesPerProc );
 
                     // Add number of nodes this proc owns that it may not know is on the set
-                    tNumberOfNodesOnSet += std::accumulate( tNumOwnedNodesPerProc.begin(), tNumOwnedNodesPerProc.end(), 0 );
+                    tNumberOfNodesInSet += std::accumulate( tNumOwnedNodesPerProc.begin(), tNumOwnedNodesPerProc.end(), 0 );
 
                     // Resize node indices, IDs, owners, and coordinates for this set
-                    tNodeIndicesPerSet( iMeshSetIndex ).resize( tNumberOfNodesOnSet, 0 );
-                    tNodeIdsPerSet( iMeshSetIndex ).resize( tNumberOfNodesOnSet, -1 );
-                    tNodeOwnersPerSet( iMeshSetIndex ).resize( tNumberOfNodesOnSet, 0 );
-                    tNodeCoordinatesPerSet( iMeshSetIndex ).resize( tNumberOfNodesOnSet, mNumSpatialDimensions );
+                    tNodeIndicesPerSet( iMeshSetIndex ).resize( tNumberOfNodesInSet, 0 );
+                    tNodeIdsPerSet( iMeshSetIndex ).resize( tNumberOfNodesInSet, -1 );
+                    tNodeOwnersPerSet( iMeshSetIndex ).resize( tNumberOfNodesInSet, 0 );
+                    tNodeCoordinatesPerSet( iMeshSetIndex ).resize( tNumberOfNodesInSet, mNumSpatialDimensions );
 
                     // Loop over clusters on this set
                     uint tCurrentNode = 0;
@@ -2224,7 +2201,7 @@ namespace moris
 
                             // check for consistency
                             MORIS_ASSERT( tNodeIdsInCluster.length() == tNumberOfBaseNodes and tNodeOwnersInCluster.length() == tNumberOfBaseNodes,
-                                    "Geometry_Engine::create_interpolation_pdv_hosts - inconsistent cluster information.\n" );
+                                    "Geometry_Engine::create_interpolation_pdvs - inconsistent cluster information.\n" );
 
                             // FIXME This list has duplicate entries. Functionality is working as is, but is slightly slower. Mesh needs to provide unique nodes per set to fix this.
                             for ( uint iNodeInCluster = 0; iNodeInCluster < tNumberOfBaseNodes; iNodeInCluster++ )
@@ -2313,6 +2290,31 @@ namespace moris
                     tNodeIdsPerSet,
                     tNodeOwnersPerSet,
                     tNodeCoordinatesPerSet );
+
+            // Loop over properties to assign PDVs on this set
+            for ( uint iPropertyIndex = 0; iPropertyIndex < mProperties.size(); iPropertyIndex++ )
+            {
+                // Check if this is an interpolation PDV
+                MORIS_ERROR( mProperties( iPropertyIndex )->is_interpolation_pdv(),
+                        "Assignment of PDVs is only supported with an interpolation mesh right now." );
+
+                // Loop through sets in integration mesh TODO this can be simplified once a property can set its own (total) mesh set indices, see TODO in create_pdvs()
+                for ( uint iMeshSetIndex = 0; iMeshSetIndex < tNumSets; iMeshSetIndex++ )
+                {
+                    // Check with PDVs on this set
+                    for ( uint iPdvTypeIndex = 0; iPdvTypeIndex < aPdvTypes( iMeshSetIndex ).size(); iPdvTypeIndex++ )
+                    {
+                        PDV_Type tPdvType = mProperties( iPropertyIndex )->get_pdv_type();
+                        if ( tPdvType == aPdvTypes( iMeshSetIndex )( iPdvTypeIndex )( 0 ) )
+                        {
+                            for ( uint iNodeInSet = 0; iNodeInSet < tNodeIndicesPerSet( iMeshSetIndex ).size(); iNodeInSet++ )
+                            {
+                                mPDVHostManager.create_interpolation_pdv( tNodeIndicesPerSet( iMeshSetIndex )( iNodeInSet ), tPdvType, mProperties( iPropertyIndex ) );
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -2362,62 +2364,6 @@ namespace moris
             // Set PDV types
             mPDVHostManager.set_integration_pdv_types( tPdvTypes );
             mPDVHostManager.set_requested_integration_pdv_types( tCoordinatePdvs );
-        }
-
-        //--------------------------------------------------------------------------------------------------------------
-
-        void
-        Geometry_Engine::assign_property_to_pdv_hosts(
-                std::shared_ptr< Property > aPropertyPointer,
-                PDV_Type                    aPdvType,
-                mtk::Integration_Mesh*      aIntegrationMesh,
-                Matrix< DDUMat >            aSetIndices )
-        {
-            // Tracer
-            Tracer tTracer( "GEN", "Assign property " + aPropertyPointer->get_name() + " to PDV hosts" );
-
-            // Loop over all sets that this property belongs to
-            for ( uint iSet = 0; iSet < aSetIndices.length(); iSet++ )
-            {
-                // get the mesh set from index
-                mtk::Set* tSetPointer = aIntegrationMesh->get_set_by_index( aSetIndices( iSet ) );
-
-                // Select sides of interpolation cells to pull from
-                Cell< mtk::Leader_Follower > tSetSides = mtk::get_leader_follower( tSetPointer->get_set_type() );
-
-                // get the list of cluster on mesh set
-                Cell< mtk::Cluster const * > tClusterPointers = tSetPointer->get_clusters_on_set();
-
-                // get number of clusters on mesh set
-                uint tNumClusters = tClusterPointers.size();
-
-                // loop over the clusters on mesh set
-                for ( uint iCluster = 0; iCluster < tNumClusters; iCluster++ )
-                {
-                    // Loop over leader/follower
-                    for ( mtk::Leader_Follower iLeaderFollower : tSetSides )
-                    {
-                        // get the IP cell from cluster
-                        mtk::Cell const & tIPCell = tClusterPointers( iCluster )->get_interpolation_cell( iLeaderFollower );
-
-                        // get the vertices from IP cell
-                        Cell< mtk::Vertex* > tVertices = tIPCell.get_base_cell()->get_vertex_pointers();
-
-                        // get the number of vertices on IP cell
-                        uint tNumVerts = tVertices.size();
-
-                        // loop over vertices on IP cell
-                        for ( uint iVert = 0; iVert < tNumVerts; iVert++ )
-                        {
-                            // get the vertex index
-                            moris_index tVertIndex = tVertices( iVert )->get_index();
-
-                            // ask pdv host manager to assign to vertex a pdv type and a property
-                            mPDVHostManager.create_interpolation_pdv( uint( tVertIndex ), aPdvType, aPropertyPointer );
-                        }
-                    }
-                }
-            }
         }
 
         //--------------------------------------------------------------------------------------------------------------
