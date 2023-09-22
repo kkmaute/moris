@@ -491,14 +491,18 @@ namespace xtk
                 // log the visualization step
                 Tracer tTracer( "XTK", "Overall", "Visualize" );
 
-                // pre-compute the cluster measures for writing to xtk_temp
-                mEnrichedIntegMesh( 0 )->visualize_cluster_measures();
-
-                // pre-compute cluster measures on B-spline meshes (only possible for SPG based enrichment)
-                if ( this->uses_SPG_based_enrichment() )
+                // compute and write cluster measures to exo output if requested
+                if ( mParameterList.get< bool >( "write_cluster_measures_to_exo" ) )
                 {
-                    bool tWriteBsplineClusterInfo = mParameterList.get< bool >( "write_bspline_cluster_info" );
-                    mEnrichedIntegMesh( 0 )->visualize_cluster_group_measures( tWriteBsplineClusterInfo );
+                    // pre-compute the cluster measures for writing to xtk_temp
+                    mEnrichedIntegMesh( 0 )->visualize_cluster_measures();
+
+                    // pre-compute cluster measures on B-spline meshes (only possible for SPG based enrichment)
+                    if ( this->uses_SPG_based_enrichment() )
+                    {
+                        bool tWriteBsplineClusterInfo = mParameterList.get< bool >( "write_bspline_cluster_info" );
+                        mEnrichedIntegMesh( 0 )->visualize_cluster_group_measures( tWriteBsplineClusterInfo );
+                    }
                 }
 
                 // write the xtk_temp.exo

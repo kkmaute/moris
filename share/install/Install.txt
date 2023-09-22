@@ -189,6 +189,13 @@ spack env activate .
 
 *------------------------------------------------------------
 
+* if default TMPDIR (usually /tmp) has limited space set TMPDIR variable 
+* to directory on partition with sufficient space (> 1GB)
+
+setenv TMPDIR ~/work//tmp/
+
+*------------------------------------------------------------
+
 * By default MORIS is installed with support for petsc,slepc, pardiso, and mumps, as well as the optimization libraries; 
 * to turn off one or all of these options, use for example:
 
@@ -205,6 +212,19 @@ spack develop --path $WORKSPACE/moris moris@main
 * add openblas (only needed if not defined explicilty above)
 
 spack add openblas
+
+* add openmpi with scheduler information on clusters
+
+spack add openmpi +legacylaunchers schedulers=slurm fabrics=ofi,psm2
+
+* add location of scheduler to spack.yaml file (watch indentation)
+
+  packages:
+    slurm:
+      externals:
+      - spec: slurm@22.05.2
+        prefix: /usr
+
 
 * add latest version of cmake (needed by recent trilinos versions)
 
@@ -283,6 +303,11 @@ unsetenv PYIDIR
 * check again if the following command works
 
 spack location --install-dir python
+
+*------------------------------------------------------------
+* if openmpi is explicitly define
+
+spack install openmpi
 
 *------------------------------------------------------------
 

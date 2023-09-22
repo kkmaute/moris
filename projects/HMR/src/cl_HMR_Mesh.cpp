@@ -95,14 +95,14 @@ namespace moris::hmr
         mDatabase = aDatabase;
 
         MORIS_ASSERT( aLagrangeMeshIndex < mDatabase->get_number_of_lagrange_meshes(),
-                "Could not find mesh, Lagrange mesh index %-5i exceeds number of Lagrange meshes. Check input file",
+                "HMR::Mesh::Mesh() - Could not find mesh, Lagrange mesh index %-5i exceeds number of Lagrange meshes. Check input file.",
                 aLagrangeMeshIndex );
 
         mMesh = mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex );
 
-        MORIS_ERROR( mMesh != nullptr, "Pointer to Lagrange mesh %-5i is nullptr", aLagrangeMeshIndex );
+        MORIS_ERROR( mMesh != nullptr, "HMR::Mesh::Mesh() - Pointer to Lagrange mesh %-5i is nullptr", aLagrangeMeshIndex );
 
-        //            mDatabase->get_background_mesh()->set_activation_pattern( aLagrangeMeshIndex );
+        // mDatabase->get_background_mesh()->set_activation_pattern( aLagrangeMeshIndex );
         if ( mDatabase->is_finalized() )
         {
             setup_glb_to_local_maps();

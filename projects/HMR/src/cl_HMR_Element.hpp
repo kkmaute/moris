@@ -566,7 +566,7 @@ namespace moris::hmr
         void
         set_min_refinement_level( uint aMinRefinementLevel )
         {
-          mElement->set_min_refimenent_level( aMinRefinementLevel );
+          mElement->set_min_refinement_level( aMinRefinementLevel );
         }
 
         //------------------------------------------------------------------------------
@@ -577,7 +577,7 @@ namespace moris::hmr
         uint
         get_min_refinement_level() const
         {
-          return mElement->get_min_refimenent_level();
+          return mElement->get_min_refinement_level();
         }
 
         //-------------------------------------------------------------------------------

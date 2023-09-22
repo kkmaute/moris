@@ -158,7 +158,7 @@ namespace moris
 
                 // check remeshing mini-performer has been built
                 MORIS_ERROR( mPerformerManager->mRemeshingMiniPerformer( 0 ),
-                        " Workflow_HMR_XTK::initialize - remeshing performer has not been built." );
+                        "Workflow_HMR_XTK::initialize() - remeshing performer has not been built." );
 
                 // refine meshes
                 mPerformerManager->mRemeshingMiniPerformer( 0 )->perform_remeshing(

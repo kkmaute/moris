@@ -83,9 +83,9 @@ namespace moris::hmr
         mAllElementsOnProc.resize( mNumberOfAllElementsOnProc, nullptr );
 
         // loop over all background elements
-        for ( luint k = 0; k < mNumberOfAllElementsOnProc; ++k )
+        for ( luint iBgElem = 0; iBgElem < mNumberOfAllElementsOnProc; ++iBgElem )
         {
-            mAllElementsOnProc( k ) = this->create_element( tAllBackgroundElements( k ) );
+            mAllElementsOnProc( iBgElem ) = this->create_element( tAllBackgroundElements( iBgElem ) );
         }
 
         this->collect_coarsest_elements();
