@@ -17,7 +17,7 @@
 #include "cl_HMR_Parameters.hpp"              //HMR/src
 #include "HMR_Globals.hpp"                    //HMR/src
 #include "HMR_Tools.hpp"
-#include "typedefs.hpp"    //COR/src
+#include "typedefs.hpp"                       //COR/src
 
 namespace moris::hmr
 {
@@ -256,7 +256,7 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
         /**
-         * returns a pointer to an active, refined or deactive element
+         * returns a pointer to an active, refined or non-active element
          *
          * @param[in] aMemoryIndex  number of node in memory
          *
@@ -271,7 +271,7 @@ namespace moris::hmr
         // ----------------------------------------------------------------------------
 
         /**
-         * returns a pointer to an active, refined or deactive element
+         * returns a pointer to an active, refined or non-active element
          * ( const version )
          *
          * @param[in] aMemoryIndex  number of node in memory
@@ -288,7 +288,7 @@ namespace moris::hmr
 
         /**
          * returns the maximum number of elements on this proc, including
-         * aura, refined and deactive
+         * aura, refined and non-active
          */
         luint
         get_number_of_all_elements_on_proc() const
@@ -349,7 +349,7 @@ namespace moris::hmr
          */
         void get_basis_coords_of_element(
                 Matrix< DDRMat >& aBasisCoords,
-                luint      aElementIndex );
+                luint             aElementIndex );
 
         // ----------------------------------------------------------------------------
 
@@ -445,7 +445,7 @@ namespace moris::hmr
       public:
         /**
          * Creates a list of basis shared with a neighbor.
-         * NOTE: aProcNeighborIndexis the index in which a
+         * NOTE: aProcNeighborIndex is the index in which a
          * proc appears in mMyProcNeighbors and not the actual
          * rank of the proc.
          *
@@ -457,7 +457,7 @@ namespace moris::hmr
          */
         void collect_basis_from_aura( uint aProcNeighborIndex,
                 uint                       aMode,
-                Cell< Basis* >&                   aNodeList );
+                Cell< Basis* >&            aNodeList );
 
       protected:
         // ----------------------------------------------------------------------------
@@ -480,9 +480,10 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        void get_reference_element_of_basis( Basis* aBasis,
-                luint&                              aElementMemoryIndex,
-                uint&                               aElementLocalBasisIndex );
+        void get_reference_element_of_basis(
+                Basis* aBasis,
+                luint& aElementMemoryIndex,
+                uint&  aElementLocalBasisIndex );
         // ----------------------------------------------------------------------------
 
         /**
@@ -521,14 +522,16 @@ namespace moris::hmr
 
         //------------------------------------------------------------------------------
 
-        void encode_foreign_basis_path( Cell< Basis* >& aBasis,
-                const moris_id&                         aOwner,
-                Matrix< DDLUMat >&                      aElementAncestors,
-                Matrix< DDUMat >&                       aElementPedigree,
-                Matrix< DDUMat >&                       aElementLocalIndex );
+        void encode_foreign_basis_path(
+                Cell< Basis* >&    aBasis,
+                const moris_id&    aOwner,
+                Matrix< DDLUMat >& aElementAncestors,
+                Matrix< DDUMat >&  aElementPedigree,
+                Matrix< DDUMat >&  aElementLocalIndex );
     };
 
     //------------------------------------------------------------------------------
-} /* namespace moris */
+
+}    // namespace moris::hmr
 
 #endif /* SRC_HMR_CL_HMR_MESH_BASE_HPP_ */

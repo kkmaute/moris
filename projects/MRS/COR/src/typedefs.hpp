@@ -13,7 +13,7 @@
 
 // C++ header files.
 #ifdef private
-#if (private == public)
+#if ( private == public )
 #undef private
 #undef protected
 #define RESETPRIVATE
@@ -84,65 +84,66 @@ namespace moris
      * multiple functions need to be replicated,
      * which might prove to be challenging.
      */
-    typedef std::size_t               size_t;
-    typedef bool                      bool_t;
-    typedef unsigned short int        short_uint;  // Short unsigned integer (generally should not be used)
-    typedef long unsigned int         luint;
+    typedef std::size_t        size_t;
+    typedef bool               bool_t;
+    typedef unsigned short int short_uint;    // Short unsigned integer (generally should not be used)
+    typedef long unsigned int  luint;
 
-    typedef int                       moris_id;
-    typedef int                       moris_index;
+    typedef int moris_id;
+    typedef int moris_index;
 
-    const moris_index                 gNoIndex = -1;
-    const moris_id                    gNoID    = -1;
+    const moris_index gNoIndex = -1;
+    const moris_id    gNoID    = -1;
 
 #ifdef MORIS_USE_32BIT
-    typedef int                       lint;  // long int in 64bit, int in 32bit.
-    typedef int                       sint;  // signed int in 32bit and 64bit.
-    typedef unsigned int              uint;  // unsigned int in 32bit and 64bit.
-    typedef double                    real;  // real
-    typedef std::complex<double>      cplx;  // complex
+    typedef int                    lint;    // long int in 64bit, int in 32bit.
+    typedef int                    sint;    // signed int in 32bit and 64bit.
+    typedef unsigned int           uint;    // unsigned int in 32bit and 64bit.
+    typedef double                 real;    // real
+    typedef std::complex< double > cplx;    // complex
 #elif MORIS_USE_64BIT
-    typedef long int                  lint;
-    typedef int                       sint;
-    typedef long unsigned int         uint;
-    typedef long double               real;
-    typedef std::complex<long double> cplx;
+    typedef long int                    lint;
+    typedef int                         sint;
+    typedef long unsigned int           uint;
+    typedef long double                 real;
+    typedef std::complex< long double > cplx;
 #endif
 
-#define MORIS_LUINT_MAX   ULONG_MAX
-#define MORIS_ID_MAX      std::numeric_limits<moris::moris_id>::max()
-#define MORIS_INDEX_MAX   std::numeric_limits<moris::moris_index>::max()
+#define MORIS_LUINT_MAX ULONG_MAX
+#define MORIS_ID_MAX std::numeric_limits< moris::moris_id >::max()
+#define MORIS_INDEX_MAX std::numeric_limits< moris::moris_index >::max()
 
     // define maximum numbers
 #if MORIS_USE_64BIT
-#define MORIS_LINT_MAX   LONG_MAX
-#define MORIS_UINT_MAX   ULONG_MAX
-#define MORIS_REAL_MAX   LDBL_MAX
-#define MORIS_REAL_MIN   LDBL_MIN
-#define MORIS_SINT_MAX   INT_MAX
-#define MORIS_REAL_EPS   LDBL_EPSILON
+#define MORIS_LINT_MAX LONG_MAX
+#define MORIS_UINT_MAX ULONG_MAX
+#define MORIS_REAL_MAX LDBL_MAX
+#define MORIS_REAL_MIN LDBL_MIN
+#define MORIS_SINT_MAX INT_MAX
+#define MORIS_REAL_EPS LDBL_EPSILON
 #else
-#define MORIS_LINT_MAX   INT_MAX
-#define MORIS_UINT_MAX   UINT_MAX
-#define MORIS_REAL_MAX   DBL_MAX
-#define MORIS_REAL_MIN   DBL_MIN
-#define MORIS_SINT_MAX   INT_MAX
-#define MORIS_REAL_EPS   DBL_EPSILON
+#define MORIS_LINT_MAX INT_MAX
+#define MORIS_UINT_MAX UINT_MAX
+#define MORIS_REAL_MAX DBL_MAX
+#define MORIS_REAL_MIN DBL_MIN
+#define MORIS_SINT_MAX INT_MAX
+#define MORIS_REAL_EPS DBL_EPSILON
 #endif
 
     // define maximum capacity (in bytes) of moris containers
-#define MORIS_MAX_CELL_CAPACITY                 1e8   // maximum allowable size of matrix in bytes
-#define MORIS_CELL_RESIZE_CHECK_LIMIT           0.1   // fraction of max allowable cell size that triggers check for reasonable resize
-#define MORIS_CELL_RESIZE_FRACTION_LIMIT        0.1   // lower limit on fraction of new over original cell size in check for reasonable resize
-#define MORIS_CELL_UTILIZATION_FRACTION_LIMIT   0.75  // lower limit on fraction of cell size vs cell capacity at cell destruction
-#define MORIS_CELL_IMPLICIT_RESIZE_CALL_LIMIT   0     // maximum allowable number of implicit resize calls as part of push_back
-#define MORIS_CELL_RESIZE_CALL_LIMIT            500   // maximum allowable number of resize calls
+#define MORIS_MAX_CELL_CAPACITY 1e8                   // maximum allowable size of matrix in bytes
+#define MORIS_CELL_RESIZE_CHECK_LIMIT 0.1             // fraction of max allowable cell size that triggers check for reasonable resize
+#define MORIS_CELL_RESIZE_FRACTION_LIMIT 0.1          // lower limit on fraction of new over original cell size in check for reasonable resize
+#define MORIS_CELL_UTILIZATION_FRACTION_LIMIT 0.75    // lower limit on fraction of cell size vs cell capacity at cell destruction
+#define MORIS_CELL_IMPLICIT_RESIZE_CALL_LIMIT 0       // maximum allowable number of implicit resize calls as part of push_back
+#define MORIS_CELL_RESIZE_CALL_LIMIT 100              // maximum allowable number of resize calls
+#define MORIS_CELL_RESERVE_CALL_LIMIT 50              // maximum allowable number of reserve calls
 
-#define MORIS_MAX_MATRIX_SIZE               1e8   // maximum allowable size of dense matrix in bytes
-#define MORIS_MATRIX_RESIZE_CHECK_LIMIT     0.01  // fraction of max allowable matrix size that triggers check for reasonable resize
-#define MORIS_MATRIX_RESIZE_FRACTION_LIMIT  0.1   // lower limit on fraction of new over original matrix size in check for reasonable resize
-#define MORIS_MATRIX_RESIZE_CALL_LIMIT      100   // maximum allowable number of resize calls
-}
+#define MORIS_MAX_MATRIX_SIZE 1e8                 // maximum allowable size of dense matrix in bytes
+#define MORIS_MATRIX_RESIZE_CHECK_LIMIT 0.01      // fraction of max allowable matrix size that triggers check for reasonable resize
+#define MORIS_MATRIX_RESIZE_FRACTION_LIMIT 0.1    // lower limit on fraction of new over original matrix size in check for reasonable resize
+#define MORIS_MATRIX_RESIZE_CALL_LIMIT 100        // maximum allowable number of resize calls
+}    // namespace moris
 
 /**
  * Wrapper for Armadillo functions.
@@ -166,10 +167,9 @@ namespace moris
      */
 #ifdef MORIS_USE_ARMA
     namespace Math = arma_Math;
-#elif  MORIS_USE_EIGEN
+#elif MORIS_USE_EIGEN
     namespace Math = eigen_Math;
 #endif
-}
+}    // namespace moris
 
 #endif /* MORIS_TYPEDEFS_HPP_ */
-

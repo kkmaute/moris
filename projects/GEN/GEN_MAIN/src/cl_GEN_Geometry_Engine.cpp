@@ -434,9 +434,9 @@ namespace moris
             //         "Geometry engine must be provided at least 1 node to determine if an element is intersected or not.");
 
             // get the current geometries intersection mode, isocontour threshold
-            Intersection_Mode tIntersectionMode = mGeometries( mActiveGeometryIndex )->get_intersection_mode();
-            real tIsocontourThreshold = mGeometries( mActiveGeometryIndex )->get_isocontour_threshold();
-            real tIsocontourTolerance = mGeometries( mActiveGeometryIndex )->get_isocontour_tolerance();
+            Intersection_Mode tIntersectionMode    = mGeometries( mActiveGeometryIndex )->get_intersection_mode();
+            real              tIsocontourThreshold = mGeometries( mActiveGeometryIndex )->get_isocontour_threshold();
+            real              tIsocontourTolerance = mGeometries( mActiveGeometryIndex )->get_isocontour_tolerance();
 
             bool tIsIntersected = false;
 
@@ -2403,7 +2403,7 @@ namespace moris
             // get current geometries level set info
             real tIsocontourThreshold = mGeometries( mActiveGeometryIndex )->get_isocontour_threshold();
             real tIsocontourTolerance = mGeometries( mActiveGeometryIndex )->get_isocontour_tolerance();
-            
+
             // initialize index to 1, i.e. vertex is on interface
             moris_index tGeometricProxIndex = 1;
 

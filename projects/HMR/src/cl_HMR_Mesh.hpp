@@ -55,7 +55,7 @@ namespace moris::hmr
 
         //-------------------------------------------------------------------------------
 
-    public:
+      public:
         //-------------------------------------------------------------------------------
 
         /**
@@ -63,25 +63,25 @@ namespace moris::hmr
          */
         Mesh(
                 std::shared_ptr< Database > aDatabase,
-                uint                 aLagrangeOrder,
-                uint                 aLagrangePattern );
+                uint                        aLagrangeOrder,
+                uint                        aLagrangePattern );
 
         Mesh(
                 std::shared_ptr< Database > aDatabase,
-                uint                 aOrder,
-                uint                 aLagrangePattern,
-                uint                 aBsplinePattern );
+                uint                        aOrder,
+                uint                        aLagrangePattern,
+                uint                        aBsplinePattern );
 
         Mesh(
                 std::shared_ptr< Database > aDatabase,
-                uint                 aLagrangeOrder,
-                uint                 aLagrangePattern,
-                uint                 aBSplineOrder,
-                uint                 aBSplinePattern );
+                uint                        aLagrangeOrder,
+                uint                        aLagrangePattern,
+                uint                        aBSplineOrder,
+                uint                        aBSplinePattern );
 
         Mesh(
                 std::shared_ptr< Database > aDatabase,
-                uint                 aLagrangeMeshIndex );
+                uint                        aLagrangeMeshIndex );
 
         //-------------------------------------------------------------------------------
 
@@ -124,7 +124,7 @@ namespace moris::hmr
          */
         std::shared_ptr< Field > create_field(
                 const std::string& aLabel,
-                uint        aBSplineOrder );
+                uint               aBSplineOrder );
 
         //-------------------------------------------------------------------------------
 
@@ -173,7 +173,7 @@ namespace moris::hmr
         /**
          * Gets the polynomial order of this mesh
          *
-         * @return Polynomail degree
+         * @return Polynomial degree
          */
         uint get_order() override;
 
@@ -381,12 +381,12 @@ namespace moris::hmr
 
         virtual void
         get_L2_projection_matrix(
-                moris_index                                 aDiscretizationMeshIndex,
-                const mtk::Cell*                            aRootBSplineCell,
-                const mtk::Cell*                            aExtendedBSplineCell,
+                moris_index                                       aDiscretizationMeshIndex,
+                const mtk::Cell*                                  aRootBSplineCell,
+                const mtk::Cell*                                  aExtendedBSplineCell,
                 moris::Cell< moris::Cell< const mtk::Vertex* > >& tRootBsplineBasis,
                 moris::Cell< const mtk::Vertex* >&                tExtendedBsplineBasis,
-                moris::Cell< Matrix< DDRMat > >&            tWeights ) override;
+                moris::Cell< Matrix< DDRMat > >&                  tWeights ) override;
 
         // ----------------------------------------------------------------------------
 
@@ -837,8 +837,11 @@ namespace moris::hmr
 #endif
 
         //-------------------------------------------------------------------------------
-    };
 
-} /* namespace moris */
+    };    // end class: hmr::Mesh
+
+    //-------------------------------------------------------------------------------
+
+}    // namespace moris::hmr
 
 #endif /* SRC_HMR_CL_HMR_INTERFACE_HPP_ */

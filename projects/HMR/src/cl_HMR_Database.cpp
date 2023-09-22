@@ -33,7 +33,7 @@ namespace moris::hmr
         // create factory object
         Factory tFactory( mParameters );
 
-        // create background mesh object
+        // create background mesh object and initialize it with the coarsest level
         mBackgroundMesh = tFactory.create_background_mesh();
 
         // fixme: this might already be done in set_activation_pattern
@@ -312,21 +312,27 @@ namespace moris::hmr
         // create factory object
         Factory tFactory( mParameters );
 
-        // create BSpline meshes
+        // create B-Spline meshes
         uint tNumberOfBSplineMeshes = mParameters->get_number_of_bspline_meshes();
 
         // assign memory for B-Spline meshes
         mBSplineMeshes.resize( tNumberOfBSplineMeshes, nullptr );
 
         // create all B-Spline meshes requested
-        for ( uint k = 0; k < tNumberOfBSplineMeshes; ++k )
+        for ( uint iBspMesh = 0; iBspMesh < tNumberOfBSplineMeshes; ++iBspMesh )
         {
-            mBSplineMeshes( k ) = tFactory.create_bspline_mesh(
-                    mBackgroundMesh,
-                    mParameters->get_bspline_pattern( k ),
-                    mParameters->get_bspline_order( k ) );
+            // get the mesh pattern and polynomial order associated with the current B-spline mesh
+            uint tPatternForBspMesh = mParameters->get_bspline_pattern( iBspMesh );
+            uint tPolyOrderForBspMesh = mParameters->get_bspline_order( iBspMesh );
 
-            mBSplineMeshes( k )->set_index( k );
+            // TODO: what does this function do?
+            mBSplineMeshes( iBspMesh ) = tFactory.create_bspline_mesh(
+                    mBackgroundMesh,
+                    tPatternForBspMesh,
+                    tPolyOrderForBspMesh );
+
+            // assign index to the current B-spline mesh
+            mBSplineMeshes( iBspMesh )->set_index( iBspMesh );
         }
 
         // get number of Lagrange meshes to be created
@@ -336,46 +342,50 @@ namespace moris::hmr
         mLagrangeMeshes.resize( tNumberOfLagrangeMeshes, nullptr );
 
         // create all Lagrange meshes requested
-        for ( uint k = 0; k < tNumberOfLagrangeMeshes; ++k )
+        for ( uint iLagMesh = 0; iLagMesh < tNumberOfLagrangeMeshes; ++iLagMesh )
         {
             // get B-Spline index corresponding to current Lagrange mesh
-            Matrix< DDSMat > tBsplineMeshIndices = mParameters->get_lagrange_to_bspline_mesh( k );
+            Matrix< DDSMat > tBsplineMeshIndices = mParameters->get_lagrange_to_bspline_mesh( iLagMesh );
 
             // create a cell containing B-Spline meshes associated with current Lagrange mesh
             Cell< BSpline_Mesh_Base* > tBsplineMeshes( tBsplineMeshIndices.numel() );
 
             // pick out B-Spline meshes associated with current Lagrange mesh from HMR-global
             // list of B-Spline meshes and fill container with them
-            for ( uint Ik = 0; Ik < tBsplineMeshIndices.numel(); ++Ik )
+            for ( uint iBspMeshOnLagMesh = 0; iBspMeshOnLagMesh < tBsplineMeshIndices.numel(); ++iBspMeshOnLagMesh )
             {
                 // assign existing b-spline mesh to list of b-spline meshes
-                if ( tBsplineMeshIndices( Ik ) >= 0 )
+                if ( tBsplineMeshIndices( iBspMeshOnLagMesh ) >= 0 )
                 {
-                    tBsplineMeshes( Ik ) = mBSplineMeshes( tBsplineMeshIndices( Ik ) );
+                    tBsplineMeshes( iBspMeshOnLagMesh ) = mBSplineMeshes( tBsplineMeshIndices( iBspMeshOnLagMesh ) );
                 }
                 else
                 {
-                    tBsplineMeshes( Ik ) = nullptr;
+                    tBsplineMeshes( iBspMeshOnLagMesh ) = nullptr;
                 }
             }
 
+            // get information specifying what Lagrange mesh to create
+            uint tPatternForLagMesh = mParameters->get_lagrange_pattern( iLagMesh );
+            uint tOrderForLagMesh = mParameters->get_lagrange_order( iLagMesh ); 
+
             // create Lagrange mesh with links to all B-spline meshes associated to them
-            mLagrangeMeshes( k ) = tFactory.create_lagrange_mesh(
+            mLagrangeMeshes( iLagMesh ) = tFactory.create_lagrange_mesh(
                     mBackgroundMesh,
                     tBsplineMeshes,
-                    mParameters->get_lagrange_pattern( k ),
-                    mParameters->get_lagrange_order( k ) );
+                    tPatternForLagMesh,
+                    tOrderForLagMesh );
 
-            mLagrangeMeshes( k )->set_index( k );
+            mLagrangeMeshes( iLagMesh )->set_index( iLagMesh );
 
-            // link to sideset if this is an output mesh
-            if ( mParameters->is_output_mesh( k ) )
+            // link to side-set if this is an output mesh
+            if ( mParameters->is_output_mesh( iLagMesh ) )
             {
                 // FIXME make mOutputSideSets more general. Set with mesh
-                mLagrangeMeshes( k )->set_side_sets( mOutputSideSets );
+                mLagrangeMeshes( iLagMesh )->set_side_sets( mOutputSideSets );
             }
-        }
-    }
+        } // end for: each Lagrange mesh to be created
+    } // end function: hmr::Database::create_meshes()
 
     // -----------------------------------------------------------------------------
 

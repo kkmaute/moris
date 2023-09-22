@@ -11,7 +11,7 @@
 #ifndef MORIS_CL_GEN_INTERSECTION_NODE_LINEAR_HPP
 #define MORIS_CL_GEN_INTERSECTION_NODE_LINEAR_HPP
 
-#include "cl_GEN_Intersection_Node.hpp"
+#include "cl_GEN_Intersection_Node_Level_Set.hpp"
 
 namespace moris
 {
@@ -19,7 +19,7 @@ namespace moris
     {
         class Geometry;
 
-        class Intersection_Node_Linear : public Intersection_Node
+        class Intersection_Node_Linear : public Intersection_Node_Level_Set
         {
 
           public:
@@ -59,6 +59,29 @@ namespace moris
 
           private:
             /**
+             * Computes the global coordinates of the intersection and the parents.
+             * Used by setup() to set global coordinate member data. Implementation provided for parent class.
+             *
+             * @return Matrix< DDRMat > Global location of the intersection node and its parents
+             */
+            Matrix< DDRMat > compute_global_coordinates() override;
+
+            /**
+             * Compute the difference between the phi value of the first parent node and
+             * the isocontour threshold of the intersecting geometry. Implementation provided here for parent class.
+             * 
+             * @param aAncestorBasisFunction the basis function type of the ancestor nodes
+             * @param aParentNodeLocalCoordinates the parent node whose difference from the threshold that should be comptued
+             * @param aParentNodeIndex the index of the parent node whose difference will be computed
+             *
+             * @return Phi value of first parent minus the level set value that determines the interface
+             */
+            real compute_diff_from_threshold(
+                    const Element_Intersection_Type aAncestorBasisFunction,
+                    const Matrix< DDRMat >&         aParentNodeLocalCoordinates,
+                    moris_index                     aParentNodeIndex ) override;
+
+            /**
              * Gets the sensitivity of this node's local coordinate within its parent edge with respect to the field
              * values on each of its ancestors.
              *
@@ -94,7 +117,7 @@ namespace moris
              * @param aIsocontourThreshold Threshold for determining the intersection location of this node
              * @return Local coordinates
              */
-            real get_local_coordinate(
+            real compute_local_coordinate(
                     uint                        aFirstNodeIndex,
                     uint                        aSecondNodeIndex,
                     const Matrix< DDRMat >&     aFirstNodeCoordinates,
@@ -105,4 +128,3 @@ namespace moris
 }    // namespace moris
 
 #endif    // MORIS_CL_GEN_INTERSECTION_NODE_LINEAR_HPP
-

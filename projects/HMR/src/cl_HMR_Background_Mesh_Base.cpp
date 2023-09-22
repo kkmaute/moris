@@ -694,7 +694,7 @@ namespace moris::hmr
 
         if ( mBufferSize > 0 )
         {
-            // update refinement queue
+            // update refinement queue with the elements added in the buffer
             this->collect_refinement_queue();
         }
 
@@ -733,9 +733,9 @@ namespace moris::hmr
         tic tTimer;
 
         // perform refinement
-        for ( luint k = 0; k < tNumberOfElements; ++k )
+        for ( luint iElemToBeRefined = 0; iElemToBeRefined < tNumberOfElements; ++iElemToBeRefined )
         {
-            this->refine_element( mRefinementQueue( k ), false );
+            this->refine_element( mRefinementQueue( iElemToBeRefined ), false );
         }
 
         // empty queue
@@ -1922,7 +1922,7 @@ namespace moris::hmr
         // Cell containing all elements
         Cell< Background_Element_Base* > tElements;
 
-        // collect all elements on this level
+        // collect all elements on this level including the padding/aura around it
         this->collect_elements_on_level_including_aura( 0, tElements );
 
         for ( auto tElement : tElements )
@@ -2546,7 +2546,7 @@ namespace moris::hmr
             for ( Background_Element_Base* tElement : tElements )
             {
                 // reset the value
-                tElement->set_min_refimenent_level( 0 );
+                tElement->set_min_refinement_level( 0 );
             }
         }
     }

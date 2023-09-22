@@ -83,6 +83,7 @@ set(HEADERS
 	pdv/cl_GEN_Pdv_Value.hpp
 	pdv/cl_GEN_Pdv_Property.hpp
 	pdv/cl_GEN_Intersection_Node.hpp
+	pdv/cl_GEN_Intersection_Node_Level_Set.hpp
 	pdv/cl_GEN_Intersection_Node_Linear.hpp
 	pdv/cl_GEN_Intersection_Node_Bilinear.hpp
     )
@@ -132,6 +133,7 @@ set(LIB_SOURCES
 	pdv/cl_GEN_Pdv_Property.cpp
 	pdv/cl_GEN_Child_Node.cpp
 	pdv/cl_GEN_Intersection_Node.cpp
+	pdv/cl_GEN_Intersection_Node_Level_Set.cpp
 	pdv/cl_GEN_Intersection_Node_Linear.cpp
 	pdv/cl_GEN_Intersection_Node_Bilinear.cpp
     )

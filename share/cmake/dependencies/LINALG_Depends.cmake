@@ -35,7 +35,7 @@ if(${ARMADILLO_EIGEN} STREQUAL "armadillo")
         )
 elseif(${ARMADILLO_EIGEN} STREQUAL "eigen")
     list(APPEND LINALG_TPL_DEPENDENCIES
-        #"suitesparse"
+        "suitesparse"
         )
 endif()
 

@@ -24,7 +24,6 @@ namespace moris::hmr
     class BSpline_Mesh_Base : public Mesh_Base
     {
       protected:
-
         //! Cell containing all basis this proc knows about
         Cell< Basis* > mAllCoarsestBasisOnProc;
 
@@ -42,8 +41,6 @@ namespace moris::hmr
         Matrix< DDRMat > mChildStencil;
 
       public:
-
-
         /**
          * Default mesh constructor
          *
@@ -281,7 +278,6 @@ namespace moris::hmr
         bool test_sanity();
 
       private:
-
         // ----------------------------------------------------------------------------
         /**
          * creates B-Splines for this mesh
@@ -325,7 +321,7 @@ namespace moris::hmr
          * @param[ inout ]  aBasis   cell containing found basis
          */
         virtual void collect_bases_from_level( uint aLevel,
-                Cell< Basis* >&                    aBasis ) = 0;
+                Cell< Basis* >&                     aBasis ) = 0;
 
         // ----------------------------------------------------------------------------
 
@@ -386,11 +382,11 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        virtual void delete_unused_bases( uint     aLevel,
+        virtual void delete_unused_bases( uint    aLevel,
                 Cell< Background_Element_Base* >& aBackgroundElements,
                 Cell< Basis* >&                   aBasis ) = 0;
     };
     //------------------------------------------------------------------------------
-} /* namespace moris */
+}    // namespace moris::hmr
 
 #endif /* SRC_HMR_CL_HMR_BSPLINE_MESH_BASE_HPP_ */

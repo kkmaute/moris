@@ -11,13 +11,13 @@
 #ifndef SRC_HMR_CL_HMR_FACTORY_HPP_
 #define SRC_HMR_CL_HMR_FACTORY_HPP_
 
-#include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
+#include "cl_HMR_Background_Mesh_Base.hpp"    //HMR/src
+#include "cl_HMR_BSpline_Mesh_Base.hpp"       //HMR/src
+#include "cl_HMR_Lagrange_Mesh_Base.hpp"      //HMR/src
 #include "cl_HMR_T_Matrix_Advanced.hpp"
-#include "cl_HMR_Parameters.hpp" //HMR/src
-#include "typedefs.hpp" //COR/src
-#include "cl_Matrix.hpp" //LINALG/src
+#include "cl_HMR_Parameters.hpp"              //HMR/src
+#include "typedefs.hpp"                       //COR/src
+#include "cl_Matrix.hpp"                      //LINALG/src
 
 namespace moris::hmr
 {
@@ -25,17 +25,22 @@ namespace moris::hmr
     template< uint N >
     class T_Matrix;
 
+    // ----------------------------------------------------------------------------
     /**
      * \brief factory class that generates pointers to templated meshes
      */
     class Factory
     {
-    private:
+        // ----------------------------------------------------------------------------
 
+      private:
         // Stored parameters for building classes
         const Parameters* mParameters;
 
-    public:
+        // ----------------------------------------------------------------------------
+
+      public:
+        // ----------------------------------------------------------------------------
 
         /**
          * Constructor which takes in the HMR parameters needed to construct classes
@@ -44,12 +49,16 @@ namespace moris::hmr
          */
         explicit Factory( const Parameters* aParameters );
 
+        // ----------------------------------------------------------------------------
+
         /**
          * creates a background mesh depending on the number of dimensions set
          *
          * @return Background_Mesh_Base*   pointer to new background mesh
          */
         Background_Mesh_Base* create_background_mesh();
+
+        // ----------------------------------------------------------------------------
 
         /**
          * creates a Lagrange mesh depending on the number of dimensions set
@@ -61,10 +70,12 @@ namespace moris::hmr
          */
         Lagrange_Mesh_Base*
         create_lagrange_mesh(
-                Background_Mesh_Base*       aBackgroundMesh,
-                Cell< BSpline_Mesh_Base * > aBSplineMeshes,
-                uint                        aActivationPattern,
-                luint                       aPolynomialDegree );
+                Background_Mesh_Base*      aBackgroundMesh,
+                Cell< BSpline_Mesh_Base* > aBSplineMeshes,
+                uint                       aActivationPattern,
+                luint                      aPolynomialDegree );
+
+        // ----------------------------------------------------------------------------
 
         /**
          * creates a Lagrange mesh depending on the number of dimensions set
@@ -80,6 +91,8 @@ namespace moris::hmr
                 uint                  aActivationPattern,
                 luint                 aPolynomialDegree );
 
+        // ----------------------------------------------------------------------------
+
         /**
          * Creates a T-matrix specified by the given parameters
          *
@@ -90,22 +103,25 @@ namespace moris::hmr
          */
         T_Matrix_Base* create_t_matrix(
                 Lagrange_Mesh_Base* aLagrangeMesh,
-                BSpline_Mesh_Base*  aBSplineMesh = nullptr,
+                BSpline_Mesh_Base*  aBSplineMesh        = nullptr,
                 Lagrange_Mesh_Base* aLagrangeMeshCoarse = nullptr );
+
+        // ----------------------------------------------------------------------------
 
         /**
          * Creates a T-matrix for a specific dimension, if desired and known at compile-time
          *
-         * @tparam N Spatial dimension
+         * @param N Spatial dimension
          * @param aLagrangeMesh Lagrange mesh pointer
          * @param aBSplineMesh B-spline mesh pointer
          * @param aLagrangeMeshFine Pointer to finer Lagrange mesh, only needed for creating advanced T-matrices
          * @return T-matrix pointer
          */
         template< uint N >
-        T_Matrix< N >* create_t_matrix(
+        T_Matrix< N >*
+        create_t_matrix(
                 Lagrange_Mesh_Base* aLagrangeMesh,
-                BSpline_Mesh_Base*  aBSplineMesh = nullptr,
+                BSpline_Mesh_Base*  aBSplineMesh      = nullptr,
                 Lagrange_Mesh_Base* aLagrangeMeshFine = nullptr )
         {
             // Use Advanced T-matrices
@@ -121,6 +137,10 @@ namespace moris::hmr
             }
         }
 
-    };
-}
+        // ----------------------------------------------------------------------------
+
+    };    // end class: Factory
+
+}    // namespace moris::hmr
+
 #endif /* SRC_HMR_CL_HMR_FACTORY_HPP_ */

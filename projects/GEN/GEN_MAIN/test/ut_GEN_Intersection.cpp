@@ -371,7 +371,7 @@ namespace moris
                 };
 
                 Matrix< DDRMat > tHostADVSensitivities;
-                Matrix< DDRMat > tI; 
+                Matrix< DDRMat > tI;
                 for ( uint tNodeIndex = 9; tNodeIndex < 23; tNodeIndex++ )
                 {
                     tHostADVSensitivities.set_size( 0.0, 0.0 );
@@ -595,10 +595,10 @@ namespace moris
                 tGeometry( 0 )->set_intersection_interpolation( "multilinear" );
                 tGeometry( 0 )->set_isocontour_threshold( 0.5 );
                 tGeometry( 0 )->set_isocontour_tolerance( 1e-13 );
-                
+
 
                 moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
-                tGeometryEngineParameters.mGeometries          = tGeometry;
+                tGeometryEngineParameters.mGeometries = tGeometry;
 
                 moris::ge::Geometry_Engine tGeometryEngine( tMeshData, tGeometryEngineParameters );
 

@@ -340,7 +340,7 @@ namespace moris::hmr
 
             tHMR.perform_initial_refinement();
 
-            //tDatabase->get_background_mesh()->get_element(0)->set_min_refimenent_level(4);
+            //tDatabase->get_background_mesh()->get_element(0)->set_min_refinement_level(4);
             //tDatabase->get_background_mesh()->get_element(0)->put_on_refinement_queue();
             //tDatabase->flag_element( 0 );
 

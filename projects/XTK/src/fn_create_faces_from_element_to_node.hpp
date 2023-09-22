@@ -173,7 +173,7 @@ namespace xtk
 
         // Check for number of resize operations; note check needs to be "<=" for tNumElements = tResize = 0
         MORIS_CHECK_MEMORY( tResize <= tNumElements,
-                "create_faces_from_element_to_node: Number of resize operations too large (%d / %d) - increase tMaxFacePerNode parameter.\n",
+                "create_faces_from_element_to_node: Number of resize operations too large (%zu / %zu) - increase tMaxFacePerNode parameter.\n",
                 tResize,tNumElements);
     }
 }

@@ -1,11 +1,7 @@
-zypper in gcc-11
-zypper in g++-11
-zypper in gfortran-11
+zypper in gcc11 gcc11-c++ gcc11-fortran
 zypper in git gitk make patch makeinfo pkg-config
-zypper in kdiff3 gnuplot
-zypper in valgrind valgrind-devel
-zypper in bc zip
-zypper in gperftools gperftools-devel oprofile
+zypper in kdiff3 gnuplot bc zip
+zypper in valgrind valgrind-devel gperftools gperftools-devel oprofile
 
 ------------------------------------------------------------------------------------------------
 Optional: vscode
@@ -28,3 +24,10 @@ zypper install google-chrome-stable
 Optional: nedit
 
 zypper in nedit
+
+------------------------------------------------------------------------------------------------
+Optional: vtunes adviser
+
+zypper addrepo https://yum.repos.intel.com/oneapi oneAPI
+zypper refresh
+zypper install  intel-oneapi-vtune

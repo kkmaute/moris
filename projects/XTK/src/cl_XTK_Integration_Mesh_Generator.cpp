@@ -2862,7 +2862,7 @@ namespace xtk
             moris::Cell< moris::mtk::Cell* >&           aCells,
             std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity )
     {
-        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Facets", mXTKModel->mVerboseLevel, 1 );
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Facets" );
 
         // Note: this function assumes that all cells are of same type, i.e. have the same cell info
 
@@ -3893,9 +3893,6 @@ namespace xtk
             Cut_Integration_Mesh* aCutIntegrationMesh,
             moris::mtk::Mesh*     aBackgroundMesh )
     {
-        // TODO: This function should get a more thorough cleanup (readability, consistency of data formats)
-
-        Tracer tTracer( "XTK", "Decomposition_Algorithm", "Assign node IDs" );
 
         moris_index tNodeIndex = aCutIntegrationMesh->get_first_available_index( mtk::EntityRank::NODE );
 
