@@ -120,7 +120,7 @@ namespace xtk
         //------------------------------------------------------------------------------
         // MTK Mesh Core Impl (see base class mtk::Mesh for function descriptions)
         //------------------------------------------------------------------------------
-        mtk::MeshType                                    get_mesh_type() const;
+        mtk::MeshType                               get_mesh_type() const;
         moris::uint                                 get_spatial_dim() const;
         uint                                        get_num_entities( mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const;
         uint                                        get_max_num_coeffs_on_proc( const uint aBSplineMeshIndex ) const;
@@ -128,6 +128,7 @@ namespace xtk
         Matrix< IndexMat >                          get_elements_connected_to_element_and_face_ind_loc_inds( moris_index aElementIndex ) const;
         moris_id                                    get_glb_entity_id_from_entity_loc_index( moris_index aEntityIndex, mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const;
         moris_index                                 get_loc_entity_ind_from_entity_glb_id( moris_id aEntityId, mtk::EntityRank aEntityRank, const moris_index aIndex = 0 ) const;
+        const mtk::Interpolation_Mesh&              get_background_mesh() override;
         std::unordered_map< moris_id, moris_index > get_vertex_glb_id_to_loc_vertex_ind_map() const;
         Cell< mtk::Vertex const * >                 get_all_vertices() const;
         Matrix< IdMat >                             get_entity_connected_to_entity_glob_ids( moris_id aEntityId, mtk::EntityRank aInputEntityRank, mtk::EntityRank aOutputEntityRank, const moris_index aIndex = 0 ) const;

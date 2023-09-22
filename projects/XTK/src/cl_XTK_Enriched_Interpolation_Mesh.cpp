@@ -205,6 +205,13 @@ namespace xtk
 
     // ----------------------------------------------------------------------------
 
+    const mtk::Interpolation_Mesh& Enriched_Interpolation_Mesh::get_background_mesh()
+    {
+        return mXTKModel->get_background_mesh();
+    }
+
+    // ----------------------------------------------------------------------------
+
     std::unordered_map< moris_id, moris_index >
     Enriched_Interpolation_Mesh::get_vertex_glb_id_to_loc_vertex_ind_map() const
     {
@@ -2272,7 +2279,7 @@ namespace xtk
             MORIS_ASSERT( mGlobalToLocalMaps( 0 ).find( mEnrichedInterpVerts( i )->get_id() ) == mGlobalToLocalMaps( 0 ).end(),
                     "Duplicate id in the vertex map detected" );
 
-            mGlobalToLocalMaps( 0 )[ mEnrichedInterpVerts( i )->get_id() ] = mEnrichedInterpVerts( i )->get_index();
+            mGlobalToLocalMaps( 0 )[ mEnrichedInterpVerts( i )->get_id() ] = i;
         }
     }
 

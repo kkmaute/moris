@@ -21,7 +21,8 @@ namespace moris::mtk
 
     // uint Vertex_DataBase::mDim;
     //-----------------------------------------------------------------------------
-    Interpolation_Mesh_DataBase_IP::Interpolation_Mesh_DataBase_IP()
+    Interpolation_Mesh_DataBase_IP::Interpolation_Mesh_DataBase_IP( const Interpolation_Mesh& aBackgroundMesh )
+            : mBackgroundMesh( aBackgroundMesh )
     {
     }
 
@@ -72,6 +73,13 @@ namespace moris::mtk
     Interpolation_Mesh_DataBase_IP::get_mesh_type() const
     {
         return MeshType::MTK;
+    }
+
+    // ----------------------------------------------------------------------------
+
+    const Interpolation_Mesh& Interpolation_Mesh_DataBase_IP::get_background_mesh()
+    {
+        return mBackgroundMesh;
     }
 
     // ----------------------------------------------------------------------------

@@ -31,7 +31,7 @@ namespace moris
         {
           private:
             // Interpolation_Mesh_DataBase* mIPDataBase;
-            // mtk::Interpolation_Mesh&     mIPMesh;
+            const mtk::Interpolation_Mesh& mBackgroundMesh;
             uint mSpatilDim;
 
             // Vertex Information
@@ -82,12 +82,11 @@ namespace moris
             // ----------------------------------------------------------------------------
 
             /**
-             * @brief Construct a new Interpolation_Mesh_Analysis object
+             * @brief Construct a new Interpolation_Mesh_DataBase_IP object
              *
-             * @param aIPDataBase an IP mesh data based containing the raw data
-             * @param aIPMesh an already existing IP mesh
+             * @param aBackgroundMesh Background mesh
              */
-            Interpolation_Mesh_DataBase_IP();
+            explicit Interpolation_Mesh_DataBase_IP( const Interpolation_Mesh& aBackgroundMesh );
 
             // ----------------------------------------------------------------------------
 
@@ -95,8 +94,14 @@ namespace moris
              * @brief Destroy the Interpolation_Mesh_Analysis object
              *
              */
-
             virtual ~Interpolation_Mesh_DataBase_IP();
+
+            /**
+             * Gets the background mesh of this mesh.
+             *
+             * @return Background mesh
+             */
+            const Interpolation_Mesh& get_background_mesh() override;
 
             // ----------------------------------------------------------------------------
 

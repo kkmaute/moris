@@ -37,6 +37,7 @@ namespace moris
         class Set;
         class Vertex;
         class Vertex_Interpolation;
+        class Interpolation_Mesh;
 
         class Mesh : public std::enable_shared_from_this< Mesh >
         {

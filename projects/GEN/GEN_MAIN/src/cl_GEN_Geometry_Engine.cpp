@@ -2288,23 +2288,19 @@ namespace moris
                                 moris_id tNodeId = tOwnedNodeIdsOnSet( iProcIndex )( iSharedNodeListIndex );
 
                                 // Get index on this proc
-                                moris_index tNodeIndex = aInterpolationMesh->get_loc_entity_ind_from_entity_glb_id( tNodeId, mtk::EntityRank::NODE );
+                                moris_index tNodeIndex = aInterpolationMesh->get_background_mesh().get_loc_entity_ind_from_entity_glb_id( tNodeId, mtk::EntityRank::NODE );
 
-                                // If index exists (phase exists on this proc) TODO check if we need this branch, if phase exists we may already know about this node
-                                if ( tNodeIndex >= 0 )
-                                {
-                                    // Get coordinates
-                                    Matrix< DDRMat > tNodeCoordinates = aInterpolationMesh->get_node_coordinate( tNodeIndex );
+                                // Get coordinates
+                                Matrix< DDRMat > tNodeCoordinates = aInterpolationMesh->get_node_coordinate( tNodeIndex );
 
-                                    // Set node index/ID/owner/coordinates
-                                    tNodeIndicesPerSet( iMeshSetIndex )( tCurrentNode ) = tNodeIndex;
-                                    tNodeIdsPerSet( iMeshSetIndex )( tCurrentNode )     = tNodeId;
-                                    tNodeOwnersPerSet( iMeshSetIndex )( tCurrentNode )  = par_rank();
-                                    tNodeCoordinatesPerSet( iMeshSetIndex ).set_row( tCurrentNode, tNodeCoordinates );
+                                // Set node index/ID/owner/coordinates
+                                tNodeIndicesPerSet( iMeshSetIndex )( tCurrentNode ) = tNodeIndex;
+                                tNodeIdsPerSet( iMeshSetIndex )( tCurrentNode )     = tNodeId;
+                                tNodeOwnersPerSet( iMeshSetIndex )( tCurrentNode )  = par_rank();
+                                tNodeCoordinatesPerSet( iMeshSetIndex ).set_row( tCurrentNode, tNodeCoordinates );
 
-                                    // Increment index in overall lists
-                                    tCurrentNode++;
-                                }
+                                // Increment index in overall lists
+                                tCurrentNode++;
                             }
                         }
                     }
