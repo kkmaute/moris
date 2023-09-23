@@ -112,7 +112,7 @@ namespace moris
 
                     uint tRecIGGeometryType = min_all( (uint)tIGGeometryType );
 
-                    mIGGeometryType = static_cast<enum mtk::Geometry_Type> (tRecIGGeometryType);
+                    mIGGeometryType = static_cast<Geometry_Type> (tRecIGGeometryType);
 
                     mIGGeometryType = get_auto_side_geometry_type( mIGGeometryType );
 
@@ -133,7 +133,7 @@ namespace moris
                         uint                         const & aSpatialDim)
             : Set( aName, aSideSetClusters, aColors, aSpatialDim )
             {
-                    mSetType = moris::SetType::SIDESET;
+                    mSetType = mtk::SetType::SIDESET;
 
                     this->calculate_vertices_on_set();
 

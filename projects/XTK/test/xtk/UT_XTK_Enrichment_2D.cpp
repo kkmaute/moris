@@ -83,27 +83,27 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
         moris::mtk::Scalar_Field_Info<DDRMat> tLSF;
         std::string tLSFName = "lsf1";
         tLSF.set_field_name(tLSFName);
-        tLSF.set_field_entity_rank(moris::EntityRank::NODE);
+        tLSF.set_field_entity_rank(moris::mtk::EntityRank::NODE);
 
         // Add to mesh input field container
         moris::mtk::MtkFieldsInfo tFieldsInfo;
         add_field_for_mesh_input(&tLSF,tFieldsInfo);
         aMeshData.FieldsInfo = &tFieldsInfo;
 
-        moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, aMeshData );
+        moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, aMeshData );
 
-        xtk::size_t tNumNodes = tMeshData->get_num_entities(moris::EntityRank::NODE);
+        xtk::size_t tNumNodes = tMeshData->get_num_entities(moris::mtk::EntityRank::NODE);
         moris::Matrix<moris::DDRMat> tLevelsetVal(tNumNodes,1,-1.3);
 
-        moris_id tIndexOfNodeId1 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 1, EntityRank::NODE);
-        moris_id tIndexOfNodeId3 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 3, EntityRank::NODE);
-        moris_id tIndexOfNodeId5 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 5, EntityRank::NODE);
+        moris_id tIndexOfNodeId1 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 1, moris::mtk::EntityRank::NODE);
+        moris_id tIndexOfNodeId3 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 3, moris::mtk::EntityRank::NODE);
+        moris_id tIndexOfNodeId5 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 5, moris::mtk::EntityRank::NODE);
 
         tLevelsetVal(tIndexOfNodeId1) = 1.0;
         tLevelsetVal(tIndexOfNodeId3) = 1.0;
         tLevelsetVal(tIndexOfNodeId5) = 1.0;
 
-        tMeshData->add_mesh_field_real_scalar_data_loc_inds(tLSFName, moris::EntityRank::NODE, tLevelsetVal);
+        tMeshData->add_mesh_field_real_scalar_data_loc_inds(tLSFName, moris::mtk::EntityRank::NODE, tLevelsetVal);
 
         Cell<std::shared_ptr<ge::Geometry>> tGeometry(1);
         tGeometry(0) = std::make_shared<moris::ge::Mesh_Field_Geometry>(tMeshData, tLSFName);
@@ -123,7 +123,7 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
         tXTKModel.decompose(tDecompositionMethods);
 
         // Perform the enrichment
-        tXTKModel.perform_basis_enrichment(EntityRank::NODE);
+        tXTKModel.perform_basis_enrichment(moris::mtk::EntityRank::NODE);
 
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 

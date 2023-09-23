@@ -215,7 +215,7 @@ void Reader_Exodus::read_file(std::string aFileName)
 //    moris::print(*mMeshDataInput.NodeProcOwner, "NodeProcOwner");
 //    moris::print(*mMeshDataInput.LocaltoGlobalNodeMap, "LocaltoGlobalNodeMap");
 
-    mMesh = moris::mtk::create_integration_mesh(MeshType::STK, mMeshDataInput);
+    mMesh = moris::mtk::create_integration_mesh( moris::mtk::MeshType::STK, mMeshDataInput );
 
     Reader_Exodus::close_file();
     std::cout << "Close" << std::endl;
@@ -224,24 +224,22 @@ void Reader_Exodus::read_file(std::string aFileName)
 // ---------------------------------------------------------------------------------------------------------------------
 // ---------------------------------------------------------------------------------------------------------------------
 
-CellTopology Reader_Exodus::get_cell_topology(char* aElementType)
+moris::mtk::CellTopology Reader_Exodus::get_cell_topology(char* aElementType)
 {
     std::string tElementType(aElementType);
     if (tElementType == "tri3")
-        return CellTopology::TRI3;
+        return moris::mtk::CellTopology::TRI3;
     else if (tElementType == "quad4")
-        return CellTopology::QUAD4;
+        return moris::mtk::CellTopology::QUAD4;
     else if (tElementType == "tet4")
-        return CellTopology::TET4;
+        return moris::mtk::CellTopology::TET4;
     else if (tElementType == "tet10")
-        return CellTopology::TET10;
+        return moris::mtk::CellTopology::TET10;
     else if (tElementType == "hex8")
-        return CellTopology::HEX8;
+        return moris::mtk::CellTopology::HEX8;
     else if (tElementType == "prism6")
-        return CellTopology::PRISM6;
-    else {
-        std::cout << aElementType << std::endl;
-        return CellTopology::INVALID;
-    }
+        return moris::mtk::CellTopology::PRISM6;
+    else
+        return moris::mtk::CellTopology::UNDEFINED;
 }
 

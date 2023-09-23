@@ -274,7 +274,7 @@ namespace xtk
         Cell< std::string > tCellFields = { "Root_Cell_Index_B" + std::to_string( aMeshIndex ) };
 
         // set field index
-        moris_index tFieldIndex = mXTKModelPtr->mEnrichedIntegMesh( 0 )->create_field( tCellFields( 0 ), EntityRank::ELEMENT, MORIS_INDEX_MAX );
+        moris_index tFieldIndex = mXTKModelPtr->mEnrichedIntegMesh( 0 )->create_field( tCellFields( 0 ), mtk::EntityRank::ELEMENT, MORIS_INDEX_MAX );
 
         // create the field data that will store SPG ids
         moris::Matrix< moris::DDRMat > tCellIdField( 1, tNumIGCells, -1.0 );
@@ -289,7 +289,7 @@ namespace xtk
         }
 
         // add the field data to the mesh
-        mXTKModelPtr->mEnrichedIntegMesh( 0 )->add_field_data( tFieldIndex, EntityRank::ELEMENT, tCellIdField );
+        mXTKModelPtr->mEnrichedIntegMesh( 0 )->add_field_data( tFieldIndex, mtk::EntityRank::ELEMENT, tCellIdField );
 
         //---------------------------------------------------------------------------------- */
 
@@ -297,8 +297,8 @@ namespace xtk
         uint tNumIPCells = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_num_elems();
 
         // set field index
-        tFieldIndex                = mXTKModelPtr->mEnrichedInterpMesh( 0 )->create_field( tCellFields( 0 ), EntityRank::ELEMENT, 0 );
-        moris_index tFieldIndexSPG = mXTKModelPtr->mEnrichedInterpMesh( 0 )->create_field( "SPG_index", EntityRank::ELEMENT, 0 );
+        tFieldIndex                = mXTKModelPtr->mEnrichedInterpMesh( 0 )->create_field( tCellFields( 0 ), mtk::EntityRank::ELEMENT, 0 );
+        moris_index tFieldIndexSPG = mXTKModelPtr->mEnrichedInterpMesh( 0 )->create_field( "SPG_index", mtk::EntityRank::ELEMENT, 0 );
 
         moris::Matrix< moris::DDRMat > tCellIPField( 1, tNumIPCells, -1.0 );
         moris::Matrix< moris::DDRMat > tCellSPGField( 1, tNumIPCells, -1.0 );
@@ -316,8 +316,8 @@ namespace xtk
         }
 
         // add the field data to the mesh
-        mXTKModelPtr->mEnrichedInterpMesh( 0 )->add_field_data( tFieldIndex, EntityRank::ELEMENT, tCellIPField );
-        mXTKModelPtr->mEnrichedInterpMesh( 0 )->add_field_data( tFieldIndexSPG, EntityRank::ELEMENT, tCellSPGField );
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->add_field_data( tFieldIndex, mtk::EntityRank::ELEMENT, tCellIPField );
+        mXTKModelPtr->mEnrichedInterpMesh( 0 )->add_field_data( tFieldIndexSPG, mtk::EntityRank::ELEMENT, tCellSPGField );
 
         // write this field to the exodus file if there is a cell that is not grouped
         auto it = std::find( mRootSPGIds.begin(), mRootSPGIds.end(), -1 );
@@ -2034,7 +2034,7 @@ namespace xtk
 
                     // find and store the basis index local to the executing processor
                     moris_index tRootEnrichedBasisIndex = tEnrInterpMesh.get_enr_basis_index_from_enr_basis_id( aMeshIndex, tRootEnrichedBasisId );
-                    moris_id    tOwner                  = tEnrInterpMesh.get_entity_owner( tRootEnrichedBasisIndex, EntityRank::BSPLINE, aMeshIndex );
+                    moris_id    tOwner                  = tEnrInterpMesh.get_entity_owner( tRootEnrichedBasisIndex, mtk::EntityRank::BSPLINE, aMeshIndex );
 
                     //  add the root basis index to the follower to leader basis relationship
                     mBasisData( aMeshIndex ).mFollowerToLeaderBasis( iEnrichedBasis ).push_back( tRootEnrichedBasisIndex );
@@ -2173,7 +2173,7 @@ namespace xtk
                         // find the non-enriched basis index in the root cell
                         moris_index tEnrRootBasis = tEnrichedRootBasisIndicess( iEnrRootBasisOrd );
 
-                        moris_id tOwner = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_entity_owner( tEnrRootBasis, EntityRank::BSPLINE, aMeshIndex );
+                        moris_id tOwner = mXTKModelPtr->mEnrichedInterpMesh( 0 )->get_entity_owner( tEnrRootBasis, mtk::EntityRank::BSPLINE, aMeshIndex );
 
                         // add the root basis index to the follower to leader basis relationship
                         mBasisData( aMeshIndex ).mFollowerToLeaderBasis( iEneBFExtended ).push_back( tEnrRootBasis );

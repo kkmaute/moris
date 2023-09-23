@@ -500,7 +500,7 @@ namespace mtk
         Mesh*                 aMesh,
         Serialized_Mesh_Data* aSerialMesh )
     {
-        size_t tNumNodes = aMesh->get_num_entities( (moris::EntityRank)EntityRank::NODE );
+        size_t tNumNodes = aMesh->get_num_entities( ( EntityRank ) EntityRank::NODE );
 
         aSerialMesh->mVertexIds.resize( tNumNodes, 1 );
         aSerialMesh->mVertexOwners.resize( tNumNodes, 1 );
@@ -525,7 +525,7 @@ namespace mtk
         Interpolation_Mesh*   aMesh,
         Serialized_Mesh_Data* aSerializedMesh )
     {
-        size_t tNumNodes = aMesh->get_num_entities( (moris::EntityRank)EntityRank::NODE );
+        size_t tNumNodes = aMesh->get_num_entities( (mtk::EntityRank)EntityRank::NODE );
 
         for ( size_t i = 0; i < tNumNodes; i++ )
         {
@@ -553,7 +553,7 @@ namespace mtk
     Mesh_Checker::serialize_cells( Mesh* aMesh,
         Serialized_Mesh_Data*            aSerializedMesh )
     {
-        size_t tNumCells = aMesh->get_num_entities( (moris::EntityRank)EntityRank::ELEMENT );
+        size_t tNumCells = aMesh->get_num_entities( (mtk::EntityRank)EntityRank::ELEMENT );
 
         aSerializedMesh->mCellIds.resize( tNumCells, 1 );
         aSerializedMesh->mCellOwners.resize( tNumCells, 1 );

@@ -26,13 +26,13 @@ if [ $1 = "opt" ];then
     echo ""
     echo " ... compiling against optimized moris"
     echo ""
-    $MORISROOT/share/scripts/create_shared_object.sh . build_opt $2 $3
+    $MORISROOT/share/scripts/create_shared_object.sh . $MORISBUILDOPT $2 $3
 else
    if [ $1 = "dbg" ];then
        echo ""
        echo " ... compiling against debug moris"
        echo ""
-       $MORISROOT/share/scripts/create_shared_object.sh . build_dbg $2 $3
+       $MORISROOT/share/scripts/create_shared_object.sh . $MORISBUILDDBG $2 $3
    else
        echo ""
        echo " Error - incorrect option"

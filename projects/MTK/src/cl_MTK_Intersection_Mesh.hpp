@@ -279,7 +279,7 @@ namespace moris
                 get_mesh_type() const
                 {
                     MORIS_ERROR( false, "get_double_sided_set_label, Not Implemented for Intersection Mesh");
-                    return  MeshType::END_ENUM;
+                    return  MeshType::UNDEFINED;
                 }
 
                 // ----------------------------------------------------------------------------
@@ -343,7 +343,7 @@ namespace moris
                 get_IG_blockset_shape(const std::string & aSetName)
                 {
                     MORIS_ERROR( false, "get_double_sided_set_label, Not Implemented for Intersection Mesh");
-                    return CellShape::END_ENUM;
+                    return CellShape::UNDEFINED;
                 }
 
                 // ----------------------------------------------------------------------------
@@ -355,7 +355,7 @@ namespace moris
                 get_IP_blockset_shape(const std::string & aSetName)
                 {
                     MORIS_ERROR( false, "get_double_sided_set_label, Not Implemented for Intersection Mesh");
-                    return CellShape::END_ENUM;
+                    return CellShape::UNDEFINED;
                 }
 
                 // ----------------------------------------------------------------------------

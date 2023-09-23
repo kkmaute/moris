@@ -1041,7 +1041,7 @@ namespace moris
                 moris::map< std::string, mtk::Field_Entity_Type > tFieldEntityTypeMap =
                         mtk::get_field_entity_type_map();
 
-                enum mtk::Field_Entity_Type tFieldEntityType =
+                mtk::Field_Entity_Type tFieldEntityType =
                         tFieldEntityTypeMap.find( tFieldParameter.get< std::string >( "field_entity_type" ) );
 
                 // create a property pointer

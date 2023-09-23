@@ -312,7 +312,7 @@ void UT_IWG_Diff_Interface_Core ( enum fem::IWG_Type tIWGType )
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            moris::Cell< moris::Cell< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tLeaderFIManager( tTempDofTypes, tDummyDv, tDummyField, tSet );
             Field_Interpolator_Manager tFollowerFIManager( tTempDofTypes, tDummyDv, tDummyField, tSet );
 

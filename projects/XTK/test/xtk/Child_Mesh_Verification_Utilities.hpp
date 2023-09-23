@@ -92,12 +92,12 @@ verify_child_mesh_ancestry(Background_Mesh const & aBackgroundMeshData,
         moris::Matrix< moris::IndexMat > const & tEdgeParentIndices = tChildMesh.get_edge_parent_inds();
         moris::Matrix< moris::DDSTMat >  const & tEdgeParentRanks   = tChildMesh.get_edge_parent_ranks();
 
-        for(moris::uint i = 0; i <tChildMesh.get_num_entities(EntityRank::EDGE); i++)
+        for(moris::uint i = 0; i <tChildMesh.get_num_entities(mtk::EntityRank::EDGE); i++)
         {
             if(tEdgeParentRanks(i) == 2)
             {
                 moris_index tFaceIndex = tEdgeParentIndices(i);
-                Matrix<IndexMat> tFaceNodes = tMeshData.get_entity_connected_to_entity_loc_inds(tFaceIndex, EntityRank::FACE, EntityRank::NODE);
+                Matrix<IndexMat> tFaceNodes = tMeshData.get_entity_connected_to_entity_loc_inds(tFaceIndex, mtk::EntityRank::FACE, mtk::EntityRank::NODE);
                 Matrix<DDRMat>   tFaceNodeCoords(4,3);
                 tFaceNodeCoords.get_row(0) = tMeshData.get_node_coordinate(tFaceNodes(0)).get_row(0);
                 tFaceNodeCoords.get_row(1) = tMeshData.get_node_coordinate(tFaceNodes(1)).get_row(0);

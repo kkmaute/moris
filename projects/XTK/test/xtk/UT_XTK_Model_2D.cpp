@@ -64,7 +64,7 @@
 //         aMeshData.NodeCoords = &aCoords;
 //         aMeshData.LocaltoGlobalElemMap(0) = &aElemLocaltoGlobal;
 
-//         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, aMeshData );
+//         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, aMeshData );
 
 //         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
 //         tGeometryEngineParameters.mGeometries = tGeometry;
@@ -149,7 +149,7 @@
 //         aMeshData.NodeCoords = &aCoords;
 //         aMeshData.LocaltoGlobalElemMap(0) = &aElemLocaltoGlobal;
 
-//         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, aMeshData );
+//         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, aMeshData );
 
 //         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
 //         tGeometryEngineParameters.mGeometries = tGeometry;
@@ -230,7 +230,7 @@
 //         aMeshData.NodeCoords = &aCoords;
 //         aMeshData.LocaltoGlobalElemMap(0) = &aElemLocaltoGlobal;
 
-//         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, aMeshData );
+//         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, aMeshData );
 
 //         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
 //         tGeometryEngineParameters.mGeometries = tGeometry;
@@ -324,7 +324,7 @@
 //         aMeshData.NodeCoords = &aCoords;
 //         aMeshData.LocaltoGlobalElemMap(0) = &aElemLocaltoGlobal;
 
-//         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, aMeshData );
+//         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, aMeshData );
 
 //         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
 //         tGeometryEngineParameters.mGeometries = tGeometry;

@@ -211,7 +211,7 @@ namespace moris::hmr
                     "Mismatch elements between integration and interpolation mesh" );
 
             // get the cell rank
-            enum EntityRank tCellRank = this->get_cell_rank();
+            mtk::EntityRank tCellRank = this->get_cell_rank();
 
             // number of interpolation cells
             moris::uint tNumInterpCells = aInterpolationMesh->get_num_entities( tCellRank );
@@ -241,10 +241,10 @@ namespace moris::hmr
                 }
 
                 // interpolation order of the interpolation cell
-                enum mtk::Interpolation_Order tInterpOrder = tInterpCell->get_interpolation_order();
+                mtk::Interpolation_Order tInterpOrder = tInterpCell->get_interpolation_order();
 
                 // geometry
-                enum mtk::Geometry_Type tGeomType = tInterpCell->get_geometry_type();
+                mtk::Geometry_Type tGeomType = tInterpCell->get_geometry_type();
 
                 // Cell info
                 moris::mtk::Cell_Info *tCellInfo = tCIFactory.create_cell_info( tGeomType, tInterpOrder );
@@ -266,8 +266,8 @@ namespace moris::hmr
         setup_blockset_with_cell_clusters()
         {
             // construct integration to cell cluster relationship
-            moris::Cell< moris::moris_index > tPrimaryIntegrationCellToClusterIndex(
-                    this->get_num_entities( EntityRank::ELEMENT ),
+            moris::Cell<moris::moris_index> tPrimaryIntegrationCellToClusterIndex(
+                    this->get_num_entities(mtk::EntityRank::ELEMENT),
                     MORIS_INDEX_MAX );
 
             // iterate through clusters
@@ -359,10 +359,9 @@ namespace moris::hmr
         /*
          *  setup the side set cluster interface
          */
-        void
-        setup_side_set_clusters( Interpolation_Mesh_HMR *aInterpMesh )
+        void setup_side_set_clusters( Interpolation_Mesh_HMR * aInterpMesh )
         {
-            moris::Cell< std::string > aSideSetNames = this->get_set_names( EntityRank::FACE );
+            moris::Cell<std::string> aSideSetNames = this->get_set_names( mtk::EntityRank::FACE );
 
             mSideSets.resize( aSideSetNames.size() );
 
@@ -370,9 +369,9 @@ namespace moris::hmr
             mSideSetLabels.append( aSideSetNames );
 
             // cell info to use for setting up local coords
-            enum CellTopology                        tCellTopo = this->get_blockset_topology( "" );
-            mtk::Cell_Info_Factory                   tFactory;
-            std::shared_ptr< moris::mtk::Cell_Info > tCellInfo = tFactory.create_cell_info_sp( tCellTopo );
+            mtk::CellTopology tCellTopo = this->get_blockset_topology( "" );
+            mtk::Cell_Info_Factory tFactory;
+            std::shared_ptr<moris::mtk::Cell_Info> tCellInfo = tFactory.create_cell_info_sp(tCellTopo);
 
             // add to map
             for ( moris::uint i = 0; i < aSideSetNames.size(); i++ )
@@ -404,7 +403,7 @@ namespace moris::hmr
 
                     // interpolation cell index
                     moris_index tCellIndex = aInterpMesh->get_loc_entity_ind_from_entity_glb_id( tCellId,
-                            EntityRank::ELEMENT );
+                            mtk::EntityRank::ELEMENT );
 
                     // construct a trivial side cluster
                     moris::mtk::Cell *tInterpCell = &aInterpMesh->get_mtk_cell( tCellIndex );
@@ -432,24 +431,24 @@ namespace moris::hmr
 
         //-------------------------------------------------------------------------------
 
-        enum EntityRank
+        mtk::EntityRank
         get_cell_rank()
         {
-            if ( this->get_spatial_dim() == 1 )
+            if(this->get_spatial_dim() == 1)
             {
-                return EntityRank::FACE;
+                return mtk::EntityRank::FACE;
             }
-            else if ( this->get_spatial_dim() == 2 )
+            else if(this->get_spatial_dim() == 2)
             {
-                return EntityRank::ELEMENT;
+                return mtk::EntityRank::ELEMENT;
             }
-            else if ( this->get_spatial_dim() == 3 )
+            else if (this->get_spatial_dim() == 3)
             {
-                return EntityRank::ELEMENT;
+                return mtk::EntityRank::ELEMENT;
             }
             else
             {
-                return EntityRank::INVALID;
+                return mtk::EntityRank::INVALID;
             }
         }
     };

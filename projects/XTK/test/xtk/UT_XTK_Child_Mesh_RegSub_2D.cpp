@@ -151,7 +151,7 @@ TEST_CASE("Regular Subdivision QUAD4","[REG_SUB_TEMPLATE_QUAD4]")
     tQuad4Coords.set_row(3, tNodeCoords.get_row(tNodeIndicesOfCM(3)));
 
     // iterate over nodes
-    size_t tNumNodes = tRegSubChildMesh.get_num_entities(EntityRank::NODE);
+    size_t tNumNodes = tRegSubChildMesh.get_num_entities(mtk::EntityRank::NODE);
 
     // Allocate a basis function weight matrix
     moris::Matrix< moris::DDRMat > tBasisWeights(1, 4);

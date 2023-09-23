@@ -18,14 +18,14 @@
 
 namespace xtk
 {
-Regular_Subdivision_Interface::Regular_Subdivision_Interface( ParameterList& aParameterList, enum CellTopology aCellTopology )
+Regular_Subdivision_Interface::Regular_Subdivision_Interface( ParameterList& aParameterList, mtk::CellTopology aCellTopology )
 {
     // get number of spatial dimensions and decide on subdivision template
-    if ( aCellTopology == CellTopology::QUAD4 )
+    if ( aCellTopology == mtk::CellTopology::QUAD4 )
     {
         mRegularSubdivisionTemplate = std::make_shared< Regular_Subdivision_4_TRIS >();
     }
-    else if ( aCellTopology == CellTopology::HEX8 )
+    else if ( aCellTopology == mtk::CellTopology::HEX8 )
     {
         mRegularSubdivisionTemplate = std::make_shared< Regular_Subdivision_24_TETS >();
     }
@@ -254,12 +254,12 @@ Regular_Subdivision_Interface::make_new_vertex_requests_trivial(
     {
         moris_index tNewNodeFaceOrdinal = aRegularSubdivisionInterfaceData->mNewNodesOnFacesOrd( iVertsOnFaces );
         moris_index tRequestLoc         = MORIS_INDEX_MAX;
-        bool        tRequestExists      = aDecompositionData->request_exists( tCellConn.mCellFacesInds( tNewNodeFaceOrdinal ), EntityRank::FACE, tRequestLoc );
+        bool        tRequestExists      = aDecompositionData->request_exists( tCellConn.mCellFacesInds( tNewNodeFaceOrdinal ), mtk::EntityRank::FACE, tRequestLoc );
 
         moris_index tNewNodeTemplateOrd = aRegularSubdivisionInterfaceData->mNewNodesOnFaces( iVertsOnFaces );
         if ( !tRequestExists )
         {
-            moris_index tOwner = aBackgroundMesh->get_entity_owner( tCellConn.mCellFacesInds( tNewNodeFaceOrdinal ), EntityRank::FACE );
+            moris_index tOwner = aBackgroundMesh->get_entity_owner( tCellConn.mCellFacesInds( tNewNodeFaceOrdinal ), mtk::EntityRank::FACE );
 
             // evaluate the shape functions at this point relative to the background cell
             tParentCellInfo->eval_N( aRegularSubdivisionInterfaceData->mNewNodeXi( tNewNodeTemplateOrd ), aRegularSubdivisionInterfaceData->mNXi );
@@ -272,7 +272,7 @@ Regular_Subdivision_Interface::make_new_vertex_requests_trivial(
             moris_index tNewNodeIndexInSubdivision = aDecompositionData->register_new_request(
                 tCellConn.mCellFacesInds( tNewNodeFaceOrdinal ),
                 tOwner,
-                EntityRank::FACE,
+                mtk::EntityRank::FACE,
                 tNewNodeCoordinates,
                 tParentCell,
                 tNewNodeXi );
@@ -296,12 +296,12 @@ Regular_Subdivision_Interface::make_new_vertex_requests_trivial(
     for ( moris::uint iVertsInCell = 0; iVertsInCell < aRegularSubdivisionInterfaceData->mNewNodesOnCells.numel(); iVertsInCell++ )
     {
         moris_index tRequestLoc    = MORIS_INDEX_MAX;
-        bool        tRequestExists = aDecompositionData->request_exists( tParentCell->get_index(), EntityRank::ELEMENT, tRequestLoc );
+        bool        tRequestExists = aDecompositionData->request_exists( tParentCell->get_index(), mtk::EntityRank::ELEMENT, tRequestLoc );
 
         moris_index tNewNodeTemplateOrd = aRegularSubdivisionInterfaceData->mNewNodesOnCells( iVertsInCell );
         if ( !tRequestExists )
         {
-            moris_index tOwner = aBackgroundMesh->get_entity_owner( tParentCell->get_index(), EntityRank::ELEMENT );
+            moris_index tOwner = aBackgroundMesh->get_entity_owner( tParentCell->get_index(), mtk::EntityRank::ELEMENT );
 
             // evaluate the shape functions at this point relative to the background cell
             tParentCellInfo->eval_N( aRegularSubdivisionInterfaceData->mNewNodeXi( tNewNodeTemplateOrd ), aRegularSubdivisionInterfaceData->mNXi );
@@ -314,7 +314,7 @@ Regular_Subdivision_Interface::make_new_vertex_requests_trivial(
             moris_index tNewNodeIndexInSubdivision = aDecompositionData->register_new_request(
                 tParentCell->get_index(),
                 tOwner,
-                EntityRank::ELEMENT,
+                mtk::EntityRank::ELEMENT,
                 tNewNodeCoordinates,
                 tParentCell,
                 tNewNodeXi );
@@ -377,13 +377,13 @@ Regular_Subdivision_Interface::make_new_vertex_requests_octree(
 
         moris::Matrix< moris::DDRMat > tNewCoordinate = tBasisWeights * tBGCellCoords;
 
-        if ( tVertexAncestry->get_vertex_parent_rank( iV ) == EntityRank::ELEMENT )
+        if ( tVertexAncestry->get_vertex_parent_rank( iV ) == mtk::EntityRank::ELEMENT )
         {
             moris_index tNewNodeIndexInSubdivision = aDecompositionData->register_new_request(
                 tCell->get_index(),
                 tGeneratedTemplate->mVertexHash( iV ),
                 tCell->get_owner(),
-                EntityRank::ELEMENT,
+                mtk::EntityRank::ELEMENT,
                 tNewCoordinate,
                 tCell,
                 std::make_shared< moris::Matrix< moris::DDRMat > >( tVertexLocalCoords ) );
@@ -477,10 +477,10 @@ Regular_Subdivision_Interface::generate_new_node_parent_information_ijk_mesh(
             }
             else
             {
-                mGeneratedTemplate( aNumIgCells )->mNewVertexAncestry.mVertexParentEntityIndex( tNewVertexOrdinal ) = tCellConn.get_entity_ordinal( tFacetAncestry->mFacetParentEntityIndex( iFacet ), get_entity_rank_from_index( tFacetAncestry->mFacetParentEntityRank( iFacet ) ) );
+                mGeneratedTemplate( aNumIgCells )->mNewVertexAncestry.mVertexParentEntityIndex( tNewVertexOrdinal ) = tCellConn.get_entity_ordinal( tFacetAncestry->mFacetParentEntityIndex( iFacet ), moris::mtk::get_entity_rank_from_index( tFacetAncestry->mFacetParentEntityRank( iFacet ) ) );
             }
 
-            mGeneratedTemplate( aNumIgCells )->mNewVertexAncestry.mVertexParentEntityRank( tNewVertexOrdinal ) = get_entity_rank_from_index( tFacetAncestry->mFacetParentEntityRank( iFacet ) );
+            mGeneratedTemplate( aNumIgCells )->mNewVertexAncestry.mVertexParentEntityRank( tNewVertexOrdinal ) = moris::mtk::get_entity_rank_from_index( tFacetAncestry->mFacetParentEntityRank( iFacet ) );
             mGeneratedTemplate( aNumIgCells )->mVertexHash( tNewVertexOrdinal )                                = iFacet;
             tNewVertexOrdinal++;
         }
@@ -504,7 +504,7 @@ Regular_Subdivision_Interface::generate_new_node_parent_information_ijk_mesh(
 
             mGeneratedTemplate( aNumIgCells )->mParamCoords( tNewVertexOrdinal )                                = tLocalCoords / (moris::real)tVertices.size();
             mGeneratedTemplate( aNumIgCells )->mNewVertexAncestry.mVertexParentEntityIndex( tNewVertexOrdinal ) = 0;
-            mGeneratedTemplate( aNumIgCells )->mNewVertexAncestry.mVertexParentEntityRank( tNewVertexOrdinal )  = EntityRank::ELEMENT;
+            mGeneratedTemplate( aNumIgCells )->mNewVertexAncestry.mVertexParentEntityRank( tNewVertexOrdinal )  = mtk::EntityRank::ELEMENT;
             mGeneratedTemplate( aNumIgCells )->mVertexHash( tNewVertexOrdinal )                                 = tNewVertexOrdinal;// no special hashing needed here
             tNewVertexOrdinal++;
 
@@ -518,13 +518,13 @@ Regular_Subdivision_Interface::generate_new_node_parent_information_ijk_mesh(
 
                     // node parent relative to the single ig cell
                     const moris_index     tParentEntityOrd  = aRegularSubdivisionInterfaceData->mVertexAncestry.get_vertex_parent_index( tBaseTemplateVertexIndex );
-                    const enum EntityRank tParentEntityRank = aRegularSubdivisionInterfaceData->mVertexAncestry.get_vertex_parent_rank( tBaseTemplateVertexIndex );
+                    const mtk::EntityRank tParentEntityRank = aRegularSubdivisionInterfaceData->mVertexAncestry.get_vertex_parent_rank( tBaseTemplateVertexIndex );
 
-                    if ( tParentEntityRank == EntityRank::NODE )
+                    if ( tParentEntityRank == mtk::EntityRank::NODE )
                     {
                         mGeneratedTemplate( aNumIgCells )->mIgCellToVertOrd( tCellIndex )( iTemplateVert ) = tVertexGroup->get_vertex_group_ordinal( tVertices( tParentEntityOrd )->get_index() );
                     }
-                    else if ( tParentEntityRank == EntityRank::FACE )
+                    else if ( tParentEntityRank == mtk::EntityRank::FACE )
                     {
                         moris_index tFaceIndex                                                             = tFaceConnectivity->mCellToFacet( iCell )( tParentEntityOrd );
                         mGeneratedTemplate( aNumIgCells )->mIgCellToVertOrd( tCellIndex )( iTemplateVert ) = tFirstNewFacetVertexOrdinal + tFaceIndex;

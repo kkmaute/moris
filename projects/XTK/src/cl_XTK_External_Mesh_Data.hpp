@@ -18,7 +18,7 @@
 #include "cl_Matrix.hpp"
 // XTKL: Mesh Includes
 #include "cl_MTK_Mesh.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 // XTKL: Containers
 #include "cl_Cell.hpp"
 
@@ -63,7 +63,7 @@ namespace mesh
                     moris::moris_id                     aGlbId,
                     moris::moris_id                     aLocInd,
                     moris::moris_id                     aOwnerProc,
-                    enum moris::EntityRank              aEntityRank)
+                    mtk::EntityRank              aEntityRank)
             {
                 mGlbId        = aGlbId;
                 mLocInd       = aLocInd;
@@ -75,7 +75,7 @@ namespace mesh
 
             void set_entity_coords(moris::Matrix< moris::DDRMat > const & aCoordinates)
             {
-                if (mEntityRank == moris::EntityRank::NODE)
+                if (mEntityRank == mtk::EntityRank::NODE)
                 {
                     mEntityCoordinates = aCoordinates.copy();
                 }
@@ -161,7 +161,7 @@ namespace mesh
             moris::moris_id              mLocInd;
             moris::moris_id              mOwningProc;
             moris::size_t                mNumFields;
-            enum moris::EntityRank       mEntityRank;
+            mtk::EntityRank       mEntityRank;
             moris::Matrix< moris::DDRMat > mFieldData;
             moris::Matrix< moris::DDRMat > mEntityCoordinates; // If its a node
     };
@@ -178,10 +178,10 @@ namespace xtk
             // ----------------------------------------------------------------------------------
 
             Mesh_External_Entity_Data() :
-                mFirstExtEntityInds((moris::moris_index) EntityRank::END_ENUM, std::numeric_limits<moris::moris_index>::max()),
+                mFirstExtEntityInds((moris::moris_index) mtk::EntityRank::UNDEFINED, std::numeric_limits<moris::moris_index>::max()),
                 mLocalToGlobalExtNodes(1,1),
-                mFirstAvailableInds((moris::moris_index) EntityRank::END_ENUM, std::numeric_limits<moris::moris_index>::max()),
-                mExternalEntities((moris::moris_index) EntityRank::END_ENUM, moris::Cell<mesh::Entity>(0))
+                mFirstAvailableInds((moris::moris_index) mtk::EntityRank::UNDEFINED, std::numeric_limits<moris::moris_index>::max()),
+                mExternalEntities((moris::moris_index) mtk::EntityRank::UNDEFINED, moris::Cell<mesh::Entity>(0))
             {
             }
 
@@ -195,10 +195,10 @@ namespace xtk
 
                 int tProcessorRank = moris::par_rank();
 
-                moris::moris_id tFirstNode = aMeshData->get_max_entity_id(EntityRank::NODE)+1;
-                //        moris::moris_id tFirstEdge = aMeshData->get_max_entity_id(EntityRank::EDGE);
-                //        moris::moris_id tFirstFace = aMeshData->get_max_entity_id(EntityRank::FACE);
-                moris::moris_id tFirstElem = aMeshData->get_max_entity_id(EntityRank::ELEMENT)+1;
+                moris::moris_id tFirstNode = aMeshData->get_max_entity_id(moris::mtk::EntityRank::NODE)+1;
+                //        moris::moris_id tFirstEdge = aMeshData->get_max_entity_id(moris::mtk::EntityRank::EDGE);
+                //        moris::moris_id tFirstFace = aMeshData->get_max_entity_id(moris::mtk::EntityRank::FACE);
+                moris::moris_id tFirstElem = aMeshData->get_max_entity_id(moris::mtk::EntityRank::ELEMENT)+1;
 
                 if(tProcessorRank == 0)
                 {
@@ -209,10 +209,10 @@ namespace xtk
                     mFirstAvailableIds(3) = tFirstElem;
                 }
 
-                mFirstExtEntityInds(0) = aMeshData->get_num_entities(moris::EntityRank::NODE);
-                mFirstExtEntityInds(1) = aMeshData->get_num_entities(moris::EntityRank::EDGE);
-                mFirstExtEntityInds(2) = aMeshData->get_num_entities(moris::EntityRank::FACE);
-                mFirstExtEntityInds(3) = aMeshData->get_num_entities(moris::EntityRank::ELEMENT);
+                mFirstExtEntityInds(0) = aMeshData->get_num_entities(mtk::EntityRank::NODE);
+                mFirstExtEntityInds(1) = aMeshData->get_num_entities(mtk::EntityRank::EDGE);
+                mFirstExtEntityInds(2) = aMeshData->get_num_entities(mtk::EntityRank::FACE);
+                mFirstExtEntityInds(3) = aMeshData->get_num_entities(mtk::EntityRank::ELEMENT);
 
                 mFirstAvailableInds(0) = mFirstExtEntityInds(0);
                 mFirstAvailableInds(1) = mFirstExtEntityInds(1);
@@ -223,14 +223,14 @@ namespace xtk
             // ----------------------------------------------------------------------------------
 
             moris::moris_index
-            get_first_available_index_external_data(enum EntityRank aEntityRank) const
+            get_first_available_index_external_data(mtk::EntityRank aEntityRank) const
             {
                 return mFirstAvailableInds((moris::moris_index)aEntityRank);
             }
 
             // ----------------------------------------------------------------------------------
 
-            void update_first_available_index_external_data(moris::moris_index aNewFirstAvailableIndex, enum EntityRank aEntityRank)
+            void update_first_available_index_external_data(moris::moris_index aNewFirstAvailableIndex, mtk::EntityRank aEntityRank)
             {
                 mFirstAvailableInds((moris::moris_index)aEntityRank) = aNewFirstAvailableIndex;
             }
@@ -244,7 +244,7 @@ namespace xtk
                     Cell<moris_index>                    const & aNewNodeOwners,
                     Cell<moris::Matrix< moris::DDRMat >> const & aNewNodeCoordinates)
             {
-                moris::moris_index tEntRankInd  = (moris::moris_index)EntityRank::NODE;
+                moris::moris_index tEntRankInd  = (moris::moris_index) moris::mtk::EntityRank::NODE;
                 moris::size_t      tAddSize     = aNewNodeIds.size();
                 moris::size_t      tInitialSize = mExternalEntities(tEntRankInd).size();
 
@@ -266,7 +266,7 @@ namespace xtk
                     tOwner  = aNewNodeOwners(j);
 
                     mLocalToGlobalExtNodes(tInd-mFirstExtEntityInds(0)) = tId;
-                    mExternalEntities(tEntRankInd)(tInd-mFirstExtEntityInds(0)).set_entity_identifiers(tId,tInd,tOwner,moris::EntityRank::NODE);
+                    mExternalEntities(tEntRankInd)(tInd-mFirstExtEntityInds(0)).set_entity_identifiers(tId,tInd,tOwner,mtk::EntityRank::NODE);
                     mExternalEntities(tEntRankInd)(tInd-mFirstExtEntityInds(0)).set_entity_coords(aNewNodeCoordinates(j));
                     j++;
                 }
@@ -281,7 +281,7 @@ namespace xtk
                     moris::Matrix< moris::IndexMat >    const & aNewNodeOwners,
                     moris::Matrix< moris::DDRMat >      const & aNewNodeCoordinates)
             {
-                moris::moris_index tEntRankInd  = (moris::moris_index)EntityRank::NODE;
+                moris::moris_index tEntRankInd  = (moris::moris_index) moris::mtk::EntityRank::NODE;
                 moris::size_t      tAddSize     = aNewNodeIds.numel();
                 moris::size_t      tInitialSize = mExternalEntities(tEntRankInd).size();
 
@@ -302,7 +302,7 @@ namespace xtk
                     tId     = aNewNodeIds(j);
                     tOwner  = aNewNodeOwners(j);
                     mLocalToGlobalExtNodes(tInd-mFirstExtEntityInds(0)) = tId;
-                    mExternalEntities(tEntRankInd)(i).set_entity_identifiers(tId,tInd,tOwner,moris::EntityRank::NODE);
+                    mExternalEntities(tEntRankInd)(i).set_entity_identifiers(tId,tInd,tOwner,mtk::EntityRank::NODE);
                     mExternalEntities(tEntRankInd)(i).set_entity_coords(aNewNodeCoordinates.get_row(j));
                     j++;
                 }
@@ -310,7 +310,7 @@ namespace xtk
 
             // ----------------------------------------------------------------------------------
 
-            moris::size_t get_num_entities_external_data(enum EntityRank aEntityRank) const
+            moris::size_t get_num_entities_external_data(mtk::EntityRank aEntityRank) const
             {
                 return mExternalEntities((moris::size_t)aEntityRank).size();
             }
@@ -319,11 +319,11 @@ namespace xtk
 
             inline
             bool is_external_entity(moris::moris_index aEntityIndex,
-                    enum EntityRank aEntityRank) const
+                    mtk::EntityRank aEntityRank) const
             {
                 if(mFirstExtEntityInds((moris::moris_index)aEntityRank)<=aEntityIndex)
                 {
-                    if(aEntityRank == EntityRank::NODE)
+                    if(aEntityRank == mtk::EntityRank::NODE)
                     {
                         moris::moris_index tOffset = mFirstExtEntityInds((moris::size_t)aEntityRank);
                         moris::moris_index tNumExtEntities = mExternalEntities((moris::size_t)aEntityRank).size();
@@ -343,7 +343,7 @@ namespace xtk
             moris::moris_index
             get_external_entity_index(
                     moris::moris_index aEntityIndex,
-                    enum EntityRank    aEntityRank) const
+                    mtk::EntityRank    aEntityRank) const
             {
                 moris::moris_index tOffset = mFirstExtEntityInds((moris::size_t)aEntityRank);
 
@@ -359,14 +359,14 @@ namespace xtk
             moris::moris_index
             get_external_vertex_owner(moris::moris_index aEntityIndex) const
             {
-                moris::moris_index tExternalIndex = this->get_external_entity_index(aEntityIndex,EntityRank::NODE);
+                moris::moris_index tExternalIndex = this->get_external_entity_index(aEntityIndex, moris::mtk::EntityRank::NODE);
 
                 return mExternalEntities(0)(tExternalIndex).get_entity_owner();
             }
 
             // ----------------------------------------------------------------------------------
 
-            moris::moris_id get_glb_entity_id_from_entity_loc_index_external_data(moris::moris_id aEntityIndex, enum EntityRank aEntityRank) const
+            moris::moris_id get_glb_entity_id_from_entity_loc_index_external_data(moris::moris_id aEntityIndex, mtk::EntityRank aEntityRank) const
             {
                 moris::size_t tEntityRankIndex = (moris::size_t)aEntityRank;
 
@@ -380,7 +380,7 @@ namespace xtk
             moris::Matrix< moris::DDRMat > const &
             get_selected_node_coordinates_loc_inds_external_data(moris::moris_index aEntityIndex) const
             {
-                moris::size_t tEntityRankIndex = (moris::size_t)EntityRank::NODE;
+                moris::size_t tEntityRankIndex = (moris::size_t) moris::mtk::EntityRank::NODE;
                 moris::moris_index tExternalIndex = aEntityIndex - mFirstExtEntityInds(tEntityRankIndex);
 
                 return mExternalEntities(tEntityRankIndex)(tExternalIndex).get_entity_coords();
@@ -392,8 +392,8 @@ namespace xtk
             get_all_node_coordinates_loc_inds_external_data(moris::moris_index aStartingIndex,
                     moris::Matrix< moris::DDRMat > & aCoordinates) const
             {
-                moris::size_t tEntityRankIndex = (moris::size_t)EntityRank::NODE;
-                moris::size_t tNumNodes = this->get_num_entities_external_data(EntityRank::NODE);
+                moris::size_t tEntityRankIndex = (moris::size_t) moris::mtk::EntityRank::NODE;
+                moris::size_t tNumNodes = this->get_num_entities_external_data(moris::mtk::EntityRank::NODE);
 
                 for( moris::moris_index i = 0; i<(moris::moris_index)tNumNodes; i++)
                 {
@@ -409,7 +409,7 @@ namespace xtk
             moris::moris_id
             allocate_entity_ids_external_entity_data(
                     moris::size_t aNumIdstoAllocate,
-                    enum EntityRank aEntityRank) const
+                    mtk::EntityRank aEntityRank) const
             {
                 int tProcRank = par_rank();
                 int tProcSize = par_size();
@@ -450,7 +450,7 @@ namespace xtk
 
             moris::real get_entity_field_value_external_data(
                     moris::moris_index  aEntityIndex,
-                    enum EntityRank     aFieldEntityRank,
+                    mtk::EntityRank     aFieldEntityRank,
                     std::string const & aFieldName) const
             {
                 moris::size_t tFieldIndex = this->get_field_index(aFieldName);

@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_cl_MTK_Interpolation_Mesh_Editor
-#define SRC_cl_MTK_Interpolation_Mesh_Editor
+#pragma once
 
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
@@ -258,5 +257,3 @@ namespace moris::mtk
             check_input_output_mesh();
     };
 }// namespace moris::mtk
-
-#endif /* cl_MTK_Mesh_Editor.hpp */

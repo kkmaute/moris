@@ -36,7 +36,7 @@ namespace moris
             //number of vertices
             if(aEntityRank == EntityRank::NODE)
             {
-                moris::size_t tNumBackgroundEntities = mBackGroundMesh->get_num_entities((moris::EntityRank)aEntityRank);
+                moris::size_t tNumBackgroundEntities = mBackGroundMesh->get_num_entities((mtk::EntityRank)aEntityRank);
                 moris::size_t tExternalEntities = mIntersectionDetect->mIntersectedMeshData.get_num_entities_external_data(aEntityRank);
 
                 return tNumBackgroundEntities + tExternalEntities;
@@ -44,7 +44,7 @@ namespace moris
             //number of cells
             else if(aEntityRank == EntityRank::ELEMENT)
             {
-                moris::size_t tNumBackgroundEntities = mBackGroundMesh->get_num_entities((moris::EntityRank)aEntityRank);
+                moris::size_t tNumBackgroundEntities = mBackGroundMesh->get_num_entities((mtk::EntityRank)aEntityRank);
                 moris::size_t tExternalEntities = mIntersectionDetect->mIntersectedMeshData.get_num_entities_external_data(aEntityRank);
 
                 return tNumBackgroundEntities + tExternalEntities;
@@ -285,7 +285,7 @@ namespace moris
         {
             if( mIntersectionDetect->mIntersectedMeshData.is_external_entity( aEntityIndex, aEntityRank) )
             {
-                moris::size_t tNumBackgroundEntities = mBackGroundMesh->get_num_entities((moris::EntityRank)aEntityRank);
+                moris::size_t tNumBackgroundEntities = mBackGroundMesh->get_num_entities((mtk::EntityRank)aEntityRank);
                 return mIntersectionDetect->mEntityLocaltoGlobalMap((uint)aEntityRank)(aEntityIndex-tNumBackgroundEntities);
             }
             else

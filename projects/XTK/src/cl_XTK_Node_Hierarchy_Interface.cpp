@@ -167,7 +167,7 @@ Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
     Tracer tTracer( "XTK", "Decomposition_Algorithm", "Determine Intersected Edges", mGenerator->verbosity_level(), 1 );
 
     // get first unused index for nodes for numbering new nodes
-    moris::moris_index tNewNodeIndex = mCutIntegrationMesh->get_first_available_index( EntityRank::NODE );
+    moris::moris_index tNewNodeIndex = mCutIntegrationMesh->get_first_available_index( mtk::EntityRank::NODE );
 
     // initialize intersection information
     aIntersectedEdges.clear();
@@ -185,7 +185,7 @@ Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
     tGeometricQuery.set_query_type( moris::ge::Query_Type::INTERSECTION_LOCATION );
     tGeometricQuery.set_coordinates_matrix( mCutIntegrationMesh->get_all_vertex_coordinates_loc_inds() );
     tGeometricQuery.set_cut_integration_mesh( mCutIntegrationMesh );
-    tGeometricQuery.set_query_entity_rank( EntityRank::EDGE );
+    tGeometricQuery.set_query_entity_rank( mtk::EntityRank::EDGE );
     tGeometricQuery.set_edge_connectivity( aEdgeConnectivity );
     tGeometricQuery.set_edge_associated_background_cell( aBackgroundCellForEdge );
     tGeometricQuery.set_associated_vertex_group( aVertexGroups );
@@ -235,21 +235,21 @@ Node_Hierarchy_Interface::determine_intersected_edges_and_make_requests(
                 bool tRequestExist = mDecompositionData->request_exists(
                         tParentIndex,
                         tSecondaryId,
-                        (enum EntityRank)tParentRank,
+                        (mtk::EntityRank)tParentRank,
                         tNewNodeIndexInSubdivision );
 
                 // ... if not request it
                 if ( !tRequestExist )
                 {
                     // find out which processor owns parent entity of currently treated edge
-                    moris::moris_index tOwningProc = mBackgroundMesh->get_entity_owner( tParentIndex, (enum EntityRank)tParentRank );
+                    moris::moris_index tOwningProc = mBackgroundMesh->get_entity_owner( tParentIndex, (mtk::EntityRank)tParentRank );
 
                     // Register new node request
                     tNewNodeIndexInSubdivision = mDecompositionData->register_new_request(
                             tParentIndex,
                             tSecondaryId,
                             tOwningProc,
-                            (enum EntityRank)tParentRank,
+                            (mtk::EntityRank)tParentRank,
                             mGeometryEngine->get_queued_intersection_global_coordinates() );
 
                     // create new node in GEN
@@ -436,11 +436,11 @@ Node_Hierarchy_Interface::create_node_hierarchy_integration_cells(
 
     // initialize map, input: IG Cell index || output: list of intersected edge ordinals (?)
     moris::Cell< std::shared_ptr< moris::Cell< moris_index > > >
-        tCellIndexIntersectedEdgeOrdinals( mCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 ), nullptr );
+        tCellIndexIntersectedEdgeOrdinals( mCutIntegrationMesh->get_num_entities( mtk::EntityRank::ELEMENT, 0 ), nullptr );
 
     // initialize map, input: IG Cell index || output: list of intersected vertex ordinals (?)
     moris::Cell< std::shared_ptr< moris::Cell< moris::mtk::Vertex* > > >
-        tCellIndexIntersectedEdgeVertex( mCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 ), nullptr );
+        tCellIndexIntersectedEdgeVertex( mCutIntegrationMesh->get_num_entities( mtk::EntityRank::ELEMENT, 0 ), nullptr );
 
     // fill necessary information in maps initialized above
     this->determine_intersected_cell_information(
@@ -449,8 +449,8 @@ Node_Hierarchy_Interface::create_node_hierarchy_integration_cells(
         &tCellIndexIntersectedEdgeOrdinals,
         &tCellIndexIntersectedEdgeVertex );
 
-    moris::Cell< std::shared_ptr< moris::Cell< moris::mtk::Vertex* > > > tNodesForTemplates( mCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 ), nullptr );
-    moris::Cell< std::shared_ptr< Node_Hierarchy_Template > >            tNHTemplate( mCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 ), nullptr );
+    moris::Cell< std::shared_ptr< moris::Cell< moris::mtk::Vertex* > > > tNodesForTemplates( mCutIntegrationMesh->get_num_entities( mtk::EntityRank::ELEMENT, 0 ), nullptr );
+    moris::Cell< std::shared_ptr< Node_Hierarchy_Template > >            tNHTemplate( mCutIntegrationMesh->get_num_entities( mtk::EntityRank::ELEMENT, 0 ), nullptr );
 
     // for each cell we need to select a node hier template
     // number of cells we are creating
@@ -470,7 +470,7 @@ Node_Hierarchy_Interface::create_node_hierarchy_integration_cells(
         // constant parameters for 3d case
         tNodesPerCell = 4;
         moris::mtk::Cell_Info_Factory tFactory;
-        tCellInfo = tFactory.create_cell_info_sp( CellTopology::TET4 );
+        tCellInfo = tFactory.create_cell_info_sp( mtk::CellTopology::TET4 );
     }
 
     // Case: 2D mesh
@@ -485,7 +485,7 @@ Node_Hierarchy_Interface::create_node_hierarchy_integration_cells(
         // constant parameters for 2d case
         tNodesPerCell = 3;
         moris::mtk::Cell_Info_Factory tFactory;
-        tCellInfo = tFactory.create_cell_info_sp( CellTopology::TRI3 );
+        tCellInfo = tFactory.create_cell_info_sp( mtk::CellTopology::TRI3 );
     }
 
     // Error for other number of spatial dims

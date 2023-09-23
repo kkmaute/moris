@@ -26,7 +26,7 @@
 #include "cl_HMR_Side_Set.hpp"
 #include "cl_HMR_STK.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Side_Sets_Info.hpp"
 
 #include "cl_Matrix.hpp" //LINALG/src
@@ -51,7 +51,7 @@ namespace moris::hmr
         //! Cells containing real field data
 
         Cell< std::string >      mRealScalarFieldLabels;
-        Cell< EntityRank >       mRealScalarFieldRanks;
+        Cell< mtk::EntityRank >  mRealScalarFieldRanks;
         Cell< Matrix< DDRMat > > mRealScalarFieldData;
         Cell< Matrix< DDRMat > > mRealScalarFieldBSplineCoeffs;
         Cell< uint >             mRealScalarFieldBSplineOrders;
@@ -121,13 +121,8 @@ namespace moris::hmr
          * called by field constructor
          */
         uint create_real_scalar_field_data(
-                const std::string     & aLabel,
-                const enum EntityRank   aEntityRank = EntityRank::NODE );
-
-        // ----------------------------------------------------------------------------
-
-        uint create_sint_scalar_field_data( const std::string & aLabel,
-                const enum EntityRank aEntityRank = EntityRank::NODE );
+                const std::string& aLabel,
+                mtk::EntityRank    aEntityRank = mtk::EntityRank::NODE );
 
         /**
          * Gets the number of bases per element on this mesh
@@ -165,7 +160,7 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        EntityRank get_real_scalar_field_rank( uint aFieldIndex ) const
+        mtk::EntityRank get_real_scalar_field_rank( uint aFieldIndex ) const
         {
             return mRealScalarFieldRanks( aFieldIndex );
         }

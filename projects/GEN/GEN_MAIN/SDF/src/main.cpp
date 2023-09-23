@@ -186,7 +186,7 @@ perform_calculation(
 
     // step 2: create mesh objects
     mtk::Mesh * tMtkMesh = mtk::create_interpolation_mesh(
-            MeshType::STK,
+            mtk::MeshType::STK,
             aArguments.get_input_mesh_path(),
             nullptr,
             false );

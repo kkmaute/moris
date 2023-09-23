@@ -770,7 +770,7 @@ namespace moris
                 }
 
                 // All sets
-                case SetType::END_ENUM:
+                case SetType::UNDEFINED:
                 {
                     return mListOfAllSets;
                 }
@@ -812,7 +812,7 @@ namespace moris
                 }
 
                 // All sets
-                case SetType::END_ENUM:
+                case SetType::UNDEFINED:
                 {
                     return mAllSetToColor;
                 }
