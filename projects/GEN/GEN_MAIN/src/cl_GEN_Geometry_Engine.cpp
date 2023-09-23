@@ -2113,7 +2113,7 @@ namespace moris
             for ( uint iMeshSetIndex = 0; iMeshSetIndex < tNumSets; iMeshSetIndex++ )
             {
                 // Determine number of nodes if there are PDVs on this set
-                if ( true )//aPdvTypes( iMeshSetIndex ).size() > 0 )
+                if ( aPdvTypes( iMeshSetIndex ).size() > 0 )
                 {
                     // Get set pointer
                     mtk::Set* tSet = aIntegrationMesh->get_set_by_index( iMeshSetIndex );
