@@ -8,47 +8,51 @@
  *
  */
 
-#include "cl_GEN_Stored_Geometry.hpp"
+#include "cl_GEN_Stored_Field.hpp"
 
 namespace moris::ge
 {
     //--------------------------------------------------------------------------------------------------------------
 
-    Stored_Geometry::Stored_Geometry(
-            mtk::Mesh*                aMesh,
-            std::shared_ptr< Level_Set_Geometry > aGeometry)
+    Stored_Field::Stored_Field(
+            mtk::Mesh*               aMesh,
+            std::shared_ptr< Field > aField )
             : Field_Discrete_Integration( {{}}, aMesh->get_num_nodes() )
-            , mGeometry(aGeometry)
-            , mMesh(aMesh)
-            , mFieldValues(aMesh->get_num_nodes(), 1)
+            , mField( aField )
+            , mMesh( aMesh )
+            , mFieldValues( aMesh->get_num_nodes(), 1 )
     {
         this->evaluate_nodal_values();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Stored_Geometry::get_field_value(uint aNodeIndex)
+    real
+    Stored_Field::get_field_value(uint aNodeIndex)
     {
-        return mFieldValues(aNodeIndex);
+        return mFieldValues( aNodeIndex );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix<DDRMat>& Stored_Geometry::get_dfield_dadvs(uint aNodeIndex)
+    const Matrix<DDRMat>&
+    Stored_Field::get_dfield_dadvs(uint aNodeIndex)
     {
-        return mGeometry->get_dfield_dadvs(aNodeIndex, mMesh->get_node_coordinate(aNodeIndex));
+        return mField->get_dfield_dadvs( aNodeIndex, mMesh->get_node_coordinate( aNodeIndex ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix<DDSMat> Stored_Geometry::get_determining_adv_ids(uint aNodeIndex)
+    Matrix<DDSMat>
+    Stored_Field::get_determining_adv_ids(uint aNodeIndex)
     {
-        return mGeometry->get_determining_adv_ids(aNodeIndex, mMesh->get_node_coordinate(aNodeIndex));
+        return mField->get_determining_adv_ids( aNodeIndex, mMesh->get_node_coordinate( aNodeIndex ) );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Stored_Geometry::reset_nodal_data()
+    void
+    Stored_Field::reset_nodal_data()
     {
         // Reset child nodes
         Field_Discrete_Integration::reset_nodal_data();
@@ -59,13 +63,14 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Stored_Geometry::evaluate_nodal_values()
+    void
+    Stored_Field::evaluate_nodal_values()
     {
         // Assign nodal values
         uint tNumNodes = mMesh->get_num_nodes();
         for (uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++)
         {
-            mFieldValues(tNodeIndex) = mGeometry->get_field_value(tNodeIndex, mMesh->get_node_coordinate(tNodeIndex));
+            mFieldValues( tNodeIndex ) = mField->get_field_value( tNodeIndex, mMesh->get_node_coordinate( tNodeIndex ) );
         }
     }
 

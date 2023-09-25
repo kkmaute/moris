@@ -16,7 +16,7 @@
 #include "GEN_Data_Types.hpp"
 #include "fn_GEN_create_geometries.hpp"
 #include "cl_GEN_BSpline_Field.hpp"
-#include "cl_GEN_Stored_Geometry.hpp"
+#include "cl_GEN_Stored_Field.hpp"
 #include "fn_GEN_create_properties.hpp"
 #include "cl_GEN_Interpolation.hpp"
 #include "cl_GEN_Child_Node.hpp"
@@ -1485,8 +1485,6 @@ namespace moris
             //----------------------------------------//
 
             clock_t tStart_Convert_to_Bspline_Fields = clock();
-
-            // FIXME this hole section is super hacky and limiting. has to be rewritten from scratch.
             moris::map< std::string, uint > tFieldNameToIndexMap;
             for ( uint Ik = 0; Ik < aFields.size(); Ik++ )
             {
@@ -1508,7 +1506,7 @@ namespace moris
 
                     std::string tGeoName = mGeometries( tGeometryIndex )->get_name();
 
-                    if ( not tFieldNameToIndexMap.key_exists( tGeoName ) )
+                    if ( true ) // not tFieldNameToIndexMap.key_exists( tGeoName ) )
                     {
                         // Create B-spline property FIXME nullptr, parameters, discretization index
                         auto tBSplineField = std::make_shared< BSpline_Field >(
@@ -1542,7 +1540,7 @@ namespace moris
                 else if ( mGeometries( tGeometryIndex )->intended_storage() )
                 {
                     // Create stored geometry
-                    auto tStoredField = std::make_shared< Stored_Geometry >( tMesh, mGeometries( tGeometryIndex ) );
+                    auto tStoredField = std::make_shared< Stored_Field >( tMesh, mGeometries( tGeometryIndex ) );
                     mGeometries( tGeometryIndex ) = std::make_shared< Level_Set_Geometry >(
                             tStoredField );
                 }
@@ -1563,7 +1561,7 @@ namespace moris
 
                     std::string tPropName = mProperties( tPropertyIndex )->get_name();
 
-                    if ( not tFieldNameToIndexMap.key_exists( tPropName ) )
+                    if ( true ) // not tFieldNameToIndexMap.key_exists( tPropName ) )
                     {
                         // Create B-spline property FIXME nullptr, parameters, discretization index
                         auto tBSplineField = std::make_shared< BSpline_Field >(

@@ -63,7 +63,7 @@ set(HEADERS
 	ADV/geometry/cl_GEN_Single_Grain.hpp
 	ADV/geometry/cl_GEN_User_Defined_Geometry.hpp
 	ADV/geometry/cl_GEN_BSpline_Geometry.hpp
-	ADV/geometry/cl_GEN_Stored_Geometry.hpp
+    ADV/geometry/cl_GEN_Stored_Field.hpp
 	ADV/geometry/cl_GEN_Geometry_SDF.hpp
 	ADV/geometry/cl_GEN_Image_SDF_Geometry.hpp
 	ADV/geometry/cl_GEN_Multigeometry.hpp
@@ -122,7 +122,7 @@ set(LIB_SOURCES
 	ADV/geometry/cl_GEN_Single_Grain.cpp
 	ADV/geometry/cl_GEN_User_Defined_Geometry.cpp
 	ADV/geometry/cl_GEN_BSpline_Geometry.cpp
-	ADV/geometry/cl_GEN_Stored_Geometry.cpp
+    ADV/geometry/cl_GEN_Stored_Field.cpp
 	ADV/geometry/cl_GEN_Geometry_SDF.cpp
 	ADV/geometry/cl_GEN_Image_SDF_Geometry.cpp
 	ADV/geometry/cl_GEN_Multigeometry.cpp

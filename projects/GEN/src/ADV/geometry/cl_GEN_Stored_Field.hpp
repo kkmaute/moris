@@ -16,13 +16,13 @@
 
 namespace moris::ge
 {
-    class Stored_Geometry : public Field_Discrete_Integration
+    class Stored_Field : public Field_Discrete_Integration
     {
 
     private:
-        std::shared_ptr< Level_Set_Geometry > mGeometry;
+        std::shared_ptr< Field > mField;
         mtk::Mesh* mMesh;
-        Matrix<DDRMat> mFieldValues;
+        Cell< real > mFieldValues;
 
     public:
 
@@ -30,11 +30,11 @@ namespace moris::ge
          * Constructor
          *
          * @param aMesh The mesh pointer where node information can be obtained
-         * @param aGeometry Geometry for obtaining field values to store
+         * @param aField Field for obtaining values to store
          */
-        Stored_Geometry(
-                mtk::Mesh*                aMesh,
-                std::shared_ptr< Level_Set_Geometry > aGeometry);
+      Stored_Field(
+                mtk::Mesh*               aMesh,
+                std::shared_ptr< Field > aField );
 
         /**
          * Given a node index or coordinate, returns the field value.
@@ -61,14 +61,14 @@ namespace moris::ge
         Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex);
 
         /**
-         * Resets all nodal information about geometry field values.
+         * Resets all nodal information about field values.
          */
         void reset_nodal_data();
 
     private:
 
         /**
-         * Evaluates and stores the nodal values of this geometry for use later.
+         * Evaluates and stores the nodal values of this field for use later.
          */
         void evaluate_nodal_values();
 
