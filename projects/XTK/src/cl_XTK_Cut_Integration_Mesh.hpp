@@ -17,7 +17,7 @@
 #include "cl_MTK_Writer_Exodus.hpp"
 
 #include "cl_MTK_Mesh_Core.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Vertex_XTK_Impl.hpp"
 
@@ -190,14 +190,14 @@ namespace xtk
         Vertex_Ancestry() = default;
         Vertex_Ancestry(
                 moris::Cell< moris_index > const &     aVertexParentEntityIndices,
-                moris::Cell< enum EntityRank > const & aVertexParentEntityRank )
+                moris::Cell< mtk::EntityRank > const & aVertexParentEntityRank )
                 : mVertexParentEntityIndex( aVertexParentEntityIndices )
                 , mVertexParentEntityRank( aVertexParentEntityRank )
         {
         }
 
         moris::Cell< moris_index >     mVertexParentEntityIndex;
-        moris::Cell< enum EntityRank > mVertexParentEntityRank;
+        moris::Cell< mtk::EntityRank > mVertexParentEntityRank;
 
         moris_index
         get_vertex_parent_index( moris_index aVertexIndex ) const
@@ -205,7 +205,7 @@ namespace xtk
             return mVertexParentEntityIndex( aVertexIndex );
         }
 
-        enum EntityRank
+        mtk::EntityRank
         get_vertex_parent_rank( moris_index aVertexIndex ) const
         {
             return mVertexParentEntityRank( aVertexIndex );
@@ -559,21 +559,21 @@ namespace xtk
         moris_index
         get_entity_index(
                 moris_index     aEntityOrdinal,
-                enum EntityRank aEntityRank ) const
+                mtk::EntityRank aEntityRank ) const
         {
             switch ( aEntityRank )
             {
-                case EntityRank::FACE:
+                case mtk::EntityRank::FACE:
                     return mCellFacesInds( aEntityOrdinal );
                     break;
-                case EntityRank::EDGE:
+                case mtk::EntityRank::EDGE:
                     return mCellEdgesInds( aEntityOrdinal );
                     break;
-                case EntityRank::NODE:
+                case mtk::EntityRank::NODE:
                     return mCellVertexInds( aEntityOrdinal );
                     break;
                 default:
-                    MORIS_ERROR( 0, "INVALID RANK" );
+                    MORIS_ERROR( 0, "UNDEFINED RANK" );
                     return 0;
                     break;
             }
@@ -582,11 +582,11 @@ namespace xtk
         moris_index
         get_entity_ordinal(
                 moris_index const & aEntityIndex,
-                enum EntityRank     aEntityRank ) const
+                mtk::EntityRank     aEntityRank ) const
         {
             switch ( aEntityRank )
             {
-                case EntityRank::FACE:
+                case mtk::EntityRank::FACE:
                     for ( uint iEnt = 0; iEnt < mCellFacesInds.numel(); iEnt++ )
                     {
                         if ( mCellFacesInds( iEnt ) == aEntityIndex )
@@ -597,7 +597,7 @@ namespace xtk
                     MORIS_ERROR( 0, "Face not found" );
                     return MORIS_INDEX_MAX;
                     break;
-                case EntityRank::EDGE:
+                case mtk::EntityRank::EDGE:
                     for ( uint iEnt = 0; iEnt < mCellEdgesInds.numel(); iEnt++ )
                     {
                         if ( mCellEdgesInds( iEnt ) == aEntityIndex )
@@ -608,7 +608,7 @@ namespace xtk
                     MORIS_ERROR( 0, "Edge not found" );
                     return MORIS_INDEX_MAX;
                     break;
-                case EntityRank::NODE:
+                case mtk::EntityRank::NODE:
                     for ( uint iEnt = 0; iEnt < mCellVertexInds.numel(); iEnt++ )
                     {
                         if ( mCellVertexInds( iEnt ) == aEntityIndex )
@@ -620,7 +620,7 @@ namespace xtk
                     return MORIS_INDEX_MAX;
                     break;
                 default:
-                    MORIS_ERROR( 0, "INVALID RANK" );
+                    MORIS_ERROR( 0, "UNDEFINED RANK" );
                     return 0;
                     break;
             }
@@ -859,7 +859,7 @@ namespace xtk
         std::unordered_map< std::string, moris_index >  mBlockSetLabelToOrd;
         moris::Cell< std::string >                      mBlockSetNames;
         moris::Cell< std::shared_ptr< IG_Cell_Group > > mBlockSetCellGroup;
-        moris::Cell< enum CellTopology >                mBlockCellTopo;
+        moris::Cell< mtk::CellTopology >                mBlockCellTopo;
 
         // Side Set Data
         std::unordered_map< std::string, moris_index >       mSideSideSetLabelToOrd;
@@ -915,14 +915,14 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
-        MeshType
+        mtk::MeshType
         get_mesh_type() const;
 
         // ----------------------------------------------------------------------------------
 
         uint
         get_num_entities(
-                enum EntityRank   aEntityRank,
+                mtk::EntityRank   aEntityRank,
                 const moris_index aIndex ) const;
 
         // ----------------------------------------------------------------------------------
@@ -970,47 +970,48 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
-        enum CellTopology
+        mtk::CellTopology
         get_blockset_topology( const std::string& aSetName );
 
         // ----------------------------------------------------------------------------------
 
-        enum CellShape
+        mtk::CellShape
         get_IG_blockset_shape( const std::string& aSetName );
 
         // ----------------------------------------------------------------------------------
 
-        enum CellShape
+        mtk::CellShape
         get_IP_blockset_shape( const std::string& aSetName );
 
         // ----------------------------------------------------------------------------------
 
         moris_id
         get_glb_entity_id_from_entity_loc_index(
-                moris_index       aEntityIndex,
-                enum EntityRank   aEntityRank,
-                const moris_index aDiscretizationIndex = 0 ) const;
+                moris_index     aEntityIndex,
+                mtk::EntityRank aEntityRank,
+                moris_index     aDiscretizationIndex = 0 ) const override;
 
         // ----------------------------------------------------------------------------------
 
         moris_index
         get_loc_entity_ind_from_entity_glb_id(
                 moris_id        aEntityId,
-                enum EntityRank aEntityRank ) const;
+                mtk::EntityRank aEntityRank,
+                moris_index     aDiscretizationIndex = 0 ) const override;
 
         // ----------------------------------------------------------------------------------
 
         Matrix< IndexMat >
         get_entity_connected_to_entity_loc_inds(
                 moris_index       aEntityIndex,
-                enum EntityRank   aInputEntityRank,
-                enum EntityRank   aOutputEntityRank,
+                mtk::EntityRank   aInputEntityRank,
+                mtk::EntityRank   aOutputEntityRank,
                 const moris_index aDiscretizationIndex = 0 ) const;
 
         // ----------------------------------------------------------------------------------
 
         moris::Cell< std::string >
-        get_set_names( enum EntityRank aSetEntityRank ) const;
+        get_set_names( mtk::EntityRank aSetEntityRank ) const;
 
         // ----------------------------------------------------------------------------------
 
@@ -1039,7 +1040,7 @@ namespace xtk
 
         Matrix< IndexMat >
         get_set_entity_loc_inds(
-                enum EntityRank aSetEntityRank,
+                mtk::EntityRank aSetEntityRank,
                 std::string     aSetName ) const;
 
         // ----------------------------------------------------------------------------------
@@ -1153,7 +1154,7 @@ namespace xtk
 
         moris_id
         allocate_entity_ids( moris::size_t aNumIdsToAllocate,
-                enum EntityRank            aEntityRank );
+                mtk::EntityRank            aEntityRank );
 
         // ----------------------------------------------------------------------------------
 
@@ -1169,7 +1170,7 @@ namespace xtk
         // ----------------------------------------------------------------------------------
 
         moris_index
-        get_first_available_index( enum EntityRank aEntityRank ) const;
+        get_first_available_index( mtk::EntityRank aEntityRank ) const;
 
         // ----------------------------------------------------------------------------------
 
@@ -1193,7 +1194,7 @@ namespace xtk
 
         // ----------------------------------------------------------------------------------
 
-        enum CellTopology
+        mtk::CellTopology
         get_child_element_topology();
         void
 
@@ -1472,7 +1473,7 @@ namespace xtk
 
         Cell< moris_index >
         register_block_set_names( moris::Cell< std::string > const & aBlockSetNames,
-                enum CellTopology                                    aCellTopo );
+                mtk::CellTopology                                    aCellTopo );
 
         // ----------------------------------------------------------------------------------
 

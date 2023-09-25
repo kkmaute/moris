@@ -515,17 +515,17 @@ namespace xtk
                 // std::cout << " mOctreeParamCoords( iVertex, 0 ) =  " << mOctreeParamCoords( iVertex, 0 ) << " | tIInt = " << tIInt << std::endl;
 
                 // iternal vertex hash
-                if ( tVertexAncestry->get_vertex_parent_rank( iVertex ) == EntityRank::ELEMENT )
+                if ( tVertexAncestry->get_vertex_parent_rank( iVertex ) == mtk::EntityRank::ELEMENT )
                 {
                     // tVertexHashes( iVertex ) = 100 * tIJK.mI + 10000 * tIJK.mJ + 100000000 * tIJK.mK;
                     tVertexHashes( iVertex ) = std::hash< int >{}( tIInt + 1000 * tJInt + 100000 * tKInt );
                 }
-                else if ( tVertexAncestry->get_vertex_parent_rank( iVertex ) == EntityRank::NODE )
+                else if ( tVertexAncestry->get_vertex_parent_rank( iVertex ) == mtk::EntityRank::NODE )
                 {
                     // intentionally left out, so we don't hash vertices that are already in the mesh
                 }
 
-                else if ( tVertexAncestry->get_vertex_parent_rank( iVertex ) == EntityRank::FACE )
+                else if ( tVertexAncestry->get_vertex_parent_rank( iVertex ) == mtk::EntityRank::FACE )
                 {
 
                     if ( tIJK.mI == mOctreeMeshGrid.min_vert_i() || tIJK.mI == mOctreeMeshGrid.max_vert_i() )
@@ -550,7 +550,7 @@ namespace xtk
                         tVertexHashes( iVertex ) = std::hash< int >{}( 3 + 10 * tIInt + 10000 * tJInt );
                     }
                 }
-                else if ( tVertexAncestry->get_vertex_parent_rank( iVertex ) == EntityRank::EDGE )
+                else if ( tVertexAncestry->get_vertex_parent_rank( iVertex ) == mtk::EntityRank::EDGE )
                 {
                     // hash edges at the are invariant to j k - edges 0, 2, 4 6
                     if ( ( tIJK.mJ == mOctreeMeshGrid.min_vert_j() || tIJK.mJ == mOctreeMeshGrid.max_vert_j() ) && ( tIJK.mK == mOctreeMeshGrid.min_vert_k() || tIJK.mK == mOctreeMeshGrid.max_vert_k() ) )
@@ -719,7 +719,7 @@ namespace xtk
         moris::Cell< moris_index > const
         determine_octree_bounds();
 
-        enum CellTopology
+        mtk::CellTopology
         get_ig_cell_topology() const;
 
         moris::Cell< std::unordered_map< moris_index, moris_index > >

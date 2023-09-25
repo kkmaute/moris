@@ -37,7 +37,7 @@ namespace moris
                     moris::moris_id                mGlbId;
                     moris::moris_id                mLocInd;
                     moris::moris_id                mOwningProc;
-                    enum moris::EntityRank         mEntityRank;
+                    EntityRank         mEntityRank;
                     moris::Matrix< moris::DDRMat > mEntityCoordinates; // If its a node
 
                 public:
@@ -64,7 +64,7 @@ namespace moris
                             moris::moris_id                     aGlbId,
                             moris::moris_id                     aLocInd,
                             moris::moris_id                     aOwnerProc,
-                            enum moris::EntityRank              aEntityRank)
+                            EntityRank              aEntityRank)
                     {
                         mGlbId        = aGlbId;
                         mLocInd       = aLocInd;
@@ -76,7 +76,7 @@ namespace moris
 
                     void set_entity_coords(moris::Matrix< moris::DDRMat > const & aCoordinates)
                     {
-                        if (mEntityRank == moris::EntityRank::NODE)
+                        if (mEntityRank == mtk::EntityRank::NODE)
                         {
                             mEntityCoordinates = aCoordinates.copy();
                         }

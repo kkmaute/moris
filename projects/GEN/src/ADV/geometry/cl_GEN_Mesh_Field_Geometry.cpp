@@ -21,7 +21,7 @@ namespace moris
 
         Mesh_Field_Geometry::Mesh_Field_Geometry(mtk::Mesh*  aMesh,
                 std::string aFieldName,
-                EntityRank  aEntityRank,
+                mtk::EntityRank  aEntityRank,
                 Level_Set_Parameters                         aParameters)
                  : Field_Discrete_Integration({{}}, aMesh->get_num_nodes())
                  , mMesh(aMesh)
@@ -38,7 +38,7 @@ namespace moris
                 std::string aFieldName,
                 std::string aFileFormat,
                 real        aOffset,
-                EntityRank  aEntityRank,
+                mtk::EntityRank  aEntityRank,
                  Level_Set_Parameters aParameters)
                 : Field_Discrete_Integration( {{}}, aMesh == nullptr ? 0 : aMesh->get_num_nodes())
                 , mMesh(aMesh)

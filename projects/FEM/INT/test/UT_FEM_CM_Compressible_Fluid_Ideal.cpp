@@ -301,8 +301,8 @@ TEST_CASE( "CM_Fluid_Compressible_Ideal", "[CM_Fluid_Compressible_Ideal]" )
             tLeaderFIs( 2 )->set_coeff( tLeaderDOFHatTemp );
 
             // create a field interpolator manager
-            moris::Cell< moris::Cell< enum ge::PDV_Type > > tDummyDv;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            moris::Cell< moris::Cell< ge::PDV_Type > > tDummyDv;
+            moris::Cell< moris::Cell< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager

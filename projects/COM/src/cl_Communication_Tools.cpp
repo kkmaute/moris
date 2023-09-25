@@ -285,7 +285,7 @@ namespace moris
                 MORIS_ERROR( false, "create_proc_cart: Undefined decomposition method" );
                 break;
             }
-        }
+        } // end switch: domain decomposition method
 
         // No periodic boundary conditions are needed
         int tPeriods[ 3 ] = { 0, 0, 0 };
@@ -364,7 +364,7 @@ namespace moris
                 // increment counter
                 ++tCount;
             }
-        }
+        } // end if: 1D
         else if ( aNumberOfDimensions == 2 )
         {
             // assign memory for neighbors
@@ -407,7 +407,7 @@ namespace moris
                     ++tCount;
                 }
             }
-        }
+        } // end if: 2D
         else if ( aNumberOfDimensions == 3 )
         {
             // assign memory for neighbors
@@ -456,12 +456,13 @@ namespace moris
                     }
                 }
             }
-        }
+        } // end if: 3D
         else
         {
-            MORIS_ERROR( false, "create_proc_cart: invalid number of dimensions" );
+            MORIS_ERROR( false, "Communication_Tools::create_proc_cart(): invalid number of dimensions." );
         }
-    }
+
+    } // end function: create_proc_cart()
 
     //------------------------------------------------------------------------------
 
@@ -481,6 +482,33 @@ namespace moris
         }
 
         return tMax * par_size() + tMin;
+    }
+
+    //------------------------------------------------------------------------------
+
+    Cell< moris_id > build_communication_table_map( const Matrix< IdMat >& aCommunicationTable )
+    {
+        if ( par_size() > 1 )
+        {
+            // Start map
+            Cell< moris_id > tCommunicationTableMap( aCommunicationTable.max() + 1, -1 );
+
+            // Get number of processors
+            uint tNumCommunicationProcs = aCommunicationTable.numel();
+
+            // Loop over communication table to fill the communication table map
+            for ( uint iCommunicationProcIndex = 0; iCommunicationProcIndex < tNumCommunicationProcs; iCommunicationProcIndex++ )
+            {
+                tCommunicationTableMap( aCommunicationTable( iCommunicationProcIndex ) ) = iCommunicationProcIndex;
+            }
+
+            // Return result
+            return tCommunicationTableMap;
+        }
+        else
+        {
+            return {};
+        }
     }
 
     //------------------------------------------------------------------------------

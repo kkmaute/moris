@@ -1041,7 +1041,7 @@ namespace moris
                 moris::map< std::string, mtk::Field_Entity_Type > tFieldEntityTypeMap =
                         mtk::get_field_entity_type_map();
 
-                enum mtk::Field_Entity_Type tFieldEntityType =
+                mtk::Field_Entity_Type tFieldEntityType =
                         tFieldEntityTypeMap.find( tFieldParameter.get< std::string >( "field_entity_type" ) );
 
                 // create a property pointer
@@ -1935,7 +1935,9 @@ namespace moris
 
                     // check for unknown phase
                     MORIS_ERROR( mPhaseMap.find( tPhaseName ) != mPhaseMap.end(),
-                            "FEM_Model::create_IQIs - Unknown phase name: %s \n",
+                            "FEM_Model::create_IQIs - %s: Unknown %s phase name: %s.",
+                            tIQIName.c_str(),
+                            tIsLeaderString.c_str(),
                             tPhaseName.c_str() );
 
                     // set phase name

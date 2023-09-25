@@ -170,7 +170,7 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
         Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
         tXTKModel.decompose( tDecompositionMethods );
 
-        tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
+        tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
         tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
         xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
@@ -179,7 +179,7 @@ TEST_CASE( "XTK HMR Material Void Bar Intersected By Plane", "[XTK_HMR_PLANE_BAR
         // tEnrIntegMesh.print();
 
         moris_index tSSIndex = tEnrIntegMesh.create_side_set_from_dbl_side_set( 1, "ghost_ss_p0" );
-        tEnrIntegMesh.create_block_set_from_cells_of_side_set( tSSIndex, "ghost_bs_p0", CellTopology::QUAD4 );
+        tEnrIntegMesh.create_block_set_from_cells_of_side_set( tSSIndex, "ghost_bs_p0", moris::mtk::CellTopology::QUAD4 );
 
         // Write mesh
         moris::mtk::Writer_Exodus writer( &tEnrIntegMesh );

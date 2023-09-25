@@ -16,7 +16,7 @@
 
 #include "cl_MTK_Side_Cluster.hpp"
 #include "typedefs.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "fn_unique.hpp"
 #include <unordered_map>
 
@@ -597,9 +597,6 @@ namespace moris::mig
         // moris::Cell< moris::mtk::Cell const * > tLeaderIntegCells;
         // moris::Cell< moris::mtk::Cell const * > tFollowerIntegCells;
 
-        // Added surfaces if intersection area is a polygon
-        uint tAddedSurafceNum = 0;
-
         // iterate through each intersection surface and make Ig cells
         for ( size_t tClusterNum = 0; tClusterNum < aIndicesinCutCell.size(); tClusterNum++ )
         {
@@ -610,8 +607,6 @@ namespace moris::mig
                 uint tNumEdges = tPVertexIndex( tClusterNum ).n_cols();
 
                 uint tNumTriangles = tNumEdges - 2;
-
-                tAddedSurafceNum += ( tNumTriangles - 1 );
 
                 // loop over the subtriangles created by fan triangulation
                 for ( uint tTRI = 0; tTRI < tNumTriangles; tTRI++ )
@@ -747,7 +742,7 @@ namespace moris::mig
         moris::mtk::Integration_Mesh *tIntegrationMesh = mMeshManager->get_integration_mesh( mMeshIndex );
 
         // get all the sidesets
-        moris::Cell< moris::mtk::Set * > const &tListOfSideSets = tIntegrationMesh->get_list_of_sets( SetType::SIDESET );
+        moris::Cell< moris::mtk::Set * > const &tListOfSideSets = tIntegrationMesh->get_list_of_sets( mtk::SetType::SIDESET );
 
         moris::Cell< std::string > tSetNames( tListOfSideSets.size() );
 
@@ -974,7 +969,7 @@ namespace moris::mig
         moris::mtk::Integration_Mesh *tIntegrationMesh = mMeshManager->get_integration_mesh( mMeshIndex );
 
         // multiplier for the identification number
-        uint tMultiplier = tIntegrationMesh->get_num_entities( moris::EntityRank::NODE );
+        uint tMultiplier = tIntegrationMesh->get_num_entities( mtk::EntityRank::NODE );
 
         uint tFirst;
         uint tSecond;

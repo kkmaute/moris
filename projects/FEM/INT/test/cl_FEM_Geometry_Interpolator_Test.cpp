@@ -261,7 +261,7 @@ TEST_CASE( "Geometry_Interpolator", "[moris],[fem],[GeoInterpolator]" )
                 mtk::Interpolation_Order::LINEAR );
 
         // create a space and time geometry interpolator
-        Geometry_Interpolator tGeoInterpolator( tGeoInterpRule, CellShape::GENERAL, true );
+        Geometry_Interpolator tGeoInterpolator( tGeoInterpRule, mtk::CellShape::GENERAL, true );
 
         //set the coefficients xHat, tHat
         tGeoInterpolator.set_space_coeff( tXHat );

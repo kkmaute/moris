@@ -20,7 +20,7 @@ namespace moris
         Cell_Cluster_Group::Cell_Cluster_Group( const moris_index aDiscretizationMeshIndex )
                 : Cluster_Group( aDiscretizationMeshIndex )
         {
-            mClusterType = mtk::Cluster_Type::CELL;
+            mClusterType = mtk::ClusterType::CELL;
         }
 
         //------------------------------------------------------------------------------

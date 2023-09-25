@@ -109,21 +109,45 @@ namespace moris::mtk
     Matrix< DDRMat >
     Integration_Mesh_DataBase_IG::get_node_coordinate( moris_index aNodeIndex ) const
     {
-        MORIS_ERROR( 0, "get_node_coordinate not implemented for Integration_Mesh_DataBase_IG" );
-        return { {} };
-        // return mIGMesh.get_node_coordinate( aNodeIndex );
+        return mVertexCoordinates.get_column( aNodeIndex );
     }
 
     // ----------------------------------------------------------------------------
+
     moris_id
     Integration_Mesh_DataBase_IG::get_glb_entity_id_from_entity_loc_index(
-        moris_index       aEntityIndex,
-        enum EntityRank   aEntityRank,
-        const moris_index aDiscretizationIndex ) const
+            moris_index aEntityIndex,
+            EntityRank  aEntityRank,
+            moris_index aDiscretizationIndex ) const
     {
-        MORIS_ERROR( 0, "get_glb_entity_id_from_entity_loc_index not implemented for Integration_Mesh_DataBase_IG" );
-        return 1;
-        // return mIGMesh.get_glb_entity_id_from_entity_loc_index( aEntityIndex, aEntityRank, aDiscretizationIndex );
+        switch ( aEntityRank )
+        {
+            case ( EntityRank::NODE ):
+                return mVertexIdList( aEntityIndex );
+            case ( EntityRank::ELEMENT ):
+                return mCellIdList( aEntityIndex );
+            default:
+                MORIS_ERROR( false, "Integration_Mesh_DataBase_IG::get_glb_entity_id_from_entity_loc_index() does not support given entity type" );
+                return 0;
+        }
+    }
+
+    // ----------------------------------------------------------------------------
+
+    moris_index
+    Integration_Mesh_DataBase_IG::get_loc_entity_ind_from_entity_glb_id(
+            moris_id    aEntityId,
+            EntityRank  aEntityRank,
+            moris_index aDiscretizationIndex ) const
+    {
+        switch ( aEntityRank )
+        {
+            case ( EntityRank::NODE ):
+                return mVertexGlobalIdToLocalIndex.find( aEntityId )->second;
+            default:
+                MORIS_ERROR( false, "Integration_Mesh_DataBase_IG::get_loc_entity_ind_from_entity_glb_id() does not support given entity type" );
+                return 0;
+        }
     }
 
     // ----------------------------------------------------------------------------
@@ -512,13 +536,13 @@ namespace moris::mtk
     {
         switch ( aClusterType )
         {
-            case ClusterType::CELL_CLUSTER:
+            case ClusterType::CELL:
             {
                 MORIS_ASSERT( aClusterIndex < (moris_index)mCellClusters.size(), "index of the vertex specified exceeds the bounds" );
                 return &mIPMesh->get_mtk_cell( aClusterIndex );
                 break;
             }
-            case ClusterType::SIDE_CLUSTER:
+            case ClusterType::SIDE:
             {
                 if ( aClusterIndex < (moris_index)mSideClusters.size() )
                 {
@@ -542,11 +566,11 @@ namespace moris::mtk
     //--------------------------------------------------------------------------------------------------------------
 
     mtk::Cell* const*
-    Integration_Mesh_DataBase_IG::get_ig_cells_in_cluster( enum ClusterType aClusterType, enum mtk::Primary_Void aPrimaryOrVoid, moris_index aClusterIndex ) const
+    Integration_Mesh_DataBase_IG::get_ig_cells_in_cluster( enum ClusterType aClusterType, Primary_Void aPrimaryOrVoid, moris_index aClusterIndex ) const
     {
         switch ( aClusterType )
         {
-            case ClusterType::CELL_CLUSTER:
+            case ClusterType::CELL:
             {
                 switch ( aPrimaryOrVoid )
                 {
@@ -568,7 +592,7 @@ namespace moris::mtk
                 }
                 break;
             }
-            case ClusterType::SIDE_CLUSTER:
+            case ClusterType::SIDE:
             {
                 if ( aClusterIndex < (moris_index)mSideClusters.size() )
                 {
@@ -592,11 +616,11 @@ namespace moris::mtk
     //--------------------------------------------------------------------------------------------------------------
 
     uint 
-    Integration_Mesh_DataBase_IG::get_num_cells_in_cluster( enum ClusterType aClusterType, enum mtk::Primary_Void aPrimaryOrVoid, moris_index aClusterIndex ) const
+    Integration_Mesh_DataBase_IG::get_num_cells_in_cluster( enum ClusterType aClusterType, Primary_Void aPrimaryOrVoid, moris_index aClusterIndex ) const
     {
         switch ( aClusterType )
         {
-            case ClusterType::CELL_CLUSTER:
+            case ClusterType::CELL:
             {
                 switch ( aPrimaryOrVoid )
                 {
@@ -619,7 +643,7 @@ namespace moris::mtk
                 }
                 break;
             }
-            case ClusterType::SIDE_CLUSTER:
+            case ClusterType::SIDE:
             {
                 if ( aClusterIndex < (moris_index)mSideClusters.size() )
                 {
@@ -662,11 +686,11 @@ namespace moris::mtk
     {
         switch ( aClusterType )
         {
-            case ClusterType::CELL_CLUSTER:
+            case ClusterType::CELL:
             {
                 return mCellClusterIsTrivial( aClusterIndex );
             }
-            case ClusterType::SIDE_CLUSTER:
+            case ClusterType::SIDE:
             {
                 if ( aClusterIndex < (moris_index)mSideClusters.size() )
                 {
@@ -694,12 +718,12 @@ namespace moris::mtk
     {
         switch ( aClusterType )
         {
-            case ClusterType::CELL_CLUSTER:
+            case ClusterType::CELL:
             {
                 return mCellClusterToVeretx.memptr() + mCellClusterToVertexOffset( aClusterIndex );
                 break;
             }
-            case ClusterType::SIDE_CLUSTER:
+            case ClusterType::SIDE:
             {
                 if ( aClusterIndex < (moris_index)mSideClusters.size() )
                 {
@@ -727,12 +751,12 @@ namespace moris::mtk
     {
         switch ( aClusterType )
         {
-            case ClusterType::CELL_CLUSTER:
+            case ClusterType::CELL:
             {
                 return mCellClusterToVertexOffset( aClusterIndex + 1 ) - mCellClusterToVertexOffset( aClusterIndex );
                 break;
             }
-            case ClusterType::SIDE_CLUSTER:
+            case ClusterType::SIDE:
             {
                 if ( aClusterIndex < (moris_index)mSideClusters.size() )
                 {
@@ -760,12 +784,12 @@ namespace moris::mtk
     {
         switch ( aClusterType )
         {
-            case ClusterType::CELL_CLUSTER:
+            case ClusterType::CELL:
             {
                 return mCellClusterVertexCoords;
                 break;
             }
-            case ClusterType::SIDE_CLUSTER:
+            case ClusterType::SIDE:
             {
                 if ( aClusterIndex < (moris_index)mSideClusters.size() )
                 {
@@ -793,12 +817,12 @@ namespace moris::mtk
     {
         switch ( aClusterType )
         {
-            case ClusterType::CELL_CLUSTER:
+            case ClusterType::CELL:
             {
                 return mCellClusterIndexToRowNumber.at( aClusterIndex );
                 break;
             }
-            case ClusterType::SIDE_CLUSTER:
+            case ClusterType::SIDE:
             {
                 if ( aClusterIndex < (moris_index)mSideClusters.size() )
                 {

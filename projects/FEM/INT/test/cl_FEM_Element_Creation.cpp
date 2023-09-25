@@ -86,7 +86,7 @@ namespace moris
            aMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobalQuad;
            aMeshData.LocaltoGlobalNodeMap    = & aNodeLocalToGlobal;
 
-           mtk::Mesh* tMesh2D_Quad4 = create_interpolation_mesh( MeshType::STK, aMeshData );
+           mtk::Mesh* tMesh2D_Quad4 = create_interpolation_mesh( mtk::MeshType::STK, aMeshData );
 
             //1) Create the fem nodes -----------------------------------------------------
            std::cout<<" Create the fem nodes "<<std::endl;

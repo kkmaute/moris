@@ -36,7 +36,7 @@ class IG_Cell_Group;
 
 struct Node_Hierarchy_Template
 {
-    enum CellTopology mCellTopology;
+    mtk::CellTopology mCellTopology;
     moris_index mNumCells;
     moris::Matrix< moris::IndexMat > mCellToNodeOrdinal;
 };

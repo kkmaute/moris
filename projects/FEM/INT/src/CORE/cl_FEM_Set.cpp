@@ -919,7 +919,7 @@ namespace moris
             // field types
             //------------------------------------------------------------------------------
             // Create temporary field type list
-            const moris::Cell< enum mtk::Field_Type >& tFieldType = get_unique_field_type_list();
+            const moris::Cell< mtk::Field_Type >& tFieldType = get_unique_field_type_list();
 
             // Get number of unique dvs of this equation object
             moris::uint tNumUniqueFieldTypes = tFieldType.size();
@@ -3236,14 +3236,14 @@ namespace moris
             }
 
             // get the set type
-            moris::SetType tSetType = aVisMeshSet->get_set_type();
+            mtk::SetType tSetType = aVisMeshSet->get_set_type();
 
             // the below steps are only needed for block sets
-            if ( tSetType == moris::SetType::BULK )
+            if ( tSetType == mtk::SetType::BULK )
             {
                 this->construct_cell_assembly_map_for_VIS_set( aVisMeshIndex, aVisMeshSet, aOnlyPrimaryCells );
             }
-            else if ( tSetType == moris::SetType::SIDESET || tSetType == moris::SetType::DOUBLE_SIDED_SIDESET )
+            else if ( tSetType == mtk::SetType::SIDESET || tSetType == mtk::SetType::DOUBLE_SIDED_SIDESET )
             {
                 this->construct_facet_assembly_map_for_VIS_set( aVisMeshIndex, aVisMeshSet );
             }
@@ -3265,7 +3265,7 @@ namespace moris
         {
             // make sure this function is only called on block sets
             MORIS_ASSERT(
-                    aVisMeshSet->get_set_type() == moris::SetType::BULK,
+                    aVisMeshSet->get_set_type() == mtk::SetType::BULK,
                     "fem::Set::construct_cell_assembly_map_for_VIS_set() - Function can only be called for BULK sets." );
 
             // get the cells that are on the VIS cluster the fem cluster is supposed to output to
@@ -3309,11 +3309,11 @@ namespace moris
                 moris::mtk::Set* aVisMeshSet )
         {
             // get the set type
-            moris::SetType tSetType = aVisMeshSet->get_set_type();
+            mtk::SetType tSetType = aVisMeshSet->get_set_type();
 
             // make sure this function is only called on (dbl) side sets
             MORIS_ASSERT(
-                    tSetType == moris::SetType::SIDESET || tSetType == moris::SetType::DOUBLE_SIDED_SIDESET,
+                    tSetType == mtk::SetType::SIDESET || tSetType == mtk::SetType::DOUBLE_SIDED_SIDESET,
                     "fem::Set::construct_facet_assembly_map_for_VIS_set() - "
                     "Function can only be called for SIDESETs or DOUBLE_SIDED_SIDESETs." );
 
@@ -3336,11 +3336,11 @@ namespace moris
 
                 // get the Leader side
                 mtk::Cluster const * tLeaderSideCluster;
-                if ( tSetType == moris::SetType::DOUBLE_SIDED_SIDESET )
+                if ( tSetType == mtk::SetType::DOUBLE_SIDED_SIDESET )
                 {
                     tLeaderSideCluster = &tCluster->get_leader_side_cluster();
                 }
-                else if ( tSetType == moris::SetType::SIDESET )
+                else if ( tSetType == mtk::SetType::SIDESET )
                 {
                     tLeaderSideCluster = tCluster;
                 }
@@ -3406,11 +3406,11 @@ namespace moris
 
                 // get the Leader side
                 mtk::Cluster const * tLeaderSideCluster;
-                if ( tSetType == moris::SetType::DOUBLE_SIDED_SIDESET )
+                if ( tSetType == mtk::SetType::DOUBLE_SIDED_SIDESET )
                 {
                     tLeaderSideCluster = &tCluster->get_leader_side_cluster();
                 }
-                else if ( tSetType == moris::SetType::SIDESET )
+                else if ( tSetType == mtk::SetType::SIDESET )
                 {
                     tLeaderSideCluster = tCluster;
                 }
@@ -3687,11 +3687,11 @@ namespace moris
         void
         Set::determine_set_type()
         {
-            enum moris::SetType tMtkSetType = mMeshSet->get_set_type();
+            mtk::SetType tMtkSetType = mMeshSet->get_set_type();
 
             switch ( tMtkSetType )
             {
-                case moris::SetType::BULK:
+                case mtk::SetType::BULK:
                 {
                     mElementType = fem::Element_Type::BULK;
 
@@ -3709,11 +3709,11 @@ namespace moris
                     break;
                 }
 
-                case moris::SetType::SIDESET:
+                case mtk::SetType::SIDESET:
                     mElementType = fem::Element_Type::SIDESET;
                     break;
 
-                case moris::SetType::DOUBLE_SIDED_SIDESET:
+                case mtk::SetType::DOUBLE_SIDED_SIDESET:
                     mElementType = fem::Element_Type::DOUBLE_SIDESET;
                     break;
 

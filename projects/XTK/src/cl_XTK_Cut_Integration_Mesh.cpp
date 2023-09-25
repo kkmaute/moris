@@ -401,8 +401,8 @@ namespace xtk
         this->setup_comm_map();
 
         // max vertex and cell ids (to allocate new ones later)
-        mGlobalMaxVertexId = mBackgroundMesh->get_max_entity_id( EntityRank::NODE ) + 1;
-        mGlobalMaxCellId   = mBackgroundMesh->get_max_entity_id( EntityRank::ELEMENT ) + 1;
+        mGlobalMaxVertexId = mBackgroundMesh->get_max_entity_id( mtk::EntityRank::NODE ) + 1;
+        mGlobalMaxCellId   = mBackgroundMesh->get_max_entity_id( mtk::EntityRank::ELEMENT ) + 1;
 
         mFirstControlledCellIndex   = mIntegrationCells.size();
         mFirstControlledVertexIndex = mIntegrationVertices.size();
@@ -455,10 +455,10 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    MeshType
+    mtk::MeshType
     Cut_Integration_Mesh::get_mesh_type() const
     {
-        return MeshType::XTK;
+        return mtk::MeshType::XTK;
     }
 
     // ----------------------------------------------------------------------------------
@@ -567,7 +567,7 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    enum CellTopology
+    mtk::CellTopology
     Cut_Integration_Mesh::get_blockset_topology( const std::string& aSetName )
     {
         // get index
@@ -578,34 +578,34 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    enum CellShape
+    mtk::CellShape
     Cut_Integration_Mesh::get_IG_blockset_shape( const std::string& aSetName )
     {
-        return CellShape::INVALID;
+        return mtk::CellShape::UNDEFINED;
     }
 
     // ----------------------------------------------------------------------------------
 
-    enum CellShape
+    mtk::CellShape
     Cut_Integration_Mesh::get_IP_blockset_shape( const std::string& aSetName )
     {
-        return CellShape::INVALID;
+        return mtk::CellShape::UNDEFINED;
     }
 
     // ----------------------------------------------------------------------------------
 
     moris_id
     Cut_Integration_Mesh::get_glb_entity_id_from_entity_loc_index(
-            moris_index       aEntityIndex,
-            enum EntityRank   aEntityRank,
-            const moris_index aDiscretizationIndex ) const
+            moris_index     aEntityIndex,
+            mtk::EntityRank aEntityRank,
+            moris_index     aDiscretizationIndex ) const
     {
-        MORIS_ERROR( aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT, "Only supported for nodes and cells" );
-        if ( aEntityRank == EntityRank::NODE )
+        MORIS_ERROR( aEntityRank == mtk::EntityRank::NODE || aEntityRank == mtk::EntityRank::ELEMENT, "Only supported for nodes and cells" );
+        if ( aEntityRank == mtk::EntityRank::NODE )
         {
             return mIntegrationVertices( aEntityIndex )->get_index();
         }
-        else if ( aEntityRank == EntityRank::ELEMENT )
+        else if ( aEntityRank == mtk::EntityRank::ELEMENT )
         {
             return mIntegrationCells( aEntityIndex )->get_index();
         }
@@ -621,30 +621,31 @@ namespace xtk
     moris_index
     Cut_Integration_Mesh::get_loc_entity_ind_from_entity_glb_id(
             moris_id        aEntityId,
-            enum EntityRank aEntityRank ) const
+            mtk::EntityRank aEntityRank,
+            moris_index     aDiscretizationIndex ) const
     {
         // warning element map is set up after integration mesh has been constructed
-        MORIS_ERROR( aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT, "Only a node map and element map is implemented in XTK" );
+        MORIS_ERROR( aEntityRank == mtk::EntityRank::NODE || aEntityRank == mtk::EntityRank::ELEMENT, "Only a node map and element map is implemented in XTK" );
 
-        if ( aEntityRank == EntityRank::NODE )
+        if ( aEntityRank == mtk::EntityRank::NODE )
         {
             auto tIter = mIntegrationVertexIdToIndexMap.find( aEntityId );
 
             MORIS_ERROR( tIter != mIntegrationVertexIdToIndexMap.end(),
                     "Cut_Integration_Mesh::get_loc_entity_ind_from_entity_glb_id() - "
-                    "Provided Entity Id is not in the map, Has the map been initialized?: aEntityId =%u EntityRank = %u on process %u",
+                    "Provided Entity Id is not in the map, Has the map been initialized?: aEntityId =%u mtk::EntityRank = %u on process %u",
                     aEntityId,
                     (uint)aEntityRank,
                     par_rank() );
             return tIter->second;
         }
-        else if ( aEntityRank == EntityRank::ELEMENT )
+        else if ( aEntityRank == mtk::EntityRank::ELEMENT )
         {
             auto tIter = mIntegrationCellIdToIndexMap.find( aEntityId );
 
             MORIS_ERROR( tIter != mIntegrationCellIdToIndexMap.end(),
                     "Cut_Integration_Mesh::get_loc_entity_ind_from_entity_glb_id() - "
-                    "Provided Entity Id is not in the map, Has the map been initialized?: aEntityId =%u EntityRank = %u on process %u",
+                    "Provided Entity Id is not in the map, Has the map been initialized?: aEntityId =%u mtk::EntityRank = %u on process %u",
                     aEntityId,
                     (uint)aEntityRank,
                     par_rank() );
@@ -662,11 +663,11 @@ namespace xtk
     Matrix< IndexMat >
     Cut_Integration_Mesh::get_entity_connected_to_entity_loc_inds(
             moris_index       aEntityIndex,
-            enum EntityRank   aInputEntityRank,
-            enum EntityRank   aOutputEntityRank,
+            mtk::EntityRank   aInputEntityRank,
+            mtk::EntityRank   aOutputEntityRank,
             const moris_index aDiscretizationIndex ) const
     {
-        MORIS_ERROR( aInputEntityRank == EntityRank::ELEMENT && aOutputEntityRank == EntityRank::NODE,
+        MORIS_ERROR( aInputEntityRank == mtk::EntityRank::ELEMENT && aOutputEntityRank == mtk::EntityRank::NODE,
                 "Only support element to node connectivity" );
 
         return this->get_mtk_cell( aEntityIndex ).get_vertex_inds();
@@ -675,28 +676,28 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     moris::Cell< std::string >
-    Cut_Integration_Mesh::get_set_names( enum EntityRank aSetEntityRank ) const
+    Cut_Integration_Mesh::get_set_names( mtk::EntityRank aSetEntityRank ) const
     {
         switch ( aSetEntityRank )
         {
-            case EntityRank::NODE:
+            case mtk::EntityRank::NODE:
             {
                 return {};
                 break;
             }
-            case EntityRank::EDGE:
+            case mtk::EntityRank::EDGE:
             {
-                MORIS_ASSERT( this->get_facet_rank() == EntityRank::EDGE, "side sets are defined on edges in 2d" );
+                MORIS_ASSERT( this->get_facet_rank() == mtk::EntityRank::EDGE, "side sets are defined on edges in 2d" );
                 return mSideSetLabels;
                 break;
             }
-            case EntityRank::FACE:
+            case mtk::EntityRank::FACE:
             {
-                MORIS_ASSERT( this->get_facet_rank() == EntityRank::FACE, "side sets are defined on faces in 3d" );
+                MORIS_ASSERT( this->get_facet_rank() == mtk::EntityRank::FACE, "side sets are defined on faces in 3d" );
                 return mSideSetLabels;
                 break;
             }
-            case EntityRank::ELEMENT:
+            case mtk::EntityRank::ELEMENT:
             {
                 return mBlockSetNames;
                 break;
@@ -790,29 +791,29 @@ namespace xtk
 
     Matrix< IndexMat >
     Cut_Integration_Mesh::get_set_entity_loc_inds(
-            enum EntityRank aSetEntityRank,
+            mtk::EntityRank aSetEntityRank,
             std::string     aSetName ) const
     {
         switch ( aSetEntityRank )
         {
-            case EntityRank::NODE:
+            case mtk::EntityRank::NODE:
             {
                 return Matrix< IndexMat >( 0, 0 );
                 break;
             }
-            case EntityRank::EDGE:
+            case mtk::EntityRank::EDGE:
             {
-                // MORIS_ASSERT(this->get_facet_rank() == EntityRank::EDGE,"side sets are defined on edges in 2d");
+                // MORIS_ASSERT(this->get_facet_rank() == mtk::EntityRank::EDGE,"side sets are defined on edges in 2d");
                 return Matrix< IndexMat >( 0, 0 );
                 break;
             }
-            case EntityRank::FACE:
+            case mtk::EntityRank::FACE:
             {
-                // MORIS_ASSERT(this->get_facet_rank() == EntityRank::FACE,"side sets are defined on faces in 3d");
+                // MORIS_ASSERT(this->get_facet_rank() == mtk::EntityRank::FACE,"side sets are defined on faces in 3d");
                 return Matrix< IndexMat >( 0, 0 );
                 break;
             }
-            case EntityRank::ELEMENT:
+            case mtk::EntityRank::ELEMENT:
             {
                 return this->get_block_entity_loc_inds( aSetName );
                 return Matrix< IndexMat >( 0, 0 );
@@ -1033,9 +1034,9 @@ namespace xtk
     moris_id
     Cut_Integration_Mesh::allocate_entity_ids(
             moris::size_t   aNumIdsToAllocate,
-            enum EntityRank aEntityRank )
+            mtk::EntityRank aEntityRank )
     {
-        MORIS_ERROR( aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT, "Only node and element ids can be allocated with xtk." );
+        MORIS_ERROR( aEntityRank == mtk::EntityRank::NODE || aEntityRank == mtk::EntityRank::ELEMENT, "Only node and element ids can be allocated with xtk." );
         int tProcRank = moris::par_rank();
         int tProcSize = moris::par_size();
 
@@ -1056,7 +1057,7 @@ namespace xtk
             // Loop over entities print the number of entities requested by each processor
             for ( int iProc = 0; iProc < tProcSize; ++iProc )
             {
-                if ( aEntityRank == EntityRank::NODE )
+                if ( aEntityRank == mtk::EntityRank::NODE )
                 {
                     // Give each processor their desired amount of IDs
                     tProcFirstID( iProc ) = mGlobalMaxVertexId;
@@ -1065,7 +1066,7 @@ namespace xtk
                     mGlobalMaxVertexId = mGlobalMaxVertexId + aGatheredInfo( iProc );
                 }
 
-                else if ( aEntityRank == EntityRank::ELEMENT )
+                else if ( aEntityRank == mtk::EntityRank::ELEMENT )
                 {
                     // Give each processor their desired amount of IDs
                     tProcFirstID( iProc ) = mGlobalMaxCellId;
@@ -1105,7 +1106,7 @@ namespace xtk
         moris::Cell< moris_id > tProcFirstID( tProcSize );
 
         // Subphase IDs up to the number of IP cells have already been used. Hence, the first free ID is:
-        moris_index tFirstSubphaseId = mBackgroundMesh->get_max_entity_id( EntityRank::ELEMENT ) + 1;
+        moris_index tFirstSubphaseId = mBackgroundMesh->get_max_entity_id( mtk::EntityRank::ELEMENT ) + 1;
 
         // Manage information on the root processor
         if ( tProcRank == 0 )
@@ -1132,16 +1133,16 @@ namespace xtk
     // ----------------------------------------------------------------------------------
 
     moris_index
-    Cut_Integration_Mesh::get_first_available_index( enum EntityRank aEntityRank ) const
+    Cut_Integration_Mesh::get_first_available_index( mtk::EntityRank aEntityRank ) const
     {
-        MORIS_ERROR( aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::ELEMENT, "Only can handle this question for nodes and elements" );
+        MORIS_ERROR( aEntityRank == mtk::EntityRank::NODE || aEntityRank == mtk::EntityRank::ELEMENT, "Only can handle this question for nodes and elements" );
 
-        if ( aEntityRank == EntityRank::NODE )
+        if ( aEntityRank == mtk::EntityRank::NODE )
         {
             return mIntegrationVertices.size();
         }
 
-        if ( aEntityRank == EntityRank::ELEMENT )
+        if ( aEntityRank == mtk::EntityRank::ELEMENT )
         {
             return mIntegrationCells.size();
         }
@@ -1183,10 +1184,10 @@ namespace xtk
 
     // ----------------------------------------------------------------------------------
 
-    enum CellTopology
+    mtk::CellTopology
     Cut_Integration_Mesh::get_child_element_topology()
     {
-        return xtk::determine_cell_topology( this->get_spatial_dim(), mXTKModel->ig_element_order(), CellShape::SIMPLEX );
+        return xtk::determine_cell_topology( this->get_spatial_dim(), mXTKModel->ig_element_order(), mtk::CellShape::SIMPLEX );
     }
 
     // ----------------------------------------------------------------------------------
@@ -1392,17 +1393,17 @@ namespace xtk
 
     uint
     Cut_Integration_Mesh::get_num_entities(
-            enum EntityRank   aEntityRank,
+            mtk::EntityRank   aEntityRank,
             const moris_index aIndex ) const
     {
         switch ( aEntityRank )
         {
-            case EntityRank::NODE:
+            case mtk::EntityRank::NODE:
             {
                 return mIntegrationVertices.size();
                 break;
             }
-            case EntityRank::ELEMENT:
+            case mtk::EntityRank::ELEMENT:
             {
                 return mIntegrationCells.size();
                 break;
@@ -1630,7 +1631,7 @@ namespace xtk
     Cell< moris_index >
     Cut_Integration_Mesh::register_block_set_names(
             moris::Cell< std::string > const & aBlockSetNames,
-            enum CellTopology                  aCellTopo )
+            mtk::CellTopology                  aCellTopo )
     {
         uint tNumSetsToRegister = aBlockSetNames.size();
 
@@ -1690,15 +1691,15 @@ namespace xtk
         if ( this->get_spatial_dim() == 3 )
         {
             return Cell_Connectivity(
-                    mBackgroundMesh->get_entity_connected_to_entity_loc_inds( aBGCellId, EntityRank::ELEMENT, EntityRank::NODE ),
-                    mBackgroundMesh->get_entity_connected_to_entity_loc_inds( aBGCellId, EntityRank::ELEMENT, EntityRank::EDGE ),
-                    mBackgroundMesh->get_entity_connected_to_entity_loc_inds( aBGCellId, EntityRank::ELEMENT, EntityRank::FACE ) );
+                    mBackgroundMesh->get_entity_connected_to_entity_loc_inds( aBGCellId, mtk::EntityRank::ELEMENT, mtk::EntityRank::NODE ),
+                    mBackgroundMesh->get_entity_connected_to_entity_loc_inds( aBGCellId, mtk::EntityRank::ELEMENT, mtk::EntityRank::EDGE ),
+                    mBackgroundMesh->get_entity_connected_to_entity_loc_inds( aBGCellId, mtk::EntityRank::ELEMENT, mtk::EntityRank::FACE ) );
         }
         else if ( this->get_spatial_dim() == 2 )
         {
             return Cell_Connectivity(
-                    mBackgroundMesh->get_entity_connected_to_entity_loc_inds( aBGCellId, EntityRank::ELEMENT, EntityRank::NODE ),
-                    mBackgroundMesh->get_entity_connected_to_entity_loc_inds( aBGCellId, EntityRank::ELEMENT, EntityRank::EDGE ),
+                    mBackgroundMesh->get_entity_connected_to_entity_loc_inds( aBGCellId, mtk::EntityRank::ELEMENT, mtk::EntityRank::NODE ),
+                    mBackgroundMesh->get_entity_connected_to_entity_loc_inds( aBGCellId, mtk::EntityRank::ELEMENT, mtk::EntityRank::EDGE ),
                     Matrix< IndexMat >( 0, 0 ) );
         }
         else
@@ -1822,7 +1823,7 @@ namespace xtk
         }
         // max num verts to cells
         uint tMaxVertsToCell = 0;
-        for ( uint i = 0; i < this->get_num_entities( EntityRank::ELEMENT, 0 ); i++ )
+        for ( uint i = 0; i < this->get_num_entities( mtk::EntityRank::ELEMENT, 0 ); i++ )
         {
             mtk::Cell& tCell = this->get_mtk_cell( (moris_index)i );
             if ( tCell.get_number_of_vertices() > tMaxVertsToCell )
@@ -1848,7 +1849,7 @@ namespace xtk
         }
         tStringStream << "\n";
 
-        for ( uint i = 0; i < this->get_num_entities( EntityRank::ELEMENT, 0 ); i++ )
+        for ( uint i = 0; i < this->get_num_entities( mtk::EntityRank::ELEMENT, 0 ); i++ )
         {
             mtk::Cell&                         tCell     = this->get_mtk_cell( (moris_index)i );
             moris::Cell< moris::mtk::Vertex* > tVertices = tCell.get_vertex_pointers();
@@ -1915,7 +1916,7 @@ namespace xtk
 
         tStringStream << std::endl;
 
-        for ( uint i = 0; i < this->get_num_entities( EntityRank::NODE, 0 ); i++ )
+        for ( uint i = 0; i < this->get_num_entities( mtk::EntityRank::NODE, 0 ); i++ )
         {
             mtk::Vertex& tVertex = this->get_mtk_vertex( (moris_index)i );
             tStringStream.precision( 16 );
@@ -2024,9 +2025,9 @@ namespace xtk
             Cell< moris_index >                      tCellOfProcs;
 
             // Loop over all nodes in background mesh and get node's owner
-            for ( uint i = 0; i < mBackgroundMesh->get_num_entities( EntityRank::NODE ); i++ )
+            for ( uint i = 0; i < mBackgroundMesh->get_num_entities( mtk::EntityRank::NODE ); i++ )
             {
-                moris_index tOwner = mBackgroundMesh->get_entity_owner( (moris_index)i, EntityRank::NODE );
+                moris_index tOwner = mBackgroundMesh->get_entity_owner( (moris_index)i, mtk::EntityRank::NODE );
 
                 if ( tProcList.find( tOwner ) == tProcList.end() && tOwner != par_rank() )
                 {
@@ -2481,7 +2482,7 @@ namespace xtk
                 moris_id tParentId = aReceivedParentCellIds( iProcInCommTable )( iIgCellGroup );
 
                 // get this parent Cells index wrt to the executing proc
-                moris_index tParentCellIndex = mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tParentId, EntityRank::ELEMENT );
+                moris_index tParentCellIndex = mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tParentId, mtk::EntityRank::ELEMENT );
 
                 // get the index of the attached IG cell group/Child mesh
                 moris_index tIgCellGroupIndex = mParentCellCellGroupIndex( tParentCellIndex );
@@ -2619,7 +2620,7 @@ namespace xtk
             //     "Need to abstract by adding get cell topo to cell info class" );
 
             // decide on cell topology based on number of spatial dimensions
-            enum CellTopology tCellTopo = tCell.get_cell_info()->get_cell_topology();
+            mtk::CellTopology tCellTopo = tCell.get_cell_info()->get_cell_topology();
 
             Cell< moris_index > tBlockSetOrds = this->register_block_set_names( { tBlockName }, tCellTopo );
 

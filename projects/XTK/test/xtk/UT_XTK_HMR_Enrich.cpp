@@ -159,7 +159,7 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
         tXTKModel.decompose(tDecompositionMethods);
 
-        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
+        tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
 
         Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 

@@ -17,7 +17,7 @@
 #include "cl_Cell.hpp"
 
 // XTKL: Mesh includes
-#include "cl_Mesh_Enums.hpp" // For entity rank
+#include "cl_MTK_Enums.hpp" // For entity rank
 #include "cl_MTK_Mesh.hpp"
 
 // XTKL: Xtk includes
@@ -302,11 +302,11 @@ namespace xtk
 
         void
         set_child_element_topology(
-            enum CellTopology aChildCellTopo);
+            mtk::CellTopology aChildCellTopo);
 
         // ----------------------------------------------------------------------------------
 
-        enum CellTopology
+        mtk::CellTopology
         get_child_element_topology();
 
         // ----------------------------------------------------------------------------------
@@ -319,13 +319,13 @@ namespace xtk
         moris::size_t
         get_num_entities(
             moris::size_t aChildMeshIndex,
-            enum EntityRank aEntityRank) const;
+            mtk::EntityRank aEntityRank) const;
 
         // ----------------------------------------------------------------------------------
 
         moris::size_t
         get_num_entities(
-            enum EntityRank aEntityRank) const;
+            mtk::EntityRank aEntityRank) const;
 
         // ----------------------------------------------------------------------------------
 
@@ -548,7 +548,7 @@ namespace xtk
         mutable Cell<moris::size_t> mNumEntities;
 
         // topology of child elements (i.e. TET4)
-        enum CellTopology mChildElementTopo;
+        mtk::CellTopology mChildElementTopo;
 
         // number of subphases
         moris::uint mNumSubPhases;

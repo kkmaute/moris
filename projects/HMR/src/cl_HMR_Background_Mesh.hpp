@@ -87,7 +87,7 @@ namespace moris::hmr
             this->create_coarsest_frame();
 
             // set element properties on coarsest level // create aura and inverse aura
-            // aura size = padding size
+            // assumption: aura size = padding size
             this->finalize_coarsest_elements();
 
             // synchronize with other procs
@@ -699,7 +699,7 @@ namespace moris::hmr
                     MORIS_ERROR( false, "decompose_mesh(): Invalid processor decomposition method defined." );
                     break;
                 }
-            }
+            } // end switch: mesh decomposition method
 
             create_proc_cart(
                     tDecompMethod,
@@ -956,7 +956,7 @@ namespace moris::hmr
                             tTotalError );
                 }
             }
-        }
+        } // end function: hmr::Background_Mesh::decompose_mesh()
 
         //--------------------------------------------------------------------------------
         /**

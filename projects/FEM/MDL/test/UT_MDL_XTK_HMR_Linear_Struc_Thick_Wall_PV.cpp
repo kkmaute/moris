@@ -365,7 +365,7 @@ TEST_CASE("2D Linear Stuct Thick Walled Pressure Vessel","[XTK_HMR_LS_PV]")
                 Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
                 tXTKModel.decompose(tDecompositionMethods);
 
-                tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
+                tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE,0);
                 if(tGhostInModel)
                 {
                     tXTKModel.construct_face_oriented_ghost_penalization_cells();

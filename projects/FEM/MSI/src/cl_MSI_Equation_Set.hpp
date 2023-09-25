@@ -83,8 +83,8 @@ namespace moris
             moris::Matrix< DDSMat > mFollowerDvTypeMap;
 
             // lists of leader and follower groups of field types
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > mLeaderFieldTypes;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > mFollowerFieldTypes;
+            moris::Cell< moris::Cell< mtk::Field_Type > > mLeaderFieldTypes;
+            moris::Cell< moris::Cell< mtk::Field_Type > > mFollowerFieldTypes;
 
             // maps for the leader and follower field type
             moris::Matrix< DDSMat > mLeaderFieldTypeMap;
@@ -300,7 +300,7 @@ namespace moris
              * @param[ out ] sint      non-consecutive index for field type
              */
             sint get_field_index_for_type_1(
-                    enum mtk::Field_Type aFieldType,
+                    mtk::Field_Type aFieldType,
                     mtk::Leader_Follower    aIsLeader = mtk::Leader_Follower::LEADER );
 
             //-------------------------------------------------------------------------------------------------
@@ -653,7 +653,7 @@ namespace moris
              * get unique field type list
              * @param[ out ] mUniqueFieldTypeList a unique list of field type
              */
-            const moris::Cell< enum mtk::Field_Type >&
+            const moris::Cell< mtk::Field_Type >&
             get_unique_field_type_list()
             {
                 return mUniqueFieldTypeList;

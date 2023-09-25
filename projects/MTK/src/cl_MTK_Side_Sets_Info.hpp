@@ -15,7 +15,7 @@
 #include "linalg_typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "cl_MTK_Enums.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 
 namespace moris
 {
@@ -44,7 +44,7 @@ struct MtkSideSetInfo
     MtkSideSetInfo():
         mElemIdsAndSideOrds(),
         mSideSetName(),
-        mSideTopology(CellTopology::INVALID){}
+        mSideTopology(CellTopology::UNDEFINED ){}
 
     bool
     sideset_has_name()

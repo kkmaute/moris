@@ -485,7 +485,7 @@ namespace moris
              *@param[ in ] aSetType indicates if it is a bulk,sideset,dblsideset,or all
              */
             moris::Cell< moris::mtk::Set * > const &
-            get_list_of_sets( SetType aSetType = SetType::END_ENUM ) const;
+            get_list_of_sets( SetType aSetType = SetType::UNDEFINED ) const;
 
             // ----------------------------------------------------------------------------
 
@@ -495,7 +495,7 @@ namespace moris
              *@param[ in ] aSetType indicates if it is a bulk,sideset,dblsideset or all
              */
             moris::Cell< moris::Cell< moris::mtk::Set * > > const &
-            get_list_of_set_to_color( SetType aSetType = SetType::END_ENUM ) const;
+            get_list_of_set_to_color( SetType aSetType = SetType::UNDEFINED ) const;
 
             // ----------------------------------------------------------------------------
 

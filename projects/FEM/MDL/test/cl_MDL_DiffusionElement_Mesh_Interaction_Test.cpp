@@ -113,8 +113,8 @@ TEST_CASE( "Diffusion_2x2x2", "[moris],[mdl],[Diffusion_2x2x2]" )
         tMeshData.FieldsInfo = &tFieldsInfo;
 
         // construct the mesh data
-        mtk::Interpolation_Mesh* tInterpMesh1 = mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tMeshData );
-        mtk::Integration_Mesh*   tIntegMesh1  = mtk::create_integration_mesh_from_interpolation_mesh( MeshType::STK, tInterpMesh1 );
+        mtk::Interpolation_Mesh* tInterpMesh1 = mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, &tMeshData );
+        mtk::Integration_Mesh*   tIntegMesh1  = mtk::create_integration_mesh_from_interpolation_mesh( mtk::MeshType::STK, tInterpMesh1 );
 
         // place the pair in mesh manager
         std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
@@ -331,8 +331,8 @@ TEST_CASE( "Element_Diffusion_3", "[moris],[mdl],[Diffusion_block_7x8x9]" )
         tMeshData.FieldsInfo = &tFieldsInfo;
 
         // construct the mesh data
-        mtk::Interpolation_Mesh* tInterpMesh1 = mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tMeshData );
-        mtk::Integration_Mesh*   tIntegMesh1  = mtk::create_integration_mesh_from_interpolation_mesh(MeshType::STK,tInterpMesh1);
+        mtk::Interpolation_Mesh* tInterpMesh1 = mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, &tMeshData );
+        mtk::Integration_Mesh*   tIntegMesh1  = mtk::create_integration_mesh_from_interpolation_mesh(mtk::MeshType::STK,tInterpMesh1);
 
         // place the pair in mesh manager
         std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();

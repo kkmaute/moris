@@ -223,7 +223,7 @@ namespace xtk
             moris::Matrix< moris::IndexMat > const & aEdgeToNode,
             moris::Matrix< moris::IndexMat > const & aFaceToNode )
     {
-        MORIS_ASSERT( aElementToNode.n_cols() == 4, "INVALID NUMBER OF NODES PROVIDED, NEEDS TO BE 4 FOR TET4" );
+        MORIS_ASSERT( aElementToNode.n_cols() == 4, "UNDEFINED NUMBER OF NODES PROVIDED, NEEDS TO BE 4 FOR TET4" );
 
         bool tValidTopo = false;
 

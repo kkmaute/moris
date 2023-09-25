@@ -9,7 +9,7 @@
  */
 
 #include "cl_XTK_Hole_Seeder.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_GEN_Superellipsoid.hpp"
 #include "cl_Cell.hpp"
 #include "cl_Communication_Tools.hpp"
@@ -69,7 +69,7 @@ void
 Hole_Seeder::seed_field()
 {
     MORIS_ASSERT(mMTKMesh!=nullptr,"No mesh to seed holes on provided");
-    moris::uint tNumNodes = mMTKMesh->get_num_entities(moris::EntityRank::NODE);
+    moris::uint tNumNodes = mMTKMesh->get_num_entities(moris::mtk::EntityRank::NODE);
     moris::Matrix< moris::DDRMat > tCoords(tNumNodes,3);
     moris::Matrix< moris::DDRMat > tCoordsX(tNumNodes,1);
     moris::Matrix< moris::DDRMat > tCoordsY(tNumNodes,1);

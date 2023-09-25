@@ -22,6 +22,7 @@
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Double_Side_Set.hpp"
 #include "cl_MTK_Vertex.hpp"
+#include "cl_Tracer.hpp"
 
 extern moris::Comm_Manager gMorisComm;
 
@@ -29,6 +30,26 @@ namespace moris
 {
     namespace vis
     {
+        //-----------------------------------------------------------------------------------------------------------
+
+        VIS_Factory::VIS_Factory(
+                std::shared_ptr< mtk::Mesh_Manager > aMesh,
+                uint                                 aMeshPairIndex )
+        {
+            // get access to the integration and interpolation meshes
+            aMesh->get_mesh_pair( aMeshPairIndex, mInterpolationMesh, mIntegrationMesh );
+        }
+
+        //-----------------------------------------------------------------------------------------------------------
+
+        VIS_Factory::~VIS_Factory()
+        {
+            // make sure there is no memory leaking
+            MORIS_ERROR( mVisMesh == nullptr,
+                    "~VIS_Factory() - "
+                    "The constructed VIS mesh has not been handed off to a new owner. Destructing this factory will cause memory to leak." );
+        };
+
         //-----------------------------------------------------------------------------------------------------------
 
         void
@@ -96,7 +117,7 @@ namespace moris
                 // sort sets by type
                 switch ( tMtkMeshSet->get_set_type() )
                 {
-                    case moris::SetType::BULK:
+                    case mtk::SetType::BULK:
                     {
                         // count number of block sets
                         tNumBlockSets++;
@@ -107,14 +128,14 @@ namespace moris
 
                         break;
                     }
-                    case moris::SetType::SIDESET:
+                    case mtk::SetType::SIDESET:
                     {
                         tNumSideSets++;
                         mRequestedSideSetNames.push_back( tSetName );
                         mFemSideSets.push_back( tMtkMeshSet );
                         break;
                     }
-                    case moris::SetType::DOUBLE_SIDED_SIDESET:
+                    case mtk::SetType::DOUBLE_SIDED_SIDESET:
                     {
                         tNumDblSideSets++;
                         mRequestedDoubleSideSetNames.push_back( tSetName );
@@ -192,7 +213,7 @@ namespace moris
             mVisMesh->mFollowerSideClusters.resize( tNumDblSideSets );
 
             // initialize  maps
-            uint tNumFemCells = mIntegrationMesh->get_num_entities( EntityRank::ELEMENT ) + 1;
+            uint tNumFemCells = mIntegrationMesh->get_num_entities( mtk::EntityRank::ELEMENT ) + 1;
 
             mPrimaryFemCellIndexToVisCellIndex.resize( tNumFemCells, -1 );
             mPrimaryFemCellIndexToBlockIndex.resize( tNumFemCells, -1 );
@@ -289,7 +310,7 @@ namespace moris
             mVisMesh->mVertices.resize( tNumVerticesInProcLocalVisMesh );
 
             // get the max number of vertices that the VIS mesh could have
-            uint tNumVerticesInFemMesh = mIntegrationMesh->get_num_entities( EntityRank::NODE ) + 1;
+            uint tNumVerticesInFemMesh = mIntegrationMesh->get_num_entities( mtk::EntityRank::NODE ) + 1;
 
             // reserve enough memory in map to accommodate entries for all vertices
             mBlockAndFemCellIndexToVisVertexIndices.reserve( 10 * mRequestedBlockSetNames.size() * tNumVerticesInFemMesh );
@@ -404,7 +425,7 @@ namespace moris
             mVisMesh->mVertices.resize( tNumVerticesInProcLocalVisMesh );
 
             // get the max number of vertices that the VIS mesh could have
-            uint tNumVerticesInFemMesh = mIntegrationMesh->get_num_entities( EntityRank::NODE ) + 1;
+            uint tNumVerticesInFemMesh = mIntegrationMesh->get_num_entities( mtk::EntityRank::NODE ) + 1;
 
             // reserve enough memory in map to accommodate entries for all vertices
             mBlockAndFemCellIndexToVisVertexIndices.reserve( 10 * mRequestedBlockSetNames.size() * tNumVerticesInFemMesh );

@@ -15,7 +15,7 @@
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Side_Cluster.hpp"
 #include "cl_XTK_Cut_Mesh.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "fn_create_edges_from_element_to_node.hpp"
 #include "fn_generate_face_to_face.hpp"
 #include "fn_unique.hpp"
@@ -79,7 +79,7 @@ namespace xtk
 
         print(ElementToNode, "ElementToNode");
 //        create_edges_from_element_to_node(
-//                    enum CellTopology                   aElementTopology,
+//                    mtk::CellTopology                   aElementTopology,
 //                    Integer                             aNumNodes,
 //                    moris::Matrix< moris::IdMat > const & aElementToNode,
 //                    moris::Matrix< moris::IdMat >       & aElementToEdge,
@@ -111,7 +111,7 @@ namespace xtk
         //assemble coordinates of the matrix
         for (uint i = 0 ; i < tUniqueElementIds.numel() ; i++ )
         {
-            moris::mtk::Vertex const & tVertex = tIntegrationMesh->get_mtk_vertex( tIntegrationMesh->get_loc_entity_ind_from_entity_glb_id(  tUniqueElementIds(i) , moris::EntityRank::NODE ) );
+            moris::mtk::Vertex const & tVertex = tIntegrationMesh->get_mtk_vertex( tIntegrationMesh->get_loc_entity_ind_from_entity_glb_id(  tUniqueElementIds(i) , mtk::EntityRank::NODE ) );
 
             print(tVertex.get_coords(),"tVertex.get_coords()");
 
@@ -146,7 +146,7 @@ namespace xtk
         print(tLocalElemToNode,"tLocalElemToNode");
 
         create_edges_from_element_to_node(
-                    CellTopology::TRI3,
+                    mtk::CellTopology::TRI3,
                     ElementToNode.n_cols()*ElementToNode.n_rows(),
                     tLocalElemToNode,
                     aElementToEdge,

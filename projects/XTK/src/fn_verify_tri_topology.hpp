@@ -118,7 +118,7 @@ namespace xtk
             moris::Matrix< moris::IndexMat > const & aElementToEdge,
             moris::Matrix< moris::IndexMat > const & aEdgeToNode )
     {
-        MORIS_ASSERT( aElementToNode.n_cols() == 3, "INVALID NUMBER OF NODES PROVIDED, NEEDS TO BE 3 FOR TRI3" );
+        MORIS_ASSERT( aElementToNode.n_cols() == 3, "UNDEFINED NUMBER OF NODES PROVIDED, NEEDS TO BE 3 FOR TRI3" );
 
         bool tValidTopo = false;
 

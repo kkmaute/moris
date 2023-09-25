@@ -42,7 +42,7 @@ namespace moris
 
             virtual moris_index get_geometric_index() const = 0;
 
-            virtual EntityRank get_query_entity_rank() const = 0;
+            virtual mtk::EntityRank get_query_entity_rank() const = 0;
 
             virtual Matrix< IndexMat > const & get_query_entity_to_vertex_connectivity() const = 0;
 
@@ -50,7 +50,7 @@ namespace moris
 
             virtual Matrix< DDRMat > get_vertex_local_coord_wrt_parent_entity( moris_index aVertexIndex ) const = 0;
 
-            virtual enum EntityRank get_query_parent_entity_rank() const = 0;
+            virtual mtk::EntityRank get_query_parent_entity_rank() const = 0;
 
             virtual Matrix< IndexMat > get_query_parent_entity_connectivity() const = 0;
 

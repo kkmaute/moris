@@ -154,7 +154,7 @@
 
 //         // Create Mesh ---------------------------------
 //         std::string tMeshFileName = "generated:1x1x4";
-//         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName );
+//         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName );
 //         std::string tBackgroundMeshOutput = "./xtk_exo/volume_check_rs_bm.e";
 //         tMeshData->create_output_mesh(tBackgroundMeshOutput);
 
@@ -214,7 +214,7 @@
 
 //         // Create Mesh ---------------------------------
 //         std::string tMeshFileName = "generated:1x1x4";
-//         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
+//         moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, NULL );
 
 //         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
 //         tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
@@ -275,7 +275,7 @@
 //              */
 //             // Create Mesh ---------------------------------
 //             std::string tMeshFileName = "generated:1x1x1";
-//             moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
+//             moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, NULL );
 
 //             moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
 //             tGeometryVector(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);

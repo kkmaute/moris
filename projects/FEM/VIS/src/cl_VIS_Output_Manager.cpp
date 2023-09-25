@@ -11,13 +11,12 @@
 #include "cl_VIS_Output_Manager.hpp"
 
 #include <set>
-
+#include "cl_MTK_Mesh_Manager.hpp"
 #include "cl_VIS_Factory.hpp"
 #include "cl_MDL_Model.hpp"
 #include "cl_MSI_Equation_Set.hpp"
 #include "cl_MSI_Equation_Model.hpp"
 #include "cl_FEM_Set.hpp"
-
 #include "fn_Parsing_Tools.hpp"
 
 // Logging package
@@ -561,7 +560,7 @@ namespace moris
                 }
 
                 // don't write indices on facets
-                if ( tSet->get_set_type() != SetType::BULK )
+                if ( tSet->get_set_type() != mtk::SetType::BULK )
                 {
                     continue;
                 }

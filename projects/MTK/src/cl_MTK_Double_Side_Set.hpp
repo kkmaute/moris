@@ -99,7 +99,7 @@ namespace moris
 
                 uint tRecIGGeometryType = min_all( (uint)tIGGeometryType );
 
-                mIGGeometryType = static_cast< enum mtk::Geometry_Type >( tRecIGGeometryType );
+                mIGGeometryType = static_cast< Geometry_Type >( tRecIGGeometryType );
 
                 mIGGeometryType = get_auto_side_geometry_type( mIGGeometryType );
 
@@ -126,7 +126,7 @@ namespace moris
                     uint const                           &aSpatialDim )
                     : Set( aName, aDoubleSideSetClusters, aColors, aSpatialDim )
             {
-                mSetType = moris::SetType::DOUBLE_SIDED_SIDESET;
+                mSetType = mtk::SetType::DOUBLE_SIDED_SIDESET;
 
                 this->communicate_ig_geometry_type();
             };

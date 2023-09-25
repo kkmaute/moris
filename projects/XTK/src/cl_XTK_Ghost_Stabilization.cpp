@@ -110,7 +110,7 @@ namespace xtk
         moris_index tDSSIndexInMesh = tEnrIgMesh.get_double_sided_set_index( tGhostName );
 
         // get the cell topology for the IP cells for visualization
-        enum CellTopology tFacetTopo = determine_cell_topology( mXTKModel->get_spatial_dim(), mtk::Interpolation_Order::LINEAR, CellShape::RECTANGULAR );
+        mtk::CellTopology tFacetTopo = determine_cell_topology( mXTKModel->get_spatial_dim(), mtk::Interpolation_Order::LINEAR, mtk::CellShape::RECTANGULAR );
 
         moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set( tDSSIndexInMesh, "ghost_ss_" + std::to_string( aBulkPhase ) );
         tEnrIgMesh.create_block_set_from_cells_of_side_set( tSSIndex, "ghost_bs_" + std::to_string( aBulkPhase ), tFacetTopo );
@@ -149,7 +149,7 @@ namespace xtk
         moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set( tDSSIndexInMesh, tGhostSsName );
 
         // get the cell topology for the IP cells for visualization
-        enum CellTopology tFacetTopo = determine_cell_topology( mXTKModel->get_spatial_dim(), mtk::Interpolation_Order::LINEAR, CellShape::RECTANGULAR );
+        mtk::CellTopology tFacetTopo = determine_cell_topology( mXTKModel->get_spatial_dim(), mtk::Interpolation_Order::LINEAR, mtk::CellShape::RECTANGULAR );
 
         // create a block set for
         tEnrIgMesh.create_block_set_from_cells_of_side_set( tSSIndex, tGhostBsName, tFacetTopo );
@@ -218,7 +218,7 @@ namespace xtk
         tEnrIpMesh.get_owned_and_not_owned_enriched_interpolation_cells( tOwnedInterpCells, tNotOwnedInterpCells, tProcRanks );
 
         // get new index for new ghost interpolation cell, start where the enriched Ip mesh stops
-        uint tCurrentNewInterpCellIndex = tEnrIpMesh.get_num_entities( EntityRank::ELEMENT );
+        uint tCurrentNewInterpCellIndex = tEnrIpMesh.get_num_entities( mtk::EntityRank::ELEMENT );
 
         // allocate data in ghost setup data
         Cut_Integration_Mesh*                                 tCutIgMesh            = mXTKModel->get_cut_integration_mesh();
@@ -254,7 +254,7 @@ namespace xtk
         }
 
         // allocate new interpolation cell ids
-        moris_id tCurrentId = tEnrIpMesh.allocate_entity_ids( tNumNewInterpCellsOwned, EntityRank::ELEMENT, false );
+        moris_id tCurrentId = tEnrIpMesh.allocate_entity_ids( tNumNewInterpCellsOwned, mtk::EntityRank::ELEMENT, false );
 
         // initialize maps that give each new non-trivial owned enriched Interp cell its global IDs
         Cell< moris_id >                         tNewNonTrivialOwnedInterpCellsIds( tNumNewInterpCellsOwned );
@@ -999,7 +999,7 @@ namespace xtk
         Enriched_Interpolation_Mesh& tEnrInterpMesh = mXTKModel->get_enriched_interp_mesh();
 
         // get the interpolation cell index using the id
-        moris_index tCellIndex = tEnrInterpMesh.get_loc_entity_ind_from_entity_glb_id( aEnrichedIpCellId, EntityRank::ELEMENT, 0 );
+        moris_index tCellIndex = tEnrInterpMesh.get_loc_entity_ind_from_entity_glb_id( aEnrichedIpCellId, mtk::EntityRank::ELEMENT, 0 );
 
         // get the cell
         Interpolation_Cell_Unzipped* tEnrIpCell = tEnrInterpMesh.get_enriched_interpolation_cells()( tCellIndex );
@@ -1238,15 +1238,15 @@ namespace xtk
         if ( aGhostSetupData.mLinearBackgroundMesh )
         {
             // ... for non-trivial element transitions only in the linear case
-            tCurrentId = tEnrIntegMesh.allocate_entity_ids( tNonTrivialCount, EntityRank::ELEMENT );
+            tCurrentId = tEnrIntegMesh.allocate_entity_ids( tNonTrivialCount, mtk::EntityRank::ELEMENT );
         }
         else
         {
             // ... // TODO: I don't understand this bit
-            tCurrentId = tEnrIntegMesh.allocate_entity_ids( tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT ), EntityRank::ELEMENT );
+            tCurrentId = tEnrIntegMesh.allocate_entity_ids( tEnrIntegMesh.get_num_entities( mtk::EntityRank::ELEMENT ), mtk::EntityRank::ELEMENT );
         }
 
-        moris_id tCurrentIndex = tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT );
+        moris_id tCurrentIndex = tEnrIntegMesh.get_num_entities( mtk::EntityRank::ELEMENT );
 
         // get total number of ghost facets for each bulk phase on current processor
         Matrix< DDUMat > tLocalNumberOfGhostFacets( aGhostSetupData.mLeaderSideIpCells.size(), 1 );
@@ -1577,16 +1577,16 @@ namespace xtk
         if ( aGhostSetupData.mLinearBackgroundMesh )
         {
             // ... for non-trivial element transitions only in the linear case
-            tCurrentId = tEnrIntegMesh.allocate_entity_ids( tNonTrivialCount, EntityRank::ELEMENT );
+            tCurrentId = tEnrIntegMesh.allocate_entity_ids( tNonTrivialCount, mtk::EntityRank::ELEMENT );
         }
         else
         {
             // ... ?
-            tCurrentId = tEnrIntegMesh.allocate_entity_ids( tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT ), EntityRank::ELEMENT );
+            tCurrentId = tEnrIntegMesh.allocate_entity_ids( tEnrIntegMesh.get_num_entities( mtk::EntityRank::ELEMENT ), mtk::EntityRank::ELEMENT );
         }
 
         // Get next free index for new cells/elements
-        moris_id tCurrentIndex = tEnrIntegMesh.get_num_entities( EntityRank::ELEMENT );
+        moris_id tCurrentIndex = tEnrIntegMesh.get_num_entities( mtk::EntityRank::ELEMENT );
 
         // get total number of ghost facets for each B-spline mesh and bulk phase on current processor
         Matrix< DDUMat > tLocalNumberOfGhostFacets( tNumBspMeshes, tNumBulkPhases, 1 );
@@ -2703,7 +2703,7 @@ namespace xtk
     {
         Enriched_Interpolation_Mesh& tEnrIpMesh = mXTKModel->get_enriched_interp_mesh( 0 );
 
-        MORIS_ERROR( tEnrIpMesh.get_num_entities( EntityRank::ELEMENT ) > 0, "Cannot deduce type on empty mesh." );
+        MORIS_ERROR( tEnrIpMesh.get_num_entities( mtk::EntityRank::ELEMENT ) > 0, "Cannot deduce type on empty mesh." );
 
         // get the first cell
         mtk::Cell const & tCell0 = tEnrIpMesh.get_mtk_cell( 0 );

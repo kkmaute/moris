@@ -12,11 +12,11 @@
 #define SRC_HMR_CL_HMR_T_MATRIX_HPP_
 
 #include "cl_HMR_T_Matrix_Base.hpp"
-#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
+#include "cl_HMR_BSpline_Mesh_Base.hpp"     //HMR/src
+#include "cl_HMR_Lagrange_Mesh_Base.hpp"    //HMR/src
+#include "cl_HMR_Parameters.hpp"            //HMR/src
 #include "fn_HMR_calculate_basis_identifier.hpp"
-#include "cl_Matrix.hpp" //LINALG/src
+#include "cl_Matrix.hpp"                    //LINALG/src
 #include "fn_eye.hpp"
 #include "fn_HMR_bspline_shape.hpp"
 
@@ -30,7 +30,10 @@ namespace moris::hmr
     template< uint N >
     class T_Matrix : public T_Matrix_Base
     {
-    public:
+        //-------------------------------------------------------------------------------
+
+      public:
+        //-------------------------------------------------------------------------------
 
         /**
          * Constructor
@@ -42,7 +45,7 @@ namespace moris::hmr
         T_Matrix(
                 Lagrange_Mesh_Base* aLagrangeMesh,
                 BSpline_Mesh_Base*  aBSplineMesh = nullptr,
-                bool                aTruncate = true )
+                bool                aTruncate    = true )
                 : T_Matrix_Base( aLagrangeMesh, aBSplineMesh, aTruncate )
         {
             // Initializations
@@ -58,6 +61,8 @@ namespace moris::hmr
                 this->init_lagrange_matrix();
                 if ( aTruncate )
                 {
+                    // this pre-computes the coefficients for the sum of finer child basis functions that constitute the coarser parent
+                    // note: this has nothing to do with the truncation so far, but is needed for it later
                     aBSplineMesh->evaluate_truncation_weights( mTruncationWeights );
                 }
                 else
@@ -67,12 +72,14 @@ namespace moris::hmr
             }
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         // destructor
         ~T_Matrix()
         {
         }
+
+        //-------------------------------------------------------------------------------
 
         /**
          * @brief evaluate the L2 projection weights converting extended basis to root basis
@@ -83,12 +90,13 @@ namespace moris::hmr
          * @param aExtendedBsplineBasis
          * @param aWeights
          */
-        void evaluate_L2_projection(
+        void
+        evaluate_L2_projection(
                 const Element*                                    aRootBsplineElement,
                 const Element*                                    aExtendedBsplineElement,
                 moris::Cell< moris::Cell< const mtk::Vertex* > >& aRootBsplineBasis,
                 moris::Cell< const mtk::Vertex* >&                aExtendedBsplineBasis,
-                moris::Cell< Matrix< DDRMat > >&            aWeights )
+                moris::Cell< Matrix< DDRMat > >&                  aWeights )
         {
             // Background_Element_Base* aRootBSpBackgroundElement = aRootBsplineElement->get_background_element();
             // Background_Element_Base* aExtendedBSpBackgroundElement = aExtendedBsplineElement->get_background_element();
@@ -169,9 +177,9 @@ namespace moris::hmr
             moris::Cell< const Basis* > tRootBasis;
             moris::Cell< const Basis* > tExtendedBasis;
 
-            //reserve enough memory for each of them
-            tRootBasis.reserve(tNumberOfBases);
-            tExtendedBasis.reserve(tNumberOfBases);
+            // reserve enough memory for each of them
+            tRootBasis.reserve( tNumberOfBases );
+            tExtendedBasis.reserve( tNumberOfBases );
 
             // fill out the cell data
             for ( uint i = 0; i < tNumberOfBases; i++ )
@@ -179,7 +187,7 @@ namespace moris::hmr
                 // get the basis
                 const Basis* tBasis = aRootBsplineElement->get_basis( i );
 
-                //if it is active add it to the cell
+                // if it is active add it to the cell
                 if ( tBasis->is_active() )
                 {
                     tRootBasis.push_back( tBasis );
@@ -188,66 +196,75 @@ namespace moris::hmr
                 // get the basis
                 const Basis* tBasisExtended = aExtendedBsplineElement->get_basis( i );
 
-                //if it is active add it to the cell
+                // if it is active add it to the cell
                 if ( tBasisExtended->is_active() )
                 {
-                    tExtendedBasis.push_back( tBasisExtended);
+                    tExtendedBasis.push_back( tBasisExtended );
                 }
             }
 
             // resize the output cells
-            aWeights.resize(tNumberOfBases );
-            aRootBsplineBasis.resize(tNumberOfBases );
-            aExtendedBsplineBasis.resize(tNumberOfBases );
+            aWeights.resize( tNumberOfBases );
+            aRootBsplineBasis.resize( tNumberOfBases );
+            aExtendedBsplineBasis.resize( tNumberOfBases );
 
             // loop over the basis and eliminate the zero values
             for ( uint iExtendedBasisIndex = 0; iExtendedBasisIndex < tNumberOfBases; iExtendedBasisIndex++ )
             {
                 // set size for each of the extended basis
-                aExtendedBsplineBasis(iExtendedBasisIndex ) = tExtendedBasis(iExtendedBasisIndex );
-                aWeights(iExtendedBasisIndex ).set_size(tNumberOfBases, 1 );
-                aRootBsplineBasis(iExtendedBasisIndex ).resize(tNumberOfBases );
+                aExtendedBsplineBasis( iExtendedBasisIndex ) = tExtendedBasis( iExtendedBasisIndex );
+                aWeights( iExtendedBasisIndex ).set_size( tNumberOfBases, 1 );
+                aRootBsplineBasis( iExtendedBasisIndex ).resize( tNumberOfBases );
 
                 // find all the basis and weights of the root that hve non-zero values
                 uint tNonzeroCount = 0;
                 for ( uint iRootBasisIndex = 0; iRootBasisIndex < tNumberOfBases; iRootBasisIndex++ )
                 {
-                    // if the wieght is non-zero add it to the cell
+                    // if the weight is non-zero add it to the cell
                     if ( std::abs( tL2ProjectionMatrix( iExtendedBasisIndex, iRootBasisIndex ) ) > MORIS_REAL_EPS )
                     {
                         // assign the output values
-                        aWeights(iExtendedBasisIndex )(tNonzeroCount )          = tL2ProjectionMatrix(iExtendedBasisIndex, iRootBasisIndex );
-                        aRootBsplineBasis(iExtendedBasisIndex )(tNonzeroCount ) = tRootBasis(iRootBasisIndex );
+                        aWeights( iExtendedBasisIndex )( tNonzeroCount )          = tL2ProjectionMatrix( iExtendedBasisIndex, iRootBasisIndex );
+                        aRootBsplineBasis( iExtendedBasisIndex )( tNonzeroCount ) = tRootBasis( iRootBasisIndex );
 
-                        //increment the non-zero count
+                        // increment the non-zero count
                         tNonzeroCount++;
                     }
                 }
 
                 // resize the output cells to the correct non-zero size
-                aWeights(iExtendedBasisIndex ).resize(tNonzeroCount, 1 );
-                aRootBsplineBasis(iExtendedBasisIndex ).resize(tNonzeroCount );
+                aWeights( iExtendedBasisIndex ).resize( tNonzeroCount, 1 );
+                aRootBsplineBasis( iExtendedBasisIndex ).resize( tNonzeroCount );
             }
-        }
+        }    // end function: hmr::T_Matrix::evaluate_L2_projection()
 
-    protected:
+             //-------------------------------------------------------------------------------
+
+      protected:
+        //-------------------------------------------------------------------------------
+
         /**
          * Evaluates a shape function at a given point
          *
          * @param aXi Local coordinates
          * @param aN Evaluated shape function
          */
-        void evaluate_shape_function( const Matrix< DDRMat >& aXi, Matrix< DDRMat >& aN )
+        void
+        evaluate_shape_function( const Matrix< DDRMat >& aXi, Matrix< DDRMat >& aN )
         {
             MORIS_ERROR( false, "Don't know how to evaluate a shape function for a T-matrix of dimension %u", N );
         }
 
-    private:
+        //-------------------------------------------------------------------------------
+
+      private:
+        //-------------------------------------------------------------------------------
 
         /**
          * determines the sorting order of the nodes
          */
-        void init_basis_index()
+        void
+        init_basis_index()
         {
             // Create background element
             Background_Element_Base* tBackElement = this->create_background_element();
@@ -290,14 +307,16 @@ namespace moris::hmr
             // tidy up
             delete tElement;
             delete tBackElement;
-        }
 
-//-------------------------------------------------------------------------------
+        }    // end function: hmr::T_Matrix::
+
+        //-------------------------------------------------------------------------------
 
         /**
          * initializes the container for the unity matrix
          */
-        void init_unity_matrix()
+        void
+        init_unity_matrix()
         {
             // get number of basis per element
             uint tNumberOfBases = mBSplineMesh->get_number_of_bases_per_element();
@@ -307,9 +326,10 @@ namespace moris::hmr
             mZero.set_size( tNumberOfBases, 1, 0.0 );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-        void init_lagrange_parameter_coordinates()
+        void
+        init_lagrange_parameter_coordinates()
         {
             // create background element for reference
             Background_Element_Base* tBackElement = this->create_background_element();
@@ -318,7 +338,7 @@ namespace moris::hmr
             uint tNodesPerDirection = mLagrangeMesh->get_order() + 1;
 
             // number of nodes
-            mNumberOfNodes = static_cast<uint>( std::pow( tNodesPerDirection, N ) );
+            mNumberOfNodes = static_cast< uint >( std::pow( tNodesPerDirection, N ) );
 
             // create a Lagrange element
             Element* tElement = mLagrangeMesh->create_element( tBackElement );
@@ -354,11 +374,13 @@ namespace moris::hmr
             // tidy up
             delete tElement;
             delete tBackElement;
-        }
+
+        }    // end function: hmr::T_Matrix::init_lagrange_parameter_coordinates()
 
         //------------------------------------------------------------------------------
 
-        void init_modified_lagrange_parameter_coordinates(
+        void
+        init_modified_lagrange_parameter_coordinates(
                 Element* aLagrangeElement,
                 Element* aBSplineElement ) override
         {
@@ -381,33 +403,35 @@ namespace moris::hmr
             real tScale = 1.0 / ( (real)mLagrangeMesh->get_order() );
 
             // container for ijk position of basis
-            luint tIJK[ 3 ];
+            luint        tIJK[ 3 ];
             const luint* tIJKBSpline  = aBSplineElement->get_ijk();
             const luint* tIJKLagrange = aLagrangeElement->get_ijk();
 
-            for ( uint iNodeIndex = 0; iNodeIndex < mNumberOfNodes ; iNodeIndex++ )
+            for ( uint iNodeIndex = 0; iNodeIndex < mNumberOfNodes; iNodeIndex++ )
             {
                 // get position from element
-                tReferenceElement->get_ijk_of_basis(iNodeIndex, tIJK );
+                tReferenceElement->get_ijk_of_basis( iNodeIndex, tIJK );
 
                 // save coordinate into memory
                 for ( uint iDimension = 0; iDimension < N; iDimension++ )
                 {
                     // Get modified ijk value based on difference between Lagrange and B-spline element ijk
-                    moris_index tIJKValue = tIJK[ iDimension ] + tIJKLagrange[iDimension] - tIJKBSpline[iDimension];
+                    moris_index tIJKValue = tIJK[ iDimension ] + tIJKLagrange[ iDimension ] - tIJKBSpline[ iDimension ];
 
                     // fill in node ijk positions in element
                     mLagrangeParamModified( iDimension, iNodeIndex ) = 2 * tScale * tIJKValue - 1.0;
                 }
             }
-        }
+
+        }    // end function: hmr::T_Matrix::init_modified_lagrange_parameter_coordinates()
 
         //------------------------------------------------------------------------------
 
         /**
          * calculates the matrix that converts B-Spline DOFs per element to Lagrange DOFs.
          */
-        void init_lagrange_matrix()
+        void
+        init_lagrange_matrix()
         {
             // get number of basis per element of B-Spline mesh
             uint tNumberOfBases = mBSplineMesh->get_number_of_bases_per_element();
@@ -439,9 +463,10 @@ namespace moris::hmr
             }
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
-        void init_lagrange_refinement_matrices()
+        void
+        init_lagrange_refinement_matrices()
         {
             // tidy up memory
             mLagrangeRefinementMatrix.clear();
@@ -450,7 +475,7 @@ namespace moris::hmr
             uint tNumberOfNodes = mLagrangeParam.n_cols();
 
             // number of children
-            uint tNumberOfChildren = static_cast<uint>( std::pow( 2, N ) );
+            uint tNumberOfChildren = static_cast< uint >( std::pow( 2, N ) );
 
             // initialize container
             Matrix< DDRMat > tEmpty( tNumberOfNodes, tNumberOfNodes, 0.0 );
@@ -493,9 +518,10 @@ namespace moris::hmr
             }
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-        void init_lagrange_change_order_matrices()
+        void
+        init_lagrange_change_order_matrices()
         {
             // empty matrix
             Matrix< DDRMat > tEmpty;
@@ -516,10 +542,10 @@ namespace moris::hmr
                 uint tNumberOfNodesOtherMesh = tXi.n_cols();
 
                 // pointer to T-Matrix
-                Matrix< DDRMat > tT(tNumberOfNodesOtherMesh, tNumberOfNodesThisMesh );
+                Matrix< DDRMat > tT( tNumberOfNodesOtherMesh, tNumberOfNodesThisMesh );
 
                 // the shape function
-                Matrix< DDRMat > tN(1, tNumberOfNodesThisMesh );
+                Matrix< DDRMat > tN( 1, tNumberOfNodesThisMesh );
 
                 // Point coordinate matrix
                 Matrix< DDRMat > tPoint( N, 1 );
@@ -531,20 +557,21 @@ namespace moris::hmr
                     tXi.get_column( iNodeOtherMesh, tPoint );
 
                     // evaluate shape function
-                    this->evaluate_shape_function( tPoint,tN );
+                    this->evaluate_shape_function( tPoint, tN );
 
                     for ( uint iNodeThisMesh = 0; iNodeThisMesh < tNumberOfNodesThisMesh; iNodeThisMesh++ )
                     {
-                        tT(iNodeOtherMesh, iNodeThisMesh ) = tN(iNodeThisMesh );
+                        tT( iNodeOtherMesh, iNodeThisMesh ) = tN( iNodeThisMesh );
                     }
                 }
                 mLagrangeChangeOrderMatrix.push_back( tT );
             }
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-        Background_Element_Base* create_background_element()
+        Background_Element_Base*
+        create_background_element()
         {
             // create a prototype for a background element
             luint tIJK[ N ] = { 0 };
@@ -558,7 +585,7 @@ namespace moris::hmr
                     gNoProcOwner );
         }
 
-//------------------------------------------------------------------------------
+        //------------------------------------------------------------------------------
 
         /**
          * 1D Lagrange Shape function
@@ -567,7 +594,8 @@ namespace moris::hmr
          * @param aXi
          * @return Evaluated shape function
          */
-        real lagrange_shape_1d(
+        real
+        lagrange_shape_1d(
                 uint aBasisNumber,
                 real aXi ) const
         {
@@ -583,7 +611,8 @@ namespace moris::hmr
 
         //------------------------------------------------------------------------------
 
-        void recompute_lagrange_matrix() override
+        void
+        recompute_lagrange_matrix() override
         {
             // get number of basis per element of B-Spline mesh
             uint tNumberOfBases = mBSplineMesh->get_number_of_bases_per_element();
@@ -617,7 +646,8 @@ namespace moris::hmr
 
         //-------------------------------------------------------------------------------
 
-        void get_extension_matrix_1d( real const & aShift, Matrix< DDRMat >& aExtensionMatrix )
+        void
+        get_extension_matrix_1d( real const & aShift, Matrix< DDRMat >& aExtensionMatrix )
         {
             switch ( mBSplineMesh->Mesh_Base::get_order() )
             {
@@ -626,8 +656,8 @@ namespace moris::hmr
                     break;
                 case 2:
                     aExtensionMatrix = { { 0.5 * ( aShift - 2.0 ) * ( aShift - 1.0 ), aShift * ( -aShift + 2.0 ), 0.5 * aShift * ( aShift - 1.0 ) },    //
-                            { 0.5 * aShift * ( aShift - 1.0 ), -( aShift - 1.0 ) * ( aShift + 1.0 ), 0.5 * aShift * ( aShift + 1 ) },                       //
-                            { 0.5 * aShift * ( aShift + 1.0 ), -aShift * ( aShift + 2.0 ), 0.5 * ( aShift + 1 ) * ( aShift + 2 ) } };
+                        { 0.5 * aShift * ( aShift - 1.0 ), -( aShift - 1.0 ) * ( aShift + 1.0 ), 0.5 * aShift * ( aShift + 1 ) },                       //
+                        { 0.5 * aShift * ( aShift + 1.0 ), -aShift * ( aShift + 2.0 ), 0.5 * ( aShift + 1 ) * ( aShift + 2 ) } };
                     break;
                 case 3:
                     aExtensionMatrix = {
@@ -669,7 +699,8 @@ namespace moris::hmr
          * @param aXi Local coordinates
          * @param aN Evaluated geometry interpolation
          */
-        void evaluate_geometry_interpolation( const Matrix< DDRMat >& aXi, Matrix< DDRMat>& aN )
+        void
+        evaluate_geometry_interpolation( const Matrix< DDRMat >& aXi, Matrix< DDRMat >& aN )
         {
             MORIS_ERROR( false, "Don't know how to evaluate a geometry interpolation for a T-matrix of dimension %u", N );
         }
@@ -680,7 +711,8 @@ namespace moris::hmr
          * @param aChildIndex Child index
          * @param aXi Local coordinates
          */
-        void get_child_corner_nodes( uint aChildIndex, Matrix< DDRMat >& aXi )
+        void
+        get_child_corner_nodes( uint aChildIndex, Matrix< DDRMat >& aXi )
         {
             MORIS_ERROR( false, "Don't know how to get the corner nodes for a T-matrix of dimension %u", N );
         }
@@ -691,26 +723,34 @@ namespace moris::hmr
          * @param aOrder Polynomial order
          * @return Supporting points
          */
-        Matrix< DDRMat > get_supporting_points( uint aOrder )
+        Matrix< DDRMat >
+        get_supporting_points( uint aOrder )
         {
             MORIS_ERROR( false, "Don't know how to get supporting points for a T-matrix of dimension %u", N );
-            return {0, 0};
+            return { 0, 0 };
         }
-
     };
 
     /**
      * Declare template specializations for 2D and 3D
      */
-    template<> void T_Matrix< 2 >::evaluate_geometry_interpolation( const Matrix< DDRMat >& aXi, Matrix< DDRMat>& aN );
-    template<> void T_Matrix< 3 >::evaluate_geometry_interpolation( const Matrix< DDRMat >& aXi, Matrix< DDRMat>& aN );
-    template<> void T_Matrix< 2 >::evaluate_shape_function( const Matrix< DDRMat >& aXi, Matrix< DDRMat >& aN );
-    template<> void T_Matrix< 3 >::evaluate_shape_function( const Matrix< DDRMat >& aXi, Matrix< DDRMat >& aN );
-    template<> void T_Matrix< 2 >::get_child_corner_nodes( uint aChildIndex, Matrix< DDRMat >& aXi );
-    template<> void T_Matrix< 3 >::get_child_corner_nodes( uint aChildIndex, Matrix< DDRMat >& aXi );
-    template<> Matrix< DDRMat > T_Matrix< 2 >::get_supporting_points( uint aOrder );
-    template<> Matrix< DDRMat > T_Matrix< 3 >::get_supporting_points( uint aOrder );
+    template<>
+    void T_Matrix< 2 >::evaluate_geometry_interpolation( const Matrix< DDRMat >& aXi, Matrix< DDRMat >& aN );
+    template<>
+    void T_Matrix< 3 >::evaluate_geometry_interpolation( const Matrix< DDRMat >& aXi, Matrix< DDRMat >& aN );
+    template<>
+    void T_Matrix< 2 >::evaluate_shape_function( const Matrix< DDRMat >& aXi, Matrix< DDRMat >& aN );
+    template<>
+    void T_Matrix< 3 >::evaluate_shape_function( const Matrix< DDRMat >& aXi, Matrix< DDRMat >& aN );
+    template<>
+    void T_Matrix< 2 >::get_child_corner_nodes( uint aChildIndex, Matrix< DDRMat >& aXi );
+    template<>
+    void T_Matrix< 3 >::get_child_corner_nodes( uint aChildIndex, Matrix< DDRMat >& aXi );
+    template<>
+    Matrix< DDRMat > T_Matrix< 2 >::get_supporting_points( uint aOrder );
+    template<>
+    Matrix< DDRMat > T_Matrix< 3 >::get_supporting_points( uint aOrder );
 
-}
+}    // namespace moris::hmr
 
 #endif /* SRC_HMR_CL_HMR_T_MATRIX_HPP_ */

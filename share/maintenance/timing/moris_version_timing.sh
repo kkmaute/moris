@@ -133,3 +133,7 @@ for exa in $exalist; do
 done
 
   
+#   to extract timing data of a specific example use for example for test #86 and ctest.11-30-2022
+#
+#    grep '86: |  |_ElapsedTime' ctest.11-30-2022 | awk -F '=' '{print $2}' | awk '{print $1}' > 86.11-30-2022
+#

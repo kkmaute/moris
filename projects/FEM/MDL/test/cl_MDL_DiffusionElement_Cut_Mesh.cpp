@@ -100,7 +100,7 @@ void tConstValFunction_MDLCUT
         {
             // setup the interpolation mesh
             std::string tInterpString = "generated:1x1x4";
-            moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( MeshType::STK, tInterpString );
+            moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tInterpString );
 
             // setup the integration mesh
             // Define the Integration Mesh (from data from xtk)
@@ -150,7 +150,7 @@ void tConstValFunction_MDLCUT
             moris::mtk::MtkBlockSetInfo tOmega0BlockSetTet;
             tOmega0BlockSetTet.mCellIdsInSet = &tCellIdsPhase0;
             tOmega0BlockSetTet.mBlockSetName = "Omega_0_tets";
-            tOmega0BlockSetTet.mBlockSetTopo = CellTopology::TET4;
+            tOmega0BlockSetTet.mBlockSetTopo = mtk::CellTopology::TET4;
             tMtkMeshSets.add_block_set(&tOmega0BlockSetTet);
 
             // Hex Cells in Omega 0
@@ -158,14 +158,14 @@ void tConstValFunction_MDLCUT
             moris::mtk::MtkBlockSetInfo tOmega0BlockSetHex;
             tOmega0BlockSetHex.mCellIdsInSet = &tOmega0HexCellIds;
             tOmega0BlockSetHex.mBlockSetName = "Omega_0_hex";
-            tOmega0BlockSetHex.mBlockSetTopo = CellTopology::HEX8;
+            tOmega0BlockSetHex.mBlockSetTopo = mtk::CellTopology::HEX8;
             tMtkMeshSets.add_block_set(&tOmega0BlockSetHex);
 
             // Cells in the ghost domain of omega 1
             moris::mtk::MtkBlockSetInfo tOmega0GhostBlockSetTet;
             tOmega0GhostBlockSetTet.mCellIdsInSet = &tCellIdsGhost0;
             tOmega0GhostBlockSetTet.mBlockSetName = "Omega_0_Ghost";
-            tOmega0GhostBlockSetTet.mBlockSetTopo = CellTopology::TET4;
+            tOmega0GhostBlockSetTet.mBlockSetTopo = mtk::CellTopology::TET4;
             tMtkMeshSets.add_block_set(&tOmega0GhostBlockSetTet);
 
             // Integration Cells for Ghost penalization only
@@ -173,7 +173,7 @@ void tConstValFunction_MDLCUT
             moris::mtk::MtkBlockSetInfo tCellsForGhost;
             tCellsForGhost.mCellIdsInSet = &tGhostCellIds;
             tCellsForGhost.mBlockSetName = "Ghost_Cells_0";
-            tCellsForGhost.mBlockSetTopo = CellTopology::HEX8;
+            tCellsForGhost.mBlockSetTopo = mtk::CellTopology::HEX8;
             tMtkMeshSets.add_block_set(&tCellsForGhost);
 
             // Mesh data input structure
@@ -254,7 +254,7 @@ void tConstValFunction_MDLCUT
 
             // left side cluster
             moris_id         tLeftGhostInterpCellId   = 3;
-            moris_index      tLeftGhostInterpCellInd  = tInterpMesh1->get_loc_entity_ind_from_entity_glb_id(tLeftGhostInterpCellId,EntityRank::ELEMENT);
+            moris_index      tLeftGhostInterpCellInd  = tInterpMesh1->get_loc_entity_ind_from_entity_glb_id(tLeftGhostInterpCellId,mtk::EntityRank::ELEMENT);
             moris::mtk::Cell* tLeftInterpCell         = &tInterpMesh1->get_mtk_cell(tLeftGhostInterpCellInd);
             Matrix<IndexMat> tLeftGhostCellIdAndOrd   = {{3,5}};
             bool             tLeftTrivial = true;
@@ -272,7 +272,7 @@ void tConstValFunction_MDLCUT
 
             tMeshDataInput.DoubleSideClusterInput = &tDoubleSideClusterInput;
 
-            moris::mtk::Integration_Mesh* tIntegMesh1  = moris::mtk::create_integration_mesh(MeshType::STK,tMeshDataInput,tInterpMesh1);
+            moris::mtk::Integration_Mesh* tIntegMesh1  = moris::mtk::create_integration_mesh(mtk::MeshType::STK,tMeshDataInput,tInterpMesh1);
 
             // place the pair in mesh manager
             std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();

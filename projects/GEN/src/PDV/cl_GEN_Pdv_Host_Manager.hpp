@@ -335,6 +335,18 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
+            //-------------------------------------------------------------------------------
+
+            /**
+             * Create the pdv hosts on interpolation nodes based on the pdv types per set
+             *
+             * @param aNodeIndicesPerSet The node indices contained on a set
+             * @param aNodeCoordinates The node coordinates indexed by node
+             * @param aPdvTypes The PDV types per set, grouped
+             */
+            void set_interpolation_pdv_types(
+                    const Cell< Cell< Cell< PDV_Type > > >& aPdvTypes );
+
             /**
              * Create the pdv hosts on interpolation nodes based on the pdv types per set
              *
@@ -343,11 +355,10 @@ namespace moris
              * @param aPdvTypes The PDV types per set, grouped
              */
             void create_interpolation_pdv_hosts(
-                    const Cell< Matrix< DDSMat > >&         aNodeIndicesPerSet,
-                    const Cell< Matrix< DDSMat > >&         aNodeIdsPerSet,
-                    const Cell< Matrix< DDSMat > >&         aNodeOwnersPerSet,
-                    const Cell< Matrix< DDRMat > >&         aNodeCoordinates,
-                    const Cell< Cell< Cell< PDV_Type > > >& aPdvTypes );
+                    const Cell< Cell< uint > >& aNodeIndicesPerSet,
+                    const Cell< Cell< sint > >& aNodeIdsPerSet,
+                    const Cell< Cell< uint > >& aNodeOwnersPerSet,
+                    const Cell< Matrix< DDRMat > >& aNodeCoordinates );
 
             //-------------------------------------------------------------------------------
 
@@ -486,17 +497,20 @@ namespace moris
             //-------------------------------------------------------------------------------
 
           private:
-            //-------------------------------------------------------------------------------
 
-            void communicate_check_if_owned_pdv_exists();
+            /**
+             * Counts the number of owned and shared PDVs, including both interpolation PDVs and intersection nodes.
+             * These values are stored in mNumOwnedPdvs and mNumOwnedAndSharedPdvs.
+             */
+            void count_owned_and_shared_pdvs();
 
-            //-------------------------------------------------------------------------------
-
-            void get_num_pdvs();
-
-            //-------------------------------------------------------------------------------
-
-            uint communicate_pdv_offsets( const moris::uint& aNumOwnedPdvs );
+            /**
+             * Communicate ID offsets, for setting unique PDV IDs across processors
+             *
+             * @param aNumOwnedIDs Number of owned IDs on this processor
+             * @return The offset for this processor
+             */
+            static uint communicate_offsets( uint aNumOwnedIDs );
 
             //-------------------------------------------------------------------------------
 

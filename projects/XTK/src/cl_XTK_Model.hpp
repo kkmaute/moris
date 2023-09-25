@@ -276,7 +276,7 @@ namespace xtk
          */
         void
         perform_basis_enrichment(
-                enum EntityRank const & aBasisRank,
+                mtk::EntityRank const & aBasisRank,
                 moris_index const &     aBsplineMeshIndex          = 0,
                 bool                    aSortBasisEnrichmentLevels = false,
                 bool                    aUseSpgBasedEnrichment     = false );
@@ -292,7 +292,7 @@ namespace xtk
          */
         void
         perform_basis_enrichment(
-                enum EntityRank const &    aBasisRank,
+                mtk::EntityRank const &    aBasisRank,
                 Matrix< IndexMat > const & aBsplineMeshIndices,
                 bool                       aSortBasisEnrichmentLevels = false,
                 bool                       aUseSpgBasedEnrichment     = false );
@@ -583,7 +583,7 @@ namespace xtk
 
         //------------------------------------------------------------------------------
 
-        enum CellTopology
+        mtk::CellTopology
         get_parent_cell_topology() const
         {
             mtk::Cell& tCell = mBackgroundMesh->get_mtk_cell( 0 );
@@ -592,7 +592,7 @@ namespace xtk
 
         //------------------------------------------------------------------------------
 
-        enum mtk::Geometry_Type
+        mtk::Geometry_Type
         get_parent_cell_geometry() const
         {
             mtk::Cell& tCell = mBackgroundMesh->get_mtk_cell( 0 );
@@ -745,7 +745,7 @@ namespace xtk
 
         //------------------------------------------------------------------------------
 
-        moris::Cell< enum moris::EntityRank >
+        moris::Cell< mtk::EntityRank >
         assign_geometry_data_field_ranks();
 
         //------------------------------------------------------------------------------
@@ -877,7 +877,7 @@ namespace xtk
         //------------------------------------------------------------------------------
 
         void perform_basis_enrichment_internal(
-                enum EntityRank const &    aBasisRank,
+                mtk::EntityRank const &    aBasisRank,
                 Matrix< IndexMat > const & aBsplineMeshIndices,
                 bool                       aSortBasisEnrichmentLevels,
                 bool                       aUseSpgBasedEnrichment = false );

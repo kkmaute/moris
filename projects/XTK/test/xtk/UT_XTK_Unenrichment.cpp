@@ -116,7 +116,7 @@ namespace xtk
             tXTKModel.decompose( tDecompositionMethods );
 
             // perform basis enrichment
-            tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
+            tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
 
             // perform unenrichment
             tXTKModel.perform_unenrichment( { { 0 } } );

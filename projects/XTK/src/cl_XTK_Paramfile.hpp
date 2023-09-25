@@ -12,7 +12,7 @@
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_PARAMFILE_HPP_
 
 #include "cl_XML_Parser.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_XTK_Enums.hpp"
 
 #include <string>
@@ -29,7 +29,7 @@ class XTK_Problem_Params
 public:
     XTK_Problem_Params():
     mInputMeshFile(""),
-    mMeshType(MeshType::END_ENUM),
+    mMeshType(mtk::MeshType::UNDEFINED),
     mRealGeomParams(0),
     mIntGeomParams(0),
     mSubdivisionMethods(0),
@@ -44,7 +44,7 @@ public:
 
     // input mesh
     std::string       mInputMeshFile;
-    enum MeshType     mMeshType;
+    mtk::MeshType     mMeshType;
 
     // geometry
     std::string        mGeometryName;
@@ -186,18 +186,18 @@ private:
     void
     parse_xtk_problem_obj(moris::uint aProblemIndex);
 
-    enum MeshType
+    mtk::MeshType
     get_mesh_type_enum(std::string const & aMeshStr)
     {
       if(aMeshStr == "STK")
       {
-        return MeshType::STK;
+        return mtk::MeshType::STK;
       }
 
       else
       {
         MORIS_ERROR(0,"Mesh str not recognized.");
-        return MeshType::STK;
+        return mtk::MeshType::STK;
       }
     }
 

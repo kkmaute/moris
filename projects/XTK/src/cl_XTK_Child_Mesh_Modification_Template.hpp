@@ -13,7 +13,7 @@
 
 #include "cl_Matrix.hpp"
 #include "cl_XTK_Enums.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 namespace xtk
 {
 class Mesh_Modification_Template
@@ -38,7 +38,7 @@ public:
                                     mParentNodeInds(0,0),
                                     mParentNodeRanks(0,0),
                                     mSpatialDimension(0),
-                                    mElementTopology(CellTopology::INVALID)
+                                    mElementTopology(moris::mtk::CellTopology::UNDEFINED)
     {
         mElemIndToReplace = aElemToReplace;
         mParentElemInd    = aParentElemInd;
@@ -130,7 +130,7 @@ public:
     moris::uint mSpatialDimension;
 
     // topology of children elements
-    enum CellTopology mElementTopology;
+    moris::mtk::CellTopology mElementTopology;
 
     // Node indices in the template
     moris::Matrix< moris::IndexMat > mNodeInds;
@@ -256,7 +256,7 @@ private:
                                                       {4, 7, 13, 14}});
 
         mSpatialDimension = 3;
-        mElementTopology = CellTopology::TET4;
+        mElementTopology = moris::mtk::CellTopology::TET4;
         mNumNewElem = 24;
         mNumElemToReplace = 1;
         mNewParentEdgeRanks       = moris::Matrix< moris::DDSTMat >({{2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {1, 2, 2, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {2, 2, 1, 3, 3, 3}, {1, 2, 2, 3, 3, 3}});
@@ -275,7 +275,7 @@ private:
     tet4_template()
     {
         mSpatialDimension = 3;
-        mElementTopology          = CellTopology::TET4;
+        mElementTopology          = moris::mtk::CellTopology::TET4;
         mNewElementToNode = moris::Matrix< moris::IndexMat >({{0,1,2,3}});
         mNumNewElem = 1;
         mNumElemToReplace = 0;
@@ -292,7 +292,7 @@ private:
     {
         MORIS_ASSERT(mNodeInds.n_cols() == 5, "For a Quad4 regular subdivision template, there must be 5 node inds.");
         mSpatialDimension = 2;
-        mElementTopology          = CellTopology::TRI3;
+        mElementTopology          = moris::mtk::CellTopology::TRI3;
         mNewElementToNode = {{0, 1, 4},
                              {1, 2, 4},
                              {2, 3, 4},
@@ -315,14 +315,14 @@ private:
         mNewNodeParentRanks    = {{0, 0, 0, 0, 3}};
         mNewNodeParentOrdinals = {{0, 1, 2, 3, 0}};
 
-        mElementTopology = CellTopology::TRI3;
+        mElementTopology = moris::mtk::CellTopology::TRI3;
     }
 
     void
 	tri3_template()
     {
         mSpatialDimension = 2;
-        mElementTopology          = CellTopology::TRI3;
+        mElementTopology          = moris::mtk::CellTopology::TRI3;
         mNewElementToNode 	  = {{0, 1, 2}};
         mNumNewElem 		  = 1;
         mNumElemToReplace 	  = 0;
@@ -342,7 +342,7 @@ private:
         {
             case 1:
             {
-                mElementTopology          = CellTopology::TRI3;
+                mElementTopology          = moris::mtk::CellTopology::TRI3;
                 mNewElementToNode         = {{0, 3, 2},{3,1,4},{3,4,2}};
                 mNumNewElem               = 3;
                 mNumElemToReplace         = 1;
@@ -353,7 +353,7 @@ private:
             }
             case 2:
             {
-                mElementTopology          = CellTopology::TRI3;
+                mElementTopology          = moris::mtk::CellTopology::TRI3;
                 mNewElementToNode         = {{0,3,4},{3,2,4},{3,1,2}};
                 mNumNewElem               = 3;
                 mNumElemToReplace         = 1;
@@ -364,7 +364,7 @@ private:
             }
             case 3:
             {
-                mElementTopology          = CellTopology::TRI3;
+                mElementTopology          = moris::mtk::CellTopology::TRI3;
                 mNewElementToNode         = {{0,1,3},{0,3,4},{3,2,4}};
                 mNumNewElem               = 3;
                 mNumElemToReplace         = 1;
@@ -375,7 +375,7 @@ private:
             }
             case 10:
             {
-                mElementTopology          = CellTopology::TRI3;
+                mElementTopology          = moris::mtk::CellTopology::TRI3;
                 mNewElementToNode         = {{0,3,2},{3,1,2}};
                 mNumNewElem               = 2;
                 mNumElemToReplace         = 1;
@@ -386,7 +386,7 @@ private:
             }
             case 11:
             {
-                mElementTopology          = CellTopology::TRI3;
+                mElementTopology          = moris::mtk::CellTopology::TRI3;
                 mNewElementToNode         = {{0,1,3},{0,3,2}};
                 mNumNewElem               = 2;
                 mNumElemToReplace         = 1;
@@ -397,7 +397,7 @@ private:
             }
             case 12:
             {
-                mElementTopology          = CellTopology::TRI3;
+                mElementTopology          = moris::mtk::CellTopology::TRI3;
                 mNewElementToNode         = {{0,1,3},{1,2,3}};
                 mNumNewElem               = 2;
                 mNumElemToReplace         = 1;
@@ -417,7 +417,7 @@ private:
     {
 
         mSpatialDimension = 3;
-        mElementTopology          = CellTopology::TET4;
+        mElementTopology          = moris::mtk::CellTopology::TET4;
         switch(aPermutation)
         {
         case(320):
@@ -721,7 +721,7 @@ private:
 
         default:
         {
-            std::cout<<"WARNING INVALID PERMUTATION"<<std::endl;
+            std::cout<<"WARNING UNDEFINED PERMUTATION"<<std::endl;
             break;
         }
         }
@@ -731,7 +731,7 @@ private:
     hierarchy_tet4_4na(moris::size_t const & aPermutationId)
     {
         mSpatialDimension = 3;
-        mElementTopology = CellTopology::TET4;
+        mElementTopology = moris::mtk::CellTopology::TET4;
         switch(aPermutationId)
         {
          case(5420):
@@ -1052,7 +1052,7 @@ private:
     hierarchy_tet4_4nb(moris::size_t const & aPermutationId)
     {
         mSpatialDimension = 3;
-        mElementTopology = CellTopology::TET4;
+        mElementTopology = moris::mtk::CellTopology::TET4;
         switch(aPermutationId)
         {
         case(4250):
@@ -1366,7 +1366,7 @@ private:
     hierarchy_tet4_4nc(moris::size_t const & aPermutationId)
     {
         mSpatialDimension = 3;
-        mElementTopology = CellTopology::TET4;
+        mElementTopology = moris::mtk::CellTopology::TET4;
         switch(aPermutationId)
         {
         case(4520):
@@ -1684,7 +1684,7 @@ private:
     bisected_tet(moris::size_t const & aPermutationId)
     {
         mSpatialDimension = 3;
-        mElementTopology = CellTopology::TET4;
+        mElementTopology = moris::mtk::CellTopology::TET4;
 
         switch(aPermutationId)
         {
@@ -1782,7 +1782,7 @@ private:
     hierarchy_tet4_2(moris::size_t const & aPermutationId)
     {
         mSpatialDimension = 3;
-        mElementTopology = CellTopology::TET4;
+        mElementTopology = moris::mtk::CellTopology::TET4;
 
         switch(aPermutationId)
         {

@@ -11,7 +11,7 @@
 #include "cl_SDF_STK.hpp"
 
 #include "cl_Stopwatch.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "stk_impl/cl_MTK_Mesh_Core_STK.hpp"
 #include "SDF_Tools.hpp"
 
@@ -88,10 +88,10 @@ namespace moris
             {
                 // save element index in map
                 mElementLocalToGlobal( e ) = tMesh->get_glb_entity_id_from_entity_loc_index(
-                        e, EntityRank::ELEMENT );
+                        e, mtk::EntityRank::ELEMENT );
 
                 Matrix< IndexMat > tNodeIDs = tMesh->get_entity_connected_to_entity_glob_ids(
-                        mElementLocalToGlobal( e ) , EntityRank::ELEMENT, EntityRank::NODE );
+                        mElementLocalToGlobal( e ) , mtk::EntityRank::ELEMENT, mtk::EntityRank::NODE );
 
                 // cast copy node IDs to topology matrix
                 for( uint k=0; k<tNumberOfNodesPerElement; ++k )
@@ -116,11 +116,11 @@ namespace moris
                 }
 
                 // copy node Owner
-                mNodeOwner( k ) =  tMesh->get_entity_owner( k, EntityRank::NODE );
+                mNodeOwner( k ) =  tMesh->get_entity_owner( k, mtk::EntityRank::NODE );
 
                 // copy node index into map
                 mNodeLocalToGlobal( k ) = tMesh->get_glb_entity_id_from_entity_loc_index(
-                        k, EntityRank::NODE );
+                        k, mtk::EntityRank::NODE );
 
                 // save vertex id
                 aFields( tNodeFieldIndex )( k ) =  mNodeLocalToGlobal( k );
@@ -136,7 +136,7 @@ namespace moris
             for( uint f=0; f<tNumberOfFields; ++f )
             {
                 mFields( f ).set_field_name( aFieldLabels( f ) );
-                mFields( f ).set_field_entity_rank( EntityRank::NODE );
+                mFields( f ).set_field_entity_rank( mtk::EntityRank::NODE );
 
                 mFields( f ).add_field_data(
                         & mNodeLocalToGlobal,
@@ -147,13 +147,13 @@ namespace moris
 
             // Add information about node id field
             mFields(tNodeFieldIndex).set_field_name( "Vertex_ID" );
-            mFields(tNodeFieldIndex).set_field_entity_rank( EntityRank::NODE );
+            mFields(tNodeFieldIndex).set_field_entity_rank( mtk::EntityRank::NODE );
             mFields(tNodeFieldIndex).add_field_data( &mNodeLocalToGlobal, &aFields( tNodeFieldIndex ));
             mFieldsInfo.mRealScalarFields.push_back( &mFields(tNodeFieldIndex) );
 
             // Add information about cell id field
             mFields(tElementFieldIndex).set_field_name( "Cell_ID" );
-            mFields(tElementFieldIndex).set_field_entity_rank( EntityRank::ELEMENT );
+            mFields(tElementFieldIndex).set_field_entity_rank( mtk::EntityRank::ELEMENT );
             mFields(tElementFieldIndex).add_field_data( &mElementLocalToGlobal, &aFields( tElementFieldIndex ) );
             mFieldsInfo.mRealScalarFields.push_back( &mFields(tElementFieldIndex) );
 

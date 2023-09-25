@@ -17,7 +17,7 @@
 #include "linalg_typedefs.hpp"
 #include "cl_Cell.hpp"
 #include "cl_GEN_Geometric_Query_Interface.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Cell_Info.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
@@ -66,7 +66,7 @@ namespace xtk
         enum moris::ge::Query_Type mQueryType = moris::ge::Query_Type::INVALID;
 
         // associated with a given child mesh
-        enum EntityRank mQueryEntityRank = EntityRank::INVALID;
+        mtk::EntityRank mQueryEntityRank = mtk::EntityRank::INVALID;
 
         Matrix< IndexMat > mQueryEntityToVertices;
         Matrix< IndexMat > mQueryEntityParamCoords;
@@ -107,7 +107,7 @@ namespace xtk
         }
 
         void
-        set_query_entity_rank( enum moris::EntityRank aEntityRank )
+        set_query_entity_rank( mtk::EntityRank aEntityRank )
         {
             mQueryEntityRank = aEntityRank;
         }
@@ -194,7 +194,7 @@ namespace xtk
             return mGeometricIndex;
         }
 
-        enum EntityRank
+        mtk::EntityRank
         get_query_entity_rank() const
         {
             return mQueryEntityRank;
@@ -219,10 +219,10 @@ namespace xtk
             return *tCurrentVertexGroup->get_vertex_local_coords( aVertexIndex );
         }
 
-        enum EntityRank
+        mtk::EntityRank
         get_query_parent_entity_rank() const
         {
-            return EntityRank::ELEMENT;
+            return mtk::EntityRank::ELEMENT;
         }
 
         Matrix< IndexMat >
