@@ -25,7 +25,7 @@ namespace moris::ge
             : mField( std::move( aField ) )
             , mParameters( std::move( aParameters ) )
     {
-        MORIS_ERROR( aField, "A design must be provided a field for computing values." );
+        MORIS_ERROR( mField, "A design must be provided a field for computing values." );
     }
 
     //--------------------------------------------------------------------------------------------------------------
