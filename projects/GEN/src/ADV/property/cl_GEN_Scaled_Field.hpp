@@ -45,9 +45,10 @@ namespace moris::ge
                 : Field_Discrete_Interpolation( aADVs, aPropertyVariableIndices, aADVIndices, aConstants, nullptr )
                 , mField( aField )
         {
-            MORIS_ERROR(mVariables.size() == 1, "A scaled field property must have one scaling factor.");
-            MORIS_ERROR(aPropertyVariableIndices.length() == 0,
-                        "A scaled field property must have a constant scaling factor for now.");
+            MORIS_ERROR( mField, "A scaled field must be given an input field." );
+            MORIS_ERROR( mVariables.size() == 1, "A scaled field must have one scaling factor." );
+            MORIS_ERROR( aPropertyVariableIndices.length() == 0,
+                        "A scaled field must have a constant scaling factor for now." );
         }
 
         /**

@@ -64,17 +64,17 @@ namespace moris::ge
                                 // Name match found
                                 if ( tNeededFieldNames( tBuildPropertyIndex )( tDependencyIndex ) == tPropertyNames( tCheckPropertyIndex ) )
                                 {
-                                    // Dependency is built already FIXME
-//                                    if ( tProperties( tCheckPropertyIndex ) )
-//                                    {
-//                                        tNeededFields( tBuildPropertyIndex )( tDependencyIndex ) = tProperties( tCheckPropertyIndex );
-//                                    }
+                                    // Dependency is built already
+                                    if ( tProperties( tCheckPropertyIndex ) )
+                                    {
+                                        tNeededFields( tBuildPropertyIndex )( tDependencyIndex ) = tProperties( tCheckPropertyIndex )->get_field();
+                                    }
 
                                     // Dependency is not built, cannot build current property
-//                                    else
-//                                    {
-//                                        tBuild = false;
-//                                    }
+                                    else
+                                    {
+                                        tBuild = false;
+                                    }
                                 }
                             }
                         }
@@ -89,11 +89,11 @@ namespace moris::ge
                             // Checking each field by name
                             for ( uint tCheckFieldIndex = 0; tCheckFieldIndex < aGeometries.size(); tCheckFieldIndex++ )
                             {
-                                // Name match found FIXME
-//                                if ( tNeededFieldNames( tBuildPropertyIndex )( tDependencyIndex ) == aGeometries( tCheckFieldIndex )->get_name() )
-//                                {
-//                                    tNeededFields( tBuildPropertyIndex )( tDependencyIndex ) = aGeometries( tCheckFieldIndex );
-//                                }
+                                // Name match found
+                                if ( tNeededFieldNames( tBuildPropertyIndex )( tDependencyIndex ) == aGeometries( tCheckFieldIndex )->get_name() )
+                                {
+                                    tNeededFields( tBuildPropertyIndex )( tDependencyIndex ) = aGeometries( tCheckFieldIndex )->get_field();
+                                }
                             }
                         }
 
