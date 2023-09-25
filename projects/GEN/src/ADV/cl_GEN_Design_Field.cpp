@@ -12,6 +12,8 @@
 
 #include <utility>
 #include "cl_MTK_Interpolation_Mesh.hpp"
+#include "cl_GEN_BSpline_Field.hpp"
+#include "cl_GEN_Stored_Field.hpp"
 
 namespace moris::ge
 {
@@ -23,6 +25,42 @@ namespace moris::ge
             : mField( std::move( aField ) )
             , mParameters( std::move( aParameters ) )
     {
+        MORIS_ERROR( aField, "A design must be provided a field for computing values." );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Design_Field::intended_discretization()
+    {
+        return ( mParameters.mDiscretizationIndex >= 0 );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Design_Field::discretize(
+            mtk::Mesh_Pair        aMeshPair,
+            sol::Dist_Vector*     aOwnedADVs,
+            const Matrix<DDUMat>& aCoefficientIndices,
+            const Matrix<DDSMat>& aSharedADVIds,
+            uint                  aADVOffsetID )
+    {
+        if ( mParameters.mDiscretizationIndex >= 0 )
+        {
+            mField = std::make_shared< BSpline_Field >(
+                    aMeshPair,
+                    aOwnedADVs,
+                    aCoefficientIndices,
+                    aSharedADVIds,
+                    aADVOffsetID,
+                    mParameters.mDiscretizationIndex,
+                    mField );
+        }
+        else if ( mParameters.mDiscretizationIndex == -1 )
+        {
+            mField = std::make_shared< Stored_Field >(
+                    aMeshPair.get_interpolation_mesh(),
+                    mField );
+        }
     }
     
     //--------------------------------------------------------------------------------------------------------------
@@ -109,22 +147,6 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    bool
-    Design_Field::intended_storage()
-    {
-        return ( mParameters.mDiscretizationMeshIndex > -2 );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    bool
-    Design_Field::intended_discretization()
-    {
-        return ( mParameters.mDiscretizationMeshIndex > -1 );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     const Matrix< DDSMat >&
     Design_Field::get_num_refinements()
     {
@@ -152,10 +174,10 @@ namespace moris::ge
     moris_index
     Design_Field::get_discretization_mesh_index() const
     {
-        MORIS_ASSERT( mParameters.mDiscretizationMeshIndex >= 0,
+        MORIS_ASSERT( mParameters.mDiscretizationIndex >= 0,
                 "A discretization is not intended for this field. Check this with intended_discretization() first." );
 
-        return mParameters.mDiscretizationMeshIndex;
+        return mParameters.mDiscretizationIndex;
     }
 
     //--------------------------------------------------------------------------------------------------------------

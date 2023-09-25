@@ -38,23 +38,21 @@ namespace moris::ge
          * @param aField Field for initializing the B-spline level set discretization
          */
         BSpline_Field(
+                mtk::Mesh_Pair         aMeshPair,
                 sol::Dist_Vector*      aOwnedADVs,
                 const Matrix<DDUMat>&  aCoefficientIndices,
                 const Matrix<DDSMat>&  aSharedADVIds,
                 uint                   aADVOffsetID,
-                mtk::Mesh_Pair         aMeshPair,
                 uint                   aDiscretizationIndex,
-                std::shared_ptr<Field> aField);
+                std::shared_ptr<Field> aField );
 
-        //FIXME this is obviously a brutal hack and should be done properly in a proper version of GE
         BSpline_Field(
+                mtk::Mesh_Pair         aMeshPair,
                 sol::Dist_Vector*      aOwnedADVs,
                 const Matrix<DDUMat>&  aCoefficientIndices,
                 const Matrix<DDSMat>&  aSharedADVIds,
                 uint                   aADVOffsetID,
-                mtk::Mesh_Pair         aMeshPair,
-                std::shared_ptr<Field> aField,
-                std::shared_ptr<mtk::Field> aMTKField);
+                std::shared_ptr<mtk::Field> aMTKField );
 
         /**
          * Destructor

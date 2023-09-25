@@ -46,7 +46,7 @@ namespace moris::ge
          * @param aField Field for computing nodal values
          * @param aParameters Field parameters
          */
-        Level_Set_Geometry(
+        explicit Level_Set_Geometry(
               std::shared_ptr< Field > aField,
               Level_Set_Parameters     aParameters = {} );
 

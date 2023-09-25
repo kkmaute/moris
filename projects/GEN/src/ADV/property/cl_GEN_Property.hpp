@@ -40,7 +40,7 @@ namespace moris::ge
          * @param aField Field for computing nodal values
          * @param aParameters Field parameters
          */
-        Property(
+        explicit Property(
               std::shared_ptr< Field > aField,
               Property_Parameters      aParameters = {} );
 

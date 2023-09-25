@@ -1492,104 +1492,30 @@ namespace moris
                 tFieldNameToIndexMap[ tLabel ] = Ik;
             }
 
-            // Loop to find B-spline geometries
-            for ( uint tGeometryIndex = 0; tGeometryIndex < mGeometries.size(); tGeometryIndex++ )
+            // Loop to discretize geometries when requested
+            for ( uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++ )
             {
+                // Discretize
+                mGeometries( iGeometryIndex )->discretize(
+                        aMeshPair,
+                        tNewOwnedADVs,
+                        tSharedCoefficientIndices( iGeometryIndex ),
+                        tSharedADVIds( iGeometryIndex ),
+                        tAllOffsetIDs( iGeometryIndex ) );
+
                 // Shape sensitivities logic
-                mShapeSensitivities = ( mShapeSensitivities or mGeometries( tGeometryIndex )->depends_on_advs() );
-
-                // Convert to B-spline field
-                if ( mGeometries( tGeometryIndex )->intended_discretization() )
-                {
-                    // Always have shape sensitivities if B-spline field
-                    mShapeSensitivities = true;
-
-                    std::string tGeoName = mGeometries( tGeometryIndex )->get_name();
-
-                    if ( true ) // not tFieldNameToIndexMap.key_exists( tGeoName ) )
-                    {
-                        // Create B-spline property FIXME nullptr, parameters, discretization index
-                        auto tBSplineField = std::make_shared< BSpline_Field >(
-                                tNewOwnedADVs,
-                                tSharedCoefficientIndices( mGeometries.size() + tGeometryIndex ),
-                                tSharedADVIds( mGeometries.size() + tGeometryIndex ),
-                                tAllOffsetIDs( mGeometries.size() + tGeometryIndex ),
-                                aMeshPair,
-                                0,
-                                mGeometries( tGeometryIndex )->get_field() );
-                        mGeometries( tGeometryIndex ) = std::make_shared< Level_Set_Geometry >( tBSplineField );
-                    }
-                    else
-                    {
-                        uint tMTKFieldIndex = tFieldNameToIndexMap.find( tGeoName );
-
-                        // Create B-spline property FIXME nullptr, parameters
-                        auto tBSplineField = std::make_shared< BSpline_Field >(
-                                tNewOwnedADVs,
-                                tSharedCoefficientIndices( mGeometries.size() + tGeometryIndex ),
-                                tSharedADVIds( mGeometries.size() + tGeometryIndex ),
-                                tAllOffsetIDs( mGeometries.size() + tGeometryIndex ),
-                                aMeshPair,
-                                mGeometries( tGeometryIndex )->get_field(),
-                                aFields( tMTKFieldIndex ) );
-                        mGeometries( tGeometryIndex ) = std::make_shared< Level_Set_Geometry >( tBSplineField );
-                    }
-                }
-
-                // Store field values if needed
-                else if ( mGeometries( tGeometryIndex )->intended_storage() )
-                {
-                    // Create stored geometry
-                    auto tStoredField = std::make_shared< Stored_Field >( tMesh, mGeometries( tGeometryIndex ) );
-                    mGeometries( tGeometryIndex ) = std::make_shared< Level_Set_Geometry >(
-                            tStoredField );
-                }
-                else
-                {
-                    mGeometries( tGeometryIndex )->set_num_original_nodes( aMeshPair.get_interpolation_mesh()->get_num_nodes() );
-                }
+                mShapeSensitivities = ( mShapeSensitivities or mGeometries( iGeometryIndex )->depends_on_advs() );
             }
 
-            // Loop to find B-spline properties
-            for ( uint tPropertyIndex = 0; tPropertyIndex < mProperties.size(); tPropertyIndex++ )
+            // Loop to discretize properties when requested
+            for ( uint iPropertyIndex = 0; iPropertyIndex < mProperties.size(); iPropertyIndex++ )
             {
-                // Convert to B-spline field
-                if ( mProperties( tPropertyIndex )->intended_discretization() )
-                {
-                    // Always have shape sensitivities if B-spline field
-                    mShapeSensitivities = true;
-
-                    std::string tPropName = mProperties( tPropertyIndex )->get_name();
-
-                    if ( true ) // not tFieldNameToIndexMap.key_exists( tPropName ) )
-                    {
-                        // Create B-spline property FIXME nullptr, parameters, discretization index
-                        auto tBSplineField = std::make_shared< BSpline_Field >(
-                                tNewOwnedADVs,
-                                tSharedCoefficientIndices( mGeometries.size() + tPropertyIndex ),
-                                tSharedADVIds( mGeometries.size() + tPropertyIndex ),
-                                tAllOffsetIDs( mGeometries.size() + tPropertyIndex ),
-                                aMeshPair,
-                                0,
-                                mProperties( tPropertyIndex )->get_field() );
-                        mProperties( tPropertyIndex ) = std::make_shared< Property >( tBSplineField );
-                    }
-                    else
-                    {
-                        uint tMTKFieldIndex = tFieldNameToIndexMap.find( tPropName );
-
-                        // Create B-spline property FIXME nullptr, parameters
-                        auto tBSplineField = std::make_shared< BSpline_Field >(
-                                tNewOwnedADVs,
-                                tSharedCoefficientIndices( mGeometries.size() + tPropertyIndex ),
-                                tSharedADVIds( mGeometries.size() + tPropertyIndex ),
-                                tAllOffsetIDs( mGeometries.size() + tPropertyIndex ),
-                                aMeshPair,
-                                mProperties( tPropertyIndex )->get_field(),
-                                aFields( tMTKFieldIndex ) );
-                        mProperties( tPropertyIndex ) = std::make_shared< Property >( tBSplineField );
-                    }
-                }
+                mProperties( iPropertyIndex )->discretize(
+                        aMeshPair,
+                        tNewOwnedADVs,
+                        tSharedCoefficientIndices( mGeometries.size() + iPropertyIndex ),
+                        tSharedADVIds( mGeometries.size() + iPropertyIndex ),
+                        tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
             }
 
             // Update dependencies

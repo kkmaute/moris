@@ -26,11 +26,11 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     BSpline_Field::BSpline_Field(
+            mtk::Mesh_Pair           aMeshPair,
             sol::Dist_Vector*        aOwnedADVs,
             const Matrix< DDUMat >&  aCoefficientIndices,
             const Matrix< DDSMat >&  aSharedADVIds,
             uint                     aADVOffsetID,
-            mtk::Mesh_Pair           aMeshPair,
             uint                     aDiscretizationIndex,
             std::shared_ptr< Field > aField )
             : Field_Discrete_Integration( {{}}, aMeshPair.get_interpolation_mesh()->get_num_nodes() )
@@ -53,12 +53,11 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     BSpline_Field::BSpline_Field(
+            mtk::Mesh_Pair                aMeshPair,
             sol::Dist_Vector*             aOwnedADVs,
             const Matrix< DDUMat >&       aCoefficientIndices,
             const Matrix< DDSMat >&       aSharedADVIds,
             uint                          aADVOffsetID,
-            mtk::Mesh_Pair                aMeshPair,
-            std::shared_ptr< Field >      aField,
             std::shared_ptr< mtk::Field > aMTKField )
             : Field_Discrete_Integration( {{}}, aMeshPair.get_interpolation_mesh()->get_num_nodes() )
             , mSharedADVIds( aSharedADVIds )
@@ -157,6 +156,7 @@ namespace moris::ge
         // Import ADVs and assign nodal values
         this->import_advs( aOwnedADVs );
     }
+
     //--------------------------------------------------------------------------------------------------------------
 
     real
@@ -216,21 +216,6 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-//    void
-//    BSpline_Field::get_coefficient_vector()
-//    {
-//        uint tNumCoeffs = mVariables.size();
-//
-//        mCoefficients.set_size( tNumCoeffs, 1 );
-//
-//        for ( uint Ik = 0; Ik < tNumCoeffs; Ik++ )
-//        {
-//            mCoefficients( Ik ) = *mVariables( Ik );
-//        }
-//    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
     void
     BSpline_Field::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
@@ -248,7 +233,7 @@ namespace moris::ge
         }
 
         // Create field
-        mtk::Field_Discrete* tField = new mtk::Field_Discrete( mMeshPair, mDiscretizationIndex );
+        auto tField = new mtk::Field_Discrete( mMeshPair, mDiscretizationIndex );
 
         // Use mapper
         mtk::Mapper tMapper;
@@ -309,7 +294,7 @@ namespace moris::ge
         mtk::Interpolation_Mesh* tMesh = mMeshPair.get_interpolation_mesh();
 
         // Output field
-        mtk::Field_Discrete* tOutputField = new mtk::Field_Discrete( mMeshPair, mDiscretizationIndex );
+        auto tOutputField = new mtk::Field_Discrete( mMeshPair, mDiscretizationIndex );
 
         // Nodal values
         Matrix< DDRMat > tNodalValues( tMesh->get_num_nodes(), 1 );
@@ -321,7 +306,7 @@ namespace moris::ge
 
         tOutputField->unlock_field();
         tOutputField->set_values( tNodalValues );
-        // tMapper.map_input_field_to_output_field_2(tOutputField);
+
         tMapper.perform_mapping( tOutputField, mtk::EntityRank::NODE, mtk::EntityRank::BSPLINE );
 
         // Get coefficients

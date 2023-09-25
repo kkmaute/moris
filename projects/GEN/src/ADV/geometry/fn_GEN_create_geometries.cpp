@@ -130,7 +130,7 @@ namespace moris::ge
         tParameters.mNumRefinements           = aGeometryParameterList.get< std::string >( "number_of_refinements" );
         tParameters.mRefinementMeshIndices    = aGeometryParameterList.get< std::string >( "refinement_mesh_index" );
         tParameters.mRefinementFunctionIndex  = aGeometryParameterList.get< sint >( "refinement_function_index" );
-        tParameters.mDiscretizationMeshIndex  = aGeometryParameterList.get< sint >( "discretization_mesh_index" );
+        tParameters.mDiscretizationIndex      = aGeometryParameterList.get< sint >( "discretization_mesh_index" );
         tParameters.mDiscretizationLowerBound = aGeometryParameterList.get< real >( "discretization_lower_bound" );
         tParameters.mDiscretizationUpperBound = aGeometryParameterList.get< real >( "discretization_upper_bound" );
         tParameters.mIsocontourThreshold      = aGeometryParameterList.get< real >( "isocontour_threshold" );

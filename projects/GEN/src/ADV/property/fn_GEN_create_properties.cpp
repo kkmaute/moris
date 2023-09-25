@@ -136,7 +136,7 @@ namespace moris::ge
         tParameters.mNumRefinements           = aPropertyParameterList.get< std::string >( "number_of_refinements" );
         tParameters.mRefinementMeshIndices    = aPropertyParameterList.get< std::string >( "refinement_mesh_index" );
         tParameters.mRefinementFunctionIndex  = aPropertyParameterList.get< sint >( "refinement_function_index" );
-        tParameters.mDiscretizationMeshIndex  = aPropertyParameterList.get< sint >( "discretization_mesh_index" );
+        tParameters.mDiscretizationIndex      = aPropertyParameterList.get< sint >( "discretization_mesh_index" );
         tParameters.mDiscretizationLowerBound = aPropertyParameterList.get< real >( "discretization_lower_bound" );
         tParameters.mDiscretizationUpperBound = aPropertyParameterList.get< real >( "discretization_upper_bound" );
 

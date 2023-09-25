@@ -27,11 +27,11 @@ namespace moris::ge
         Matrix< DDSMat > mNumRefinements = {{}};           //! The number of refinement steps to use for this field
         Matrix< DDSMat > mRefinementMeshIndices = {{}};    //! Indices of meshes to perform refinement on
         sint             mRefinementFunctionIndex = -1;    //! Index of a user-defined refinement function (-1 = default)
-        sint             mDiscretizationMeshIndex = -2;    //! Index of a mesh for discretization (-2 = none, -1 = store nodal values)
+        sint             mDiscretizationIndex      = -2;   //! Index of a mesh for discretization (-2 = none, -1 = store nodal values)
         real             mDiscretizationLowerBound = -1.0; //! Lower bound for the B-spline coefficients in this field
         real             mDiscretizationUpperBound = 1.0;  //! Upper bound for the B-spline coefficients in this field
     };
-    
+
     class Design_Field
     {
       private:
@@ -51,6 +51,29 @@ namespace moris::ge
                 Field_Parameters         aParameters );
 
         /**
+         * Gets if this field is to be used for seeding a B-spline field.
+         *
+         * @return Logic for B-spline creation
+         */
+        bool intended_discretization();
+
+        /**
+         * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
+         *
+         * @param aOwnedADVs Pointer to the owned distributed ADVs
+         * @param aCoefficientIndices Coefficient indices to be mapped to
+         * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
+         * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
+         * @param aMeshPair The mesh pair where the discretization information can be obtained
+         */
+        void discretize(
+                mtk::Mesh_Pair        aMeshPair,
+                sol::Dist_Vector*     aOwnedADVs,
+                const Matrix<DDUMat>& aCoefficientIndices,
+                const Matrix<DDSMat>& aSharedADVIds,
+                uint                  aADVOffsetID );
+
+        /**
          * Given a node index or coordinate, returns the field value.
          *
          * @param aNodeIndex Node index
@@ -62,25 +85,11 @@ namespace moris::ge
                 const Matrix< DDRMat >& aCoordinates );
 
         /**
-         * Gets if this field is to be turned into a stored geometry/property, in order to store field values.
+         * Gets the IDs of ADVs which this design component depends on for evaluations.
          *
-         * @return Logic for storing field values
-         */
-        bool intended_storage();
-
-        /**
-         * Gets if this field is to be used for seeding a B-spline field.
-         *
-         * @return Logic for B-spline creation
-         */
-        bool intended_discretization();
-
-        /**
-             * Gets the IDs of ADVs which this design component depends on for evaluations.
-             *
-             * @param aNodeIndex Node index
-             * @param aCoordinates Node coordinates
-             * @return Determining ADV IDs at this node
+         * @param aNodeIndex Node index
+         * @param aCoordinates Node coordinates
+         * @return Determining ADV IDs at this node
          */
         virtual Matrix< DDSMat > get_determining_adv_ids(
                 uint                    aNodeIndex,
