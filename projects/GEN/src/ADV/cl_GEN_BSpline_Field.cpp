@@ -106,13 +106,13 @@ namespace moris::ge
         for ( uint tCoefficient = 0; tCoefficient < aCoefficientIndices.length(); tCoefficient++ )
         {
             uint tCoefficientIndex = aCoefficientIndices( tCoefficient );
-            if ( (uint)par_rank() == tMesh->get_entity_owner( tCoefficientIndex, EntityRank::BSPLINE, tDiscretizationMeshIndex ) )
+            if ( (uint)par_rank() == tMesh->get_entity_owner( tCoefficientIndex, mtk::EntityRank::BSPLINE, tDiscretizationMeshIndex ) )
             {
                 // Calculate ADV ID using offset
                 sint tADVId = mADVOffsetID +                                     //
                               tMesh->get_glb_entity_id_from_entity_loc_index(    //
                                       tCoefficientIndex,
-                                      EntityRank::BSPLINE,
+                                      mtk::EntityRank::BSPLINE,
                                       tDiscretizationMeshIndex );
 
                 // Assign distributed vector element based on ID
@@ -124,7 +124,7 @@ namespace moris::ge
         uint tOwnedNodeCount = 0;
         for ( uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++ )
         {
-            if ( (uint)par_rank() == tMesh->get_entity_owner( tNodeIndex, EntityRank::NODE, tDiscretizationMeshIndex ) )
+            if ( (uint)par_rank() == tMesh->get_entity_owner( tNodeIndex, mtk::EntityRank::NODE, tDiscretizationMeshIndex ) )
             {
                 tOwnedNodeCount++;
             }
@@ -138,10 +138,10 @@ namespace moris::ge
         {
             sint tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
                     tNodeIndex,
-                    EntityRank::NODE,
+                    mtk::EntityRank::NODE,
                     tDiscretizationMeshIndex );
             tSharedNodeIDs( tNodeIndex ) = tNodeID;
-            if ( (uint)par_rank() == tMesh->get_entity_owner( tNodeIndex, EntityRank::NODE, tDiscretizationMeshIndex ) )
+            if ( (uint)par_rank() == tMesh->get_entity_owner( tNodeIndex, mtk::EntityRank::NODE, tDiscretizationMeshIndex ) )
             {
                 tOwnedNodeIDs( tOwnedNodeCount++ ) = tNodeID;
             }
@@ -165,7 +165,7 @@ namespace moris::ge
         mtk::Mesh* tMesh   = mMeshPair.get_interpolation_mesh();
         sint       tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
                 aNodeIndex,
-                EntityRank::NODE,
+                mtk::EntityRank::NODE,
                 mDiscretizationIndex );
 
         return ( *mSharedNodalValues )( tNodeID );
@@ -254,7 +254,7 @@ namespace moris::ge
         mtk::Mapper tMapper;
         tField->unlock_field();
         tField->set_coefficients( tCoeff );
-        tMapper.perform_mapping( tField, EntityRank::BSPLINE, EntityRank::NODE );
+        tMapper.perform_mapping( tField, mtk::EntityRank::BSPLINE, mtk::EntityRank::NODE );
 
         // Get coefficients
         Matrix< DDRMat > tNodalValues = tField->get_values();
@@ -266,11 +266,11 @@ namespace moris::ge
         mtk::Mesh* tMesh = mMeshPair.get_interpolation_mesh();
         for ( uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++ )
         {
-            if ( (uint)par_rank() == tMesh->get_entity_owner( tNodeIndex, EntityRank::NODE ) )
+            if ( (uint)par_rank() == tMesh->get_entity_owner( tNodeIndex, mtk::EntityRank::NODE ) )
             {
                 sint tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
                         tNodeIndex,
-                        EntityRank::NODE );
+                        mtk::EntityRank::NODE );
                 MORIS_ASSERT( tNodalValues( tNodeIndex ) != MORIS_REAL_MAX, "value is MORIS_REAL_MAX, check mapper" );
                 ( *mOwnedNodalValues )( tNodeID ) = tNodalValues( tNodeIndex );
             }
@@ -288,7 +288,7 @@ namespace moris::ge
         {
             sint tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
                     tNodeIndex,
-                    EntityRank::NODE );
+                    mtk::EntityRank::NODE );
 
             tNodalValues( tNodeIndex ) = ( *mSharedNodalValues )( tNodeID );
         }
@@ -322,7 +322,7 @@ namespace moris::ge
         tOutputField->unlock_field();
         tOutputField->set_values( tNodalValues );
         // tMapper.map_input_field_to_output_field_2(tOutputField);
-        tMapper.perform_mapping( tOutputField, EntityRank::NODE, EntityRank::BSPLINE );
+        tMapper.perform_mapping( tOutputField, mtk::EntityRank::NODE, mtk::EntityRank::BSPLINE );
 
         // Get coefficients
         Matrix< DDRMat > tCoefficients = tOutputField->get_coefficients();

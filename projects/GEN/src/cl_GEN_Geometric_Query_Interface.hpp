@@ -11,7 +11,7 @@
 #ifndef MORIS_CL_GEN_Geometric_Query_Interface_HPP_
 #define MORIS_CL_GEN_Geometric_Query_Interface_HPP_
 
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 
 namespace moris
 {
