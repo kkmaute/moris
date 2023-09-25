@@ -21,6 +21,12 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    void Field::set_dependencies( Cell< std::shared_ptr< Field > > aDependencyFields )
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void
     Field::add_child_node( uint aNodeIndex, std::shared_ptr< Child_Node > aChildNode )
     {

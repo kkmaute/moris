@@ -43,10 +43,10 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void Scaled_Field::set_dependencies(Cell<std::shared_ptr<Field>> aDependencyFields)
+    void Scaled_Field::set_dependencies( Cell< std::shared_ptr< Field > > aDependencyFields )
     {
-        MORIS_ERROR(aDependencyFields.size() == 1, "A scaled field only depends on one field.");
-        mField = aDependencyFields(0);
+        MORIS_ERROR( aDependencyFields.size() == 1, "A scaled field only depends on one field." );
+        mField = aDependencyFields( 0 );
     }
 
     //--------------------------------------------------------------------------------------------------------------

@@ -85,15 +85,13 @@ namespace moris::ge
                 uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates);
 
-    private:
-
         /**
          * Sets the dependencies of this property after they have been found by update_dependencies(). By default
          * does nothing.
          *
          * @param aDependencyFields Fields that this property depends on.
          */
-        void set_dependencies(Cell<std::shared_ptr<Field>> aDependencyFields);
+        void set_dependencies( Cell< std::shared_ptr< Field > > aDependencyFields );
 
     };
 }

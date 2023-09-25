@@ -87,6 +87,14 @@ namespace moris::ge
                 Matrix< DDRMat >&       aSensitivities ) = 0;
 
         /**
+         * Sets the dependencies of this field after they have been found by the owning property. By default
+         * does nothing.
+         *
+         * @param aDependencyFields Other fields that this field depends on.
+         */
+        virtual void set_dependencies( Cell< std::shared_ptr< Field > > aDependencyFields );
+
+        /**
          * Add a new child node for evaluation, implemented for discrete integration fields.
          *
          * @param aNodeIndex Index of the child node
