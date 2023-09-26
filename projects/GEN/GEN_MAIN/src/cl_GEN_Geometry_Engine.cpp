@@ -23,6 +23,7 @@
 #include "cl_GEN_Child_Node.hpp"
 #include "cl_GEN_Intersection_Node_Linear.hpp"
 #include "cl_GEN_Intersection_Node_Bilinear.hpp"
+#include "cl_GEN_Intersection_Node_Surface_Mesh.hpp"
 
 // MTK
 #include "cl_MTK_Mesh_Factory.hpp"
@@ -413,6 +414,10 @@ namespace moris
 
                     break;
                 }
+                case Intersection_Mode::SURFACE_MESH:
+                {
+                    // BRENDAN TODO
+                }
                 default:
                 {
                     MORIS_ERROR( false, "Geometry_Engine::is_intersected(), unknown intersection type." );
@@ -483,6 +488,10 @@ namespace moris
 
                     break;
                 }
+                case Intersection_Mode::SURFACE_MESH:
+                {
+                    // BRENDAN TODO
+                }
                 default:
                 {
                     MORIS_ERROR( false, "Geometry_Engine::is_intersected(), unknown intersection type." );
@@ -551,6 +560,22 @@ namespace moris
                         }
                     }
                     break;
+                }
+                case Intersection_Mode::SURFACE_MESH:
+                {
+                    // BRENDAN TODO
+                    // aBackgroundElementNodeIndices and aBackgroundElementNodeCoordinates need to come from the geometry
+
+                    mQueuedIntersectionNode = std::make_shared< Intersection_Node_Surface_Mesh >(
+                        mPDVHostManager.get_intersection_node( aFirstNodeIndex ),
+                        mPDVHostManager.get_intersection_node( aSecondNodeIndex ),
+                        aFirstNodeIndex,
+                        aSecondNodeIndex,
+                        aFirstNodeLocalCoordinates,
+                        aSecondNodeLocalCoordinates,
+                        aBackgroundElementNodeIndices,
+                        aBackgroundElementNodeCoordinates 
+                    );
                 }
                 case Intersection_Mode::COLORING:
                 {

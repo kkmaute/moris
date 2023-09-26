@@ -26,6 +26,7 @@
 #include "cl_GEN_Mesh_Field_Geometry.hpp"
 #include "cl_GEN_Geometry_SDF.hpp"
 #include "cl_GEN_Image_SDF_Geometry.hpp"
+#include "cl_GEN_Surface_Mesh.hpp"
 
 namespace moris
 {
@@ -318,6 +319,26 @@ namespace moris
                         tsDFInterp,
                         tParameters );
             }
+            
+            /*
+            else if ( tGeometryType == "surface_mesh" )
+            {
+                // BRENDAN TODO
+                // Set intersection mode
+                tParameters.mIntersectionMode = Intersection_Mode::SURFACE_MESH;
+
+                // get SDF Object data
+                std::string      tObjectPath   = aGeometryParameterList.get< std::string >( "sdf_object_path" );
+                Matrix< DDRMat > tObjectOffset = string_to_mat< DDRMat >( aGeometryParameterList.get< std::string >( "sdf_object_offset" ) );
+                // real             tSDFShift     = aGeometryParameterList.get< real >( "sdf_shift" );
+                
+                return std::make_shared< Surface_Mesh >(
+                    tObjectPath,
+                    tObjectOffset,
+                    tParameters
+                );
+                
+            } */
             else if ( tGeometryType == "user_defined" )
             {
 

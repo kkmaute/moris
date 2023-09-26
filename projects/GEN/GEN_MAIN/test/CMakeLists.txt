@@ -18,6 +18,7 @@ set(TEST_SOURCES
 	cl_GEN_Geometry_Engine_Test.cpp
 	fn_GEN_create_simple_mesh.cpp
     ut_GEN_STL_Geometry.cpp
+	ut_GEN_Surface_Mesh.cpp
     )
 
 set(GEN_INCLUDES
