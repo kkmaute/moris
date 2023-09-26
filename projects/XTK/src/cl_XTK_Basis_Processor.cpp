@@ -1030,11 +1030,19 @@ namespace xtk
         tCandidateRootCell.reserve( mSpatialDim * 2 );
         tDistanceCell.reserve( mSpatialDim * 2 );
 
+        // initialize loop counter that kills the run if the search for a root B-spline element takes too long
+        uint tLoopCounter = 0;
+
         // until all SPGs are aggregated run the graph algorithm to generate aggregates
         while ( this->determine_stopping_criteria() )
         {
-            // perform nearest neighbour exchange
-            this->perform_nearest_neighbour_exchange( aMeshIndex );
+            // make sure the code does not get stuck in an infinite while-loop here
+            // FIXME: a smarter stopping criteria would be good, this is only a temporary fix to the problem
+            MORIS_ERROR( 
+                    tLoopCounter++ < 100, 
+                    "Basis_Processor::construct_cell_aggregates() - "
+                    "Could not find root B-spline element to extend basis functions from within 100 search iterations." );
+
 
             // loop over the cut bspline cells ( corrsponding spgs) that are owned
             for ( const auto& iSPGIndex : tBsplineMeshInfo->mOwnedSubphaseGroupIndices )
