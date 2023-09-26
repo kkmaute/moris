@@ -75,7 +75,8 @@ namespace moris::hmr
          * @param[in] aBackgroundMesh pointer to background mesh
          *
          */
-        Lagrange_Mesh( const Parameters*    aParameters,
+        Lagrange_Mesh(
+                const Parameters*           aParameters,
                 Background_Mesh_Base*       aBackgroundMesh,
                 Cell< BSpline_Mesh_Base* >& aBSplineMeshes,
                 uint                        aActivationPattern,
@@ -91,11 +92,22 @@ namespace moris::hmr
             Tracer tTracer( "HMR", "Lagrange Mesh #" + std::to_string( aMeshIndex ), "Create" );
 
             // collect the B-spline mesh indices which this Lagrange is associated with
-            uint tNumBspMeshes = aBSplineMeshes.size(); 
+            uint                tNumBspMeshes = aBSplineMeshes.size();
             Cell< moris_index > tBsplineMeshIndices( tNumBspMeshes );
-            for( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
+            for ( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
             {
-                tBsplineMeshIndices( iBspMesh ) = aBSplineMeshes( iBspMesh )->get_index();
+                // get access to the B-spline mesh
+                BSpline_Mesh_Base* tBsplineMeshPtr = aBSplineMeshes( iBspMesh );
+
+                // copy its index, but only if it isn't a nullptr
+                if ( tBsplineMeshPtr )
+                {
+                    tBsplineMeshIndices( iBspMesh ) = tBsplineMeshPtr->get_index();
+                }
+                else    // B-spline mesh not constructed as the Lagrange mesh instead uses its own basis functions (probably)
+                {
+                    tBsplineMeshIndices( iBspMesh ) = -1;
+                }
             }
 
             // report based on what this lagrange mesh is created on
@@ -106,7 +118,7 @@ namespace moris::hmr
                     mOrder,
                     ios::stringify_cell( tBsplineMeshIndices.data() ).c_str() );
 
-            // assign and store the mesh index 
+            // assign and store the mesh index
             this->set_index( aMeshIndex );
 
             // ask background mesh for number of elements per ijk-direction
@@ -509,7 +521,7 @@ namespace moris::hmr
             // delete temporary Lagrange mesh for T-matrix evaluation
             this->delete_t_matrix_lagrange_mesh();
 
-        } // end function: hmr::Lagrange_Mesh::calculate_t_matrices()
+        }    // end function: hmr::Lagrange_Mesh::calculate_t_matrices()
 
         //------------------------------------------------------------------------------
 
