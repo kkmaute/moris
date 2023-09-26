@@ -15,9 +15,9 @@ namespace moris
     {
 //-------------------------------------------------------------------------------
         Data::Data( Object & aObject ) :
-                  mTriangles( aObject.get_triangles() ),
+                  mFacets( aObject.get_facets() ),
                   mVertices( aObject.get_vertices() ),
-                  mNumberOfTriangles( mTriangles.size() ),
+                  mNumberOfTriangles( mFacets.size() ),
                   mTriangleMinCoordsX(mNumberOfTriangles, 1),
                   mTriangleMinCoordsY(mNumberOfTriangles, 1),
                   mTriangleMinCoordsZ(mNumberOfTriangles, 1),
@@ -31,7 +31,7 @@ namespace moris
 #else
                        mCandJ(mNumberOfTriangles, 1),
 #endif
-                       mCandidateTriangles(mNumberOfTriangles, 1)
+                       mCandidateFacets(mNumberOfTriangles, 1)
 
         {
             this->init_triangles();
@@ -47,23 +47,23 @@ namespace moris
             {
                 // minimum triangle coordinates for lower left point of bounding box
                 mTriangleMinCoordsX( k )
-                    = mTriangles( k )->get_min_coord( 0 );
+                    = mFacets( k )->get_min_coord( 0 );
 
                 mTriangleMinCoordsY( k )
-                    = mTriangles( k )->get_min_coord( 1 );
+                    = mFacets( k )->get_min_coord( 1 );
 
                 mTriangleMinCoordsZ( k )
-                    = mTriangles( k )->get_min_coord( 2 );
+                    = mFacets( k )->get_min_coord( 2 );
 
                 // maximum triangle coordinates for upper right point of bounding box
                 mTriangleMaxCoordsX( k )
-                    = mTriangles( k )->get_max_coord( 0 );
+                    = mFacets( k )->get_max_coord( 0 );
 
                 mTriangleMaxCoordsY( k )
-                    = mTriangles( k )->get_max_coord( 1 );
+                    = mFacets( k )->get_max_coord( 1 );
 
                 mTriangleMaxCoordsZ ( k )
-                    = mTriangles( k )->get_max_coord( 2 );
+                    = mFacets( k )->get_max_coord( 2 );
             }
         }
 

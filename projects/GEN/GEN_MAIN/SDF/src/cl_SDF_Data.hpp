@@ -27,9 +27,9 @@ namespace moris
         struct Data
         {
             //! cell with triangles
-            moris::Cell< Triangle * >        & mTriangles;
+            moris::Cell< Facet* >        & mFacets;
 
-            moris::Cell< Triangle_Vertex * > & mVertices;
+            moris::Cell< Facet_Vertex* > & mVertices;
 
             const uint           mNumberOfTriangles;            // !< number of triangles in object
 
@@ -56,9 +56,9 @@ namespace moris
 #endif
 
             Matrix< DDRMat > mCoordsK;                //!< temporary variable needed for voxelizing, coordinates of intersection in triangles by a ray
-            Matrix< DDUMat > mCandidateTriangles;
+            Matrix< DDUMat > mCandidateFacets;
 
-            moris::Cell< Triangle * > mIntersectedTriangles;
+            moris::Cell< Facet * > mIntersectedTriangles;
 
             real mBufferDiagonal;
 

@@ -13,8 +13,9 @@ set(${SDF}_VERSION ${MORIS_VERSION})
 
 # List header files
 set(HEADERS
-    cl_SDF_Triangle_Vertex.hpp
+    cl_SDF_Facet_Vertex.hpp
     cl_SDF_Triangle.hpp
+    cl_SDF_Facet.hpp
     cl_SDF_Object.hpp
     )
 
@@ -24,8 +25,9 @@ set(HEADERS
 # List library source files
 set(LIB_SOURCES
     cl_SDF_Arguments.cpp
-    cl_SDF_Triangle_Vertex.cpp
+    cl_SDF_Facet_Vertex.cpp
     cl_SDF_Triangle.cpp
+    cl_SDF_Facet.cpp
     cl_SDF_Object.cpp
     cl_SDF_Cell.cpp
     cl_SDF_Vertex.cpp

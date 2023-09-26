@@ -23,7 +23,7 @@ namespace moris
     {
 //-------------------------------------------------------------------------------
 
-        Core::Core( Mesh & aMesh, Data & aData, bool   aVerbose ) :
+        Core::Core( Mesh & aMesh, Data & aData, bool aVerbose ) :
                                        mMesh( aMesh ),
                                        mData( aData ),
                                        mVerbose( aVerbose )
@@ -71,11 +71,13 @@ namespace moris
             }
 
             // make sure that everything is OK
-            MORIS_ASSERT( tSurfaceCount = mData.mSurfaceElements,
-                    "Number of surface elements does not match" );
+            MORIS_ASSERT( tSurfaceCount == mData.mSurfaceElements,
+                    "Number of surface elements does not match. Surface Count after raycast: %d\t Struct Surface Elements: %d.",
+                     tSurfaceCount, mData.mSurfaceElements );
 
-            MORIS_ASSERT( tVolumeCount = mData.mVolumeElements,
-                                "Number of volume elements does not match" );
+            MORIS_ASSERT( tVolumeCount == mData.mVolumeElements,
+                            "Number of volume elements does not match. Volume Count after raycast: %d\t Struct Volume Elements: %d.", 
+                            tVolumeCount, mData.mVolumeElements );
         }
 
 //-------------------------------------------------------------------------------
@@ -234,9 +236,9 @@ namespace moris
 
             // This loop is currently unnecessary, but may be needed if problems arise
             /* 
-            for( Triangle * tTriangle : mData.mTriangles )
+            for( Facet* tFacet : mData.mFacets )
             {
-                tTriangle->unflag();
+                tFacet->unflag();
             }
             */
 
@@ -246,7 +248,7 @@ namespace moris
                 if(  mMesh.get_vertex( iNodeIndex )->is_flagged() )
                 {
                     // get node coordinate
-                    const Matrix< F31RMat > & tPoint = mMesh.get_node_coordinate( iNodeIndex );
+                    const Matrix< DDRMat > & tPoint = mMesh.get_node_coordinate( iNodeIndex );
 
                     // preselect triangles for intersection test
                     if(aAxis == 0)
@@ -257,7 +259,7 @@ namespace moris
                         this->preselect_triangles_z( tPoint );
 
                     // from the candidate triangles, perform intersection
-                    if( mData.mCandidateTriangles.length() > 0 )
+                    if( mData.mCandidateFacets.length() > 0 )
                     {
                         this->intersect_triangles( aAxis, tPoint );
 
@@ -280,19 +282,19 @@ namespace moris
             tic tTimer;
 
             // get number of triangles
-            uint tNumberOfTriangles = mData.mTriangles.size();
-            std::cout<<"number of triangles            : "<<tNumberOfTriangles<<std::endl; //======
+            uint tNumberOfFacets = mData.mFacets.size();
+            std::cout<<"number of triangles            : "<<tNumberOfFacets<<std::endl; //======
             // loop over all triangles
-            for( uint k=0; k<tNumberOfTriangles; ++k )
+            for( uint k=0; k<tNumberOfFacets; ++k )
             {
                 // get pointer to triangle
-                Triangle * tTriangle = mData.mTriangles( k );
+                Facet* tFacet = mData.mFacets( k );
 
-                // get nodes withing triangle
+                // get nodes within triangle
                 moris::Cell< Vertex * > tNodes;
 
                 this->get_nodes_withing_bounding_box_of_triangle(
-                        tTriangle, tNodes, aCandidateList );
+                        tFacet, tNodes, aCandidateList );
 
                 // get number of nodes
                 uint tNumberOfNodes = tNodes.size();
@@ -302,7 +304,7 @@ namespace moris
                 for( uint i=0; i<tNumberOfNodes; ++i )
                 {
                 	// update UDF of this node
-                	tNodes( i )->update_udf( tTriangle );
+                	tNodes( i )->update_udf( tFacet );
                 }
 
             } // end loop over all triangles
@@ -346,13 +348,13 @@ namespace moris
                     (aPoint(1) - mData.mTriangleMinCoordsY.elem(mData.mCandJ)) %
                     (mData.mTriangleMaxCoordsY.elem(mData.mCandJ) - aPoint(1)) > -gSDFepsilon );
 
-            // help vector to be written in mData.mCandidateTriangles.data()
+            // help vector to be written in mData.mCandidateFacets.data()
             mData.mCandK = mData.mCandJ.elem(mData.mCandI);
             // resize data object
-            mData.mCandidateTriangles.resize(mData.mCandK.n_elem, 1);
+            mData.mCandidateFacets.resize(mData.mCandK.n_elem, 1);
 
             // link to current object
-            arma::Mat<uint> &tCand = mData.mCandidateTriangles.matrix_data();
+            arma::Mat<uint> &tCand = mData.mCandidateFacets.matrix_data();
 
             // write data
             tCand = arma::conv_to<arma::Mat<uint> >::from(mData.mCandK);
@@ -360,7 +362,7 @@ namespace moris
 #else
             // loop over all triangles in J-Direction
             uint tCountJ = 0;
-            for (uint k = 0; k<mData.mNumberOfTriangles; ++k)
+            for (uint k = 0; k<mData.mNumberOfFacets; ++k)
             {
                 // check bounding box in J-direction
                 if ( (aPoint(2) - mData.mTriangleMinCoordsZ(k)) * (mData.mTriangleMaxCoordsZ(k) - aPoint(2)) > -gSDFepsilon )
@@ -377,7 +379,7 @@ namespace moris
             uint tCount = 0;
 
             // reset candidate size
-            mData.mCandidateTriangles.resize(mData.mNumberOfTriangles, 1);
+            mData.mCandidateFacets.resize(mData.mNumberOfFacets, 1);
 
             // loop over remaining triangles in I-direction
             for (uint k = 0; k<tCountJ; ++k)
@@ -386,12 +388,12 @@ namespace moris
                 if((aPoint(1) - mData.mTriangleMinCoordsY(mData.mCandJ(k)))*
                 (mData.mTriangleMaxCoordsY(mData.mCandJ(k)) - aPoint(1)) > -gSDFepsilon )
                 {
-                    mData.mCandidateTriangles(tCount) = mData.mCandJ(k);
+                    mData.mCandidateFacets(tCount) = mData.mCandJ(k);
                     ++tCount;
                 }
             }
 
-            mData.mCandidateTriangles.resize(tCount, 1);
+            mData.mCandidateFacets.resize(tCount, 1);
 #endif
         }
 
@@ -412,14 +414,14 @@ namespace moris
                     (aPoint(2) - mData.mTriangleMinCoordsZ.elem(mData.mCandJ)) %
                     (mData.mTriangleMaxCoordsZ.elem(mData.mCandJ) - aPoint(2)) > -gSDFepsilon );
 
-            // help vector to be written in mData.mCandidateTriangles.data()
+            // help vector to be written in mData.mCandidateFacets.data()
             mData.mCandK = mData.mCandJ.elem(mData.mCandI);
 
             // resize data object
-            mData.mCandidateTriangles.resize(mData.mCandK.n_elem, 1);
+            mData.mCandidateFacets.resize(mData.mCandK.n_elem, 1);
 
             // link to current object
-            arma::Mat<uint> &tCand = mData.mCandidateTriangles.matrix_data();
+            arma::Mat<uint> &tCand = mData.mCandidateFacets.matrix_data();
 
             // write data
             tCand = arma::conv_to<arma::Mat<uint> >::from(mData.mCandK);
@@ -445,7 +447,7 @@ namespace moris
             uint tCount = 0;
 
             // reset candidate size
-            mData.mCandidateTriangles.resize(mData.mNumberOfTriangles, 1);
+            mData.mCandidateFacets.resize(mData.mNumberOfTriangles, 1);
 
             // loop over remaining triangles in I-direction
             for (uint k = 0; k<tCountJ; ++k)
@@ -454,12 +456,12 @@ namespace moris
                 if((aPoint(2) - mData.mTriangleMinCoordsZ(mData.mCandJ(k)))*
                         (mData.mTriangleMaxCoordsZ(mData.mCandJ(k)) - aPoint(2)) > -gSDFepsilon )
                 {
-                    mData.mCandidateTriangles(tCount) = mData.mCandJ(k);
+                    mData.mCandidateFacets(tCount) = mData.mCandJ(k);
                     ++tCount;
                 }
             }
 
-            mData.mCandidateTriangles.resize(tCount, 1);
+            mData.mCandidateFacets.resize(tCount, 1);
 #endif
         }
 
@@ -482,14 +484,14 @@ namespace moris
                     (aPoint(0) - mData.mTriangleMinCoordsX.elem(mData.mCandJ)) %
                     (mData.mTriangleMaxCoordsX.elem(mData.mCandJ) - aPoint(0)) > -gSDFepsilon );
 
-            // help vector to be written in mData.mCandidateTriangles.data()
+            // help vector to be written in mData.mCandidateFacets.data()
             mData.mCandK = mData.mCandJ.elem(mData.mCandI);
 
             // resize data object
-            mData.mCandidateTriangles.resize(mData.mCandK.n_elem, 1);
+            mData.mCandidateFacets.resize(mData.mCandK.n_elem, 1);
 
             // link to current object
-            arma::Mat<uint> &tCand = mData.mCandidateTriangles.matrix_data();
+            arma::Mat<uint> &tCand = mData.mCandidateFacets.matrix_data();
 
             // write data
             tCand = arma::conv_to<arma::Mat<uint> >::from(mData.mCandK);
@@ -514,7 +516,7 @@ namespace moris
             uint tCount = 0;
 
             // reset candidate size
-            mData.mCandidateTriangles.resize(mData.mNumberOfTriangles, 1);
+            mData.mCandidateFacets.resize(mData.mNumberOfTriangles, 1);
 
             // loop over remaining triangles in I-direction
             for (uint k = 0; k<tCountJ; ++k)
@@ -523,40 +525,40 @@ namespace moris
                 if((aPoint(0) - mData.mTriangleMinCoordsX(mData.mCandJ(k)))*
                         (mData.mTriangleMaxCoordsX(mData.mCandJ(k)) - aPoint(0)) > -gSDFepsilon )
                 {
-                    mData.mCandidateTriangles(tCount) = mData.mCandJ(k);
+                    mData.mCandidateFacets(tCount) = mData.mCandJ(k);
                     ++tCount;
                 }
             }
 
-            mData.mCandidateTriangles.resize(tCount, 1);
+            mData.mCandidateFacets.resize(tCount, 1);
 #endif
         }
 
 //-------------------------------------------------------------------------------
 
         void
-        Core::intersect_triangles( const uint aAxis, const Matrix< F31RMat >& aPoint )
+        Core::intersect_triangles( const uint aAxis, const Matrix< DDRMat >& aPoint )
         {
             // get number of candidate triangles
-            uint tNumberOfTriangles = mData.mCandidateTriangles.length();
+            uint tNumberOfFacets = mData.mCandidateFacets.length();
 
             // initialize counter for intersected triangles
             uint tCount = 0;
 
             // loop over all candidates
-            for( uint k=0; k<tNumberOfTriangles; ++k )
+            for( uint k=0; k<tNumberOfFacets; ++k )
             {
                 // get pointer to triangle
-                Triangle * tTriangle
-                    = mData.mTriangles( mData.mCandidateTriangles( k ) );
+                Facet* tFacet
+                    = mData.mFacets( mData.mCandidateFacets( k ) );
 
-                if( tTriangle->check_edge( 0, aAxis, aPoint ) )
+                if( tFacet->check_edge( 0, aAxis, aPoint ) )
                 {
-                    if( tTriangle->check_edge( 1, aAxis, aPoint ) )
+                    if( tFacet->check_edge( 1, aAxis, aPoint ) )
                     {
-                        if( tTriangle->check_edge( 2, aAxis, aPoint ) )
+                        if( tFacet->check_edge( 2, aAxis, aPoint ) )
                         {
-                            tTriangle->flag();
+                            tFacet->flag();
                             ++tCount;
                         }
                     }
@@ -570,19 +572,19 @@ namespace moris
             tCount = 0;
 
             // loop over all candidates
-            for( uint k=0; k<tNumberOfTriangles; ++k )
+            for( uint k=0; k<tNumberOfFacets; ++k )
             {
                 // get pointer to triangle
-                Triangle * tTriangle
-                    = mData.mTriangles( mData.mCandidateTriangles( k ) );
+                Facet * tFacet
+                    = mData.mFacets( mData.mCandidateFacets( k ) );
 
-                if( tTriangle->is_flagged() )
+                if( tFacet->is_flagged() )
                 {
                     // add triangle to list
-                    mData.mIntersectedTriangles( tCount++ ) = tTriangle;
+                    mData.mIntersectedTriangles( tCount++ ) = tFacet;
 
                     // unflag triangle
-                    tTriangle->unflag();
+                    tFacet->unflag();
                 }
             }
         }
@@ -592,20 +594,20 @@ namespace moris
         void
         Core::intersect_ray_with_triangles(
                 const uint               aAxis,
-                const Matrix< F31RMat >& aPoint,
+                const Matrix< DDRMat >& aPoint,
                 const uint aNodeIndex )
         {
             // get number of triangles
-            uint tNumberOfTriangles = mData.mIntersectedTriangles.size();
+            uint tNumberOfFacets = mData.mIntersectedTriangles.size();
 
             // initialize vector with coords in axis
-            Matrix< DDRMat > tCoordsK( tNumberOfTriangles, 1 );
+            Matrix< DDRMat > tCoordsK( tNumberOfFacets, 1 );
 
             uint tCount = 0;
 
             bool tError;
             // loop over all intersected triangles and find intersection point
-            for( uint k = 0; k<tNumberOfTriangles; ++k )
+            for( uint k = 0; k<tNumberOfFacets; ++k )
             {
 
                 real tCoordK;
@@ -910,7 +912,7 @@ namespace moris
 
         void
         Core::get_nodes_withing_bounding_box_of_triangle(
-                Triangle * aTriangle, moris::Cell< Vertex* > & aNodes,
+                Facet * aFacet, moris::Cell< Vertex* > & aNodes,
 				moris::Cell< Vertex * > & aCandList ) //===========================================
         {
             // calculate minimum and maximum coordinate
@@ -920,8 +922,8 @@ namespace moris
 
             for( uint i=0; i<3; ++i )
             {
-                tMinCoord( i )  = aTriangle->get_min_coord( i ) - mData.mBufferDiagonal;
-                tMaxCoord( i )  = aTriangle->get_max_coord( i ) + mData.mBufferDiagonal;
+                tMinCoord( i )  = aFacet->get_min_coord( i ) - mData.mBufferDiagonal;
+                tMaxCoord( i )  = aFacet->get_max_coord( i ) + mData.mBufferDiagonal;
             }
 
             // why is this necessary?
@@ -1628,25 +1630,35 @@ namespace moris
         void
         Core::random_rotation()
         {
+            // determine the required dimensionality of the rotation (Number of entries in a vertex's coordinates)
+            uint tNumDim = mData.mVertices( 0 )->get_coords().numel();
+            
             // generate random angle
             real tAngle = random_angle();
 
-            // generate random normalized axis
-            Matrix< F31RMat > tAxis = random_axis();
-
-            // generate rotation matrix
-            Matrix< F33RMat > tRotation = rotation_matrix( tAxis, tAngle );
-
+            // generate random rotation matrix
+            Matrix< DDRMat > tRotation;
+            if ( tNumDim == 2 )
+            {
+                tRotation = rotation_matrix( tAngle );
+            }
+            else
+            {
+                // create random axis for cases larger than 2 dimensions
+                Matrix< DDRMat > tAxis = random_axis ( tNumDim );
+                tRotation = rotation_matrix( tAxis, tAngle );
+            }
+            
             // rotate all vertices of triangle mesh
-            for( Triangle_Vertex * tVertex : mData.mVertices )
+            for( Facet_Vertex* tVertex : mData.mVertices )
             {
                 tVertex->rotate_node_coords( tRotation );
             }
 
             // update all triangles
-            for( Triangle * tTriangle : mData.mTriangles )
+            for( Facet * tFacet : mData.mFacets )
             {
-                tTriangle->update_data();
+                tFacet->update_data();
             }
 
             // rotate unsure nodes
@@ -1655,7 +1667,7 @@ namespace moris
             // loop over all nodes
             for( uint k=0; k< tNumberOfNodes; ++k )
             {
-                // test if node is unsore
+                // test if node is unsure
                 if( mMesh.get_vertex( k )->is_flagged() )
                 {
                     mMesh.get_vertex( k )->rotate_coords( tRotation );
@@ -1669,15 +1681,15 @@ namespace moris
         Core::undo_rotation()
         {
             // rotate all vertices of triangle mesh
-            for( Triangle_Vertex * tVertex : mData.mVertices )
+            for( Facet_Vertex * tVertex : mData.mVertices )
             {
                 tVertex->reset_node_coords();
             }
 
             // update all triangles
-            for( Triangle * tTriangle : mData.mTriangles )
+            for( Facet* tFacet : mData.mFacets )
             {
-                tTriangle->update_data();
+                tFacet->update_data();
             }
 
             // rotate unsure nodes
