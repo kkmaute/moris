@@ -4,11 +4,11 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_SDF_Triangle_Vertex.cpp
+ * cl_SDF_Facet_Vertex.cpp
  *
  */
 
-#include "cl_SDF_Triangle_Vertex.hpp"
+#include "cl_SDF_Facet_Vertex.hpp"
 #include "op_times.hpp"
 
 namespace moris
@@ -17,7 +17,7 @@ namespace moris
     {
 //-------------------------------------------------------------------------------
 
-        Triangle_Vertex::Triangle_Vertex(
+        Facet_Vertex::Facet_Vertex(
                 const moris_index        aIndex,
                 const Matrix< DDRMat > & aNodeCoords ) :
                             mIndex( aIndex ),
@@ -29,7 +29,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         void
-        Triangle_Vertex::rotate_node_coords( const Matrix< F33RMat > & aRotationMatrix )
+        Facet_Vertex::rotate_node_coords( const Matrix< DDRMat > & aRotationMatrix )
         {
             mNodeCoords = aRotationMatrix * mOriginalNodeCoords;
         }
@@ -37,7 +37,7 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         void
-        Triangle_Vertex::reset_node_coords()
+        Facet_Vertex::reset_node_coords()
         {
             mNodeCoords = mOriginalNodeCoords;
         }

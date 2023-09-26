@@ -11,8 +11,8 @@
 # List source files
 set(TEST_SOURCES
     test_main.cpp
-    cl_SDF_Triangle.cpp 
-    cl_SDF_Core.cpp
+    ut_SDF_Triangle.cpp 
+    ut_SDF_Core.cpp
     )
 
 # List test dependencies

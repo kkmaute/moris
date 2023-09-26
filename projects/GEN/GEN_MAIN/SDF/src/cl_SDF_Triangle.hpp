@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_GEN_SDF_SRC_CL_SDF_TRIANGLE_HPP_
-#define PROJECTS_GEN_SDF_SRC_CL_SDF_TRIANGLE_HPP_
+#pragma once
 
 #include "typedefs.hpp"
 #include "cl_Matrix.hpp"
@@ -19,7 +18,8 @@
 
 #include "cl_Cell.hpp"
 #include "cl_MTK_Cell.hpp"
-#include "cl_SDF_Triangle_Vertex.hpp"
+#include "cl_SDF_Facet_Vertex.hpp"
+#include "cl_SDF_Facet.hpp"
 
 namespace moris
 {
@@ -30,14 +30,16 @@ namespace moris
         /**
          * the triangle class for the sdf generator
          */
-        class Triangle : public mtk::Cell
+        class Triangle : public Facet
         {
+            // BRENDAN DELETE THESE. THESE SHOULD BE FACET MEMBER DATA
             // index of this triangle
-            const moris_index mIndex;
+            //     const moris_index mIndex;
 
             // cells with vertex pointers
-            moris::Cell< Triangle_Vertex* > mVertices;
-            moris::Cell< Triangle* >        mNeighbors;
+
+            //     moris::Cell< Facet_Vertex* >    mVertices;
+            //     moris::Cell< Triangle* >        mNeighbors;
 
             struct BarycentricData
             {
@@ -57,17 +59,18 @@ namespace moris
 
             BarycentricData mBarycentric;
 
-            // container for node coordinates
-            Matrix< F33RMat > mNodeCoords;
+            // BRENDAN DELETE THESE VARIABLES. THEY SHOULD BE FACET MEMBER DATA
+            //     // container for node coordinates
+            //     Matrix< F33RMat > mNodeCoords;
 
-            // container for node indices
-            Matrix< IndexMat > mNodeIndices;
+            //     // container for node indices
+            //     Matrix< IndexMat > mNodeIndices;
 
-            // container for center
-            Matrix< F31RMat > mCenter;
+            //     // container for center
+            //     Matrix< F31RMat > mCenter;
 
             // container for normal
-            Matrix< F31RMat > mNormal;
+            Matrix< DDRMat > mNormal;
 
             real mHesse;
 
@@ -83,12 +86,11 @@ namespace moris
             //-------------------------------------------------------------------------------
 
           public:
-          
             //-------------------------------------------------------------------------------
 
             Triangle(
-                    moris_index                      aIndex,
-                    moris::Cell< Triangle_Vertex* >& aVertices );
+                    moris_index                   aIndex,
+                    moris::Cell< Facet_Vertex* >& aVertices );
 
             //-------------------------------------------------------------------------------
 
@@ -97,41 +99,11 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             void
-            update_data();
+            update_data() override;
 
             //-------------------------------------------------------------------------------
             // SDF functions
             //-------------------------------------------------------------------------------
-
-            /**
-             * @brief returns the minimum coordinate of the triangle
-             *
-             * @param[in] aDimension   0: x-coordinate
-             *                         1: y-coordinate
-             *                         2: z-coordinate
-             *
-             */
-            real
-            get_min_coord( uint aDimension ) const
-            {
-                return mMinCoord( aDimension );
-            }
-
-            //-------------------------------------------------------------------------------
-
-            /**
-             * @brief returns the maximum coordinate of the triangle
-             *
-             * @param[in] aDimension   0: x-coordinate
-             *                         1: y-coordinate
-             *                         2: z-coordinate
-             *
-             */
-            real
-            get_max_coord( uint aDimension ) const
-            {
-                return mMaxCoord( aDimension );
-            }
 
             //-------------------------------------------------------------------------------
 
@@ -144,32 +116,6 @@ namespace moris
             get_hesse() const
             {
                 return mHesse;
-            }
-
-            //-------------------------------------------------------------------------------
-
-            /**
-             *
-             * @brief returns the normal vector of the triangle
-             *
-             */
-            const Matrix< F31RMat >&
-            get_normal() const
-            {
-                return mNormal;
-            }
-
-            //-------------------------------------------------------------------------------
-
-            /**
-             *
-             * @brief returns the center of the triangle
-             *
-             */
-            const Matrix< F31RMat >&
-            get_center() const
-            {
-                return mCenter;
             }
 
             //-------------------------------------------------------------------------------
@@ -201,18 +147,18 @@ namespace moris
              */
             void
             intersect_with_coordinate_axis(
-                    const Matrix< F31RMat >& aPoint,
-                    const uint               aAxis,
-                    real&                    aCoordinate,
-                    bool&                    aError );
+                    const Matrix< DDRMat >& aPoint,
+                    const uint              aAxis,
+                    real&                   aCoordinate,
+                    bool&                   aError );
 
             //-------------------------------------------------------------------------------
 
             bool
             check_edge(
-                    const uint               aEdge,
-                    const uint               aAxis,
-                    const Matrix< F31RMat >& aPoint );
+                    const uint              aEdge,
+                    const uint              aAxis,
+                    const Matrix< DDRMat >& aPoint ) override;
 
             //-------------------------------------------------------------------------------
 
@@ -262,120 +208,13 @@ namespace moris
              */
             real
             get_distance_to_point(
-                    const Matrix< F31RMat >& aPoint );
-
-            //-------------------------------------------------------------------------------
-            // MTK API functions
-            //-------------------------------------------------------------------------------
-
-            moris_id
-            get_id() const
-            {
-                return mIndex + 1;
-            }
-
-            //-------------------------------------------------------------------------------
-
-            moris_index
-            get_index() const
-            {
-                return mIndex;
-            }
-
-            //-------------------------------------------------------------------------------
-
-            uint
-            get_number_of_vertices() const
-            {
-                return 3;
-            }
-
-            //-------------------------------------------------------------------------------
-
-            moris_id
-            get_owner() const
-            {
-                return 0;
-            }
-
-            //-------------------------------------------------------------------------------
-
-            moris::Cell< mtk::Vertex* >
-            get_vertex_pointers() const;
-
-            //-------------------------------------------------------------------------------
-
-            void
-            remove_vertex_pointer( moris_index aIndex );
-
-            //-------------------------------------------------------------------------------
-
-            Matrix< IdMat >
-            get_vertex_ids() const;
-
-            //-------------------------------------------------------------------------------
-
-            Matrix< IndexMat >
-            get_vertex_inds() const;
-
-            //-------------------------------------------------------------------------------
-
-            Matrix< DDRMat >
-            get_vertex_coords() const;
-
-            //-------------------------------------------------------------------------------
-
-            mtk::Geometry_Type
-            get_geometry_type() const
-            {
-                return mtk::Geometry_Type::TRI;
-            }
-
-            //-------------------------------------------------------------------------------
-
-            mtk::Interpolation_Order
-            get_interpolation_order() const
-            {
-                return mtk::Interpolation_Order::LINEAR;
-            }
+                    const Matrix< DDRMat >& aPoint ) override;
 
             //-------------------------------------------------------------------------------
             // SDF Functions
             //-------------------------------------------------------------------------------
 
-            void
-            flag()
-            {
-                mFlag = true;
-            }
-
-            //-------------------------------------------------------------------------------
-
-            void
-            unflag()
-            {
-                mFlag = false;
-            }
-
-            //-------------------------------------------------------------------------------
-
-            bool
-            is_flagged() const
-            {
-                return mFlag;
-            }
-
-            //-------------------------------------------------------------------------------
-
           private:
-
-            //-------------------------------------------------------------------------------
-
-            void
-            copy_node_coords_and_inds( moris::Cell< Triangle_Vertex* >& aVertices );
-
-            //-------------------------------------------------------------------------------
-
             void
             calculate_hesse_normal_form( Matrix< F31RMat >& aDirectionOfEdge );
 
@@ -391,11 +230,9 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-        }; // class Triangle
+        };    // class Triangle
 
         //-------------------------------------------------------------------------------
 
     } /* namespace sdf */
 } /* namespace moris */
-
-#endif /* PROJECTS_GEN_SDF_SRC_CL_SDF_TRIANGLE_HPP_ */
