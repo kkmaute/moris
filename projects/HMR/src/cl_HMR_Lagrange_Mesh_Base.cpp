@@ -121,8 +121,8 @@ namespace moris::hmr
 
     uint
     Lagrange_Mesh_Base::create_real_scalar_field_data(
-            const std::string&    aLabel,
-            const enum EntityRank aEntityRank )
+            const std::string&         aLabel,
+            const enum mtk::EntityRank aEntityRank )
     {
         // get index for output
         uint aIndex = mRealScalarFieldData.size();

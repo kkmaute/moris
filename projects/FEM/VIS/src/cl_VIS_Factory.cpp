@@ -48,7 +48,7 @@ namespace moris
             MORIS_ERROR( mVisMesh == nullptr,
                     "~VIS_Factory() - "
                     "The constructed VIS mesh has not been handed off to a new owner. Destructing this factory will cause memory to leak." );
-        };
+        }
 
         //-----------------------------------------------------------------------------------------------------------
 
