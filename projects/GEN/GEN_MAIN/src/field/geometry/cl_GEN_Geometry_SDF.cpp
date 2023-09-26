@@ -29,8 +29,8 @@ namespace moris
                 : Field( Matrix< DDRMat >( 1, 1, 0.0 ), aParameters )
                 , Geometry( aParameters )
                 , Field_Discrete_Integration()
+                , mObjectPath( aObjectPath )
         {
-            mObjectPath = aObjectPath;
 
             if ( aObjectOffset.numel() == 3 )
             {
