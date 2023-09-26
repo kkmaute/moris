@@ -72,6 +72,33 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    ADV_Manager::ADV_Manager(
+            const Matrix< DDUMat >& aFieldVariableIndices,
+            const Matrix< DDSMat >& aSharedADVIds )
+            : mVariables( aSharedADVIds.length() )
+            , mSensitivities( 1, aSharedADVIds.length() )
+            , mDeterminingADVIds( aSharedADVIds )
+            , mHasADVs( true )
+    {
+        // Check that the field variable indices match the shared ADV Ids
+        MORIS_ERROR( aFieldVariableIndices.length() == aSharedADVIds.length(),
+                "Number of field variable indices must equal the number of ADV IDs in a GEN Field." );
+
+        // Create shared distributed vector
+        sol::Matrix_Vector_Factory tDistributedFactory;
+        sol::Dist_Map* tSharedADVMap = tDistributedFactory.create_map( aSharedADVIds );
+        mSharedADVs = tDistributedFactory.create_vector( tSharedADVMap, 1, false, true );
+
+        // Set variables from ADVs
+        uint tNumSharedADVs = aSharedADVIds.length();
+        for ( uint tVariable = 0; tVariable < tNumSharedADVs; tVariable++ )
+        {
+            mVariables( aFieldVariableIndices( tVariable ) ) = &( *mSharedADVs )( aSharedADVIds( tVariable ) );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     ADV_Manager::~ADV_Manager()
     {
         delete mSharedADVs;

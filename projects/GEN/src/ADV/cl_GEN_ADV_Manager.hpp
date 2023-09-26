@@ -51,8 +51,17 @@ namespace moris::ge
          *
          * @param aConstants The parameters that define this field
          */
+        ADV_Manager( const Matrix< DDRMat >& aConstants );
+
+        /**
+         * Constructor, sets variables as consecutive ADVs. Assumes the use of distributed ADVs.
+         *
+         * @param aFieldVariableIndices Variable indices for assigning the shared ADV IDs
+         * @param aSharedADVIds Shared ADV IDs needed
+         */
         ADV_Manager(
-                const Matrix< DDRMat >& aConstants );
+                const Matrix< DDUMat >& aFieldVariableIndices,
+                const Matrix< DDSMat >& aSharedADVIds );
 
       public:
         /**

@@ -20,7 +20,7 @@ namespace moris::ge
             Matrix< DDUMat > aFieldVariableIndices,
             Matrix< DDUMat > aADVIndices,
             Matrix< DDRMat > aConstants,
-            uint aNumOriginalNodes )
+            uint             aNumOriginalNodes )
             : Field( aADVs, aFieldVariableIndices, aADVIndices, aConstants )
     {
         mNumOriginalNodes = aNumOriginalNodes;
@@ -30,7 +30,7 @@ namespace moris::ge
 
     Field_Discrete_Integration::Field_Discrete_Integration(
             Matrix< DDRMat > aConstants,
-            uint aNumOriginalNodes )
+            uint             aNumOriginalNodes )
             : Field( aConstants )
     {
         mNumOriginalNodes = aNumOriginalNodes;
@@ -38,20 +38,31 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    real Field_Discrete_Integration::get_field_value(
-            uint                  aNodeIndex,
-            const Matrix<DDRMat>& aCoordinates)
+    Field_Discrete_Integration::Field_Discrete_Integration(
+            const Matrix< DDUMat >& aFieldVariableIndices,
+            const Matrix< DDSMat >& aSharedADVIds,
+            uint                    aNumOriginalNodes )
+            : Field( aFieldVariableIndices, aSharedADVIds )
     {
-        if (aNodeIndex < mNumOriginalNodes)
+        mNumOriginalNodes = aNumOriginalNodes;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    real Field_Discrete_Integration::get_field_value(
+            uint                    aNodeIndex,
+            const Matrix< DDRMat >& aCoordinates )
+    {
+        if ( aNodeIndex < mNumOriginalNodes )
         {
-            return this->get_field_value(aNodeIndex);
+            return this->get_field_value( aNodeIndex );
         }
         else
         {
-            MORIS_ASSERT((aNodeIndex - mNumOriginalNodes) < mChildNodes.size(),
+            MORIS_ASSERT( ( aNodeIndex - mNumOriginalNodes ) < mChildNodes.size(),
                     "A discrete field value was requested from a node that this field doesn't know. "
-                    "Perhaps a child node was not added to this field?");
-            return mChildNodes(aNodeIndex - mNumOriginalNodes)->interpolate_field_value(this);
+                    "Perhaps a child node was not added to this field?" );
+            return mChildNodes( aNodeIndex - mNumOriginalNodes )->interpolate_field_value( this );
         }
     }
 

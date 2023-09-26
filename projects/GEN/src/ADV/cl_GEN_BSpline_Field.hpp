@@ -57,7 +57,7 @@ namespace moris::ge
         /**
          * Destructor
          */
-        ~BSpline_Field();
+        ~BSpline_Field() override;
 
         void distribute_coeffs(
                 const Matrix<DDRMat> & aTargetField,
@@ -72,7 +72,7 @@ namespace moris::ge
          * @param aNodeIndex Node index
          * @return Distance to this geometry
          */
-        real get_field_value(uint aNodeIndex);
+        real get_field_value( uint aNodeIndex ) override;
 
         /**
          * Given a node index, evaluates the sensitivity of the geometry field with respect to all of the
@@ -81,7 +81,7 @@ namespace moris::ge
          * @param aNodeIndex Node index
          * @return Vector of sensitivities
          */
-        const Matrix<DDRMat>& get_dfield_dadvs(uint aNodeIndex);
+        const Matrix< DDRMat >& get_dfield_dadvs( uint aNodeIndex ) override;
 
         /**
          * Gets the IDs of ADVs which this field depends on for evaluations.
@@ -90,14 +90,14 @@ namespace moris::ge
          * @param aCoordinates Node coordinates
          * @return Determining ADV IDs at this node
          */
-        Matrix<DDSMat> get_determining_adv_ids(uint aNodeIndex);
+        Matrix< DDSMat > get_determining_adv_ids( uint aNodeIndex ) override;
 
         /**
          * Imports the local ADVs required from the full owned ADV distributed vector, and recomputes nodal values.
          *
          * @param aOwnedADVs Full owned distributed ADV vector
          */
-        void import_advs(sol::Dist_Vector* aOwnedADVs);
+        void import_advs( sol::Dist_Vector* aOwnedADVs ) override;
 
     private:
 
@@ -106,7 +106,7 @@ namespace moris::ge
          *
          * @return Target field
          */
-        Matrix<DDRMat> map_to_bsplines(std::shared_ptr<Field> aField);
+        Matrix< DDRMat > map_to_bsplines( std::shared_ptr< Field > aField );
 
     };
 }

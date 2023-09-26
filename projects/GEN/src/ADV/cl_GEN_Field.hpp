@@ -49,6 +49,15 @@ namespace moris::ge
          */
         explicit Field( Matrix< DDRMat > aConstants );
 
+        /**
+         * Constructor that sets all field variables as consecutive ADVs. Assumes the use of distributed ADVs.
+         *
+         * @param aFieldVariableIndices Field variable indices for assigning the shared ADV IDs
+         * @param aSharedADVIds Shared ADV IDs needed for this field
+         */
+        Field( const Matrix< DDUMat >&  aFieldVariableIndices,
+               const Matrix< DDSMat >&  aSharedADVIds );
+
       public:
 
         /**

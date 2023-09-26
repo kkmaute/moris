@@ -18,6 +18,15 @@ namespace moris::ge
             : ADV_Manager( aConstants )
     {
     }
+    
+    //--------------------------------------------------------------------------------------------------------------
+    
+    Field::Field(
+            const Matrix< DDUMat >& aFieldVariableIndices,
+            const Matrix< DDSMat >& aSharedADVIds )
+            : ADV_Manager( aFieldVariableIndices, aSharedADVIds )
+    {
+    }
 
     //--------------------------------------------------------------------------------------------------------------
 

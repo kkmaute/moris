@@ -493,22 +493,10 @@ namespace moris
 
         TEST_CASE( "B-spline Geometry", "[gen], [geometry], [distributed advs], [B-spline geometry]" )
         {
-            // Create 2 B-spline circles
+            // Set up 2 B-spline geometries
             Matrix< DDRMat >                    tADVs( 0, 0 );
             Matrix< DDRMat >                    tRadii = { { 0.5, 0.25 } };
             Cell< std::shared_ptr< Level_Set_Geometry > > tBSplineGeometries( 2 );
-            for ( uint tGeometryIndex = 0; tGeometryIndex < 2; tGeometryIndex++ )
-            {
-                ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
-                tCircleParameterList.set( "type", "circle" );
-                tCircleParameterList.set( "constant_parameters", "0.0, 0.0, " + std::to_string( tRadii( tGeometryIndex ) ) );
-                tCircleParameterList.set( "discretization_mesh_index", 0 );
-                tCircleParameterList.set( "discretization_lower_bound", -1.0 );
-                tCircleParameterList.set( "discretization_upper_bound", 1.0 );
-
-                // Set up geometry
-                tBSplineGeometries( tGeometryIndex ) = create_geometry( tCircleParameterList, tADVs );
-            }
 
             // Loop over possible cases
             for ( uint tBSplineOrder = 1; tBSplineOrder < 3; tBSplineOrder++ )
@@ -517,6 +505,20 @@ namespace moris
                 {
                     for ( uint tRefinement = 0; tRefinement < 3; tRefinement++ )
                     {
+                        // Create circles
+                        for ( uint tGeometryIndex = 0; tGeometryIndex < 2; tGeometryIndex++ )
+                        {
+                            ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
+                            tCircleParameterList.set( "type", "circle" );
+                            tCircleParameterList.set( "constant_parameters", "0.0, 0.0, " + std::to_string( tRadii( tGeometryIndex ) ) );
+                            tCircleParameterList.set( "discretization_mesh_index", 0 );
+                            tCircleParameterList.set( "discretization_lower_bound", -1.0 );
+                            tCircleParameterList.set( "discretization_upper_bound", 1.0 );
+
+                            // Set up geometry
+                            tBSplineGeometries( tGeometryIndex ) = create_geometry( tCircleParameterList, tADVs );
+                        }
+
                         // Create mesh
                         uint                     tNumElementsPerDimension = 10;
                         mtk::Interpolation_Mesh* tMesh                    = create_simple_mesh(

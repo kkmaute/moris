@@ -42,6 +42,7 @@ namespace moris::ge
         // Map to B-splines
         Matrix< DDRMat > tTargetField = this->map_to_bsplines( aField );
 
+        // Distribute coefficients
         this->distribute_coeffs(
                 tTargetField,
                 aOwnedADVs,
@@ -67,6 +68,7 @@ namespace moris::ge
         // Map to B-splines
         const Matrix< DDRMat >& tTargetField = aMTKField->get_coefficients();
 
+        // Distribute coefficients
         this->distribute_coeffs(
                 tTargetField,
                 aOwnedADVs,
@@ -162,11 +164,11 @@ namespace moris::ge
     real
     BSpline_Field::get_field_value( uint aNodeIndex )
     {
-        mtk::Mesh* tMesh   = mMeshPair.get_interpolation_mesh();
-        sint       tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
-                aNodeIndex,
+        mtk::Interpolation_Mesh* tMesh = mMeshPair.get_interpolation_mesh();
+        sint tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
+                (moris_index) aNodeIndex,
                 mtk::EntityRank::NODE,
-                mDiscretizationIndex );
+                (moris_index) mDiscretizationIndex );
 
         return ( *mSharedNodalValues )( tNodeID );
     }
@@ -225,8 +227,8 @@ namespace moris::ge
         // Reset evaluated field
         mOwnedNodalValues->vec_put_scalar( 0 );
 
+        // Evaluate into matrix TODO just make the field accept a cell to begin with
         moris::Matrix< DDRMat > tCoeff( mVariables.size() );
-
         for ( uint Ik = 0; Ik < mVariables.size(); Ik++ )
         {
             tCoeff( Ik ) = *mVariables( Ik );
@@ -235,10 +237,12 @@ namespace moris::ge
         // Create field
         auto tField = new mtk::Field_Discrete( mMeshPair, mDiscretizationIndex );
 
-        // Use mapper
-        mtk::Mapper tMapper;
+        // Set coefficients
         tField->unlock_field();
         tField->set_coefficients( tCoeff );
+
+        // Use mapper
+        mtk::Mapper tMapper;
         tMapper.perform_mapping( tField, mtk::EntityRank::BSPLINE, mtk::EntityRank::NODE );
 
         // Get coefficients
@@ -303,10 +307,10 @@ namespace moris::ge
             tNodalValues( tNodeIndex ) =
                     aField->get_field_value( tNodeIndex, tMesh->get_node_coordinate( tNodeIndex ) );
         }
-
         tOutputField->unlock_field();
         tOutputField->set_values( tNodalValues );
 
+        // Perform mapping
         tMapper.perform_mapping( tOutputField, mtk::EntityRank::NODE, mtk::EntityRank::BSPLINE );
 
         // Get coefficients
