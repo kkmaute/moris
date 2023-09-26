@@ -1250,7 +1250,7 @@ namespace moris::hmr
 
             mtk::Mapper tMapper;
 
-            tMapper.perform_mapping( &tField_proxy, EntityRank::NODE, EntityRank::BSPLINE );
+            tMapper.perform_mapping( &tField_proxy, mtk::EntityRank::NODE, mtk::EntityRank::BSPLINE );
 
             tField->get_coefficients() = tField_proxy.get_coefficients();
 

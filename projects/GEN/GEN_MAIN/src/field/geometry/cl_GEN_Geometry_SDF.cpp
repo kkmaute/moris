@@ -88,7 +88,7 @@ namespace moris
                 for ( uint tNodeIndex = 0; tNodeIndex < mValues.n_rows(); ++tNodeIndex )
                 {
                     // get node owner
-                    sint tNodeOwner = tMesh->get_entity_owner( tNodeIndex, EntityRank::NODE );
+                    sint tNodeOwner = tMesh->get_entity_owner( tNodeIndex, mtk::EntityRank::NODE );
 
                     // process only owned nodes
                     if ( par_rank() == tNodeOwner )
@@ -106,12 +106,12 @@ namespace moris
                 for ( uint tNodeIndex = 0; tNodeIndex < mValues.n_rows(); ++tNodeIndex )
                 {
                     // get node owner
-                    sint tNodeOwner = tMesh->get_entity_owner( tNodeIndex, EntityRank::NODE );
+                    sint tNodeOwner = tMesh->get_entity_owner( tNodeIndex, mtk::EntityRank::NODE );
 
                     // get node ID
                     sint tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
                             tNodeIndex,
-                            EntityRank::NODE );
+                            mtk::EntityRank::NODE );
 
                     tSharedNodeIDs( tNodeIndex ) = tNodeID;
 
@@ -138,7 +138,7 @@ namespace moris
                 for ( uint tNodeIndex = 0; tNodeIndex < mValues.n_rows(); ++tNodeIndex )
                 {
                     // get node owner
-                    sint tNodeOwner = tMesh->get_entity_owner( tNodeIndex, EntityRank::NODE );
+                    sint tNodeOwner = tMesh->get_entity_owner( tNodeIndex, mtk::EntityRank::NODE );
 
                     // process only owned nodes
                     if ( par_rank() == tNodeOwner )
@@ -146,7 +146,7 @@ namespace moris
                         // get node ID
                         sint tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
                                 tNodeIndex,
-                                EntityRank::NODE );
+                                mtk::EntityRank::NODE );
 
                         // copy nodal value on distributed vector
                         ( *tOwnedNodalValues )( tNodeID ) = mValues( tNodeIndex );
@@ -162,7 +162,7 @@ namespace moris
                     // get node ID
                     sint tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
                             tNodeIndex,
-                            EntityRank::NODE );
+                            mtk::EntityRank::NODE );
 
                     // extract nodal value
                     real tValue = ( *tSharedNodalValues )( tNodeID );

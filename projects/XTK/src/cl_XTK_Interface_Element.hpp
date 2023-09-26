@@ -198,7 +198,7 @@ public:
     /*!
      * Return the extrected interface element topology
      */
-    CellTopology
+    mtk::CellTopology
     get_extracted_cell_topology()
     {
         moris::uint tNumVertsPerElem = mElementPairs(0)->get_number_of_vertices();
@@ -206,11 +206,11 @@ public:
 
         if(tNumVertsPerElem == 4 && tGeometryType == moris::mtk::Geometry_Type::TET)
         {
-            return CellTopology::PRISM6;
+            return mtk::CellTopology::PRISM6;
         }
         else
         {
-            return CellTopology::INVALID;
+            return mtk::CellTopology::UNDEFINED;
         }
     }
 

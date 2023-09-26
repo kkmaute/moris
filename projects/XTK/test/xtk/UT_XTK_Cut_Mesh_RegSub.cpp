@@ -236,7 +236,7 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
      tHex8Coords.set_row(7,tNodeCoords.get_row(tNodeIndicesOfCM(7)));
 
      // iterate over nodes
-     size_t tNumNodes = tRegSubChildMesh.get_num_entities(EntityRank::NODE);
+     size_t tNumNodes = tRegSubChildMesh.get_num_entities(mtk::EntityRank::NODE);
 
      // Allocate a basis function weight matrix
      moris::Matrix<moris::DDRMat> tBasisWeights(1,8);
@@ -267,7 +267,7 @@ TEST_CASE("Direct Testing of the regular subdivision","[NEW_REG_SUB_TEMPLATE]")
     moris::Matrix< moris::IndexMat > const & tEdgeParentIndices = tRegSubChildMesh.get_edge_parent_inds();
     moris::Matrix< moris::DDSTMat >  const & tEdgeParentRanks   = tRegSubChildMesh.get_edge_parent_ranks();
 
-    for(moris::uint i = 0; i <tRegSubChildMesh.get_num_entities(EntityRank::EDGE); i++)
+    for(moris::uint i = 0; i <tRegSubChildMesh.get_num_entities(mtk::EntityRank::EDGE); i++)
     {
         if(tEdgeParentRanks(i) == 2)
         {

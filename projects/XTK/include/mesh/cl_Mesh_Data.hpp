@@ -11,7 +11,7 @@
 #ifndef INCLUDE_MESH_CL_MESH_DATA_HPP_
 #define INCLUDE_MESH_CL_MESH_DATA_HPP_
 
-#include "mesh/cl_Mesh_Enums.hpp"
+#include "mesh/cl_MTK_Enums.hpp"
 #include "containers/cl_XTK_Cell.hpp"
 #include "xtk/cl_XTK_Pending_Node.hpp"
 #include "linalg/cl_XTK_Matrix.hpp"
@@ -34,8 +34,8 @@ public:
 
     virtual moris::Matrix< Integer_Matrix >
     get_entity_connected_to_entity_loc_inds(Integer aEntityIndex,
-                                            enum EntityRank aInputEntityRank,
-                                            enum EntityRank aOutputEntityRank) const = 0;
+                                            mtk::EntityRank aInputEntityRank,
+                                            mtk::EntityRank aOutputEntityRank) const = 0;
 
     // Since some mesh implementations do not support connectivities aInputEntityRank == aOutputEntityRank, XTK only needs Element to element
     // connectivity therefore this is implemented here
@@ -55,50 +55,50 @@ public:
      */
     virtual moris::Matrix< Integer_Matrix >
     get_entity_connected_to_entity_glb_ids(Integer aEntityIndex,
-                                           enum EntityRank aInputEntityRank,
-                                           enum EntityRank aOutputEntityRank) const = 0;
+                                           mtk::EntityRank aInputEntityRank,
+                                           mtk::EntityRank aOutputEntityRank) const = 0;
 
     virtual Integer get_element_face_ordinal_loc_inds(Integer const & aElementIndex,
                                                       Integer const & aFaceIndex) const  = 0;
-    virtual Integer get_num_entities(enum EntityRank aEntityRank) const = 0;
+    virtual Integer get_num_entities(mtk::EntityRank aEntityRank) const = 0;
 
     virtual moris::Matrix< Real_Matrix > get_selected_node_coordinates_loc_inds(moris::Matrix< Integer_Matrix > const & aNodeIndices) const = 0;
 
     virtual moris::Matrix< Real_Matrix > get_all_node_coordinates_loc_inds() const = 0;
 
-//    virtual moris::Matrix< Integer_Matrix > get_all_entity_indices(enum EntityRank aEntityRank) const  = 0;
+//    virtual moris::Matrix< Integer_Matrix > get_all_entity_indices(mtk::EntityRank aEntityRank) const  = 0;
 
-    virtual Integer get_glb_entity_id_from_entity_loc_index(Integer aEntityIndex, enum EntityRank aEntityRank) const = 0;
+    virtual Integer get_glb_entity_id_from_entity_loc_index(Integer aEntityIndex, mtk::EntityRank aEntityRank) const = 0;
 
-    virtual Integer get_loc_entity_index_from_entity_glb_id(Integer aEntityId, enum EntityRank aEntityRank) const = 0;
+    virtual Integer get_loc_entity_index_from_entity_glb_id(Integer aEntityId, mtk::EntityRank aEntityRank) const = 0;
 
-    virtual moris::Matrix< Integer_Matrix > const & get_local_to_global_map(enum EntityRank aEntityRank) const  = 0 ;
+    virtual moris::Matrix< Integer_Matrix > const & get_local_to_global_map(mtk::EntityRank aEntityRank) const  = 0 ;
 
-    virtual moris::Matrix< Real_Matrix > get_entity_field_value(moris::Matrix< Integer_Matrix > const & aEntityIndex, std::string const & aFieldName, enum EntityRank aFieldEntityRank) const = 0;
+    virtual moris::Matrix< Real_Matrix > get_entity_field_value(moris::Matrix< Integer_Matrix > const & aEntityIndex, std::string const & aFieldName, mtk::EntityRank aFieldEntityRank) const = 0;
 
-    virtual Real get_entity_field_value(Integer const & aEntityIndex, std::string const & aFieldName, enum EntityRank aFieldEntityRank) = 0;
+    virtual Real get_entity_field_value(Integer const & aEntityIndex, std::string const & aFieldName, mtk::EntityRank aFieldEntityRank) = 0;
 
-    virtual Integer get_entity_field_value_integer(Integer const & aEntityIndex, std::string const & aFieldName, enum EntityRank aFieldEntityRank) = 0;
+    virtual Integer get_entity_field_value_integer(Integer const & aEntityIndex, std::string const & aFieldName, mtk::EntityRank aFieldEntityRank) = 0;
 
     // Parallel Implementation
-    virtual Integer get_entity_parallel_owner_rank(Integer aEntityIndex, enum EntityRank aEntityRank) const = 0;
+    virtual Integer get_entity_parallel_owner_rank(Integer aEntityIndex, mtk::EntityRank aEntityRank) const = 0;
 
-    virtual Integer get_num_of_entities_shared_with_processor(Integer aProcessorRank, enum EntityRank aEntityRank, bool aSendFlag) const = 0;
+    virtual Integer get_num_of_entities_shared_with_processor(Integer aProcessorRank, mtk::EntityRank aEntityRank, bool aSendFlag) const = 0;
 
     virtual void get_processors_whom_share_entity(Integer aEntityIndex,
-                                                  enum EntityRank aEntityRank,
+                                                  mtk::EntityRank aEntityRank,
                                                   moris::Matrix< Integer_Matrix > & aProcsWhomShareEntity) const = 0;
 
     // NOTE: this should not change the underlying meshes data (i.e. do not use stk's internal function because it alters certain bits of data internally while I want it to be constant)
     virtual Integer allocate_entity_ids(Integer aNumIdstoAllocate,
-                                        enum EntityRank aEntityRank) const = 0;
+                                        mtk::EntityRank aEntityRank) const = 0;
 
     virtual void add_mesh_field_data_loc_indices(std::string const &     aFieldName,
-                                                 enum EntityRank const & aFieldEntityRank,
+                                                 mtk::EntityRank const & aFieldEntityRank,
                                                  xtk::Cell<Real> const & aFieldData) = 0;
 
     virtual void add_mesh_field_data_loc_indices_integer(std::string const &      aFieldName,
-                                                         enum EntityRank const &    aFieldEntityRank,
+                                                         mtk::EntityRank const &    aFieldEntityRank,
                                                          xtk::Cell<Integer> const & aFieldData) = 0;
 
     virtual void write_output_mesh(std::string            const & aMeshName,
@@ -113,22 +113,22 @@ public:
      * EVERYTHING BELOW THIS POINT IS RELATED TO PACKAGING MESH DATA FOR OUTPUTTING OF THE CONFORMAL MESH WHICH HAS THE SAME BLOCKS AS THE PREVIOUS MESH
      */
 
-    virtual void get_all_part_names(enum EntityRank const & aPrimaryRank,
+    virtual void get_all_part_names(mtk::EntityRank const & aPrimaryRank,
                                     xtk::Cell<std::string> & aPartNames) const = 0;
 
     /*
      * Get buckets, where a requirement  of a bucket is have the same entity rank and the same parts.
      */
 
-    virtual Integer get_num_buckets(enum EntityRank aEntityRank) const = 0;
+    virtual Integer get_num_buckets(mtk::EntityRank aEntityRank) const = 0;
 
-    virtual moris::Matrix< Integer_Matrix > get_entities_in_bucket_loc_index(Integer aBucketOrdinal, enum EntityRank aEntityRank) const = 0;
+    virtual moris::Matrix< Integer_Matrix > get_entities_in_bucket_loc_index(Integer aBucketOrdinal, mtk::EntityRank aEntityRank) const = 0;
 
     /*
      * This should only return not internal part membership
      * For example using STK, there should not be universal, globally shared, locally owned, or aura parts included in the returned part ordinal
      */
-    virtual void get_entity_part_membership_ordinals(Integer const & aEntityIndex, enum EntityRank aEntityRank, xtk::Cell<Integer> & aPartOrdinal, bool const & aInduced = false) const  = 0;
+    virtual void get_entity_part_membership_ordinals(Integer const & aEntityIndex, mtk::EntityRank aEntityRank, xtk::Cell<Integer> & aPartOrdinal, bool const & aInduced = false) const  = 0;
 
     /*
      * This function returns the string associated with a part which are accessed using part ordinal
@@ -153,7 +153,7 @@ public:
      * DO NOT USE THESE IN CODE THEY ARE HERE RIGHT NOW PROVIDE EASY ACCESS TO WORK ON RAW STK DATA IN TEST CASES
      */
 //    virtual stk::mesh::Field<Real, stk::mesh::Cartesian3d> * get_coordinate_field() {};
-//    virtual stk::mesh::FieldBase * get_field(enum EntityRank aFieldRank,
+//    virtual stk::mesh::FieldBase * get_field(mtk::EntityRank aFieldRank,
 //                                             std::string aFieldName) {};
 //    virtual stk::mesh::BulkData & mesh_bulk_data()=0;
 //    virtual stk::mesh::MetaData & mesh_meta_data()=0;

@@ -21,7 +21,8 @@ namespace moris::mtk
 
     // uint Vertex_DataBase::mDim;
     //-----------------------------------------------------------------------------
-    Interpolation_Mesh_DataBase_IP::Interpolation_Mesh_DataBase_IP()
+    Interpolation_Mesh_DataBase_IP::Interpolation_Mesh_DataBase_IP( const Interpolation_Mesh& aBackgroundMesh )
+            : mBackgroundMesh( aBackgroundMesh )
     {
     }
 
@@ -76,6 +77,13 @@ namespace moris::mtk
 
     // ----------------------------------------------------------------------------
 
+    const Interpolation_Mesh& Interpolation_Mesh_DataBase_IP::get_background_mesh()
+    {
+        return mBackgroundMesh;
+    }
+
+    // ----------------------------------------------------------------------------
+
     Matrix< IndexMat >
     Interpolation_Mesh_DataBase_IP::get_entity_connected_to_entity_loc_inds(
         moris_index       aEntityIndex,
@@ -93,21 +101,55 @@ namespace moris::mtk
     Matrix< DDRMat >
     Interpolation_Mesh_DataBase_IP::get_node_coordinate( moris_index aNodeIndex ) const
     {
-        MORIS_ERROR( 0, "get_node_coordinate not implemented for Interpolation_Mesh_DataBase_IP" );
-        return { {} };
-        // return mIPMesh.get_node_coordinate( aNodeIndex );
+        return mVertexCoordinates.get_column( aNodeIndex );
     }
 
     // ----------------------------------------------------------------------------
+
     moris_id
     Interpolation_Mesh_DataBase_IP::get_glb_entity_id_from_entity_loc_index(
-        moris_index       aEntityIndex,
-        enum EntityRank   aEntityRank,
-        const moris_index aDiscretizationIndex ) const
+        moris_index aEntityIndex,
+        EntityRank  aEntityRank,
+        moris_index aDiscretizationIndex ) const
     {
-        MORIS_ERROR( 0, "get_glb_entity_id_from_entity_loc_index not implemented for Interpolation_Mesh_DataBase_IP" );
-        return 0;
-        // return mIPMesh.get_glb_entity_id_from_entity_loc_index( aEntityIndex, aEntityRank, aDiscretizationIndex );
+        switch ( aEntityRank )
+        {
+            case ( EntityRank::NODE ):
+                return mVertexIdList( aEntityIndex );
+            case ( EntityRank::ELEMENT ):
+                return mCellIdList( aEntityIndex );
+            default:
+                MORIS_ERROR( false, "Interpolation_Mesh_DataBase_IP::get_glb_entity_id_from_entity_loc_index() does not support given entity type" );
+                return 0;
+        }
+    }
+
+    // ----------------------------------------------------------------------------
+
+    moris_index
+    Interpolation_Mesh_DataBase_IP::get_loc_entity_ind_from_entity_glb_id(
+            moris_id    aEntityId,
+            EntityRank  aEntityRank,
+            moris_index aDiscretizationIndex ) const
+    {
+        switch ( aEntityRank )
+        {
+            case ( EntityRank::NODE ):
+            {
+                auto tSearch = mVertexGlobalIdToLocalIndex.find( aEntityId );
+                if ( tSearch not_eq mVertexGlobalIdToLocalIndex.end() )
+                {
+                    return tSearch->second;
+                }
+                else
+                {
+                    return -1;
+                }
+            }
+            default:
+                MORIS_ERROR( false, "Interpolation_Mesh_DataBase_IP::get_loc_entity_ind_from_entity_glb_id() does not support given entity type" );
+                return -1;
+        }
     }
 
     // ----------------------------------------------------------------------------
@@ -144,7 +186,7 @@ namespace moris::mtk
     Interpolation_Mesh_DataBase_IP::get_blockset_topology( const std::string& aSetName )
     {
         MORIS_ERROR( 0, "get_blockset_topology not implemented for Interpolation_Mesh_DataBase_IP" );
-        return CellTopology::END_ENUM;
+        return CellTopology::UNDEFINED;
         // return mIPMesh.get_blockset_topology( aSetName );
     }
 
@@ -153,7 +195,7 @@ namespace moris::mtk
     Interpolation_Mesh_DataBase_IP::get_IG_blockset_shape( const std::string& aSetName )
     {
         MORIS_ERROR( 0, "get_IG_blockset_shape not implemented for Interpolation_Mesh_DataBase_IP" );
-        return CellShape::END_ENUM;
+        return CellShape::UNDEFINED;
         // return mIPMesh.get_IG_blockset_shape( aSetName );
     }
 
@@ -163,7 +205,7 @@ namespace moris::mtk
     Interpolation_Mesh_DataBase_IP::get_IP_blockset_shape( const std::string& aSetName )
     {
         MORIS_ERROR( 0, "get_IP_blockset_shape not implemented for Interpolation_Mesh_DataBase_IP" );
-        return CellShape::END_ENUM;
+        return CellShape::UNDEFINED;
         // return mIPMesh.get_IP_blockset_shape( aSetName );
     }
 

@@ -28,7 +28,7 @@ namespace moris
                 mtk::Mesh*     mMesh;
                 std::string    mFieldName;
                 real           mOffset;
-                EntityRank     mEntityRank;
+                mtk::EntityRank     mEntityRank;
 
                 Matrix<DDRMat> mFieldData;
                 bool           mUseOwnData;
@@ -42,7 +42,7 @@ namespace moris
                  */
                 Mesh_Field_Geometry(mtk::Mesh*  aMesh,
                         std::string aFieldName,
-                        EntityRank  aEntityRank = EntityRank::NODE,
+                        mtk::EntityRank  aEntityRank = mtk::EntityRank::NODE,
                         Geometry_Field_Parameters aParameters = {});
 
                 /**
@@ -60,7 +60,7 @@ namespace moris
                                 std::string aFieldName,
                                 std::string aFileFormat,
                                 real        aOffset,
-                                EntityRank  aEntityRank = EntityRank::NODE,
+                                mtk::EntityRank  aEntityRank = mtk::EntityRank::NODE,
                                 Geometry_Field_Parameters aParameters = {});
 
                 /**

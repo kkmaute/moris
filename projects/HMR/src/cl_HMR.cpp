@@ -1181,7 +1181,7 @@ namespace moris::hmr
             const uint         aBSpineIndex )
     {
         // create mesh object
-        mtk::Mesh* tMesh = mtk::create_interpolation_mesh( MeshType::STK, aFilePath, nullptr, false );
+        mtk::Mesh* tMesh = mtk::create_interpolation_mesh( mtk::MeshType::STK, aFilePath, nullptr, false );
 
         std::shared_ptr< moris::hmr::Mesh > tHmrMesh = this->create_mesh( aLagrangeIndex );
 
@@ -1217,7 +1217,7 @@ namespace moris::hmr
         tValues = tMesh->get_entity_field_value_real_scalar(
                 tIndices,
                 aLabel,
-                EntityRank::NODE );
+                mtk::EntityRank::NODE );
 
         // read reverse map in case of renumbering
         Matrix< DDSMat > tReverseMap;
@@ -1236,7 +1236,7 @@ namespace moris::hmr
         for ( uint k = 0; k < tNumberOfExodusNodes; ++k )
         {
             // get ID of this node in exodus mesh
-            uint tExodusNodeId = tMesh->get_glb_entity_id_from_entity_loc_index( k, EntityRank::NODE );
+            uint tExodusNodeId = tMesh->get_glb_entity_id_from_entity_loc_index( k, mtk::EntityRank::NODE );
 
             MORIS_ERROR( tExodusNodeId > 0, "Exodus node ID for index %-5i is negative.", k );
 
@@ -2389,7 +2389,7 @@ namespace moris::hmr
     //
     //                // perform mapping
     //                tMappers( m )->perform_mapping( tInputField->get_label(),
-    //                                                EntityRank::NODE,
+    //                                                mtk::EntityRank::NODE,
     //                                                tInputField->get_label(),
     //                                                tUnionField->get_bspline_rank() );
     //
@@ -2523,8 +2523,8 @@ namespace moris::hmr
         // project field to union
         tMapper.perform_mapping(
                 &tFieldUnion,
-                EntityRank::NODE,
-                EntityRank::BSPLINE );
+                mtk::EntityRank::NODE,
+                mtk::EntityRank::BSPLINE );
 
         // get pointer to output mesh
         std::shared_ptr< Mesh > tOutputMesh = this->create_mesh(

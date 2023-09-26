@@ -912,7 +912,7 @@ namespace moris
              *@param[ in ] aDofType a dof type enum
              */
             moris::sint
-            get_index_from_unique_field_type_map( enum mtk::Field_Type aFieldType )
+            get_index_from_unique_field_type_map( mtk::Field_Type aFieldType )
             {
                 return mUniqueFieldTypeMap( static_cast< int >( aFieldType ), 0 );
             }

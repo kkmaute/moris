@@ -35,9 +35,9 @@
 // Mesh includes
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Cell.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_XTK_Background_Mesh.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 
 #include "fn_unique.hpp"
 
@@ -71,7 +71,7 @@ namespace xtk
       public:
         Enrichment_Parameters(){};
 
-        enum moris::EntityRank mBasisToEnrich = EntityRank::NODE; /*For lagrange mesh this is node, for HMR this may be bsplines*/
+        mtk::EntityRank mBasisToEnrich = mtk::EntityRank::NODE; /*For lagrange mesh this is node, for HMR this may be bsplines*/
     };
 
     // ----------------------------------------------------------------------------------
@@ -162,7 +162,7 @@ namespace xtk
         enum Enrichment_Method mEnrichmentMethod;
 
         // basis rank
-        enum EntityRank mBasisRank; /*Entity rank of the basis functions*/
+        mtk::EntityRank mBasisRank; /*Entity rank of the basis functions*/
 
         // index of interpolation
         Matrix< IndexMat > mMeshIndices;               /* Mesh indices to perform enrichment on*/
@@ -224,7 +224,7 @@ namespace xtk
 
         Enrichment(
                 enum Enrichment_Method const & aMethod,
-                enum EntityRank const &        aBasisRank,
+                mtk::EntityRank const &        aBasisRank,
                 Matrix< IndexMat > const &     aInterpIndex,
                 moris::moris_index const &     aNumBulkPhases,
                 xtk::Model*                    aXTKModelPtr,

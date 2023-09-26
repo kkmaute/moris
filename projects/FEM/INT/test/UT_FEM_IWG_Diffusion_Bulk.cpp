@@ -796,19 +796,19 @@ TEST_CASE( "IWG_Diffusion_Bulk_Dv_Prop", "[moris],[fem],[IWG_Diff_Bulk_Dv_Prop]"
     //
     //    tIWG->set_set_pointer(static_cast<fem::Set*>(tSet));
     //
-    //    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::END_ENUM );
-    //    tIWG->mSet->mUniqueDvTypeList.resize( 5, PDV_Type::END_ENUM );
+    //    tIWG->mSet->mUniqueDofTypeList.resize( 4, MSI::Dof_Type::UNDEFINED );
+    //    tIWG->mSet->mUniqueDvTypeList.resize( 5, PDV_Type::UNDEFINED );
     //
-    //    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    //    tIWG->mSet->mUniqueDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::UNDEFINED) + 1, 1, -1 );
     //    tIWG->mSet->mUniqueDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
     //
-    //    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+    //    tIWG->mSet->mLeaderDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::UNDEFINED) + 1, 1, -1 );
     //    tIWG->mSet->mLeaderDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 0;
     //
-    //    tIWG->mSet->mUniqueDvTypeMap.set_size( static_cast< int >( PDV_Type::END_ENUM ) + 1, 1, -1 );
+    //    tIWG->mSet->mUniqueDvTypeMap.set_size( static_cast< int >( PDV_Type::UNDEFINED ) + 1, 1, -1 );
     //    tIWG->mSet->mUniqueDvTypeMap( static_cast< int >( PDV_Type::DENSITY0 ) ) = 0;
     //
-    //    tIWG->mSet->mLeaderDvTypeMap.set_size( static_cast< int >( PDV_Type::END_ENUM ) + 1, 1, -1 );
+    //    tIWG->mSet->mLeaderDvTypeMap.set_size( static_cast< int >( PDV_Type::UNDEFINED ) + 1, 1, -1 );
     //    tIWG->mSet->mLeaderDvTypeMap( static_cast< int >( PDV_Type::DENSITY0 ) ) = 0;
     //
     //    tIWG->mSet->mResDofAssemblyMap.resize( 1 );

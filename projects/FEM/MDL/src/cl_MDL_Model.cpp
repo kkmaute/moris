@@ -98,7 +98,7 @@ namespace moris
                 moris::ParameterList tMSIParameters = prm::create_msi_parameter_list();
                 tMSIParameters.set( "multigrid", mUseMultigrid );
 
-                if ( tInterpolationMesh->get_mesh_type() == MeshType::HMR )
+                if ( tInterpolationMesh->get_mesh_type() == mtk::MeshType::HMR )
                 {
                     tMSIParameters.set( "L2", (sint)mBSplineIndex );
                     tMSIParameters.set( "TEMP", (sint)mBSplineIndex );
@@ -344,7 +344,7 @@ namespace moris
                 mtk::Interpolation_Mesh* tInterpolationMesh = mMeshManager->get_interpolation_mesh( mMeshPairIndex );
 
                 // Does not work with STK
-                // MORIS_ERROR( tInterpolationMesh->get_mesh_type() != MeshType::STK, "Does not work for STK");
+                // MORIS_ERROR( tInterpolationMesh->get_mesh_type() != mtk::MeshType::STK, "Does not work for STK");
 
                 // build the model solver interface
 
@@ -495,7 +495,7 @@ namespace moris
                 for ( uint k = 0; k < tNumberOfNodes; ++k )
                 {
                     // copy weak bc into element
-                    tNodalWeakBCs( k ) = mMeshManager->get_interpolation_mesh( mMeshPairIndex )->get_value_of_scalar_field( aFieldIndex, EntityRank::NODE, tElement->get_node_index( k ) );
+                    tNodalWeakBCs( k ) = mMeshManager->get_interpolation_mesh( mMeshPairIndex )->get_value_of_scalar_field( aFieldIndex, mtk::EntityRank::NODE, tElement->get_node_index( k ) );
                 }
             }
         }

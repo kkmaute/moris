@@ -828,8 +828,8 @@ namespace moris
             moris::Matrix<moris::IndexMat> tElementNodes =
                     tInterpMesh->get_entity_connected_to_entity_loc_inds(
                             aInterpCell1.get_index(),
-                            moris::EntityRank::ELEMENT,
-                            moris::EntityRank::NODE);
+                            mtk::EntityRank::ELEMENT,
+                            mtk::EntityRank::NODE);
 
             // coordinates of nodes attached to element to interpolate for physical coordinates
             moris::Matrix<moris::DDRMat> tIPCellCoordinates( tElementNodes.numel() , 3);
@@ -878,8 +878,8 @@ namespace moris
             tElementNodes =
                     tInterpMesh->get_entity_connected_to_entity_loc_inds(
                             aInterpCell2.get_index(),
-                            moris::EntityRank::ELEMENT,
-                            moris::EntityRank::NODE);
+                            mtk::EntityRank::ELEMENT,
+                            mtk::EntityRank::NODE);
 
             //extract the corner coordinates of the IP cell
             for (uint  i = 0 ; i < tElementNodes.numel() ; i++ )
@@ -1876,7 +1876,7 @@ namespace moris
             moris::mtk::Integration_Mesh*  tIntegrationMesh  = mMeshManager->get_integration_mesh( mMeshIndex );
 
             //multiplier for the identification number
-            uint tMultiplier = tIntegrationMesh->get_num_entities(moris::EntityRank::NODE);
+            uint tMultiplier = tIntegrationMesh->get_num_entities(mtk::EntityRank::NODE);
 
             uint tFirst;
             uint tSecond ;

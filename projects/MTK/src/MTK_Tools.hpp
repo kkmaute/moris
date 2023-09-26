@@ -13,7 +13,7 @@
 
 #include "assert.hpp"
 #include "typedefs.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
 namespace moris
 {

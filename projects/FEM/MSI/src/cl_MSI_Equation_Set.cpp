@@ -379,7 +379,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         sint Equation_Set::get_field_index_for_type_1(
-                enum mtk::Field_Type aFieldType,
+                mtk::Field_Type aFieldType,
                 mtk::Leader_Follower    aIsLeader )
         {
             switch ( aIsLeader )

@@ -149,7 +149,7 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
         Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3};
         tXTKModel.decompose(tDecompositionMethods);
 
-        tXTKModel.perform_basis_enrichment(EntityRank::BSPLINE,0);
+        tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE,0);
 
         tXTKModel.construct_multigrid();
 
@@ -250,7 +250,7 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
         xtk::Enrichment const & tEnrichment = tXTKModel.get_basis_enrichment();
 
         moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set(1,"ghost_ss_p0");
-        tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_p0", CellTopology::QUAD4);
+        tEnrIgMesh.create_block_set_from_cells_of_side_set(tSSIndex,"ghost_bs_p0", mtk::CellTopology::QUAD4);
 
          // Declare the fields related to enrichment strategy in output options
          Cell<std::string> tEnrichmentFieldNames = tEnrichment.get_cell_enrichment_field_names();

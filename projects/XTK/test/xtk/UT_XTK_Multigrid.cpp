@@ -144,7 +144,7 @@ namespace xtk
 
         //    xtk::Geom_Field tFieldAsGeom(tField);
 
-            moris::mtk::Mesh* tMeshData   = moris::mtk::create_interpolation_mesh( MeshType::STK, "xtk_test_sphere1.exo" );
+            moris::mtk::Mesh* tMeshData   = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, "xtk_test_sphere1.exo" );
             std::string tLSFName            = "Circle";
             xtk::Mesh_Field_Geometry tLevelSetMesh(tMeshData,{tLSFName});
 

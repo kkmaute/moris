@@ -60,7 +60,7 @@ namespace moris
                 moris::mtk::Scalar_Field_Info<DDRMat> tNodeField;
                 std::string tFieldName = "Temp_Field";
                 tNodeField.set_field_name( tFieldName );
-                tNodeField.set_field_entity_rank( EntityRank::NODE );
+                tNodeField.set_field_entity_rank( mtk::EntityRank::NODE );
 
                 // Initialize field information container
                 moris::mtk::MtkFieldsInfo tFieldsInfo;
@@ -73,8 +73,8 @@ namespace moris
                 tMeshData.FieldsInfo = &tFieldsInfo;
 
                 // construct the mesh data
-                mtk::Interpolation_Mesh* tInterpMesh = mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tMeshData );
-                mtk::Integration_Mesh*   tIntegMesh  = mtk::create_integration_mesh_from_interpolation_mesh( MeshType::STK, tInterpMesh );
+                mtk::Interpolation_Mesh* tInterpMesh = mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, &tMeshData );
+                mtk::Integration_Mesh*   tIntegMesh  = mtk::create_integration_mesh_from_interpolation_mesh( mtk::MeshType::STK, tInterpMesh );
 
                 // place the pair in mesh manager
                 mtk::Mesh_Manager tMeshManager;

@@ -120,8 +120,9 @@ namespace moris::hmr
     //------------------------------------------------------------------------------
 
     uint
-    Lagrange_Mesh_Base::create_real_scalar_field_data( const std::string& aLabel,
-            const enum EntityRank                                         aEntityRank )
+    Lagrange_Mesh_Base::create_real_scalar_field_data(
+            const std::string&    aLabel,
+            const enum EntityRank aEntityRank )
     {
         // get index for output
         uint aIndex = mRealScalarFieldData.size();
@@ -1116,28 +1117,28 @@ namespace moris::hmr
 
         // first field is element level
         mRealScalarFieldLabels.push_back( "Element_Level" );
-        mRealScalarFieldRanks.push_back( EntityRank::ELEMENT );
+        mRealScalarFieldRanks.push_back( mtk::EntityRank::ELEMENT );
         mRealScalarFieldData.push_back( tEmpty );
         mRealScalarFieldBSplineCoeffs.push_back( tEmpty );
         mRealScalarFieldBSplineOrders.push_back( 0 );
 
         // second field is element owner
         mRealScalarFieldLabels.push_back( "Element_Owner" );
-        mRealScalarFieldRanks.push_back( EntityRank::ELEMENT );
+        mRealScalarFieldRanks.push_back( mtk::EntityRank::ELEMENT );
         mRealScalarFieldData.push_back( tEmpty );
         mRealScalarFieldBSplineCoeffs.push_back( tEmpty );
         mRealScalarFieldBSplineOrders.push_back( 0 );
 
         // third field is vertex IDs
         mRealScalarFieldLabels.push_back( "Node_IDs" );
-        mRealScalarFieldRanks.push_back( EntityRank::NODE );
+        mRealScalarFieldRanks.push_back( mtk::EntityRank::NODE );
         mRealScalarFieldData.push_back( tEmpty );
         mRealScalarFieldBSplineCoeffs.push_back( tEmpty );
         mRealScalarFieldBSplineOrders.push_back( 0 );
 
         // forth field is vertex IDs
         //            mRealScalarFieldLabels       .push_back( "Element_Indices" );
-        //            mRealScalarFieldRanks        .push_back( EntityRank::ELEMENT );
+        //            mRealScalarFieldRanks        .push_back( mtk::EntityRank::ELEMENT );
         //            mRealScalarFieldData         .push_back( tEmpty );
         //            mRealScalarFieldBSplineCoeffs.push_back( tEmpty );
         //            mRealScalarFieldBSplineOrders.push_back( 0 );
@@ -1744,7 +1745,7 @@ namespace moris::hmr
         // close the output file
         tFile.close();
 
-    } // end function: hmr::Lagrange_Mesh_Base::save_to_vtk()
+    }    // end function: hmr::Lagrange_Mesh_Base::save_to_vtk()
 
     //------------------------------------------------------------------------------
 
@@ -2052,7 +2053,7 @@ namespace moris::hmr
         }
         std::cout << par_rank() << " flag 2" << std::endl; */
 
-    } // end function: hmr::Lagrange_Mesh_Base::create_facets()
+    }    // end function: hmr::Lagrange_Mesh_Base::create_facets()
 
     //------------------------------------------------------------------------------
 

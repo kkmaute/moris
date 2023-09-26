@@ -32,7 +32,7 @@ namespace moris
 
         Geometry_Interpolator::Geometry_Interpolator(
                 const mtk::Interpolation_Rule& aInterpolationRule,
-                const CellShape&               aInterpolationShape,
+                const mtk::CellShape&               aInterpolationShape,
                 const bool                     aSpaceSideset,
                 const bool                     aTimeSideset )
         {
@@ -74,7 +74,7 @@ namespace moris
         Geometry_Interpolator::Geometry_Interpolator(
                 const mtk::Interpolation_Rule& aInterpolationRule,
                 const mtk::Interpolation_Rule& aIPMapInterpolationRule,
-                const CellShape&               aInterpolationShape,
+                const mtk::CellShape&               aInterpolationShape,
                 const bool                     aSpaceSideset,
                 const bool                     aTimeSideset )
         {

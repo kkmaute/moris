@@ -35,7 +35,7 @@ namespace moris
             moris_index mDiscretizationMeshIndex;
 
             // type of Clusters in group
-            mtk::Cluster_Type mClusterType = mtk::Cluster_Type::UNDEFINED;
+            mtk::ClusterType mClusterType = mtk::ClusterType::UNDEFINED;
 
             //------------------------------------------------------------------------------
 
@@ -81,8 +81,8 @@ namespace moris
              * 
              * @return moris_index Bspline mesh list index
              */
-            mtk::Cluster_Type 
-            get_cluster_type_in_group() const;
+            mtk::ClusterType
+            get_ClusterType_in_group() const;
 
             //------------------------------------------------------------------------------
             // Pure Virtual Functions Handled by this Class's Children

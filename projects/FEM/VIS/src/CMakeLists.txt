@@ -27,6 +27,7 @@ set(HEADERS
 # List library source files
 set(LIB_SOURCES
     cl_VIS_Output_Manager.cpp
+	cl_VIS_Visualization_Mesh.cpp
     cl_VIS_Cell_Cluster_Visualization.cpp
     cl_VIS_Factory.cpp
     cl_VIS_Side_Cluster_Visualization.cpp

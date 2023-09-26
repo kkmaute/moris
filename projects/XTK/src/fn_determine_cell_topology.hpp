@@ -11,7 +11,7 @@
 #ifndef SRC_fn_determine_cell_topology
 #define SRC_fn_determine_cell_topology
 
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "fn_MTK_Interpolation_Enum_Int_Conversion.hpp"
 
@@ -19,11 +19,11 @@ namespace xtk
 {
     //------------------------------------------------------------------------------
 
-    inline enum CellTopology
+    inline mtk::CellTopology
     determine_cell_topology(
             uint           aNumSpatialDims,
             uint           aPolynomialOrder,
-            enum CellShape aCellShape )
+            mtk::CellShape aCellShape )
     {
         // --------------------------------------------------
         // 2D
@@ -32,62 +32,62 @@ namespace xtk
         // get number of spatial dimensions and decide on cell topology
         if ( aNumSpatialDims == 2 )
         {
-            if ( aCellShape == CellShape::SIMPLEX )
+            if ( aCellShape == mtk::CellShape::SIMPLEX )
             {
                 switch ( aPolynomialOrder )
                 {
                     case 1:
                     {
-                        return CellTopology::TRI3;
+                        return mtk::CellTopology::TRI3;
                         break;
                     }
 
                     case 2:
                     {
-                        return CellTopology::TRI6;
+                        return mtk::CellTopology::TRI6;
                         break;
                     }
 
                     case 3:
                     {
-                        return CellTopology::TRI10;
+                        return mtk::CellTopology::TRI10;
                         break;
                     }
 
                     default:
                     {
                         MORIS_ERROR( false, "determine_cell_topology() - cell topology can only be determined for polynomial orders 1,2, or 3" );
-                        return CellTopology::INVALID;
+                        return mtk::CellTopology::UNDEFINED;
                         break;
                     }
                 }
             }
-            else if ( aCellShape == CellShape::RECTANGULAR )
+            else if ( aCellShape == mtk::CellShape::RECTANGULAR )
             {
                 switch ( aPolynomialOrder )
                 {
                     case 1:
                     {
-                        return CellTopology::QUAD4;
+                        return mtk::CellTopology::QUAD4;
                         break;
                     }
 
                     case 2:
                     {
-                        return CellTopology::QUAD9;
+                        return mtk::CellTopology::QUAD9;
                         break;
                     }
 
                     case 3:
                     {
-                        return CellTopology::QUAD16;
+                        return mtk::CellTopology::QUAD16;
                         break;
                     }
 
                     default:
                     {
                         MORIS_ERROR( false, "determine_cell_topology() - cell topology can only be determined for polynomial orders 1,2, or 3" );
-                        return CellTopology::INVALID;
+                        return mtk::CellTopology::UNDEFINED;
                         break;
                     }
                 }
@@ -95,7 +95,7 @@ namespace xtk
             else
             {
                 MORIS_ERROR( false, "determine_cell_topology() - cell topology can only be determined for rectangular or simplex elements" );
-                return CellTopology::INVALID;
+                return mtk::CellTopology::UNDEFINED;
             }
         }
 
@@ -105,62 +105,62 @@ namespace xtk
 
         else if ( aNumSpatialDims == 3 )
         {
-            if ( aCellShape == CellShape::SIMPLEX )
+            if ( aCellShape == mtk::CellShape::SIMPLEX )
             {
                 switch ( aPolynomialOrder )
                 {
                     case 1:
                     {
-                        return CellTopology::TET4;
+                        return mtk::CellTopology::TET4;
                         break;
                     }
 
                     case 2:
                     {
-                        return CellTopology::TET10;
+                        return mtk::CellTopology::TET10;
                         break;
                     }
 
                         // case 3:
                         // {
-                        //     return CellTopology::TET20;
+                        //     return mtk::CellTopology::TET20;
                         //     break;
                         // }
 
                     default:
                     {
                         MORIS_ERROR( false, "determine_cell_topology() - cell topology can only be determined for polynomial orders 1,2, or 3" );
-                        return CellTopology::INVALID;
+                        return mtk::CellTopology::UNDEFINED;
                         break;
                     }
                 }
             }
-            else if ( aCellShape == CellShape::RECTANGULAR )
+            else if ( aCellShape == mtk::CellShape::RECTANGULAR )
             {
                 switch ( aPolynomialOrder )
                 {
                     case 1:
                     {
-                        return CellTopology::HEX8;
+                        return mtk::CellTopology::HEX8;
                         break;
                     }
 
                     case 2:
                     {
-                        return CellTopology::HEX27;
+                        return mtk::CellTopology::HEX27;
                         break;
                     }
 
                     case 3:
                     {
-                        return CellTopology::HEX64;
+                        return mtk::CellTopology::HEX64;
                         break;
                     }
 
                     default:
                     {
                         MORIS_ERROR( false, "determine_cell_topology() - cell topology can only be determined for polynomial orders 1,2, or 3" );
-                        return CellTopology::INVALID;
+                        return mtk::CellTopology::UNDEFINED;
                         break;
                     }
                 }
@@ -168,7 +168,7 @@ namespace xtk
             else
             {
                 MORIS_ERROR( false, "determine_cell_topology() - cell topology can only be determined for rectangular or simplex elements" );
-                return CellTopology::INVALID;
+                return mtk::CellTopology::UNDEFINED;
             }
         }
 
@@ -177,17 +177,17 @@ namespace xtk
         else
         {
             MORIS_ERROR( false, "determine_cell_topology() - function only works for 2D or 3D" );
-            return CellTopology::INVALID;
+            return mtk::CellTopology::UNDEFINED;
         }
     }
 
     //------------------------------------------------------------------------------
 
-    inline enum CellTopology
+    inline mtk::CellTopology
     determine_cell_topology(
             uint                          aNumSpatialDims,
-            enum mtk::Interpolation_Order aInterpolationOrder,
-            enum CellShape                aCellShape )
+            mtk::Interpolation_Order aInterpolationOrder,
+            mtk::CellShape                aCellShape )
     {
         // call the above function with the enum replaced by integer
         return determine_cell_topology( aNumSpatialDims, mtk::ip_order_enum_to_uint( aInterpolationOrder ), aCellShape );
@@ -199,7 +199,7 @@ namespace xtk
     determine_num_nodes(
             uint           aNumSpatialDims,
             uint           aPolynomialOrder,
-            enum CellShape aCellShape )
+            mtk::CellShape aCellShape )
     {
         // --------------------------------------------------
         // 2D
@@ -208,7 +208,7 @@ namespace xtk
         // get number of spatial dimensions and decide on cell topology
         if ( aNumSpatialDims == 2 )
         {
-            if ( aCellShape == CellShape::SIMPLEX )
+            if ( aCellShape == mtk::CellShape::SIMPLEX )
             {
                 switch ( aPolynomialOrder )
                 {
@@ -241,7 +241,7 @@ namespace xtk
                     }
                 }
             }
-            else if ( aCellShape == CellShape::RECTANGULAR )
+            else if ( aCellShape == mtk::CellShape::RECTANGULAR )
             {
                 switch ( aPolynomialOrder )
                 {
@@ -287,7 +287,7 @@ namespace xtk
 
         else if ( aNumSpatialDims == 3 )
         {
-            if ( aCellShape == CellShape::SIMPLEX )
+            if ( aCellShape == mtk::CellShape::SIMPLEX )
             {
                 switch ( aPolynomialOrder )
                 {
@@ -320,7 +320,7 @@ namespace xtk
                     }
                 }
             }
-            else if ( aCellShape == CellShape::RECTANGULAR )
+            else if ( aCellShape == mtk::CellShape::RECTANGULAR )
             {
                 switch ( aPolynomialOrder )
                 {
@@ -374,8 +374,8 @@ namespace xtk
     inline uint
     determine_num_nodes(
             uint                          aNumSpatialDims,
-            enum mtk::Interpolation_Order aInterpolationOrder,
-            enum CellShape                aCellShape )
+            mtk::Interpolation_Order aInterpolationOrder,
+            mtk::CellShape                aCellShape )
     {
         // call the above function with the enum replaced by integer
         return determine_num_nodes( aNumSpatialDims, mtk::ip_order_enum_to_uint( aInterpolationOrder ), aCellShape );

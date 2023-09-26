@@ -89,7 +89,7 @@
 //                tMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobal;
 //                tMeshData.LocaltoGlobalNodeMap    = & aNodeLocalToGlobal;
 //
-//                mtk::Mesh* tMesh = create_interpolation_mesh( MeshType::STK, tMeshData );
+//                mtk::Mesh* tMesh = create_interpolation_mesh( mtk::MeshType::STK, tMeshData );
 //
 //                //1) Create the fem nodes ------------------------------------------------------
 //                std::cout<<" Create the fem nodes "<<std::endl;
@@ -142,16 +142,16 @@
 //                tElements.reserve( tNumOfElements );
 //
 //                // get the block names from the mesh
-//                moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( EntityRank::ELEMENT);
+//                moris::Cell<std::string> tBlockSetsNames = tMesh->get_set_names( mtk::EntityRank::ELEMENT);
 //
 //                // Cell containing the block mesh cell ( a cell of mesh cells )
-//                moris::Cell<mtk::Cell const *> tBlockSetElement( tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
+//                moris::Cell<mtk::Cell const *> tBlockSetElement( tMesh->get_set_entity_loc_inds( mtk::EntityRank::ELEMENT, tBlockSetsNames( 0 ) ).numel(), nullptr );
 //
 //                // loop on the blocks
 //                std::cout<<tBlockSetsNames.size()<<std::endl;
 //                for( luint Ik=0; Ik < tBlockSetsNames.size(); ++Ik )
 //                {
-//                    Matrix< IndexMat > tBlockSetElementInd = tMesh->get_set_entity_loc_inds( EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
+//                    Matrix< IndexMat > tBlockSetElementInd = tMesh->get_set_entity_loc_inds( mtk::EntityRank::ELEMENT, tBlockSetsNames( Ik ) );
 //
 //                    // loop on the elements in a block
 //                    for( luint k=0; k < tBlockSetElementInd.numel(); ++k )

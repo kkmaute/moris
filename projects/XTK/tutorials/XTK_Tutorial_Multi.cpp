@@ -92,13 +92,13 @@ main( int    argc,
      * Load the mesh into the MTK library which provides an API to mesh functions. Allowing, for
      * many libraries to become the background mesh for XTK.
      * \code{.cpp}
-     *  moris::mtk::Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName );
+     *  moris::mtk::Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName );
      * \endcode
      *
      * In this example a mesh file called sandwich.e which has multiple block sets, side sets and node sets is used.
      * @image html ./figures/sandwich_base_mesh.png "Sandwich Background Mesh"
      */
-    std::shared_ptr<moris::mtk::Interpolation_Mesh> tBackgroundMesh = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName );
+    std::shared_ptr<moris::mtk::Interpolation_Mesh> tBackgroundMesh = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName );
 
     /*!
      * \subsection geometry_vector_sectup 2.) Geometry Vector Setup

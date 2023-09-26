@@ -256,7 +256,7 @@ namespace moris
             Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
-            tXTKModel.perform_basis_enrichment( EntityRank::NODE, 0 );
+            tXTKModel.perform_basis_enrichment( mtk::EntityRank::NODE, 0 );
 
             // get meshes
             xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();

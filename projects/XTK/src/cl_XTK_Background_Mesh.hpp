@@ -64,13 +64,13 @@ namespace xtk
          *
          */
         moris::size_t
-        get_num_entities( enum EntityRank aEntityRank ) const;
+        get_num_entities( mtk::EntityRank aEntityRank ) const;
 
         /*!
          * Get number of entities in the background mesh
          */
         moris::size_t
-        get_num_entities_background( enum EntityRank aEntityRank ) const;
+        get_num_entities_background( mtk::EntityRank aEntityRank ) const;
 
         /*!
          * get the owning proc of a vertex
@@ -120,13 +120,13 @@ namespace xtk
          */
         moris::moris_id
         allocate_entity_ids( moris::size_t aNumReqs,
-                enum EntityRank            aChildEntityRank );
+                mtk::EntityRank            aChildEntityRank );
 
         /*!
          * Get the first available index
          */
         moris::moris_index
-        get_first_available_index( enum EntityRank aEntityRank ) const;
+        get_first_available_index( mtk::EntityRank aEntityRank ) const;
 
         /*!
          * Increment the first available index by aNewFirstAvailableIndex
@@ -134,7 +134,7 @@ namespace xtk
         void
         update_first_available_index(
                 moris::size_t   aNewFirstAvailableIndex,
-                enum EntityRank aEntityRank );
+                mtk::EntityRank aEntityRank );
 
         /*!
          * Create a batch of new nodes
@@ -182,7 +182,7 @@ namespace xtk
         moris::size_t
         get_glb_entity_id_from_entity_loc_index(
                 moris::size_t       aEntityIndex,
-                enum EntityRank     aEntityRank,
+                mtk::EntityRank     aEntityRank,
                 moris_index const & aMeshIndex = 0 ) const;
         /*!
          * From a vector of entity ids and ranks, return the global ids of these entities
@@ -190,13 +190,13 @@ namespace xtk
         moris::Matrix< moris::IdMat >
         get_glb_entity_id_from_entity_loc_index_range(
                 moris::Matrix< moris::IndexMat > const & tEntityIndices,
-                enum EntityRank                          aEntityRank ) const;
+                mtk::EntityRank                          aEntityRank ) const;
         /*!
          * Convert local entity indices to global entity ids
          */
         void
         convert_loc_entity_ind_to_glb_entity_ids(
-                enum EntityRank                   aEntityRank,
+                mtk::EntityRank                   aEntityRank,
                 moris::Matrix< moris::IndexMat >& aEntityIndices ) const;
 
         /*!
@@ -227,7 +227,7 @@ namespace xtk
          * Returns the local to global map (only implemented in for nodes)
          */
         moris::Matrix< moris::IdMat >
-        get_local_to_global_map( enum EntityRank aEntityRank ) const;
+        get_local_to_global_map( mtk::EntityRank aEntityRank ) const;
 
         /*!
          * Return a vector of all non-intersected elements'
@@ -281,14 +281,14 @@ namespace xtk
          */
         bool
         entity_has_children( moris::size_t aEntityIndex,
-                enum EntityRank            aEntityRank ) const;
+                mtk::EntityRank            aEntityRank ) const;
 
         /*!
          * returns the child mesh index of entity with children
          */
         moris::moris_index const & child_mesh_index(
                 moris::size_t   aEntityIndex,
-                enum EntityRank aEntityRank );
+                mtk::EntityRank aEntityRank );
 
         // -------------------------------------------------------------------
         // Functions related to setting and accessing interface node information
@@ -408,7 +408,7 @@ namespace xtk
         moris_index
         get_loc_entity_ind_from_entity_glb_id(
                 moris_id        aEntityId,
-                enum EntityRank aEntityRank ) const;
+                mtk::EntityRank aEntityRank ) const;
 
         std::unordered_map< moris_id, moris_index >
         get_vertex_glb_id_to_loc_vertex_ind_map() const;
@@ -475,7 +475,7 @@ namespace xtk
 
         // -------------------------------------------------------------------
 
-        enum CellTopology
+        mtk::CellTopology
         get_parent_cell_topology() const;
 
         Matrix< IdMat > const &

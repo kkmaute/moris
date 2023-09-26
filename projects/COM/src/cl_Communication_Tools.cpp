@@ -486,6 +486,33 @@ namespace moris
 
     //------------------------------------------------------------------------------
 
+    Cell< moris_id > build_communication_table_map( const Matrix< IdMat >& aCommunicationTable )
+    {
+        if ( par_size() > 1 )
+        {
+            // Start map
+            Cell< moris_id > tCommunicationTableMap( aCommunicationTable.max() + 1, -1 );
+
+            // Get number of processors
+            uint tNumCommunicationProcs = aCommunicationTable.numel();
+
+            // Loop over communication table to fill the communication table map
+            for ( uint iCommunicationProcIndex = 0; iCommunicationProcIndex < tNumCommunicationProcs; iCommunicationProcIndex++ )
+            {
+                tCommunicationTableMap( aCommunicationTable( iCommunicationProcIndex ) ) = iCommunicationProcIndex;
+            }
+
+            // Return result
+            return tCommunicationTableMap;
+        }
+        else
+        {
+            return {};
+        }
+    }
+
+    //------------------------------------------------------------------------------
+
     void
     all_gather_cell_of_str(
             Cell< std::string > const &  aCellToGather,

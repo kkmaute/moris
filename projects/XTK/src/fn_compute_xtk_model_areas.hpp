@@ -46,25 +46,25 @@ namespace xtk
         moris::Matrix< moris::IndexMat > tUnintersectedElements = tXTKBMesh.get_all_non_intersected_elements_loc_inds();
 
         // Determine parent element topology (note: this assumes a uniform background mesh)
-        enum CellTopology tParentTopo = tXTKBMesh.get_parent_cell_topology();
+        mtk::CellTopology tParentTopo = tXTKBMesh.get_parent_cell_topology();
 
         moris::real tVolume = 0;
         for ( size_t i = 0; i < tUnintersectedElements.numel(); i++ )
         {
             // Get the nodes connected to this element
             if ( tXTKBMesh.get_element_phase_index( tUnintersectedElements( i ) ) == aPhaseIndex &&    //
-                    tBMMeshData.get_entity_owner( tUnintersectedElements( i ), moris::EntityRank::ELEMENT ) == tParRank )
+                    tBMMeshData.get_entity_owner( tUnintersectedElements( i ), mtk::EntityRank::ELEMENT ) == tParRank )
             {
 
                 moris::Matrix< moris::IndexMat > tElementToNode =
-                        tBMMeshData.get_entity_connected_to_entity_loc_inds( i, moris::EntityRank::ELEMENT, moris::EntityRank::NODE );
+                        tBMMeshData.get_entity_connected_to_entity_loc_inds( i, mtk::EntityRank::ELEMENT, mtk::EntityRank::NODE );
 
-                if ( tParentTopo == CellTopology::HEX8 )
+                if ( tParentTopo == mtk::CellTopology::HEX8 )
                 {
                     tVolume += compute_hex_8_volume( aNodeCoordinates, tElementToNode );
                 }
 
-                else if ( tParentTopo == CellTopology::TET4 )
+                else if ( tParentTopo == mtk::CellTopology::TET4 )
                 {
                     tVolume += vol_tetrahedron( aNodeCoordinates, tElementToNode );
                 }

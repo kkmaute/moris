@@ -20,7 +20,7 @@
 #include "cl_Cell.hpp"
 #include "cl_MTK_Cell.hpp"                      //MTK/src
 #include "cl_MTK_Enums.hpp"                     //MTK/src
-#include "cl_Mesh_Enums.hpp"                    //MTK/src
+#include "cl_MTK_Enums.hpp"                    //MTK/src
 #include "cl_MSI_Equation_Object.hpp"           //FEM/MSI/src
 #include "cl_MSI_Equation_Set.hpp"              //FEM/MSI/src
 #include "cl_MSI_Model_Solver_Interface.hpp"    //FEM/MSI/src
@@ -79,7 +79,7 @@ namespace moris
             moris::uint mMaxNumDvFI;
 
             // field type list for the FI manager
-            const moris::Cell< moris::Cell< enum mtk::Field_Type > > mFieldTypes;
+            const moris::Cell< moris::Cell< mtk::Field_Type > > mFieldTypes;
 
             // field type map
             moris::Matrix< DDSMat > mFieldTypeMap;
@@ -100,8 +100,8 @@ namespace moris
             bool mGeometryInterpolatorOwned = false;
 
             // cell shape used for interpolation
-            CellShape mIGCellShape = CellShape::GENERAL;
-            CellShape mIPCellShape = CellShape::GENERAL;
+            mtk::CellShape mIGCellShape = mtk::CellShape::GENERAL;
+            mtk::CellShape mIPCellShape = mtk::CellShape::GENERAL;
 
             // point to previous time slab field manager
             Field_Interpolator_Manager* mFieldManagerPrevious = nullptr;
@@ -131,7 +131,7 @@ namespace moris
             Field_Interpolator_Manager(
                     const moris::Cell< moris::Cell< enum MSI::Dof_Type > >&   aDofTypes,
                     const moris::Cell< moris::Cell< enum PDV_Type > >&        aDvTypes,
-                    const moris::Cell< moris::Cell< enum mtk::Field_Type > >& aFieldTypes,
+                    const moris::Cell< moris::Cell< mtk::Field_Type > >& aFieldTypes,
                     MSI::Equation_Set*                                        aEquationSet,
                     mtk::Leader_Follower                                         aIsLeader = mtk::Leader_Follower::LEADER );
 
@@ -270,7 +270,7 @@ namespace moris
              * get the field interpolator for a given field type
              * @param[ in ] aFieldType a field type enum
              */
-            Field_Interpolator* get_field_interpolators_for_type( enum mtk::Field_Type aFieldType );
+            Field_Interpolator* get_field_interpolators_for_type( mtk::Field_Type aFieldType );
 
             //------------------------------------------------------------------------------
             /**
@@ -314,7 +314,7 @@ namespace moris
              * @param[ in ] aCoeff     coefficients to be set
              */
             void set_coeff_for_type(
-                    enum mtk::Field_Type    aFieldType,
+                    mtk::Field_Type    aFieldType,
                     const Matrix< DDRMat >& aCoeff );
 
             //------------------------------------------------------------------------------
@@ -322,14 +322,14 @@ namespace moris
              * sets the cell shape used for interpolation
              * @param[ in ] aCellShape cell shape, ie, rectangular, straight, general
              */
-            void set_IG_cell_shape( enum CellShape aCellShape );
+            void set_IG_cell_shape( mtk::CellShape aCellShape );
 
             //------------------------------------------------------------------------------
             /**
              * sets the cell shape used for interpolation
              * @param[ in ] aCellShape cell shape, ie, rectangular, straight, general
              */
-            void set_IP_cell_shape( enum CellShape aCellShape );
+            void set_IP_cell_shape( mtk::CellShape aCellShape );
 
             //------------------------------------------------------------------------------
             /**

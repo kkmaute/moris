@@ -109,7 +109,7 @@ namespace moris
 
             // Create Mesh --------------------------------------------------------------------
             std::string tMeshFileName = "generated:1x1x4|sideset:z";
-            moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tMeshData );
+            moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, &tMeshData );
 
             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;
@@ -123,7 +123,7 @@ namespace moris
             Cell<enum Subdivision_Method> tDecompositionMethods = {Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4};
             tXTKModel.decompose(tDecompositionMethods);
 
-            tXTKModel.perform_basis_enrichment(EntityRank::NODE);
+            tXTKModel.perform_basis_enrichment( mtk::EntityRank::NODE );
 
             // get meshes
             xtk::Enriched_Interpolation_Mesh & tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();

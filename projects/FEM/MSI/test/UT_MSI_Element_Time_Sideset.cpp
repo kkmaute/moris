@@ -130,7 +130,7 @@ TEST_CASE("Element_Time_Sideset","[INT],[Element_Time_Sideset]")
         tMeshDataInputInterpolation.SetsInfo                = &tMtkMeshSetsInterpolation;
         tMeshDataInputInterpolation.MarkNoBlockForIO        = false;
 
-        moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshDataInputInterpolation );
+        moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshDataInputInterpolation );
 
         //--------------------------------------------------------------------------------------------------------
 
@@ -201,7 +201,7 @@ TEST_CASE("Element_Time_Sideset","[INT],[Element_Time_Sideset]")
         // add cluster to input data
         tMeshDataInput.CellClusterInput = &tCellClusterInput;
 
-        moris::mtk::Integration_Mesh* tIntegMesh1  = moris::mtk::create_integration_mesh(MeshType::STK,tMeshDataInput,tInterpMesh1);
+        moris::mtk::Integration_Mesh* tIntegMesh1  = moris::mtk::create_integration_mesh(mtk::MeshType::STK,tMeshDataInput,tInterpMesh1);
 
         // place the pair in mesh manager
         std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();
@@ -372,7 +372,7 @@ TEST_CASE("Element_Time_Sideset_2","[INT],[Element_Time_Sideset_2]")
         tMeshDataInputInterpolation.SetsInfo                = &tMtkMeshSetsInterpolation;
         tMeshDataInputInterpolation.MarkNoBlockForIO        = false;
 
-        moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshDataInputInterpolation );
+        moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshDataInputInterpolation );
 
         //--------------------------------------------------------------------------------------------------------
 
@@ -439,7 +439,7 @@ TEST_CASE("Element_Time_Sideset_2","[INT],[Element_Time_Sideset_2]")
         // add cluster to input data
         tMeshDataInput.CellClusterInput = &tCellClusterInput;
 
-        moris::mtk::Integration_Mesh* tIntegMesh1  = moris::mtk::create_integration_mesh(MeshType::STK,tMeshDataInput,tInterpMesh1);
+        moris::mtk::Integration_Mesh* tIntegMesh1  = moris::mtk::create_integration_mesh(mtk::MeshType::STK,tMeshDataInput,tInterpMesh1);
 
         // place the pair in mesh manager
         mtk::Mesh_Manager tMeshManager;

@@ -8,28 +8,34 @@
  *
  */
 
-#ifndef PROJECTS_MTK_SRC_CL_MTK_INTERPOLATION_MESH_HPP_
-#define PROJECTS_MTK_SRC_CL_MTK_INTERPOLATION_MESH_HPP_
+#pragma once
 
 #include "cl_MTK_Mesh_Core.hpp"
 
 #include "assert.hpp"
 #include "cl_Matrix.hpp"
 
-namespace moris
+namespace moris::mtk
 {
-    namespace mtk
+    class Interpolation_Mesh : public virtual Mesh
     {
-        // Functions only valid for interpolation mIntegrationMeshes
+      public:
+        Interpolation_Mesh(){};
 
-        class Interpolation_Mesh : public virtual Mesh
+        virtual ~Interpolation_Mesh(){};
+
+        /**
+         * Gets a background mesh of this interpolation mesh (could be this mesh itself)
+         *
+         * @return Background mesh pointer
+         */
+        virtual const Interpolation_Mesh& get_background_mesh()
         {
-          public:
-            Interpolation_Mesh(){};
-
-            virtual ~Interpolation_Mesh(){};
+            // There is currently no use of this base class definition, so for now we give a warning.
+            // In the future if this functionality is intended and implemented for all child classes where it makes sense, this warning can be removed.
+            MORIS_LOG_WARNING( "A background mesh was requested from an interpolation mesh which doesn't yet return one. Assuming it is already a background mesh." );
+            return *this;
         };
-    }    // namespace mtk
-}    // namespace moris
 
-#endif /* PROJECTS_MTK_SRC_CL_MTK_INTERPOLATION_MESH_HPP_ */
+    };
+}
