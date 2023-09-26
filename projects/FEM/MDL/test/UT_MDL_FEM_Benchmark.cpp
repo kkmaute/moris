@@ -432,7 +432,7 @@ namespace moris
             Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
             tXTKModel.decompose( tDecompositionMethods );
 
-            tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
+            tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
 
             xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
             xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
@@ -754,14 +754,14 @@ namespace moris
             Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
             tXTKModel.decompose( tDecompositionMethods );
 
-            tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
+            tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
             tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
             xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
             xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
 
             moris_index tSSIndex = tEnrIntegMesh.create_side_set_from_dbl_side_set( 1, "ghost_ss_p0" );
-            tEnrIntegMesh.create_block_set_from_cells_of_side_set( tSSIndex, "ghost_bs_p0", CellTopology::QUAD4 );
+            tEnrIntegMesh.create_block_set_from_cells_of_side_set( tSSIndex, "ghost_bs_p0", mtk::CellTopology::QUAD4 );
 
             //==============================
 
@@ -1336,7 +1336,7 @@ namespace moris
             Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
             tXTKModel.decompose( tDecompositionMethods );
 
-            tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
+            tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
 
             xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
             xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
@@ -1673,14 +1673,14 @@ namespace moris
             Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
             tXTKModel.decompose( tDecompositionMethods );
 
-            tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
+            tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
             tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
             xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
             xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
 
             moris_index tSSIndex = tEnrIntegMesh.create_side_set_from_dbl_side_set( 1, "ghost_ss_p0" );
-            tEnrIntegMesh.create_block_set_from_cells_of_side_set( tSSIndex, "ghost_bs_p0", CellTopology::QUAD4 );
+            tEnrIntegMesh.create_block_set_from_cells_of_side_set( tSSIndex, "ghost_bs_p0", mtk::CellTopology::QUAD4 );
 
             //==============================
 

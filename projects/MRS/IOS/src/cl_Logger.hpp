@@ -365,6 +365,19 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
+        // FIXME: design this function in a more clean manner
+        template< typename... Args >
+        void
+        log_info_all_proc( const char* tFormat, const Args... aArgs )
+        {
+            int tOutputRank = mOutputRank;
+            mOutputRank = logger_par_rank();
+            this->log_info( tFormat, aArgs... );
+            mOutputRank = tOutputRank;
+        }
+
+        //------------------------------------------------------------------------------
+
         template< typename... Args >
         void
         log_debug( const char* tFormat, const Args... aArgs )
@@ -721,6 +734,23 @@ check_args( const char* tFormat, ... );
             if ( false ) check_args( __VA_ARGS__ ); \
             gLogger.log_info( __VA_ARGS__ );        \
         }                                           \
+    } while ( false )
+
+// -----------------------------------------------------------------------------
+
+/**
+ * Log an informational severity message and let all processors output to console.
+ *
+ * @include "IOS/src/cl_Logger/log.inc"
+ */
+#define MORIS_LOG_INFO_ALL_PROCS( ... )                 \
+    do                                                  \
+    {                                                   \
+        if ( gLogger.get_severity_level() < 2 )         \
+        {                                               \
+            if ( false ) check_args( __VA_ARGS__ );     \
+            gLogger.log_info_all_proc( __VA_ARGS__ );   \
+        }                                               \
     } while ( false )
 
 // -----------------------------------------------------------------------------

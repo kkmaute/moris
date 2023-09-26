@@ -299,7 +299,7 @@ UT_FEM_IWG_Diffusion_Robin_Nitsche_Core( enum fem::IWG_Type tIWGType )
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > >        tDummyDv;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            moris::Cell< moris::Cell< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager                         tFIManager( tTempDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager

@@ -11,7 +11,7 @@
 #ifndef SRC_XTK_FN_CREATE_EDGES_FROM_ELEMENT_TO_NODE_HPP_
 #define SRC_XTK_FN_CREATE_EDGES_FROM_ELEMENT_TO_NODE_HPP_
 
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_XTK_Matrix_Base_Utilities.hpp"
 #include "cl_MTK_Cell_Info_Tet4.hpp"
@@ -26,7 +26,7 @@ namespace xtk
     template<typename Integer>
     inline void
     create_edges_from_element_to_node(
-            enum CellTopology                   aElementTopology,
+            moris::mtk::CellTopology            aElementTopology,
             Integer                             aNumNodes,
             moris::Matrix< moris::IdMat > const & aElementToNode,
             moris::Matrix< moris::IdMat >       & aElementToEdge,
@@ -45,7 +45,7 @@ namespace xtk
 
         switch(aElementTopology)
         {
-            case CellTopology::TET4:
+            case moris::mtk::CellTopology::TET4:
             {
                 tNumEdgePerElem = 6;
 
@@ -60,7 +60,7 @@ namespace xtk
 
                 break;
             }
-            case CellTopology::TRI3:
+            case moris::mtk::CellTopology::TRI3:
             {
                 tNumEdgePerElem = 3;
 

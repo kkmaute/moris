@@ -28,7 +28,7 @@ namespace xtk
     local_child_mesh_flood_fill( Child_Mesh& aChildMesh )
     {
         // Get number of elements in the child mesh
-        moris::size_t tNumElements = aChildMesh.get_num_entities( EntityRank::ELEMENT );
+        moris::size_t tNumElements = aChildMesh.get_num_entities( mtk::EntityRank::ELEMENT );
 
         // Specify dummy value as maximum moris::size_t val
         moris::size_t tMax = std::numeric_limits< moris::moris_index >::max();

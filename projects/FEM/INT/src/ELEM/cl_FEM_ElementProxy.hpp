@@ -28,8 +28,8 @@ namespace moris
           private:
           
             moris::Cell< mtk::Vertex* >   mNodeList;
-            enum mtk::Geometry_Type       mGeometryType       = mtk::Geometry_Type::UNDEFINED;
-            enum mtk::Interpolation_Order mInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
+            mtk::Geometry_Type       mGeometryType       = mtk::Geometry_Type::UNDEFINED;
+            mtk::Interpolation_Order mInterpolationOrder = mtk::Interpolation_Order::UNDEFINED;
 
             //------------------------------------------------------------------------------
 
@@ -38,8 +38,8 @@ namespace moris
             //------------------------------------------------------------------------------
 
             ElementProxy( moris::Cell< mtk::Vertex* > aNodeList,
-                    enum mtk::Geometry_Type           aGeometryType,
-                    enum mtk::Interpolation_Order     aInterpolationOrder )
+                    mtk::Geometry_Type           aGeometryType,
+                    mtk::Interpolation_Order     aInterpolationOrder )
             {
                 mNodeList           = aNodeList;
                 mGeometryType       = aGeometryType;

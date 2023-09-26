@@ -17,10 +17,10 @@ namespace moris
         //---------------------------------------------------------------------
 
         Mesh_Intersection_Data::Mesh_Intersection_Data() :
-                                                   mFirstExtEntityInds((moris::moris_index) EntityRank::END_ENUM, std::numeric_limits<moris::moris_index>::max()),
+                                                   mFirstExtEntityInds((moris::moris_index) EntityRank::UNDEFINED, std::numeric_limits<moris::moris_index>::max()),
                                                    mLocalToGlobalExtNodes(1,1),
-                                                   mFirstAvailableInds((moris::moris_index) EntityRank::END_ENUM, std::numeric_limits<moris::moris_index>::max()),
-                                                   mExternalEntities((moris::moris_index) EntityRank::END_ENUM, moris::Cell<mesh::Entity>(0))
+                                                   mFirstAvailableInds((moris::moris_index) EntityRank::UNDEFINED, std::numeric_limits<moris::moris_index>::max()),
+                                                   mExternalEntities((moris::moris_index) EntityRank::UNDEFINED, moris::Cell<mesh::Entity>(0))
                                                    {
                                                    }
 
@@ -50,10 +50,10 @@ namespace moris
                 mFirstAvailableIds(3) = tFirstElem;
             }
 
-            mFirstExtEntityInds(0) = aMeshData->get_num_entities(moris::EntityRank::NODE);
-            //mFirstExtEntityInds(1) = aMeshData->get_num_entities(moris::EntityRank::EDGE);
-            // mFirstExtEntityInds(2) = aMeshData->get_num_entities(moris::EntityRank::FACE);
-            mFirstExtEntityInds(3) = aMeshData->get_num_entities(moris::EntityRank::ELEMENT);
+            mFirstExtEntityInds(0) = aMeshData->get_num_entities(mtk::EntityRank::NODE);
+            //mFirstExtEntityInds(1) = aMeshData->get_num_entities(mtk::EntityRank::EDGE);
+            // mFirstExtEntityInds(2) = aMeshData->get_num_entities(mtk::EntityRank::FACE);
+            mFirstExtEntityInds(3) = aMeshData->get_num_entities(mtk::EntityRank::ELEMENT);
 
             mFirstAvailableInds(0) = mFirstExtEntityInds(0);
             //mFirstAvailableInds(1) = mFirstExtEntityInds(1);
@@ -106,7 +106,7 @@ namespace moris
                 tOwner  = aNewNodeOwners(j);
 
                 mLocalToGlobalExtNodes(tInd-mFirstExtEntityInds(0)) = tId;
-                mExternalEntities(tEntRankInd)(tInd-mFirstExtEntityInds(0)).set_entity_identifiers(tId,tInd,tOwner,moris::EntityRank::NODE);
+                mExternalEntities(tEntRankInd)(tInd-mFirstExtEntityInds(0)).set_entity_identifiers(tId,tInd,tOwner,mtk::EntityRank::NODE);
                 mExternalEntities(tEntRankInd)(tInd-mFirstExtEntityInds(0)).set_entity_coords(aNewNodeCoordinates(j));
                 j++;
             }

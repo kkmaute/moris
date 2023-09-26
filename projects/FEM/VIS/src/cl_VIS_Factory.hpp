@@ -30,8 +30,9 @@ namespace moris
         class Cluster;
         class Cell;
         class Vertex;
-        class Mesh_Manager;
-    }    // namespace mtk
+        class Interpolation_Mesh;
+        class Integration_Mesh;
+    }
 
     namespace vis
     {
@@ -89,37 +90,25 @@ namespace moris
             bool mConstructDiscontinuousMesh = false;
 
             /// @brief access to the mtk::mesh
-            std::shared_ptr< mtk::Mesh_Manager > mMesh = nullptr;
-            const uint                           mMeshPairIndex;
             mtk::Interpolation_Mesh*             mInterpolationMesh = nullptr;
             mtk::Integration_Mesh*               mIntegrationMesh   = nullptr;
 
-            //-----------------------------------------------------------------------------------------------------------
-
           public:
-            //-----------------------------------------------------------------------------------------------------------
 
+            /**
+             * Constructor
+             *
+             * @param aMesh Mesh manager
+             * @param aMeshPairIndex Mesh pair index
+             */
             VIS_Factory(
                     std::shared_ptr< mtk::Mesh_Manager > aMesh,
-                    const uint                           aMeshPairIndex )
-                    : mMesh( aMesh )
-                    , mMeshPairIndex( aMeshPairIndex )
-            {
-                // get access to the integration and interpolation meshes
-                mMesh->get_mesh_pair( mMeshPairIndex, mInterpolationMesh, mIntegrationMesh );
-            };
+                    uint                                 aMeshPairIndex );
 
-            //-----------------------------------------------------------------------------------------------------------
-
-            ~VIS_Factory()
-            {
-                // make sure there is no memory leaking
-                MORIS_ERROR( mVisMesh == nullptr,
-                        "~VIS_Factory() - "
-                        "The constructed VIS mesh has not been handed off to a new owner. Destructing this factory will cause memory to leak." );
-            };
-
-            //-----------------------------------------------------------------------------------------------------------
+            /**
+             * Destructor, checks for memory leak
+             */
+            ~VIS_Factory();
 
             /**
              * @brief initialize member data and sort requested mesh sets by type

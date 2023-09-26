@@ -52,7 +52,7 @@ Node_Hierachy_Template_Library::load_2d_template(
     moris_index              aTemplateId,
     Node_Hierarchy_Template* aNodeHierTemplate )
 {
-    aNodeHierTemplate->mCellTopology = CellTopology::TRI3;
+    aNodeHierTemplate->mCellTopology = mtk::CellTopology::TRI3;
     switch ( aTemplateId )
     {
         case 1:
@@ -100,7 +100,7 @@ Node_Hierachy_Template_Library::load_2d_template(
         default:
         {
             std::cout << "Node_Hierachy_Template_Library::load_2d_template(): \n" << std::flush;
-            std::cout << "WARNING INVALID TEMPLATE ID: " << aTemplateId << std::endl;
+            std::cout << "WARNING UNDEFINED TEMPLATE ID: " << aTemplateId << std::endl;
             break;
         }
     }
@@ -113,7 +113,7 @@ Node_Hierachy_Template_Library::load_3d_template(
     moris_index              aTemplateId,
     Node_Hierarchy_Template* aNodeHierTemplate )
 {
-    aNodeHierTemplate->mCellTopology = CellTopology::TET4;
+    aNodeHierTemplate->mCellTopology = mtk::CellTopology::TET4;
     switch ( aTemplateId )
     {
     case ( 320 ):
@@ -823,7 +823,7 @@ Node_Hierachy_Template_Library::load_3d_template(
     default:
     {
         std::cout << "Node_Hierachy_Template_Library::load_3d_template(): \n" << std::flush;
-        std::cout << "WARNING INVALID TEMPLATE ID: " << aTemplateId << std::endl;
+        std::cout << "WARNING UNDEFINED TEMPLATE ID: " << aTemplateId << std::endl;
         break;
     }
     }

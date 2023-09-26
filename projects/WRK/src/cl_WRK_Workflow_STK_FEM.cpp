@@ -43,7 +43,8 @@ namespace moris
         Workflow_STK_FEM::Workflow_STK_FEM( wrk::Performer_Manager* aPerformerManager )
                 : Workflow( aPerformerManager )
         {
-            Tracer tTracer( "Workflow", "STK_FEM", "Initialize" );
+            // log & trace this function
+            Tracer tTracer( "WRK", "Workflow_STK_FEM", "Create" );
             MORIS_LOG_SPEC( "Par_Rank", par_rank() );
             MORIS_LOG_SPEC( "Par_Size", par_size() );
 

@@ -159,12 +159,12 @@ Elevate_Order_Interface::make_vertex_requests(
     Tracer tTracer( "XTK", "Elevate_Order_Interface", "make vertex requests" );
 
     // get first unused index for nodes for numbering new nodes
-    moris::moris_index tNewNodeIndex = mCutIntegrationMesh->get_first_available_index( EntityRank::NODE );
+    moris::moris_index tNewNodeIndex = mCutIntegrationMesh->get_first_available_index( mtk::EntityRank::NODE );
 
     mDecompositionData->mHasSecondaryIdentifier = true;
 
     // range of indices
-    uint tNumElemsInCIM = mCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 );
+    uint tNumElemsInCIM = mCutIntegrationMesh->get_num_entities( mtk::EntityRank::ELEMENT, 0 );
 
     // initialize proc-global to element-local map of vertex indices for each cell/element
     moris::Cell< std::map< moris_index, uint > > tVertIndicesOnCell( tNumElemsInCIM );
@@ -189,11 +189,11 @@ Elevate_Order_Interface::make_vertex_requests(
         }
 
         // check if new vertices on faces get created (if true, assume 3D)
-        if ( mElevateOrderTemplate->has_new_vertices_on_entity( EntityRank::ELEMENT ) )
+        if ( mElevateOrderTemplate->has_new_vertices_on_entity( mtk::EntityRank::ELEMENT ) )
         {
             // todo: assuming only one vertex gets created inside of elements
             // todo: (which is fine for standard quadratic and cubic elements, but maybe not for others)
-            MORIS_ERROR( mElevateOrderTemplate->num_new_vertices_per_entity( EntityRank::ELEMENT ) == 1,
+            MORIS_ERROR( mElevateOrderTemplate->num_new_vertices_per_entity( mtk::EntityRank::ELEMENT ) == 1,
                     "Elevate_Order_Interface::make_vertex_requests() - currently only supports elements with one new vertex inside of each element." );
 
             // get Cell parent (BG cell) index
@@ -201,7 +201,7 @@ Elevate_Order_Interface::make_vertex_requests(
             moris_index tParentIndex = mCutIntegrationMesh->get_ig_cell_group_parent_cell( tCellGroupMembershipIndex )->get_index();
 
             // iterate through vertices to be created inside each
-            for ( uint iVert = 0; iVert < mElevateOrderTemplate->num_new_vertices_per_entity( EntityRank::ELEMENT ); iCell++ )
+            for ( uint iVert = 0; iVert < mElevateOrderTemplate->num_new_vertices_per_entity( mtk::EntityRank::ELEMENT ); iCell++ )
             {
                 // initialize variable holding possible new node index
                 moris_index tNewNodeIndexInDecompData = MORIS_INDEX_MAX;
@@ -210,14 +210,14 @@ Elevate_Order_Interface::make_vertex_requests(
                 bool tRequestExist = mDecompositionData->request_exists(
                     tParentIndex,
                     iVert, // use local new vertex ordinal as secondary ID, since inside of cell is not shared with other cells
-                    EntityRank::ELEMENT,
+                    mtk::EntityRank::ELEMENT,
                     tNewNodeIndexInDecompData );
 
                 // ... if not, request it
                 if ( !tRequestExist )
                 {
                     // find out which processor owns parent entity of currently treated edge
-                    moris::moris_index tOwningProc = mBackgroundMesh->get_entity_owner( tParentIndex, EntityRank::ELEMENT );
+                    moris::moris_index tOwningProc = mBackgroundMesh->get_entity_owner( tParentIndex, mtk::EntityRank::ELEMENT );
 
                     // compute global coordinates for new node
                     Matrix< DDRMat > tNewVertexCoords;
@@ -225,13 +225,13 @@ Elevate_Order_Interface::make_vertex_requests(
                     {
                         tNewVertexCoords = this->compute_tri_vertex_global_coordinates(
                             (*aIgCells)( iCell )->get_vertex_pointers(),
-                            mElevateOrderTemplate->get_new_vertex_parametric_coords_wrt_entity( EntityRank::ELEMENT )( iVert )  );
+                            mElevateOrderTemplate->get_new_vertex_parametric_coords_wrt_entity( mtk::EntityRank::ELEMENT )( iVert )  );
                     }
                     else if( mElevateOrderTemplate->get_num_spatial_dims() == 3 )
                     {
                         tNewVertexCoords = this->compute_tet_vertex_global_coordinates(
                             (*aIgCells)( iCell )->get_vertex_pointers(),
-                            mElevateOrderTemplate->get_new_vertex_parametric_coords_wrt_entity( EntityRank::ELEMENT )( iVert )  );
+                            mElevateOrderTemplate->get_new_vertex_parametric_coords_wrt_entity( mtk::EntityRank::ELEMENT )( iVert )  );
                     }
                     else
                     {
@@ -243,7 +243,7 @@ Elevate_Order_Interface::make_vertex_requests(
                         tParentIndex,
                         iVert, // use local new vertex ordinal as secondary ID, since inside of cell is not shared with other cells
                         tOwningProc,
-                        EntityRank::ELEMENT,
+                        mtk::EntityRank::ELEMENT,
                         tNewVertexCoords );
 
                     // count number of new nodes created
@@ -256,10 +256,10 @@ Elevate_Order_Interface::make_vertex_requests(
     // --------------------------------
 
     // check if new vertices on edges get created
-    if ( mElevateOrderTemplate->has_new_vertices_on_entity( EntityRank::EDGE ) )
+    if ( mElevateOrderTemplate->has_new_vertices_on_entity( mtk::EntityRank::EDGE ) )
     {
         // get number of new vertices to be created on edge
-        uint tNumNewVerticesPerEdge = mElevateOrderTemplate->num_new_vertices_per_entity( EntityRank::EDGE );
+        uint tNumNewVerticesPerEdge = mElevateOrderTemplate->num_new_vertices_per_entity( mtk::EntityRank::EDGE );
 
         // iterate through the edges in aEdgeConnectivity ask the geometry engine if we are intersected
         for ( moris::uint iEdge = 0; iEdge < aEdgeConnectivity->mEdgeVertices.size(); iEdge++ )
@@ -278,14 +278,14 @@ Elevate_Order_Interface::make_vertex_requests(
             bool tRequestExist = mDecompositionData->request_exists(
                 tParentIndex,
                 tSecondaryId,
-                (enum EntityRank)tParentRank,
+                (mtk::EntityRank)tParentRank,
                 tNewNodeIndexInDecompData );
 
             // ... if not, request it
             if ( !tRequestExist )
             {
                 // find out which processor owns parent entity of currently treated edge
-                moris::moris_index tOwningProc = mBackgroundMesh->get_entity_owner( tParentIndex, (enum EntityRank)tParentRank );
+                moris::moris_index tOwningProc = mBackgroundMesh->get_entity_owner( tParentIndex, (mtk::EntityRank)tParentRank );
 
                 // collect new vertices' indices in decomp data
                 Matrix< IndexMat > tNewEdgeVertexIndicesInDecompData( tNumNewVerticesPerEdge, 1, -1 );
@@ -297,7 +297,7 @@ Elevate_Order_Interface::make_vertex_requests(
                     Matrix< DDRMat > tNewVertexCoords =
                             this->compute_edge_vertex_global_coordinates(
                                 aEdgeConnectivity->mEdgeVertices( iEdge ),
-                                mElevateOrderTemplate->get_new_vertex_parametric_coords_wrt_entity( EntityRank::EDGE )( iVert )  );
+                                mElevateOrderTemplate->get_new_vertex_parametric_coords_wrt_entity( mtk::EntityRank::EDGE )( iVert )  );
 
                     // fixme: can two nodes be requested with the same secondary ID?
                     // Register new node request
@@ -305,7 +305,7 @@ Elevate_Order_Interface::make_vertex_requests(
                         tParentIndex,
                         tSecondaryId,
                         tOwningProc,
-                        (enum EntityRank)tParentRank,
+                        (mtk::EntityRank)tParentRank,
                         tNewVertexCoords );
 
                     // record new vertex index in decomp data
@@ -341,7 +341,7 @@ Elevate_Order_Interface::make_vertex_requests(
                     for ( uint iVert = 0; iVert < tNumNewVerticesPerEdge; iVert++ )
                     {
                         // get vertex' element local index
-                        moris_index tLocalVertexIndex = mElevateOrderTemplate->get_local_vertex_index( EntityRank::EDGE, tSignedEdgeIndex, iVert );
+                        moris_index tLocalVertexIndex = mElevateOrderTemplate->get_local_vertex_index( mtk::EntityRank::EDGE, tSignedEdgeIndex, iVert );
 
                         // get integration cell index
                         uint iCell = tCellToIndexMap.find( tCellIndex )->second;
@@ -357,14 +357,14 @@ Elevate_Order_Interface::make_vertex_requests(
     // --------------------------------
 
     // check if new vertices on faces get created (if true, assume 3D)
-    if ( mElevateOrderTemplate->has_new_vertices_on_entity( EntityRank::FACE ) )
+    if ( mElevateOrderTemplate->has_new_vertices_on_entity( mtk::EntityRank::FACE ) )
     {
         // get face connectivity from Cut Integration Mesh
         std::shared_ptr< Facet_Based_Connectivity > tFaceConnectivity = mCutIntegrationMesh->get_face_connectivity();
         std::shared_ptr< Facet_Based_Ancestry >     tIgFaceAncestry   = mCutIntegrationMesh->get_face_ancestry();
 
         // todo: assuming only one vertex gets created per face (which is fine for standard quadratic and cubic elements, but maybe not for others)
-        MORIS_ERROR( mElevateOrderTemplate->num_new_vertices_per_entity( EntityRank::FACE ) == 1,
+        MORIS_ERROR( mElevateOrderTemplate->num_new_vertices_per_entity( mtk::EntityRank::FACE ) == 1,
                 "Elevate_Order_Interface::make_vertex_requests() - currently only supports elements with one new vertex per face max." );
 
         // iterate through the faces and create vertices on it
@@ -384,27 +384,27 @@ Elevate_Order_Interface::make_vertex_requests(
             bool tRequestExist = mDecompositionData->request_exists(
                 tParentIndex,
                 tSecondaryId,
-                (enum EntityRank)tParentRank,
+                (mtk::EntityRank)tParentRank,
                 tNewNodeIndexInDecompData );
 
             // ... if not, request it
             if ( !tRequestExist )
             {
                 // find out which processor owns parent entity of currently treated edge
-                moris::moris_index tOwningProc = mBackgroundMesh->get_entity_owner( tParentIndex, (enum EntityRank)tParentRank );
+                moris::moris_index tOwningProc = mBackgroundMesh->get_entity_owner( tParentIndex, (mtk::EntityRank)tParentRank );
 
                 // compute global coordinates for new node
                 Matrix< DDRMat > tNewVertexCoords =
                         this->compute_tri_vertex_global_coordinates(
                             tFaceConnectivity->mFacetVertices( iFace ),
-                            mElevateOrderTemplate->get_new_vertex_parametric_coords_wrt_entity( EntityRank::FACE )( 0 )  );
+                            mElevateOrderTemplate->get_new_vertex_parametric_coords_wrt_entity( mtk::EntityRank::FACE )( 0 )  );
 
                 // Register new node request
                 tNewNodeIndexInDecompData = mDecompositionData->register_new_request(
                     tParentIndex,
                     tSecondaryId,
                     tOwningProc,
-                    (enum EntityRank)tParentRank,
+                    (mtk::EntityRank)tParentRank,
                     tNewVertexCoords );
 
                 // count number of new nodes created
@@ -494,7 +494,7 @@ Elevate_Order_Interface::associate_new_vertices_with_cell_groups(
             moris::Matrix< moris::DDRMat > tParametricCoordsRelativeToParentElem =
                 Interpolation::linear_interpolation_location(
                     tEdgeNodeParamCoordinates,
-                    mElevateOrderTemplate->get_new_vertex_parametric_coords_wrt_entity( EntityRank::EDGE )( 0 ) );
+                    mElevateOrderTemplate->get_new_vertex_parametric_coords_wrt_entity( mtk::EntityRank::EDGE )( 0 ) );
 
             // list of edges and locations to create new nodes on added to decomp. data
             mDecompositionData->tCMNewNodeLoc( tCellGroupMembershipIndex ).push_back( iEdge );

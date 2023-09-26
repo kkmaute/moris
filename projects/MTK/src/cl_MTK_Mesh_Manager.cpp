@@ -56,6 +56,9 @@ namespace moris
                 mMeshPairNameToIndexMap[ aMeshPairName ] = tMeshPairIndex;
             }
 
+            // report on this operation
+            MORIS_LOG_INFO( "Registered mesh pair #%i", tMeshPairIndex );
+
             mMeshPairToFieldIndexMap.resize( tMeshPairIndex );
 
             return tMeshPairIndex;

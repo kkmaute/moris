@@ -235,8 +235,8 @@ namespace moris::hmr
 
             tMappers( m )->perform_mapping(
                     tFieldUnion( m ),
-                    EntityRank::NODE,
-                    EntityRank::BSPLINE );
+                    mtk::EntityRank::NODE,
+                    mtk::EntityRank::BSPLINE );
 
             // a small sanity test
             MORIS_ASSERT( tUnionField->get_coefficients().length()

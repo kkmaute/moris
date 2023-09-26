@@ -91,9 +91,9 @@ namespace moris
         }
 
         // test if the file specified exists
+        MORIS_LOG( "An XML writer is initialized with path '%s'." , aFilePath.c_str() ); 
         if ( boost::filesystem::exists( aFilePath ) )
         {
-            MORIS_LOG( "An XML writer is initialized with path '%s'." , aFilePath.c_str() ); 
             MORIS_LOG( "This file already exists and will be overwritten." ); 
         }
         

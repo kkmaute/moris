@@ -72,7 +72,7 @@ extern "C"
                        aElement->set_min_refinement_level( uint aMinumumLevel )
 
                        // only takes the value if the stored one is lower
-                       aElement->update_min_refimenent_level( uint aMinumumLevel )
+                       aElement->update_min_refinement_level( uint aMinumumLevel )
                  */
 
                 /**

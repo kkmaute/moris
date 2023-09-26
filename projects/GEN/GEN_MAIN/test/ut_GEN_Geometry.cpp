@@ -575,7 +575,7 @@ namespace moris
                                 std::shared_ptr< Geometry > tBSplineGeometry = tGeometryEngine.get_geometry( tGeometryIndex );
 
                                 // Get ID Offset
-                                uint tOffset = tGeometryIndex * tMesh->get_max_entity_id( EntityRank::BSPLINE, 0 );
+                                uint tOffset = tGeometryIndex * tMesh->get_max_entity_id( mtk::EntityRank::BSPLINE, 0 );
 
                                 // Check field values and sensitivities at all nodes
                                 Matrix< DDRMat > tTargetSensitivities;
@@ -594,7 +594,7 @@ namespace moris
                                     CHECK( tBSplineGeometry->get_field_value( tNodeIndex, { {} } ) == tApproxTarget );
 
                                     // Check sensitivities
-                                    if ( (uint)par_rank() == tMesh->get_entity_owner( tNodeIndex, EntityRank::NODE, 0 ) )
+                                    if ( (uint)par_rank() == tMesh->get_entity_owner( tNodeIndex, mtk::EntityRank::NODE, 0 ) )
                                     {
                                         Matrix< DDRMat > tMatrix = trans( tMesh->get_t_matrix_of_node_loc_ind( tNodeIndex, 0 ) );
                                         Matrix< DDSMat > tIDs    = trans( tMesh->get_coefficient_IDs_of_node( tNodeIndex, 0 ) )

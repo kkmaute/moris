@@ -190,7 +190,7 @@ namespace moris::mtk
     {
         Tracer tTracer( "MTK", "IP mesh building", "Build" );
 
-        mOutputMesh = new Interpolation_Mesh_DataBase_IP();
+        mOutputMesh = new Interpolation_Mesh_DataBase_IP( mInputMesh.get_background_mesh() );
 
         this->create_enriched_mesh_indices();
 
@@ -314,7 +314,7 @@ namespace moris::mtk
             iCounter++;
 
             mOutputMesh->mVertexIdList.push_back( iVertex->get_id() );
-            mOutputMesh->mVertexOwnerList.push_back( iVertex->get_index() );
+            mOutputMesh->mVertexOwnerList.push_back( iVertex->get_owner() );
         }
     }
 

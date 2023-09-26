@@ -15,7 +15,7 @@
 
 #include "cl_MTK_Side_Cluster.hpp"
 #include "typedefs.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "fn_unique.hpp"
 #include<unordered_map>
 
@@ -860,8 +860,8 @@ namespace moris
             moris::Matrix<moris::IndexMat> tElementNodes =
                     tInterpMesh->get_entity_connected_to_entity_loc_inds(
                             aLeaderInterpCell.get_index(),
-                            moris::EntityRank::ELEMENT,
-                            moris::EntityRank::NODE);
+                            mtk::EntityRank::ELEMENT,
+                            mtk::EntityRank::NODE);
 
             // coordinates of nodes attached to element to interpolate for physical coordinates
             moris::Matrix<moris::DDRMat> tCoordinates( tElementNodes.numel() , 2);
@@ -933,8 +933,8 @@ namespace moris
             moris::Matrix<moris::IndexMat> tElementNodes =
                     tInterpMesh->get_entity_connected_to_entity_loc_inds(
                             aFollowerInterpCell.get_index(),
-                            moris::EntityRank::ELEMENT,
-                            moris::EntityRank::NODE);
+                            mtk::EntityRank::ELEMENT,
+                            mtk::EntityRank::NODE);
 
             // coordinates of nodes attached to element to interpolate for physical coordinates
             moris::Matrix<moris::DDRMat> tCoordinates( tElementNodes.numel() , 2);

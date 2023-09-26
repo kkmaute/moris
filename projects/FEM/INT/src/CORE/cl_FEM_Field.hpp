@@ -14,7 +14,7 @@
 #include <memory>
 
 #include "typedefs.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Mesh_Manager.hpp"
@@ -37,7 +37,7 @@ namespace moris
         {
           private:
             //! Field type. Identifier for a field interpolator. Similar to dof type or dv type
-            Cell< enum mtk::Field_Type > mFieldType;
+            Cell< mtk::Field_Type > mFieldType;
 
             //! Name of IQI which is used to populate field
             std::string mIQIName;
@@ -55,7 +55,7 @@ namespace moris
 
             Field(
                     mtk::Mesh_Pair              aMeshPair,
-                    enum mtk::Field_Entity_Type tFieldEntityType         = mtk::Field_Entity_Type::NODAL,
+                    mtk::Field_Entity_Type tFieldEntityType         = mtk::Field_Entity_Type::NODAL,
                     uint                        aDiscretizationMeshIndex = 0 );
 
             //------------------------------------------------------------------------------

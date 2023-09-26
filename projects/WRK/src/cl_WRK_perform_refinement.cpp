@@ -488,56 +488,71 @@ namespace moris
                 Cell< std::shared_ptr< Performer > > aPerformers,
                 bool                                 aSimultaneous )
         {
-            moris::sint tMaxNumRefinements = get_max_refinement_level( aPerformers );
+            Tracer tTracer( "WRK", "Refinement Mini Performer", "Perform GEN refinement" );
 
+            // get the maximum number of refinements that need to be performed and therefore refinement iterations
+            moris::sint tMaxNumRefinements = this->get_max_refinement_level( aPerformers );
+
+            // TODO: get number of what kind of meshes?
             moris::Matrix< DDSMat > tMeshIndices;
-            moris::uint             tNumMeshes = 0;
-
-            get_all_refinement_mesh_indices(
+            uint                    tNumMeshes = 0;
+            this->get_all_refinement_mesh_indices(
                     aPerformers,
                     tMeshIndices,
                     tNumMeshes );
 
-            sint tNumPerformers = aPerformers.size();
+            // get number of performers that request refinement
+            moris_index tNumPerformers = aPerformers.size();
 
-            for ( uint Ii = 0; Ii < tNumMeshes; Ii++ )
+            // get access to the database and background mesh
+            std::shared_ptr< hmr::Database > tDataBase       = aHMR->get_database();
+            hmr::Background_Mesh_Base*       tBackgroundMesh = tDataBase->get_background_mesh();
+
+            // TODO: loop over what kind of meshes?
+            for ( uint iMesh = 0; iMesh < tNumMeshes; iMesh++ )
             {
-                sint tMeshIndex = tMeshIndices( Ii );
+                // TODO: what kind of mesh index?
+                moris_index tMeshIndex = tMeshIndices( iMesh );
 
-                for ( sint Ij = 0; Ij < tMaxNumRefinements; Ij++ )
+                // iteratively refine meshes
+                for ( moris_index iRefinement = 0; iRefinement < tMaxNumRefinements; iRefinement++ )
                 {
                     // Create mesh //FIXME
                     std::shared_ptr< hmr::Mesh > tMesh = aHMR->create_mesh( tMeshIndex );
 
                     uint tLagrangeMeshPattern = tMesh->get_lagrange_mesh_pattern();
 
-                    for ( sint Ik = 0; Ik < tNumPerformers; Ik++ )
+                    for ( moris_index iPerformer = 0; iPerformer < tNumPerformers; iPerformer++ )
                     {
                         // Queue refinement
-                        queue_single_refinement(
+                        this->queue_single_refinement(
                                 aHMR,
                                 tMesh,
-                                aPerformers( Ik ),
-                                Ij,
+                                aPerformers( iPerformer ),
+                                iRefinement,
                                 tMeshIndex );
                     }
 
-                    // refine
-                    //  Perform refinement and update index
+                    //  perform refinement on the geometric meshes (replacing elements with their children, where necessary)
                     aHMR->perform_refinement( tLagrangeMeshPattern );
                     aHMR->update_refinement_pattern( tLagrangeMeshPattern );
 
-                    aHMR->get_database()->get_background_mesh()->update_database();
-                    aHMR->get_database()->update_bspline_meshes();
-                    aHMR->get_database()->update_lagrange_meshes();
-                }
-                aHMR->get_database()->get_background_mesh()->clear_refinement_queue();
-            }
+                    // TODO: ?
+                    tBackgroundMesh->update_database();
+                    tDataBase->update_bspline_meshes();
+                    tDataBase->update_lagrange_meshes();
+
+                }    // end for: each refinement step
+
+                // TODO: ?
+                tBackgroundMesh->clear_refinement_queue();
+
+            }    // end for: each mesh // TODO: what kind of meshes?
 
             // refinement loop to ensure that all intersected elements are on same refinement level
-            for ( uint Ii = 0; Ii < tNumMeshes; Ii++ )
+            for ( uint iMesh = 0; iMesh < tNumMeshes; iMesh++ )
             {
-                sint tMeshIndex = tMeshIndices( Ii );
+                moris_index tMeshIndex = tMeshIndices( iMesh );
 
                 bool tRefinedAllLowLevelElements = false;
 
@@ -545,7 +560,7 @@ namespace moris
                 const uint tMaxLowLevelRefinementSteps = 20;
 
                 // set to true for using low level element refinement
-                for ( uint iI = 0; iI < tMaxLowLevelRefinementSteps; ++iI )
+                for ( uint iLowLevelRefinement = 0; iLowLevelRefinement < tMaxLowLevelRefinementSteps; ++iLowLevelRefinement )
                 {
                     // Create mesh //FIXME
                     std::shared_ptr< hmr::Mesh > tMesh = aHMR->create_mesh( tMeshIndex );
@@ -554,13 +569,13 @@ namespace moris
 
                     uint tNumQueuedElements = 0;
 
-                    for ( sint Ik = 0; Ik < tNumPerformers; Ik++ )
+                    for ( moris_index iPerformer = 0; iPerformer < tNumPerformers; iPerformer++ )
                     {
                         // Queue refinement
-                        tNumQueuedElements += queue_low_level_elements_for_refinement(
+                        tNumQueuedElements += this->queue_low_level_elements_for_refinement(
                                 aHMR,
                                 tMesh,
-                                aPerformers( Ik ),
+                                aPerformers( iPerformer ),
                                 tMeshIndex );
                     }
 
@@ -575,56 +590,65 @@ namespace moris
                         break;
                     }
 
-                    // refine
-                    //  Perform refinement and update index
+                    // Perform refinement and update indices of elements
                     aHMR->perform_refinement( tLagrangeMeshPattern );
                     aHMR->update_refinement_pattern( tLagrangeMeshPattern );
 
                     // FIXME should be removed such that loop is continued until all elements are refined
-                }
+
+                }    // end for: each lower level refinement
 
                 // check that all low level elements were refined
-                MORIS_ERROR( tRefinedAllLowLevelElements,
-                        "Refinement_Mini_Performer::perform_refinement_old - could not refine all low level elements in %d steps.",
+                MORIS_ERROR(
+                        tRefinedAllLowLevelElements,
+                        "Refinement_Mini_Performer::perform_refinement_old() - "
+                        "could not refine all low level elements in %d steps.",
                         tMaxLowLevelRefinementSteps );
-            }
-            aHMR->get_database()->update_bspline_meshes();
-            aHMR->get_database()->update_lagrange_meshes();
-        }
+
+            }    // end for: each mesh // TODO: what kind of meshes?
+
+            // TODO: ?
+            tDataBase->update_bspline_meshes();
+            tDataBase->update_lagrange_meshes();
+
+        }    // end function:
 
         //--------------------------------------------------------------------------------------------------------------
 
         void
-        Refinement_Mini_Performer::queue_single_refinement( std::shared_ptr< hmr::HMR > aHMR,
-                std::shared_ptr< hmr::Mesh >                                            aMesh,
-                std::shared_ptr< Performer >                                            aPerformer,
-                sint                                                                    aRefinementNumber,
-                sint                                                                    aMeshIndex )
+        Refinement_Mini_Performer::queue_single_refinement(
+                std::shared_ptr< hmr::HMR >  aHMR,
+                std::shared_ptr< hmr::Mesh > aMesh,
+                std::shared_ptr< Performer > aPerformer,
+                sint                         aRefinementNumber,
+                sint                         aMeshIndex )
         {
             // uint tLagrangeMeshPattern = aMesh->get_lagrange_mesh_pattern();
 
             // Loop over fields
-            for ( uint Ik = 0; Ik < aPerformer->get_num_refinement_fields(); Ik++ )
+            for ( uint iField = 0; iField < aPerformer->get_num_refinement_fields(); iField++ )
             {
-                const moris::Matrix< DDSMat >& tNumRefinements      = aPerformer->get_num_refinements( Ik );
-                const moris::Matrix< DDSMat >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( Ik );
+                const moris::Matrix< DDSMat >& tNumRefinements      = aPerformer->get_num_refinements( iField );
+                const moris::Matrix< DDSMat >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( iField );
 
                 // loop over tLagrangeMeshIndices // if aMeshIndex put in queue
-                for ( uint Ii = 0; Ii < tLagrangeMeshIndices.numel(); Ii++ )
+                for ( uint iLagMesh = 0; iLagMesh < tLagrangeMeshIndices.numel(); iLagMesh++ )
                 {
-                    if ( tLagrangeMeshIndices( Ii ) == aMeshIndex )
+                    if ( tLagrangeMeshIndices( iLagMesh ) == aMeshIndex )
                     {
-                        if ( tNumRefinements( Ii ) > aRefinementNumber )
+                        if ( tNumRefinements( iLagMesh ) > aRefinementNumber )
                         {
                             // Loop over nodes and get field values
                             Matrix< DDRMat > tFieldValues( aMesh->get_num_nodes(), 1 );
                             for ( uint tNodeIndex = 0; tNodeIndex < aMesh->get_num_nodes(); tNodeIndex++ )
                             {
-                                tFieldValues( tNodeIndex ) = aPerformer->get_field_value( Ik, tNodeIndex, aMesh->get_node_coordinate( tNodeIndex ) );
+                                Matrix< DDRMat > tNodeCoordinates = aMesh->get_node_coordinate( tNodeIndex );
+                                tFieldValues( tNodeIndex )        = aPerformer->get_field_value( iField, tNodeIndex, tNodeCoordinates );
                             }
 
                             // Put elements on queue and set flag for refinement
-                            aHMR->based_on_field_put_elements_on_queue( tFieldValues, aMeshIndex, aPerformer->get_refinement_function_index( Ik, aRefinementNumber ) );
+                            sint tRefinementFunctionIndex = aPerformer->get_refinement_function_index( iField, aRefinementNumber );
+                            aHMR->based_on_field_put_elements_on_queue( tFieldValues, aMeshIndex, tRefinementFunctionIndex );
                         }
                     }
                 }
@@ -643,14 +667,14 @@ namespace moris
             uint tNumElements = 0;
 
             // Loop over fields
-            for ( uint Ik = 0; Ik < aPerformer->get_num_refinement_fields(); Ik++ )
+            for ( uint iField = 0; iField < aPerformer->get_num_refinement_fields(); iField++ )
             {
-                const moris::Matrix< DDSMat >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( Ik );
+                const moris::Matrix< DDSMat >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( iField );
 
                 // loop over tLagrangeMesh indices // if aMeshIndex put in queue
-                for ( uint Ii = 0; Ii < tLagrangeMeshIndices.numel(); Ii++ )
+                for ( uint iLagMesh = 0; iLagMesh < tLagrangeMeshIndices.numel(); iLagMesh++ )
                 {
-                    if ( tLagrangeMeshIndices( Ii ) == aMeshIndex )
+                    if ( tLagrangeMeshIndices( iLagMesh ) == aMeshIndex )
                     {
                         // get the number of nodes on the mesh
                         uint tNumNodes = aMesh->get_num_nodes();
@@ -660,18 +684,20 @@ namespace moris
 
                         for ( uint tNodeIndex = 0; tNodeIndex < tNumNodes; tNodeIndex++ )
                         {
+                            Matrix< DDRMat > tNodeCoordinates = aMesh->get_node_coordinate( tNodeIndex );
                             tFieldValues( tNodeIndex ) =
                                     aPerformer->get_field_value(
-                                            Ik,
+                                            iField,
                                             tNodeIndex,
-                                            aMesh->get_node_coordinate( tNodeIndex ) );
+                                            tNodeCoordinates );
                         }
 
-                        // Put elements on queue and set flag for refinement //FIXME this is untested for a refinement function,
+                        // Put elements on queue and set flag for refinement // FIXME: this is untested for a refinement function,
+                        sint tRefineFuncIndex = aPerformer->get_refinement_function_index( iField, 0 );
                         tNumElements += aHMR->based_on_field_put_low_level_elements_on_queue(
                                 tFieldValues,
                                 aMeshIndex,
-                                aPerformer->get_refinement_function_index( Ik, 0 ) );
+                                tRefineFuncIndex );
                     }
                 }
             }
@@ -686,18 +712,18 @@ namespace moris
         {
             sint tMaxNumRefinements = 0;
 
-            for ( uint Ia = 0; Ia < aPerformers.size(); Ia++ )
+            for ( uint iPerformer = 0; iPerformer < aPerformers.size(); iPerformer++ )
             {
-                uint tNumFields = aPerformers( Ia )->get_num_refinement_fields();
+                uint tNumFields = aPerformers( iPerformer )->get_num_refinement_fields();
 
                 // Loop over fields
-                for ( uint Ik = 0; Ik < tNumFields; Ik++ )
+                for ( uint iField = 0; iField < tNumFields; iField++ )
                 {
-                    const moris::Matrix< DDSMat >& tNumRefinements = aPerformers( Ia )->get_num_refinements( Ik );
+                    const moris::Matrix< DDSMat >& tNumRefinements = aPerformers( iPerformer )->get_num_refinements( iField );
 
-                    for ( uint Ii = 0; Ii < tNumRefinements.numel(); Ii++ )
+                    for ( uint iRefinement = 0; iRefinement < tNumRefinements.numel(); iRefinement++ )
                     {
-                        tMaxNumRefinements = std::max( tMaxNumRefinements, tNumRefinements( Ii ) );
+                        tMaxNumRefinements = std::max( tMaxNumRefinements, tNumRefinements( iRefinement ) );
                     }
                 }
             }
@@ -717,20 +743,22 @@ namespace moris
 
             aNumPattern = 0;
 
-            for ( uint Ia = 0; Ia < aPerformers.size(); Ia++ )
+            for ( uint iPerformer = 0; iPerformer < aPerformers.size(); iPerformer++ )
             {
-                uint tNumFields = aPerformers( Ia )->get_num_refinement_fields();
+                uint tNumFields = aPerformers( iPerformer )->get_num_refinement_fields();
 
                 // Loop over fields
-                for ( uint Ik = 0; Ik < tNumFields; Ik++ )
+                for ( uint iRefineField = 0; iRefineField < tNumFields; iRefineField++ )
                 {
-                    const moris::Matrix< DDSMat >& tRefinementMeshIndex = aPerformers( Ia )->get_refinement_mesh_indices( Ik );
+                    const moris::Matrix< DDSMat >& tRefinementMeshIndices = aPerformers( iPerformer )->get_refinement_mesh_indices( iRefineField );
 
-                    for ( uint Ii = 0; Ii < tRefinementMeshIndex.numel(); Ii++ )
+                    for ( uint iMesh = 0; iMesh < tRefinementMeshIndices.numel(); iMesh++ )
                     {
-                        if ( tCombinedPattern( tRefinementMeshIndex( Ii ) ) == -1 )
+                        sint tRefinementMeshIndex = tRefinementMeshIndices( iMesh );
+
+                        if ( tCombinedPattern( tRefinementMeshIndex ) == -1 )
                         {
-                            tCombinedPattern( tRefinementMeshIndex( Ii ) ) = 1;
+                            tCombinedPattern( tRefinementMeshIndex ) = 1;
 
                             aNumPattern++;
                         }
@@ -742,13 +770,17 @@ namespace moris
 
             uint tCounter = 0;
 
-            for ( uint Ia = 0; Ia < tCombinedPattern.numel(); Ia++ )
+            for ( uint iPattern = 0; iPattern < tCombinedPattern.numel(); iPattern++ )
             {
-                if ( tCombinedPattern( Ia ) == 1 )
+                if ( tCombinedPattern( iPattern ) == 1 )
                 {
-                    aAllPatternMap( tCounter++ ) = Ia;
+                    aAllPatternMap( tCounter++ ) = iPattern;
                 }
             }
-        }
+
+        }    // end function: Refinement_Mini_Performer::get_all_refinement_mesh_indices()
+
+        //--------------------------------------------------------------------------------------------------------------
+
     }    // namespace wrk
 }    // namespace moris

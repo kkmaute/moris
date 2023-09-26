@@ -29,9 +29,9 @@
 // Mesh includes
 #include "cl_MTK_Mesh.hpp"
 #include "cl_MTK_Cell.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_XTK_Background_Mesh.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 
 #include "fn_unique.hpp"
 

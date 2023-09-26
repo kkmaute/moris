@@ -20,10 +20,10 @@
 #include "cl_Map.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "op_times.hpp"     //LINALG/src
-#include "fn_trans.hpp"     //LINALG/src
-#include "fn_eye.hpp"       //LINALG/src
-#include "fn_unique.hpp"    //LINALG/src
+#include "op_times.hpp"           //LINALG/src
+#include "fn_trans.hpp"           //LINALG/src
+#include "fn_eye.hpp"             //LINALG/src
+#include "fn_unique.hpp"          //LINALG/src
 
 #include "cl_HMR_Database.hpp"    //HMR/src
 #include "cl_HMR_Background_Element_Base.hpp"
@@ -57,8 +57,13 @@ namespace moris::hmr
     HMR::HMR( Parameters* aParameters )
             : mParameters( aParameters )
     {
+        // log trace this operation
+        Tracer tTracer( "HMR", "Create" );
+
+        // create the HMR database
         mDatabase = std::make_shared< Database >( aParameters );
 
+        // initialize meshes
         this->create_input_and_output_meshes();
 
         mDatabase->calculate_t_matrices_for_input();
@@ -163,6 +168,10 @@ namespace moris::hmr
     void
     HMR::perform()
     {
+        // log & trace this operation
+        Tracer tTracer( "HMR", "Perform" );
+
+        // compute T-matrices and collect facets of background elements
         this->finalize();
 
         // write refinement pattern file
@@ -195,6 +204,9 @@ namespace moris::hmr
         {
             std::string tFileName = mParameters->get_write_output_lagrange_mesh_to_exodus();
 
+            // report on this operation
+            MORIS_LOG_INFO( "Writing output HMR mesh '%s'", tFileName.c_str() );
+
             mtk::Writer_Exodus writer( tInterpolationMesh );
             writer.write_mesh( "", tFileName, "", "hmr_temp.exo" );
             writer.close_file();
@@ -202,9 +214,9 @@ namespace moris::hmr
 
         if ( OutputMeshIndex.size() == 2 )
         {
-            for ( uint Ik = 0; Ik < OutputMeshIndex( 1 ).numel(); Ik++ )
+            for ( uint iOutputMesh = 0; iOutputMesh < OutputMeshIndex( 1 ).numel(); iOutputMesh++ )
             {
-                uint tLagrangeMeshIndexSecondary = OutputMeshIndex( 1 )( Ik );
+                uint tLagrangeMeshIndexSecondary = OutputMeshIndex( 1 )( iOutputMesh );
 
                 MORIS_ERROR( tLagrangeMeshIndex != tLagrangeMeshIndexSecondary,
                         "it is not recommended to base a secondary output mesh on the same mesh index than the main output mesh. This might cause weird behaviors in parallel because of a numbered aura" );
@@ -216,12 +228,15 @@ namespace moris::hmr
                         this->create_integration_mesh( tLagrangeMeshIndex, tInterpolationMesh );
 
                 // register HMR interpolation and integration meshes
-                mMTKPerformer->register_mesh_pair( tInterpolationMeshSecondary, tIntegrationMeshSecondary, true, tMeshNames( Ik + 1 ) );
+                mMTKPerformer->register_mesh_pair( tInterpolationMeshSecondary, tIntegrationMeshSecondary, true, tMeshNames( iOutputMesh + 1 ) );
 
                 // save additional meshes
                 if ( not mParameters->get_write_output_lagrange_mesh_to_exodus().empty() )
                 {
-                    std::string tFileName = mParameters->get_write_output_lagrange_mesh_to_exodus() + "_Mesh_" + std::to_string( Ik );
+                    std::string tFileName = mParameters->get_write_output_lagrange_mesh_to_exodus() + "_Mesh_" + std::to_string( iOutputMesh );
+
+                    // report on this operation
+                    MORIS_LOG_INFO( "Writing output HMR mesh '%s'", tFileName.c_str() );
 
                     moris::mtk::Writer_Exodus writer( tInterpolationMeshSecondary );
                     writer.write_mesh( "", tFileName, "", "hmr_temp.exo" );
@@ -236,6 +251,9 @@ namespace moris::hmr
     void
     HMR::output_mesh_refinement_data()
     {
+        // log & trace this function
+        Tracer tTracer( "HMR", "Output mesh refinement data" );
+
         // get all lagrange and bspline pattern
         moris::Matrix< DDUMat > tLagrangePatter = mParameters->get_lagrange_patterns();
         moris::Matrix< DDUMat > tBSplinePatter  = mParameters->get_bspline_patterns();
@@ -749,7 +767,7 @@ namespace moris::hmr
             tElement->set_refined_flag( tWorkingPattern );
 
             // set the minumum refinement level, which is inherited to children
-            tElement->update_min_refimenent_level( aMinRefinementLevel );
+            tElement->update_min_refinement_level( aMinRefinementLevel );
 
             // also flag all parents
             while ( tElement->get_level() > 0 )
@@ -766,7 +784,7 @@ namespace moris::hmr
     // -----------------------------------------------------------------------------
 
     void
-    HMR::put_elements_on_refinment_queue( Cell< hmr::Element* >& aElements )
+    HMR::put_elements_on_refinement_queue( Cell< hmr::Element* >& aElements )
     {
         // loop over all active elements
         for ( hmr::Element* tCell : aElements )
@@ -794,6 +812,7 @@ namespace moris::hmr
         // get max level on this mesh
         uint tMaxLevelOnMesh = mDatabase->get_background_mesh()->get_max_level();
 
+        // mark buffer elements for refinement if requested
         if ( mParameters->get_refinement_buffer() > 0 )
         {
             // get number of levels
@@ -805,7 +824,8 @@ namespace moris::hmr
         }
 
         // refine database and remember flag
-        mDatabase->get_background_mesh()->perform_refinement( aPattern );
+        hmr::Background_Mesh_Base* tBackgroundMesh = mDatabase->get_background_mesh();
+        tBackgroundMesh->perform_refinement( aPattern );
     }
 
     // -----------------------------------------------------------------------------
@@ -882,6 +902,7 @@ namespace moris::hmr
     Interpolation_Mesh_HMR*
     HMR::create_interpolation_mesh( uint aLagrangeMeshIndex )
     {
+        Tracer tTracer( "HMR", "Create HMR interpolation mesh" );
         return new Interpolation_Mesh_HMR( mDatabase, aLagrangeMeshIndex );
     }
 
@@ -897,7 +918,7 @@ namespace moris::hmr
         if ( aTMatricesExist )
         {
             MORIS_ERROR( false, "HMR::create_interpolation_mesh( ),Implementation is missing" );
-            // FIXME grab order and pattern for lagrange and bspline emsh from output mesh.
+            // FIXME grab order and pattern for lagrange and bspline mesh from output mesh.
             //  return this->create_interpolation_mesh(  aOrder, aLagrangePattern, aBsplinePattern);
         }
         else
@@ -954,6 +975,7 @@ namespace moris::hmr
             uint                    aLagrangeMeshIndex,
             Interpolation_Mesh_HMR* aInterpolationMesh )
     {
+        Tracer tTracer( "HMR", "Create HMR integration mesh" );
         return new Integration_Mesh_HMR(
                 aLagrangeMeshIndex,
                 aInterpolationMesh );
@@ -1008,7 +1030,7 @@ namespace moris::hmr
     //                    aParameters.mLabel.c_str(),
     //                    aParameters.mSource.c_str() );
     //
-    //            // load the field from an exodos or hdf file
+    //            // load the field from an exodus or hdf file
     //            std::shared_ptr< Field > aField = this->load_field_from_file( aParameters.mLabel,
     //                                                                          aParameters.mSource,
     //                                                                          aParameters.mInputLagrangeOrder,
@@ -1159,7 +1181,7 @@ namespace moris::hmr
             const uint         aBSpineIndex )
     {
         // create mesh object
-        mtk::Mesh* tMesh = mtk::create_interpolation_mesh( MeshType::STK, aFilePath, nullptr, false );
+        mtk::Mesh* tMesh = mtk::create_interpolation_mesh( mtk::MeshType::STK, aFilePath, nullptr, false );
 
         std::shared_ptr< moris::hmr::Mesh > tHmrMesh = this->create_mesh( aLagrangeIndex );
 
@@ -1195,7 +1217,7 @@ namespace moris::hmr
         tValues = tMesh->get_entity_field_value_real_scalar(
                 tIndices,
                 aLabel,
-                EntityRank::NODE );
+                mtk::EntityRank::NODE );
 
         // read reverse map in case of renumbering
         Matrix< DDSMat > tReverseMap;
@@ -1214,7 +1236,7 @@ namespace moris::hmr
         for ( uint k = 0; k < tNumberOfExodusNodes; ++k )
         {
             // get ID of this node in exodus mesh
-            uint tExodusNodeId = tMesh->get_glb_entity_id_from_entity_loc_index( k, EntityRank::NODE );
+            uint tExodusNodeId = tMesh->get_glb_entity_id_from_entity_loc_index( k, mtk::EntityRank::NODE );
 
             MORIS_ERROR( tExodusNodeId > 0, "Exodus node ID for index %-5i is negative.", k );
 
@@ -1309,6 +1331,8 @@ namespace moris::hmr
     void
     HMR::perform_initial_refinement()
     {
+        Tracer tTracer( "HMR", "Perform initial refinement" );
+
         // get minimum refinement from parameters object
         Matrix< DDUMat > tInitialRefinement        = mParameters->get_initial_refinement();
         Matrix< DDUMat > tInitialRefinementPattern = mParameters->get_initial_refinement_patterns();
@@ -1317,15 +1341,18 @@ namespace moris::hmr
 
         uint tActivationPattern = mDatabase->get_activation_pattern();
 
-        for ( uint Ii = 0; Ii < tNumInitialRefinementPatterns; ++Ii )
+        for ( uint iPatternForInitRefine = 0; iPatternForInitRefine < tNumInitialRefinementPatterns; ++iPatternForInitRefine )
         {
-            uint tPattern = tInitialRefinementPattern( Ii );
+            uint tPattern = tInitialRefinementPattern( iPatternForInitRefine );
 
             mDatabase->set_activation_pattern( tPattern );
 
-            uint tNumRefinementsForPattern = tInitialRefinement( Ii );
+            uint tNumRefinementsForPattern = tInitialRefinement( iPatternForInitRefine );
 
-            for ( uint Ik = 0; Ik < tNumRefinementsForPattern; ++Ik )
+            // report on the following for-loop
+            MORIS_LOG_INFO( "Refining pattern #%i %i-times.", tPattern, tNumRefinementsForPattern );
+
+            for ( uint iRefinementForPattern = 0; iRefinementForPattern < tNumRefinementsForPattern; ++iRefinementForPattern )
             {
                 // get pointer to background mesh
                 Background_Mesh_Base* tBackMesh = mDatabase->get_background_mesh();
@@ -1334,13 +1361,13 @@ namespace moris::hmr
                 uint tNumberOfElements = tBackMesh->get_number_of_active_elements_on_proc();
 
                 // flag all elements
-                for ( uint e = 0; e < tNumberOfElements; ++e )
+                for ( uint iElem = 0; iElem < tNumberOfElements; ++iElem )
                 {
                     // get pointer to background element
-                    Background_Element_Base* tElement = tBackMesh->get_element( e );
+                    Background_Element_Base* tElement = tBackMesh->get_element( iElem );
 
-                    //// set minumum level for this element
-                    // tElement->set_min_refimenent_level( tInitialRefinement );         //FIXME
+                    //// set minumum level for this element // FIXME: ?
+                    // tElement->set_min_refinement_level( tInitialRefinement );
 
                     // flag this element
                     tElement->put_on_refinement_queue();
@@ -1379,20 +1406,20 @@ namespace moris::hmr
         for ( uint e = 0; e < tNumberOfElements; ++e )
         {
 
-            // TODO comment these lines in toa ctivate refinement buffer.
-            // TODO it should just work. However it is not validated yet.
-            //              // get max level on this mesh
-            //              uint tMaxLevelOnMesh = mDatabase->get_background_mesh()->get_max_level();
+            // TODO: comment these lines in to activate refinement buffer.
+            // TODO: it should just work. However it is not validated yet.
+            // // get max level on this mesh
+            // uint tMaxLevelOnMesh = mDatabase->get_background_mesh()->get_max_level();
             //
-            //              if( mParameters->get_refinement_buffer() > 0 )
-            //              {
-            //                  // get number of levels
-            //                  for( uint tLevel=0; tLevel<=tMaxLevelOnMesh; ++tLevel )
-            //                  {
-            //                      // create extra buffer
-            //                      mDatabase->create_extra_refinement_buffer_for_level( tLevel );
-            //                  }
-            //              }
+            // if( mParameters->get_refinement_buffer() > 0 )
+            // {
+            //     // get number of levels
+            //     for( uint tLevel=0; tLevel<=tMaxLevelOnMesh; ++tLevel )
+            //     {
+            //         // create extra buffer
+            //         mDatabase->create_extra_refinement_buffer_for_level( tLevel );
+            //     }
+            // }
 
             // only consider element if level is below max specified level
 
@@ -1406,33 +1433,36 @@ namespace moris::hmr
             }
 
             // check flag from user defined function
-            int tFlag = mParameters->get_refinement_function( aFunctionIndex )( aCandidates( e ),
-                    tElementField );
-            //                // chop flag if element is at max defined level
-            //                if( tElement->get_level() > tMaxLevel )
-            //                {
-            //                    // an element above the max level can only be coarsened
-            //                    tFlag = -1;
-            //                }
-            //                else if( tElement->get_level() == tMaxLevel)
-            //                {
-            //                    // an element on the max level can only be kept or coarsened
-            //                    // but nor refined
-            //                    tFlag = std::min( tFlag, 0 );
-            //                }
+            int tFlag = mParameters->get_refinement_function( aFunctionIndex )( aCandidates( e ), tElementField );
+
+            // // chop flag if element is at max defined level
+            // if( tElement->get_level() > tMaxLevel )
+            // {
+            //     // an element above the max level can only be coarsened
+            //     tFlag = -1;
+            // }
+            // else if( tElement->get_level() == tMaxLevel)
+            // {
+            //     // an element on the max level can only be kept or coarsened
+            //     // but nor refined
+            //     tFlag = std::min( tFlag, 0 );
+            // }
 
             // perform flagging test
             if ( tFlag == 1 )
             {
                 aCells.push_back( aCandidates( e ) );
             }
-            //                else if ( tFlag == 0 )
-            //                {
-            //                    // flag the parent of this element
-            //                    mDatabase->flag_parent( e );
-            //                }
-        }
-    }
+
+            // else if ( tFlag == 0 )
+            // {
+            //     // flag the parent of this element
+            //     mDatabase->flag_parent( e );
+            // }
+
+        }    // end for: each element in input mesh
+
+    }        // end function: HMR::user_defined_flagging()
 
     // ----------------------------------------------------------------------------
 
@@ -1451,7 +1481,7 @@ namespace moris::hmr
         for ( uint e = 0; e < tNumberOfElements; ++e )
         {
 
-            // TODO comment these lines in toa ctivate refinement buffer.
+            // TODO comment these lines in to activate refinement buffer.
             // TODO it should just work. However it is not validated yet.
             //              // get max level on this mesh
             //              uint tMaxLevelOnMesh = mDatabase->get_background_mesh()->get_max_level();
@@ -1784,7 +1814,7 @@ namespace moris::hmr
     uint
     HMR::flag_volume_and_surface_elements_on_working_pattern( const std::shared_ptr< Field > aScalarField )
     {
-        // the funciton returns the number of flagged elements
+        // the function returns the number of flagged elements
         uint aElementCounter = 0;
 
         // candidates for refinement
@@ -1834,7 +1864,7 @@ namespace moris::hmr
     uint
     HMR::flag_surface_elements_on_working_pattern( const std::shared_ptr< Field > aScalarField )
     {
-        // the funciton returns the number of flagged elements
+        // the function returns the number of flagged elements
         uint aElementCounter = 0;
 
         // candidates for refinement
@@ -1906,7 +1936,7 @@ namespace moris::hmr
         aElementCounter += tRefinementList.size();
 
         // flag elements in HMR
-        this->put_elements_on_refinment_queue( tRefinementList );
+        this->put_elements_on_refinement_queue( tRefinementList );
 
         // return number of flagged elements
         return aElementCounter;
@@ -1965,7 +1995,7 @@ namespace moris::hmr
         aElementCounter += tRefinementList.size();
 
         // flag elements in HMR
-        this->put_elements_on_refinment_queue( tRefinementList );
+        this->put_elements_on_refinement_queue( tRefinementList );
 
         delete tMesh;
         // return number of flagged elements
@@ -2070,7 +2100,7 @@ namespace moris::hmr
             tElementCounter += tRefinementList.size();
 
             // flag elements in HMR
-            this->put_elements_on_refinment_queue( tRefinementList );
+            this->put_elements_on_refinement_queue( tRefinementList );
         }
 
         // return number of flagged elements
@@ -2134,7 +2164,7 @@ namespace moris::hmr
             tElementCounter = tRefinementList.size();
 
             // flag elements in HMR
-            this->put_elements_on_refinment_queue( tRefinementList );
+            this->put_elements_on_refinement_queue( tRefinementList );
 
             delete tMesh;
         }
@@ -2199,7 +2229,7 @@ namespace moris::hmr
             tElementCounter = tRefinementList.size();
 
             // flag elements in HMR
-            this->put_elements_on_refinment_queue( tRefinementList );
+            this->put_elements_on_refinement_queue( tRefinementList );
 
             delete tMesh;
         }
@@ -2245,7 +2275,7 @@ namespace moris::hmr
     //            // loop over all fields
     //            for( uint f=0; f<tNumberOfFields; ++f )
     //            {
-    //                MORIS_ASSERT(false,"potentialy problematic");
+    //                MORIS_ASSERT(false,"potentially problematic");
     //                tInputFieldOrders( tCount++ ) = mFields( f )->get_bspline_order();
     //                tInputFieldOrders( tCount++ ) = mFields( f )->get_lagrange_order();
     //            }
@@ -2322,7 +2352,7 @@ namespace moris::hmr
     //                std::shared_ptr< Field > tInputField = mFields( f );
     //
     //                // get order
-    //                MORIS_ASSERT(false,"potentialy prblematic");
+    //                MORIS_ASSERT(false,"potentially problematic");
     //                uint tBSplineOrder = tInputField->get_bspline_order();
     //
     //                // get index of mapper
@@ -2359,7 +2389,7 @@ namespace moris::hmr
     //
     //                // perform mapping
     //                tMappers( m )->perform_mapping( tInputField->get_label(),
-    //                                                EntityRank::NODE,
+    //                                                mtk::EntityRank::NODE,
     //                                                tInputField->get_label(),
     //                                                tUnionField->get_bspline_rank() );
     //
@@ -2493,8 +2523,8 @@ namespace moris::hmr
         // project field to union
         tMapper.perform_mapping(
                 &tFieldUnion,
-                EntityRank::NODE,
-                EntityRank::BSPLINE );
+                mtk::EntityRank::NODE,
+                mtk::EntityRank::BSPLINE );
 
         // get pointer to output mesh
         std::shared_ptr< Mesh > tOutputMesh = this->create_mesh(

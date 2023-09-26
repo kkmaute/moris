@@ -33,7 +33,7 @@ namespace moris
             tParameterList.insert( "triangulate_all", false );    // NOTE: this option does fail if the Lagrange mesh is not uniformly refined
             tParameterList.insert( "ig_element_order", moris::uint( 1 ) );
 
-            // cleanup
+            // cleanup // TODO: this option does not work yet
             tParameterList.insert( "cleanup_cut_mesh", false );
 
             // enrichment and enrichment related parameters
@@ -92,11 +92,14 @@ namespace moris
             // kill workflow after outputting XTK mesh, used for quickly testing the geometry and assign material phases
             tParameterList.insert( "only_generate_xtk_temp", false );
 
-            // path to folder for XTK output
+            // path to folder for outputting the enriched IG mesh to exodus
             tParameterList.insert( "output_path", "./" );
             tParameterList.insert( "output_file", "xtk_temp.exo" );
 
-            // print enriched integration meshes
+            // compute and output cluster measures to the xtk_temp file
+            tParameterList.insert( "write_cluster_measures_to_exo", true );
+
+            // print summary of enriched integration mesh to the console (list of all sets and contents)
             tParameterList.insert( "print_enriched_ig_mesh", false );
 
             // save enriched integration mesh for every optimization iteration

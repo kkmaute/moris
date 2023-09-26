@@ -61,13 +61,13 @@ public:
      * @param debug Causes certain messages to print for debugging use.
      * @param verbose Causes all error messages to print when true, otherwise no error messages will print.
      */
-    void set_error_options(bool abort, bool debug, bool verbose);
+    void set_error_options( bool abort, bool debug, bool verbose );
 
     /**
      * Reads an Exodus file and dumps the result into a specified mesh.
      * @param aFileName The name of the file to be read from
      */
-    void read_file(std::string aFileName);
+    void read_file( std::string aFileName );
 
 private:
     /**
@@ -75,7 +75,7 @@ private:
      *  @param aExodusFileName Name of the Exodus file.
      *  @param aVersion Version of the database. Current version is 4.72 as of programming.
      */
-    void open_file(std::string aExodusFileName, float aVersion = 4.72);
+    void open_file( std::string aExodusFileName, float aVersion = 4.72 );
 
     /**
      * Closes the open Exodus database *and* renames it to the permanent file name stored under mPermFileName. This
@@ -88,7 +88,7 @@ private:
      * @param const char* the element type written to the Exodus file from Writer_Exodus
      * @return aCellTopology the type of element in MTK.
      */
-    CellTopology get_cell_topology(char* aElementType);
+    moris::mtk::CellTopology get_cell_topology( char* aElementType );
 
 protected:
 };

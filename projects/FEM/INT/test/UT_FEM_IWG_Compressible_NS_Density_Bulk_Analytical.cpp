@@ -267,7 +267,7 @@ TEST_CASE("IWG_Compressible_NS_Density_Bulk_Ideal_Analytic",
 
         // create a field interpolator manager
         moris::Cell<moris::Cell<enum PDV_Type>> tDummyDv;
-        moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+        moris::Cell< moris::Cell< mtk::Field_Type > > tDummyField;
         Field_Interpolator_Manager tFIManager(tDofTypes, tDummyDv, tDummyField, tSet);
 
         // populate the field interpolator manager
@@ -600,7 +600,7 @@ TEST_CASE("IWG_Compressible_NS_Density_Bulk_VdW_Analytic",
 
         // create a field interpolator manager
         moris::Cell<moris::Cell<enum PDV_Type>> tDummyDv;
-        moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+        moris::Cell< moris::Cell< mtk::Field_Type > > tDummyField;
         Field_Interpolator_Manager tFIManager(tDofTypes, tDummyDv, tDummyField, tSet);
 
         // populate the field interpolator manager

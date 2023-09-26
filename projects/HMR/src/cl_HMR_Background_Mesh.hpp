@@ -23,17 +23,19 @@
 #include "HMR_Globals.hpp"                       //HMR/src
 #include "HMR_Tools.hpp"                         //HMR/src
 #include "assert.hpp"
-#include "cl_Communication_Tools.hpp"      //COM/src
-#include "cl_Communication_Manager.hpp"    //COM/src
+#include "cl_Communication_Tools.hpp"            //COM/src
+#include "cl_Communication_Manager.hpp"          //COM/src
+#include "cl_Tracer.hpp"
+#include "fn_stringify_matrix.hpp"
 
-#include "fn_equal_to.hpp"    //COM/src
+#include "fn_equal_to.hpp"     //COM/src
 
-#include "typedefs.hpp"    //COR/src
-#include "cl_Cell.hpp"     //CNT/src
+#include "typedefs.hpp"        //COR/src
+#include "cl_Cell.hpp"         //CNT/src
 
 #include "cl_Stopwatch.hpp"    //CHR/src
 
-#include "cl_Matrix.hpp"    //LINALG/src
+#include "cl_Matrix.hpp"       //LINALG/src
 
 namespace moris::hmr
 {
@@ -71,6 +73,9 @@ namespace moris::hmr
                 : Background_Mesh_Base( aParameters )
                 , mDomain( aParameters->get_domain_ijk(), mPaddingSize )
         {
+            // Log Trace this function
+            Tracer tTracer( "HMR", "Background Mesh", "Create" );
+
             // create mesh decomposition
             this->decompose_mesh();
 
@@ -87,7 +92,7 @@ namespace moris::hmr
             this->create_coarsest_frame();
 
             // set element properties on coarsest level // create aura and inverse aura
-            // aura size = padding size
+            // assumption: aura size = padding size
             this->finalize_coarsest_elements();
 
             // synchronize with other procs
@@ -425,7 +430,7 @@ namespace moris::hmr
          * level for a side
          */
         void collect_coarsest_elements_on_side(
-                uint                       aSideOrdinal,
+                uint                              aSideOrdinal,
                 Cell< Background_Element_Base* >& aCoarsestElementsOnSide );
 
         //--------------------------------------------------------------------------------
@@ -448,19 +453,24 @@ namespace moris::hmr
             Matrix< DDLUMat > tNumberOfElements = mParameters->get_number_of_elements_per_dimension();
 
             // calculate width for first level
-            for ( uint k = 0; k < N; ++k )
+            Matrix< DDRMat > tInitElemSize( 3, 1, 0.0 );
+            for ( uint iDim = 0; iDim < N; ++iDim )
             {
-                mElementLength[ 0 ][ k ] = tDomainDimensions( k ) / ( (real)( tNumberOfElements( k ) ) );
+                mElementLength[ 0 ][ iDim ] = tDomainDimensions( iDim ) / ( (real)( tNumberOfElements( iDim ) ) );
+                tInitElemSize( iDim )       = mElementLength[ 0 ][ iDim ];
             }
 
+            // print the coarsest element size to screen
+            MORIS_LOG_SPEC( "Initial BG element size", ios::stringify_log( tInitElemSize ) );
+
             // loop over all higher levels
-            for ( uint l = 1; l < gMaxNumberOfLevels; ++l )
+            for ( uint iLevel = 1; iLevel < gMaxNumberOfLevels; ++iLevel )
             {
                 // loop over all dimensions
-                for ( uint k = 0; k < N; ++k )
+                for ( uint iDim = 0; iDim < N; ++iDim )
                 {
                     // calculate length of element
-                    mElementLength[ l ][ k ] = 0.5 * mElementLength[ l - 1 ][ k ];
+                    mElementLength[ iLevel ][ iDim ] = 0.5 * mElementLength[ iLevel - 1 ][ iDim ];
                 }
             }
         }
@@ -620,28 +630,7 @@ namespace moris::hmr
         decompose_mesh()
         {
             // print output info
-            if ( par_rank() == 0 )
-            {
-                MORIS_LOG_INFO( "--------------------------------------------------------------------------------" );
-
-                if ( par_size() == 1 )
-                {
-                    MORIS_LOG_INFO( "decomposing mesh over %u proc", (unsigned int)par_size() );
-                }
-                else
-                {
-                    MORIS_LOG_INFO( "decomposing mesh over %u procs", (unsigned int)par_size() );
-                }
-                MORIS_LOG_INFO( "--------------------------------------------------------------------------------" );
-                MORIS_LOG_INFO( " " );
-            }
-
-            if ( gLogger.get_severity_level() < 1 )
-            {
-                // wait until all procs are here ( because of output )
-                // FIXME: if another proc crashes while the current one is waiting, the whole code stuck forever without terminating
-                barrier();
-            }
+            MORIS_LOG_INFO( "Decomposing the mesh over %u processor(s).", (unsigned int)par_size() );
 
             // Processor decomposition method 0=UserDefined, 1=MPI (original) 2=min mesh interface 3=manual
             uint tDecompMethod = mParameters->get_processor_decomp_method();
@@ -659,19 +648,26 @@ namespace moris::hmr
                     // Checking if user defined processor dimensions matches mesh dimensions, N.
                     if ( (uint)std::max( mProcDims.n_rows(), mProcDims.n_cols() ) != N )
                     {
-                        MORIS_ERROR( false, "decompose_mesh(): User defined processor grid dimensions incompatible with mesh dimensions." );
+                        MORIS_ERROR(
+                                false,
+                                "hmr::Background_Mesh::decompose_mesh() - "
+                                "User defined processor grid dimensions incompatible with mesh dimensions." );
                     }
 
                     // Calculating the product of user defined proc dims dimensions
                     uint tProcCount = 1;
-                    for ( uint i = 0; i < N; ++i )
+                    for ( uint iDim = 0; iDim < N; ++iDim )    // N is number of spatial dimensions
                     {
-                        tProcCount = tProcCount * mProcDims( i );
+                        tProcCount = tProcCount * mProcDims( iDim );
                     }
 
+                    // check that the total number of processors for user-defined mesh splitting matches with actual number of processors
                     if ( (uint)par_size() != tProcCount )
                     {
-                        MORIS_ERROR( false, "decompose_mesh(): User defined processor grid dimensions do not match number of processors used." );
+                        MORIS_ERROR(
+                                false,
+                                "hmr::Background_Mesh::decompose_mesh() - "
+                                "User defined processor grid dimensions do not match number of processors used." );
                     }
 
                     break;
@@ -696,10 +692,10 @@ namespace moris::hmr
 
                 default:
                 {
-                    MORIS_ERROR( false, "decompose_mesh(): Invalid processor decomposition method defined." );
+                    MORIS_ERROR( false, "hmr::Background_Mesh::decompose_mesh() - Invalid processor decomposition method defined." );
                     break;
                 }
-            }
+            }    // end switch: mesh decomposition method
 
             create_proc_cart(
                     tDecompMethod,
@@ -716,14 +712,14 @@ namespace moris::hmr
                 {
                     case 2:
                     {
-                        MORIS_LOG_INFO( "proc dimensions (x,y) are ( %i , %i )",
+                        MORIS_LOG_INFO( "Background mesh split (x,y) across processors is (%i,%i)",
                                 mProcDims( 0 ),
                                 mProcDims( 1 ) );
                         break;
                     }
                     case 3:
                     {
-                        MORIS_LOG_INFO( "proc dimensions (x,y,z) are ( %i , %i , %i )",
+                        MORIS_LOG_INFO( "Background mesh split (x,y,z) across processors is (%i,%i,%i)",
                                 mProcDims( 0 ),
                                 mProcDims( 1 ),
                                 mProcDims( 2 ) );
@@ -731,11 +727,9 @@ namespace moris::hmr
                     }
                     default:
                     {
-                        MORIS_ERROR( false, "decompose_mesh(): Invalid number of spatial dimensions." );
+                        MORIS_ERROR( false, "hmr::Background_Mesh::decompose_mesh() - Invalid number of spatial dimensions." );
                     }
                 }
-                MORIS_LOG_INFO( "--------------------------------------------------------------------------------" );
-                MORIS_LOG_INFO( " " );
             }
 
             // calculate number of elements per dimension
@@ -800,7 +794,8 @@ namespace moris::hmr
             // check that total number of elements across all processor equals required number
             sint tNumElemsOnAllProcs = sum_all( tNumElemsOnProc );
 
-            MORIS_ERROR( tNumElemsOnAllProcs == tNumTotalElements,
+            MORIS_ERROR(
+                    tNumElemsOnAllProcs == tNumTotalElements,
                     "Total number of elements on all processors: %d (should be %d).\n",
                     tNumElemsOnAllProcs,
                     tNumTotalElements );
@@ -818,7 +813,7 @@ namespace moris::hmr
 
                 uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
 
-                std::string tString = "proc " + std::to_string( tMyRank );
+                std::string tString = "Processor #" + std::to_string( tMyRank );
 
                 // add dots to the string for pretty output
                 if ( tMyRank < 10 )
@@ -844,37 +839,37 @@ namespace moris::hmr
 
                 if ( tNumberOfDimensions == 1 )
                 {
-                    //                        MORIS_LOG_INFO("%s owns i domain ", tString.c_str() ) ;
-                    tString += " owns i domain ";
+                    // MORIS_LOG_INFO("%s owns i domain ", tString.c_str() ) ;
+                    tString += " owns i domain";
                 }
                 else if ( tNumberOfDimensions == 2 )
                 {
-                    //                        MORIS_LOG_INFO("%s owns i-j domain ", tString.c_str()  ) ;
-                    tString += " owns i-j domain ";
+                    // MORIS_LOG_INFO("%s owns i-j domain ", tString.c_str()  ) ;
+                    tString += " owns i-j domain";
                 }
                 else if ( tNumberOfDimensions == 3 )
                 {
-                    //                        MORIS_LOG_INFO("%s owns i-j-k domain ", tString.c_str() ) ;
-                    tString += " owns i-j-k domain ";
+                    // MORIS_LOG_INFO("%s owns i-j-k domain ", tString.c_str() ) ;
+                    tString += " owns i-j-k domain";
                 }
 
                 // print ijk domain
-                //                    MORIS_LOG_INFO("%lu-%lu",
-                //                            ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ 0 ][ 0 ],
-                //                            ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ 0 ][ 1 ] );
+                // MORIS_LOG_INFO("%lu-%lu",
+                //         ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ 0 ][ 0 ],
+                //         ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ 0 ][ 1 ] );
 
                 std::string tLogString = std::to_string( (long unsigned int)mMySubDomain.mDomainIJK[ 0 ][ 0 ][ 0 ] );
                 tLogString += "-" + std::to_string( (long unsigned int)mMySubDomain.mDomainIJK[ 0 ][ 0 ][ 1 ] );
 
-                for ( uint k = 1; k < N; ++k )
+                for ( uint iDim = 1; iDim < N; ++iDim )
                 {
-                    //                        MORIS_LOG_INFO(", %lu-%lu ",
-                    //                                ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ k ][ 0 ],
-                    //                                ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ k ][ 1 ] );
-                    tLogString += ", " + std::to_string( (long unsigned int)mMySubDomain.mDomainIJK[ 0 ][ k ][ 0 ] );
-                    tLogString += "-" + std::to_string( (long unsigned int)mMySubDomain.mDomainIJK[ 0 ][ k ][ 1 ] );
+                    // MORIS_LOG_INFO(", %lu-%lu ",
+                    //         ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ iDim ][ 0 ],
+                    //         ( long unsigned int ) mMySubDomain.mDomainIJK[ 0 ][ iDim ][ 1 ] );
+                    tLogString += ", " + std::to_string( (long unsigned int)mMySubDomain.mDomainIJK[ 0 ][ iDim ][ 0 ] );
+                    tLogString += "-" + std::to_string( (long unsigned int)mMySubDomain.mDomainIJK[ 0 ][ iDim ][ 1 ] );
                 }
-                MORIS_LOG_INFO( "%s: %s", tString.c_str(), tLogString.c_str() );
+                MORIS_LOG_INFO_ALL_PROCS( "%s: %s", tString.c_str(), tLogString.c_str() );
             }
 
             // test if settings are OK
@@ -897,7 +892,8 @@ namespace moris::hmr
                         tProcSplit( k ) = mMySubDomain.mNumberOfElementsPerDimension[ 0 ][ k ] - 2 * mPaddingSize;
 
                         // there should be at least on element left
-                        MORIS_ERROR( tProcSplit( k ) > 0,
+                        MORIS_ERROR(
+                                tProcSplit( k ) > 0,
                                 "Processor %u does not have any non-padding/aura elements in direction %u. \n",
                                 par_rank(),
                                 k );
@@ -951,12 +947,13 @@ namespace moris::hmr
 
                     barrier();
 
-                    MORIS_ERROR( false,
+                    MORIS_ERROR(
+                            false,
                             "Mesh too coarse for selected split and padding size; check individual processors; maximum mismatch: %d.\n",
                             tTotalError );
                 }
             }
-        }
+        }    // end function: hmr::Background_Mesh::decompose_mesh()
 
         //--------------------------------------------------------------------------------
         /**
@@ -1029,8 +1026,9 @@ namespace moris::hmr
          *
          */
         void
-        insert_zero_level_element( luint                    aPosition,
-                                   Background_Element_Base* aElement )
+        insert_zero_level_element( 
+                luint aPosition,
+                Background_Element_Base* aElement )
         {
             mCoarsestElementsIncludingAura( aPosition ) = aElement;
         }
@@ -1256,8 +1254,8 @@ namespace moris::hmr
         //--------------------------------------------------------------------------------
 
         void collect_coarsest_elements_in_bounding_box( Cell< Background_Element_Base* >& aBackgroundElements,
-                                                        luint                             aBoundingBoxStartEndIJK[][ 2 ],
-                                                        uint                              alevel );
+                luint                                                                     aBoundingBoxStartEndIJK[][ 2 ],
+                uint                                                                      alevel );
 
         //--------------------------------------------------------------------------------
     }; /* Background_Mesh */
@@ -1465,7 +1463,7 @@ namespace moris::hmr
     }
 
     //--------------------------------------------------------------------------------
-} /* namespace moris */
+}    // namespace moris::hmr
 
 #include "cl_HMR_Background_Mesh_2D.hpp"
 #include "cl_HMR_Background_Mesh_3D.hpp"

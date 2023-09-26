@@ -891,8 +891,11 @@ namespace moris::hmr
     Refinement_Function
     Parameters::get_refinement_function( uint aFunctionIndex )
     {
-        MORIS_ASSERT( aFunctionIndex < mRefinementFunctions.size(),
-                "A user-defined refinement function with index %i was requested for use, but only %li user-defined refinement functions were provided to HMR.",
+        MORIS_ASSERT( 
+                aFunctionIndex < mRefinementFunctions.size(),
+                "hmr::Parameters::get_refinement_function() - "
+                "A user-defined refinement function with index %i was requested for use, "
+                "but only %li user-defined refinement functions were provided to HMR.",
                 aFunctionIndex,
                 mRefinementFunctions.size() );
 

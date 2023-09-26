@@ -11,7 +11,7 @@
 #ifndef PROJECTS_MTK_SRC_CL_MTK_Cell_Info_Factory_HPP_
 #define PROJECTS_MTK_SRC_CL_MTK_Cell_Info_Factory_HPP_
 
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
 
 namespace moris

@@ -281,7 +281,7 @@ namespace moris
                 {
                     // copy weakbc into element
                     tNodalWeakBCs( k ) = tInterpolationMesh->get_value_of_scalar_field( 3,
-                            EntityRank::NODE,
+                            mtk::EntityRank::NODE,
                             tElement->get_node_index( k ) );
                 }
             }

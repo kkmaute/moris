@@ -16,7 +16,7 @@
 #include "cl_HMR_Database.hpp"
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"
 #include "typedefs.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 
@@ -288,7 +288,7 @@ namespace moris::hmr
             /**
              * returns the rank of the B-Spline interpolation
              */
-            EntityRank get_bspline_rank() const;
+            mtk::EntityRank get_bspline_rank() const;
 
             //------------------------------------------------------------------------------
 

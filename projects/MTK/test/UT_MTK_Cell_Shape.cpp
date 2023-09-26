@@ -16,7 +16,7 @@
 #include "cl_MTK_Cell.hpp"
 #include "cl_MTK_Mesh_Core_STK.hpp"
 #include "cl_MTK_Cell_STK.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Vertex_STK.hpp"
 #include "cl_MTK_Cell_Info_Quad4.hpp"
 #include "cl_MTK_Cell_Info_Quad9.hpp"

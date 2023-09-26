@@ -10,15 +10,15 @@
 
 #include <catch.hpp>
 
-#include "cl_HMR_T_Matrix.hpp" //HMR/src
-#include "cl_HMR_Background_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Factory.hpp" //HMR/src
-#include "cl_HMR_Lagrange_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
+#include "cl_HMR_T_Matrix.hpp"                //HMR/src
+#include "cl_HMR_Background_Mesh_Base.hpp"    //HMR/src
+#include "cl_HMR_BSpline_Mesh_Base.hpp"       //HMR/src
+#include "cl_HMR_Factory.hpp"                 //HMR/src
+#include "cl_HMR_Lagrange_Mesh_Base.hpp"      //HMR/src
+#include "cl_HMR_Parameters.hpp"              //HMR/src
 
-#include "cl_Communication_Manager.hpp" //COM/src
-#include "cl_Communication_Tools.hpp" //COM/src
+#include "cl_Communication_Manager.hpp"       //COM/src
+#include "cl_Communication_Tools.hpp"         //COM/src
 
 #include "paths.hpp"
 #include "HDF5_Tools.hpp"
@@ -30,15 +30,15 @@ namespace moris::hmr
     template< uint N >
     class T_Matrix_Test : public T_Matrix< N >
     {
-    public:
-
+      public:
         // Constructor
         using T_Matrix< N >::T_Matrix;
 
         // Test evaluation
-        void evaluate_shape_function_test(
+        void
+        evaluate_shape_function_test(
                 const Matrix< DDRMat >& aXi,
-                Matrix< DDRMat >& aN )
+                Matrix< DDRMat >&       aN )
         {
             T_Matrix< N >::evaluate_shape_function( aXi, aN );
         }
@@ -59,8 +59,8 @@ namespace moris::hmr
 
             // Create HDF5 file and error handles
             std::string tFileName = get_base_moris_dir() + "/projects/HMR/test/data/T-Matrix_test_values.hdf5";
-            hid_t tFileID = open_hdf5_file( tFileName );
-            herr_t tStatus;
+            hid_t       tFileID   = open_hdf5_file( tFileName );
+            herr_t      tStatus;
 
             // Loop over number of dimensions
             for ( uint iNumberOfDimensions = 2; iNumberOfDimensions <= 3; iNumberOfDimensions++ )
@@ -92,7 +92,8 @@ namespace moris::hmr
                         BSpline_Mesh_Base* tBSplineMesh = tFactory.create_bspline_mesh(
                                 tBackgroundMesh,
                                 0,
-                                iOrder );
+                                iOrder,
+                                MORIS_UINT_MAX );
 
                         // create container of B-Spline meshes
                         Cell< BSpline_Mesh_Base* > tBSplineMeshes( 1, tBSplineMesh );
@@ -133,11 +134,11 @@ namespace moris::hmr
                             // Evaluate shape function
                             if ( iNumberOfDimensions == 2 )
                             {
-                                static_cast< T_Matrix_Test< 2 >* >( tTMatrix )->evaluate_shape_function_test( tXYZ,tN );
+                                static_cast< T_Matrix_Test< 2 >* >( tTMatrix )->evaluate_shape_function_test( tXYZ, tN );
                             }
                             else
                             {
-                                static_cast< T_Matrix_Test< 3 >* >( tTMatrix )->evaluate_shape_function_test( tXYZ,tN );
+                                static_cast< T_Matrix_Test< 3 >* >( tTMatrix )->evaluate_shape_function_test( tXYZ, tN );
                             }
 
                             // Check shape function vector
@@ -173,21 +174,22 @@ namespace moris::hmr
 
                         // Calculate T-matrix
                         Matrix< DDRMat > tTMatrixCalculated;
-                        Cell< Basis* > tBasis;
+                        Cell< Basis* >   tBasis;
                         tTMatrix->calculate_t_matrix( tBSplineMesh->get_element( 0 )->get_memory_index(),
-                                                      tTMatrixCalculated, tBasis );
+                                tTMatrixCalculated,
+                                tBasis );
 
                         // HDF5 label: Dimensions, order, truncation
                         std::string tLabel = "D" + std::to_string( iNumberOfDimensions )
-                                + "_O" + std::to_string( iOrder )
-                                + "_T" + std::to_string( iTruncation );
+                                           + "_O" + std::to_string( iOrder )
+                                           + "_T" + std::to_string( iTruncation );
 
                         // Save matrix to HDF5 file, uncomment and clobber file above if this test needs to be changed
                         // save_matrix_to_hdf5_file( tFileID, tLabel, tTMatrixCalculated, tStatus );
 
                         // Read expected T-matrix from HDF5 file and check with calculated values
                         Matrix< DDRMat > tTMatrixExpected;
-                        load_matrix_from_hdf5_file(tFileID,tLabel,tTMatrixExpected,tStatus );
+                        load_matrix_from_hdf5_file( tFileID, tLabel, tTMatrixExpected, tStatus );
                         CHECK_EQUAL( tTMatrixCalculated, tTMatrixExpected, );
 
                         // tidy up memory
@@ -203,4 +205,4 @@ namespace moris::hmr
             delete tParameters;
         }
     }
-}
+}    // namespace moris::hmr

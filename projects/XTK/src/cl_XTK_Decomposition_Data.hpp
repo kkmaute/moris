@@ -14,7 +14,7 @@
 #include "cl_Matrix.hpp"
 #include "cl_Cell.hpp"
 #include "cl_XTK_Topology.hpp"
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_MTK_Vertex.hpp"
 using namespace moris;
@@ -29,7 +29,7 @@ namespace xtk
                 tNewNodeId( 0, 0 ),
                 tNewNodeOwner( 0, 0 ),
                 tNewNodeParentIndex( 0, 0 ),
-                tNewNodeParentRank( 0, EntityRank::INVALID ),
+                tNewNodeParentRank( 0, mtk::EntityRank::INVALID ),
                 tNewNodeCoordinate( 0, Matrix< DDRMat >( 0, 0 ) ),
                 mNumNewNodesWithIds( 0 )
             {
@@ -49,7 +49,7 @@ namespace xtk
              */
             bool
             request_exists( moris_index aParentEntityIndex,
-                    enum EntityRank         aParentEntityRank,
+                    mtk::EntityRank         aParentEntityRank,
                     moris_index&            aRequestLoc )
             {
                 MORIS_ASSERT( !mHasSecondaryIdentifier, "request_exists without a secondary identifier argument should only be called when the decomposition does not need secondary identifiers" );
@@ -57,7 +57,7 @@ namespace xtk
                 aRequestLoc         = MORIS_INDEX_MAX;
                 switch ( aParentEntityRank )
                 {
-                    case EntityRank::ELEMENT:
+                    case mtk::EntityRank::ELEMENT:
                     {
                         auto tIter = tElementIndexToNodeLoc.find( aParentEntityIndex );
                         if ( tIter != tElementIndexToNodeLoc.end() )
@@ -67,7 +67,7 @@ namespace xtk
                         }
                         break;
                     }
-                    case EntityRank::FACE:
+                    case mtk::EntityRank::FACE:
                     {
                         auto tIter = tFaceIndexToNodeLoc.find( aParentEntityIndex );
                         if ( tIter != tFaceIndexToNodeLoc.end() )
@@ -77,7 +77,7 @@ namespace xtk
                         }
                         break;
                     }
-                    case EntityRank::EDGE:
+                    case mtk::EntityRank::EDGE:
                     {
 
                         break;
@@ -99,7 +99,7 @@ namespace xtk
             bool
             request_exists( moris_index aParentEntityIndex,
                     moris_index             aParentSecondaryIdentifier,
-                    enum EntityRank         aParentEntityRank,
+                    mtk::EntityRank         aParentEntityRank,
                     moris_index&            aRequestLoc )
             {
                 MORIS_ASSERT( mHasSecondaryIdentifier,
@@ -109,7 +109,7 @@ namespace xtk
 
                 switch ( aParentEntityRank )
                 {
-                    case EntityRank::ELEMENT:
+                    case mtk::EntityRank::ELEMENT:
                     {
                         auto tIter = tElementIndexToNodeLoc.find( aParentEntityIndex );
 
@@ -134,7 +134,7 @@ namespace xtk
                         }
                         break;
                     }
-                    case EntityRank::FACE:
+                    case mtk::EntityRank::FACE:
                     {
                         auto tIter = tFaceIndexToNodeLoc.find( aParentEntityIndex );
 
@@ -162,7 +162,7 @@ namespace xtk
                         }
                         break;
                     }
-                    case EntityRank::EDGE:
+                    case mtk::EntityRank::EDGE:
                     {
                         auto tIter = mEdgeIndexToNodeLoc.find( aParentEntityIndex );
 
@@ -205,7 +205,7 @@ namespace xtk
             register_new_request(
                     moris_index                         aParentEntityIndex,
                     moris_index                         aParentEntityOwner,
-                    enum EntityRank                     aParentEntityRank,
+                    mtk::EntityRank                     aParentEntityRank,
                     Matrix< DDRMat > const&             aNewNodeCoord,
                     moris::mtk::Cell*                   aNewVertexParentCell,
                     std::shared_ptr< Matrix< DDRMat > > aNewVertexLocalCooridnates )
@@ -229,7 +229,7 @@ namespace xtk
 
                 switch ( aParentEntityRank )
                 {
-                    case EntityRank::ELEMENT:
+                    case mtk::EntityRank::ELEMENT:
                     {
                         // Check if this entity already exists in debug only
                         MORIS_ASSERT( tElementIndexToNodeLoc.find( aParentEntityIndex ) == tElementIndexToNodeLoc.end(), "New request being made which already exists" );
@@ -238,7 +238,7 @@ namespace xtk
                         tElementIndexToNodeLoc[aParentEntityIndex] = tRequestIndex;
                         break;
                     }
-                    case EntityRank::FACE:
+                    case mtk::EntityRank::FACE:
                     {
                         // Check if this entity already exists in debug only
                         MORIS_ASSERT( tFaceIndexToNodeLoc.find( aParentEntityIndex ) == tFaceIndexToNodeLoc.end(), "New request being made which already exists" );
@@ -247,7 +247,7 @@ namespace xtk
                         tFaceIndexToNodeLoc[aParentEntityIndex] = tRequestIndex;
                         break;
                     }
-                    case EntityRank::EDGE:
+                    case mtk::EntityRank::EDGE:
                     {
                         // Check if this entity already exists in debug only
                         MORIS_ASSERT( tEdgeIndexToNodeLoc.find( aParentEntityIndex ) == tEdgeIndexToNodeLoc.end(), "New request being made which already exists" );
@@ -272,7 +272,7 @@ namespace xtk
                     moris_index                         aParentEntityIndex,
                     moris_index                         aSecondaryIdentifier,
                     moris_index                         aParentEntityOwner,
-                    enum EntityRank                     aParentEntityRank,
+                    mtk::EntityRank                     aParentEntityRank,
                     Matrix< DDRMat > const&             aNewNodeCoord,
                     moris::mtk::Cell*                   aNewVertexParentCell       = nullptr,
                     std::shared_ptr< Matrix< DDRMat > > aNewVertexLocalCooridnates = nullptr )
@@ -301,7 +301,7 @@ namespace xtk
                 // add information to the maps
                 switch ( aParentEntityRank )
                 {
-                    case EntityRank::ELEMENT:
+                    case mtk::EntityRank::ELEMENT:
                     {
                         auto tIter = tElementIndexToNodeLoc.find( aParentEntityIndex );
 
@@ -323,7 +323,7 @@ namespace xtk
                         mElementIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc )[aSecondaryIdentifier] = tRequestIndex;
                         break;
                     }
-                    case EntityRank::FACE:
+                    case mtk::EntityRank::FACE:
                     {
                         auto tIter = tFaceIndexToNodeLoc.find( aParentEntityIndex );
 
@@ -347,7 +347,7 @@ namespace xtk
                         mFaceIndexToSecondaryIdAndNewNodeLoc( tParentEntityLoc )[aSecondaryIdentifier] = tRequestIndex;
                         break;
                     }
-                    case EntityRank::EDGE:
+                    case mtk::EntityRank::EDGE:
                     {
 
                         auto tIter = mEdgeIndexToNodeLoc.find( aParentEntityIndex );
@@ -528,7 +528,7 @@ namespace xtk
             Cell< moris_index > tSecondaryIdentifiers;
 
             // Parent entity rank
-            Cell< enum EntityRank > tNewNodeParentRank;
+            Cell< mtk::EntityRank > tNewNodeParentRank;
 
             // new node coordinate
             Cell< Matrix< DDRMat > > tNewNodeCoordinate;

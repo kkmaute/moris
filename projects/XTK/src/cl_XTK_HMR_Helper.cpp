@@ -57,7 +57,7 @@ namespace xtk
         // initialize 1D matrices to find the projection matrix in 1D
         mMatrices1D = moris::Cell< Matrix< DDRMat > >( mSpatialDimension, Matrix< DDRMat >( mNumberOfNodesPerDimension, mNumberOfNodesPerDimension ) );
 
-        // intermediate varibale to access the enrichement data in the next line
+        // intermediate variable to access the enrichment data in the next line
         moris::Cell< Enrichment_Data > const & tEnrichmentData = mXTKModelPtr->get_basis_enrichment().get_enrichment_data();
 
         //  get the BG basis indices and their level for the corresponding SPG
@@ -94,7 +94,7 @@ namespace xtk
         // get the hmr element
         const hmr::Element* tHMRElement = dynamic_cast< const hmr::Element* >( aCell );
         
-        // initailzie n index counter to count the basis that are active on the element
+        // initialize n index counter to count the basis that are active on the element
         uint iIndexCounter = 0;
 
         // fill out the cell data
@@ -111,7 +111,7 @@ namespace xtk
             }
         }
 
-        // get the BG basis and level for the corresponding SPG, this data is necessary to idenity the enriched basis
+        // get the BG basis and level for the corresponding SPG, this data is necessary to identity the enriched basis
         moris::Cell< moris_index > const &             tBGBasisIndices = mEnrichmentData->mSubphaseGroupBGBasisIndices( aSPGIndex );
         moris::Cell< moris_index > const &             tBGBasisLevels  = mEnrichmentData->mSubphaseGroupBGBasisEnrLev( aSPGIndex );
         std::unordered_map< moris_index, moris_index > tBasisToLocalIndexMapRoot;
@@ -176,7 +176,7 @@ namespace xtk
         // get the hmr element
         const hmr::Element* tHMRElement = dynamic_cast< const hmr::Element* >( aCell );
 
-        // initailzie n index counter to count the basis that are active on the element
+        // initialize n index counter to count the basis that are active on the element
         uint iIndexCounter = 0;
 
         // fill out the cell data
@@ -433,7 +433,7 @@ namespace xtk
 
             default:
             {
-                MORIS_ASSERT( false, "HMR_Helper::get_extention_matrix_1d, The degree of the bpsline basis %u is not supported", mBSplineOrder );
+                MORIS_ASSERT( false, "HMR_Helper::get_extention_matrix_1d, The degree of the b-psline basis %u is not supported", mBSplineOrder );
                 break;
             }
         }

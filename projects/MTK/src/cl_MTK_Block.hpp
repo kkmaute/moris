@@ -174,7 +174,7 @@ namespace moris
 
                     uint tRecIGGeometryType = min_all( (uint)tIGGeometryType );
 
-                    mIGGeometryType = static_cast<enum mtk::Geometry_Type> (tRecIGGeometryType);
+                    mIGGeometryType = static_cast<Geometry_Type> (tRecIGGeometryType);
 
                     //                MORIS_ASSERT( mIGGeometryType != mtk::Geometry_Type::UNDEFINED, " communicate_type(); undefined geometry type on all processors");
                 };
@@ -192,7 +192,7 @@ namespace moris
                         uint                         const & aSpatialDim )
             : Set( aName, aBlockSetClusters, aColors, aSpatialDim )
             {
-                    mSetType = moris::SetType::BULK;
+                    mSetType = SetType::BULK;
                     this->calculate_vertices_on_blocks( mOnlyPrimaryVertCheck );
 
                     this->calculate_cells_on_blocks( false );

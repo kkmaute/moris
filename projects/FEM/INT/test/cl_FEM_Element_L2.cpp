@@ -113,7 +113,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                tMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobalQuad;
 //                tMeshData.LocaltoGlobalNodeMap    = & aNodeLocalToGlobal;
 //
-//                mtk::Mesh* tMesh = create_interpolation_mesh( MeshType::STK, tMeshData );
+//                mtk::Mesh* tMesh = create_interpolation_mesh( mtk::MeshType::STK, tMeshData );
 //
 //                //1) Create the fem nodes ------------------------------------------------------
 //                std::cout<<" Create the fem nodes "<<std::endl;
@@ -317,8 +317,8 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                    // get a list of elements connected to the ith node
 //                    Matrix<IndexMat> tConnectedElements =
 //                        tMesh->get_entity_connected_to_entity_loc_inds( static_cast< moris_index >( i ),
-//                                                                        EntityRank::NODE,
-//                                                                        EntityRank::ELEMENT );
+//                                                                        mtk::EntityRank::NODE,
+//                                                                        mtk::EntityRank::ELEMENT );
 //
 //                    // number of connected element
 //                    uint tNumConnectElem = tConnectedElements.numel();
@@ -352,8 +352,8 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                tVXField.set_field_name(   tVXFieldName );
 //
 //                // set the entity rank associated with the fields
-//                tBCVXField.set_field_entity_rank( EntityRank::NODE );
-//                tVXField.set_field_entity_rank(   EntityRank::NODE );
+//                tBCVXField.set_field_entity_rank( mtk::EntityRank::NODE );
+//                tVXField.set_field_entity_rank(   mtk::EntityRank::NODE );
 //
 //                // initialize field information container
 //                moris::mtk::MtkFieldsInfo tFieldsInfo;
@@ -367,12 +367,12 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                tMeshData.FieldsInfo = &tFieldsInfo;
 //
 //                // create the mesh
-//                //mtk::Mesh* tMesh_2 = create_interpolation_mesh( MeshType::STK, fileName2, &tMeshData );
-//                mtk::Mesh* tMeshForOutput = create_interpolation_mesh( MeshType::STK, tMeshData );
+//                //mtk::Mesh* tMesh_2 = create_interpolation_mesh( mtk::MeshType::STK, fileName2, &tMeshData );
+//                mtk::Mesh* tMeshForOutput = create_interpolation_mesh( mtk::MeshType::STK, tMeshData );
 //
 //                // add field to the mesh
-//                tMeshForOutput->add_mesh_field_real_scalar_data_loc_inds( tBCVXFieldName, EntityRank::NODE, tNodalValues );
-//                tMeshForOutput->add_mesh_field_real_scalar_data_loc_inds( tVXFieldName,   EntityRank::NODE, tSolution1 );
+//                tMeshForOutput->add_mesh_field_real_scalar_data_loc_inds( tBCVXFieldName, mtk::EntityRank::NODE, tNodalValues );
+//                tMeshForOutput->add_mesh_field_real_scalar_data_loc_inds( tVXFieldName,   mtk::EntityRank::NODE, tSolution1 );
 //
 //                // create output mesh
 //                std::string tOutputFile = "./int_ElemL2_test.exo";
@@ -471,7 +471,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                tMeshData.LocaltoGlobalElemMap(0) = & aElemLocalToGlobalQuad;
 //                tMeshData.LocaltoGlobalNodeMap    = & aNodeLocalToGlobal;
 //
-//                mtk::Mesh* tMesh = create_interpolation_mesh( MeshType::STK, tMeshData );
+//                mtk::Mesh* tMesh = create_interpolation_mesh( mtk::MeshType::STK, tMeshData );
 //
 //                //1) Create the fem nodes ------------------------------------------------------
 //                std::cout<<" Create the fem nodes "<<std::endl;
@@ -671,8 +671,8 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                    // get a list of elements connected to the ith node
 //                    Matrix<IndexMat> tConnectedElements =
 //                        tMesh->get_entity_connected_to_entity_loc_inds( static_cast< moris_index >( i ),
-//                                                                        EntityRank::NODE,
-//                                                                        EntityRank::ELEMENT );
+//                                                                        mtk::EntityRank::NODE,
+//                                                                        mtk::EntityRank::ELEMENT );
 //
 //                    // number of connected element
 //                    uint tNumConnectElem = tConnectedElements.numel();
@@ -706,8 +706,8 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                tVXField.set_field_name(   tVXFieldName );
 //
 //                // set the entity rank associated with the fields
-//                tBCVXField.set_field_entity_rank( EntityRank::NODE );
-//                tVXField.set_field_entity_rank(   EntityRank::NODE );
+//                tBCVXField.set_field_entity_rank( mtk::EntityRank::NODE );
+//                tVXField.set_field_entity_rank(   mtk::EntityRank::NODE );
 //
 //                // initialize field information container
 //                moris::mtk::MtkFieldsInfo tFieldsInfo;
@@ -721,11 +721,11 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                tMeshData.FieldsInfo = &tFieldsInfo;
 //
 //                // create the mesh
-//                mtk::Mesh* tMeshForOutput = create_interpolation_mesh( MeshType::STK, tMeshData );
+//                mtk::Mesh* tMeshForOutput = create_interpolation_mesh( mtk::MeshType::STK, tMeshData );
 //
 //                // add field to the mesh
-//                tMeshForOutput->add_mesh_field_real_scalar_data_loc_inds( tBCVXFieldName, EntityRank::NODE, tNodalValues );
-//                tMeshForOutput->add_mesh_field_real_scalar_data_loc_inds( tVXFieldName,   EntityRank::NODE, tSolution1 );
+//                tMeshForOutput->add_mesh_field_real_scalar_data_loc_inds( tBCVXFieldName, mtk::EntityRank::NODE, tNodalValues );
+//                tMeshForOutput->add_mesh_field_real_scalar_data_loc_inds( tVXFieldName,   mtk::EntityRank::NODE, tSolution1 );
 //
 //                // create output mesh
 ////                std::string tOutputFile = "./int_ElemL2_test.exo";
@@ -768,7 +768,7 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                //------------------------------------------------------------------------------
 //                //const std::string tMeshName = "generated:2x2x2|sideset:xXyYzZ";
 //                const std::string tMeshName = "generated:2x2x2";
-//                mtk::Mesh* tMesh = mtk::create_interpolation_mesh( MeshType::STK, tMeshName, NULL );
+//                mtk::Mesh* tMesh = mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshName, NULL );
 //
 //                // nodal weak bc
 ////                Matrix< DDRMat > tNodalValues = {{ 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 4.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0, 2.0,
@@ -975,8 +975,8 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                    // get a list of elements connected to the ith node
 //                    Matrix<IndexMat> tConnectedElements =
 //                        tMesh->get_entity_connected_to_entity_loc_inds( static_cast< moris_index >( i ),
-//                                                                                EntityRank::NODE,
-//                                                                                EntityRank::ELEMENT );
+//                                                                                mtk::EntityRank::NODE,
+//                                                                                mtk::EntityRank::ELEMENT );
 //
 //                    // number of connected element
 //                    uint tNumConnectElem = tConnectedElements.numel();
@@ -1010,8 +1010,8 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                tVXField.set_field_name(   tVXFieldName );
 //
 //                // set the entity rank associated with the fields
-//                tBCVXField.set_field_entity_rank( EntityRank::NODE );
-//                tVXField.set_field_entity_rank(   EntityRank::NODE );
+//                tBCVXField.set_field_entity_rank( mtk::EntityRank::NODE );
+//                tVXField.set_field_entity_rank(   mtk::EntityRank::NODE );
 //
 //                // initialize field information container
 //                moris::mtk::MtkFieldsInfo tFieldsInfo;
@@ -1025,11 +1025,11 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //                tMeshData.FieldsInfo = &tFieldsInfo;
 //
 //                // create the mesh
-//                mtk::Mesh* tMeshForOutput = create_interpolation_mesh( MeshType::STK, tMeshName, &tMeshData );
+//                mtk::Mesh* tMeshForOutput = create_interpolation_mesh( mtk::MeshType::STK, tMeshName, &tMeshData );
 //
 //                // add field to the mesh
-//                tMeshForOutput->add_mesh_field_real_scalar_data_loc_inds( tBCVXFieldName, EntityRank::NODE, tNodalValues );
-//                tMeshForOutput->add_mesh_field_real_scalar_data_loc_inds( tVXFieldName,   EntityRank::NODE, tSolution1 );
+//                tMeshForOutput->add_mesh_field_real_scalar_data_loc_inds( tBCVXFieldName, mtk::EntityRank::NODE, tNodalValues );
+//                tMeshForOutput->add_mesh_field_real_scalar_data_loc_inds( tVXFieldName,   mtk::EntityRank::NODE, tSolution1 );
 //
 //                // create output mesh
 ////                std::string tOutputFile = "./int_ElemL2_test.exo";
@@ -1312,10 +1312,10 @@ LevelSetFrontFunction( const moris::Matrix< moris::DDRMat > & aPoint )
 //           // Declare some supplementary fields
 //           aMeshData.FieldsInfo = &tFieldsInfo;
 //
-//           mtk::Mesh* tMesh = create_interpolation_mesh( MeshType::STK, aMeshData );
+//           mtk::Mesh* tMesh = create_interpolation_mesh( mtk::MeshType::STK, aMeshData );
 //
-//           tMesh->add_mesh_field_real_scalar_data_loc_inds(tNodeFieldName, EntityRank::NODE, tNodeLSFieldData);
-//           tMesh->add_mesh_field_real_scalar_data_loc_inds(tElementFieldName, EntityRank::ELEMENT, tElementLSFieldData);
+//           tMesh->add_mesh_field_real_scalar_data_loc_inds(tNodeFieldName, mtk::EntityRank::NODE, tNodeLSFieldData);
+//           tMesh->add_mesh_field_real_scalar_data_loc_inds(tElementFieldName, mtk::EntityRank::ELEMENT, tElementLSFieldData);
 //
 //           std::string tOutputFile = "./int_ElemL2_test.exo";
 //           tMesh->create_output_mesh( tOutputFile );

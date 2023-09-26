@@ -33,8 +33,8 @@ namespace moris
 
         //------------------------------------------------------------------------------
 
-        mtk::Cluster_Type
-        Cluster_Group::get_cluster_type_in_group() const
+        mtk::ClusterType
+        Cluster_Group::get_ClusterType_in_group() const
         {
             return mClusterType;
         }

@@ -33,7 +33,7 @@ namespace moris::mtk
     bool
     Cell_Cluster_DataBase::is_trivial( const mtk::Leader_Follower aIsLeader ) const
     {
-        return mMesh->cluster_is_trivial( ClusterType::CELL_CLUSTER, mCellClusterIndex );
+        return mMesh->cluster_is_trivial( ClusterType::CELL, mCellClusterIndex );
     }
 
     //------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ namespace moris::mtk
     Cell_Cluster_DataBase::get_interpolation_cell( const mtk::Leader_Follower aIsLeader ) const
     {
         // defer the call to the mesh
-        moris::mtk::Cell* tInterpolationCell = mMesh->get_ip_cell_in_cluster( ClusterType::CELL_CLUSTER, mCellClusterIndex );
+        moris::mtk::Cell* tInterpolationCell = mMesh->get_ip_cell_in_cluster( ClusterType::CELL, mCellClusterIndex );
 
         // return the output
         return *tInterpolationCell;
@@ -70,8 +70,8 @@ namespace moris::mtk
     Cell_Cluster_DataBase::get_vertices_in_cluster( const mtk::Leader_Follower aIsLeader ) const
     {
         // extract the vertices and number of them
-        Vertex* const* tVertices  = mMesh->get_vertices_in_cluster( ClusterType::CELL_CLUSTER, mCellClusterIndex );
-        uint           tNumVertex = mMesh->get_num_vertices_in_cluster( ClusterType::CELL_CLUSTER, mCellClusterIndex );
+        Vertex* const* tVertices  = mMesh->get_vertices_in_cluster( ClusterType::CELL, mCellClusterIndex );
+        uint           tNumVertex = mMesh->get_num_vertices_in_cluster( ClusterType::CELL, mCellClusterIndex );
 
         // initialize the ouput
         moris::Cell< moris::mtk::Vertex const* > tVerticesInCluster;
@@ -89,15 +89,15 @@ namespace moris::mtk
     Cell_Cluster_DataBase::get_vertices_local_coordinates_wrt_interp_cell( const mtk::Leader_Follower aIsLeader ) const
     {
         // determine if the cluster is trivial, coordinates for trivial is hard-coded and should not be stored
-        bool tTrivial = mMesh->cluster_is_trivial( ClusterType::CELL_CLUSTER, mCellClusterIndex );
+        bool tTrivial = mMesh->cluster_is_trivial( ClusterType::CELL, mCellClusterIndex );
 
         if ( !tTrivial )
         {
             // extract the necessary information coordinate matrix pointer, beginning of the numer, number of vertices  and spatial dim
             //  these data are to extract the right rows and columns of the coordinate matrix
-            Matrix< DDRMat >* tVertexCoordsPtr = mMesh->get_local_coord_matrix_ptr( ClusterType::CELL_CLUSTER, mCellClusterIndex );
-            uint              tRowNumber       = mMesh->get_row_number_local_coords_matrix( ClusterType::CELL_CLUSTER, mCellClusterIndex );
-            uint              tNumVertices     = mMesh->get_num_vertices_in_cluster( ClusterType::CELL_CLUSTER, mCellClusterIndex );
+            Matrix< DDRMat >* tVertexCoordsPtr = mMesh->get_local_coord_matrix_ptr( ClusterType::CELL, mCellClusterIndex );
+            uint              tRowNumber       = mMesh->get_row_number_local_coords_matrix( ClusterType::CELL, mCellClusterIndex );
+            uint              tNumVertices     = mMesh->get_num_vertices_in_cluster( ClusterType::CELL, mCellClusterIndex );
             uint              tSpatialDim      = mMesh->get_spatial_dim();
 
             // return the function
@@ -125,8 +125,8 @@ namespace moris::mtk
         const mtk::Leader_Follower                                                                   aIsLeader ) const
     {
         // get list of vertices and number of them
-        Vertex* const* tVertices  = mMesh->get_vertices_in_cluster( ClusterType::CELL_CLUSTER, mCellClusterIndex );
-        uint           tNumVertex = mMesh->get_num_vertices_in_cluster( ClusterType::CELL_CLUSTER, mCellClusterIndex );
+        Vertex* const* tVertices  = mMesh->get_vertices_in_cluster( ClusterType::CELL, mCellClusterIndex );
+        uint           tNumVertex = mMesh->get_num_vertices_in_cluster( ClusterType::CELL, mCellClusterIndex );
 
         // lambda function to iterate through vertices and find the vertex ordinal
         auto tVertexOrdinalFinder = [aVertex]( mtk::Vertex* aVertices ) { return aVertices->get_index() == aVertex->get_index(); };
@@ -144,8 +144,8 @@ namespace moris::mtk
         moris_index tVertexOrdinal = std::distance( tVertices, itr );
 
         // ask for the coordinate matrix pointer and the start index of the coordinate block
-        Matrix< DDRMat >* tVertexCoordsPtr = mMesh->get_local_coord_matrix_ptr( ClusterType::CELL_CLUSTER, mCellClusterIndex );
-        uint              tRowNumber       = mMesh->get_row_number_local_coords_matrix( ClusterType::CELL_CLUSTER, mCellClusterIndex );
+        Matrix< DDRMat >* tVertexCoordsPtr = mMesh->get_local_coord_matrix_ptr( ClusterType::CELL, mCellClusterIndex );
+        uint              tRowNumber       = mMesh->get_row_number_local_coords_matrix( ClusterType::CELL, mCellClusterIndex );
 
         // return the specific row
         return tVertexCoordsPtr->get_row( tRowNumber + tVertexOrdinal );
@@ -165,7 +165,7 @@ namespace moris::mtk
     Cell_Cluster_DataBase::get_primary_cell_local_coords_on_side_wrt_interp_cell( moris::moris_index aPrimaryCellClusterIndex ) const
     {
         // determine if the cluster is trivial
-        bool tTrivial = mMesh->cluster_is_trivial( ClusterType::CELL_CLUSTER, mCellClusterIndex );
+        bool tTrivial = mMesh->cluster_is_trivial( ClusterType::CELL, mCellClusterIndex );
 
         if ( tTrivial )
         {
@@ -206,16 +206,16 @@ namespace moris::mtk
         mVoidIntegrationCells.clear();
 
         // get primary cell data
-        mtk::Cell* const* tPrimaryCells    = mMesh->get_ig_cells_in_cluster( ClusterType::CELL_CLUSTER, mtk::Primary_Void::PRIMARY, mCellClusterIndex );
-        uint              tNumPrimaryCells = mMesh->get_num_cells_in_cluster( ClusterType::CELL_CLUSTER, mtk::Primary_Void::PRIMARY, mCellClusterIndex );
+        mtk::Cell* const* tPrimaryCells    = mMesh->get_ig_cells_in_cluster( ClusterType::CELL, mtk::Primary_Void::PRIMARY, mCellClusterIndex );
+        uint              tNumPrimaryCells = mMesh->get_num_cells_in_cluster( ClusterType::CELL, mtk::Primary_Void::PRIMARY, mCellClusterIndex );
 
         // populate the primary cell
         mPrimaryIntegrationCells.reserve( tNumPrimaryCells );
         mPrimaryIntegrationCells.insert( 0, tPrimaryCells, tPrimaryCells + tNumPrimaryCells );
 
         // get primary cell data
-        mtk::Cell* const* tVoidCells    = mMesh->get_ig_cells_in_cluster( ClusterType::CELL_CLUSTER, mtk::Primary_Void::VOID, mCellClusterIndex );
-        uint              tNumVoidCells = mMesh->get_num_cells_in_cluster( ClusterType::CELL_CLUSTER, mtk::Primary_Void::VOID, mCellClusterIndex );
+        mtk::Cell* const* tVoidCells    = mMesh->get_ig_cells_in_cluster( ClusterType::CELL, mtk::Primary_Void::VOID, mCellClusterIndex );
+        uint              tNumVoidCells = mMesh->get_num_cells_in_cluster( ClusterType::CELL, mtk::Primary_Void::VOID, mCellClusterIndex );
 
         // populate the primary cell
         mVoidIntegrationCells.reserve( tNumVoidCells );

@@ -126,7 +126,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         moris::mtk::MtkBlockSetInfo tOmega0BlockSetQuad;
         tOmega0BlockSetQuad.mCellIdsInSet = &tCellIdsPhase0Interpolation;
         tOmega0BlockSetQuad.mBlockSetName = "Omega_tets";
-        tOmega0BlockSetQuad.mBlockSetTopo = CellTopology::QUAD4;
+        tOmega0BlockSetQuad.mBlockSetTopo = mtk::CellTopology::QUAD4;
         tMtkMeshSetsInterpolation.add_block_set(&tOmega0BlockSetQuad);
 
         // Mesh data input structure
@@ -145,7 +145,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         tMeshDataInputInterpolation.SetsInfo                = &tMtkMeshSetsInterpolation;
         tMeshDataInputInterpolation.MarkNoBlockForIO        = false;
 
-        moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshDataInputInterpolation );
+        moris::mtk::Interpolation_Mesh* tInterpMesh1 = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshDataInputInterpolation );
 
         //--------------------------------------------------------------------------------------------------------
 
@@ -169,7 +169,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         moris::mtk::MtkBlockSetInfo tOmega0BlockSetTet;
         tOmega0BlockSetTet.mCellIdsInSet = &tCellIdsPhase0;
         tOmega0BlockSetTet.mBlockSetName = "Omega_0_tets";
-        tOmega0BlockSetTet.mBlockSetTopo = CellTopology::TRI3;
+        tOmega0BlockSetTet.mBlockSetTopo = mtk::CellTopology::TRI3;
         tMtkMeshSets.add_block_set(&tOmega0BlockSetTet);
 
         // Mesh data input structure
@@ -215,7 +215,7 @@ TEST_CASE("Eqn_Obj_pdv","[MSI],[Eqn_Obj_pdv]")
         // add cluster to input data
         tMeshDataInput.CellClusterInput = &tCellClusterInput;
 
-        moris::mtk::Integration_Mesh* tIntegMesh1  = moris::mtk::create_integration_mesh(MeshType::STK,tMeshDataInput,tInterpMesh1);
+        moris::mtk::Integration_Mesh* tIntegMesh1  = moris::mtk::create_integration_mesh(mtk::MeshType::STK,tMeshDataInput,tInterpMesh1);
 
         // place the pair in mesh manager
         std::shared_ptr< mtk::Mesh_Manager > tMeshManager = std::make_shared< mtk::Mesh_Manager >();

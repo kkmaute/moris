@@ -324,7 +324,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Density_Primitive",
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            moris::Cell< moris::Cell< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField,tSet );
 
             // populate the field interpolator manager
@@ -972,11 +972,11 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
     tCMLeaderFluid->set_set_pointer( static_cast< fem::Set* >( tSet ) );
 
     // set size for the set EqnObjDofTypeList
-    //tMMFluid->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
+    //tMMFluid->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::UNDEFINED );
     tCMLeaderFluid->mSet->mUniqueDofTypeList.resize( 100, MSI::Dof_Type::END_ENUM );
 
     // set size and populate the set dof type map
-//     tMMFluid->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+//     tMMFluid->mSet->mUniqueDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::UNDEFINED ) + 1, 1, -1 );
 //     tMMFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )   = 0;
 //     tMMFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 1;
 
@@ -986,7 +986,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
     tCMLeaderFluid->mSet->mUniqueDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 2;
 
     // set size and populate the set leader dof type map
-//     tMMFluid->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::END_ENUM ) + 1, 1, -1 );
+//     tMMFluid->mSet->mLeaderDofTypeMap.set_size( static_cast< int >( MSI::Dof_Type::UNDEFINED ) + 1, 1, -1 );
 //     tMMFluid->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::P ) )   = 0;
 //     tMMFluid->mSet->mLeaderDofTypeMap( static_cast< int >( MSI::Dof_Type::TEMP ) )  = 1;
 
@@ -1174,7 +1174,7 @@ TEST_CASE( "CM_Compressible_Newtonian_Fluid_Pressure_Primitive",
 
             // create a field interpolator manager
             moris::Cell< moris::Cell< enum PDV_Type > > tDummyDv;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > tDummyField;
+            moris::Cell< moris::Cell< mtk::Field_Type > > tDummyField;
             Field_Interpolator_Manager tFIManager( tDofTypes, tDummyDv, tDummyField, tSet );
 
             // populate the field interpolator manager

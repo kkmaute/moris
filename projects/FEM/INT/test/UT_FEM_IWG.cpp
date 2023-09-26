@@ -142,7 +142,7 @@ namespace moris
         tIWG->mSet->mLeaderDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;
         tIWG->mSet->mLeaderDofTypeMap( static_cast< int >(MSI::Dof_Type::VX) ) = 3;
 
-//        tIWG->mSet->mFollowerDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::END_ENUM) + 1, 1, -1 );
+//        tIWG->mSet->mFollowerDofTypeMap.set_size( static_cast< int >(MSI::Dof_Type::UNDEFINED) + 1, 1, -1 );
 //        tIWG->mSet->mFollowerDofTypeMap( static_cast< int >(MSI::Dof_Type::UX) ) = 0;
 //        tIWG->mSet->mFollowerDofTypeMap( static_cast< int >(MSI::Dof_Type::TEMP) ) = 1;
 //        tIWG->mSet->mFollowerDofTypeMap( static_cast< int >(MSI::Dof_Type::LS1) ) = 2;

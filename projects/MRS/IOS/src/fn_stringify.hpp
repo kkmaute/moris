@@ -24,49 +24,89 @@ namespace moris
 {
     namespace ios
     {
-        // converts all output values to string formated according to type
-        template<typename T>
-        inline std::string stringify(T aValue)
+        // ----------------------------------------------------------------------------
+        // ----------------------------------------------------------------------------
+
+        // converts all output values to string formatted according to type
+        template< typename T >
+        inline std::string
+        stringify( T aValue )
         {
             std::ostringstream out;
             out << aValue;
             return out.str();
         }
 
+        // ----------------------------------------------------------------------------
+        
+        // bool specialization 
         template<>
-        inline std::string stringify<bool>(bool aValue)
+        inline std::string
+        stringify< bool >( bool aValue )
         {
             std::ostringstream out;
             out << std::boolalpha << aValue;
             return out.str();
         }
 
+        // ----------------------------------------------------------------------------
+
+        // float specializations
         template<>
-        inline std::string stringify<double>(double aValue)
+        inline std::string
+        stringify< double >( double aValue )
         {
             std::ostringstream out;
-            out << std::setprecision(LOGGER_FLOAT_PRECISION) << std::scientific << aValue;
+            out << std::setprecision( LOGGER_FLOAT_PRECISION ) << std::scientific << aValue;
             return out.str();
         }
 
         template<>
-        inline std::string stringify<long double>(long double aValue)
+        inline std::string
+        stringify< float >( float aValue )
         {
             std::ostringstream out;
-            out << std::setprecision(LOGGER_FLOAT_PRECISION) << std::scientific << aValue;
+            out << std::setprecision( LOGGER_FLOAT_PRECISION ) << std::scientific << aValue;
             return out.str();
         }
 
         template<>
-        inline std::string stringify<float>(float aValue)
+        inline std::string
+        stringify< long double >( long double aValue )
         {
             std::ostringstream out;
-            out << std::setprecision(LOGGER_FLOAT_PRECISION) << std::scientific << aValue;
+            out << std::setprecision( LOGGER_FLOAT_PRECISION ) << std::scientific << aValue;
             return out.str();
         }
 
-    } // end namespace ios
-} // end namespace moris
+        // ----------------------------------------------------------------------------
+
+        template< typename T >
+        inline std::string
+        stringify_cell( const std::vector< T > aCellOfValues )
+        {
+            // initialize string stream
+            std::ostringstream out;
+            out << "{";
+
+            // go through elements of the cell
+            for( const T & iValue : aCellOfValues )
+            {
+                out << " " << iValue << ";";
+            }
+
+            // convert to string and close cell notation
+            std::string tOutput = out.str();
+            tOutput.pop_back();
+            tOutput += " }";
+
+            // return
+            return tOutput;
+        }
+
+        // ----------------------------------------------------------------------------
+
+    }    // end namespace ios
+}    // end namespace moris
 
 #endif /* PROJECTS_MRS_IOS_SRC_FN_STRINGIFY_HPP_ */
-

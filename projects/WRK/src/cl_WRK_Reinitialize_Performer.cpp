@@ -111,7 +111,7 @@ namespace moris
             // get the solution field and get a matrix of the solutions
             // generate a cell containing the indices of the bspline coefficients
             // since indices are consecutive and they start from 0
-            moris::Cell< moris_index > tLocalCoeffIndices( tTargetMesh->get_num_entities( EntityRank::BSPLINE ) );
+            moris::Cell< moris_index > tLocalCoeffIndices( tTargetMesh->get_num_entities( mtk::EntityRank::BSPLINE ) );
             std::iota( tLocalCoeffIndices.begin(), tLocalCoeffIndices.end(), 0 );
 
             moris::sol::Dist_Vector* tPartialSolutionVector = aMDLPerformer( 0 )->get_solver_interface()->get_solution_vector( mDofTypes, tLocalCoeffIndices );

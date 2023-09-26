@@ -64,7 +64,7 @@ class Elevate_Order_Template
      * @return whether new vertices will be created or not
      */
     virtual bool
-    has_new_vertices_on_entity( enum EntityRank aEntityRank ) const = 0;
+    has_new_vertices_on_entity( mtk::EntityRank aEntityRank ) const = 0;
 
     /**
      * @brief gives back the number of new vertices that will be created on the requested entity rank
@@ -73,7 +73,7 @@ class Elevate_Order_Template
      * @return number of new vertices on that entity rank
      */
     virtual uint
-    num_new_vertices_per_entity( enum EntityRank aEntityRank ) const = 0;
+    num_new_vertices_per_entity( mtk::EntityRank aEntityRank ) const = 0;
 
     /**
      * @brief Get parametric coords for new vertices wrt entity they are created on
@@ -82,14 +82,14 @@ class Elevate_Order_Template
      * @return Cell< Matrix< DDRMat > > list of parametric coords for vertices to be created per entity
      */
     virtual Cell< Matrix< DDRMat > >
-    get_new_vertex_parametric_coords_wrt_entity( enum EntityRank aEntityRank ) const = 0;
+    get_new_vertex_parametric_coords_wrt_entity( mtk::EntityRank aEntityRank ) const = 0;
 
     /**
      * @brief Get the new ig cell's topology
      *
-     * @return enum CellTopology new ig cell topology
+     * @return mtk::CellTopology new ig cell topology
      */
-    virtual enum CellTopology
+    virtual mtk::CellTopology
     get_ig_cell_topology() const = 0;
 
     /**
@@ -109,7 +109,7 @@ class Elevate_Order_Template
      * @return moris_index element local vertex index
      */
     virtual moris_index
-    get_local_vertex_index( enum EntityRank aEntityRank, moris_index aSignedLocalEntityIndex, moris_index aVertexIndexOnEntity ) const = 0;
+    get_local_vertex_index( mtk::EntityRank aEntityRank, moris_index aSignedLocalEntityIndex, moris_index aVertexIndexOnEntity ) const = 0;
 
     /**
      * @brief Get the element local edge index and direction (sign) based on vertex indices attached to it
@@ -143,27 +143,27 @@ class TRI3_to_TRI6 : public Elevate_Order_Template
     }
 
     bool
-    has_new_vertices_on_entity( enum EntityRank aEntityRank ) const
+    has_new_vertices_on_entity( mtk::EntityRank aEntityRank ) const
     {
         switch ( aEntityRank )
         {
-        case EntityRank::NODE:
+        case mtk::EntityRank::NODE:
         {
             MORIS_ERROR( false, "TRI3_to_TRI6::has_new_nodes_on_entity() - No new vertices on vertices themselves. This shouldn't be requested." );
             return false;
             break;
         }
-        case EntityRank::EDGE:
+        case mtk::EntityRank::EDGE:
         {
             return true;
             break;
         }
-        case EntityRank::FACE:
+        case mtk::EntityRank::FACE:
         {
             return false;
             break;
         }
-        case EntityRank::ELEMENT:
+        case mtk::EntityRank::ELEMENT:
         {
             return false;
             break;
@@ -178,27 +178,27 @@ class TRI3_to_TRI6 : public Elevate_Order_Template
     }
 
     uint
-    num_new_vertices_per_entity( enum EntityRank aEntityRank ) const
+    num_new_vertices_per_entity( mtk::EntityRank aEntityRank ) const
     {
         switch ( aEntityRank )
         {
-        case EntityRank::NODE:
+        case mtk::EntityRank::NODE:
         {
             MORIS_ERROR( false, "TRI3_to_TRI6::num_new_vertices_per_entity() - No new vertices on vertices themselves. This shouldn't be requested." );
             return 0;
             break;
         }
-        case EntityRank::EDGE:
+        case mtk::EntityRank::EDGE:
         {
             return 1;
             break;
         }
-        case EntityRank::FACE:
+        case mtk::EntityRank::FACE:
         {
             return 0;
             break;
         }
-        case EntityRank::ELEMENT:
+        case mtk::EntityRank::ELEMENT:
         {
             return 0;
             break;
@@ -213,28 +213,28 @@ class TRI3_to_TRI6 : public Elevate_Order_Template
     }
 
     Cell< Matrix< DDRMat > >
-    get_new_vertex_parametric_coords_wrt_entity( enum EntityRank aEntityRank ) const
+    get_new_vertex_parametric_coords_wrt_entity( mtk::EntityRank aEntityRank ) const
     {
         switch ( aEntityRank )
         {
-            case EntityRank::NODE:
+            case mtk::EntityRank::NODE:
             {
                 MORIS_ERROR( false, "TRI3_to_TRI6::get_new_vertex_parametric_coords_wrt_entity() - No new vertices on vertices themselves. This shouldn't be requested." );
                 return Cell< Matrix< DDRMat > >( 0 );
                 break;
             }
-            case EntityRank::EDGE:
+            case mtk::EntityRank::EDGE:
             {
                 return { { { 0.0 } } };
                 break;
             }
-            case EntityRank::FACE:
+            case mtk::EntityRank::FACE:
             {
                 MORIS_ERROR( false, "TRI3_to_TRI6::get_new_vertex_parametric_coords_wrt_entity() - No new vertices on faces. This shouldn't be requested." );
                 return Cell< Matrix< DDRMat > >( 0 );
                 break;
             }
-            case EntityRank::ELEMENT:
+            case mtk::EntityRank::ELEMENT:
             {
                 MORIS_ERROR( false, "TRI3_to_TRI6::get_new_vertex_parametric_coords_wrt_entity() - No new vertices inside cell. This shouldn't be requested." );
                 return Cell< Matrix< DDRMat > >( 0 );
@@ -249,10 +249,10 @@ class TRI3_to_TRI6 : public Elevate_Order_Template
         }
     }
 
-    enum CellTopology
+    mtk::CellTopology
     get_ig_cell_topology() const
     {
-        return CellTopology::TRI6;
+        return mtk::CellTopology::TRI6;
     }
 
     uint
@@ -262,17 +262,17 @@ class TRI3_to_TRI6 : public Elevate_Order_Template
     }
 
     moris_index
-    get_local_vertex_index( enum EntityRank aEntityRank, moris_index aSignedLocalEntityIndex, moris_index aVertexIndexOnEntity ) const
+    get_local_vertex_index( mtk::EntityRank aEntityRank, moris_index aSignedLocalEntityIndex, moris_index aVertexIndexOnEntity ) const
     {
         switch ( aEntityRank )
         {
-            case EntityRank::NODE:
+            case mtk::EntityRank::NODE:
             {
                 MORIS_ERROR( false, "TRI3_to_TRI6::get_cell_local_vertex_index() - No new vertices on vertices themselves. This shouldn't be requested." );
                 return -1;
                 break;
             }
-            case EntityRank::EDGE:
+            case mtk::EntityRank::EDGE:
             {
                 // check if requested vertex location makes sense
                 MORIS_ASSERT( aSignedLocalEntityIndex != 0,
@@ -293,13 +293,13 @@ class TRI3_to_TRI6 : public Elevate_Order_Template
                 return tLookUp( tLocalEntityIndex, aVertexIndexOnEntity );
                 break;
             }
-            case EntityRank::FACE:
+            case mtk::EntityRank::FACE:
             {
                 MORIS_ERROR( false, "TRI3_to_TRI6::get_cell_local_vertex_index() - No new vertices on faces. This shouldn't be requested." );
                 return -1;
                 break;
             }
-            case EntityRank::ELEMENT:
+            case mtk::EntityRank::ELEMENT:
             {
                 MORIS_ERROR( false, "TRI3_to_TRI6::get_cell_local_vertex_index() - No new vertices inside cell. This shouldn't be requested." );
                 return -1;
@@ -352,27 +352,27 @@ class TET4_to_TET10 : public Elevate_Order_Template
     }
 
     bool
-    has_new_vertices_on_entity( enum EntityRank aEntityRank ) const
+    has_new_vertices_on_entity( mtk::EntityRank aEntityRank ) const
     {
         switch ( aEntityRank )
         {
-        case EntityRank::NODE:
+        case mtk::EntityRank::NODE:
         {
             MORIS_ERROR( false, "TET4_to_TET10::has_new_nodes_on_entity() - No new vertices on vertices themselves. This shouldn't be requested." );
             return false;
             break;
         }
-        case EntityRank::EDGE:
+        case mtk::EntityRank::EDGE:
         {
             return true;
             break;
         }
-        case EntityRank::FACE:
+        case mtk::EntityRank::FACE:
         {
             return false;
             break;
         }
-        case EntityRank::ELEMENT:
+        case mtk::EntityRank::ELEMENT:
         {
             return false;
             break;
@@ -387,27 +387,27 @@ class TET4_to_TET10 : public Elevate_Order_Template
     }
 
     uint
-    num_new_vertices_per_entity( enum EntityRank aEntityRank ) const
+    num_new_vertices_per_entity( mtk::EntityRank aEntityRank ) const
     {
         switch ( aEntityRank )
         {
-        case EntityRank::NODE:
+        case mtk::EntityRank::NODE:
         {
             MORIS_ERROR( false, "TET4_to_TET10::num_new_vertices_per_entity() - No new vertices on vertices themselves. This shouldn't be requested." );
             return 0;
             break;
         }
-        case EntityRank::EDGE:
+        case mtk::EntityRank::EDGE:
         {
             return 1;
             break;
         }
-        case EntityRank::FACE:
+        case mtk::EntityRank::FACE:
         {
             return 0;
             break;
         }
-        case EntityRank::ELEMENT:
+        case mtk::EntityRank::ELEMENT:
         {
             return 1;
             break;
@@ -422,28 +422,28 @@ class TET4_to_TET10 : public Elevate_Order_Template
     }
 
     Cell< Matrix< DDRMat > >
-    get_new_vertex_parametric_coords_wrt_entity( enum EntityRank aEntityRank ) const
+    get_new_vertex_parametric_coords_wrt_entity( mtk::EntityRank aEntityRank ) const
     {
         switch ( aEntityRank )
         {
-        case EntityRank::NODE:
+        case mtk::EntityRank::NODE:
         {
             MORIS_ERROR( false, "TET4_to_TET10::get_new_vertex_parametric_coords_wrt_entity() - No new vertices on vertices themselves. This shouldn't be requested." );
             return Cell< Matrix< DDRMat > >( 0 );
             break;
         }
-        case EntityRank::EDGE:
+        case mtk::EntityRank::EDGE:
         {
             return { { { 0.0 } } };
             break;
         }
-        case EntityRank::FACE:
+        case mtk::EntityRank::FACE:
         {
             MORIS_ERROR( false, "TET4_to_TET10::get_new_vertex_parametric_coords_wrt_entity() - No new vertices on faces. This shouldn't be requested." );
             return Cell< Matrix< DDRMat > >( 0 );
             break;
         }
-        case EntityRank::ELEMENT:
+        case mtk::EntityRank::ELEMENT:
         {
             MORIS_ERROR( false, "TET4_to_TET10::get_new_vertex_parametric_coords_wrt_entity() - No new vertices inside cell. This shouldn't be requested." );
             return Cell< Matrix< DDRMat > >( 0 );
@@ -458,10 +458,10 @@ class TET4_to_TET10 : public Elevate_Order_Template
         }
     }
 
-    enum CellTopology
+    mtk::CellTopology
     get_ig_cell_topology() const
     {
-        return CellTopology::TET10;
+        return mtk::CellTopology::TET10;
     }
 
     uint
@@ -471,17 +471,17 @@ class TET4_to_TET10 : public Elevate_Order_Template
     }
 
     moris_index
-    get_local_vertex_index( enum EntityRank aEntityRank, moris_index aSignedLocalEntityIndex, moris_index aVertexIndexOnEntity ) const
+    get_local_vertex_index( mtk::EntityRank aEntityRank, moris_index aSignedLocalEntityIndex, moris_index aVertexIndexOnEntity ) const
     {
         switch ( aEntityRank )
         {
-            case EntityRank::NODE:
+            case mtk::EntityRank::NODE:
             {
                 MORIS_ERROR( false, "TET4_to_TET10::get_cell_local_vertex_index() - No new vertices on vertices themselves. This shouldn't be requested." );
                 return -1;
                 break;
             }
-            case EntityRank::EDGE:
+            case mtk::EntityRank::EDGE:
             {
                 // check if requested vertex location makes sense
                 MORIS_ASSERT( aSignedLocalEntityIndex != 0,
@@ -505,13 +505,13 @@ class TET4_to_TET10 : public Elevate_Order_Template
                 return tLookUp( tLocalEntityIndex, aVertexIndexOnEntity );
                 break;
             }
-            case EntityRank::FACE:
+            case mtk::EntityRank::FACE:
             {
                 MORIS_ERROR( false, "TET4_to_TET10::get_cell_local_vertex_index() - No new vertices on faces. This shouldn't be requested." );
                 return -1;
                 break;
             }
-            case EntityRank::ELEMENT:
+            case mtk::EntityRank::ELEMENT:
             {
                 MORIS_ERROR( false, "TET4_to_TET10::get_cell_local_vertex_index() - No new vertices inside cell. This shouldn't be requested." );
                 return -1;
@@ -566,27 +566,27 @@ class TRI3_to_TRI10 : public Elevate_Order_Template
     }
 
     bool
-    has_new_vertices_on_entity( enum EntityRank aEntityRank ) const
+    has_new_vertices_on_entity( mtk::EntityRank aEntityRank ) const
     {
         switch ( aEntityRank )
         {
-        case EntityRank::NODE:
+        case mtk::EntityRank::NODE:
         {
             MORIS_ERROR( false, "TRI3_to_TRI10::has_new_nodes_on_entity() - No new vertices on vertices themselves. This shouldn't be requested." );
             return false;
             break;
         }
-        case EntityRank::EDGE:
+        case mtk::EntityRank::EDGE:
         {
             return true;
             break;
         }
-        case EntityRank::FACE:
+        case mtk::EntityRank::FACE:
         {
             return false;
             break;
         }
-        case EntityRank::ELEMENT:
+        case mtk::EntityRank::ELEMENT:
         {
             return false;
             break;
@@ -601,27 +601,27 @@ class TRI3_to_TRI10 : public Elevate_Order_Template
     }
 
     uint
-    num_new_vertices_per_entity( enum EntityRank aEntityRank ) const
+    num_new_vertices_per_entity( mtk::EntityRank aEntityRank ) const
     {
         switch ( aEntityRank )
         {
-        case EntityRank::NODE:
+        case mtk::EntityRank::NODE:
         {
             MORIS_ERROR( false, "TRI3_to_TRI10::num_new_vertices_per_entity() - No new vertices on vertices themselves. This shouldn't be requested." );
             return 0;
             break;
         }
-        case EntityRank::EDGE:
+        case mtk::EntityRank::EDGE:
         {
             return 2;
             break;
         }
-        case EntityRank::FACE:
+        case mtk::EntityRank::FACE:
         {
             return 0;
             break;
         }
-        case EntityRank::ELEMENT:
+        case mtk::EntityRank::ELEMENT:
         {
             return 1;
             break;
@@ -636,17 +636,17 @@ class TRI3_to_TRI10 : public Elevate_Order_Template
     }
 
     Cell< Matrix< DDRMat > >
-    get_new_vertex_parametric_coords_wrt_entity( enum EntityRank aEntityRank ) const
+    get_new_vertex_parametric_coords_wrt_entity( mtk::EntityRank aEntityRank ) const
     {
         switch ( aEntityRank )
         {
-        case EntityRank::NODE:
+        case mtk::EntityRank::NODE:
         {
             MORIS_ERROR( false, "TRI3_to_TRI10::get_new_vertex_parametric_coords_wrt_entity() - No new vertices on vertices themselves. This shouldn't be requested." );
             return Cell< Matrix< DDRMat > >( 0 );
             break;
         }
-        case EntityRank::EDGE:
+        case mtk::EntityRank::EDGE:
         {
             return {
                 { { -1.0 / 3.0 } },
@@ -654,13 +654,13 @@ class TRI3_to_TRI10 : public Elevate_Order_Template
             };
             break;
         }
-        case EntityRank::FACE:
+        case mtk::EntityRank::FACE:
         {
             MORIS_ERROR( false, "TRI3_to_TRI10::get_new_vertex_parametric_coords_wrt_entity() - No new vertices on faces. This shouldn't be requested." );
             return Cell< Matrix< DDRMat > >( 0 );
             break;
         }
-        case EntityRank::ELEMENT:
+        case mtk::EntityRank::ELEMENT:
         {
             real tOneThird = 1.0 / 3.0;
             return { { { tOneThird, tOneThird, tOneThird } } };
@@ -675,10 +675,10 @@ class TRI3_to_TRI10 : public Elevate_Order_Template
         }
     }
 
-    enum CellTopology
+    mtk::CellTopology
     get_ig_cell_topology() const
     {
-        return CellTopology::TRI10;
+        return mtk::CellTopology::TRI10;
     }
 
     uint

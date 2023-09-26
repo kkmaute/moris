@@ -391,7 +391,7 @@ namespace moris
                 //------------------------------------------------------------------------------------------------------
 
                 // Set new ADVs, level set field now has no intersections
-                mtk::Mesh_Pair tMeshPair( tMesh, create_integration_mesh_from_interpolation_mesh( MeshType::HMR, tMesh ) );
+                mtk::Mesh_Pair tMeshPair( tMesh, create_integration_mesh_from_interpolation_mesh( mtk::MeshType::HMR, tMesh ) );
                 tGeometryEngine.set_advs( Matrix< DDRMat >( 16, 1, 1.0 ) );
                 tGeometryEngine.distribute_advs( tMeshPair, {} );
 
@@ -566,29 +566,29 @@ namespace moris
                 moris::mtk::Scalar_Field_Info< DDRMat > tLSF;
                 std::string                             tLSFName = "lsf1";
                 tLSF.set_field_name( tLSFName );
-                tLSF.set_field_entity_rank( moris::EntityRank::NODE );
+                tLSF.set_field_entity_rank( mtk::EntityRank::NODE );
 
                 // Add to mesh input field container
                 moris::mtk::MtkFieldsInfo tFieldsInfo;
                 add_field_for_mesh_input( &tLSF, tFieldsInfo );
                 aMeshData.FieldsInfo = &tFieldsInfo;
 
-                moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, aMeshData );
+                moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, aMeshData );
 
-                moris::uint                    tNumNodes = tMeshData->get_num_entities( moris::EntityRank::NODE );
+                moris::uint                    tNumNodes = tMeshData->get_num_entities( mtk::EntityRank::NODE );
                 moris::Matrix< moris::DDRMat > tLevelsetVal( tNumNodes, 1, -1.3 );
 
-                moris_id tIndexOfNodeId1 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 1, EntityRank::NODE );
-                moris_id tIndexOfNodeId2 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 2, EntityRank::NODE );
-                moris_id tIndexOfNodeId3 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 3, EntityRank::NODE );
-                moris_id tIndexOfNodeId4 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 4, EntityRank::NODE );
+                moris_id tIndexOfNodeId1 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 1, mtk::EntityRank::NODE );
+                moris_id tIndexOfNodeId2 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 2, mtk::EntityRank::NODE );
+                moris_id tIndexOfNodeId3 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 3, mtk::EntityRank::NODE );
+                moris_id tIndexOfNodeId4 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 4, mtk::EntityRank::NODE );
 
                 tLevelsetVal( tIndexOfNodeId1 ) = 5.71398452074828e-01;
                 tLevelsetVal( tIndexOfNodeId2 ) = 5.06776630434012e-01;
                 tLevelsetVal( tIndexOfNodeId3 ) = 4.25145951405591e-01;
                 tLevelsetVal( tIndexOfNodeId4 ) = 5.00394812706282e-01;
 
-                tMeshData->add_mesh_field_real_scalar_data_loc_inds( tLSFName, moris::EntityRank::NODE, tLevelsetVal );
+                tMeshData->add_mesh_field_real_scalar_data_loc_inds( tLSFName, mtk::EntityRank::NODE, tLevelsetVal );
 
                 Cell< std::shared_ptr< ge::Geometry > > tGeometry( 1 );
                 tGeometry( 0 ) = std::make_shared< moris::ge::Mesh_Field_Geometry >( tMeshData, tLSFName );

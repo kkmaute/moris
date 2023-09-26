@@ -33,42 +33,42 @@ IJK_Mesh::get_vertex_parent_entities() const
     // Vertex 0
     moris_index tIndex                                 = this->get_vertex_index( this->min_vert_i(), this->min_vert_j(), this->min_vert_k() );
     tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 0;
-    tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::NODE;
+    tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::NODE;
 
     // Vertex 1
     tIndex                                             = this->get_vertex_index( this->max_vert_i(), this->min_vert_j(), this->min_vert_k() );
     tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 1;
-    tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::NODE;
+    tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::NODE;
 
     // Vertex 2
     tIndex                                             = this->get_vertex_index( this->max_vert_i(), this->max_vert_j(), this->min_vert_k() );
     tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 2;
-    tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::NODE;
+    tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::NODE;
 
     // Vertex 3
     tIndex                                             = this->get_vertex_index( this->min_vert_i(), this->max_vert_j(), this->min_vert_k() );
     tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 3;
-    tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::NODE;
+    tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::NODE;
 
     // Vertex 4
     tIndex                                             = this->get_vertex_index( this->min_vert_i(), this->min_vert_j(), this->max_vert_k() );
     tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 4;
-    tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::NODE;
+    tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::NODE;
 
     // Vertex 5
     tIndex                                             = this->get_vertex_index( this->max_vert_i(), this->min_vert_j(), this->max_vert_k() );
     tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 5;
-    tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::NODE;
+    tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::NODE;
 
     // Vertex 6
     tIndex                                             = this->get_vertex_index( this->max_vert_i(), this->max_vert_j(), this->max_vert_k() );
     tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 6;
-    tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::NODE;
+    tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::NODE;
 
     // Vertex 7
     tIndex                                             = this->get_vertex_index( this->min_vert_i(), this->max_vert_j(), this->max_vert_k() );
     tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 7;
-    tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::NODE;
+    tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::NODE;
 
     // Face 0 Interior Vertices - Variable i and k - fixed j
     tJ = this->min_vert_j();
@@ -78,7 +78,7 @@ IJK_Mesh::get_vertex_parent_entities() const
         {
             tIndex                                             = this->get_vertex_index( tI, tJ, tK );
             tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 0;
-            tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::FACE;
+            tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::FACE;
         }
     }
 
@@ -90,7 +90,7 @@ IJK_Mesh::get_vertex_parent_entities() const
         {
             tIndex                                             = this->get_vertex_index( tI, tJ, tK );
             tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 1;
-            tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::FACE;
+            tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::FACE;
         }
     }
 
@@ -102,7 +102,7 @@ IJK_Mesh::get_vertex_parent_entities() const
         {
             tIndex                                             = this->get_vertex_index( tI, tJ, tK );
             tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 2;
-            tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::FACE;
+            tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::FACE;
         }
     }
 
@@ -114,7 +114,7 @@ IJK_Mesh::get_vertex_parent_entities() const
         {
             tIndex                                             = this->get_vertex_index( tI, tJ, tK );
             tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 3;
-            tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::FACE;
+            tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::FACE;
         }
     }
     // Face 4 Interior Vertices - variable i and j - fixed k
@@ -125,7 +125,7 @@ IJK_Mesh::get_vertex_parent_entities() const
         {
             tIndex                                             = this->get_vertex_index( tI, tJ, tK );
             tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 4;
-            tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::FACE;
+            tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::FACE;
         }
     }
     // Face 5 Interior Vertices - variable i and j - fixed k+1
@@ -136,7 +136,7 @@ IJK_Mesh::get_vertex_parent_entities() const
         {
             tIndex                                             = this->get_vertex_index( tI, tJ, tK );
             tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 5;
-            tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::FACE;
+            tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::FACE;
         }
     }
 
@@ -148,7 +148,7 @@ IJK_Mesh::get_vertex_parent_entities() const
     {
         tIndex                                             = this->get_vertex_index( tI, tJ, tK );
         tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 0;
-        tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::EDGE;
+        tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::EDGE;
     }
 
     tJ = this->max_vert_j();
@@ -157,7 +157,7 @@ IJK_Mesh::get_vertex_parent_entities() const
     {
         tIndex                                             = this->get_vertex_index( tI, tJ, tK );
         tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 2;
-        tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::EDGE;
+        tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::EDGE;
     }
 
     tJ = 0;
@@ -166,7 +166,7 @@ IJK_Mesh::get_vertex_parent_entities() const
     {
         tIndex                                             = this->get_vertex_index( tI, tJ, tK );
         tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 4;
-        tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::EDGE;
+        tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::EDGE;
     }
 
     tJ = this->max_vert_j();
@@ -175,7 +175,7 @@ IJK_Mesh::get_vertex_parent_entities() const
     {
         tIndex                                             = this->get_vertex_index( tI, tJ, tK );
         tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 6;
-        tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::EDGE;
+        tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::EDGE;
     }
 
     // EDGES WITH VARIABLE J
@@ -185,7 +185,7 @@ IJK_Mesh::get_vertex_parent_entities() const
     {
         tIndex                                             = this->get_vertex_index( tI, tJ, tK );
         tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 3;
-        tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::EDGE;
+        tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::EDGE;
     }
 
     tI = this->max_vert_i();
@@ -194,7 +194,7 @@ IJK_Mesh::get_vertex_parent_entities() const
     {
         tIndex                                             = this->get_vertex_index( tI, tJ, tK );
         tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 1;
-        tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::EDGE;
+        tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::EDGE;
     }
 
     tI = 0;
@@ -203,7 +203,7 @@ IJK_Mesh::get_vertex_parent_entities() const
     {
         tIndex                                             = this->get_vertex_index( tI, tJ, tK );
         tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 7;
-        tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::EDGE;
+        tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::EDGE;
     }
 
     tI = this->max_vert_k();
@@ -212,7 +212,7 @@ IJK_Mesh::get_vertex_parent_entities() const
     {
         tIndex                                             = this->get_vertex_index( tI, tJ, tK );
         tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 5;
-        tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::EDGE;
+        tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::EDGE;
     }
 
     // VARIABLE K
@@ -222,7 +222,7 @@ IJK_Mesh::get_vertex_parent_entities() const
     {
         tIndex                                             = this->get_vertex_index( tI, tJ, tK );
         tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 8;
-        tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::EDGE;
+        tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::EDGE;
     }
 
     tI = this->max_vert_i();
@@ -231,7 +231,7 @@ IJK_Mesh::get_vertex_parent_entities() const
     {
         tIndex                                             = this->get_vertex_index( tI, tJ, tK );
         tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 9;
-        tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::EDGE;
+        tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::EDGE;
     }
 
     tI = 0;
@@ -240,7 +240,7 @@ IJK_Mesh::get_vertex_parent_entities() const
     {
         tIndex                                             = this->get_vertex_index( tI, tJ, tK );
         tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 11;
-        tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::EDGE;
+        tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::EDGE;
     }
 
     tI = this->max_vert_i();
@@ -249,7 +249,7 @@ IJK_Mesh::get_vertex_parent_entities() const
     {
         tIndex                                             = this->get_vertex_index( tI, tJ, tK );
         tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 10;
-        tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::EDGE;
+        tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::EDGE;
     }
 
     // flag the interior vertices
@@ -261,7 +261,7 @@ IJK_Mesh::get_vertex_parent_entities() const
             {
                 tIndex                                             = this->get_vertex_index( i, j, k );
                 tVertexAncestry.mVertexParentEntityIndex( tIndex ) = 0;
-                tVertexAncestry.mVertexParentEntityRank( tIndex )  = EntityRank::ELEMENT;
+                tVertexAncestry.mVertexParentEntityRank( tIndex )  = mtk::EntityRank::ELEMENT;
             }
         }
     }
@@ -410,19 +410,19 @@ Octree_Interface::perform_impl_vertex_requests(
 
             moris::Matrix< moris::DDRMat > tNewCoordinate = tBasisWeights * tBGCellCoords;
 
-            if ( tVertexAncestry->get_vertex_parent_rank( iV ) != EntityRank::NODE )
+            if ( tVertexAncestry->get_vertex_parent_rank( iV ) != mtk::EntityRank::NODE )
             {
                 moris_index tNewNodeIndexInSubdivision = MORIS_INDEX_MAX;
 
-                if ( tVertexAncestry->get_vertex_parent_rank( iV ) == EntityRank::ELEMENT )
+                if ( tVertexAncestry->get_vertex_parent_rank( iV ) == mtk::EntityRank::ELEMENT )
                 {
-                    if ( !mDecompData->request_exists( tCell.get_index(), ( *tVertexHashes )( iV ), EntityRank::ELEMENT, tNewNodeIndexInSubdivision ) )
+                    if ( !mDecompData->request_exists( tCell.get_index(), ( *tVertexHashes )( iV ), mtk::EntityRank::ELEMENT, tNewNodeIndexInSubdivision ) )
                     {
                         tNewNodeIndexInSubdivision = mDecompData->register_new_request(
                             tCell.get_index(),
                             ( *tVertexHashes )( iV ),
                             tCell.get_owner(),
-                            EntityRank::ELEMENT,
+                            mtk::EntityRank::ELEMENT,
                             tNewCoordinate,
                             &tCell,
                             tVertexLocalCoords );
@@ -578,11 +578,11 @@ Octree_Interface::determine_octree_bounds()
 }
 // ----------------------------------------------------------------------------------
 
-enum CellTopology
+mtk::CellTopology
 Octree_Interface::get_ig_cell_topology() const
 {
     std::cout << " WARNING NEED ABSTRACTION " << std::endl;
-    return CellTopology::HEX8;
+    return mtk::CellTopology::HEX8;
 }
 
 moris::Cell< std::unordered_map< moris_index, moris_index > >
@@ -601,7 +601,7 @@ Octree_Interface::generate_octree_template_vertex_group_to_ijk_map()
 
             for ( moris::uint iV = 0; iV < mOctreeTemplates( iTempl )->get_mesh_grid()->num_verts(); iV++ )
             {
-                if ( tVertexAncestry->get_vertex_parent_rank( iV ) == EntityRank::NODE )
+                if ( tVertexAncestry->get_vertex_parent_rank( iV ) == mtk::EntityRank::NODE )
                 {
                     tMaps( iTempl )[iV] = tVertexAncestry->get_vertex_parent_index( iV );
                 }

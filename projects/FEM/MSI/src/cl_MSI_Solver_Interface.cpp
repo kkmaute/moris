@@ -458,10 +458,10 @@ namespace moris
             /* ---------------------------------------------------------------------------------------- */
             /* Step 4: communicate the shared adof data to the owning processor  */
 
-            // outer cell: received from neighbour processor index, inner cells: list of all adofs that are connoted to shared adofs consecutively
+            // outer cell: received from neighbor processor index, inner cells: list of all adofs that are connoted to shared adofs consecutively
             moris::Cell< moris::Cell< uint > > tAdofConnectivityReceive;
 
-            // outer cell: received from neighbour processor index, inner cells: offset indicating position of the connected adofs
+            // outer cell: received from neighbor processor index, inner cells: offset indicating position of the connected adofs
             moris::Cell< moris::Cell< uint > > tAdofConnectivityOffsetReceive;
 
             this->communicate_shared_adof_connectivity( tSharedRowsOffProc, tAdofConnectivityReceive, tAdofConnectivityOffsetReceive, tCommCell );

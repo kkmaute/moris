@@ -938,7 +938,7 @@ namespace moris
         Mesh::get_sideset_topology( const std::string& aSetName )
         {
             MORIS_ERROR( 0, " get_sideset_topology has no base implementation" );
-            return CellTopology::INVALID;
+            return CellTopology::UNDEFINED;
         }
 
         //--------------------------------------------------------------------------------------------------------------
@@ -1436,7 +1436,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         mtk::Cell* const *
-        Mesh::get_ig_cells_in_cluster( enum ClusterType aClusterType, enum mtk::Primary_Void aPrimaryOrVoid, moris_index aClusterIndex ) const
+        Mesh::get_ig_cells_in_cluster( enum ClusterType aClusterType, Primary_Void aPrimaryOrVoid, moris_index aClusterIndex ) const
         {
             MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
             return nullptr;
@@ -1445,7 +1445,7 @@ namespace moris
         //--------------------------------------------------------------------------------------------------------------
 
         uint
-        Mesh::get_num_cells_in_cluster( enum ClusterType aClusterType, enum mtk::Primary_Void aPrimaryOrVoid, moris_index aClusterIndex ) const
+        Mesh::get_num_cells_in_cluster( enum ClusterType aClusterType, Primary_Void aPrimaryOrVoid, moris_index aClusterIndex ) const
         {
             MORIS_ERROR( 0, "get_vertex_interpolation not implemented" );
             return 0;
