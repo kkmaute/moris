@@ -719,7 +719,7 @@ namespace xtk
                 return;
             }
 
-            // loop ove the neighbour and if not visited then perform depth first search
+            // loop ove the neighbor and if not visited then perform depth first search
             for ( const auto& iNeighbour : *( mSubphaseToSubPhase( aSubphaseIndex ) ) )
             {
                 if ( !mVisitedFlag( iNeighbour ) )
@@ -732,7 +732,7 @@ namespace xtk
         // ----------------------------------------------------------------------------------
 
         void
-        get_kth_degree_neighbours( moris_index const & aSubphaseIndex, moris_index const & aDegree, moris::Cell< moris_index >& aNeighbors )
+        get_kth_degree_neighbors( moris_index const & aSubphaseIndex, moris_index const & aDegree, moris::Cell< moris_index >& aNeighbors )
         {
             // mark all the vertices as not visited
             mVisitedFlag.resize( mSubphaseToSubPhase.size());

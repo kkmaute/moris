@@ -1752,7 +1752,7 @@ namespace moris
                                 t ( Ii ) = aFirstTRIConnect(ac, tn(Ii) );
                             }
 
-                            //add neighbours
+                            //add neighbors
                             for ( uint Ii = 0; Ii < t.n_cols() ; Ii++ )
                             {
                                 al.push_back( t( Ii ) );

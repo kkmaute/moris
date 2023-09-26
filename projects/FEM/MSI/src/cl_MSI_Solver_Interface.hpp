@@ -575,9 +575,9 @@ namespace moris
             /**
              * @brief This function receives the shared adof connectivity
              *
-             * @param [in] aSharedAdofConn outer cell: neighbour processor index, inner cell: shared aof index , most inner cell: list of adofs connected to the adof
-             * @param [out] aAdofConnectivityReceive outer cell: received from neighbour processor index, inner cells: list of all adofs that are connoted to shared adofs consecutively
-             * @param [out] aAdofConnectivityOffsetReceive outer cell: received from neighbour processor index, inner cells: offset indicating position of the connected adofs
+             * @param [in] aSharedAdofConn outer cell: neighbor processor index, inner cell: shared aof index , most inner cell: list of adofs connected to the adof
+             * @param [out] aAdofConnectivityReceive outer cell: received from neighbor processor index, inner cells: list of all adofs that are connoted to shared adofs consecutively
+             * @param [out] aAdofConnectivityOffsetReceive outer cell: received from neighbor processor index, inner cells: offset indicating position of the connected adofs
              */
 
             void communicate_shared_adof_connectivity(
