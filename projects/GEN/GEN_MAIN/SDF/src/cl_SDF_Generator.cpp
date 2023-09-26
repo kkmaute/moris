@@ -32,7 +32,7 @@ namespace moris
 
         SDF_Generator::SDF_Generator(
                 const std::string & aObjectPath,
-                Matrix<DDRMat>   aObjectOffset,
+                Matrix<DDRMat>&   aObjectOffset,
                 const bool aVerboseFlag  ) :
                     mObject( aObjectPath, aObjectOffset ),
                     mVerboseFlag ( aVerboseFlag )
