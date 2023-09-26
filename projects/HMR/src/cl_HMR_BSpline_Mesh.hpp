@@ -26,9 +26,9 @@ namespace moris::hmr
     /**
      * B-spline element class
      *
-     * @tparam P Polynomial degree in x-direction
-     * @tparam Q Polynomial degree in y-direction
-     * @tparam R Polynomial degree in z-direction
+     * @param P Polynomial degree in x-direction
+     * @param Q Polynomial degree in y-direction
+     * @param R Polynomial degree in z-direction
      */
     template< uint P, uint Q, uint R >
     class BSpline_Mesh : public BSpline_Mesh_Base
@@ -73,7 +73,8 @@ namespace moris::hmr
         BSpline_Mesh(
                 const Parameters*     aParameters,
                 Background_Mesh_Base* aBackgroundMesh,
-                uint                  aActivationPattern )
+                uint                  aActivationPattern,
+                uint                  aMeshIndex )
                 : BSpline_Mesh_Base(    // <-- this initializer only copies what is passed here into member data and does not process anything
                         aParameters,
                         aBackgroundMesh,
@@ -81,6 +82,17 @@ namespace moris::hmr
                         aActivationPattern,
                         B )
         {
+            // trace this operation
+            Tracer tTracer( "HMR", "B-Spline Mesh #" + std::to_string( aMeshIndex ), "Create" );
+            MORIS_LOG_INFO(
+                    "Creating B-spline mesh index #%i with polynomial order p=%i on pattern #%i",
+                    aMeshIndex,
+                    aActivationPattern,
+                    mOrder );
+
+            // set and store the mesh index
+            this->set_index( aMeshIndex );
+
             // Calculate child stencil (for multigrid)
             this->calculate_child_stencil();
 
@@ -379,6 +391,9 @@ namespace moris::hmr
         void
         calculate_basis_coordinates() override
         {
+            // report on this operation
+            MORIS_LOG_INFO( "B-Spline Mesh #%i: Computing basis function coordinates", this->get_index() );
+
             // get domain dimensions from settings
             Matrix< DDRMat > tDomainDimensions = mParameters->get_domain_dimensions();
 
@@ -482,7 +497,7 @@ namespace moris::hmr
         /**
          * Populates the container of coarse basis pointers based on IJK positions
          *
-         * @tparam D Number of dimensions left to process
+         * @param D Number of dimensions left to process
          * @param aIJK IJK position to fill and use
          * @param aBasisIndex Index in the basis container to fill next
          */

@@ -196,7 +196,8 @@ namespace moris::hmr
             {
                 tIJK[ 0 ] = i;
 
-                this->insert_zero_level_element( tCount++,
+                this->insert_zero_level_element(
+                        tCount++,
                         new Background_Element< 2 >( (Background_Element_Base*)nullptr,
                                 mActivePattern,
                                 tIJK,
@@ -442,7 +443,7 @@ namespace moris::hmr
                 }
             }
         }
-    } // end function: Background_Mesh< 2 >::finalize_coarsest_elements()
+    }    // end function: Background_Mesh< 2 >::finalize_coarsest_elements()
 
     //-------------------------------------------------------------------------------
 
@@ -544,7 +545,7 @@ namespace moris::hmr
                         aElement->get_child( k )->set_padding_flag();
                     }
                 }
-            } // end if: element does NOT have children
+            }       // end if: element does NOT have children
             else    // element has children
             {
                 // activate children if they are inactive
@@ -564,7 +565,7 @@ namespace moris::hmr
                 // refine element
                 aElement->set_refined_flag( mActivePattern );
             }
-        } // end if: element is 
+        }    // end if: element is
     }
 
     //-------------------------------------------------------------------------------
@@ -703,7 +704,7 @@ namespace moris::hmr
     template<>
     inline void
     Background_Mesh< 2 >::collect_coarsest_elements_on_side(
-            uint                       aSideOrdinal,
+            uint                              aSideOrdinal,
             Cell< Background_Element_Base* >& aCoarsestElementsOnSide )
     {
         // clear output cell
@@ -822,6 +823,6 @@ namespace moris::hmr
     }
 
     //-------------------------------------------------------------------------------
-}    // namespace moris
+}    // namespace moris::hmr
 
 #endif /* SRC_HMR_CL_HMR_BACKGROUND_MESH_2D_HPP_ */

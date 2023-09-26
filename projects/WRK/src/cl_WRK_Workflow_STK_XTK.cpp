@@ -39,7 +39,8 @@ namespace moris
         Workflow_STK_XTK::Workflow_STK_XTK( wrk::Performer_Manager* aPerformerManager )
                 : Workflow( aPerformerManager )
         {
-            Tracer tTracer( "Workflow", "STK_XTK", "Initialize" );
+            // time trace this function
+            Tracer tTracer( "WRK", "Workflow_STK_XTK", "Create" );
             MORIS_LOG_SPEC( "Par_Rank", par_rank() );
             MORIS_LOG_SPEC( "Par_Size", par_size() );
 

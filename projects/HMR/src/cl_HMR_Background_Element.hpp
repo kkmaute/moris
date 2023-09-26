@@ -654,7 +654,7 @@ namespace moris::hmr
 
         //--------------------------------------------------------------------------------
         void
-        reset_neigbors()
+        reset_neighbors()
         {
             // loop over all faces
             for ( uint f = 0; f < B; ++f )

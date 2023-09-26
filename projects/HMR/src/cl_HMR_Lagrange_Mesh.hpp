@@ -11,42 +11,46 @@
 #ifndef SRC_HMR_CL_HMR_LAGRANGE_MESH_HPP_
 #define SRC_HMR_CL_HMR_LAGRANGE_MESH_HPP_
 
-#include "cl_HMR_Background_Element_Base.hpp"    //HMR/src
-#include "cl_HMR_Background_Mesh_Base.hpp"       //HMR/src
-#include "cl_HMR_BSpline_Mesh_Base.hpp"          //HMR/src
-#include "cl_HMR_Lagrange_Edge.hpp"              //HMR/src
-#include "cl_HMR_Lagrange_Edge2.hpp"             //HMR/src
-#include "cl_HMR_Lagrange_Edge3.hpp"             //HMR/src
-#include "cl_HMR_Lagrange_Edge4.hpp"             //HMR/src
-#include "cl_HMR_Lagrange_Element.hpp"           //HMR/src
-#include "cl_HMR_Lagrange_Facet.hpp"             //HMR/src
-#include "cl_HMR_Lagrange_Facet_Line2.hpp"       //HMR/src
-#include "cl_HMR_Lagrange_Facet_Line3.hpp"       //HMR/src
-#include "cl_HMR_Lagrange_Facet_Line4.hpp"       //HMR/src
-#include "cl_HMR_Lagrange_Facet_Quad16.hpp"      //HMR/src
-#include "cl_HMR_Lagrange_Facet_Quad4.hpp"       //HMR/src
-#include "cl_HMR_Lagrange_Facet_Quad9.hpp"       //HMR/src
-#include "cl_HMR_Lagrange_Mesh_Base.hpp"         //HMR/src
-#include "cl_HMR_Parameters.hpp"                 //HMR/src
+#include "cl_HMR_Background_Element_Base.hpp"
+#include "cl_HMR_Background_Mesh_Base.hpp"
+#include "cl_HMR_BSpline_Mesh_Base.hpp"
+#include "cl_HMR_Lagrange_Edge.hpp"
+#include "cl_HMR_Lagrange_Edge2.hpp"
+#include "cl_HMR_Lagrange_Edge3.hpp"
+#include "cl_HMR_Lagrange_Edge4.hpp"
+#include "cl_HMR_Lagrange_Element.hpp"
+#include "cl_HMR_Lagrange_Facet.hpp"
+#include "cl_HMR_Lagrange_Facet_Line2.hpp"
+#include "cl_HMR_Lagrange_Facet_Line3.hpp"
+#include "cl_HMR_Lagrange_Facet_Line4.hpp"
+#include "cl_HMR_Lagrange_Facet_Quad16.hpp"
+#include "cl_HMR_Lagrange_Facet_Quad4.hpp"
+#include "cl_HMR_Lagrange_Facet_Quad9.hpp"
+#include "cl_HMR_Lagrange_Mesh_Base.hpp"
+#include "cl_HMR_Parameters.hpp"
 #include "cl_HMR_T_Matrix.hpp"
 #include "cl_HMR_T_Matrix_Advanced.hpp"
-#include "HMR_Globals.hpp"     //HMR/src
-#include "typedefs.hpp"        //COR/src
-#include "cl_Stopwatch.hpp"    //CHR/src
-// #include "cl_Map.hpp" //CNT/src
-#include "cl_HMR_Lagrange_Edge2.hpp"    //HMR/src
+#include "cl_HMR_Lagrange_Edge2.hpp"
+#include "HMR_Globals.hpp"
+#include "typedefs.hpp"
+#include "cl_Stopwatch.hpp"
+// #include "cl_Map.hpp"
+#include "cl_Tracer.hpp"
+#include "fn_stringify.hpp"
 
 namespace moris::hmr
 {
     /**
      * Lagrange mesh class
      *
-     * @tparam N Number of dimensions
-     * @tparam P Polynomial order
+     * @param N Number of dimensions
+     * @param P Polynomial order
      */
     template< uint N, uint P >
     class Lagrange_Mesh : public Lagrange_Mesh_Base
     {
+        // ----------------------------------------------------------------------------
+
         //! Lookup table containing offset for node IDs
         luint mNodeLevelOffset[ gMaxNumberOfLevels ];
 
@@ -59,7 +63,11 @@ namespace moris::hmr
         //! calculation object that calculates the T-Matrices
         Cell< T_Matrix< N >* > mTMatrix;
 
+        // ----------------------------------------------------------------------------
+
       public:
+        // ----------------------------------------------------------------------------
+
         /**
          * Constructor for Lagrange Mesh
          *
@@ -70,7 +78,8 @@ namespace moris::hmr
         Lagrange_Mesh( const Parameters*    aParameters,
                 Background_Mesh_Base*       aBackgroundMesh,
                 Cell< BSpline_Mesh_Base* >& aBSplineMeshes,
-                uint                        aActivationPattern )
+                uint                        aActivationPattern,
+                uint                        aMeshIndex )
                 : Lagrange_Mesh_Base(
                         aParameters,
                         aBackgroundMesh,
@@ -78,6 +87,28 @@ namespace moris::hmr
                         P,
                         aActivationPattern )
         {
+            // trace this operation
+            Tracer tTracer( "HMR", "Lagrange Mesh #" + std::to_string( aMeshIndex ), "Create" );
+
+            // collect the B-spline mesh indices which this Lagrange is associated with
+            uint tNumBspMeshes = aBSplineMeshes.size(); 
+            Cell< moris_index > tBsplineMeshIndices( tNumBspMeshes );
+            for( uint iBspMesh = 0; iBspMesh < tNumBspMeshes; iBspMesh++ )
+            {
+                tBsplineMeshIndices( iBspMesh ) = aBSplineMeshes( iBspMesh )->get_index();
+            }
+
+            // report based on what this lagrange mesh is created on
+            MORIS_LOG_INFO(
+                    "Creating Lagrange mesh index #%i with polynomial order p=%i on pattern #%i, associated with B-spline meshes %s.",
+                    aMeshIndex,
+                    aActivationPattern,
+                    mOrder,
+                    ios::stringify_cell( tBsplineMeshIndices.data() ).c_str() );
+
+            // assign and store the mesh index 
+            this->set_index( aMeshIndex );
+
             // ask background mesh for number of elements per ijk-direction
             this->get_number_of_elements_per_dimension();
 
@@ -146,6 +177,9 @@ namespace moris::hmr
         void
         init_t_matrices()
         {
+            // report on this operation
+            MORIS_LOG_INFO( "Initializing T-matrices on HMR Lagrange mesh" );
+
             // Resize for T-matrices
             mTMatrix.resize( mNumBSplineMeshes, nullptr );
             mLagrangeMeshForTMatrix.resize( mNumBSplineMeshes, nullptr );
@@ -442,11 +476,14 @@ namespace moris::hmr
         void
         calculate_t_matrices( const bool aBool )
         {
-            tic tTimer;
+            // log & trace this operation
+            Tracer tTracer( "HMR", "Lagrange Mesh #" + std::to_string( this->get_index() ), "Compute T-matrices" );
 
-            for ( uint Ik = 0; Ik < mNumBSplineMeshes; Ik++ )
+            // evaluate T-matrices for each B-spline mesh associated with this Lagrange mesh
+            for ( uint iBspMesh = 0; iBspMesh < mNumBSplineMeshes; iBspMesh++ )
             {
-                BSpline_Mesh_Base* tMesh = mBSplineMeshes( Ik );
+                // access the B-spline mesh
+                BSpline_Mesh_Base* tMesh = mBSplineMeshes( iBspMesh );
 
                 if ( tMesh != nullptr )
                 {
@@ -454,35 +491,25 @@ namespace moris::hmr
 
                     if ( P < tBSplineOrder and mParameters->use_advanced_t_matrices() )
                     {
-                        MORIS_ERROR( mLagrangeMeshForTMatrix( Ik ) != nullptr,
+                        MORIS_ERROR( mLagrangeMeshForTMatrix( iBspMesh ) != nullptr,
                                 "Lagrange_Mesh_Base::calculate_t_matrices(), Higher order Lagrange mesh for T-Matrices does not exist." );
 
-                        mLagrangeMeshForTMatrix( Ik )->update_mesh();
+                        mLagrangeMeshForTMatrix( iBspMesh )->update_mesh();
                     }
 
-                    mTMatrix( Ik )->evaluate( Ik, aBool );
+                    // compute the actual T-matrix
+                    mTMatrix( iBspMesh )->evaluate( iBspMesh, aBool );
                 }
                 else
                 {
-                    mTMatrix( Ik )->evaluate_trivial( Ik, aBool );
+                    mTMatrix( iBspMesh )->evaluate_trivial( iBspMesh, aBool );
                 }
             }
 
+            // delete temporary Lagrange mesh for T-matrix evaluation
             this->delete_t_matrix_lagrange_mesh();
 
-            // stop timer
-            real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-
-            // Log output
-            MORIS_LOG_INFO( "%s Created T-Matrices for Lagrange Mesh of order %u on pattern %u.",
-                    proc_string().c_str(),
-                    (unsigned int)mOrder,
-                    (unsigned int)mActivationPattern );
-            MORIS_LOG_INFO( "Creation took %5.3f seconds.",
-                    (double)tElapsedTime / 1000 );
-            MORIS_LOG_INFO( " " );
-        }
-
+        } // end function: hmr::Lagrange_Mesh::calculate_t_matrices()
 
         //------------------------------------------------------------------------------
 

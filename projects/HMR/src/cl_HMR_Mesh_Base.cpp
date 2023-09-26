@@ -70,6 +70,9 @@ namespace moris::hmr
 
     void Mesh_Base::create_elements()
     {
+        // report on this operation
+        MORIS_LOG_INFO( "Creating elements on HMR Mesh" );
+        
         // cell for background elements
         Cell< Background_Element_Base* > tAllBackgroundElements;
 
@@ -272,7 +275,7 @@ namespace moris::hmr
             uint tNumberOfProcNeighbors = mBackgroundMesh->get_number_of_proc_neighbors();
 
             // get proc neighbors from background mesh
-            const Matrix< IdMat > & tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
+            const Matrix< IdMat > & tProcNeighbors = mBackgroundMesh->get_proc_neighbors();
 
             // create cell of matrices to send
             Matrix< DDLUMat > tEmptyLuint;

@@ -14,6 +14,7 @@
 #include "cl_HMR_File.hpp"
 #include "cl_HMR_Mesh.hpp"
 #include "MTK_Tools.hpp"
+#include "cl_Tracer.hpp"
 
 #include "op_times.hpp"
 #include "fn_dot.hpp"
@@ -27,6 +28,9 @@ namespace moris::hmr
     Database::Database( Parameters* aParameters )
             : mParameters( aParameters )
     {
+        // Log Trace this function
+        Tracer tTracer( "HMR", "Database", "Create" );
+
         // lock parameters ( number of elements per direction etc )
         aParameters->lock();
 
@@ -43,9 +47,9 @@ namespace moris::hmr
         mBackgroundMesh->collect_active_elements();
 
         // reset other patterns
-        for ( uint k = 0; k < gNumberOfPatterns; ++k )
+        for ( uint iPattern = 0; iPattern < gNumberOfPatterns; ++iPattern )
         {
-            mBackgroundMesh->reset_pattern( k );
+            mBackgroundMesh->reset_pattern( iPattern );
         }
 
         mBackgroundMesh->set_activation_pattern( 0 );
@@ -306,6 +310,9 @@ namespace moris::hmr
     void
     Database::create_meshes()
     {
+        // log & trace this function
+        Tracer tTracer( "HMR", "Database", "Create Meshes" );
+
         // delete existing meshes
         this->delete_meshes();
 
@@ -322,17 +329,15 @@ namespace moris::hmr
         for ( uint iBspMesh = 0; iBspMesh < tNumberOfBSplineMeshes; ++iBspMesh )
         {
             // get the mesh pattern and polynomial order associated with the current B-spline mesh
-            uint tPatternForBspMesh = mParameters->get_bspline_pattern( iBspMesh );
+            uint tPatternForBspMesh   = mParameters->get_bspline_pattern( iBspMesh );
             uint tPolyOrderForBspMesh = mParameters->get_bspline_order( iBspMesh );
 
-            // TODO: what does this function do?
+            // create and initialize the HMR B-spline meshes
             mBSplineMeshes( iBspMesh ) = tFactory.create_bspline_mesh(
                     mBackgroundMesh,
                     tPatternForBspMesh,
-                    tPolyOrderForBspMesh );
-
-            // assign index to the current B-spline mesh
-            mBSplineMeshes( iBspMesh )->set_index( iBspMesh );
+                    tPolyOrderForBspMesh,
+                    iBspMesh );
         }
 
         // get number of Lagrange meshes to be created
@@ -367,16 +372,15 @@ namespace moris::hmr
 
             // get information specifying what Lagrange mesh to create
             uint tPatternForLagMesh = mParameters->get_lagrange_pattern( iLagMesh );
-            uint tOrderForLagMesh = mParameters->get_lagrange_order( iLagMesh ); 
+            uint tOrderForLagMesh   = mParameters->get_lagrange_order( iLagMesh );
 
             // create Lagrange mesh with links to all B-spline meshes associated to them
             mLagrangeMeshes( iLagMesh ) = tFactory.create_lagrange_mesh(
                     mBackgroundMesh,
                     tBsplineMeshes,
                     tPatternForLagMesh,
-                    tOrderForLagMesh );
-
-            mLagrangeMeshes( iLagMesh )->set_index( iLagMesh );
+                    tOrderForLagMesh,
+                    iLagMesh );
 
             // link to side-set if this is an output mesh
             if ( mParameters->is_output_mesh( iLagMesh ) )
@@ -384,8 +388,8 @@ namespace moris::hmr
                 // FIXME make mOutputSideSets more general. Set with mesh
                 mLagrangeMeshes( iLagMesh )->set_side_sets( mOutputSideSets );
             }
-        } // end for: each Lagrange mesh to be created
-    } // end function: hmr::Database::create_meshes()
+        }    // end for: each Lagrange mesh to be created
+    }        // end function: hmr::Database::create_meshes()
 
     // -----------------------------------------------------------------------------
 
@@ -555,20 +559,28 @@ namespace moris::hmr
     void
     Database::finalize()
     {
-        MORIS_ERROR( !mFinalizedCalled,
-                "Database::finalize(), Finalize was called earlier. You should only call it once." );
+        // log & trace this operation
+        Tracer tTracer( "HMR", "Database", "Finalize" );
+
+        // make sure this function is only called once
+        MORIS_ERROR(
+                !mFinalizedCalled,
+                "hmr::Database::finalize() - Finalize was called earlier. You should only call it once." );
 
         // remember active pattern
         auto tActivePattern = mBackgroundMesh->get_activation_pattern();
 
         const Cell< Matrix< DDUMat > >& tOutputMeshIndices = mParameters->get_output_mesh();
 
-        for ( uint Ik = 0; Ik < tOutputMeshIndices( 0 ).numel(); Ik++ )
+        // finalize each of the output meshes
+        for ( uint iOutputMesh = 0; iOutputMesh < tOutputMeshIndices( 0 ).numel(); iOutputMesh++ )
         {
-            uint tMeshIndex = tOutputMeshIndices( 0 )( Ik );
+            // get the corresponding mesh index
+            uint tMeshIndex = tOutputMeshIndices( 0 )( iOutputMesh );
 
             // activate output pattern
-            mBackgroundMesh->set_activation_pattern( mLagrangeMeshes( tMeshIndex )->get_activation_pattern() );
+            uint tOutputMeshPattern = mLagrangeMeshes( tMeshIndex )->get_activation_pattern();
+            mBackgroundMesh->set_activation_pattern( tOutputMeshPattern );
 
             // create communication table
             this->create_communication_table();
@@ -588,6 +600,7 @@ namespace moris::hmr
             }
         }
 
+        // finalize each of the Lagrange meshes
         for ( Lagrange_Mesh_Base* tMesh : mLagrangeMeshes )
         {
             // fixme: check effect of this flag
@@ -623,6 +636,7 @@ namespace moris::hmr
         // set flag for input t-matrices
         mHaveInputTMatrix = true;
 
+        // finalize each of the B-spline meshes
         for ( auto tMesh : mBSplineMeshes )
         {
             tMesh->calculate_basis_indices( mCommunicationTable );
@@ -676,7 +690,7 @@ namespace moris::hmr
         //                mBackgroundMesh->delete_faces();
         //            }
         //
-        //            mBackgroundMesh->reset_neigbors();
+        //            mBackgroundMesh->reset_neighbors();
 
         // reset other patterns
         for ( uint k = 0; k < gNumberOfPatterns; ++k )
@@ -1430,6 +1444,9 @@ namespace moris::hmr
     void
     Database::create_side_sets()
     {
+        // report on this operation
+        MORIS_LOG_INFO( "Creating side sets in HMR Database" );
+
         // matrix with side sets
         const Matrix< DDUMat >& tSideSets = mParameters->get_side_sets();
 

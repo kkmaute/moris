@@ -84,7 +84,7 @@ namespace moris::hmr
         }
 
         // reset main patterns of this mesh
-        // fixme: this should be its own funcion
+        // fixme: this should be its own function
         aMesh->reset_pattern( mParameters->get_bspline_input_pattern() );
         aMesh->reset_pattern( mParameters->get_lagrange_input_pattern() );
         aMesh->reset_pattern( mParameters->get_bspline_output_pattern() );
@@ -100,7 +100,8 @@ namespace moris::hmr
             Background_Mesh_Base*      aBackgroundMesh,
             Cell< BSpline_Mesh_Base* > aBSplineMeshes,
             uint                       aActivationPattern,
-            luint                      aPolynomialDegree )
+            luint                      aPolynomialDegree,
+            uint                       aMeshIndex )
     {
         // get number of dimensions from settings
         uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
@@ -117,7 +118,8 @@ namespace moris::hmr
                                 mParameters,
                                 aBackgroundMesh,
                                 aBSplineMeshes,
-                                aActivationPattern );
+                                aActivationPattern,
+                                aMeshIndex );
                     }
                     case ( 2 ):
                     {
@@ -125,7 +127,8 @@ namespace moris::hmr
                                 mParameters,
                                 aBackgroundMesh,
                                 aBSplineMeshes,
-                                aActivationPattern );
+                                aActivationPattern,
+                                aMeshIndex );
                     }
                     case ( 3 ):
                     {
@@ -133,7 +136,8 @@ namespace moris::hmr
                                 mParameters,
                                 aBackgroundMesh,
                                 aBSplineMeshes,
-                                aActivationPattern );
+                                aActivationPattern,
+                                aMeshIndex );
                     }
                     default:
                     {
@@ -156,7 +160,8 @@ namespace moris::hmr
                                 mParameters,
                                 aBackgroundMesh,
                                 aBSplineMeshes,
-                                aActivationPattern );
+                                aActivationPattern,
+                                aMeshIndex );
                     }
                     case ( 2 ):
                     {
@@ -164,7 +169,8 @@ namespace moris::hmr
                                 mParameters,
                                 aBackgroundMesh,
                                 aBSplineMeshes,
-                                aActivationPattern );
+                                aActivationPattern,
+                                aMeshIndex );
                     }
                     case ( 3 ):
                     {
@@ -172,7 +178,8 @@ namespace moris::hmr
                                 mParameters,
                                 aBackgroundMesh,
                                 aBSplineMeshes,
-                                aActivationPattern );
+                                aActivationPattern,
+                                aMeshIndex );
                     }
                     default:
                     {
@@ -202,7 +209,8 @@ namespace moris::hmr
     Factory::create_bspline_mesh(
             Background_Mesh_Base* aBackgroundMesh,
             uint                  aActivationPattern,
-            luint                 aPolynomialDegree )
+            luint                 aPolynomialDegree,
+            uint                  aMeshIndex )
     {
         // get number of dimensions from settings
         uint tNumberOfDimensions = mParameters->get_number_of_dimensions();
@@ -218,35 +226,40 @@ namespace moris::hmr
                         return new BSpline_Mesh< 1, 1, 0 >(
                                 mParameters,
                                 aBackgroundMesh,
-                                aActivationPattern );
+                                aActivationPattern,
+                                aMeshIndex );
                     }
                     case ( 2 ):
                     {
                         return new BSpline_Mesh< 2, 2, 0 >(
                                 mParameters,
                                 aBackgroundMesh,
-                                aActivationPattern );
+                                aActivationPattern,
+                                aMeshIndex );
                     }
                     case ( 3 ):
                     {
                         return new BSpline_Mesh< 3, 3, 0 >(
                                 mParameters,
                                 aBackgroundMesh,
-                                aActivationPattern );
+                                aActivationPattern,
+                                aMeshIndex );
                     }
                     case ( 4 ):
                     {
                         return new BSpline_Mesh< 4, 4, 0 >(
                                 mParameters,
                                 aBackgroundMesh,
-                                aActivationPattern );
+                                aActivationPattern,
+                                aMeshIndex );
                     }
                     case ( 5 ):
                     {
                         return new BSpline_Mesh< 5, 5, 0 >(
                                 mParameters,
                                 aBackgroundMesh,
-                                aActivationPattern );
+                                aActivationPattern,
+                                aMeshIndex );
                     }
                     default:
                     {
@@ -268,35 +281,40 @@ namespace moris::hmr
                         return new BSpline_Mesh< 1, 1, 1 >(
                                 mParameters,
                                 aBackgroundMesh,
-                                aActivationPattern );
+                                aActivationPattern,
+                                aMeshIndex );
                     }
                     case ( 2 ):
                     {
                         return new BSpline_Mesh< 2, 2, 2 >(
                                 mParameters,
                                 aBackgroundMesh,
-                                aActivationPattern );
+                                aActivationPattern,
+                                aMeshIndex );
                     }
                     case ( 3 ):
                     {
                         return new BSpline_Mesh< 3, 3, 3 >(
                                 mParameters,
                                 aBackgroundMesh,
-                                aActivationPattern );
+                                aActivationPattern,
+                                aMeshIndex );
                     }
                     case ( 4 ):
                     {
                         return new BSpline_Mesh< 4, 4, 4 >(
                                 mParameters,
                                 aBackgroundMesh,
-                                aActivationPattern );
+                                aActivationPattern,
+                                aMeshIndex );
                     }
                     case ( 5 ):
                     {
                         return new BSpline_Mesh< 5, 5, 5 >(
                                 mParameters,
                                 aBackgroundMesh,
-                                aActivationPattern );
+                                aActivationPattern,
+                                aMeshIndex );
                     }
                     default:
                     {

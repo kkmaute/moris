@@ -351,7 +351,7 @@ namespace moris::hmr
         Matrix< IdMat >
         get_proc_neighbors() const
         {
-            Matrix< IdMat > tProcNeighbors = mBackgroundMesh->get_proc_neigbors();
+            Matrix< IdMat > tProcNeighbors = mBackgroundMesh->get_proc_neighbors();
 
             uint tCounter = 0;
             for ( uint Ik = 0; Ik < tProcNeighbors.numel(); Ik++ )

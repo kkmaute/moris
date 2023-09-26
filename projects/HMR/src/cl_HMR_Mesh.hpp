@@ -180,7 +180,7 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         /**
-         * Gets the polynomial order of an underyling B-spline mesh
+         * Gets the polynomial order of an underlying B-spline mesh
          *
          * @param aDiscretizationIndex B-spline mesh index
          * @return Polynomial degree

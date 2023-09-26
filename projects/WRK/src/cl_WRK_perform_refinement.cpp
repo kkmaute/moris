@@ -488,6 +488,8 @@ namespace moris
                 Cell< std::shared_ptr< Performer > > aPerformers,
                 bool                                 aSimultaneous )
         {
+            Tracer tTracer( "WRK", "Refinement Mini Performer", "Perform GEN refinement" );
+
             // get the maximum number of refinements that need to be performed and therefore refinement iterations
             moris::sint tMaxNumRefinements = this->get_max_refinement_level( aPerformers );
 

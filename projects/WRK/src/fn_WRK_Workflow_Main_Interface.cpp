@@ -31,6 +31,7 @@
 // other header files
 // #include <catch.hpp>
 // #include "fn_equal_to.hpp" //ALG
+#include "cl_Tracer.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 #include "cl_Stopwatch.hpp"    //CHR/src
@@ -141,29 +142,34 @@ fn_WRK_Workflow_Main_Interface( int argc, char *argv[] )
     // prepare library to be generated
     moris::Library_Factory        tLibraryFactory;
     std::shared_ptr< Library_IO > tLibrary = nullptr;
+    
+    {
+        // log & trace this set of operations
+        Tracer tTracer( "WRK", "Main Interface", "Load Parameters" );
 
-    // create the library based on the kind of workflow requested
-    if ( tIsOnlyMeshing )
-    {
-        tLibrary = tLibraryFactory.create_Library( Library_Type::MESHGEN );
-    }
-    else    // no meshing workflow
-    {
-        tLibrary = tLibraryFactory.create_Library( Library_Type::STANDARD );
-    }
+        // create the library based on the kind of workflow requested
+        if ( tIsOnlyMeshing )
+        {
+            tLibrary = tLibraryFactory.create_Library( Library_Type::MESHGEN );
+        }
+        else    // no meshing workflow
+        {
+            tLibrary = tLibraryFactory.create_Library( Library_Type::STANDARD );
+        }
 
-    // load input parameters specified
-    if ( tSoFileSpecified )
-    {
-        tLibrary->load_parameter_list( tSoFileName, File_Type::SO_FILE );
-    }
-    if ( tXmlFileSpecified )
-    {
-        tLibrary->load_parameter_list( tXmlFileName, File_Type::XML_FILE );
-    }
+        // load input parameters specified
+        if ( tSoFileSpecified )
+        {
+            tLibrary->load_parameter_list( tSoFileName, File_Type::SO_FILE );
+        }
+        if ( tXmlFileSpecified )
+        {
+            tLibrary->load_parameter_list( tXmlFileName, File_Type::XML_FILE );
+        }
 
-    // finish initializing the library and lock it from modification
-    tLibrary->finalize();
+        // finish initializing the library and lock it from modification
+        tLibrary->finalize();
+    }
 
     // --------------------------------------------- //
     // start workflow

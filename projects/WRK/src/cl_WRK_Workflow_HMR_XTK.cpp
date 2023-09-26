@@ -41,6 +41,9 @@ namespace moris
         Workflow_HMR_XTK::Workflow_HMR_XTK( wrk::Performer_Manager* aPerformerManager )
                 : Workflow( aPerformerManager )
         {
+            // log & trace this function
+            Tracer tTracer( "WRK", "Workflow_HMR_XTK", "Create" );
+
             // Performer set for this workflow
             mPerformerManager->mHMRPerformer.resize( 1 );
             mPerformerManager->mGENPerformer.resize( 1 );

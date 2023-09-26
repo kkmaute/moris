@@ -201,6 +201,9 @@ namespace moris::hmr
         void
         setup_cell_clusters( Interpolation_Mesh_HMR *aInterpolationMesh )
         {
+            // report on this operation
+            MORIS_LOG_INFO( "Setting up cell clusters" );
+
             // check to see the meshes are the same (since all trivial)
             MORIS_ASSERT( this->get_num_nodes() == aInterpolationMesh->get_num_nodes(),
                     "Mismatch nodes between integration and interpolation mesh nodes. %-5i | %-5i",
@@ -265,6 +268,9 @@ namespace moris::hmr
         void
         setup_blockset_with_cell_clusters()
         {
+            // report on this operation
+            MORIS_LOG_INFO( "Setting up block sets" );
+
             // construct integration to cell cluster relationship
             moris::Cell< moris::moris_index > tPrimaryIntegrationCellToClusterIndex(
                     this->get_num_entities( EntityRank::ELEMENT ),
@@ -362,6 +368,9 @@ namespace moris::hmr
         void
         setup_side_set_clusters( Interpolation_Mesh_HMR *aInterpMesh )
         {
+            // report on this operation
+            MORIS_LOG_INFO( "Setting up side set clusters" );
+
             moris::Cell< std::string > aSideSetNames = this->get_set_names( EntityRank::FACE );
 
             mSideSets.resize( aSideSetNames.size() );

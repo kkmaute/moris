@@ -17,6 +17,7 @@
 #include "cl_Matrix.hpp"       //LINALG/src
 #include "fn_unique.hpp"       //LINALG/src
 #include "cl_Map.hpp"
+#include "cl_Tracer.hpp"
 #include "fn_sum.hpp"
 
 namespace moris::hmr
@@ -44,8 +45,8 @@ namespace moris::hmr
     void
     BSpline_Mesh_Base::update_mesh()
     {
-        // start timer
-        tic tTimer;
+        // log & trace this operation
+        Tracer tTracer( "HMR", "B-Spline Mesh #" + std::to_string( this->get_index() ), "Update" );
 
         // activate pattern on background mesh
         this->select_activation_pattern();
@@ -84,107 +85,72 @@ namespace moris::hmr
         // update element indices ( not needed so far )
         // this->update_element_indices();
 
-        // stop timer
-        real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-
-        MORIS_LOG_INFO( "%s Created B-Spline mesh of order %u on pattern %u.",
-                proc_string().c_str(),
-                (unsigned int)mOrder,
-                (unsigned int)mActivationPattern );
-
-        MORIS_LOG_INFO( "Mesh has %lu  Elements and %lu basis in total.",
-                sum_all( (long unsigned int)mNumberOfAllElementsOnProc ),
-                sum_all( (long unsigned int)mNumberOfAllBasis ) );
-
-        MORIS_LOG_INFO( "Mesh uses %lu basis on proc.",
-                (long unsigned int)mNumberOfAllBasis );
-
-        MORIS_LOG_INFO( "Mesh has %lu active basis on proc.",
-                (long unsigned int)mNumberOfActiveBasisOnProc );
-
-        MORIS_LOG_INFO( "Creation took %5.3f seconds.",
-                (double)tElapsedTime / 1000 );
-        MORIS_LOG_INFO( " " );
-
-        //            MORIS_LOG_INFO( "%s Created B-Spline mesh of order %u on pattern %u."
-        //                            "Mesh has %lu  Elements and %lu basis in total."
-        //                            "Mesh uses %lu basis on proc."
-        //                            "Mesh has %lu active basis on proc."
-        //                            "Creation took %5.3f seconds.",
-        //                    proc_string().c_str(),
-        //                    ( unsigned int )      mOrder,
-        //                    ( unsigned int )      mActivationPattern,
-        //                    ( long unsigned int ) mNumberOfAllElementsOnProc,
-        //                    ( long unsigned int ) mNumberOfAllBasis,
-        //                    ( long unsigned int ) mNumberOfBasis,
-        //                    ( long unsigned int ) mNumberOfActiveBasisOnProc,
-        //                    ( double ) tElapsedTime / 1000 );
-    }
+    }    // end function: BSpline_Mesh_Base::update_mesh()
 
     //------------------------------------------------------------------------------
 
     bool
     BSpline_Mesh_Base::test_sanity()
     {
+        // log & trace this operation
+        Tracer tTracer( "HMR", "B-Spline Mesh #" + std::to_string( this->get_index() ), "Perform sanity test" );
+
         this->calculate_basis_coordinates();
 
-        // start clock
-        tic tTimer;
-
-        // get parents for each basis
+        // get parents for each BF
         this->link_bases_to_parents();
 
-        // statement 0 : a basis can not be active and refined at the same time
-        bool tTestForStateContratiction = true;
+        // statement 0 : a BF can not be active and refined at the same time
+        bool tTestForStateContradiction = true;
 
-        // statement 1 : basis on top level must be active or refined
+        // statement 1 : BF on top level must be active or refined
         bool tTestTopLevelState = true;
 
-        // statement 2 : a basis that is active must have at least one refined parent
+        // statement 2 : a BF that is active must have at least one refined parent
         bool tHaveRefinedParent = true;
 
         // FIXME: tests 2 and 3 are not sufficient in parallel
-        // statement 3 : a basis must be deactive if all parents are active
+        // statement 3 : a BF must be deactive if all parents are active
         bool tDeactiveTest = true;
 
-        // statement 4 : a basis that is refined must have at least one active descendant
+        // statement 4 : a BF that is refined must have at least one active descendant
         bool tRefinedHasActiveChild = true;
 
         // loop over all basis
-        for ( auto tBasis : mAllBasisOnProc )
+        for ( auto tBasisFunction : mAllBasisOnProc )
         {
             // the statements
-            if ( tBasis->is_active() and tBasis->is_refined() )
+            if ( tBasisFunction->is_active() and tBasisFunction->is_refined() )
             {
-                // contradiciton is detected
-                tTestForStateContratiction = false;
+                // contradiction is detected
+                tTestForStateContradiction = false;
             }
 
-            // the next steps only make sense if the basis is actually used
-            if ( tBasis->is_used() )
+            // the next steps only make sense if the basis function is actually used
+            if ( tBasisFunction->is_used() )
             {
                 // test level of basis
-                if ( tBasis->get_level() == 0 )
+                if ( tBasisFunction->get_level() == 0 )
                 {
                     // on the top level, only active or refined basis are allowed
-                    tTestTopLevelState = tTestTopLevelState and ( tBasis->is_active() or tBasis->is_refined() );
+                    tTestTopLevelState = tTestTopLevelState and ( tBasisFunction->is_active() or tBasisFunction->is_refined() );
 
                     /* if( par_rank() == 0 )
                     {
-                        const real * tXY= tBasis->get_xyz();
+                        const real * tXY= tBasisFunction->get_xyz();
                         std::cout << "Basis ( " << tXY[ 0 ] << ", " << tXY[ 1 ] << " ) ["
-                                << tBasis->get_level() << "] "
-                                << tBasis->is_active()  << " " << tBasis->is_refined() << " "
-                               << tBasis->get_memory_index() << std::endl;
+                                << tBasisFunction->get_level() << "] "
+                                << tBasisFunction->is_active()  << " " << tBasisFunction->is_refined() << " "
+                               << tBasisFunction->get_memory_index() << std::endl;
                     } */
                 }
                 else
                 {
                     // parent tests can only be done for higher level basis
-                    uint tNumberOfParents = tBasis->get_number_of_parents();
+                    uint tNumberOfParents = tBasisFunction->get_number_of_parents();
 
                     // this flag  is needed for statement 2
-                    bool tRefinedParetFlag = false;
+                    bool tRefinedParentFlag = false;
 
                     // this statement is needed for statement 3
                     bool tAllParentsAreActive = true;
@@ -193,7 +159,7 @@ namespace moris::hmr
                     for ( uint k = 0; k < tNumberOfParents; ++k )
                     {
                         // get pointer to parent
-                        Basis* tParent = tBasis->get_parent( k );
+                        Basis* tParent = tBasisFunction->get_parent( k );
 
                         // only test if parent is relevant for this mesh
                         if ( tParent->is_used() )
@@ -202,7 +168,7 @@ namespace moris::hmr
                             if ( tParent->is_refined() )
                             {
                                 // set refined parent flag for statement 2
-                                tRefinedParetFlag = true;
+                                tRefinedParentFlag = true;
                             }
 
                             // set active parent flag for statement 3
@@ -211,33 +177,33 @@ namespace moris::hmr
                     }
 
                     // test for statement 2
-                    if ( tBasis->is_active() )
+                    if ( tBasisFunction->is_active() )
                     {
-                        tHaveRefinedParent = tHaveRefinedParent and tRefinedParetFlag;
+                        tHaveRefinedParent = tHaveRefinedParent and tRefinedParentFlag;
                     }
 
                     // test for statement 3
                     if ( tAllParentsAreActive )
                     {
-                        tDeactiveTest = tDeactiveTest and ( !tBasis->is_active() and !tBasis->is_refined() );
-                        if ( !( !tBasis->is_active() and !tBasis->is_refined() ) )
+                        tDeactiveTest = tDeactiveTest and ( !tBasisFunction->is_active() and !tBasisFunction->is_refined() );
+                        if ( !( !tBasisFunction->is_active() and !tBasisFunction->is_refined() ) )
                         {
-                            const real* tXY = tBasis->get_xyz();
+                            const real* tXY = tBasisFunction->get_xyz();
 
-                            std::cout << "Active Basis: " << tBasis->get_level() << " "
+                            std::cout << "Active Basis: " << tBasisFunction->get_level() << " "
                                       << tXY[ 0 ] << " " << tXY[ 1 ] << std::endl;
                         }
                     }
                 }
 
                 // test for statement 4
-                if ( tBasis->is_refined() )
+                if ( tBasisFunction->is_refined() )
                 {
                     // needed for descendant counter
-                    tBasis->flag_descendants();
+                    tBasisFunction->flag_descendants();
 
                     // test how many descendants exist
-                    luint tDescendantCounter = tBasis->count_descendants();
+                    luint tDescendantCounter = tBasisFunction->count_descendants();
 
                     // initialize container of descendants
                     Cell< Basis* > tChildren( tDescendantCounter, nullptr );
@@ -246,7 +212,7 @@ namespace moris::hmr
                     tDescendantCounter = 0;
 
                     // collect  descendants
-                    tBasis->collect_descendants( tChildren, tDescendantCounter );
+                    tBasisFunction->collect_descendants( tChildren, tDescendantCounter );
 
                     // reset foun flag
                     bool tFoundActiveChild = false;
@@ -274,31 +240,12 @@ namespace moris::hmr
         // tidy up flag table
         this->unflag_all_basis();
 
-        bool aPassedTest = tTestForStateContratiction and tTestTopLevelState and tHaveRefinedParent and tDeactiveTest and tRefinedHasActiveChild;
+        bool aPassedTest = tTestForStateContradiction and tTestTopLevelState and tHaveRefinedParent and tDeactiveTest and tRefinedHasActiveChild;
 
-        // stop timer
-        real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-
-        if ( aPassedTest )
+        if ( !aPassedTest )
         {
-            MORIS_LOG_INFO( "%s Tested basis activation sanity.",
-                    proc_string().c_str() );
-            MORIS_LOG_INFO( "Test took %5.3f seconds.",
-                    (double)tElapsedTime / 1000 );
-            MORIS_LOG_INFO( "All tests passed." );
-            MORIS_LOG_INFO( " " );
-        }
-        else
-        {
-            MORIS_LOG_INFO( "%s Tested basis activation sanity.",
-                    proc_string().c_str() );
-            MORIS_LOG_INFO( "Test took %5.3f seconds.",
-                    (double)tElapsedTime / 1000 );
-            MORIS_LOG_INFO( "AT LEAST ONE TEST FAILED." );
-            MORIS_LOG_INFO( " " );
-
-            std::cout << "Test result: "
-                      << tTestForStateContratiction << " "
+            std::cout << "Failed sanity test results: "
+                      << tTestForStateContradiction << " "
                       << tTestTopLevelState << " "
                       << tHaveRefinedParent << " "
                       << tDeactiveTest << " "
@@ -315,6 +262,9 @@ namespace moris::hmr
     void
     BSpline_Mesh_Base::create_basis()
     {
+        // report on this operation
+        MORIS_LOG_INFO( "Creating basis functions" );    // TODO: get the mesh index here
+
         // basis on first level are created separately
         this->create_basis_on_level_zero();
 
@@ -327,10 +277,10 @@ namespace moris::hmr
         // ask background mesh for number of levels
         luint tNumberOfLevels = mBackgroundMesh->get_max_level();
 
-        for ( uint l = 0; l <= tNumberOfLevels; ++l )
+        for ( uint iLevel = 0; iLevel <= tNumberOfLevels; ++iLevel )
         {
             // refinement of basis on this level if the corresponding element is refined.
-            this->process_level( l );
+            this->process_level( iLevel );
         }
 
         this->collect_basis();
@@ -393,7 +343,7 @@ namespace moris::hmr
         Cell< Basis* > tBasisOnThisLevel;
 
         // collect basis from given level
-        this->preprocess_bases_from_level( 
+        this->preprocess_bases_from_level(
                 tElementsOnThisLevel,
                 tBasisOnThisLevel );
 
@@ -517,7 +467,9 @@ namespace moris::hmr
     void
     BSpline_Mesh_Base::calculate_basis_indices( const Matrix< IdMat >& aCommTable )
     {
-        tic tTimer;
+        // report on this operation
+        MORIS_LOG_INFO( "B-Spline Mesh #%i: Computing basis function indices", this->get_index() );
+
         // get my rank
         moris_id tMyRank = par_rank();
 
@@ -752,7 +704,7 @@ namespace moris::hmr
 
             // Step 6: allocate memory for communication lists
 
-            // dummy matrces for cells to send
+            // dummy matrices for cells to send
             Matrix< DDLUMat > tEmptyLuint;
             Matrix< DDUMat >  tEmptyUint;
 
@@ -985,7 +937,7 @@ namespace moris::hmr
                         // get counter
                         tBasisIndex = tProcCount( tIndex );
 
-                        // write index into baCommunicationListasis
+                        // write index into Communication List as is
                         tBasis->set_domain_index( tReceiveIndex( tIndex )( tBasisIndex ) );
 
                         // increment counter
@@ -1013,7 +965,7 @@ namespace moris::hmr
                             // get counter
                             tBasisIndex = tProcCount( tIndex );
 
-                            // write index into baCommunicationListasis
+                            // write index into ba Communication List as is
                             tBasis->set_domain_index( tReceiveIndex( tIndex )( tBasisIndex ) );
 
                             // increment counter
@@ -1050,17 +1002,6 @@ namespace moris::hmr
             this->link_bases_to_parents();
         }
 
-        // stop timer
-        real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-
-        // print output
-        MORIS_LOG_INFO( " Calculate basis indices for B-Spline mesh of order %u on pattern %u.",
-                (unsigned int)mOrder,
-                (unsigned int)mActivationPattern );
-
-        MORIS_LOG_INFO( "Calculation took %5.3f seconds.",
-                (double)tElapsedTime / 1000 );
-        MORIS_LOG_INFO( " " );
         /*
         #if defined(DEBUG)
                 // Test sanity #CHRISTIAN
@@ -1081,7 +1022,7 @@ namespace moris::hmr
                 MORIS_ERROR( tNumberOfActiveBasis == tNumberOfBSplines, "Number of Basis does not match" );
         #endif
         */
-    }
+    } // end function::BSpline_Mesh_Base::calculate_basis_indices()
 
     //------------------------------------------------------------------------------
 
@@ -1298,6 +1239,9 @@ namespace moris::hmr
     void
     BSpline_Mesh_Base::collect_active_and_refined_basis()
     {
+        // report on this operation
+        MORIS_LOG_INFO( "Collect active and refined basis functions" );    // TODO: get the mesh index here
+
         // reset counter
         mNumberOfActiveBasisOnProc  = 0;
         mNumberOfRefinedBasisOnProc = 0;
@@ -1353,7 +1297,7 @@ namespace moris::hmr
                     }
                 }
             }
-        }       // end if: geometric multi-grid is used
+        }    // end if: geometric multi-grid is used
 
         // if: multi-grid is NOT used
         else
@@ -1433,10 +1377,10 @@ namespace moris::hmr
     void
     BSpline_Mesh_Base::save_to_vtk( const std::string& aFilePath )
     {
-        this->calculate_basis_coordinates();
+        // log & trace this operation
+        Tracer tTracer( "HMR", "B-Spline Mesh #" + std::to_string( this->get_index() ), "Save to VTK" );
 
-        // start timer
-        tic tTimer;
+        this->calculate_basis_coordinates();
 
         // modify filename
         std::string tFilePath = parallelize_path( aFilePath );
@@ -1482,7 +1426,7 @@ namespace moris::hmr
         tFile << "DATASET UNSTRUCTURED_GRID" << std::endl;
         tFile << "POINTS " << tNumberOfBasis << " float" << std::endl;
 
-        // ask settings for numner of dimensions
+        // ask settings for number of dimensions
         auto tNumberOfDimensions = mParameters->get_number_of_dimensions();
 
         if ( tNumberOfDimensions == 2 )
@@ -1695,29 +1639,15 @@ namespace moris::hmr
 
         // unflag all bases
         this->unflag_all_basis();
-
-        // stop timer
-        real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-
-        // print output
-        MORIS_LOG_INFO( "%s Created VTK debug file.",
-                proc_string().c_str() );
-
-        MORIS_LOG_INFO( "Mesh has %lu basis.",
-                (long unsigned int)tNumberOfBasis );
-
-        MORIS_LOG_INFO( "Creation took %5.3f seconds.",
-                (double)tElapsedTime / 1000 );
-        MORIS_LOG_INFO( " " );
     }
 
     //------------------------------------------------------------------------------
 
     Matrix< DDSMat >
-    BSpline_Mesh_Base::get_children_ind_for_basis( const moris::sint aParentBasind )
+    BSpline_Mesh_Base::get_children_ind_for_basis( const moris::sint aParentBasisIndex )
     {
         // get basis pointer
-        Basis* tBasis = this->get_basis_by_index( aParentBasind );
+        Basis* tBasis = this->get_basis_by_index( aParentBasisIndex );
 
         // get child indices
         Matrix< DDSMat > tBasisLocalChildInds;
@@ -1739,10 +1669,10 @@ namespace moris::hmr
     //------------------------------------------------------------------------------
 
     Matrix< DDRMat >
-    BSpline_Mesh_Base::get_children_weights_for_parent( const moris::sint aParentBasind )
+    BSpline_Mesh_Base::get_children_weights_for_parent( const moris::sint aParentBasisIndex )
     {
         // get basis pointer
-        Basis* tBasis = this->get_basis_by_index( aParentBasind );
+        Basis* tBasis = this->get_basis_by_index( aParentBasisIndex );
 
         // get child indices
         Matrix< DDSMat > tBasisLocalChildInds;
