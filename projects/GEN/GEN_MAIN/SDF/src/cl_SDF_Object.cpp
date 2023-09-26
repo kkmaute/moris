@@ -18,7 +18,7 @@
 #include "linalg_typedefs.hpp"
 
 #include "SDF_Tools.hpp"
-#include "cl_SDF_Triangle_Vertex.hpp"
+#include "cl_SDF_Facet_Vertex.hpp"
 #include "cl_SDF_Triangle.hpp"
 #include "fn_print.hpp"
 
@@ -29,12 +29,10 @@ namespace moris
 //-------------------------------------------------------------------------------
 
         Object::Object ( const std::string & aFilePath,
-                         Matrix< DDRMat >    aOffsets)
+                         const Matrix< DDRMat >&    aOffsets )
+            : mOffsets( aOffsets )
         {
-            if( aOffsets.numel()>0)
-            {
-                mOffsets = aOffsets;
-            }
+            MORIS_ERROR( mOffsets.numel() > 0, "SDF - Object(): Null offset matrix provided. If no offset is needed, use the default value" );
 
             // check the file extension
             auto tFileExt = aFilePath.substr(aFilePath.find_last_of(".")+1,aFilePath.length());
@@ -62,13 +60,17 @@ namespace moris
             moris::Cell<std::string> tBuffer;
             this->load_ascii_to_buffer( aFilePath, tBuffer );
 
-            // step 1: count number of vertices and triangles in file
+            // step 1: count number of dimensions, vertices and facets in file
+            
+            // reset counter for dimensions
+            uint tNumberOfDims = 0;
+            bool tDimsDetermined = false;
 
             // reset counter for vertices
             uint tNumberOfVertices = 0;
 
-            // reset counter for triangles
-            uint tNumberOfTriangles = 0;
+            // reset counter for facets
+            uint tNumberOfFacets = 0;
 
             // get length of buffer
             uint tBufferLength = tBuffer.size();
@@ -79,10 +81,22 @@ namespace moris
                 if( tBuffer( k ).substr( 0, 2 ) == "v ")
                 {
                     ++tNumberOfVertices;
+                    // for the first line only, determine the number of columns
+                    if ( !tDimsDetermined )
+                    {
+                        for( char c : tBuffer( k ) )
+                        {
+                            if( c == ' ' or c == '\t' )
+                            {
+                                tNumberOfDims++;
+                            }
+                        }
+                        tDimsDetermined = true;
+                    }
                 }
                 else if ( tBuffer( k ).substr( 0, 2 ) == "f ")
                 {
-                    ++tNumberOfTriangles;
+                    ++tNumberOfFacets;
                 }
             }
 
@@ -98,21 +112,38 @@ namespace moris
                 if( tBuffer( k ).substr( 0, 2 ) == "v ")
                 {
                     // create matrix with coordinates
-                    Matrix< DDRMat > tNodeCoords( 3, 1 );
+                    Matrix< DDRMat > tNodeCoords( tNumberOfDims, 1 );
 
                     float tX[ 3 ];
-
-                    // read ascii data into coordinates
-                    std::sscanf(tBuffer(k).substr(
+                    
+                    if( tNumberOfDims == 3 )
+                    {
+                        // read ascii data into coordinates
+                        std::sscanf(tBuffer(k).substr(
+                                2,
+                                tBuffer(k).length()).c_str(),
+                                "%f %f %f",
+                                &tX[ 0 ],
+                                &tX[ 1 ],
+                                &tX[ 2 ] );
+                    }
+                    else if ( tNumberOfDims == 2 )
+                    {
+                        // read ascii data into coordinates
+                        std::sscanf( tBuffer( k ).substr(
                             2,
-                            tBuffer(k).length()).c_str(),
-                            "%f %f %f",
-                            &tX[ 0 ],
-                            &tX[ 1 ],
-                            &tX[ 2 ] );
+                                tBuffer(k).length()).c_str(),
+                                "%f %f",
+                                &tX[ 0 ],
+                                &tX[ 1 ] );
+                    }
+                    else
+                    {
+                        MORIS_ERROR( false, "SDF Object() - .obj files with %d dimensions not supported.", tNumberOfDims );
+                    }
 
                     // test coordinates for highpass
-                    for( uint i=0; i<3; ++i )
+                    for( uint i=0; i < tNumberOfDims; ++i )
                     {
                         if( std::abs( tX[ i ] ) > mMeshHighPass )
                         {
@@ -121,12 +152,12 @@ namespace moris
                         else
                         {
                             // use zero value
-                            tNodeCoords( i ) = 0.0 + mOffsets( i ) ;
+                            tNodeCoords( i ) = 0.0 + mOffsets( i );
                         }
                     }
 
                     // create vertex
-                    mVertices( tCount ) = new Triangle_Vertex( tCount, tNodeCoords );
+                    mVertices( tCount ) = new Facet_Vertex( tCount, tNodeCoords );
 
                     // increment counter
                     ++tCount;
@@ -134,15 +165,15 @@ namespace moris
             }
 
             // step 3
-            // create triangles
+            // create facets
 
             // reset counter
             tCount = 0;
 
             // reserve memory
-            mTriangles.resize( tNumberOfTriangles, nullptr );
+            mFacets.resize( tNumberOfFacets, nullptr );
 
-            // temporary one-based Ids for triangle nodes 1, 2 and 3
+            // temporary one-based Ids for facet nodes 1, 2 and 3
 
             // loop over all lines
             for ( uint k=0; k<tBufferLength; ++k )
@@ -150,17 +181,30 @@ namespace moris
                 if( tBuffer( k ).substr( 0, 2 ) == "f " )
                 {
                     // temporary container for vertices
-                    Cell< Triangle_Vertex * > tNodes( 3, nullptr );
+                    Cell< Facet_Vertex * > tNodes( 3, nullptr );
                     Matrix< DDUMat > tNodeIndices( 3, 1 );
-                    // read triangle topology
-                    std::sscanf(tBuffer(k).substr(2,tBuffer(k).length()).c_str(),
+                    // read facet topology
+                    if ( tNumberOfDims == 3 )
+                    {
+                        std::sscanf(tBuffer(k).substr(2,tBuffer(k).length()).c_str(),
                             "%u %u %u",
                             &tNodeIndices( 0 ),
                             &tNodeIndices( 1 ),
                             &tNodeIndices( 2 ));
+                    }
+                    else if ( tNumberOfDims == 2 )
+                    {
+                        std::sscanf(tBuffer(k).substr(2,tBuffer(k).length()).c_str(),
+                            "%u %u",
+                            &tNodeIndices( 0 ),
+                            &tNodeIndices( 1 ));
+                    }
+                    else {
+                        MORIS_ERROR( false, "SDF Object() - .obj files with %d dimensions not supported.", tNumberOfDims );
+                    }
 
-                    // assign vertices with triangle
-                    for( uint i=0; i<3; ++i )
+                    // assign vertices with facet
+                    for( uint i=0; i < tNumberOfDims; ++i )
                     {
                         // make sure that file is sane
                         MORIS_ERROR( 0< tNodeIndices( i ) && tNodeIndices( i ) <= tNumberOfVertices,
@@ -170,8 +214,10 @@ namespace moris
                         tNodes( i ) = mVertices( tNodeIndices( i ) - 1 );
                     }
 
-                    // create triangle pointer
-                    mTriangles( tCount ) = new Triangle( tCount, tNodes );
+                    // create facet pointer
+                    // FIXME: BRENDAN, although funcionality has been added to read 2d obj files, the Object() itself still relies on triangular facets. 
+                    // New implementation is required to create a 2D object and raycast through it
+                    mFacets( tCount ) = new Triangle( tCount, tNodes );
 
                     // increment counter
                     ++tCount;
@@ -183,9 +229,9 @@ namespace moris
 
         Object::~Object()
         {
-            for( auto tTriangle : mTriangles )
+            for( auto tFacet : mFacets )
             {
-                delete tTriangle;
+                delete tFacet;
             }
 
             for( auto tVertex : mVertices )
@@ -228,6 +274,7 @@ namespace moris
             }
             else
             {
+                MORIS_ERROR( false, "Something went wrong while trying to load from %s.", aFilePath.c_str() );
                 std::cerr << "Something went wrong while trying to load from " <<
                         aFilePath << "." << std::endl;
             }
@@ -252,7 +299,7 @@ namespace moris
             // - - - - - - - - - - - - -
 
             // initialize counter
-            uint tCount = 0;
+            uint tTriangleCount = 0;
 
             // loop over all lines
             for( uint k=0; k<tBufferLength; ++k )
@@ -262,23 +309,23 @@ namespace moris
 
                 if( tWord.substr( 0, 5 ) == "facet" )
                 {
-                    ++tCount;
+                    ++tTriangleCount;
                 }
             }
 
-            MORIS_ERROR( tCount > 0, "Could not find any facets in this file. Maybe not an ASCII STL?" );
+            MORIS_ERROR( tTriangleCount > 0, "Could not find any facets in this file. Maybe not an ASCII STL?" );
 
             // remember number of triangles
-            uint tNumberOfTriangles = tCount;
+            uint tNumberOfTriangles = tTriangleCount;
 
             // - - - - - - - - - - - - -
             // step 2: create vertices
             // - - - - - - - - - - - - -
 
-            mVertices.resize( 3*tCount, nullptr );
+            mVertices.resize( 3*tTriangleCount, nullptr );
 
-            // reset counter
-            tCount = 0;
+            // initialize vertex counter
+            uint tVertexCount = 0;
 
             // create matrix with coordinates
             Matrix< DDRMat > tNodeCoords( 3, 1 );
@@ -299,39 +346,39 @@ namespace moris
                         tNodeCoords( 2 ) = stod( tWords( 3 ) );
 
                         // create vertex
-                       mVertices( tCount ) = new Triangle_Vertex( tCount, tNodeCoords );
+                       mVertices( tVertexCount ) = new Facet_Vertex( tVertexCount, tNodeCoords );
 
                        // increment vertex counter
-                        ++tCount;
+                        ++tVertexCount;
                     }
                 }
             }
 
             // make sure that number of triangles is correct
-            MORIS_ERROR( tCount == mVertices.size(), "Number of vertices does not match" );
+            MORIS_ERROR( tVertexCount == mVertices.size(), "Number of vertices does not match" );
 
             // - - - - - - - - - - - - -
             // step 3: create triangles
             // - - - - - - - - - - - - -
 
             // allocate memory
-            mTriangles.resize( tNumberOfTriangles, nullptr );
+            mFacets.resize( tNumberOfTriangles, nullptr );
 
-            // reset counter
-            tCount = 0;
+            // reset triangle counter
+            tTriangleCount = 0;
 
             // temporary container for vertices
-            Cell< Triangle_Vertex * > tNodes( 3, nullptr );
+            Cell< Facet_Vertex * > tNodes( 3, nullptr );
 
             // create triangles
             for( uint k=0; k<tNumberOfTriangles; ++k )
             {
-                tNodes( 0 ) = mVertices( tCount++ );
-                tNodes( 1 ) = mVertices( tCount++ );
-                tNodes( 2 ) = mVertices( tCount++ );
+                tNodes( 0 ) = mVertices( tTriangleCount++ );
+                tNodes( 1 ) = mVertices( tTriangleCount++ );
+                tNodes( 2 ) = mVertices( tTriangleCount++ );
 
                 // create triangle pointer
-                mTriangles( k ) = new Triangle( k, tNodes );
+                mFacets( k ) = new Triangle( k, tNodes );
             }
         }
 
@@ -341,8 +388,8 @@ namespace moris
         Object::get_nodes_connected_to_element_loc_inds
                         ( moris_index aElementIndex ) const
         {
-            // get pointer to triangle
-            return mTriangles( aElementIndex )->get_vertex_inds();
+            // get pointer to facet
+            return mFacets( aElementIndex )->get_vertex_inds();
         }
 
 //-------------------------------------------------------------------------------
