@@ -33,8 +33,7 @@ namespace moris::ge
             uint                     aADVOffsetID,
             uint                     aDiscretizationIndex,
             std::shared_ptr< Field > aField )
-            : Field_Discrete_Integration( {{}}, aMeshPair.get_interpolation_mesh()->get_num_nodes() )
-            , mSharedADVIds( aSharedADVIds )
+            : Field_Discrete_Integration( aCoefficientIndices, aSharedADVIds, aMeshPair.get_interpolation_mesh()->get_num_nodes() )
             , mADVOffsetID( aADVOffsetID )
             , mMeshPair( aMeshPair )
             , mDiscretizationIndex( aDiscretizationIndex )
@@ -46,9 +45,7 @@ namespace moris::ge
         this->distribute_coeffs(
                 tTargetField,
                 aOwnedADVs,
-                aCoefficientIndices,
-                aSharedADVIds,
-                aADVOffsetID );
+                aCoefficientIndices );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -60,8 +57,7 @@ namespace moris::ge
             const Matrix< DDSMat >&       aSharedADVIds,
             uint                          aADVOffsetID,
             std::shared_ptr< mtk::Field > aMTKField )
-            : Field_Discrete_Integration( {{}}, aMeshPair.get_interpolation_mesh()->get_num_nodes() )
-            , mSharedADVIds( aSharedADVIds )
+            : Field_Discrete_Integration( aCoefficientIndices, aSharedADVIds, aMeshPair.get_interpolation_mesh()->get_num_nodes() )
             , mADVOffsetID( aADVOffsetID )
             , mMeshPair( aMeshPair )
     {
@@ -72,9 +68,7 @@ namespace moris::ge
         this->distribute_coeffs(
                 tTargetField,
                 aOwnedADVs,
-                aCoefficientIndices,
-                aSharedADVIds,
-                aADVOffsetID );
+                aCoefficientIndices );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -90,9 +84,7 @@ namespace moris::ge
     BSpline_Field::distribute_coeffs(
             const Matrix< DDRMat >& aTargetField,
             sol::Dist_Vector*       aOwnedADVs,
-            const Matrix< DDUMat >& aCoefficientIndices,
-            const Matrix< DDSMat >& aSharedADVIds,
-            uint                    aADVOffsetID )
+            const Matrix< DDUMat >& aCoefficientIndices )
     {
         MORIS_ERROR( aTargetField.length() == aCoefficientIndices.length(),
                 "MTK mapper is reporting a different number of coefficients than the mesh at the finest level. %-5zu | %-5zu",

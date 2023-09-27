@@ -19,7 +19,6 @@ namespace moris::ge
     {
 
     private:
-        Matrix<DDSMat> mSharedADVIds;
         uint mADVOffsetID;
         mtk::Mesh_Pair mMeshPair;
         uint mDiscretizationIndex;
@@ -62,9 +61,7 @@ namespace moris::ge
         void distribute_coeffs(
                 const Matrix<DDRMat> & aTargetField,
                 sol::Dist_Vector*      aOwnedADVs,
-                const Matrix<DDUMat>&  aCoefficientIndices,
-                const Matrix<DDSMat>&  aSharedADVIds,
-                uint                   aADVOffsetID);
+                const Matrix<DDUMat>&  aCoefficientIndices );
 
         /**
          * Given a node index, returns the field value.
