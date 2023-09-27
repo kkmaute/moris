@@ -91,7 +91,7 @@ namespace moris::ge
          * @param aCoordinates Node coordinates
          * @return Determining ADV IDs at this node
          */
-        virtual Matrix< DDSMat > get_determining_adv_ids(
+        Matrix< DDSMat > get_determining_adv_ids(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates );
 
@@ -151,7 +151,7 @@ namespace moris::ge
          * @param aNodeIndex Index of the child node
          * @param aChildNode Contains information about how the child node was created
          */
-        virtual void add_child_node(
+        void add_child_node(
                 uint                          aNodeIndex,
                 std::shared_ptr< Child_Node > aChildNode );
 
@@ -161,13 +161,13 @@ namespace moris::ge
          *
          * @param aMesh Interpolation mesh with additional nodes
          */
-        virtual void add_nodal_data( mtk::Interpolation_Mesh* aMesh );
+        void add_nodal_data( mtk::Interpolation_Mesh* aMesh );
 
         /**
          * Resets all nodal information, including child nodes. This should be called when a new XTK mesh is being
          * created.
          */
-        virtual void reset_nodal_data();
+        void reset_nodal_data();
 
         /**
          * Gets the name of this design field.
