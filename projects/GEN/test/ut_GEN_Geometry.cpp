@@ -715,7 +715,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        TEST_CASE( "MultiGeometry", "[gen], [geometry], [multigeometry]" )
+        TEST_CASE( "MultiGeometry", "[gen], [geometry], [combined field]" )
         {
             // ADV indices
             std::string      tADVIndices1    = "0, 1, 3";
@@ -743,7 +743,7 @@ namespace moris
 
             // Should be only one total geometry
             REQUIRE( tGeometries.size() == 1 );
-            std::shared_ptr< Level_Set_Geometry > tMultigeometry = tGeometries( 0 );
+            std::shared_ptr< Level_Set_Geometry > tCombinedField = tGeometries( 0 );
 
             // Set coordinates for checking
             Matrix< DDRMat > tCoordinates0 = { { 0.0, 0.0 } };
@@ -751,14 +751,14 @@ namespace moris
             Matrix< DDRMat > tCoordinates2 = { { 2.0, 2.0 } };
 
             // Check field values
-            CHECK( tMultigeometry->get_field_value( 0, tCoordinates0 ) == Approx( 0.0 ) );
-            CHECK( tMultigeometry->get_field_value( 0, tCoordinates1 ) == Approx( sqrt( 2.0 ) - 2.0 ) );
-            CHECK( tMultigeometry->get_field_value( 0, tCoordinates2 ) == Approx( 0.0 ) );
+            CHECK( tCombinedField->get_field_value( 0, tCoordinates0 ) == Approx( 0.0 ) );
+            CHECK( tCombinedField->get_field_value( 0, tCoordinates1 ) == Approx( sqrt( 2.0 ) - 2.0 ) );
+            CHECK( tCombinedField->get_field_value( 0, tCoordinates2 ) == Approx( 0.0 ) );
 
             // Check sensitivity values TODO determining IDs
-            CHECK_EQUAL( tMultigeometry->get_dfield_dadvs( 0, tCoordinates0 ), Matrix< DDRMat >( { { 0.0, 1.0, -1.0 } } ) ,);
-            CHECK_EQUAL( tMultigeometry->get_dfield_dadvs( 0, tCoordinates1 ), Matrix< DDRMat >( { { -sqrt( 2.0 ) / 2.0, sqrt( 2.0 ) / 2.0, -1.0 } } ) ,);
-            CHECK_EQUAL( tMultigeometry->get_dfield_dadvs( 0, tCoordinates2 ), Matrix< DDRMat >( { { -1.0, 0.0, -1.0 } } ) ,);
+            CHECK_EQUAL( tCombinedField->get_dfield_dadvs( 0, tCoordinates0 ), Matrix< DDRMat >( { { 0.0, 1.0, -1.0 } } ) ,);
+            CHECK_EQUAL( tCombinedField->get_dfield_dadvs( 0, tCoordinates1 ), Matrix< DDRMat >( { { -sqrt( 2.0 ) / 2.0, sqrt( 2.0 ) / 2.0, -1.0 } } ) ,);
+            CHECK_EQUAL( tCombinedField->get_dfield_dadvs( 0, tCoordinates2 ), Matrix< DDRMat >( { { -1.0, 0.0, -1.0 } } ) ,);
 
             // Change ADVs and coordinates
             tADVs( 0 )         = 1.0;
@@ -772,14 +772,14 @@ namespace moris
             tCoordinates2( 1 ) = 2.0;
 
             // Check field values
-            CHECK( tMultigeometry->get_field_value( 0, tCoordinates0 ) == Approx( 0.0 ) );
-            CHECK( tMultigeometry->get_field_value( 0, tCoordinates1 ) == Approx( sqrt( 5.0 ) - 3.0 ) );
-            CHECK( tMultigeometry->get_field_value( 0, tCoordinates2 ) == Approx( 0.0 ) );
+            CHECK( tCombinedField->get_field_value( 0, tCoordinates0 ) == Approx( 0.0 ) );
+            CHECK( tCombinedField->get_field_value( 0, tCoordinates1 ) == Approx( sqrt( 5.0 ) - 3.0 ) );
+            CHECK( tCombinedField->get_field_value( 0, tCoordinates2 ) == Approx( 0.0 ) );
 
             // Check sensitivity values
-            CHECK_EQUAL( tMultigeometry->get_dfield_dadvs( 0, tCoordinates0 ), Matrix< DDRMat >( { { 0.0, 1.0, -1.0 } } ) ,);
-            CHECK_EQUAL( tMultigeometry->get_dfield_dadvs( 0, tCoordinates1 ), Matrix< DDRMat >( { { -2.0 / sqrt( 5.0 ), 1.0 / sqrt( 5.0 ), -1.0 } } ) ,);
-            CHECK_EQUAL( tMultigeometry->get_dfield_dadvs( 0, tCoordinates2 ), Matrix< DDRMat >( { { -1.0, 0.0, -1.0 } } ) ,);
+            CHECK_EQUAL( tCombinedField->get_dfield_dadvs( 0, tCoordinates0 ), Matrix< DDRMat >( { { 0.0, 1.0, -1.0 } } ) ,);
+            CHECK_EQUAL( tCombinedField->get_dfield_dadvs( 0, tCoordinates1 ), Matrix< DDRMat >( { { -2.0 / sqrt( 5.0 ), 1.0 / sqrt( 5.0 ), -1.0 } } ) ,);
+            CHECK_EQUAL( tCombinedField->get_dfield_dadvs( 0, tCoordinates2 ), Matrix< DDRMat >( { { -1.0, 0.0, -1.0 } } ) ,);
         }
 
         //--------------------------------------------------------------------------------------------------------------

@@ -30,7 +30,7 @@ namespace moris::ge
             real             aShift,
             real             aOffset,
             Level_Set_Parameters aParameters)
-            : Multigeometry(Cell<std::shared_ptr< Field > >(1, std::make_shared<Superellipse>(
+            : Combined_Field(Cell<std::shared_ptr< Field > >(1, std::make_shared<Superellipse>(
                       aLeftBound,
                       aBottomBound,
                       aXSemidiameter,
@@ -75,7 +75,7 @@ namespace moris::ge
             real             aOffset,
             bool             aAllowLessThanTargetSpacing,
             Level_Set_Parameters                 aParameters)
-            : Multigeometry(Cell<std::shared_ptr< Field > >(1, std::make_shared<Superellipse>(
+            : Combined_Field(Cell<std::shared_ptr< Field > >(1, std::make_shared<Superellipse>(
                       aLeftBound,
                       aBottomBound,
                       aXSemidiameter,

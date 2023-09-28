@@ -4,30 +4,34 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Multigeometry.hpp
+ * cl_GEN_Multifield.hpp
  *
  */
 
 #pragma once
 
-#include "cl_GEN_Level_Set_Geometry.hpp"
+#include "cl_GEN_Field.hpp"
 
 namespace moris::ge
 {
-    class Multigeometry : public Field
+    class Combined_Field : public Field
     {
 
     private:
-        Cell<std::shared_ptr< Field > > mGeometries;
+        Cell< std::shared_ptr< Field > > mFields;
+        real mScale;
 
     public:
 
         /**
-         * Multigeometry constructor
+         * Combined field constructor
          *
-         * @param aGeometries Created geometries
+         * @param aFields Created fields
+         * @param aUseMinimum Whether or not to use minimum or maximum value when combining fields
          */
-        Multigeometry(Cell<std::shared_ptr< Field > > aGeometries);
+        Combined_Field(
+                Cell< std::shared_ptr< Field > > aFields,
+                bool                             aUseMinimum = true );
 
         /**
          * Given a node coordinate, the geometry needs to return the distance to the nearest function.
@@ -63,13 +67,6 @@ namespace moris::ge
                 uint                  aNodeIndex,
                 const Matrix<DDRMat>& aCoordinates,
                 Matrix<DDRMat>&       aSensitivities);
-
-        /**
-         * Adds a geometry to this multigeometry.
-         *
-         * @param aGeometry Geometry to add
-         */
-        void add_geometry(std::shared_ptr< Field > aGeometry);
 
     };
 }

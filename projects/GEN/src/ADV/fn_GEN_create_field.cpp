@@ -21,7 +21,7 @@
 #include "cl_GEN_User_Defined_Geometry.hpp"
 #include "cl_GEN_Voxel_Input.hpp"
 #include "cl_GEN_Single_Grain.hpp"
-#include "cl_GEN_Multigeometry.hpp"
+#include "cl_GEN_Combined_Field.hpp"
 #include "cl_GEN_Swiss_Cheese_Slice.hpp"
 #include "cl_GEN_Mesh_Field_Geometry.hpp"
 #include "cl_GEN_Geometry_SDF.hpp"

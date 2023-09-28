@@ -66,7 +66,7 @@ set(HEADERS
     ADV/geometry/cl_GEN_Stored_Field.hpp
 	ADV/geometry/cl_GEN_Geometry_SDF.hpp
 	ADV/geometry/cl_GEN_Image_SDF_Geometry.hpp
-	ADV/geometry/cl_GEN_Multigeometry.hpp
+	ADV/geometry/cl_GEN_Combined_Field.hpp
 	ADV/geometry/cl_GEN_Swiss_Cheese_Slice.hpp
 	ADV/geometry/fn_GEN_create_geometries.hpp
 
@@ -125,7 +125,7 @@ set(LIB_SOURCES
     ADV/geometry/cl_GEN_Stored_Field.cpp
 	ADV/geometry/cl_GEN_Geometry_SDF.cpp
 	ADV/geometry/cl_GEN_Image_SDF_Geometry.cpp
-	ADV/geometry/cl_GEN_Multigeometry.cpp
+	ADV/geometry/cl_GEN_Combined_Field.cpp
 	ADV/geometry/cl_GEN_Swiss_Cheese_Slice.cpp
 	ADV/geometry/fn_GEN_create_geometries.cpp
 

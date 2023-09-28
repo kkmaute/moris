@@ -10,11 +10,12 @@
 
 #pragma once
 
-#include "cl_GEN_Multigeometry.hpp"
+#include "cl_GEN_Combined_Field.hpp"
+#include "cl_GEN_Level_Set_Geometry.hpp"
 
 namespace moris::ge
 {
-    class Swiss_Cheese_Slice : public Multigeometry
+    class Swiss_Cheese_Slice : public Combined_Field
     {
     public:
 

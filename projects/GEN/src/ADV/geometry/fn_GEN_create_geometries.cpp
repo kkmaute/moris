@@ -12,7 +12,7 @@
 #include "fn_Parsing_Tools.hpp"
 
 #include "fn_GEN_create_field.hpp"
-#include "cl_GEN_Multigeometry.hpp"
+#include "cl_GEN_Combined_Field.hpp"
 #include "cl_GEN_Voxel_Input.hpp"
 
 namespace moris::ge
@@ -27,7 +27,7 @@ namespace moris::ge
     {
         // Create geometry cell
         Cell< std::shared_ptr< Level_Set_Geometry > >      tGeometries( 0 );
-        Cell< std::shared_ptr< Multigeometry > > tMultigeometries( 0 );
+        Cell< std::shared_ptr< Combined_Field > > tMultigeometries( 0 );
 
         // Create individual geometries
         for ( uint tGeometryIndex = 0; tGeometryIndex < aGeometryParameterLists.size(); tGeometryIndex++ )
