@@ -214,7 +214,7 @@ namespace moris::ge
     BSpline_Field::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
         // Import ADVs as usual
-        Field::import_advs( aOwnedADVs );
+        ADV_Manager::import_advs( aOwnedADVs );
 
         // Reset evaluated field
         mOwnedNodalValues->vec_put_scalar( 0 );
@@ -262,20 +262,6 @@ namespace moris::ge
 
         // Import nodal values
         mSharedNodalValues->import_local_to_global( *mOwnedNodalValues );
-
-        tNodalValues.fill( 0.0 );
-
-        for ( uint tNodeIndex = 0; tNodeIndex < tMesh->get_num_nodes(); tNodeIndex++ )
-        {
-            sint tNodeID = tMesh->get_glb_entity_id_from_entity_loc_index(
-                    tNodeIndex,
-                    mtk::EntityRank::NODE );
-
-            tNodalValues( tNodeIndex ) = ( *mSharedNodalValues )( tNodeID );
-        }
-
-//        this->unlock_field();
-//        this->set_values( tNodalValues );
     }
 
     //--------------------------------------------------------------------------------------------------------------

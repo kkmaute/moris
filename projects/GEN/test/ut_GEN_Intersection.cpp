@@ -890,9 +890,7 @@ namespace moris::ge
             // Get full element info for element 0
             Matrix< IndexMat > tSignedNodeIndices = tMesh->get_nodes_connected_to_element_loc_inds( 0 );
             Matrix< DDUMat >   tNodeIndices( 4, 1 );
-
             Cell< Matrix< DDRMat > > tNodeCoordinates( 4 );
-
             for ( uint tNodeNumber = 0; tNodeNumber < 4; tNodeNumber++ )
             {
                 tNodeIndices( tNodeNumber )     = tSignedNodeIndices( tNodeNumber );
@@ -901,24 +899,18 @@ namespace moris::ge
 
             // Queue custom intersection 1 and check for bilinear intersection
             bool tIntersectionQueued = tGeometryEngine.queue_intersection(
-                    0, 0, { { -1.0, -1.0 } }, { { 1.0, 1.0 } }, { {} }, { {} }, tNodeIndices, tNodeCoordinates );
-
-            REQUIRE( tIntersectionQueued == true );
+                    0, 2, { { -1.0, -1.0 } }, { { 1.0, 1.0 } }, { {} }, { {} }, tNodeIndices, tNodeCoordinates );
+            REQUIRE( tIntersectionQueued );
 
             // Queue custom intersection 2 and check for no bilinear intersection
             tIntersectionQueued = tGeometryEngine.queue_intersection(
-                    0, 0, { { 1.0, -1.0 } }, { { -1.0, 1.0 } }, { {} }, { {} }, tNodeIndices, tNodeCoordinates );
-
-            REQUIRE( tIntersectionQueued == false );
+                    1, 3, { { 1.0, -1.0 } }, { { -1.0, 1.0 } }, { {} }, { {} }, tNodeIndices, tNodeCoordinates );
+            REQUIRE( not tIntersectionQueued );
 
             // Queue custom intersection 3 and check for bilinear intersection
             tIntersectionQueued = tGeometryEngine.queue_intersection(
                     0, 0, { { 0.75, 0.0 } }, { { -0.75, 0.0 } }, { {} }, { {} }, tNodeIndices, tNodeCoordinates );
-
-            REQUIRE( tIntersectionQueued == true );
-
-            // CHECK(tGeometryEngine.get_queued_intersection_local_coordinate() == Approx(-0.520518));
-            // CHECK_EQUAL(tGeometryEngine.get_queued_intersection_global_coordinates(), {{-0.304805898, -0.5}},);
+            REQUIRE( tIntersectionQueued );
 
             // Clean up
             delete tMesh;
