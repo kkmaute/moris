@@ -54,6 +54,8 @@ namespace moris
             moris::Cell< real > mMinCoord;
             moris::Cell< real > mMaxCoord;
 
+            real mHesse;
+
             bool mFlag = false;
 
             //-------------------------------------------------------------------------------
@@ -156,23 +158,25 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
+
+
             /**
-             * @brief intersects the line
+             * Intersects the Line in a coordinate axis direction from aPoint
              *
              *        g(i) = aPoint(i) + tParam*kronecker(i,aAxis)
              *
-             *        with the triangle and returns the coordinate of the axis
-             *
-             * @param[in] aPoint
-             * @param[in] aAxis
+             * @param[in] aPoint the point in which to draw the coordinate axis line from
+             * @param[in] aAxis the direction in which the intersection location will be computed\
+             * @param[in] aCoordinate return value. The global location of the piercing point of the line
+             * @param[in] aError return value. True if the line is close to parallel with the coordinate axis
              *
              */
-            virtual void
+            void
             intersect_with_coordinate_axis(
                     const Matrix< DDRMat >& aPoint,
                     const uint              aAxis,
                     real&                   aCoordinate,
-                    bool&                   aError ) = 0;
+                    bool&                   aError );
 
             //-------------------------------------------------------------------------------
             // MTK API functions

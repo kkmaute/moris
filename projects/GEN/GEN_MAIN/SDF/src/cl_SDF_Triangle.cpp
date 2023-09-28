@@ -27,18 +27,9 @@ namespace moris
                 moris_index                      aIndex,
                 moris::Cell< Facet_Vertex* >& aVertices )
                 : Facet( aIndex, aVertices, 3 )
-                // BRENDAN DELETE THESE COMMENTS. MOVED TO FACET
-                // , mIndex( aIndex )
-                // , mVertices( aVertices )
-                // , mNodeCoords( 3, 3 )
-                // , mNodeIndices( 3, 1 )
-                // , mCenter( 3, 1 )
-                // , mNormal( 3, 1 )
                 , mPredictY( 3, 3 )
                 , mPredictYRA( 3, 3 )
                 , mPredictYRB( 3, 3 )
-                // , mMinCoord( 3, 1 )
-                // , mMaxCoord( 3, 1 )
         {
             this->update_data();
         }
@@ -51,10 +42,8 @@ namespace moris
             // step 1: copy node coordinates and determine center
             this->copy_node_coords_and_inds( mVertices, 3 );
 
-            moris::print(mNodeCoords, "BRENDAN DELETE NODE COORDS");
-
             // help vector
-            Matrix< F31RMat > tDirectionOfEdge( 3, 1 );
+            Matrix< DDRMat > tDirectionOfEdge( 3, 1 );
 
             // step 2: calculate hesse normal form of plane
             this->calculate_hesse_normal_form( tDirectionOfEdge );
@@ -69,10 +58,10 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Triangle::calculate_hesse_normal_form( Matrix< F31RMat >& aDirectionOfEdge )
+        Triangle::calculate_hesse_normal_form( Matrix< DDRMat >& aDirectionOfEdge )
         {
             // step 2: calculate plane of triangle
-            Matrix< F31RMat > tDirection02( 3, 1 );
+            Matrix< DDRMat > tDirection02( 3, 1 );
 
             // help vectors: direction of sides 1 and 2
             for ( uint i = 0; i < 3; ++i )
@@ -82,7 +71,6 @@ namespace moris
             }
 
             // norm of this triangle
-
             mNormal = cross( aDirectionOfEdge, tDirection02 );
 
             real tNorm = norm( mNormal );
@@ -98,11 +86,11 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Triangle::calculate_barycentric_data( const Matrix< F31RMat >& aDirectionOfEdge )
+        Triangle::calculate_barycentric_data( const Matrix< DDRMat >& aDirectionOfEdge )
         {
 
             // calculate direction orthogonal to plane and edge
-            Matrix< F31RMat > tDirectionOrtho = cross( mNormal, aDirectionOfEdge );
+            Matrix< DDRMat > tDirectionOrtho = cross( mNormal, aDirectionOfEdge );
 
             // normalize tDirection10
             real tNorm10 = norm( aDirectionOfEdge );
@@ -233,24 +221,24 @@ namespace moris
         // SDF functions
         //-------------------------------------------------------------------------------
 
-        void
-        Triangle::intersect_with_coordinate_axis(
-                const Matrix< DDRMat >& aPoint,
-                const uint               aAxis,
-                real&                    aCoordinate,
-                bool&                    aError )
-        {
-            if ( std::abs( mNormal( aAxis ) ) < gSDFepsilon )
-            {
-                aCoordinate = 0;
-                aError      = true;
-            }
-            else
-            {
-                aCoordinate = aPoint( aAxis ) + ( mHesse - dot( mNormal, aPoint ) ) / mNormal( aAxis );
-                aError      = false;
-            }
-        }
+        // void
+        // Triangle::intersect_with_coordinate_axis(
+        //         const Matrix< DDRMat >& aPoint,
+        //         const uint               aAxis,
+        //         real&                    aCoordinate,
+        //         bool&                    aError )
+        // {
+        //     if ( std::abs( mNormal( aAxis ) ) < gSDFepsilon )
+        //     {
+        //         aCoordinate = 0;
+        //         aError      = true;
+        //     }
+        //     else
+        //     {
+        //         aCoordinate = aPoint( aAxis ) + ( mHesse - dot( mNormal, aPoint ) ) / mNormal( aAxis );
+        //         aError      = false;
+        //     }
+        // }
 
         //-------------------------------------------------------------------------------
 

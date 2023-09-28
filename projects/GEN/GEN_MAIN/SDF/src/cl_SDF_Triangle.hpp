@@ -32,15 +32,6 @@ namespace moris
          */
         class Triangle : public Facet
         {
-            // BRENDAN DELETE THESE. THESE SHOULD BE FACET MEMBER DATA
-            // index of this triangle
-            //     const moris_index mIndex;
-
-            // cells with vertex pointers
-
-            //     moris::Cell< Facet_Vertex* >    mVertices;
-            //     moris::Cell< Triangle* >        mNeighbors;
-
             struct BarycentricData
             {
                 Matrix< F33RMat > mLocalEdgeDirectionVectors;
@@ -58,21 +49,6 @@ namespace moris
             };
 
             BarycentricData mBarycentric;
-
-            // BRENDAN DELETE THESE VARIABLES. THEY SHOULD BE FACET MEMBER DATA
-            //     // container for node coordinates
-            //     Matrix< F33RMat > mNodeCoords;
-
-            //     // container for node indices
-            //     Matrix< IndexMat > mNodeIndices;
-
-            //     // container for center
-            //     Matrix< F31RMat > mCenter;
-
-            // container for normal
-            Matrix< DDRMat > mNormal;
-
-            real mHesse;
 
             Matrix< F33RMat > mPredictY;
             Matrix< F33RMat > mPredictYRA;
@@ -134,23 +110,27 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-            /**
-             * @brief intersects the line
-             *
-             *        g(i) = aPoint(i) + tParam*kronecker(i,aAxis)
-             *
-             *        with the triangle and returns the coordinate of the axis
-             *
-             * @param[in] aPoint
-             * @param[in] aAxis
-             *
-             */
-            void
-            intersect_with_coordinate_axis(
-                    const Matrix< DDRMat >& aPoint,
-                    const uint              aAxis,
-                    real&                   aCoordinate,
-                    bool&                   aError );
+        //     /**
+        //      * @brief intersects the line
+        //      *
+        //      *        g(i) = aPoint(i) + tParam*kronecker(i,aAxis)
+        //      *
+        //      *        with the triangle and returns the coordinate of the axis
+        //      * 
+        //      * Computes the piercing point on the triangle in a coordinate axis direction from aPoint
+        //      *
+        //      * @param[in] aPoint Point 
+        //      * @param[in] aAxis 0: X-axis, 1: Y-axis, 2: Z-axis
+        //      * @param[in] aCoordinate return value. distance along desired axis where the piercing occurs
+        //      * @param[in] aError True if the triangle is close to parallel with the coordinate axis, indicating there is an error
+        //      *
+        //      */
+        //     void
+        //     intersect_with_coordinate_axis(
+        //             const Matrix< DDRMat >& aPoint,
+        //             const uint              aAxis,
+        //             real&                   aCoordinate,
+        //             bool&                   aError );
 
             //-------------------------------------------------------------------------------
 
@@ -215,13 +195,24 @@ namespace moris
             //-------------------------------------------------------------------------------
 
           private:
+            /**
+             * Determines the hesse distance and the normal vector of the triangle
+             * 
+             * @param aDirectionOfEdge Helper vector for other functions. Direction vector pointing from the first vertex to the second vertex
+             * Set in this function, not used in this function.
+             */
             void
-            calculate_hesse_normal_form( Matrix< F31RMat >& aDirectionOfEdge );
+            calculate_hesse_normal_form( Matrix< DDRMat >& aDirectionOfEdge );
 
             //-------------------------------------------------------------------------------
 
+            /**
+             * Computes all of the values stored in the mBarycentric stuct
+             * 
+             * @param aDirectionOfEdge Direction vector pointing from the first vertex to the second vertex
+             */
             void
-            calculate_barycentric_data( const Matrix< F31RMat >& aDirectionOfEdge );
+            calculate_barycentric_data( const Matrix< DDRMat >& aDirectionOfEdge );
 
             //-------------------------------------------------------------------------------
 
