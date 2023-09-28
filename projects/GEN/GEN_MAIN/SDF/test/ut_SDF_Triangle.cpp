@@ -73,9 +73,6 @@ TEST_CASE(
             { -0.235837187416504 },
             { 0.333176695714916 }
         };
-
-        Matrix< DDRMat > tBrendanDelete = tTriangle.get_normal();
-        moris::print( tBrendanDelete, "triangle normal:");
         real tError = norm( tNormal - tTriangle.get_normal() );
 
         REQUIRE( tError < tEpsilon );
