@@ -19,6 +19,7 @@ namespace moris::ge
             std::shared_ptr< Field > aField,
             Level_Set_Parameters     aParameters )
             : Design_Field( aField, aParameters )
+            , mParameters( aParameters )
     {
     }
 
