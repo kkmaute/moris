@@ -52,9 +52,8 @@
 
 #include "fn_norm.hpp"
 
-#include "cl_GEN_User_Defined_Geometry.hpp"
+#include "cl_GEN_User_Defined_Field.hpp"
 #include "cl_GEN_Property.hpp"
-#include "cl_GEN_User_Defined_Geometry.hpp"
 
 #include "cl_VIS_Output_Manager.hpp"
 
@@ -196,13 +195,14 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
 
-        Matrix<DDRMat> tADVs(0, 0);
-        tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(tADVs,
+        Matrix<DDRMat> tADVs( 0, 0 );
+        auto tField = std::make_shared<moris::ge::User_Defined_Field>(tADVs,
                                                                      Matrix<DDUMat> (0, 0),
                                                                      Matrix<DDUMat> (0, 0),
                                                                      Matrix<DDRMat> (0, 0),
                                                                             &plane_evaluate_field_value,
                                                                             &evaluate_sensitivity);
+        tGeometryVector( 0 ) = std::make_shared< Level_Set_Field >( tField );
 
         size_t tModelDimension = 2;
         moris::ge::Geometry_Engine tGeometryEngine(tGeometryVector, tModelDimension);
@@ -442,20 +442,24 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
                 set_ip_requested_dv_types( tMatPdvTypes );
 
         Matrix<DDRMat> tAdvs(1, 1, 0.0);
-        std::shared_ptr<ge::Property> tDensityProperty1 = std::make_shared<ge::User_Defined_Geometry>(tAdvs,
-                                                                                                      Matrix<DDUMat>(0, 0),
-                                                                                                      Matrix<DDUMat>(0, 0),
-                                                                                                      Matrix<DDRMat>(0, 0),
-                                                                                                      Cell<std::shared_ptr<ge::Property>>(0),
-                                                                                                      &density_function_1,
-                                                                                                      &evaluate_sensitivity);
-        std::shared_ptr<ge::Property> tDensityProperty2 = std::make_shared<ge::User_Defined_Geometry>(tAdvs,
-                                                                                                      Matrix<DDUMat>(0, 0),
-                                                                                                      Matrix<DDUMat>(0, 0),
-                                                                                                      Matrix<DDRMat>(0, 0),
-                                                                                                      Cell<std::shared_ptr<ge::Property>>(0),
-                                                                                                      &density_function_2,
-                                                                                                      &evaluate_sensitivity);
+        auto tDensityField1 = std::make_shared<ge::User_Defined_Field>(
+                tAdvs,
+                Matrix<DDUMat>(0, 0),
+                Matrix<DDUMat>(0, 0),
+                Matrix<DDRMat>(0, 0),
+                Cell<std::shared_ptr<ge::Property>>(0),
+                &density_function_1,
+                &evaluate_sensitivity);
+        auto tDensityProperty1 = std::make_shared< ge::Property >( tDensityField1 );
+        auto tDensityField2 = std::make_shared<ge::User_Defined_Field>(
+                tAdvs,
+                Matrix<DDUMat>(0, 0),
+                Matrix<DDUMat>(0, 0),
+                Matrix<DDRMat>(0, 0),
+                Cell<std::shared_ptr<ge::Property>>(0),
+                &density_function_2,
+                &evaluate_sensitivity);
+        auto tDensityProperty2 = std::make_shared< ge::Property >( tDensityField2 );
         tGeometryEngine.assign_ip_hosts_by_set_index(0, tDensityProperty1, ge::PDV_Type::DENSITY);
         tGeometryEngine.assign_ip_hosts_by_set_index(1, tDensityProperty1, ge::PDV_Type::DENSITY);
         tGeometryEngine.assign_ip_hosts_by_set_index(2, tDensityProperty2, ge::PDV_Type::DENSITY);

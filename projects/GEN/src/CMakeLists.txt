@@ -61,8 +61,7 @@ set(HEADERS
 	ADV/geometry/cl_GEN_Mesh_Field_Geometry.hpp
 	ADV/geometry/cl_GEN_Voxel_Input.hpp
 	ADV/geometry/cl_GEN_Single_Grain.hpp
-	ADV/geometry/cl_GEN_User_Defined_Geometry.hpp
-    ADV/geometry/cl_GEN_Stored_Field.hpp
+	ADV/geometry/cl_GEN_Stored_Field.hpp
 	ADV/geometry/cl_GEN_Geometry_SDF.hpp
 	ADV/geometry/cl_GEN_Image_SDF_Geometry.hpp
 	ADV/geometry/cl_GEN_Combined_Field.hpp
@@ -73,7 +72,6 @@ set(HEADERS
 	ADV/property/cl_GEN_Property.hpp
 	ADV/property/cl_GEN_Constant_Property.hpp
 	ADV/property/cl_GEN_Scaled_Field.hpp
-	ADV/property/cl_GEN_User_Defined_Property.hpp
 	ADV/property/fn_GEN_create_properties.hpp
 
 	# PDV
@@ -118,8 +116,7 @@ set(LIB_SOURCES
 	ADV/geometry/cl_GEN_Mesh_Field_Geometry.cpp
 	ADV/geometry/cl_GEN_Voxel_Input.cpp
 	ADV/geometry/cl_GEN_Single_Grain.cpp
-	ADV/geometry/cl_GEN_User_Defined_Geometry.cpp
-		ADV/geometry/cl_GEN_Stored_Field.cpp
+	ADV/geometry/cl_GEN_Stored_Field.cpp
 	ADV/geometry/cl_GEN_Geometry_SDF.cpp
 	ADV/geometry/cl_GEN_Image_SDF_Geometry.cpp
 	ADV/geometry/cl_GEN_Combined_Field.cpp
@@ -130,8 +127,7 @@ set(LIB_SOURCES
 	ADV/property/cl_GEN_Property.cpp
 	ADV/property/cl_GEN_Constant_Property.cpp
 	ADV/property/cl_GEN_Scaled_Field.cpp
-	ADV/property/cl_GEN_User_Defined_Property.cpp
-		ADV/property/fn_GEN_create_properties.cpp
+	ADV/property/fn_GEN_create_properties.cpp
 
 	# PDV
 	PDV/cl_GEN_Pdv_Host_Manager.cpp

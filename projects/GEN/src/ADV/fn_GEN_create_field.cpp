@@ -18,7 +18,7 @@
 #include "cl_GEN_Sphere.hpp"
 #include "cl_GEN_Superellipsoid.hpp"
 #include "cl_GEN_Plane.hpp"
-#include "cl_GEN_User_Defined_Geometry.hpp"
+#include "cl_GEN_User_Defined_Field.hpp"
 #include "cl_GEN_Voxel_Input.hpp"
 #include "cl_GEN_Single_Grain.hpp"
 #include "cl_GEN_Combined_Field.hpp"
