@@ -15,26 +15,26 @@ namespace moris
 {
     namespace sdf
     {
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         Facet_Vertex::Facet_Vertex(
-                const moris_index        aIndex,
-                const Matrix< DDRMat > & aNodeCoords ) :
-                            mIndex( aIndex ),
-                            mNodeCoords( aNodeCoords ),
-                            mOriginalNodeCoords( aNodeCoords )
+                const moris_index       aIndex,
+                const Matrix< DDRMat > &aNodeCoords )
+                : mIndex( aIndex )
+                , mNodeCoords( aNodeCoords )
+                , mOriginalNodeCoords( aNodeCoords )
         {
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         void
-        Facet_Vertex::rotate_node_coords( const Matrix< DDRMat > & aRotationMatrix )
+        Facet_Vertex::rotate_node_coords( const Matrix< DDRMat > &aRotationMatrix )
         {
             mNodeCoords = aRotationMatrix * mOriginalNodeCoords;
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         void
         Facet_Vertex::reset_node_coords()
@@ -42,8 +42,7 @@ namespace moris
             mNodeCoords = mOriginalNodeCoords;
         }
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
     } /* namespace sdf */
 } /* namespace moris */
-

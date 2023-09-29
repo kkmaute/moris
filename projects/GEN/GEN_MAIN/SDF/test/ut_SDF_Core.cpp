@@ -4,7 +4,7 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_SDF_Core.cpp
+ * ut_SDF_Core.cpp
  *
  */
 
@@ -103,9 +103,6 @@ TEST_CASE(
                 tCore.calculate_raycast(
                         tElementsAtSurface,
                         tElementsInVolume );
-
-                // print statement needed to put matrix on heap
-                print(tElementsInVolumeExpect,"tElementsInVolumeExpect");
 
                 REQUIRE( all_true( tElementsAtSurface == tElementsAtSurfaceExpect ) );
                 REQUIRE( all_true( tElementsInVolume == tElementsInVolumeExpect ) );

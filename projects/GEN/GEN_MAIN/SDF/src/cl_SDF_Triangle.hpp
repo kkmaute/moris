@@ -110,30 +110,6 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
-        //     /**
-        //      * @brief intersects the line
-        //      *
-        //      *        g(i) = aPoint(i) + tParam*kronecker(i,aAxis)
-        //      *
-        //      *        with the triangle and returns the coordinate of the axis
-        //      * 
-        //      * Computes the piercing point on the triangle in a coordinate axis direction from aPoint
-        //      *
-        //      * @param[in] aPoint Point 
-        //      * @param[in] aAxis 0: X-axis, 1: Y-axis, 2: Z-axis
-        //      * @param[in] aCoordinate return value. distance along desired axis where the piercing occurs
-        //      * @param[in] aError True if the triangle is close to parallel with the coordinate axis, indicating there is an error
-        //      *
-        //      */
-        //     void
-        //     intersect_with_coordinate_axis(
-        //             const Matrix< DDRMat >& aPoint,
-        //             const uint              aAxis,
-        //             real&                   aCoordinate,
-        //             bool&                   aError );
-
-            //-------------------------------------------------------------------------------
-
             bool
             check_edge(
                     const uint              aEdge,

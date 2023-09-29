@@ -221,27 +221,6 @@ namespace moris
         // SDF functions
         //-------------------------------------------------------------------------------
 
-        // void
-        // Triangle::intersect_with_coordinate_axis(
-        //         const Matrix< DDRMat >& aPoint,
-        //         const uint               aAxis,
-        //         real&                    aCoordinate,
-        //         bool&                    aError )
-        // {
-        //     if ( std::abs( mNormal( aAxis ) ) < gSDFepsilon )
-        //     {
-        //         aCoordinate = 0;
-        //         aError      = true;
-        //     }
-        //     else
-        //     {
-        //         aCoordinate = aPoint( aAxis ) + ( mHesse - dot( mNormal, aPoint ) ) / mNormal( aAxis );
-        //         aError      = false;
-        //     }
-        // }
-
-        //-------------------------------------------------------------------------------
-
         bool
         Triangle::check_edge(
                 const uint               aEdge,

@@ -43,13 +43,13 @@ namespace moris
         //-------------------------------------------------------------------------------
         // SDF Functions
         //-------------------------------------------------------------------------------
-        
+
         void
         Facet::intersect_with_coordinate_axis(
                 const Matrix< DDRMat >& aPoint,
-                const uint               aAxis,
-                real&                    aCoordinate,
-                bool&                    aError )
+                const uint              aAxis,
+                real&                   aCoordinate,
+                bool&                   aError )
         {
             if ( std::abs( mNormal( aAxis ) ) < gSDFepsilon )
             {
@@ -62,7 +62,7 @@ namespace moris
                 aError      = false;
             }
         }
-        
+
         //-------------------------------------------------------------------------------
         // MTK Interface
         //-------------------------------------------------------------------------------
@@ -169,7 +169,7 @@ namespace moris
         {
             // make sure that the length is correct
             MORIS_ASSERT( aVertices.size() >= aDimension,
-                    "Facet() - Dimension of %d and only %lu vertices. Number of vertices needs to be at least equal to the number of dimensions.",
+                    "Facet() - Dimension of %d and %lu vertices. Number of vertices needs to be at least equal to the number of dimensions.",
                     aDimension,
                     aVertices.size() );
 
@@ -186,9 +186,8 @@ namespace moris
                 auto tNodeCoords = aVertices( iVertexNumber )->get_coords();
 
                 // copy coordinates into member matrix
-                for ( uint iAxis = 0; iAxis < 3; ++iAxis )
+                for ( uint iAxis = 0; iAxis < aDimension; ++iAxis )
                 {
-                    moris::print( mNodeCoords, "mNodeCoords" );
                     mNodeCoords( iAxis, iVertexNumber ) = tNodeCoords( iAxis );
                     mCenter( iAxis ) += tNodeCoords( iAxis );
                 }
@@ -200,36 +199,40 @@ namespace moris
             // identify minimum and maximum coordinate
             for ( uint iAxis = 0; iAxis < aDimension; ++iAxis )
             {
-                mMinCoord( iAxis ) = min( mNodeCoords( iAxis, 0 ),
-                        mNodeCoords( iAxis, 1 ),
-                        mNodeCoords( iAxis, 2 ) );
+                // FIXME: there's probably an easier way to determine the min and max without the use of a switch case
+                switch ( aDimension )
+                {
+                    case 2:
+                    {
+                        mMinCoord( iAxis ) = min( mNodeCoords( iAxis, 0 ),
+                                mNodeCoords( iAxis, 1 ) );
 
-                mMaxCoord( iAxis ) = max( mNodeCoords( iAxis, 0 ),
-                        mNodeCoords( iAxis, 1 ),
-                        mNodeCoords( iAxis, 2 ) );
+                        mMaxCoord( iAxis ) = max( mNodeCoords( iAxis, 0 ),
+                                mNodeCoords( iAxis, 1 ) );
+                        break;
+                    }
+                    case 3:
+                    {
+                        mMinCoord( iAxis ) = min( mNodeCoords( iAxis, 0 ),
+                                mNodeCoords( iAxis, 1 ),
+                                mNodeCoords( iAxis, 2 ) );
+
+                        mMaxCoord( iAxis ) = max( mNodeCoords( iAxis, 0 ),
+                                mNodeCoords( iAxis, 1 ),
+                                mNodeCoords( iAxis, 2 ) );
+                        break;
+                    }
+                        default:
+                        {
+                            MORIS_ASSERT( false, "SDF Facet() - mMinCoord and mMaxCoord not properly computed for dimension %d", aDimension );
+                        }
+                }
             }
 
             // divide center by dimension
             for ( uint iAxis = 0; iAxis < aDimension; ++iAxis )
             {
-                switch ( aDimension )
-                {
-                    case 2:
-                    {
-                        mCenter( iAxis ) /= 2.0;
-                        break;
-                    }
-                    case 3:
-                    {
-                        mCenter( iAxis ) /= 3.0;
-                        break;
-                    }
-                    default:
-                    {
-                        MORIS_ASSERT( false, "SDF Facet() - mCenter not properly computed for dimension %d", aDimension );
-                        break;
-                    }
-                }
+                mCenter( iAxis ) /= (real)aDimension;
             }
         }
     } /* namespace sdf */
