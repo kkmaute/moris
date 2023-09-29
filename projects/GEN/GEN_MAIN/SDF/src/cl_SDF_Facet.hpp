@@ -37,7 +37,6 @@ namespace moris
 
             // cells with vertex pointers
             moris::Cell< Facet_Vertex* > mVertices;
-            moris::Cell< Facet* >        mNeighbors;
 
             // container for node coordinates
             Matrix< DDRMat > mNodeCoords;
@@ -81,7 +80,7 @@ namespace moris
 
             /**
              *
-             * @brief Returns the distance of a Point to the triangle.
+             * @brief Returns the distance of a Point to the facet.
              * @param[in]  aPoint  point to be considered
              *
              */
@@ -231,6 +230,11 @@ namespace moris
 
             //-------------------------------------------------------------------------------
 
+            /**
+             * Gets the global coordinates of the vertices of the facet. 
+             * 
+             * @return Global coordinates. Each row is a vertex, each column is a dimension
+             */
             Matrix< DDRMat >
             get_vertex_coords() const;
 
