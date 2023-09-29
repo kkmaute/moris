@@ -82,7 +82,7 @@ Paramfile::parse_xtk_problem_input_mesh(moris::uint aProblemIndex)
     if (tKey == "path") {
       mXTKProblems(aProblemIndex).mInputMeshFile = tSecond(k);
     }
-    else if (tKey == "type")
+    else if (tKey == "field_type")
    {
       mXTKProblems(aProblemIndex).mMeshType = get_mesh_type_enum(tSecond(k));
     }

@@ -340,8 +340,8 @@ namespace moris
         uint tGeoCounter = 0;
 
         // outer frame
-        tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "type", "superellipse" );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
+        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "superellipse" );
         tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters", "1.5, 0.5," + std::to_string( 1.5 - tWallThickness ) + "," + std::to_string( 0.5 - tWallThickness ) + ", 24.0, 0.1, 0.01, 0.0" );
         tGeoCounter++;
 

@@ -202,13 +202,13 @@ namespace moris
         // Geometry parameter lists
         tParameterlist( 1 ).resize(2);
 
-        tParameterlist(1)(0) = prm::create_geometry_parameter_list();
-        tParameterlist(1)(0).set("type", "plane");
+        tParameterlist(1)(0) = prm::create_level_set_geometry_parameter_list();
+        tParameterlist(1)(0).set("field_type", "plane");
         tParameterlist(1)(0).set("field_variable_indices", "0, 1, 2, 3");
         tParameterlist(1)(0).set("adv_indices", "0, 1, 2, 3");
 
-        tParameterlist(1)(1) = prm::create_geometry_parameter_list();
-        tParameterlist(1)(1).set("type", "plane");
+        tParameterlist(1)(1) = prm::create_level_set_geometry_parameter_list();
+        tParameterlist(1)(1).set("field_type", "plane");
         tParameterlist(1)(1).set("field_variable_indices", "0, 1, 2, 3");
         tParameterlist(1)(1).set("adv_indices", "4, 5, 6, 7");
 

@@ -7996,7 +7996,7 @@ namespace Catch {
                 XmlWriter::ScopedElement e = xml.scopedElement( elementName );
 
                 xml.writeAttribute( "message", result.getExpandedExpression() );
-                xml.writeAttribute( "type", result.getTestMacroName() );
+                xml.writeAttribute( "field_type", result.getTestMacroName() );
 
                 std::ostringstream oss;
                 if( !result.getMessage().empty() )

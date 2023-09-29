@@ -475,7 +475,7 @@ namespace moris
 
             // Constant property parameter list
             ParameterList tParameterList = moris::prm::create_gen_property_parameter_list();
-            tParameterList.set( "type", "constant" );
+            tParameterList.set( "field_type", "constant" );
             tParameterList.set( "field_variable_indices", "0" );
             tParameterList.set( "pdv_type", "DENSITY" );
 

@@ -80,7 +80,7 @@ namespace moris::ge
             }
 
             // TODO generalize this
-//            if ( aGeometryParameterLists( tGeometryIndex ).get< std::string >( "type" ) == "voxel" )
+//            if ( aGeometryParameterLists( tGeometryIndex ).get< std::string >( "field_type" ) == "voxel" )
 //            {
 //                uint tNumVoxelIDs = reinterpret_cast< Voxel_Input* >( tGeometry.get() )->get_num_voxel_Ids();
 //

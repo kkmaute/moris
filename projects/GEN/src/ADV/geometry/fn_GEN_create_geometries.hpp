@@ -28,10 +28,10 @@ namespace moris::ge
      */
     template <typename Vector_Type>
     Cell< std::shared_ptr< Level_Set_Geometry > > create_geometries(
-            Cell<ParameterList>         aGeometryParameterLists,
+            Cell< ParameterList >       aGeometryParameterLists,
             Vector_Type&                aADVs,
             std::shared_ptr<Library_IO> aLibrary = nullptr,
-            mtk::Mesh*                  aMTKMesh = nullptr);
+            mtk::Mesh*                  aMesh = nullptr );
 
     /**
      * Creates an instance of the specified Geometry class and returns a shared pointer to it.

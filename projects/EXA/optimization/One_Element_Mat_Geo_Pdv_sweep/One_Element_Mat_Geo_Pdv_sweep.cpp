@@ -446,8 +446,8 @@ namespace moris
         // tParameterlist( 1 )( tGeoCounter ).set( "refinement_mesh_index", "0,1" );
         // tParameterlist( 1 )( tGeoCounter ).set( "multilinear_intersections", false );
 
-        tParameterlist( 1 ).push_back( prm::create_geometry_parameter_list() );
-        tParameterlist( 1 )( tGeoCounter ).set( "type", "plane" );
+        tParameterlist( 1 ).push_back( prm::create_level_set_geometry_parameter_list() );
+        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "plane" );
         // tParameterlist(1)( tGeoCounter ).set("constant_parameters", "0.0, 0.0, 2.0");
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_tolerance", 10e-14 );
         tParameterlist( 1 )( tGeoCounter ).set( "isocontour_threshold", 0.5 );    // FIXME     this has to change
@@ -457,7 +457,7 @@ namespace moris
         uint tParamCounter = 0;
         tParameterlist( 2 ).push_back( moris::prm::create_gen_property_parameter_list() );
         tParameterlist( 2 )( tParamCounter ).set( "name", "LvL_Set_Field" );
-        tParameterlist( 2 )( tParamCounter ).set( "type", "constant" );
+        tParameterlist( 2 )( tParamCounter ).set( "field_type", "constant" );
         tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", "0.8" );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_type", "LS1" );
         // tParameterlist( 2 )( tParamCounter ).set("discretization_mesh_index",   0);

@@ -525,7 +525,7 @@ namespace moris
 
         tParameterlist( 2 )( tParamCounter ).set( "name", "LevelsetField" );
         tParameterlist( 2 )( tParamCounter ).set( "dependencies", "ADVfield" );
-        tParameterlist( 2 )( tParamCounter ).set( "type", "scaled_field" );
+        tParameterlist( 2 )( tParamCounter ).set( "field_type", "scaled_field" );
         tParameterlist( 2 )( tParamCounter ).set( "constant_parameters", "1.0" );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_type", "LS1" );
         tParameterlist( 2 )( tParamCounter ).set( "pdv_mesh_set_names", tTotalDomain );

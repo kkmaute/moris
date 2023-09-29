@@ -125,7 +125,7 @@ namespace moris::ge
             std::shared_ptr< Library_IO >    aLibrary )
     {
         // Property type/name
-        std::string tPropertyType = aPropertyParameterList.get< std::string >( "type" );
+        std::string tPropertyType = aPropertyParameterList.get< std::string >( "field_type" );
 
         // Create field
         std::shared_ptr< Field > tField = create_field( aPropertyParameterList, aADVs, aFieldDependencies, aLibrary );

@@ -57,7 +57,7 @@ namespace moris::ge
             uint                             aIndex )
     {
         // Geometry type
-        std::string tFieldType = aFieldParameterList.get< std::string >( "type" );
+        std::string tFieldType = aFieldParameterList.get< std::string >( "field_type" );
 
         // Geometry inputs
         Matrix< DDUMat > tVariableIndices( 0, 0 );
