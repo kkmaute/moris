@@ -23,6 +23,7 @@ namespace moris::prm
     {
         aDesignParameterList.insert( "field_type", "" );                   // Type of field
         aDesignParameterList.insert( "name", "" );                         // Name of field
+        aDesignParameterList.insert( "dependencies", "" );                 // Names of other fields that this field depends on
         aDesignParameterList.insert( "field_variable_indices", "" );       // Indices of field variables to fill
         aDesignParameterList.insert( "adv_indices", "" );                  // ADVs used to fill in variables
         aDesignParameterList.insert( "constant_parameters", "" );          // Remaining geometry parameters that are constant
@@ -285,7 +286,6 @@ namespace moris::prm
         ParameterList tParameterList;                                 // For right now, all properties are fields
         tParameterList.insert( "design_type", "property" );           // Set the design type to a property
         insert_field_parameters( tParameterList );                    // Inserts all field parameters
-        tParameterList.insert( "dependencies", "" );                  // Names of other fields that this property depends on
         tParameterList.insert( "pdv_type", "" );                      // The type of PDV that this property will be assigned to
         tParameterList.insert( "pdv_mesh_type", "interpolation" );    // Mesh type for assigning PDVs
         tParameterList.insert( "pdv_mesh_set_names", "" );            // Mesh set names for assigning PDVs
