@@ -14,6 +14,7 @@
 #include "cl_MSI_Model_Solver_Interface.hpp"
 
 #include "fn_isfinite.hpp"
+#include "fn_stringify_matrix.hpp"
 
 namespace moris
 {
@@ -125,12 +126,12 @@ namespace moris
             uint tNumPdofTypes = mListOfPdofTimePerType.size();
 
             // Loop over all pdof types to create adofs
-            for ( uint Ii = 0; Ii < tNumPdofTypes; Ii++ )
+            for ( uint iPDofType = 0; iPDofType < tNumPdofTypes; iPDofType++ )
             {
                 // Ask for adof mesh index for this dof type
-                uint tAdofMeshIndex = (uint)aModelSolverInterface->get_adof_index_for_type( Ii );
+                uint tAdofMeshIndex = (uint)aModelSolverInterface->get_adof_index_for_type( iPDofType );
 
-                if ( mListOfPdofTimePerType( Ii ).size() != 0 )
+                if ( mListOfPdofTimePerType( iPDofType ).size() != 0 )
                 {
                     // Get mesh Ids for the used adofs
                     Matrix< DDSMat > tAdofMeshId  = mNodeObj->get_adof_ids( tAdofMeshIndex );
@@ -138,23 +139,26 @@ namespace moris
                     Matrix< IdMat >  tOwners      = mNodeObj->get_adof_owners( tAdofMeshIndex );
 
                     MORIS_ASSERT( tAdofMeshInd.numel() != 0,
-                            "Pdof_Host::create_adofs_based_on_Tmatrix(), T-matrix size is 0" );
+                            "Pdof_Host::create_adofs_based_on_Tmatrix() - "
+                            "Node with T-matrix size of 0 at coords %s which is owned by proc #%i.",
+                            ios::stringify_log( mNodeObj->get_vertex_coords( tVertCoords ) ),
+                            mNodeObj->get_geometric_vertex()->get_owner() );
 
-                    for ( uint Ij = 0; Ij < mListOfPdofTimePerType( Ii ).size(); Ij++ )
+                    for ( uint iTimeLevel = 0; iTimeLevel < mListOfPdofTimePerType( iPDofType ).size(); iTimeLevel++ )
                     {
                         // Set size of vector with adof pointer
-                        mListOfPdofTimePerType( Ii )( Ij )->mAdofPtrList.resize( tAdofMeshInd.numel() );
+                        mListOfPdofTimePerType( iPDofType )( iTimeLevel )->mAdofPtrList.resize( tAdofMeshInd.numel() );
 
                         // Get pdof type Index
-                        uint tPdofTypeIndex = mListOfPdofTimePerType( Ii )( Ij )->mDofTypeIndex;
+                        uint tPdofTypeIndex = mListOfPdofTimePerType( iPDofType )( iTimeLevel )->mDofTypeIndex;
 
                         uint tAdofType = aTimeLevelOffsets( tPdofTypeIndex );
 
                         // loop over all adofs in the matrix and create an adof if it does not exist, yet.
-                        for ( uint Ik = 0; Ik < tAdofMeshInd.numel(); Ik++ )
+                        for ( uint iIpMesh = 0; iIpMesh < tAdofMeshInd.numel(); iIpMesh++ )
                         {
                             sint tCurrentADofMeshIndex = tAdofMeshInd( Ik );
-                            uint tADofTypeWithTime     = tAdofType + Ij;
+                            uint tADofTypeWithTime     = tAdofType + iTimeLevel;
 
                             // if adof does not exist, store it based on adof type & time and generic coefficient
                             // index (here: tCurrentADofMeshIndex) for particular mesh
@@ -164,15 +168,15 @@ namespace moris
                                 aAdofList( tADofTypeWithTime )( tCurrentADofMeshIndex ) = new Adof();
 
                                 // Set this adofs owning processor
-                                aAdofList( tADofTypeWithTime )( tCurrentADofMeshIndex )->set_adof_owning_processor( tOwners( Ik ) );
+                                aAdofList( tADofTypeWithTime )( tCurrentADofMeshIndex )->set_adof_owning_processor( tOwners( iIpMesh ) );
 
                                 // Set adof external Id and Ind. Id used for comm, Ind used for HMR ordering
-                                aAdofList( tADofTypeWithTime )( tCurrentADofMeshIndex )->set_adof_external_id( tAdofMeshId( Ik ) );    // FIXME delete
-                                aAdofList( tADofTypeWithTime )( tCurrentADofMeshIndex )->set_adof_external_ind( tAdofMeshInd( Ik ) );
+                                aAdofList( tADofTypeWithTime )( tCurrentADofMeshIndex )->set_adof_external_id( tAdofMeshId( iIpMesh ) );    // FIXME delete
+                                aAdofList( tADofTypeWithTime )( tCurrentADofMeshIndex )->set_adof_external_ind( tAdofMeshInd( iIpMesh ) );
                             }
 
                             // set pointer to adof on corresponding pdof/time
-                            mListOfPdofTimePerType( Ii )( Ij )->mAdofPtrList( Ik ) = aAdofList( tADofTypeWithTime )( tCurrentADofMeshIndex );
+                            mListOfPdofTimePerType( iPDofType )( iTimeLevel )->mAdofPtrList( iIpMesh ) = aAdofList( tADofTypeWithTime )( tCurrentADofMeshIndex );
                         }
                     }
                 }
