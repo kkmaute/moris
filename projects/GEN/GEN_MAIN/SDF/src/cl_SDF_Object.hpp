@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef PROJECTS_GEN_SDF_SRC_CL_SDF_OBJECT_HPP_
-#define PROJECTS_GEN_SDF_SRC_CL_SDF_OBJECT_HPP_
+#pragma once
 
 #include <cl_SDF_Facet_Vertex.hpp>
 #include <string>
@@ -102,5 +101,3 @@ namespace moris
         //-------------------------------------------------------------------------------
     } /* namespace sdf */
 } /* namespace moris */
-
-#endif /* PROJECTS_GEN_SDF_SRC_CL_SDF_OBJECT_HPP_ */

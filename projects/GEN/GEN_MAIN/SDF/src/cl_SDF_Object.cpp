@@ -20,6 +20,7 @@
 #include "SDF_Tools.hpp"
 #include "cl_SDF_Facet_Vertex.hpp"
 #include "cl_SDF_Triangle.hpp"
+#include "cl_SDF_Line.hpp"
 #include "fn_print.hpp"
 
 namespace moris
@@ -217,7 +218,24 @@ namespace moris
                     // create facet pointer
                     // FIXME: BRENDAN, although funcionality has been added to read 2d obj files, the Object() itself still relies on triangular facets. 
                     // New implementation is required to create a 2D object and raycast through it
-                    mFacets( tCount ) = new Triangle( tCount, tNodes );
+                    switch ( tNumberOfDims )
+                    {
+                        case 2:
+                        {
+                            mFacets( tCount ) = new Triangle( tCount, tNodes );
+                            break;
+                        }
+                        case 3:
+                        {
+                            mFacets( tCount ) = new Line( tCount, tNodes );
+                            break;
+                        }
+                        default:
+                        {
+                            MORIS_ERROR( false, "Facet implementation for %dD facets not implemented yet.", tNumberOfDims );
+                        }
+                    }
+                    
 
                     // increment counter
                     ++tCount;
