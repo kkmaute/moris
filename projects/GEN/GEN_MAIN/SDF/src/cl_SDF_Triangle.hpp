@@ -81,21 +81,6 @@ namespace moris
             // SDF functions
             //-------------------------------------------------------------------------------
 
-            //-------------------------------------------------------------------------------
-
-            /**
-             * @brief Returns the hesse distance of the plane describing the triangle
-             *
-             *
-             */
-            real
-            get_hesse() const
-            {
-                return mHesse;
-            }
-
-            //-------------------------------------------------------------------------------
-
             /**
              *
              * @brief returns the area of the triangle
@@ -173,7 +158,7 @@ namespace moris
           private:
             /**
              * Determines the hesse distance and the normal vector of the triangle
-             * 
+             *
              * @param aDirectionOfEdge Helper vector for other functions. Direction vector pointing from the first vertex to the second vertex
              * Set in this function, not used in this function.
              */
@@ -184,7 +169,7 @@ namespace moris
 
             /**
              * Computes all of the values stored in the mBarycentric stuct
-             * 
+             *
              * @param aDirectionOfEdge Direction vector pointing from the first vertex to the second vertex
              */
             void

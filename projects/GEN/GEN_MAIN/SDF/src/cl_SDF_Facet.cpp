@@ -222,10 +222,10 @@ namespace moris
                                 mNodeCoords( iAxis, 2 ) );
                         break;
                     }
-                        default:
-                        {
-                            MORIS_ASSERT( false, "SDF Facet() - mMinCoord and mMaxCoord not properly computed for dimension %d", aDimension );
-                        }
+                    default:
+                    {
+                        MORIS_ASSERT( false, "SDF Facet() - mMinCoord and mMaxCoord not properly computed for dimension %d", aDimension );
+                    }
                 }
             }
 

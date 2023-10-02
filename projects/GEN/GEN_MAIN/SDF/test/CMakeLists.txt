@@ -13,6 +13,7 @@ set(TEST_SOURCES
     test_main.cpp
     ut_SDF_Triangle.cpp 
     ut_SDF_Core.cpp
+    ut_SDF_Line.cpp
     )
 
 # List test dependencies

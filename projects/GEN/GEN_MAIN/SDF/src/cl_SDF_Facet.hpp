@@ -147,6 +147,17 @@ namespace moris
                 return mNormal;
             }
 
+            /**
+             * Get the Hesse normal distance. Dot product of the center vector and normal vector
+             *
+             * @return const real
+             */
+            const real
+            get_hesse()
+            {
+                return mHesse;
+            }
+
             //-------------------------------------------------------------------------------
 
             virtual bool
@@ -156,7 +167,6 @@ namespace moris
                     const Matrix< DDRMat >& aPoint ) = 0;
 
             //-------------------------------------------------------------------------------
-
 
 
             /**
@@ -231,8 +241,8 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             /**
-             * Gets the global coordinates of the vertices of the facet. 
-             * 
+             * Gets the global coordinates of the vertices of the facet.
+             *
              * @return Global coordinates. Each row is a vertex, each column is a dimension
              */
             Matrix< DDRMat >
@@ -282,6 +292,7 @@ namespace moris
           protected:
             /**
              * Sets mNodeCoords, mMinCoord, mMaxCoord, and mCenter from the coordinates of mVertices
+             * Each column of mNodeCoords corresponds to a vertex, and each row a dimension
              *
              * @param aVertices Cell of Facet_Vertex's that each contain their global coordinates
              * @param aDimension Number of dimensions for the problem. 2 for line facets and 3 for triangle facets.
