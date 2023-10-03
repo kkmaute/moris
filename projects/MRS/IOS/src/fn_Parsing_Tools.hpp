@@ -805,62 +805,45 @@ namespace moris
         }
     }
 
-    // -----------------------------------------------------------------------------
-
+    /**
+     * Converts an input string into values to be pushed back into a cell.
+     *
+     * @tparam T Cell data type
+     * @param aString Input string
+     * @param aCell Cell of converted data
+     */
     template < typename T >
     void string_to_cell(
             const std::string & aString,
             moris::Cell< T >  & aCell )
     {
-        if( aString.size() > 0 )
+        // convert string to string stream and a sub string
+        std::stringstream tStringStream( aString );
+
+        // seperate the string by the delimiter
+        std::string tSubString;
+        while ( std::getline( tStringStream, tSubString, ',' ) )
         {
-            uint tCellCount = std::count( aString.begin(), aString.end(), ',') + 1;
-
-            aCell.resize( tCellCount );
-
-            std::string tString( aString );
-
-            // reset position
-            size_t tPos = 0;
-
-            uint tCount = 0;
-
-            bool tBool = true;
-
-            while( tBool )
-            {
-                // find string
-                tPos = tString.find( "," );
-
-                if( tPos == std::string::npos )
-                {
-                    tBool = false;
-                }
-
-                if( tBool )
-                {
-                    std::string tStringMat = tString.substr( 0, tPos );
-                    // copy value into output matrix
-                    aCell( tCount++ ) = tStringMat;
-                    tString =  tString.substr( tPos+1, tString.size() );
-                }
-                else
-                {
-                    // copy value into output matrix
-                    aCell( tCount++ ) = tString;
-                }
-            }
+            // convert the sub string to a stream and then to a value
+            std::stringstream tSubStringStream( tSubString );
+            T                 value;
+            tSubStringStream >> value;
+            aCell.push_back( value );
         }
     }
 
-    //------------------------------------------------------------------------------------------------------------------
-
+    /**
+     * Converts an input string into a new cell to be returned.
+     *
+     * @tparam T Cell data type
+     * @param aString Input string
+     * @return Cell of converted data
+     */
     template < typename T >
-    inline
-    moris::Cell<T> string_to_cell( const std::string & aString)
+    moris::Cell< T > string_to_cell( const std::string & aString )
     {
-        moris::Cell<T> tCell;
-        string_to_cell(aString, tCell);
+        moris::Cell< T > tCell;
+        string_to_cell( aString, tCell );
         return tCell;
     }
 
