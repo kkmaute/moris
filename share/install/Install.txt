@@ -121,30 +121,6 @@ spack compiler find
 
 *------------------------------------------------------------
 
-* check what compilers have been found and remove unwanted;
-* recommendation remove all but the one compiler you want to build moris with
-
-spack compiler list
-
-spack compiler rm <unwanted compiler>
-
-*------------------------------------------------------------
-
-* let spack find installed external package
-* after commend has been exectued, see $HOME/.spack/packages.yaml
-
-* IMPORTANT: in case your OS is outdated, do not excute this step;
-* in this case all packages needed will be installed by spack
-
-spack external find
-
-*------------------------------------------------------------
-
-* if texinfo is installed through your OS but makeinfo is not found
-* remove texinfo from $HOME/.spack/packages.yaml
-
-*------------------------------------------------------------
-
 * get moris (main branch)
 
 git clone git@github.com:kkmaute/moris
@@ -196,6 +172,30 @@ setenv TMPDIR ~/work//tmp/
 
 *------------------------------------------------------------
 
+* check what compilers have been found and remove unwanted;
+* recommendation remove all but the one compiler you want to build moris with
+
+spack compiler list
+
+spack compiler rm <unwanted compiler>
+
+*------------------------------------------------------------
+
+* let spack find installed external package
+* after commend has been exectued, see $HOME/.spack/packages.yaml
+
+* IMPORTANT: in case your OS is outdated, do not excute this step;
+* in this case all packages needed will be installed by spack
+
+spack external find
+
+*------------------------------------------------------------
+
+* if texinfo is installed through your OS but makeinfo is not found
+* remove texinfo from spack.yaml
+
+*------------------------------------------------------------
+
 * By default MORIS is installed with support for petsc,slepc, pardiso, and mumps, as well as the optimization libraries; 
 * to turn off one or all of these options, use for example:
 
@@ -215,7 +215,7 @@ spack add openblas
 
 * add openmpi with scheduler information on clusters
 
-spack add openmpi +legacylaunchers schedulers=slurm fabrics=ofi,psm2
+spack add openmpi +legacylaunchers +pmi+pmix schedulers=slurm fabrics=ofi,psm2,vader,openib,tcp
 
 * add location of scheduler to spack.yaml file (watch indentation)
 
@@ -224,7 +224,7 @@ spack add openmpi +legacylaunchers schedulers=slurm fabrics=ofi,psm2
       externals:
       - spec: slurm@22.05.2
         prefix: /usr
-
+      buildable: false
 
 * add latest version of cmake (needed by recent trilinos versions)
 
