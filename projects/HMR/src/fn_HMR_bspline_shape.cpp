@@ -13,10 +13,11 @@
 
 namespace moris::hmr
 {
-    
+
     // -----------------------------------------------------------------------------------------------------------------
-    
-    real bspline_shape(
+
+    real
+    bspline_shape(
             uint aOrder,
             uint aBasisNumber,
             real aXi )
@@ -35,28 +36,28 @@ namespace moris::hmr
         Matrix< DDRMat > tN( aOrder + 1, 1, 0 );
 
         // initialize zero order values
-        for ( uint i = 0; i <= aOrder; ++i )
+        for ( uint iPolyOrder = 0; iPolyOrder <= aOrder; ++iPolyOrder )
         {
-            if ( tDeltaXi( i + aBasisNumber ) <= aXi && aXi < tDeltaXi( i + aBasisNumber + 1 ) )
+            if ( tDeltaXi( iPolyOrder + aBasisNumber ) <= aXi && aXi < tDeltaXi( iPolyOrder + aBasisNumber + 1 ) )
             {
-                tN( i ) = 1.0;
+                tN( iPolyOrder ) = 1.0;
             }
         }
 
         // loop over all orders
-        for ( uint r = 1; r <= aOrder; ++r )
+        for ( uint iPolyOrder = 1; iPolyOrder <= aOrder; ++iPolyOrder )
         {
             // copy values of tN into old matrix
             Matrix< DDRMat > tNold( tN );
 
             // loop over all contributions
-            for ( uint i = 0; i <= aOrder - r; ++i )
+            for ( uint i = 0; i <= aOrder - iPolyOrder; ++i )
             {
                 // help values
                 real tA = aXi - tDeltaXi( i + aBasisNumber );
-                real tB = tDeltaXi( i + aBasisNumber + r + 1 ) - aXi;
+                real tB = tDeltaXi( i + aBasisNumber + iPolyOrder + 1 ) - aXi;
 
-                tN( i ) = 0.5 * ( tA * tNold( i ) + tB * ( tNold( i + 1 ) ) ) / ( (real)r );
+                tN( i ) = 0.5 * ( tA * tNold( i ) + tB * ( tNold( i + 1 ) ) ) / ( (real)iPolyOrder );
             }
         }
 
@@ -66,7 +67,8 @@ namespace moris::hmr
 
     // -----------------------------------------------------------------------------------------------------------------
 
-    real bspline_shape_extended(
+    real
+    bspline_shape_extended(
             uint aOrder,
             uint aBasisNumber,
             real aXi )
@@ -104,5 +106,5 @@ namespace moris::hmr
     }
 
     // -----------------------------------------------------------------------------------------------------------------
-    
-}
+
+}    // namespace moris::hmr

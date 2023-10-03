@@ -257,9 +257,9 @@ namespace moris::hmr
         luint aCount = 0;
 
         // loop over frame and count active descendants
-        for ( luint k = 0; k < tNumberOfCoarsestElements; k++ )
+        for ( luint iElem = 0; iElem < tNumberOfCoarsestElements; iElem++ )
         {
-            mCoarsestElementsIncludingAura( k )->get_number_of_active_descendants( mActivePattern, aCount );
+            mCoarsestElementsIncludingAura( iElem )->get_number_of_active_descendants( mActivePattern, aCount );
         }
 
         return aCount;
@@ -334,12 +334,12 @@ namespace moris::hmr
         // reset counter
         tCount = 0;
 
-        // get number of elements in proc domain
+        // get number of elements in proc domain (including aura/padding)
         luint tNumberOfElementsInFrame = mCoarsestElementsIncludingAura.size();
 
-        for ( luint k = 0; k < tNumberOfElementsInFrame; ++k )
+        for ( luint iElem = 0; iElem < tNumberOfElementsInFrame; ++iElem )
         {
-            mCoarsestElementsIncludingAura( k )->collect_active_descendants( mActivePattern, mActiveElementsIncludingAura, tCount );
+            mCoarsestElementsIncludingAura( iElem )->collect_active_descendants( mActivePattern, mActiveElementsIncludingAura, tCount );
         }
     }
 
@@ -515,21 +515,21 @@ namespace moris::hmr
 
         // step 1:  count flagged elements from active list
         // count active elements on proc including aura
-        uint tActiveElementsOnProc = mActiveElementsIncludingAura.size();
+        uint tNumActiveElementsOnProc = mActiveElementsIncludingAura.size();
 
         // reset counter
         luint tCount = 0;
 
-        for ( luint k = 0; k < tActiveElementsOnProc; ++k )
+        for ( luint iActiveElem = 0; iActiveElem < tNumActiveElementsOnProc; ++iActiveElem )
         {
             // check if element is flagged
-            if ( mActiveElementsIncludingAura( k )->is_queued_for_refinement() )
+            if ( mActiveElementsIncludingAura( iActiveElem )->is_queued_for_refinement() )
             {
                 // increment counter
                 ++tCount;
 
                 // perform padding test
-                this->check_queued_element_for_padding( mActiveElementsIncludingAura( k ) );
+                this->check_queued_element_for_padding( mActiveElementsIncludingAura( iActiveElem ) );
             }
         }
 
@@ -541,10 +541,10 @@ namespace moris::hmr
         luint tPaddingCount = 0;
 
         // loop over all coarsest padding elements
-        for ( luint k = 0; k < tNumberOfCoarsestPaddingElements; ++k )
+        for ( luint iPaddingElem = 0; iPaddingElem < tNumberOfCoarsestPaddingElements; ++iPaddingElem )
         {
             // count descendants
-            mCoarsestPaddingElements( k )->get_number_of_descendants( tPaddingCount );
+            mCoarsestPaddingElements( iPaddingElem )->get_number_of_descendants( tPaddingCount );
         }
 
         // array for padding elements
@@ -554,17 +554,17 @@ namespace moris::hmr
         tPaddingCount = 0;
 
         // collect array
-        for ( luint k = 0; k < tNumberOfCoarsestPaddingElements; ++k )
+        for ( luint iPaddingElem = 0; iPaddingElem < tNumberOfCoarsestPaddingElements; ++iPaddingElem )
         {
             // count descendants
-            mCoarsestPaddingElements( k )->collect_descendants( tAllPaddingElements, tPaddingCount );
+            mCoarsestPaddingElements( iPaddingElem )->collect_descendants( tAllPaddingElements, tPaddingCount );
         }
 
         // loop over all padding elements
-        for ( luint k = 0; k < tPaddingCount; ++k )
+        for ( luint iPaddingElem = 0; iPaddingElem < tPaddingCount; ++iPaddingElem )
         {
             // test if element is flagged for refinement
-            if ( tAllPaddingElements( k )->is_queued_for_refinement() )
+            if ( tAllPaddingElements( iPaddingElem )->is_queued_for_refinement() )
             {
                 // increment counter
                 ++tCount;
@@ -578,24 +578,24 @@ namespace moris::hmr
         tCount = 0;
 
         // step 3: add flagged elements from active list
-        for ( luint k = 0; k < tActiveElementsOnProc; ++k )
+        for ( luint iActiveElem = 0; iActiveElem < tNumActiveElementsOnProc; ++iActiveElem )
         {
-            if ( mActiveElementsIncludingAura( k )->is_queued_for_refinement() )
+            if ( mActiveElementsIncludingAura( iActiveElem )->is_queued_for_refinement() )
             {
-                mRefinementQueue( tCount++ ) = mActiveElementsIncludingAura( k );
+                mRefinementQueue( tCount++ ) = mActiveElementsIncludingAura( iActiveElem );
             }
         }
 
         // step 4: add flagged elements from padding list
 
         // loop over all padding elements
-        for ( luint k = 0; k < tPaddingCount; ++k )
+        for ( luint iPaddingElem = 0; iPaddingElem < tPaddingCount; ++iPaddingElem )
         {
             // test if element is flagged for refinement
-            if ( tAllPaddingElements( k )->is_queued_for_refinement() )
+            if ( tAllPaddingElements( iPaddingElem )->is_queued_for_refinement() )
             {
                 // copy pointer to queue
-                mRefinementQueue( tCount++ ) = tAllPaddingElements( k );
+                mRefinementQueue( tCount++ ) = tAllPaddingElements( iPaddingElem );
             }
         }
 
@@ -661,7 +661,7 @@ namespace moris::hmr
         Matrix< DDUMat > tElementCount( tNumberOfProcs, 1, 0 );
         Matrix< DDUMat > tElementCountOld( tNumberOfProcs, 1 );
 
-        uint tNumberOfElements = 0;
+        uint tNumberOfElementsToBeRefined = 0;
 
         bool tPatternChange = false;
         uint tOldPattern    = mActivePattern;
@@ -693,13 +693,13 @@ namespace moris::hmr
             aFlag = aFlag || this->collect_refinement_queue();
 
             // update number of elements on queue
-            tNumberOfElements = mRefinementQueue.size();
+            tNumberOfElementsToBeRefined = mRefinementQueue.size();
 
             // shift counters
             tElementCountOld = tElementCount;
 
             // broadcast element count
-            comm_gather_and_broadcast( tNumberOfElements, tElementCount );
+            comm_gather_and_broadcast( tNumberOfElementsToBeRefined, tElementCount );
 
             // make sure that element count is the same
             if ( all_true( tElementCount == tElementCountOld ) )
@@ -716,7 +716,7 @@ namespace moris::hmr
         mActiveElements.clear();
 
         // perform refinement
-        for ( luint iElemToBeRefined = 0; iElemToBeRefined < tNumberOfElements; ++iElemToBeRefined )
+        for ( luint iElemToBeRefined = 0; iElemToBeRefined < tNumberOfElementsToBeRefined; ++iElemToBeRefined )
         {
             this->refine_element( mRefinementQueue( iElemToBeRefined ), false );
         }
@@ -1070,22 +1070,22 @@ namespace moris::hmr
         // reserve memory on element list
         aElementList.resize( tCount, nullptr );
 
-        // get number of elements on coarsest level
+        // get number of elements on coarsest level including aura and padding elements
         luint tNumberOfCoarsestElements = mCoarsestElementsIncludingAura.size();
 
         // reset counter
         tCount = 0;
 
         // loop over all elements on coarsest level
-        for ( luint e = 0; e < tNumberOfCoarsestElements; ++e )
+        for ( luint iElem = 0; iElem < tNumberOfCoarsestElements; ++iElem )
         {
-            mCoarsestElementsIncludingAura( e )->collect_descendants( aElementList, tCount );
+            mCoarsestElementsIncludingAura( iElem )->collect_descendants( aElementList, tCount );
         }
 
         // sets memory index for all elements
-        for ( luint k = 0; k < tCount; ++k )
+        for ( luint iActiveElem = 0; iActiveElem < tCount; ++iActiveElem )
         {
-            aElementList( k )->set_memory_index( k );
+            aElementList( iActiveElem )->set_memory_index( iActiveElem );
         }
     }
 
@@ -1405,10 +1405,10 @@ namespace moris::hmr
             uint tNumberOfNeighbors = tNeighbors.size();
 
             // check neighbors of element
-            for ( uint k = 0; k < tNumberOfNeighbors; ++k )
+            for ( uint iElem = 0; iElem < tNumberOfNeighbors; ++iElem )
             {
                 // get neighbor
-                Background_Element_Base* tNeighbor = tNeighbors( k );
+                Background_Element_Base* tNeighbor = tNeighbors( iElem );
 
                 // test all neighbors
                 // test if neighbor is active and was not flagged
@@ -1459,9 +1459,9 @@ namespace moris::hmr
                                 aHalfBuffer );
                     }
                 }
-            }
-        }
-    }
+            } // end for: each neighboring element
+        } // end if: is refined level
+    } // end function: Background_Mesh_Base::create_staircase_buffer_for_element()
 
     //--------------------------------------------------------------------------------
 
@@ -1486,7 +1486,8 @@ namespace moris::hmr
             // create staircase buffer
             for ( auto tElement : mRefinementQueue )
             {
-                this->create_staircase_buffer_for_element( tElement,
+                this->create_staircase_buffer_for_element( 
+                        tElement,
                         tElementCounter,
                         tHalfBuffer );
             }

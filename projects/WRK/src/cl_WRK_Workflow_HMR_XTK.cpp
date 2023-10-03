@@ -42,7 +42,7 @@ namespace moris
                 : Workflow( aPerformerManager )
         {
             // log & trace this function
-            Tracer tTracer( "WRK", "Workflow_HMR_XTK", "Create" );
+            Tracer tTracer( "WRK", "HMR-XTK Workflow", "Create" );
 
             // Performer set for this workflow
             mPerformerManager->mHMRPerformer.resize( 1 );
@@ -113,6 +113,9 @@ namespace moris
                 Matrix< DDRMat >& aUpperBounds,
                 Matrix< IdMat >&  aIjklIDs )
         {
+            // Trace & log this function
+            Tracer tTracer( "WRK", "HMR-XTK Workflow", "Initialize" );
+
             mInitializeOptimizationRestart = false;
 
             mIter = 0;
@@ -120,13 +123,13 @@ namespace moris
             moris::Cell< std::shared_ptr< mtk::Field > > tFieldsIn;
             moris::Cell< std::shared_ptr< mtk::Field > > tFieldsOut;
 
+            // get access to the GEN performer
+            std::shared_ptr< ge::Geometry_Engine > tGenPerformer = mPerformerManager->mGENPerformer( 0 );
+
             // perform in first optimization iteration only
             if ( tIsFirstOptSolve )
             {
-                // Stage 1: HMR refinement -------------------------------------------------------------------
-
-                // Trace HMR
-                Tracer tTracer( "HMR", "HMRmesh", "Create" );
+                // Step 1: HMR refinement -------------------------------------------------------------------
 
                 // mPerformerManager->mHMRPerformer( 0 )->reset_HMR();
 
@@ -139,11 +142,11 @@ namespace moris
                     // HMR refined by GE
                     Refinement_Mini_Performer tRefinementPerformer;
 
-                    // GEN interface performer
-                    std::shared_ptr< Performer > tGenPerformer =
-                            std::make_shared< wrk::Gen_Performer >( mPerformerManager->mGENPerformer( 0 ) );
+                    // get the GEN interface performer
+                    std::shared_ptr< Performer > tGenInterfacePerformer = std::make_shared< wrk::Gen_Performer >( tGenPerformer );
 
-                    tRefinementPerformer.perform_refinement_old( mPerformerManager->mHMRPerformer( 0 ), { tGenPerformer } );
+                    // perform initial refinement for GEN and user defined refinement functions
+                    tRefinementPerformer.perform_refinement_old( mPerformerManager->mHMRPerformer( 0 ), { tGenInterfacePerformer } );
                 }
 
                 // HMR finalize
@@ -155,43 +158,51 @@ namespace moris
             // after first solve in optimization process
             else
             {
+                // get access to the performers
+                std::shared_ptr< mdl::Model >                tModelPerformer     = mPerformerManager->mMDLPerformer( 0 );
+                std::shared_ptr< Remeshing_Mini_Performer >  tRemeshingPerformer = mPerformerManager->mRemeshingMiniPerformer( 0 );
+                Cell< std::shared_ptr< hmr::HMR > >          tHmrPerformers      = mPerformerManager->mHMRPerformer;
+                Cell< std::shared_ptr< mtk::Mesh_Manager > > tMtkPerformers      = mPerformerManager->mMTKPerformer;
+
                 // get refinement fields from GEN and MDL performers
-                tFieldsIn.append( mPerformerManager->mGENPerformer( 0 )->get_mtk_fields() );
-                tFieldsIn.append( mPerformerManager->mMDLPerformer( 0 )->get_mtk_fields() );
+                tFieldsIn.append( tGenPerformer->get_mtk_fields() );
+                tFieldsIn.append( tModelPerformer->get_mtk_fields() );
 
                 // check remeshing mini-performer has been built
-                MORIS_ERROR( mPerformerManager->mRemeshingMiniPerformer( 0 ),
+                MORIS_ERROR(
+                        tRemeshingPerformer,
                         "Workflow_HMR_XTK::initialize() - remeshing performer has not been built." );
 
                 // refine meshes
-                mPerformerManager->mRemeshingMiniPerformer( 0 )->perform_remeshing(
+                tRemeshingPerformer->perform_remeshing(
                         tFieldsIn,
-                        mPerformerManager->mHMRPerformer,
-                        mPerformerManager->mMTKPerformer,
+                        tHmrPerformers,
+                        tMtkPerformers,
                         tFieldsOut );
 
-                // create new GE performer
-                ModuleParameterList tGENParameterList = mPerformerManager->mLibrary->get_parameters_for_module( Parameter_List_Type::GEN );
-                mPerformerManager->mGENPerformer( 0 ) =
-                        std::make_shared< ge::Geometry_Engine >( tGENParameterList, mPerformerManager->mLibrary );
+                // get access to the library
+                std::shared_ptr< Library_IO > tLibrary = mPerformerManager->mLibrary;
+
+                // re-initialize GEN
+                ModuleParameterList tGENParameterList = tLibrary->get_parameters_for_module( Parameter_List_Type::GEN );
+                tGenPerformer                         = std::make_shared< ge::Geometry_Engine >( tGENParameterList, tLibrary );
             }
 
-            // Stage 2: Initialize Level set field in GEN -----------------------------------------------
-            {
-                // Trace GEN
-                Tracer tTracer( "GEN", "Levelset", "InitializeADVs" );
+            // Step 2: Initialize Level set field in GEN -----------------------------------------------
 
-                mPerformerManager->mGENPerformer( 0 )->distribute_advs(
-                        mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair( 0 ),
-                        tFieldsOut );
+            // retrieve the mesh pair
+            const mtk::Mesh_Pair& tMeshPair = mPerformerManager->mMTKPerformer( 0 )->get_mesh_pair( 0 );
 
-                // Get ADVs
-                aADVs        = mPerformerManager->mGENPerformer( 0 )->get_advs();
-                aLowerBounds = mPerformerManager->mGENPerformer( 0 )->get_lower_bounds();
-                aUpperBounds = mPerformerManager->mGENPerformer( 0 )->get_upper_bounds();
-                aIjklIDs     = mPerformerManager->mGENPerformer( 0 )->get_IjklIDs();
-            }
-        }
+            // initialize GEN
+            tGenPerformer->distribute_advs( tMeshPair, tFieldsOut );
+
+            // Get ADVs
+            aADVs        = tGenPerformer->get_advs();
+            aLowerBounds = tGenPerformer->get_lower_bounds();
+            aUpperBounds = tGenPerformer->get_upper_bounds();
+            aIjklIDs     = tGenPerformer->get_IjklIDs();
+
+        }    // end function: Workflow_HMR_XTK::initialize()
 
         //--------------------------------------------------------------------------------------------------------------
 
