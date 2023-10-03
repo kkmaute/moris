@@ -36,22 +36,22 @@ namespace moris
         uint
         Mesh_Manager::register_mesh_pair(
                 Interpolation_Mesh* aInterpolationMesh,
-                Integration_Mesh  * aIntegrationMesh,
+                Integration_Mesh*   aIntegrationMesh,
                 bool                aIsOwned,
                 std::string const & aMeshPairName )
         {
             // Create new mesh pair
-            Mesh_Pair tMeshPair(aInterpolationMesh, aIntegrationMesh, false);
+            Mesh_Pair tMeshPair( aInterpolationMesh, aIntegrationMesh, false );
 
             // Push back new pair
-            mMeshPairs.push_back(tMeshPair);
+            mMeshPairs.push_back( tMeshPair );
 
             moris_index tMeshPairIndex = mMeshPairs.size() - 1;
 
             // Ownership begins after adding
             mMeshPairs( tMeshPairIndex ).mIsOwned = aIsOwned;
 
-            if( not aMeshPairName.empty() )
+            if ( not aMeshPairName.empty() )
             {
                 mMeshPairNameToIndexMap[ aMeshPairName ] = tMeshPairIndex;
             }
@@ -66,40 +66,43 @@ namespace moris
 
         //-------------------------------------------------------------------------
 
-        uint Mesh_Manager::register_mesh_pair(Mesh_Pair& aMeshPair)
+        uint
+        Mesh_Manager::register_mesh_pair( Mesh_Pair& aMeshPair )
         {
             // Push back new pair
-            mMeshPairs.push_back(aMeshPair);
+            mMeshPairs.push_back( aMeshPair );
 
             // Ensure correct ownership
-            mMeshPairs(mMeshPairs.size() - 1).mIsOwned = aMeshPair.mIsOwned;
-            aMeshPair.mIsOwned = false;
+            mMeshPairs( mMeshPairs.size() - 1 ).mIsOwned = aMeshPair.mIsOwned;
+            aMeshPair.mIsOwned                           = false;
 
             return mMeshPairs.size() - 1;
         }
 
         //-------------------------------------------------------------------------
 
-        const Mesh_Pair& Mesh_Manager::get_mesh_pair(moris_index aPairIndex)
+        const Mesh_Pair&
+        Mesh_Manager::get_mesh_pair( moris_index aPairIndex )
         {
-            MORIS_ASSERT( aPairIndex < (moris_index) mMeshPairs.size(),
-                    "Mesh_Manager::get_mesh_pair: requested mesh pair does not exist.");
-            return mMeshPairs(aPairIndex);
+            MORIS_ASSERT( aPairIndex < (moris_index)mMeshPairs.size(),
+                    "Mesh_Manager::get_mesh_pair: requested mesh pair does not exist." );
+            return mMeshPairs( aPairIndex );
         }
 
         //-------------------------------------------------------------------------
 
-        const Mesh_Pair & Mesh_Manager::get_mesh_pair( const std::string & aMeshPairName )
+        const Mesh_Pair&
+        Mesh_Manager::get_mesh_pair( const std::string& aMeshPairName )
         {
             moris_index tMeshPairIndex = gNoIndex;
 
-            if( not mMeshPairNameToIndexMap.key_exists( aMeshPairName ) )
+            if ( not mMeshPairNameToIndexMap.key_exists( aMeshPairName ) )
             {
-                if( mHMRPerformer.lock() )
+                if ( mHMRPerformer.lock() )
                 {
-                    std::shared_ptr<hmr::HMR> tHMRPerformer = mHMRPerformer.lock();
+                    std::shared_ptr< hmr::HMR > tHMRPerformer = mHMRPerformer.lock();
 
-                    if( tHMRPerformer->get_mesh_name_exists( aMeshPairName ))
+                    if ( tHMRPerformer->get_mesh_name_exists( aMeshPairName ) )
                     {
                         Interpolation_Mesh* tInterpolationMesh = tHMRPerformer->create_interpolation_mesh( aMeshPairName, false );
 
@@ -107,13 +110,12 @@ namespace moris
                     }
                     else
                     {
-                        MORIS_ERROR( false, "Mesh_Manager::get_mesh_pair() Mesh pair name does not exist!");
+                        MORIS_ERROR( false, "Mesh_Manager::get_mesh_pair() Mesh pair name does not exist!" );
                     }
-
                 }
                 else
                 {
-                    MORIS_ERROR( false, "Mesh_Manager::get_mesh_pair() Mesh pair name does not exist!");
+                    MORIS_ERROR( false, "Mesh_Manager::get_mesh_pair() Mesh pair name does not exist!" );
                 }
             }
             else
@@ -121,19 +123,20 @@ namespace moris
                 tMeshPairIndex = mMeshPairNameToIndexMap.find( aMeshPairName );
             }
 
-            return mMeshPairs(tMeshPairIndex);
+            return mMeshPairs( tMeshPairIndex );
         }
 
         //-------------------------------------------------------------------------
 
-        void Mesh_Manager::remove_mesh_pair( const std::string & aMeshPairName )
+        void
+        Mesh_Manager::remove_mesh_pair( const std::string& aMeshPairName )
         {
-            if( mMeshPairNameToIndexMap.key_exists( aMeshPairName ) )
+            if ( mMeshPairNameToIndexMap.key_exists( aMeshPairName ) )
             {
-                MORIS_ERROR( false, " this function will not work with the field observer function");
+                MORIS_ERROR( false, " this function will not work with the field observer function" );
                 moris_index tMeshPairIndex = mMeshPairNameToIndexMap.find( aMeshPairName );
 
-                mMeshPairs.erase(tMeshPairIndex);
+                mMeshPairs.erase( tMeshPairIndex );
 
                 mMeshPairNameToIndexMap.erase( aMeshPairName );
             }
@@ -141,46 +144,45 @@ namespace moris
 
         //-------------------------------------------------------------------------
 
-        void Mesh_Manager::update_mesh_pairs( const moris::Cell< std::string > & aMeshPairNames )
+        void
+        Mesh_Manager::update_mesh_pairs( const moris::Cell< std::string >& aMeshPairNames )
         {
-            for( uint Ik = 0; Ik < aMeshPairNames.size(); Ik++ )
+            for ( uint Ik = 0; Ik < aMeshPairNames.size(); Ik++ )
             {
                 // get string
                 std::string tName = aMeshPairNames( Ik );
 
-                if( mMeshPairNameToIndexMap.key_exists( tName ) )
+                if ( mMeshPairNameToIndexMap.key_exists( tName ) )
                 {
                     moris_index tMeshPairIndex = mMeshPairNameToIndexMap.find( tName );
 
-                    if( mHMRPerformer.lock() )
+                    if ( mHMRPerformer.lock() )
                     {
-                        std::shared_ptr<hmr::HMR> tHMRPerformer = mHMRPerformer.lock();
+                        std::shared_ptr< hmr::HMR > tHMRPerformer = mHMRPerformer.lock();
 
-                        if( tHMRPerformer->get_mesh_name_exists( tName ))
+                        if ( tHMRPerformer->get_mesh_name_exists( tName ) )
                         {
-                            Interpolation_Mesh* tInterpolationMesh = tHMRPerformer->
-                                    create_interpolation_mesh( tName, false );
+                            Interpolation_Mesh* tInterpolationMesh = tHMRPerformer->create_interpolation_mesh( tName, false );
 
-                            Mesh_Pair tMeshPair( tInterpolationMesh, nullptr, false);
+                            Mesh_Pair tMeshPair( tInterpolationMesh, nullptr, false );
 
                             mMeshPairs( tMeshPairIndex ) = tMeshPair;
 
-                            for( auto tFieldIndex : mMeshPairToFieldIndexMap( tMeshPairIndex ) )
+                            for ( auto tFieldIndex : mMeshPairToFieldIndexMap( tMeshPairIndex ) )
                             {
-                                std::shared_ptr<mtk::Field> tField = mFields( tFieldIndex ).lock();
+                                std::shared_ptr< mtk::Field > tField = mFields( tFieldIndex ).lock();
 
                                 tField->update_field();
                             }
                         }
                         else
                         {
-                            MORIS_ERROR( false, "Mesh_Manager::get_mesh_pair() Mesh pair name does not exist!");
+                            MORIS_ERROR( false, "Mesh_Manager::get_mesh_pair() Mesh pair name does not exist!" );
                         }
-
                     }
                     else
                     {
-                        MORIS_ERROR( false, "Mesh_Manager::get_mesh_pair() Mesh pair name does not exist!");
+                        MORIS_ERROR( false, "Mesh_Manager::get_mesh_pair() Mesh pair name does not exist!" );
                     }
                 }
             }
@@ -191,45 +193,46 @@ namespace moris
         void
         Mesh_Manager::get_mesh_pair(
                 moris_index          aPairIndex,
-                Interpolation_Mesh * & aInterpolationMesh,
-                Integration_Mesh   * & aIntegrationMesh)
+                Interpolation_Mesh*& aInterpolationMesh,
+                Integration_Mesh*&   aIntegrationMesh )
         {
-            MORIS_ASSERT( aPairIndex < (moris_index) mMeshPairs.size(),
-                    "Mesh_Manager::get_mesh_pair: requested mesh pair does not exist.");
+            MORIS_ASSERT( aPairIndex < (moris_index)mMeshPairs.size(),
+                    "Mesh_Manager::get_mesh_pair: requested mesh pair does not exist." );
 
-            aInterpolationMesh = mMeshPairs(aPairIndex).get_interpolation_mesh();
-            aIntegrationMesh = mMeshPairs(aPairIndex).get_integration_mesh();
+            aInterpolationMesh = mMeshPairs( aPairIndex ).get_interpolation_mesh();
+            aIntegrationMesh   = mMeshPairs( aPairIndex ).get_integration_mesh();
         }
 
         //-------------------------------------------------------------------------
 
         Interpolation_Mesh*
-        Mesh_Manager::get_interpolation_mesh(moris_index aMeshIndex)
+        Mesh_Manager::get_interpolation_mesh( moris_index aMeshIndex )
         {
-            MORIS_ASSERT( aMeshIndex < (moris_index) mMeshPairs.size(),
-                    "Mesh_Manager::get_interpolation_mesh: requested mesh does not exist.");
+            MORIS_ASSERT( aMeshIndex < (moris_index)mMeshPairs.size(),
+                    "Mesh_Manager::get_interpolation_mesh: requested mesh does not exist." );
 
-            return mMeshPairs(aMeshIndex).get_interpolation_mesh();
+            return mMeshPairs( aMeshIndex ).get_interpolation_mesh();
         }
 
         //-------------------------------------------------------------------------
 
         Integration_Mesh*
-        Mesh_Manager::get_integration_mesh(moris_index aMeshIndex)
+        Mesh_Manager::get_integration_mesh( moris_index aMeshIndex )
         {
-            MORIS_ASSERT( aMeshIndex < (moris_index) mMeshPairs.size(),
-                    "Mesh_Manager::get_integration_mesh: requested mesh does not exist.");
+            MORIS_ASSERT( aMeshIndex < (moris_index)mMeshPairs.size(),
+                    "Mesh_Manager::get_integration_mesh: requested mesh does not exist." );
 
-            return mMeshPairs(aMeshIndex).get_integration_mesh();
+            return mMeshPairs( aMeshIndex ).get_integration_mesh();
         }
 
         //--------------------------------------------------------------------
 
-        void Mesh_Manager::register_field( std::shared_ptr< mtk::Field > aField )
+        void
+        Mesh_Manager::register_field( std::shared_ptr< mtk::Field > aField )
         {
-            const std::string & tFieldLabel = aField->get_label();
+            const std::string& tFieldLabel = aField->get_label();
 
-            if( not mFieldLabelToIndexMap.key_exists( tFieldLabel ) )
+            if ( not mFieldLabelToIndexMap.key_exists( tFieldLabel ) )
             {
                 mFields.push_back( aField );
 
@@ -240,10 +243,10 @@ namespace moris
                 mFieldLabelToIndexMap[ tFieldLabel ] = tFieldIndex;
 
                 // get mesh pair label of field
-                const std::string & tMeshPairLabel = aField->get_mesh_pair_label();
+                const std::string& tMeshPairLabel = aField->get_mesh_pair_label();
 
                 MORIS_ERROR( mMeshPairNameToIndexMap.key_exists( tMeshPairLabel ),
-                        "Mesh_Manager::register_field(), Mesh Pair does not exist");
+                        "Mesh_Manager::register_field(), Mesh Pair does not exist" );
 
                 // get mesh pair index of mesh pair label
                 moris_index tMeshPairIndex = mMeshPairNameToIndexMap.find( tMeshPairLabel );
@@ -254,11 +257,10 @@ namespace moris
             else
             {
                 MORIS_ASSERT( false,
-                        "Mesh_Manager::register_field(): Field name was registered earlier");
+                        "Mesh_Manager::register_field(): Field name was registered earlier" );
             }
         }
 
         //-------------------------------------------------------------------------
-    }
-}
-
+    }    // namespace mtk
+}    // namespace moris

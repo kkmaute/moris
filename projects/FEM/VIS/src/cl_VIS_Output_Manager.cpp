@@ -207,7 +207,7 @@ namespace moris
         {
             if ( mVisMeshCreatedAndOpen( aVisMeshIndex ) == false )
             {
-                Tracer tTracer( "VIS", "Output_Manager", "Setup VIS mesh" );
+                Tracer tTracer( "VIS", "Output Manager", "Setup VIS mesh" );
 
                 this->create_visualization_mesh( aVisMeshIndex, aMesh, aMeshPairIndex );
 
@@ -227,7 +227,7 @@ namespace moris
                 std::shared_ptr< mtk::Mesh_Manager > aMesh,
                 const uint                           aMeshPairIndex )
         {
-            Tracer tTracer( "VIS", "Output_Manager", "Create VIS mesh" );
+            Tracer tTracer( "VIS", "Output Manager", "Create VIS mesh" );
 
             MORIS_ERROR( mOutputData( aVisMeshIndex ).mMeshIndex == (sint)aVisMeshIndex,
                     "create_visualization_meshes(), Visualization mesh not set" );
@@ -255,7 +255,7 @@ namespace moris
                 const uint                             aVisMeshIndex,
                 std::shared_ptr< MSI::Equation_Model > aEquationModel )
         {
-            Tracer tTracer( "Output_Manager", "VisMesh", "CreateVisSets" );
+            Tracer tTracer( "VIS", "Output Manager", "Create Sets" );
 
             // get number of requested sets
             uint tNumRequestedSets = mOutputData( aVisMeshIndex ).mSetNames.size();
@@ -300,8 +300,8 @@ namespace moris
                 else
                 {
                     MORIS_LOG_WARNING(
-                            "Set with name '%s' has been requested for output on VIS-mesh #%i "
-                            "but does not exist in the list of FEM-sets. It will be ignored.",
+                            "Ignoring set with name '%s' has been requested for output on VIS-mesh #%i "
+                            "as it does not exist in the list of FEM-sets",
                             tMeshSetNames( iSet ).c_str(),
                             aVisMeshIndex );
                 }
@@ -313,7 +313,7 @@ namespace moris
         void
         Output_Manager::write_mesh( const uint aVisMeshIndex )
         {
-            Tracer tTracer( "Output_Manager", "VisMesh", "WriteVisMesh" );
+            Tracer tTracer( "VIS", "Output Manager", "Write mesh to file" );
 
             // specify file path
             std::string tMeshFilePath = mOutputData( aVisMeshIndex ).mMeshPath;
@@ -658,7 +658,7 @@ namespace moris
                 std::shared_ptr< MSI::Equation_Model > aEquationModel )
         {
             // log/time this operation
-            Tracer tTracer( "Output_Manager", "VisMesh", "WriteFields" );
+            Tracer tTracer( "VIS", "Output Manager", "Write Fields" );
 
             // number of set names
             uint tNumSetNames = mOutputData( aVisMeshIndex ).mSetNames.size();

@@ -19,7 +19,7 @@ namespace xtk
     //-------------------------------------------------------------------------------------
 
     /**
-     * @brief finds the most occuring index in a cell of indices
+     * @brief finds the most occurring index in a cell of indices
      *
      * @param aCellOfIndices list of indices
      * @param aCount returns the number this index occurs

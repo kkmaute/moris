@@ -21,6 +21,7 @@ namespace xtk
     // define an Index-map
     typedef std::unordered_map< moris::moris_index, moris::moris_index > IndexMap;
     typedef std::unordered_map< moris::moris_id, moris::moris_id >       IdMap;
+    typedef std::unordered_map< moris::moris_id, moris::moris_index >    IdToIndexMap;
 
     //-------------------------------------------------------------------------------------
 

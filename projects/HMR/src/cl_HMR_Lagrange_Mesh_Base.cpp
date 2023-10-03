@@ -370,7 +370,7 @@ namespace moris::hmr
             // get pointer to Lagrange element
             Element* tElement = mAllElementsOnProc( tBackElement->get_memory_index() );
 
-            if ( !tBackElement->is_deactive( mActivationPattern ) )
+            if ( !tBackElement->is_neither_active_nor_refined( mActivationPattern ) )
             {
                 // flag nodes that are used by this proc
                 if ( tBackElement->get_owner() == tMyRank )
@@ -488,7 +488,7 @@ namespace moris::hmr
     Lagrange_Mesh_Base::calculate_node_indices()
     {
         // report on this operation
-        MORIS_LOG_INFO( "Computing node indices" );
+        MORIS_LOG_INFO( "Lagrange Mesh #%i: Computing node indices", this->get_index() );
 
         // reset counters
         mNumberOfUsedAndOwnedNodes = 0;
@@ -1891,7 +1891,7 @@ namespace moris::hmr
         for ( Element* tElement : mAllElementsOnProc )
         {
             // test if element is not padding
-            if ( !tElement->is_deactive() && !tElement->is_padding() )
+            if ( !tElement->is_neither_active_nor_refined() && !tElement->is_padding() )
             {
                 // get pointer to Element
                 Background_Element_Base* tBackElement = tElement->get_background_element();
@@ -1929,7 +1929,7 @@ namespace moris::hmr
         for ( Element* tElement : mAllElementsOnProc )
         {
             // pick pointer to element
-            if ( !tElement->is_deactive() && !tElement->is_padding() )
+            if ( !tElement->is_neither_active_nor_refined() && !tElement->is_padding() )
             {
                 Background_Element_Base* tBackElement = tElement->get_background_element();
 
@@ -2091,8 +2091,8 @@ namespace moris::hmr
         // loop over all active elements
         for ( Element* tElement : mAllElementsOnProc )
         {
-            // test if element is not deactive
-            if ( !tElement->is_deactive() && !tElement->is_padding() )
+            // test if element is not deactivated
+            if ( !tElement->is_neither_active_nor_refined() && !tElement->is_padding() )
             {
                 // get pointer to Element
                 Background_Element_Base* tBackElement = tElement->get_background_element();
@@ -2127,7 +2127,7 @@ namespace moris::hmr
         for ( Element* tElement : mAllElementsOnProc )
         {
             // pick pointer to element
-            if ( !tElement->is_deactive() && !tElement->is_padding() )
+            if ( !tElement->is_neither_active_nor_refined() && !tElement->is_padding() )
             {
                 Background_Element_Base* tBackElement = tElement->get_background_element();
 

@@ -493,7 +493,7 @@ namespace moris
             // get the maximum number of refinements that need to be performed and therefore refinement iterations
             moris::sint tMaxNumRefinements = this->get_max_refinement_level( aPerformers );
 
-            // TODO: get number of what kind of meshes?
+            // TODO: get number of what kind of meshes? (Lagrange meshes?, B-spline meshes?, output meshes?, other?)
             moris::Matrix< DDSMat > tMeshIndices;
             uint                    tNumMeshes = 0;
             this->get_all_refinement_mesh_indices(
