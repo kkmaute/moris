@@ -74,7 +74,7 @@ namespace moris::ge
                 real                      aSdfShift,
                 real                      aSdfDefault,
                 bool                      aSdfInterpolate,
-                Level_Set_Parameters aParameters = {} )
+                Level_Set_Parameters aParameters = Level_Set_Parameters() )
                 : Field_Analytic( aADVs, aGeometryVariableIndices, aADVIndices, aConstants )
                 , mDomainDimensions( aDomainDimensions )
                 , mDomainOffset( aDomainOffset )

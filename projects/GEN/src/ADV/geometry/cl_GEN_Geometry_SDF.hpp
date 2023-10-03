@@ -38,7 +38,7 @@ namespace moris::ge
         Geometry_SDF( std::string         aObjectPath,
                 Matrix< DDRMat >          aObjectOffset,
                 real                      aSDFShift   = 0,
-                Level_Set_Parameters aParameters = {} );
+                Level_Set_Parameters aParameters = Level_Set_Parameters() );
 
         /**
          * Given a node index, returns the field value.

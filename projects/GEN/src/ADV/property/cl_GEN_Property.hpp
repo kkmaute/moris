@@ -20,11 +20,18 @@ namespace moris::ge
      */
     struct Property_Parameters : public Field_Parameters
     {
-        Cell< std::string > mDependencyNames = {};  //! Names of the dependencies of this property
-        PDV_Type mPDVType = PDV_Type::UNDEFINED;    //! The type of PDV that this property will be assigned to
-        bool mInterpolationPDV = true;              //! If the PDV is defined on the interpolation mesh (always true for now)
-        Matrix< DDUMat > mPDVMeshSetIndices = {{}}; //! Mesh set indices for assigning PDVs
-        Cell< std::string > mPDVMeshSetNames = {};  //! Mesh set names for assigning PDVs
+        Cell< std::string > mDependencyNames; //! Names of the dependencies of this property
+        PDV_Type mPDVType;                    //! The type of PDV that this property will be assigned to
+        bool mInterpolationPDV;               //! If the PDV is defined on the interpolation mesh (always true for now)
+        Cell< uint > mPDVMeshSetIndices;      //! Mesh set indices for assigning PDVs
+        Cell< std::string > mPDVMeshSetNames; //! Mesh set names for assigning PDVs
+
+        /**
+         * Constructor with a given parameter list
+         *
+         * @param aParameterList
+         */
+        explicit Property_Parameters( const ParameterList& aParameterList = prm::create_gen_property_parameter_list() );
     };
 
     class Property : public Design_Field
@@ -42,7 +49,7 @@ namespace moris::ge
          */
         explicit Property(
               std::shared_ptr< Field > aField,
-              Property_Parameters      aParameters = {} );
+              Property_Parameters      aParameters = Property_Parameters() );
 
         /**
          * Updates the dependencies of the underlying field based on the given fields which the property may depend on
@@ -71,7 +78,7 @@ namespace moris::ge
          *
          * @return Mesh set indices
          */
-        Matrix< DDUMat > get_pdv_mesh_set_indices();
+        Cell< uint > get_pdv_mesh_set_indices();
 
         /**
          * Gets the mesh set names where this property's PDV is defined.

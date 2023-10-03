@@ -36,7 +36,7 @@ namespace moris::ge
                 Matrix< DDUMat >          aPropertyVariableIndices,
                 Matrix< DDUMat >          aADVIndices,
                 Matrix< DDRMat >          aConstants,
-                Property_Parameters aParameters = {} )
+                Property_Parameters aParameters = Property_Parameters() )
                 : Field_Analytic( aADVs, aPropertyVariableIndices, aADVIndices, aConstants )
         {
             MORIS_ERROR( mVariables.size() == 1, "A constant property has only one variable." );

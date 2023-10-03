@@ -626,11 +626,11 @@ namespace moris
             // Loop over fields
             for ( uint iField = 0; iField < aPerformer->get_num_refinement_fields(); iField++ )
             {
-                const moris::Matrix< DDSMat >& tNumRefinements      = aPerformer->get_num_refinements( iField );
-                const moris::Matrix< DDSMat >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( iField );
+                const Cell< uint >& tNumRefinements      = aPerformer->get_num_refinements( iField );
+                const Cell< uint >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( iField );
 
                 // loop over tLagrangeMeshIndices // if aMeshIndex put in queue
-                for ( uint iLagMesh = 0; iLagMesh < tLagrangeMeshIndices.numel(); iLagMesh++ )
+                for ( uint iLagMesh = 0; iLagMesh < tLagrangeMeshIndices.size(); iLagMesh++ )
                 {
                     if ( tLagrangeMeshIndices( iLagMesh ) == aMeshIndex )
                     {
@@ -667,10 +667,10 @@ namespace moris
             // Loop over fields
             for ( uint iField = 0; iField < aPerformer->get_num_refinement_fields(); iField++ )
             {
-                const moris::Matrix< DDSMat >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( iField );
+                const Cell< uint >& tLagrangeMeshIndices = aPerformer->get_refinement_mesh_indices( iField );
 
                 // loop over tLagrangeMesh indices // if aMeshIndex put in queue
-                for ( uint iLagMesh = 0; iLagMesh < tLagrangeMeshIndices.numel(); iLagMesh++ )
+                for ( uint iLagMesh = 0; iLagMesh < tLagrangeMeshIndices.size(); iLagMesh++ )
                 {
                     if ( tLagrangeMeshIndices( iLagMesh ) == aMeshIndex )
                     {
@@ -705,10 +705,10 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        moris::sint
+        uint
         Refinement_Mini_Performer::get_max_refinement_level( const Cell< std::shared_ptr< Performer > >& aPerformers )
         {
-            sint tMaxNumRefinements = 0;
+            uint tMaxNumRefinements = 0;
 
             for ( uint iPerformer = 0; iPerformer < aPerformers.size(); iPerformer++ )
             {
@@ -717,9 +717,9 @@ namespace moris
                 // Loop over fields
                 for ( uint iField = 0; iField < tNumFields; iField++ )
                 {
-                    const moris::Matrix< DDSMat >& tNumRefinements = aPerformers( iPerformer )->get_num_refinements( iField );
+                    const Cell< uint >& tNumRefinements = aPerformers( iPerformer )->get_num_refinements( iField );
 
-                    for ( uint iRefinement = 0; iRefinement < tNumRefinements.numel(); iRefinement++ )
+                    for ( uint iRefinement = 0; iRefinement < tNumRefinements.size(); iRefinement++ )
                     {
                         tMaxNumRefinements = std::max( tMaxNumRefinements, tNumRefinements( iRefinement ) );
                     }
@@ -748,9 +748,9 @@ namespace moris
                 // Loop over fields
                 for ( uint iRefineField = 0; iRefineField < tNumFields; iRefineField++ )
                 {
-                    const moris::Matrix< DDSMat >& tRefinementMeshIndices = aPerformers( iPerformer )->get_refinement_mesh_indices( iRefineField );
+                    const Cell< uint >& tRefinementMeshIndices = aPerformers( iPerformer )->get_refinement_mesh_indices( iRefineField );
 
-                    for ( uint iMesh = 0; iMesh < tRefinementMeshIndices.numel(); iMesh++ )
+                    for ( uint iMesh = 0; iMesh < tRefinementMeshIndices.size(); iMesh++ )
                     {
                         sint tRefinementMeshIndex = tRefinementMeshIndices( iMesh );
 

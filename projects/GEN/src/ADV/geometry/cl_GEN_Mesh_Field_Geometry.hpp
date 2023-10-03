@@ -40,7 +40,7 @@ namespace moris::ge
             Mesh_Field_Geometry(mtk::Mesh*  aMesh,
                     std::string aFieldName,
                     mtk::EntityRank  aEntityRank = mtk::EntityRank::NODE,
-                  Level_Set_Parameters    aParameters = {});
+                    Level_Set_Parameters    aParameters = Level_Set_Parameters() );
 
             /**
               * Constructor
@@ -58,7 +58,7 @@ namespace moris::ge
                             std::string aFileFormat,
                             real        aOffset,
                             mtk::EntityRank  aEntityRank = mtk::EntityRank::NODE,
-                    Level_Set_Parameters aParameters = {});
+                    Level_Set_Parameters aParameters = Level_Set_Parameters());
 
             /**
              * Given a node index, returns the field value.

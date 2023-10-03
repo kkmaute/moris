@@ -51,7 +51,7 @@ namespace moris::ge
                 real             aRegularization = 1e-8,
                 real             aShift = 0.0,
                 real             aOffset = 0.0,
-              Level_Set_Parameters aParameters = {});
+              Level_Set_Parameters aParameters = Level_Set_Parameters());
 
         /**
          * Constructor for a swiss cheese slice, with hole spacing specified
@@ -86,7 +86,7 @@ namespace moris::ge
                 real             aShift,
                 real             aOffset = 0.0,
                 bool             aAllowLessThanTargetSpacing = false,
-                Level_Set_Parameters aParameters = {});
+                Level_Set_Parameters aParameters = Level_Set_Parameters());
 
     private:
 

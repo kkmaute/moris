@@ -173,7 +173,7 @@ namespace moris
 
             //--------------------------------------------------------------------------------------------------------------
 
-            moris::sint get_max_refinement_level( const Cell< std::shared_ptr< Performer > > &aPerformers );
+            uint get_max_refinement_level( const Cell< std::shared_ptr< Performer > > &aPerformers );
 
             //--------------------------------------------------------------------------------------------------------------
 

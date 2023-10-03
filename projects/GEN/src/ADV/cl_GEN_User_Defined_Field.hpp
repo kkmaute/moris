@@ -45,7 +45,6 @@ namespace moris::ge
          * @param aConstants The constant field variables not filled by ADVs
          * @param aFieldFunction User-defined function for evaluating the field field
          * @param aSensitivityFunction User-defined function for evaluating the field sensitivities
-         * @param aParameters Additional parameters
          */
         template <typename Vector_Type>
         User_Defined_Field(
@@ -54,8 +53,7 @@ namespace moris::ge
                 Matrix<DDUMat>       aADVIndices,
                 Matrix<DDRMat>       aConstants,
                 Field_Function       aFieldFunction,
-                Sensitivity_Function aSensitivityFunction,
-                Field_Parameters     aParameters = {})
+                Sensitivity_Function aSensitivityFunction )
                 : Field_Analytic( aADVs, aFieldVariableIndices, aADVIndices, aConstants )
         {
             this->set_user_defined_functions(aFieldFunction, aSensitivityFunction);
@@ -66,12 +64,10 @@ namespace moris::ge
          *
          * @param aConstants The constant field variables not filled by ADVs
          * @param aFieldFunction User-defined function for evaluating the field field
-         * @param aParameters Additional parameters
          */
         User_Defined_Field(
                 Matrix<DDRMat>   aConstants,
-                Field_Function   aFieldFunction,
-                Field_Parameters aParameters = {});
+                Field_Function   aFieldFunction );
 
         /**
          * Given a node coordinate, returns the field value.

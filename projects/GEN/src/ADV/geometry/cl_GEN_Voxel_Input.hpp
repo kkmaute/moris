@@ -53,7 +53,7 @@ namespace moris::ge
                 Matrix< DDRMat >          aDomainDimensions,
                 Matrix< DDRMat >          aDomainOffset,
                 Matrix< DDRMat >          aGrainIdToValueMap,
-                Level_Set_Parameters aParameters = {} )
+                Level_Set_Parameters aParameters = Level_Set_Parameters() )
                 : Field_Analytic( aADVs, aGeometryVariableIndices, aADVIndices, aConstants )
                 , mDomainDimensions( aDomainDimensions )
                 , mDomainOffset( aDomainOffset )
@@ -74,7 +74,7 @@ namespace moris::ge
                 Matrix< DDRMat >          aDomainDimensions,
                 Matrix< DDRMat >          aDomainOffset,
                 Matrix< DDRMat >          aGrainIdToValueMap,
-                Level_Set_Parameters aParameters = {} );
+                Level_Set_Parameters aParameters = Level_Set_Parameters() );
 
         /**
          * Given a node coordinate, returns the field value.

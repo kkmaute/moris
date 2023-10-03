@@ -50,9 +50,9 @@ namespace moris
                         uint                  aNodeIndex,
                         const Matrix<DDRMat>& aCoordinates) = 0;
 
-                virtual const Matrix< DDSMat > & get_num_refinements(uint aFieldIndex ) = 0;
+                virtual const Cell< uint >& get_num_refinements(uint aFieldIndex ) = 0;
 
-                virtual const Matrix< DDSMat > & get_refinement_mesh_indices(uint aFieldIndex ) = 0;
+                virtual const Cell< uint >& get_refinement_mesh_indices(uint aFieldIndex ) = 0;
 
                 /**
                  * Gets the index of an HMR user-defined refinement function for the given field index

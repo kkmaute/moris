@@ -131,20 +131,7 @@ namespace moris::ge
         std::shared_ptr< Field > tField = create_field( aPropertyParameterList, aADVs, aFieldDependencies, aLibrary );
 
         // Property parameters
-        Property_Parameters tParameters;
-        tParameters.mName                     = aPropertyParameterList.get< std::string >( "name" );
-        tParameters.mNumRefinements           = aPropertyParameterList.get< std::string >( "number_of_refinements" );
-        tParameters.mRefinementMeshIndices    = aPropertyParameterList.get< std::string >( "refinement_mesh_index" );
-        tParameters.mRefinementFunctionIndex  = aPropertyParameterList.get< sint >( "refinement_function_index" );
-        tParameters.mDiscretizationIndex      = aPropertyParameterList.get< sint >( "discretization_mesh_index" );
-        tParameters.mDiscretizationLowerBound = aPropertyParameterList.get< real >( "discretization_lower_bound" );
-        tParameters.mDiscretizationUpperBound = aPropertyParameterList.get< real >( "discretization_upper_bound" );
-
-        map< std::string, PDV_Type > tPDVTypeMap = get_pdv_type_map();
-        tParameters.mDependencyNames             = string_to_cell< std::string >( aPropertyParameterList.get< std::string >( "dependencies" ) );
-        tParameters.mPDVType                     = tPDVTypeMap[ aPropertyParameterList.get< std::string >( "pdv_type" ) ];
-        tParameters.mPDVMeshSetIndices           = string_to_mat< DDUMat >( aPropertyParameterList.get< std::string >( "pdv_mesh_set_indices" ) );
-        tParameters.mPDVMeshSetNames             = string_to_cell< std::string >( aPropertyParameterList.get< std::string >( "pdv_mesh_set_names" ) );
+        Property_Parameters tParameters( aPropertyParameterList );
 
         // Build Property
         return std::make_shared< Property >( tField, tParameters );

@@ -12,6 +12,19 @@
 
 namespace moris::ge
 {
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Property_Parameters::Property_Parameters( const ParameterList& aParameterList )
+            : Field_Parameters( aParameterList )
+            , mDependencyNames( aParameterList.get_cell< std::string >( "dependencies" ) )
+            , mPDVType( get_pdv_type_map()[ aParameterList.get< std::string >( "pdv_type" ) ] )
+            , mInterpolationPDV( aParameterList.get< std::string >( "pdv_mesh_type" ) == "interpolation" )
+            , mPDVMeshSetIndices( aParameterList.get_cell< uint >( "pdv_mesh_set_indices" ) )
+            , mPDVMeshSetNames( aParameterList.get_cell< std::string >( "pdv_mesh_set_names" ) )
+    {
+    }
+
     //--------------------------------------------------------------------------------------------------------------
 
     Property::Property(
@@ -62,14 +75,14 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix<DDUMat> Property::get_pdv_mesh_set_indices()
+    Cell< uint > Property::get_pdv_mesh_set_indices()
     {
         return mParameters.mPDVMeshSetIndices;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Cell<std::string> Property::get_pdv_mesh_set_names()
+    Cell< std::string > Property::get_pdv_mesh_set_names()
     {
         return mParameters.mPDVMeshSetNames;
     }

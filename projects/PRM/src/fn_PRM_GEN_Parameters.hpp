@@ -35,31 +35,6 @@ namespace moris::prm
         aDesignParameterList.insert( "discretization_upper_bound", 1.0 );  // Upper bound of level set field (if bspline_mesh_index >= 0)
     }
 
-    /**
-     * Inserts parameters to a field parameter list useful for getting user-defined functions from an input file.
-     *
-     * @param aDesignParameterList Parameter list for a design field with field parameters already inserted
-     */
-    static void insert_user_defined_field_parameters( ParameterList& aDesignParameterList )
-    {
-        aDesignParameterList.set( "field_type", "user_defined" );          // User-defined geometry
-        aDesignParameterList.insert( "field_function_name", "" );          // Function name for evaluating the geometry field
-        aDesignParameterList.insert( "sensitivity_function_name", "" );    // Function name for evaluating the sensitivity of the field
-    }
-    
-    /**
-     * Creates a parameter list for the construction of a geometry.
-     * 
-     * @return Geometry parameter list
-     */
-    static ParameterList create_geometry_parameter_list()
-    {
-        ParameterList tParameterList;
-        tParameterList.insert( "design_type", "geometry" ); // Set the design type to a geometry
-
-        return tParameterList;
-    }
-
     //------------------------------------------------------------------------------
 
     /**
@@ -100,6 +75,31 @@ namespace moris::prm
         tParameterList.insert( "diagnostics", false );
         tParameterList.insert( "diagnostics_id", "" );
         tParameterList.insert( "diagnostics_path", "" );
+
+        return tParameterList;
+    }
+
+    /**
+     * Inserts parameters to a field parameter list useful for getting user-defined functions from an input file.
+     *
+     * @param aDesignParameterList Parameter list for a design field with field parameters already inserted
+     */
+    static void insert_user_defined_field_parameters( ParameterList& aDesignParameterList )
+    {
+        aDesignParameterList.set( "field_type", "user_defined" );          // User-defined geometry
+        aDesignParameterList.insert( "field_function_name", "" );          // Function name for evaluating the geometry field
+        aDesignParameterList.insert( "sensitivity_function_name", "" );    // Function name for evaluating the sensitivity of the field
+    }
+
+    /**
+     * Creates a parameter list for the construction of a geometry.
+     *
+     * @return Geometry parameter list
+     */
+    static ParameterList create_geometry_parameter_list()
+    {
+        ParameterList tParameterList;
+        tParameterList.insert( "design_type", "geometry" ); // Set the design type to a geometry
 
         return tParameterList;
     }

@@ -27,10 +27,17 @@ namespace moris::ge
      */
     struct Level_Set_Parameters : public Field_Parameters
     {
-        Int_Interpolation mIntersectionInterpolation = Int_Interpolation::LINEAR; // The type of interpolation used to determine intersection location
-        real          mIsocontourThreshold = 0.0;                         // Level set isocontour level
-        real          mIsocontourTolerance = 1e-12;                       // Interface tolerance based on geometry value
-        real          mIntersectionTolerance = 1e-12;                     // Interface tolerance based on intersecction distance
+        Int_Interpolation mIntersectionInterpolation; // The type of interpolation used to determine intersection location
+        real              mIsocontourThreshold;       // Level set isocontour level
+        real              mIsocontourTolerance;       // Interface tolerance based on geometry value
+        real              mIntersectionTolerance;     // Interface tolerance based on intersecction distance
+
+        /**
+         * Constructor with a given parameter list
+         *
+         * @param aParameterList Parameter list with level set geometry parameters
+         */
+        explicit Level_Set_Parameters( const ParameterList& aParameterList = prm::create_level_set_geometry_parameter_list() );
     };
 
     class Level_Set_Geometry : public Design_Field, public Geometry
@@ -48,7 +55,7 @@ namespace moris::ge
          */
         explicit Level_Set_Geometry(
               std::shared_ptr< Field > aField,
-              Level_Set_Parameters     aParameters = {} );
+              Level_Set_Parameters     aParameters = Level_Set_Parameters() );
 
         /**
          * Gets the intersection interpolation type for this geometry.

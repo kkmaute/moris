@@ -45,7 +45,7 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        const Matrix< DDSMat >&
+        const Cell< uint >&
         Gen_Performer::get_num_refinements( uint aFieldIndex )
         {
             return mGeometryEngine->get_num_refinements( aFieldIndex );
@@ -53,7 +53,7 @@ namespace moris
 
         // ----------------------------------------------------------------------------
 
-        const Matrix< DDSMat >&
+        const Cell< uint >&
         Gen_Performer::get_refinement_mesh_indices( uint aFieldIndex )
         {
             return mGeometryEngine->get_refinement_mesh_indices( aFieldIndex );

@@ -17,6 +17,20 @@
 
 namespace moris::ge
 {
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Field_Parameters::Field_Parameters( const ParameterList& aParameterList )
+            : mName( aParameterList.get< std::string >( "name" ) )
+            , mNumberOfRefinements( aParameterList.get_cell< uint >( "number_of_refinements" ) )
+            , mRefinementMeshIndices( aParameterList.get_cell< uint >( "refinement_mesh_index" ) )
+            , mRefinementFunctionIndex( aParameterList.get< sint >( "refinement_function_index" ) )
+            , mDiscretizationIndex( aParameterList.get< sint >( "discretization_mesh_index" ) )
+            , mDiscretizationLowerBound( aParameterList.get< real >( "discretization_lower_bound" ) )
+            , mDiscretizationUpperBound( aParameterList.get< real >( "discretization_upper_bound" ) )
+    {
+    }
+
     //--------------------------------------------------------------------------------------------------------------
 
     Design_Field::Design_Field(
@@ -147,15 +161,15 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix< DDSMat >&
+    const Cell< uint >&
     Design_Field::get_num_refinements()
     {
-        return mParameters.mNumRefinements;
+        return mParameters.mNumberOfRefinements;
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    const Matrix< DDSMat >&
+    const Cell< uint >&
     Design_Field::get_refinement_mesh_indices()
     {
         return mParameters.mRefinementMeshIndices;

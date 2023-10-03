@@ -42,11 +42,11 @@ namespace moris
                         const Matrix<DDRMat>& aCoordinates);
             //------------------------------------------------------------------------------------------------------------------
 
-            const Matrix< DDSMat > &
+            const Cell< uint >&
             get_num_refinements(uint aFieldIndex );
             //------------------------------------------------------------------------------------------------------------------
 
-            const Matrix< DDSMat > &
+            const Cell< uint >&
             get_refinement_mesh_indices(uint aFieldIndex );
 
             //------------------------------------------------------------------------------------------------------------------

@@ -37,7 +37,7 @@ namespace moris::ge
               Matrix<DDUMat>            aGeometryVariableIndices,
               Matrix<DDUMat>            aADVIndices,
               Matrix<DDRMat>            aConstants,
-              Level_Set_Parameters aParameters = {})
+              Level_Set_Parameters aParameters = Level_Set_Parameters())
                 : Field_Analytic( aADVs, aGeometryVariableIndices, aADVIndices, aConstants )
         {
             if (mVariables.size() == 4)
@@ -73,7 +73,7 @@ namespace moris::ge
               real                      aXNormal,
               real                      aYNormal,
               real                      aZNormal,
-                Level_Set_Parameters aParameters = {});
+                Level_Set_Parameters aParameters = Level_Set_Parameters());
 
         /**
          * Constructor with only constant parameters, 2D
@@ -88,7 +88,7 @@ namespace moris::ge
               real                      aYCenter,
               real                      aXNormal,
               real                      aYNormal,
-                Level_Set_Parameters aParameters = {});
+                Level_Set_Parameters aParameters = Level_Set_Parameters());
 
         /**
          * Given a node coordinate, returns the field value.

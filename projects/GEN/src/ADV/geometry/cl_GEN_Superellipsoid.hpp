@@ -38,7 +38,7 @@ namespace moris::ge
                 Matrix<DDUMat>            aGeometryVariableIndices,
                 Matrix<DDUMat>            aADVIndices,
                 Matrix<DDRMat>            aConstants,
-              Level_Set_Parameters aParameters = {})
+              Level_Set_Parameters aParameters = Level_Set_Parameters())
                 : Field_Analytic( aADVs, aGeometryVariableIndices, aADVIndices, aConstants )
         {
             MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 7,
@@ -67,7 +67,7 @@ namespace moris::ge
                 real                      aYSemidiameter,
                 real                      aZSemidiameter,
                 real                      aExponent,
-                Level_Set_Parameters aParameters = {});
+                Level_Set_Parameters aParameters = Level_Set_Parameters());
 
         /**
          * Given a node coordinate, returns the field value.

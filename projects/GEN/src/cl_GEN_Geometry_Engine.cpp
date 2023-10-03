@@ -896,7 +896,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDSMat >&
+        const Cell< uint >&
         Geometry_Engine::get_num_refinements( uint aFieldIndex )
         {
             return mGeometries( aFieldIndex )->get_num_refinements();
@@ -904,7 +904,7 @@ namespace moris
 
         //--------------------------------------------------------------------------------------------------------------
 
-        const Matrix< DDSMat >&
+        const Cell< uint >&
         Geometry_Engine::get_refinement_mesh_indices( uint aFieldIndex )
         {
             return mGeometries( aFieldIndex )->get_refinement_mesh_indices();
@@ -964,15 +964,15 @@ namespace moris
                 tPDVTypeGroup( 0 ) = mProperties( tPropertyIndex )->get_pdv_type();
 
                 // Get mesh set indices and names
-                Matrix< DDUMat > tMeshSetIndices = mProperties( tPropertyIndex )->get_pdv_mesh_set_indices();
+                Cell< uint > tMeshSetIndices = mProperties( tPropertyIndex )->get_pdv_mesh_set_indices();
                 Cell< std::string > tMeshSetNames = mProperties( tPropertyIndex )->get_pdv_mesh_set_names();
 
                 // Convert mesh set names to indices
-                uint tNumSetIndices = tMeshSetIndices.length();
+                uint tNumSetIndices = tMeshSetIndices.size();
                 tMeshSetIndices.resize( tNumSetIndices + tMeshSetNames.size(), 1 );
 
                 // number of mesh sets for current property
-                uint tTotalNumberOfSets = tMeshSetIndices.length();
+                uint tTotalNumberOfSets = tMeshSetIndices.size();
 
                 // Set for each property index the list of mesh set indices TODO pass this to property to have it update its own mesh set indices
                 for ( uint tSetIndexPosition = tNumSetIndices; tSetIndexPosition < tTotalNumberOfSets; tSetIndexPosition++ )

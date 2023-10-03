@@ -14,6 +14,7 @@
 #include "cl_GEN_Field.hpp"
 #include "cl_GEN_Child_Node.hpp"
 #include "cl_MTK_Mesh_Pair.hpp"
+#include "fn_PRM_GEN_Parameters.hpp"
 
 namespace moris::ge
 {
@@ -23,13 +24,20 @@ namespace moris::ge
      */
     struct Field_Parameters
     {
-        std::string      mName;                            //! Name of this field for identification
-        Matrix< DDSMat > mNumRefinements = {{}};           //! The number of refinement steps to use for this field
-        Matrix< DDSMat > mRefinementMeshIndices = {{}};    //! Indices of meshes to perform refinement on
-        sint             mRefinementFunctionIndex = -1;    //! Index of a user-defined refinement function (-1 = default)
-        sint             mDiscretizationIndex      = -2;   //! Index of a mesh for discretization (-2 = none, -1 = store nodal values)
-        real             mDiscretizationLowerBound = -1.0; //! Lower bound for the B-spline coefficients in this field
-        real             mDiscretizationUpperBound = 1.0;  //! Upper bound for the B-spline coefficients in this field
+        std::string  mName;                      //! Name of this field for identification
+        Cell< uint > mNumberOfRefinements;       //! The number of refinement steps to use for this field
+        Cell< uint > mRefinementMeshIndices;     //! Indices of meshes to perform refinement on
+        sint         mRefinementFunctionIndex;   //! Index of a user-defined refinement function (-1 = default)
+        sint         mDiscretizationIndex;       //! Index of a mesh for discretization (-2 = none, -1 = store nodal values)
+        real         mDiscretizationLowerBound;  //! Lower bound for the B-spline coefficients in this field
+        real         mDiscretizationUpperBound ; //! Upper bound for the B-spline coefficients in this field
+
+        /**
+         * Constructor with a given parameter list
+         *
+         * @param aParameterList Design field parameter list
+         */
+        explicit Field_Parameters( const ParameterList& aParameterList );
     };
 
     class Design_Field
@@ -182,9 +190,9 @@ namespace moris::ge
          *
          * @return if to perform an additional refinement with this field
          */
-        const Matrix< DDSMat >& get_num_refinements();
+        const Cell< uint >& get_num_refinements();
 
-        const Matrix< DDSMat >& get_refinement_mesh_indices();
+        const Cell< uint >& get_refinement_mesh_indices();
 
         /**
          * Gets the index of a user-defined refinement function used within HMR.

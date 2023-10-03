@@ -454,12 +454,12 @@ namespace moris
             uint get_num_refinement_fields();
 
             //-------------------------------------------------------------------------------
-            
-            const Matrix< DDSMat >& get_num_refinements( uint aFieldIndex );
+
+            const Cell< uint >& get_num_refinements( uint aFieldIndex );
 
             //-------------------------------------------------------------------------------
-            
-            const Matrix< DDSMat >& get_refinement_mesh_indices( uint aFieldIndex );
+
+            const Cell< uint >& get_refinement_mesh_indices( uint aFieldIndex );
 
             //-------------------------------------------------------------------------------
             

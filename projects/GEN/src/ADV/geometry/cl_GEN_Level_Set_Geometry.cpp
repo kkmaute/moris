@@ -15,6 +15,18 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Level_Set_Parameters::Level_Set_Parameters( const ParameterList& aParameterList )
+            : Field_Parameters( aParameterList )
+            , mIntersectionInterpolation( aParameterList.get< bool >( "multilinear_intersections" )
+                    ? Int_Interpolation::MULTILINEAR : Int_Interpolation::LINEAR )
+            , mIsocontourThreshold( aParameterList.get< real >( "isocontour_threshold" ) )
+            , mIsocontourTolerance( aParameterList.get< real >( "isocontour_tolerance" ) )
+            , mIntersectionTolerance( aParameterList.get< real >( "intersection_tolerance" ) )
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     Level_Set_Geometry::Level_Set_Geometry(
             std::shared_ptr< Field > aField,
             Level_Set_Parameters     aParameters )

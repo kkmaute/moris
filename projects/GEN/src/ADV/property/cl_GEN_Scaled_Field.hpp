@@ -41,7 +41,7 @@ namespace moris::ge
                 Matrix<DDUMat>            aADVIndices,
                 Matrix<DDRMat>            aConstants,
                 std::shared_ptr<Field>    aField,
-                Property_Parameters aParameters = {})
+                Property_Parameters aParameters = Property_Parameters())
                 : Field_Discrete_Interpolation( aADVs, aPropertyVariableIndices, aADVIndices, aConstants, nullptr )
                 , mField( aField )
         {

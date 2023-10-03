@@ -125,21 +125,7 @@ namespace moris::ge
         std::shared_ptr< Field > tField = create_field( aGeometryParameterList, aADVs, {}, aLibrary, aMTKMesh, aIndex );
 
         // Geometry parameters
-        Level_Set_Parameters tParameters;
-        tParameters.mName                     = aGeometryParameterList.get< std::string >( "name" );
-        tParameters.mNumRefinements           = aGeometryParameterList.get< std::string >( "number_of_refinements" );
-        tParameters.mRefinementMeshIndices    = aGeometryParameterList.get< std::string >( "refinement_mesh_index" );
-        tParameters.mRefinementFunctionIndex  = aGeometryParameterList.get< sint >( "refinement_function_index" );
-        tParameters.mDiscretizationIndex      = aGeometryParameterList.get< sint >( "discretization_mesh_index" );
-        tParameters.mDiscretizationLowerBound = aGeometryParameterList.get< real >( "discretization_lower_bound" );
-        tParameters.mDiscretizationUpperBound = aGeometryParameterList.get< real >( "discretization_upper_bound" );
-        tParameters.mIsocontourThreshold      = aGeometryParameterList.get< real >( "isocontour_threshold" );
-        tParameters.mIsocontourTolerance      = aGeometryParameterList.get< real >( "isocontour_tolerance" );
-        tParameters.mIntersectionTolerance    = aGeometryParameterList.get< real >( "intersection_tolerance" );
-        if ( aGeometryParameterList.get< bool >( "multilinear_intersections" ) )
-        {
-            tParameters.mIntersectionInterpolation = Int_Interpolation::MULTILINEAR;
-        }
+        Level_Set_Parameters tParameters( aGeometryParameterList );
 
         // Create geometry
         return std::make_shared< Level_Set_Geometry >( tField, tParameters );

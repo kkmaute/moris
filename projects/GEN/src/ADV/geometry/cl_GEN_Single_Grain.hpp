@@ -62,9 +62,9 @@ namespace moris::ge
          */
         Single_Grain(
                 Matrix<DDRMat>            aConstants,
-                std::shared_ptr< Field > aVoxelGeometry,
+                std::shared_ptr< Field >  aVoxelGeometry,
                 uint                      aIndex,
-                Level_Set_Parameters                  aParameters = {});
+                Level_Set_Parameters      aParameters = Level_Set_Parameters() );
 
         /**
          * Given a node coordinate, returns the field value.
