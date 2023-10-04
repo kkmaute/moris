@@ -40,10 +40,10 @@ set(TEST_SOURCES
 
 
 set(GEN_INCLUDES
-    "field"
-    "field/geometry"
-    "field/property"
-    "pdv"
+    "ADV"
+    "ADV/geometry"
+    "ADV/property"
+    "PDV"
     )
 
 foreach(GEN_INCLUDES ${GEN_INCLUDES})

@@ -120,7 +120,7 @@ namespace xtk
             tXTKParameters.set( "periodic_side_set_pair", tPeriodicSidePairs );
 
             //define the sphere such that it is non interacting
-            moris::Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
+            moris::Cell<std::shared_ptr<moris::ge::Level_Set_Geometry>> tGeometry(1);
             tGeometry(0) = std::make_shared<moris::ge::Sphere>(3,3,3,0.1);
 
             //define ge engine

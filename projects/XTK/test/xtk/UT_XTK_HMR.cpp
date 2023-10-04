@@ -20,7 +20,7 @@
 #include "cl_HMR.hpp"
 
 #include "fn_PRM_HMR_Parameters.hpp"
-#include "cl_GEN_User_Defined_Geometry.hpp"
+#include "cl_GEN_User_Defined_Field.hpp"
 
 namespace moris
 {
@@ -108,8 +108,8 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
             tHMR->perform_initial_refinement();
             tHMR->perform();
 
-            Cell< std::shared_ptr<ge::Geometry> > tGeometryVector(1);
-            tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(LevelSetSphereCylinderGeometry));
+            auto tField = std::make_shared< moris::ge::User_Defined_Field >( Matrix<DDRMat>( 0, 0 ), &(LevelSetSphereCylinderGeometry) );
+            Cell< std::shared_ptr<ge::Level_Set_Geometry> > tGeometryVector = { std::make_shared< ge::Level_Set_Geometry >( tField ) };
 
             size_t tModelDimension = 3;
             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;

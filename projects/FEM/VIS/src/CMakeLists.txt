@@ -45,10 +45,10 @@ set(LIB_DEPENDENCIES
    )
 
 set(GEN_INCLUDES
-	"field"
-	"field/geometry"
-	"field/property"
-	"pdv"
+	"ADV"
+	"ADV/geometry"
+	"ADV/property"
+	"PDV"
     )
 
 # Include depedency directories

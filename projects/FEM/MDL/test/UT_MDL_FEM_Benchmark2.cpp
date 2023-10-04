@@ -217,9 +217,11 @@ namespace moris
             tHMR->perform_initial_refinement();
 
             // Create geometry engine
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 2 );
-            tGeometry( 0 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
-            tGeometry( 1 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
+            Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry( 2 );
+            auto tCircleOuter = std::make_shared< ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
+            auto tCircleInner = std::make_shared< ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
+            tGeometry( 0 ) = std::make_shared< ge::Level_Set_Geometry >( tCircleOuter );
+            tGeometry( 1 ) = std::make_shared< ge::Level_Set_Geometry >( tCircleInner );
 
             // Perform additional refinement
             // tGENGeometryEngine.perform_refinement(tHMR);
@@ -234,9 +236,11 @@ namespace moris
 
             //-----------------------------------------------------------------------------------------------
 
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry0( 2 );
-            tGeometry0( 0 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
-            tGeometry0( 1 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
+            Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry0( 2 );
+            auto tCircleOuter0 = std::make_shared< ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
+            auto tCircleInner0 = std::make_shared< ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
+            tGeometry( 0 ) = std::make_shared< ge::Level_Set_Geometry >( tCircleOuter0 );
+            tGeometry( 1 ) = std::make_shared< ge::Level_Set_Geometry >( tCircleInner0 );
 
             size_t                                tModelDimension = 2;
             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters0;
@@ -526,9 +530,11 @@ namespace moris
             tHMR->perform_initial_refinement();
 
             // Create geometry engine
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 2 );
-            tGeometry( 0 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
-            tGeometry( 1 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
+            Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry( 2 );
+            auto tCircleOuter = std::make_shared< ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
+            auto tCircleInner = std::make_shared< ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
+            tGeometry( 0 ) = std::make_shared< ge::Level_Set_Geometry >( tCircleOuter );
+            tGeometry( 1 ) = std::make_shared< ge::Level_Set_Geometry >( tCircleInner );
 
             // Perform additional refinement
             // tGENGeometryEngine.perform_refinement(tHMR);
@@ -543,9 +549,11 @@ namespace moris
 
             //-----------------------------------------------------------------------------------------------
 
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry0( 2 );
-            tGeometry0( 0 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
-            tGeometry0( 1 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
+            Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry0( 2 );
+            auto tCircle1 = std::make_shared< ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
+            auto tCircle2 = std::make_shared< ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
+            tGeometry( 0 ) = std::make_shared< ge::Level_Set_Geometry >( tCircle1 );
+            tGeometry( 1 ) = std::make_shared< ge::Level_Set_Geometry >( tCircle2 );
 
             size_t                                tModelDimension = 2;
             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters0;
@@ -875,10 +883,13 @@ namespace moris
             tHMR->perform_initial_refinement();
 
             // Create geometry engine
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 3 );
-            tGeometry( 0 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
-            tGeometry( 1 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRMiddle );
-            tGeometry( 2 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
+            Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry( 3 );
+            auto tCircleOuter = std::make_shared< ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
+            auto tCircleMiddle = std::make_shared< ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRMiddle );
+            auto tCircleInner = std::make_shared< ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
+            tGeometry( 0 ) = std::make_shared< ge::Level_Set_Geometry >( tCircleOuter );
+            tGeometry( 1 ) = std::make_shared< ge::Level_Set_Geometry >( tCircleMiddle );
+            tGeometry( 3 ) = std::make_shared< ge::Level_Set_Geometry >( tCircleInner );
 
             // Perform additional refinement
             // tGENGeometryEngine.perform_refinement(tHMR);
@@ -1226,10 +1237,13 @@ namespace moris
             tHMR->perform_initial_refinement();
 
             // Create geometry engine
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 3 );
-            tGeometry( 0 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
-            tGeometry( 1 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRMiddle );
-            tGeometry( 2 ) = std::make_shared< moris::ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
+            Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry( 3 );
+            auto tCircleOuter = std::make_shared< ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tROuter );
+            auto tCircleMiddle = std::make_shared< ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRMiddle );
+            auto tCircleInner = std::make_shared< ge::Circle >( tCenterPoint( 0 ), tCenterPoint( 1 ), tRInner );
+            tGeometry( 0 ) = std::make_shared< ge::Level_Set_Geometry >( tCircleOuter );
+            tGeometry( 1 ) = std::make_shared< ge::Level_Set_Geometry >( tCircleMiddle );
+            tGeometry( 2 ) = std::make_shared< ge::Level_Set_Geometry >( tCircleInner );
 
             // Perform additional refinement
             // tGENGeometryEngine.perform_refinement(tHMR);

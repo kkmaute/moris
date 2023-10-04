@@ -96,8 +96,9 @@ TEST_CASE("XTK Cell Clusters","[MTK_CLUSTER_XTK]")
         tMeshData->create_output_mesh(tMeshOutputFile2);
 
         // geometry
-        Cell<std::shared_ptr<ge::Geometry>> tGeometry(1);
-        tGeometry(0) = std::make_shared<moris::ge::Mesh_Field_Geometry>(tMeshData, tLSFName);
+        Cell< std::shared_ptr< ge::Level_Set_Geometry > > tGeometry( 1 );
+        auto tField = std::make_shared<moris::ge::Mesh_Field_Geometry>( tMeshData, tLSFName );
+        tGeometry( 0 ) = std::make_shared< ge::Level_Set_Geometry >( tField );
 
         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometry;

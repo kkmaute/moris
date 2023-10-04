@@ -160,8 +160,8 @@ namespace moris
             void queue_single_refinement( std::shared_ptr< hmr::HMR > aHMR,
                     std::shared_ptr< hmr::Mesh >                      aMesh,
                     std::shared_ptr< Performer >                      aPerformer,
-                    sint                                              aRefinementNumber,
-                    sint                                              aMeshIndex );
+                    uint                                              aRefinementNumber,
+                    uint                                              aMeshIndex );
 
             //--------------------------------------------------------------------------------------------------------------
 
@@ -169,7 +169,7 @@ namespace moris
                     std::shared_ptr< hmr::HMR >  aHMR,
                     std::shared_ptr< hmr::Mesh > aMesh,
                     std::shared_ptr< Performer > aPerformer,
-                    sint                         aMeshIndex );
+                    uint                         aMeshIndex );
 
             //--------------------------------------------------------------------------------------------------------------
 

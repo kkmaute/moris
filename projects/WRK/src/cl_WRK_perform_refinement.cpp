@@ -618,8 +618,8 @@ namespace moris
                 std::shared_ptr< hmr::HMR >  aHMR,
                 std::shared_ptr< hmr::Mesh > aMesh,
                 std::shared_ptr< Performer > aPerformer,
-                sint                         aRefinementNumber,
-                sint                         aMeshIndex )
+                uint                         aRefinementNumber,
+                uint                         aMeshIndex )
         {
             // uint tLagrangeMeshPattern = aMesh->get_lagrange_mesh_pattern();
 
@@ -660,7 +660,7 @@ namespace moris
                 std::shared_ptr< hmr::HMR >  aHMR,
                 std::shared_ptr< hmr::Mesh > aMesh,
                 std::shared_ptr< Performer > aPerformer,
-                sint                         aMeshIndex )
+                uint                         aMeshIndex )
         {
             uint tNumElements = 0;
 

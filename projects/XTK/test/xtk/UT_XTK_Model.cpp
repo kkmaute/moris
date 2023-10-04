@@ -49,8 +49,8 @@ TEST_CASE( "Geometry with a coincident bounrady to background cell", "[XTK_CONFO
     real tYNormal = 0.0;
     real tZNormal = 0.0;
 
-    Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
-    tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( tXCenter, tYCenter, tZCenter, tXNormal, tYNormal, tZNormal );
+    auto tPlane = std::make_shared< moris::ge::Plane >( tXCenter, tYCenter, tZCenter, tXNormal, tYNormal, tZNormal );
+    Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tPlane ) };
 
     // Create Mesh --------------------------------------------------------------------
     std::string                     tMeshFileName = "generated:1x1x4";
@@ -582,8 +582,8 @@ TEST_CASE( "Geometry with a center point of the regular subdivision", "[XTK_CONF
     real tYNormal = 0.0;
     real tZNormal = 0.0;
 
-    Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
-    tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( tXCenter, tYCenter, tZCenter, tXNormal, tYNormal, tZNormal );
+    auto tPlane = std::make_shared< moris::ge::Plane >( tXCenter, tYCenter, tZCenter, tXNormal, tYNormal, tZNormal );
+    Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tPlane ) };
 
     // Create Mesh --------------------------------------------------------------------
     std::string                     tMeshFileName = "generated:1x1x4";
@@ -1241,8 +1241,8 @@ TEST_CASE( "Geometry with a plane to trigger 2 edge intersected tets", "[XTK_CON
     real tYNormal = 0.0;
     real tZNormal = 1.0;
 
-    Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
-    tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( tXCenter, tYCenter, tZCenter, tXNormal, tYNormal, tZNormal );
+    auto tPlane = std::make_shared< moris::ge::Plane >( tXCenter, tYCenter, tZCenter, tXNormal, tYNormal, tZNormal );
+    Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tPlane ) };
 
     // Create Mesh --------------------------------------------------------------------
     std::string                     tMeshFileName = "generated:1x1x4";

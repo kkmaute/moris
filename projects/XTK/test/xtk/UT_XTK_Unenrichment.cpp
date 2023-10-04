@@ -97,8 +97,8 @@ namespace xtk
             tXTKParameters.set( "high_to_low_dbl_side_sets", true );
 
             // define the sphere such that it is non interacting
-            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
-            tGeometry( 0 ) = std::make_shared< moris::ge::Plane >( 1.5, 0.5, 1.0, 0.0 );
+            auto tPlane = std::make_shared< moris::ge::Plane >( 1.5, 0.5, 1.0, 0.0 );
+            moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tPlane ) };
 
             // define ge engine
             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;

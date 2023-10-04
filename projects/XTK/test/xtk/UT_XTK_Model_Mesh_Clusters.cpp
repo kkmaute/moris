@@ -33,8 +33,8 @@ TEST_CASE("Mesh Cluster Output","[XTK] [XTK_CLUSTER]")
             real tXCenter = 1.0;
             real tYCenter = 1.0;
             real tZCenter = 0.0;
-            Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
-            tGeometry(0) = std::make_shared<moris::ge::Sphere>(tXCenter, tYCenter, tZCenter, tRadius);
+            auto tSphere = std::make_shared< moris::ge::Sphere >( tXCenter, tYCenter, tZCenter, tRadius );
+            Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tSphere ) };
 
             // Create Mesh --------------------------------------------------------------------
             std::string tMeshFileName = "generated:1x1x4|sideset:Z";

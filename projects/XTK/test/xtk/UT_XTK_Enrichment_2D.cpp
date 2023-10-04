@@ -105,8 +105,8 @@ TEST_CASE("2 Element Enrichment 2D","[ENRICH_1E_2D]")
 
         tMeshData->add_mesh_field_real_scalar_data_loc_inds(tLSFName, moris::mtk::EntityRank::NODE, tLevelsetVal);
 
-        Cell<std::shared_ptr<ge::Geometry>> tGeometry(1);
-        tGeometry(0) = std::make_shared<moris::ge::Mesh_Field_Geometry>(tMeshData, tLSFName);
+        auto tField = std::make_shared< ge::Mesh_Field_Geometry >( tMeshData, tLSFName );
+        Cell< std::shared_ptr< ge::Level_Set_Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tField ) };
 
         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
         tGeometryEngineParameters.mGeometries = tGeometry;

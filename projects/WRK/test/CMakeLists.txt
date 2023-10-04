@@ -23,16 +23,17 @@ set(TEST_DEPENDENCIES
     )
 
 set(GEN_INCLUDES
-	"field"
-	"field/geometry"
-	"field/property"
-	"pdv"
+	"ADV"
+	"ADV/geometry"
+	"ADV/property"
+	"PDV"
     )
 
 # Include depedency directories
 foreach(GEN_INCLUDES ${GEN_INCLUDES})  
     include_directories(${MORIS_PACKAGE_DIR}/GEN/src/${GEN_INCLUDES})
 endforeach()
+include_directories(${MORIS_PACKAGE_DIR}/FEM/INT/src/IP)
 
 # Set the output path for test
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${BIN})

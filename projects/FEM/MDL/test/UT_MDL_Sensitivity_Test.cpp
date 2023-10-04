@@ -154,7 +154,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
 //        for( uint k=0; k<tNumRef; ++k )
 //        {
-//            Cell<std::shared_ptr<moris::ge::Geometry>> tGeomVec(2);
+//            Cell<std::shared_ptr<moris::ge::Level_Set_Geometry>> tGeomVec(2);
 //            tGeomVec(0) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tROuter);
 //            tGeomVec(1) = std::make_shared<moris::ge::Circle>(tCenterPoint(0), tCenterPoint(1), tRInner);
 //
@@ -193,7 +193,7 @@ TEST_CASE("Sensitivity test","[Sensitivity test]")
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
+        moris::Cell< std::shared_ptr<moris::ge::Level_Set_Geometry> > tGeometryVector(1);
 
         Matrix<DDRMat> tADVs( 0, 0 );
         auto tField = std::make_shared<moris::ge::User_Defined_Field>(tADVs,

@@ -82,8 +82,8 @@ namespace xtk
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             // define the sphere such that it is non interacting
-            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
-            tGeometry( 0 ) = std::make_shared< moris::ge::Circle >( 3.0, 0.5, 2.5 );
+            auto tCircle = std::make_shared< moris::ge::Circle >( 3.0, 0.5, 2.5 );
+            moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tCircle ) };
 
             // define ge engine
             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -200,8 +200,8 @@ namespace xtk
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
             // define the sphere such that it is non interacting
-            moris::Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
-            tGeometry( 0 ) = std::make_shared< moris::ge::Circle >( 3.0, 0.5, 2.5 );
+            auto tCircle = std::make_shared< moris::ge::Circle >( 3.0, 0.5, 2.5 );
+            moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tCircle ) };
 
             // define ge engine
             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;

@@ -263,11 +263,11 @@ TEST_CASE("2D Linear Stuct Contract","[XTK_HMR_LS_Contact_2D]")
         moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
 
         //-----------------------------------------------------------------------------------------------
-        moris::Cell<std::shared_ptr<moris::ge::Geometry>> tGeometryVector(4);
-        tGeometryVector(0) = tLeftPlane;
-        tGeometryVector(1) = tRightPlane;
-        tGeometryVector(2) = tTopPlane;
-        tGeometryVector(3) = tBottomPlane;
+        moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometryVector( 4 );
+        tGeometryVector( 0 ) = std::make_shared< ge::Level_Set_Geometry >( tLeftPlane );
+        tGeometryVector( 1 ) = std::make_shared< ge::Level_Set_Geometry >( tRightPlane );
+        tGeometryVector( 2 ) = std::make_shared< ge::Level_Set_Geometry >( tTopPlane );
+        tGeometryVector( 3 ) = std::make_shared< ge::Level_Set_Geometry >( tBottomPlane );
 
         size_t tModelDimension = 2;
         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;

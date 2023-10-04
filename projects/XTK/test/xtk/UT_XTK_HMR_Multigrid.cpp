@@ -135,7 +135,7 @@ TEST_CASE("2D XTK WITH HMR MULLTIGRID 11","[XTK_HMR_Multigrid]")
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
+        moris::Cell< std::shared_ptr<moris::ge::Level_Set_Geometry> > tGeometryVector(1);
         tGeometryVector(0) = std::make_shared<moris::ge::Plane>(0.511, 0.0, 1.0, 0.0);
 
         size_t tModelDimension = 2;

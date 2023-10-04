@@ -97,8 +97,9 @@ namespace moris
         {
             moris::Matrix<moris::DDRMat> tCenters = {{ 1.0,1.0,3.1 }};
             moris::Matrix<moris::DDRMat> tNormals = {{ 0.0,0.0,1.0 }};
-            Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
-            tGeometry(0) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
+            Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry( 1 );
+            auto tField = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
+            tGeometry( 0 ) = std::make_shared< ge::Level_Set_Geometry >( tField );
 
             // Initialize field information container
             mtk::MtkFieldsInfo tFieldsInfo;

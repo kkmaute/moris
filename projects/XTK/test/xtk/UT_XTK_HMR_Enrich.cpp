@@ -42,7 +42,7 @@
 
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Plane.hpp"
-#include "cl_GEN_User_Defined_Geometry.hpp"
+#include "cl_GEN_User_Defined_Field.hpp"
 #include "fn_norm.hpp"
 
 namespace xtk
@@ -145,8 +145,8 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(1);
-        tGeometryVector(0) = std::make_shared<moris::ge::User_Defined_Geometry>(Matrix<DDRMat>(0, 0), &(MultiCircleGeometry));
+        auto tUserDefinedField = std::make_shared< moris::ge::User_Defined_Field >( Matrix< DDRMat >( 0, 0 ), &( MultiCircleGeometry ) );
+        Cell< std::shared_ptr< ge::Level_Set_Geometry > > tGeometryVector = { std::make_shared< ge::Level_Set_Geometry >( tUserDefinedField ) };
 
         size_t tModelDimension = 2;
         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -271,9 +271,11 @@ TEST_CASE("2D XTK WITH HMR Multi-Mat","[XTK_HMR_MULTI_2D]")
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(2);
-        tGeometryVector(0) = std::make_shared<moris::ge::Circle>(0.01, 0.01, 0.61);
-        tGeometryVector(1) = std::make_shared<moris::ge::Plane>(0.01, 0.01, 1.0, 0.0);
+        moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometryVector( 2 );
+        auto tCircle = std::make_shared< moris::ge::Circle >( 0.01, 0.01, 0.61 );
+        auto tPlane = std::make_shared< moris::ge::Plane >( 0.01, 0.01, 1.0, 0.0 );
+        tGeometryVector( 0 ) = std::make_shared< ge::Level_Set_Geometry >( tCircle );
+        tGeometryVector( 1 ) = std::make_shared< ge::Level_Set_Geometry >( tPlane );
 
         size_t tModelDimension = 2;
         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
@@ -357,9 +359,11 @@ TEST_CASE("2D XTK WITH HMR Multiple Order Enrichment","[XTK_HMR_ENR_2D_MO]")
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        moris::Cell< std::shared_ptr<moris::ge::Geometry> > tGeometryVector(2);
-        tGeometryVector(0) = std::make_shared<moris::ge::Circle>(0.01, 0.01, 0.61);
-        tGeometryVector(1) = std::make_shared<moris::ge::Plane>(0.01, 0.01, 1.0, 0.0);
+        moris::Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometryVector( 2 );
+        auto tCircle = std::make_shared< moris::ge::Circle >( 0.01, 0.01, 0.61 );
+        auto tPlane = std::make_shared< moris::ge::Plane >( 0.01, 0.01, 1.0, 0.0 );
+        tGeometryVector( 0 ) = std::make_shared< ge::Level_Set_Geometry >( tCircle );
+        tGeometryVector( 1 ) = std::make_shared< ge::Level_Set_Geometry >( tPlane );
 
         size_t tModelDimension = 2;
         moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;

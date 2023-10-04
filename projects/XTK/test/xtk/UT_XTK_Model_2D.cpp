@@ -33,7 +33,7 @@
 //         real tRadius = 0.7;
 //         real tXCenter = 1.0;
 //         real tYCenter = 1.0;
-//         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
+//         Cell<std::shared_ptr<moris::ge::Level_Set_Geometry>> tGeometry(1);
 //         tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
 
 //         // Create Mesh ---------------------------------
@@ -119,7 +119,7 @@
 //         real tRadius = 0.7;
 //         real tXCenter = 1.0;
 //         real tYCenter = 1.0;
-//         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
+//         Cell<std::shared_ptr<moris::ge::Level_Set_Geometry>> tGeometry(1);
 //         tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
 //         // Create Mesh ---------------------------------
 //         // Generate data for test
@@ -187,7 +187,7 @@
 //         real tRadius = 0.7;
 //         real tXCenter = 1.0;
 //         real tYCenter = 1.0;
-//         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
+//         Cell<std::shared_ptr<moris::ge::Level_Set_Geometry>> tGeometry(1);
 //         tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
 
 //         // Create Mesh ---------------------------------
@@ -281,7 +281,7 @@
 //         real tRadius = 0.7;
 //         real tXCenter = 1.0;
 //         real tYCenter = 1.0;
-//         Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
+//         Cell<std::shared_ptr<moris::ge::Level_Set_Geometry>> tGeometry(1);
 //         tGeometry(0) = std::make_shared<moris::ge::Circle>(tXCenter, tYCenter, tRadius);
 
 //         // Create Mesh ---------------------------------

@@ -1565,7 +1565,7 @@ function params=parse_pv_pairs(params,pv_pairs)
 %  pv_array - cell array of property/value pairs.
 %             Case is ignored when comparing properties to the list
 %             of field names. Also, any unambiguous shortening of a
-%             field/property name is allowed.
+%             ADV/property name is allowed.
 %
 % arguments: (output)
 %  params   - parameter struct that reflects any updated property/value

@@ -224,8 +224,8 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
-            tGeometry( 0 ) = std::make_shared< moris::ge::Circle >( 0.0, 0.0, 0.2501 );
+            auto tCircle = std::make_shared< moris::ge::Circle >( 0.0, 0.0, 0.2501 );
+            Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tCircle ) };
 
             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;
@@ -517,7 +517,7 @@ namespace moris
         //
         //        moris::hmr::Interpolation_Mesh_HMR * tInterpolationMesh = tHMR.create_interpolation_mesh(tLagrangeMeshIndex);
         //
-        //        Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
+        //        Cell<std::shared_ptr<moris::ge::Level_Set_Geometry>> tGeometry(1);
         //        tGeometry(0) = std::make_shared<moris::ge::Circle>(100.0, 0.0, 0.2501);
         //
         //        moris::ge::Phase_Table tPhaseTable (1);
@@ -805,8 +805,8 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
-            tGeometry( 0 ) = std::make_shared< moris::ge::Circle >( 0.0, 0.0, 0.2505 );
+            auto tCircle = std::make_shared< moris::ge::Circle >( 0.0, 0.0, 0.2505 );
+            Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tCircle ) };
 
             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;
@@ -1125,8 +1125,8 @@ namespace moris
 
             moris::hmr::Interpolation_Mesh_HMR* tInterpolationMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex );
 
-            Cell< std::shared_ptr< moris::ge::Geometry > > tGeometry( 1 );
-            tGeometry( 0 ) = std::make_shared< moris::ge::Circle >( 0.0, 0.0, 0.2505 );
+            auto tCircle = std::make_shared< moris::ge::Circle >( 0.0, 0.0, 0.2505 );
+            Cell< std::shared_ptr< moris::ge::Level_Set_Geometry > > tGeometry = { std::make_shared< ge::Level_Set_Geometry >( tCircle ) };
 
             moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mGeometries = tGeometry;

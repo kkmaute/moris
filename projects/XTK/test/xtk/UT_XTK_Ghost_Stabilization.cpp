@@ -31,7 +31,7 @@
 //    moris::Matrix<moris::DDRMat> tCenters = {{ 2.0,2.0,2.1 }};
 //    moris::Matrix<moris::DDRMat> tNormals = {{ 1.0,1.0,1.0 }};
 //
-//    Cell<std::shared_ptr<moris::ge::Geometry>> tGeometry(1);
+//    Cell<std::shared_ptr<moris::ge::Level_Set_Geometry>> tGeometry(1);
 //    tGeometry(0) = std::make_shared<moris::ge::Plane>(tCenters(0), tCenters(1), tCenters(2), tNormals(0), tNormals(1), tNormals(2));
 //
 //    moris::ge::Phase_Table tPhaseTable (tGeometry.size());
