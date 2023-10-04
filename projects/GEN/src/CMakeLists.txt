@@ -41,6 +41,7 @@ set(HEADERS
 
 	# ADV
     ADV/cl_GEN_ADV_Manager.hpp
+	ADV/cl_GEN_Design_Factory.hpp
 	ADV/cl_GEN_Design_Field.hpp
 	ADV/cl_GEN_Field.hpp
 	ADV/cl_GEN_Field_Analytic.hpp
@@ -96,6 +97,7 @@ set(LIB_SOURCES
 
 	# ADV
 	ADV/cl_GEN_ADV_Manager.cpp
+	ADV/cl_GEN_Design_Factory.cpp
 	ADV/cl_GEN_Design_Field.cpp
 	ADV/cl_GEN_Field.cpp
 	ADV/cl_GEN_Field_Analytic.cpp

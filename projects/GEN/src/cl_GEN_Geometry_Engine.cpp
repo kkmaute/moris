@@ -14,10 +14,7 @@
 // GEN
 #include "cl_GEN_Geometry_Engine.hpp"
 #include "GEN_Data_Types.hpp"
-#include "fn_GEN_create_geometries.hpp"
-#include "cl_GEN_BSpline_Field.hpp"
-#include "cl_GEN_Stored_Field.hpp"
-#include "fn_GEN_create_properties.hpp"
+#include "cl_GEN_Design_Factory.hpp"
 #include "cl_GEN_Interpolation.hpp"
 #include "cl_GEN_Child_Node.hpp"
 #include "cl_GEN_Intersection_Node_Linear.hpp"
@@ -27,6 +24,7 @@
 #include "cl_MTK_Mesh_Factory.hpp"
 #include "cl_MTK_Integration_Mesh.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
+#include "cl_MTK_Field.hpp"
 #include "cl_MTK_Writer_Exodus.hpp"
 #include "cl_MTK_Enums.hpp"
 
@@ -90,12 +88,12 @@ namespace moris
                 mUpperBounds          = mUpperBounds.n_rows() == 1 ? trans( mUpperBounds ) : mUpperBounds;
             }
 
-            // Geometries
-            mGeometries = create_geometries(
-                    aParameterLists( 1 ),
-                    mInitialPrimitiveADVs,
-                    mLibrary,
-                    aMesh );
+            // Create designs with the factory
+            Design_Factory tDesignFactory( aParameterLists( 1 ), aParameterLists( 2 ), mInitialPrimitiveADVs, mLibrary, aMesh );
+
+            // Get geometries and properties from the factory
+            mGeometries = tDesignFactory.get_geometries();
+            mProperties = tDesignFactory.get_properties();
 
             // iterate through geometries if any are multilinear, we turn the linear flag on
             for ( moris::uint iGeom = 0; iGeom < mGeometries.size(); iGeom++ )
@@ -109,13 +107,6 @@ namespace moris
 
             MORIS_ERROR( mGeometries.size() <= MAX_GEOMETRIES,
                     "Number of geometries exceeds MAX_GEOMETRIES, please change this in GEN_Data_Types.hpp" );
-
-            // Properties
-            mProperties = create_properties(
-                    aParameterLists( 2 ),
-                    mInitialPrimitiveADVs,
-                    mGeometries,
-                    mLibrary );
 
             // Set requested PDVs
             Cell< std::string > tRequestedPdvNames = string_to_cell< std::string >( aParameterLists( 0 )( 0 ).get< std::string >( "PDV_types" ) );
