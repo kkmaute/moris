@@ -275,7 +275,7 @@ namespace moris
          */
         [[nodiscard]] bool exists( const std::string& aKey ) const
         {
-            return mParamMap.find( aKey ) == mParamMap.end();
+            return mParamMap.find( aKey ) not_eq mParamMap.end();
         }
 
         //------------------------------------------------------------------------------
