@@ -476,7 +476,7 @@ namespace xtk
                     tMaxEnrichmentLevel );
 
             // log the total number of enriched Basis functions across all procs
-            uint tNumEnrBFs = mEnrichmentData( tMeshIndex ).mNumEnrichedBasisFunctions;
+            uint        tNumEnrBFs     = mEnrichmentData( tMeshIndex ).mNumEnrichedBasisFunctions;
             std::string tTempLogString = "Number of enriched basis functions on B-spline mesh #" + std::to_string( tMeshIndex );
             MORIS_LOG_SPEC( tTempLogString, sum_all( tNumEnrBFs ) );
 
@@ -489,22 +489,22 @@ namespace xtk
             Cell< uint > tNumEnrBfsInBulkPhase( tNumBulkPhases, 0 );
 
             // go through enriched basis functions and count them towards the bulk phase they interpolate into
-            for( uint iEnrBF = 0; iEnrBF < tNumEnrBFs; iEnrBF++ )
+            for ( uint iEnrBF = 0; iEnrBF < tNumEnrBFs; iEnrBF++ )
             {
                 // get the bulk phase for the current enriched basis function
                 moris_index tBulkPhaseBfInterpolatesInto = mEnrichmentData( tMeshIndex ).mBulkPhaseInEnrichedBasis( iEnrBF );
-                
+
                 // count BF towards BFs on bulk-phase
                 tNumEnrBfsInBulkPhase( tBulkPhaseBfInterpolatesInto )++;
             }
 
             // log/output how may enr. basis functions there are in each bulk phase
-            for( uint iBulkPhase = 0; iBulkPhase < tNumBulkPhases; iBulkPhase++ )
+            for ( uint iBulkPhase = 0; iBulkPhase < tNumBulkPhases; iBulkPhase++ )
             {
-                MORIS_LOG( 
-                        "B-spline mesh #%i, Bulk phase #%i, Number of enriched basis functions on material domain: %i", 
+                MORIS_LOG(
+                        "B-spline mesh #%i, Bulk phase #%i, Number of enriched basis functions on material domain: %i",
                         tMeshIndex,
-                        iBulkPhase, 
+                        iBulkPhase,
                         sum_all( tNumEnrBfsInBulkPhase( iBulkPhase ) ) );
             }
 
@@ -3069,7 +3069,7 @@ namespace xtk
                 Cell< moris_index > const & tBasisInCell = mEnrichmentData( tMeshIndex ).mSubphaseBGBasisIndices( (moris_index)iSP );
 
                 // construct a map between non-enriched BF index and index relative to the subphase cluster
-                std::unordered_map< moris_id, moris_id > tCellBasisMap = construct_subphase_basis_to_basis_map( tBasisInCell );
+                Mini_Map< moris_id, moris_id > tCellBasisMap = construct_subphase_basis_to_basis_map( tBasisInCell );
 
                 // get the enrichment levels of the BFs that are/need to be used for the interpolation in the current subphase
                 Cell< moris_index > const & tEnrLevOfBasis = mEnrichmentData( tMeshIndex ).mSubphaseBGBasisEnrLev( (moris_index)iSP );
@@ -3302,7 +3302,7 @@ namespace xtk
 
                     // construct a map between non-enriched BF index and index relative to the list of basis interpolating into the current SPG
                     // NOTE: the function is indifferent to whether it's operating on SPs or SPGs since it only converts a moris::cell to a std::unordered_map
-                    std::unordered_map< moris_id, moris_id > tCellBasisMap = construct_subphase_basis_to_basis_map( tBasisInSpg );
+                    Mini_Map< moris_id, moris_id > tCellBasisMap = construct_subphase_basis_to_basis_map( tBasisInSpg );
 
                     // construction of unzipped enriched IP vertices
                     // i.e. only construct T-matrices if underlying enriched IP cell is valid
@@ -3552,7 +3552,7 @@ namespace xtk
                     bool tBasisExtensionIsNonTrivial = ( tBasisSpgIndex == -1 );
 
                     // initialize the list of active basis
-                    std::unordered_map< moris_id, moris_id > tBasisInCellMap;
+                    Mini_Map< moris_id, moris_id > tBasisInCellMap;
 
                     // initialize the enriched T-matrix
                     Vertex_Enrichment tVertEnrichment;
@@ -4527,11 +4527,11 @@ namespace xtk
 
     void
     Enrichment::construct_enriched_vertex_interpolation(
-            moris_index const &                       aEnrichmentDataIndex,
-            mtk::Vertex_Interpolation*                aBaseVertexInterp,
-            Cell< moris_index > const &               aSubPhaseBasisEnrLev,
-            std::unordered_map< moris_id, moris_id >& aMapBasisIndexToLocInSubPhase,
-            Vertex_Enrichment&                        aVertexEnrichment )
+            moris_index const &             aEnrichmentDataIndex,
+            mtk::Vertex_Interpolation*      aBaseVertexInterp,
+            Cell< moris_index > const &     aSubPhaseBasisEnrLev,
+            Mini_Map< moris_id, moris_id >& aMapBasisIndexToLocInSubPhase,
+            Vertex_Enrichment&              aVertexEnrichment )
     {
         // allocate a new vertex enrichment
         aVertexEnrichment = Vertex_Enrichment();
@@ -4584,7 +4584,7 @@ namespace xtk
             }
 
             // get access to the basis to local index map of the vertex enrichment for modification
-            std::unordered_map< moris_index, moris_index >& tVertEnrichMap = aVertexEnrichment.get_basis_map();
+            Mini_Map< moris_index, moris_index >& tVertEnrichMap = aVertexEnrichment.get_basis_map();
 
             // store in the vertex enrichment the list of enriched BF coefficients associated with it (in the form of an index map)
             for ( uint iBC = 0; iBC < tEnrichCoeffInds.numel(); iBC++ )
@@ -4603,14 +4603,14 @@ namespace xtk
 
     //-------------------------------------------------------------------------------------
 
-    std::unordered_map< moris_id, moris_id >
+    Mini_Map< moris_id, moris_id >
     Enrichment::construct_subphase_basis_to_basis_map( Cell< moris_id > const & aSubPhaseBasisIndex )
     {
         // get number of BFs interpolating into subphase
         uint tNumBasisOfSubphase = aSubPhaseBasisIndex.size();
 
         // initialize output map
-        std::unordered_map< moris_id, moris_id > tSubphaseBasisMap;
+        Mini_Map< moris_id, moris_id > tSubphaseBasisMap;
 
         // for each basis interpolating into the current Subphase, ...
         for ( uint iB = 0; iB < tNumBasisOfSubphase; iB++ )

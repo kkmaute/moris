@@ -12,6 +12,7 @@
 #define PROJECTS_XTK_SRC_XTK_CL_XTK_VERTEX_ENRICHMENT_HPP_
 
 #include "cl_Matrix.hpp"
+#include "containers.hpp"
 #include "assert.h"
 #include <unordered_map>
 #include "cl_MTK_Vertex_Interpolation_XTK_Impl.hpp"
@@ -32,18 +33,17 @@ namespace xtk
         //------------------------------------------------------------------------------
 
       protected:
-        moris::moris_index                                           mNodeIndex;
-        moris::Matrix< moris::IndexMat >                             mBasisIndices;
-        moris::Matrix< moris::IndexMat >                             mBasisIds;
-        moris::Matrix< moris::IndexMat >                             mBasisOwners;
-        moris::Matrix< moris::DDRMat >                               mBasisWeights;
-        mtk::Vertex_Interpolation*                                   mBaseVertexInterp;
-        std::unordered_map< moris::moris_index, moris::moris_index > mBasisMap; /*From basis to local index*/
+        moris::moris_index                                 mNodeIndex;
+        moris::Matrix< moris::IndexMat >                   mBasisIndices;
+        moris::Matrix< moris::IndexMat >                   mBasisIds;
+        moris::Matrix< moris::IndexMat >                   mBasisOwners;
+        moris::Matrix< moris::DDRMat >                     mBasisWeights;
+        mtk::Vertex_Interpolation*                         mBaseVertexInterp;
+        Mini_Map< moris::moris_index, moris::moris_index > mBasisMap; /*From basis to local index*/
 
-        //------------------------------------------------------------------------------
+                                                                      //------------------------------------------------------------------------------
 
       public:
-
         /**
          * @brief Default Constructor
          */
@@ -158,24 +158,24 @@ namespace xtk
          * An assertion will catch duplicates in debug mode
          */
         void
-        add_basis_information( 
+        add_basis_information(
                 moris::Matrix< moris::IndexMat > const & aBasisIndices,
                 moris::Matrix< moris::IndexMat > const & aBasisId );
 
         void
-        add_basis_weights( 
+        add_basis_weights(
                 moris::Matrix< moris::IndexMat > const & aBasisIndices,
                 moris::Matrix< moris::DDRMat > const &   aBasisWeight );
 
         void
-        add_basis_owners( 
+        add_basis_owners(
                 moris::Matrix< moris::IndexMat > const & aBasisIndices,
                 moris::Matrix< moris::IndexMat > const & aBasisOwners );
 
         void
         add_base_vertex_interpolation( mtk::Vertex_Interpolation* aBaseVertInterp );
 
-        std::unordered_map< moris::moris_index, moris::moris_index >&
+        Mini_Map< moris::moris_index, moris::moris_index >&
         get_basis_map();
 
         uint
@@ -219,7 +219,7 @@ namespace xtk
 
         //------------------------------------------------------------------------------
 
-    }; // class Vertex_Enrichment
+    };    // class Vertex_Enrichment
 
     //------------------------------------------------------------------------------
     // OPERATORS ASSOCIATED WITH THIS CLASS
@@ -233,7 +233,7 @@ namespace xtk
     operator==( const Vertex_Enrichment& aA, const Vertex_Enrichment& aB )
     {
         // check basis indices ...............
-        
+
         // get basis indices of aA,aB
         moris::Matrix< moris::IndexMat > const & tBasisIndicesA = aA.get_basis_indices();
         moris::Matrix< moris::IndexMat > const & tBasisIndicesB = aB.get_basis_indices();
@@ -248,18 +248,17 @@ namespace xtk
         }
 
         // if their index maps have different length something must be wrong
-        MORIS_ERROR( 
-                ( aA.get_num_bases_in_map() == aB.get_num_bases_in_map() ) && 
-                ( aA.get_num_bases_in_map() == tSizeA ),
+        MORIS_ERROR(
+                ( aA.get_num_bases_in_map() == aB.get_num_bases_in_map() ) && ( aA.get_num_bases_in_map() == tSizeA ),
                 "xtk::Vertex_Enrichment::operator== - "
                 "Basis maps of Vertex Enrichments compared have same number of indices, but different size of basis index maps." );
 
         // iterate through basis in aA and ask aB if they exist in their basis
         for ( uint iBasis = 0; iBasis < tSizeA; iBasis++ )
         {
-            moris_index tCurrentBasisIndex = tBasisIndicesA( iBasis );
-            bool tBasisIndexExistsInB = aB.basis_exists_in_enrichment( tCurrentBasisIndex );
-            
+            moris_index tCurrentBasisIndex   = tBasisIndicesA( iBasis );
+            bool        tBasisIndexExistsInB = aB.basis_exists_in_enrichment( tCurrentBasisIndex );
+
             if ( !tBasisIndexExistsInB )
             {
                 return false;
@@ -277,7 +276,7 @@ namespace xtk
         MORIS_ASSERT( tWeightsB.numel() == tSizeB, "xtk::Vertex_Enrichment::operator== - Size of weights and indices don't match for B." );
 
         // check the weights
-        for( uint iWeight = 0; iWeight < tSizeA; iWeight++ )
+        for ( uint iWeight = 0; iWeight < tSizeA; iWeight++ )
         {
             // get the basis index
             moris_index tBasisIndex = tBasisIndicesA( iWeight );
@@ -290,7 +289,7 @@ namespace xtk
             real tWeightB = tWeightsB( tBasisIndexPositionInB );
 
             // check if the two weights are equal
-            if( std::abs( tWeightA - tWeightB ) > 10.0 * MORIS_REAL_EPS )
+            if ( std::abs( tWeightA - tWeightB ) > 10.0 * MORIS_REAL_EPS )
             {
                 return false;
             }
@@ -307,7 +306,7 @@ namespace xtk
     {
         moris::Matrix< moris::IndexMat > const & tBasisIndices = dt.get_basis_indices();
         moris::Matrix< moris::IndexMat > const & tBasisOwner   = dt.get_owners();
-        moris::Matrix< moris::DDRMat   > const & tBasisWeights = dt.get_basis_weights();
+        moris::Matrix< moris::DDRMat > const &   tBasisWeights = dt.get_basis_weights();
 
         // base vertex
         mtk::Vertex_Interpolation const * tBaseVertIp       = dt.get_base_vertex_interpolation();
@@ -326,7 +325,7 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-} // namespace xtk
+}    // namespace xtk
 
 //------------------------------------------------------------------------------
 

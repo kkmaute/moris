@@ -138,10 +138,12 @@ namespace moris
                     Matrix< DDSMat > tAdofMeshInd = mNodeObj->get_adof_indices( tAdofMeshIndex );
                     Matrix< IdMat >  tOwners      = mNodeObj->get_adof_owners( tAdofMeshIndex );
 
-                    MORIS_ASSERT( tAdofMeshInd.numel() != 0,
+                    // check that the node (i.e. the PDoF host) actually has an interpolation rule
+                    MORIS_ASSERT(
+                            tAdofMeshInd.numel() != 0,
                             "Pdof_Host::create_adofs_based_on_Tmatrix() - "
                             "Node with T-matrix size of 0 at coords %s which is owned by proc #%i.",
-                            ios::stringify_log( mNodeObj->get_vertex_coords( tVertCoords ) ),
+                            ios::stringify_log( mNodeObj->get_geometric_vertex()->get_coords() ).c_str(),
                             mNodeObj->get_geometric_vertex()->get_owner() );
 
                     for ( uint iTimeLevel = 0; iTimeLevel < mListOfPdofTimePerType( iPDofType ).size(); iTimeLevel++ )
@@ -157,7 +159,7 @@ namespace moris
                         // loop over all adofs in the matrix and create an adof if it does not exist, yet.
                         for ( uint iIpMesh = 0; iIpMesh < tAdofMeshInd.numel(); iIpMesh++ )
                         {
-                            sint tCurrentADofMeshIndex = tAdofMeshInd( Ik );
+                            sint tCurrentADofMeshIndex = tAdofMeshInd( iIpMesh );
                             uint tADofTypeWithTime     = tAdofType + iTimeLevel;
 
                             // if adof does not exist, store it based on adof type & time and generic coefficient

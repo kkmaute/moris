@@ -111,53 +111,53 @@ namespace xtk
 
             // These are necessary set function since there is a disconnect between the functions in the xtk model
             Model tXTKModel( tModelDimension, tInterpolationMesh, &tGeometryEngine );
-            tXTKModel.mVerbose = false;
-            tXTKModel.mParameterList = tXTKParameters;
-            tXTKModel.mBsplineMeshIndices={{0}};
+            tXTKModel.mVerbose            = false;
+            tXTKModel.mParameterList      = tXTKParameters;
+            tXTKModel.mBsplineMeshIndices = { { 0 } };
 
             // Specify decomposition Method and Cut Mesh --- ------------------------------------
             Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
             // perform basis enrichment
-            tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 , false, true);
+            tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0, false, true );
 
-            Enriched_Interpolation_Mesh & tEnrichedIPMesh = tXTKModel.get_enriched_interp_mesh(0);
+            Enriched_Interpolation_Mesh& tEnrichedIPMesh = tXTKModel.get_enriched_interp_mesh( 0 );
 
-            Matrix<IndexMat> tBasisIndicesBeforeExtention =  tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation(0)->get_indices();
-            const Matrix<DDRMat>* tBasisWeightsBeforeExtention =  tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation(0)->get_weights();
-            
-            Matrix<DDRMat> tExpectedWeights= {{0.25,0.25,0.25}};
-            Matrix<IndexMat> tExpectedIndices= {{6,4,14,12}};
+            Matrix< IndexMat >      tBasisIndicesBeforeExtention = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_indices();
+            const Matrix< DDRMat >* tBasisWeightsBeforeExtention = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_weights();
 
-            
+            Matrix< DDRMat >   tExpectedWeights = { { 0.25, 0.25, 0.25 } };
+            Matrix< IndexMat > tExpectedIndices = { { 6, 4, 14, 12 } };
+
+
             // define a generic lambda function to check if two values are equal within a threshold ( works for moris_index and real types)
             auto isEqualLambda = []( const auto& a, const auto& b ) {
                 moris::real const & error_factor = 1.0;
-                return moris::equal_to( a, b, error_factor );   
+                return moris::equal_to( a, b, error_factor );
             };
 
             CHECK( std::equal( tExpectedWeights.begin(), tExpectedWeights.end(), tBasisWeightsBeforeExtention->begin(), isEqualLambda ) );
-            CHECK( std::equal( tExpectedIndices.begin(), tExpectedIndices.end(), tBasisIndicesBeforeExtention.begin() , isEqualLambda ) );
+            CHECK( std::equal( tExpectedIndices.begin(), tExpectedIndices.end(), tBasisIndicesBeforeExtention.begin(), isEqualLambda ) );
 
             // create basis processor object
             Basis_Processor tBasisProcessor( &tXTKModel );
-            tBasisProcessor.perform_basis_extention(); 
+            tBasisProcessor.perform_basis_extention();
 
             // get the t-matrix info after extention
-            Matrix<IndexMat> tBasisIndicesAfterExtention =  tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation(0)->get_indices();
-            const Matrix<DDRMat>* tBasisWeightsAfterExtention =  tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation(0)->get_weights();
+            Matrix< IndexMat >      tBasisIndicesAfterExtention = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_indices();
+            const Matrix< DDRMat >* tBasisWeightsAfterExtention = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_weights();
 
             // update the expected values after extention ( they are transposed )
-            tExpectedWeights= {{0.25, 1, -0.75, 1, 0.25, -0.75}};
-            tExpectedIndices= {{0, 4 , 1, 12, 8, 9}};
+            tExpectedWeights = { { 0.25, 1, -0.75, 1, 0.25, -0.75 } };
+            tExpectedIndices = { { 0, 4, 1, 12, 8, 9 } };
 
             CHECK( std::equal( tExpectedWeights.begin(), tExpectedWeights.end(), tBasisWeightsAfterExtention->begin(), isEqualLambda ) );
             CHECK( std::equal( tExpectedIndices.begin(), tExpectedIndices.end(), tBasisIndicesAfterExtention.begin(), isEqualLambda ) );
         }
     }
 
-     TEST_CASE( "XTK Cell Agglomeration", "[XTK],[XTK_Cell_Agglomeration]" )
+    TEST_CASE( "XTK Cell Agglomeration", "[XTK],[XTK_Cell_Agglomeration]" )
     {
         // This test is designed to test the XTK cell agglomeration for a simple problem, the mesh is ouput to an exodus file
         // This is done by comparing the t-matrices at a given lagrange node before and after the agglomeration
@@ -229,52 +229,52 @@ namespace xtk
 
             // These are necessary set function since there is a disconnect between the functions in the xtk model
             Model tXTKModel( tModelDimension, tInterpolationMesh, &tGeometryEngine );
-            tXTKModel.mVerbose = false;
-            tXTKModel.mParameterList = tXTKParameters;
-            tXTKModel.mBsplineMeshIndices={{0}};
+            tXTKModel.mVerbose            = false;
+            tXTKModel.mParameterList      = tXTKParameters;
+            tXTKModel.mBsplineMeshIndices = { { 0 } };
 
             // Specify decomposition Method and Cut Mesh --- ------------------------------------
             Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
             tXTKModel.decompose( tDecompositionMethods );
 
             // perform basis enrichment based on the SPGs
-            tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 , false, true);
+            tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0, false, true );
 
             // get the enriched interpolation mesh
-            Enriched_Interpolation_Mesh & tEnrichedIPMesh = tXTKModel.get_enriched_interp_mesh(0);
+            Enriched_Interpolation_Mesh& tEnrichedIPMesh = tXTKModel.get_enriched_interp_mesh( 0 );
 
             // get t-matrices before extention
-            Matrix<IndexMat> tBasisIndicesBeforeExtention =  tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation(0)->get_indices();
-            const Matrix<DDRMat>* tBasisWeightsBeforeExtention =  tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation(0)->get_weights();
-            
+            Matrix< IndexMat >      tBasisIndicesBeforeExtention = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_indices();
+            const Matrix< DDRMat >* tBasisWeightsBeforeExtention = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_weights();
+
             // initialize the expected values fore the t-matrices
-            Matrix<DDRMat> tExpectedWeights= {{1.0}};
-            Matrix<IndexMat> tExpectedIndices= {{8}};
+            Matrix< DDRMat >   tExpectedWeights = { { 1.0 } };
+            Matrix< IndexMat > tExpectedIndices = { { 8 } };
 
 
             // define a generic lambda function to check if two values are equal within a threshold ( works for moris_index and real types)
             auto isEqualLambda = []( const auto& aA, const auto& aB ) {
                 moris::real const & tErrorfactor = 1.0;
-                return moris::equal_to( aA, aB, tErrorfactor );    
+                return moris::equal_to( aA, aB, tErrorfactor );
             };
 
             // check if the t-matrices are correct before extention
             CHECK( std::equal( tExpectedWeights.begin(), tExpectedWeights.end(), tBasisWeightsBeforeExtention->begin(), isEqualLambda ) );
-            CHECK( std::equal( tExpectedIndices.begin(), tExpectedIndices.end(), tBasisIndicesBeforeExtention.begin() , isEqualLambda ) );
+            CHECK( std::equal( tExpectedIndices.begin(), tExpectedIndices.end(), tBasisIndicesBeforeExtention.begin(), isEqualLambda ) );
 
             // create basis processor object and perform cell agglomeration
             Basis_Processor tBasisProcessor( &tXTKModel );
-            tBasisProcessor.perform_cell_agglomeration(); 
+            tBasisProcessor.perform_cell_agglomeration();
 
             // get the t-matrix info after extention
-            Matrix<IndexMat> tBasisIndicesAfterExtention =  tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation(0)->get_indices();
-            const Matrix<DDRMat>* tBasisWeightsAfterExtention =  tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation(0)->get_weights();
+            Matrix< IndexMat >      tBasisIndicesAfterExtention = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_indices();
+            const Matrix< DDRMat >* tBasisWeightsAfterExtention = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_weights();
 
             // update the expected values after extention ( they are transposed )
-            tExpectedWeights= {{2.0, -1.0}};
-            tExpectedIndices= {{9, 11}};
+            tExpectedWeights = { { 2.0, -1.0 } };
+            tExpectedIndices = { { 9, 11 } };
 
-            //check if the t-matrices are correct after extention
+            // check if the t-matrices are correct after extention
             CHECK( std::equal( tExpectedWeights.begin(), tExpectedWeights.end(), tBasisWeightsAfterExtention->begin(), isEqualLambda ) );
             CHECK( std::equal( tExpectedIndices.begin(), tExpectedIndices.end(), tBasisIndicesAfterExtention.begin(), isEqualLambda ) );
         }

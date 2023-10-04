@@ -10,7 +10,7 @@
 #ifndef SRC_fn_XTK_find_most_frequent_int_in_cell
 #define SRC_fn_XTK_find_most_frequent_int_in_cell
 
-#include "cl_Cell.hpp"
+#include "containers.hpp"
 
 using namespace moris;
 

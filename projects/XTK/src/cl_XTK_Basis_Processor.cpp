@@ -896,11 +896,11 @@ namespace xtk
                         tListOfBGVertices.insert( tXTKUIPVs( iLocalVertIndex )->get_index() );
 
                         // access the basis indices and weights
-                        moris::Matrix< moris::IndexMat > const &                      tBasisIndices = tVertexEnrichment->get_basis_indices();
-                        moris::Matrix< moris::IndexMat > const &                      tBasisIds     = tVertexEnrichment->get_basis_ids();
-                        moris::Matrix< moris::DDRMat >&                               tBasisWeights = tVertexEnrichment->get_basis_weights();
-                        moris::Matrix< IdMat >                                        tBasisOwners  = tVertexEnrichment->get_owners();
-                        std::unordered_map< moris::moris_index, moris::moris_index >& tBasisMap     = tVertexEnrichment->get_basis_map();
+                        moris::Matrix< moris::IndexMat > const &            tBasisIndices = tVertexEnrichment->get_basis_indices();
+                        moris::Matrix< moris::IndexMat > const &            tBasisIds     = tVertexEnrichment->get_basis_ids();
+                        moris::Matrix< moris::DDRMat >&                     tBasisWeights = tVertexEnrichment->get_basis_weights();
+                        moris::Matrix< IdMat >                              tBasisOwners  = tVertexEnrichment->get_owners();
+                        Mini_Map< moris::moris_index, moris::moris_index >& tBasisMap     = tVertexEnrichment->get_basis_map();
                         tBasisMap.clear();
 
                         // probably need to do a resize call here
@@ -909,7 +909,7 @@ namespace xtk
                         moris::Matrix< moris::IndexMat > tAgglomeratedBasisIds( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ), 1 );
                         moris::Matrix< DDRMat >          tAgglomeratedBasisWeights( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ), 1 );
                         moris::Matrix< moris::IndexMat > tAgglomeratedBasisOwners( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ), 1 );
-                        tBasisMap.reserve( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ) );
+                        // tBasisMap.reserve( tCellMaxsize->size() * ( tBasisIndices.numel() + 1 ) ); // FIXME: only works if the Mini_Map is implemented using a std::unordered_map
 
                         // initialize a counter to count how many basis will be added and replaced
                         uint tBasisCounter = 0;
@@ -1040,8 +1040,8 @@ namespace xtk
         {
             // make sure the code does not get stuck in an infinite while-loop here
             // FIXME: a smarter stopping criteria would be good, this is only a temporary fix to the problem
-            MORIS_ERROR( 
-                    tLoopCounter++ < 100, 
+            MORIS_ERROR(
+                    tLoopCounter++ < 100,
                     "Basis_Processor::construct_cell_aggregates() - "
                     "Could not find root B-spline element to extend basis functions from within 100 search iterations." );
 
@@ -1185,9 +1185,9 @@ namespace xtk
                         xtk::Vertex_Enrichment* tVertexEnrichment = tXTKUIPVs( iLocalVertIndex )->get_xtk_interpolation( aMeshIndex );
 
                         // access the basis indices
-                        moris::Matrix< moris::IndexMat > const &                      tBasisIndices = tVertexEnrichment->get_basis_indices();
-                        moris::Matrix< moris::DDRMat >&                               tBasisWeights = tVertexEnrichment->get_basis_weights();
-                        std::unordered_map< moris::moris_index, moris::moris_index >& tBasisMap     = tVertexEnrichment->get_basis_map();
+                        moris::Matrix< moris::IndexMat > const &            tBasisIndices = tVertexEnrichment->get_basis_indices();
+                        moris::Matrix< moris::DDRMat >&                     tBasisWeights = tVertexEnrichment->get_basis_weights();
+                        Mini_Map< moris::moris_index, moris::moris_index >& tBasisMap     = tVertexEnrichment->get_basis_map();
 
                         // probably need to do a resize call here
                         // overallocation basis Indices
@@ -1267,7 +1267,7 @@ namespace xtk
                         tAgglomeratedBasisIndices.resize( iBasisCounter, 1 );
                         tAgglomeratedBasisWeights.resize( iBasisCounter, 1 );
                         Matrix< IndexMat > tAgglomeratedBasisIds( iBasisCounter, 1 );
-                        tBasisMap.reserve( iBasisCounter );
+                        // tBasisMap.reserve( iBasisCounter ); // FIXME: only works if the Mini_Map is implemented using a std::unordered_map
 
                         // get the map to convert indices to ids
                         Matrix< IndexMat > const & tBasisEnrichmentIndices = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mEnrichedBasisIndexToId;
