@@ -9,6 +9,7 @@
  */
 
 #include "cl_GEN_Property.hpp"
+#include "cl_MTK_Integration_Mesh.hpp"
 
 namespace moris::ge
 {
@@ -75,16 +76,25 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Cell< uint > Property::get_pdv_mesh_set_indices()
+    Cell< uint > Property::get_pdv_mesh_set_indices( mtk::Integration_Mesh* aMesh )
     {
-        return mParameters.mPDVMeshSetIndices;
-    }
+        // Number of mesh set names
+        uint tNumMeshSetNames = mParameters.mPDVMeshSetNames.size();
 
-    //--------------------------------------------------------------------------------------------------------------
+        // Create new cell of indices from names
+        Cell< uint > tMeshSetIndicesFromNames( tNumMeshSetNames );
 
-    Cell< std::string > Property::get_pdv_mesh_set_names()
-    {
-        return mParameters.mPDVMeshSetNames;
+        // Set for each property index the list of mesh set indices
+        for ( uint iSetNameIndex = 0; iSetNameIndex < tNumMeshSetNames; iSetNameIndex++ )
+        {
+            tMeshSetIndicesFromNames( iSetNameIndex ) =
+                    aMesh->get_set_index_by_name( mParameters.mPDVMeshSetNames( iSetNameIndex ) );
+        }
+
+        // Append given indices
+        tMeshSetIndicesFromNames.append( mParameters.mPDVMeshSetIndices );
+
+        return tMeshSetIndicesFromNames;
     }
 
     //--------------------------------------------------------------------------------------------------------------

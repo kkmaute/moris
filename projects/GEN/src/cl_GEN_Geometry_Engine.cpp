@@ -964,25 +964,10 @@ namespace moris
                 tPDVTypeGroup( 0 ) = mProperties( tPropertyIndex )->get_pdv_type();
 
                 // Get mesh set indices and names
-                Cell< uint > tMeshSetIndices = mProperties( tPropertyIndex )->get_pdv_mesh_set_indices();
-                Cell< std::string > tMeshSetNames = mProperties( tPropertyIndex )->get_pdv_mesh_set_names();
-
-                // Convert mesh set names to indices
-                uint tNumSetIndices = tMeshSetIndices.size();
-                tMeshSetIndices.resize( tNumSetIndices + tMeshSetNames.size(), 1 );
-
-                // number of mesh sets for current property
-                uint tTotalNumberOfSets = tMeshSetIndices.size();
-
-                // Set for each property index the list of mesh set indices TODO pass this to property to have it update its own mesh set indices
-                for ( uint tSetIndexPosition = tNumSetIndices; tSetIndexPosition < tTotalNumberOfSets; tSetIndexPosition++ )
-                {
-                    tMeshSetIndices( tSetIndexPosition ) =
-                            tIntegrationMesh->get_set_index_by_name( tMeshSetNames( tSetIndexPosition - tNumSetIndices ) );
-                }
+                Cell< uint > tMeshSetIndices = mProperties( tPropertyIndex )->get_pdv_mesh_set_indices( tIntegrationMesh );
 
                 // Assign PDV types to each mesh set
-                for ( uint tSetIndexPosition = 0; tSetIndexPosition < tTotalNumberOfSets; tSetIndexPosition++ )
+                for ( uint tSetIndexPosition = 0; tSetIndexPosition < tMeshSetIndices.size(); tSetIndexPosition++ )
                 {
                     uint tMeshSetIndex = tMeshSetIndices( tSetIndexPosition );
                     tPdvTypes( tMeshSetIndex ).push_back( tPDVTypeGroup );
@@ -2215,26 +2200,23 @@ namespace moris
                     tNodeCoordinatesPerSet );
 
             // Loop over properties to assign PDVs on this set
-            for ( uint iPropertyIndex = 0; iPropertyIndex < mProperties.size(); iPropertyIndex++ )
+            for ( std::shared_ptr< Property > iProperty : mProperties )
             {
                 // Check if this is an interpolation PDV
-                MORIS_ERROR( mProperties( iPropertyIndex )->is_interpolation_pdv(),
+                MORIS_ERROR( iProperty->is_interpolation_pdv(),
                         "Assignment of PDVs is only supported with an interpolation mesh right now." );
 
-                // Loop through sets in integration mesh TODO this can be simplified once a property can set its own (total) mesh set indices, see TODO in create_pdvs()
-                for ( uint iMeshSetIndex = 0; iMeshSetIndex < tNumSets; iMeshSetIndex++ )
+                // Get PDV type and all mesh set indices for this property
+                PDV_Type tPdvType = iProperty->get_pdv_type();
+                Cell< uint > tMeshSetIndices = iProperty->get_pdv_mesh_set_indices( aIntegrationMesh );
+
+                // Loop through nodes in these sets
+                for ( uint iMeshSetIndex : tMeshSetIndices )
                 {
-                    // Check with PDVs on this set
-                    for ( uint iPdvTypeIndex = 0; iPdvTypeIndex < aPdvTypes( iMeshSetIndex ).size(); iPdvTypeIndex++ )
+                    for ( uint iNodeInSet = 0; iNodeInSet < tNodeIndicesPerSet( iMeshSetIndex ).size(); iNodeInSet++ )
                     {
-                        PDV_Type tPdvType = mProperties( iPropertyIndex )->get_pdv_type();
-                        if ( tPdvType == aPdvTypes( iMeshSetIndex )( iPdvTypeIndex )( 0 ) )
-                        {
-                            for ( uint iNodeInSet = 0; iNodeInSet < tNodeIndicesPerSet( iMeshSetIndex ).size(); iNodeInSet++ )
-                            {
-                                mPDVHostManager.create_interpolation_pdv( tNodeIndicesPerSet( iMeshSetIndex )( iNodeInSet ), tPdvType, mProperties( iPropertyIndex ) );
-                            }
-                        }
+                        // Create interpolation PDV
+                        mPDVHostManager.create_interpolation_pdv( tNodeIndicesPerSet( iMeshSetIndex )( iNodeInSet ), tPdvType, iProperty );
                     }
                 }
             }

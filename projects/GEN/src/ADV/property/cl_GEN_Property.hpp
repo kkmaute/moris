@@ -76,16 +76,10 @@ namespace moris::ge
         /**
          * Gets the mesh set indices where this property's PDV is defined.
          *
+         * @param aMesh Mesh for getting set indices from set names
          * @return Mesh set indices
          */
-        Cell< uint > get_pdv_mesh_set_indices();
-
-        /**
-         * Gets the mesh set names where this property's PDV is defined.
-         *
-         * @return Mesh set names
-         */
-        Cell< std::string > get_pdv_mesh_set_names();
+        Cell< uint > get_pdv_mesh_set_indices( mtk::Integration_Mesh* aMesh );
 
     };
 }
