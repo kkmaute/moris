@@ -37,12 +37,14 @@ namespace moris::ge
         uint tGeometryIndex = 0;
         uint tPropertyIndex = 0;
         uint tDesignIndex = 0;
-        uint tLoopCount = 0;
         uint tNumberOfDesignsLeft = tDesignParameterLists.size();
 
         // Loop until all designs are built
         while ( tNumberOfDesignsLeft > 0 )
         {
+            // Track if at least one design was found in this loop that can be built, based on its dependencies
+            bool tDesignBuilt = false;
+
             // Loop over all designs
             for ( ParameterList& iDesignParameterList : tDesignParameterLists )
             {
@@ -52,7 +54,7 @@ namespace moris::ge
                     // Check if a field is required
                     if ( iDesignParameterList.exists( "field_type" ) )
                     {
-                        // Get dependency names
+                        // Get field dependency names
                         Cell< std::string > tDependencyNames =
                                 string_to_cell< std::string >( iDesignParameterList.get< std::string >( "dependencies" ) );
 
@@ -141,13 +143,16 @@ namespace moris::ge
 
                             // Decrement number of designs left
                             tNumberOfDesignsLeft--;
+
+                            // Set that a design has been built, so it is fine if another outer loop is needed
+                            tDesignBuilt = true;
                         }
                     }
                 }
             }
 
             // Increment and check loop counter
-            MORIS_ERROR( tLoopCount++ < tDesignParameterLists.size(), "While creating GEN fields, a field dependency was not found or a circular dependency was detected. Exiting." );
+            MORIS_ERROR( tDesignBuilt, "While creating GEN fields, a field dependency was not found or a circular dependency was detected. Exiting." );
         }
 
         // Resize final containers
