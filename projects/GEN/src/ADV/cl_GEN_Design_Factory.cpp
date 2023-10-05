@@ -24,12 +24,10 @@ namespace moris::ge
             Matrix< DDRMat >&             aADVs,
             std::shared_ptr< Library_IO > aLibrary,
             mtk::Mesh*                    aMesh )
+            : mDesigns( aGeometryParameterLists.size() + aPropertyParameterLists.size(), nullptr )
+            , mGeometries( aGeometryParameterLists.size(), nullptr )
+            , mProperties( aPropertyParameterLists.size(), nullptr )
     {
-        // Initial resize for pointer cells
-        mGeometries.resize( aGeometryParameterLists.size() );
-        mProperties.resize( aPropertyParameterLists.size() );
-        mDesigns.resize( aGeometryParameterLists.size() + aPropertyParameterLists.size() );
-
         // Combine parameter lists
         Cell< ParameterList > tDesignParameterLists;
         tDesignParameterLists.append( aGeometryParameterLists );
@@ -46,7 +44,7 @@ namespace moris::ge
         while ( tNumberOfDesignsLeft > 0 )
         {
             // Loop over all designs
-            for ( const ParameterList& iDesignParameterList : tDesignParameterLists )
+            for ( ParameterList& iDesignParameterList : tDesignParameterLists )
             {
                 // Check if design needs building
                 if ( iDesignParameterList.exists( "design_type" ) )
@@ -137,6 +135,9 @@ namespace moris::ge
                             {
                                 MORIS_ERROR( false, "GEN does not recognize design type: %s", tDesignType.c_str() );
                             }
+
+                            // Indicate that this design has now been built
+                            iDesignParameterList.erase( "design_type" );
 
                             // Decrement number of designs left
                             tNumberOfDesignsLeft--;
