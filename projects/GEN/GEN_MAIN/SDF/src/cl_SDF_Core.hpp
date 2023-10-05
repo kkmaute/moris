@@ -8,10 +8,9 @@
  *
  */
 
-#ifndef PROJECTS_GEN_SDF_SRC_CL_SDF_CORE_HPP_
-#define PROJECTS_GEN_SDF_SRC_CL_SDF_CORE_HPP_
+#pragma once
 
-#include "typedefs.hpp" // COR/src
+#include "typedefs.hpp"    // COR/src
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
 
@@ -20,215 +19,227 @@
 #include "cl_SDF_Parameters.hpp"
 #include "cl_SDF_Data.hpp"
 
-namespace moris
+namespace moris::sdf
 {
-    namespace sdf
+    //-------------------------------------------------------------------------------
+
+    class Core
     {
-//-------------------------------------------------------------------------------
+        Mesh& mMesh;
+        Data& mData;
 
-        class Core
+        uint mCandidateSearchDepth        = 1;
+        real mCandidateSearchDepthEpsilon = 0.01;
+        bool mVerbose;
+
+        //-------------------------------------------------------------------------------
+
+      public:
+        //-------------------------------------------------------------------------------
+
+        Core( Mesh&   aMesh,
+                Data& aData,
+                bool  aVerbose = false );
+
+        //-------------------------------------------------------------------------------
+
+        ~Core(){};
+
+        //-------------------------------------------------------------------------------
+
+        void
+        set_candidate_search_depth( const uint aCandidateSearchDepth )
         {
-                  Mesh          & mMesh;
-                  Data          & mData;
+            mCandidateSearchDepth = aCandidateSearchDepth;
+        }
 
-                  uint            mCandidateSearchDepth = 1;
-                  real            mCandidateSearchDepthEpsilon = 0.01;
-                  bool            mVerbose;
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
-        public :
-//-------------------------------------------------------------------------------
+        void
+        set_candidate_search_epsilon( const real aCandidateSearchEpsilon )
+        {
+            mCandidateSearchDepthEpsilon = aCandidateSearchEpsilon;
+        }
 
-            Core(       Mesh & aMesh,
-                        Data & aData,
-                        bool   aVerbose=false );
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+        void
+        calculate_raycast();
 
-            ~Core(){};
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+        void
+        calculate_raycast(
+                Matrix< IndexMat >& aElementsAtSurface );
 
-            void
-            set_candidate_search_depth( const uint aCandidateSearchDepth )
-            {
-                mCandidateSearchDepth = aCandidateSearchDepth;
-            }
+        //-------------------------------------------------------------------------------
+        void
+        calculate_raycast(
+                Matrix< IndexMat >& aElementsAtSurface,
+                Matrix< IndexMat >& aElementsInVolume );
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            void
-            set_candidate_search_epsilon( const real aCandidateSearchEpsilon )
-            {
-                mCandidateSearchDepthEpsilon = aCandidateSearchEpsilon;
-            }
+        void
+        calculate_raycast_and_sdf( Matrix< DDRMat >& aSDF );
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            void 
-            calculate_raycast();
+        void
+        calculate_raycast_and_sdf(
+                Matrix< DDRMat >&   aSDF,
+                Matrix< IndexMat >& aElementsAtSurface,
+                Matrix< IndexMat >& aElementsInVolume );
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            void
-            calculate_raycast(
-                    Matrix< IndexMat > & aElementsAtSurface );
+        void
+        save_to_vtk( const std::string& aFilePath );
 
-//-------------------------------------------------------------------------------
-            void
-            calculate_raycast(
-                    Matrix< IndexMat > & aElementsAtSurface,
-                    Matrix< IndexMat > & aElementsInVolume );
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+        void
+        save_unsure_to_vtk( const std::string& aFilePath );
 
-            void
-            calculate_raycast_and_sdf( Matrix< DDRMat> & aSDF );
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+      private:
+        //-------------------------------------------------------------------------------
 
-            void
-            calculate_raycast_and_sdf(
-                    Matrix< DDRMat>    & aSDF,
-                    Matrix< IndexMat > & aElementsAtSurface,
-                    Matrix< IndexMat > & aElementsInVolume );
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+        void
+        voxelize( const uint aAxis );
 
-            void
-            save_to_vtk( const std::string & aFilePath );
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+        moris::Cell< Vertex* >
+        set_candidate_list();
 
-            void
-            save_unsure_to_vtk( const std::string & aFilePath );
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
-        private :
-//-------------------------------------------------------------------------------
+        void
+        calculate_udf( moris::Cell< Vertex* >& aCandidateList );
 
-//-------------------------------------------------------------------------------
-
-            void
-            voxelize( const uint aAxis );
-
-//-------------------------------------------------------------------------------
-
-            moris::Cell< Vertex * >
-            set_candidate_list(  );
-
-//-------------------------------------------------------------------------------
-
-            void
-            calculate_udf(moris::Cell< Vertex * > & aCandidateList);
-
-//-------------------------------------------------------------------------------
-
-            /**
-             * Kehrwoche :
-             * make sure that each vertex is really associated
-             * to its closest triangle
-             */
-            void
-            sweep();
-
-//-------------------------------------------------------------------------------
-
-            void
-            fill_sdf_with_values( Matrix< DDRMat > & aSDF );
-
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         /**
-         * @brief Takes a point in 3D space and determines which triangles 
-         * in the positive and negative x direction the point could possibly intersect. 
+         * Kehrwoche :
+         * make sure that each vertex is really associated
+         * to its closest triangle
+         */
+        void
+        sweep();
+
+        //-------------------------------------------------------------------------------
+
+        void
+        fill_sdf_with_values( Matrix< DDRMat >& aSDF );
+
+        //-------------------------------------------------------------------------------
+
+        /**
+         * @brief Takes a point in 3D space and determines which triangles
+         * in the positive and negative x direction the point could possibly intersect.
          * These triangles are added to mData.mCandidateFacets. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
-         * 
+         *
          * @param aPoint Point in space that lies within the bounding Y-Z plane of the candidate triangles
          */
-            void
-            preselect_triangles_x( const Matrix< DDRMat >& aPoint );
+        void
+        preselect_triangles_x( const Matrix< DDRMat >& aPoint );
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         /**
-         * @brief Takes a point in 3D space and determines which triangles 
-         * in the positive and negative y direction the point could possibly intersect. 
+         * @brief Takes a point in 3D space and determines which triangles
+         * in the positive and negative y direction the point could possibly intersect.
          * These triangles are added to mData.mCandidateFacets. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
-         * 
+         *
          * @param aPoint Point in space that lies within the bounding X-Z plane of the candidate triangles
          */
-            void
-            preselect_triangles_y( const Matrix< DDRMat >& aPoint );
+        void
+        preselect_triangles_y( const Matrix< DDRMat >& aPoint );
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
         /**
-         * @brief Takes a point in 3D space and determines which triangles 
-         * in the positive and negative z direction the point could possibly intersect. 
+         * @brief Takes a point in 3D space and determines which triangles
+         * in the positive and negative z direction the point could possibly intersect.
          * These triangles are added to mData.mCandidateFacets. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
-         * 
+         *
          * @param aPoint Point in space that lies within the bounding X-Y plane of the candidate triangles
-         */    
-            void
-            preselect_triangles_z( const Matrix< DDRMat >& aPoint );
+         */
+        void
+        preselect_triangles_z( const Matrix< DDRMat >& aPoint );
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            void
-            intersect_triangles(
-                    const uint aAxis,
-                    const Matrix< DDRMat >& aPoint );
+        /**
+         * @brief Takes a point in 3D space and determines which lines
+         * in the positive and negative aAxis direction the point could possibly intersect.
+         * These lines are added to mData.mCandidateFacets. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
+         *
+         * @param aAxis 0 for lines in the x direction of aPoint, 1 for lines in the y direction of aPoint
+         * @param aPoint Location in space that lies within the bounding aAxis coordinates of the candidate triangles
+         */
+        void
+        preselect_lines(
+                const uint              aDimension,
+                const Matrix< DDRMat >& aPoint );
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            void
-            intersect_ray_with_triangles(
-                    const uint aAxis,
-                    const Matrix< DDRMat >& aPoint,
-                    const uint aNodeIndex );
 
-//-------------------------------------------------------------------------------
+        void
+        intersect_triangles(
+                const uint              aAxis,
+                const Matrix< DDRMat >& aPoint );
 
-            void
-            check_if_node_is_inside(
-                    const uint aAxis,
-                    const uint aNodeIndex );
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            void
-            calculate_candidate_points_and_buffer_diagonal();
+        void
+        intersect_ray_with_triangles(
+                const uint              aAxis,
+                const Matrix< DDRMat >& aPoint,
+                const uint              aNodeIndex );
 
-//-------------------------------------------------------------------------------
+        //-------------------------------------------------------------------------------
 
-            void
-            get_nodes_withing_bounding_box_of_triangle(
-                            Facet * aFacet, moris::Cell< Vertex* > & aNodes,
-							moris::Cell< Vertex * > & aCandList );
+        void
+        check_if_node_is_inside(
+                const uint aAxis,
+                const uint aNodeIndex );
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+        void
+        calculate_candidate_points_and_buffer_diagonal();
 
-            /**
-             * performs a floodfill in order to fix unsure nodes
-             */
-            void
-            force_unsure_nodes_outside();
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+        void
+        get_nodes_withing_bounding_box_of_triangle(
+                Facet*                  aFacet,
+                moris::Cell< Vertex* >& aNodes,
+                moris::Cell< Vertex* >& aCandList );
 
-            void
-            random_rotation();
+        //-------------------------------------------------------------------------------
 
-//-------------------------------------------------------------------------------
+        /**
+         * performs a floodfill in order to fix unsure nodes
+         */
+        void
+        force_unsure_nodes_outside();
 
-            void
-            undo_rotation();
+        //-------------------------------------------------------------------------------
 
-        };
+        void
+        random_rotation();
 
-//-------------------------------------------------------------------------------
-    } /* namespace sdf */
-} /* namespace moris */
+        //-------------------------------------------------------------------------------
 
-#endif /* PROJECTS_GEN_SDF_SRC_CL_SDF_CORE_HPP_ */
+        void
+        undo_rotation();
+    };
 
+    //-------------------------------------------------------------------------------
+} /* namespace moris::sdf */

@@ -9,65 +9,36 @@
  */
 
 #include "cl_SDF_Data.hpp"
-namespace moris
+namespace moris::sdf
 {
-    namespace sdf
+
+    //-------------------------------------------------------------------------------
+    Data::Data( Object &aObject )
+            : mFacets( aObject.get_facets() )
+            , mVertices( aObject.get_vertices() )
+            , mNumberOfFacets( mFacets.size() )
+            , mFacetMinCoords( mNumberOfFacets, aObject.get_dimension() )
+            , mFacetMaxCoords( mNumberOfFacets, aObject.get_dimension() )
+            // #ifdef MORIS_USE_ARMA
+            //             mCandI( mNumberOfFacets )
+            //             , mCandJ( mNumberOfFacets )
+            //             , mCandK( mNumberOfFacets )
+
+            // #else
+            , mCandJ( mNumberOfFacets, 1 )
+            // #endif
+            , mCandidateFacets( mNumberOfFacets, 1 )
+
     {
-//-------------------------------------------------------------------------------
-        Data::Data( Object & aObject ) :
-                  mFacets( aObject.get_facets() ),
-                  mVertices( aObject.get_vertices() ),
-                  mNumberOfTriangles( mFacets.size() ),
-                  mTriangleMinCoordsX(mNumberOfTriangles, 1),
-                  mTriangleMinCoordsY(mNumberOfTriangles, 1),
-                  mTriangleMinCoordsZ(mNumberOfTriangles, 1),
-                  mTriangleMaxCoordsX(mNumberOfTriangles, 1),
-                  mTriangleMaxCoordsY(mNumberOfTriangles, 1),
-                  mTriangleMaxCoordsZ(mNumberOfTriangles, 1),
-#ifdef MORIS_USE_ARMA
-                       mCandI(mNumberOfTriangles),
-                       mCandJ(mNumberOfTriangles),
-                       mCandK(mNumberOfTriangles),
-#else
-                       mCandJ(mNumberOfTriangles, 1),
-#endif
-                       mCandidateFacets(mNumberOfTriangles, 1)
-
+        // copy bounding box data
+        for ( uint iFacetIndex = 0; iFacetIndex < mNumberOfFacets; iFacetIndex++ )
         {
-            this->init_triangles();
-        }
-
-//-------------------------------------------------------------------------------
-
-        void
-        Data::init_triangles()
-        {
-            // copy triangle bounding box data
-            for ( uint k = 0; k < mNumberOfTriangles; ++k)
+            for ( uint iDimensionIndex = 0; iDimensionIndex < aObject.get_dimension(); iDimensionIndex++ )
             {
-                // minimum triangle coordinates for lower left point of bounding box
-                mTriangleMinCoordsX( k )
-                    = mFacets( k )->get_min_coord( 0 );
+                mFacetMinCoords( iFacetIndex, iDimensionIndex ) = mFacets( iFacetIndex )->get_min_coord( iDimensionIndex );
 
-                mTriangleMinCoordsY( k )
-                    = mFacets( k )->get_min_coord( 1 );
-
-                mTriangleMinCoordsZ( k )
-                    = mFacets( k )->get_min_coord( 2 );
-
-                // maximum triangle coordinates for upper right point of bounding box
-                mTriangleMaxCoordsX( k )
-                    = mFacets( k )->get_max_coord( 0 );
-
-                mTriangleMaxCoordsY( k )
-                    = mFacets( k )->get_max_coord( 1 );
-
-                mTriangleMaxCoordsZ ( k )
-                    = mFacets( k )->get_max_coord( 2 );
+                mFacetMaxCoords( iFacetIndex, iDimensionIndex ) = mFacets( iFacetIndex )->get_max_coord( iDimensionIndex );
             }
         }
-
-//-------------------------------------------------------------------------------
-    } /* namespace sdf */
-} /* namespace moris */
-
+    }
+} /* namespace moris::sdf */

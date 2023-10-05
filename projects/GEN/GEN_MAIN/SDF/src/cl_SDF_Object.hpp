@@ -29,6 +29,7 @@ namespace moris
             moris::Cell< Facet* >        mFacets;
 
             const Matrix< DDRMat >& mOffsets;
+            uint                    mDimension;
 
             //-------------------------------------------------------------------------------
 
@@ -56,6 +57,12 @@ namespace moris
             get_vertices()
             {
                 return mVertices;
+            }
+
+            uint
+            get_dimension()
+            {
+                return mDimension;
             }
 
             //-------------------------------------------------------------------------------
