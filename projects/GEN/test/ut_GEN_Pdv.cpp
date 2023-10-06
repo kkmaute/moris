@@ -9,13 +9,13 @@
  */
 
 #include "catch.hpp"
-#include "math.h"
+#include <cmath>
 #include "cl_Matrix.hpp"
 #include "cl_SOL_Matrix_Vector_Factory.hpp"
 #include "cl_MSI_Design_Variable_Interface.hpp"
 
 #include "cl_GEN_Circle.hpp"
-#include "fn_GEN_create_properties.hpp"
+#include "cl_GEN_Design_Factory.hpp"
 #include "fn_PRM_GEN_Parameters.hpp"
 
 #define protected public
@@ -488,7 +488,8 @@ namespace moris
             for ( uint tPropertyIndex = 0; tPropertyIndex < tNumADVs; tPropertyIndex++ )
             {
                 tParameterList.set( "adv_indices", std::to_string( tPropertyIndex ) );
-                tProperties( tPropertyIndex ) = create_property( tParameterList, tADVs );
+                Design_Factory tDesignFactory( {}, { tParameterList }, tADVs );
+                tProperties( tPropertyIndex ) = tDesignFactory.get_properties()( 0 );
             }
 
             // Node indices, IDs, ownership and coordinates per set

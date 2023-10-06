@@ -9,14 +9,14 @@
  */
 
 #include "catch.hpp"
-#include "math.h"
+#include <cmath>
 #include "fn_eye.hpp"
 
 #include "cl_GEN_Circle.hpp"
 #include "cl_GEN_Geometry_Engine_Test.hpp"
 #include "cl_GEN_Pdv_Host_Manager.hpp"
 #include "cl_GEN_BSpline_Field.hpp"
-#include "fn_GEN_create_geometries.hpp"
+#include "cl_GEN_Design_Factory.hpp"
 #include "fn_check_equal.hpp"
 #include "fn_GEN_create_simple_mesh.hpp"
 #include "cl_GEN_Mesh_Field_Geometry.hpp"
@@ -67,8 +67,8 @@ namespace moris::ge
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mADVs = tADVs;
-            tGeometryEngineParameters.mGeometries =
-                    create_geometries( { tCircleParameterList, tPlane1ParameterList, tPlane2ParameterList }, tADVs );
+            Design_Factory tDesignFactory( { tCircleParameterList, tPlane1ParameterList, tPlane2ParameterList }, {}, tADVs );
+            tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine tGeometryEngine( tMesh, tGeometryEngineParameters );
 
             // TODO ensure this writes the mesh/fields correctly instead of just relying on no errors being thrown
@@ -293,7 +293,7 @@ namespace moris::ge
             CHECK( tGeometryEngine.get_field_value( 0, 28, { {} } ) == Approx( ( sqrt( 41.0 ) - 3.0 ) / 4.0 ).margin( MORIS_REAL_EPS ) );
 
             // Get the PDV host manager and set the number of total nodes
-            Pdv_Host_Manager* tPDVHostManager = dynamic_cast< Pdv_Host_Manager* >( tGeometryEngine.get_design_variable_interface() );
+            auto tPDVHostManager = dynamic_cast< Pdv_Host_Manager* >( tGeometryEngine.get_design_variable_interface() );
 
             // Test that the new intersections have been added to the PDV host manager, but ONLY for the circle
             Cell< Matrix< DDRMat > > tPdvValues( 0 );
@@ -781,7 +781,8 @@ namespace moris::ge
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
-            tGeometryEngineParameters.mGeometries = create_geometries( { tCircleParameterList }, tADVs );
+            Design_Factory tDesignFactory( { tCircleParameterList }, {}, tADVs );
+            tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine tGeometryEngine( tMesh, tGeometryEngineParameters );
 
             // Solution for is_intersected() per geometry and per element
