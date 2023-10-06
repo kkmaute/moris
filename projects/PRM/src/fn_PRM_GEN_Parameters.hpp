@@ -14,28 +14,6 @@
 
 namespace moris::prm
 {
-    /**
-     * Inserts all general field parameters to the given parameter list.
-     *
-     * @param aDesignParameterList Parameter list for a design (level set geometry or property)
-     */
-    static void insert_field_parameters( ParameterList& aDesignParameterList )
-    {
-        aDesignParameterList.insert( "field_type", "" );                   // Type of field
-        aDesignParameterList.insert( "name", "" );                         // Name of field
-        aDesignParameterList.insert( "dependencies", "" );                 // Names of other fields that this field depends on
-        aDesignParameterList.insert( "field_variable_indices", "" );       // Indices of field variables to fill
-        aDesignParameterList.insert( "adv_indices", "" );                  // ADVs used to fill in variables
-        aDesignParameterList.insert( "constant_parameters", "" );          // Remaining geometry parameters that are constant
-        aDesignParameterList.insert( "number_of_refinements", "" );        // Number of refinement steps using HMR
-        aDesignParameterList.insert( "refinement_mesh_index", "" );        // Refinement pattern
-        aDesignParameterList.insert( "refinement_function_index", -1 );    // Index of user-defined refinement function (-1 = default)
-        aDesignParameterList.insert( "discretization_mesh_index", -2 );    // Index of B-spline mesh to put this field on (-2 = none, -1 = store)
-        aDesignParameterList.insert( "discretization_lower_bound", -1.0 ); // Lower bound of level set field (if bspline_mesh_index >= 0)
-        aDesignParameterList.insert( "discretization_upper_bound", 1.0 );  // Upper bound of level set field (if bspline_mesh_index >= 0)
-    }
-
-    //------------------------------------------------------------------------------
 
     /**
      * Creates a parameter list used for the construction of the geometry engine. One of these parameter lists is
@@ -80,6 +58,45 @@ namespace moris::prm
     }
 
     /**
+     * Inserts all general field parameters to the given parameter list.
+     *
+     * @param aDesignParameterList Parameter list for a design field
+     */
+    static void insert_field_parameters( ParameterList& aDesignParameterList )
+    {
+        aDesignParameterList.insert( "name", "" );                         // Name of field
+        aDesignParameterList.insert( "field_type", "" );                   // Type of field
+        aDesignParameterList.insert( "dependencies", "" );                 // Names of other fields that this field depends on
+        aDesignParameterList.insert( "field_variable_indices", "" );       // Indices of field variables to fill
+        aDesignParameterList.insert( "adv_indices", "" );                  // ADVs used to fill in variables
+        aDesignParameterList.insert( "constant_parameters", "" );          // Remaining geometry parameters that are constant
+    }
+
+    /**
+     * Inserts all parameters related to design fields to the given parameter list.
+     *
+     * @param aDesignParameterList Parameter list for a design (level set geometry or property)
+     * @param aIncludeField Whether or not to include field parameters. If not, an existing field name must be assigned.
+     */
+    static void insert_design_field_parameters( ParameterList& aDesignParameterList, bool aIncludeField )
+    {
+        if ( aIncludeField )
+        {
+            insert_field_parameters( aDesignParameterList );
+        }
+        else
+        {
+            aDesignParameterList.insert( "assigned_field", "" );
+        }
+        aDesignParameterList.insert( "number_of_refinements", "" );        // Number of refinement steps using HMR
+        aDesignParameterList.insert( "refinement_mesh_index", "" );        // Refinement pattern
+        aDesignParameterList.insert( "refinement_function_index", -1 );    // Index of user-defined refinement function (-1 = default)
+        aDesignParameterList.insert( "discretization_mesh_index", -2 );    // Index of B-spline mesh to put this field on (-2 = none, -1 = store)
+        aDesignParameterList.insert( "discretization_lower_bound", -1.0 ); // Lower bound of level set field (if bspline_mesh_index >= 0)
+        aDesignParameterList.insert( "discretization_upper_bound", 1.0 );  // Upper bound of level set field (if bspline_mesh_index >= 0)
+    }
+
+    /**
      * Inserts parameters to a field parameter list useful for getting user-defined functions from an input file.
      *
      * @param aDesignParameterList Parameter list for a design field with field parameters already inserted
@@ -99,7 +116,8 @@ namespace moris::prm
     static ParameterList create_geometry_parameter_list()
     {
         ParameterList tParameterList;
-        tParameterList.insert( "design_type", "geometry" ); // Set the design type to a geometry
+        tParameterList.insert( "design_type", "geometry" );    // Set the design type to a geometry
+        tParameterList.insert( "geometry_type", "level_set" ); // Set the geometry type to level set as default
 
         return tParameterList;
     }
@@ -110,14 +128,14 @@ namespace moris::prm
      * Creates a parameter list that can be used to construct a geometry field. Any number of these can be added to
      * the second cell (index 1) of then parameter lists for GEN.
      *
+     * @param aIncludeField Whether or not to include field parameters. If not, an existing field name must be assigned.
      * @return Geometry parameter list
      */
     inline ParameterList
-    create_level_set_geometry_parameter_list()
+    create_level_set_geometry_parameter_list( bool aIncludeField = true )
     {
         ParameterList tParameterList = create_geometry_parameter_list(); // Inserts all geometry parameters
-        tParameterList.insert( "geometry_type", "level_set" );           // Set the geometry type to level set
-        insert_field_parameters( tParameterList );                       // Inserts all field parameters
+        insert_design_field_parameters( tParameterList, aIncludeField ); // Inserts all design parameters
         tParameterList.insert( "multilinear_intersections", false );     // Whether to use multilinear interoplation for calculating intersections
         tParameterList.insert( "intersection_mode", "LEVEL_SET" );       // Deprecated
         tParameterList.insert( "isocontour_threshold", 0.0 );            // Level set isocontour level
@@ -156,7 +174,7 @@ namespace moris::prm
     {
         ParameterList tParameterList = create_level_set_geometry_parameter_list();
 
-        tParameterList.set( "field_type", "voxel" );                // User-defined geometry
+        tParameterList.set( "field_type", "voxel" );          // Voxel field type
         tParameterList.insert( "voxel_field_file", "" );      // voxel file
         tParameterList.insert( "domain_dimensions", "" );     // domain size
         tParameterList.insert( "domain_offset", "" );         // domain offset
@@ -177,7 +195,7 @@ namespace moris::prm
     {
         ParameterList tParameterList = create_level_set_geometry_parameter_list();
 
-        tParameterList.set( "field_type", "sdf_field" );           // User-defined geometry
+        tParameterList.set( "field_type", "sdf_field" );     // SDF field type
         tParameterList.insert( "sdf_object_path", "" );      // obj file
         tParameterList.insert( "sdf_object_offset", "" );    // offset of object
         tParameterList.insert( "sdf_shift", 0.0 );           // sdf shift
@@ -197,7 +215,7 @@ namespace moris::prm
     {
         ParameterList tParameterList = create_level_set_geometry_parameter_list();
 
-        tParameterList.set( "field_type", "image_sdf" );                  // sdf field generated from image
+        tParameterList.set( "field_type", "image_sdf" );            // sdf field generated from image
         tParameterList.insert( "image_file", "" );                  // image file (hdf5 format)
         tParameterList.insert( "image_dimensions", "" );            // domain size
         tParameterList.insert( "image_offset", "" );                // domain offset
@@ -262,12 +280,12 @@ namespace moris::prm
         tParameterList.insert( "allow_less_than_target_spacing", true );
 
         // Optional
-        tParameterList.insert( "superellipse_exponent", 2.0 );           // Superellipse exponent
-        tParameterList.insert( "superellipse_scaling", 1.0 );            // Superellipse scaling
-        tParameterList.insert( "superellipse_regularization", 1e-8 );    // Superellipse regularization
-        tParameterList.insert( "superellipse_shift", 1e-6 );             // Superellipse shift
-        tParameterList.insert( "row_offset", 0.0 );                     // Offset to be applied on subsequent rows
-        tParameterList.set( "discretization_mesh_index", -1 );       // Index of B-spline mesh to create level set field on (-1 = none)
+        tParameterList.insert( "superellipse_exponent", 2.0 );        // Superellipse exponent
+        tParameterList.insert( "superellipse_scaling", 1.0 );         // Superellipse scaling
+        tParameterList.insert( "superellipse_regularization", 1e-8 ); // Superellipse regularization
+        tParameterList.insert( "superellipse_shift", 1e-6 );          // Superellipse shift
+        tParameterList.insert( "row_offset", 0.0 );                   // Offset to be applied on subsequent rows
+        tParameterList.set( "discretization_mesh_index", -1 );        // Index of B-spline mesh to create level set field on (-1 = none)
 
         return tParameterList;
     }
@@ -278,18 +296,19 @@ namespace moris::prm
      * Creates a parameter list that can be used to construct a property field. Any number of these can be added to
      * the third cell (index 2) of the parameter lists for GEN.
      *
+     * @param aIncludeField Whether or not to include field parameters. If not, an existing field name must be assigned.
      * @return GEN property parameter list
      */
     inline ParameterList
-    create_gen_property_parameter_list()
+    create_gen_property_parameter_list( bool aIncludeField = true )
     {
-        ParameterList tParameterList;                                 // For right now, all properties are fields
-        tParameterList.insert( "design_type", "property" );           // Set the design type to a property
-        insert_field_parameters( tParameterList );                    // Inserts all field parameters
-        tParameterList.insert( "pdv_type", "" );                      // The type of PDV that this property will be assigned to
-        tParameterList.insert( "pdv_mesh_type", "interpolation" );    // Mesh type for assigning PDVs
-        tParameterList.insert( "pdv_mesh_set_names", "" );            // Mesh set names for assigning PDVs
-        tParameterList.insert( "pdv_mesh_set_indices", "" );          // Mesh set indices for assigning PDVs
+        ParameterList tParameterList;                                    // For right now, all properties are fields
+        tParameterList.insert( "design_type", "property" );              // Set the design type to a property
+        insert_design_field_parameters( tParameterList, aIncludeField ); // Inserts all design field parameters
+        tParameterList.insert( "pdv_type", "" );                         // The type of PDV that this property will be assigned to
+        tParameterList.insert( "pdv_mesh_type", "interpolation" );       // Mesh type for assigning PDVs
+        tParameterList.insert( "pdv_mesh_set_names", "" );               // Mesh set names for assigning PDVs
+        tParameterList.insert( "pdv_mesh_set_indices", "" );             // Mesh set indices for assigning PDVs
 
         return tParameterList;
     }
