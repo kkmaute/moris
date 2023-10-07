@@ -457,7 +457,7 @@ namespace moris
          * @param[in] aCell Cell to be appended
          */
 
-        void
+        Cell&
         append(
                 moris::Cell< T > const & aCell )
         {
@@ -471,6 +471,8 @@ namespace moris
                     "Cell::append: After append memory used is less than 75 percent of capacity of large matrix: size %zu capacity %zu\n",
                     this->size(),
                     this->capacity() );
+
+            return *this;
         }
 
         //------------------------------------------------------------------
