@@ -2849,7 +2849,7 @@ namespace xtk
                         moris::Matrix< IndexMat > tBaseCoeffInds = tBaseVertexInterpolation->get_indices();
 
                         // get access to the basis to local index map of the vertex enrichment for modification
-                        Mini_Map< moris::moris_index, moris::moris_index >& tVertEnrichMap = iVertexEnrichment->get_basis_map();
+                        IndexMap& tVertEnrichMap = iVertexEnrichment->get_basis_map();
 
                         // clear the map and populate it with the new indices
                         tVertEnrichMap.clear();

@@ -24,7 +24,7 @@ namespace moris
 {
     // -----------------------------------------------------------------------------
 
-    // Foreward declare the XML-parser
+    // Forward declare the XML-parser
     class XML_Parser;
 
     // Define what a module parameter list is

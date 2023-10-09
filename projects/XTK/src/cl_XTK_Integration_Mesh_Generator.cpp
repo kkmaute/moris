@@ -164,7 +164,7 @@ namespace xtk
         // construct interface_sets
         this->construct_interface_sets( tCutIntegrationMesh.get(), tInterfaceByBulkPhase );
 
-        // print diagonstic information if requested
+        // print diagnostic information if requested
         if ( mXTKModel->mDiagnostics )
         {
             std::string tCellDiagFile    = mXTKModel->get_diagnostic_file_name( std::string( "Cells" ) );

@@ -776,9 +776,9 @@ namespace xtk
                     mXTKModelPtr->mBackgroundMesh->get_L2_projection_matrix( aMeshIndex, tBsplineCells( tRootBSplineCellIndex ), tBsplineCells( tExtentionBSplineCellIndex ), tRootBsplineBasis, tExtendedBsplineBasis, tWeights );
 
                     // This two maps help to get the the enriched basis index from the
-                    moris::Cell< moris_index > const &             tBGBasisIndicesRoot = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupBGBasisIndices( tRootSPGIndex );
-                    moris::Cell< moris_index > const &             tBGBasisLevelsRoot  = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupBGBasisEnrLev( tRootSPGIndex );
-                    std::unordered_map< moris_index, moris_index > tBasisToLocalIndexMapRoot;
+                    moris::Cell< moris_index > const & tBGBasisIndicesRoot = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupBGBasisIndices( tRootSPGIndex );
+                    moris::Cell< moris_index > const & tBGBasisLevelsRoot  = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupBGBasisEnrLev( tRootSPGIndex );
+                    IndexMap                           tBasisToLocalIndexMapRoot;
 
                     // need to convert the first one to map
                     convert_cell_to_map( tBGBasisIndicesRoot, tBasisToLocalIndexMapRoot );
@@ -896,11 +896,11 @@ namespace xtk
                         tListOfBGVertices.insert( tXTKUIPVs( iLocalVertIndex )->get_index() );
 
                         // access the basis indices and weights
-                        moris::Matrix< moris::IndexMat > const &            tBasisIndices = tVertexEnrichment->get_basis_indices();
-                        moris::Matrix< moris::IndexMat > const &            tBasisIds     = tVertexEnrichment->get_basis_ids();
-                        moris::Matrix< moris::DDRMat >&                     tBasisWeights = tVertexEnrichment->get_basis_weights();
-                        moris::Matrix< IdMat >                              tBasisOwners  = tVertexEnrichment->get_owners();
-                        Mini_Map< moris::moris_index, moris::moris_index >& tBasisMap     = tVertexEnrichment->get_basis_map();
+                        moris::Matrix< moris::IndexMat > const & tBasisIndices = tVertexEnrichment->get_basis_indices();
+                        moris::Matrix< moris::IndexMat > const & tBasisIds     = tVertexEnrichment->get_basis_ids();
+                        moris::Matrix< moris::DDRMat >&          tBasisWeights = tVertexEnrichment->get_basis_weights();
+                        moris::Matrix< IdMat >                   tBasisOwners  = tVertexEnrichment->get_owners();
+                        IndexMap&                                tBasisMap     = tVertexEnrichment->get_basis_map();
                         tBasisMap.clear();
 
                         // probably need to do a resize call here
@@ -1185,9 +1185,9 @@ namespace xtk
                         xtk::Vertex_Enrichment* tVertexEnrichment = tXTKUIPVs( iLocalVertIndex )->get_xtk_interpolation( aMeshIndex );
 
                         // access the basis indices
-                        moris::Matrix< moris::IndexMat > const &            tBasisIndices = tVertexEnrichment->get_basis_indices();
-                        moris::Matrix< moris::DDRMat >&                     tBasisWeights = tVertexEnrichment->get_basis_weights();
-                        Mini_Map< moris::moris_index, moris::moris_index >& tBasisMap     = tVertexEnrichment->get_basis_map();
+                        moris::Matrix< moris::IndexMat > const & tBasisIndices = tVertexEnrichment->get_basis_indices();
+                        moris::Matrix< moris::DDRMat >&          tBasisWeights = tVertexEnrichment->get_basis_weights();
+                        IndexMap&                                tBasisMap     = tVertexEnrichment->get_basis_map();
 
                         // probably need to do a resize call here
                         // overallocation basis Indices
@@ -1231,7 +1231,7 @@ namespace xtk
                                 moris::Cell< moris_index > const & tBGBasisLevels  = mXTKModelPtr->mEnrichment->mEnrichmentData( aMeshIndex ).mSubphaseGroupBGBasisEnrLev( tRootSPGIndex );
 
                                 // convert the bg basis indices to the map
-                                std::unordered_map< moris_index, moris_index > tBasisToLocalIndexMap;
+                                IndexMap tBasisToLocalIndexMap;
                                 convert_cell_to_map( tBGBasisIndices, tBasisToLocalIndexMap );
 
                                 // get the enrichment indices that contains combines data of the above cells

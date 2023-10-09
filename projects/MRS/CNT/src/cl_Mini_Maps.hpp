@@ -34,6 +34,6 @@ namespace moris
     // template< typename A, typename B > using Mini_Map = std::map< A, B >;
 
     // define the IndexMap for convenience as it is used very often
-    typedef Mini_Map< moris::moris_index, moris::moris_index > IndexMap;
+    using IndexMap = Mini_Map< moris::moris_index, moris::moris_index >;
 
 }    // namespace moris

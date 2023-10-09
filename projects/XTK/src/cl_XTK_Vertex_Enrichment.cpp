@@ -141,7 +141,7 @@ namespace xtk
 
     //------------------------------------------------------------------------------
 
-    Mini_Map< moris::moris_index, moris::moris_index >&
+    IndexMap&
     Vertex_Enrichment::get_basis_map()
     {
         return mBasisMap;

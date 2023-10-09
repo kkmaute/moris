@@ -903,9 +903,6 @@ namespace xtk
         construct_enriched_interpolation_vertices_and_cells();
 
         void
-        construct_enriched_interpolation_vertices_and_cells_based_on_SPGs();
-
-        void
         construct_enriched_interpolation_vertices_and_cells_based_on_SPGs_new();
 
         // ----------------------------------------------------------------------------------
