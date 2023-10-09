@@ -175,7 +175,7 @@ namespace moris::sdf
         //-------------------------------------------------------------------------------
 
         /**
-         * @brief Takes a point in 3D space and determines which lines
+         * @brief Takes a point in 2D space and determines which lines
          * in the positive and negative aAxis direction the point could possibly intersect.
          * These lines are added to mData.mCandidateFacets. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
          *
@@ -184,7 +184,7 @@ namespace moris::sdf
          */
         void
         preselect_lines(
-                const uint              aDimension,
+                const uint              aAxis,
                 const Matrix< DDRMat >& aPoint );
 
         //-------------------------------------------------------------------------------
