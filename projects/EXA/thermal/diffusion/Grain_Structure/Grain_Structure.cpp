@@ -452,6 +452,8 @@ namespace moris
         tParameterlist( 5 )( 0 ).set("TSA_Output_Criteria" , "Output_Criterion") ;
 
         tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+    
+        tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
     }
 
     void MSIParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
