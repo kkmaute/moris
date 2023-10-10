@@ -4372,7 +4372,7 @@ namespace xtk
             }
 
             // get access to the basis to local index map of the vertex enrichment for modification
-            Mini_Map< moris_index, moris_index >& tVertEnrichMap = aVertexEnrichment.get_basis_map();
+            IndexMap& tVertEnrichMap = aVertexEnrichment.get_basis_map();
 
             // store in the vertex enrichment the list of enriched BF coefficients associated with it (in the form of an index map)
             for ( uint iBC = 0; iBC < tEnrichCoeffInds.numel(); iBC++ )
