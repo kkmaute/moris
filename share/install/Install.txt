@@ -290,13 +290,13 @@ spack location --install-dir python
 
 * if yes, skip the following steps; otherwise
 
-* identify python installation under spack/opt/spack/linux-opensuse15-zen4/gcc-11.3.0/python-3.10.12....
+* identify python installation under spack/opt/spack/linux-opensuse15-zen4/gcc-11.3.0/python-3. ....
 
-setenv PYIDIR $WORKSPACE/spack/opt/spack/linux-opensuse15-zen3/gcc-11.3.0/python-3.10.12....
+setenv PYIDIR $WORKSPACE/spack/opt/spack/linux-opensuse15-zen3/gcc-11.3.0/python-3. ...
 
 * if not 3.10 replace 3.10 with actual version number (major-minor)
 
-cp -R $PYIDIR/lib64/python3.10/lib-dynload $PYIDIR/lib/python3.10/.
+cp -R $PYIDIR/lib64/python3.11/lib-dynload $PYIDIR/lib/python3.11/.
 
 unsetenv PYIDIR
 
