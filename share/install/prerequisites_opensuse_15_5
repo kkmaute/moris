@@ -1,6 +1,6 @@
 zypper in gcc11 gcc11-c++ gcc11-fortran
 zypper in git gitk make patch makeinfo pkg-config
-zypper in kdiff3 gnuplot bc zip
+zypper in kdiff3 gnuplot bc zip tcsh
 zypper in valgrind valgrind-devel gperftools gperftools-devel oprofile
 
 ------------------------------------------------------------------------------------------------
@@ -30,4 +30,4 @@ Optional: vtunes adviser
 
 zypper addrepo https://yum.repos.intel.com/oneapi oneAPI
 zypper refresh
-zypper install  intel-oneapi-vtune
+zypper install  intel-oneapi-vtune intel-oneapi-advisor
