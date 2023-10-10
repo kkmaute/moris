@@ -166,16 +166,17 @@ namespace moris
         tParameterlist( 0 ).resize( 1 );
 
         tParameterlist( 0 )( 0 ) = prm::create_xtk_parameter_list();
-        tParameterlist( 0 )( 0 ).set( "decompose",                   true );
-        tParameterlist( 0 )( 0 ).set( "decomposition_type",          "conformal") ;
-        tParameterlist( 0 )( 0 ).set( "enrich",                      true );
-        tParameterlist( 0 )( 0 ).set( "basis_rank",                  "bspline") ;
-        tParameterlist( 0 )( 0 ).set( "enrich_mesh_indices",         "0") ;
-        tParameterlist( 0 )( 0 ).set( "ghost_stab",                  isGhost );
-        tParameterlist( 0 )( 0 ).set( "multigrid",                   false );
-        tParameterlist( 0 )( 0 ).set( "verbose",                     true );
-        tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh",      true );
-        tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh",   true );
+        tParameterlist( 0 )( 0 ).set( "decompose",                     true );
+        tParameterlist( 0 )( 0 ).set( "decomposition_type",            "conformal") ;
+        tParameterlist( 0 )( 0 ).set( "enrich",                        true );
+        tParameterlist( 0 )( 0 ).set( "basis_rank",                    "bspline") ;
+        tParameterlist( 0 )( 0 ).set( "enrich_mesh_indices",           "0") ;
+        tParameterlist( 0 )( 0 ).set( "ghost_stab",                    isGhost );
+        tParameterlist( 0 )( 0 ).set( "multigrid",                     false );
+        tParameterlist( 0 )( 0 ).set( "verbose",                       true );
+        tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh",        true );
+        tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh",     true );
+        tParameterlist( 0 )( 0 ).set( "write_cluster_measures_to_exo", false );
     }
 
     void GENParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )

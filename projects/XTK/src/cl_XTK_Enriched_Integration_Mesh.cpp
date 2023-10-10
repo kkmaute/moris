@@ -1963,7 +1963,7 @@ namespace xtk
 
     Cell< std::string >
     Enriched_Integration_Mesh::get_field_names(
-            mtk::EntityRank   aEntityRank,
+            mtk::EntityRank          aEntityRank,
             const moris::moris_index aSetOrdinal )
     {
         // initialize output
@@ -2005,9 +2005,9 @@ namespace xtk
 
     moris::moris_index
     Enriched_Integration_Mesh::create_field(
-            std::string            aLabel,
-            mtk::EntityRank aEntityRank,
-            moris::moris_index     aSetOrdinal )
+            std::string        aLabel,
+            mtk::EntityRank    aEntityRank,
+            moris::moris_index aSetOrdinal )
     {
         // make sure there are no redundant field labels/names
         MORIS_ASSERT( !field_exists( aLabel, aEntityRank, aSetOrdinal ), "Enriched_Integration_Mesh::create_field() - Field already created." );
@@ -2250,7 +2250,7 @@ namespace xtk
                 {
                     std::cout << "\n      Leader Interpolation Cell: " << std::setw( 9 ) <<    //
                             mDoubleSideSets( iSS )( i )->get_interpolation_cell( mtk::Leader_Follower::LEADER ).get_id();
-                    std::cout << " | Follower Interpolation Cell: " << std::setw( 9 ) <<    //
+                    std::cout << " | Follower Interpolation Cell: " << std::setw( 9 ) <<       //
                             mDoubleSideSets( iSS )( i )->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER ).get_id();
                 }
             }
@@ -2391,9 +2391,9 @@ namespace xtk
 
     moris::moris_index
     Enriched_Integration_Mesh::get_field_index(
-            const std::string            aLabel,
-            const mtk::EntityRank aEntityRank,
-            const moris::moris_index     aSetOrdinal )
+            const std::string        aLabel,
+            const mtk::EntityRank    aEntityRank,
+            const moris::moris_index aSetOrdinal )
     {
         // first check that the field exists
         MORIS_ASSERT( field_exists( aLabel, aEntityRank, aSetOrdinal ),
@@ -2422,7 +2422,7 @@ namespace xtk
     void
     Enriched_Integration_Mesh::add_field_data(
             moris::moris_index      aFieldIndex,
-            mtk::EntityRank  aEntityRank,
+            mtk::EntityRank         aEntityRank,
             Matrix< DDRMat > const &aFieldData,
             moris::moris_index      aSetOrdinal )
     {
@@ -2443,9 +2443,9 @@ namespace xtk
 
     Matrix< DDRMat > const &
     Enriched_Integration_Mesh::get_field_data(
-            moris::moris_index     aFieldIndex,
-            mtk::EntityRank aEntityRank,
-            moris::moris_index     aSetOrdinal ) const
+            moris::moris_index aFieldIndex,
+            mtk::EntityRank    aEntityRank,
+            moris::moris_index aSetOrdinal ) const
     {
         // if field is faceted
         if ( aEntityRank == this->get_facet_rank() )
@@ -3372,7 +3372,7 @@ namespace xtk
 
                 }    // end for: each side cluster in set
 
-            }    // end for: each side set
+            }        // end for: each side set
 
             // go through SPGs and collect side cluster groups related to each one
             for ( uint iSPG = 0; iSPG < tNumSPGs; iSPG++ )
@@ -3733,9 +3733,9 @@ namespace xtk
                         }
                     }    // end for: each follower cluster group constructed on the current SPG
 
-                }    // end for: each SPG on current B-spline mesh
+                }        // end for: each SPG on current B-spline mesh
 
-            }    // end for: each dbl sided side set
+            }            // end for: each dbl sided side set
 
             // free unused memory
             mDblSideClusterGroups( tDMI ).shrink_to_fit();
@@ -3844,7 +3844,7 @@ namespace xtk
 
         }    // end for: each side set
 
-    }    // end function: Enriched_Integration_Mesh::visualize_cluster_measures()
+    }        // end function: Enriched_Integration_Mesh::visualize_cluster_measures()
 
     //------------------------------------------------------------------------------
 
@@ -3984,7 +3984,7 @@ namespace xtk
 
             }    // end for: each B-spline mesh
 
-        }    // end for: each side set
+        }        // end for: each side set
 
         //----------------------------------------------------------------
         // Generate and write SPG fields
@@ -4132,7 +4132,7 @@ namespace xtk
         Cell< Cell< std::shared_ptr< IG_Cell_Double_Side_Group > > > const &tDoubleSidedInterface = mCutIgMesh->get_bulk_phase_to_bulk_phase_dbl_side_interface();
 
         // for a subphase to subphase side cluster - value in map is the location in tSideClusters
-        Cell< std::unordered_map< moris_index, moris_index > > tSubphaseToSubphaseSideClusterIndex( mCutIgMesh->get_num_subphases() );
+        Cell< IndexMap > tSubphaseToSubphaseSideClusterIndex( mCutIgMesh->get_num_subphases() );
 
         Cell< std::shared_ptr< xtk::Side_Cluster > > tSideClusters;
         Cell< Cell< moris_index > >                  tSideClusterSideOrdinals;
@@ -4148,7 +4148,7 @@ namespace xtk
                 {
                     // tDoubleSidedInterface(iBP0)(iBP1)->print();
 
-                    std::unordered_map< moris_index, moris_index > tSubphaseIndexToClusterInterfaceOrd;
+                    // IndexMap tSubphaseIndexToClusterInterfaceOrd;
 
                     // access pointer
                     std::shared_ptr< IG_Cell_Double_Side_Group > tDblSideGroup = tDoubleSidedInterface( iBP0 )( iBP1 );
@@ -4705,9 +4705,9 @@ namespace xtk
 
     bool
     Enriched_Integration_Mesh::field_exists(
-            const std::string            aLabel,
-            const mtk::EntityRank aEntityRank,
-            const moris::moris_index     aSetOrdinal )
+            const std::string        aLabel,
+            const mtk::EntityRank    aEntityRank,
+            const moris::moris_index aSetOrdinal )
     {
         moris::moris_index tIndex = this->get_entity_rank_field_index( aEntityRank );
 

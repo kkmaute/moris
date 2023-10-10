@@ -1379,7 +1379,7 @@ namespace moris::hmr
                 mDatabase->update_bspline_meshes( tPattern );
                 mDatabase->update_lagrange_meshes( tPattern );
             }
-        }
+        } // end for: each pattern which initial refinement is performed upon
 
         // call update in case there is no refinement for this pattern.
         // all meshes have to be updated in such that all meshes are updated with the maximal refined background mesh
@@ -1387,7 +1387,8 @@ namespace moris::hmr
         mDatabase->update_lagrange_meshes();
 
         mDatabase->set_activation_pattern( tActivationPattern );
-    }
+
+    } // end function: HMR::perform_initial_refinement()
 
     // ----------------------------------------------------------------------------
 

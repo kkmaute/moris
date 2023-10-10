@@ -474,9 +474,9 @@ namespace xtk
 
             }    // end if: parallel
 
-        }    // end for: every B-spline mesh index
+        }        // end for: every B-spline mesh index
 
-    }    // end function: Ghost_Stabilization::identify_and_setup_aura_vertices_in_ghost
+    }            // end function: Ghost_Stabilization::identify_and_setup_aura_vertices_in_ghost
 
     // ----------------------------------------------------------------------------------
 
@@ -862,7 +862,7 @@ namespace xtk
                 }
 
                 // Setup the basis index to ID map for the T-matrix
-                std::unordered_map< moris_index, moris_index >& tVertEnrichMap = tEnrTMat->get_basis_map();
+                IndexMap& tVertEnrichMap = tEnrTMat->get_basis_map();
                 for ( uint iBF = 0; iBF < tSize; iBF++ )
                 {
                     moris_index tBasisIndex       = tBasisIndices( iBF );
@@ -873,13 +873,14 @@ namespace xtk
                 tEnrTMat->add_basis_information( tBasisIndices, tBasisIds );
                 tEnrTMat->add_basis_weights( tBasisIndices, tBasisWeights );
                 tEnrTMat->add_basis_owners( tBasisIndices, tBasisOwners );
-                tEnrTMat->add_base_vertex_interpolation( nullptr );    // base vertex interpolation does not exists (other  proc)
+                tEnrTMat->add_base_vertex_interpolation( nullptr );
+                // base vertex interpolation does not exists (other  proc)
 
             }    // end for: each vertex communicated with current proc
 
-        }    // end for: each proc answers are received from
+        }        // end for: each proc answers are received from
 
-    }    // end function: Ghost_Stabilization::handle_requested_T_matrix_answers()
+    }            // end function: Ghost_Stabilization::handle_requested_T_matrix_answers()
 
     // ----------------------------------------------------------------------------------
 
@@ -1552,9 +1553,9 @@ namespace xtk
                             }
                         }    // end for: loop over IP cells connected to leader B-spline cell facet
 
-                    }    // end if: mark elements for ghost side construction
-                }        // end for: loop over neighboring SPGs
-            }            // end for: loop over all SPGs
+                    }        // end if: mark elements for ghost side construction
+                }            // end for: loop over neighboring SPGs
+            }                // end for: loop over all SPGs
 
             // check that reserved size was appropriate
             MORIS_ASSERT( aGhostSetupData.mLeaderSideIpCellsNew( iBspMesh ).size() < tReserveSize,

@@ -270,6 +270,7 @@ namespace moris
         tParameterlist( 0 )( 0 ).set( "verbose", true );
         tParameterlist( 0 )( 0 ).set( "print_enriched_ig_mesh", false );
         tParameterlist( 0 )( 0 ).set( "exodus_output_XTK_ig_mesh", true );
+        tParameterlist( 0 )( 0 ).set( "write_cluster_measures_to_exo", false );
     }
 
     void

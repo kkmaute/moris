@@ -1118,23 +1118,22 @@ namespace moris::hmr
                 bool tIsPaddingCandidate = false;
 
                 // loop over all dimensions
-                for ( uint k = 0; k < N; ++k )
+                for ( uint iDim = 0; iDim < N; ++iDim )
                 {
-                    // claculate global coordinate of element
-                    luint tI = tIJK[ k ] + mMySubDomain.mAuraIJK[ tLevel ][ k ][ 0 ];
+                    // compute global coordinate of element
+                    luint tI = tIJK[ iDim ] + mMySubDomain.mAuraIJK[ tLevel ][ iDim ][ 0 ];
 
                     // test if element is candidate for padding test
                     tIsPaddingCandidate = tIsPaddingCandidate
-                                       || ( ( tI < mDomain.mDomainIJK[ tLevel ][ k ][ 0 ] + mPaddingRefinement )
-                                               || ( tI > mDomain.mDomainIJK[ tLevel ][ k ][ 1 ] - mPaddingRefinement ) );
+                                       || ( ( tI < mDomain.mDomainIJK[ tLevel ][ iDim ][ 0 ] + mPaddingRefinement )
+                                               || ( tI > mDomain.mDomainIJK[ tLevel ][ iDim ][ 1 ] - mPaddingRefinement ) );
                 }
 
                 if ( tIsPaddingCandidate )
                 {
                     // get neighbors from same level
                     Cell< Background_Element_Base* > tNeighbors;
-                    aElement->get_neighbors_from_same_level( mPaddingRefinement,
-                            tNeighbors );
+                    aElement->get_neighbors_from_same_level( mPaddingRefinement, tNeighbors );
 
                     // loop over all neighbors
                     for ( auto tNeighbor : tNeighbors )

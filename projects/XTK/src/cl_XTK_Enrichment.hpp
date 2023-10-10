@@ -108,9 +108,9 @@ namespace xtk
         // FIXME: for SPG based enrichment, the above needs to go eventually
         Cell< moris::Matrix< IndexMat > > mSubphaseGroupIndsInEnrichedBasis;    // input: enriched BF index || output: list of SPG indices in which enriched BF is active
         Matrix< IdMat >                   mBulkPhaseInEnrichedBasis;            // input: enriched BF index || output: bulk phase basis function interpolates into
-        
+
         // transpose of the above map, it is empty by default
-        moris::Cell< moris::Cell< moris_index > > mEnrichedBasisInSubphaseGroup; // input: SPG index || output: list of enriched BF indices active in the SPG
+        moris::Cell< moris::Cell< moris_index > > mEnrichedBasisInSubphaseGroup;    // input: SPG index || output: list of enriched BF indices active in the SPG
 
         // Basis enrichment level indices
         moris::Cell< Matrix< IndexMat > > mBasisEnrichmentIndices;    // input1: non-enriched BF index, input2: enrichment level || output: enriched BF index
@@ -153,7 +153,7 @@ namespace xtk
     class Enrichment
     {
       public:
-        typedef std::unordered_map< moris::moris_index, moris::moris_index > IndexMap;
+        // typedef std::unordered_map< moris::moris_index, moris::moris_index > IndexMap;
         friend class Multigrid;
         friend class Basis_Processor;
 
@@ -903,9 +903,6 @@ namespace xtk
         construct_enriched_interpolation_vertices_and_cells();
 
         void
-        construct_enriched_interpolation_vertices_and_cells_based_on_SPGs();
-
-        void
         construct_enriched_interpolation_vertices_and_cells_based_on_SPGs_new();
 
         // ----------------------------------------------------------------------------------
@@ -1021,14 +1018,14 @@ namespace xtk
          */
         void
         construct_enriched_vertex_interpolation(
-                moris_index const &                       aEnrichmentDataIndex,
-                mtk::Vertex_Interpolation*                aBaseVertexInterp,
-                Cell< moris_index > const &               aSubPhaseBasisEnrLev,
-                std::unordered_map< moris_id, moris_id >& aMapBasisIndexToLocInSubPhase,
-                Vertex_Enrichment&                        aVertexEnrichment );
+                moris_index const &             aEnrichmentDataIndex,
+                mtk::Vertex_Interpolation*      aBaseVertexInterp,
+                Cell< moris_index > const &     aSubPhaseBasisEnrLev,
+                Mini_Map< moris_id, moris_id >& aMapBasisIndexToLocInSubPhase,
+                Vertex_Enrichment&              aVertexEnrichment );
         // ----------------------------------------------------------------------------------
 
-        std::unordered_map< moris_id, moris_id >
+        Mini_Map< moris_id, moris_id >
         construct_subphase_basis_to_basis_map( Cell< moris_id > const & aSubPhaseBasisIndex );
 
         // ----------------------------------------------------------------------------------
@@ -1070,22 +1067,22 @@ namespace xtk
         get_max_basis_id( moris_index const & aMeshIndex );
 
         // ----------------------------------------------------------------------------------
-        
-        public: 
+
+      public:
         /**
          * @brief construct the map that shows all of the enriched basis that are interpolating into an SPG
-         * 
+         *
          */
 
         void
-        construct_enriched_basis_in_subphase_group_map(); 
+        construct_enriched_basis_in_subphase_group_map();
 
         // ----------------------------------------------------------------------------------
-        
+
         /**
-         * @brief Get the enrichment data struct 
-         * 
-         * @return Cell< Enrichment_Data >& 
+         * @brief Get the enrichment data struct
+         *
+         * @return Cell< Enrichment_Data >&
          */
 
         moris::Cell< Enrichment_Data > const &

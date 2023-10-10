@@ -164,7 +164,7 @@ namespace xtk
         // construct interface_sets
         this->construct_interface_sets( tCutIntegrationMesh.get(), tInterfaceByBulkPhase );
 
-        // print diagonstic information if requested
+        // print diagnostic information if requested
         if ( mXTKModel->mDiagnostics )
         {
             std::string tCellDiagFile    = mXTKModel->get_diagnostic_file_name( std::string( "Cells" ) );
@@ -942,7 +942,7 @@ namespace xtk
         uint                       tNumFacetsOnCell = tFacetsOnCell.size();
 
         // ballot on which neighboring IG cells can vote for their bulk phase based on their volume
-        std::unordered_map< moris_index, real > tBulkPhaseVoteBallot;
+        Mini_Map< moris_index, real > tBulkPhaseVoteBallot;
 
         // get the valid IG cells connected to current IG cell
         for ( uint iFacet = 0; iFacet < tNumFacetsOnCell; iFacet++ )
@@ -2349,7 +2349,7 @@ namespace xtk
         // Map between the active element indexes provided and their corresponding iE (Only needed if all elements are not included)
         // key   - Element Index
         // value - flood fill local index
-        std::unordered_map< moris::moris_index, moris::moris_index > tElementToLocalIndex;
+        IndexMap tElementToLocalIndex;
 
         for ( moris::size_t iE = 0; iE < tNumElements; iE++ )
         {

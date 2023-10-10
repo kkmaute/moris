@@ -207,7 +207,7 @@ namespace moris
             // copy HMR parameters from old HMR performer
             hmr::Parameters* tParameters = aHMRPerformers( 0 )->get_parameters();
 
-            // unset parameter owning flag. Input HMR does not own this parameteropject anymore
+            // unset parameter owning flag. Input HMR does not own this parameter object anymore
             aHMRPerformers( 0 )->get_database()->unset_parameter_owning_flag();
 
             moris::Matrix< DDUMat >  tPatternToSave;
@@ -366,7 +366,7 @@ namespace moris
                     aNewFields,
                     tMeshPair,
                     0,
-                    true );    // FIXME =  discretization meshindex
+                    true );    // FIXME =  discretization mesh index
 
             //------------------------------------------------------------------------------
 
@@ -489,7 +489,7 @@ namespace moris
                             aTargetFields,
                             tMeshPair,
                             tPattern,
-                            true );    // FIXME tPattern = DiscretizationMeshiondex
+                            true );    // FIXME tPattern = DiscretizationMeshIndex
 
                     // create refinement parameter list
                     moris::ParameterList tRefinementParameterlist;
@@ -525,7 +525,7 @@ namespace moris
                                 aTargetFields,
                                 tMeshPair,
                                 tPattern,
-                                true );    // FIXME tPattern = DiscretizationMeshiondex
+                                true );    // FIXME tPattern = DiscretizationMeshIndex
 
                         // create refinement parameter list
                         moris::ParameterList tRefinementParameterlist;
@@ -633,7 +633,7 @@ namespace moris
                             aTargetFields,
                             tMeshPair,
                             tPattern,
-                            true );    // FIXME tPattern = DiscretizationMeshiondex
+                            true );    // FIXME tPattern = DiscretizationMeshIndex
 
                     // create refinement parameterlist
                     moris::ParameterList tRefinementParameterlist;
@@ -799,13 +799,13 @@ namespace moris
                             // aRefinements are not use tight now but implemented for future use
                             aRefinements( Ik ).push_back( mParameters.mRefinementsMode_0( Ii )( Ia ) );
 
-                            sint tRefPatt = mParameters.mRefinementsMode_0( Ii )( Ia );
+                            sint tRefPattern = mParameters.mRefinementsMode_0( Ii )( Ia );
 
-                            MORIS_ERROR( tRefPatt == aMaxRefinementPerPattern( Ik ) || aMaxRefinementPerPattern( Ik ) == MORIS_SINT_MAX,
+                            MORIS_ERROR( tRefPattern == aMaxRefinementPerPattern( Ik ) || aMaxRefinementPerPattern( Ik ) == MORIS_SINT_MAX,
                                     "prepare_input_for_refinement(), This implementation is limited to one refinement level per pattern."
                                     "It can be extended if needed." );
 
-                            aMaxRefinementPerPattern( Ik ) = tRefPatt;
+                            aMaxRefinementPerPattern( Ik ) = tRefPattern;
                         }
                     }
                 }
@@ -923,7 +923,7 @@ namespace moris
                             1,
                             7 );
                 }
-                else    // FIXME thereis an issue when 0 has a numberd aura
+                else    // FIXME there is an issue when 0 has a numbered aura
                 {
                     aHMRPerformer->get_database()->get_background_mesh()->set_activation_pattern( tPattern );
 

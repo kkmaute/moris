@@ -18,6 +18,7 @@ set(HEADERS
     cl_Cell.hpp
     cl_Dist_Map.hpp
     cl_Map.hpp
+    cl_Mini_Maps.hpp
     cl_Param_List.hpp
     cl_Tuple.hpp
     containers.hpp

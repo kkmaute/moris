@@ -20,45 +20,53 @@ namespace moris
     namespace wrk
     {
         // Performer interface to the geometry engine
-        class Gen_Performer: public Performer
+        class Gen_Performer : public Performer
         {
-        private:
+            //------------------------------------------------------------------------------------------------------------------
 
-            std::shared_ptr<moris::ge::Geometry_Engine> mGeometryEngine;
+          private:
+            std::shared_ptr< moris::ge::Geometry_Engine > mGeometryEngine;
 
-        public:
+            //------------------------------------------------------------------------------------------------------------------
 
-            Gen_Performer( std::shared_ptr<moris::ge::Geometry_Engine> aGeometryEngine );
+          public:
+            //------------------------------------------------------------------------------------------------------------------
+
+            Gen_Performer( std::shared_ptr< moris::ge::Geometry_Engine > aGeometryEngine );
+
             //------------------------------------------------------------------------------------------------------------------
 
             uint
             get_num_refinement_fields();
+
             //------------------------------------------------------------------------------------------------------------------
 
             real
             get_field_value(
-                        uint                  aFieldIndex,
-                        uint                  aNodeIndex,
-                        const Matrix<DDRMat>& aCoordinates);
+                    uint                    aFieldIndex,
+                    uint                    aNodeIndex,
+                    const Matrix< DDRMat >& aCoordinates );
+
             //------------------------------------------------------------------------------------------------------------------
 
-            const Matrix< DDSMat > &
-            get_num_refinements(uint aFieldIndex );
+            const Matrix< DDSMat >&
+            get_num_refinements( uint aFieldIndex );
+
             //------------------------------------------------------------------------------------------------------------------
 
-            const Matrix< DDSMat > &
-            get_refinement_mesh_indices(uint aFieldIndex );
+            const Matrix< DDSMat >&
+            get_refinement_mesh_indices( uint aFieldIndex );
 
             //------------------------------------------------------------------------------------------------------------------
 
             sint
             get_refinement_function_index(
-                        uint aFieldIndex,
-                        uint aRefinementIndex);
+                    uint aFieldIndex,
+                    uint aRefinementIndex );
 
             //------------------------------------------------------------------------------------------------------------------
         };
-    }
-}
+    }    // namespace wrk
+}    // namespace moris
 
 #endif

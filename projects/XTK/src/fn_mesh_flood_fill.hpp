@@ -73,7 +73,7 @@ namespace xtk
         moris::Matrix< moris::DDBMat > tPhaseSet( 1, tNumElements, 0 );
 
         // Initialize element sub-phases
-        moris::Matrix< moris::IndexMat > tElementSubphase( 1, tNumElements, aDummyValue );
+        moris::Matrix< moris::IndexMat > tElementSubphase( tNumElements, 1, aDummyValue );
 
         // Initialize Active Front
         moris::size_t                    tActiveFrontCount   = 0;
@@ -104,7 +104,7 @@ namespace xtk
                 tPhaseIndex = aElementPhaseIndex( 0, aActiveElements( 0, iE ) );
 
                 // Set the elements subphase value
-                tElementSubphase( 0, iE ) = tCurrentSubphase;
+                tElementSubphase( iE, 0 ) = tCurrentSubphase;
 
                 // Mark this element as set
                 tPhaseSet( 0, iE ) = 1;
@@ -168,7 +168,7 @@ namespace xtk
                     if ( tNeighborPhase == tPhaseIndex && tPhaseSet( 0, tNeighborIndex ) != 1 )
                     {
                         // Set the neighbor elements subphase value
-                        tElementSubphase( 0, tNeighborIndex ) = tCurrentSubphase;
+                        tElementSubphase( tNeighborIndex, 0 ) = tCurrentSubphase;
 
                         // Mark element as set
                         tPhaseSet( 0, tNeighborIndex ) = 1;
