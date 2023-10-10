@@ -39,10 +39,10 @@
 
 namespace xtk
 {
-    TEST_CASE( "XTK Basis Extention", "[XTK],[XTK_Basis_Extention]" )
+    TEST_CASE( "XTK Basis Extension", "[XTK],[XTK_Basis_Extension]" )
     {
         // This test is designed to test the XTK basis extention for a simple problem, the mesh is ouput to an exodus file
-        // This is done by comapring the t-matrices at a given lagrange node before and after the extention
+        // This is done by comparing the t-matrices at a given lagrange node before and after the extention
         if ( par_size() == 1 )
         {
             uint tLagrangeMeshIndex = 0;
@@ -124,12 +124,11 @@ namespace xtk
 
             Enriched_Interpolation_Mesh& tEnrichedIPMesh = tXTKModel.get_enriched_interp_mesh( 0 );
 
-            Matrix< IndexMat >      tBasisIndicesBeforeExtention = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_indices();
-            const Matrix< DDRMat >* tBasisWeightsBeforeExtention = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_weights();
+            Matrix< IndexMat >      tBasisIndicesBeforeExtension = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_indices();
+            const Matrix< DDRMat >* tBasisWeightsBeforeExtension = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_weights();
 
             Matrix< DDRMat >   tExpectedWeights = { { 0.25, 0.25, 0.25 } };
-            Matrix< IndexMat > tExpectedIndices = { { 6, 4, 14, 12 } };
-
+            Matrix< IndexMat > tExpectedIndices = { { 5, 3, 13, 11 } };
 
             // define a generic lambda function to check if two values are equal within a threshold ( works for moris_index and real types)
             auto isEqualLambda = []( const auto& a, const auto& b ) {
@@ -137,25 +136,29 @@ namespace xtk
                 return moris::equal_to( a, b, error_factor );
             };
 
-            CHECK( std::equal( tExpectedWeights.begin(), tExpectedWeights.end(), tBasisWeightsBeforeExtention->begin(), isEqualLambda ) );
-            CHECK( std::equal( tExpectedIndices.begin(), tExpectedIndices.end(), tBasisIndicesBeforeExtention.begin(), isEqualLambda ) );
+            CHECK( std::equal( tExpectedWeights.begin(), tExpectedWeights.end(), tBasisWeightsBeforeExtension->begin(), isEqualLambda ) );
+            CHECK( std::equal( tExpectedIndices.begin(), tExpectedIndices.end(), tBasisIndicesBeforeExtension.begin(), isEqualLambda ) );
 
             // create basis processor object
             Basis_Processor tBasisProcessor( &tXTKModel );
             tBasisProcessor.perform_basis_extention();
 
             // get the t-matrix info after extention
-            Matrix< IndexMat >      tBasisIndicesAfterExtention = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_indices();
-            const Matrix< DDRMat >* tBasisWeightsAfterExtention = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_weights();
+            Matrix< IndexMat >      tBasisIndicesAfterExtension = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_indices();
+            const Matrix< DDRMat >* tBasisWeightsAfterExtension = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_weights();
 
             // update the expected values after extention ( they are transposed )
             tExpectedWeights = { { 0.25, 1, -0.75, 1, 0.25, -0.75 } };
-            tExpectedIndices = { { 0, 4, 1, 12, 8, 9 } };
+            tExpectedIndices = { { 0, 3, 1, 11, 8, 9 } };
 
-            CHECK( std::equal( tExpectedWeights.begin(), tExpectedWeights.end(), tBasisWeightsAfterExtention->begin(), isEqualLambda ) );
-            CHECK( std::equal( tExpectedIndices.begin(), tExpectedIndices.end(), tBasisIndicesAfterExtention.begin(), isEqualLambda ) );
-        }
-    }
+            CHECK( std::equal( tExpectedWeights.begin(), tExpectedWeights.end(), tBasisWeightsAfterExtension->begin(), isEqualLambda ) );
+            CHECK( std::equal( tExpectedIndices.begin(), tExpectedIndices.end(), tBasisIndicesAfterExtension.begin(), isEqualLambda ) );
+
+        }    // end if: serial test run
+
+    }        // end TEST_CASE: "XTK Basis Extension"
+
+    // ----------------------------------------------------------------------------------
 
     TEST_CASE( "XTK Cell Agglomeration", "[XTK],[XTK_Cell_Agglomeration]" )
     {
@@ -244,39 +247,43 @@ namespace xtk
             Enriched_Interpolation_Mesh& tEnrichedIPMesh = tXTKModel.get_enriched_interp_mesh( 0 );
 
             // get t-matrices before extention
-            Matrix< IndexMat >      tBasisIndicesBeforeExtention = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_indices();
-            const Matrix< DDRMat >* tBasisWeightsBeforeExtention = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_weights();
+            Matrix< IndexMat >      tBasisIndicesBeforeExtension = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_indices();
+            const Matrix< DDRMat >* tBasisWeightsBeforeExtension = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_weights();
 
             // initialize the expected values fore the t-matrices
             Matrix< DDRMat >   tExpectedWeights = { { 1.0 } };
             Matrix< IndexMat > tExpectedIndices = { { 8 } };
 
-
             // define a generic lambda function to check if two values are equal within a threshold ( works for moris_index and real types)
             auto isEqualLambda = []( const auto& aA, const auto& aB ) {
-                moris::real const & tErrorfactor = 1.0;
-                return moris::equal_to( aA, aB, tErrorfactor );
+                moris::real const & tErrorFactor = 1.0;
+                return moris::equal_to( aA, aB, tErrorFactor );
             };
 
             // check if the t-matrices are correct before extention
-            CHECK( std::equal( tExpectedWeights.begin(), tExpectedWeights.end(), tBasisWeightsBeforeExtention->begin(), isEqualLambda ) );
-            CHECK( std::equal( tExpectedIndices.begin(), tExpectedIndices.end(), tBasisIndicesBeforeExtention.begin(), isEqualLambda ) );
+            CHECK( std::equal( tExpectedWeights.begin(), tExpectedWeights.end(), tBasisWeightsBeforeExtension->begin(), isEqualLambda ) );
+            CHECK( std::equal( tExpectedIndices.begin(), tExpectedIndices.end(), tBasisIndicesBeforeExtension.begin(), isEqualLambda ) );
 
             // create basis processor object and perform cell agglomeration
             Basis_Processor tBasisProcessor( &tXTKModel );
             tBasisProcessor.perform_cell_agglomeration();
 
             // get the t-matrix info after extention
-            Matrix< IndexMat >      tBasisIndicesAfterExtention = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_indices();
-            const Matrix< DDRMat >* tBasisWeightsAfterExtention = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_weights();
+            Matrix< IndexMat >      tBasisIndicesAfterExtension = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_indices();
+            const Matrix< DDRMat >* tBasisWeightsAfterExtension = tEnrichedIPMesh.get_mtk_vertex( 9 ).get_interpolation( 0 )->get_weights();
 
             // update the expected values after extention ( they are transposed )
             tExpectedWeights = { { 2.0, -1.0 } };
-            tExpectedIndices = { { 9, 11 } };
+            tExpectedIndices = { { 10, 11 } };
 
             // check if the t-matrices are correct after extention
-            CHECK( std::equal( tExpectedWeights.begin(), tExpectedWeights.end(), tBasisWeightsAfterExtention->begin(), isEqualLambda ) );
-            CHECK( std::equal( tExpectedIndices.begin(), tExpectedIndices.end(), tBasisIndicesAfterExtention.begin(), isEqualLambda ) );
-        }
-    }
+            CHECK( std::equal( tExpectedWeights.begin(), tExpectedWeights.end(), tBasisWeightsAfterExtension->begin(), isEqualLambda ) );
+            CHECK( std::equal( tExpectedIndices.begin(), tExpectedIndices.end(), tBasisIndicesAfterExtension.begin(), isEqualLambda ) );
+
+        }    // end if: serial test run
+
+    }        // end TEST_CASE: "XTK Cell Agglomeration"
+
+    // ----------------------------------------------------------------------------------
+
 }    // namespace xtk

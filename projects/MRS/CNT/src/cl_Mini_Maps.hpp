@@ -28,10 +28,10 @@
 namespace moris
 {
     // using std::unordered_map
-    template< typename A, typename B > using Mini_Map = std::unordered_map< A, B >;
+    // template< typename A, typename B > using Mini_Map = std::unordered_map< A, B >;
 
     // using std::map
-    // template< typename A, typename B > using Mini_Map = std::map< A, B >;
+    template< typename A, typename B > using Mini_Map = std::map< A, B >;
 
     // define the IndexMap for convenience as it is used very often
     using IndexMap = Mini_Map< moris::moris_index, moris::moris_index >;

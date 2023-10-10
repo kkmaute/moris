@@ -652,30 +652,49 @@ namespace xtk
             }
         }
 
+        // copy the found elements into an array
+        Cell< moris_index > tBspElemIndicesInSupport( tBspElemCounter );
+        for ( uint iLagElem = 0; iLagElem < tNumLagElemsInSupport; iLagElem++ )
+        {
+            // get the Lagrange element's index
+            moris_index tLagElemIndex = aLagElementsInSupport( iLagElem );
+
+            // get the corresponding B-spline element index
+            moris_index tBsplineElemIndex = mBsplineMeshInfos( aMeshIndexPosition )->get_bspline_cell_index_for_extraction_cell( tLagElemIndex );
+
+            // look for where in the local list of B-spline elements this element is
+            moris_index tPos = tBspElemIndexMap[ tBsplineElemIndex ];
+
+            // copy and store
+            tBspElemIndicesInSupport( tPos ) = tBsplineElemIndex;
+        }
+
         // initialize counter for subphase groups
         uint tSpgCounter = 0;
 
-        // for each B-spline element get the SPGs and count them
-        for ( auto& iBspElem : tBspElemIndexMap )
+        // for each B-spline element get the SPGs, count them, and store the local ordering
+        for ( auto& iBspElemIndex : tBspElemIndicesInSupport )
         {
-            // temporarily store current B-spline element's index
-            moris_index tBspElemIndex = iBspElem.first;
-
             // get the SPGs associated with the current B-spline element
             Cell< moris_index > const & tSPGsInBsplineElem =
-                    mBsplineMeshInfos( aMeshIndexPosition )->get_SPG_indices_in_bspline_cell( tBspElemIndex );
+                    mBsplineMeshInfos( aMeshIndexPosition )->get_SPG_indices_in_bspline_cell( iBspElemIndex );
+
+            // get the number of SPGs in the current B-spline element
+            uint tNumSpgsInBspElem = tSPGsInBsplineElem.size();
 
             // store all SPGs in map
-            for ( moris::size_t iSPG = 0; iSPG < tSPGsInBsplineElem.size(); iSPG++ )
+            for ( uint iSPG = 0; iSPG < tNumSpgsInBspElem; iSPG++ )
             {
+                // get the locally
+                moris_index tSpgIndex = tSPGsInBsplineElem( iSPG );
+
                 // save SPG index in map
-                aSubphaseGroupIndexToSupportIndex[ tSPGsInBsplineElem( iSPG ) ] = tSpgCounter;
+                aSubphaseGroupIndexToSupportIndex[ tSpgIndex ] = tSpgCounter;
 
                 // count SPGs in support
                 tSpgCounter++;
             }
         }
-
 
         // initialize linear list storing all SPGs in support with correct size
         aSubphaseGroupIndicesInSupport.resize( tSpgCounter, 1 );
