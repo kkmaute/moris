@@ -92,12 +92,19 @@ if [ ! "$1" = "skip" ];then
         cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..  >& /dev/null
         cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..  >& /dev/null
         
-        make -j 4 >& TimingResults/compile.$date
-        
-        ctest -V >& TimingResults/ctest.$date
+        echo "MORIS compilation log for $vers at $date"  >& TimingResults/compile.$date
+        echo ""                                         >>& TimingResults/compile.$date
+        make -j 4                                       >>& TimingResults/compile.$date
+              
+        echo "MORIS ctest for $vers at $date"  >& TimingResults/ctest.$date
+        echo ""                               >>& TimingResults/ctest.$date
+        ctest -V                              >>& TimingResults/ctest.$date
         
     done
-
+    
+    git checkout $branch
+        
+    git pull
 fi  
 
 cd TimingResults
