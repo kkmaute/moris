@@ -60,6 +60,9 @@ namespace moris::sdf
         // SDF functions
         //-------------------------------------------------------------------------------
 
+        /**
+         * @brief Unused function for Line. Errors out when called.
+         */
         bool
         check_edge(
                 const uint              aEdge,

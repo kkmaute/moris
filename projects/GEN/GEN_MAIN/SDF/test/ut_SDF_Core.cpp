@@ -25,7 +25,6 @@
 #include "op_minus.hpp"
 #include "op_equal_equal.hpp"
 #include "fn_norm.hpp"
-#include "fn_GEN_create_simple_mesh.hpp" // BRENDAN DO SOMETHING ABOUT THIS FUNCTION, NEED TO CREATE AN MTK MESH SOME OTHER WAY. FILE IS COPIED. REMOVE FROM CMAKELISTS AS WELL
 #include "fn_all_true.hpp"
 
 #include "cl_MTK_Mesh_Factory.hpp"
@@ -109,8 +108,9 @@ TEST_CASE(
             sdf::Object tObject( tObjectPath );
             sdf::Data   tData( tObject );
 
-            // Create mesh
-            mtk::Mesh* tInput; 
+            // Create mesh to raycast on
+            std::string tMeshPath = tMorisRoot + "/projects/GEN/GEN_MAIN/SDF/test/data/TensorMesh.g";
+            mtk::Mesh *tInput = mtk::create_interpolation_mesh( MeshType::STK, tMeshPath, nullptr );
 
             // create SDF wrapper for mesh
             sdf::Mesh tMesh( tInput );

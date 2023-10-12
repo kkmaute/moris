@@ -176,8 +176,9 @@ namespace moris::sdf
 
         /**
          * @brief Takes a point in 2D space and determines which lines
-         * in the positive and negative aAxis direction the point could possibly intersect.
-         * These lines are added to mData.mCandidateFacets. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
+         * in the positive aAxis direction the point could possibly intersect. The ray is being cast in the !aAxis direction
+         * These lines are added to mData.mIntersectedFacets. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
+         * Since preselection is sufficient for 2D, some of the lines are already marked as intersected. These are added to mData.mCandidateFacets
          *
          * @param aAxis 0 for lines in the x direction of aPoint, 1 for lines in the y direction of aPoint
          * @param aPoint Location in space that lies within the bounding aAxis coordinates of the candidate triangles
@@ -197,18 +198,32 @@ namespace moris::sdf
 
         //-------------------------------------------------------------------------------
 
+        /**
+         * Takes all of potential facets (in mData.mIntersectedFacets) and computes the coordinate axis intersection location
+         *  with the ray originating from aPoint
+         *
+         * @param aAxis coordinate axis to shoot ray in. 0 = x, 1 = y, 2 = z
+         * @param aPoint spatial location of the origin of the ray
+         */
         void
-        intersect_ray_with_triangles(
+        intersect_ray_with_facets(
                 const uint              aAxis,
-                const Matrix< DDRMat >& aPoint,
-                const uint              aNodeIndex );
+                const Matrix< DDRMat >& aPoint );
 
         //-------------------------------------------------------------------------------
 
         void
-        check_if_node_is_inside(
+        check_if_node_is_inside_triangles(
                 const uint aAxis,
                 const uint aNodeIndex );
+
+        //-------------------------------------------------------------------------------
+
+        void
+        check_if_node_is_inside_lines(
+                const uint aAxis,
+                const uint aNodeIndex );
+                
         //-------------------------------------------------------------------------------
 
         void

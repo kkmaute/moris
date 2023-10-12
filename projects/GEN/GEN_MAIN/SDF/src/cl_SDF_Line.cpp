@@ -68,7 +68,7 @@ namespace moris::sdf
             const uint              aAxis,
             const Matrix< DDRMat >& aPoint )
     {
-        // BRENDAN TODO - MAYBE?
+        MORIS_ERROR( false, "SDF_Line()::check_edge() not implemented for Lines yet.");
         return false;
     }
 
@@ -78,7 +78,7 @@ namespace moris::sdf
     Line::get_distance_to_point(
             const Matrix< DDRMat >& aPoint )
     {
-        // BRENDAN TODO - MAYBE?
+        MORIS_ERROR( false, "SDF_Line()::get_distance_to_point() not implemented for Lines yet.");
         return -1.0;
     }
 

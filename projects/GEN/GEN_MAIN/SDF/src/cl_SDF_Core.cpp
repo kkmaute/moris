@@ -258,16 +258,16 @@ namespace moris
                         this->preselect_triangles_z( tPoint );
 
                     // from the candidate triangles, perform intersection
-                    if ( mData.mCandidateFacets.length() > 0 )
+                    if ( mData.mCandidateFacets.size() > 0 )
                     {
                         this->intersect_triangles( aAxis, tPoint );
 
                         // intersect ray with triangles and check if node is inside
-                        if ( mData.mIntersectedTriangles.size() > 0 )
+                        if ( mData.mIntersectedFacets.size() > 0 )
                         {
-                            this->intersect_ray_with_triangles( aAxis, tPoint, iNodeIndex );
+                            this->intersect_ray_with_facets( aAxis, tPoint );
 
-                            this->check_if_node_is_inside( aAxis, iNodeIndex );
+                            this->check_if_node_is_inside_triangles( aAxis, iNodeIndex );
                         }
                     }
                 }
@@ -330,29 +330,29 @@ namespace moris
         void
         Core::preselect_triangles_x( const Matrix< F31RMat >& aPoint )
         {
-// x: k = x, j = z, i = y
-#ifdef MORIS_USE_ARMA
+            // x: k = x, j = z, i = y
+            // #ifdef MORIS_USE_ARMA
 
-            // check bounding box in J-direction
-            mData.mCandJ = arma::find(
-                    ( aPoint( 2 ) - mData.mFacetMinCoordsZ ) % ( mData.mFacetMaxCoordsZ - aPoint( 2 ) ) > -gSDFepsilon );
+            //             // check bounding box in J-direction
+            //             mData.mCandJ = arma::find(
+            //                     ( aPoint( 2 ) - mData.mFacetMinCoordsZ ) % ( mData.mFacetMaxCoordsZ - aPoint( 2 ) ) > -gSDFepsilon );
 
-            // check bounding box in I-direction
-            mData.mCandI = arma::find(
-                    ( aPoint( 1 ) - mData.mFacetMinCoordsY.elem( mData.mCandJ ) ) % ( mData.mFacetMaxCoordsY.elem( mData.mCandJ ) - aPoint( 1 ) ) > -gSDFepsilon );
+            //             // check bounding box in I-direction
+            //             mData.mCandI = arma::find(
+            //                     ( aPoint( 1 ) - mData.mFacetMinCoordsY.elem( mData.mCandJ ) ) % ( mData.mFacetMaxCoordsY.elem( mData.mCandJ ) - aPoint( 1 ) ) > -gSDFepsilon );
 
-            // help vector to be written in mData.mCandidateFacets.data()
-            mData.mCandK = mData.mCandJ.elem( mData.mCandI );
-            // resize data object
-            mData.mCandidateFacets.resize( mData.mCandK.n_elem, 1 );
+            //             // help vector to be written in mData.mCandidateFacets.data()
+            //             mData.mCandK = mData.mCandJ.elem( mData.mCandI );
+            //             // resize data object
+            //             mData.mCandidateFacets.resize( mData.mCandK.n_elem, 1 );
 
-            // link to current object
-            arma::Mat< uint >& tCand = mData.mCandidateFacets.matrix_data();
+            //             // link to current object
+            //             arma::Mat< uint >& tCand = mData.mCandidateFacets.matrix_data();
 
-            // write data
-            tCand = arma::conv_to< arma::Mat< uint > >::from( mData.mCandK );
+            //             // write data
+            //             tCand = arma::conv_to< arma::Mat< uint > >::from( mData.mCandK );
 
-#else
+            // #else
             // loop over all triangles in J-Direction
             uint tCountJ = 0;
             for ( uint k = 0; k < mData.mNumberOfFacets; ++k )
@@ -386,7 +386,7 @@ namespace moris
             }
 
             mData.mCandidateFacets.resize( tCount, 1 );
-#endif
+            // #endif
         }
 
         //-------------------------------------------------------------------------------
@@ -395,28 +395,28 @@ namespace moris
         Core::preselect_triangles_y( const Matrix< F31RMat >& aPoint )
         {
             // y: k = y, j = x, i = z
-#ifdef MORIS_USE_ARMA
-            // check bounding box in J-direction
-            mData.mCandJ = arma::find(
-                    ( aPoint( 0 ) - mData.mFacetMinCoordsX ) % ( mData.mFacetMaxCoordsX - aPoint( 0 ) ) > -gSDFepsilon );
+            // #ifdef MORIS_USE_ARMA
+            //             // check bounding box in J-direction
+            //             mData.mCandJ = arma::find(
+            //                     ( aPoint( 0 ) - mData.mFacetMinCoordsX ) % ( mData.mFacetMaxCoordsX - aPoint( 0 ) ) > -gSDFepsilon );
 
-            // check bounding box in I-direction
-            mData.mCandI = arma::find(
-                    ( aPoint( 2 ) - mData.mFacetMinCoordsZ.elem( mData.mCandJ ) ) % ( mData.mFacetMaxCoordsZ.elem( mData.mCandJ ) - aPoint( 2 ) ) > -gSDFepsilon );
+            //             // check bounding box in I-direction
+            //             mData.mCandI = arma::find(
+            //                     ( aPoint( 2 ) - mData.mFacetMinCoordsZ.elem( mData.mCandJ ) ) % ( mData.mFacetMaxCoordsZ.elem( mData.mCandJ ) - aPoint( 2 ) ) > -gSDFepsilon );
 
-            // help vector to be written in mData.mCandidateFacets.data()
-            mData.mCandK = mData.mCandJ.elem( mData.mCandI );
+            //             // help vector to be written in mData.mCandidateFacets.data()
+            //             mData.mCandK = mData.mCandJ.elem( mData.mCandI );
 
-            // resize data object
-            mData.mCandidateFacets.resize( mData.mCandK.n_elem, 1 );
+            //             // resize data object
+            //             mData.mCandidateFacets.resize( mData.mCandK.n_elem, 1 );
 
-            // link to current object
-            arma::Mat< uint >& tCand = mData.mCandidateFacets.matrix_data();
+            //             // link to current object
+            //             arma::Mat< uint >& tCand = mData.mCandidateFacets.matrix_data();
 
-            // write data
-            tCand = arma::conv_to< arma::Mat< uint > >::from( mData.mCandK );
+            //             // write data
+            //             tCand = arma::conv_to< arma::Mat< uint > >::from( mData.mCandK );
 
-#else
+            // #else
             // loop over all triangles in J-Direction
             uint tCountJ = 0;
             for ( uint k = 0; k < mData.mNumberOfFacets; ++k )
@@ -450,7 +450,7 @@ namespace moris
             }
 
             mData.mCandidateFacets.resize( tCount, 1 );
-#endif
+            // #endif
         }
 
         //-------------------------------------------------------------------------------
@@ -459,29 +459,29 @@ namespace moris
         Core::preselect_triangles_z( const Matrix< F31RMat >& aPoint )
         {
             // z: k = z, j = y, i = x
-#ifdef MORIS_USE_ARMA
+            // #ifdef MORIS_USE_ARMA
 
-            // bool_t tNothingFound = true;
+            //             // bool_t tNothingFound = true;
 
-            // check bounding box in J-direction
-            mData.mCandJ = arma::find(
-                    ( aPoint( 1 ) - mData.mFacetMinCoordsY ) % ( mData.mFacetMaxCoordsY - aPoint( 1 ) ) > -gSDFepsilon );
-            // check bounding box in I-direction
-            mData.mCandI = arma::find(
-                    ( aPoint( 0 ) - mData.mFacetMinCoordsX.elem( mData.mCandJ ) ) % ( mData.mFacetMaxCoordsX.elem( mData.mCandJ ) - aPoint( 0 ) ) > -gSDFepsilon );
+            //             // check bounding box in J-direction
+            //             mData.mCandJ = arma::find(
+            //                     ( aPoint( 1 ) - mData.mFacetMinCoordsY ) % ( mData.mFacetMaxCoordsY - aPoint( 1 ) ) > -gSDFepsilon );
+            //             // check bounding box in I-direction
+            //             mData.mCandI = arma::find(
+            //                     ( aPoint( 0 ) - mData.mFacetMinCoordsX.elem( mData.mCandJ ) ) % ( mData.mFacetMaxCoordsX.elem( mData.mCandJ ) - aPoint( 0 ) ) > -gSDFepsilon );
 
-            // help vector to be written in mData.mCandidateFacets.data()
-            mData.mCandK = mData.mCandJ.elem( mData.mCandI );
+            //             // help vector to be written in mData.mCandidateFacets.data()
+            //             mData.mCandK = mData.mCandJ.elem( mData.mCandI );
 
-            // resize data object
-            mData.mCandidateFacets.resize( mData.mCandK.n_elem, 1 );
+            //             // resize data object
+            //             mData.mCandidateFacets.resize( mData.mCandK.n_elem, 1 );
 
-            // link to current object
-            arma::Mat< uint >& tCand = mData.mCandidateFacets.matrix_data();
+            //             // link to current object
+            //             arma::Mat< uint >& tCand = mData.mCandidateFacets.matrix_data();
 
-            // write data
-            tCand = arma::conv_to< arma::Mat< uint > >::from( mData.mCandK );
-#else
+            //             // write data
+            //             tCand = arma::conv_to< arma::Mat< uint > >::from( mData.mCandK );
+            // #else
             // loop over all triangles in J-Direction
             uint tCountJ = 0;
             for ( uint k = 0; k < mData.mNumberOfFacets; ++k )
@@ -515,7 +515,7 @@ namespace moris
             }
 
             mData.mCandidateFacets.resize( tCount, 1 );
-#endif
+            // #endif
         }
 
         //-------------------------------------------------------------------------------
@@ -526,38 +526,40 @@ namespace moris
                 const Matrix< DDRMat >& aPoint )
         {
             // Ensure the function is being called for the proper number of facets
-            MORIS_ERROR( aAxis > aPoint.numel(), "SDF - Core::preselect_lines() aPoint is %luD while coordinate axis of %d specified.", aPoint.numel(), aAxis );
-            MORIS_ASSERT( aPoint.numel() < 3, "SDF - Core::preselect_lines() should be called for 2D problems only. Current dimensionality = %lu", aPoint.numel() );
+            MORIS_ERROR( aAxis > aPoint.numel(), "SDF_Core::preselect_lines() aPoint is %luD while coordinate axis of %d specified.", aPoint.numel(), aAxis );
+            MORIS_ASSERT( aPoint.numel() < 3, "SDF_Core::preselect_lines() should be called for 2D problems only. Current dimensionality = %lu", aPoint.numel() );
 
-//  k = aAxis, j = other axis
-#ifdef MORIS_USE_ARMA
-            if ( aAxis == 0 )
-            {
-                // check bounding box in J-direction
-                mData.mCandJ = arma::find(
-                        ( aPoint( 0 ) - mData.mFacetMinCoordsX ) % ( mData.mFacetMaxCoordsX - aPoint( 0 ) ) > -gSDFepsilon );
-            }
-            else if ( aAxis == 1 )
-            {
-                // check bounding box in J-direction
-                mData.mCandJ = arma::find(
-                        ( aPoint( 1 ) - mData.mFacetMinCoordsY ) % ( mData.mFacetMaxCoordsY - aPoint( 1 ) ) > -gSDFepsilon );
-            }
+            // reset candidate and intersected facet size
+            mData.mCandidateFacets.resize( mData.mNumberOfFacets, 1 );
+            mData.mIntersectedFacets.resize( mData.mNumberOfFacets );
 
-            // help vector to be written in mData.mCandidateFacets.data()
-            mData.mCandK = mData.mCandJ;
+            //  k = aAxis, j = other axis
+            // #ifdef MORIS_USE_ARMA
+            //             if ( aAxis == 0 )
+            //             {
+            //                 // check bounding box in J-direction
+            //                 mData.mCandJ = arma::find(
+            //                         ( aPoint( 0 ) - mData.mFacetMinCoordsX ) % ( mData.mFacetMaxCoordsX - aPoint( 0 ) ) > -gSDFepsilon );
+            //             }
+            //             else if ( aAxis == 1 )
+            //             {
+            //                 // check bounding box in J-direction
+            //                 mData.mCandJ = arma::find(
+            //                         ( aPoint( 1 ) - mData.mFacetMinCoordsY ) % ( mData.mFacetMaxCoordsY - aPoint( 1 ) ) > -gSDFepsilon );
+            //             }
 
-            // resize data object
-            mData.mCandidateFacets.resize( mData.mCandK.n_elem, 1 );
+            //             // resize data object
+            //             mData.mCandidateFacets.resize( mData.mCandJ.n_elem, 1 );
 
-            // link to current object
-            arma::Mat< uint >& tCand = mData.mCandidateFacets.matrix_data();
+            //             // link to current object
+            //             arma::Mat< uint >& tCand = mData.mCandidateFacets.matrix_data();
 
-            // write data
-            tCand = arma::conv_to< arma::Mat< uint > >::from( mData.mCandK );
-#else
+            //             // write data
+            //             tCand = arma::conv_to< arma::Mat< uint > >::from( mData.mCandK );
+            // #else
 
-            uint tCandidateCount = 0;
+            uint tCandidateCount        = 0;
+            uint tIntersectedFacetCount = 0;
             // loop over all lines in the aAxis direction
             for ( uint iLineIndex = 0; iLineIndex < mData.mNumberOfFacets; iLineIndex++ )
             {
@@ -565,30 +567,49 @@ namespace moris
                 if ( ( mData.mFacetMaxCoords( iLineIndex, aAxis ) - aPoint( aAxis ) ) * ( aPoint( aAxis ) - mData.mFacetMinCoords( iLineIndex, aAxis ) )
                         < gSDFepsilon )
                 {
-                    // add line to candidate list
-                    mData.mCandidateFacets( tCandidateCount ) = iLineIndex;
-                    tCandidateCount++;
+                    // check if the point's !aAxis component is less the facet's minimum aAxis component. If so, the facet is intersected
+                    // NOTE: this makes the 2D raycast only cast in the positive axis direction
+                    uint tOtherAxis = !aAxis;
+                    if ( mData.mFacetMinCoords( iLineIndex, tOtherAxis ) - aPoint( tOtherAxis ) > gSDFepsilon )
+                    {
+                        mData.mCandidateFacets( tCandidateCount ) = iLineIndex;
+                        tCandidateCount++;
+                    }
+                    // check the bounding box of the other axis to determine if the point is entirely in the bounding box
+                    else if ( ( mData.mFacetMaxCoords( iLineIndex, tOtherAxis ) - aPoint( tOtherAxis ) ) * ( aPoint( tOtherAxis ) - mData.mFacetMinCoords( iLineIndex, tOtherAxis ) )
+                              < gSDFepsilon )
+                    {
+                        // if the point is totally in a line's bounding box, add line to candidate list
+                        mData.mIntersectedFacets( tIntersectedFacetCount ) = mData.mFacets( iLineIndex );
+                        tIntersectedFacetCount++;
+                    }
                 }
             }
-#endif
+
+            // trim candidate and intersected matrix
+            mData.mCandidateFacets.resize( tCandidateCount, 1 );
+            mData.mIntersectedFacets.resize( tIntersectedFacetCount );
+            // #endif
         }
 
         //-------------------------------------------------------------------------------
 
         void
-        Core::intersect_triangles( const uint aAxis, const Matrix< DDRMat >& aPoint )
+        Core::intersect_triangles(
+                const uint              aAxis,
+                const Matrix< DDRMat >& aPoint )
         {
             // get number of candidate triangles
-            uint tNumberOfFacets = mData.mCandidateFacets.length();
+            uint tNumberOfCandidateFacets = mData.mCandidateFacets.size();
 
             // initialize counter for intersected triangles
             uint tCount = 0;
 
             // loop over all candidates
-            for ( uint k = 0; k < tNumberOfFacets; ++k )
+            for ( uint iCandidateFacetIndex = 0; iCandidateFacetIndex < tNumberOfCandidateFacets; ++iCandidateFacetIndex )
             {
                 // get pointer to triangle
-                Facet* tFacet = mData.mFacets( mData.mCandidateFacets( k ) );
+                Facet* tFacet = mData.mFacets( mData.mCandidateFacets( iCandidateFacetIndex ) );
 
                 if ( tFacet->check_edge( 0, aAxis, aPoint ) )
                 {
@@ -604,13 +625,13 @@ namespace moris
             }
 
             // resize container with intersected triangles
-            mData.mIntersectedTriangles.resize( tCount, nullptr );
+            mData.mIntersectedFacets.resize( tCount, nullptr );
 
             // reset counter
             tCount = 0;
 
             // loop over all candidates
-            for ( uint k = 0; k < tNumberOfFacets; ++k )
+            for ( uint k = 0; k < tNumberOfCandidateFacets; ++k )
             {
                 // get pointer to triangle
                 Facet* tFacet = mData.mFacets( mData.mCandidateFacets( k ) );
@@ -618,7 +639,7 @@ namespace moris
                 if ( tFacet->is_flagged() )
                 {
                     // add triangle to list
-                    mData.mIntersectedTriangles( tCount++ ) = tFacet;
+                    mData.mIntersectedFacets( tCount++ ) = tFacet;
 
                     // unflag triangle
                     tFacet->unflag();
@@ -629,13 +650,12 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Core::intersect_ray_with_triangles(
+        Core::intersect_ray_with_facets(
                 const uint              aAxis,
-                const Matrix< DDRMat >& aPoint,
-                const uint              aNodeIndex )
+                const Matrix< DDRMat >& aPoint )
         {
             // get number of triangles
-            uint tNumberOfFacets = mData.mIntersectedTriangles.size();
+            uint tNumberOfFacets = mData.mIntersectedFacets.size();
 
             // initialize vector with coords in axis
             Matrix< DDRMat > tCoordsK( tNumberOfFacets, 1 );
@@ -650,7 +670,7 @@ namespace moris
                 real tCoordK;
 
                 // calculate intersection coordinate
-                mData.mIntersectedTriangles( k )->intersect_with_coordinate_axis(
+                mData.mIntersectedFacets( k )->intersect_with_coordinate_axis(
                         aPoint,
                         aAxis,
                         tCoordK,
@@ -674,7 +694,8 @@ namespace moris
             if ( tError )
             {
                 // this way, the matrix is ignored
-                mData.mCoordsK.set_size( 1, 1, 0.0 );
+                // mData.mCoordsK.resize( 1, 1, 0.0 );
+                mData.mCoordsK.resize( 1 );
             }
             else
             {
@@ -689,7 +710,7 @@ namespace moris
                 uint tCountUnique = 0;
 
                 // set size of output array
-                mData.mCoordsK.set_size( tCount, 1 );
+                mData.mCoordsK.resize( tCount, 1 );
 
                 real tMinCoord = mMesh.get_min_coord( aAxis );
                 real tMaxCoord = mMesh.get_max_coord( aAxis );
@@ -721,11 +742,11 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Core::check_if_node_is_inside(
+        Core::check_if_node_is_inside_triangles(
                 const uint aAxis,
                 const uint aNodeIndex )
         {
-            uint tNumCoordsK = mData.mCoordsK.length();
+            uint tNumCoordsK = mData.mCoordsK.size();
 
             bool tNodeIsInside = false;
 
@@ -767,6 +788,44 @@ namespace moris
         }
 
         //-------------------------------------------------------------------------------
+
+        void
+        Core::check_if_node_is_inside_lines(
+                const uint aAxis,
+                const uint aNodeIndex )
+        {
+            // get length of the number of intersections computed
+            uint tNumCoordsK = mData.mCoordsK.size();
+
+            const Matrix< F31RMat >& aPoint = mMesh.get_node_coordinate( aNodeIndex );
+
+            // check if the location of the intersection is greater than the location of the coordinate
+            uint tIntersectionsRightOfPoint = 0;
+            for ( uint iIntersectionIndex = 0; iIntersectionIndex < tNumCoordsK; iIntersectionIndex++ )
+            {
+                // BRENDAN, the axis indexing might not be correct, look here or other functions if problems arise
+                if ( mData.mCoordsK( iIntersectionIndex ) - aPoint( aAxis ) > gSDFepsilon )
+                {
+                    tIntersectionsRightOfPoint++;
+                }
+            }
+
+            bool tNodeIsInside = ( tIntersectionsRightOfPoint + mData.mIntersectedFacets.size() ) % 2;
+
+            // set the inside flag of this node to the corresponding value
+            if ( tNodeIsInside )
+            {
+                mMesh.get_vertex( aNodeIndex )->set_inside_flag();
+            }
+            else
+            {
+                mMesh.get_vertex( aNodeIndex )->unset_inside_flag();
+            }
+            mMesh.get_vertex( aNodeIndex )->unflag();
+        }
+
+        //-------------------------------------------------------------------------------
+
 
         void
         Core::calculate_candidate_points_and_buffer_diagonal()
