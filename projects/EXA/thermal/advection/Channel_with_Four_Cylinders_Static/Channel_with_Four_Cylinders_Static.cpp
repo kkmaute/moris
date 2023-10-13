@@ -252,7 +252,7 @@ namespace moris
         uint tIWGIndex  = 3;
         uint tIQIIndex  = 4;
         uint tFEMIndex  = 5;
-        // uint tFieldIndex   = 6;
+
         uint tPhaseIndex = 7;
 
         //------------------------------------------------------------------------------
@@ -392,7 +392,6 @@ namespace moris
         tParameterList( tSPIndex )( tSPCounter ).set( "function_parameters", "1.0" );
         tParameterList( tSPIndex )( tSPCounter ).set( "leader_dof_dependencies", std::pair< std::string, std::string >( "VX,VY", "Velocity" ) );
         tParameterList( tSPIndex )( tSPCounter ).set( "leader_properties", "PropConductivity,Conductivity" );
-
         tSPCounter++;
 
         // Dirichlet Nitsche for velocity
