@@ -115,12 +115,6 @@ source $SPACK_ROOT/share/spack/setup-env.csh
 
 *------------------------------------------------------------
 
-* let spack find installed compilers; see $HOME/.spack/linux/compilers.yaml
-
-spack compiler find
-
-*------------------------------------------------------------
-
 * get moris (main branch)
 
 git clone git@github.com:kkmaute/moris
@@ -172,6 +166,12 @@ setenv TMPDIR ~/work//tmp/
 
 *------------------------------------------------------------
 
+* let spack find installed compilers; see $HOME/.spack/linux/compilers.yaml
+
+spack compiler find
+
+*------------------------------------------------------------
+
 * check what compilers have been found and remove unwanted;
 * recommendation remove all but the one compiler you want to build moris with
 
@@ -188,6 +188,16 @@ spack compiler rm <unwanted compiler>
 * in this case all packages needed will be installed by spack
 
 spack external find
+
+* in case the openmpi version provded by OS should used add to spack.yaml file
+  WATCH indentation
+  
+  packages:
+    openmpi:
+      externals:
+      - spec: openmpi@4.1.4
+        prefix: /usr/lib64/mpi/gcc/openmpi4
+      buildable: false
 
 *------------------------------------------------------------
 
@@ -213,7 +223,7 @@ spack develop --path $WORKSPACE/moris moris@main
 
 spack add openblas
 
-* add openmpi with scheduler information on clusters
+* in case openmpi should be build by spack and a scheduler is to be used;
 
 spack add openmpi +legacylaunchers +pmi+pmix schedulers=slurm fabrics=ofi,psm2,vader,openib,tcp
 
@@ -305,7 +315,7 @@ unsetenv PYIDIR
 spack location --install-dir python
 
 *------------------------------------------------------------
-* if openmpi is explicitly define
+* if openmpi is explicitly defined (e.g. because slurm scheduler is required)
 
 spack install openmpi
 
