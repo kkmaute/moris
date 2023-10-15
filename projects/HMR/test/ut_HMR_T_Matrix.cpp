@@ -17,8 +17,8 @@
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"      //HMR/src
 #include "cl_HMR_Parameters.hpp"              //HMR/src
 
-#include "cl_Communication_Manager.hpp"       //COM/src
-#include "cl_Communication_Tools.hpp"         //COM/src
+#include "cl_Communication_Manager.hpp"    //COM/src
+#include "cl_Communication_Tools.hpp"      //COM/src
 
 #include "paths.hpp"
 #include "HDF5_Tools.hpp"
@@ -200,6 +200,9 @@ namespace moris::hmr
                     }
                 }
             }
+
+            // close file
+            close_hdf5_file( tFileID );
 
             // delete settings object
             delete tParameters;

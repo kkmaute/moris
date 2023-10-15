@@ -101,7 +101,8 @@ namespace moris
     inline hid_t
     open_hdf5_file(
             const std::string& aPath,
-            bool               aAddParExt = true )
+            bool               aAddParExt = true,
+            bool               aReadOnly  = false )
     {
         MORIS_ERROR( aPath.size() > 0, "No file path given." );
 
@@ -117,7 +118,16 @@ namespace moris
         // close file
         tFile.close();
 
-        // open file as HDF5 handler
+        // open file as HDF5 handler - read only access
+        if ( aReadOnly )
+        {
+            return H5Fopen(
+                    tPath.c_str(),
+                    H5F_ACC_RDONLY,
+                    H5P_DEFAULT );
+        }
+
+        // open file as HDF5 handler - read / write access
         return H5Fopen(
                 tPath.c_str(),
                 H5F_ACC_RDWR,
