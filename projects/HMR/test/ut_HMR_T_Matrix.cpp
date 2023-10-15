@@ -57,9 +57,9 @@ namespace moris::hmr
             // Create parameters
             auto tParameters = new Parameters;
 
-            // Create HDF5 file and error handles
+            // Open HDF5 file with read-only access
             std::string tFileName = get_base_moris_dir() + "/projects/HMR/test/data/T-Matrix_test_values.hdf5";
-            hid_t       tFileID   = open_hdf5_file( tFileName );
+            hid_t       tFileID   = open_hdf5_file( tFileName, true, true );
             herr_t      tStatus;
 
             // Loop over number of dimensions
@@ -183,9 +183,6 @@ namespace moris::hmr
                         std::string tLabel = "D" + std::to_string( iNumberOfDimensions )
                                            + "_O" + std::to_string( iOrder )
                                            + "_T" + std::to_string( iTruncation );
-
-                        // Save matrix to HDF5 file, uncomment and clobber file above if this test needs to be changed
-                        // save_matrix_to_hdf5_file( tFileID, tLabel, tTMatrixCalculated, tStatus );
 
                         // Read expected T-matrix from HDF5 file and check with calculated values
                         Matrix< DDRMat > tTMatrixExpected;
