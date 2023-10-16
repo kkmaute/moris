@@ -169,7 +169,7 @@ namespace moris::ge
             tDistributedADVs->replace_global_values( tADVIds, tADVs );
 
             // Create circles
-            Design_Factory tDesignFactory( { tCircle1ParameterList, tCircle2ParameterList }, {}, tADVs );
+            Design_Factory tDesignFactory( { tCircle1ParameterList, tCircle2ParameterList }, tADVs );
             tCircle1 = tDesignFactory.get_geometries()( 0 );
             tCircle2 = tDesignFactory.get_geometries()( 1 );
 
@@ -244,7 +244,7 @@ namespace moris::ge
 
         // Create circles
         Matrix< DDRMat > tADVs = { { 3.0, 4.0, 1.0, 2.0, 2.0, 1.0, 0.0, 0.0 } };
-        Design_Factory tDesignFactory( { tSuperellipseParameterList }, {}, tADVs );
+        Design_Factory tDesignFactory( { tSuperellipseParameterList }, tADVs );
         std::shared_ptr< Level_Set_Geometry > tSuperellipse = tDesignFactory.get_geometries()( 0 );
 
         // Set coordinates for checking
@@ -349,7 +349,7 @@ namespace moris::ge
 
         // Create sphere
         Matrix< DDRMat > tADVs = { { -1.0, 0.0, 1.0, 2.0 } };
-        Design_Factory tDesignFactory( { tSphereParameterList }, {}, tADVs );
+        Design_Factory tDesignFactory( { tSphereParameterList }, tADVs );
         std::shared_ptr< Level_Set_Geometry > tSphere = tDesignFactory.get_geometries()( 0 );
 
         // Set coordinates for checking
@@ -395,7 +395,7 @@ namespace moris::ge
 
         // Create circles
         Matrix< DDRMat > tADVs = { { 3.0, 4.0, 5.0, 1.0, 2.0, 4.0, 3.0 } };
-        Design_Factory tDesignFactory( { tSuperellipsoidParameterList }, {}, tADVs );
+        Design_Factory tDesignFactory( { tSuperellipsoidParameterList }, tADVs );
         std::shared_ptr< Level_Set_Geometry > tSuperellipsoid = tDesignFactory.get_geometries()( 0 );
 
         // Set coordinates for checking
@@ -549,7 +549,7 @@ namespace moris::ge
                         tCircleParameterList.set( "discretization_upper_bound", 1.0 );
 
                         // Set up geometry
-                        Design_Factory tDesignFactory( {tCircleParameterList }, {}, tADVs );
+                        Design_Factory tDesignFactory( {tCircleParameterList }, tADVs );
                         tBSplineGeometries( tGeometryIndex ) = tDesignFactory.get_geometries()( 0 );
                     }
 
@@ -689,7 +689,7 @@ namespace moris::ge
 
         // Set up geometry
         Matrix< DDRMat > tADVs   = { { 0.0, 0.0, 0.5 } };
-        Design_Factory tDesignFactory( { tCircleParameterList }, {}, tADVs );
+        Design_Factory tDesignFactory( { tCircleParameterList }, tADVs );
         std::shared_ptr< Level_Set_Geometry > tCircle = tDesignFactory.get_geometries()( 0 );
 
         // Create geometry engine
@@ -774,7 +774,7 @@ namespace moris::ge
 
         // Create multigeometry
         Matrix< DDRMat > tADVs = { { 0.0, 1.0, 2.0, 1.0, 2.0 } };
-        Design_Factory tDesignFactory( tCircleParameterLists, {}, tADVs );
+        Design_Factory tDesignFactory( tCircleParameterLists, tADVs );
         Cell< std::shared_ptr< Level_Set_Geometry > > tGeometries = tDesignFactory.get_geometries();
 
         // Should be only one total geometry
@@ -839,7 +839,7 @@ namespace moris::ge
 
             // Create swiss cheese
             Matrix< DDRMat > tADVs = { {} };
-            Design_Factory   tDesignFactory( { tSwissCheeseParameterList }, {}, tADVs );
+            Design_Factory   tDesignFactory( { tSwissCheeseParameterList }, tADVs );
             auto             tSwissCheese = tDesignFactory.get_geometries()( 0 );
 
             // Check holes
@@ -893,7 +893,7 @@ namespace moris::ge
 
             // Create swiss cheese
             Matrix< DDRMat > tADVs = { {} };
-            Design_Factory   tDesignFactory( { tSwissCheeseParameterList }, {}, tADVs );
+            Design_Factory   tDesignFactory( { tSwissCheeseParameterList }, tADVs );
             auto             tSwissCheese = tDesignFactory.get_geometries()( 0 );
 
             // Check holes
@@ -945,7 +945,7 @@ namespace moris::ge
 
             // Create swiss cheese
             Matrix< DDRMat > tADVs = { {} };
-            Design_Factory   tDesignFactory( { tSwissCheeseParameterList }, {}, tADVs );
+            Design_Factory   tDesignFactory( { tSwissCheeseParameterList }, tADVs );
             auto             tSwissCheese = tDesignFactory.get_geometries()( 0 );
 
             // Check holes

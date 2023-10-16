@@ -30,7 +30,7 @@ namespace moris::ge
         tConstantPropertyParameterList.set("field_type", "constant");
         tConstantPropertyParameterList.set("field_variable_indices", "0");
         tConstantPropertyParameterList.set("adv_indices", "0");
-        Design_Factory tDesignFactory( {}, { tConstantPropertyParameterList }, tADVs );
+        Design_Factory tDesignFactory( { tConstantPropertyParameterList }, tADVs );
         std::shared_ptr< Property > tConstantProperty = tDesignFactory.get_properties()( 0 );
 
         // Random distribution
@@ -83,7 +83,7 @@ namespace moris::ge
             // Create scaled field
             real tScale = tUniform(tEngine);
             tScaledFieldParameterList.set( "constant_parameters", std::to_string( tScale ) );
-            Design_Factory tDesignFactory( { tCircleParameterList }, { tScaledFieldParameterList }, tADVs );
+            Design_Factory tDesignFactory( { tCircleParameterList, tScaledFieldParameterList }, tADVs );
             auto tCircle = tDesignFactory.get_geometries()( 0 );
             auto tProperties = tDesignFactory.get_properties();
 
@@ -160,7 +160,7 @@ namespace moris::ge
 
             // Set up property
             Matrix< DDRMat > tADVs( 0, 0 );
-            Design_Factory tDesignFactory( {}, { tPropertyParameterList }, tADVs );
+            Design_Factory tDesignFactory( { tPropertyParameterList }, tADVs );
             auto tBSplineProperty = tDesignFactory.get_properties()( 0 );
 
             // Create geometry engine

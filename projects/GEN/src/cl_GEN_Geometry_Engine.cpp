@@ -89,7 +89,11 @@ namespace moris
             }
 
             // Create designs with the factory
-            Design_Factory tDesignFactory( aParameterLists( 1 ), aParameterLists( 2 ), mInitialPrimitiveADVs, mLibrary, aMesh );
+            for ( uint iParameterIndex = 2; iParameterIndex < aParameterLists.size(); iParameterIndex++ )
+            {
+                aParameterLists( 1 ).append( aParameterLists( iParameterIndex ) );
+            }
+            Design_Factory tDesignFactory( aParameterLists( 1 ), mInitialPrimitiveADVs, mLibrary, aMesh );
 
             // Get geometries and properties from the factory
             mGeometries = tDesignFactory.get_geometries();

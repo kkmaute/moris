@@ -73,6 +73,18 @@ namespace moris::prm
     }
 
     /**
+     * Creates a field parameter list for creation before being added to a level set geometry or a property
+     *
+     * @return Parameter list with only field parameters
+     */
+    inline ParameterList create_field_parameter_list()
+    {
+        ParameterList tParameterList;
+        insert_field_parameters( tParameterList );
+        return tParameterList;
+    }
+
+    /**
      * Inserts all parameters related to design fields to the given parameter list.
      *
      * @param aDesignParameterList Parameter list for a design (level set geometry or property)

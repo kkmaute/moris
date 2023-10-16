@@ -488,7 +488,7 @@ namespace moris
             for ( uint tPropertyIndex = 0; tPropertyIndex < tNumADVs; tPropertyIndex++ )
             {
                 tParameterList.set( "adv_indices", std::to_string( tPropertyIndex ) );
-                Design_Factory tDesignFactory( {}, { tParameterList }, tADVs );
+                Design_Factory tDesignFactory( { tParameterList }, tADVs );
                 tProperties( tPropertyIndex ) = tDesignFactory.get_properties()( 0 );
             }
 

@@ -67,7 +67,7 @@ namespace moris::ge
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
             tGeometryEngineParameters.mADVs = tADVs;
-            Design_Factory tDesignFactory( { tCircleParameterList, tPlane1ParameterList, tPlane2ParameterList }, {}, tADVs );
+            Design_Factory tDesignFactory( { tCircleParameterList, tPlane1ParameterList, tPlane2ParameterList }, tADVs );
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine tGeometryEngine( tMesh, tGeometryEngineParameters );
 
@@ -781,7 +781,7 @@ namespace moris::ge
 
             // Create geometry engine
             Geometry_Engine_Parameters tGeometryEngineParameters;
-            Design_Factory tDesignFactory( { tCircleParameterList }, {}, tADVs );
+            Design_Factory tDesignFactory( { tCircleParameterList }, tADVs );
             tGeometryEngineParameters.mGeometries = tDesignFactory.get_geometries();
             Geometry_Engine tGeometryEngine( tMesh, tGeometryEngineParameters );
 

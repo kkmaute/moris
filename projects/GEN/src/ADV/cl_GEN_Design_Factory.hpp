@@ -38,15 +38,13 @@ namespace moris::ge
         /**
          * Design factory constructor
          *
-         * @param aGeometryParameterLists Parameter lists for creating geometry objects
-         * @param aPropertyParameterLists Parameter lists for creating property objects
+         * @param aParameterLists Parameter lists for creating designs and related objects such as fields.
          * @param aADVs ADV vector
          * @param aLibrary Pointer to library for loading user-defined functions
          * @param aMesh MTK mesh used for defining some fields
          */
         Design_Factory(
-                const Cell< ParameterList >&  aGeometryParameterLists,
-                const Cell< ParameterList >&  aPropertyParameterLists,
+                Cell< ParameterList >         aParameterLists,
                 Matrix< DDRMat >&             aADVs,
                 std::shared_ptr< Library_IO > aLibrary = nullptr,
                 mtk::Mesh*                    aMesh = nullptr );

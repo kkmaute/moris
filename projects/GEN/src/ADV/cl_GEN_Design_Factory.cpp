@@ -19,25 +19,45 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Design_Factory::Design_Factory(
-            const Cell< ParameterList >&  aGeometryParameterLists,
-            const Cell< ParameterList >&  aPropertyParameterLists,
+            Cell< ParameterList >         aParameterLists,
             Matrix< DDRMat >&             aADVs,
             std::shared_ptr< Library_IO > aLibrary,
             mtk::Mesh*                    aMesh )
-            : mDesigns( aGeometryParameterLists.size() + aPropertyParameterLists.size(), nullptr )
-            , mGeometries( aGeometryParameterLists.size(), nullptr )
-            , mProperties( aPropertyParameterLists.size(), nullptr )
     {
-        // Combine parameter lists
-        Cell< ParameterList > tDesignParameterLists;
-        tDesignParameterLists.append( aGeometryParameterLists );
-        tDesignParameterLists.append( aPropertyParameterLists );
-
-        // Initialize counters
+        // Count maximum number of possible designs
         uint tGeometryIndex = 0;
         uint tPropertyIndex = 0;
         uint tDesignIndex = 0;
-        uint tNumberOfDesignsLeft = tDesignParameterLists.size();
+        for ( const ParameterList& iParameterList : aParameterLists )
+        {
+            if ( iParameterList.exists( "design_type" ) )
+            {
+                tDesignIndex++;
+                if ( iParameterList.get< std::string >( "design_type" ) == "geometry" )
+                {
+                    tGeometryIndex++;
+                }
+                else if ( iParameterList.get< std::string >( "design_type" ) == "property" )
+                {
+                    tPropertyIndex++;
+                }
+                else
+                {
+                    MORIS_ERROR( false, "GEN design parameter list with unknown design type detected." );
+                }
+            }
+        }
+        
+        // Perform resizes
+        mDesigns.resize( tDesignIndex );
+        mGeometries.resize( tGeometryIndex );
+        mProperties.resize( tPropertyIndex );
+
+        // Re-initialize counters
+        tGeometryIndex = 0;
+        tPropertyIndex = 0;
+        tDesignIndex = 0;
+        uint tNumberOfDesignsLeft = aParameterLists.size();
 
         // Loop until all designs are built
         while ( tNumberOfDesignsLeft > 0 )
@@ -46,17 +66,17 @@ namespace moris::ge
             bool tDesignBuilt = false;
 
             // Loop over all designs
-            for ( ParameterList& iDesignParameterList : tDesignParameterLists )
+            for ( ParameterList& iParameterList : aParameterLists )
             {
                 // Check if design needs building
-                if ( iDesignParameterList.exists( "design_type" ) )
+                if ( iParameterList.exists( "design_type" ) )
                 {
                     // Check if a field is required
-                    if ( iDesignParameterList.exists( "field_type" ) )
+                    if ( iParameterList.exists( "field_type" ) )
                     {
                         // Get field dependency names
                         Cell< std::string > tDependencyNames =
-                                string_to_cell< std::string >( iDesignParameterList.get< std::string >( "dependencies" ) );
+                                string_to_cell< std::string >( iParameterList.get< std::string >( "dependencies" ) );
 
                         // Cell of field dependencies
                         Cell< std::shared_ptr< Field > > tDependencyFields( tDependencyNames.size() );
@@ -94,10 +114,10 @@ namespace moris::ge
                         if ( tCanBuild )
                         {
                             // Field object
-                            std::shared_ptr< Field > tField = create_field( iDesignParameterList, aADVs, tDependencyFields, aLibrary, aMesh );
+                            std::shared_ptr< Field > tField = create_field( iParameterList, aADVs, tDependencyFields, aLibrary, aMesh );
 
                             // Get design type
-                            std::string tDesignType = iDesignParameterList.get< std::string >( "design_type" );
+                            std::string tDesignType = iParameterList.get< std::string >( "design_type" );
 
                             // Geometry
                             if ( tDesignType == "geometry" )
@@ -106,12 +126,12 @@ namespace moris::ge
                                 std::shared_ptr< Level_Set_Geometry > tGeometry;
 
                                 // Get geometry type
-                                std::string tGeometryType = iDesignParameterList.get< std::string >( "geometry_type" );
+                                std::string tGeometryType = iParameterList.get< std::string >( "geometry_type" );
 
                                 // Level-set field
                                 if ( tGeometryType == "level_set" )
                                 {
-                                    tGeometry = std::make_shared< Level_Set_Geometry >( tField, Level_Set_Parameters( iDesignParameterList ) );
+                                    tGeometry = std::make_shared< Level_Set_Geometry >( tField, Level_Set_Parameters( iParameterList ) );
                                 }
                                 else
                                 {
@@ -127,7 +147,7 @@ namespace moris::ge
                             else if ( tDesignType == "property" )
                             {
                                 // Create new property
-                                auto tProperty = std::make_shared< Property >( tField, Property_Parameters( iDesignParameterList ) );
+                                auto tProperty = std::make_shared< Property >( tField, Property_Parameters( iParameterList ) );
 
                                 // Assign new property
                                 mProperties( tPropertyIndex++ ) = tProperty;
@@ -139,7 +159,7 @@ namespace moris::ge
                             }
 
                             // Indicate that this design has now been built
-                            iDesignParameterList.erase( "design_type" );
+                            iParameterList.erase( "design_type" );
 
                             // Decrement number of designs left
                             tNumberOfDesignsLeft--;
