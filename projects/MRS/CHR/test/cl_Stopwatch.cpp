@@ -16,6 +16,7 @@
 // MORIS header files.
 #include "chronos.hpp"
 #include "cl_Logger.hpp"
+#include "cl_Communication_Tools.hpp"
 
 // ----------------------------------------------------------------------------
 
@@ -29,26 +30,34 @@ TEST_CASE(
     {
 #include "chronos/cl_Stopwatch/reset.inc"
 
-        // Assert only 1 second has passed, but not 2 seconds, because we reset the timer.
+        MORIS_LOG_INFO( "\nStopwatch::reset - min time %ld ms - max time %ld ms",
+                moris::min_all( wall_time_milliseconds ),
+                moris::max_all( wall_time_milliseconds ) );
+
+        // Assert only tTestingInterval has passed, but not 2*tTestingInterval, because we reset the timer.
         REQUIRE( wall_time_hours == 0 );
         REQUIRE( wall_time_minutes == 0 );
-        REQUIRE( ( wall_time_seconds >= 1 && wall_time_seconds < 2 ) );
-        REQUIRE( ( wall_time_milliseconds >= 1.0e+03 && wall_time_milliseconds < 2.0e+03 ) );
-        REQUIRE( ( wall_time_microseconds >= 1.0e+06 && wall_time_microseconds < 2.0e+06 ) );
-        REQUIRE( ( wall_time_nanoseconds >= 1.0e+09 && wall_time_nanoseconds < 2.0e+09 ) );
+        REQUIRE( wall_time_seconds == 0 );
+        REQUIRE( ( wall_time_milliseconds >= tTestingInterval && wall_time_milliseconds < 2 * tTestingInterval ) );
+        REQUIRE( ( wall_time_microseconds >= 1e3 * tTestingInterval && wall_time_microseconds < 2e3 * tTestingInterval ) );
+        REQUIRE( ( wall_time_nanoseconds >= 1e6 * tTestingInterval && wall_time_nanoseconds < 2e6 * tTestingInterval ) );
     }
 
     SECTION( "moris::chronos::Stopwatch::stop" )
     {
 #include "chronos/cl_Stopwatch/stop.inc"
 
-        // Assert 10ms have passed, but not 20ms.
+        MORIS_LOG_INFO( "\nStopwatch::stop - min time %ld ms - max time %ld ms",
+                moris::min_all( wall_time_milliseconds ),
+                moris::max_all( wall_time_milliseconds ) );
+
+        // Assert tTestingInterval have passed, but not 2*tTestingInterval.
         REQUIRE( wall_time_hours == 0 );
         REQUIRE( wall_time_minutes == 0 );
         REQUIRE( wall_time_seconds == 0 );
-        REQUIRE( ( wall_time_milliseconds >= 10 && wall_time_milliseconds < 20 ) );
-        REQUIRE( ( wall_time_microseconds >= 1.0e+04 && wall_time_microseconds < 2.0e+04 ) );
-        REQUIRE( ( wall_time_nanoseconds >= 1.0e+07 && wall_time_nanoseconds < 2.0e+07 ) );
+        REQUIRE( ( wall_time_milliseconds >= tTestingInterval && wall_time_milliseconds < 2 * tTestingInterval ) );
+        REQUIRE( ( wall_time_microseconds >= 1e3 * tTestingInterval && wall_time_microseconds < 2e3 * tTestingInterval ) );
+        REQUIRE( ( wall_time_nanoseconds >= 1e6 * tTestingInterval && wall_time_nanoseconds < 2e6 * tTestingInterval ) );
     }
 
     SECTION( "moris::chronos::Stopwatch::is_stopped" )
@@ -66,26 +75,34 @@ TEST_CASE(
     {
 #include "chronos/cl_Stopwatch/resume.inc"
 
-        // Assert only 10ms has passed, but not 20ms, because we stopped the timer.
+        MORIS_LOG_INFO( "\nStopwatch::resume - min time %ld ms - max time %ld ms",
+                moris::min_all( wall_time_milliseconds ),
+                moris::max_all( wall_time_milliseconds ) );
+
+        // Assert only tTestingInterval has passed, but not 2*tTestingInterval, because we stopped the timer.
         REQUIRE( wall_time_hours == 0 );
         REQUIRE( wall_time_minutes == 0 );
         REQUIRE( wall_time_seconds == 0 );
-        REQUIRE( ( wall_time_milliseconds >= 10 && wall_time_milliseconds < 20 ) );
-        REQUIRE( ( wall_time_microseconds >= 1e+04 && wall_time_microseconds < 2e+04 ) );
-        REQUIRE( ( wall_time_nanoseconds >= 1e+07 && wall_time_nanoseconds < 2e+07 ) );
+        REQUIRE( ( wall_time_milliseconds >= tTestingInterval && wall_time_milliseconds < 2 * tTestingInterval ) );
+        REQUIRE( ( wall_time_microseconds >= 1e3 * tTestingInterval && wall_time_microseconds < 2e3 * tTestingInterval ) );
+        REQUIRE( ( wall_time_nanoseconds >= 1e6 * tTestingInterval && wall_time_nanoseconds < 2e6 * tTestingInterval ) );
     }
 
     SECTION( "moris::chronos::Stopwatch::toc" )
     {
 #include "chronos/cl_Stopwatch/toc.inc"
 
-        // Assert 1 second has passed.
+        MORIS_LOG_INFO( "\nStopwatch::toc - min time %ld ms - max time %ld ms",
+                moris::min_all( wall_time_milliseconds ),
+                moris::max_all( wall_time_milliseconds ) );
+
+        // Assert tTestingInterval has passed.
         REQUIRE( wall_time_hours == 0 );
         REQUIRE( wall_time_minutes == 0 );
-        REQUIRE( wall_time_seconds >= 1 );
-        REQUIRE( wall_time_milliseconds >= 1.0e+03 );
-        REQUIRE( wall_time_microseconds >= 1.0e+06 );
-        REQUIRE( wall_time_nanoseconds >= 1.0e+09 );
+        REQUIRE( wall_time_seconds == 0 );
+        REQUIRE( ( wall_time_milliseconds >= tTestingInterval && wall_time_milliseconds < 2 * tTestingInterval ) );
+        REQUIRE( ( wall_time_microseconds >= 1e3 * tTestingInterval && wall_time_microseconds < 2e3 * tTestingInterval ) );
+        REQUIRE( ( wall_time_nanoseconds >= 1e6 * tTestingInterval && wall_time_nanoseconds < 2e6 * tTestingInterval ) );
     }
 
     SECTION( "moris::chronos::Stopwatch::elapsed" )
