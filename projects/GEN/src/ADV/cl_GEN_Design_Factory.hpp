@@ -30,7 +30,7 @@ namespace moris::ge
     class Design_Factory
     {
       private:
-        Cell< std::shared_ptr< Design_Field > > mDesigns;
+        Cell< std::shared_ptr< Field > > mFields;
         Cell< std::shared_ptr< Level_Set_Geometry > > mGeometries;
         Cell< std::shared_ptr< Property > > mProperties;
 

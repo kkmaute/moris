@@ -27,12 +27,12 @@ namespace moris::ge
         // Count maximum number of possible designs
         uint tGeometryIndex = 0;
         uint tPropertyIndex = 0;
-        uint tDesignIndex = 0;
+        uint tFieldIndex = 0;
         for ( const ParameterList& iParameterList : aParameterLists )
         {
+            // Count up the type of design
             if ( iParameterList.exists( "design_type" ) )
             {
-                tDesignIndex++;
                 if ( iParameterList.get< std::string >( "design_type" ) == "geometry" )
                 {
                     tGeometryIndex++;
@@ -46,18 +46,28 @@ namespace moris::ge
                     MORIS_ERROR( false, "GEN design parameter list with unknown design type detected." );
                 }
             }
+            else
+            {
+                MORIS_LOG_WARNING( "A parameter list that doesn't define a design type was provided to GEN. Ignoring." );
+            }
+
+            // Count if this design requires a field or not
+            if ( iParameterList.exists( "field_type" ) )
+            {
+                tFieldIndex++;
+            }
         }
         
         // Perform resizes
-        mDesigns.resize( tDesignIndex );
+        mFields.resize( tFieldIndex );
         mGeometries.resize( tGeometryIndex );
         mProperties.resize( tPropertyIndex );
+        uint tNumberOfDesignsLeft = aParameterLists.size();
 
         // Re-initialize counters
         tGeometryIndex = 0;
         tPropertyIndex = 0;
-        tDesignIndex = 0;
-        uint tNumberOfDesignsLeft = aParameterLists.size();
+        tFieldIndex = 0;
 
         // Loop until all designs are built
         while ( tNumberOfDesignsLeft > 0 )
@@ -68,106 +78,107 @@ namespace moris::ge
             // Loop over all designs
             for ( ParameterList& iParameterList : aParameterLists )
             {
-                // Check if design needs building
-                if ( iParameterList.exists( "design_type" ) )
+                // Check if a field is required
+                if ( iParameterList.exists( "field_type" ) )
                 {
-                    // Check if a field is required
-                    if ( iParameterList.exists( "field_type" ) )
+                    // Get field dependency names
+                    Cell< std::string > tDependencyNames =
+                            string_to_cell< std::string >( iParameterList.get< std::string >( "dependencies" ) );
+
+                    // Cell of field dependencies
+                    Cell< std::shared_ptr< Field > > tDependencyFields( tDependencyNames.size() );
+
+                    // If we can build this field or not
+                    bool tCanBuild = true;
+
+                    // Loop over dependencies
+                    for ( uint iDependencyIndex = 0; iDependencyIndex < tDependencyNames.size(); iDependencyIndex++ )
                     {
-                        // Get field dependency names
-                        Cell< std::string > tDependencyNames =
-                                string_to_cell< std::string >( iParameterList.get< std::string >( "dependencies" ) );
+                        // Dependency detected, must be found first before building
+                        tCanBuild = false;
 
-                        // Cell of field dependencies
-                        Cell< std::shared_ptr< Field > > tDependencyFields( tDependencyNames.size() );
-
-                        // If we can build this field or not
-                        bool tCanBuild = true;
-
-                        // Loop over dependencies
-                        for ( uint iDependencyIndex = 0; iDependencyIndex < tDependencyNames.size(); iDependencyIndex++ )
+                        // Loop over fields
+                        for ( const auto& iField : mFields )
                         {
-                            // Dependency detected, must be found first before building
-                            tCanBuild = false;
-
-                            // Loop over designs
-                            for ( const std::shared_ptr< Design_Field >& iDesign : mDesigns )
+                            // Check if field has already been built and name match is found
+                            if ( iField and iField->get_name() == tDependencyNames( iDependencyIndex ) )
                             {
-                                // Check if design has already been built and name match is found
-                                if ( iDesign and iDesign->get_name() == tDependencyNames( iDependencyIndex ) )
-                                {
-                                    // Set dependency
-                                    tDependencyFields( iDependencyIndex ) = iDesign->get_field();
-                                    tCanBuild = true;
-                                    break;
-                                }
-                            }
-
-                            // Dependency not found, can't build yet, exit
-                            if ( not tCanBuild )
-                            {
+                                // Set dependency
+                                tDependencyFields( iDependencyIndex ) = iField;
+                                tCanBuild = true;
                                 break;
                             }
                         }
 
-                        // Build field if we can
-                        if ( tCanBuild )
+                        // Dependency not found, can't build yet, exit
+                        if ( not tCanBuild )
                         {
-                            // Field object
-                            std::shared_ptr< Field > tField = create_field( iParameterList, aADVs, tDependencyFields, aLibrary, aMesh );
-
-                            // Get design type
-                            std::string tDesignType = iParameterList.get< std::string >( "design_type" );
-
-                            // Geometry
-                            if ( tDesignType == "geometry" )
-                            {
-                                // Base pointer
-                                std::shared_ptr< Level_Set_Geometry > tGeometry;
-
-                                // Get geometry type
-                                std::string tGeometryType = iParameterList.get< std::string >( "geometry_type" );
-
-                                // Level-set field
-                                if ( tGeometryType == "level_set" )
-                                {
-                                    tGeometry = std::make_shared< Level_Set_Geometry >( tField, Level_Set_Parameters( iParameterList ) );
-                                }
-                                else
-                                {
-                                    MORIS_ERROR( false, "GEN does not recognize geometry type: %s", tGeometryType.c_str() );
-                                }
-
-                                // Assign new geometry
-                                mGeometries( tGeometryIndex++ ) = tGeometry;
-                                mDesigns( tDesignIndex++ ) = tGeometry;
-                            }
-
-                            // Property
-                            else if ( tDesignType == "property" )
-                            {
-                                // Create new property
-                                auto tProperty = std::make_shared< Property >( tField, Property_Parameters( iParameterList ) );
-
-                                // Assign new property
-                                mProperties( tPropertyIndex++ ) = tProperty;
-                                mDesigns( tDesignIndex++ ) = tProperty;
-                            }
-                            else
-                            {
-                                MORIS_ERROR( false, "GEN does not recognize design type: %s", tDesignType.c_str() );
-                            }
-
-                            // Indicate that this design has now been built
-                            iParameterList.erase( "design_type" );
-
-                            // Decrement number of designs left
-                            tNumberOfDesignsLeft--;
-
-                            // Set that a design has been built, so it is fine if another outer loop is needed
-                            tDesignBuilt = true;
+                            break;
                         }
                     }
+
+                    // Build field if we can
+                    if ( tCanBuild )
+                    {
+                        // Build field
+                        mFields( tFieldIndex++ ) = create_field( iParameterList, aADVs, tDependencyFields, aLibrary, aMesh );
+
+                        // Remove this parameter to signal we don't need to build again
+                        iParameterList.erase( "field_type" );
+                    }
+                }
+
+                // Check if design needs building
+                if ( iParameterList.exists( "design_type" ) )
+                {
+                    // Get design type
+                    std::string tDesignType = iParameterList.get< std::string >( "design_type" );
+
+                    // Geometry
+                    if ( tDesignType == "geometry" )
+                    {
+                        // Base pointer
+                        std::shared_ptr< Level_Set_Geometry > tGeometry;
+
+                        // Get geometry type
+                        std::string tGeometryType = iParameterList.get< std::string >( "geometry_type" );
+
+                        // Level-set field
+                        if ( tGeometryType == "level_set" )
+                        {
+                            tGeometry = std::make_shared< Level_Set_Geometry >( mFields( tFieldIndex - 1 ), Level_Set_Parameters( iParameterList ) );
+                        }
+                        else
+                        {
+                            MORIS_ERROR( false, "GEN does not recognize geometry type: %s", tGeometryType.c_str() );
+                        }
+
+                        // Assign new geometry
+                        mGeometries( tGeometryIndex++ ) = tGeometry;
+                    }
+
+                    // Property
+                    else if ( tDesignType == "property" )
+                    {
+                        // Create new property
+                        auto tProperty = std::make_shared< Property >( mFields( tFieldIndex - 1 ), Property_Parameters( iParameterList ) );
+
+                        // Assign new property
+                        mProperties( tPropertyIndex++ ) = tProperty;
+                    }
+                    else
+                    {
+                        MORIS_ERROR( false, "GEN does not recognize design type: %s", tDesignType.c_str() );
+                    }
+
+                    // Indicate that this design has now been built
+                    iParameterList.erase( "design_type" );
+
+                    // Decrement number of designs left
+                    tNumberOfDesignsLeft--;
+
+                    // Set that a design has been built, so it is fine if another outer loop is needed
+                    tDesignBuilt = true;
                 }
             }
 

@@ -10,6 +10,7 @@
 
 #pragma once
 
+#include <utility>
 #include "cl_GEN_ADV_Manager.hpp"
 #include "cl_GEN_Child_Node.hpp"
 #include "cl_MTK_Mesh_Pair.hpp"
@@ -24,6 +25,11 @@ namespace moris::ge
       protected:
         uint mNumOriginalNodes = 0;
 
+      private:
+        std::string mName;
+
+      protected:
+
         /**
          * Constructor using pointers to ADVs for variable evaluations.
          *
@@ -37,8 +43,10 @@ namespace moris::ge
         Field( Vector_Type&     aADVs,
                Matrix< DDUMat > aFieldVariableIndices,
                Matrix< DDUMat > aADVIndices,
-               Matrix< DDRMat > aConstants )
+               Matrix< DDRMat > aConstants,
+               std::string      aName = "" )
                 : ADV_Manager( aADVs, aFieldVariableIndices, aADVIndices, aConstants )
+                , mName( std::move( aName ) )
         {
         }
 
@@ -128,6 +136,13 @@ namespace moris::ge
         virtual void reset_nodal_data();
 
         void set_num_original_nodes( uint aNumOriginalNodes );
+
+        /**
+         * Gets the name of this design's field
+         *
+         * @return Name
+         */
+        std::string get_name();
 
     };
 }

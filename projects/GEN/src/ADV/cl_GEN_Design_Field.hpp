@@ -24,7 +24,6 @@ namespace moris::ge
      */
     struct Field_Parameters
     {
-        std::string  mName;                      //! Name of this field for identification
         Cell< uint > mNumberOfRefinements;       //! The number of refinement steps to use for this field
         Cell< uint > mRefinementMeshIndices;     //! Indices of meshes to perform refinement on
         sint         mRefinementFunctionIndex;   //! Index of a user-defined refinement function (-1 = default)
@@ -178,7 +177,7 @@ namespace moris::ge
         void reset_nodal_data();
 
         /**
-         * Gets the name of this design field.
+         * Gets the name of this design's field
          *
          * @return Name
          */

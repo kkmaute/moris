@@ -21,8 +21,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Field_Parameters::Field_Parameters( const ParameterList& aParameterList )
-            : mName( aParameterList.get< std::string >( "name" ) )
-            , mNumberOfRefinements( aParameterList.get_cell< uint >( "number_of_refinements" ) )
+            : mNumberOfRefinements( aParameterList.get_cell< uint >( "number_of_refinements" ) )
             , mRefinementMeshIndices( aParameterList.get_cell< uint >( "refinement_mesh_index" ) )
             , mRefinementFunctionIndex( aParameterList.get< sint >( "refinement_function_index" ) )
             , mDiscretizationIndex( aParameterList.get< sint >( "discretization_mesh_index" ) )
@@ -156,7 +155,7 @@ namespace moris::ge
 
     std::string Design_Field::get_name()
     {
-        return mParameters.mName;
+        return mField->get_name();
     }
 
     //--------------------------------------------------------------------------------------------------------------
