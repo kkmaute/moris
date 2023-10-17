@@ -487,14 +487,14 @@ namespace moris::ge
     TEST_CASE( "User-defined Geometry", "[gen], [geometry], [user-defined geometry]" )
     {
         // Create user-defined geometry
-        Matrix< DDRMat >            tADVs                = { { -1.0, 0.5 } };
+        Matrix< DDRMat > tADVs = { { -1.0, 0.5 } };
         auto tUserDefinedGeometry = std::make_shared< User_Defined_Field >(
+                &user_defined_geometry_field,
+                &user_defined_geometry_sensitivity,
                 tADVs,
                 Matrix< DDUMat >( { { 1, 0 } } ),
                 Matrix< DDUMat >( { { 0, 1 } } ),
-                Matrix< DDRMat >( { {} } ),
-                &user_defined_geometry_field,
-                &user_defined_geometry_sensitivity );
+                Matrix< DDRMat >( { {} } ) );
 
         // Set coordinates for checking
         Matrix< DDRMat > tCoordinates1 = { { 1.0, 1.0 } };
