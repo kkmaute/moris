@@ -8,14 +8,14 @@
  *
  */
 
-#include "cl_GEN_Combined_Field.hpp"
+#include "cl_GEN_Combined_Fields.hpp"
 
 namespace moris::ge
 {
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Combined_Field::Combined_Field(
+    Combined_Fields::Combined_Fields(
             Cell< std::shared_ptr< Field > > aFields,
             bool                             aUseMinimum )
             : Field( {{}} )
@@ -28,7 +28,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     real
-    Combined_Field::get_field_value(
+    Combined_Fields::get_field_value(
             uint                  aNodeIndex,
             const Matrix<DDRMat>& aCoordinates)
     {
@@ -43,7 +43,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     const Matrix<DDRMat>&
-    Combined_Field::get_dfield_dadvs(
+    Combined_Fields::get_dfield_dadvs(
             uint                  aNodeIndex,
             const Matrix<DDRMat>& aCoordinates)
     {
@@ -67,7 +67,7 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     void
-    Combined_Field::get_dfield_dcoordinates(
+    Combined_Fields::get_dfield_dcoordinates(
             uint                  aNodeIndex,
             const Matrix<DDRMat>& aCoordinates,
             Matrix<DDRMat>&       aSensitivities)

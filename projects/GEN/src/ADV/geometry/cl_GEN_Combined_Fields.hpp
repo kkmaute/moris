@@ -14,7 +14,7 @@
 
 namespace moris::ge
 {
-    class Combined_Field : public Field
+    class Combined_Fields : public Field
     {
 
     private:
@@ -29,7 +29,7 @@ namespace moris::ge
          * @param aFields Created fields
          * @param aUseMinimum Whether or not to use minimum or maximum value when combining fields
          */
-        Combined_Field(
+      Combined_Fields(
                 Cell< std::shared_ptr< Field > > aFields,
                 bool                             aUseMinimum = true );
 

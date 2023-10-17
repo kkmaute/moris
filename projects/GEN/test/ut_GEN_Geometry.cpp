@@ -750,7 +750,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    TEST_CASE( "MultiGeometry", "[gen], [geometry], [combined field]" )
+    TEST_CASE( "Combined Field", "[gen], [geometry], [combined field]" )
     {
         // ADV indices
         std::string      tADVIndices1    = "0, 1, 3";
@@ -759,22 +759,26 @@ namespace moris::ge
         Matrix< DDSMat > tADVIndicesMat2 = string_to_mat< DDSMat >( tADVIndices2 );
 
         // Set up 2 circles
-        Cell< ParameterList > tCircleParameterLists( 2 );
-        tCircleParameterLists( 0 ) = prm::create_level_set_geometry_parameter_list();
-        tCircleParameterLists( 0 ).set( "field_type", "circle" );
-        tCircleParameterLists( 0 ).set( "field_variable_indices", "all" );
-        tCircleParameterLists( 0 ).set( "adv_indices", tADVIndices1 );
-        tCircleParameterLists( 0 ).set( "name", "circles" );
+        Cell< ParameterList > tParameterLists( 3 );
+        tParameterLists( 0 ) = prm::create_field_parameter_list();
+        tParameterLists( 0 ).set( "field_type", "circle" );
+        tParameterLists( 0 ).set( "field_variable_indices", "all" );
+        tParameterLists( 0 ).set( "adv_indices", tADVIndices1 );
+        tParameterLists( 0 ).set( "name", "Circle 1" );
 
-        tCircleParameterLists( 1 ) = prm::create_level_set_geometry_parameter_list();
-        tCircleParameterLists( 1 ).set( "field_type", "circle" );
-        tCircleParameterLists( 1 ).set( "field_variable_indices", "all" );
-        tCircleParameterLists( 1 ).set( "adv_indices", tADVIndices2 );
-        tCircleParameterLists( 1 ).set( "name", "circles" );
+        tParameterLists( 1 ) = prm::create_field_parameter_list();
+        tParameterLists( 1 ).set( "field_type", "circle" );
+        tParameterLists( 1 ).set( "field_variable_indices", "all" );
+        tParameterLists( 1 ).set( "adv_indices", tADVIndices2 );
+        tParameterLists( 1 ).set( "name", "Circle 2" );
+
+        tParameterLists( 2 ) = prm::create_level_set_geometry_parameter_list();
+        tParameterLists( 2 ).set( "field_type", "combined_fields" );
+        tParameterLists( 2 ).set( "dependencies", "Circle 1, Circle 2" );
 
         // Create multigeometry
         Matrix< DDRMat > tADVs = { { 0.0, 1.0, 2.0, 1.0, 2.0 } };
-        Design_Factory tDesignFactory( tCircleParameterLists, tADVs );
+        Design_Factory tDesignFactory( tParameterLists, tADVs );
         Cell< std::shared_ptr< Level_Set_Geometry > > tGeometries = tDesignFactory.get_geometries();
 
         // Should be only one total geometry

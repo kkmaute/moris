@@ -65,15 +65,15 @@ set(HEADERS
 	ADV/geometry/cl_GEN_Stored_Field.hpp
 	ADV/geometry/cl_GEN_Geometry_SDF.hpp
 	ADV/geometry/cl_GEN_Image_SDF_Geometry.hpp
-	ADV/geometry/cl_GEN_Combined_Field.hpp
+	ADV/geometry/cl_GEN_Combined_Fields.hpp
 	ADV/geometry/cl_GEN_Swiss_Cheese_Slice.hpp
 
-        # ADV/property
+	# ADV/property
 	ADV/property/cl_GEN_Property.hpp
 	ADV/property/cl_GEN_Constant_Property.hpp
 	ADV/property/cl_GEN_Scaled_Field.hpp
 
-        # PDV
+	# PDV
 	PDV/cl_GEN_Pdv_Host_Manager.hpp
 	PDV/cl_GEN_Child_Node.hpp
 	PDV/cl_GEN_Interpolation_Pdv_Host.hpp
@@ -119,15 +119,15 @@ set(LIB_SOURCES
 	ADV/geometry/cl_GEN_Stored_Field.cpp
 	ADV/geometry/cl_GEN_Geometry_SDF.cpp
 	ADV/geometry/cl_GEN_Image_SDF_Geometry.cpp
-	ADV/geometry/cl_GEN_Combined_Field.cpp
+	ADV/geometry/cl_GEN_Combined_Fields.cpp
 	ADV/geometry/cl_GEN_Swiss_Cheese_Slice.cpp
 
-        # ADV/property
+	# ADV/property
 	ADV/property/cl_GEN_Property.cpp
 	ADV/property/cl_GEN_Constant_Property.cpp
 	ADV/property/cl_GEN_Scaled_Field.cpp
 
-        # PDV
+	# PDV
 	PDV/cl_GEN_Pdv_Host_Manager.cpp
 	PDV/cl_GEN_Interpolation_Pdv_Host.cpp
 	PDV/cl_GEN_Pdv.cpp

@@ -21,7 +21,7 @@
 #include "cl_GEN_User_Defined_Field.hpp"
 #include "cl_GEN_Voxel_Input.hpp"
 #include "cl_GEN_Single_Grain.hpp"
-#include "cl_GEN_Combined_Field.hpp"
+#include "cl_GEN_Combined_Fields.hpp"
 #include "cl_GEN_Swiss_Cheese_Slice.hpp"
 #include "cl_GEN_Mesh_Field_Geometry.hpp"
 #include "cl_GEN_Geometry_SDF.hpp"
@@ -148,6 +148,15 @@ namespace moris::ge
         else if ( tFieldType == "plane" )
         {
             return std::make_shared< Plane >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
+        }
+        else if ( tFieldType == "combined_fields" )
+        {
+            bool tUseMinimum = true;
+            if ( tConstants.length() == 1 )
+            {
+                tUseMinimum = tConstants( 0 );
+            }
+            return std::make_shared< Combined_Fields >( aFieldDependencies, tUseMinimum );
         }
         else if ( tFieldType == "nodal_field" )
         {
