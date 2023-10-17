@@ -208,9 +208,9 @@ namespace moris::ge
             MORIS_ERROR( aLibrary != nullptr, "Library must be given in order to create a user-defined geometry." );
 
             // Get sensitivity function if needed
-            std::string          tSensitivityFunctionName = aFieldParameterList.get< std::string >( "sensitivity_function_name" );
+            std::string tSensitivityFunctionName = aFieldParameterList.get< std::string >( "sensitivity_function_name" );
             Sensitivity_Function tSensitivityFunction =
-                    ( tSensitivityFunctionName == "" ? nullptr : aLibrary->load_function< Sensitivity_Function >( tSensitivityFunctionName ) );
+                    ( tSensitivityFunctionName.empty() ? nullptr : aLibrary->load_function< Sensitivity_Function >( tSensitivityFunctionName ) );
 
             // Create user-defined geometry
             return std::make_shared< User_Defined_Field >(
