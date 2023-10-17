@@ -393,8 +393,8 @@ namespace moris::ge
         tSuperellipsoidParameterList.set( "field_variable_indices", "all" );
         tSuperellipsoidParameterList.set( "adv_indices", "all" );
 
-        // Create circles
-        Matrix< DDRMat > tADVs = { { 3.0, 4.0, 5.0, 1.0, 2.0, 4.0, 3.0 } };
+        // Create superellipsoid
+        Matrix< DDRMat > tADVs = { { 3.0, 4.0, 5.0, 1.0, 2.0, 4.0, 2.0 } };
         Design_Factory tDesignFactory( { tSuperellipsoidParameterList }, tADVs );
         std::shared_ptr< Level_Set_Geometry > tSuperellipsoid = tDesignFactory.get_geometries()( 0 );
 
@@ -404,20 +404,20 @@ namespace moris::ge
         Matrix< DDRMat > tCoordinates2 = { { 4.0, 4.0, 5.0 } };
 
         // Check field values
-        CHECK( tSuperellipsoid->get_field_value( 0, tCoordinates0 ) == Approx( pow( 2.0, 1.0 / 3.0 ) - 1.0 ) );
+        CHECK( tSuperellipsoid->get_field_value( 0, tCoordinates0 ) == Approx( pow( 2.0, 1.0 / 2.0 ) - 1.0 ) );
         CHECK( tSuperellipsoid->get_field_value( 0, tCoordinates1 ) == Approx( -0.5 ) );
         CHECK( tSuperellipsoid->get_field_value( 0, tCoordinates2 ) == Approx( 0.0 ) );
 
         // Check sensitivity values
         CHECK_EQUAL( tSuperellipsoid->get_dfield_dadvs( 0, tCoordinates0 ),
                 Matrix< DDRMat >( { { //
-                        pow( 2.0, -2.0 / 3.0 ),
-                        pow( 2.0, -5.0 / 3.0 ),
+                        sqrt( 2.0 ) / 2.0,
+                        pow( 2.0, -3.0 / 2.0 ),
                         0.0,
-                        -pow( 2.0, -2.0 / 3.0 ),
-                        -pow( 2.0, -5.0 / 3.0 ),
+                        -sqrt( 2.0 ) / 2.0,
+                        -pow( 2.0, -3.0 / 2.0 ),
                         0.0,
-                        -0.09703452486 } } ), );
+                        -0.2450645353 } } ), );
 
         CHECK_EQUAL( tSuperellipsoid->get_dfield_dadvs( 0, tCoordinates1 ),
                 Matrix< DDRMat >( { { //
