@@ -68,6 +68,7 @@ namespace moris::ge
         {
         }
 
+        //TODO add option for specifying a name, since a constant field can still be a dependency
         /**
          * Constructor using only constants (no ADVs).
          *

@@ -139,15 +139,15 @@ namespace moris::ge
         }
         else if ( tFieldType == "sphere" )
         {
-            return std::make_shared< Sphere >( aADVs, tVariableIndices, tADVIndices, tConstants );
+            return std::make_shared< Sphere >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
         }
         else if ( tFieldType == "superellipsoid" )
         {
-            return std::make_shared< Superellipsoid >( aADVs, tVariableIndices, tADVIndices, tConstants );
+            return std::make_shared< Superellipsoid >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
         }
         else if ( tFieldType == "plane" )
         {
-            return std::make_shared< Plane >( aADVs, tVariableIndices, tADVIndices, tConstants );
+            return std::make_shared< Plane >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
         }
         else if ( tFieldType == "nodal_field" )
         {
@@ -219,7 +219,8 @@ namespace moris::ge
                     aADVs,
                     tVariableIndices,
                     tADVIndices,
-                    tConstants );
+                    tConstants,
+                    tName );
         }
         else if ( tFieldType == "voxel" and aFieldDependencies( 0 ) )
         {
