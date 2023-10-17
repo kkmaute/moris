@@ -46,10 +46,6 @@ namespace moris::ge
                     MORIS_ERROR( false, "GEN design parameter list with unknown design type detected." );
                 }
             }
-            else
-            {
-                MORIS_LOG_WARNING( "A parameter list that doesn't define a design type was provided to GEN. Ignoring." );
-            }
 
             // Count if this design requires a field or not
             if ( iParameterList.exists( "field_type" ) )
@@ -62,7 +58,7 @@ namespace moris::ge
         mFields.resize( tFieldIndex );
         mGeometries.resize( tGeometryIndex );
         mProperties.resize( tPropertyIndex );
-        uint tNumberOfDesignsLeft = aParameterLists.size();
+        uint tNumberOfDesignsLeft = tGeometryIndex + tPropertyIndex;
 
         // Re-initialize counters
         tGeometryIndex = 0;
@@ -72,8 +68,8 @@ namespace moris::ge
         // Loop until all designs are built
         while ( tNumberOfDesignsLeft > 0 )
         {
-            // Track if at least one design was found in this loop that can be built, based on its dependencies
-            bool tDesignBuilt = false;
+            // Track if at least one field was found in this loop that can be built, based on its dependencies
+            bool tFieldBuilt = false;
 
             // Loop over all designs
             for ( ParameterList& iParameterList : aParameterLists )
@@ -125,6 +121,9 @@ namespace moris::ge
 
                         // Remove this parameter to signal we don't need to build again
                         iParameterList.erase( "field_type" );
+
+                        // Set that a field has been built, so it is fine if another outer loop is needed
+                        tFieldBuilt = true;
                     }
                 }
 
@@ -176,14 +175,11 @@ namespace moris::ge
 
                     // Decrement number of designs left
                     tNumberOfDesignsLeft--;
-
-                    // Set that a design has been built, so it is fine if another outer loop is needed
-                    tDesignBuilt = true;
                 }
             }
 
             // Increment and check loop counter
-            MORIS_ERROR( tDesignBuilt, "While creating GEN fields, a field dependency was not found or a circular dependency was detected. Exiting." );
+            MORIS_ERROR( tFieldBuilt, "While creating GEN fields, a field dependency was not found or a circular dependency was detected. Exiting." );
         }
 
         // Resize final containers
