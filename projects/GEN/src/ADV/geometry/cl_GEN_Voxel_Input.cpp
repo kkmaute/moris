@@ -20,13 +20,11 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Voxel_Input::Voxel_Input(
-            Matrix< DDRMat >          aConstants,
             std::string               aVoxelFieldName,
             Matrix< DDRMat >          aDomainDimensions,
             Matrix< DDRMat >          aDomainOffset,
-            Matrix< DDRMat >          aGrainIdToValueMap,
-            Level_Set_Parameters aParameters )
-            : Field_Analytic( aConstants )
+            Matrix< DDRMat >          aGrainIdToValueMap )
+            : Field_Analytic( {{}} )
             , mDomainDimensions( aDomainDimensions )
             , mDomainOffset( aDomainOffset )
             , mGrainIdToValueMap( aGrainIdToValueMap )

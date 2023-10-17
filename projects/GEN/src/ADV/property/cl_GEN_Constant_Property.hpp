@@ -17,36 +17,10 @@ namespace moris::ge
 {
     class Constant_Property : public Field_Analytic
     {
-
       public:
-        /**
-         * Constructor
-         *
-         * @tparam Vector_Type Type of vector where ADVs are stored
-         * @param aADVs ADV vector
-         * @param aPropertyVariableIndices Indices of property variables to be filled by the ADVs
-         * @param aADVIndices The indices of the ADV vector to fill in the property variables
-         * @param aConstants The constant field variables not filled by ADVs
-         * @param aFieldDependencies Other created fields that this property depends on
-         * @param aParameters Additional parameters
-         */
-        template< typename Vector_Type >
-        Constant_Property(
-                Vector_Type&              aADVs,
-                Matrix< DDUMat >          aPropertyVariableIndices,
-                Matrix< DDUMat >          aADVIndices,
-                Matrix< DDRMat >          aConstants,
-                Property_Parameters aParameters = Property_Parameters() )
-                : Field_Analytic( aADVs, aPropertyVariableIndices, aADVIndices, aConstants )
-        {
-            MORIS_ERROR( mVariables.size() == 1, "A constant property has only one variable." );
-            mSensitivities = { { 1.0 } };
-        }
 
-        /**
-         * default constructor
-         */
-        ~Constant_Property() {}
+        // Constructor to allow this field to be created with ADVs
+        ANALYTIC_FIELD_ADV_CONSTRUCTOR( Constant_Property, 1, { mSensitivities = { { 1.0 } }; } )
 
         /**
          * Given a node index, returns the field value.

@@ -26,29 +26,21 @@ namespace moris::ge
         /**
          * Constructor
          *
-         * @tparam Vector_Type Type of vector where ADVs are stored
          * @param aADVs ADV vector
          * @param aPropertyVariableIndices Indices of property variables to be filled by the ADVs
          * @param aADVIndices The indices of the ADV vector to fill in the property variables
          * @param aConstants The constant field variables not filled by ADVs
+         * @param aName Name of this field
          * @param aField Field that this property will scale
-         * @param aParameters Additional parameters
          */
-        template< typename Vector_Type >
         Scaled_Field(
-                Vector_Type&              aADVs,
-                Matrix<DDUMat>            aPropertyVariableIndices,
-                Matrix<DDUMat>            aADVIndices,
-                Matrix<DDRMat>            aConstants,
-                std::shared_ptr<Field>    aField,
-                Property_Parameters aParameters = Property_Parameters())
-                : Field_Discrete_Interpolation( aADVs, aPropertyVariableIndices, aADVIndices, aConstants, nullptr )
+                std::shared_ptr< Field > aField,
+                ADV_ARG_TYPES )
+                : Field_Discrete_Interpolation( ADV_ARGS )
                 , mField( aField )
         {
+            VARIABLE_CHECK( 1 );
             MORIS_ERROR( mField, "A scaled field must be given an input field." );
-            MORIS_ERROR( mVariables.size() == 1, "A scaled field must have one scaling factor." );
-            MORIS_ERROR( aPropertyVariableIndices.length() == 0,
-                        "A scaled field must have a constant scaling factor for now." );
         }
 
         /**
@@ -86,8 +78,7 @@ namespace moris::ge
                 const Matrix<DDRMat>& aCoordinates);
 
         /**
-         * Sets the dependencies of this property after they have been found by update_dependencies(). By default
-         * does nothing.
+         * Sets the dependencies of this property after they have been found by update_dependencies().
          *
          * @param aDependencyFields Fields that this property depends on.
          */

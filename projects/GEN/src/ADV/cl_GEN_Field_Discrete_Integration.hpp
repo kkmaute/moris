@@ -25,19 +25,20 @@ namespace moris::ge
         /**
          * Constructor using pointers to ADVs for variable evaluations.
          *
-         * @tparam Vector_Type Type of vector where ADVs are stored
          * @param aADVs ADV vector
          * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
          * @param aADVIndices The indices of the ADV vector to fill in the field variables
          * @param aConstants The constant field variables not filled by ADVs
+         * @param aName Name of this field
+         * @param aNumOriginalNodes Number of nodes originally on the integration mesh, before intersections
          */
-        template< typename Vector_Type >
         Field_Discrete_Integration(
-                Vector_Type&     aADVs,
-                Matrix< DDUMat > aFieldVariableIndices,
-                Matrix< DDUMat > aADVIndices,
-                Matrix< DDRMat > aConstants,
-                uint aNumOriginalNodes );
+                ADV_ARG_TYPES,
+                uint aNumOriginalNodes = 0 )
+                : Field( ADV_ARGS )
+        {
+            mNumOriginalNodes = aNumOriginalNodes;
+        }
 
         /**
          * Constructor using only constants (no ADVs).

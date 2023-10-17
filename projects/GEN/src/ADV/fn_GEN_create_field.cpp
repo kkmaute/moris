@@ -29,28 +29,13 @@
 
 namespace moris::ge
 {
-    //--------------------------------------------------------------------------------------------------------------
-    // Get the length of different vector types
-    //--------------------------------------------------------------------------------------------------------------
-    uint
-    get_length( Matrix< DDRMat >& aVector )
-    {
-        return aVector.length();
-    }
-
-    uint
-    get_length( sol::Dist_Vector* aVector )
-    {
-        return aVector->vec_local_length();
-    }
 
     //--------------------------------------------------------------------------------------------------------------
 
-    template< typename Vector_Type >
     std::shared_ptr< Field >
     create_field(
             ParameterList                    aFieldParameterList,
-            Vector_Type&                     aADVs,
+            Matrix< DDRMat >&                aADVs,
             Cell< std::shared_ptr< Field > > aFieldDependencies,
             std::shared_ptr< Library_IO >    aLibrary,
             mtk::Mesh*                       aMTKMesh,
@@ -91,7 +76,7 @@ namespace moris::ge
             // Perform fill
             if ( tFillVariables and tFillADVs )
             {
-                uint tNumADVs = get_length( aADVs );
+                uint tNumADVs = aADVs.length();
                 tVariableIndices.resize( tNumADVs, 1 );
                 tADVIndices.resize( tNumADVs, 1 );
                 for ( uint tIndex = 0; tIndex < tNumADVs; tIndex++ )
@@ -121,7 +106,7 @@ namespace moris::ge
             tConstants = string_to_mat< DDRMat >( aFieldParameterList.get< std::string >( "constant_parameters" ) );
         }
 
-        // Name FIXME clean this up, do we really need this here as well?
+        // Name of the field
         std::string tName = aFieldParameterList.get< std::string >( "name" );
 
         // Build Geometry
@@ -131,24 +116,26 @@ namespace moris::ge
                     aADVs,
                     tVariableIndices,
                     tADVIndices,
-                    tConstants );
+                    tConstants,
+                    tName );
         }
         else if ( tFieldType == "scaled_field" )
         {
             return std::make_shared< Scaled_Field >(
+                    aFieldDependencies( 0 ),
                     aADVs,
                     tVariableIndices,
                     tADVIndices,
                     tConstants,
-                    aFieldDependencies( 0 ) );
+                    tName );
         }
         else if ( tFieldType == "circle" )
         {
-            return std::make_shared< Circle >( aADVs, tVariableIndices, tADVIndices, tConstants );
+            return std::make_shared< Circle >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
         }
         else if ( tFieldType == "superellipse" )
         {
-            return std::make_shared< Superellipse >( aADVs, tVariableIndices, tADVIndices, tConstants );
+            return std::make_shared< Superellipse >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
         }
         else if ( tFieldType == "sphere" )
         {
@@ -207,10 +194,6 @@ namespace moris::ge
             bool tsDFInterp  = aFieldParameterList.get< bool >( "image_sdf_interpolate" );
 
             return std::make_shared< Image_SDF_Geometry >(
-                    aADVs,
-                    tVariableIndices,
-                    tADVIndices,
-                    tConstants,
                     tImageFileName,
                     tDomainDimensions,
                     tDomainOffset,
@@ -231,20 +214,16 @@ namespace moris::ge
 
             // Create user-defined geometry
             return std::make_shared< User_Defined_Field >(
+                    aLibrary->load_function< Field_Function >( aFieldParameterList.get< std::string >( "field_function_name" ) ),
+                    tSensitivityFunction,
                     aADVs,
                     tVariableIndices,
                     tADVIndices,
-                    tConstants,
-                    aLibrary->load_function< Field_Function >( aFieldParameterList.get< std::string >( "field_function_name" ) ),
-                    tSensitivityFunction );
+                    tConstants );
         }
         else if ( tFieldType == "voxel" and aFieldDependencies( 0 ) )
         {
             return std::make_shared< Single_Grain >(
-                    aADVs,
-                    tVariableIndices,
-                    tADVIndices,
-                    tConstants,
                     aFieldDependencies( 0 ),
                     aIndex );
         }
@@ -257,10 +236,6 @@ namespace moris::ge
             Matrix< DDRMat > tGrainIdToValueMap = string_to_mat< DDRMat >( aFieldParameterList.get< std::string >( "grain_id_value_map" ) );
 
             return std::make_shared< Voxel_Input >(
-                    aADVs,
-                    tVariableIndices,
-                    tADVIndices,
-                    tConstants,
                     tVoxelFieldName,
                     tDomainDimensions,
                     tDomainOffset,
@@ -322,26 +297,6 @@ namespace moris::ge
             return nullptr;
         }
     }
-
-    //--------------------------------------------------------------------------------------------------------------
-    // Explicit template instantiation
-    //--------------------------------------------------------------------------------------------------------------
-
-    template std::shared_ptr< Field >create_field(
-            ParameterList                 aFieldParameterList,
-            Matrix< DDRMat >&             aADVs,
-            Cell< std::shared_ptr< Field > > aFieldDependencies,
-            std::shared_ptr< Library_IO > aLibrary,
-            mtk::Mesh*                    aMTKMesh,
-            uint                          aIndex);
-
-    template std::shared_ptr< Field > create_field(
-            ParameterList                 aFieldParameterList,
-            sol::Dist_Vector*&            aADVs,
-            Cell< std::shared_ptr< Field > > aFieldDependencies,
-            std::shared_ptr< Library_IO > aLibrary,
-            mtk::Mesh*                    aMTKMesh,
-            uint                          aIndex);
 
     //--------------------------------------------------------------------------------------------------------------
 

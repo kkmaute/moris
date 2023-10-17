@@ -32,16 +32,14 @@ namespace moris::ge
         /**
          * Constructor, sets the field variable pointers to ADVs and constant parameters for evaluations.
          *
-         * @tparam Vector_Type Type of vector where ADVs are stored
          * @param aADVs ADV vector
          * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
          * @param aADVIndices The indices of the ADV vector to fill in the field variables
          * @param aConstants The constant field variables not filled by ADVs
          * @param aParameters Additional parameters
          */
-        template< typename Vector_Type >
         ADV_Manager(
-                Vector_Type&            aADVs,
+                Matrix< DDRMat >&       aADVs,
                 const Matrix< DDUMat >& aFieldVariableIndices,
                 const Matrix< DDUMat >& aADVIndices,
                 const Matrix< DDRMat >& aConstants );

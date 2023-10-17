@@ -12,6 +12,9 @@
 
 #include "cl_GEN_Field.hpp"
 
+#define ANALYTIC_FIELD_ADV_CONSTRUCTOR( class_name, num_variables, ... ) class_name( ADV_ARG_TYPES ) : Field_Analytic( ADV_ARGS ) { \
+        VARIABLE_CHECK( num_variables ); __VA_ARGS__ }
+
 namespace moris::ge
 {
     class Field_Analytic : public Field
@@ -25,15 +28,10 @@ namespace moris::ge
          * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
          * @param aADVIndices The indices of the ADV vector to fill in the field variables
          * @param aConstants The constant field variables not filled by ADVs
-         * @param aParameters Additional parameters
+         * @param aName Name of this field
          */
-        template< typename Vector_Type >
-        Field_Analytic(
-                Vector_Type&     aADVs,
-                Matrix< DDUMat > aFieldVariableIndices,
-                Matrix< DDUMat > aADVIndices,
-                Matrix< DDRMat > aConstants )
-                : Field( aADVs, aFieldVariableIndices, aADVIndices, aConstants )
+        Field_Analytic( ADV_ARG_TYPES )
+                : Field( ADV_ARGS )
         {
         }
 

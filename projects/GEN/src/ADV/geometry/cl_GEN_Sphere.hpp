@@ -21,27 +21,8 @@ namespace moris::ge
     {
     public:
 
-        /**
-         * Constructor, sets the pointers to advs and constant parameters for evaluations.
-         *
-         * @tparam Vector_Type Type of vector where ADVs are stored
-         * @param aADVs ADV vector
-         * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
-         * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
-         * @param aConstants The constant field variables not filled by ADVs
-         * @param aParameters Additional parameters
-         */
-        template <typename Vector_Type>
-        Sphere(Vector_Type&              aADVs,
-               Matrix<DDUMat>            aGeometryVariableIndices,
-               Matrix<DDUMat>            aADVIndices,
-               Matrix<DDRMat>            aConstants,
-              Level_Set_Parameters aParameters = Level_Set_Parameters())
-                : Field_Analytic( aADVs, aGeometryVariableIndices, aADVIndices, aConstants )
-        {
-            MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 4,
-                        "A GEN Sphere must be created with a total of exactly 4 variables (ADVs + constants)");
-        }
+        // Constructor to allow this field to be created with ADVs
+        ANALYTIC_FIELD_ADV_CONSTRUCTOR( Sphere, 4, {} )
 
         /**
          * Constructor with only constant parameters

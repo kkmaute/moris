@@ -18,11 +18,9 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Single_Grain::Single_Grain(
-            Matrix<DDRMat>            aConstants,
             std::shared_ptr< Field > aVoxelGeometry,
-            uint                      aIndex,
-            Level_Set_Parameters                  aParameters)
-            : Field_Analytic( aConstants )
+            uint                      aIndex )
+            : Field_Analytic( {} )
             , mVoxelGeometry(aVoxelGeometry)
             , mIndex(aIndex)
     {

@@ -12,19 +12,6 @@
 
 namespace moris::ge
 {
-    //--------------------------------------------------------------------------------------------------------------
-
-    template< typename Vector_Type >
-    Field_Discrete_Integration::Field_Discrete_Integration(
-            Vector_Type&     aADVs,
-            Matrix< DDUMat > aFieldVariableIndices,
-            Matrix< DDUMat > aADVIndices,
-            Matrix< DDRMat > aConstants,
-            uint             aNumOriginalNodes )
-            : Field( aADVs, aFieldVariableIndices, aADVIndices, aConstants )
-    {
-        mNumOriginalNodes = aNumOriginalNodes;
-    }
 
     //--------------------------------------------------------------------------------------------------------------
 

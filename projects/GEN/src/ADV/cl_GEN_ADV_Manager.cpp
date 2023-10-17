@@ -34,9 +34,8 @@ namespace moris::ge
     // Definitions
     //--------------------------------------------------------------------------------------------------------------
 
-    template< typename Vector_Type >
     ADV_Manager::ADV_Manager(
-            Vector_Type&            aADVs,
+            Matrix< DDRMat >&       aADVs,
             const Matrix< DDUMat >& aVariableIndices,
             const Matrix< DDUMat >& aADVIndices,
             const Matrix< DDRMat >& aConstants )
@@ -182,16 +181,6 @@ namespace moris::ge
     // Explicit template instantiation
     //--------------------------------------------------------------------------------------------------------------
 
-    template ADV_Manager::ADV_Manager(
-            Matrix< DDRMat >&       aADVs,
-            const Matrix< DDUMat >& aVariableIndices,
-            const Matrix< DDUMat >& aADVIndices,
-            const Matrix< DDRMat >& aConstants );
-    template ADV_Manager::ADV_Manager(
-            sol::Dist_Vector*&      aADVs,
-            const Matrix< DDUMat >& aVariableIndices,
-            const Matrix< DDUMat >& aADVIndices,
-            const Matrix< DDRMat >& aConstants );
     template void ADV_Manager::set_advs( Matrix< DDRMat >& aADVs );
     template void ADV_Manager::set_advs( sol::Dist_Vector*& aADVs );
 

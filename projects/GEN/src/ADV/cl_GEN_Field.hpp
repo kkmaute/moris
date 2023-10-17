@@ -15,6 +15,25 @@
 #include "cl_GEN_Child_Node.hpp"
 #include "cl_MTK_Mesh_Pair.hpp"
 
+/**
+ * \def ADV_ARG_TYPES
+ * All the ADV arguments to a field
+ */
+#define ADV_ARG_TYPES Matrix< DDRMat >& aADVs, Matrix< DDUMat > aFieldVariableIndices, Matrix< DDUMat > aADVIndices, Matrix< DDRMat > aConstants, std::string aName = ""
+
+/**
+ * \def ADV_ARGS
+ * Just the ADV arguments a field receives, to pass to the base constructor
+ */
+#define ADV_ARGS aADVs, aFieldVariableIndices, aADVIndices, aConstants, aName
+
+/**
+ * \def VARIABLE_CHECK( num_variables )
+ * Generates a moris error that checks that the number of variables passed to a field is correct. This should be called in most child field constructors.
+ */
+#define VARIABLE_CHECK( num_variables ) MORIS_ERROR( aFieldVariableIndices.length() + aConstants.length() == num_variables, \
+        "A GEN %s must be created with a total of exactly num_variables variables (ADVs + constants)", __FUNCTION__ )
+
 namespace moris::ge
 {
     class Field : public ADV_Manager
@@ -33,18 +52,17 @@ namespace moris::ge
         /**
          * Constructor using pointers to ADVs for variable evaluations.
          *
-         * @tparam Vector_Type Type of vector where ADVs are stored
          * @param aADVs ADV vector
          * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
          * @param aADVIndices The indices of the ADV vector to fill in the field variables
          * @param aConstants The constant field variables not filled by ADVs
+         * @param aName Name of this field
          */
-        template< typename Vector_Type >
-        Field( Vector_Type&     aADVs,
-               Matrix< DDUMat > aFieldVariableIndices,
-               Matrix< DDUMat > aADVIndices,
-               Matrix< DDRMat > aConstants,
-               std::string      aName = "" )
+        Field( Matrix< DDRMat >& aADVs,
+                Matrix< DDUMat > aFieldVariableIndices,
+                Matrix< DDUMat > aADVIndices,
+                Matrix< DDRMat > aConstants,
+                std::string      aName )
                 : ADV_Manager( aADVs, aFieldVariableIndices, aADVIndices, aConstants )
                 , mName( std::move( aName ) )
         {

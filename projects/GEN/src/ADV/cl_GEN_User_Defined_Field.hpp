@@ -38,25 +38,21 @@ namespace moris::ge
         /**
          * Constructor, sets the pointers to advs and constant parameters for evaluations.
          *
-         * @tparam Vector_Type Type of vector where ADVs are stored
+         * @param aFieldFunction User-defined function for evaluating the field field
+         * @param aSensitivityFunction User-defined function for evaluating the field sensitivities
          * @param aADVs ADV vector
          * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
          * @param aADVIndices The indices of the ADV vector to fill in the field variables
          * @param aConstants The constant field variables not filled by ADVs
-         * @param aFieldFunction User-defined function for evaluating the field field
-         * @param aSensitivityFunction User-defined function for evaluating the field sensitivities
+         * @param aName Name of this field
          */
-        template <typename Vector_Type>
         User_Defined_Field(
-                Vector_Type&         aADVs,
-                Matrix<DDUMat>       aFieldVariableIndices,
-                Matrix<DDUMat>       aADVIndices,
-                Matrix<DDRMat>       aConstants,
-                Field_Function       aFieldFunction,
-                Sensitivity_Function aSensitivityFunction )
-                : Field_Analytic( aADVs, aFieldVariableIndices, aADVIndices, aConstants )
+              Field_Function aFieldFunction,
+              Sensitivity_Function aSensitivityFunction,
+              ADV_ARG_TYPES )
+              : Field_Analytic( ADV_ARGS )
         {
-            this->set_user_defined_functions(aFieldFunction, aSensitivityFunction);
+            this->set_user_defined_functions( aFieldFunction, aSensitivityFunction );
         }
 
         /**
@@ -66,7 +62,7 @@ namespace moris::ge
          * @param aFieldFunction User-defined function for evaluating the field field
          */
         User_Defined_Field(
-                Matrix<DDRMat>   aConstants,
+                Matrix< DDRMat > aConstants,
                 Field_Function   aFieldFunction );
 
         /**

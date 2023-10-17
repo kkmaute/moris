@@ -22,30 +22,14 @@ namespace moris::ge
 
     public:
 
-        /**
-         * Constructor, sets the pointers to advs and constant parameters for evaluations
-         *
-         * @tparam Vector_Type Type of vector where ADVs are stored
-         * @param aADVs ADV vector
-         * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
-         * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
-         * @param aConstants The constant field variables not filled by ADVs
-         * @param aParameters Additional parameters
-         */
-        template <typename Vector_Type>
-        Superellipsoid(
-                Vector_Type&              aADVs,
-                Matrix<DDUMat>            aGeometryVariableIndices,
-                Matrix<DDUMat>            aADVIndices,
-                Matrix<DDRMat>            aConstants,
-              Level_Set_Parameters aParameters = Level_Set_Parameters())
-                : Field_Analytic( aADVs, aGeometryVariableIndices, aADVIndices, aConstants )
-        {
-            MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 7,
-                        "A GEN Superellipsoid must be created with a total of exactly 7 variables (ADVs + constants).");
-            MORIS_ERROR(*(mVariables(3)) > 0 and *(mVariables(4)) > 0 and *(mVariables(5)) > 0,
-                        "A GEN Superellipsoid must be created with positive semidiameters.");
-        }
+        // Constructor to allow this field to be created with ADVs
+        ANALYTIC_FIELD_ADV_CONSTRUCTOR( Superellipsoid, 7, {
+            MORIS_ERROR( *mVariables( 3 ) > 0 and *mVariables( 4 ) > 0,
+                    "A GEN Superellipsoid must be created with positive semi-diameters.");
+
+            MORIS_ERROR( std::abs( std::fmod( *mVariables( 6 ), 2.0) ) < 1e-12,
+                    "A GEN Superellipsoid must be created with an even exponent.");
+        } )
 
         /**
          * Constructor with only constant parameters

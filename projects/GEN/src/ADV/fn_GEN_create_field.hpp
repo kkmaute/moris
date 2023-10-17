@@ -26,10 +26,9 @@ namespace moris::ge
      * @param aLibrary Pointer to library for loading user-defined functions
      * @return Pointer to a Field object
      */
-    template <typename Vector_Type>
     std::shared_ptr< Field > create_field(
             ParameterList                         aFieldParameterList,
-            Vector_Type&                          aADVs,
+            Matrix< DDRMat >&                     aADVs,
             Cell< std::shared_ptr< Field > >      aFieldDependencies = {},
             std::shared_ptr<Library_IO>           aLibrary = nullptr,
             mtk::Mesh*                            aMTKMesh = nullptr,

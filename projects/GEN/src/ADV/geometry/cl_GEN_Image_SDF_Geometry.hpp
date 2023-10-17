@@ -61,21 +61,15 @@ namespace moris::ge
          * @param aConstants The constant field variables not filled by ADVs
          * @param aParameters Additional parameters
          */
-        template< typename Vector_Type >
         Image_SDF_Geometry(
-                Vector_Type&              aADVs,
-                Matrix< DDUMat >          aGeometryVariableIndices,
-                Matrix< DDUMat >          aADVIndices,
-                Matrix< DDRMat >          aConstants,
                 std::string               aImageFileName,
                 Matrix< DDRMat >          aDomainDimensions,
                 Matrix< DDRMat >          aDomainOffset,
                 real                      aSdfScaling,
                 real                      aSdfShift,
                 real                      aSdfDefault,
-                bool                      aSdfInterpolate,
-                Level_Set_Parameters aParameters = Level_Set_Parameters() )
-                : Field_Analytic( aADVs, aGeometryVariableIndices, aADVIndices, aConstants )
+                bool                      aSdfInterpolate )
+                : Field_Analytic( {} )
                 , mDomainDimensions( aDomainDimensions )
                 , mDomainOffset( aDomainOffset )
                 , mSdfScaling( aSdfScaling )

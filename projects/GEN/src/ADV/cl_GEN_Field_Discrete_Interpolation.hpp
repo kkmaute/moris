@@ -26,20 +26,16 @@ namespace moris::ge
         /**
          * Constructor using pointers to ADVs for variable evaluations.
          *
-         * @tparam Vector_Type Type of vector where ADVs are stored
          * @param aADVs ADV vector
          * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
          * @param aADVIndices The indices of the ADV vector to fill in the field variables
          * @param aConstants The constant field variables not filled by ADVs
+         * @param aName Name of this field
          */
-        template< typename Vector_Type >
         Field_Discrete_Interpolation(
-              Vector_Type&     aADVs,
-              Matrix< DDUMat > aFieldVariableIndices,
-              Matrix< DDUMat > aADVIndices,
-              Matrix< DDRMat > aConstants,
-              mtk::Interpolation_Mesh* aMesh )
-              : Field( aADVs, aFieldVariableIndices, aADVIndices, aConstants )
+              ADV_ARG_TYPES,
+              mtk::Interpolation_Mesh* aMesh = nullptr )
+              : Field( ADV_ARGS )
         {
             if (aMesh)
             {

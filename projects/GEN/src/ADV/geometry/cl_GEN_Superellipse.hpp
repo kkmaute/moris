@@ -22,34 +22,14 @@ namespace moris::ge
 
     public:
 
-        /**
-         * Constructor, sets the pointers to advs and constant parameters for evaluations.
-         *
-         * @tparam Vector_Type Type of vector where ADVs are stored
-         * @param aADVs ADV vector
-         * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
-         * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
-         * @param aConstants The constant field variables not filled by ADVs
-         * @param aParameters Additional parameters
-         */
-        template <typename Vector_Type>
-        Superellipse(
-                Vector_Type&              aADVs,
-                Matrix<DDUMat>            aGeometryVariableIndices,
-                Matrix<DDUMat>            aADVIndices,
-                Matrix<DDRMat>            aConstants,
-              Level_Set_Parameters aParameters = Level_Set_Parameters())
-                : Field_Analytic( aADVs, aGeometryVariableIndices, aADVIndices, aConstants )
-        {
-            MORIS_ERROR(aGeometryVariableIndices.length() + aConstants.length() == 8,
-                        "A GEN Super-ellipse must be created with a total of exactly 8 variables (ADVs + constants).");
+        // Constructor to allow this field to be created with ADVs
+        ANALYTIC_FIELD_ADV_CONSTRUCTOR( Superellipse, 8, {
+              MORIS_ERROR( *mVariables( 2 ) > 0 and *mVariables( 3 ) > 0,
+                        "A GEN Superellipse must be created with positive semi-diameters.");
 
-            MORIS_ERROR(*(mVariables(2)) > 0 and *(mVariables(3)) > 0,
-                        "A GEN Super-ellipse must be created with positive semi-diameters.");
-
-            MORIS_ERROR(std::abs(std::fmod(*(mVariables(4)),2.0)) < 1e-12,
-                        "A GEN Super-ellipse must be created with an even exponent.");
-        }
+              MORIS_ERROR( std::abs( std::fmod( *mVariables( 4 ), 2.0 ) ) < 1e-12,
+                        "A GEN Superellipse must be created with an even exponent.");
+          } )
 
         /**
          * Constructor with only constant parameters

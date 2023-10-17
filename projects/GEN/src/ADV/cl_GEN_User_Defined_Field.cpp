@@ -76,6 +76,7 @@ namespace moris::ge
         get_field_value_user_defined = aFieldFunction;
 
         // Check field evaluation function
+        MORIS_ERROR( get_field_value_user_defined, "No field evaluation function was provided to a user-defined field." );
         MORIS_ASSERT( std::isfinite( this->get_field_value_user_defined( { { 0.0, 0.0, 0.0 } }, mVariables ) ),
                 "There is an error in a user-defined geometry field (field evaluates to nan/infinity)." );
 

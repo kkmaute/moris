@@ -34,47 +34,13 @@ namespace moris::ge
 
       public:
         /**
-         * Constructor, sets the pointers to advs and constant parameters for evaluations.
-         *
-         * @tparam Vector_Type Type of vector where ADVs are stored
-         * @param aADVs ADV vector
-         * @param aGeometryVariableIndices Indices of geometry variables to be filled by the ADVs
-         * @param aADVIndices The indices of the ADV vector to fill in the geometry variables
-         * @param aConstants The constant field variables not filled by ADVs
-         * @param aParameters Additional parameters
+         * Constructor
          */
-        template< typename Vector_Type >
         Voxel_Input(
-                Vector_Type&              aADVs,
-                Matrix< DDUMat >          aGeometryVariableIndices,
-                Matrix< DDUMat >          aADVIndices,
-                Matrix< DDRMat >          aConstants,
                 std::string               aVoxelFieldName,
                 Matrix< DDRMat >          aDomainDimensions,
                 Matrix< DDRMat >          aDomainOffset,
-                Matrix< DDRMat >          aGrainIdToValueMap,
-                Level_Set_Parameters aParameters = Level_Set_Parameters() )
-                : Field_Analytic( aADVs, aGeometryVariableIndices, aADVIndices, aConstants )
-                , mDomainDimensions( aDomainDimensions )
-                , mDomainOffset( aDomainOffset )
-                , mGrainIdToValueMap( aGrainIdToValueMap )
-        {
-            this->read_voxel_data( aVoxelFieldName );
-        }
-
-        /**
-         * Constructor with only constant parameters
-         *
-         * @param aConstants The constant field variables not filled by ADVs
-         * @param aParameters Additional parameters
-         */
-        Voxel_Input(
-                Matrix< DDRMat >          aConstants,
-                std::string               aVoxelFieldName,
-                Matrix< DDRMat >          aDomainDimensions,
-                Matrix< DDRMat >          aDomainOffset,
-                Matrix< DDRMat >          aGrainIdToValueMap,
-                Level_Set_Parameters aParameters = Level_Set_Parameters() );
+                Matrix< DDRMat >          aGrainIdToValueMap );
 
         /**
          * Given a node coordinate, returns the field value.
