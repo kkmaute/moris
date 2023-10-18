@@ -12,6 +12,14 @@
 
 #include "cl_GEN_Field.hpp"
 
+/**
+ * \def ANALYTIC_FIELD_ADV_CONSTRUCTOR( class_name, num_variables, ... )
+ * Automatically creates a constructor that has ADV arguments for general field creation.
+ *
+ * @param class_name Name of the specific field constructor to create
+ * @param num_variables Number of variables this field takes in
+ * @param ... Additional code to be inserted into the constructor body via __VA_ARGS__
+ */
 #define ANALYTIC_FIELD_ADV_CONSTRUCTOR( class_name, num_variables, ... ) class_name( ADV_ARG_TYPES ) : Field_Analytic( ADV_ARGS ) { \
         VARIABLE_CHECK( num_variables ); __VA_ARGS__ }
 
