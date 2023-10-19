@@ -98,8 +98,8 @@ namespace xtk
 
         // Enrichment Data ordered by basis function indices
         // For each basis function, the element indices and elemental enrichment levels //?
-        Cell< Matrix< IndexMat > > mElementIndsInBasis;        // input: non-enriched BF index || output: list of IG cells within the basis support
-        Cell< Matrix< IndexMat > > mElementEnrichmentLevel;    // input: non-enriched BF index || output: which enrichment level of current basis is active on the IG cell
+        Cell< Cell< moris_index > > mElementIndsInBasis;        // input: non-enriched BF index || output: list of IG cells within the basis support
+        Cell< Cell< moris_index > > mElementEnrichmentLevel;    // input: non-enriched BF index || output: which enrichment level of current basis is active on the IG cell
 
         // For each enriched basis function, the subphase indices in support
         // input: enriched BF index || output: list of subphase indices in which enriched BF is active
@@ -288,7 +288,7 @@ namespace xtk
          * Returns the element inds in a basis support constructed in call to perform_enrichment. These are indexed by basis function index.
          * Note: Only used for debug outputting in function write_cell_enrichment_to_fields.
          */
-        Cell< moris::Matrix< moris::IdMat > > const &
+        Cell< Cell< moris_index > > const &
         get_element_inds_in_basis_support( moris_index const & aEnrichmentDataIndex = 0 ) const;
 
         // ----------------------------------------------------------------------------------
@@ -298,7 +298,7 @@ namespace xtk
          * Correspond to the element inds found at the same index in mElementIndsInBasis.
          * Note: Only used for debug outputting in function write_cell_enrichment_to_fields.
          */
-        Cell< moris::Matrix< moris::IndexMat > > const &
+        Cell< Cell< moris_index > > const &
         get_element_enrichment_levels_in_basis_support( moris_index const & aEnrichmentDataIndex = 0 ) const;
 
         // ----------------------------------------------------------------------------------
