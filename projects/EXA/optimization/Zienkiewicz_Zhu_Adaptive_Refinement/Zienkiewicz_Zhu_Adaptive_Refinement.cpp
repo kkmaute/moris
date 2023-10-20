@@ -391,7 +391,7 @@ namespace moris
     real
     Const_Geometry(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real* >&    aGeometryParameters )
+            const Cell< real >&    aGeometryParameters )
     {
         return 2.0;
     }
@@ -401,7 +401,7 @@ namespace moris
     real
     general_shape_outer(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real* >&    aGeometryParameters )
+            const Cell< real >&    aGeometryParameters )
 
     {
         real tLSval;
@@ -435,7 +435,7 @@ namespace moris
     real
     Hole_inner(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real* >&    aGeometryParameters )
+            const Cell< real >&    aGeometryParameters )
     {
         real tLSval1 = std::pow( std::pow( ( aCoordinates( 0 ) - tFirstHoleX ), 2 ) + std::pow( ( aCoordinates( 1 ) - tFirstHoleY ), 2 ), 0.5 ) - tRadiusHolesInner;
         real tLSval2 = std::pow( std::pow( ( aCoordinates( 0 ) - tSecondHoleX ), 2 ) + std::pow( ( aCoordinates( 1 ) - tSecondHoleY ), 2 ), 0.5 ) - tRadiusHolesInner;
@@ -449,7 +449,7 @@ namespace moris
     real
     Hole_outer(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real* >&    aGeometryParameters )
+            const Cell< real >&    aGeometryParameters )
     {
         real tLSval1 = std::pow( std::pow( ( aCoordinates( 0 ) - tFirstHoleX ), 2 ) + std::pow( ( aCoordinates( 1 ) - tFirstHoleY ), 2 ), 0.5 ) - tRadiusHolesOuter;
         real tLSval2 = std::pow( std::pow( ( aCoordinates( 0 ) - tSecondHoleX ), 2 ) + std::pow( ( aCoordinates( 1 ) - tSecondHoleY ), 2 ), 0.5 ) - tRadiusHolesOuter;

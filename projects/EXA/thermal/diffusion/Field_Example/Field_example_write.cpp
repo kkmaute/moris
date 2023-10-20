@@ -95,7 +95,7 @@ namespace moris
 
     moris::real LevelSetFunction(
             const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
+            const moris::Cell< real > & aGeometryParameters )
     {
         //return norm(aCoordinates) - 0.01;
         return std::pow( aCoordinates( 0 ), 2 )/1 + std::pow( aCoordinates( 1 ), 2 )/2 - 0.331;

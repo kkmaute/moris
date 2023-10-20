@@ -143,7 +143,7 @@ namespace moris
     // Interface
     //    moris::real Interface(
     //            const moris::Matrix< DDRMat >     & aCoordinates,
-    //            const moris::Cell< moris::real* > & aGeometryParameters )
+    //            const moris::Cell< real > & aGeometryParameters )
     //    {
     //        // compute level set value
     //        moris::real aReturnValue = ( aCoordinates( 0 ) - *aGeometryParameters( 0 ) - 0.4 );
@@ -187,7 +187,7 @@ namespace moris
     // Dummy function for unused sensitivities if needed
     moris::Matrix< DDRMat > Func_Dummy_Sensitivity(
             const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
+            const moris::Cell< real > & aGeometryParameters )
     {
         moris::Matrix< DDRMat > aReturnValue = {{0.0}};
         return aReturnValue;

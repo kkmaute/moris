@@ -18,8 +18,21 @@ namespace moris::ge
             Matrix< DDRMat > aConstants,
             Field_Function   aFieldFunction )
             : Field_Analytic( aConstants )
+            , mFieldVariables( aConstants.length() )
     {
         this->set_user_defined_functions( aFieldFunction, nullptr );
+        this->import_advs( nullptr );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void User_Defined_Field::import_advs( sol::Dist_Vector* aOwnedADVs )
+    {
+        // Set new variables for the user-defined function calls
+        for ( uint iVariableIndex = 0; iVariableIndex < mFieldVariables.size(); iVariableIndex++ )
+        {
+            mFieldVariables( iVariableIndex ) = mADVManager.get_variable( iVariableIndex );
+        }
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -27,7 +40,7 @@ namespace moris::ge
     real
     User_Defined_Field::get_field_value( const Matrix< DDRMat >& aCoordinates )
     {
-        return this->get_field_value_user_defined( aCoordinates, mVariables );
+        return this->get_field_value_user_defined( aCoordinates, mFieldVariables );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -35,7 +48,7 @@ namespace moris::ge
     const Matrix< DDRMat >&
     User_Defined_Field::get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates )
     {
-        this->get_dfield_dadvs_user_defined( aCoordinates, mVariables, mSensitivities );
+        this->get_dfield_dadvs_user_defined( aCoordinates, mFieldVariables, mSensitivities );
         return mSensitivities;
     }
 
@@ -56,10 +69,10 @@ namespace moris::ge
         for ( uint idim = 0; idim < aCoordinates.numel(); ++idim )
         {
             tCoordinates( idim ) += tPertubation;
-            real tFieldValue = this->get_field_value_user_defined( tCoordinates, mVariables );
+            real tFieldValue = this->get_field_value_user_defined( tCoordinates, mFieldVariables );
 
             tCoordinates( idim ) -= 2.0 * tPertubation;
-            tFieldValue -= this->get_field_value_user_defined( tCoordinates, mVariables );
+            tFieldValue -= this->get_field_value_user_defined( tCoordinates, mFieldVariables );
 
             aSensitivities( idim ) = tFieldValue / 2.0 / tPertubation;
         }
@@ -77,7 +90,7 @@ namespace moris::ge
 
         // Check field evaluation function
         MORIS_ERROR( get_field_value_user_defined, "No field evaluation function was provided to a user-defined field." );
-        MORIS_ASSERT( std::isfinite( this->get_field_value_user_defined( { { 0.0, 0.0, 0.0 } }, mVariables ) ),
+        MORIS_ASSERT( std::isfinite( this->get_field_value_user_defined( { { 0.0, 0.0, 0.0 } }, mFieldVariables ) ),
                 "There is an error in a user-defined geometry field (field evaluates to nan/infinity)." );
 
         // Set sensitivity evaluation function
@@ -92,18 +105,18 @@ namespace moris::ge
             get_dfield_dadvs_user_defined = aSensitivityFunction;
 
             // Check sensitivity function
-            this->get_dfield_dadvs_user_defined( { { 0.0, 0.0, 0.0 } }, mVariables, mSensitivities );
+            this->get_dfield_dadvs_user_defined( { { 0.0, 0.0, 0.0 } }, mFieldVariables, mSensitivities );
 
             // Check for row vector
             MORIS_ERROR( mSensitivities.n_rows() == 1,
                     "A user-defined geometry must provide a row vector for sensitivities." );
 
             // Check for size
-            MORIS_ERROR( mSensitivities.n_cols() == mVariables.size(),
+            MORIS_ERROR( mSensitivities.n_cols() == mFieldVariables.size(),
                     "A user-defined geometry must have a sensitivity vector with a length equal to the total "
                     "number of geometry variables (ADVs + constants). sensitivities: %zu   geom variables: %zu \n",
                     mSensitivities.n_cols(),
-                    mVariables.size() );
+                    mFieldVariables.size() );
 
             // Check for values not nan/infinity
             for ( uint tSensitivityIndex = 0; tSensitivityIndex < mSensitivities.n_cols(); tSensitivityIndex++ )
@@ -119,7 +132,7 @@ namespace moris::ge
     void
     User_Defined_Field::no_sensitivities(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real* >&    aParameters,
+            const Cell< real >&    aParameters,
             Matrix< DDRMat >&       aSensitivities )
     {
         MORIS_ERROR( false,

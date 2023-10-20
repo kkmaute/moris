@@ -84,7 +84,7 @@ namespace moris
 
     moris::real Func_Bottom_Plane(
             const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
+            const moris::Cell< real > & aGeometryParameters )
     {
         moris::real tValue = aCoordinates( 1 ) - tPlaneBottom;
 
@@ -93,7 +93,7 @@ namespace moris
 
     moris::real Func_Top_Plane(
             const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
+            const moris::Cell< real > & aGeometryParameters )
     {
         moris::real tValue = aCoordinates( 1 ) - tPlaneTop;
 
@@ -102,7 +102,7 @@ namespace moris
 
     moris::real Func_Left_Plane(
             const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
+            const moris::Cell< real > & aGeometryParameters )
     {
         moris::real tValue = aCoordinates( 0 ) - tPlaneLeft;
 
@@ -111,7 +111,7 @@ namespace moris
 
     moris::real Func_Right_Plane(
             const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
+            const moris::Cell< real > & aGeometryParameters )
     {
         moris::real tValue = aCoordinates( 0 ) - tPlaneRight;
 
@@ -120,7 +120,7 @@ namespace moris
 
     moris::real Func_Cylinder(
             const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
+            const moris::Cell< real > & aGeometryParameters )
     {
         moris::real  tValue = tCylinderRadius -
                 std::pow(
@@ -132,7 +132,7 @@ namespace moris
 
     moris::real Func_Cylinder2(
             const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
+            const moris::Cell< real > & aGeometryParameters )
     {
         moris::real tValue = tCylinderRadius -
                 std::pow(
@@ -144,7 +144,7 @@ namespace moris
 
     moris::real Func_Cylinder3(
             const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
+            const moris::Cell< real > & aGeometryParameters )
     {
         moris::real tValue = tCylinderRadius -
                 std::pow(
@@ -156,7 +156,7 @@ namespace moris
 
     moris::real Func_Cylinder4(
             const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
+            const moris::Cell< real > & aGeometryParameters )
     {
         moris::real tValue = tCylinderRadius -
                 std::pow(

@@ -19,17 +19,18 @@ namespace moris::ge
 {
     // User-defined field functions
     typedef real ( *Field_Function ) (
-            const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aParameters );
+            const Matrix< DDRMat >& aCoordinates,
+            const Cell< real >&     aParameters );
     typedef void ( *Sensitivity_Function ) (
-            const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< moris::real* >& aParameters,
-            moris::Matrix< DDRMat >&           aReturnValue);
+            const Matrix< DDRMat >& aCoordinates,
+            const Cell< real >&     aParameters,
+            Matrix< DDRMat >&       aSensitivities );
 
     class User_Defined_Field : public Field_Analytic
     {
 
     private:
+        Cell< real > mFieldVariables;
         Field_Function get_field_value_user_defined;
         Sensitivity_Function get_dfield_dadvs_user_defined;
 
@@ -47,12 +48,14 @@ namespace moris::ge
          * @param aName Name of this field
          */
         User_Defined_Field(
-              Field_Function aFieldFunction,
+              moris::ge::Field_Function aFieldFunction,
               Sensitivity_Function aSensitivityFunction,
               ADV_ARG_TYPES )
               : Field_Analytic( ADV_ARGS )
+              , mFieldVariables( aFieldVariableIndices.length() + aConstants.length() )
         {
             this->set_user_defined_functions( aFieldFunction, aSensitivityFunction );
+            this->import_advs( nullptr );
         }
 
         /**
@@ -64,6 +67,13 @@ namespace moris::ge
         User_Defined_Field(
                 Matrix< DDRMat > aConstants,
                 Field_Function   aFieldFunction );
+
+        /**
+         * For the specific case of a user-defined field, this function indicates that new field variables must be set for the user-defined function calls.
+         *
+         * @param aOwnedADVs Full owned distributed ADV vector (not used for this field)
+         */
+        void import_advs( sol::Dist_Vector* aOwnedADVs ) final;
 
         /**
          * Given a node coordinate, returns the field value.
@@ -109,9 +119,9 @@ namespace moris::ge
          * Used internally to automatically error out if no sensitivities were provided
          */
         static void no_sensitivities(
-                const Matrix<DDRMat>& aCoordinates,
-                const Cell<real*>&    aParameters,
-                Matrix<DDRMat>&       aSensitivities);
+                const Matrix< DDRMat >& aCoordinates,
+                const Cell< real >&     aParameters,
+                Matrix< DDRMat >&       aSensitivities);
 
     };
 }

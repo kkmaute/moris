@@ -61,7 +61,7 @@
 #include "fn_PRM_SOL_Parameters.hpp"
 
 real plane_evaluate_field_value(const moris::Matrix< DDRMat >    & aCoordinates,
-                                 const moris::Cell< moris::real* > & aParameters)
+                                 const moris::Cell< moris::real > & aParameters)
 {
     moris::real mXC = 0.11;
     moris::real mYC = 0.11;
@@ -71,7 +71,7 @@ real plane_evaluate_field_value(const moris::Matrix< DDRMat >    & aCoordinates,
 }
 
 void evaluate_sensitivity(const moris::Matrix< DDRMat >    & aCoordinates,
-                                const moris::Cell< moris::real* > & aParameters,
+                                const moris::Cell< moris::real > & aParameters,
                                 Matrix<DDRMat>& aSensitivities)
 {
     MORIS_ERROR( false, "sensitivities not implemented");

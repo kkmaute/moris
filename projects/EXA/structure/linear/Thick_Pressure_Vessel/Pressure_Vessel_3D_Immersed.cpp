@@ -116,20 +116,13 @@ namespace moris
 
     moris::real Sphere(
             const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
+            const moris::Cell< real > & aGeometryParameters )
     {
-        moris::real tVal =  aGeometryParameters(0)[0] - norm(aCoordinates);
+        moris::real tVal =  aGeometryParameters( 0 ) - norm(aCoordinates);
 
         if ( std::abs(tVal) < tMinLevs )
         {
-            if ( tVal < 0 )
-            {
-                tVal=tMinLevs;
-            }
-            else
-            {
-                tVal=tMinLevs;
-            }
+            tVal = tMinLevs;
         }
 
         return tVal;
@@ -140,10 +133,10 @@ namespace moris
 
     moris::real Plane(
             const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
+            const moris::Cell< real > & aGeometryParameters )
     {
-        moris::Matrix< DDRMat > tXp = { { aGeometryParameters(0)[0] }, { aGeometryParameters(1)[0] }, { aGeometryParameters(2)[0] } };
-        moris::Matrix< DDRMat > tN  = { { aGeometryParameters(3)[0] }, { aGeometryParameters(4)[0] }, { aGeometryParameters(5)[0] } };
+        moris::Matrix< DDRMat > tXp = { { aGeometryParameters(0) }, { aGeometryParameters(1) }, { aGeometryParameters(2) } };
+        moris::Matrix< DDRMat > tN  = { { aGeometryParameters(3) }, { aGeometryParameters(4) }, { aGeometryParameters(5) } };
 
         moris::Matrix< DDRMat >  tVal =  trans( tN ) * ( trans( aCoordinates ) - tXp );
 

@@ -31,7 +31,6 @@ namespace moris::ge
         /**
          * Constructor using pointers to ADVs for variable evaluations.
          *
-         * @tparam Vector_Type Type of vector where ADVs are stored
          * @param aADVs ADV vector
          * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
          * @param aADVIndices The indices of the ADV vector to fill in the field variables

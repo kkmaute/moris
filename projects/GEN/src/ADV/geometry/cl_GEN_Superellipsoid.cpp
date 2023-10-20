@@ -25,7 +25,7 @@ namespace moris::ge
             Level_Set_Parameters aParameters)
             : Field_Analytic(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aXSemidiameter, aYSemidiameter, aZSemidiameter, aExponent}}) )
     {
-        MORIS_ERROR(*(mVariables(3)) > 0 and *(mVariables(4)) > 0 and *(mVariables(5)) > 0,
+        MORIS_ERROR( mADVManager.get_variable( 3 ) > 0 and mADVManager.get_variable( 4 ) > 0 and mADVManager.get_variable( 5 ) > 0,
                     "A GEN Superellipsoid must be created with positive semidiameters.");
     }
 
@@ -34,13 +34,13 @@ namespace moris::ge
     real Superellipsoid::get_field_value(const Matrix<DDRMat>& aCoordinates)
     {
         // Get variables
-        real tXCenter = *(mVariables(0));
-        real tYCenter = *(mVariables(1));
-        real tZCenter = *(mVariables(2));
-        real tXSemidiameter = *(mVariables(3));
-        real tYSemidiameter = *(mVariables(4));
-        real tZSemidiameter = *(mVariables(5));
-        real tExponent = *(mVariables(6));
+        real tXCenter = mADVManager.get_variable( 0 );
+        real tYCenter = mADVManager.get_variable( 1 );
+        real tZCenter = mADVManager.get_variable( 2 );
+        real tXSemidiameter = mADVManager.get_variable( 3 );
+        real tYSemidiameter = mADVManager.get_variable( 4 );
+        real tZSemidiameter = mADVManager.get_variable( 5 );
+        real tExponent = mADVManager.get_variable( 6 );
 
         // Evaluate field
         return pow(pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent)
@@ -53,13 +53,13 @@ namespace moris::ge
     const Matrix<DDRMat>& Superellipsoid::get_dfield_dadvs(const Matrix<DDRMat>& aCoordinates)
     {
         // Get variables
-        real tXCenter = *(mVariables(0));
-        real tYCenter = *(mVariables(1));
-        real tZCenter = *(mVariables(2));
-        real tXSemidiameter = *(mVariables(3));
-        real tYSemidiameter = *(mVariables(4));
-        real tZSemidiameter = *(mVariables(5));
-        real tExponent = *(mVariables(6));
+        real tXCenter = mADVManager.get_variable( 0 );
+        real tYCenter = mADVManager.get_variable( 1 );
+        real tZCenter = mADVManager.get_variable( 2 );;
+        real tXSemidiameter = mADVManager.get_variable( 3 );
+        real tYSemidiameter = mADVManager.get_variable( 4 );
+        real tZSemidiameter = mADVManager.get_variable( 5 );
+        real tExponent = mADVManager.get_variable( 6 );
 
         // Constant in all calculations
         real tConstant = pow(std::abs(aCoordinates(0) - tXCenter) / tXSemidiameter, tExponent)

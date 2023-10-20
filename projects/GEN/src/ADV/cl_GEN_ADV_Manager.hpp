@@ -18,17 +18,14 @@ namespace moris::ge
     class ADV_Manager
     {
 
-      protected:
-        Cell< real* >    mVariables;
-        Matrix< DDRMat > mSensitivities;
-
       private:
+        Cell< real* >     mVariables;
         Matrix< DDRMat >  mConstants;
         Matrix< DDSMat >  mDeterminingADVIds;
         bool              mHasADVs;
         sol::Dist_Vector* mSharedADVs = nullptr;
 
-      protected:
+      public:
         /**
          * Constructor, sets the field variable pointers to ADVs and constant parameters for evaluations.
          *
@@ -49,7 +46,7 @@ namespace moris::ge
          *
          * @param aConstants The parameters that define this field
          */
-        ADV_Manager( const Matrix< DDRMat >& aConstants );
+        explicit ADV_Manager( const Matrix< DDRMat >& aConstants );
 
         /**
          * Constructor, sets variables as consecutive ADVs. Assumes the use of distributed ADVs.
@@ -61,11 +58,10 @@ namespace moris::ge
                 const Matrix< DDUMat >& aFieldVariableIndices,
                 const Matrix< DDSMat >& aSharedADVIds );
 
-      public:
         /**
          * Destructor
          */
-        virtual ~ADV_Manager();
+        ~ADV_Manager();
 
         /**
          * Sets the ADVs and grabs the field variables needed from the ADV vector
@@ -75,27 +71,31 @@ namespace moris::ge
          */
         template< typename Vector_Type >
         void set_advs( Vector_Type& aADVs );
+        
+        /**
+         * Gets the value of a specific design variable so it can be used as a part of a design discretization.
+         * 
+         * @param aVariableIndex Index of the variable in this manager to reference
+         * @return Design variable value
+         */
+        real get_variable( uint aVariableIndex );
 
         /**
          * Imports the local ADVs required from the full owned ADV distributed vector.
          *
          * @param aOwnedADVs Full owned distributed ADV vector
          */
-        virtual void import_advs( sol::Dist_Vector* aOwnedADVs );
+        void import_advs( sol::Dist_Vector* aOwnedADVs );
 
         /**
-         * Gets the IDs of ADVs which this manager depends on for evaluations.
+         * Gets the IDs of ADVs that this manager depends on for evaluations.
          *
-         * @param aNodeIndex Node index
-         * @param aCoordinates Node coordinates
          * @return Determining ADV IDs at this node
          */
-        virtual Matrix< DDSMat > get_determining_adv_ids(
-                uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates );
+        Matrix< DDSMat > get_determining_adv_ids();
 
         /**
-         * Gets if this manager has ADVs (non-constant parameters)
+         * Gets if this manager has ADVs (at least one non-constant parameter)
          *
          * @return if this manager has ADVs
          */

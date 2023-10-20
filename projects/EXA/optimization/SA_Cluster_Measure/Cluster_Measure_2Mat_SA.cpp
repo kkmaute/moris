@@ -164,15 +164,15 @@ namespace moris
 
      moris::real Plane(
             const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
+            const moris::Cell< real > & aGeometryParameters )
     {
         // coordinates in x and y directions
         moris::real tX = aCoordinates(0);
         moris::real tY = aCoordinates(1);
 
         // get interface position
-        moris::real tXInterface = *(aGeometryParameters(0));
-        moris::real tYInterface = *(aGeometryParameters(1));
+        moris::real tXInterface = aGeometryParameters( 0 );
+        moris::real tYInterface = aGeometryParameters( 1 );
 
         // compute signed-distance field
         moris::real tVal = ( tX - tXInterface ) + ( tY - tYInterface );
@@ -186,11 +186,11 @@ namespace moris
 
     void PlaneGrad(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< moris::real* >& aGeometryParameters,
+            const moris::Cell< real >& aGeometryParameters,
             moris::Matrix< DDRMat >&           aSensitivities)
     {
         // create copy of geometry parameter cell
-        moris::Cell<moris::real*> tGeometryParameters = aGeometryParameters;
+        moris::Cell<moris::real> tGeometryParameters = aGeometryParameters;
 
         // define finite difference perturbation size
         const real tPerturbation = 1.0e-6;
@@ -205,18 +205,18 @@ namespace moris
         for (uint ip=0;ip<2;++ip)
         {
             // extract nominal value used for perturbations
-            real tNominalValue = *(tGeometryParameters(iv));
+            real tNominalValue = tGeometryParameters(iv);
 
             // set pointer to pertubed value
-            tGeometryParameters(iv) = &tNominalValue;
+            tGeometryParameters(iv) = tNominalValue;
 
             // positive perturbation
             tNominalValue += tPerturbation;
-            real tPosValue = Plane(aCoordinates,tGeometryParameters);
+            real tPosValue = Plane(aCoordinates, tGeometryParameters);
 
             // positive perturbation
             tNominalValue -= 2.0*tPerturbation;
-            real tNegValue = Plane(aCoordinates,tGeometryParameters);
+            real tNegValue = Plane(aCoordinates, tGeometryParameters);
 
             // restore nominal value
             tGeometryParameters(iv) = aGeometryParameters(iv);

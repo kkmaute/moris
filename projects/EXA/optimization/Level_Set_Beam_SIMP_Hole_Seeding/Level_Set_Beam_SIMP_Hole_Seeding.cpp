@@ -198,7 +198,7 @@ namespace moris
     real
     Const_Geometry(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real* >&    aGeometryParameters )
+            const Cell< real >&    aGeometryParameters )
     {
         return 0.8;
     }

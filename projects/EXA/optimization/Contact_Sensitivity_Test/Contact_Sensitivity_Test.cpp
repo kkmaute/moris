@@ -168,7 +168,7 @@ namespace moris
     real
     Plane_2D3D(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real* >&    aGeometryParameters )
+            const Cell< real >&    aGeometryParameters )
     {
         real tLSval = aCoordinates( 0 ) - tInterfaceX;
 

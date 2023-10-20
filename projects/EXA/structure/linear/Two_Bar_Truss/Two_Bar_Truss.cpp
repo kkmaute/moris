@@ -92,7 +92,7 @@ namespace moris
     moris::real
     Bars(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< moris::real* >& aGeometryParameters )
+            const moris::Cell< real >& aGeometryParameters )
     {
         moris::Matrix< DDRMat > tXp = { { aCoordinates( 0 ) }, { aCoordinates( 1 ) }, { 0.0 } };
 
@@ -115,17 +115,17 @@ namespace moris
             // MORIS_ERROR( (uint) *(aGeometryParameters(iv++)) == ib+1,
             //        "Inconsistency in parameter list: %f  should be %d",*(aGeometryParameters(--iv)),ib);
 
-            tXa( 0 ) = *( aGeometryParameters( iv++ ) );
-            tXa( 1 ) = *( aGeometryParameters( iv++ ) );
+            tXa( 0 ) = aGeometryParameters( iv++ );
+            tXa( 1 ) = aGeometryParameters( iv++ );
             tXa( 2 ) = 0.0;
 
-            moris::real tRada = *( aGeometryParameters( iv++ ) );
+            moris::real tRada = aGeometryParameters( iv++ );
 
-            tXb( 0 ) = *( aGeometryParameters( iv++ ) );
-            tXb( 1 ) = *( aGeometryParameters( iv++ ) );
+            tXb( 0 ) = aGeometryParameters( iv++ );
+            tXb( 1 ) = aGeometryParameters( iv++ );
             tXb( 2 ) = 0.0;
 
-            moris::real tRadb = *( aGeometryParameters( iv++ ) );
+            moris::real tRadb = aGeometryParameters( iv++ );
 
             moris::real tLen = norm( tXb - tXa );
 
@@ -172,11 +172,11 @@ namespace moris
     void
     BarsGrad(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< moris::real* >& aGeometryParameters,
+            const moris::Cell< real >& aGeometryParameters,
             moris::Matrix< DDRMat >&           aSensitivities )
     {
         // create copy of geometry parameter cell
-        moris::Cell< moris::real* > tGeometryParameters = aGeometryParameters;
+        moris::Cell< real > tGeometryParameters = aGeometryParameters;
 
         // define finite difference perturbation size
         const real tPerturbation = 1.0e-6;
@@ -194,10 +194,10 @@ namespace moris
             for ( uint ip = 0; ip < 6; ++ip )
             {
                 // extract nominal value used for perturbations
-                real tNominalValue = *( tGeometryParameters( iv ) );
+                real tNominalValue = tGeometryParameters( iv );
 
                 // set pointer to perturbed value
-                tGeometryParameters( iv ) = &tNominalValue;
+                tGeometryParameters( iv ) = tNominalValue;
 
                 // positive perturbation
                 tNominalValue += tPerturbation;

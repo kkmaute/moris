@@ -91,12 +91,12 @@ extern "C"
         // Plane geometry function
         moris::real Func_Plane(
                 const moris::Matrix< DDRMat >     & aCoordinates,
-                const moris::Cell< moris::real* > & aGeometryParameters )
+                const moris::Cell< real > & aGeometryParameters )
         {
-            moris::real tXNormal = *( aGeometryParameters( 0 ) );
-            moris::real tXCenter = *( aGeometryParameters( 1 ) );
-            moris::real tYNormal = *( aGeometryParameters( 2 ) );
-            moris::real tYCenter = *( aGeometryParameters( 3 ) );
+            moris::real tXNormal = aGeometryParameters( 0 );
+            moris::real tXCenter = aGeometryParameters( 1 );
+            moris::real tYNormal = aGeometryParameters( 2 );
+            moris::real tYCenter = aGeometryParameters( 3 );
 
             moris::real aReturnValue =
                     tXNormal * ( aCoordinates( 0 ) - tXCenter ) +

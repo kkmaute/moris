@@ -216,7 +216,7 @@ MultiMat3dCyl( const moris::Matrix< moris::DDRMat >& aPoint )
 inline real
 MultiMat3dCylGeometry(
         const Matrix< DDRMat >& aCoordinates,
-        const Cell< real* >&    aParameters )
+        const Cell< real >&     aParameters )
 {
     return MultiMat3dCyl( aCoordinates );
 }

@@ -46,9 +46,9 @@ namespace moris
     real
     user_defined_geometry_field(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real* >&    aParameters )
+            const Cell< real >&     aParameters )
     {
-        return aCoordinates( 0 ) * pow( *aParameters( 0 ), 2 ) + aCoordinates( 1 ) * pow( *aParameters( 1 ), 3 );
+        return aCoordinates( 0 ) * pow( aParameters( 0 ), 2 ) + aCoordinates( 1 ) * pow( aParameters( 1 ), 3 );
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -56,10 +56,10 @@ namespace moris
     void
     user_defined_geometry_sensitivity(
             const Matrix< DDRMat >& aCoordinates,
-            const Cell< real* >&    aParameters,
+            const Cell< real >&     aParameters,
             Matrix< DDRMat >&       aSensitivities )
     {
-        aSensitivities = { { 2 * aCoordinates( 0 ) * *aParameters( 0 ), 3 * aCoordinates( 1 ) * pow( *aParameters( 1 ), 2 ) } };
+        aSensitivities = { { 2 * aCoordinates( 0 ) * aParameters( 0 ), 3 * aCoordinates( 1 ) * pow( aParameters( 1 ), 2 ) } };
     }
 
     //------------------------------------------------------------------------------------------------------------------
@@ -512,6 +512,7 @@ namespace moris::ge
         tADVs         = { { 2.0, 0.5 } };
         tCoordinates1 = { { 0.0, 1.0 } };
         tCoordinates2 = { { 2.0, -1.0 } };
+        tUserDefinedGeometry->import_advs( nullptr );
 
         // Check field values
         CHECK( tUserDefinedGeometry->get_field_value( tCoordinates1 ) == Approx( 8.0 ) );
@@ -829,7 +830,7 @@ namespace moris::ge
         SECTION( "Swiss Cheese 1" )
         {
             // Create swiss cheese
-            ParameterList tSwissCheeseParameterList = prm::create_swiss_cheese_slice_parameter_list();
+            ParameterList tSwissCheeseParameterList = prm::create_field_array_parameter_list();
             tSwissCheeseParameterList.set( "left_bound", -2.0 );
             tSwissCheeseParameterList.set( "right_bound", 2.0 );
             tSwissCheeseParameterList.set( "bottom_bound", -1.0 );
@@ -882,7 +883,7 @@ namespace moris::ge
         SECTION( "Swiss Cheese 2" )
         {
             // Create swiss cheese
-            ParameterList tSwissCheeseParameterList = prm::create_swiss_cheese_slice_parameter_list();
+            ParameterList tSwissCheeseParameterList = prm::create_field_array_parameter_list();
             tSwissCheeseParameterList.set( "left_bound", -2.0 );
             tSwissCheeseParameterList.set( "right_bound", 2.0 );
             tSwissCheeseParameterList.set( "bottom_bound", -1.0 );
@@ -936,7 +937,7 @@ namespace moris::ge
         SECTION( "Swiss Cheese 3" )
         {
             // Create swiss cheese
-            ParameterList tSwissCheeseParameterList = prm::create_swiss_cheese_slice_parameter_list();
+            ParameterList tSwissCheeseParameterList = prm::create_field_array_parameter_list();
             tSwissCheeseParameterList.set( "left_bound", -2.0 );
             tSwissCheeseParameterList.set( "right_bound", 2.0 );
             tSwissCheeseParameterList.set( "bottom_bound", -1.0 );

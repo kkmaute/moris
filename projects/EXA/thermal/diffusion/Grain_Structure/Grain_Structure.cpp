@@ -62,7 +62,7 @@ namespace moris
 
     moris::real Colors_1(
                 const moris::Matrix< DDRMat >     & aCoordinates,
-                const moris::Cell< moris::real* > & aGeometryParameters)
+                const moris::Cell< real > & aGeometryParameters)
     {
         moris::real tVal = -1.0;
         if( aCoordinates(0) > 0.1117 && aCoordinates(1) <= -0.11)
@@ -75,7 +75,7 @@ namespace moris
 
     moris::real Colors_2(
                 const moris::Matrix< DDRMat >     & aCoordinates,
-                const moris::Cell< moris::real* > & aGeometryParameters)
+                const moris::Cell< real > & aGeometryParameters)
     {
         moris::real tVal = -1.0;
         if( std::sqrt( std::pow( aCoordinates(0) -2.0, 2) + std::pow( aCoordinates(1) -2.0, 2) ) - 1.2 <= 0.0 &&
@@ -89,7 +89,7 @@ namespace moris
 
        moris::real Colors_3(
                 const moris::Matrix< DDRMat >     & aCoordinates,
-                const moris::Cell< moris::real* > & aGeometryParameters)
+                const moris::Cell< real > & aGeometryParameters)
     {
         moris::real tVal = -1.0;
         if(  aCoordinates(0)-aCoordinates(1) +  1.5 <= 0.0 &&
@@ -104,7 +104,7 @@ namespace moris
 
        moris::real Colors_4(
                 const moris::Matrix< DDRMat >     & aCoordinates,
-                const moris::Cell< moris::real* > & aGeometryParameters)
+                const moris::Cell< real > & aGeometryParameters)
     {
         moris::real tVal = -1.0;
         if( std::sqrt( std::pow( aCoordinates(0) +2.0, 2) + std::pow( aCoordinates(1) +2.0, 2) ) - 2.6 <= 0.0 &&

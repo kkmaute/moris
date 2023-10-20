@@ -30,10 +30,10 @@ namespace moris::ge
     Sphere::get_field_value( const Matrix< DDRMat >& aCoordinates )
     {
         // Get variables
-        real tXCenter = *( mVariables( 0 ) );
-        real tYCenter = *( mVariables( 1 ) );
-        real tZCenter = *( mVariables( 2 ) );
-        real tRadius  = *( mVariables( 3 ) );
+        real tXCenter = mADVManager.get_variable( 0 );
+        real tYCenter = mADVManager.get_variable( 1 );
+        real tZCenter = mADVManager.get_variable( 2 );
+        real tRadius  = mADVManager.get_variable( 3 );
 
         // Evaluate field
         return sqrt( pow( aCoordinates( 0 ) - tXCenter, 2 )
@@ -48,9 +48,9 @@ namespace moris::ge
     Sphere::get_dfield_dadvs( const Matrix< DDRMat >& aCoordinates )
     {
         // Get variables
-        real tXCenter = *( mVariables( 0 ) );
-        real tYCenter = *( mVariables( 1 ) );
-        real tZCenter = *( mVariables( 2 ) );
+        real tXCenter = mADVManager.get_variable( 0 );
+        real tYCenter = mADVManager.get_variable( 1 );
+        real tZCenter = mADVManager.get_variable( 2 );
 
         // Calculate sensitivities
         real tConstant = sqrt( pow( aCoordinates( 0 ) - tXCenter, 2 )

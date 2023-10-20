@@ -36,13 +36,15 @@
 
 namespace moris::ge
 {
-    class Field : public ADV_Manager
+    class Field
     {
       public:
         mtk::Mesh_Pair mMeshPair = mtk::Mesh_Pair( nullptr, nullptr );
 
       protected:
         uint mNumOriginalNodes = 0;
+        ADV_Manager mADVManager;
+        Matrix< DDRMat > mSensitivities;
 
       private:
         std::string mName;
@@ -62,11 +64,7 @@ namespace moris::ge
                 Matrix< DDUMat > aFieldVariableIndices,
                 Matrix< DDUMat > aADVIndices,
                 Matrix< DDRMat > aConstants,
-                std::string      aName )
-                : ADV_Manager( aADVs, aFieldVariableIndices, aADVIndices, aConstants )
-                , mName( std::move( aName ) )
-        {
-        }
+                std::string      aName );
 
         //TODO add option for specifying a name, since a constant field can still be a dependency
         /**
@@ -86,6 +84,30 @@ namespace moris::ge
                const Matrix< DDSMat >&  aSharedADVIds );
 
       public:
+
+        /**
+         * Destructor
+         */
+        virtual ~Field() = default;
+
+        /**
+         * Sets the ADVs and grabs the field variables needed from the ADV vector
+         *
+         * @tparam Vector_Type Type of vector where ADVs are stored
+         * @param aADVs ADVs
+         */
+        template< typename Vector_Type >
+        void set_advs( Vector_Type& aADVs )
+        {
+            mADVManager.set_advs( aADVs );
+        }
+
+        /**
+         * Imports the local ADVs required from the full owned ADV distributed vector.
+         *
+         * @param aOwnedADVs Full owned distributed ADV vector
+         */
+        virtual void import_advs( sol::Dist_Vector* aOwnedADVs );
 
         /**
          * Given a node index or coordinate, returns the field value.
@@ -121,6 +143,24 @@ namespace moris::ge
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
                 Matrix< DDRMat >&       aSensitivities ) = 0;
+
+        /**
+         * Gets the IDs of ADVs that this manager depends on for evaluations.
+         *
+         * @param aNodeIndex Node index
+         * @param aCoordinates Node coordinates
+         * @return Determining ADV IDs at this node
+         */
+        virtual Matrix< DDSMat > get_determining_adv_ids(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates );
+
+        /**
+         * Gets if this manager has ADVs (at least one non-constant parameter)
+         *
+         * @return if this manager has ADVs
+         */
+        bool has_advs();
 
         /**
          * Sets the dependencies of this field after they have been found by the owning property. By default

@@ -12,10 +12,26 @@
 
 namespace moris::ge
 {
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Field::Field(
+            Matrix< DDRMat >& aADVs,
+            Matrix< DDUMat >  aFieldVariableIndices,
+            Matrix< DDUMat >  aADVIndices,
+            Matrix< DDRMat >  aConstants,
+            std::string       aName )
+            : mADVManager( aADVs, aFieldVariableIndices, aADVIndices, aConstants )
+            , mSensitivities( 1, aFieldVariableIndices.length() + aConstants.length() )
+            , mName( std::move( aName ) )
+    {
+    }
+
     //--------------------------------------------------------------------------------------------------------------
 
     Field::Field( Matrix< DDRMat > aConstants )
-            : ADV_Manager( aConstants )
+            : mADVManager( aConstants )
+            , mSensitivities( 1, aConstants.length(), 0.0 )
     {
     }
     
@@ -24,8 +40,32 @@ namespace moris::ge
     Field::Field(
             const Matrix< DDUMat >& aFieldVariableIndices,
             const Matrix< DDSMat >& aSharedADVIds )
-            : ADV_Manager( aFieldVariableIndices, aSharedADVIds )
+            : mADVManager( aFieldVariableIndices, aSharedADVIds )
+            , mSensitivities( 1, aSharedADVIds.length() )
     {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Field::import_advs( sol::Dist_Vector* aOwnedADVs )
+    {
+        mADVManager.import_advs( aOwnedADVs );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    Matrix< DDSMat > Field::get_determining_adv_ids(
+            uint                    aNodeIndex,
+            const Matrix< DDRMat >& aCoordinates )
+    {
+        return mADVManager.get_determining_adv_ids();
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    bool Field::has_advs()
+    {
+        return mADVManager.has_advs();
     }
 
     //--------------------------------------------------------------------------------------------------------------

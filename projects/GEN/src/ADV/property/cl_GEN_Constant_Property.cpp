@@ -16,7 +16,7 @@ namespace moris::ge
 
     real Constant_Property::get_field_value(const Matrix<DDRMat>& aCoordinates)
     {
-        return *mVariables(0);
+        return mADVManager.get_variable( 0 );
     }
 
     //--------------------------------------------------------------------------------------------------------------

@@ -34,12 +34,12 @@ namespace moris::ge
         Plane( ADV_ARG_TYPES )
                : Field_Analytic( ADV_ARGS )
         {
-            if (mVariables.size() == 4)
+            if ( mADVManager.get_determining_adv_ids().length() == 4 )
             {
                 m_eval_field = &Plane::eval_field_2d;
                 m_eval_sensitivity = &Plane::eval_sensitivity_2d;
             }
-            else if (mVariables.size() == 6)
+            else if ( mADVManager.get_determining_adv_ids().length() == 6 )
             {
                 m_eval_field = &Plane::eval_field_3d;
                 m_eval_sensitivity = &Plane::eval_sensitivity_3d;

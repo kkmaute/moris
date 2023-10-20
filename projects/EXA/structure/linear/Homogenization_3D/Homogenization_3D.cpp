@@ -112,7 +112,7 @@ namespace moris
     moris::real
     Inclusion(
         const moris::Matrix< DDRMat >&     aCoordinates,
-        const moris::Cell< moris::real* >& aGeometryParameters )
+        const moris::Cell< real >& aGeometryParameters )
     {
         // distance from sphere center
         moris::real tDx1 = aCoordinates( 0 ) - tCenterX1;

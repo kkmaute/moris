@@ -18,7 +18,7 @@ namespace moris::ge
             uint                  aNodeIndex,
             const Matrix<DDRMat>& aCoordinates)
     {
-        return *mVariables(0) * mField->get_field_value(aNodeIndex, aCoordinates);
+        return mADVManager.get_variable( 0 ) * mField->get_field_value(aNodeIndex, aCoordinates);
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ namespace moris::ge
             uint                  aNodeIndex,
             const Matrix<DDRMat>& aCoordinates)
     {
-        mSensitivities = *mVariables(0) *
+        mSensitivities = mADVManager.get_variable( 0 ) *
                 mField->get_dfield_dadvs(aNodeIndex, aCoordinates);
         return mSensitivities;
     }

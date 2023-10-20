@@ -24,10 +24,10 @@ namespace moris::ge
 
         // Constructor to allow this field to be created with ADVs
         ANALYTIC_FIELD_ADV_CONSTRUCTOR( Superellipsoid, 7, {
-            MORIS_ERROR( *mVariables( 3 ) > 0 and *mVariables( 4 ) > 0,
+            MORIS_ERROR( mADVManager.get_variable( 3 ) > 0 and mADVManager.get_variable( 4 ) > 0,
                     "A GEN Superellipsoid must be created with positive semi-diameters.");
 
-            MORIS_ERROR( std::abs( std::fmod( *mVariables( 6 ), 2.0) ) < 1e-12,
+            MORIS_ERROR( std::abs( std::fmod( mADVManager.get_variable( 6 ), 2.0) ) < 1e-12,
                     "A GEN Superellipsoid must be created with an even exponent.");
         } )
 

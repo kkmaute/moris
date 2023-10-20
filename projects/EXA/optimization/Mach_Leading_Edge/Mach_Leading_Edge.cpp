@@ -240,7 +240,7 @@ namespace moris
     // Outer Wedge
     moris::real Outer_Wedge(
             const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
+            const moris::Cell< real > & aGeometryParameters )
     {
         // get angle in rads
         moris::real tAlpha = tEdgeAngle/180.0 * M_PI;
@@ -299,7 +299,7 @@ namespace moris
     // Inner Wall
     moris::real Inner_Wedge(
             const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
+            const moris::Cell< real > & aGeometryParameters )
     {
         // get angle in rads
         moris::real tAlpha = tEdgeAngle/180.0 * M_PI;
@@ -358,7 +358,7 @@ namespace moris
     // Back Wall
     moris::real Back_Wall(
             const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
+            const moris::Cell< real > & aGeometryParameters )
     {
         // compute level set value
         moris::real aReturnValue = ( aCoordinates(0) - tLength + tInnerRadius + tWallThickness );
@@ -434,7 +434,7 @@ namespace moris
     // Dummy function for unused sensitivities if needed
     moris::Matrix< DDRMat > Func_Dummy_Sensitivity(
             const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
+            const moris::Cell< real > & aGeometryParameters )
     {
         moris::Matrix< DDRMat > aReturnValue = {{0.0}};
         return aReturnValue;

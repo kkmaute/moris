@@ -246,14 +246,14 @@ namespace moris
     moris::real
     Func_Sphere(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< moris::real* >& aGeometryParameters )
+            const moris::Cell< real >& aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
         real tY = aCoordinates( 1 );
         real tZ = aCoordinates( 2 );
 
-        real tRadius = *aGeometryParameters( 0 );
+        real tRadius = aGeometryParameters( 0 );
 
         real tReturnValue = tRadius - std::pow( std::pow( tX - tSpherePosX, tSphereExpon ) + std::pow( tY - tSpherePosY, tSphereExpon ) + std::pow( tZ - tSpherePosZ, tSphereExpon ), 1.0 / tSphereExpon );
 
@@ -276,7 +276,7 @@ namespace moris
     moris::real
     Func_Plane(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< moris::real* >& aGeometryParameters )
+            const moris::Cell< real >& aGeometryParameters )
     {
         // get coordinates
         real tX = aCoordinates( 0 );
@@ -284,14 +284,14 @@ namespace moris
         real tZ = aCoordinates( 2 );
 
         // get normal
-        real tNx = *aGeometryParameters( 0 );
-        real tNy = *aGeometryParameters( 1 );
-        real tNz = *aGeometryParameters( 2 );
+        real tNx = aGeometryParameters( 0 );
+        real tNy = aGeometryParameters( 1 );
+        real tNz = aGeometryParameters( 2 );
 
         // get point on plane
-        real tPx = *aGeometryParameters( 3 );
-        real tPy = *aGeometryParameters( 4 );
-        real tPz = *aGeometryParameters( 5 );
+        real tPx = aGeometryParameters( 3 );
+        real tPy = aGeometryParameters( 4 );
+        real tPz = aGeometryParameters( 5 );
 
         real tReturnValue = tNx * ( tPx - tX ) + tNy * ( tPy - tY ) + tNz * ( tPz - tZ );
 

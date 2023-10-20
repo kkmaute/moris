@@ -214,16 +214,17 @@ namespace moris::ge
     BSpline_Field::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
         // Import ADVs as usual
-        ADV_Manager::import_advs( aOwnedADVs );
+        Field::import_advs( aOwnedADVs );
 
         // Reset evaluated field
         mOwnedNodalValues->vec_put_scalar( 0 );
 
         // Evaluate into matrix TODO just make the field accept a cell to begin with
-        moris::Matrix< DDRMat > tCoeff( mVariables.size() );
-        for ( uint Ik = 0; Ik < mVariables.size(); Ik++ )
+        uint tNumberOfCoefficients = mADVManager.get_determining_adv_ids().length();
+        moris::Matrix< DDRMat > tCoeff( tNumberOfCoefficients, 1 );
+        for ( uint Ik = 0; Ik < tNumberOfCoefficients; Ik++ )
         {
-            tCoeff( Ik ) = *mVariables( Ik );
+            tCoeff( Ik ) = mADVManager.get_variable( Ik );
         }
 
         // Create field

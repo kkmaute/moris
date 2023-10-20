@@ -26,10 +26,10 @@ namespace moris::ge
             Level_Set_Parameters aParameters)
             : Field_Analytic( Matrix<DDRMat>({{aXCenter, aYCenter, aXSemidiameter, aYSemidiameter, aExponent, aScaling, aRegularization, aShift}}) )
     {
-        MORIS_ERROR(*(mVariables(2)) > 0 and *(mVariables(3)) > 0,
+        MORIS_ERROR( mADVManager.get_variable( 2 ) > 0 and mADVManager.get_variable( 3 ) > 0,
                 "A GEN Super-ellipse must be created with positive semi-diameters.");
 
-        MORIS_ERROR(std::abs(std::fmod(*(mVariables(4)),2.0)) < 1e-12,
+        MORIS_ERROR(std::abs(std::fmod( mADVManager.get_variable( 4 ),2.0)) < 1e-12,
                 "A GEN Super-ellipse must be created with an even exponent.");
     }
 
@@ -38,14 +38,14 @@ namespace moris::ge
     real Superellipse::get_field_value(const Matrix<DDRMat>& aCoordinates)
     {
         // Get variables
-        real tXCenter        = *(mVariables(0));
-        real tYCenter        = *(mVariables(1));
-        real tXSemidiameter  = *(mVariables(2));
-        real tYSemidiameter  = *(mVariables(3));
-        real tExponent       = *(mVariables(4));
-        real tScaling        = *(mVariables(5));
-        real tRegularization = *(mVariables(6));
-        real tShift          = *(mVariables(7));
+        real tXCenter        = mADVManager.get_variable( 0 );
+        real tYCenter        = mADVManager.get_variable( 1 );
+        real tXSemidiameter  = mADVManager.get_variable( 2 );
+        real tYSemidiameter  = mADVManager.get_variable( 3 );
+        real tExponent       = mADVManager.get_variable( 4 );
+        real tScaling        = mADVManager.get_variable( 5 );
+        real tRegularization = mADVManager.get_variable( 6 );
+        real tShift          = mADVManager.get_variable( 7 );
 
         // Evaluate field
         real tConstant = pow(
@@ -69,13 +69,13 @@ namespace moris::ge
     const Matrix<DDRMat>& Superellipse::get_dfield_dadvs(const Matrix<DDRMat>& aCoordinates)
     {
         // Get variables
-        real tXCenter        = *(mVariables(0));
-        real tYCenter        = *(mVariables(1));
-        real tXSemidiameter  = *(mVariables(2));
-        real tYSemidiameter  = *(mVariables(3));
-        real tExponent       = *(mVariables(4));
-        real tScaling        = *(mVariables(5));
-        real tRegularization = *(mVariables(6));
+        real tXCenter        = mADVManager.get_variable( 0 );
+        real tYCenter        = mADVManager.get_variable( 1 );
+        real tXSemidiameter  = mADVManager.get_variable( 2 );
+        real tYSemidiameter  = mADVManager.get_variable( 3 );
+        real tExponent       = mADVManager.get_variable( 4 );
+        real tScaling        = mADVManager.get_variable( 5 );
+        real tRegularization = mADVManager.get_variable( 6 );
 
         // Constant in all calculations
         real tConstant0 = pow(

@@ -96,7 +96,7 @@ namespace moris
     moris::real
     Func_Right_Plane(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< moris::real* >& aGeometryParameters )
+            const moris::Cell< real >& aGeometryParameters )
     {
         return aCoordinates( 0 ) - 1000;
     }
@@ -104,7 +104,7 @@ namespace moris
     moris::real
     sensitivity_func(
             const moris::Matrix< DDRMat >&     aCoordinates,
-            const moris::Cell< moris::real* >& aGeometryParameters )
+            const moris::Cell< real >& aGeometryParameters )
     {
         // MORRIS_ERROR( false, "sensitivity_func() not implemented");
         return 0;

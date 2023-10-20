@@ -149,7 +149,7 @@ namespace moris
     }
 
     inline moris::real
-    LevelSetSphereCylinderGeometry( const moris::Matrix< moris::DDRMat >& aCoordinates, const moris::Cell< moris::real* >& aParameters )
+    LevelSetSphereCylinderGeometry( const moris::Matrix< moris::DDRMat >& aCoordinates, const moris::Cell< moris::real >& aParameters )
     {
         return LevelSetSphereCylinder( aCoordinates );
     }

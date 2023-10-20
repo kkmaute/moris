@@ -122,20 +122,13 @@ namespace moris
 
     moris::real Sphere(
             const moris::Matrix< DDRMat >     & aCoordinates,
-            const moris::Cell< moris::real* > & aGeometryParameters )
+            const moris::Cell< real > & aGeometryParameters )
     {
-        moris::real tVal =  aGeometryParameters(0)[0] - norm(aCoordinates);
+        moris::real tVal =  aGeometryParameters( 0 ) - norm(aCoordinates);
 
         if ( std::abs(tVal) < tMinLevs )
         {
-            if ( tVal < 0 )
-            {
-                tVal=tMinLevs;
-            }
-            else
-            {
-                tVal=tMinLevs;
-            }
+            tVal = tMinLevs;
         }
 
         return tVal;

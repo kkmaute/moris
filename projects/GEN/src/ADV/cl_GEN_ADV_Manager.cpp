@@ -40,7 +40,6 @@ namespace moris::ge
             const Matrix< DDUMat >& aADVIndices,
             const Matrix< DDRMat >& aConstants )
             : mVariables( aVariableIndices.length() + aConstants.length() )
-            , mSensitivities( 1, aVariableIndices.length() + aConstants.length() )
             , mConstants( aConstants )
             , mDeterminingADVIds( aVariableIndices.length() + aConstants.length(), 1, -1 )
             , mHasADVs( aADVIndices.length() )
@@ -60,7 +59,6 @@ namespace moris::ge
     ADV_Manager::ADV_Manager(
             const Matrix< DDRMat >& aConstants )
             : mVariables( aConstants.length() )
-            , mSensitivities( 1, aConstants.length() )
             , mConstants( aConstants )
             , mDeterminingADVIds( aConstants.length(), 1, -1 )
             , mHasADVs( false )
@@ -75,7 +73,6 @@ namespace moris::ge
             const Matrix< DDUMat >& aFieldVariableIndices,
             const Matrix< DDSMat >& aSharedADVIds )
             : mVariables( aSharedADVIds.length() )
-            , mSensitivities( 1, aSharedADVIds.length() )
             , mDeterminingADVIds( aSharedADVIds )
             , mHasADVs( true )
     {
@@ -120,6 +117,13 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    real ADV_Manager::get_variable( uint aVariableIndex )
+    {
+        return *mVariables( aVariableIndex );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void ADV_Manager::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
         if ( mSharedADVs )
@@ -130,9 +134,7 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Matrix< DDSMat > ADV_Manager::get_determining_adv_ids(
-            uint                    aNodeIndex,
-            const Matrix< DDRMat >& aCoordinates )
+    Matrix< DDSMat > ADV_Manager::get_determining_adv_ids()
     {
         return mDeterminingADVIds;
     }

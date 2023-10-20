@@ -68,14 +68,14 @@ namespace moris::ge
     {
         if ( aCoordinates.numel() == 2 )
         {
-            aSensitivities( 0 ) = *( mVariables( 2 ) );
-            aSensitivities( 1 ) = *( mVariables( 3 ) );
+            aSensitivities( 0 ) = mADVManager.get_variable( 2 );
+            aSensitivities( 1 ) = mADVManager.get_variable( 3 );
         }
         else
         {
-            aSensitivities( 0 ) = *( mVariables( 3 ) );
-            aSensitivities( 1 ) = *( mVariables( 4 ) );
-            aSensitivities( 2 ) = *( mVariables( 5 ) );
+            aSensitivities( 0 ) = mADVManager.get_variable( 3 );
+            aSensitivities( 1 ) = mADVManager.get_variable( 4 );
+            aSensitivities( 2 ) = mADVManager.get_variable( 5 );
         }
     }
 
@@ -85,10 +85,10 @@ namespace moris::ge
     Plane::eval_field_2d( const Matrix< DDRMat >& aCoordinates )
     {
         // Get variables
-        const real tXCenter = *( mVariables( 0 ) );
-        const real tYCenter = *( mVariables( 1 ) );
-        const real tXNormal = *( mVariables( 2 ) );
-        const real tYNormal = *( mVariables( 3 ) );
+        real tXCenter = mADVManager.get_variable( 0 );
+        real tYCenter = mADVManager.get_variable( 1 );
+        real tXNormal = mADVManager.get_variable( 2 );
+        real tYNormal = mADVManager.get_variable( 3 );
 
         // Evaluate field value
         return tXNormal * ( aCoordinates( 0 ) - tXCenter ) + tYNormal * ( aCoordinates( 1 ) - tYCenter );
@@ -100,12 +100,12 @@ namespace moris::ge
     Plane::eval_field_3d( const Matrix< DDRMat >& aCoordinates )
     {
         // Get variables
-        const real tXCenter = *( mVariables( 0 ) );
-        const real tYCenter = *( mVariables( 1 ) );
-        const real tZCenter = *( mVariables( 2 ) );
-        const real tXNormal = *( mVariables( 3 ) );
-        const real tYNormal = *( mVariables( 4 ) );
-        const real tZNormal = *( mVariables( 5 ) );
+        real tXCenter = mADVManager.get_variable( 0 );
+        real tYCenter = mADVManager.get_variable( 1 );
+        real tZCenter = mADVManager.get_variable( 2 );
+        real tXNormal = mADVManager.get_variable( 3 );
+        real tYNormal = mADVManager.get_variable( 4 );
+        real tZNormal = mADVManager.get_variable( 5 );
 
         // Evaluate field value
         return tXNormal * ( aCoordinates( 0 ) - tXCenter ) + tYNormal * ( aCoordinates( 1 ) - tYCenter ) + tZNormal * ( aCoordinates( 2 ) - tZCenter );
@@ -117,10 +117,10 @@ namespace moris::ge
     Plane::eval_sensitivity_2d( const Matrix< DDRMat >& aCoordinates )
     {
         // Get variables
-        const real tXCenter = *( mVariables( 0 ) );
-        const real tYCenter = *( mVariables( 1 ) );
-        const real tXNormal = *( mVariables( 2 ) );
-        const real tYNormal = *( mVariables( 3 ) );
+        real tXCenter = mADVManager.get_variable( 0 );
+        real tYCenter = mADVManager.get_variable( 1 );
+        real tXNormal = mADVManager.get_variable( 2 );
+        real tYNormal = mADVManager.get_variable( 3 );
 
         // Evaluate sensitivities
         mSensitivities( 0 ) = -tXNormal;
@@ -137,12 +137,12 @@ namespace moris::ge
     Plane::eval_sensitivity_3d( const Matrix< DDRMat >& aCoordinates )
     {
         // Get variables
-        const real tXCenter = *( mVariables( 0 ) );
-        const real tYCenter = *( mVariables( 1 ) );
-        const real tZCenter = *( mVariables( 2 ) );
-        const real tXNormal = *( mVariables( 3 ) );
-        const real tYNormal = *( mVariables( 4 ) );
-        const real tZNormal = *( mVariables( 5 ) );
+        real tXCenter = mADVManager.get_variable( 0 );
+        real tYCenter = mADVManager.get_variable( 1 );
+        real tZCenter = mADVManager.get_variable( 2 );
+        real tXNormal = mADVManager.get_variable( 3 );
+        real tYNormal = mADVManager.get_variable( 4 );
+        real tZNormal = mADVManager.get_variable( 5 );
 
         // Evaluate sensitivities
         mSensitivities( 0 ) = -tXNormal;
