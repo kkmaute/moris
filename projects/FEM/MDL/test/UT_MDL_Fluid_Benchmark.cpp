@@ -462,8 +462,8 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            moris::Cell< moris::Cell< moris::ParameterList > > tSOLParameterlist( 7 );
-            for ( uint Ik = 0; Ik < 7; Ik++ )
+            moris::Cell< moris::Cell< moris::ParameterList > > tSOLParameterlist( 8 );
+            for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tSOLParameterlist( Ik ).resize( 1 );
             }
@@ -484,6 +484,8 @@ namespace moris
             tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "VX,1E-4;VY,1E-4;P,0.0" );
 
             tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+
+            tSOLParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
             tSolverWarehouse.set_parameterlist( tSOLParameterlist );
@@ -817,8 +819,8 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            moris::Cell< moris::Cell< moris::ParameterList > > tSOLParameterlist( 7 );
-            for ( uint Ik = 0; Ik < 7; Ik++ )
+            moris::Cell< moris::Cell< moris::ParameterList > > tSOLParameterlist( 8 );
+            for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tSOLParameterlist( Ik ).resize( 1 );
             }
@@ -839,6 +841,8 @@ namespace moris
             tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "VX,1E-4;VY,1E-4;P,0.0" );
 
             tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+
+            tSOLParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
             tSolverWarehouse.set_parameterlist( tSOLParameterlist );
@@ -2510,8 +2514,8 @@ namespace moris
 
             // create linear solver and algorithm
             // --------------------------------------------------------------------------------------
-            moris::Cell< moris::Cell< moris::ParameterList > > tSOLParameterlist( 7 );
-            for ( uint Ik = 0; Ik < 7; Ik++ )
+            moris::Cell< moris::Cell< moris::ParameterList > > tSOLParameterlist( 8 );
+            for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tSOLParameterlist( Ik ).resize( 1 );
             }
@@ -2532,6 +2536,8 @@ namespace moris
             tSOLParameterlist( 5 )( 0 ).set( "TSA_Initialize_Sol_Vec", "VX,1E-4;VY,0.0;P,0.0" );
 
             tSOLParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+
+            tSOLParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
             tSolverWarehouse.set_parameterlist( tSOLParameterlist );
