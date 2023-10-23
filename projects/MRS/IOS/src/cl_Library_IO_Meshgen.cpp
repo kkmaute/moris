@@ -105,16 +105,28 @@ namespace moris
                 "Library_IO_Meshgen::load_parameters_from_xml() - "
                 "Parameters for 'ForegroundMesh' either missing or declared multiple times." );
 
-        // quick access to the various parameter lists
-        ParameterList&       tHmrParamList = mParameterLists( (uint)( Parameter_List_Type::HMR ) )( 0 )( 0 );
-        ParameterList&       tXtkParamList = mParameterLists( (uint)( Parameter_List_Type::XTK ) )( 0 )( 0 );
-        ModuleParameterList& tGenParamList = mParameterLists( (uint)( Parameter_List_Type::GEN ) );
+        // load the parameters
+        this->load_HMR_parameters_from_xml( tHmrPath, tXtkPath );
+        this->load_XTK_parameters_from_xml( tXtkPath, tHmrPath );
+        this->load_GEN_parameters_from_xml( tGenPath, tHmrPath, tXtkPath );
+
+    }    // end function: Library_IO_Meshgen::load_parameters_from_xml()
+
+    // -----------------------------------------------------------------------------
+
+    void
+    Library_IO_Meshgen::load_HMR_parameters_from_xml(
+            std::string const & aHmrPath,
+            std::string const & aXtkPath )
+    {
+        // quick access to the parameter list
+        ParameterList& tHmrParamList = mParameterLists( (uint)( Parameter_List_Type::HMR ) )( 0 )( 0 );
 
         // ------------------------------
         // Base grid
 
         // get the base grid parameters
-        std::string tBaseGridPath = tHmrPath + ".BaseGrid";
+        std::string tBaseGridPath = aHmrPath + ".BaseGrid";
         std::string tBaseGridSize;
         std::string tDomainDimensions;
         std::string tBaseGridOrigin;
@@ -156,7 +168,7 @@ namespace moris
         // grids and refinements
 
         // path to the grids
-        std::string tGridsPath    = tHmrPath + ".MeshGrids";
+        std::string tGridsPath    = aHmrPath + ".MeshGrids";
         std::string tGridNodeName = "MeshGrid";
 
         // see how many grids are specified in the input file
@@ -213,7 +225,7 @@ namespace moris
         // B-spline meshes
 
         // path to the meshes
-        std::string tBspMeshesPath   = tHmrPath + ".BsplineMeshes";
+        std::string tBspMeshesPath   = aHmrPath + ".BsplineMeshes";
         std::string tBspMeshNodeName = "BsplineMesh";
 
         // see how many grids are specified in the input file
@@ -284,19 +296,11 @@ namespace moris
                 tNumBspMeshesSpecified );
 
         // ------------------------------
-        // turn on basis extensions for B-spline meshes if requested
-
-        // get the number of refinements of the Lagrange mesh at the boundary
-        bool tUseBasisExtensions = false;
-        mXmlReader->get( tXtkPath + ".UseCutBasisAgglomeration", tUseBasisExtensions, false );
-        tXtkParamList.set( "activate_basis_agglomeration", tUseBasisExtensions );
-
-        // ------------------------------
         // Lagrange mesh
 
         // get which grid is used for decomposition
         moris_index tGridForDecomp = 0;
-        mXmlReader->get( tXtkPath + ".DecompositionGrid", tGridForDecomp, 0 );
+        mXmlReader->get( aXtkPath + ".DecompositionGrid", tGridForDecomp, 0 );
         MORIS_ERROR( tGridForDecomp > -1 && tGridForDecomp < tMaxGridIndex + 1,
                 "Library_IO_Meshgen::load_parameters_from_xml() - "
                 "Trying to use mesh grid index %i for decomposition. But only grid indices 0 to %i are defined.",
@@ -311,7 +315,7 @@ namespace moris
 
         // get the number of refinements of the Lagrange mesh at the boundary
         moris_index tNumBoundaryRefinements = 0;
-        mXmlReader->get( tXtkPath + ".InterfaceRefinements", tNumBoundaryRefinements, 0 );
+        mXmlReader->get( aXtkPath + ".InterfaceRefinements", tNumBoundaryRefinements, 0 );
 
         // create additional pattern for the lagrange mesh
         moris_index tLagrangePattern = tMaxGridIndex + 1;
@@ -388,43 +392,64 @@ namespace moris
         tHmrParamList.set( "bspline_pattern", tBspPatterns );
         tHmrParamList.set( "lagrange_to_bspline", tLagrangeToBspline );
 
-        // ------------------------------
-        // XTK parameters
+    }    // end function: Library_IO_Meshgen::load_HMR_parameters_from_xml()
 
-        // turn on SPG based enrichment to make sure 
+    // -----------------------------------------------------------------------------
+
+    void
+    Library_IO_Meshgen::load_XTK_parameters_from_xml(
+            std::string const & aXtkPath,
+            std::string const & aHmrPath )
+    {
+        // quick access to the parameter list
+        ParameterList& tXtkParamList = mParameterLists( (uint)( Parameter_List_Type::XTK ) )( 0 )( 0 );
+
+        // turn on SPG based enrichment to make sure
         tXtkParamList.set( "use_SPG_based_enrichment", true );
 
         // enriched mesh indices
+        ParameterList& tHmrParamList      = mParameterLists( (uint)( Parameter_List_Type::HMR ) )( 0 )( 0 );
+        std::string    tLagrangeToBspline = tHmrParamList.get< std::string >( "lagrange_to_bspline" );
         tXtkParamList.set( "enrich_mesh_indices", tLagrangeToBspline );
 
         // get whether to triangulate all
         bool tTriangulateAll = false;
-        mXmlReader->get( tXtkPath + ".TriangulateAllFgElems", tTriangulateAll, bool( false ) );
+        mXmlReader->get( aXtkPath + ".TriangulateAllFgElems", tTriangulateAll, bool( false ) );
         tXtkParamList.set( "triangulate_all", tTriangulateAll );
 
         // check that boundary refinement is not requested when triangulating all
         if ( tTriangulateAll )
         {
-            MORIS_ERROR( tNumBoundaryRefinements == 0,
+            // get the number of geometric refinements around geometric boundaries
+            moris_index tNumBoundaryRefinements = 0;
+            mXmlReader->get( aXtkPath + ".InterfaceRefinements", tNumBoundaryRefinements, 0 );
+
+            MORIS_ERROR(
+                    tNumBoundaryRefinements == 0,
                     "Library_IO_Meshgen::load_parameters_from_xml() - "
                     "Triangulation of all elements and boundary refinement at the same time are not supported yet due to hanging nodes." );
         }
 
+        // get the number of refinements of the Lagrange mesh at the boundary
+        bool tUseBasisExtensions = false;
+        mXmlReader->get( aXtkPath + ".UseCutBasisAgglomeration", tUseBasisExtensions, false );
+        tXtkParamList.set( "activate_basis_agglomeration", tUseBasisExtensions );
+
         // get foreground mesh order
         uint tFgElemPolyOrder = 1;
-        mXmlReader->get( tXtkPath + ".FgPolynomialOrder", tFgElemPolyOrder, uint( 1 ) );
+        mXmlReader->get( aXtkPath + ".FgPolynomialOrder", tFgElemPolyOrder, uint( 1 ) );
         MORIS_ERROR( tFgElemPolyOrder == 1 || tFgElemPolyOrder == 2,
                 "Library_IO_Meshgen::load_parameters_from_xml() - Currently only supporting foreground polynomial orders 1 and 2." );
         tXtkParamList.set( "ig_element_order", tFgElemPolyOrder );
 
-        // check whether T-matrix output has been requested/suppressed 
+        // check whether T-matrix output has been requested/suppressed
         bool tOutputTmats = "";
-        mXmlReader->get( tXtkPath + ".OutputExtractionOperators", tOutputTmats, bool( true ) );
+        mXmlReader->get( aXtkPath + ".OutputExtractionOperators", tOutputTmats, bool( true ) );
         tXtkParamList.set( "only_generate_xtk_temp", !tOutputTmats );
 
         // check which T-matrix outputs have been requested
         std::string tTmatOutputFormats = "";
-        mXmlReader->get( tXtkPath + ".ExtractionOperatorFormat", tTmatOutputFormats, std::string( "" ) );
+        mXmlReader->get( aXtkPath + ".ExtractionOperatorFormat", tTmatOutputFormats, std::string( "" ) );
         bool tOutputElemental = ( tTmatOutputFormats.find( "Elemental" ) != std::string::npos );
         bool tOutputGlobal    = ( tTmatOutputFormats.find( "Global" ) != std::string::npos );
 
@@ -444,28 +469,52 @@ namespace moris
             tXtkParamList.set( "elemental_T_matrix_output_file", "Elemental_Extraction_Operators" );
         }
 
-        // ------------------------------
-        // Geometries
+    }    // end function: Library_IO_Meshgen::load_XTK_parameters_from_xml()
+
+    // -----------------------------------------------------------------------------
+
+    void
+    Library_IO_Meshgen::load_GEN_parameters_from_xml(
+            std::string const & aGenPath,
+            std::string const & aHmrPath,
+            std::string const & aXtkPath )
+    {
+        // quick access to the parameter list
+        ModuleParameterList& tGenParamList = mParameterLists( (uint)( Parameter_List_Type::GEN ) );
 
         // path to the meshes
         std::string tGeometryNodeName = "Geometry";
 
         // see how many grids are specified in the input file
-        uint tNumGeometries = mXmlReader->count_keys_in_subtree( tGenPath, tGeometryNodeName );
+        uint tNumGeometries = mXmlReader->count_keys_in_subtree( aGenPath, tGeometryNodeName );
+
+        // get the number of spatial dimensions from the HMR parameter list
+        Matrix< DDUMat > tBaseGridMat;
+        std::string      tBaseGridPath = aHmrPath + ".BaseGrid";
+        std::string      tBaseGridSize;
+        mXmlReader->get( tBaseGridPath + ".Size", tBaseGridSize, std::string( "" ) );
+        moris::string_to_mat( tBaseGridSize, tBaseGridMat );
+        uint tNumDims = tBaseGridMat.numel();
 
         // resize the parameter list correctly
         tGenParamList( 1 ).resize( tNumGeometries );
+
+        // get the intersection mode
+        bool tUseMultiLinearIntersections = false;
+        mXmlReader->get( aGenPath + ".UseMultiLinearIntersections", tUseMultiLinearIntersections, false );
+
+        // get the number of geometric refinements around geometric boundaries
+        moris_index tNumBoundaryRefinements = 0;
+        mXmlReader->get( aXtkPath + ".InterfaceRefinements", tNumBoundaryRefinements, 0 );
 
         // go over geometries and load their respective parameters
         for ( uint iGeom = 0; iGeom < tNumGeometries; iGeom++ )
         {
             // load the standard geometry parameter regardless of type
             tGenParamList( 1 )( iGeom ) = prm::create_geometry_parameter_list();
-            tGenParamList( 1 )( iGeom ).set( "number_of_refinements", std::to_string( tNumBoundaryRefinements ) );
-            tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", "0" );
 
             // move current geometry into the buffer
-            mXmlReader->copy_subtree_into_buffer( tGenPath, tGeometryNodeName, iGeom );
+            mXmlReader->copy_subtree_into_buffer( aGenPath, tGeometryNodeName, iGeom );
 
             // get the type to geometry defined
             std::string tGeomType = mXmlReader->get_attribute_from_buffer( "type", std::string( "" ) );
@@ -483,6 +532,10 @@ namespace moris
                 MORIS_ERROR( tPreDefGeom != "",
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "All pre-defined geometries must have an attribute 'geom' specified. Supported Options are 'plane' and 'circle'." );
+
+                tGenParamList( 1 )( iGeom ).set( "number_of_refinements", std::to_string( tNumBoundaryRefinements ) );
+                tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", "0" );
+                tGenParamList( 1 )( iGeom ).set( "multilinear_intersections", tUseMultiLinearIntersections );
 
                 // -------------------------------- //
                 // PLANE
@@ -674,12 +727,16 @@ namespace moris
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Unknown pre-defined geometry. Supported Options are 'plane', 'circle', 'sphere', 'ellipse', and 'ellipsoid'." );
                 }
+
             }    // end if: pre-defined geometry
 
             else if ( tGeomType == "image_file" )
             {
                 // initialize with the image sdf default parameter list
                 tGenParamList( 1 )( iGeom ) = prm::create_image_sdf_field_parameter_list();
+                tGenParamList( 1 )( iGeom ).set( "number_of_refinements", std::to_string( tNumBoundaryRefinements ) );
+                tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", "0" );
+                tGenParamList( 1 )( iGeom ).set( "multilinear_intersections", tUseMultiLinearIntersections );
 
                 // get the file name and check it for validity
                 std::string tFileName = "";
@@ -729,6 +786,9 @@ namespace moris
             {
                 // initialize with the sdf field default parameter list
                 tGenParamList( 1 )( iGeom ) = prm::create_sdf_field_parameter_list();
+                tGenParamList( 1 )( iGeom ).set( "number_of_refinements", std::to_string( tNumBoundaryRefinements ) );
+                tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", "0" );
+                tGenParamList( 1 )( iGeom ).set( "multilinear_intersections", tUseMultiLinearIntersections );
 
                 // get the file name and check it for validity
                 std::string tFileName = "";
@@ -762,7 +822,7 @@ namespace moris
                 double tSdfShift = 0.0;
                 mXmlReader->get_from_buffer( "SdfShift", tSdfShift, double( 0.0 ) );
                 tGenParamList( 1 )( iGeom ).set( "sdf_shift", tSdfShift );
-                
+
             }    // end if: geometry from image file
 
             else
@@ -780,7 +840,7 @@ namespace moris
 
         // get the string from the input file
         std::string tPhaseMapString = "";
-        mXmlReader->get( tGenPath + ".PhaseMap", tPhaseMapString, std::string( "" ) );
+        mXmlReader->get( aGenPath + ".PhaseMap", tPhaseMapString, std::string( "" ) );
         bool tPhaseMapSpecified = ( tPhaseMapString != "" );
 
         // if a phase map has been specified, convert it to a matrix
@@ -818,7 +878,8 @@ namespace moris
             // set the phase table in the parameter list
             tGenParamList( 0 )( 0 ).set( "phase_table", tPhaseTableString );
         }
-    }
+
+    }    // end function: Library_IO_Meshgen::load_GEN_parameters_from_xml()
 
     //------------------------------------------------------------------------------------------------------------------
     // STANDARD PARAMETER LIST FUNCTIONS
@@ -895,7 +956,7 @@ namespace moris
         // resize and initialize with standard parameters
         aParameterList.resize( 1 );
         aParameterList( 0 ).resize( 1 );
-        aParameterList( 0 )( 0 ) = prm::create_xtk_parameter_list();    // ParameterList();
+        aParameterList( 0 )( 0 ) = prm::create_xtk_parameter_list();
 
         // enrichment
         aParameterList( 0 )( 0 ).set( "enrich", true );
@@ -918,7 +979,7 @@ namespace moris
         // resize and initialize with standard parameters
         aParameterList.resize( 1 );
         aParameterList( 0 ).resize( 1 );
-        aParameterList( 0 )( 0 ) = prm::create_hmr_parameter_list();    // ParameterList();
+        aParameterList( 0 )( 0 ) = prm::create_hmr_parameter_list();
 
         // reduce buffer size as much as possible
         aParameterList( 0 )( 0 ).set( "refinement_buffer", 0 );
@@ -936,7 +997,7 @@ namespace moris
         // resize and initialize with standard parameters
         aParameterList.resize( 3 );
         aParameterList( 0 ).resize( 1 );
-        aParameterList( 0 )( 0 ) = prm::create_gen_parameter_list();    // ParameterList();
+        aParameterList( 0 )( 0 ) = prm::create_gen_parameter_list();
     }
 
     //------------------------------------------------------------------------------------------------------------------
