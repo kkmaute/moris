@@ -24,6 +24,7 @@
 #endif
 
 #include "cl_DLA_Linear_Solver_Algorithm.hpp"
+#include "cl_DLA_Preconditioner_Trilinos.hpp"
 
 using namespace moris;
 using namespace dla;
@@ -41,6 +42,23 @@ Solver_Factory::~Solver_Factory()
 }
 
 //------------------------------------------------------------------------------
+Preconditioner_Trilinos*
+Solver_Factory::create_preconditioner( const enum sol::PreconditionerType aPreconditionerType,
+        ParameterList&                                                    aParameterlist )
+{
+    switch ( aPreconditionerType )
+    {
+        case ( sol::PreconditionerType::NONE ):
+            return nullptr;
+        case ( sol::PreconditionerType::IFPACK ):
+            return new Preconditioner_Trilinos( &aParameterlist, nullptr );
+        case ( sol::PreconditionerType::ML ):
+            return new Preconditioner_Trilinos( &aParameterlist, nullptr );
+        default:
+            MORIS_ERROR( false, "No solver type specified" );
+            return nullptr;
+    }
+}
 
 std::shared_ptr< Linear_Solver_Algorithm >
 Solver_Factory::create_solver( const enum sol::SolverType aSolverType )
