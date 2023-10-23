@@ -570,7 +570,7 @@
 
         void SOLParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
         {
-            tParameterlist.resize(7);
+            tParameterlist.resize(8);
 
             tParameterlist( 0 ).push_back( moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL ) );
             //tParameterlist( 0 )( 0 ).set( "ifpack_prec_type", "ILU");
@@ -594,6 +594,8 @@
 
             tParameterlist( 6 ).push_back( moris::prm::create_solver_warehouse_parameterlist() );
             tParameterlist( 6 )( 0 ).set("SOL_save_operator_to_matlab",          "jp2.dat");
+
+            tParameterlist( 7 ).push_back(moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE ));
         }
 
         void MSIParameterList( moris::Cell< moris::Cell< ParameterList > > & tParameterlist )
