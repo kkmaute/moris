@@ -1,11 +1,11 @@
 /*
- * Copyright (c) 2022 University of Colorado 
- * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details. 
- * 
- * ------------------------------------------------------------------------------------ 
- * 
- * cl_Library_Enums.cpp  
- * 
+ * Copyright (c) 2022 University of Colorado
+ * Licensed under the MIT license. See LICENSE.txt file in the MORIS root for details.
+ *
+ * ------------------------------------------------------------------------------------
+ *
+ * cl_Library_Enums.cpp
+ *
  */
 
 #include "cl_Library_Enums.hpp"
@@ -16,25 +16,37 @@ namespace moris
 {
     // -----------------------------------------------------------------------------
 
-    std::string 
+    std::string
     convert_parameter_list_enum_to_string( Parameter_List_Type aParameterListType )
     {
-        switch( aParameterListType )
+        switch ( aParameterListType )
         {
-            case Parameter_List_Type::OPT : return "OPT";
-            case Parameter_List_Type::HMR : return "HMR";
-            case Parameter_List_Type::STK : return "STK";
-            case Parameter_List_Type::XTK : return "XTK";
-            case Parameter_List_Type::GEN : return "GEN";
-            case Parameter_List_Type::FEM : return "FEM";
-            case Parameter_List_Type::SOL : return "SOL";
-            case Parameter_List_Type::MSI : return "MSI";
-            case Parameter_List_Type::VIS : return "VIS";
-            case Parameter_List_Type::MIG : return "MIG";
-            case Parameter_List_Type::WRK : return "WRK";
-            case Parameter_List_Type::MORISGENERAL : return "MORISGENERAL";
+            case Parameter_List_Type::OPT:
+                return "OPT";
+            case Parameter_List_Type::HMR:
+                return "HMR";
+            case Parameter_List_Type::STK:
+                return "STK";
+            case Parameter_List_Type::XTK:
+                return "XTK";
+            case Parameter_List_Type::GEN:
+                return "GEN";
+            case Parameter_List_Type::FEM:
+                return "FEM";
+            case Parameter_List_Type::SOL:
+                return "SOL";
+            case Parameter_List_Type::MSI:
+                return "MSI";
+            case Parameter_List_Type::VIS:
+                return "VIS";
+            case Parameter_List_Type::MIG:
+                return "MIG";
+            case Parameter_List_Type::WRK:
+                return "WRK";
+            case Parameter_List_Type::MORISGENERAL:
+                return "MORISGENERAL";
 
-            default : 
+            default:
                 MORIS_ERROR( false, "Library_Enums::convert_enum_to_string() - Parameter list type enum unknown." );
                 return "";
         }
@@ -42,7 +54,7 @@ namespace moris
 
     // -----------------------------------------------------------------------------
 
-    std::string 
+    std::string
     get_name_for_parameter_list_type( Parameter_List_Type aParameterListType )
     {
         return convert_parameter_list_enum_to_string( aParameterListType ) + "ParameterList";
@@ -54,7 +66,7 @@ namespace moris
     get_number_of_sub_parameter_lists_in_module( Parameter_List_Type aModule )
     {
         // get the names of the sub-parameter lists for each of the modules
-        switch( aModule )
+        switch ( aModule )
         {
             case Parameter_List_Type::OPT:
                 return 1;
@@ -75,7 +87,7 @@ namespace moris
                 return 9;
 
             case Parameter_List_Type::SOL:
-                return 7;
+                return 8;
 
             case Parameter_List_Type::MSI:
                 return 1;
@@ -101,7 +113,7 @@ namespace moris
     // -----------------------------------------------------------------------------
 
     std::string
-    get_outer_sub_parameter_list_name( 
+    get_outer_sub_parameter_list_name(
             Parameter_List_Type aModule,
             uint                aParamListIndex )
     {
@@ -109,20 +121,20 @@ namespace moris
         Cell< std::string > tNames = { "General" };
 
         // get the names of the sub-parameter lists for each of the modules
-        switch( aModule )
+        switch ( aModule )
         {
             case Parameter_List_Type::OPT:
                 tNames = { "OptimizationProblems", "Interface", "Algorithms" };
                 break;
 
             case Parameter_List_Type::HMR:
-                break; // standard name
+                break;    // standard name
 
             case Parameter_List_Type::STK:
-                break; // standard name
+                break;    // standard name
 
             case Parameter_List_Type::XTK:
-                break; // standard name
+                break;    // standard name
 
             case Parameter_List_Type::GEN:
                 tNames = { "General", "Geometries", "Properties" };
@@ -149,21 +161,23 @@ namespace moris
                     "NonLinearSolvers",        // 3
                     "TimeSolverAlgorithms",    // 4
                     "TimeSolvers",             // 5
-                    "SolverWarehouse" };       // 6
+                    "SolverWarehouse",         // 6
+                    "Preconditioner"
+                };                             // 8
                 break;
 
             case Parameter_List_Type::MSI:
-                break; // standard name
+                break;    // standard name
 
             case Parameter_List_Type::VIS:
                 tNames = { "OutputMeshes" };
                 break;
 
             case Parameter_List_Type::MIG:
-                break; // standard name
+                break;    // standard name
 
             case Parameter_List_Type::WRK:
-                break; // standard name
+                break;    // standard name
 
             case Parameter_List_Type::MORISGENERAL:
                 tNames = { "Remeshing", "Refinement", "Mapping" };
@@ -173,7 +187,7 @@ namespace moris
                 MORIS_ERROR( false, "Library_Enums::convert_enum_to_string() - Parameter list type enum unknown." );
                 break;
         }
-        
+
         // check validity of the input
         uint tNumSubParamLists = tNames.size();
         MORIS_ERROR( aParamListIndex < tNumSubParamLists,
@@ -190,7 +204,7 @@ namespace moris
     // -----------------------------------------------------------------------------
 
     std::string
-    get_inner_sub_parameter_list_name( 
+    get_inner_sub_parameter_list_name(
             Parameter_List_Type aModule,
             uint                aParamListIndex )
     {
@@ -198,20 +212,20 @@ namespace moris
         Cell< std::string > tNames = { "" };
 
         // get the names of the sub-parameter lists for each of the modules
-        switch( aModule )
+        switch ( aModule )
         {
             case Parameter_List_Type::OPT:
                 tNames = { "OptimizationProblem", "Interface", "Algorithms" };
                 break;
 
             case Parameter_List_Type::HMR:
-                break; // standard name
+                break;    // standard name
 
             case Parameter_List_Type::STK:
-                break; // standard name
+                break;    // standard name
 
             case Parameter_List_Type::XTK:
-                break; // standard name
+                break;    // standard name
 
             case Parameter_List_Type::GEN:
                 tNames = { "", "Geometry", "Field" };
@@ -227,7 +241,8 @@ namespace moris
                     "",                 // 5
                     "Field",            // 6
                     "MaterialPhase",    // 7
-                    "MM" };             // 8
+                    "MM"
+                };                      // 8
                 break;
 
             case Parameter_List_Type::SOL:
@@ -238,21 +253,23 @@ namespace moris
                     "NonLinearSolver",        // 3
                     "TimeSolverAlgorithm",    // 4
                     "TimeSolver",             // 5
-                    "" };       // 6
+                    "SolverWarehouse",        // 6
+                    "Preconditioner"
+                };                            // 7
                 break;
 
             case Parameter_List_Type::MSI:
-                break; // standard name
+                break;    // standard name
 
             case Parameter_List_Type::VIS:
                 tNames = { "OutputMesh" };
                 break;
 
             case Parameter_List_Type::MIG:
-                break; // standard name
+                break;    // standard name
 
             case Parameter_List_Type::WRK:
-                break; // standard name
+                break;    // standard name
 
             case Parameter_List_Type::MORISGENERAL:
                 tNames = { "", "", "" };
@@ -262,7 +279,7 @@ namespace moris
                 MORIS_ERROR( false, "Library_Enums::convert_enum_to_string() - Parameter list type enum unknown." );
                 break;
         }
-        
+
         // check validity of the input
         uint tNumSubParamLists = tNames.size();
         MORIS_ERROR( aParamListIndex < tNumSubParamLists,
@@ -278,4 +295,4 @@ namespace moris
 
     // -----------------------------------------------------------------------------
 
-} // namespace moris
+}    // namespace moris
