@@ -22,9 +22,9 @@
 #include "Epetra_FEVector.h"
 #include "Epetra_IntVector.h"
 
-#include "cl_Communication_Manager.hpp"      // COM/src/
-#include "cl_Communication_Tools.hpp"        // COM/src/
-#include "cl_DLA_Linear_Solver_Aztec.hpp"    // DLA/src/
+#include "cl_Communication_Manager.hpp"        // COM/src/
+#include "cl_Communication_Tools.hpp"          // COM/src/
+#include "cl_DLA_Linear_Solver_Aztec.hpp"      // DLA/src/
 
 #include "cl_SOL_Matrix_Vector_Factory.hpp"    // DLA/src/
 #include "cl_Solver_Interface_Proxy.hpp"       // DLA/src/
@@ -33,6 +33,8 @@
 
 #include "cl_DLA_Linear_System_Trilinos.hpp"    // DLA/src/
 
+
+#include "fn_PRM_SOL_Parameters.hpp"
 extern moris::Comm_Manager gMorisComm;
 namespace moris
 {
@@ -198,6 +200,26 @@ namespace moris
 
                 std::shared_ptr< Linear_Solver_Algorithm > tLinSolver = tSolFactory.create_solver( sol::SolverType::BELOS_IMPL );
 
+                ParameterList tParamList;
+                tParamList.insert( "ifpack_prec_type", std::string( "ILU" ) );
+                tParamList.insert( "ml_prec_type", "" );
+                tParamList.insert( "fact: level-of-fill", 1 );
+                tParamList.insert( "fact: absolute threshold", 0.0 );
+                tParamList.insert( "fact: relative threshold", 1.0 );
+                tParamList.insert( "fact: relax value", 0.0 );
+
+                tParamList.insert( "schwarz: combine mode", std::string( "add" ) );
+                tParamList.insert( "schwarz: compute condest", true );
+                tParamList.insert( "schwarz: filter singletons", false );
+                tParamList.insert( "schwarz: reordering type", "rcm" );
+                tParamList.insert( "overlap-level", 0 );
+                tParamList.insert( "prec_reuse", false );
+
+
+                // create preconditioner
+                Preconditioner_Trilinos tPreconditioner( &tParamList, nullptr );
+                tLinSolver->set_preconditioner( &tPreconditioner );
+
                 //        tLinProblem->assemble_residual_and_jacobian();
                 tLinProblem->assemble_jacobian();
                 tLinProblem->assemble_residual();
@@ -344,10 +366,10 @@ namespace moris
 
                 // set eigen algorithm parameters
                 tEigSolver->set_param( "Eigen_Algorithm" )                = std::string( "EIGALG_BLOCK_DAVIDSON" );
-                tEigSolver->set_param( "Which" )                          = std::string( "SM" );
+                tEigSolver->set_param( "Which" )                          = std::string( "LM" );
                 tEigSolver->set_param( "Verbosity" )                      = false;
                 tEigSolver->set_param( "Block_Size" )                     = 1;    // 1
-                tEigSolver->set_param( "Num_Blocks" )                     = 2;
+                tEigSolver->set_param( "Num_Blocks" )                     = 3;
                 tEigSolver->set_param( "NumFreeDofs" )                    = 8;
                 tEigSolver->set_param( "Num_Eig_Vals" )                   = 1;     // 2; 1
                 tEigSolver->set_param( "MaxSubSpaceDims" )                = 6;     // 10
@@ -355,11 +377,27 @@ namespace moris
                 tEigSolver->set_param( "Initial_Guess" )                  = 0;
                 tEigSolver->set_param( "Convergence_Tolerance" )          = 1e-05;
                 tEigSolver->set_param( "Relative_Convergence_Tolerance" ) = true;
-                tEigSolver->set_param( "ifpack_prec_type" )               = std::string( "Amesos" );
-                tEigSolver->set_param( "amesos: solver type" )            = std::string( "Amesos_Pardiso" );
-                tEigSolver->set_param( "overlap-level" )                  = 0;
-                tEigSolver->set_param( "schwarz: combine mode" )          = std::string( "add" );
-                tEigSolver->set_param( "Update_Flag" )                    = false;    // false flag is set only for unit test. Default: True
+
+                tEigSolver->set_param( "Update_Flag" ) = false;    // false flag is set only for unit test. Default: True
+
+                ParameterList tParamList;
+                tParamList.insert( "ifpack_prec_type", std::string( "Amesos" ) );
+                tParamList.insert( "ml_prec_type", "" );
+                tParamList.insert( "amesos: solver type", std::string( "Amesos_Pardiso" ) );
+                tParamList.insert( "overlap-level", 0 );
+                tParamList.insert( "prec_reuse", false );
+
+                tParamList.insert( "schwarz: combine mode", std::string( "add" ) );
+                tParamList.insert( "schwarz: compute condest", true );
+                tParamList.insert( "schwarz: filter singletons", false );
+                tParamList.insert( "schwarz: reordering type", "rcm" );
+                tParamList.insert( "Amesos_Direct_Solver_Type", "Amesos_Klu" );
+
+                // create preconditioner
+                Preconditioner_Trilinos tPreconditioner( &tParamList, nullptr );
+                tEigSolver->set_preconditioner( &tPreconditioner );
+
+                tEigProblem->set_rhs_matrix_type( tRHSMatType );
 
                 // assemble jacobian
                 tEigProblem->assemble_jacobian();

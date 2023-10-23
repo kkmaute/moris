@@ -237,8 +237,8 @@ namespace moris
 
             sol::SOL_Warehouse tSolverWarehouse( tSolverInterface );
 
-            moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
-            for ( uint Ik = 0; Ik < 7; Ik++ )
+            moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 8 );
+            for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tParameterlist( Ik ).resize( 1 );
             }
@@ -264,6 +264,8 @@ namespace moris
 
             tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
             tParameterlist( 6 )( 0 ).set( "SOL_TPL_Type", static_cast< uint >( sol::MapType::Petsc ) );
+
+            tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
 
             tSolverWarehouse.set_parameterlist( tParameterlist );
 
