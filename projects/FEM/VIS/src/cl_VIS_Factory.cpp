@@ -22,6 +22,7 @@
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Double_Side_Set.hpp"
 #include "cl_MTK_Vertex.hpp"
+#include "cl_MTK_Set_Communicator.hpp"
 #include "cl_Tracer.hpp"
 
 extern moris::Comm_Manager gMorisComm;
@@ -1435,6 +1436,10 @@ namespace moris
                 mVisMesh->mListOfBlocks( iBlockSet )->set_cell_topology( tFemBlockSet->get_cell_topology() );
                 mVisMesh->mListOfBlocks( iBlockSet )->set_IG_cell_shape( tFemBlockSet->get_IG_cell_shape() );
             }
+
+            // communicate block sets
+            mtk::Set_Communicator tSetCommunicator( mVisMesh->mListOfBlocks );
+
         }    // end function: VIS_Factory::create_visualization_blocks()
 
         //-----------------------------------------------------------------------------------------------------------
@@ -1461,6 +1466,10 @@ namespace moris
                 // populate the set with meta information
                 mVisMesh->mListOfSideSets( iSideSet )->set_IG_cell_shape( tFemSideSet->get_IG_cell_shape() );
             }
+
+            // communicate information across all sets
+            mtk::Set_Communicator tSetCommunicator( mVisMesh->mListOfSideSets );
+
         }    // end function: VIS_Factory::create_visualization_side_sets()
 
         //-----------------------------------------------------------------------------------------------------------
@@ -1487,6 +1496,9 @@ namespace moris
                 // populate the set with meta information
                 mVisMesh->mListOfDoubleSideSets( iDblSideSet )->set_IG_cell_shape( tFemDblSideSet->get_IG_cell_shape() );
             }
+
+            // communicate information across all sets
+            mtk::Set_Communicator tSetCommunicator( mVisMesh->mListOfDoubleSideSets );
         }
 
         //-----------------------------------------------------------------------------------------------------------

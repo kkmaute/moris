@@ -21,6 +21,7 @@
 #include "cl_MTK_Side_Set.hpp"
 #include "cl_MTK_Vertex.hpp"
 #include "cl_MTK_Double_Side_Set.hpp"
+#include "cl_MTK_Set_Communicator.hpp"
 #include "cl_MTK_Cell_Info_Hex8.hpp"
 #include "cl_MTK_Cell_Info_Quad4.hpp"
 #include "fn_isempty.hpp"
@@ -793,8 +794,9 @@ namespace xtk
             }
         }
 
-        // set side set indices
+        // commit and communicate the side sets
         this->commit_side_set( tSideSetIndexList );
+        this->communicate_sets_of_type( mtk::SetType::SIDESET );
 
         this->setup_color_to_set();
         this->collect_all_sets();
@@ -882,6 +884,9 @@ namespace xtk
 
         this->setup_color_to_set();
         this->collect_all_sets();
+
+        // communicate committed block sets
+        this->communicate_sets_of_type( mtk::SetType::BULK );
     }
 
     //------------------------------------------------------------------------------
@@ -1489,6 +1494,9 @@ namespace xtk
                 tSetIndex++;
             }
         }
+
+        // communicate committed block sets
+        this->communicate_sets_of_type( mtk::SetType::BULK );
     }
 
     //------------------------------------------------------------------------------
@@ -1546,6 +1554,7 @@ namespace xtk
 
         // set side set indices
         this->commit_side_set( tSideSetIndexList );
+        this->communicate_sets_of_type( mtk::SetType::SIDESET );
     }
 
     //------------------------------------------------------------------------------
@@ -2276,9 +2285,10 @@ namespace xtk
     //------------------------------------------------------------------------------
 
     moris_index
-    Enriched_Integration_Mesh::create_side_set_from_dbl_side_set( moris_index const &aDblSideSetIndex,
-            std::string const                                                       &aSideSetName,
-            bool                                                                     aCollectSets )
+    Enriched_Integration_Mesh::create_side_set_from_dbl_side_set(
+            moris_index const &aDblSideSetIndex,
+            std::string const &aSideSetName,
+            bool               aCollectSets )
     {
         Cell< moris_index > tSideSetIndex = this->register_side_set_names( { aSideSetName } );
 
@@ -2297,6 +2307,7 @@ namespace xtk
         }
 
         this->commit_side_set( tSideSetIndex( 0 ) );
+        this->communicate_sets_of_type( mtk::SetType::SIDESET );
 
         this->set_side_set_colors( tSideSetIndex( 0 ), this->get_double_side_set_colors( aDblSideSetIndex ) );
 
@@ -2355,6 +2366,9 @@ namespace xtk
         this->set_block_set_colors( tBlockSetIndex( 0 ), this->get_side_set_colors( aSideSetIndex ) );
         this->setup_color_to_set();
         this->collect_all_sets( false );
+
+        // communicate block sets after committing a new one
+        this->communicate_sets_of_type( mtk::SetType::BULK );
 
         return tBlockSetIndex( 0 );
     }
@@ -2515,10 +2529,11 @@ namespace xtk
 
         mListOfDoubleSideSets.resize( mListOfDoubleSideSets.size() + 1, nullptr );
 
-        mListOfDoubleSideSets( aDoubleSideSetIndex ) = new moris::mtk::Double_Side_Set( mDoubleSideSetLabels( aDoubleSideSetIndex ),
-                this->get_double_side_set_cluster( aDoubleSideSetIndex ),
-                this->get_double_side_set_colors( aDoubleSideSetIndex ),
-                this->get_spatial_dim() );
+        mListOfDoubleSideSets( aDoubleSideSetIndex ) =
+                new moris::mtk::Double_Side_Set( mDoubleSideSetLabels( aDoubleSideSetIndex ),
+                        this->get_double_side_set_cluster( aDoubleSideSetIndex ),
+                        this->get_double_side_set_colors( aDoubleSideSetIndex ),
+                        this->get_spatial_dim() );
     }
 
     //------------------------------------------------------------------------------
@@ -2528,19 +2543,20 @@ namespace xtk
     {
         mListOfDoubleSideSets.resize( mListOfDoubleSideSets.size() + aSideSetIndexList.size(), nullptr );
 
-        for ( uint iI = 0; iI < aSideSetIndexList.size(); ++iI )
+        for ( uint iDblSS = 0; iDblSS < aSideSetIndexList.size(); ++iDblSS )
         {
-            const moris_index tSideSetIndex = aSideSetIndexList( iI );
+            const moris_index tSideSetIndex = aSideSetIndexList( iDblSS );
 
             MORIS_ASSERT( (uint)tSideSetIndex < mListOfDoubleSideSets.size(),
                     "Enriched_Integration_Mesh::commit_double_side_set() - "
                     "Committing double side set failed. aDoubleSideSetIndex needs to be equivalent to the size of the list of double side sets" );
 
-            mListOfDoubleSideSets( tSideSetIndex ) = new moris::mtk::Double_Side_Set(
-                    mDoubleSideSetLabels( tSideSetIndex ),
-                    this->get_double_side_set_cluster( tSideSetIndex ),
-                    this->get_double_side_set_colors( tSideSetIndex ),
-                    this->get_spatial_dim() );
+            mListOfDoubleSideSets( tSideSetIndex ) =
+                    new moris::mtk::Double_Side_Set(
+                            mDoubleSideSetLabels( tSideSetIndex ),
+                            this->get_double_side_set_cluster( tSideSetIndex ),
+                            this->get_double_side_set_colors( tSideSetIndex ),
+                            this->get_spatial_dim() );
         }
     }
 
@@ -2555,12 +2571,14 @@ namespace xtk
 
         mListOfSideSets.resize( mListOfSideSets.size() + 1, nullptr );
 
-        mListOfSideSets( aSideSetIndex ) = new moris::mtk::Side_Set(
-                mSideSetLabels( aSideSetIndex ),
-                this->get_side_set_cluster( aSideSetIndex ),
-                this->get_side_set_colors( aSideSetIndex ),
-                this->get_spatial_dim() );
+        mListOfSideSets( aSideSetIndex ) =
+                new moris::mtk::Side_Set(
+                        mSideSetLabels( aSideSetIndex ),
+                        this->get_side_set_cluster( aSideSetIndex ),
+                        this->get_side_set_colors( aSideSetIndex ),
+                        this->get_spatial_dim() );
     }
+
     //------------------------------------------------------------------------------
 
     void
@@ -2576,11 +2594,12 @@ namespace xtk
                     "Enriched_Integration_Mesh::commit_side_set() - "
                     "Committing side set failed. aSideSetIndex needs to be equivalent to the size of the list of single side sets" );
 
-            mListOfSideSets( tSideSetIndex ) = new moris::mtk::Side_Set(
-                    mSideSetLabels( tSideSetIndex ),
-                    this->get_side_set_cluster( tSideSetIndex ),
-                    this->get_side_set_colors( tSideSetIndex ),
-                    this->get_spatial_dim() );
+            mListOfSideSets( tSideSetIndex ) =
+                    new moris::mtk::Side_Set(
+                            mSideSetLabels( tSideSetIndex ),
+                            this->get_side_set_cluster( tSideSetIndex ),
+                            this->get_side_set_colors( tSideSetIndex ),
+                            this->get_spatial_dim() );
         }
     }
 
@@ -2589,17 +2608,55 @@ namespace xtk
     void
     Enriched_Integration_Mesh::commit_block_set( moris_index const &aBlockSetIndex )
     {
-        MORIS_ASSERT( mListOfBlocks.size() == (uint)aBlockSetIndex,
+        MORIS_ASSERT(
+                mListOfBlocks.size() == (uint)aBlockSetIndex,
                 "Enriched_Integration_Mesh::commit_block_set() -  "
                 "Committing side set failed. aSideSetIndex needs to be equivalent to the size of the list of double side sets" );
 
         mListOfBlocks.resize( mListOfBlocks.size() + 1, nullptr );
 
-        mListOfBlocks( aBlockSetIndex ) = new moris::mtk::Block( mBlockSetNames( aBlockSetIndex ),
-                this->get_cell_clusters_in_set( aBlockSetIndex ),
-                this->get_block_set_colors( aBlockSetIndex ),
-                this->get_spatial_dim() );
+        mListOfBlocks( aBlockSetIndex ) =
+                new moris::mtk::Block(
+                        mBlockSetNames( aBlockSetIndex ),
+                        this->get_cell_clusters_in_set( aBlockSetIndex ),
+                        this->get_block_set_colors( aBlockSetIndex ),
+                        this->get_spatial_dim() );
     }
+
+    //------------------------------------------------------------------------------
+
+    void
+    Enriched_Integration_Mesh::communicate_sets_of_type( const mtk::SetType aSetType )
+    {
+        switch ( aSetType )
+        {
+            case mtk::SetType::BULK:
+            {
+                // communicate block sets
+                mtk::Set_Communicator tSetCommunicator( mListOfBlocks );
+                break;
+            }
+            case mtk::SetType::SIDESET:
+            {
+                // communicate side sets
+                mtk::Set_Communicator tSetCommunicator( mListOfSideSets );
+                break;
+            }
+            case mtk::SetType::DOUBLE_SIDED_SIDESET:
+            {
+                // communicate double sided side sets
+                mtk::Set_Communicator tSetCommunicator( mListOfDoubleSideSets );
+                break;
+            }
+            default:
+            {
+                MORIS_ERROR( false,
+                        "xtk::Enriched_Integration_Mesh::communicate_sets_of_type() - Unknown set type to communicate." );
+            }
+
+        }    // end switch: set type
+
+    }        // end function: Enriched_Integration_Mesh::communicate_sets_of_type()
 
     //------------------------------------------------------------------------------
 
@@ -2924,11 +2981,15 @@ namespace xtk
             }
         }
 
-        for ( uint Ik = mListOfBlocks.size(); Ik < mPrimaryBlockSetClusters.size(); Ik++ )
+        for ( uint iBlockSet = mListOfBlocks.size(); iBlockSet < mPrimaryBlockSetClusters.size(); iBlockSet++ )
         {
-            this->commit_block_set( Ik );
+            this->commit_block_set( iBlockSet );
         }
-    }
+
+        // communicate committed block sets
+        this->communicate_sets_of_type( mtk::SetType::BULK );
+
+    }    // end function: Enriched_Integration_Mesh::setup_blockset_with_cell_clusters()
 
     //------------------------------------------------------------------------------
 
@@ -3112,9 +3173,11 @@ namespace xtk
             tSideSetIndexList.push_back( Ik );
         }
 
-        // set side set indices
+        // commit and communicate the side sets
         this->commit_side_set( tSideSetIndexList );
-    }
+        this->communicate_sets_of_type( mtk::SetType::SIDESET );
+
+    }    // end function: Enriched_Integration_Mesh::setup_side_set_clusters()
 
     //------------------------------------------------------------------------------
 
@@ -4289,7 +4352,9 @@ namespace xtk
 
         // set double side set indices
         this->commit_double_side_set( tDoubleSideSetIndexList );
+        this->communicate_sets_of_type( mtk::SetType::DOUBLE_SIDED_SIDESET );
     }
+
     //------------------------------------------------------------------------------
 
     void
@@ -4565,9 +4630,11 @@ namespace xtk
             tSideSetIndexList.push_back( Ik );
         }
 
-        // set side set indices
+        // commit and communicate the side sets
         this->commit_side_set( tSideSetIndexList );
-    }
+        this->communicate_sets_of_type( mtk::SetType::SIDESET );
+
+    }    // end function: Enriched_Integration_Mesh::create_interface_side_sets_and_clusters()
 
     //------------------------------------------------------------------------------
 

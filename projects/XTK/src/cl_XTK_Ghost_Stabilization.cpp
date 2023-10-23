@@ -1320,7 +1320,9 @@ namespace xtk
                     { { (moris_index)iBulkPhase } } );
         }
 
+        // commit and communicate the double side sets
         tEnrIntegMesh.commit_double_side_set( tDoubleSideSetIndexList );
+        tEnrIntegMesh.communicate_sets_of_type( mtk::SetType::DOUBLE_SIDED_SIDESET );
 
         tEnrIntegMesh.collect_all_sets();
     }
@@ -1700,6 +1702,7 @@ namespace xtk
 
         // commit Ghost Dbl.-SS.'s to the enriched integration mesh
         tEnrIntegMesh.commit_double_side_set( tDoubleSideSetIndexList );
+        tEnrIntegMesh.communicate_sets_of_type( mtk::SetType::DOUBLE_SIDED_SIDESET );
 
         // finalize enriched integration mesh
         tEnrIntegMesh.collect_all_sets();
