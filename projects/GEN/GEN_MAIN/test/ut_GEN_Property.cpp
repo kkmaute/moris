@@ -68,7 +68,7 @@ namespace moris
             // Set up and create geometry
             ParameterList tCircleParameterList = prm::create_geometry_parameter_list();
             tCircleParameterList.set("type", "circle");
-            tCircleParameterList.set("name", "My Circle");
+            tCircleParameterList.set("name", "My_Circle");
             tCircleParameterList.set("field_variable_indices", "0, 1, 2");
             tCircleParameterList.set("adv_indices", "0, 1, 2");
             Cell<std::shared_ptr<Geometry>> tGeometries = create_geometries({tCircleParameterList}, tADVs);
@@ -77,7 +77,7 @@ namespace moris
             // Set up property
             ParameterList tScaledFieldParameterList = prm::create_gen_property_parameter_list();
             tScaledFieldParameterList.set("type", "scaled_field");
-            tScaledFieldParameterList.set("dependencies", "My Circle");
+            tScaledFieldParameterList.set("dependencies", "My_Circle");
 
             // Random distribution
             std::uniform_real_distribution<real> tUniform(-100.0, 100.0);
