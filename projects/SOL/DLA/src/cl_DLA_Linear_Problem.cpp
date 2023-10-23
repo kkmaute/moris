@@ -109,36 +109,6 @@ namespace moris
             // assemble Jacobian
             mSolverInterface->assemble_jacobian( mMat );
 
-            // get RHS Matrix Type from solver warehouse
-            if ( mSolverWarehouse )
-            {
-                mRHSMatType = mSolverWarehouse->get_RHS_mat_type();
-
-                if ( mRHSMatType != "" )
-                {
-                    if ( mRHSMatType == "MassMat" )
-                    {
-                        mMassMat->mat_put_scalar( 0.0 );
-
-                        // assemble jacobian
-                        mSolverInterface->assemble_jacobian( mMassMat, moris::fem::Time_Continuity_Flag::TIME_CONTINUITY_ONLY );
-                    }
-                    else if ( mRHSMatType == "IdentityMat" )
-                    {
-                        mMassMat->mat_put_scalar( 0.0 );
-
-                        mPointVectorRHS->vec_put_scalar( 1.0 );
-
-                        // create identity matrix by replacing diagonal values to 1.0
-                        mMassMat->replace_diagonal_values( *mPointVectorRHS );
-                    }
-                    else
-                    {
-                        MORIS_ERROR( false, "RHS Matrix Type not correct" );
-                    }
-                }
-            }
-
             if ( mSolverWarehouse )
             {
                 if ( !mSolverWarehouse->get_output_to_matlab_string().empty() )
@@ -151,10 +121,6 @@ namespace moris
 
                     // save to file
                     mMat->save_matrix_to_matlab_file( tJacFileName.c_str() );
-
-                    std::string tMassFileName = "Mass_" + tJacFileName;
-
-                    mMassMat->save_matrix_to_matlab_file( tMassFileName.c_str() );
 
                     // log that output was successful
                     MORIS_LOG_INFO( "Saved Jacobian to Matlab File: %s ", tJacFileName.c_str() );
@@ -311,6 +277,63 @@ namespace moris
 
             // return vector with relative residuals
             return tRelativeResidualNorm;
+        }
+
+        //----------------------------------------------------------------------------------------
+        void
+        Linear_Problem::construct_rhs_matrix()
+        {
+            MORIS_ERROR( false, "It is not implemented yet" );
+        }
+
+        //----------------------------------------------------------------------------------------
+
+        void
+        Linear_Problem::assemble_rhs_matrix()
+        {
+            this->construct_rhs_matrix();
+
+            if ( mRHSMatType != "" )
+            {
+                if ( mRHSMatType == "MassMat" )
+                {
+                    mMassMat->mat_put_scalar( 0.0 );
+
+                    // assemble jacobian
+                    mSolverInterface->assemble_jacobian( mMassMat, moris::fem::Time_Continuity_Flag::TIME_CONTINUITY_ONLY );
+                }
+                else if ( mRHSMatType == "IdentityMat" )
+                {
+                    mMassMat->mat_put_scalar( 0.0 );
+
+                    mPointVectorRHS->vec_put_scalar( 1.0 );
+
+                    // create identity matrix by replacing diagonal values to 1.0
+                    mMassMat->replace_diagonal_values( *mPointVectorRHS );
+                }
+                else
+                {
+                    MORIS_ERROR( false, "RHS Matrix Type not correct" );
+                }
+            }
+
+
+            if ( !mSolverWarehouse->get_output_to_matlab_string().empty() )
+            {
+                // Get the nonlinear system index
+                uint tNonlinearSystemIndex = gLogger.get_iteration( "NonLinearSolver", LOGGER_ARBITRARY_DESCRIPTOR, LOGGER_ARBITRARY_DESCRIPTOR );
+
+                // construct string for file name
+                std::string tJacFileName = mSolverWarehouse->get_output_to_matlab_string() + "." + std::to_string( tNonlinearSystemIndex ) + ".jac.dat";
+
+
+                std::string tMassFileName = "Mass_" + tJacFileName;
+
+                mMassMat->save_matrix_to_matlab_file( tMassFileName.c_str() );
+
+                // log that output was successful
+                MORIS_LOG_INFO( "Saved Jacobian to Matlab File: %s ", tMassFileName.c_str() );
+            }
         }
     }    // namespace dla
 }    // namespace moris
