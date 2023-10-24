@@ -21,7 +21,6 @@ namespace moris::ge
 
       private:
         Cell< ADV >       mADVs;
-        Matrix< DDRMat >  mConstants;
         Matrix< DDSMat >  mDeterminingADVIds;
         bool              mHasADVs;
         sol::Dist_Vector* mSharedADVs = nullptr;
@@ -103,14 +102,15 @@ namespace moris::ge
         bool has_advs();
 
       private:
+
         /**
-         * Checks variable inputs and resizes the internal field variables based these inputs.
+         * Creates the ADVs managed by this object.
          *
-         * @param aFieldVariableIndices Indices of Field variables to be filled by the ADVs
-         * @param aADVIndices The indices of the ADV vector to fill in the Field variables
+         * @param aADVs ADV vector
+         * @param aConstants Constants to fill in other values
          */
-        void assign_adv_dependencies(
-                const Matrix< DDUMat >& aFieldVariableIndices,
-                const Matrix< DDUMat >& aADVIndices );
+        void create_advs(
+                Matrix< DDRMat >& aADVs,
+                const Matrix< DDRMat >& aConstants );
     };
 }

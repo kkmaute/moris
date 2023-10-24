@@ -21,34 +21,33 @@ namespace moris::ge
             const Matrix< DDUMat >& aVariableIndices,
             const Matrix< DDUMat >& aADVIndices,
             const Matrix< DDRMat >& aConstants )
-            : mConstants( aConstants )
-            , mDeterminingADVIds( aVariableIndices.length() + aConstants.length(), 1, -1 )
+            : mDeterminingADVIds( aVariableIndices.length() + aConstants.length(), 1, -1 )
             , mHasADVs( aADVIndices.length() )
     {
-        // Check and assign ADV dependencies
-        this->assign_adv_dependencies( aVariableIndices, aADVIndices );
+        // Check that the number of field variables indices equals the number of ADV indices
+        MORIS_ERROR( aVariableIndices.length() == aADVIndices.length(),
+                "Number of field variables indices must equal the number of ADV indices in a GEN ADV_Manager." );
 
-        // Reserve ADVs
-        mADVs.reserve( mDeterminingADVIds.length() );
+        // Set ADV dependencies
+        for ( uint tADVFillIndex = 0; tADVFillIndex < aVariableIndices.length(); tADVFillIndex++ )
+        {
+            mDeterminingADVIds( aVariableIndices( tADVFillIndex ) ) = aADVIndices( tADVFillIndex );
+        }
 
         // Fill with pointers to ADVs
-        this->set_advs( aADVs );
+        this->create_advs( aADVs, aConstants );
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     ADV_Manager::ADV_Manager(
             const Matrix< DDRMat >& aConstants )
-            : mConstants( aConstants )
-            , mDeterminingADVIds( aConstants.length(), 1, -1 )
+            : mDeterminingADVIds( aConstants.length(), 1, -1 )
             , mHasADVs( false )
     {
-        // Reserve ADVs
-        mADVs.reserve( aConstants.length() );
-
         // Set ADVs
         Matrix< DDRMat > tDummyADVs( 0, 0 );
-        this->set_advs( tDummyADVs );
+        this->create_advs( tDummyADVs, aConstants );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -90,17 +89,11 @@ namespace moris::ge
     void
     ADV_Manager::set_advs( Vector_Type& aADVs )
     {
-        uint tConstantIndex = 0;
-        mADVs.clear();
         for ( uint tVariableIndex = 0; tVariableIndex < mDeterminingADVIds.length(); tVariableIndex++ )
         {
             if ( mDeterminingADVIds( tVariableIndex ) >= 0 )
             {
-                mADVs.emplace_back( aADVs, mDeterminingADVIds( tVariableIndex ) );
-            }
-            else
-            {
-                mADVs.emplace_back( mConstants( tConstantIndex++ ) );
+                mADVs( tVariableIndex ) = ADV( aADVs, mDeterminingADVIds( tVariableIndex ) );
             }
         }
     }
@@ -138,19 +131,25 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    void
-    ADV_Manager::assign_adv_dependencies(
-            const Matrix< DDUMat >& aVariableIndices,
-            const Matrix< DDUMat >& aADVIndices )
+    void ADV_Manager::create_advs(
+            Matrix< DDRMat >& aADVs,
+            const Matrix< DDRMat >& aConstants )
     {
-        // Check that the number of field variables indices equals the number of ADV indices
-        MORIS_ERROR( aVariableIndices.length() == aADVIndices.length(),
-                "Number of field variables indices must equal the number of ADV indices in a GEN ADV entity." );
+        // Reserve ADVs
+        mADVs.reserve( mDeterminingADVIds.length() );
 
-        // Set ADV dependencies
-        for ( uint tADVFillIndex = 0; tADVFillIndex < aVariableIndices.length(); tADVFillIndex++ )
+        // Create ADVs
+        uint tConstantIndex = 0;
+        for ( uint tVariableIndex = 0; tVariableIndex < mDeterminingADVIds.length(); tVariableIndex++ )
         {
-            mDeterminingADVIds( aVariableIndices( tADVFillIndex ) ) = aADVIndices( tADVFillIndex );
+            if ( mDeterminingADVIds( tVariableIndex ) >= 0 )
+            {
+                mADVs.emplace_back( aADVs, mDeterminingADVIds( tVariableIndex ) );
+            }
+            else
+            {
+                mADVs.emplace_back( aConstants( tConstantIndex++ ) );
+            }
         }
     }
 
