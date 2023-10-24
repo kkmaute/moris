@@ -285,6 +285,9 @@ namespace xtk
         // make sure we have access to all the vertex interpolation
         this->setup_background_vertex_interpolations();
 
+        // bool variable to determine to populate the enrichment data with the element enrichments and levels
+        bool tWriteElementEnrichmentsLevels = mXTKModelPtr->mParameterList.get<bool>("write_cell_enrichments_levels");
+
         // construct data needed for enrichment for every B-spline mesh the Lagrange mesh is related to
         for ( moris::size_t iMeshIndex = 0; iMeshIndex < mMeshIndices.numel(); iMeshIndex++ )
         {
@@ -297,9 +300,12 @@ namespace xtk
             // Number of basis functions (= number of B-Splines on the A-mesh ?)
             moris::size_t tNumBasisFunctions = mBackgroundMeshPtr->get_num_basis_functions( tMeshIndex );
 
-            // allocate member variables
-            mEnrichmentData( tMeshIndex ).mElementEnrichmentLevel = Cell< Cell< moris_index > >( tNumBasisFunctions );
-            mEnrichmentData( tMeshIndex ).mElementIndsInBasis     = Cell< Cell< moris_index > >( tNumBasisFunctions );
+            if ( tWriteElementEnrichmentsLevels )
+            {
+                // allocate member variables
+                mEnrichmentData( tMeshIndex ).mElementEnrichmentLevel = Cell< Cell< moris_index > >( tNumBasisFunctions );
+                mEnrichmentData( tMeshIndex ).mElementIndsInBasis     = Cell< Cell< moris_index > >( tNumBasisFunctions );
+            }
 
             // allocate data used after basis loop
             Cell< Matrix< IndexMat > > tSubPhaseBinEnrichment( tNumBasisFunctions );
@@ -355,6 +361,17 @@ namespace xtk
                         tSubPhaseIndexToSupportIndex,
                         tPrunedSubphaseNeighborhood,
                         tSubPhaseBinEnrichment( iBasisFunction ) );
+
+                if ( tWriteElementEnrichmentsLevels )
+                {
+                    this->generate_element_enrichments_levels_based_on_sp( tMeshIndex,
+                            iBasisFunction,
+                            tParentElementsInSupport,
+                            tSubphaseClusterIndicesInSupport( iBasisFunction ),
+                            tSubPhaseIndexToSupportIndex,
+                            tPrunedSubphaseNeighborhood,
+                            tSubPhaseBinEnrichment( iBasisFunction ) );
+                }
             }
 
             // construct subphase to enriched index
@@ -370,7 +387,7 @@ namespace xtk
                     tMeshIndex,
                     tMaxEnrichmentLevel );
 
-            MORIS_LOG_SPEC( "Num Non-enriched Bases", mEnrichmentData( tMeshIndex ).mElementIndsInBasis.size() );
+            MORIS_LOG_SPEC( "Num Non-enriched Bases", tNumBasisFunctions );
             MORIS_LOG_SPEC( "Num Enriched Bases", mEnrichmentData( tMeshIndex ).mNumEnrichedBasisFunctions );
         }
 
@@ -392,6 +409,9 @@ namespace xtk
         // make sure we have access to all the vertex interpolation
         this->setup_background_vertex_interpolations();
 
+        // bool variable to determine to populate the enrichment data with the element enrichments and levels
+        bool tWriteElementEnrichmentsLevels = mXTKModelPtr->mParameterList.get<bool>("write_cell_enrichments_levels");
+
         // iterate through B-spline meshes
         for ( moris::size_t iMeshIndex = 0; iMeshIndex < mMeshIndices.numel(); iMeshIndex++ )
         {
@@ -403,9 +423,12 @@ namespace xtk
             // Number of basis functions (= number of B-Splines on the A-mesh )
             moris::size_t tNumBasisFunctions = mBackgroundMeshPtr->get_num_basis_functions( tMeshIndex );
 
-            // allocate member variables
-            mEnrichmentData( tMeshIndex ).mElementEnrichmentLevel = Cell< Cell< moris_index > >( tNumBasisFunctions );
-            mEnrichmentData( tMeshIndex ).mElementIndsInBasis     = Cell< Cell< moris_index > >( tNumBasisFunctions );
+            if ( tWriteElementEnrichmentsLevels )
+            {
+                // allocate member variables
+                mEnrichmentData( tMeshIndex ).mElementEnrichmentLevel = Cell< Cell< moris_index > >( tNumBasisFunctions );
+                mEnrichmentData( tMeshIndex ).mElementIndsInBasis     = Cell< Cell< moris_index > >( tNumBasisFunctions );
+            }
 
             // allocate data used after basis loop
             Cell< Matrix< IndexMat > > tSpgBinEnrichment( tNumBasisFunctions );
@@ -460,6 +483,16 @@ namespace xtk
                         tParentElementsInSupport,
                         tSpgIndicesInSupport( iBasisFunction ),
                         tSpgBinEnrichment( iBasisFunction ) );
+
+                if ( tWriteElementEnrichmentsLevels )
+                {
+                    // This function determines the elements in the background basis along with its levels of enrichment
+                    this->generate_element_enrichments_levels_based_on_spg( tMeshIndex,
+                            iBasisFunction,
+                            tParentElementsInSupport,
+                            tSpgIndicesInSupport( iBasisFunction ),
+                            tSpgBinEnrichment( iBasisFunction ) );
+                }
             }
 
             // construct subphase to enriched index
@@ -994,6 +1027,30 @@ namespace xtk
             Matrix< IndexMat > const & aPrunedSubPhaseToSubphase,
             Matrix< IndexMat >&        aSubPhaseBinEnrichmentVals )
     {
+        // go through all subphases in support and save the current basis function's index to them,
+        // and which enrichment level of this basis function is active on them
+        for ( moris::size_t iSP = 0; iSP < aSubphasesInSupport.numel(); iSP++ )
+        {
+            moris_index tSubphaseIndex = aSubphasesInSupport( iSP );
+
+            // add information to interp cells about which basis/enrichment level interpolates in it
+            mEnrichmentData( aEnrichmentDataIndex ).mSubphaseBGBasisIndices( tSubphaseIndex ).push_back( aBasisIndex );
+            mEnrichmentData( aEnrichmentDataIndex ).mSubphaseBGBasisEnrLev( tSubphaseIndex ).push_back( aSubPhaseBinEnrichmentVals( iSP ) );
+        }
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void
+    Enrichment::generate_element_enrichments_levels_based_on_sp(
+            moris_index const &        aEnrichmentDataIndex,
+            moris_index const &        aBasisIndex,
+            Matrix< IndexMat > const & aParentElementsInSupport,
+            Matrix< IndexMat > const & aSubphasesInSupport,
+            IndexMap&                  aSubPhaseIndexToSupportIndex,
+            Matrix< IndexMat > const & aPrunedSubPhaseToSubphase,
+            Matrix< IndexMat >&        aSubPhaseBinEnrichmentVals )
+    {
         // resize member data
         moris::size_t tNumAllElementsInSupport                                         = this->count_elements_in_support( aParentElementsInSupport );
         mEnrichmentData( aEnrichmentDataIndex ).mElementIndsInBasis( aBasisIndex )     = Cell< moris_index >( tNumAllElementsInSupport );
@@ -1017,10 +1074,6 @@ namespace xtk
                 mEnrichmentData( aEnrichmentDataIndex ).mElementEnrichmentLevel( aBasisIndex )( tCount ) = aSubPhaseBinEnrichmentVals( iSP );
                 tCount++;
             }
-
-            // add information to interp cells about which basis/enrichment level interpolates in it
-            mEnrichmentData( aEnrichmentDataIndex ).mSubphaseBGBasisIndices( tSubphaseIndex ).push_back( aBasisIndex );
-            mEnrichmentData( aEnrichmentDataIndex ).mSubphaseBGBasisEnrLev( tSubphaseIndex ).push_back( aSubPhaseBinEnrichmentVals( iSP ) );
         }
     }
 
@@ -1028,6 +1081,29 @@ namespace xtk
 
     void
     Enrichment::unzip_subphase_group_bin_enrichment_into_element_enrichment(
+            moris_index const &        aEnrichmentDataIndex,
+            moris_index const &        aBasisIndex,
+            Matrix< IndexMat > const & aParentElementsInSupport,
+            Matrix< IndexMat > const & aSpgsInSupport,
+            Matrix< IndexMat >&        aSpgBinEnrichmentVals )
+    {
+        // go through all subphases in support and save the current basis function's index to them,
+        // and which enrichment level of this basis function is active on them
+        for ( moris::size_t iSPG = 0; iSPG < aSpgsInSupport.numel(); iSPG++ )
+        {
+            // get the index of the SPG currently treated
+            moris_index tSpgIndex = aSpgsInSupport( iSPG );
+
+            // add information to interp cells about which basis/enrichment level interpolates in it
+            mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupBGBasisIndices( tSpgIndex ).push_back( aBasisIndex );
+            mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupBGBasisEnrLev( tSpgIndex ).push_back( aSpgBinEnrichmentVals( iSPG ) );
+        }
+    }
+
+    //-------------------------------------------------------------------------------------
+
+    void
+    Enrichment::generate_element_enrichments_levels_based_on_spg(
             moris_index const &        aEnrichmentDataIndex,
             moris_index const &        aBasisIndex,
             Matrix< IndexMat > const & aParentElementsInSupport,
@@ -1059,10 +1135,6 @@ namespace xtk
                 mEnrichmentData( aEnrichmentDataIndex ).mElementEnrichmentLevel( aBasisIndex )( tIgCellCount ) = aSpgBinEnrichmentVals( iSPG );
                 tIgCellCount++;
             }
-
-            // add information to interp cells about which basis/enrichment level interpolates in it
-            mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupBGBasisIndices( tSpgIndex ).push_back( aBasisIndex );
-            mEnrichmentData( aEnrichmentDataIndex ).mSubphaseGroupBGBasisEnrLev( tSpgIndex ).push_back( aSpgBinEnrichmentVals( iSPG ) );
         }
     }
 
@@ -1282,8 +1354,8 @@ namespace xtk
             moris_index const &         aEnrichmentDataIndex,
             Cell< moris_index > const & aMaxEnrichmentLevel )
     {
-        // get number of non-enriched BFs
-        uint tNumNonEnrichedBFs = mEnrichmentData( aEnrichmentDataIndex ).mElementIndsInBasis.size();
+        // get number of non-enriched BFs,  it is assumed that the enrichment index is the mesh index
+        uint tNumNonEnrichedBFs = mBackgroundMeshPtr->get_num_basis_functions( aEnrichmentDataIndex );
 
         // initialize array holding the enriched basis function function indices living on any given non-enriched BF
         mEnrichmentData( aEnrichmentDataIndex ).mBasisEnrichmentIndices.resize( tNumNonEnrichedBFs );
@@ -1566,8 +1638,8 @@ namespace xtk
         // access current enrichment data
         xtk::Enrichment_Data* tEnrichmentData = &mEnrichmentData( aEnrichmentDataIndex );
 
-        // get number of non-enriched BFs
-        uint tNumNonEnrichedBFs = tEnrichmentData->mElementIndsInBasis.size();
+        // get number of non-enriched BFs, it is assumed that enrichment data index corresponds to mesh index
+        uint tNumNonEnrichedBFs =  mBackgroundMeshPtr->get_num_basis_functions( aEnrichmentDataIndex );
 
         // counters for owned and not-owned enr. basis functions
         uint tNumOwnedEnrBFs    = 0;

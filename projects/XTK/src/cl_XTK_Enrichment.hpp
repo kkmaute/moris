@@ -98,6 +98,7 @@ namespace xtk
 
         // Enrichment Data ordered by basis function indices
         // For each basis function, the element indices and elemental enrichment levels //?
+        // NOTE: this data is for debug purposes only, it is not used in the enrichment process however it is populated
         Cell< Cell< moris_index > > mElementIndsInBasis;        // input: non-enriched BF index || output: list of IG cells within the basis support
         Cell< Cell< moris_index > > mElementEnrichmentLevel;    // input: non-enriched BF index || output: which enrichment level of current basis is active on the IG cell
 
@@ -1087,6 +1088,50 @@ namespace xtk
 
         moris::Cell< Enrichment_Data > const &
         get_enrichment_data() const;
+
+        //-----------------------------------------------------------------------------------
+
+        /**
+         * @brief This function populates the debug data in the enrichment process 
+         *  The data consists of 
+         *
+         *
+         *@param aEnrichmentDataIndex
+         * @param aBasisIndex
+         * @param aParentElementsInSupport
+         * @param aSpgsInSupport
+         * @param aSpgBinEnrichmentVals
+         */
+        void
+        generate_element_enrichments_levels_based_on_spg( moris_index const & aEnrichmentDataIndex,
+                moris_index const &                              aBasisIndex,
+                moris::Matrix< moris::IndexMat > const &         aParentElementsInSupport,
+                moris::Matrix< moris::IndexMat > const &         aSpgsInSupport,
+                moris::Matrix< moris::IndexMat >&                aSpgBinEnrichmentVals );
+
+        //-----------------------------------------------------------------------------------
+
+        /**
+         * @brief This function populates the debug data in the enrichment process 
+         *  The data consists of 
+         *
+         * @param aEnrichmentDataIndex
+         * @param aBasisIndex
+         * @param aParentElementsInSupport
+         * @param aSubphasesInSupport
+         * @param aSubPhaseIndexToSupportIndex
+         * @param aPrunedSubPhaseToSubphase
+         * @param aSubPhaseBinEnrichmentVals
+         */
+        void
+        generate_element_enrichments_levels_based_on_sp(
+                moris_index const &                      aEnrichmentDataIndex,
+                moris_index const &                      aBasisIndex,
+                moris::Matrix< moris::IndexMat > const & aParentElementsInSupport,
+                moris::Matrix< moris::IndexMat > const & aSubphasesInSupport,
+                IndexMap&                                aSubPhaseIndexToSupportIndex,
+                moris::Matrix< moris::IndexMat > const & aPrunedSubPhaseToSubphase,
+                moris::Matrix< moris::IndexMat >&        aSubPhaseBinEnrichmentVals );
     };
 }    // namespace xtk
 #endif /* XTK_SRC_XTK_CL_XTK_ENRICHMENT_HPP_ */

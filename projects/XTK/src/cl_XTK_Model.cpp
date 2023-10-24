@@ -94,6 +94,9 @@ namespace xtk
     {
         // flag this as a non-parameter list based run
         mParameterList.insert( "has_parameter_list", false );
+
+        // flag that this field is false, this is for unit testing where enrichment is used
+        mParameterList.insert( "write_cell_enrichments_levels", false );
     }
 
     // ----------------------------------------------------------------------------------
