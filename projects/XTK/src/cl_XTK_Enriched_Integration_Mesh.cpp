@@ -50,12 +50,19 @@ namespace xtk
         mBsplineMeshIndices = { { 0 } };
 
         this->setup_cell_clusters();
+
         this->setup_blockset_with_cell_clusters();
+
         this->setup_side_set_clusters();
+
         this->setup_double_side_set_clusters();
+
         this->setup_interface_side_sets();
+
         // this->setup_interface_vertex_sets();
+
         this->setup_color_to_set();
+
         this->collect_all_sets();
 
         // get the Cell info for trivial integration clusters
@@ -2259,7 +2266,7 @@ namespace xtk
                 {
                     std::cout << "\n      Leader Interpolation Cell: " << std::setw( 9 ) <<    //
                             mDoubleSideSets( iSS )( i )->get_interpolation_cell( mtk::Leader_Follower::LEADER ).get_id();
-                    std::cout << " | Follower Interpolation Cell: " << std::setw( 9 ) <<       //
+                    std::cout << " | Follower Interpolation Cell: " << std::setw( 9 ) <<    //
                             mDoubleSideSets( iSS )( i )->get_interpolation_cell( mtk::Leader_Follower::FOLLOWER ).get_id();
                 }
             }
@@ -2585,6 +2592,9 @@ namespace xtk
     Enriched_Integration_Mesh::commit_side_set( const Cell< moris_index > &aSideSetIndexList )
     {
         mListOfSideSets.resize( mListOfSideSets.size() + aSideSetIndexList.size(), nullptr );
+
+        MORIS_ERROR( aSideSetIndexList.size() < 1000,
+                "Enriched_Integration_Mesh::commit_side_set - excessive number of side sets (>1000) - check phase assignment" );
 
         for ( uint iI = 0; iI < aSideSetIndexList.size(); ++iI )
         {
@@ -3435,7 +3445,7 @@ namespace xtk
 
                 }    // end for: each side cluster in set
 
-            }        // end for: each side set
+            }    // end for: each side set
 
             // go through SPGs and collect side cluster groups related to each one
             for ( uint iSPG = 0; iSPG < tNumSPGs; iSPG++ )
@@ -3796,9 +3806,9 @@ namespace xtk
                         }
                     }    // end for: each follower cluster group constructed on the current SPG
 
-                }        // end for: each SPG on current B-spline mesh
+                }    // end for: each SPG on current B-spline mesh
 
-            }            // end for: each dbl sided side set
+            }    // end for: each dbl sided side set
 
             // free unused memory
             mDblSideClusterGroups( tDMI ).shrink_to_fit();
@@ -3907,7 +3917,7 @@ namespace xtk
 
         }    // end for: each side set
 
-    }        // end function: Enriched_Integration_Mesh::visualize_cluster_measures()
+    }    // end function: Enriched_Integration_Mesh::visualize_cluster_measures()
 
     //------------------------------------------------------------------------------
 
@@ -4047,7 +4057,7 @@ namespace xtk
 
             }    // end for: each B-spline mesh
 
-        }        // end for: each side set
+        }    // end for: each side set
 
         //----------------------------------------------------------------
         // Generate and write SPG fields

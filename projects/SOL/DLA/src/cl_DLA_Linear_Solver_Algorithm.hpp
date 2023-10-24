@@ -27,6 +27,7 @@ namespace moris
     namespace dla
     {
         class Linear_Problem;
+        class Preconditioner_Trilinos;
         class Linear_Solver_Algorithm
 
         {
@@ -45,22 +46,32 @@ namespace moris
 
             Solver_Interface* mSolverInterface = nullptr;
 
+            Preconditioner_Trilinos* mPreconditioner = nullptr;
+
             moris::ParameterList mParameterList;    // The Algorithm specific parameter list
 
           public:
             Linear_Solver_Algorithm(){};
 
+            //-----------------------------------------------------------------------------------
+
             Linear_Solver_Algorithm( const moris::ParameterList aParameterlist )
                     : mParameterList( aParameterlist ){};
 
+            //-----------------------------------------------------------------------------------
+
             virtual ~Linear_Solver_Algorithm(){};
 
+            //-----------------------------------------------------------------------------------
+
             virtual moris::sint solve_linear_system() = 0;
+
+            //-----------------------------------------------------------------------------------
 
             virtual moris::sint solve_linear_system( Linear_Problem* aLinearSystem,
                     const moris::sint                                aIter = 1 ) = 0;
 
-
+            //-----------------------------------------------------------------------------------
             //        Dist_Vector * get_solver_LHS()
             //        {
             //            return mFreeVectorLHS;
@@ -73,11 +84,29 @@ namespace moris
 
             //        virtual void get_solution( moris::Matrix< DDRMat > & LHSValues ) =0;
 
+            //-----------------------------------------------------------------------------------
             ParameterListTypes&
             set_param( const std::string& aKey )
             {
                 return mParameterList( aKey );
             }
+
+            //-----------------------------------------------------------------------------------
+            void
+            set_preconditioner( Preconditioner_Trilinos* aPreconditioner )
+            {
+                mPreconditioner = aPreconditioner;
+            }
+
+            //-----------------------------------------------------------------------------------
+
+            /**
+             * This function is only used for eigensolver where the left hand side matrix (K/A) can be altered.
+             *
+             * @param aPreconditioner
+             */
+
+            virtual void set_left_hand_side_preconditioner( Preconditioner_Trilinos* aPreconditioner ){};
         };
     }    // namespace dla
 }    // namespace moris

@@ -79,6 +79,8 @@
 #include "ml_epetra_utils.h"
 #include "ml_epetra_preconditioner.h"
 
+#include "Amesos.h"
+
 using namespace moris;
 using namespace dla;
 
@@ -149,6 +151,9 @@ Eigen_Solver::solve_linear_system(
     // get stiffness matrix of class Epetra_FECrs
     mMat = aLinearSystem->get_matrix()->get_matrix();
 
+    // assemble the right hand side of the matrix as it is needed for generalized eigenvalue problem
+    aLinearSystem->assemble_rhs_matrix();
+
     // get mass matrix of class Epetra_FECrs
     mMassMat = aLinearSystem->get_mass_matrix()->get_matrix();
 
@@ -188,10 +193,8 @@ Eigen_Solver::solve_linear_system(
 
 // ----------------------------------------------------------------------------
 
-void
-Eigen_Solver::build_linearized_system()
+void Eigen_Solver::build_linearized_system( Linear_Problem* aLinearSystem )
 {
-    // sparse-stiffness matrix of Teuchos::RCP type
     mSPmat = Teuchos::RCP( mMat, false );
 
     // sparse-mass matrix of Teuchos::RCP type
@@ -213,7 +216,7 @@ Eigen_Solver::build_linearized_system()
     mMap = mNewMat->get_map();
 
     // create eigen solver vector of Vector_Epetra class
-    mFreeSolVec = new Vector_Epetra( mMap, 1, true, false );
+    mFreeSolVec = new Vector_Epetra( mMap, 1, false, false );
 
     // Make sure that the number of blocks and eigenvalues does not exceed NumFreeDofs
     if ( tBlockSize > tNumFreeDofs || tNumEigVals > tNumFreeDofs )
@@ -224,6 +227,20 @@ Eigen_Solver::build_linearized_system()
     // Create initial vector for the solver
     mIvec = Teuchos::RCP( new Epetra_MultiVector( mSPmat->OperatorDomainMap(), tBlockSize ) );
     mIvec->Random();
+
+    // if mLeftPreconditioner exists
+    if ( mLeftPreconditioner )
+    {
+        mLeftPreconditioner->build( aLinearSystem, 0 );
+
+        // get the ml precondinioer from the tPrec Object
+        Teuchos::RCP< ML_Epetra::MultiLevelPreconditioner > tPrec = mLeftPreconditioner->get_ml_prec();
+
+        // Teuchos::RCP<Epetra_Operator> tPrec = mLeftPreconditioner->get_operator();
+
+        // Create an Operator that computes y = M^{-1} K x.
+        mSPmat = Teuchos::rcp( new Anasazi::EpetraGenOp( tPrec, mSPmat ) );
+    }
 
     // Create the eigenproblem, except if the algorithm used is BLOCK_KRYLOV_SCHUR or EIGALG_BLOCK_KRYLOV_SCHUR_AMESOS
     // as they build their eigenproblems later locally
@@ -241,8 +258,7 @@ Eigen_Solver::build_linearized_system()
 
 // -----------------------------------------------------------------------------
 
-void
-Eigen_Solver::set_eigen_solver_manager_parameters()
+void Eigen_Solver::set_eigen_solver_manager_parameters()
 {
     // create eigen solver parameterlist
     mParameterList = prm::create_eigen_algorithm_parameter_list();
@@ -250,63 +266,24 @@ Eigen_Solver::set_eigen_solver_manager_parameters()
 
 // -----------------------------------------------------------------------------
 
-int
-Eigen_Solver::solve_block_davidson_system( Linear_Problem* aLinearSystem )
+int Eigen_Solver::solve_block_davidson_system( Linear_Problem* aLinearSystem )
 {
     int MyPID = par_rank();
 
     // build linear system
-    this->build_linearized_system();
+    this->build_linearized_system( aLinearSystem );
+    Teuchos::RCP< Epetra_Operator > tPrecOp;
+    Teuchos::RCP< Epetra_Operator > tIfpackPrec;
 
-    // Set the pre-conditioner
-    Teuchos::RCP< Epetra_Operator >                     tPrecOp;
-    Teuchos::RCP< Ifpack_Preconditioner >               tIfpackPrec;
-    Teuchos::RCP< ML_Epetra::MultiLevelPreconditioner > tMlPrec;
+    // TODO: avoid rebuilding the preconditioner and use it if it exists
+    mPreconditioner->build( aLinearSystem, 0 );
 
-    // initialize preconditioner
-    mPrec.initialize( mParameterList, aLinearSystem );
+    // create an
+    tIfpackPrec = mPreconditioner->get_operator();
 
-    // request ifpack type preconditioner as a string
-    std::string tIfpackPrectype = mParameterList.get< std::string >( "ifpack_prec_type" );
+    tPrecOp = Teuchos::RCP( new Epetra_InvOperator( tIfpackPrec.get() ) );
 
-    // request solver type for ifpack preconditioner as a string
-    std::string tSolvtype = mParameterList.get< std::string >( "amesos: solver type" );
-
-    // request multilvel preconditioner type as a string
-    std::string tmlprectype = mParameterList.get< std::string >( "ml_prec_type" );
-
-    // build preconditioner
-    if ( !tIfpackPrectype.empty() && !tSolvtype.empty() )
-    {
-        MORIS_LOG_INFO( "Constructing %s type preconditioner", tSolvtype.c_str() );
-    }
-    else if ( !tmlprectype.empty() )
-    {
-        MORIS_LOG_INFO( "Constructing %s type Multilevel Preconditioner", tmlprectype.c_str() );
-    }
-    else
-    {
-        MORIS_ERROR( false, "Incorrect preconditioner type" );
-    }
-    mPrec.build();
-
-    // get ifpack preconditioner if it exists
-    tIfpackPrec = mPrec.get_ifpack_prec();
-
-    // get ml preconditioner if it exists
-    tMlPrec = mPrec.get_ml_prec();
-
-    // get preconditioned operator
-    if ( tIfpackPrec.get() != NULL )
-    {
-        tPrecOp = Teuchos::RCP( new Epetra_InvOperator( tIfpackPrec.get() ) );
-    }
-    else if ( tMlPrec.get() != NULL )
-    {
-        tPrecOp = Teuchos::RCP( new Epetra_InvOperator( tMlPrec.get() ) );
-    }
-
-    // Set the pre-conditions to the eigenproblem
+    // set preconditions to eigenproblem
     mMyEigProblem->setPrec( tPrecOp );
 
     // check if eigen problem is set
@@ -329,29 +306,13 @@ Eigen_Solver::solve_block_davidson_system( Linear_Problem* aLinearSystem )
 
     // Set the parameters and pass to solver manager
     Teuchos::ParameterList MyPL;
-
-    // set verbosity
     MyPL.set( "Verbosity", tverbosity );
-
-    // set sorting type for eigenvalues
     MyPL.set( "Which", mParameterList.get< std::string >( "Which" ) );
-
-    // set block size
     MyPL.set( "Block Size", mParameterList.get< moris::sint >( "Block_Size" ) );
-
-    // set number of blocks
     MyPL.set( "Num Blocks", mParameterList.get< moris::sint >( "Num_Blocks" ) );
-
-    // set maximum subspace dimensions
     MyPL.set( "Maximum SubSpace Dimension", mParameterList.get< moris::sint >( "MaxSubSpaceDims" ) );
-
-    // set maximum restarts
     MyPL.set( "Maximum Restarts", mParameterList.get< moris::sint >( "MaxRestarts" ) );
-
-    // set convergence tolerance
     MyPL.set( "Convergence Tolerance", mParameterList.get< moris::real >( "Convergence_Tolerance" ) );
-
-    // set relative convergence tolerance
     MyPL.set( "Relative Convergence Tolerance", mParameterList.get< bool >( "Relative_Convergence_Tolerance" ) );
 
     // Create the solver manager
@@ -361,7 +322,7 @@ Eigen_Solver::solve_block_davidson_system( Linear_Problem* aLinearSystem )
     Anasazi::ReturnType tReturnCode = MySolverMan.solve();
 
     // Check if the problem solve converged
-    if ( tReturnCode != Anasazi::Converged && MyPID == 0 )
+    if ( tReturnCode != Anasazi::Converged and MyPID == 0 )
     {
         MORIS_ERROR( false, "EigenSolver::SolveBlockDavidsonSystem: Solver returned UNconverged.\n" );
         return -1;
@@ -385,7 +346,8 @@ Eigen_Solver::solve_block_davidson_system( Linear_Problem* aLinearSystem )
         MV*               tEpetraVec = ( dynamic_cast< Vector_Epetra* >( tDistVec ) )->get_epetra_vector();
 
         //  Check for size of both vectors
-        if ( evecs->GlobalLength() == tEpetraVec->GlobalLength() && evecs->NumVectors() == tEpetraVec->NumVectors() )
+        // TODO: this does not work in parallel
+        if ( evecs->NumVectors() == tEpetraVec->NumVectors() )
         {
             // updates mEigenSolVector with evecs and returns Multivector
             tEpetraVec->Update( 1.0, *evecs, 0.0 );
@@ -453,7 +415,6 @@ Eigen_Solver::solve_block_davidson_system( Linear_Problem* aLinearSystem )
     }
 
     // Output computed eigenvalues and their direct residuals
-    if ( tverbose == 0 && MyPID == 0 )
     {
         MORIS_LOG_INFO( "------------------------------------------------" );
         for ( int i = 0; i < mSol.numVecs; i++ )
@@ -478,8 +439,7 @@ Eigen_Solver::solve_block_davidson_system( Linear_Problem* aLinearSystem )
 
 // ----------------------------------------------------------------------------
 
-int
-Eigen_Solver::solve_generalized_davidson_system( Linear_Problem* aLinearSystem )
+int Eigen_Solver::solve_generalized_davidson_system( Linear_Problem* aLinearSystem )
 {
     using std::cout;
     using std::endl;
@@ -487,7 +447,7 @@ Eigen_Solver::solve_generalized_davidson_system( Linear_Problem* aLinearSystem )
     int MyPID = par_rank();
 
     // build linear system
-    this->build_linearized_system();
+    this->build_linearized_system( aLinearSystem );
 
     // Set verbosity level
     bool tverbose   = mParameterList.get< bool >( "Verbosity" );
@@ -499,79 +459,22 @@ Eigen_Solver::solve_generalized_davidson_system( Linear_Problem* aLinearSystem )
 
     // Create parameter list to pass into solver
     Teuchos::ParameterList MyPL;
-
-    // set verbosity
     MyPL.set( "Verbosity", tverbosity );
-
-    // set sorting type for eigen values
     MyPL.set( "Which", mParameterList.get< std::string >( "Which" ) );
-
-    // set block size
     MyPL.set( "Block Size", mParameterList.get< moris::sint >( "Block_Size" ) );
-
-    // set maximum subspace dimension
     MyPL.set( "Maximum SubSpace Dimension", mParameterList.get< moris::sint >( "MaxSubSpaceDims" ) );
-
-    // set maximum restarts
     MyPL.set( "Maximum Restarts", mParameterList.get< moris::sint >( "MaxRestarts" ) );
-
-    // set convergence tolerance
     MyPL.set( "Convergence Tolerance", mParameterList.get< moris::real >( "Convergence_Tolerance" ) );
-
-    // set relative convergence tolerance
     MyPL.set( "Relative Convergence Tolerance", mParameterList.get< bool >( "Relative_Convergence_Tolerance" ) );
 
-    // Set the pre-conditioner
-    Teuchos::RCP< Epetra_Operator >                     tPrecOp;
-    Teuchos::RCP< Ifpack_Preconditioner >               tIfpackPrec;
-    Teuchos::RCP< ML_Epetra::MultiLevelPreconditioner > tMlPrec;
+    mPreconditioner->build( aLinearSystem, 0 );
 
-    // initialize preconditioner
-    mPrec.initialize( mParameterList, aLinearSystem );
+    Teuchos::RCP< Epetra_Operator > tPrecOp;
+    Teuchos::RCP< Epetra_Operator > tIfpackPrec;
 
-    // request ifpack type preconditioner as a string
-    std::string tIfpackPrectype = mParameterList.get< std::string >( "ifpack_prec_type" );
+    tIfpackPrec = mPreconditioner->get_operator();
 
-    // request solver type for ifpack preconditioner as a string
-    std::string tSolvtype = mParameterList.get< std::string >( "amesos: solver type" );
-
-    // request multilvel preconditioner type as a string
-    std::string tmlprectype = mParameterList.get< std::string >( "ml_prec_type" );
-
-    // build preconditioner
-    if ( !tIfpackPrectype.empty() && !tSolvtype.empty() )
-    {
-        MORIS_LOG_INFO( "Constructing %s type preconditioner", tSolvtype.c_str() );
-    }
-    else if ( !tmlprectype.empty() )
-    {
-        MORIS_LOG_INFO( "Constructing %s type Multilevel Preconditioner", tmlprectype.c_str() );
-    }
-    else
-    {
-        MORIS_ERROR( false, "Incorrect preconditioner type" );
-    }
-    mPrec.build();
-
-    // get ifpack preconditioner if it exists
-    tIfpackPrec = mPrec.get_ifpack_prec();
-
-    // get ml preconditioner if it exists
-    tMlPrec = mPrec.get_ml_prec();
-
-    // get preconditioned operator
-    if ( tIfpackPrec.get() != NULL )
-    {
-        tPrecOp = Teuchos::RCP( new Epetra_InvOperator( mPrec.get_ifpack_prec().get() ) );
-    }
-    else if ( tMlPrec.get() != NULL )
-    {
-        tPrecOp = Teuchos::RCP( new Epetra_InvOperator( mPrec.get_ml_prec().get() ) );
-    }
-    else
-    {
-        MORIS_ERROR( false, "Incorrect preconditioner type" );
-    }
+    tPrecOp = Teuchos::RCP( new Epetra_InvOperator( tIfpackPrec.get() ) );
 
     // set preconditions to eigenproblem
     mMyEigProblem->setPrec( tPrecOp );
@@ -643,7 +546,8 @@ Eigen_Solver::solve_generalized_davidson_system( Linear_Problem* aLinearSystem )
         MV*               tEpetraVec = ( dynamic_cast< Vector_Epetra* >( tDistVec ) )->get_epetra_vector();
 
         //  Check for size of both vectors
-        if ( evecs->GlobalLength() == tEpetraVec->GlobalLength() && evecs->NumVectors() == tEpetraVec->NumVectors() )
+        // TODO: this does not work in parallel
+        if ( evecs->NumVectors() == tEpetraVec->NumVectors() )
         {
             // update mEigenSolVector with evecs and return Multivector
             tEpetraVec->Update( 1.0, *evecs, 0.0 );
@@ -760,16 +664,13 @@ Eigen_Solver::solve_generalized_davidson_system( Linear_Problem* aLinearSystem )
         }
 
         // Output computed eigenvalues and their direct residuals
-        if ( tverbose == 0 && MyPID == 0 )
+        MORIS_LOG_INFO( "===============================================" );
+        for ( int j = 0; j < mNumReturnedEigVals; j++ )
         {
-            MORIS_LOG_INFO( "===============================================" );
-            for ( int j = 0; j < mNumReturnedEigVals; j++ )
-            {
-                MORIS_LOG_INFO( "Real Part: %16f ", evals[ j ].realpart );
-                MORIS_LOG_INFO( "Imaginary Part: %16f", evals[ j ].imagpart );
-                MORIS_LOG_INFO( "Direct Residual: %18e ", normR[ j ] );
-            }
-        }    // end of if verbose
+            MORIS_LOG_INFO( "Real Part: %16f ", evals[ j ].realpart );
+            MORIS_LOG_INFO( "Imaginary Part: %16f", evals[ j ].imagpart );
+            MORIS_LOG_INFO( "Direct Residual: %18e ", normR[ j ] );
+        }
     }
 
     // print eigenvector
@@ -792,85 +693,36 @@ Eigen_Solver::solve_generalized_davidson_system( Linear_Problem* aLinearSystem )
 
 // -----------------------------------------------------------------------------
 
-int
-Eigen_Solver::solve_block_krylov_schur_system( Linear_Problem* aLinearSystem )
+int Eigen_Solver::solve_block_krylov_schur_system( Linear_Problem* aLinearSystem )
 {
+
+    this->build_linearized_system( aLinearSystem );
+
     // NOTE: This implementation follows trilinos/packages/anasazi/epetra/example/BlockKrylovSchur/BlockKrylovSchurEpetraExGenAztecOO.cpp
 
     int MyPID = par_rank();
 
-    // Set the preconditioner
-    Teuchos::RCP< Epetra_Operator >                     tPrecOp;
-    Teuchos::RCP< Ifpack_Preconditioner >               tIfpackPrec;
-    Teuchos::RCP< ML_Epetra::MultiLevelPreconditioner > tMlPrec;
-
-    // initialize preconditioner
-    mPrec.initialize( mParameterList, aLinearSystem );
-
-    // request ifpack type preconditioner as a string
-    std::string tIfpackPrectype = mParameterList.get< std::string >( "ifpack_prec_type" );
-
-    // request solver type for ifpack preconditioner as a string
-    std::string tSolvtype = mParameterList.get< std::string >( "amesos: solver type" );
-
-    // request multilvel preconditioner type as a string
-    std::string tmlprectype = mParameterList.get< std::string >( "ml_prec_type" );
-
     // build preconditioner
-    if ( !tIfpackPrectype.empty() && !tSolvtype.empty() )
-    {
-        MORIS_LOG_INFO( "Constructing %s type preconditioner", tSolvtype.c_str() );
-    }
-    else if ( !tmlprectype.empty() )
-    {
-        MORIS_LOG_INFO( "Constructing %s type Multilevel Preconditioner", tmlprectype.c_str() );
-    }
-    else
-    {
-        MORIS_ERROR( false, "Incorrect preconditioner type" );
-    }
-
-    // build preconditioner
-    mPrec.build();
-
-    // get ifpack preconditioner if it exists
-    tIfpackPrec = mPrec.get_ifpack_prec();
-
-    // get Multilevel preconditioner if it exists
-    tMlPrec = mPrec.get_ml_prec();
+    mPreconditioner->build( aLinearSystem, 0 );
+    Teuchos::RCP< Epetra_Operator > tPrecOp = mPreconditioner->get_operator();
 
     // Tell the linear problem about the mass matrix M
-    mEpetraProblem.SetOperator( mSPmassmat.getRawPtr() );
+    mEpetraProblem.SetOperator( mSPmat.get() );
 
     // Create AztecOO iterative solver for solving linear systems with K.
     AztecOO precSolver( mEpetraProblem );
-
-    // Tell the solver to use the Ifpack preconditioner we created above.
-    if ( tIfpackPrec.get() != NULL )
-    {
-        precSolver.SetPrecOperator( tIfpackPrec.get() );
-    }
-    else if ( tMlPrec.get() != NULL )
-    {
-        precSolver.SetPrecOperator( tMlPrec.get() );
-    }
-    else
-    {
-        MORIS_ERROR( false, "No valid preconditioner set" );
-    };
-
-    // Set AztecOO solver options.
+    precSolver.SetPrecOperator( tPrecOp.get() );
     precSolver.SetAztecOption( AZ_output, AZ_none );     // Don't print output
     precSolver.SetAztecOption( AZ_solver, AZ_gmres );    // Use GMRES
 
     // Use the above AztecOO solver to create the AztecOO_Operator.
-    Teuchos::RCP< AztecOO_Operator > precOperator = Teuchos::rcp( new AztecOO_Operator( &precSolver, mSPmat->NumGlobalRows(), 1e-12 ) );
+    Teuchos::RCP< AztecOO_Operator > precOperator = Teuchos::rcp( new AztecOO_Operator( &precSolver, mMat->NumGlobalRows(), 1e-12 ) );
 
     // Create an Operator that computes y = M^{-1} K x.
-    Teuchos::RCP< Anasazi::EpetraGenOp > Aop = Teuchos::rcp( new Anasazi::EpetraGenOp( precOperator, mSPmat ) );
+    Teuchos::RCP< Anasazi::EpetraGenOp > Aop = Teuchos::rcp( new Anasazi::EpetraGenOp( precOperator, mSPmassmat ) );
 
     // Create the eigen problem object
-    mMyEigProblem = Teuchos::rcp( new Anasazi::BasicEigenproblem< double, MV, OP >( Aop, mSPmat, mIvec ) );
+    mMyEigProblem = Teuchos::rcp( new Anasazi::BasicEigenproblem< double, MV, OP >( Aop, mSPmassmat, mIvec ) );
 
     // request number of eigenvalues from parameterlist
     moris::sint tNumEigVals = mParameterList.get< moris::sint >( "Num_Eig_Vals" );
@@ -883,9 +735,6 @@ Eigen_Solver::solve_block_krylov_schur_system( Linear_Problem* aLinearSystem )
 
     // Set the number of eigenvalues to be computed
     mMyEigProblem->setNEV( tNumEigVals );
-
-    // Set the pre-conditions to the eigenproblem
-    mMyEigProblem->setPrec( tPrecOp );
 
     // check if eigenproblem is set or not
     bool tboolret = mMyEigProblem->setProblem();
@@ -907,29 +756,13 @@ Eigen_Solver::solve_block_krylov_schur_system( Linear_Problem* aLinearSystem )
 
     // Set the parameters and pass to solver manager
     Teuchos::ParameterList MyPL;
-
-    // set verbosity
     MyPL.set( "Verbosity", tverbosity );
-
-    // set sorting type for eigenvalues
     MyPL.set( "Which", mParameterList.get< std::string >( "Which" ) );
-
-    // set block-size
     MyPL.set( "Block Size", mParameterList.get< moris::sint >( "Block_Size" ) );
-
-    // set number of blocks
-    MyPL.set( "Num Blocks", mParameterList.get< moris::sint >( "NumBlocks" ) );
-
-    // set maximum subspace dimensions
+    MyPL.set( "Num Blocks", mParameterList.get< moris::sint >( "Num_Blocks" ) );
     MyPL.set( "Maximum SubSpace Dimension", mParameterList.get< moris::sint >( "MaxSubSpaceDims" ) );
-
-    // set maximum restarts
     MyPL.set( "Maximum Restarts", mParameterList.get< moris::sint >( "MaxRestarts" ) );
-
-    // set convergence tolerance
-    MyPL.set( "Convergence Tolerance", mParameterList.get< real >( "Covergence_Tolerance" ) );
-
-    // set relative convergence tolerance
+    MyPL.set( "Convergence Tolerance", mParameterList.get< real >( "Convergence_Tolerance" ) );
     MyPL.set( "Relative Convergence Tolerance", mParameterList.get< bool >( "Relative_Convergence_Tolerance" ) );
 
     // Create the solver manager
@@ -961,7 +794,8 @@ Eigen_Solver::solve_block_krylov_schur_system( Linear_Problem* aLinearSystem )
         MV*               tEpetraVec = ( dynamic_cast< Vector_Epetra* >( tDistVec ) )->get_epetra_vector();
 
         //  Check for size of both vectors
-        if ( evecs->GlobalLength() == tEpetraVec->GlobalLength() && evecs->NumVectors() == tEpetraVec->NumVectors() )
+        // TODO: this does not work in parallel
+        if ( evecs->NumVectors() == tEpetraVec->NumVectors() )
         {
             // update mEigenSolVector with evecs and return Multivector
             tEpetraVec->Update( 1.0, *evecs, 0.0 );
@@ -1032,15 +866,14 @@ Eigen_Solver::solve_block_krylov_schur_system( Linear_Problem* aLinearSystem )
     }
 
     // Output computed eigenvalues and their direct residuals
-    if ( tverbose && MyPID == 0 )
+
+    MORIS_LOG_INFO( "===============================================" );
+    for ( int i = 0; i < mSol.numVecs; i++ )
     {
-        MORIS_LOG_INFO( "===============================================" );
-        for ( int i = 0; i < mSol.numVecs; i++ )
-        {
-            MORIS_LOG_INFO( "EigenValue: %16f", evals[ i ].realpart );
-            MORIS_LOG_INFO( "Direct Residual: %18e", normR[ i ] / evals[ i ].realpart );
-        }
+        MORIS_LOG_INFO( "EigenValue: %16f", 1 / evals[ i ].realpart );
+        MORIS_LOG_INFO( "Direct Residual: %18e", normR[ i ] / evals[ i ].realpart );
     }
+
 
     // print eigen vector
     for ( int m = 0; m < mNumReturnedEigVals; m++ )
@@ -1062,83 +895,42 @@ Eigen_Solver::solve_block_krylov_schur_system( Linear_Problem* aLinearSystem )
 
 // -----------------------------------------------------------------------------
 
-int
-Eigen_Solver::solve_block_krylov_schur_amesos_system( Linear_Problem* aLinearSystem )
+int Eigen_Solver::solve_block_krylov_schur_amesos_system( Linear_Problem* aLinearSystem )
 {
-    // NOTE: This implementation follows trilinos/packages/anasazi/epetra/example/BlockKrylovSchur/BlockKrylovSchurEpetraExGenAmesos.cpp
+    this->build_linearized_system( aLinearSystem );
 
+    // NOTE: This implementation follows trilinos/packages/anasazi/epetra/example/BlockKrylovSchur/BlockKrylovSchurEpetraExGenAmesos.cpp
     int MyPID = par_rank();
 
     // Tell the linear problem about the mass matrix M
-    mEpetraProblem.SetOperator( mSPmassmat.getRawPtr() );
+    mEpetraProblem.SetOperator( mSPmat.get() );
 
     // Create Amesos factory and solver for solving linear systems with K
     Amesos tAmesosFactory;
 
-    // Note that the AmesosProblem object "absorbs" M.  Anasazi doesn't see M, just the operator that implements K^{-1} M
+    // Note that the AmesosProblem object "absorbs" M.  Anasazi doesn't see M, M is needed to orthogonalize the eigenvectors.
     Teuchos::RCP< Amesos_BaseSolver > mAmesosSolver;
 
-    // Determine which direct solver method to use
-    switch ( (uint)( mEigSolMethod ) )
+    std::string tAmesosDirectSolverType = mParameterList.get< std::string >( "Amesos_Direct_Solver_Type" );
+
+    // Determine which direct solver method to use first by ensuring a correct solver name
+    if ( tAmesosFactory.Query( tAmesosDirectSolverType ) )
     {
-        case (uint)( sol::EigSolMethod::LINSOL_AMESOS_KLU ):
-            mAmesosSolver = Teuchos::rcp( tAmesosFactory.Create( "Amesos_Klu", mEpetraProblem ) );
-            break;
-        case (uint)( sol::EigSolMethod::LINSOL_AMESOS_UMFPACK ):
-            mAmesosSolver = Teuchos::rcp( tAmesosFactory.Create( "Amesos_Umfpack", mEpetraProblem ) );
-            break;
-        case (uint)( sol::EigSolMethod::LINSOL_AMESOS_DSCPACK ):
-            mAmesosSolver = Teuchos::rcp( tAmesosFactory.Create( "Amesos_Dscpack", mEpetraProblem ) );
-            break;
-        case (uint)( sol::EigSolMethod::LINSOL_AMESOS_MUMPS ):
-            mAmesosSolver = Teuchos::rcp( tAmesosFactory.Create( "Amesos_Mumps", mEpetraProblem ) );
-            break;
-        case (uint)( sol::EigSolMethod::LINSOL_AMESOS_LAPACK ):
-            mAmesosSolver = Teuchos::rcp( tAmesosFactory.Create( "Amesos_Lapack", mEpetraProblem ) );
-            break;
-        case (uint)( sol::EigSolMethod::LINSOL_AMESOS_SCALAPACK ):
-            mAmesosSolver = Teuchos::rcp( tAmesosFactory.Create( "Amesos_Scalapack", mEpetraProblem ) );
-            break;
-        case (uint)( sol::EigSolMethod::LINSOL_AMESOS_PARDISO ):
-            mAmesosSolver = Teuchos::rcp( tAmesosFactory.Create( "Amesos_Pardiso", mEpetraProblem ) );
-            break;
-        default:
+        mAmesosSolver = Teuchos::rcp( tAmesosFactory.Create( tAmesosDirectSolverType, mEpetraProblem ) );
+
+        if ( mAmesosSolver.is_null() )
         {
-            MORIS_ERROR( false, "EigenSolver::SolveBlockKrylovSchurAmesosSystem: The specified mEigSolMethod is not yet supported!\n" );
+            MORIS_ERROR( false, "EigenSolver::SolveBlockKrylovSchurAmesosSystem: Error was returned when creating the Amesos solver!\n" );
         }
+    }
+    else
+    {
+        MORIS_ERROR( false, "EigenSolver::SolveBlockKrylovSchurAmesosSystem: The specified mEigSolMethod is not yet supported, check spelling!\n" );
     }
 
     // The AmesosGenOp class assumes that the symbolic and numeric factorizations have already been performed on the linear problem
     mAmesosSolver->SymbolicFactorization();
     mAmesosSolver->NumericFactorization();
-
-    // Create the Epetra_Operator for the spectral transformation using the Amesos direct solver
-    Teuchos::RCP< Amesos_GenOp > Aop = Teuchos::rcp( new Amesos_GenOp( mAmesosSolver, mSPmassmat ) );
-
-    // Create the eigen problem object
-    mMyEigProblem = Teuchos::rcp( new Anasazi::BasicEigenproblem< double, MV, OP >( Aop, mSPmat, mIvec ) );
-
-    // request number of eigenvalues from parameterlist
-    moris::sint tNumEigVals = mParameterList.get< moris::sint >( "Num_Eig_Vals" );
-
-    // set linear system to be symmetric or not
-    bool tAssumeSymmetric = false;
-
-    // Set whether AMat and BMat are Hermitian = symmetric
-    mMyEigProblem->setHermitian( tAssumeSymmetric );
-
-    // Set the number of eigenvalues to be computed
-    mMyEigProblem->setNEV( tNumEigVals );
-
-    // check if the eigenproblem is set or not
-    bool tboolret = mMyEigProblem->setProblem();
-
-    // Check if an error was returned
-    if ( tboolret != true && MyPID == 0 )
-    {
-        MORIS_ERROR( false, "EigenSolver::SolveBlockKrylovSchurAmesosSystem: Error was returned when setting up the problem!\n" );
-        return -1;
-    }
 
     // Set verbosity level
     bool tverbose   = mParameterList.get< bool >( "Verbosity" );
@@ -1150,30 +942,42 @@ Eigen_Solver::solve_block_krylov_schur_amesos_system( Linear_Problem* aLinearSys
 
     // Set the parameters and pass to solver manager
     Teuchos::ParameterList MyPL;
-
-    // set verbosity
     MyPL.set( "Verbosity", tverbosity );
-
-    // set sorting type for eigenvalues
     MyPL.set( "Which", mParameterList.get< std::string >( "Which" ) );
-
-    // set block-size
     MyPL.set( "Block Size", mParameterList.get< moris::sint >( "Block_Size" ) );
-
-    // set number of blocks
-    MyPL.set( "Num Blocks", mParameterList.get< moris::sint >( "NumBlocks" ) );
-
-    // set maximum subspace dimension
+    MyPL.set( "Num Blocks", mParameterList.get< moris::sint >( "Num_Blocks" ) );
     MyPL.set( "Maximum SubSpace Dimension", mParameterList.get< moris::sint >( "MaxSubSpaceDims" ) );
-
-    // set maximum restart
     MyPL.set( "Maximum Restarts", mParameterList.get< moris::sint >( "MaxRestarts" ) );
-
-    // set convergence tolerance
-    MyPL.set( "Convergence Tolerance", mParameterList.get< real >( "Covergence_Tolerance" ) );
-
-    // set relative convergence tolerance
+    MyPL.set( "Convergence Tolerance", mParameterList.get< real >( "Convergence_Tolerance" ) );
     MyPL.set( "Relative Convergence Tolerance", mParameterList.get< bool >( "Relative_Convergence_Tolerance" ) );
+
+    // Create an initial set of vectors to start the eigensolver.  Note:
+    // This needs to have the same number of columns as the block size.
+    Teuchos::RCP< MV > mIvec = Teuchos::rcp( new MV( mSPmassmat->OperatorDomainMap(), mParameterList.get< moris::sint >( "Num_Blocks" ) ) );
+    mIvec->Random();
+
+    // Create the Epetra_Operator for the spectral transformation using the Amesos direct solver
+    Teuchos::RCP< Amesos_GenOp > Aop = Teuchos::rcp( new Amesos_GenOp( mAmesosSolver, mSPmassmat ) );
+
+    // Create the eigen problem object
+    mMyEigProblem = Teuchos::rcp( new Anasazi::BasicEigenproblem< double, MV, OP >( Aop, mSPmassmat, mIvec ) );
+
+    bool tAssumeSymmetric = true;
+    // Set whether AMat and BMat are Hermitian = symmetric
+    mMyEigProblem->setHermitian( tAssumeSymmetric );
+
+    // Set the number of eigenvalues to be computed
+    mMyEigProblem->setNEV( mParameterList.get< moris::sint >( "Num_Eig_Vals" ) );
+
+    // check if the eigenproblem is set or not
+    bool tboolret = mMyEigProblem->setProblem();
+
+    // Check if an error was returned
+    if ( tboolret != true && MyPID == 0 )
+    {
+        MORIS_ERROR( false, "EigenSolver::SolveBlockKrylovSchurAmesosSystem: Error was returned when setting up the problem!\n" );
+        return -1;
+    }
 
     // Create the solver manager
     Anasazi::BlockKrylovSchurSolMgr< double, MV, OP > MySolverMan( mMyEigProblem, MyPL );
@@ -1204,7 +1008,8 @@ Eigen_Solver::solve_block_krylov_schur_amesos_system( Linear_Problem* aLinearSys
         MV*               tEpetraVec = ( dynamic_cast< Vector_Epetra* >( tDistVec ) )->get_epetra_vector();
 
         //  Check for size of both vectors
-        if ( evecs->GlobalLength() == tEpetraVec->GlobalLength() && evecs->NumVectors() == tEpetraVec->NumVectors() )
+        // TODO: this does not work in parallel
+        if ( evecs->NumVectors() == tEpetraVec->NumVectors() )
         {
             // update mEigenSolVector with evecs and return Multivector
             tEpetraVec->Update( 1.0, *evecs, 0.0 );
@@ -1221,7 +1026,7 @@ Eigen_Solver::solve_block_krylov_schur_amesos_system( Linear_Problem* aLinearSys
     if ( mSol.numVecs > 0 )
     {
         Teuchos::SerialDenseMatrix< int, double > T( mSol.numVecs, mSol.numVecs );
-        Epetra_MultiVector                        Kevec( mSPmat->OperatorDomainMap(), evecs->NumVectors() );
+        Epetra_MultiVector                        Kevec( mSPmassmat->OperatorDomainMap(), evecs->NumVectors() );
         Epetra_MultiVector                        Mevec( mSPmassmat->OperatorDomainMap(), evecs->NumVectors() );
         T.putScalar( 0.0 );
 
@@ -1276,14 +1081,11 @@ Eigen_Solver::solve_block_krylov_schur_amesos_system( Linear_Problem* aLinearSys
     }
 
     // Output computed eigenvalues and their direct residuals
-    if ( tverbose && MyPID == 0 )
+    MORIS_LOG_INFO( "------------------------------------------------" );
+    for ( int i = 0; i < mSol.numVecs; i++ )
     {
-        MORIS_LOG_INFO( "------------------------------------------------" );
-        for ( int i = 0; i < mSol.numVecs; i++ )
-        {
-            MORIS_LOG_INFO( "EigenValue: %16f", evals[ i ].realpart );
-            MORIS_LOG_INFO( "Direct Residual: %18e", normR[ i ] / evals[ i ].realpart );
-        }
+        MORIS_LOG_INFO( "EigenValue: %16f", 1.0 / evals[ i ].realpart );
+        MORIS_LOG_INFO( "Direct Residual: %18e", normR[ i ] * evals[ i ].realpart );
     }
 
     // print eigen vector
@@ -1306,8 +1108,7 @@ Eigen_Solver::solve_block_krylov_schur_amesos_system( Linear_Problem* aLinearSys
 
 // ----------------------------------------------------------------------------
 
-int
-Eigen_Solver::get_solution(
+int Eigen_Solver::get_solution(
         uint           aEigValIndex,
         Vector_Epetra* aSolVec,
         Vector_Epetra* aLeaderSolVec,

@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef SRC_DISTLINALG_CL_PRECONDITIONER_TRILINOS_HPP_
-#define SRC_DISTLINALG_CL_PRECONDITIONER_TRILINOS_HPP_
+#pragma once
 
 // TPL header files
 #include "Epetra_ConfigDefs.h"
@@ -36,7 +35,7 @@ namespace moris
 
             Linear_Problem* mLinearSystem = nullptr;
 
-            moris::ParameterList mParameterList;
+            moris::ParameterList* mParameterList;
 
             Teuchos::RCP< Ifpack_Preconditioner > mIfPackPrec;
 
@@ -68,8 +67,8 @@ namespace moris
             //-------------------------------------------------------------------------------
 
             Preconditioner_Trilinos(
-                    const moris::ParameterList aParameterlist,
-                    Linear_Problem*            aLinearSystem );
+                    moris::ParameterList* aParameterlist,
+                    Linear_Problem*       aLinearSystem );
 
             //-------------------------------------------------------------------------------
 
@@ -81,8 +80,8 @@ namespace moris
              * initialize preconditioner by setting parameter list and linear system
              */
             void initialize(
-                    const moris::ParameterList aParameterlist,
-                    Linear_Problem*            aLinearSystem );
+                    moris::ParameterList* aParameterlist,
+                    Linear_Problem*       aLinearSystem );
 
             //-------------------------------------------------------------------------------
 
@@ -92,7 +91,7 @@ namespace moris
              *  @param[in] iteration index - used to decided whether preconditioner needs to
              *                               be build and computed or just recomputed
              */
-            void build( const sint& aIter = 1 );
+            void build( Linear_Problem* aProblem, const sint& aIter = 1 );
 
             //-------------------------------------------------------------------------------
 
@@ -129,8 +128,23 @@ namespace moris
             {
                 return mMlPrec;
             };
+
+            //-------------------------------------------------------------------------------
+
+            /**
+             * @brief Set the param object
+             * 
+             * @param aKey 
+             * @return ParameterListTypes& 
+             */
+
+            ParameterListTypes&
+            set_param( const std::string& aKey )
+            {
+                return ( *mParameterList )( aKey );
+            }
+
+            //-------------------------------------------------------------------------------
         };
     }    // namespace dla
 }    // namespace moris
-
-#endif /* SRC_DISTLINALG_CL_PRECONDITIONER_TRILINOS_HPP_ */

@@ -46,11 +46,15 @@ namespace moris
 
                 for ( uint Ik = 0; Ik < mSetClusters.size(); Ik++ )
                 {
-                    Matrix< IndexMat > tSideOrdinal = mSetClusters( Ik )->get_cell_side_ordinals();
+                    const Matrix< IndexMat > tSideOrdinal = mSetClusters( Ik )->get_cell_side_ordinals();
 
-                    for ( uint Ij = 0; Ij < mSetClusters( Ik )->get_primary_cells_in_cluster().size(); Ij++ )
+                    const moris::Cell< moris::mtk::Cell const * > &tCellsInCluster =    //
+                            mSetClusters( Ik )->get_primary_cells_in_cluster();
+
+                    for ( uint Ij = 0; Ij < tCellsInCluster.size(); Ij++ )
                     {
-                        tMaxNumVert = tMaxNumVert + mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )->get_vertices_ind_on_side_ordinal( tSideOrdinal( Ij ) ).numel();
+                        tMaxNumVert = tMaxNumVert +    //
+                                      tCellsInCluster( Ij )->get_vertices_ind_on_side_ordinal( tSideOrdinal( Ij ) ).numel();
                     }
                 }
 
@@ -62,21 +66,23 @@ namespace moris
                 {
                     Matrix< IndexMat > tSideOrdinal = mSetClusters( Ik )->get_cell_side_ordinals();
 
-                    for ( uint Ij = 0; Ij < mSetClusters( Ik )->get_primary_cells_in_cluster().size(); Ij++ )
-                    {
-                        // FIXME rewrite for more readability
-                        tVerticesOnSet( { 0, 0 }, { tCounter, tCounter + mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )->get_vertices_ind_on_side_ordinal( tSideOrdinal( Ij ) ).numel() - 1 } ) =
-                                mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )->get_vertices_ind_on_side_ordinal( tSideOrdinal( Ij ) ).matrix_data();
+                    const moris::Cell< moris::mtk::Cell const * > &tCellsInCluster =    //
+                            mSetClusters( Ik )->get_primary_cells_in_cluster();
 
-                        tCounter = tCounter + mSetClusters( Ik )->get_primary_cells_in_cluster()( Ij )->get_vertices_ind_on_side_ordinal( tSideOrdinal( Ij ) ).numel();
+                    for ( uint Ij = 0; Ij < tCellsInCluster.size(); Ij++ )
+                    {
+                        uint tNumVertices = tCellsInCluster( Ij )->get_vertices_ind_on_side_ordinal( tSideOrdinal( Ij ) ).numel();
+
+                        tVerticesOnSet( { 0, 0 }, { tCounter, tCounter + tNumVertices - 1 } ) =
+                                tCellsInCluster( Ij )->get_vertices_ind_on_side_ordinal( tSideOrdinal( Ij ) ).matrix_data();
+
+                        tCounter = tCounter + tNumVertices;
                     }
                 }
 
-                //                MORIS_ASSERT( tVerticesOnSet.min() != -1, "calculate_vertices_on_blocks(): negative vertex index");
-
                 unique( tVerticesOnSet, mVerticesOnSet );
 
-                // FIXME delete this if statement the unique but in Armadillo is fixed.
+                // FIXME delete this if statement the unique bud in ARMADILLO is fixed.
                 if ( tVerticesOnSet.n_rows() != mVerticesOnSet.n_rows() )
                 {
                     tVerticesOnSet = mVerticesOnSet;
@@ -87,8 +93,6 @@ namespace moris
                         mVerticesOnSet( Ik ) = tVerticesOnSet( Ik );
                     }
                 }
-
-                //                print(mVerticesOnSet,"mVerticesOnSet");
 
                 mNumVerticesOnSet = mVerticesOnSet.numel();
             };
@@ -106,14 +110,8 @@ namespace moris
                     mIGGeometryType = mSetClusters( 0 )->get_primary_cells_in_cluster()( 0 )->get_geometry_type();
                 }
 
-                // TODO: check if it works with this commented out
-                // uint tRecIGGeometryType = min_all( (uint)mIGGeometryType );
-                // mIGGeometryType = static_cast< Geometry_Type >( tRecIGGeometryType );
-
                 mIGGeometryType = get_auto_side_geometry_type( mIGGeometryType );
-
-                // MORIS_ASSERT( mIGGeometryType != mtk::Geometry_Type::UNDEFINED, " init_ig_geometry_type(); undefined geometry type on all processors");
-            };
+            }
 
             //------------------------------------------------------------------------------
 

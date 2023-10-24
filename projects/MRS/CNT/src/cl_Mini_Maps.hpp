@@ -20,7 +20,7 @@
 #include "assert.hpp"
 
 /**
- * @brief This is here to define how (!) SMALL (!) maps are defined 
+ * @brief This is here to define how (!) SMALL (!) maps are defined
  * An example application for this would be the global to local node index relation on a single element
  *
  */
@@ -28,10 +28,12 @@
 namespace moris
 {
     // using std::unordered_map
-    // template< typename A, typename B > using Mini_Map = std::unordered_map< A, B >;
+    //    template< typename A, typename B >
+    //    using Mini_Map = std::unordered_map< A, B >;
 
     // using std::map
-    template< typename A, typename B > using Mini_Map = std::map< A, B >;
+    template< typename A, typename B >
+    using Mini_Map = std::map< A, B >;
 
     // define the IndexMap for convenience as it is used very often
     using IndexMap = Mini_Map< moris::moris_index, moris::moris_index >;

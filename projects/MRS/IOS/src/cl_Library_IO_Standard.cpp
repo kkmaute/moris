@@ -132,8 +132,8 @@ namespace moris
                     break;
 
                 case Parameter_List_Type::SOL :
-                    tModuleParamList.resize( 7 );
-                    for ( uint i = 0; i < 7; i++ )
+                    tModuleParamList.resize( 8 );
+                    for ( uint i = 0; i < 8; i++ )
                     {
                         tModuleParamList( i ).resize( 1 );
                     }
@@ -144,6 +144,7 @@ namespace moris
                     tModuleParamList( 4 )( 0 ) = prm::create_time_solver_algorithm_parameter_list();
                     tModuleParamList( 5 )( 0 ) = prm::create_time_solver_parameter_list();
                     tModuleParamList( 6 )( 0 ) = prm::create_solver_warehouse_parameterlist();
+                    tModuleParamList( 7 )( 0 ) = prm::create_preconditioner_parameter_list( sol::PreconditionerType::NONE );
                     break;
 
                 case Parameter_List_Type::MSI :
@@ -157,11 +158,11 @@ namespace moris
                     break;
 
                 case Parameter_List_Type::MIG :
-                    tModuleParamList( 0 )( 0 ) = prm::create_wrk_parameter_list();
+                    tModuleParamList( 0 )( 0 ) = prm::create_mig_parameter_list();
                     break;
 
                 case Parameter_List_Type::WRK :
-                    tModuleParamList( 0 )( 0 ) = prm::create_mig_parameter_list();
+                    tModuleParamList( 0 )( 0 ) = prm::create_wrk_parameter_list();
                     break;
 
                 case Parameter_List_Type::MORISGENERAL :

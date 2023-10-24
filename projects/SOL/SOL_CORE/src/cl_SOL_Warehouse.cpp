@@ -76,6 +76,11 @@ SOL_Warehouse::~SOL_Warehouse()
         PetscFinalize();
     }
 #endif
+
+    for ( auto & iPreconditioner: mPreconditioners )
+    {
+        delete iPreconditioner; 
+    }
 }
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -104,6 +109,9 @@ SOL_Warehouse::initialize()
     }
 #endif
 
+    // create the requested precondioer
+    this->create_preconditioner_algorithms();
+
     // build solvers and solver algorithms
     this->create_linear_solver_algorithms();
 
@@ -116,6 +124,26 @@ SOL_Warehouse::initialize()
     this->create_time_solver_algorithms();
 
     this->create_time_solvers();
+}
+
+//---------------------------------------------------------------------------------------------------------------------
+
+void
+SOL_Warehouse::create_preconditioner_algorithms()
+{
+    uint tNumLinAlgorithms = mParameterlist( 7 ).size();
+
+    mPreconditioners.resize( tNumLinAlgorithms );
+
+    moris::dla::Solver_Factory tSolFactory;
+
+    for ( uint Ik = 0; Ik < tNumLinAlgorithms; Ik++ )
+    {
+        std::cout << mParameterlist( 7 )( Ik ).get< moris::uint >( "Preconditioner_Implementation" ) << std::endl;
+        mPreconditioners( Ik ) = tSolFactory.create_preconditioner(
+                static_cast< moris::sol::PreconditionerType >( mParameterlist( 7 )( Ik ).get< moris::uint >( "Preconditioner_Implementation" ) ),
+                mParameterlist( 7 )( Ik ) );
+    }
 }
 
 //---------------------------------------------------------------------------------------------------------------------
@@ -134,6 +162,29 @@ SOL_Warehouse::create_linear_solver_algorithms()
         mLinearSolverAlgorithms( Ik ) = tSolFactory.create_solver(
                 static_cast< moris::sol::SolverType >( mParameterlist( 0 )( Ik ).get< moris::uint >( "Solver_Implementation" ) ),
                 mParameterlist( 0 )( Ik ) );
+
+        // get and set nonlinear sub-solvers for staggered methods
+        moris::Cell< uint > tPreconditionerIndices;
+        string_to_cell( mParameterlist( 0 )( Ik ).get< std::string >( "preconditioners" ),
+                tPreconditionerIndices );
+
+        // loop over the list of preconditioners and assign it to the solver
+        for ( auto tPrecIndex : tPreconditionerIndices )
+        {
+            mLinearSolverAlgorithms( Ik )->set_preconditioner( mPreconditioners( tPrecIndex ) );
+        }
+
+
+        // get and set nonlinear sub-solvers for staggered methods
+        tPreconditionerIndices.clear();
+        string_to_cell( mParameterlist( 0 )( Ik ).get< std::string >( "preconditioners_linear_operator" ),
+                tPreconditionerIndices );
+
+        // loop over the list of preconditioner and assign it to the solver
+        for ( auto tPrecIndex : tPreconditionerIndices )
+        {
+            mLinearSolverAlgorithms( Ik )->set_left_hand_side_preconditioner( mPreconditioners( tPrecIndex ) );
+        }
     }
 }
 
@@ -153,16 +204,16 @@ SOL_Warehouse::create_linear_solvers()
     {
         mLinearSolvers( Ik ) = new dla::Linear_Solver( mParameterlist( 1 )( Ik ) );
 
-        moris::Matrix< DDSMat > tMat;
-        string_to_mat( mParameterlist( 1 )( Ik ).get< std::string >( "DLA_Linear_solver_algorithms" ),
-                tMat );
+        moris::Cell< uint > tLinearSolverAlgorithmIndices;
+        string_to_cell( mParameterlist( 1 )( Ik ).get< std::string >( "DLA_Linear_solver_algorithms" ),
+                tLinearSolverAlgorithmIndices );
 
         // set output for LHS
         mLinearSolvers( Ik )->set_LHS_output_filename( mParameterlist( 1 )( Ik ).get< std::string >( "DLA_LHS_output_filename" ) );
 
-        for ( uint Ii = 0; Ii < tMat.numel(); Ii++ )
+        for ( uint Ii = 0; Ii < tLinearSolverAlgorithmIndices.size(); Ii++ )
         {
-            mLinearSolvers( Ik )->set_linear_algorithm( Ii, mLinearSolverAlgorithms( tMat( Ii ) ) );
+            mLinearSolvers( Ik )->set_linear_algorithm( Ii, mLinearSolverAlgorithms( tLinearSolverAlgorithmIndices( Ii ) ) );
         }
     }
 }

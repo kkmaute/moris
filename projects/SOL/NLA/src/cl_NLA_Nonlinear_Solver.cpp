@@ -333,7 +333,6 @@ Nonlinear_Solver::solve( sol::Dist_Vector* aFullVector )
 
     mNonlinearProblem->set_nonlinear_solver( this );
 
-    mNonlinearSolverAlgorithmList( 0 )->set_nonlinear_solver_manager( this );
 
     map< enum MSI::Dof_Type, std::string > tDofTypeToNameMap = MSI::get_dof_type_name_map();
 
@@ -348,7 +347,11 @@ Nonlinear_Solver::solve( sol::Dist_Vector* aFullVector )
 
     MORIS_LOG_SPEC( "Nonlinear solver operates on DOF types: ", tDofTypeNames );
 
-    mNonlinearSolverAlgorithmList( 0 )->solver_nonlinear_system( mNonlinearProblem );
+    for( const auto & iNonLinearAlgorithm : mNonlinearSolverAlgorithmList)
+    {
+        iNonLinearAlgorithm->set_nonlinear_solver_manager( this );
+        iNonLinearAlgorithm->solver_nonlinear_system( mNonlinearProblem );
+    }
 
     this->free_memory();
 }

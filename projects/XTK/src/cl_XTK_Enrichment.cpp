@@ -115,7 +115,7 @@ namespace xtk
 
     //-------------------------------------------------------------------------------------
 
-    Cell< Matrix< IdMat > > const &
+    Cell< Cell< moris_index > > const &
     Enrichment::get_element_inds_in_basis_support( moris_index const & aEnrichmentDataIndex ) const
     {
         return mEnrichmentData( aEnrichmentDataIndex ).mElementIndsInBasis;
@@ -123,7 +123,7 @@ namespace xtk
 
     //-------------------------------------------------------------------------------------
 
-    Cell< Matrix< IndexMat > > const &
+    Cell< Cell< moris_index > > const &
     Enrichment::get_element_enrichment_levels_in_basis_support( moris_index const & aEnrichmentDataIndex ) const
     {
         return mEnrichmentData( aEnrichmentDataIndex ).mElementEnrichmentLevel;
@@ -298,8 +298,8 @@ namespace xtk
             moris::size_t tNumBasisFunctions = mBackgroundMeshPtr->get_num_basis_functions( tMeshIndex );
 
             // allocate member variables
-            mEnrichmentData( tMeshIndex ).mElementEnrichmentLevel = Cell< Matrix< IndexMat > >( tNumBasisFunctions );
-            mEnrichmentData( tMeshIndex ).mElementIndsInBasis     = Cell< Matrix< IndexMat > >( tNumBasisFunctions );
+            mEnrichmentData( tMeshIndex ).mElementEnrichmentLevel = Cell< Cell< moris_index > >( tNumBasisFunctions );
+            mEnrichmentData( tMeshIndex ).mElementIndsInBasis     = Cell< Cell< moris_index > >( tNumBasisFunctions );
 
             // allocate data used after basis loop
             Cell< Matrix< IndexMat > > tSubPhaseBinEnrichment( tNumBasisFunctions );
@@ -404,8 +404,8 @@ namespace xtk
             moris::size_t tNumBasisFunctions = mBackgroundMeshPtr->get_num_basis_functions( tMeshIndex );
 
             // allocate member variables
-            mEnrichmentData( tMeshIndex ).mElementEnrichmentLevel = Cell< Matrix< IndexMat > >( tNumBasisFunctions );
-            mEnrichmentData( tMeshIndex ).mElementIndsInBasis     = Cell< Matrix< IndexMat > >( tNumBasisFunctions );
+            mEnrichmentData( tMeshIndex ).mElementEnrichmentLevel = Cell< Cell< moris_index > >( tNumBasisFunctions );
+            mEnrichmentData( tMeshIndex ).mElementIndsInBasis     = Cell< Cell< moris_index > >( tNumBasisFunctions );
 
             // allocate data used after basis loop
             Cell< Matrix< IndexMat > > tSpgBinEnrichment( tNumBasisFunctions );
@@ -996,8 +996,8 @@ namespace xtk
     {
         // resize member data
         moris::size_t tNumAllElementsInSupport                                         = this->count_elements_in_support( aParentElementsInSupport );
-        mEnrichmentData( aEnrichmentDataIndex ).mElementIndsInBasis( aBasisIndex )     = Matrix< IndexMat >( 1, tNumAllElementsInSupport );
-        mEnrichmentData( aEnrichmentDataIndex ).mElementEnrichmentLevel( aBasisIndex ) = Matrix< IndexMat >( 1, tNumAllElementsInSupport );
+        mEnrichmentData( aEnrichmentDataIndex ).mElementIndsInBasis( aBasisIndex )     = Cell< moris_index >( tNumAllElementsInSupport );
+        mEnrichmentData( aEnrichmentDataIndex ).mElementEnrichmentLevel( aBasisIndex ) = Cell< moris_index >( tNumAllElementsInSupport );
 
         uint tCount = 0;
 
@@ -1036,8 +1036,8 @@ namespace xtk
     {
         // resize member data
         moris::size_t tNumAllElementsInSupport                                         = this->count_elements_in_support( aParentElementsInSupport );
-        mEnrichmentData( aEnrichmentDataIndex ).mElementIndsInBasis( aBasisIndex )     = Matrix< IndexMat >( 1, tNumAllElementsInSupport );
-        mEnrichmentData( aEnrichmentDataIndex ).mElementEnrichmentLevel( aBasisIndex ) = Matrix< IndexMat >( 1, tNumAllElementsInSupport );
+        mEnrichmentData( aEnrichmentDataIndex ).mElementIndsInBasis( aBasisIndex )     = Cell< moris_index >( tNumAllElementsInSupport );
+        mEnrichmentData( aEnrichmentDataIndex ).mElementEnrichmentLevel( aBasisIndex ) = Cell< moris_index >( tNumAllElementsInSupport );
 
         // initialize counter tracking number of IG cells in support of basis function
         uint tIgCellCount = 0;
@@ -1273,7 +1273,7 @@ namespace xtk
 
         }    // end for: each non-enriched Basis function
 
-    }        // end function:
+    }    // end function:
 
     //-------------------------------------------------------------------------------------
 
@@ -1554,7 +1554,7 @@ namespace xtk
 
         }    // end if: parallel
 
-    }        // end function: assign_enriched_coefficients_identifiers_new()
+    }    // end function: assign_enriched_coefficients_identifiers_new()
 
     //-------------------------------------------------------------------------------------
 
@@ -1679,7 +1679,7 @@ namespace xtk
 
         }    // end for: each background (non-enriched) basis function
 
-    }        // end function: Enrichment::sort_enriched_coefficients_into_owned_and_not_owned()
+    }    // end function: Enrichment::sort_enriched_coefficients_into_owned_and_not_owned()
 
     //-------------------------------------------------------------------------------------
 
@@ -1723,7 +1723,7 @@ namespace xtk
 
         }    // end for: each non-enriched basis function
 
-    }        // end function: Enrichment::assign_IDs_to_owned_enriched_coefficients()
+    }    // end function: Enrichment::assign_IDs_to_owned_enriched_coefficients()
 
     //-------------------------------------------------------------------------------------
 
@@ -1917,9 +1917,9 @@ namespace xtk
 
             }    // end for: communicated entities from current proc
 
-        }        // end for: communication list for each processor
+        }    // end for: communication list for each processor
 
-    }            // end function: Enrichment::prepare_answers_for_owned_enriched_coefficient_IDs()
+    }    // end function: Enrichment::prepare_answers_for_owned_enriched_coefficient_IDs()
 
     //-------------------------------------------------------------------------------------
 
@@ -1961,7 +1961,7 @@ namespace xtk
 
         }    // end for: each proc communicated with
 
-    }        // end function: Enrichment::handle_requested_unzipped_enriched_coefficient_answers()
+    }    // end function: Enrichment::handle_requested_unzipped_enriched_coefficient_answers()
 
     //-------------------------------------------------------------------------------------
 
@@ -2822,7 +2822,7 @@ namespace xtk
 
             }    // end for: all B-spline mesh indices
 
-        }        // end for: all base IP cells
+        }    // end for: all base IP cells
 
         // store the number of enr. IP cells
         mNumEnrIpCells = (moris_index)tEnrIpCellCounter;
@@ -3916,7 +3916,7 @@ namespace xtk
 
             }    // end for: basis interpolating into vertex
 
-        }        // end for: vertices on IP cell
+        }    // end for: vertices on IP cell
 
         // average the weights
         tAveragedWeights = tAveragedWeights / (real)tNumVertices;
@@ -4045,7 +4045,7 @@ namespace xtk
 
         }    // end if: parallel
 
-    }        // end function: Enrichment::communicate_unzipped_ip_cells()
+    }    // end function: Enrichment::communicate_unzipped_ip_cells()
 
     //-------------------------------------------------------------------------------------
 
@@ -4185,7 +4185,7 @@ namespace xtk
 
         }    // end for: each proc communicated with
 
-    }        // end function: Enrichment::assign_IDs_to_owned_unzipped_IP_cells()
+    }    // end function: Enrichment::assign_IDs_to_owned_unzipped_IP_cells()
 
     //-------------------------------------------------------------------------------------
 
@@ -4249,7 +4249,7 @@ namespace xtk
 
         }    // end for: each proc communicated with
 
-    }        // end function: Enrichment::prepare_answers_for_owned_unzipped_IP_cell_IDs()
+    }    // end function: Enrichment::prepare_answers_for_owned_unzipped_IP_cell_IDs()
 
     //-------------------------------------------------------------------------------------
 
@@ -4287,7 +4287,7 @@ namespace xtk
 
         }    // end for: each proc communicated with
 
-    }        // end function: Enrichment::handle_requested_unzipped_unzipped_IP_cell_answers()
+    }    // end function: Enrichment::handle_requested_unzipped_unzipped_IP_cell_answers()
 
     //-------------------------------------------------------------------------------------
 

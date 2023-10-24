@@ -441,8 +441,8 @@ namespace moris
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-            moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
-            for ( uint Ik = 0; Ik < 7; Ik++ )
+            moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 8 );
+            for ( uint Ik = 0; Ik < 8; Ik++ )
             {
                 tParameterlist( Ik ).resize( 1 );
             }
@@ -454,7 +454,7 @@ namespace moris
             tParameterlist( 0 )( 0 ).set( "AZ_solver", AZ_gmres );
             tParameterlist( 0 )( 0 ).set( "AZ_subdomain_solve", AZ_ilu );
             tParameterlist( 0 )( 0 ).set( "AZ_graph_fill", 10 );
-            tParameterlist( 0 )( 0 ).set( "ml_prec_type", "SA" );
+            tParameterlist( 0 )( 0 ).set( "preconditioners", "0" );
 
             tParameterlist( 1 )( 0 ) = moris::prm::create_linear_solver_parameter_list();
             tParameterlist( 2 )( 0 ) = moris::prm::create_nonlinear_algorithm_parameter_list();
@@ -466,6 +466,9 @@ namespace moris
             tParameterlist( 5 )( 0 ).set( "TSA_DofTypes", "UX,UY;TEMP" );
 
             tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+            
+            tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::ML );
+            tParameterlist( 7 )( 0 ).set( "ml_prec_type", "SA" );
 
             tSolverWarehouse.set_parameterlist( tParameterlist );
 
@@ -915,7 +918,7 @@ namespace moris
 
             sol::SOL_Warehouse tSolverWarehouse( tModel->get_solver_interface() );
 
-            moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 7 );
+            moris::Cell< moris::Cell< moris::ParameterList > > tParameterlist( 8 );
 
             tParameterlist( 0 ).resize( 3 );
             tParameterlist( 0 )( 0 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );
@@ -925,10 +928,10 @@ namespace moris
             tParameterlist( 0 )( 0 ).set( "AZ_solver", AZ_gmres );
             tParameterlist( 0 )( 0 ).set( "AZ_subdomain_solve", AZ_ilu );
             tParameterlist( 0 )( 0 ).set( "AZ_graph_fill", 10 );
-            tParameterlist( 0 )( 0 ).set( "ml_prec_type", "SA" );
+            tParameterlist( 0 )( 0 ).set( "preconditioners", "0" );
 
             tParameterlist( 0 )( 1 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AZTEC_IMPL );
-            tParameterlist( 0 )( 1 ).set( "ifpack_prec_type", "ILU" );
+            tParameterlist( 0 )( 1 ).set( "preconditioners", "1" );
 
             tParameterlist( 0 )( 2 ) = moris::prm::create_linear_algorithm_parameter_list( sol::SolverType::AMESOS_IMPL );
 
@@ -979,6 +982,13 @@ namespace moris
 
             tParameterlist( 6 ).resize( 1 );
             tParameterlist( 6 )( 0 ) = moris::prm::create_solver_warehouse_parameterlist();
+            
+            tParameterlist( 7 ).resize( 2 );
+            tParameterlist( 7 )( 0 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::ML );
+            tParameterlist( 7 )( 0 ).set( "ml_prec_type", "SA" );
+
+            tParameterlist( 7 )( 1 ) = moris::prm::create_preconditioner_parameter_list( sol::PreconditionerType::IFPACK );
+            tParameterlist( 7 )( 1 ).set( "ifpack_prec_type", "ILU" );
 
             tSolverWarehouse.set_parameterlist( tParameterlist );
             tSolverWarehouse.initialize();
