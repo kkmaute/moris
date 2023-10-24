@@ -40,6 +40,7 @@ set(HEADERS
     st_GEN_Geometry_Engine_Parameters.hpp
 
 	# ADV
+	ADV/cl_GEN_ADV.hpp
     ADV/cl_GEN_ADV_Manager.hpp
 	ADV/cl_GEN_Design_Factory.hpp
 	ADV/cl_GEN_Design_Field.hpp
@@ -94,6 +95,7 @@ set(LIB_SOURCES
 	cl_GEN_Geometric_Proximity.cpp
 
 	# ADV
+	ADV/cl_GEN_ADV.cpp
 	ADV/cl_GEN_ADV_Manager.cpp
 	ADV/cl_GEN_Design_Factory.cpp
 	ADV/cl_GEN_Design_Field.cpp

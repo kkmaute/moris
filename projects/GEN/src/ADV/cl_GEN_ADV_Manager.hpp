@@ -4,12 +4,13 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Field.hpp
+ * cl_GEN_ADV_Manager.hpp
  *
  */
 
 #pragma once
 
+#include "cl_GEN_ADV.hpp"
 #include "cl_Matrix.hpp"
 #include "cl_SOL_Dist_Vector.hpp"
 
@@ -19,7 +20,7 @@ namespace moris::ge
     {
 
       private:
-        Cell< real* >     mVariables;
+        Cell< ADV >       mADVs;
         Matrix< DDRMat >  mConstants;
         Matrix< DDSMat >  mDeterminingADVIds;
         bool              mHasADVs;
@@ -111,10 +112,5 @@ namespace moris::ge
         void assign_adv_dependencies(
                 const Matrix< DDUMat >& aFieldVariableIndices,
                 const Matrix< DDUMat >& aADVIndices );
-
-        /**
-         * Fills the remaining field variables with constant parameters.
-         */
-        void fill_constant_parameters();
     };
 }

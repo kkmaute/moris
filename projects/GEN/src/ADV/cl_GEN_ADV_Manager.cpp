@@ -4,7 +4,7 @@
  *
  *------------------------------------------------------------------------------------
  *
- * cl_GEN_Field.cpp
+ * cl_GEN_ADV_Manager.cpp
  *
  */
 
@@ -15,56 +15,40 @@
 namespace moris::ge
 {
     //--------------------------------------------------------------------------------------------------------------
-    // Get addresses inside of different vector types with overloaded function
-    //--------------------------------------------------------------------------------------------------------------
-
-    real*
-    get_address( Matrix< DDRMat >& aVector, uint aIndex )
-    {
-        return &aVector( aIndex );
-    }
-
-    real*
-    get_address( sol::Dist_Vector* aVector, uint aIndex )
-    {
-        return &( *aVector )( aIndex );
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-    // Definitions
-    //--------------------------------------------------------------------------------------------------------------
 
     ADV_Manager::ADV_Manager(
             Matrix< DDRMat >&       aADVs,
             const Matrix< DDUMat >& aVariableIndices,
             const Matrix< DDUMat >& aADVIndices,
             const Matrix< DDRMat >& aConstants )
-            : mVariables( aVariableIndices.length() + aConstants.length() )
-            , mConstants( aConstants )
+            : mConstants( aConstants )
             , mDeterminingADVIds( aVariableIndices.length() + aConstants.length(), 1, -1 )
             , mHasADVs( aADVIndices.length() )
     {
         // Check and assign ADV dependencies
         this->assign_adv_dependencies( aVariableIndices, aADVIndices );
 
+        // Reserve ADVs
+        mADVs.reserve( mDeterminingADVIds.length() );
+
         // Fill with pointers to ADVs
         this->set_advs( aADVs );
-
-        // Fill constant parameters
-        this->fill_constant_parameters();
     }
 
     //--------------------------------------------------------------------------------------------------------------
 
     ADV_Manager::ADV_Manager(
             const Matrix< DDRMat >& aConstants )
-            : mVariables( aConstants.length() )
-            , mConstants( aConstants )
+            : mConstants( aConstants )
             , mDeterminingADVIds( aConstants.length(), 1, -1 )
             , mHasADVs( false )
     {
-        // Fill constant parameters
-        this->fill_constant_parameters();
+        // Reserve ADVs
+        mADVs.reserve( aConstants.length() );
+
+        // Set ADVs
+        Matrix< DDRMat > tDummyADVs( 0, 0 );
+        this->set_advs( tDummyADVs );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -72,8 +56,7 @@ namespace moris::ge
     ADV_Manager::ADV_Manager(
             const Matrix< DDUMat >& aFieldVariableIndices,
             const Matrix< DDSMat >& aSharedADVIds )
-            : mVariables( aSharedADVIds.length() )
-            , mDeterminingADVIds( aSharedADVIds )
+            : mDeterminingADVIds( aSharedADVIds )
             , mHasADVs( true )
     {
         // Check that the field variable indices match the shared ADV Ids
@@ -87,9 +70,10 @@ namespace moris::ge
 
         // Set variables from ADVs
         uint tNumSharedADVs = aSharedADVIds.length();
+        mADVs.reserve( tNumSharedADVs );
         for ( uint tVariable = 0; tVariable < tNumSharedADVs; tVariable++ )
         {
-            mVariables( aFieldVariableIndices( tVariable ) ) = &( *mSharedADVs )( aSharedADVIds( tVariable ) );
+            mADVs.emplace_back( mSharedADVs, aSharedADVIds( tVariable ) );
         }
     }
 
@@ -106,11 +90,17 @@ namespace moris::ge
     void
     ADV_Manager::set_advs( Vector_Type& aADVs )
     {
+        uint tConstantIndex = 0;
+        mADVs.clear();
         for ( uint tVariableIndex = 0; tVariableIndex < mDeterminingADVIds.length(); tVariableIndex++ )
         {
             if ( mDeterminingADVIds( tVariableIndex ) >= 0 )
             {
-                mVariables( tVariableIndex ) = get_address( aADVs, mDeterminingADVIds( tVariableIndex ) );
+                mADVs.emplace_back( aADVs, mDeterminingADVIds( tVariableIndex ) );
+            }
+            else
+            {
+                mADVs.emplace_back( mConstants( tConstantIndex++ ) );
             }
         }
     }
@@ -119,7 +109,7 @@ namespace moris::ge
 
     real ADV_Manager::get_variable( uint aVariableIndex )
     {
-        return *mVariables( aVariableIndex );
+        return mADVs( aVariableIndex ).get_value();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -161,21 +151,6 @@ namespace moris::ge
         for ( uint tADVFillIndex = 0; tADVFillIndex < aVariableIndices.length(); tADVFillIndex++ )
         {
             mDeterminingADVIds( aVariableIndices( tADVFillIndex ) ) = aADVIndices( tADVFillIndex );
-        }
-    }
-
-    //--------------------------------------------------------------------------------------------------------------
-
-    void
-    ADV_Manager::fill_constant_parameters()
-    {
-        uint tParameterIndex = 0;
-        for ( uint tVariableIndex = 0; tVariableIndex < mVariables.size(); tVariableIndex++ )
-        {
-            if ( mVariables( tVariableIndex ) == nullptr )
-            {
-                mVariables( tVariableIndex ) = &( mConstants( tParameterIndex++ ) );
-            }
         }
     }
 
