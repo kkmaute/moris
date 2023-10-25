@@ -16,7 +16,7 @@
 
 namespace moris::ge
 {
-    class Image_SDF_Geometry : public Field_Analytic
+    class Image_SDF_Geometry : public Field_Analytic< 0 >
     {
         /*   Image-based signed distance field
          *

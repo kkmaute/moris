@@ -15,7 +15,7 @@
 
 namespace moris::ge
 {
-    class Superellipse : public Field_Analytic
+    class Superellipse : public Field_Analytic< 2 >
     {
     private:
         real mEpsilon = 1E-8;

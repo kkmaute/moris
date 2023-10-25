@@ -15,7 +15,7 @@
 
 namespace moris::ge
 {
-    class Constant_Property : public Field_Analytic
+    class Constant_Property : public Field_Analytic< 0 >
     {
       public:
 

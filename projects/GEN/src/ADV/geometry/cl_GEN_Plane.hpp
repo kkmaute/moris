@@ -15,7 +15,7 @@
 
 namespace moris::ge
 {
-    class Plane : public Field_Analytic
+    class Plane : public Field_Analytic< 2 > // FIXME plane should by default be 3D
     {
     private:
         real (Plane::*m_eval_field)(const Matrix<DDRMat>&) = nullptr;

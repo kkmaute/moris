@@ -17,7 +17,7 @@
 
 namespace moris::ge
 {
-    class Sphere : public Field_Analytic
+    class Sphere : public Field_Analytic< 3 >
     {
     public:
 

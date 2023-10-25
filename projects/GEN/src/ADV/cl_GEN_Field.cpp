@@ -54,6 +54,13 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    uint Field::get_number_of_reference_coordinates()
+    {
+        return 0;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     Matrix< DDSMat > Field::get_determining_adv_ids(
             uint                    aNodeIndex,
             const Matrix< DDRMat >& aCoordinates )

@@ -16,7 +16,7 @@
 
 namespace moris::ge
 {
-    class Voxel_Input : public Field_Analytic
+    class Voxel_Input : public Field_Analytic< 0 >
     {
 
       private:

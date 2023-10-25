@@ -20,11 +20,18 @@
  * @param num_variables Number of variables this field takes in
  * @param ... Additional code to be inserted into the constructor body via __VA_ARGS__
  */
-#define ANALYTIC_FIELD_ADV_CONSTRUCTOR( class_name, num_variables, ... ) class_name( ADV_ARG_TYPES ) : Field_Analytic( ADV_ARGS ) { \
-        VARIABLE_CHECK( num_variables ); __VA_ARGS__ }
+#define ANALYTIC_FIELD_ADV_CONSTRUCTOR( class_name, num_variables, ... ) \
+    class_name( ADV_ARG_TYPES ) : Field_Analytic( ADV_ARGS ) { VARIABLE_CHECK( num_variables ); __VA_ARGS__ }
 
 namespace moris::ge
 {
+    /**
+     * Class for fields that are specified by an analytic function.
+     *
+     * @tparam N Number of coordinates required to specify a center (or other reference point) for translations and rotations.
+     * These need to be the first N parameters to an analytic field in order for field arrays and rotations to work.
+     */
+    template< uint N >
     class Field_Analytic : public Field
     {
       public:
@@ -48,7 +55,20 @@ namespace moris::ge
          * @param aConstants The parameters that define this field
          * @param aParameters Additional parameters
          */
-        explicit Field_Analytic( Matrix< DDRMat > aConstants );
+        explicit Field_Analytic( Matrix< DDRMat > aConstants )
+                : Field( aConstants )
+        {
+        }
+
+        /**
+         * Gets the number of reference coordinates this field has.
+         *
+         * @return Number of reference coordinates
+         */
+        uint get_number_of_reference_coordinates() override
+        {
+            return N;
+        }
 
         /**
          * Given a node index or coordinate, returns the field value.
@@ -59,7 +79,10 @@ namespace moris::ge
          */
         real get_field_value(
                 uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates ) override;
+                const Matrix< DDRMat >& aCoordinates ) override
+        {
+            return this->get_field_value( aCoordinates );
+        }
 
         /**
          * Given a node coordinate, returns the field value
@@ -78,7 +101,10 @@ namespace moris::ge
          */
         const Matrix< DDRMat >& get_dfield_dadvs(
                 uint                    aNodeIndex,
-                const Matrix< DDRMat >& aCoordinates ) override;
+                const Matrix< DDRMat >& aCoordinates ) override
+        {
+            return this->get_dfield_dadvs( aCoordinates );
+        }
 
         /**
          * Given a node coordinate, returns a vector of the field derivatives with respect to its ADVs.
@@ -99,7 +125,10 @@ namespace moris::ge
         void get_dfield_dcoordinates(
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
-                Matrix< DDRMat >&       aSensitivities ) override;
+                Matrix< DDRMat >&       aSensitivities ) override
+        {
+            return this->get_dfield_dcoordinates( aCoordinates, aSensitivities );
+        }
 
         /**
          * Given nodal coordinates, returns a vector of the field derivatives with respect to the nodal

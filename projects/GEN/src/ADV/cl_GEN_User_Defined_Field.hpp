@@ -26,7 +26,7 @@ namespace moris::ge
             const Cell< real >&     aParameters,
             Matrix< DDRMat >&       aSensitivities );
 
-    class User_Defined_Field : public Field_Analytic
+    class User_Defined_Field : public Field_Analytic< 0 > // TODO consider templating user-defined field against reference dimensions as well
     {
 
     private:

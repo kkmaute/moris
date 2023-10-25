@@ -110,6 +110,13 @@ namespace moris::ge
         virtual void import_advs( sol::Dist_Vector* aOwnedADVs );
 
         /**
+         * Gets the number of reference coordinates this field has.
+         *
+         * @return Number of reference coordinates
+         */
+        virtual uint get_number_of_reference_coordinates();
+
+        /**
          * Given a node index or coordinate, returns the field value.
          *
          * @param aNodeIndex Node index
@@ -197,7 +204,7 @@ namespace moris::ge
         void set_num_original_nodes( uint aNumOriginalNodes );
 
         /**
-         * Gets the name of this design's field
+         * Gets the name of this field
          *
          * @return Name
          */

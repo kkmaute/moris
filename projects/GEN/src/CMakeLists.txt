@@ -100,7 +100,6 @@ set(LIB_SOURCES
 	ADV/cl_GEN_Design_Factory.cpp
 	ADV/cl_GEN_Design_Field.cpp
 	ADV/cl_GEN_Field.cpp
-	ADV/cl_GEN_Field_Analytic.cpp
 	ADV/cl_GEN_Field_Discrete_Integration.cpp
 	ADV/cl_GEN_Field_Discrete_Interpolation.cpp
 	ADV/cl_GEN_User_Defined_Field.cpp

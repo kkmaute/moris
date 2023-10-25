@@ -15,7 +15,7 @@
 
 namespace moris::ge
 {
-    class Circle : public Field_Analytic
+    class Circle : public Field_Analytic< 2 >
     {
     public:
 

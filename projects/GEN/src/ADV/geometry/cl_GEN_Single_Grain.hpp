@@ -16,7 +16,7 @@
 
 namespace moris::ge
 {
-    class Single_Grain : public Field_Analytic
+    class Single_Grain : public Field_Analytic< 0 >
     {
 
     private:
