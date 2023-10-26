@@ -9,10 +9,12 @@
     <Geometries>
     
         <Geometry type="image_file"> 
-            <FileName>Cali_Bear.hdf5</FileName>
-            <ImageDimensions>3.81,1.95</ImageDimensions>
+            <FileName>Bear.hdf5</FileName>
+            <ImageDimensions>8.80,5.28</ImageDimensions>
             <ImageOrigin>0.0,0.0</ImageOrigin>
         </Geometry>
+        
+        <UseMultiLinearIntersections>true</UseMultiLinearIntersections>
 
     </Geometries>
     
@@ -23,8 +25,8 @@
 
         <!-- Define a uniform grid all grids and meshes will be derived from -->
         <BaseGrid>
-            <Size>190,97</Size>
-            <Dimensions>3.81,1.95</Dimensions>
+            <Size>220,132</Size>
+            <Dimensions>8.80,5.28</Dimensions>
             <Origin>0.0,0.0</Origin>
         </BaseGrid>
         
