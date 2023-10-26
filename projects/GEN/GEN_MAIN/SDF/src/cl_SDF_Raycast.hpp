@@ -215,7 +215,13 @@ namespace moris::sdf
         Cell< real >
         get_intersection_coordinates()
         {
-            return mCoordsK;
+            return mData.mCoordsK; // BRENDAN remove data struct when done
+        }
+
+        uint
+        is_point_inside()
+        {
+            return mPointIsInside;
         }
     };    // class Raycast
 }    // namespace moris::sdf

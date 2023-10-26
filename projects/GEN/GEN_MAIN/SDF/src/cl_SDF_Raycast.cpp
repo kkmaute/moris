@@ -48,6 +48,10 @@ namespace moris::sdf
     {
         MORIS_ASSERT( aPoint.numel() == mDimension, "SDF_Raycast::calculate_raycast() - mDimension must match the number of coordinates of mPoint." );
 
+        // reset candidate and intersection points
+        mData.mCandidateFacets.clear();
+        mData.mIntersectedFacets.clear();
+
         // copy point data
         // FIXME: mPoint and mOriginalPoint could be a reference to aPoint since it will exist elsewhere to avoid the copy
         mOriginalPoint = mPoint = aPoint;
@@ -408,7 +412,7 @@ namespace moris::sdf
         {
             // check bounding box of the line against the point (point is above min coord and below max coord)
             if ( ( mFacetMaxCoords( iLineIndex, tOtherAxis ) - mPoint( tOtherAxis ) ) * ( mPoint( tOtherAxis ) - mFacetMinCoords( iLineIndex, tOtherAxis ) )
-                    < gSDFepsilon )
+                    > gSDFepsilon )
             {
                 // check if the point's !aAxis component is less the facet's minimum aAxis component. If so, the facet is intersected
                 // NOTE: this makes the 2D raycast only cast in the positive axis direction
@@ -420,7 +424,7 @@ namespace moris::sdf
                 // check the bounding box of the other axis to determine if the point is entirely in the bounding box
                 else if ( ( mFacetMaxCoords( iLineIndex, aAxis ) - mPoint( aAxis ) )
                                   * ( mPoint( aAxis ) - mFacetMinCoords( iLineIndex, aAxis ) )
-                          < gSDFepsilon )
+                          > gSDFepsilon )
                 {
                     // if the point is totally in a line's bounding box, add line to candidate list
                     mData.mIntersectedFacets( tIntersectedFacetCount ) = mObject.get_facets()( iLineIndex );
@@ -627,7 +631,8 @@ namespace moris::sdf
             }
         }
 
-        mPointIsInside = ( tIntersectionsRightOfPoint + mData.mIntersectedFacets.size() ) % 2;
+        std::cout << "# int f: " << mData.mIntersectedFacets.size() << std::endl;
+        mPointIsInside = ( tIntersectionsRightOfPoint + mData.mCandidateFacets.size() ) % 2;
     }
 
     void

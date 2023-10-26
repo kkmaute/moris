@@ -33,6 +33,7 @@
 #include "cl_SDF_Data.hpp"
 #include "cl_SDF_Object.hpp"
 #include "cl_SDF_Raycast.hpp"
+#include "SDF_Tools.hpp"
 
 using namespace moris;
 
@@ -125,14 +126,14 @@ TEST_CASE(
             sdf::Raycast tRaycaster( tObject, tData );
 
             // define test point
-            Matrix< DDRMat > tTestPoint = { { -.25 }, { 0.3 } };
+            Matrix< DDRMat > tTestPoint = { { -.25 }, { -0.3 } };
 
             tRaycaster.set_point( tTestPoint );
 
             // preselect in y direction and ensure the candidates and intersected facets are marked
             tRaycaster.preselect_lines( 1 );
-            uint                tIntersectedLinesExpected = 2;
-            sdf::Facet*         tCandidateLinesExpected   = tFacets( 1 );
+            uint                tIntersectedLinesExpected = 1;
+            sdf::Facet*         tCandidateLinesExpected   = tFacets( 2 );
             Cell< uint >        tIntersectedLines         = tRaycaster.get_candidate_facets();
             Cell< sdf::Facet* > tCandidateLines           = tRaycaster.get_intersected_facets();
 
@@ -143,8 +144,7 @@ TEST_CASE(
 
             // preselect in x direction and ensure the candidates and intersected facets are marked
             tRaycaster.preselect_lines( 0 );
-            tIntersectedLinesExpected = 1;
-            tCandidateLinesExpected   = 0;
+            tIntersectedLinesExpected = 3;
             tIntersectedLines         = tRaycaster.get_candidate_facets();
             tCandidateLines           = tRaycaster.get_intersected_facets();
 
@@ -152,6 +152,57 @@ TEST_CASE(
             REQUIRE( tCandidateLines.size() == 1 );
             CHECK( tIntersectedLines( 0 ) == tIntersectedLinesExpected );
             CHECK( tCandidateLines( 0 ) == tCandidateLinesExpected );
+
+            // intersect the candidate facets and determine the intersection location
+            tRaycaster.intersect_ray_with_facets( 0 );
+            real         tIntersectionCoordinateExpected = -0.2;
+            Cell< real > tIntersectionCoordinates        = tRaycaster.get_intersection_coordinates();
+
+            REQUIRE( tIntersectionCoordinates.size() == 1 );
+            CHECK( tIntersectionCoordinates( 0 ) - tIntersectionCoordinateExpected < sdf::gSDFepsilon);
+
+            // determine if the point is inside/outside and check expectation
+            tRaycaster.check_if_node_is_inside_lines( 0 );
+            uint tPointInsideExpected = 0;
+            uint tPointInside         = tRaycaster.is_point_inside();
+
+            CHECK( tPointInside == tPointInsideExpected );
+
+            // ensure the test gives the same result when the entire algorithm is called at once
+            tRaycaster.calculate_raycast( tTestPoint );
+            tPointInside = tRaycaster.is_point_inside();
+
+            CHECK( tPointInside == tPointInsideExpected );
+
+            // repeat for a point inside the surface
+            tTestPoint = { { -.25 }, { 0.2 } };
+            tRaycaster.set_point( tTestPoint );
+
+            tRaycaster.preselect_lines( 1 );
+            tCandidateLinesExpected = tFacets( 1 );
+            tCandidateLines         = tRaycaster.get_intersected_facets();
+            tIntersectedLines       = tRaycaster.get_candidate_facets();
+
+            REQUIRE( tCandidateLines.size() == 1 );
+            REQUIRE( tIntersectedLines.size() == 0 );
+            CHECK( tCandidateLines( 0 ) == tCandidateLinesExpected );
+
+            tRaycaster.intersect_ray_with_facets( 1 );
+            tIntersectionCoordinateExpected = 0.25;
+            tIntersectionCoordinates        = tRaycaster.get_intersection_coordinates();
+
+            REQUIRE( tIntersectionCoordinates.size() == 1 );
+            CHECK( tIntersectionCoordinates( 0 ) - tIntersectionCoordinateExpected  < sdf::gSDFepsilon );
+
+            tRaycaster.check_if_node_is_inside_lines( 1 );
+            tPointInsideExpected = 1;
+            tPointInside = tRaycaster.is_point_inside();
+
+            CHECK( tPointInside == tPointInsideExpected );
+
+            tRaycaster.calculate_raycast( tTestPoint );
+
+            CHECK( tPointInside == tPointInsideExpected );
         }
     }
 }
