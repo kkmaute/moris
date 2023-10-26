@@ -110,7 +110,7 @@ TEST_CASE(
 
             // Create mesh to raycast on
             std::string tMeshPath = tMorisRoot + "/projects/GEN/GEN_MAIN/SDF/test/data/TensorMesh.g";
-            mtk::Mesh *tInput = mtk::create_interpolation_mesh( MeshType::STK, tMeshPath, nullptr );
+            mtk::Mesh  *tInput    = mtk::create_interpolation_mesh( MeshType::STK, tMeshPath, nullptr );
 
             // create SDF wrapper for mesh
             sdf::Mesh tMesh( tInput );
