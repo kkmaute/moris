@@ -137,7 +137,7 @@ namespace moris
         // check the number of spatial dimensions
         Matrix< DDUMat > tBaseGridMat;
         moris::string_to_mat( tBaseGridSize, tBaseGridMat );
-        uint tNumDims = tBaseGridMat.numel();
+        mNumSpatialDims = tBaseGridMat.numel();
 
         Matrix< DDRMat > tDomainDimsMat;
         moris::string_to_mat( tDomainDimensions, tDomainDimsMat );
@@ -148,15 +148,15 @@ namespace moris
         uint tNumDimsOrigin = tDomainOriginMat.numel();
 
         // perform some checks on the user inputs
-        MORIS_ERROR( tNumDims == 2 || tNumDims == 3,
+        MORIS_ERROR( mNumSpatialDims == 2 || mNumSpatialDims == 3,
                 "Library_IO_Meshgen::load_parameters_from_xml() - Base grid specified must have 2 or 3 dimensions." );
-        MORIS_ERROR( tNumDims == tNumDimsDimensions,
+        MORIS_ERROR( mNumSpatialDims == tNumDimsDimensions,
                 "Library_IO_Meshgen::load_parameters_from_xml() - Base grid 'Dimensions' inconsistent with 'Size'." );
-        MORIS_ERROR( tNumDims == tNumDimsOrigin,
+        MORIS_ERROR( mNumSpatialDims == tNumDimsOrigin,
                 "Library_IO_Meshgen::load_parameters_from_xml() - Base grid 'Origin' inconsistent with 'Size'." );
 
         // generate the correct side set names for this number of dimensions
-        std::string tDomainSideSets = ( tNumDims == 3 ) ? "1,2,3,4,5,6" : "1,2,3,4";
+        std::string tDomainSideSets = ( mNumSpatialDims == 3 ) ? "1,2,3,4,5,6" : "1,2,3,4";
 
         // set the parameters in the parameter lists
         tHmrParamList.set( "number_of_elements_per_dimension", tBaseGridSize );
@@ -175,9 +175,11 @@ namespace moris
         uint tNumGridsSpecified = mXmlReader->count_keys_in_subtree( tGridsPath, tGridNodeName );
 
         // initialize a map that stores in what order the grids are defined
-        std::unordered_map< moris_index, uint > tGridIndexMap;
-        Cell< moris_index >                     tRefinements( tNumGridsSpecified, 0 );
-        moris_index                             tMaxGridIndex = -1;
+        std::map< moris_index, uint > tGridIndexMap;    // map: grid index | position in list
+        Cell< moris_index >           tGridIndices( tNumGridsSpecified, 0 );
+        Cell< moris_index >           tInitialRefinements( tNumGridsSpecified, 0 );
+        Cell< moris_index >           tBoundaryRefinements( tNumGridsSpecified, 0 );
+        moris_index                   tMaxGridIndex = -1;
 
         // go through grids specified and get their data
         for ( uint iMeshGrid = 0; iMeshGrid < tNumGridsSpecified; iMeshGrid++ )
@@ -208,13 +210,16 @@ namespace moris
 
             // add to map
             tGridIndexMap[ tGridIndex ] = iMeshGrid;
+            tGridIndices( iMeshGrid )   = tGridIndex;
 
             // get and store the number of refinements
-            moris_index& tNumRefines = tRefinements( iMeshGrid );
-            mXmlReader->get_from_buffer( "InitialRefinements", tNumRefines, moris_index( 0 ) );
+            moris_index& tNumInitRefines = tInitialRefinements( iMeshGrid );
+            mXmlReader->get_from_buffer( "InitialRefinements", tNumInitRefines, moris_index( 0 ) );
+            moris_index& tNumBdRefines = tBoundaryRefinements( iMeshGrid );
+            mXmlReader->get_from_buffer( "InterfaceRefinements", tNumBdRefines, moris_index( 0 ) );
         }
 
-        // make sure there aren't any mesh indices left unidentified
+        // make sure there aren't any grid indices left unidentified
         MORIS_ERROR( tMaxGridIndex == (moris_index)(tNumGridsSpecified)-1,
                 "Library_IO_Meshgen::load_parameters_from_xml() - "
                 "Some grid indices have not been defined. The maximum grid index used is %i, but only %i grids are defined.",
@@ -228,15 +233,16 @@ namespace moris
         std::string tBspMeshesPath   = aHmrPath + ".BsplineMeshes";
         std::string tBspMeshNodeName = "BsplineMesh";
 
-        // see how many grids are specified in the input file
+        // see how many B-spline meshes are specified in the input file
         uint tNumBspMeshesSpecified = mXmlReader->count_keys_in_subtree( tBspMeshesPath, tBspMeshNodeName );
 
         // initialize a map that stores in what order the grids are defined
-        std::unordered_map< moris_index, uint > tBspMeshIndexMap;
-        Cell< moris_index >                     tGridsForMeshes( tNumBspMeshesSpecified, -1 );
-        Cell< moris_index >                     tPolyOrders( tNumBspMeshesSpecified, -1 );
-        moris_index                             tMaxBspMeshIndex = -1;
-        moris_index                             tMaxPolyOrder    = -1;
+        std::map< moris_index, uint > tBspMeshIndexMap;    // map: B-spline mesh index | position in list
+        Cell< moris_index >           tBspMeshIndices( tNumBspMeshesSpecified, -1 );
+        Cell< moris_index >           tGridsForMeshes( tNumBspMeshesSpecified, -1 );
+        Cell< moris_index >           tPolyOrders( tNumBspMeshesSpecified, -1 );
+        moris_index                   tMaxBspMeshIndex = -1;
+        moris_index                   tMaxPolyOrder    = -1;
 
         // go through grids specified and get their data
         for ( uint iBspMesh = 0; iBspMesh < tNumBspMeshesSpecified; iBspMesh++ )
@@ -262,11 +268,12 @@ namespace moris
             // check that a grid index is defined at most once
             MORIS_ERROR( tBspMeshIndexMap.find( tBspMeshIndex ) == tBspMeshIndexMap.end(),
                     "Library_IO_Meshgen::load_parameters_from_xml() - "
-                    "B-spline mesh index %i defined twice. Please use unique indices.",
+                    "B-spline mesh index %i is defined twice. Please use unique indices.",
                     tBspMeshIndex );
 
             // add to map
             tBspMeshIndexMap[ tBspMeshIndex ] = iBspMesh;
+            tBspMeshIndices( iBspMesh )       = tBspMeshIndex;
 
             // get and store the polynomial order
             moris_index& tPolyOrder = tPolyOrders( iBspMesh );
@@ -299,98 +306,107 @@ namespace moris
         // Lagrange mesh
 
         // get which grid is used for decomposition
-        moris_index tGridForDecomp = 0;
-        mXmlReader->get( aXtkPath + ".DecompositionGrid", tGridForDecomp, 0 );
-        MORIS_ERROR( tGridForDecomp > -1 && tGridForDecomp < tMaxGridIndex + 1,
+        moris_index tGridIndexForDecomp = 0;
+        mXmlReader->get( aXtkPath + ".DecompositionGrid", tGridIndexForDecomp, 0 );
+        MORIS_ERROR( tGridIndexForDecomp > -1 && tGridIndexForDecomp < tMaxGridIndex + 1,
                 "Library_IO_Meshgen::load_parameters_from_xml() - "
                 "Trying to use mesh grid index %i for decomposition. But only grid indices 0 to %i are defined.",
-                tGridForDecomp,
+                tGridIndexForDecomp,
                 tMaxGridIndex );
 
-        // get the number of refinements specified for the decomp mesh
-        auto tDecompGridIter = tGridIndexMap.find( tGridForDecomp );
+        // make sure the grid specified for decomposition actually exists in the background mesh parameter list
+        auto tDecompGridIter = tGridIndexMap.find( tGridIndexForDecomp );
         MORIS_ERROR( tDecompGridIter != tGridIndexMap.end(),
-                "Library_IO_Meshgen::load_parameters_from_xml() - Grid index for decomposition not found in map. Something went wrong." );
-        moris_index tNumInitRefinesDecompGrid = tRefinements( tDecompGridIter->second );
-
-        // get the number of refinements of the Lagrange mesh at the boundary
-        moris_index tNumBoundaryRefinements = 0;
-        mXmlReader->get( aXtkPath + ".InterfaceRefinements", tNumBoundaryRefinements, 0 );
-
-        // create additional pattern for the lagrange mesh
-        moris_index tLagrangePattern = tMaxGridIndex + 1;
+                "Library_IO_Meshgen::load_parameters_from_xml() - "
+                "Grid index for decomposition not found in map. Something went wrong." );
 
         // ------------------------------
         // Finalize the HMR parameter list
 
         // list the patterns with their initial refinements
-        std::string tPatterns           = "";
-        std::string tInitialRefinements = "";
-        for ( uint iGrid = 0; iGrid < (uint)tMaxGridIndex + 1; iGrid++ )
+        std::string sPatterns           = "";
+        std::string sInitialRefinements = "";
+        for ( uint iGrid = 0; iGrid < tGridIndices.size(); iGrid++ )
         {
-            // get the postion in the lists
-            auto tIter = tGridIndexMap.find( iGrid );
-            MORIS_ERROR( tIter != tGridIndexMap.end(), "Library_IO_Meshgen::load_parameters_from_xml() - Grid index not found in map. Something went wrong." );
-            uint tPos = tIter->second;
-
-            // get the number of refinements for this current grid
-            moris_index tNumRefines = tRefinements( tPos );
-
             // add separators in string
             if ( iGrid > 0 )
             {
-                tInitialRefinements += ",";
-                tPatterns += ",";
+                sInitialRefinements += ",";
+                sPatterns += ",";
             }
 
             // add it to the string
-            tInitialRefinements += std::to_string( tNumRefines );
-            tPatterns += std::to_string( iGrid );
+            sInitialRefinements += std::to_string( tInitialRefinements( iGrid ) );
+            sPatterns += std::to_string( tGridIndices( iGrid ) );
         }
 
-        // append the pattern which will be used for the lagrange mesh
-        tInitialRefinements += "," + std::to_string( tNumInitRefinesDecompGrid );
-        tPatterns += "," + std::to_string( tMaxGridIndex + 1 );
-
-        // all parameters that have been retrieved up to this point (set pattern information and Lagrange mesh)
-        tHmrParamList.set( "initial_refinement_pattern", tPatterns );
-        tHmrParamList.set( "initial_refinement", tInitialRefinements );
-        tHmrParamList.set( "lagrange_orders", std::to_string( tMaxPolyOrder ) );
-        tHmrParamList.set( "lagrange_pattern", std::to_string( tLagrangePattern ) );
+        // set initial refinement
+        tHmrParamList.set( "initial_refinement_pattern", sPatterns );
+        tHmrParamList.set( "initial_refinement", sInitialRefinements );
 
         // sort information about B-spline meshes
-        std::string tLagrangeToBspline = "";
-        std::string tBspPatterns       = "";
-        std::string tBspPolyOrders     = "";
-        for ( uint iBspMesh = 0; iBspMesh < (uint)tMaxBspMeshIndex + 1; iBspMesh++ )
+        std::string sLagrangeToBspline = "";
+        std::string sBspPatterns       = "";
+        std::string sBspPolyOrders     = "";
+        for ( uint iBspMesh = 0; iBspMesh < tBspMeshIndices.size(); iBspMesh++ )
         {
-            // get the postion in the lists
-            auto tIter = tBspMeshIndexMap.find( iBspMesh );
-            MORIS_ERROR( tIter != tGridIndexMap.end(),
-                    "Library_IO_Meshgen::load_parameters_from_xml() - B-spline mesh index not found in map. Something went wrong." );
-            uint tPos = tIter->second;
-
             // get the number of refinements for this current grid
-            moris_index tPattern   = tGridsForMeshes( tPos );
-            moris_index tPolyOrder = tPolyOrders( tPos );
+            moris_index tPattern   = tGridsForMeshes( iBspMesh );
+            moris_index tPolyOrder = tPolyOrders( iBspMesh );
 
             // add it to the string
             if ( iBspMesh != 0 )
             {
                 // add it to the string
-                tLagrangeToBspline += ",";
-                tBspPatterns += ",";
-                tBspPolyOrders += ",";
+                sLagrangeToBspline += ",";
+                sBspPatterns += ",";
+                sBspPolyOrders += ",";
             }
-            tLagrangeToBspline += std::to_string( iBspMesh );
-            tBspPatterns += std::to_string( tPattern );
-            tBspPolyOrders += std::to_string( tPolyOrder );
+
+            sLagrangeToBspline += std::to_string( iBspMesh );
+            sBspPatterns += std::to_string( tPattern );
+            sBspPolyOrders += std::to_string( tPolyOrder );
         }
 
         // set the B-spline meshes in the parameter list
-        tHmrParamList.set( "bspline_orders", tBspPolyOrders );
-        tHmrParamList.set( "bspline_pattern", tBspPatterns );
-        tHmrParamList.set( "lagrange_to_bspline", tLagrangeToBspline );
+        tHmrParamList.set( "bspline_orders", sBspPolyOrders );
+        tHmrParamList.set( "bspline_pattern", sBspPatterns );
+
+        // create lagrange meshes for the decomposition grid ...
+        std::string sLagrangeOrders   = std::to_string( tMaxPolyOrder );
+        std::string sLagrangePatterns = std::to_string( tGridIndexForDecomp );
+        mGenNumRefinements            = std::to_string( tBoundaryRefinements( tGridIndexForDecomp ) );
+
+        // create dummy lagrange meshes using the other grids to trigger geometric refinement through these
+        std::string sLagrangeToBsplineAddOn = "";
+        mGenRefineMeshIndices               = "0";
+        uint tLagMeshCounter                = 1;    // start at 1 as Lagrange mesh index 0 is already occupied by the decomposition grid
+        for ( uint iGrid = 0; iGrid < tGridIndices.size(); iGrid++ )
+        {
+            moris_index tPatternIndex       = tGridIndices( iGrid );
+            moris_index tNumBdRefsOnPattern = tBoundaryRefinements( iGrid );
+
+            // don't create a dummy lagrange mesh for the grid specified for decomposition
+            if ( tPatternIndex != tGridIndexForDecomp )
+            {
+                sLagrangeOrders += ",1";
+                sLagrangePatterns += ( "," + std::to_string( tPatternIndex ) );
+                sLagrangeToBsplineAddOn += ";-1";
+
+                // store boundary refinements associated with this pattern to later feed through the GEN parameter list
+                mGenRefineMeshIndices += ( "," + std::to_string( tLagMeshCounter ) );
+                mGenNumRefinements += ( "," + std::to_string( tNumBdRefsOnPattern ) );
+                tLagMeshCounter++;
+            }
+        }
+
+        // all parameters that have been retrieved up to this point (set pattern information and Lagrange mesh)
+        tHmrParamList.set( "lagrange_orders", sLagrangeOrders );
+        tHmrParamList.set( "lagrange_pattern", sLagrangePatterns );
+        tHmrParamList.set( "lagrange_to_bspline", sLagrangeToBspline + sLagrangeToBsplineAddOn );
+
+        // set the refinement buffer such that the refinement actually has an effect on the highest order B-spline mesh
+        tHmrParamList.set( "refinement_buffer", (int)tMaxPolyOrder - 1 );
 
     }    // end function: Library_IO_Meshgen::load_HMR_parameters_from_xml()
 
@@ -408,9 +424,10 @@ namespace moris
         tXtkParamList.set( "use_SPG_based_enrichment", true );
 
         // enriched mesh indices
-        ParameterList& tHmrParamList      = mParameterLists( (uint)( Parameter_List_Type::HMR ) )( 0 )( 0 );
-        std::string    tLagrangeToBspline = tHmrParamList.get< std::string >( "lagrange_to_bspline" );
-        tXtkParamList.set( "enrich_mesh_indices", tLagrangeToBspline );
+        ParameterList& tHmrParamList       = mParameterLists( (uint)( Parameter_List_Type::HMR ) )( 0 )( 0 );
+        std::string    sLagrangeToBspline  = tHmrParamList.get< std::string >( "lagrange_to_bspline" );
+        std::string    sBsplineMeshIndices = sLagrangeToBspline.substr( 0, sLagrangeToBspline.find( ";" ) );
+        tXtkParamList.set( "enrich_mesh_indices", sBsplineMeshIndices );
 
         // get whether to triangulate all
         bool tTriangulateAll = false;
@@ -488,14 +505,6 @@ namespace moris
         // see how many grids are specified in the input file
         uint tNumGeometries = mXmlReader->count_keys_in_subtree( aGenPath, tGeometryNodeName );
 
-        // get the number of spatial dimensions from the HMR parameter list
-        Matrix< DDUMat > tBaseGridMat;
-        std::string      tBaseGridPath = aHmrPath + ".BaseGrid";
-        std::string      tBaseGridSize;
-        mXmlReader->get( tBaseGridPath + ".Size", tBaseGridSize, std::string( "" ) );
-        moris::string_to_mat( tBaseGridSize, tBaseGridMat );
-        uint tNumDims = tBaseGridMat.numel();
-
         // resize the parameter list correctly
         tGenParamList( 1 ).resize( tNumGeometries );
 
@@ -533,8 +542,9 @@ namespace moris
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "All pre-defined geometries must have an attribute 'geom' specified. Supported Options are 'plane' and 'circle'." );
 
-                tGenParamList( 1 )( iGeom ).set( "number_of_refinements", std::to_string( tNumBoundaryRefinements ) );
-                tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", "0" );
+                // set parameters that are independent of the particular geometry used
+                tGenParamList( 1 )( iGeom ).set( "number_of_refinements", mGenNumRefinements );
+                tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", mGenRefineMeshIndices );
                 tGenParamList( 1 )( iGeom ).set( "multilinear_intersections", tUseMultiLinearIntersections );
 
                 // -------------------------------- //
@@ -550,7 +560,7 @@ namespace moris
                             "All pre-defined geometries must have a parameter 'Point' specified of format e.g.: '1.2,3.4'" );
                     Matrix< DDRMat > tPointMat;
                     moris::string_to_mat( tPoint, tPointMat );
-                    MORIS_ERROR( tPointMat.numel() == tNumDims || tPointMat.n_cols() == tNumDims,
+                    MORIS_ERROR( tPointMat.numel() == mNumSpatialDims || tPointMat.n_cols() == mNumSpatialDims,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'Point' vector does not match number of spatial dimensions" );
 
@@ -562,7 +572,7 @@ namespace moris
                             "All planes must have a parameter 'Normal' specified of format e.g.: '1.2,3.4'" );
                     Matrix< DDRMat > tNormalMat;
                     moris::string_to_mat( tNormal, tNormalMat );
-                    MORIS_ERROR( tNormalMat.numel() == tNumDims || tNormalMat.n_cols() == tNumDims,
+                    MORIS_ERROR( tNormalMat.numel() == mNumSpatialDims || tNormalMat.n_cols() == mNumSpatialDims,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "Number of entries in 'Normal' vector does not match number of spatial dimensions for the 'plane'." );
 
@@ -646,7 +656,7 @@ namespace moris
                 else if ( tPreDefGeom == "sphere" )
                 {
                     // check dimensionality
-                    MORIS_ERROR( tNumDims != 2,
+                    MORIS_ERROR( mNumSpatialDims != 2,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "A 'sphere' can only be defined in 3D, but mesh is 2D." );
 
@@ -680,7 +690,7 @@ namespace moris
                 else if ( tPreDefGeom == "ellipsoid" )
                 {
                     // check dimensionality
-                    MORIS_ERROR( tNumDims != 2,
+                    MORIS_ERROR( mNumSpatialDims != 2,
                             "Library_IO_Meshgen::load_parameters_from_xml() - "
                             "A 'sphere' can only be defined in 3D, but mesh is 2D." );
 
@@ -734,8 +744,8 @@ namespace moris
             {
                 // initialize with the image sdf default parameter list
                 tGenParamList( 1 )( iGeom ) = prm::create_image_sdf_field_parameter_list();
-                tGenParamList( 1 )( iGeom ).set( "number_of_refinements", std::to_string( tNumBoundaryRefinements ) );
-                tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", "0" );
+                tGenParamList( 1 )( iGeom ).set( "number_of_refinements", mGenNumRefinements );
+                tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", mGenRefineMeshIndices );
                 tGenParamList( 1 )( iGeom ).set( "multilinear_intersections", tUseMultiLinearIntersections );
 
                 // get the file name and check it for validity
@@ -760,7 +770,7 @@ namespace moris
                         iGeom );
                 Matrix< DDRMat > tImageDimVec;
                 moris::string_to_mat( tImageDimStr, tImageDimVec );
-                MORIS_ERROR( tImageDimVec.numel() == tNumDims || tImageDimVec.n_cols() == tNumDims,
+                MORIS_ERROR( tImageDimVec.numel() == mNumSpatialDims || tImageDimVec.n_cols() == mNumSpatialDims,
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "Number of entries in 'ImageDimensions' vector does not match number of spatial dimensions" );
                 tGenParamList( 1 )( iGeom ).set( "image_dimensions", tImageDimStr );
@@ -775,7 +785,7 @@ namespace moris
                         iGeom );
                 Matrix< DDRMat > tImageOffsetVec;
                 moris::string_to_mat( tImageOffsetStr, tImageOffsetVec );
-                MORIS_ERROR( tImageOffsetVec.numel() == tNumDims || tImageOffsetVec.n_cols() == tNumDims,
+                MORIS_ERROR( tImageOffsetVec.numel() == mNumSpatialDims || tImageOffsetVec.n_cols() == mNumSpatialDims,
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "Number of entries in 'ImageOrigin' vector does not match number of spatial dimensions" );
                 tGenParamList( 1 )( iGeom ).set( "image_offset", tImageOffsetStr );
@@ -786,9 +796,11 @@ namespace moris
             {
                 // initialize with the sdf field default parameter list
                 tGenParamList( 1 )( iGeom ) = prm::create_sdf_field_parameter_list();
-                tGenParamList( 1 )( iGeom ).set( "number_of_refinements", std::to_string( tNumBoundaryRefinements ) );
-                tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", "0" );
                 tGenParamList( 1 )( iGeom ).set( "multilinear_intersections", tUseMultiLinearIntersections );
+
+                // FIXME: this functionality needs to get added
+                // tGenParamList( 1 )( iGeom ).set( "number_of_refinements", mGenNumRefinements );
+                // tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", mGenRefineMeshIndices );
 
                 // get the file name and check it for validity
                 std::string tFileName = "";
@@ -812,7 +824,7 @@ namespace moris
                         iGeom );
                 Matrix< DDRMat > tObjectOffsetVec;
                 moris::string_to_mat( tObjectOffsetStr, tObjectOffsetVec );
-                MORIS_ERROR( tObjectOffsetVec.numel() == tNumDims || tObjectOffsetVec.n_cols() == tNumDims,
+                MORIS_ERROR( tObjectOffsetVec.numel() == mNumSpatialDims || tObjectOffsetVec.n_cols() == mNumSpatialDims,
                         "Library_IO_Meshgen::load_parameters_from_xml() - "
                         "Number of entries in 'ObjectOrigin' vector for geometry %i does not match number of spatial dimensions.",
                         iGeom );

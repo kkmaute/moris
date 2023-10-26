@@ -129,7 +129,7 @@ namespace moris
         /**
          * @brief Get the path and filename to any input file that might have been specified
          *
-         * @param aFileType type of input file to thet the filename for
+         * @param aFileType type of input file to the the filename for
          * @return std::string path/filename
          */
         virtual std::string

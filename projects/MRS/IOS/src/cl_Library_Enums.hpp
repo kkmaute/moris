@@ -94,7 +94,7 @@ namespace moris
      * @brief Get the name for parameter list function expected for a given module
      *
      * @param aParameterListType Parameter_List_Type enum naming the module for which parameters should be parsed
-     * @return std::string name of the parameter list funciton expected in an .so input file
+     * @return std::string name of the parameter list function expected in an .so input file
      */
     std::string
     get_name_for_parameter_list_type( Parameter_List_Type aParameterListType );

@@ -25,6 +25,17 @@ namespace moris
     {
         // -----------------------------------------------------------------------------
 
+      private:
+
+        // store number of spatial dimensions
+        uint mNumSpatialDims = 0;
+
+        // determine mesh refinements in background mesh parameterlist, but apply in GEN, hence store it
+        std::string mGenRefineMeshIndices = "";
+        std::string mGenNumRefinements    = "";
+
+        // -----------------------------------------------------------------------------
+
       public:
         // -----------------------------------------------------------------------------
 

@@ -150,7 +150,8 @@ namespace moris
                     "ComputationParameters",      // 5
                     "Fields",                     // 6
                     "Materials",                  // 7
-                    "MaterialModels" };           // 8
+                    "MaterialModels"              // 8
+                };
                 break;
 
             case Parameter_List_Type::SOL:
@@ -162,8 +163,8 @@ namespace moris
                     "TimeSolverAlgorithms",    // 4
                     "TimeSolvers",             // 5
                     "SolverWarehouse",         // 6
-                    "Preconditioner"
-                };                             // 8
+                    "Preconditioners"          // 7
+                };
                 break;
 
             case Parameter_List_Type::MSI:
@@ -241,8 +242,8 @@ namespace moris
                     "",                 // 5
                     "Field",            // 6
                     "MaterialPhase",    // 7
-                    "MM"
-                };                      // 8
+                    "MM"                // 8
+                };
                 break;
 
             case Parameter_List_Type::SOL:
@@ -254,8 +255,8 @@ namespace moris
                     "TimeSolverAlgorithm",    // 4
                     "TimeSolver",             // 5
                     "SolverWarehouse",        // 6
-                    "Preconditioner"
-                };                            // 7
+                    "Preconditioner"          // 7
+                };
                 break;
 
             case Parameter_List_Type::MSI:
