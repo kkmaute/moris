@@ -54,7 +54,7 @@ namespace moris
                                                  // #endif
 
             // NOTE: k is not necessarily z. The mapping depends on the raycast direction
-            moris::Cell< uint > mCoordsK;    //!< temporary variable needed for voxelizing, coordinates of intersection in triangles by a ray.
+            moris::Cell< real > mCoordsK;    //!< temporary variable needed for voxelizing, coordinates of intersection in triangles by a ray.
             moris::Cell< uint > mCandidateFacets;
 
             moris::Cell< Facet* > mIntersectedFacets;

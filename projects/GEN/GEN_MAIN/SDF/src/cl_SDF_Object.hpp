@@ -30,6 +30,7 @@ namespace moris
 
             const Matrix< DDRMat >& mOffsets;
             uint                    mDimension;
+            uint                    mNumberOfFacets;
 
             //-------------------------------------------------------------------------------
 
@@ -49,6 +50,14 @@ namespace moris
             get_facets()
             {
                 return mFacets;
+            }
+
+            //-------------------------------------------------------------------------------
+            
+            uint
+            get_num_facets()
+            {
+                return mNumberOfFacets;
             }
 
             //-------------------------------------------------------------------------------

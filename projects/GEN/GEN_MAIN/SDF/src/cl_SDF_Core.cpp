@@ -138,26 +138,58 @@ namespace moris
             // flag that marks if rotation was called
             bool tRotation = false;
 
-            while ( mData.mUnsureNodesCount > 0 )
+            switch ( mData.mDimension )
             {
-                // perform voxelizing algorithm in z-direction
-                voxelize( 2 );
-                if ( mData.mUnsureNodesCount > 0 )
+                case 2:
                 {
-                    // perform voxelizing algorithm in y-direction
-                    voxelize( 1 );
-                    if ( mData.mUnsureNodesCount > 0 )
+                    while ( mData.mUnsureNodesCount > 0 )
                     {
-                        // perform voxelizing algorithm in x-direction
-                        voxelize( 0 );
+                        // perform voxelizing algorithm in z-direction
+                        voxelize_2D( 1 );
+                        if ( mData.mUnsureNodesCount > 0 )
+                        {
+                            // perform voxelizing algorithm in y-direction
+                            voxelize_2D( 0 );
+                        }
+
+                        if ( mData.mUnsureNodesCount > 0 )
+                        {
+                            tRotation = true;
+
+                            this->random_rotation();
+                        }
                     }
+                    break;
                 }
-
-                if ( mData.mUnsureNodesCount > 0 )
+                case 3:
                 {
-                    tRotation = true;
+                    while ( mData.mUnsureNodesCount > 0 )
+                    {
+                        // perform voxelizing algorithm in z-direction
+                        voxelize_3D( 2 );
+                        if ( mData.mUnsureNodesCount > 0 )
+                        {
+                            // perform voxelizing algorithm in y-direction
+                            voxelize_3D( 1 );
+                            if ( mData.mUnsureNodesCount > 0 )
+                            {
+                                // perform voxelizing algorithm in x-direction
+                                voxelize_3D( 0 );
+                            }
+                        }
 
-                    this->random_rotation();
+                        if ( mData.mUnsureNodesCount > 0 )
+                        {
+                            tRotation = true;
+
+                            this->random_rotation();
+                        }
+                    }
+                    break;
+                }
+                default:
+                {
+                    MORIS_ERROR( false, "SDF_Core::calculate_raycast() functionality not implemented for %dD problems.", mData.mDimension );
                 }
             }
 
@@ -190,6 +222,37 @@ namespace moris
         }
 
         //-------------------------------------------------------------------------------
+
+        void
+        Core::voxelize_2D( uint aAxis )
+        {
+            // get number of unsure nodes
+            uint tNumberOfNodes = mMesh.get_num_nodes();
+
+            mData.mUnsureNodesCount = 0;
+
+            // loop over all nodes
+            for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; ++iNodeIndex )
+            {
+                if ( mMesh.get_vertex( iNodeIndex )->is_flagged() )
+                {
+                    // get node coordinate
+                    const Matrix< DDRMat >& tPoint = mMesh.get_node_coordinate( iNodeIndex );
+
+                    // preselect lines in the aAxis direction
+                    this->preselect_lines( aAxis, tPoint );
+
+                    // compute intersection if the point is inside a line's bounding box
+                    if ( mData.mIntersectedFacets.size() > 0 )
+                    {
+                        this->intersect_ray_with_facets( aAxis, tPoint );
+                    }
+
+                    // check if the node is inside the polygon
+                    this->check_if_node_is_inside_lines( aAxis, iNodeIndex );
+                }
+            }
+        }
 
         void
         Core::calculate_raycast_and_sdf( Matrix< DDRMat >& aSDF )
@@ -225,7 +288,7 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Core::voxelize( const uint aAxis )
+        Core::voxelize_3D( const uint aAxis )
         {
             // reset unsure nodes counter
             mData.mUnsureNodesCount = 0;
@@ -243,7 +306,7 @@ namespace moris
 
             // loop over all nodes
             for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; ++iNodeIndex )
-            {
+            {   
                 if ( mMesh.get_vertex( iNodeIndex )->is_flagged() )
                 {
                     // get node coordinate
@@ -282,7 +345,6 @@ namespace moris
 
             // get number of triangles
             uint tNumberOfFacets = mData.mFacets.size();
-            std::cout << "number of triangles            : " << tNumberOfFacets << std::endl;    //======
             // loop over all triangles
             for ( uint k = 0; k < tNumberOfFacets; ++k )
             {
@@ -372,7 +434,7 @@ namespace moris
             uint tCount = 0;
 
             // reset candidate size
-            mData.mCandidateFacets.resize( mData.mNumberOfFacets, 1 );
+            mData.mCandidateFacets.resize( mData.mNumberOfFacets );
 
             // loop over remaining triangles in I-direction
             for ( uint k = 0; k < tCountJ; ++k )
@@ -385,7 +447,7 @@ namespace moris
                 }
             }
 
-            mData.mCandidateFacets.resize( tCount, 1 );
+            mData.mCandidateFacets.resize( tCount );
             // #endif
         }
 
@@ -436,7 +498,7 @@ namespace moris
             uint tCount = 0;
 
             // reset candidate size
-            mData.mCandidateFacets.resize( mData.mNumberOfFacets, 1 );
+            mData.mCandidateFacets.resize( mData.mNumberOfFacets );
 
             // loop over remaining triangles in I-direction
             for ( uint k = 0; k < tCountJ; ++k )
@@ -449,7 +511,7 @@ namespace moris
                 }
             }
 
-            mData.mCandidateFacets.resize( tCount, 1 );
+            mData.mCandidateFacets.resize( tCount );
             // #endif
         }
 
@@ -501,7 +563,7 @@ namespace moris
             uint tCount = 0;
 
             // reset candidate size
-            mData.mCandidateFacets.resize( mData.mNumberOfFacets, 1 );
+            mData.mCandidateFacets.resize( mData.mNumberOfFacets );
 
             // loop over remaining triangles in I-direction
             for ( uint k = 0; k < tCountJ; ++k )
@@ -514,7 +576,7 @@ namespace moris
                 }
             }
 
-            mData.mCandidateFacets.resize( tCount, 1 );
+            mData.mCandidateFacets.resize( tCount );
             // #endif
         }
 
@@ -530,7 +592,7 @@ namespace moris
             MORIS_ASSERT( aPoint.numel() < 3, "SDF_Core::preselect_lines() should be called for 2D problems only. Current dimensionality = %lu", aPoint.numel() );
 
             // reset candidate and intersected facet size
-            mData.mCandidateFacets.resize( mData.mNumberOfFacets, 1 );
+            mData.mCandidateFacets.resize( mData.mNumberOfFacets );
             mData.mIntersectedFacets.resize( mData.mNumberOfFacets );
 
             //  k = aAxis, j = other axis
@@ -569,7 +631,7 @@ namespace moris
                 {
                     // check if the point's !aAxis component is less the facet's minimum aAxis component. If so, the facet is intersected
                     // NOTE: this makes the 2D raycast only cast in the positive axis direction
-                    uint tOtherAxis = !aAxis;
+                    uint tOtherAxis = not aAxis;
                     if ( mData.mFacetMinCoords( iLineIndex, tOtherAxis ) - aPoint( tOtherAxis ) > gSDFepsilon )
                     {
                         mData.mCandidateFacets( tCandidateCount ) = iLineIndex;
@@ -587,7 +649,7 @@ namespace moris
             }
 
             // trim candidate and intersected matrix
-            mData.mCandidateFacets.resize( tCandidateCount, 1 );
+            mData.mCandidateFacets.resize( tCandidateCount );
             mData.mIntersectedFacets.resize( tIntersectedFacetCount );
             // #endif
         }
@@ -694,8 +756,8 @@ namespace moris
             if ( tError )
             {
                 // this way, the matrix is ignored
-                // mData.mCoordsK.resize( 1, 1, 0.0 );
-                mData.mCoordsK.resize( 1 );
+                // mData.mCoordsK.set_size( 1, 1, 0.0 );
+                mData.mCoordsK.resize( 1, 0.0 );
             }
             else
             {
@@ -710,7 +772,7 @@ namespace moris
                 uint tCountUnique = 0;
 
                 // set size of output array
-                mData.mCoordsK.resize( tCount, 1 );
+                mData.mCoordsK.resize( tCount );
 
                 real tMinCoord = mMesh.get_min_coord( aAxis );
                 real tMaxCoord = mMesh.get_max_coord( aAxis );
@@ -735,7 +797,7 @@ namespace moris
                 }
 
                 // chop vector
-                mData.mCoordsK.resize( tCountUnique, 1 );
+                mData.mCoordsK.resize( tCountUnique );
             }
         }
 
@@ -1716,8 +1778,8 @@ namespace moris
         void
         Core::random_rotation()
         {
-            // determine the required dimensionality of the rotation (Number of entries in a vertex's coordinates)
-            uint tNumDim = mData.mVertices( 0 )->get_coords().numel();
+            // determine the required dimensionality of the rotation
+            uint tNumDim = mData.mDimension;
 
             // generate random angle
             real tAngle = random_angle();
@@ -1741,7 +1803,7 @@ namespace moris
                 tVertex->rotate_node_coords( tRotation );
             }
 
-            // update all triangles
+            // update all facets
             for ( Facet* tFacet : mData.mFacets )
             {
                 tFacet->update_data();
@@ -1772,7 +1834,7 @@ namespace moris
                 tVertex->reset_node_coords();
             }
 
-            // update all triangles
+            // update all facets
             for ( Facet* tFacet : mData.mFacets )
             {
                 tFacet->update_data();

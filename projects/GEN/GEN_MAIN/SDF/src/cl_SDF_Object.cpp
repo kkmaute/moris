@@ -32,6 +32,7 @@ namespace moris
         Object::Object( const std::string& aFilePath,
                 const Matrix< DDRMat >&    aOffsets )
                 : mOffsets( aOffsets )
+                , mNumberOfFacets( 0 )
         {
             MORIS_ERROR( mOffsets.numel() > 0, "SDF - Object(): Null offset matrix provided. If no offset is needed, use the default value" );
 
@@ -50,6 +51,7 @@ namespace moris
             {
                 MORIS_ERROR( false, "Object(), file type is not supported" );
             }
+            MORIS_ASSERT( mNumberOfFacets == mFacets.size(), "SDF - Object(): number of facets not consistent" );
         }
 
         //-------------------------------------------------------------------------------
@@ -224,11 +226,13 @@ namespace moris
                         case 2:
                         {
                             mFacets( tCount ) = new Line( tCount, tNodes );
+                            mNumberOfFacets++;
                             break;
                         }
                         case 3:
                         {
                             mFacets( tCount ) = new Triangle( tCount, tNodes );
+                            mNumberOfFacets++;
                             break;
                         }
                         default:
@@ -397,6 +401,7 @@ namespace moris
 
                 // create triangle pointer
                 mFacets( k ) = new Triangle( k, tNodes );
+                mNumberOfFacets++;
             }
         }
 
