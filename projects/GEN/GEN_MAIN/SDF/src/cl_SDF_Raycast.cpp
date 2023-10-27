@@ -42,13 +42,14 @@ namespace moris::sdf
     }
 
     void
-    Raycast::calculate_raycast( const Matrix< DDRMat >& aPoint )
+    Raycast::raycast_point( const Matrix< DDRMat >& aPoint )
     {
         MORIS_ASSERT( aPoint.numel() == mDimension, "SDF_Raycast::calculate_raycast() - mDimension must match the number of coordinates of mPoint." );
 
         // reset candidate and intersection points
         mCandidateFacets.clear();
         mIntersectedFacets.clear();
+        mPointIsInside = 2;
 
         // copy point data
         // FIXME: mPoint and mOriginalPoint could be a reference to aPoint since it will exist elsewhere to avoid the copy
@@ -69,8 +70,11 @@ namespace moris::sdf
                     {
                         // perform voxelizing algorithm in y-direction
                         voxelize_2D( 0 );
+                        if( mCandidateFacets.size() == 0 )
+                        {
+                            mPointIsInside = 0;
+                        }
                     }
-
                     if ( mPointIsInside == 2 )
                     {
                         tRotation = true;
@@ -94,6 +98,10 @@ namespace moris::sdf
                         {
                             // perform voxelizing algorithm in x-direction
                             voxelize_3D( 0 );
+                            if( mCandidateFacets.size() == 0 )
+                            {
+                                mPointIsInside = 0;
+                            }
                         }
                     }
 
@@ -116,14 +124,14 @@ namespace moris::sdf
         {
             this->undo_rotation();
         }
-
-        // Force point outside if still unsure
-        mPointIsInside = 0;
     }
 
     void
     Raycast::voxelize_2D( uint aAxis )
     {
+        // default the point to unsure
+        mPointIsInside = 2;
+        
         // preselect lines in the aAxis direction
         this->preselect_lines( aAxis );
 
@@ -140,7 +148,10 @@ namespace moris::sdf
 
     void
     Raycast::voxelize_3D( uint aAxis )
-    {
+    {   
+        // reset the point to unsure
+        mPointIsInside = 2;
+        
         // preselect triangles for intersection test
         if ( aAxis == 0 )
             this->preselect_triangles_x();
@@ -362,9 +373,7 @@ namespace moris::sdf
 
     void
     Raycast::preselect_lines( uint aAxis )
-    {
-        moris::print( mPoint, "mPoint" );
-        
+    {   
         // Ensure the function is being called for the proper number of facets
         MORIS_ERROR( aAxis < mPoint.numel(),
                 "SDF_ preselect_lines() mPoint is %lu while coordinate axis of %d specified.",
@@ -631,7 +640,6 @@ namespace moris::sdf
             }
         }
 
-        std::cout << "# int f: " << mIntersectedFacets.size() << std::endl;
         mPointIsInside = ( tIntersectionsRightOfPoint + mCandidateFacets.size() ) % 2;
     }
 

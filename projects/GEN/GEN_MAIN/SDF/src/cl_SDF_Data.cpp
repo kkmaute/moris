@@ -30,11 +30,7 @@ namespace moris::sdf
 //             , mCandK( mNumberOfFacets )
 
 // #else
-            , mFacetMinCoords( mNumberOfFacets, aObject.get_dimension() )
-            , mFacetMaxCoords( mNumberOfFacets, aObject.get_dimension() )
-            , mCandJ( mNumberOfFacets, 1 )
 // #endif
-            , mCandidateFacets( mNumberOfFacets, 1 )
 
     {
         // copy bounding box data
@@ -60,15 +56,6 @@ namespace moris::sdf
 //             }
 //         }
 // #else
-        for ( uint iFacetIndex = 0; iFacetIndex < mNumberOfFacets; iFacetIndex++ )
-        {
-            for ( uint iDimensionIndex = 0; iDimensionIndex < aObject.get_dimension(); iDimensionIndex++ )
-            {
-                mFacetMinCoords( iFacetIndex, iDimensionIndex ) = mFacets( iFacetIndex )->get_min_coord( iDimensionIndex );
-
-                mFacetMaxCoords( iFacetIndex, iDimensionIndex ) = mFacets( iFacetIndex )->get_max_coord( iDimensionIndex );
-            }
-        }
 // #endif
     }
 } /* namespace moris::sdf */

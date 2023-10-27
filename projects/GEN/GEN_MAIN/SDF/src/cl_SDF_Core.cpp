@@ -23,9 +23,10 @@ namespace moris
     {
         //-------------------------------------------------------------------------------
 
-        Core::Core( Mesh& aMesh, Data& aData, bool aVerbose )
+        Core::Core( Mesh& aMesh, Data& aData, Object& aObject, bool aVerbose )
                 : mMesh( aMesh )
                 , mData( aData )
+                , mObject( aObject )
                 , mVerbose( aVerbose )
         {
             // fill unsure nodes list
@@ -40,7 +41,7 @@ namespace moris
         {
 
             // call private routine
-            this->calculate_raycast();
+            this->raycast_mesh();
 
             // assign element containers
             aElementsAtSurface.set_size( mData.mSurfaceElements, 1 );
@@ -90,7 +91,7 @@ namespace moris
         {
 
             // call private routine
-            this->calculate_raycast();
+            this->raycast_mesh();
 
             // assign element containers
             aElementsAtSurface.set_size( mData.mSurfaceElements, 1 );
@@ -121,10 +122,59 @@ namespace moris
         //-------------------------------------------------------------------------------
 
         void
-        Core::calculate_raycast()
+        Core::raycast_mesh()
         {
+            // create raycaster
+            Raycast tRaycaster( mObject );
+            
+            // set unsure flag of all nodes to true
+            uint tNumberOfNodes = mMesh.get_num_nodes();
 
-            tic tTimer;
+            for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; ++iNodeIndex )
+            {
+                mMesh.get_vertex( iNodeIndex )->reset();
+            }
+            mData.mUnsureNodesCount = tNumberOfNodes;
+
+            for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; ++iNodeIndex )
+            {   
+                if ( mMesh.get_vertex( iNodeIndex )->is_flagged() )
+                {
+                    // get node coordinate
+                    const Matrix< DDRMat >& tPoint = mMesh.get_node_coordinate( iNodeIndex );
+
+                    // raycast on this point until the point is determined
+                    tRaycaster.raycast_point( tPoint );
+
+                    switch ( tRaycaster.is_point_inside() )
+                    {
+                        case 0:
+                        {
+                            mMesh.get_vertex( iNodeIndex )->unset_inside_flag();
+                        }
+                        case 1:
+                        {
+                            mMesh.get_vertex( iNodeIndex )->set_inside_flag();
+                        }
+                        case 2:
+                        {
+                            mMesh.get_vertex( iNodeIndex )->flag();
+                            break;
+                        }
+                        default:
+                        {
+                            mMesh.get_vertex( iNodeIndex )->unflag();
+                        }
+                    }
+                }
+            }
+
+            this->calculate_candidate_points_and_buffer_diagonal();
+
+            // loop through all the nodes and cast
+            
+
+            /*tic tTimer;
 
             // set unsure flag of all nodes to true
             uint tNumberOfNodes = mMesh.get_num_nodes();
@@ -218,46 +268,15 @@ namespace moris
                 {
                     std::fprintf( stdout, "Proc % i - Time for ray cast              : %5.3f [sec]\n", (int)par_rank(), tElapsedTime / 1000.0 );
                 }
-            }
+            }*/
         }
 
         //-------------------------------------------------------------------------------
 
         void
-        Core::voxelize_2D( uint aAxis )
-        {
-            // get number of unsure nodes
-            uint tNumberOfNodes = mMesh.get_num_nodes();
-
-            mData.mUnsureNodesCount = 0;
-
-            // loop over all nodes
-            for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; ++iNodeIndex )
-            {
-                if ( mMesh.get_vertex( iNodeIndex )->is_flagged() )
-                {
-                    // get node coordinate
-                    const Matrix< DDRMat >& tPoint = mMesh.get_node_coordinate( iNodeIndex );
-
-                    // preselect lines in the aAxis direction
-                    this->preselect_lines( aAxis, tPoint );
-
-                    // compute intersection if the point is inside a line's bounding box
-                    if ( mData.mIntersectedFacets.size() > 0 )
-                    {
-                        this->intersect_ray_with_facets( aAxis, tPoint );
-                    }
-
-                    // check if the node is inside the polygon
-                    this->check_if_node_is_inside_lines( aAxis, iNodeIndex );
-                }
-            }
-        }
-
-        void
         Core::calculate_raycast_and_sdf( Matrix< DDRMat >& aSDF )
         {
-            this->calculate_raycast();
+            this->raycast_mesh();
 
             moris::Cell< Vertex* > tCandidateList;          //========================================
             tCandidateList = this->set_candidate_list();    //===================================
@@ -290,6 +309,7 @@ namespace moris
         void
         Core::voxelize_3D( const uint aAxis )
         {
+           /*
             // reset unsure nodes counter
             mData.mUnsureNodesCount = 0;
 
@@ -297,12 +317,12 @@ namespace moris
             uint tNumberOfNodes = mMesh.get_num_nodes();
 
             // This loop is currently unnecessary, but may be needed if problems arise
-            /*
+            
             for( Facet* tFacet : mData.mFacets )
             {
                 tFacet->unflag();
             }
-            */
+            
 
             // loop over all nodes
             for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; ++iNodeIndex )
@@ -335,6 +355,7 @@ namespace moris
                     }
                 }
             }
+            */
         }
 
         //-------------------------------------------------------------------------------
@@ -388,506 +409,6 @@ namespace moris
         }
 
         //-------------------------------------------------------------------------------
-
-        void
-        Core::preselect_triangles_x( const Matrix< F31RMat >& aPoint )
-        {
-            // x: k = x, j = z, i = y
-            // #ifdef MORIS_USE_ARMA
-
-            //             // check bounding box in J-direction
-            //             mData.mCandJ = arma::find(
-            //                     ( aPoint( 2 ) - mData.mFacetMinCoordsZ ) % ( mData.mFacetMaxCoordsZ - aPoint( 2 ) ) > -gSDFepsilon );
-
-            //             // check bounding box in I-direction
-            //             mData.mCandI = arma::find(
-            //                     ( aPoint( 1 ) - mData.mFacetMinCoordsY.elem( mData.mCandJ ) ) % ( mData.mFacetMaxCoordsY.elem( mData.mCandJ ) - aPoint( 1 ) ) > -gSDFepsilon );
-
-            //             // help vector to be written in mData.mCandidateFacets.data()
-            //             mData.mCandK = mData.mCandJ.elem( mData.mCandI );
-            //             // resize data object
-            //             mData.mCandidateFacets.resize( mData.mCandK.n_elem, 1 );
-
-            //             // link to current object
-            //             arma::Mat< uint >& tCand = mData.mCandidateFacets.matrix_data();
-
-            //             // write data
-            //             tCand = arma::conv_to< arma::Mat< uint > >::from( mData.mCandK );
-
-            // #else
-            // loop over all triangles in J-Direction
-            uint tCountJ = 0;
-            for ( uint k = 0; k < mData.mNumberOfFacets; ++k )
-            {
-                // check bounding box in J-direction
-                if ( ( aPoint( 2 ) - mData.mFacetMinCoords( k, 2 ) ) * ( mData.mFacetMaxCoords( k, 2 ) - aPoint( 2 ) ) > -gSDFepsilon )
-                {
-                    // remember this triangle
-                    mData.mCandJ( tCountJ ) = k;
-
-                    // increment counter
-                    ++tCountJ;
-                }
-            }
-
-            // counter for triangles
-            uint tCount = 0;
-
-            // reset candidate size
-            mData.mCandidateFacets.resize( mData.mNumberOfFacets );
-
-            // loop over remaining triangles in I-direction
-            for ( uint k = 0; k < tCountJ; ++k )
-            {
-                // check bounding box in I-direction
-                if ( ( aPoint( 1 ) - mData.mFacetMinCoords( mData.mCandJ( k ), 1 ) ) * ( mData.mFacetMaxCoords( mData.mCandJ( k ), 1 ) - aPoint( 1 ) ) > -gSDFepsilon )
-                {
-                    mData.mCandidateFacets( tCount ) = mData.mCandJ( k );
-                    ++tCount;
-                }
-            }
-
-            mData.mCandidateFacets.resize( tCount );
-            // #endif
-        }
-
-        //-------------------------------------------------------------------------------
-
-        void
-        Core::preselect_triangles_y( const Matrix< F31RMat >& aPoint )
-        {
-            // y: k = y, j = x, i = z
-            // #ifdef MORIS_USE_ARMA
-            //             // check bounding box in J-direction
-            //             mData.mCandJ = arma::find(
-            //                     ( aPoint( 0 ) - mData.mFacetMinCoordsX ) % ( mData.mFacetMaxCoordsX - aPoint( 0 ) ) > -gSDFepsilon );
-
-            //             // check bounding box in I-direction
-            //             mData.mCandI = arma::find(
-            //                     ( aPoint( 2 ) - mData.mFacetMinCoordsZ.elem( mData.mCandJ ) ) % ( mData.mFacetMaxCoordsZ.elem( mData.mCandJ ) - aPoint( 2 ) ) > -gSDFepsilon );
-
-            //             // help vector to be written in mData.mCandidateFacets.data()
-            //             mData.mCandK = mData.mCandJ.elem( mData.mCandI );
-
-            //             // resize data object
-            //             mData.mCandidateFacets.resize( mData.mCandK.n_elem, 1 );
-
-            //             // link to current object
-            //             arma::Mat< uint >& tCand = mData.mCandidateFacets.matrix_data();
-
-            //             // write data
-            //             tCand = arma::conv_to< arma::Mat< uint > >::from( mData.mCandK );
-
-            // #else
-            // loop over all triangles in J-Direction
-            uint tCountJ = 0;
-            for ( uint k = 0; k < mData.mNumberOfFacets; ++k )
-            {
-                // check bounding box in J-direction
-                if ( ( aPoint( 0 ) - mData.mFacetMinCoords( k, 0 ) ) * ( mData.mFacetMaxCoords( k, 0 ) - aPoint( 0 ) ) > -gSDFepsilon )
-                {
-                    // remember this triangle
-                    mData.mCandJ( tCountJ ) = k;
-
-                    // increment counter
-                    ++tCountJ;
-                }
-            }
-
-            // counter for triangles
-            uint tCount = 0;
-
-            // reset candidate size
-            mData.mCandidateFacets.resize( mData.mNumberOfFacets );
-
-            // loop over remaining triangles in I-direction
-            for ( uint k = 0; k < tCountJ; ++k )
-            {
-                // check bounding box in I-direction
-                if ( ( aPoint( 2 ) - mData.mFacetMinCoords( mData.mCandJ( k ), 2 ) ) * ( mData.mFacetMaxCoords( mData.mCandJ( k ), 2 ) - aPoint( 2 ) ) > -gSDFepsilon )
-                {
-                    mData.mCandidateFacets( tCount ) = mData.mCandJ( k );
-                    ++tCount;
-                }
-            }
-
-            mData.mCandidateFacets.resize( tCount );
-            // #endif
-        }
-
-        //-------------------------------------------------------------------------------
-
-        void
-        Core::preselect_triangles_z( const Matrix< F31RMat >& aPoint )
-        {
-            // z: k = z, j = y, i = x
-            // #ifdef MORIS_USE_ARMA
-
-            //             // bool_t tNothingFound = true;
-
-            //             // check bounding box in J-direction
-            //             mData.mCandJ = arma::find(
-            //                     ( aPoint( 1 ) - mData.mFacetMinCoordsY ) % ( mData.mFacetMaxCoordsY - aPoint( 1 ) ) > -gSDFepsilon );
-            //             // check bounding box in I-direction
-            //             mData.mCandI = arma::find(
-            //                     ( aPoint( 0 ) - mData.mFacetMinCoordsX.elem( mData.mCandJ ) ) % ( mData.mFacetMaxCoordsX.elem( mData.mCandJ ) - aPoint( 0 ) ) > -gSDFepsilon );
-
-            //             // help vector to be written in mData.mCandidateFacets.data()
-            //             mData.mCandK = mData.mCandJ.elem( mData.mCandI );
-
-            //             // resize data object
-            //             mData.mCandidateFacets.resize( mData.mCandK.n_elem, 1 );
-
-            //             // link to current object
-            //             arma::Mat< uint >& tCand = mData.mCandidateFacets.matrix_data();
-
-            //             // write data
-            //             tCand = arma::conv_to< arma::Mat< uint > >::from( mData.mCandK );
-            // #else
-            // loop over all triangles in J-Direction
-            uint tCountJ = 0;
-            for ( uint k = 0; k < mData.mNumberOfFacets; ++k )
-            {
-                // check bounding box in J-direction
-                if ( ( aPoint( 1 ) - mData.mFacetMinCoords( k, 1 ) ) * ( mData.mFacetMaxCoords( k, 1 ) - aPoint( 1 ) ) > -gSDFepsilon )
-                {
-                    // remember this triangle
-                    mData.mCandJ( tCountJ ) = k;
-
-                    // increment counter
-                    ++tCountJ;
-                }
-            }
-
-            // counter for triangles
-            uint tCount = 0;
-
-            // reset candidate size
-            mData.mCandidateFacets.resize( mData.mNumberOfFacets );
-
-            // loop over remaining triangles in I-direction
-            for ( uint k = 0; k < tCountJ; ++k )
-            {
-                // check bounding box in I-direction
-                if ( ( aPoint( 0 ) - mData.mFacetMinCoords( mData.mCandJ( k ), 0 ) ) * ( mData.mFacetMaxCoords( mData.mCandJ( k ), 0 ) - aPoint( 0 ) ) > -gSDFepsilon )
-                {
-                    mData.mCandidateFacets( tCount ) = mData.mCandJ( k );
-                    ++tCount;
-                }
-            }
-
-            mData.mCandidateFacets.resize( tCount );
-            // #endif
-        }
-
-        //-------------------------------------------------------------------------------
-
-        void
-        Core::preselect_lines(
-                const uint              aAxis,
-                const Matrix< DDRMat >& aPoint )
-        {
-            // Ensure the function is being called for the proper number of facets
-            MORIS_ERROR( aAxis > aPoint.numel(), "SDF_Core::preselect_lines() aPoint is %luD while coordinate axis of %d specified.", aPoint.numel(), aAxis );
-            MORIS_ASSERT( aPoint.numel() < 3, "SDF_Core::preselect_lines() should be called for 2D problems only. Current dimensionality = %lu", aPoint.numel() );
-
-            // reset candidate and intersected facet size
-            mData.mCandidateFacets.resize( mData.mNumberOfFacets );
-            mData.mIntersectedFacets.resize( mData.mNumberOfFacets );
-
-            //  k = aAxis, j = other axis
-            // #ifdef MORIS_USE_ARMA
-            //             if ( aAxis == 0 )
-            //             {
-            //                 // check bounding box in J-direction
-            //                 mData.mCandJ = arma::find(
-            //                         ( aPoint( 0 ) - mData.mFacetMinCoordsX ) % ( mData.mFacetMaxCoordsX - aPoint( 0 ) ) > -gSDFepsilon );
-            //             }
-            //             else if ( aAxis == 1 )
-            //             {
-            //                 // check bounding box in J-direction
-            //                 mData.mCandJ = arma::find(
-            //                         ( aPoint( 1 ) - mData.mFacetMinCoordsY ) % ( mData.mFacetMaxCoordsY - aPoint( 1 ) ) > -gSDFepsilon );
-            //             }
-
-            //             // resize data object
-            //             mData.mCandidateFacets.resize( mData.mCandJ.n_elem, 1 );
-
-            //             // link to current object
-            //             arma::Mat< uint >& tCand = mData.mCandidateFacets.matrix_data();
-
-            //             // write data
-            //             tCand = arma::conv_to< arma::Mat< uint > >::from( mData.mCandK );
-            // #else
-
-            uint tCandidateCount        = 0;
-            uint tIntersectedFacetCount = 0;
-            // loop over all lines in the aAxis direction
-            for ( uint iLineIndex = 0; iLineIndex < mData.mNumberOfFacets; iLineIndex++ )
-            {
-                // check bounding box of the line against the point (point is above min coord and below max coord)
-                if ( ( mData.mFacetMaxCoords( iLineIndex, aAxis ) - aPoint( aAxis ) ) * ( aPoint( aAxis ) - mData.mFacetMinCoords( iLineIndex, aAxis ) )
-                        < gSDFepsilon )
-                {
-                    // check if the point's !aAxis component is less the facet's minimum aAxis component. If so, the facet is intersected
-                    // NOTE: this makes the 2D raycast only cast in the positive axis direction
-                    uint tOtherAxis = not aAxis;
-                    if ( mData.mFacetMinCoords( iLineIndex, tOtherAxis ) - aPoint( tOtherAxis ) > gSDFepsilon )
-                    {
-                        mData.mCandidateFacets( tCandidateCount ) = iLineIndex;
-                        tCandidateCount++;
-                    }
-                    // check the bounding box of the other axis to determine if the point is entirely in the bounding box
-                    else if ( ( mData.mFacetMaxCoords( iLineIndex, tOtherAxis ) - aPoint( tOtherAxis ) ) * ( aPoint( tOtherAxis ) - mData.mFacetMinCoords( iLineIndex, tOtherAxis ) )
-                              < gSDFepsilon )
-                    {
-                        // if the point is totally in a line's bounding box, add line to candidate list
-                        mData.mIntersectedFacets( tIntersectedFacetCount ) = mData.mFacets( iLineIndex );
-                        tIntersectedFacetCount++;
-                    }
-                }
-            }
-
-            // trim candidate and intersected matrix
-            mData.mCandidateFacets.resize( tCandidateCount );
-            mData.mIntersectedFacets.resize( tIntersectedFacetCount );
-            // #endif
-        }
-
-        //-------------------------------------------------------------------------------
-
-        void
-        Core::intersect_triangles(
-                const uint              aAxis,
-                const Matrix< DDRMat >& aPoint )
-        {
-            // get number of candidate triangles
-            uint tNumberOfCandidateFacets = mData.mCandidateFacets.size();
-
-            // initialize counter for intersected triangles
-            uint tCount = 0;
-
-            // loop over all candidates
-            for ( uint iCandidateFacetIndex = 0; iCandidateFacetIndex < tNumberOfCandidateFacets; ++iCandidateFacetIndex )
-            {
-                // get pointer to triangle
-                Facet* tFacet = mData.mFacets( mData.mCandidateFacets( iCandidateFacetIndex ) );
-
-                if ( tFacet->check_edge( 0, aAxis, aPoint ) )
-                {
-                    if ( tFacet->check_edge( 1, aAxis, aPoint ) )
-                    {
-                        if ( tFacet->check_edge( 2, aAxis, aPoint ) )
-                        {
-                            tFacet->flag();
-                            ++tCount;
-                        }
-                    }
-                }
-            }
-
-            // resize container with intersected triangles
-            mData.mIntersectedFacets.resize( tCount, nullptr );
-
-            // reset counter
-            tCount = 0;
-
-            // loop over all candidates
-            for ( uint k = 0; k < tNumberOfCandidateFacets; ++k )
-            {
-                // get pointer to triangle
-                Facet* tFacet = mData.mFacets( mData.mCandidateFacets( k ) );
-
-                if ( tFacet->is_flagged() )
-                {
-                    // add triangle to list
-                    mData.mIntersectedFacets( tCount++ ) = tFacet;
-
-                    // unflag triangle
-                    tFacet->unflag();
-                }
-            }
-        }
-
-        //-------------------------------------------------------------------------------
-
-        void
-        Core::intersect_ray_with_facets(
-                const uint              aAxis,
-                const Matrix< DDRMat >& aPoint )
-        {
-            // get number of triangles
-            uint tNumberOfFacets = mData.mIntersectedFacets.size();
-
-            // initialize vector with coords in axis
-            Matrix< DDRMat > tCoordsK( tNumberOfFacets, 1 );
-
-            uint tCount = 0;
-
-            bool tError;
-            // loop over all intersected triangles and find intersection point
-            for ( uint k = 0; k < tNumberOfFacets; ++k )
-            {
-
-                real tCoordK;
-
-                // calculate intersection coordinate
-                mData.mIntersectedFacets( k )->intersect_with_coordinate_axis(
-                        aPoint,
-                        aAxis,
-                        tCoordK,
-                        tError );
-
-                // tCoordK = std::max( std::min( tCoordK,  tMaxCoord ), tMinCoord );
-
-                // error meant we would have divided by zero. This triangle is ignored
-                // otherwise, the value is written into the result vector
-
-                if ( !tError )
-                {
-                    tCoordsK( tCount++ ) = std::round( tCoordK / gSDFepsilon ) * gSDFepsilon;
-                }
-                else
-                {
-                    break;
-                }
-            }
-
-            if ( tError )
-            {
-                // this way, the matrix is ignored
-                // mData.mCoordsK.set_size( 1, 1, 0.0 );
-                mData.mCoordsK.resize( 1, 0.0 );
-            }
-            else
-            {
-                // resize coord array
-                tCoordsK.resize( tCount, 1 );
-
-                // sort array
-                Matrix< DDRMat > tCoordsKSorted;
-                sort( tCoordsK, tCoordsKSorted );
-
-                // make result unique
-                uint tCountUnique = 0;
-
-                // set size of output array
-                mData.mCoordsK.resize( tCount );
-
-                real tMinCoord = mMesh.get_min_coord( aAxis );
-                real tMaxCoord = mMesh.get_max_coord( aAxis );
-
-                // set first entry
-                if ( tMinCoord < tCoordsKSorted( 0 ) )
-                {
-                    mData.mCoordsK( tCountUnique++ ) = tCoordsKSorted( 0 );
-                }
-
-                // find unique entries
-                for ( uint k = 1; k < tCount; ++k )
-                {
-                    if ( tCoordsKSorted( k ) > tMinCoord && tCoordsKSorted( k ) < tMaxCoord )
-                    {
-
-                        if ( std::abs( tCoordsKSorted( k ) - tCoordsKSorted( k - 1 ) ) > 10 * gSDFepsilon )
-                        {
-                            mData.mCoordsK( tCountUnique++ ) = tCoordsKSorted( k );
-                        }
-                    }
-                }
-
-                // chop vector
-                mData.mCoordsK.resize( tCountUnique );
-            }
-        }
-
-        //-------------------------------------------------------------------------------
-
-        void
-        Core::check_if_node_is_inside_triangles(
-                const uint aAxis,
-                const uint aNodeIndex )
-        {
-            uint tNumCoordsK = mData.mCoordsK.size();
-
-            bool tNodeIsInside = false;
-
-            const Matrix< F31RMat >& aPoint = mMesh.get_node_coordinate( aNodeIndex );
-
-            // only even number of intersections is considered
-            if ( tNumCoordsK % 2 == 0 )
-            {
-                for ( uint k = 0; k < tNumCoordsK / 2; ++k )
-                {
-                    tNodeIsInside = ( aPoint( aAxis ) > mData.mCoordsK( 2 * k ) ) && ( aPoint( aAxis ) < mData.mCoordsK( 2 * k + 1 ) );
-
-                    // break the loop if inside
-                    if ( tNodeIsInside )
-                    {
-                        break;
-                    }
-                }
-
-                // set the inside flag of this node to the corresponding value
-                if ( tNodeIsInside )
-                {
-                    mMesh.get_vertex( aNodeIndex )->set_inside_flag();
-                }
-                else
-                {
-                    mMesh.get_vertex( aNodeIndex )->unset_inside_flag();
-                }
-                mMesh.get_vertex( aNodeIndex )->unflag();
-            }
-            else
-            {
-                // set unsure flag
-                mMesh.get_vertex( aNodeIndex )->flag();
-
-                // increment counter
-                ++mData.mUnsureNodesCount;
-            }
-        }
-
-        //-------------------------------------------------------------------------------
-
-        void
-        Core::check_if_node_is_inside_lines(
-                const uint aAxis,
-                const uint aNodeIndex )
-        {
-            // get length of the number of intersections computed
-            uint tNumCoordsK = mData.mCoordsK.size();
-
-            const Matrix< F31RMat >& aPoint = mMesh.get_node_coordinate( aNodeIndex );
-
-            // check if the location of the intersection is greater than the location of the coordinate
-            uint tIntersectionsRightOfPoint = 0;
-            for ( uint iIntersectionIndex = 0; iIntersectionIndex < tNumCoordsK; iIntersectionIndex++ )
-            {
-                // BRENDAN, the axis indexing might not be correct, look here or other functions if problems arise
-                if ( mData.mCoordsK( iIntersectionIndex ) - aPoint( aAxis ) > gSDFepsilon )
-                {
-                    tIntersectionsRightOfPoint++;
-                }
-            }
-
-            bool tNodeIsInside = ( tIntersectionsRightOfPoint + mData.mIntersectedFacets.size() ) % 2;
-
-            // set the inside flag of this node to the corresponding value
-            if ( tNodeIsInside )
-            {
-                mMesh.get_vertex( aNodeIndex )->set_inside_flag();
-            }
-            else
-            {
-                mMesh.get_vertex( aNodeIndex )->unset_inside_flag();
-            }
-            mMesh.get_vertex( aNodeIndex )->unflag();
-        }
-
-        //-------------------------------------------------------------------------------
-
 
         void
         Core::calculate_candidate_points_and_buffer_diagonal()
@@ -1042,7 +563,6 @@ namespace moris
         moris::Cell< Vertex* >
         Core::set_candidate_list()
         {
-
             uint tNumberOfNodes = mMesh.get_num_nodes();
             //        	std::cout<<"number of nodes in mesh   : "<<tNumberOfNodes<<std::endl;
             moris::Cell< Vertex* > tCandidateVertices;
@@ -1130,13 +650,6 @@ namespace moris
                         tNodeIsWithinTriangle = false;
                         break;
                     }
-                    /* tNodeIsWithinTriangle = tNodeIsWithinTriangle
-                            && ( tPoint( i ) >= tMinCoord( i ) )
-                            && ( tPoint( i ) <= tMaxCoord( i ) );
-                    if( ! tNodeIsWithinTriangle )
-                    {
-                        break;
-                    } */
                 }
 
                 // if node is in triangle
@@ -1443,9 +956,7 @@ namespace moris
                 {
                     tIChar = swap_byte_endian( (int)tIndices( i ) );
                     tFile.write( (char*)&tIChar, sizeof( int ) );
-                    // tFile << " " << tIndices( i );
                 }
-                // tFile << std::endl;
             }
             tFile << std::endl;
             // write cell types
@@ -1457,57 +968,6 @@ namespace moris
                 tFile.write( (char*)&tIChar, sizeof( int ) );
             }
             tFile << std::endl;
-
-            /*
-            // write element data
-            tFile << "CELL_DATA " << tNumberOfElements << std::endl;
-            tFile << "SCALARS ELEMENT_ID int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
-            for ( uint k = 0; k <  tNumberOfElements; ++k)
-            {
-                tIChar = swap_byte_endian( (int) mMesh.get_cell( k )->get_id() );
-            }
-            tFile << std::endl;
-
-            tFile << "SCALARS ELEMENT_INDEX int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
-            for ( uint k = 0; k <  tNumberOfElements; ++k)
-            {
-                tIChar = swap_byte_endian( (int) mMesh.get_cell( k )->get_index() );
-                tFile.write( (char*) &tIChar, sizeof(int));
-            }
-            tFile << std::endl;
-
-            tFile << "SCALARS ELEMENT_IN_VOLUME int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
-            for ( uint k = 0; k <  tNumberOfElements; ++k)
-            {
-                if( mMesh.get_cell( k )->is_in_volume() )
-                {
-                    tIChar = swap_byte_endian( (int) 1 );
-                }
-                else
-                {
-                    tIChar = swap_byte_endian( (int) 0 );
-                }
-                tFile.write( (char*) &tIChar, sizeof(int));
-            }
-            tFile << std::endl;
-
-            tFile << "SCALARS ELEMENT_ON_SURFACE int" << std::endl;
-            tFile << "LOOKUP_TABLE default" << std::endl;
-            for ( uint k = 0; k <  tNumberOfElements; ++k)
-            {
-                if( mMesh.get_cell( k )->is_on_surface() )
-                {
-                    tIChar = swap_byte_endian( (int) 1 );
-                }
-                else
-                {
-                    tIChar = swap_byte_endian( (int) 0 );
-                }
-                tFile.write( (char*) &tIChar, sizeof(int));
-            } */
 
             tFile << "POINT_DATA " << tNumberOfNodes << std::endl;
 
@@ -1753,101 +1213,6 @@ namespace moris
 
             // close the output file
             tFile.close();
-        }
-
-        // -----------------------------------------------------------------------------
-
-        void
-        Core::force_unsure_nodes_outside()
-        {
-            // get number of nodes on mesh
-            uint tNumberOfNodes = mMesh.get_num_nodes();
-
-            // loop over all nodes
-            for ( uint k = 0; k < tNumberOfNodes; ++k )
-            {
-                // get pointer to node
-                mMesh.get_vertex( k )->unflag();
-            }
-
-            mData.mUnsureNodesCount = 0;
-        }
-
-        // -----------------------------------------------------------------------------
-
-        void
-        Core::random_rotation()
-        {
-            // determine the required dimensionality of the rotation
-            uint tNumDim = mData.mDimension;
-
-            // generate random angle
-            real tAngle = random_angle();
-
-            // generate random rotation matrix
-            Matrix< DDRMat > tRotation;
-            if ( tNumDim == 2 )
-            {
-                tRotation = rotation_matrix( tAngle );
-            }
-            else
-            {
-                // create random axis for cases larger than 2 dimensions
-                Matrix< DDRMat > tAxis = random_axis( tNumDim );
-                tRotation              = rotation_matrix( tAxis, tAngle );
-            }
-
-            // rotate all vertices of triangle mesh
-            for ( Facet_Vertex* tVertex : mData.mVertices )
-            {
-                tVertex->rotate_node_coords( tRotation );
-            }
-
-            // update all facets
-            for ( Facet* tFacet : mData.mFacets )
-            {
-                tFacet->update_data();
-            }
-
-            // rotate unsure nodes
-            uint tNumberOfNodes = mMesh.get_num_nodes();
-
-            // loop over all nodes
-            for ( uint k = 0; k < tNumberOfNodes; ++k )
-            {
-                // test if node is unsure
-                if ( mMesh.get_vertex( k )->is_flagged() )
-                {
-                    mMesh.get_vertex( k )->rotate_coords( tRotation );
-                }
-            }
-        }
-
-        // -----------------------------------------------------------------------------
-
-        void
-        Core::undo_rotation()
-        {
-            // rotate all vertices of triangle mesh
-            for ( Facet_Vertex* tVertex : mData.mVertices )
-            {
-                tVertex->reset_node_coords();
-            }
-
-            // update all facets
-            for ( Facet* tFacet : mData.mFacets )
-            {
-                tFacet->update_data();
-            }
-
-            // rotate unsure nodes
-            uint tNumberOfNodes = mMesh.get_num_nodes();
-
-            // loop over all nodes
-            for ( uint k = 0; k < tNumberOfNodes; ++k )
-            {
-                mMesh.get_vertex( k )->reset_coords();
-            }
         }
 
         // -----------------------------------------------------------------------------

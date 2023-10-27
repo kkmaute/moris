@@ -106,7 +106,23 @@ TEST_CASE(
             CHECK( tIntersectedFacetsExpected( 1 ) == tIntersectedTriangles( 1 ) );
 
             // compute the intersection locations and ensure they are correct BRENDAN FINISH UNIT TEST
-            // Cell< real > tIntersectionCoordinates = 
+            tRaycaster.intersect_ray_with_facets( 2 );
+            Cell< real > tIntersectionCoordinatesExpected = { 0.4718, 0.9024 };
+            Cell< real > tIntersectionCoordinates         = tRaycaster.get_intersection_coordinates();
+            REQUIRE( tIntersectionCoordinates.size() == 2 );
+            CHECK( tIntersectionCoordinates( 0 ) - tIntersectionCoordinatesExpected( 0 ) < sdf::gSDFepsilon );
+            CHECK( tIntersectionCoordinates( 1 ) - tIntersectionCoordinatesExpected( 1 ) < sdf::gSDFepsilon );
+
+            // check if the point is insde and compare it to expectations
+            tRaycaster.check_if_node_is_inside_triangles( 2 );
+            uint tPointIsInsideExpected = 1;
+
+            CHECK( tRaycaster.is_point_inside() == tPointIsInsideExpected );
+
+            // check with the full raycast algorithm and see if they match
+            tRaycaster.raycast_point( tTestPoint );
+
+            CHECK( tRaycaster.is_point_inside() == tPointIsInsideExpected );
         }
         SECTION( "2D SDF Raycast Test" )
         {
@@ -152,7 +168,7 @@ TEST_CASE(
             Cell< real > tIntersectionCoordinates        = tRaycaster.get_intersection_coordinates();
 
             REQUIRE( tIntersectionCoordinates.size() == 1 );
-            CHECK( tIntersectionCoordinates( 0 ) - tIntersectionCoordinateExpected < sdf::gSDFepsilon);
+            CHECK( tIntersectionCoordinates( 0 ) - tIntersectionCoordinateExpected < sdf::gSDFepsilon );
 
             // determine if the point is inside/outside and check expectation
             tRaycaster.check_if_node_is_inside_lines( 0 );
@@ -162,7 +178,7 @@ TEST_CASE(
             CHECK( tPointInside == tPointInsideExpected );
 
             // ensure the test gives the same result when the entire algorithm is called at once
-            tRaycaster.calculate_raycast( tTestPoint );
+            tRaycaster.raycast_point( tTestPoint );
             tPointInside = tRaycaster.is_point_inside();
 
             CHECK( tPointInside == tPointInsideExpected );
@@ -185,15 +201,15 @@ TEST_CASE(
             tIntersectionCoordinates        = tRaycaster.get_intersection_coordinates();
 
             REQUIRE( tIntersectionCoordinates.size() == 1 );
-            CHECK( tIntersectionCoordinates( 0 ) - tIntersectionCoordinateExpected  < sdf::gSDFepsilon );
+            CHECK( tIntersectionCoordinates( 0 ) - tIntersectionCoordinateExpected < sdf::gSDFepsilon );
 
             tRaycaster.check_if_node_is_inside_lines( 1 );
             tPointInsideExpected = 1;
-            tPointInside = tRaycaster.is_point_inside();
+            tPointInside         = tRaycaster.is_point_inside();
 
             CHECK( tPointInside == tPointInsideExpected );
 
-            tRaycaster.calculate_raycast( tTestPoint );
+            tRaycaster.raycast_point( tTestPoint );
 
             CHECK( tPointInside == tPointInsideExpected );
         }

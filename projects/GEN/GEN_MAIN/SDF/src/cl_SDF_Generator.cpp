@@ -52,7 +52,7 @@ namespace moris
             Data tData( mObject );
 
             // create core
-            Core tCore( tMesh, tData );
+            Core tCore( tMesh, tData, mObject );
 
             // perform raycast
             tCore.calculate_raycast( aElementsAtSurface );
@@ -71,7 +71,7 @@ namespace moris
             Data tData( mObject );
 
             // create core
-            Core tCore( tMesh, tData );
+            Core tCore( tMesh, tData, mObject );
 
             // perform raycast
             tCore.calculate_raycast( aElementsAtSurface );
@@ -92,7 +92,7 @@ namespace moris
             Data tData( mObject );
 
             // create core
-            Core tCore( tMesh, tData );
+            Core tCore( tMesh, tData, mObject );
 
             // perform raycast
             tCore.calculate_raycast( aElementsAtSurface, aElementsInVolume );
@@ -113,7 +113,7 @@ namespace moris
             Data tData( mObject );
 
             // create core
-            Core tCore( tMesh, tData, mVerboseFlag );
+            Core tCore( tMesh, tData, mObject, mVerboseFlag );
 
             // perform raycast
             tCore.calculate_raycast( aElementsAtSurface, aElementsInVolume );
@@ -133,7 +133,7 @@ namespace moris
             Data tData( mObject );
 
             // create core
-            Core tCore( tMesh, tData, mVerboseFlag );
+            Core tCore( tMesh, tData, mObject, mVerboseFlag );
 
             // calculate SDF
             tCore.calculate_raycast_and_sdf( aSDF );
@@ -154,7 +154,7 @@ namespace moris
             Data tData( mObject );
 
             // create core
-            Core tCore( tMesh, tData, mVerboseFlag );
+            Core tCore( tMesh, tData, mObject, mVerboseFlag );
 
             // calculate SDF
             tCore.calculate_raycast_and_sdf( aSDF );

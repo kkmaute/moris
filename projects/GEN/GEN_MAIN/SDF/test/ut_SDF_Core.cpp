@@ -67,7 +67,7 @@ TEST_CASE(
             sdf::Data tData( tObject );
 
             // create core
-            sdf::Core tCore( tMesh, tData );
+            sdf::Core tCore( tMesh, tData, tObject );
 
             Matrix< IndexMat > tElementsAtSurfaceExpect;
 

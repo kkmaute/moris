@@ -34,7 +34,7 @@ namespace moris::sdf
         moris::Cell< uint >   mCandidateFacets;      // index of facets that lie within the bounding box, but might not actually be intersected
         moris::Cell< Facet* > mIntersectedFacets;    // intersection has been found, coordinate of intersection still to be computed
         moris::Cell< real >   mCoordsK;              // intersection coordinates for all facets in mIntersectedFacets
-        uint                  mPointIsInside;        // tribool for if the point is inside the object. 0 = inside, 1 = outside, 2 = unsure
+        uint                  mPointIsInside;        // tribool for if the point is inside the object. 0 = outside, 1 = inside, 2 = unsure
 
       public:
         /**
@@ -52,7 +52,7 @@ namespace moris::sdf
          * @param aPoint coordinate point in which the ray will originate
          */
         void
-        calculate_raycast( const Matrix< DDRMat >& aPoint );
+        raycast_point( const Matrix< DDRMat >& aPoint );
 
         //-------------------------------------------------------------------------------
 
@@ -198,19 +198,19 @@ namespace moris::sdf
             mPoint = aPoint;
         }
         
-        Cell< uint >
+        moris::Cell< uint >
         get_candidate_facets()
         {
             return mCandidateFacets;
         }
 
-        Cell< Facet* >
+        moris::Cell< Facet* >
         get_intersected_facets()
         {
             return mIntersectedFacets;
         }
 
-        Cell< real >
+        moris::Cell< real >
         get_intersection_coordinates()
         {
             return mCoordsK;

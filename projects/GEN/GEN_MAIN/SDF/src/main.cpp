@@ -251,7 +251,7 @@ perform_calculation(
         sdf::Data tData( tObject );
 
         // create core and set verbosity flag
-        sdf::Core tCore( tMesh, tData, tVerbose );
+        sdf::Core tCore( tMesh, tData, tObject, tVerbose );
 
         // set parameters of core
         tCore.set_candidate_search_depth( tObjectParameters( k ).get< sint >("candidate_search_depth") );
@@ -263,7 +263,7 @@ perform_calculation(
         if( ! aCalculateSDF )
         {
             // perform raycast
-            tCore.calculate_raycast();
+            tCore.raycast_mesh();
 
             // create output matrix
             Matrix< DDRMat > tNodeIsInside( tNumberOfNodes, 1 );

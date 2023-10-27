@@ -15,6 +15,7 @@
 #include "linalg_typedefs.hpp"
 
 #include "cl_SDF_Object.hpp"
+#include "cl_SDF_Raycast.hpp"
 #include "cl_SDF_Mesh.hpp"
 #include "cl_SDF_Parameters.hpp"
 #include "cl_SDF_Data.hpp"
@@ -27,6 +28,7 @@ namespace moris::sdf
     {
         Mesh& mMesh;
         Data& mData;
+        Object& mObject;
 
         uint mCandidateSearchDepth        = 1;
         real mCandidateSearchDepthEpsilon = 0.01;
@@ -39,6 +41,7 @@ namespace moris::sdf
 
         Core( Mesh&   aMesh,
                 Data& aData,
+                Object& aObject,
                 bool  aVerbose = false );
 
         //-------------------------------------------------------------------------------
@@ -64,7 +67,7 @@ namespace moris::sdf
         //-------------------------------------------------------------------------------
 
         void
-        calculate_raycast();
+        raycast_mesh();
 
         //-------------------------------------------------------------------------------
 
@@ -111,11 +114,6 @@ namespace moris::sdf
 
         //-------------------------------------------------------------------------------
 
-        void
-        voxelize_2D( const uint aAxis );
-
-        //-------------------------------------------------------------------------------
-
         moris::Cell< Vertex* >
         set_candidate_list();
 
@@ -138,94 +136,6 @@ namespace moris::sdf
 
         void
         fill_sdf_with_values( Matrix< DDRMat >& aSDF );
-
-        //-------------------------------------------------------------------------------
-
-        /**
-         * @brief Takes a point in 3D space and determines which triangles
-         * in the positive and negative x direction the point could possibly intersect.
-         * These triangles are added to mData.mCandidateFacets. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
-         *
-         * @param aPoint Point in space that lies within the bounding Y-Z plane of the candidate triangles
-         */
-        void
-        preselect_triangles_x( const Matrix< DDRMat >& aPoint );
-
-        //-------------------------------------------------------------------------------
-
-        /**
-         * @brief Takes a point in 3D space and determines which triangles
-         * in the positive and negative y direction the point could possibly intersect.
-         * These triangles are added to mData.mCandidateFacets. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
-         *
-         * @param aPoint Point in space that lies within the bounding X-Z plane of the candidate triangles
-         */
-        void
-        preselect_triangles_y( const Matrix< DDRMat >& aPoint );
-
-        //-------------------------------------------------------------------------------
-
-        /**
-         * @brief Takes a point in 3D space and determines which triangles
-         * in the positive and negative z direction the point could possibly intersect.
-         * These triangles are added to mData.mCandidateFacets. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
-         *
-         * @param aPoint Point in space that lies within the bounding X-Y plane of the candidate triangles
-         */
-        void
-        preselect_triangles_z( const Matrix< DDRMat >& aPoint );
-
-        //-------------------------------------------------------------------------------
-
-        /**
-         * @brief Takes a point in 2D space and determines which lines
-         * in the positive aAxis direction the point could possibly intersect. The ray is being cast in the !aAxis direction
-         * These lines are added to mData.mIntersectedFacets. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
-         * Since preselection is sufficient for 2D, some of the lines are already marked as intersected. These are added to mData.mCandidateFacets
-         *
-         * @param aAxis 0 for lines in the x direction of aPoint, 1 for lines in the y direction of aPoint
-         * @param aPoint Location in space that lies within the bounding aAxis coordinates of the candidate triangles
-         */
-        void
-        preselect_lines(
-                const uint              aAxis,
-                const Matrix< DDRMat >& aPoint );
-
-        //-------------------------------------------------------------------------------
-
-
-        void
-        intersect_triangles(
-                const uint              aAxis,
-                const Matrix< DDRMat >& aPoint );
-
-        //-------------------------------------------------------------------------------
-
-        /**
-         * Takes all of potential facets (in mData.mIntersectedFacets) and computes the coordinate axis intersection location
-         *  with the ray originating from aPoint
-         *
-         * @param aAxis coordinate axis to shoot ray in. 0 = x, 1 = y, 2 = z
-         * @param aPoint spatial location of the origin of the ray
-         */
-        void
-        intersect_ray_with_facets(
-                const uint              aAxis,
-                const Matrix< DDRMat >& aPoint );
-
-        //-------------------------------------------------------------------------------
-
-        void
-        check_if_node_is_inside_triangles(
-                const uint aAxis,
-                const uint aNodeIndex );
-
-        //-------------------------------------------------------------------------------
-
-        void
-        check_if_node_is_inside_lines(
-                const uint aAxis,
-                const uint aNodeIndex );
                 
         //-------------------------------------------------------------------------------
 
@@ -240,23 +150,7 @@ namespace moris::sdf
                 moris::Cell< Vertex* >& aNodes,
                 moris::Cell< Vertex* >& aCandList );
 
-        //-------------------------------------------------------------------------------
-
-        /**
-         * performs a floodfill in order to fix unsure nodes
-         */
-        void
-        force_unsure_nodes_outside();
-
-        //----------------------------------------------------------------------f---------
-
-        void
-        random_rotation();
-
-        //-------------------------------------------------------------------------------
-
-        void
-        undo_rotation();
+        //--------------------------------------------------------------------------------
     };
 
     //-------------------------------------------------------------------------------
