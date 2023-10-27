@@ -25,8 +25,7 @@ namespace moris::sdf
     class Raycast
     {
       private:
-        Object&               mObject;               // closed collection of facets that rays can hit
-        Data&                 mData;                 // BRENDAN: delete this once full functionality has been added
+        Object&               mObject;               // closed collection of facets that rays can hit               // BRENDAN: delete this once full functionality has been added
         uint                  mDimension;            // number of coordinate axes for both the object and the cast point
         Matrix< DDRMat >      mPoint;                // global point coordinates, can change due to coordinate rotation
         Matrix< DDRMat >      mOriginalPoint;        // global point coordinates, needed to revert rotations that occur
@@ -44,9 +43,8 @@ namespace moris::sdf
          * @param aObject 
          * @param mData 
          */
-        Raycast( Object& aObject, Data& mData );
+        Raycast( Object& aObject );
 
-        //   private: BRENDAN, these should be private once testing is completed (? or should we have unit tests that can access them?)
         /**
          * Conducts a raycast to determine if aPoint is inside or outside of the object. Casts rays in each coordinate direction until the point is resolved.
          * Also determines intersection locations along the coordinate axes of aPoint with each facet.
@@ -203,19 +201,19 @@ namespace moris::sdf
         Cell< uint >
         get_candidate_facets()
         {
-            return mData.mCandidateFacets; // BRENDAN remove data struct variable from here when done
+            return mCandidateFacets;
         }
 
         Cell< Facet* >
         get_intersected_facets()
         {
-            return mData.mIntersectedFacets; // BRENDAN remove data struct variable from here when done
+            return mIntersectedFacets;
         }
 
         Cell< real >
         get_intersection_coordinates()
         {
-            return mData.mCoordsK; // BRENDAN remove data struct when done
+            return mCoordsK;
         }
 
         uint

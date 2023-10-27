@@ -53,12 +53,8 @@ TEST_CASE(
             sdf::Object         tObject( tObjectPath );
             Cell< sdf::Facet* > tFacets = tObject.get_facets();
 
-
-            // create data struct BRENDAN, this should get removed once implementation is completed
-            sdf::Data tData( tObject );
-
             // create raycaster
-            sdf::Raycast tRaycaster( tObject, tData );
+            sdf::Raycast tRaycaster( tObject );
 
             // define test point
             Matrix< DDRMat > tTestPoint = {
@@ -109,8 +105,8 @@ TEST_CASE(
             CHECK( tIntersectedFacetsExpected( 0 ) == tIntersectedTriangles( 0 ) );
             CHECK( tIntersectedFacetsExpected( 1 ) == tIntersectedTriangles( 1 ) );
 
-            // compute the intersection locations and ensure they are correct
-            // Cell< real > tIntersectionCoordinates =
+            // compute the intersection locations and ensure they are correct BRENDAN FINISH UNIT TEST
+            // Cell< real > tIntersectionCoordinates = 
         }
         SECTION( "2D SDF Raycast Test" )
         {
@@ -119,11 +115,8 @@ TEST_CASE(
             sdf::Object         tObject( tObjectPath );
             Cell< sdf::Facet* > tFacets = tObject.get_facets();
 
-            // create data struct BRENDAN, this should get removed once implementation is completed
-            sdf::Data tData( tObject );
-
             // create raycaster
-            sdf::Raycast tRaycaster( tObject, tData );
+            sdf::Raycast tRaycaster( tObject );
 
             // define test point
             Matrix< DDRMat > tTestPoint = { { -.25 }, { -0.3 } };

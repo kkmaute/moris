@@ -48,16 +48,7 @@ namespace moris
             //             arma::uvec        mCandJ;              //!< temporary variable needed for triangle preselection
             //             arma::uvec        mCandK;
             // #else
-            Matrix< DDRMat > mFacetMinCoords;    //!< min coordinates of the facet bouding box
-            Matrix< DDRMat > mFacetMaxCoords;    //!< max coordinates of the facet bouding box
-            Matrix< DDUMat > mCandJ;             //!< temporary variable needed for triangle preselection
-                                                 // #endif
 
-            // NOTE: k is not necessarily z. The mapping depends on the raycast direction
-            moris::Cell< real > mCoordsK;    //!< temporary variable needed for voxelizing, coordinates of intersection in triangles by a ray.
-            moris::Cell< uint > mCandidateFacets;
-
-            moris::Cell< Facet* > mIntersectedFacets;
 
             real mBufferDiagonal;
 
