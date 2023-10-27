@@ -98,25 +98,5 @@ TEST_CASE(
             // tidy up
             delete tInput;
         }
-        SECTION( "SDF Core: Raycast Test 2D" )
-        {
-            // BRENDAN TO DO ONCE RAYCAST IS FINISHED. MTK MESH NEEDED
-            // Root path for 2D object file
-            std::string tObjectPath = tMorisRoot + "/projects/GEN/GEN_MAIN/SDF/test/data/rhombus.obj";
-
-            // Create object and data struct
-            sdf::Object tObject( tObjectPath );
-            sdf::Data   tData( tObject );
-
-            // Create mesh to raycast on
-            std::string tMeshPath = tMorisRoot + "/projects/GEN/GEN_MAIN/SDF/test/data/TensorMesh.g";
-            mtk::Mesh  *tInput    = mtk::create_interpolation_mesh( MeshType::STK, tMeshPath, nullptr );
-
-            // create SDF wrapper for mesh
-            sdf::Mesh tMesh( tInput );
-
-            // create core
-            sdf::Core tCore( tMesh, tData );
-        }
     }
 }
