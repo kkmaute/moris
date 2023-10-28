@@ -804,9 +804,12 @@ namespace moris
             return mPhaseTable.get_phase_index( tGeometrySigns );
         }
 
+        //--------------------------------------------------------------------------------------------------------------
+
         moris_index
-        Geometry_Engine::is_interface_vertex( moris_index aNodeIndex,
-                moris_index                               aGeometryIndex )
+        Geometry_Engine::is_interface_vertex(
+                moris_index aNodeIndex,
+                moris_index aGeometryIndex )
         {
             moris_index tProxIndex = mVertexGeometricProximity( aNodeIndex ).get_geometric_proximity( (moris_index)aGeometryIndex );
 
