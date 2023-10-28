@@ -883,9 +883,11 @@ namespace xtk
 
             for ( moris::uint iVert = 0; iVert < tVertices.size(); iVert++ )
             {
-                if ( !mGeometryEngine->is_interface_vertex( tVertices( iVert )->get_index(), iGeom ) )
+                uint tVertexIndex = tVertices( iVert )->get_index();
+
+                if ( !mGeometryEngine->is_interface_vertex( tVertexIndex, iGeom ) )
                 {
-                    moris_index tPhaseIndex = mGeometryEngine->get_node_phase_index_wrt_a_geometry( tVertices( iVert )->get_index(), iGeom );
+                    moris_index tPhaseIndex = mGeometryEngine->get_node_phase_index_wrt_a_geometry( tVertexIndex, iGeom );
                     tFoundNonInterfaceNode  = true;
                     tPhaseVotes( tPhaseIndex )++;
                 }
