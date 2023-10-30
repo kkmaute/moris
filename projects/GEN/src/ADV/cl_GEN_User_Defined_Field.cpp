@@ -15,8 +15,8 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     User_Defined_Field::User_Defined_Field(
-            Matrix< DDRMat > aConstants,
-            Field_Function   aFieldFunction )
+            Field_Function          aFieldFunction,
+            const Matrix< DDRMat >& aConstants )
             : Field_Analytic( aConstants )
             , mFieldVariables( aConstants.length() )
     {

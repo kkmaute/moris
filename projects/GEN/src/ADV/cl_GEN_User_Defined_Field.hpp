@@ -48,7 +48,7 @@ namespace moris::ge
          * @param aName Name of this field
          */
         User_Defined_Field(
-              moris::ge::Field_Function aFieldFunction,
+              Field_Function       aFieldFunction,
               Sensitivity_Function aSensitivityFunction,
               ADV_ARG_TYPES )
               : Field_Analytic< 0 >( ADV_ARGS )
@@ -64,9 +64,9 @@ namespace moris::ge
          * @param aConstants The constant field variables not filled by ADVs
          * @param aFieldFunction User-defined function for evaluating the field field
          */
-        User_Defined_Field(
-                Matrix< DDRMat > aConstants,
-                Field_Function   aFieldFunction );
+        explicit User_Defined_Field(
+                Field_Function   aFieldFunction,
+                const Matrix< DDRMat >& aConstants = {{}} );
 
         /**
          * For the specific case of a user-defined field, this function indicates that new field variables must be set for the user-defined function calls.

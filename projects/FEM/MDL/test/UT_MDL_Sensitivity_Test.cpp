@@ -101,12 +101,12 @@ void tFIDerDvFunction_FDTest
     aPropMatrix = aParameters( 0 ) * aFIManager->get_field_interpolators_for_type( ge::PDV_Type::DENSITY )->N();
 }
 
-real density_function_1(const Matrix<DDRMat>& aCoordinates, const Cell<real*>& aPropertyVariables)
+real density_function_1(const Matrix<DDRMat>& aCoordinates, const Cell<real>& aPropertyVariables)
 {
     return 1.0;
 }
 
-real density_function_2(const Matrix<DDRMat>& aCoordinates, const Cell<real*>& aPropertyVariables)
+real density_function_2(const Matrix<DDRMat>& aCoordinates, const Cell<real>& aPropertyVariables)
 {
     return 2.0;
 }

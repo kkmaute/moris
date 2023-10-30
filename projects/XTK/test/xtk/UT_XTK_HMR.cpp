@@ -48,7 +48,7 @@ LevelSetSphereCylinder(const moris::Matrix< moris::DDRMat > & aPoint )
     return -std::max(std::max(lsFromLeft, lsFromRight), lsFromRad);
 }
 
-real LevelSetSphereCylinderGeometry(const Matrix<DDRMat>& aCoordinates, const Cell<real*>& aParameters)
+real LevelSetSphereCylinderGeometry(const Matrix<DDRMat>& aCoordinates, const Cell<real>& aParameters)
 {
     return LevelSetSphereCylinder(aCoordinates);
 }
@@ -108,7 +108,7 @@ TEST_CASE("XTK HMR Test","[XTK_HMR]")
             tHMR->perform_initial_refinement();
             tHMR->perform();
 
-            auto tField = std::make_shared< moris::ge::User_Defined_Field >( Matrix<DDRMat>( 0, 0 ), &(LevelSetSphereCylinderGeometry) );
+            auto tField = std::make_shared< moris::ge::User_Defined_Field >( &(LevelSetSphereCylinderGeometry), Matrix<DDRMat>( 0, 0 ) );
             Cell< std::shared_ptr<ge::Level_Set_Geometry> > tGeometryVector = { std::make_shared< ge::Level_Set_Geometry >( tField ) };
 
             size_t tModelDimension = 3;

@@ -82,7 +82,7 @@ MultiCircle(const moris::Matrix< moris::DDRMat > & aPoint )
 
 }
 
-moris::real MultiCircleGeometry(const moris::Matrix< moris::DDRMat > & aPoint, const moris::Cell<moris::real*>& aParameters)
+moris::real MultiCircleGeometry(const moris::Matrix< moris::DDRMat > & aPoint, const moris::Cell<moris::real>& aParameters)
 {
     return MultiCircle(aPoint);
 }
@@ -145,7 +145,7 @@ TEST_CASE("2D XTK WITH HMR No truncation enrichment","[XTK_HMR_ENR_2D]")
 
         hmr::Interpolation_Mesh_HMR * tInterpMesh = tHMR.create_interpolation_mesh( tLagrangeMeshIndex  );
 
-        auto tUserDefinedField = std::make_shared< moris::ge::User_Defined_Field >( Matrix< DDRMat >( 0, 0 ), &( MultiCircleGeometry ) );
+        auto tUserDefinedField = std::make_shared< moris::ge::User_Defined_Field >( &( MultiCircleGeometry ) );
         Cell< std::shared_ptr< ge::Level_Set_Geometry > > tGeometryVector = { std::make_shared< ge::Level_Set_Geometry >( tUserDefinedField ) };
 
         size_t tModelDimension = 2;
