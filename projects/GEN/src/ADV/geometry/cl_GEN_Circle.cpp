@@ -20,7 +20,7 @@ namespace moris::ge
             real                      aYCenter,
             real                      aRadius,
             Level_Set_Parameters aParameters )
-            : Field_Analytic( Matrix< DDRMat >( { { aXCenter, aYCenter, aRadius } } ) )
+            : Field_Analytic< 2 >( Matrix< DDRMat >( { { aXCenter, aYCenter, aRadius } } ) )
     {
     }
 

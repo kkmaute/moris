@@ -22,7 +22,7 @@ namespace moris::ge
     public:
 
         // Constructor to allow this field to be created with ADVs
-        ANALYTIC_FIELD_ADV_CONSTRUCTOR( Sphere, 4, {} )
+        ANALYTIC_FIELD_ADV_CONSTRUCTOR( Sphere, 3, 4, {} )
 
         /**
          * Constructor with only constant parameters

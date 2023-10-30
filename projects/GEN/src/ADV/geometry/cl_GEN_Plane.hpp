@@ -32,7 +32,7 @@ namespace moris::ge
          * @param aParameters Additional parameters
          */
         Plane( ADV_ARG_TYPES )
-               : Field_Analytic( ADV_ARGS )
+               : Field_Analytic< 2 >( ADV_ARGS )
         {
             if ( mADVManager.get_determining_adv_ids().length() == 4 )
             {

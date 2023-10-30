@@ -21,7 +21,7 @@ namespace moris::ge
             const Matrix< DDUMat >& aVariableIndices,
             const Matrix< DDUMat >& aADVIndices,
             const Matrix< DDRMat >& aConstants )
-            : mDeterminingADVIds( aVariableIndices.length() + aConstants.length(), 1, -1 )
+            : mDeterminingADVIds( aVariableIndices.length() + aConstants.length(), 1, gNoID )
             , mHasADVs( aADVIndices.length() )
     {
         // Check that the number of field variables indices equals the number of ADV indices
@@ -42,7 +42,7 @@ namespace moris::ge
 
     ADV_Manager::ADV_Manager(
             const Matrix< DDRMat >& aConstants )
-            : mDeterminingADVIds( aConstants.length(), 1, -1 )
+            : mDeterminingADVIds( aConstants.length(), 1, gNoID )
             , mHasADVs( false )
     {
         // Set ADVs
@@ -53,13 +53,13 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     ADV_Manager::ADV_Manager(
-            const Matrix< DDUMat >& aFieldVariableIndices,
+            const Matrix< DDUMat >& aVariableIndices,
             const Matrix< DDSMat >& aSharedADVIds )
             : mDeterminingADVIds( aSharedADVIds )
             , mHasADVs( true )
     {
         // Check that the field variable indices match the shared ADV Ids
-        MORIS_ERROR( aFieldVariableIndices.length() == aSharedADVIds.length(),
+        MORIS_ERROR( aVariableIndices.length() == aSharedADVIds.length(),
                 "Number of field variable indices must equal the number of ADV IDs in a GEN Field." );
 
         // Create shared distributed vector
@@ -70,9 +70,31 @@ namespace moris::ge
         // Set variables from ADVs
         uint tNumSharedADVs = aSharedADVIds.length();
         mADVs.reserve( tNumSharedADVs );
-        for ( uint tVariable = 0; tVariable < tNumSharedADVs; tVariable++ )
+        for ( uint iVariableIndex = 0; iVariableIndex < tNumSharedADVs; iVariableIndex++ )
         {
-            mADVs.emplace_back( mSharedADVs, aSharedADVIds( tVariable ) );
+            mADVs.emplace_back( mSharedADVs, aSharedADVIds( iVariableIndex ) );
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    ADV_Manager::ADV_Manager(
+            const ADV_Manager& aCopyADVManager,
+            const Cell< uint >& aReplaceVariables,
+            const Cell< real >& aNewConstants )
+            : mADVs( aCopyADVManager.mADVs )
+            , mDeterminingADVIds( aCopyADVManager.mDeterminingADVIds )
+            , mHasADVs( aCopyADVManager.mHasADVs )
+            , mSharedADVs( aCopyADVManager.mSharedADVs )
+    {
+        // Ensure the number of replacement variables equals the number of new constants
+        MORIS_ERROR( aReplaceVariables.size() == aNewConstants.size(),
+                "ADV copy constructor must be given same amount of variable indices to replace and new constants." );
+
+        // Replace constant variables
+        for ( uint iReplacementIndex = 0; iReplacementIndex < aReplaceVariables.size(); iReplacementIndex++ )
+        {
+            mADVs( aReplaceVariables( iReplacementIndex ) ).replace_constant( aNewConstants( iReplacementIndex ) );
         }
     }
 
@@ -89,11 +111,11 @@ namespace moris::ge
     void
     ADV_Manager::set_advs( Vector_Type& aADVs )
     {
-        for ( uint tVariableIndex = 0; tVariableIndex < mDeterminingADVIds.length(); tVariableIndex++ )
+        for ( uint iVariableIndex = 0; iVariableIndex < mDeterminingADVIds.length(); iVariableIndex++ )
         {
-            if ( mDeterminingADVIds( tVariableIndex ) >= 0 )
+            if ( mDeterminingADVIds( iVariableIndex ) >= 0 )
             {
-                mADVs( tVariableIndex ) = ADV( aADVs, mDeterminingADVIds( tVariableIndex ) );
+                mADVs( iVariableIndex ) = ADV( aADVs, mDeterminingADVIds( iVariableIndex ) );
             }
         }
     }
@@ -140,11 +162,11 @@ namespace moris::ge
 
         // Create ADVs
         uint tConstantIndex = 0;
-        for ( uint tVariableIndex = 0; tVariableIndex < mDeterminingADVIds.length(); tVariableIndex++ )
+        for ( uint iVariableIndex = 0; iVariableIndex < mDeterminingADVIds.length(); iVariableIndex++ )
         {
-            if ( mDeterminingADVIds( tVariableIndex ) >= 0 )
+            if ( mDeterminingADVIds( iVariableIndex ) >= 0 )
             {
-                mADVs.emplace_back( aADVs, mDeterminingADVIds( tVariableIndex ) );
+                mADVs.emplace_back( aADVs, mDeterminingADVIds( iVariableIndex ) );
             }
             else
             {

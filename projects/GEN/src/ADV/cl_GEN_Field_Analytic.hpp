@@ -12,17 +12,6 @@
 
 #include "cl_GEN_Field.hpp"
 
-/**
- * \def ANALYTIC_FIELD_ADV_CONSTRUCTOR( class_name, num_variables, ... )
- * Automatically creates a constructor that has ADV arguments for general field creation.
- *
- * @param class_name Name of the specific field constructor to create
- * @param num_variables Number of variables this field takes in
- * @param ... Additional code to be inserted into the constructor body via __VA_ARGS__
- */
-#define ANALYTIC_FIELD_ADV_CONSTRUCTOR( class_name, num_variables, ... ) \
-    class_name( ADV_ARG_TYPES ) : Field_Analytic( ADV_ARGS ) { VARIABLE_CHECK( num_variables ); __VA_ARGS__ }
-
 namespace moris::ge
 {
     /**
@@ -57,6 +46,21 @@ namespace moris::ge
          */
         explicit Field_Analytic( Matrix< DDRMat > aConstants )
                 : Field( aConstants )
+        {
+        }
+
+        /**
+         * Copy constructor with replacement variables for new constants.
+         *
+         * @param aCopy Analytic field to copy
+         * @param aReplaceVariables Variable indices to replace
+         * @param aNewConstants New constants
+         */
+        Field_Analytic(
+                const Field_Analytic< N >& aCopy,
+                const Cell< uint >& aReplaceVariables,
+                const Cell< real >& aNewConstants )
+                : Field( aCopy, aReplaceVariables, aNewConstants )
         {
         }
 
@@ -142,3 +146,28 @@ namespace moris::ge
                 Matrix< DDRMat >&       aSensitivities ) = 0;
     };
 }
+
+/**
+ * \def ANALYTIC_FIELD_DECLARATION( class_name, num_dimensions, num_variables, ... )
+ * Automatically creates a constructor that has ADV arguments for general field creation, and an additional copy function
+ *
+ * @param class_name Name of the specific field constructor to create
+ * @param num_dimensions Number of dimensions this field is defined with
+ * @param num_variables Number of variables this field takes in
+ * @param ... Additional code to be inserted into the constructor body via __VA_ARGS__
+ */
+#define ANALYTIC_FIELD_ADV_CONSTRUCTOR( class_name, num_dimensions, num_variables, ... )                            \
+    class_name( ADV_ARG_TYPES )                                                                                     \
+            : Field_Analytic< num_dimensions >( ADV_ARGS )                                                          \
+    {                                                                                                               \
+        VARIABLE_CHECK( num_variables );                                                                            \
+        __VA_ARGS__                                                                                                 \
+    }                                                                                                               \
+    class_name( const class_name& aCopy, const Cell< uint >& aReplaceVariables, const Cell< real >& aNewConstants ) \
+            : Field_Analytic< num_dimensions >( aCopy, aReplaceVariables, aNewConstants )                           \
+    {                                                                                                               \
+    }                                                                                                               \
+    std::shared_ptr< Field > copy( const Cell< uint >& aReplaceVariables, const Cell< real >& aNewConstants )       \
+    {                                                                                                               \
+        return std::make_shared< class_name >( *this, aReplaceVariables, aNewConstants );                           \
+    }

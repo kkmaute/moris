@@ -23,7 +23,7 @@ namespace moris::ge
             real                      aYNormal,
             real                      aZNormal,
             Level_Set_Parameters aParameters )
-            : Field_Analytic( Matrix< DDRMat >( { { aXCenter, aYCenter, aZCenter, aXNormal, aYNormal, aZNormal } } ) )
+            : Field_Analytic< 2 >( Matrix< DDRMat >( { { aXCenter, aYCenter, aZCenter, aXNormal, aYNormal, aZNormal } } ) )
     {
         m_eval_field       = &Plane::eval_field_3d;
         m_eval_sensitivity = &Plane::eval_sensitivity_3d;
@@ -37,7 +37,7 @@ namespace moris::ge
             real                      aXNormal,
             real                      aYNormal,
             Level_Set_Parameters aParameters )
-            : Field_Analytic( Matrix< DDRMat >( { { aXCenter, aYCenter, aXNormal, aYNormal } } ) )
+            : Field_Analytic< 2 >( Matrix< DDRMat >( { { aXCenter, aYCenter, aXNormal, aYNormal } } ) )
     {
         m_eval_field       = &Plane::eval_field_2d;
         m_eval_sensitivity = &Plane::eval_sensitivity_2d;

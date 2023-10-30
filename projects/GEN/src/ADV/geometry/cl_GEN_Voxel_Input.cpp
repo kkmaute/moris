@@ -24,7 +24,7 @@ namespace moris::ge
             Matrix< DDRMat >          aDomainDimensions,
             Matrix< DDRMat >          aDomainOffset,
             Matrix< DDRMat >          aGrainIdToValueMap )
-            : Field_Analytic( {{}} )
+            : Field_Analytic< 0 >( {{}} )
             , mDomainDimensions( aDomainDimensions )
             , mDomainOffset( aDomainOffset )
             , mGrainIdToValueMap( aGrainIdToValueMap )

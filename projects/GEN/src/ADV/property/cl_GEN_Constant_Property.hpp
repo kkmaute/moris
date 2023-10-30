@@ -20,7 +20,7 @@ namespace moris::ge
       public:
 
         // Constructor to allow this field to be created with ADVs
-        ANALYTIC_FIELD_ADV_CONSTRUCTOR( Constant_Property, 1, { mSensitivities = { { 1.0 } }; } )
+        ANALYTIC_FIELD_ADV_CONSTRUCTOR( Constant_Property, 0, 1, { mSensitivities = { { 1.0 } }; } )
 
         /**
          * Given a node index, returns the field value.

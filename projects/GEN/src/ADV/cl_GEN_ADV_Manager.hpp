@@ -30,14 +30,14 @@ namespace moris::ge
          * Constructor, sets the field variable pointers to ADVs and constant parameters for evaluations.
          *
          * @param aADVs ADV vector
-         * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
+         * @param aVariableIndices Indices of field variables to be filled by the ADVs
          * @param aADVIndices The indices of the ADV vector to fill in the field variables
          * @param aConstants The constant field variables not filled by ADVs
          * @param aParameters Additional parameters
          */
         ADV_Manager(
                 Matrix< DDRMat >&       aADVs,
-                const Matrix< DDUMat >& aFieldVariableIndices,
+                const Matrix< DDUMat >& aVariableIndices,
                 const Matrix< DDUMat >& aADVIndices,
                 const Matrix< DDRMat >& aConstants );
 
@@ -51,12 +51,24 @@ namespace moris::ge
         /**
          * Constructor, sets variables as consecutive ADVs. Assumes the use of distributed ADVs.
          *
-         * @param aFieldVariableIndices Variable indices for assigning the shared ADV IDs
+         * @param aVariableIndices Variable indices for assigning the shared ADV IDs
          * @param aSharedADVIds Shared ADV IDs needed
          */
         ADV_Manager(
-                const Matrix< DDUMat >& aFieldVariableIndices,
+                const Matrix< DDUMat >& aVariableIndices,
                 const Matrix< DDSMat >& aSharedADVIds );
+
+        /**
+         * Copy constructor, with optional arguments for replacing constant values.
+         *
+         * @param aCopyADVManager ADV manager to copy
+         * @param aReplaceVariables Indices of constants to replace
+         * @param aNewConstants New constant values
+         */
+        ADV_Manager(
+                const ADV_Manager& aCopyADVManager,
+                const Cell< uint >& aReplaceVariables = {},
+                const Cell< real >& aNewConstants = {{}} );
 
         /**
          * Destructor
@@ -64,7 +76,7 @@ namespace moris::ge
         ~ADV_Manager();
 
         /**
-         * Sets the ADVs and grabs the field variables needed from the ADV vector
+         * Sets the ADVs and grabs the relevant variables needed from the ADV vector
          *
          * @tparam Vector_Type Type of vector where ADVs are stored
          * @param aADVs ADVs

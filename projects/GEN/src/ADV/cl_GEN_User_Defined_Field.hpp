@@ -51,7 +51,7 @@ namespace moris::ge
               moris::ge::Field_Function aFieldFunction,
               Sensitivity_Function aSensitivityFunction,
               ADV_ARG_TYPES )
-              : Field_Analytic( ADV_ARGS )
+              : Field_Analytic< 0 >( ADV_ARGS )
               , mFieldVariables( aFieldVariableIndices.length() + aConstants.length() )
         {
             this->set_user_defined_functions( aFieldFunction, aSensitivityFunction );

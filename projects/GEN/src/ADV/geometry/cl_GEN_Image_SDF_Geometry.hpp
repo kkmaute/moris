@@ -69,7 +69,7 @@ namespace moris::ge
                 real                      aSdfShift,
                 real                      aSdfDefault,
                 bool                      aSdfInterpolate )
-                : Field_Analytic( {} )
+                : Field_Analytic< 0 >( {} )
                 , mDomainDimensions( aDomainDimensions )
                 , mDomainOffset( aDomainOffset )
                 , mSdfScaling( aSdfScaling )

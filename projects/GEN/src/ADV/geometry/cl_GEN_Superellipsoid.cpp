@@ -23,7 +23,7 @@ namespace moris::ge
             real                      aZSemidiameter,
             real                      aExponent,
             Level_Set_Parameters aParameters)
-            : Field_Analytic(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aXSemidiameter, aYSemidiameter, aZSemidiameter, aExponent}}) )
+            : Field_Analytic< 3 >(Matrix<DDRMat>({{aXCenter, aYCenter, aZCenter, aXSemidiameter, aYSemidiameter, aZSemidiameter, aExponent}}) )
     {
         MORIS_ERROR( mADVManager.get_variable( 3 ) > 0 and mADVManager.get_variable( 4 ) > 0 and mADVManager.get_variable( 5 ) > 0,
                     "A GEN Superellipsoid must be created with positive semidiameters.");

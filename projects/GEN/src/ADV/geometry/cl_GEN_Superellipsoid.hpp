@@ -23,7 +23,8 @@ namespace moris::ge
     public:
 
         // Constructor to allow this field to be created with ADVs
-        ANALYTIC_FIELD_ADV_CONSTRUCTOR( Superellipsoid, 7, {
+        ANALYTIC_FIELD_ADV_CONSTRUCTOR( Superellipsoid, 3, 7,
+        {
             MORIS_ERROR( mADVManager.get_variable( 3 ) > 0 and mADVManager.get_variable( 4 ) > 0,
                     "A GEN Superellipsoid must be created with positive semi-diameters.");
 

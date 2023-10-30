@@ -47,6 +47,25 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Field::Field( const Field& aCopy,
+            const Cell< uint >& aReplaceVariables,
+            const Cell< real >& aNewConstants )
+            : mADVManager( aCopy.mADVManager, aReplaceVariables, aNewConstants )
+            , mSensitivities( aCopy.mSensitivities )
+    {
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    std::shared_ptr< Field > Field::copy(
+            const Cell< uint >& aReplaceVariables,
+            const Cell< real >& aNewConstants )
+    {
+        return nullptr;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     void Field::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
         mADVManager.import_advs( aOwnedADVs );

@@ -51,6 +51,13 @@ namespace moris::ge
         explicit ADV( real aValue );
 
         /**
+         * Copy constructor such that constant ADVs create a new value instead of just copying the pointer.
+         *
+         * @param aCopyADV ADV to copy
+         */
+        ADV( const ADV& aCopyADV );
+
+        /**
          * Destructor, ensures that a constant variable is cleaned up
          */
         ~ADV();
@@ -61,5 +68,12 @@ namespace moris::ge
          * @return
          */
         real get_value();
+
+        /**
+         * Replaces the value of this ADV, if it is a constant value. Does not replace a value in the full ADV vector.
+         *
+         * @param aNewValue New constant value
+         */
+        void replace_constant( real aNewValue );
     };
 }

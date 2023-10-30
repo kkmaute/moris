@@ -49,7 +49,7 @@ namespace moris::ge
       private:
         std::string mName;
 
-      protected:
+      public:
 
         /**
          * Constructor using pointers to ADVs for variable evaluations.
@@ -83,12 +83,34 @@ namespace moris::ge
         Field( const Matrix< DDUMat >&  aFieldVariableIndices,
                const Matrix< DDSMat >&  aSharedADVIds );
 
-      public:
+        /**
+         * Copy constructor with replacement variables for new constants.
+         *
+         * @param aCopy Analytic field to copy
+         * @param aReplaceVariables Variable indices to replace
+         * @param aNewConstants New constants
+         */
+        Field( const Field& aCopy,
+                const Cell< uint >& aReplaceVariables,
+                const Cell< real >& aNewConstants );
 
         /**
          * Destructor
          */
         virtual ~Field() = default;
+
+        /**
+         * Copies the current field into a shared pointer with replacement variables for new constants.
+         * Right now, the only practical use for this is to translate analytic field, so the default
+         * implementation for discrete fields does not copy. This can be changed in the future.
+         *
+         * @param aReplaceVariables Variable indices to replace
+         * @param aNewConstants New constants
+         * @return Shared pointer to copied field
+         */
+        virtual std::shared_ptr< Field > copy(
+                const Cell< uint >& aReplaceVariables,
+                const Cell< real >& aNewConstants );
 
         /**
          * Sets the ADVs and grabs the field variables needed from the ADV vector
