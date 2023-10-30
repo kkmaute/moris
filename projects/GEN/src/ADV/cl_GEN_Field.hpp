@@ -32,7 +32,7 @@
  * Generates a moris error that checks that the number of variables passed to a field is correct. This should be called in most child field constructors.
  */
 #define VARIABLE_CHECK( num_variables ) MORIS_ERROR( aFieldVariableIndices.length() + aConstants.length() == num_variables, \
-        "A GEN %s must be created with a total of exactly num_variables variables (ADVs + constants)", __FUNCTION__ )
+        "A GEN %s must be created with a total of exactly %d variables (ADVs + constants)", __FUNCTION__, num_variables )
 
 namespace moris::ge
 {
