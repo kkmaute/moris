@@ -22,7 +22,7 @@ namespace moris::ge
             , mFields( aFields )
             , mScale( 2 * aUseMinimum - 1 )
     {
-        MORIS_ERROR( mFields.size() > 0, "A GEN Multifield must be created with at least one field." );
+        MORIS_ERROR( mFields.size() > 0, "A GEN Combined_Fields must be created with at least one field." );
     }
 
     //--------------------------------------------------------------------------------------------------------------

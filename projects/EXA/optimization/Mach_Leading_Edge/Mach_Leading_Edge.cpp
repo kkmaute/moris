@@ -676,20 +676,17 @@ namespace moris
         tGeoCounter++;
 
         // initialize fins as swiss cheese geometry
-        tParameterlist( 1 ).push_back( prm::create_swiss_cheese_slice_parameter_list() );
+        tParameterlist( 1 ).push_back( prm::create_field_array_parameter_list() );
+        tParameterlist( 1 )( tGeoCounter ).set( "field_type", "superellipse" );
+        tParameterlist( 1 )( tGeoCounter ).set( "constant_parameters",
+                "0.0, 0.0, " + std::to_string( 0.5 * tHoleWidth ) + ", " + std::to_string( 0.5 * tHoleHeight ) + ", " + std::to_string( tFinExponent ) + ", " + std::to_string( std::sqrt(tHoleWidth*tHoleHeight) ) + ", 0.0, 0.0" );
+        tParameterlist( 1 )( tGeoCounter ).set( "lower_bound_x",            tXCenterMin );          // Left-most hole center
+        tParameterlist( 1 )( tGeoCounter ).set( "upper_bound_x",           tXCenterMax );          // Right-most hole center
+        tParameterlist( 1 )( tGeoCounter ).set( "lower_bound_y",          tYCenterMin );          // Bottom-most hole center
+        tParameterlist( 1 )( tGeoCounter ).set( "upper_bound_y",             tYCenterMax );          // Top-most hole center
 
-        tParameterlist( 1 )( tGeoCounter ).set( "left_bound",            tXCenterMin );          // Left-most hole center
-        tParameterlist( 1 )( tGeoCounter ).set( "right_bound",           tXCenterMax );          // Right-most hole center
-        tParameterlist( 1 )( tGeoCounter ).set( "bottom_bound",          tYCenterMin );          // Bottom-most hole center
-        tParameterlist( 1 )( tGeoCounter ).set( "top_bound",             tYCenterMax );          // Top-most hole center
-        tParameterlist( 1 )( tGeoCounter ).set( "hole_x_semidiameter",   0.5 * tHoleWidth  );     // Superellipse semi-diameter in the x direction
-        tParameterlist( 1 )( tGeoCounter ).set( "hole_y_semidiameter",   0.5 * tHoleHeight );     // Superellipse semi-diameter in the y direction
-        tParameterlist( 1 )( tGeoCounter ).set( "superellipse_exponent", tFinExponent );         // Superellipse exponent
-        tParameterlist( 1 )( tGeoCounter ).set( "superellipse_scaling",  std::sqrt(tHoleWidth*tHoleHeight));         // Superellipse exponent
-        tParameterlist( 1 )( tGeoCounter ).set( "superellipse_regularization",  0.0);        // Superellipse exponent 1/tFinWidth/tFinHeight
-
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_x_holes",     tNumSeedFinsX );        // Number of holes in the x direction
-        tParameterlist( 1 )( tGeoCounter ).set( "number_of_y_holes",     tNumSeedFinsY );        // Number of holes in the y direction
+        tParameterlist( 1 )( tGeoCounter ).set( "number_of_fields_x",     tNumSeedFinsX );        // Number of holes in the x direction
+        tParameterlist( 1 )( tGeoCounter ).set( "number_of_fields_y",     tNumSeedFinsY );        // Number of holes in the y direction
 
         tParameterlist( 1 )( tGeoCounter ).set( "discretization_mesh_index",   0 );     // Index of B-spline mesh to create level set field on (-1 = none)
         tParameterlist( 1 )( tGeoCounter ).set( "discretization_lower_bound", -0.0025);   // Lower bound of level set field (if bspline_mesh_index >= 0)

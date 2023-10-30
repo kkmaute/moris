@@ -22,7 +22,7 @@
 #include "cl_GEN_Voxel_Input.hpp"
 #include "cl_GEN_Single_Grain.hpp"
 #include "cl_GEN_Combined_Fields.hpp"
-#include "cl_GEN_Swiss_Cheese_Slice.hpp"
+#include "cl_GEN_Field_Array_Factory.hpp"
 #include "cl_GEN_Mesh_Field_Geometry.hpp"
 #include "cl_GEN_Geometry_SDF.hpp"
 #include "cl_GEN_Image_SDF_Geometry.hpp"
@@ -41,10 +41,10 @@ namespace moris::ge
             mtk::Mesh*                       aMTKMesh,
             uint                             aIndex )
     {
-        // Geometry type
+        // Field type
         std::string tFieldType = aFieldParameterList.get< std::string >( "field_type" );
 
-        // Geometry inputs
+        // ADV inputs
         Matrix< DDUMat > tVariableIndices( 0, 0 );
         Matrix< DDUMat > tADVIndices( 0, 0 );
         Matrix< DDRMat > tConstants( 0, 0 );
@@ -108,11 +108,14 @@ namespace moris::ge
 
         // Name of the field
         std::string tName = aFieldParameterList.get< std::string >( "name" );
+        
+        // Shared pointer to field
+        std::shared_ptr< Field > tField;
 
-        // Build Geometry
+        // Build field
         if ( tFieldType == "constant" )
         {
-            return std::make_shared< Constant_Property >(
+            tField = std::make_shared< Constant_Property >(
                     aADVs,
                     tVariableIndices,
                     tADVIndices,
@@ -121,7 +124,7 @@ namespace moris::ge
         }
         else if ( tFieldType == "scaled_field" )
         {
-            return std::make_shared< Scaled_Field >(
+            tField = std::make_shared< Scaled_Field >(
                     aFieldDependencies( 0 ),
                     aADVs,
                     tVariableIndices,
@@ -131,23 +134,23 @@ namespace moris::ge
         }
         else if ( tFieldType == "circle" )
         {
-            return std::make_shared< Circle >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
+            tField = std::make_shared< Circle >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
         }
         else if ( tFieldType == "superellipse" )
         {
-            return std::make_shared< Superellipse >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
+            tField = std::make_shared< Superellipse >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
         }
         else if ( tFieldType == "sphere" )
         {
-            return std::make_shared< Sphere >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
+            tField = std::make_shared< Sphere >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
         }
         else if ( tFieldType == "superellipsoid" )
         {
-            return std::make_shared< Superellipsoid >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
+            tField = std::make_shared< Superellipsoid >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
         }
         else if ( tFieldType == "plane" )
         {
-            return std::make_shared< Plane >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
+            tField = std::make_shared< Plane >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
         }
         else if ( tFieldType == "combined_fields" )
         {
@@ -156,13 +159,13 @@ namespace moris::ge
             {
                 tUseMinimum = tConstants( 0 );
             }
-            return std::make_shared< Combined_Fields >( aFieldDependencies, tUseMinimum );
+            tField = std::make_shared< Combined_Fields >( aFieldDependencies, tUseMinimum );
         }
         else if ( tFieldType == "nodal_field" )
         {
             MORIS_ERROR( aMTKMesh != nullptr, "Mesh is a null ptr for nodal field geometry" );
 
-            return std::make_shared< ge::Mesh_Field_Geometry >( aMTKMesh, tName, mtk::EntityRank::NODE );
+            tField = std::make_shared< ge::Mesh_Field_Geometry >( aMTKMesh, tName, mtk::EntityRank::NODE );
         }
         else if ( tFieldType == "nodal_field_from_file" )
         {
@@ -171,7 +174,7 @@ namespace moris::ge
             std::string tFieldFormat = aFieldParameterList.get< std::string >( "file_format" );
             real        tOffset      = aFieldParameterList.get< real >( "offset" );
 
-            return std::make_shared< ge::Mesh_Field_Geometry >(
+            tField = std::make_shared< ge::Mesh_Field_Geometry >(
                     aMTKMesh,
                     tFileName,
                     tFieldName,
@@ -185,7 +188,7 @@ namespace moris::ge
             Matrix< DDRMat > tObjectOffset = string_to_mat< DDRMat >( aFieldParameterList.get< std::string >( "sdf_object_offset" ) );
             real             tSDFShift     = aFieldParameterList.get< real >( "sdf_shift" );
 
-            return std::make_shared< ge::Geometry_SDF >(
+            tField = std::make_shared< ge::Geometry_SDF >(
                     tObjectPath,
                     tObjectOffset,
                     tSDFShift );
@@ -202,7 +205,7 @@ namespace moris::ge
             real tSDFDefault = aFieldParameterList.get< real >( "image_sdf_default" );
             bool tsDFInterp  = aFieldParameterList.get< bool >( "image_sdf_interpolate" );
 
-            return std::make_shared< Image_SDF_Geometry >(
+            tField = std::make_shared< Image_SDF_Geometry >(
                     tImageFileName,
                     tDomainDimensions,
                     tDomainOffset,
@@ -214,15 +217,15 @@ namespace moris::ge
         else if ( tFieldType == "user_defined" )
         {
             // Check if library is given
-            MORIS_ERROR( aLibrary != nullptr, "Library must be given in order to create a user-defined geometry." );
+            MORIS_ERROR( aLibrary != nullptr, "Library must be given in order to create a user-defined field." );
 
             // Get sensitivity function if needed
             std::string tSensitivityFunctionName = aFieldParameterList.get< std::string >( "sensitivity_function_name" );
             Sensitivity_Function tSensitivityFunction =
                     ( tSensitivityFunctionName.empty() ? nullptr : aLibrary->load_function< Sensitivity_Function >( tSensitivityFunctionName ) );
 
-            // Create user-defined geometry
-            return std::make_shared< User_Defined_Field >(
+            // Create user-defined field
+            tField = std::make_shared< User_Defined_Field >(
                     aLibrary->load_function< Field_Function >( aFieldParameterList.get< std::string >( "field_function_name" ) ),
                     tSensitivityFunction,
                     aADVs,
@@ -233,7 +236,7 @@ namespace moris::ge
         }
         else if ( tFieldType == "voxel" and aFieldDependencies( 0 ) )
         {
-            return std::make_shared< Single_Grain >(
+            tField = std::make_shared< Single_Grain >(
                     aFieldDependencies( 0 ),
                     aIndex );
         }
@@ -245,66 +248,29 @@ namespace moris::ge
             Matrix< DDRMat > tDomainOffset      = string_to_mat< DDRMat >( aFieldParameterList.get< std::string >( "domain_offset" ) );
             Matrix< DDRMat > tGrainIdToValueMap = string_to_mat< DDRMat >( aFieldParameterList.get< std::string >( "grain_id_value_map" ) );
 
-            return std::make_shared< Voxel_Input >(
+            tField = std::make_shared< Voxel_Input >(
                     tVoxelFieldName,
                     tDomainDimensions,
                     tDomainOffset,
                     tGrainIdToValueMap );
         }
-        else if ( tFieldType == "swiss_cheese_slice" )
+        else
         {
-            // Check for definition
-            uint tNumXHoles      = (uint)aFieldParameterList.get< sint >( "number_of_x_holes" );
-            uint tNumYHoles      = (uint)aFieldParameterList.get< sint >( "number_of_y_holes" );
-            real tTargetXSpacing = aFieldParameterList.get< real >( "target_x_spacing" );
-            real tTargetYSpacing = aFieldParameterList.get< real >( "target_y_spacing" );
+            MORIS_ERROR( false, "%s is not recognized as a valid field type in fn_GEN_create_field().", tFieldType.c_str() );
+            tField = nullptr;
+        }
 
-            MORIS_ERROR( ( tNumXHoles > 1 && tNumYHoles > 1 ) || ( tTargetXSpacing && tTargetYSpacing ),
-                    "In a swiss cheese parameter list, you must specify either a number of holes > 1 %s",
-                    "or a target spacing in each direction.\n" );
-
-            // FIXME re-enable swiss cheese from geometry side
-//            if ( tNumXHoles )
-//            {
-//                return std::make_shared< Swiss_Cheese_Slice >(
-//                        aFieldParameterList.get< real >( "left_bound" ),
-//                        aFieldParameterList.get< real >( "right_bound" ),
-//                        aFieldParameterList.get< real >( "bottom_bound" ),
-//                        aFieldParameterList.get< real >( "top_bound" ),
-//                        tNumXHoles,
-//                        tNumYHoles,
-//                        aFieldParameterList.get< real >( "hole_x_semidiameter" ),
-//                        aFieldParameterList.get< real >( "hole_y_semidiameter" ),
-//                        aFieldParameterList.get< real >( "superellipse_exponent" ),
-//                        aFieldParameterList.get< real >( "superellipse_scaling" ),
-//                        aFieldParameterList.get< real >( "superellipse_regularization" ),
-//                        aFieldParameterList.get< real >( "superellipse_shift" ),
-//                        aFieldParameterList.get< real >( "row_offset" ) );
-//            }
-//            else
-//            {
-//                return std::make_shared< Swiss_Cheese_Slice >(
-//                        aFieldParameterList.get< real >( "left_bound" ),
-//                        aFieldParameterList.get< real >( "right_bound" ),
-//                        aFieldParameterList.get< real >( "bottom_bound" ),
-//                        aFieldParameterList.get< real >( "top_bound" ),
-//                        tTargetXSpacing,
-//                        tTargetYSpacing,
-//                        aFieldParameterList.get< real >( "hole_x_semidiameter" ),
-//                        aFieldParameterList.get< real >( "hole_y_semidiameter" ),
-//                        aFieldParameterList.get< real >( "superellipse_exponent" ),
-//                        aFieldParameterList.get< real >( "superellipse_scaling" ),
-//                        aFieldParameterList.get< real >( "superellipse_regularization" ),
-//                        aFieldParameterList.get< real >( "superellipse_shift" ),
-//                        aFieldParameterList.get< real >( "row_offset" ),
-//                        aFieldParameterList.get< bool >( "allow_less_than_target_spacing" ) );
-//            }
-            return nullptr;
+        // Check for definition of array parameters
+        if ( aFieldParameterList.exists( "number_of_fields_x" ) )
+        {
+            Field_Array_Factory tFieldArrayFactory( aFieldParameterList );
+            return tFieldArrayFactory.create_field_array(
+                    tField,
+                    aFieldParameterList.get< bool >( "minimum" ) );
         }
         else
         {
-            MORIS_ERROR( false, "%s is not recognized as a valid Geometry type in fn_GEN_create_geometry.", tFieldType.c_str() );
-            return nullptr;
+            return tField;
         }
     }
 

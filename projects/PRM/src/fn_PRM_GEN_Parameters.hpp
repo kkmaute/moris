@@ -263,41 +263,41 @@ namespace moris::prm
     //------------------------------------------------------------------------------
 
     /**
-     * Creates a parameter list that will be used to create a swiss cheese slice. The parameters here are different
-     * than those of a typical geometry.
+     * Creates a parameter list that will be used to construct a field array.
      *
      * @return Swiss cheese slice parameter list
      */
     inline ParameterList
-    create_swiss_cheese_slice_parameter_list()
+    create_field_array_parameter_list()
     {
-        ParameterList tParameterList = create_level_set_geometry_parameter_list();
+        ParameterList tParameterList = create_level_set_geometry_parameter_list(); // TODO not tied to geometry
 
-        // Sets the type of the geometry
-        tParameterList.set( "field_type", "swiss_cheese_slice" );    // Type of geometry, do not change
+        // Lower and upper bounds on the array with respect to the reference coordinates of the field
+        tParameterList.insert( "lower_bound_x", 0.0 );
+        tParameterList.insert( "upper_bound_x", 0.0 );
+        tParameterList.insert( "lower_bound_y", 0.0 );
+        tParameterList.insert( "upper_bound_y", 0.0 );
+        tParameterList.insert( "lower_bound_z", 0.0 );
+        tParameterList.insert( "upper_bound_z", 0.0 );
 
-        // Must change
-        tParameterList.insert( "left_bound", 0.0 );             // Left-most hole center
-        tParameterList.insert( "right_bound", 0.0 );            // Right-most hole center
-        tParameterList.insert( "bottom_bound", 0.0 );           // Bottom-most hole center
-        tParameterList.insert( "top_bound", 0.0 );              // Top-most hole center
-        tParameterList.insert( "hole_x_semidiameter", 0.0 );    // Superellipse semi-diameter in the x direction
-        tParameterList.insert( "hole_y_semidiameter", 0.0 );    // Superellipse semi-diameter in the y direction
+        // Number of fields to create in each dimension.
+        // If any are equal to zero, GEN will create the maximum number of fields the minimum spacing will allow.
+        tParameterList.insert( "number_of_fields_x", 0 );
+        tParameterList.insert( "number_of_fields_y", 0 );
+        tParameterList.insert( "number_of_fields_z", 0 );
 
-        // One of two options for hole spacing
-        tParameterList.insert( "number_of_x_holes", 0 );     // Number of holes in the x direction
-        tParameterList.insert( "number_of_y_holes", 0 );     // Number of holes in the y direction
-        tParameterList.insert( "target_x_spacing", 0.0 );    // Targeted spacing between hole centers in the x direction
-        tParameterList.insert( "target_y_spacing", 0.0 );    // Targeted spacing between hole centers in the y direction
-        tParameterList.insert( "allow_less_than_target_spacing", true );
+        // Minimum spacing between reference coordinates of the field
+        tParameterList.insert( "minimum_spacing_x", 0.0 );
+        tParameterList.insert( "minimum_spacing_y", 0.0 );
+        tParameterList.insert( "minimum_spacing_z", 0.0 );
 
-        // Optional
-        tParameterList.insert( "superellipse_exponent", 2.0 );        // Superellipse exponent
-        tParameterList.insert( "superellipse_scaling", 1.0 );         // Superellipse scaling
-        tParameterList.insert( "superellipse_regularization", 1e-8 ); // Superellipse regularization
-        tParameterList.insert( "superellipse_shift", 1e-6 );          // Superellipse shift
-        tParameterList.insert( "row_offset", 0.0 );                   // Offset to be applied on subsequent rows
-        tParameterList.set( "discretization_mesh_index", -1 );        // Index of B-spline mesh to create level set field on (-1 = none)
+        // Amount that the reference points will be shifted over for each subsequent row in the specified direction.
+        tParameterList.insert( "offset_per_row_x", 0.0 );
+        tParameterList.insert( "offset_per_row_y", 0.0 );
+        tParameterList.insert( "offset_per_row_z", 0.0 );
+
+        // Whether to use the minimum value of all fields in the array or maximum
+        tParameterList.insert( "minimum", true );
 
         return tParameterList;
     }

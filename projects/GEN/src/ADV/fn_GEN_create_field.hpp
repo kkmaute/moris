@@ -10,10 +10,11 @@
 
 #pragma once
 
-#include "cl_GEN_Field.hpp"
+#include "cl_GEN_Field_Analytic.hpp"
 #include "cl_Param_List.hpp"
 #include "cl_MTK_Mesh_Core.hpp"
 #include "cl_Library_IO.hpp"
+#include "fn_PRM_GEN_Parameters.hpp"
 
 namespace moris::ge
 {

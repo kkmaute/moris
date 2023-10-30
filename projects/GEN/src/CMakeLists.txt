@@ -67,7 +67,7 @@ set(HEADERS
 	ADV/geometry/cl_GEN_Geometry_SDF.hpp
 	ADV/geometry/cl_GEN_Image_SDF_Geometry.hpp
 	ADV/geometry/cl_GEN_Combined_Fields.hpp
-	ADV/geometry/cl_GEN_Swiss_Cheese_Slice.hpp
+	ADV/geometry/cl_GEN_Field_Array_Factory.hpp
 
 	# ADV/property
 	ADV/property/cl_GEN_Property.hpp
@@ -121,7 +121,7 @@ set(LIB_SOURCES
 	ADV/geometry/cl_GEN_Geometry_SDF.cpp
 	ADV/geometry/cl_GEN_Image_SDF_Geometry.cpp
 	ADV/geometry/cl_GEN_Combined_Fields.cpp
-	ADV/geometry/cl_GEN_Swiss_Cheese_Slice.cpp
+	ADV/geometry/cl_GEN_Field_Array_Factory.cpp
 
 	# ADV/property
 	ADV/property/cl_GEN_Property.cpp
