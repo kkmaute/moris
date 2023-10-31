@@ -389,7 +389,7 @@ namespace moris
             // don't create a dummy lagrange mesh for the grid specified for decomposition
             if ( tPatternIndex != tGridIndexForDecomp )
             {
-                sLagrangeOrders += ",1";
+                sLagrangeOrders += "," + std::to_string( tMaxPolyOrder );
                 sLagrangePatterns += ( "," + std::to_string( tPatternIndex ) );
                 sLagrangeToBsplineAddOn += ";-1";
 
@@ -509,8 +509,8 @@ namespace moris
         tGenParamList( 1 ).resize( tNumGeometries );
 
         // get the intersection mode
-        bool tUseMultiLinearIntersections = false;
-        mXmlReader->get( aGenPath + ".UseMultiLinearIntersections", tUseMultiLinearIntersections, false );
+        bool tUseMultiLinearIntersections = true;
+        mXmlReader->get( aGenPath + ".UseMultiLinearIntersections", tUseMultiLinearIntersections, true );
 
         // get the number of geometric refinements around geometric boundaries
         moris_index tNumBoundaryRefinements = 0;
@@ -547,6 +547,7 @@ namespace moris
                 tGenParamList( 1 )( iGeom ).set( "refinement_mesh_index", mGenRefineMeshIndices );
                 tGenParamList( 1 )( iGeom ).set( "multilinear_intersections", tUseMultiLinearIntersections );
                 tGenParamList( 1 )( iGeom ).set( "discretization_mesh_index", -1 );
+
                 // -------------------------------- //
                 // PLANE
 
@@ -798,7 +799,7 @@ namespace moris
                 // initialize with the sdf field default parameter list
                 tGenParamList( 1 )( iGeom ) = prm::create_sdf_field_parameter_list();
                 tGenParamList( 1 )( iGeom ).set( "multilinear_intersections", tUseMultiLinearIntersections );
-                tGenParamList( 1 )( iGeom ).set( "discretization_mesh_index", -1 );
+                // tGenParamList( 1 )( iGeom ).set( "discretization_mesh_index", -1 );
 
                 // FIXME: this functionality needs to get added
                 // tGenParamList( 1 )( iGeom ).set( "number_of_refinements", mGenNumRefinements );
