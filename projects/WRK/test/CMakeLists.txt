@@ -12,6 +12,7 @@
 set(TEST_SOURCES 
     test_main.cpp
     UT_WRK_Workflow.cpp
+    UT_WRK_Morph_Workflow.cpp
     UT_WRK_Remeshing_Mini_Performer.cpp )
 
 # List test dependencies
