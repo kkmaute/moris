@@ -33,6 +33,6 @@ if(NOT TARGET ${MORIS}::snopt)
 	_import_libraries(SNOPT_LIBRARY_TARGETS ${SNOPT_LIBRARIES})
 
 	add_library(${MORIS}::snopt INTERFACE IMPORTED GLOBAL)
-	target_link_libraries(${MORIS}::snopt INTERFACE ${SNOPT_LIBRARY_TARGETS})
+	target_link_libraries(${MORIS}::snopt INTERFACE ${SNOPT_LIBRARY_TARGETS} ${MORIS_LIB_GFortran} )
 endif()
 
