@@ -38,16 +38,16 @@ outputbase="output_file_name";
 rangle=0;
 
 % buffer size with user-defined or additional phase
-bsize=5;
+bsize=0;
 
 % smoothing factor
-blur=15;
+blur=0;
 
 % number of processors moris will be executed on
-nproc=16;
+nproc=1;
 
 % scaling factor for the resulting image SDF
-SDF_scale = -1.0;
+SDF_scale = 1.0;
 
 %==========================================================================
 % no need to edit code below
@@ -56,7 +56,7 @@ clc;
 delete(sprintf("%s_*.hdf5",outputbase));
 
 % process image
-image=SDF_scale*procimage(fname,rangle,blur,bsize);
+image=-SDF_scale*procimage(fname,rangle,blur,bsize);
 
 % save to hdf5
 savetohdf5(image,outputbase,nproc);
