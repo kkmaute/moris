@@ -12,8 +12,8 @@
 # The extension 'a' is added for a static library.
 # Result is 'Linking CXX static library libmoris.a'.
 
-# Require CMake 3.1
-cmake_minimum_required(VERSION 3.3.2)
+# Require CMake 3.17
+cmake_minimum_required(VERSION 3.17)
 
 # Guard against in-source builds
 if(${CMAKE_SOURCE_DIR} STREQUAL ${CMAKE_BINARY_DIR})
@@ -371,7 +371,8 @@ include(CheckCXXCompilerFlag)
 # note: should be done similar to find_modules find_library
 
 # generate search path from LD_LIBRARY_PATH
-string(REPLACE ":" ";" LIB_SEARCH_PATH "$ENV{LD_LIBRARY_PATH}")
+string(CONCAT LIB_SEARCH_PATH "$ENV{LD_LIBRARY_PATH}" ":" "$ENV{SPACK_LINK_DIRS}")
+string(REPLACE ":" ";" LIB_SEARCH_PATH ${LIB_SEARCH_PATH})
 list(REMOVE_DUPLICATES LIB_SEARCH_PATH)
 message(STATUS "Library search path: ${LIB_SEARCH_PATH}")
 
