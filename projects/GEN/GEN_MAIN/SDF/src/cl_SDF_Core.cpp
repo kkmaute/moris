@@ -16,6 +16,7 @@
 #include "cl_SDF_Core.hpp"
 #include "fn_sort.hpp"
 #include "fn_print.hpp"
+#include "cl_Tracer.hpp"
 
 namespace moris
 {
@@ -124,9 +125,12 @@ namespace moris
         void
         Core::raycast_mesh()
         {
+            // trace this function
+            Tracer tTracer( "SDF", "Generator", "Raycast" );
+
             // create raycaster
             Raycast tRaycaster( mObject );
-            
+
             // set unsure flag of all nodes to true
             uint tNumberOfNodes = mMesh.get_num_nodes();
 
@@ -137,7 +141,7 @@ namespace moris
             mData.mUnsureNodesCount = tNumberOfNodes;
 
             for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; ++iNodeIndex )
-            {   
+            {
                 if ( mMesh.get_vertex( iNodeIndex )->is_flagged() )
                 {
                     // get node coordinate
@@ -151,10 +155,14 @@ namespace moris
                         case 0:
                         {
                             mMesh.get_vertex( iNodeIndex )->unset_inside_flag();
+                            mMesh.get_vertex( iNodeIndex )->unflag();
+                            break;
                         }
                         case 1:
                         {
                             mMesh.get_vertex( iNodeIndex )->set_inside_flag();
+                            mMesh.get_vertex( iNodeIndex )->unflag();
+                            break;
                         }
                         case 2:
                         {
@@ -163,7 +171,7 @@ namespace moris
                         }
                         default:
                         {
-                            mMesh.get_vertex( iNodeIndex )->unflag();
+                            MORIS_ERROR( false, "SDF_Core - raycast_mesh(): Unexpected inside condition returned from Raycast class. Inside condition = %u, should be [0,2]", tRaycaster.is_point_inside() );
                         }
                     }
                 }
@@ -171,104 +179,21 @@ namespace moris
 
             this->calculate_candidate_points_and_buffer_diagonal();
 
-            // loop through all the nodes and cast
-            
+            // if ( mVerbose )
+            // {
+            //     // stop the timer
+            //     real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
 
-            /*tic tTimer;
-
-            // set unsure flag of all nodes to true
-            uint tNumberOfNodes = mMesh.get_num_nodes();
-
-            for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; ++iNodeIndex )
-            {
-                mMesh.get_vertex( iNodeIndex )->reset();
-            }
-            mData.mUnsureNodesCount = tNumberOfNodes;
-
-            // flag that marks if rotation was called
-            bool tRotation = false;
-
-            switch ( mData.mDimension )
-            {
-                case 2:
-                {
-                    while ( mData.mUnsureNodesCount > 0 )
-                    {
-                        // perform voxelizing algorithm in z-direction
-                        voxelize_2D( 1 );
-                        if ( mData.mUnsureNodesCount > 0 )
-                        {
-                            // perform voxelizing algorithm in y-direction
-                            voxelize_2D( 0 );
-                        }
-
-                        if ( mData.mUnsureNodesCount > 0 )
-                        {
-                            tRotation = true;
-
-                            this->random_rotation();
-                        }
-                    }
-                    break;
-                }
-                case 3:
-                {
-                    while ( mData.mUnsureNodesCount > 0 )
-                    {
-                        // perform voxelizing algorithm in z-direction
-                        voxelize_3D( 2 );
-                        if ( mData.mUnsureNodesCount > 0 )
-                        {
-                            // perform voxelizing algorithm in y-direction
-                            voxelize_3D( 1 );
-                            if ( mData.mUnsureNodesCount > 0 )
-                            {
-                                // perform voxelizing algorithm in x-direction
-                                voxelize_3D( 0 );
-                            }
-                        }
-
-                        if ( mData.mUnsureNodesCount > 0 )
-                        {
-                            tRotation = true;
-
-                            this->random_rotation();
-                        }
-                    }
-                    break;
-                }
-                default:
-                {
-                    MORIS_ERROR( false, "SDF_Core::calculate_raycast() functionality not implemented for %dD problems.", mData.mDimension );
-                }
-            }
-
-            if ( tRotation )
-            {
-                this->undo_rotation();
-            }
-
-            // remaining nodes are pushed outside
-            this->force_unsure_nodes_outside();
-
-            // identify elements in surface, volume and candidates
-            this->calculate_candidate_points_and_buffer_diagonal();
-
-            if ( mVerbose )
-            {
-                // stop the timer
-                real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-
-                // print elapsed time
-                if ( par_size() == 1 )
-                {
-                    std::fprintf( stdout, "Time for ray cast              : %5.3f [sec]\n", tElapsedTime / 1000.0 );
-                }
-                else
-                {
-                    std::fprintf( stdout, "Proc % i - Time for ray cast              : %5.3f [sec]\n", (int)par_rank(), tElapsedTime / 1000.0 );
-                }
-            }*/
+            //     // print elapsed time
+            //     if ( par_size() == 1 )
+            //     {
+            //         std::fprintf( stdout, "Time for ray cast              : %5.3f [sec]\n", tElapsedTime / 1000.0 );
+            //     }
+            //     else
+            //     {
+            //         std::fprintf( stdout, "Proc % i - Time for ray cast              : %5.3f [sec]\n", (int)par_rank(), tElapsedTime / 1000.0 );
+            //     }
+            // }
         }
 
         //-------------------------------------------------------------------------------
@@ -306,59 +231,6 @@ namespace moris
 
         //-------------------------------------------------------------------------------
 
-        void
-        Core::voxelize_3D( const uint aAxis )
-        {
-           /*
-            // reset unsure nodes counter
-            mData.mUnsureNodesCount = 0;
-
-            // get number of unsure nodes
-            uint tNumberOfNodes = mMesh.get_num_nodes();
-
-            // This loop is currently unnecessary, but may be needed if problems arise
-            
-            for( Facet* tFacet : mData.mFacets )
-            {
-                tFacet->unflag();
-            }
-            
-
-            // loop over all nodes
-            for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; ++iNodeIndex )
-            {   
-                if ( mMesh.get_vertex( iNodeIndex )->is_flagged() )
-                {
-                    // get node coordinate
-                    const Matrix< DDRMat >& tPoint = mMesh.get_node_coordinate( iNodeIndex );
-
-                    // preselect triangles for intersection test
-                    if ( aAxis == 0 )
-                        this->preselect_triangles_x( tPoint );
-                    else if ( aAxis == 1 )
-                        this->preselect_triangles_y( tPoint );
-                    else
-                        this->preselect_triangles_z( tPoint );
-
-                    // from the candidate triangles, perform intersection
-                    if ( mData.mCandidateFacets.size() > 0 )
-                    {
-                        this->intersect_triangles( aAxis, tPoint );
-
-                        // intersect ray with triangles and check if node is inside
-                        if ( mData.mIntersectedFacets.size() > 0 )
-                        {
-                            this->intersect_ray_with_facets( aAxis, tPoint );
-
-                            this->check_if_node_is_inside_triangles( aAxis, iNodeIndex );
-                        }
-                    }
-                }
-            }
-            */
-        }
-
-        //-------------------------------------------------------------------------------
         void
         Core::calculate_udf( moris::Cell< Vertex* >& aCandidateList )
         {
@@ -445,6 +317,20 @@ namespace moris
 
                 // get first sign
                 bool tIsInside = tNodes( 0 )->is_inside();
+
+
+                // if( e == 73 )
+                // {
+                for ( uint i = 0; i < tNumberOfNodes; i++ )
+                {
+                    // std::cout << "node index for element 73 " << tNodes( i )->get_index() << std::endl;
+                    std::cout << "node " << tNodes( i )->get_index() << " is inside? " << tNodes( i )->is_inside() << std::endl;
+                    if ( tNodes( i )->get_index() == 0 )
+                    {
+                        std::cout << "node 0 inside? " << tNodes( i )->is_inside() << std::endl;
+                    }
+                }
+                // }
 
                 // assume element is not intersected
                 bool tIsIntersected = false;

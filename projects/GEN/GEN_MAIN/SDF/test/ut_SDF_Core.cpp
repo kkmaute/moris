@@ -91,8 +91,10 @@ TEST_CASE(
                         tElementsAtSurface,
                         tElementsInVolume );
 
-                REQUIRE( all_true( tElementsAtSurface == tElementsAtSurfaceExpect ) );
-                REQUIRE( all_true( tElementsInVolume == tElementsInVolumeExpect ) );
+                REQUIRE( tElementsAtSurface.numel() == 66 );
+                REQUIRE( tElementsInVolume.numel() == 2 );
+                CHECK( all_true( tElementsAtSurface == tElementsAtSurfaceExpect ) );
+                CHECK( all_true( tElementsInVolume == tElementsInVolumeExpect ) );
             }
 
             // tidy up

@@ -123,6 +123,55 @@ TEST_CASE(
             tRaycaster.raycast_point( tTestPoint );
 
             CHECK( tRaycaster.is_point_inside() == tPointIsInsideExpected );
+
+            // repeat test for point that is outside
+            tTestPoint = {
+                { 0.2 },
+                { 0.6 },
+                { 0.7 }
+            };
+            tRaycaster.set_point( tTestPoint );
+
+            tRaycaster.preselect_triangles_z();
+
+            REQUIRE( tRaycaster.get_candidate_facets().size() == 0 );
+
+            tRaycaster.preselect_triangles_x();
+            tCandidatesExpected = { 0, 1, 2 };
+            tCandidateTriangles = tRaycaster.get_candidate_facets();
+
+            REQUIRE( tRaycaster.get_candidate_facets().size() == 3 );
+            CHECK( tCandidateTriangles( 0 ) == tCandidatesExpected( 0 ) );
+            CHECK( tCandidateTriangles( 1 ) == tCandidatesExpected( 1 ) );
+            CHECK( tCandidateTriangles( 2 ) == tCandidatesExpected( 2 ) );
+
+            tRaycaster.intersect_triangles( 0 );
+            tIntersectedTriangles           = tRaycaster.get_intersected_facets();
+            tIntersectedFacetsExpected( 0 ) = tFacets( 1 );
+            tIntersectedFacetsExpected( 1 ) = tFacets( 2 );
+
+            REQUIRE( tIntersectedTriangles.size() == 2 );
+            CHECK( tIntersectedTriangles( 0 ) == tIntersectedFacetsExpected( 0 ) );
+            CHECK( tIntersectedTriangles( 1 ) == tIntersectedFacetsExpected( 1 ) );
+
+            // although two facets are intersected, one of them should produce an error and be removed
+            tRaycaster.intersect_ray_with_facets( 0 );
+            tIntersectionCoordinatesExpected = { 0.715517872727636, 1.284482127272365 };
+            tIntersectionCoordinates = tRaycaster.get_intersection_coordinates();
+
+            REQUIRE( tIntersectionCoordinates.size() == 2 );
+            CHECK( tIntersectionCoordinates( 0 ) - tIntersectionCoordinatesExpected( 0 ) < sdf::gSDFepsilon );
+            CHECK( tIntersectionCoordinates( 1 ) - tIntersectionCoordinatesExpected( 1 ) < sdf::gSDFepsilon );
+
+
+            tRaycaster.check_if_node_is_inside_triangles( 0 );
+            tPointIsInsideExpected = 0;
+
+            CHECK( tRaycaster.is_point_inside() == tPointIsInsideExpected );
+
+            tRaycaster.raycast_point( tTestPoint );
+            
+            CHECK( tRaycaster.is_point_inside() == tPointIsInsideExpected );
         }
         SECTION( "2D SDF Raycast Test" )
         {
