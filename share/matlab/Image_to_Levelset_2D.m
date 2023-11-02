@@ -26,10 +26,10 @@ close all
 clear all
 
 % image file name
-fname="oscillatorForKurt2_Trimmed.bmp";
+fname="input_image_file.png";
 
-% background mesh file name (base)
-outputbase="Oscillator_real.HMR";
+% background mesh file name (without file ending)
+outputbase="output_file_name";
 
 % rotation angle in degrees
 rangle=-90;
@@ -43,12 +43,15 @@ blur=0;
 % number of processors moris will be executed on
 nproc=16;
 
+% scaling factor for the resulting image SDF
+SDF_scale = -1.0;
+
 %==========================================================================
 % no need to edit code below
 clc;
 
 % process image
-image=procimage(fname,rangle,blur,bsize);
+image=SDF_scale*procimage(fname,rangle,blur,bsize);
 
 % save to hdf5
 savetohdf5(image,outputbase,nproc);

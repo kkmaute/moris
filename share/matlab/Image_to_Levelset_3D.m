@@ -28,11 +28,11 @@ function Image_to_Levelset_3D
 close all
 clear all
 
-% image file name (only base name)
-fname="Cuboid";
+% image file name
+fname="input_image_file.png";
 
-% background mesh file name (base)
-outputbase="Cuboid.HMR";
+% background mesh file name (without file ending)
+outputbase="output_file_name";
 
 % rotation angle in degrees
 rangle=0;
@@ -46,6 +46,9 @@ blur=15;
 % number of processors moris will be executed on
 nproc=16;
 
+% scaling factor for the resulting image SDF
+SDF_scale = -1.0;
+
 %==========================================================================
 % no need to edit code below
 clc;
@@ -53,7 +56,7 @@ clc;
 delete(sprintf("%s_*.hdf5",outputbase));
 
 % process image
-image=procimage(fname,rangle,blur,bsize);
+image=SDF_scale*procimage(fname,rangle,blur,bsize);
 
 % save to hdf5
 savetohdf5(image,outputbase,nproc);

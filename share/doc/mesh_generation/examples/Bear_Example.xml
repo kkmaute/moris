@@ -13,8 +13,6 @@
             <ImageDimensions>8.80,5.28</ImageDimensions>
             <ImageOrigin>0.0,0.0</ImageOrigin>
         </Geometry>
-        
-        <UseMultiLinearIntersections>true</UseMultiLinearIntersections>
 
     </Geometries>
     
