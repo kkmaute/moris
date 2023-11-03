@@ -32,9 +32,64 @@
 #include "cl_WRK_Performer_Manager.hpp"
 #include "cl_MTK_Integration_Mesh_STK.hpp"
 #include "cl_MTK_Interpolation_Mesh_STK.hpp"
+#include <cl_XTK_Enriched_Integration_Mesh.hpp>
 
 namespace MorphTestWRK
 {
+
+
+struct InputParameters
+{
+  bool mVerbose = false;
+  std::string mWorkflow = "";
+  moris::Cell< moris::Cell< moris::ParameterList > > mXTKParameters;
+  moris::Cell< moris::Cell< moris::ParameterList > > mSTKParameters;
+  moris::Cell< moris::Cell< moris::ParameterList > > mHMRParameters;
+  moris::Cell< moris::Cell< moris::ParameterList > > mGENParameters;
+};
+
+struct Performers
+{
+  std::shared_ptr< moris::hmr::HMR >            mCurrentHMR;
+  std::shared_ptr< moris::ge::Geometry_Engine > mCurrentGEN;
+  std::shared_ptr< mtk::Mesh_Manager >          mCurrentBGMTK;
+  std::shared_ptr< mtk::Mesh_Manager >          mCurrentOutputMTK;
+  std::shared_ptr< xtk::Model >                 mCurrentXTK;
+  std::shared_ptr<mtk::Interpolation_Mesh_STK>  mSTKIpMesh;
+  std::shared_ptr<mtk::Integration_Mesh_STK>    mSTKIgMesh;
+};
+
+struct MetaDataXTK
+{
+  // phase table member data
+  int mNumPhases;
+  int mDefaultPhase;
+
+  // input parameters
+  moris::uint mStep = 0;
+
+  /// @brief output mesh index
+  uint mOutputMeshIndex;
+
+  // Cell Mesh Fields
+  moris::Cell<moris::Matrix<DDRMat>> mCriteriaSensitivity;
+  moris::Cell<std::string> mCriteriaSensitivityFieldName;
+
+  // seeded field data
+  std::string                  mOutputSeededMeshFile;
+  bool                         mSeeded = false;
+  std::string                  mSeededOpName;
+  moris::Matrix<moris::DDRMat> mSeededField;
+
+  // fixed design variables
+  moris::Matrix<moris::IndexMat> mFixedBGNodesGD;
+
+  // Fields on Cut Mesh
+  std::vector<std::string> mNodeFieldsOnCutMesh;
+
+  // Fields on BG Mesh
+  std::vector<std::string> mNodeFieldsOnBGMesh;
+};
 
 void 
 setWorkFlowParams(
@@ -79,27 +134,24 @@ setFixedBlockParams(
 
 void 
 setParamsXTK(
-  const std::string                                  & aWorkflowType,
-  moris::Cell< moris::Cell< moris::ParameterList > > & aXTKParameters,
-  bool aVerbose = false
+  MorphTestWRK::InputParameters & InputParameters
 )
 {
-  aXTKParameters(0)(0).set("verbose", aVerbose);
-  MorphTestWRK::setWorkFlowParams(aWorkflowType,aXTKParameters);
-
-  aXTKParameters(0)(0).set("output_file", "ut_xtk_bolted_bracket_mod.exo");
-  aXTKParameters(0)(0).set("output_path", "./");
-  aXTKParameters(0)(0).set("union_blocks", "block_1_n_p1,block_1_c_p1,block_2_n_p1,block_2_c_p1;block_1_n_p0,block_1_c_p0,block_2_n_p0,block_2_c_p0");
-  aXTKParameters(0)(0).set("union_block_names", "block_1;block_2");
-  aXTKParameters(0)(0).set("union_block_colors", "1;1");
-  aXTKParameters(0)(0).set("union_side_sets", "ss_1_n_p1,ss_1_c_p1;ss_2_n_p1,ss_2_c_p1");
-  aXTKParameters(0)(0).set("union_side_set_names", "ss_1;ss_2");
-  aXTKParameters(0)(0).set("union_side_set_colors", "1;1");
-  aXTKParameters(0)(0).set("deactivate_all_but_blocks", "block_1,block_2");
-  aXTKParameters(0)(0).set("deactivate_all_but_side_sets", "ss_1,ss_2");
-  aXTKParameters(0)(0).set("decompose", true);
-  aXTKParameters(0)(0).set("decomposition_type", "conformal");
-  aXTKParameters(0)(0).set("enrich", true);
+  InputParameters.mXTKParameters(0)(0).set("verbose", InputParameters.mVerbose);
+  MorphTestWRK::setWorkFlowParams(InputParameters.mWorkflow,InputParameters.mXTKParameters);
+  InputParameters.mXTKParameters(0)(0).set("output_file", "ut_xtk_bolted_bracket_mod.exo");
+  InputParameters.mXTKParameters(0)(0).set("output_path", "./");
+  InputParameters.mXTKParameters(0)(0).set("union_blocks", "block_1_n_p1,block_1_c_p1,block_2_n_p1,block_2_c_p1;block_1_n_p0,block_1_c_p0,block_2_n_p0,block_2_c_p0");
+  InputParameters.mXTKParameters(0)(0).set("union_block_names", "block_1;block_2");
+  InputParameters.mXTKParameters(0)(0).set("union_block_colors", "1;1");
+  InputParameters.mXTKParameters(0)(0).set("union_side_sets", "ss_1_n_p1,ss_1_c_p1;ss_2_n_p1,ss_2_c_p1");
+  InputParameters.mXTKParameters(0)(0).set("union_side_set_names", "ss_1;ss_2");
+  InputParameters.mXTKParameters(0)(0).set("union_side_set_colors", "1;1");
+  InputParameters.mXTKParameters(0)(0).set("deactivate_all_but_blocks", "block_1,block_2");
+  InputParameters.mXTKParameters(0)(0).set("deactivate_all_but_side_sets", "ss_1,ss_2");
+  InputParameters.mXTKParameters(0)(0).set("decompose", true);
+  InputParameters.mXTKParameters(0)(0).set("decomposition_type", "conformal");
+  InputParameters.mXTKParameters(0)(0).set("enrich", true);
 }
 
 void 
@@ -252,21 +304,166 @@ setParamsGEN(
   }
 }
 
-std::shared_ptr< moris::mtk::Mesh_Manager > 
-registerBackGroundMeshPair(
-   moris::Cell< moris::Cell< moris::ParameterList > > & aSTKParameters
+void
+createParamListXTK(
+  moris::Cell< moris::Cell< moris::ParameterList > > & aXTKParameters
 )
 {
-  // create background mesh metadata manager
+  aXTKParameters.resize(1);
+  aXTKParameters(0).resize(1);
+  aXTKParameters(0)(0) = moris::prm::create_xtk_parameter_list();  
+}
+
+void
+createParamListSTK(
+  moris::Cell< moris::Cell< moris::ParameterList > > & aSTKParameters
+)
+{
+  aSTKParameters.resize(1);
+  aSTKParameters(0).resize(1);
+  aSTKParameters(0)(0) = moris::prm::create_stk_parameter_list();
+}
+
+void
+createParamListHMR(
+  moris::Cell< moris::Cell< moris::ParameterList > > & aHMRParameters
+)
+{
+  aHMRParameters.resize(1);
+  aHMRParameters(0).resize(1);
+  aHMRParameters(0)(0) = moris::prm::create_hmr_parameter_list();
+}
+
+void
+createParamListGEN(
+  moris::Cell< moris::Cell< moris::ParameterList > > & aGENParameters
+)
+{
+  aGENParameters.resize(3);
+  aGENParameters(0).resize(1);
+  aGENParameters(0)(0) = moris::prm::create_gen_parameter_list();
+}
+
+void 
+setParamLists(
+  MorphTestWRK::InputParameters & aInputParameterLists
+)
+{
+  MorphTestWRK::createParamListXTK(aInputParameterLists.mXTKParameters);
+  MorphTestWRK::createParamListSTK(aInputParameterLists.mSTKParameters);
+  MorphTestWRK::createParamListHMR(aInputParameterLists.mHMRParameters);
+  MorphTestWRK::createParamListGEN(aInputParameterLists.mGENParameters);
+}
+
+void 
+initializeBackgroundMesh(
+  const MorphTestWRK::InputParameters & aInputParameters,
+        MorphTestWRK::Performers      & aPerformers
+)
+{
+  if( aInputParameters.mWorkflow == "HMR" ) {
+    // Set performer to HMR
+    aPerformers.mCurrentHMR->set_performer(aPerformers.mCurrentBGMTK);
+    // uniform initial refinement
+    aPerformers.mCurrentHMR->perform_initial_refinement();
+    // HMR finalize
+    aPerformers.mCurrentHMR->perform();
+  }
+  else if( aInputParameters.mWorkflow == "STK" ) {
+    // construct the stk
+    auto tMeshFile = aInputParameters.mSTKParameters(0)(0).get<std::string>("input_file");
+    aPerformers.mSTKIpMesh = std::make_shared<mtk::Interpolation_Mesh_STK>(tMeshFile, nullptr);
+    aPerformers.mSTKIgMesh = std::make_shared<mtk::Integration_Mesh_STK>(*aPerformers.mSTKIpMesh, nullptr);
+    aPerformers.mCurrentBGMTK->register_mesh_pair(aPerformers.mSTKIpMesh.get(), aPerformers.mSTKIgMesh.get());
+  }
+  else {
+    MORIS_ERROR(0, "Invalid workflow type: STK or HMR");
+  }
+}
+
+void 
+generateModel(
+  const MorphTestWRK::InputParameters & tInputParameters,
+        MorphTestWRK::Performers      & aPerformers
+)
+{
+  // initialize the background mesh
   //
-  std::shared_ptr< moris::mtk::Mesh_Manager > tCurrentBGMTK = 
-    std::make_shared< moris::mtk::Mesh_Manager >();
-  // construct the stk
-  std::string tMeshFile = aSTKParameters(0)(0).get<std::string>("input_file");
-  auto tSTKIpMesh = std::make_shared<moris::mtk::Interpolation_Mesh_STK>( tMeshFile, nullptr );
-  auto tSTKIgMesh = std::make_shared<moris::mtk::Integration_Mesh_STK> ( *tSTKIpMesh.get(), nullptr );
-  tCurrentBGMTK->register_mesh_pair(tSTKIpMesh.get(),tSTKIgMesh.get());
-  return tCurrentBGMTK;
+  MorphTestWRK::initializeBackgroundMesh(tInputParameters, aPerformers);
+  // initialize geometry engine
+  //
+  aPerformers.mCurrentGEN = 
+    std::make_shared< moris::ge::Geometry_Engine >( tInputParameters.mGENParameters, nullptr );
+  // distribute advs 
+  //
+  aPerformers.mCurrentGEN->distribute_advs( 
+    aPerformers.mCurrentBGMTK->get_mesh_pair( 0 ),{}, moris::mtk::EntityRank::NODE);
+}
+
+void 
+regenerateModel(
+  MorphTestWRK::MetaDataXTK & aMetaDataXTK,
+  MorphTestWRK::Performers  & aPerformers
+)
+{
+  // add criteria sensitivity fields to mesh (for visualization)
+  //
+  xtk::Enriched_Integration_Mesh & tEnrIGMesh = aPerformers.mCurrentXTK->get_enriched_integ_mesh(0);
+  size_t tNumPDVs = aMetaDataXTK.mCriteriaSensitivity.size();
+  for(size_t tIndex = 0; tIndex < tNumPDVs; tIndex++) {
+    moris::moris_index tFieldIndex = 
+      tEnrIGMesh.create_field(aMetaDataXTK.mCriteriaSensitivityFieldName(tIndex),moris::mtk::EntityRank::NODE);
+    tEnrIGMesh.add_field_data(tFieldIndex,moris::mtk::EntityRank::NODE,aMetaDataXTK.mCriteriaSensitivity(tIndex));
+  }
+  // write the mesh 
+  //
+  moris::mtk::Writer_Exodus tWriter( aPerformers.mCurrentOutputMTK->get_integration_mesh(0) );
+  std::string tOptIterStrg = std::to_string(aMetaDataXTK.mOutputMeshIndex);
+  std::string tTempFile = "./xtk_temp2." + std::to_string( aMetaDataXTK.mOutputMeshIndex ) + ".exo";
+  std::string tMeshFile = "./xtk_evolve.e-s." + std::string(4-tOptIterStrg.length(),'0') + tOptIterStrg;
+  tWriter.write_mesh( /*path=*/"", tMeshFile, /*path=*/"", tTempFile);
+  tWriter.set_time(aMetaDataXTK.mOutputMeshIndex);
+  // write sensitivities to output mesh
+  //
+  tWriter.set_nodal_fields( aMetaDataXTK.mCriteriaSensitivityFieldName );
+  for(size_t tIndex = 0; tIndex < tNumPDVs; tIndex++)
+  {
+    if(aMetaDataXTK.mCriteriaSensitivity(tIndex).numel() > 0)
+    {
+      tWriter.write_nodal_field(
+        aMetaDataXTK.mCriteriaSensitivityFieldName(tIndex), aMetaDataXTK.mCriteriaSensitivity(tIndex)
+      );
+    }
+  }
+  aMetaDataXTK.mOutputMeshIndex++;
+  tWriter.close_file();  
+}
+
+void 
+initializeAppXTK(
+  const MorphTestWRK::InputParameters & aInputParameters,
+        MorphTestWRK::Performers      & aPerformers
+)
+{
+  // initialize xtk app
+  //
+  aPerformers.mCurrentOutputMTK = std::make_shared< moris::mtk::Mesh_Manager >();
+  aPerformers.mCurrentXTK = std::make_shared< xtk::Model >( aInputParameters.mXTKParameters( 0 )( 0 ) );
+  // set XTK Cooperations
+  //
+  aPerformers.mCurrentXTK->set_geometry_engine(  aPerformers.mCurrentGEN.get() );
+  aPerformers.mCurrentXTK->set_input_performer(  aPerformers.mCurrentBGMTK );
+  aPerformers.mCurrentXTK->set_output_performer( aPerformers.mCurrentOutputMTK ); 
+  // set gen mesh metadata
+  //
+  aPerformers.mCurrentGEN->output_fields( aPerformers.mCurrentBGMTK->get_interpolation_mesh( 0 ) );
+  aPerformers.mCurrentGEN->reset_mesh_information( aPerformers.mCurrentBGMTK->get_interpolation_mesh(0) );
+  // XTK perform - decompose - enrich - ghost - multigrid
+  //
+  aPerformers.mCurrentXTK->perform();
+  // Assign PDVs
+  //
+  aPerformers.mCurrentGEN->create_pdvs( aPerformers.mCurrentOutputMTK->get_mesh_pair(0) );
 }
 
 // ##########
@@ -275,19 +472,19 @@ registerBackGroundMeshPair(
 
 TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_parse_params_test]" )
 {
-  moris::Cell< moris::Cell< moris::ParameterList > > tXTKParameters;
-  tXTKParameters.resize(1);
-  tXTKParameters(0).resize(1);
-  tXTKParameters(0)(0) = moris::prm::create_xtk_parameter_list();
+  // create xtk parameter list
+  //
+  MorphTestWRK::InputParameters tInputParameters;
+  MorphTestWRK::createParamListXTK(tInputParameters.mXTKParameters);
   // set xtk params
   //
-  auto tVerbose = true;
-  auto tWorkflow = std::string("STK");
-  MorphTestWRK::setParamsXTK(tWorkflow,tXTKParameters,tVerbose);
+  tInputParameters.mVerbose = true;
+  tInputParameters.mWorkflow = std::string("STK");
+  MorphTestWRK::setParamsXTK(tInputParameters);
   // print to console
   //
-  if (tVerbose) {
-    moris::prm::print(tXTKParameters(0)(0));
+  if (tInputParameters.mVerbose) {
+    moris::prm::print(tInputParameters.mXTKParameters(0)(0));
   }
 }
 
@@ -296,9 +493,7 @@ TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_stk_parse_params_test]" )
   // parse workflow params
   //
   moris::Cell< moris::Cell< moris::ParameterList > > tSTKParameters;
-  tSTKParameters.resize(1);
-  tSTKParameters(0).resize(1);
-  tSTKParameters(0)(0) = moris::prm::create_stk_parameter_list();
+  MorphTestWRK::createParamListSTK(tSTKParameters);
   MorphTestWRK::setParamsSTK(tSTKParameters);
 }
 
@@ -307,9 +502,7 @@ TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_hmr_parse_params_test]" )
   // parse workflow params
   //
   moris::Cell< moris::Cell< moris::ParameterList > > tHMRParameters;
-  tHMRParameters.resize(1);
-  tHMRParameters(0).resize(1);
-  tHMRParameters(0)(0) = moris::prm::create_hmr_parameter_list();
+  MorphTestWRK::createParamListHMR(tHMRParameters);
   MorphTestWRK::setParamsHMR(tHMRParameters);
   // print to console
   //
@@ -324,103 +517,89 @@ TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_parse_gen_params_test]" )
   // parse geometry params
   //
   moris::Cell< moris::Cell< moris::ParameterList > > tGENParameters;
-  tGENParameters.resize(3);
-  tGENParameters(0).resize(1);
-  tGENParameters(0)(0) = moris::prm::create_gen_parameter_list();
+  MorphTestWRK::createParamListGEN(tGENParameters);
   MorphTestWRK::setParamsGEN(tGENParameters);
 }
 
 TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_initialize_hmr_params_test]" )
 {
+  // set parameters
+  //
+  MorphTestWRK::InputParameters tInputParameters;
+  tInputParameters.mWorkflow = "HMR";
+  MorphTestWRK::setParamLists(tInputParameters);
   // initialize the background mesh
-  // this happens here so we can export the scalar field data map
-  std::shared_ptr< moris::hmr::HMR > tCurrentHMR;
-  auto aCurrentBGMTK = std::make_shared<moris::mtk::Mesh_Manager>();
-  // Set performer to HMR
-  tCurrentHMR->set_performer(aCurrentBGMTK);
-  // uniform initial refinement
-  tCurrentHMR->perform_initial_refinement();
-  // HMR finalize
-  tCurrentHMR->perform();
+  //
+  MorphTestWRK::Performers tPerformers;
+  MorphTestWRK::initializeBackgroundMesh(tInputParameters, tPerformers);
 }
 
 TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_initialize_stk_params_test]" )
 {
-  // parse parameters
+  // set parameters
   //
-  moris::Cell< moris::Cell< moris::ParameterList > > tSTKParameters;
-  tSTKParameters.resize(1);
-  tSTKParameters(0).resize(1);
-  tSTKParameters(0)(0) = moris::prm::create_stk_parameter_list();
-  MorphTestWRK::setParamsSTK(tSTKParameters);
-  // construct stk workflow
+  MorphTestWRK::InputParameters tInputParameters;
+  tInputParameters.mWorkflow = "STK";
+  MorphTestWRK::setParamLists(tInputParameters);
+  // initialize the background mesh
   //
-  std::shared_ptr< moris::mtk::Mesh_Manager > tCurrentBGMTK = 
-    MorphTestWRK::registerBackGroundMeshPair(tSTKParameters);
+  MorphTestWRK::Performers tPerformers;
+  MorphTestWRK::initializeBackgroundMesh(tInputParameters, tPerformers);
 }
 
-TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_generate_model_operation_stk_not_initialize]" )
+TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_generate_model_operation_stk]" )
 {
-  // Set STK parameters
+  // set parameters
   //
-  moris::Cell< moris::Cell< moris::ParameterList > > tSTKParameters;
-  tSTKParameters.resize(1);
-  tSTKParameters(0).resize(1);
-  tSTKParameters(0)(0) = moris::prm::create_stk_parameter_list();
-  MorphTestWRK::setParamsSTK(tSTKParameters);
-  // register background mesh interpolation-integration metadata pair
-  std::shared_ptr< moris::mtk::Mesh_Manager > tCurrentBGMTK = 
-    MorphTestWRK::registerBackGroundMeshPair(tSTKParameters);
-  // set geometry params
+  MorphTestWRK::InputParameters tInputParameters;
+  tInputParameters.mWorkflow = "STK";
+  MorphTestWRK::setParamLists(tInputParameters);
+  // initialize the background mesh
   //
-  moris::Cell< moris::Cell< moris::ParameterList > > tGENParameters;
-  tGENParameters.resize(3);
-  tGENParameters(0).resize(1);
-  tGENParameters(0)(0) = moris::prm::create_gen_parameter_list();
-  MorphTestWRK::setParamsGEN(tGENParameters);
-  // initialize geometry engine
+  MorphTestWRK::Performers tPerformers;
+  MorphTestWRK::generateModel(tInputParameters,tPerformers);
+  // initialize xtk app
   //
-  auto tCurrentGEN = std::make_shared< moris::ge::Geometry_Engine >( tGENParameters, nullptr );
-  // distribute advs 
-  //
-  tCurrentGEN->distribute_advs( tCurrentBGMTK->get_mesh_pair( 0 ),{}, moris::mtk::EntityRank::NODE );
+  MorphTestWRK::initializeAppXTK(tInputParameters,tPerformers);
   // test advs metadata
   //
-  moris::Matrix<moris::DDRMat> tADVs = tCurrentGEN->get_advs();
+  moris::Matrix<moris::DDRMat> tADVs = tPerformers.mCurrentGEN->get_advs();
   moris::real tTol = 1e-6; 
   CHECK( tADVs.numel() == 1 );
   CHECK( tADVs.min()   == 0 );
   CHECK( tADVs.max()   == 1 );
   CHECK( moris::equal_to(moris::norm(tADVs),1,tTol) );
-  // initialize xtk param list
+}
+
+TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_regenerate_model_operation_stk]" )
+{
+  // set parameters
   //
-  moris::Cell< moris::Cell< moris::ParameterList > > tXTKParameters;
-  tXTKParameters.resize(1);
-  tXTKParameters(0).resize(1);
-  tXTKParameters(0)(0) = moris::prm::create_xtk_parameter_list();
-  // set xtk params
+  MorphTestWRK::InputParameters tInputParameters;
+  tInputParameters.mWorkflow = "STK";
+  MorphTestWRK::setParamLists(tInputParameters);
+  // initialize model
   //
-  auto tWorkflow = std::string("STK");
-  MorphTestWRK::setParamsXTK(tWorkflow,tXTKParameters);
+  MorphTestWRK::Performers tPerformers;
+  MorphTestWRK::generateModel(tInputParameters,tPerformers);
   // initialize xtk app
   //
-  auto tCurrentOutputMTK = std::make_shared< moris::mtk::Mesh_Manager >();
-  auto tCurrentXTK = std::make_shared< xtk::Model >( tXTKParameters( 0 )( 0 ) );
-  // set XTK Cooperations
+  MorphTestWRK::initializeAppXTK(tInputParameters,tPerformers);
+  // regenerate model
   //
-  tCurrentXTK->set_geometry_engine(  tCurrentGEN.get() );
-  tCurrentXTK->set_input_performer(  tCurrentBGMTK );
-  tCurrentXTK->set_output_performer( tCurrentOutputMTK ); 
-  // set gen mesh metadata
+  MorphTestWRK::MetaDataXTK tMetaDataXTK;
+  MorphTestWRK::regenerateModel(tMetaDataXTK,tPerformers);
+  // reinitialize model
   //
-  tCurrentGEN->output_fields( tCurrentBGMTK->get_interpolation_mesh( 0 ) );
-  tCurrentGEN->reset_mesh_information( tCurrentBGMTK->get_interpolation_mesh(0) );
-  // XTK perform - decompose - enrich - ghost - multigrid
+  MorphTestWRK::initializeAppXTK(tInputParameters,tPerformers);
+  // test advs metadata
   //
-  tCurrentXTK->perform();
-  // Assign PDVs
-  //
-  tCurrentGEN->create_pdvs( tCurrentOutputMTK->get_mesh_pair(0) );
+  moris::Matrix<moris::DDRMat> tADVs = tPerformers.mCurrentGEN->get_advs();
+  moris::real tTol = 1e-6; 
+  CHECK( tADVs.numel() == 1 );
+  CHECK( tADVs.min()   == 0 );
+  CHECK( tADVs.max()   == 1 );
+  CHECK( moris::equal_to(moris::norm(tADVs),1,tTol) );
 }
 
 } // namespace MorphTestWRK
