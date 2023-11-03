@@ -602,4 +602,20 @@ TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_regenerate_model_operation_
   CHECK( moris::equal_to(moris::norm(tADVs),1,tTol) );
 }
 
+TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_sensitivity_operation]" )
+{
+  // set parameters
+  //
+  MorphTestWRK::InputParameters tInputParameters;
+  tInputParameters.mWorkflow = "STK";
+  MorphTestWRK::setParamLists(tInputParameters);
+  // initialize model
+  //
+  MorphTestWRK::Performers tPerformers;
+  MorphTestWRK::generateModel(tInputParameters,tPerformers);
+  // initialize xtk app
+  //
+  MorphTestWRK::initializeAppXTK(tInputParameters,tPerformers);
+}
+
 } // namespace MorphTestWRK
