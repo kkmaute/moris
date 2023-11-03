@@ -160,17 +160,17 @@ setParamsHMR(
 )
 {
   // "number_of_elements_per_dimension" keyword
-  std::string tNumElemsStr = "1;1;1";
+  std::string tNumElemsStr = "1,1,1";
   // "domain_dimensions" keyword
-  std::string tDomSizeStr = "1;1;1";
+  std::string tDomSizeStr = "1,1,1";
   // "domain_offset" keyword
-  std::string tDomOffsetStr = "1;1;1";
+  std::string tDomOffsetStr = "1,1,1";
   // "domain_sidesets" keyword
-  std::string tSideSetStr = "ss_1;ss_2";
+  std::string tSideSetStr = "ss_1,ss_2";
   // "state_refinement_level" keyword
-  std::string tStateRefinement = "1;1;1";
+  std::string tStateRefinement = "1,1,1";
   // "geom_refinement_level" keyword
-  std::string tGeomRefinementLev = "1;1;1";
+  std::string tGeomRefinementLev = "1,1,1";
 
   std::string tLagrangeOrder = "1";
   std::string tBsplineOrder = "2,1";
@@ -207,37 +207,37 @@ setParamsSTK(
 }
 
 void 
-setSwissCheese(
+setSwissCheeseParams(
+  size_t                                               aGeometryCount,
   moris::Cell< moris::Cell< moris::ParameterList > > & aGENParameters
 )
 {
   // initialize swiss cheese geometry
   //
-  size_t tGeoCount = 0;
   aGENParameters(1).push_back(moris::prm::create_swiss_cheese_slice_parameter_list());
-  aGENParameters(1)(tGeoCount).set("left_bound","0.5");
-  aGENParameters(1)(tGeoCount).set("right_bound","2.0");
-  aGENParameters(1)(tGeoCount).set("top_bound","1.5");
-  aGENParameters(1)(tGeoCount).set("bottom_bound","-1.5");
-  aGENParameters(1)(tGeoCount).set("hole_x_semidiameter","0.211");
-  aGENParameters(1)(tGeoCount).set("hole_y_semidiameter","0.211");
-  aGENParameters(1)(tGeoCount).set("number_of_x_holes","3");
-  aGENParameters(1)(tGeoCount).set("number_of_y_holes","3");
+  aGENParameters(1)(aGeometryCount).set("left_bound",0.5);
+  aGENParameters(1)(aGeometryCount).set("right_bound",2.0);
+  aGENParameters(1)(aGeometryCount).set("top_bound",1.5);
+  aGENParameters(1)(aGeometryCount).set("bottom_bound",-1.5);
+  aGENParameters(1)(aGeometryCount).set("hole_x_semidiameter",0.211);
+  aGENParameters(1)(aGeometryCount).set("hole_y_semidiameter",0.211);
+  aGENParameters(1)(aGeometryCount).set("number_of_x_holes",3);
+  aGENParameters(1)(aGeometryCount).set("number_of_y_holes",3);
   //
-  aGENParameters(1)(tGeoCount).set("superellipse_exponent","4");         // Superellipse exponent
-  aGENParameters(1)(tGeoCount).set("superellipse_scaling","0.25");       // Superellipse scaling
-  aGENParameters(1)(tGeoCount).set("superellipse_regularization","0.0"); // Superellipse regularization
+  aGENParameters(1)(aGeometryCount).set("superellipse_exponent",4);         // Superellipse exponent
+  aGENParameters(1)(aGeometryCount).set("superellipse_scaling",0.25);       // Superellipse scaling
+  aGENParameters(1)(aGeometryCount).set("superellipse_regularization",0.0); // Superellipse regularization
 }
 
 void 
-setParamsDiscretization(
+setDiscretizationParams(
   const size_t                                             & aGeometryID,
         moris::Cell< moris::Cell< moris::ParameterList > > & aGENParameters
 )
 {
   // set dicretization parameter 
   //
-  auto tDesignType = aGENParameters(0)(aGeometryID).get<bool>("design");
+  auto tDesignType = aGENParameters(1)(aGeometryID).get<bool>("design");
   if( tDesignType )
   {
     // Index of B-spline mesh to create level set field on (-1 = none)
@@ -253,55 +253,22 @@ setParamsDiscretization(
 }
 
 void 
-setParamsGeomBase(
-  moris::Cell< moris::Cell< moris::ParameterList > > & aGENParameters
+setParamsGEO(
+  const size_t                                             & aGeometryID,
+  const std::string                                        & aGeoType,
+        moris::Cell< moris::Cell< moris::ParameterList > > & aGENParameters
 )
 {
-  // simple use case: only one geometry defined and two phases (solid and void)
+  // set geometry parameters 
   //
-  aGENParameters(0)(0).set("IQI_types", "Strain_Energy,Volume");
-  aGENParameters(0)(0).set("isocontour_threshold", "0.0"); // Level-set isocontour level
-  aGENParameters(0)(0).set("isocontour_tolerance", "1e-12"); // Level-set isocontour level
-  aGENParameters(0)(0).set("output_mesh_file", "./gen_fields.exo");
-  aGENParameters(0)(0).set("num_phases", "2");
-  aGENParameters(0)(0).set("default_phase", "-1");
-  // geometry parameters
-  //
-  aGENParameters(0)(0).set("design", "true");
-  aGENParameters(0)(0).set("type", "swiss_cheese_slice");
-}
-
-void 
-setParamsGEN(
-  moris::Cell< moris::Cell< moris::ParameterList > > & aGENParameters,
-  bool aVerbose = false
-)
-{
-  // set fundamental geometry parameters
-  //
-  MorphTestWRK::setParamsGeomBase(aGENParameters);
-  //
-  size_t tGeoCount = 0;
-  if (aVerbose) {
-    moris::prm::print(aGENParameters(0)(tGeoCount));
-  }
-  // set initial guess parameters 
-  //
-  auto tGeomType = aGENParameters(0)(0).get<std::string>("type");
-  if( tGeomType == "swiss_cheese_slice" ){
-    MorphTestWRK::setSwissCheese(aGENParameters);
+  if( aGeoType == "swiss_cheese_slice" ){
+    MorphTestWRK::setSwissCheeseParams(aGeometryID,aGENParameters);
   }
   else {
     aGENParameters(1).push_back(moris::prm::create_geometry_parameter_list());
-    aGENParameters(1)(tGeoCount).set("type",tGeomType);
-    aGENParameters(1)(tGeoCount).set("constant_parameters","");
+    aGENParameters(1)(aGeometryID).set("constant_parameters","");
   }
-  // set discretization parameters
-  //
-  MorphTestWRK::setParamsDiscretization(tGeoCount,aGENParameters);
-  if (aVerbose) {
-    moris::prm::print(aGENParameters(1)(tGeoCount));
-  }
+  aGENParameters(1)(aGeometryID).insert("type",aGeoType);
 }
 
 void
@@ -339,6 +306,8 @@ createParamListGEN(
   moris::Cell< moris::Cell< moris::ParameterList > > & aGENParameters
 )
 {
+  // integrated quantities of interests and adv parameter definitions
+  //
   aGENParameters.resize(3);
   aGENParameters(0).resize(1);
   aGENParameters(0)(0) = moris::prm::create_gen_parameter_list();
@@ -470,7 +439,7 @@ initializeAppXTK(
 // unit tests
 // ##########
 
-TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_parse_params_test]" )
+TEST_CASE( "WRK_morph_xtk_parse_params_test", "[WRK_morph_test]" )
 {
   // create xtk parameter list
   //
@@ -488,7 +457,7 @@ TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_parse_params_test]" )
   }
 }
 
-TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_stk_parse_params_test]" )
+TEST_CASE( "WRK_morph_stk_parse_params_test", "[WRK_morph_test]" )
 {
   // parse workflow params
   //
@@ -497,7 +466,7 @@ TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_stk_parse_params_test]" )
   MorphTestWRK::setParamsSTK(tSTKParameters);
 }
 
-TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_hmr_parse_params_test]" )
+TEST_CASE( "WRK_morph_hmr_parse_params_test", "[WRK_morph_test]" )
 {
   // parse workflow params
   //
@@ -512,16 +481,24 @@ TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_hmr_parse_params_test]" )
   }
 }
 
-TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_parse_gen_params_test]" )
+TEST_CASE( "WRK_morph_xtk_parse_gen_params_test", "[WRK_morph_test]" )
 {
-  // parse geometry params
+  // create core geometry engine params
   //
   moris::Cell< moris::Cell< moris::ParameterList > > tGENParameters;
   MorphTestWRK::createParamListGEN(tGENParameters);
-  MorphTestWRK::setParamsGEN(tGENParameters);
+  // set my geometry params
+  //
+  size_t tGeometryID = 0;
+  std::string tGeoType("swiss_cheese_slice");
+  MorphTestWRK::setParamsGEO(tGeometryID,tGeoType,tGENParameters);
+  // set discretization parameters
+  //
+  tGENParameters(1)(tGeometryID).insert("design",true);
+  MorphTestWRK::setDiscretizationParams(tGeometryID,tGENParameters);
 }
 
-TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_initialize_hmr_params_test]" )
+TEST_CASE( "WRK_morph_xtk_initialize_hmr_params_test", "[WRK_morph_test]" )
 {
   // set parameters
   //
@@ -534,7 +511,7 @@ TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_initialize_hmr_params_test]
   MorphTestWRK::initializeBackgroundMesh(tInputParameters, tPerformers);
 }
 
-TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_initialize_stk_params_test]" )
+TEST_CASE( "WRK_morph_xtk_initialize_stk_params_test", "[WRK_morph_test]" )
 {
   // set parameters
   //
@@ -547,7 +524,7 @@ TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_initialize_stk_params_test]
   MorphTestWRK::initializeBackgroundMesh(tInputParameters, tPerformers);
 }
 
-TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_generate_model_operation_stk]" )
+TEST_CASE( "WRK_morph_xtk_generate_model_operation_stk", "[WRK_morph_test]" )
 {
   // set parameters
   //
@@ -571,7 +548,7 @@ TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_generate_model_operation_st
   CHECK( moris::equal_to(moris::norm(tADVs),1,tTol) );
 }
 
-TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_regenerate_model_operation_stk]" )
+TEST_CASE( "WRK_morph_xtk_regenerate_model_operation_stk", "[WRK_morph_test]" )
 {
   // set parameters
   //
@@ -602,7 +579,7 @@ TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_regenerate_model_operation_
   CHECK( moris::equal_to(moris::norm(tADVs),1,tTol) );
 }
 
-TEST_CASE( "WRK_morph_test", "[moris],[WRK_morph_xtk_sensitivity_operation]" )
+TEST_CASE( "WRK_morph_xtk_sensitivity_operation", "[WRK_morph_test]" )
 {
   // set parameters
   //
