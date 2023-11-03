@@ -68,7 +68,6 @@ namespace moris::ge
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
          *
          * @param aOwnedADVs Pointer to the owned distributed ADVs
-         * @param aCoefficientIndices Coefficient indices to be mapped to
          * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
          * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
          * @param aMeshPair The mesh pair where the discretization information can be obtained
@@ -76,7 +75,6 @@ namespace moris::ge
         void discretize(
                 mtk::Mesh_Pair        aMeshPair,
                 sol::Dist_Vector*     aOwnedADVs,
-                const Matrix<DDUMat>& aCoefficientIndices,
                 const Matrix<DDSMat>& aSharedADVIds,
                 uint                  aADVOffsetID );
 

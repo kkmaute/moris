@@ -30,7 +30,6 @@ namespace moris::ge
          * Constructor where ADVs are added based on an input field and a B-spline mesh.
          *
          * @param aOwnedADVs Pointer to the owned distributed ADVs
-         * @param aCoefficientIndices Coefficient indices to be mapped to
          * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
          * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
          * @param aMeshPair The mesh pair where the discretization information can be obtained
@@ -39,7 +38,6 @@ namespace moris::ge
         BSpline_Field(
                 mtk::Mesh_Pair         aMeshPair,
                 sol::Dist_Vector*      aOwnedADVs,
-                const Matrix<DDUMat>&  aCoefficientIndices,
                 const Matrix<DDSMat>&  aSharedADVIds,
                 uint                   aADVOffsetID,
                 uint                   aDiscretizationIndex,
@@ -48,7 +46,6 @@ namespace moris::ge
         BSpline_Field(
                 mtk::Mesh_Pair         aMeshPair,
                 sol::Dist_Vector*      aOwnedADVs,
-                const Matrix<DDUMat>&  aCoefficientIndices,
                 const Matrix<DDSMat>&  aSharedADVIds,
                 uint                   aADVOffsetID,
                 std::shared_ptr<mtk::Field> aMTKField );
@@ -57,11 +54,6 @@ namespace moris::ge
          * Destructor
          */
         ~BSpline_Field() override;
-
-        void distribute_coeffs(
-                const Matrix<DDRMat> & aTargetField,
-                sol::Dist_Vector*      aOwnedADVs,
-                const Matrix<DDUMat>&  aCoefficientIndices );
 
         /**
          * Given a node index, returns the field value.
@@ -104,6 +96,11 @@ namespace moris::ge
          * @return Target field
          */
         Matrix< DDRMat > map_to_bsplines( std::shared_ptr< Field > aField );
+
+        void distribute_coeffs(
+                const Matrix<DDRMat> & aTargetField,
+                sol::Dist_Vector*      aOwnedADVs,
+                uint                   aNumberOfCoefficients );
 
     };
 }

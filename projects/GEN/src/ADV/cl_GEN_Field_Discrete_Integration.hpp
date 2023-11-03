@@ -52,12 +52,10 @@ namespace moris::ge
         /**
          * Constructor that sets all field variables as consecutive ADVs. Assumes the use of distributed ADVs.
          *
-         * @param aFieldVariableIndices Field variable indices for assigning the shared ADV IDs
          * @param aSharedADVIds Shared ADV IDs needed for this field
          * @param aNumOriginalNodes Number of original nodes for this field
          */
         Field_Discrete_Integration(
-                const Matrix< DDUMat >& aFieldVariableIndices,
                 const Matrix< DDSMat >& aSharedADVIds,
                 uint                    aNumOriginalNodes );
 

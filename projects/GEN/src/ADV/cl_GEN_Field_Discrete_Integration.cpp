@@ -26,10 +26,9 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     Field_Discrete_Integration::Field_Discrete_Integration(
-            const Matrix< DDUMat >& aFieldVariableIndices,
             const Matrix< DDSMat >& aSharedADVIds,
             uint                    aNumOriginalNodes )
-            : Field( aFieldVariableIndices, aSharedADVIds )
+            : Field( aSharedADVIds )
     {
         mNumOriginalNodes = aNumOriginalNodes;
     }

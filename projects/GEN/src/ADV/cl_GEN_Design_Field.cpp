@@ -53,16 +53,15 @@ namespace moris::ge
     void Design_Field::discretize(
             mtk::Mesh_Pair        aMeshPair,
             sol::Dist_Vector*     aOwnedADVs,
-            const Matrix<DDUMat>& aCoefficientIndices,
             const Matrix<DDSMat>& aSharedADVIds,
             uint                  aADVOffsetID )
     {
         if ( mParameters.mDiscretizationIndex >= 0 )
         {
+            // Create a B-spline field
             mField = std::make_shared< BSpline_Field >(
                     aMeshPair,
                     aOwnedADVs,
-                    aCoefficientIndices,
                     aSharedADVIds,
                     aADVOffsetID,
                     mParameters.mDiscretizationIndex,
@@ -70,6 +69,7 @@ namespace moris::ge
         }
         else if ( mParameters.mDiscretizationIndex == -1 )
         {
+            // Just store nodal values
             mField = std::make_shared< Stored_Field >(
                     aMeshPair.get_interpolation_mesh(),
                     mField );

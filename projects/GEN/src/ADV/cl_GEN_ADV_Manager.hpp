@@ -54,9 +54,7 @@ namespace moris::ge
          * @param aVariableIndices Variable indices for assigning the shared ADV IDs
          * @param aSharedADVIds Shared ADV IDs needed
          */
-        ADV_Manager(
-                const Matrix< DDUMat >& aVariableIndices,
-                const Matrix< DDSMat >& aSharedADVIds );
+        ADV_Manager( const Matrix< DDSMat >& aSharedADVIds );
 
         /**
          * Copy constructor, with optional arguments for replacing constant values.

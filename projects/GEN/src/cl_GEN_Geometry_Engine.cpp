@@ -1215,7 +1215,6 @@ namespace moris
             mOwnedijklIds.set_size( tPrimitiveADVIds.numel(), 1, gNoID );
 
             // Owned and shared ADVs per field
-            Cell< Matrix< DDUMat > > tSharedCoefficientIndices( tFields.size() );
             Cell< Matrix< DDSMat > > tSharedADVIds( tFields.size() );
             Matrix< DDUMat >         tAllOffsetIDs( tFields.size(), 1 );
 
@@ -1327,56 +1326,44 @@ namespace moris
                                 tMesh->get_mesh_type() );
                     }
 
+                    // Count number of owned coefficients
                     uint tOwnedCounter  = 0;
-                    uint tSharedCounter = 0;
-
-                    for ( uint Ik = 0; Ik < tAllCoefIds.numel(); Ik++ )
+                    for ( uint iCoefficientIndex = 0; iCoefficientIndex < tAllCoefIds.numel(); iCoefficientIndex++ )
                     {
-                        if ( tAllCoefIds( Ik ) != gNoID && tAllCoefOwners( Ik ) == par_rank() )
+                        if ( tAllCoefIds( iCoefficientIndex ) != gNoID && tAllCoefOwners( iCoefficientIndex ) == par_rank() )
                         {
                             tOwnedCounter++;
                         }
-                        else if ( tAllCoefIds( Ik ) != gNoID )
-                        {
-                            tSharedCounter++;
-                        }
                     }
 
+                    // Create vectors of owned coefficients
                     Matrix< DDUMat > tOwnedCoefficients( tOwnedCounter, 1 );
-                    Matrix< DDUMat > tSharedCoefficients( tSharedCounter, 1 );
 
+                    // Set owned coefficients
                     tOwnedCounter  = 0;
-                    tSharedCounter = 0;
-
                     for ( uint Ik = 0; Ik < tAllCoefIds.numel(); Ik++ )
                     {
                         if ( tAllCoefIds( Ik ) != gNoID && tAllCoefOwners( Ik ) == par_rank() )
                         {
                             tOwnedCoefficients( tOwnedCounter++ ) = Ik;
                         }
-                        else if ( tAllCoefIds( Ik ) != gNoID )
-                        {
-                            tSharedCoefficients( tSharedCounter++ ) = Ik;
-                        }
                     }
 
                     // Sizes of ID vectors
                     uint tNumOwnedADVs          = tOwnedADVIds.length();
                     uint tNumOwnedCoefficients  = tOwnedCoefficients.numel();
-                    uint tNumSharedCoefficients = tSharedCoefficients.numel();
 
                     // Resize ID lists and bounds
                     tOwnedADVIds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
                     mLowerBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
                     mUpperBounds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
                     mOwnedijklIds.resize( tNumOwnedADVs + tNumOwnedCoefficients, 1 );
-                    tSharedADVIds( tFieldIndex ).resize( tNumOwnedCoefficients + tNumSharedCoefficients, 1 );
-                    tSharedCoefficientIndices( tFieldIndex ) = tOwnedCoefficients;
+                    tSharedADVIds( tFieldIndex ).resize( tAllCoefIds.length(), 1 );
 
                     // Add owned coefficients to lists
                     for ( uint tOwnedCoefficient = 0; tOwnedCoefficient < tNumOwnedCoefficients; tOwnedCoefficient++ )
                     {
-                        // HMR coeffs are not neccesarily consecutive. Therefore this is a really hacky implementation
+                        // Set the ADV ID as the offset plus the entity ID
                         sint tADVId = tOffsetID
                                     + tMesh->get_glb_entity_id_from_entity_loc_index(
                                             tOwnedCoefficients( tOwnedCoefficient ),
@@ -1393,25 +1380,13 @@ namespace moris
                         {
                             mOwnedijklIds( tNumOwnedADVs + tOwnedCoefficient ) = tAllCoefijklIDs( tOwnedCoefficients( tOwnedCoefficient ) );
                         }
-
-                        tSharedADVIds( tFieldIndex )( tOwnedCoefficient ) = tADVId;
                     }
 
                     // Add shared coefficients to field-specific list
-                    tSharedCoefficientIndices( tFieldIndex ).resize( tNumOwnedCoefficients + tNumSharedCoefficients, 1 );
-                    for ( uint tSharedCoefficient = 0; tSharedCoefficient < tNumSharedCoefficients; tSharedCoefficient++ )
+                    for ( uint iSharedCoefficientIndex = 0; iSharedCoefficientIndex < tAllCoefIds.length(); iSharedCoefficientIndex++ )
                     {
-                        // HMR coeffs are not neccesarily consecutive. Therefore this is a really hacky implementation
-                        sint tADVId = tOffsetID
-                                    + tMesh->get_glb_entity_id_from_entity_loc_index(
-                                            tSharedCoefficients( tSharedCoefficient ),
-                                            aADVEntityRank,
-                                            tDiscretizationMeshIndex );
-
-                        MORIS_ASSERT( tADVId - tOffsetID == tAllCoefIds( tSharedCoefficients( tSharedCoefficient ) ), "check if this is a problem" );
-
-                        tSharedCoefficientIndices( tFieldIndex )( tNumOwnedCoefficients + tSharedCoefficient ) = tSharedCoefficients( tSharedCoefficient );
-                        tSharedADVIds( tFieldIndex )( tNumOwnedCoefficients + tSharedCoefficient )             = tADVId;
+                        // Set the ADV ID as the offset plus the entity ID
+                        tSharedADVIds( tFieldIndex )( iSharedCoefficientIndex ) = tOffsetID + tAllCoefIds( iSharedCoefficientIndex );
                     }
 
                     // Update offset based on maximum ID
@@ -1483,7 +1458,6 @@ namespace moris
                 mGeometries( iGeometryIndex )->discretize(
                         aMeshPair,
                         tNewOwnedADVs,
-                        tSharedCoefficientIndices( iGeometryIndex ),
                         tSharedADVIds( iGeometryIndex ),
                         tAllOffsetIDs( iGeometryIndex ) );
 
@@ -1497,7 +1471,6 @@ namespace moris
                 mProperties( iPropertyIndex )->discretize(
                         aMeshPair,
                         tNewOwnedADVs,
-                        tSharedCoefficientIndices( mGeometries.size() + iPropertyIndex ),
                         tSharedADVIds( mGeometries.size() + iPropertyIndex ),
                         tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
             }

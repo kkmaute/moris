@@ -80,8 +80,7 @@ namespace moris::ge
          * @param aFieldVariableIndices Field variable indices for assigning the shared ADV IDs
          * @param aSharedADVIds Shared ADV IDs needed for this field
          */
-        Field( const Matrix< DDUMat >&  aFieldVariableIndices,
-               const Matrix< DDSMat >&  aSharedADVIds );
+        Field( const Matrix< DDSMat >&  aSharedADVIds );
 
         /**
          * Copy constructor with replacement variables for new constants.

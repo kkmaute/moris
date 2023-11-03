@@ -28,12 +28,11 @@ namespace moris::ge
     BSpline_Field::BSpline_Field(
             mtk::Mesh_Pair           aMeshPair,
             sol::Dist_Vector*        aOwnedADVs,
-            const Matrix< DDUMat >&  aCoefficientIndices,
             const Matrix< DDSMat >&  aSharedADVIds,
             uint                     aADVOffsetID,
             uint                     aDiscretizationIndex,
             std::shared_ptr< Field > aField )
-            : Field_Discrete_Integration( aCoefficientIndices, aSharedADVIds, aMeshPair.get_interpolation_mesh()->get_num_nodes() )
+            : Field_Discrete_Integration( aSharedADVIds, aMeshPair.get_interpolation_mesh()->get_num_nodes() )
             , mADVOffsetID( aADVOffsetID )
             , mMeshPair( aMeshPair )
             , mDiscretizationIndex( aDiscretizationIndex )
@@ -45,7 +44,7 @@ namespace moris::ge
         this->distribute_coeffs(
                 tTargetField,
                 aOwnedADVs,
-                aCoefficientIndices );
+                aSharedADVIds.length() );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -53,11 +52,10 @@ namespace moris::ge
     BSpline_Field::BSpline_Field(
             mtk::Mesh_Pair                aMeshPair,
             sol::Dist_Vector*             aOwnedADVs,
-            const Matrix< DDUMat >&       aCoefficientIndices,
             const Matrix< DDSMat >&       aSharedADVIds,
             uint                          aADVOffsetID,
             std::shared_ptr< mtk::Field > aMTKField )
-            : Field_Discrete_Integration( aCoefficientIndices, aSharedADVIds, aMeshPair.get_interpolation_mesh()->get_num_nodes() )
+            : Field_Discrete_Integration( aSharedADVIds, aMeshPair.get_interpolation_mesh()->get_num_nodes() )
             , mADVOffsetID( aADVOffsetID )
             , mMeshPair( aMeshPair )
     {
@@ -68,7 +66,7 @@ namespace moris::ge
         this->distribute_coeffs(
                 tTargetField,
                 aOwnedADVs,
-                aCoefficientIndices );
+                aSharedADVIds.length() );
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -84,32 +82,26 @@ namespace moris::ge
     BSpline_Field::distribute_coeffs(
             const Matrix< DDRMat >& aTargetField,
             sol::Dist_Vector*       aOwnedADVs,
-            const Matrix< DDUMat >& aCoefficientIndices )
+            uint                    aNumberOfCoefficients )
     {
-        MORIS_ERROR( aTargetField.length() == aCoefficientIndices.length(),
-                "MTK mapper is reporting a different number of coefficients than the mesh at the finest level. %-5zu | %-5zu",
-                aTargetField.length(),
-                aCoefficientIndices.length() );
-
         // Get B-spline mesh index
         mtk::Mesh* tMesh                    = mMeshPair.get_interpolation_mesh();
         uint       tDiscretizationMeshIndex = mDiscretizationIndex;
 
         // Assign ADVs
-        for ( uint tCoefficient = 0; tCoefficient < aCoefficientIndices.length(); tCoefficient++ )
+        for ( uint iCoefficientIndex = 0; iCoefficientIndex < aNumberOfCoefficients; iCoefficientIndex++ )
         {
-            uint tCoefficientIndex = aCoefficientIndices( tCoefficient );
-            if ( (uint)par_rank() == tMesh->get_entity_owner( tCoefficientIndex, mtk::EntityRank::BSPLINE, tDiscretizationMeshIndex ) )
+            if ( (uint)par_rank() == tMesh->get_entity_owner( iCoefficientIndex, mtk::EntityRank::BSPLINE, tDiscretizationMeshIndex ) )
             {
                 // Calculate ADV ID using offset
                 sint tADVId = mADVOffsetID +                                     //
                               tMesh->get_glb_entity_id_from_entity_loc_index(    //
-                                      tCoefficientIndex,
+                                      iCoefficientIndex,
                                       mtk::EntityRank::BSPLINE,
                                       tDiscretizationMeshIndex );
 
                 // Assign distributed vector element based on ID
-                ( *aOwnedADVs )( tADVId ) = aTargetField( tCoefficientIndex );
+                ( *aOwnedADVs )( tADVId ) = aTargetField( iCoefficientIndex );
             }
         }
 
@@ -214,7 +206,7 @@ namespace moris::ge
     BSpline_Field::import_advs( sol::Dist_Vector* aOwnedADVs )
     {
         // Import ADVs as usual
-        Field::import_advs( aOwnedADVs );
+        mADVManager.import_advs( aOwnedADVs );
 
         // Reset evaluated field
         mOwnedNodalValues->vec_put_scalar( 0 );

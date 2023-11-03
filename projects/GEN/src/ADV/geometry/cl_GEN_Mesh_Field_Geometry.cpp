@@ -23,7 +23,7 @@ namespace moris
                 std::string aFieldName,
                 mtk::EntityRank  aEntityRank,
                 Level_Set_Parameters                         aParameters)
-                 : Field_Discrete_Integration({{}}, aMesh->get_num_nodes())
+                 : Field_Discrete_Integration( Matrix< DDRMat >{{}}, aMesh->get_num_nodes())
                  , mMesh(aMesh)
                  , mFieldName(aFieldName)
                  , mEntityRank(aEntityRank)
@@ -40,7 +40,7 @@ namespace moris
                 real        aOffset,
                 mtk::EntityRank  aEntityRank,
                  Level_Set_Parameters aParameters)
-                : Field_Discrete_Integration( {{}}, aMesh == nullptr ? 0 : aMesh->get_num_nodes())
+                : Field_Discrete_Integration( Matrix< DDRMat>{{}}, aMesh == nullptr ? 0 : aMesh->get_num_nodes())
                 , mMesh(aMesh)
                 , mFieldName(aFieldName)
                 , mOffset(aOffset)

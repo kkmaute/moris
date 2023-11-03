@@ -18,7 +18,7 @@ namespace moris::ge
     Combined_Fields::Combined_Fields(
             Cell< std::shared_ptr< Field > > aFields,
             bool                             aUseMinimum )
-            : Field( {{}} )
+            : Field( Matrix< DDRMat >{{}} )
             , mFields( aFields )
             , mScale( 2 * aUseMinimum - 1 )
     {

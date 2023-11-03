@@ -37,10 +37,8 @@ namespace moris::ge
     
     //--------------------------------------------------------------------------------------------------------------
     
-    Field::Field(
-            const Matrix< DDUMat >& aFieldVariableIndices,
-            const Matrix< DDSMat >& aSharedADVIds )
-            : mADVManager( aFieldVariableIndices, aSharedADVIds )
+    Field::Field( const Matrix< DDSMat >& aSharedADVIds )
+            : mADVManager( aSharedADVIds )
             , mSensitivities( 1, aSharedADVIds.length() )
     {
     }
