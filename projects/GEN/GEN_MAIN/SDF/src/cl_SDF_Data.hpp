@@ -27,7 +27,6 @@ namespace moris
         {
 
             //! object information
-            uint                          mDimension;
             moris::Cell< Facet* >&        mFacets;
             moris::Cell< Facet_Vertex* >& mVertices;
             const uint                    mNumberOfFacets;    // !< number of facets in object
