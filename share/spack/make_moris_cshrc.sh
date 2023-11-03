@@ -28,6 +28,10 @@ setenv CLANG_INSTALLED `spack find llvm      | awk 'BEGIN{n=0}{ n=n+1; if ($2 ==
 
 setenv Trilinos_DIR `spack location --install-dir trilinos`
 
+if ( $1 == "view" ) then
+setenv MORISROOT `spack location --install-dir moris`
+echo 'setenv PATH $PATH/:'"$MORISROOT/bin/"                                    >> $HOME/.cshrc_moris
+else
 echo "setenv MORISROOT      $WORKSPACE/moris"                                  >> $HOME/.cshrc_moris
 echo 'setenv MORISBUILDDBG  build_dbg'                                         >> $HOME/.cshrc_moris
 echo 'setenv MORISBUILDOPT  build_opt'                                         >> $HOME/.cshrc_moris
@@ -35,6 +39,9 @@ echo 'setenv MORISOUTPUT    $MORISROOT/$MORISBUILDDBG/'                        >
 echo ""                                                                        >> $HOME/.cshrc_moris
 echo 'setenv MRD $MORISROOT/build_dbg/projects/mains/moris'                    >> $HOME/.cshrc_moris
 echo 'setenv MRO $MORISROOT/build_opt/projects/mains/moris'                    >> $HOME/.cshrc_moris
+echo 'setenv PATH $PATH/:$MORISROOT/share/scripts/'                            >> $HOME/.cshrc_moris
+endif
+
 echo ""                                                                        >> $HOME/.cshrc_moris
 echo "setenv MPI_HOME"         `spack location --install-dir openmpi`          >> $HOME/.cshrc_moris
 echo ""                                                                        >> $HOME/.cshrc_moris
@@ -94,9 +101,11 @@ echo 'setenv PATH $MPI_HOME/bin/:$PATH'                                        >
 echo 'setenv PATH $NETCDF_DIR/bin/:$PATH'                                      >> $HOME/.cshrc_moris 
 echo 'setenv PATH $Trilinos_DIR/bin/:$PATH'                                    >> $HOME/.cshrc_moris 
 echo 'setenv PATH $CMAKE_DIR/bin/:$PATH'                                       >> $HOME/.cshrc_moris 
+
 if ( $DOXY_INSTALLED == "1" ) then
 echo 'setenv PATH $DOXYGEN_DIR/bin/:$PATH'                                     >> $HOME/.cshrc_moris 
 endif
+
 if ( $CLANG_INSTALLED == "1" ) then
 echo 'setenv PATH $CLANG_DIR/bin/:$PATH'                                       >> $HOME/.cshrc_moris 
 endif
