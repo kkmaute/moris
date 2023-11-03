@@ -38,7 +38,7 @@ namespace MorphTestWRK
 {
 
 
-struct InputParameters
+struct ParamLists
 {
   bool mVerbose = false;
   std::string mWorkflow = "";
@@ -134,7 +134,7 @@ setFixedBlockParams(
 
 void 
 setParamsXTK(
-  MorphTestWRK::InputParameters & InputParameters
+  MorphTestWRK::ParamLists & InputParameters
 )
 {
   InputParameters.mXTKParameters(0)(0).set("verbose", InputParameters.mVerbose);
@@ -314,8 +314,8 @@ createParamListGEN(
 }
 
 void 
-setParamLists(
-  MorphTestWRK::InputParameters & aInputParameterLists
+createParamLists(
+  MorphTestWRK::ParamLists & aInputParameterLists
 )
 {
   MorphTestWRK::createParamListXTK(aInputParameterLists.mXTKParameters);
@@ -326,7 +326,7 @@ setParamLists(
 
 void 
 initializeBackgroundMesh(
-  const MorphTestWRK::InputParameters & aInputParameters,
+  const MorphTestWRK::ParamLists & aInputParameters,
         MorphTestWRK::Performers      & aPerformers
 )
 {
@@ -352,7 +352,7 @@ initializeBackgroundMesh(
 
 void 
 generateModel(
-  const MorphTestWRK::InputParameters & tInputParameters,
+  const MorphTestWRK::ParamLists & tInputParameters,
         MorphTestWRK::Performers      & aPerformers
 )
 {
@@ -410,7 +410,7 @@ regenerateModel(
 
 void 
 initializeAppXTK(
-  const MorphTestWRK::InputParameters & aInputParameters,
+  const MorphTestWRK::ParamLists & aInputParameters,
         MorphTestWRK::Performers      & aPerformers
 )
 {
@@ -443,7 +443,7 @@ TEST_CASE( "WRK_morph_xtk_parse_params_test", "[WRK_morph_test]" )
 {
   // create xtk parameter list
   //
-  MorphTestWRK::InputParameters tInputParameters;
+  MorphTestWRK::ParamLists tInputParameters;
   MorphTestWRK::createParamListXTK(tInputParameters.mXTKParameters);
   // set xtk params
   //
@@ -502,9 +502,9 @@ TEST_CASE( "WRK_morph_xtk_initialize_hmr_params_test", "[WRK_morph_test]" )
 {
   // set parameters
   //
-  MorphTestWRK::InputParameters tInputParameters;
+  MorphTestWRK::ParamLists tInputParameters;
   tInputParameters.mWorkflow = "HMR";
-  MorphTestWRK::setParamLists(tInputParameters);
+  MorphTestWRK::createParamLists(tInputParameters);
   // initialize the background mesh
   //
   MorphTestWRK::Performers tPerformers;
@@ -515,9 +515,9 @@ TEST_CASE( "WRK_morph_xtk_initialize_stk_params_test", "[WRK_morph_test]" )
 {
   // set parameters
   //
-  MorphTestWRK::InputParameters tInputParameters;
+  MorphTestWRK::ParamLists tInputParameters;
   tInputParameters.mWorkflow = "STK";
-  MorphTestWRK::setParamLists(tInputParameters);
+  MorphTestWRK::createParamLists(tInputParameters);
   // initialize the background mesh
   //
   MorphTestWRK::Performers tPerformers;
@@ -528,9 +528,9 @@ TEST_CASE( "WRK_morph_xtk_generate_model_operation_stk", "[WRK_morph_test]" )
 {
   // set parameters
   //
-  MorphTestWRK::InputParameters tInputParameters;
+  MorphTestWRK::ParamLists tInputParameters;
   tInputParameters.mWorkflow = "STK";
-  MorphTestWRK::setParamLists(tInputParameters);
+  MorphTestWRK::createParamLists(tInputParameters);
   // initialize the background mesh
   //
   MorphTestWRK::Performers tPerformers;
@@ -552,9 +552,9 @@ TEST_CASE( "WRK_morph_xtk_regenerate_model_operation_stk", "[WRK_morph_test]" )
 {
   // set parameters
   //
-  MorphTestWRK::InputParameters tInputParameters;
+  MorphTestWRK::ParamLists tInputParameters;
   tInputParameters.mWorkflow = "STK";
-  MorphTestWRK::setParamLists(tInputParameters);
+  MorphTestWRK::createParamLists(tInputParameters);
   // initialize model
   //
   MorphTestWRK::Performers tPerformers;
@@ -583,9 +583,9 @@ TEST_CASE( "WRK_morph_xtk_sensitivity_operation", "[WRK_morph_test]" )
 {
   // set parameters
   //
-  MorphTestWRK::InputParameters tInputParameters;
+  MorphTestWRK::ParamLists tInputParameters;
   tInputParameters.mWorkflow = "STK";
-  MorphTestWRK::setParamLists(tInputParameters);
+  MorphTestWRK::createParamLists(tInputParameters);
   // initialize model
   //
   MorphTestWRK::Performers tPerformers;
