@@ -32,16 +32,16 @@ fname="input_image_file.png";
 outputbase="output_file_name";
 
 % rotation angle in degrees
-rangle=-90;
+rangle=0;
 
 % buffer size with user-defined or additional phase
-bsize=20;
+bsize=0;
 
 % smoothing factor
 blur=0;
 
 % number of processors moris will be executed on
-nproc=16;
+nproc=1;
 
 % scaling factor for the resulting image SDF
 SDF_scale = -1.0;
@@ -51,7 +51,7 @@ SDF_scale = -1.0;
 clc;
 
 % process image
-image=SDF_scale*procimage(fname,rangle,blur,bsize);
+image=-SDF_scale*procimage(fname,rangle-90,blur,bsize);
 
 % save to hdf5
 savetohdf5(image,outputbase,nproc);
