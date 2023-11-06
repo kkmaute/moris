@@ -64,6 +64,7 @@ namespace moris::ge
         else
         {
             mStartingPointX = ( aUpperBound + aLowerBound ) / 2;
+            mSpacingX = MORIS_REAL_MAX;
         }
     }
 
@@ -95,6 +96,7 @@ namespace moris::ge
         else
         {
             mStartingPointY = ( aUpperBound + aLowerBound ) / 2;
+            mSpacingY = MORIS_REAL_MAX;
         }
     }
 
@@ -126,6 +128,7 @@ namespace moris::ge
         else
         {
             mStartingPointZ = ( aUpperBound + aLowerBound ) / 2;
+            mSpacingZ = MORIS_REAL_MAX;
         }
     }
 
