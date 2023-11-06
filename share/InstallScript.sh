@@ -1,21 +1,41 @@
 #!/bin/bash
+#------------------------------------------------------------
+
+# Installation script for MORIS 
+
+# tested on: ubuntu; OpenSUSE 15.5 
 
 #------------------------------------------------------------
 
 # set spack and moris installation directory
-export WORKSPACE=$HOME/codes_new
+export WORKSPACE=$HOME/codes
 
 # define developper mode: 0 for users; 1 for developpers
-export DEVELOPPER_MODE=0
+export DEVELOPPER_MODE=1
 
 # define blas implementation INTEL_MKL: 0 for no; 1 for yes
 export INTEL_MKL=0
 
-# set compiler and version
-export COMPILER='gcc@11.4.0'
+# set compiler and version (see out of gcc --version)
+export COMPILER='gcc@11.3.0'
 
 # set directory for temporary files during built
 export TMPDIR=/tmp
+
+#------------------------------------------------------------
+
+echo ""
+echo "MORIS installation parameters:"
+echo ""
+echo "WORKSPACE          $WORKSPACE"
+echo "DEVELOPPER_MODE    $DEVELOPPER_MODE"
+echo "INTEL_MKL          $INTEL_MKL"
+echo "COMPILER           $COMPILER"
+echo "TMPDIR             $TMPDIR"
+echo ""
+echo "Press any key to continue; to abort press ctrl+c"
+echo ""
+read ans
 
 #------------------------------------------------------------
 
@@ -105,11 +125,22 @@ spack concretize -f -U
 
 spack install python %"$COMPILER"
 
-spack install openmpi %"$COMPILER"
+isOpenSUSE=`grep NAME /etc/os-release | head -1 | awk -F '=' '{ if ( match($2,"openSUSE") > 1 ) {print 1}else{print 0}}'`
 
-if [ $INTEL_MKL = "0" ];then
-    spack install openblas %"$COMPILER"
+if [ $isOpenSUSE = "1" ];then
+
+  echo "fixing python installation for OpenSUSE"
+
+  export PYIDIR=`find spack/opt/spack/ -type d -name "python-*"`
+
+  export PYLVERS=`ls $PYIDIR/include`
+  
+  cp -R $PYIDIR/lib64/$PYLVERS/lib-dynload $PYIDIR/lib/$PYLVERS/.
 fi
+
+#------------------------------------------------------------
+
+spack install openmpi %"$COMPILER"
 
 #------------------------------------------------------------
 
@@ -121,6 +152,12 @@ if [ $DEVELOPPER_MODE = "1" ];then
     spack install llvm %"$COMPILER"
 else
     spack install moris %"$COMPILER"
+fi
+
+#------------------------------------------------------------
+
+if [ $INTEL_MKL = "0" ];then
+    spack install openblas %"$COMPILER"
 fi
 
 #------------------------------------------------------------
