@@ -16,15 +16,15 @@ setenv F77       `spack compiler info $SPACKCOMP | grep 'f77 =' | awk -F = '{pri
 
 setenv GCCLIB    `spack compiler info $SPACKCOMP | grep 'cc ='  | awk -F = '{split($2,a,"/bin/");print a[1]}'`
 
-setenv GCMMA_INSTALLED `spack find gcmma     | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-setenv SNOPT_INSTALLED `spack find snopt     | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-setenv LBFGS_INSTALLED `spack find lbfgs     | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-setenv PETSC_INSTALLED `spack find petsc     | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-setenv   MKL_INSTALLED `spack find intel-mkl | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-setenv OBLAS_INSTALLED `spack find openblas  | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-setenv SLEPC_INSTALLED `spack find slepc     | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-setenv  DOXY_INSTALLED `spack find doxygen   | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-setenv CLANG_INSTALLED `spack find llvm      | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
+setenv GCMMA_INSTALLED `spack find gcmma            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
+setenv SNOPT_INSTALLED `spack find snopt            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
+setenv LBFGS_INSTALLED `spack find lbfgs            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
+setenv PETSC_INSTALLED `spack find petsc            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
+setenv   MKL_INSTALLED `spack find intel-oneapi-mkl | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
+setenv OBLAS_INSTALLED `spack find openblas         | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
+setenv SLEPC_INSTALLED `spack find slepc            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
+setenv  DOXY_INSTALLED `spack find doxygen          | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
+setenv CLANG_INSTALLED `spack find llvm             | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 
 setenv Trilinos_DIR `spack location --install-dir trilinos`
 
@@ -81,7 +81,7 @@ setenv SLEPC_DIR    `spack location --install-dir slepc`
 echo "setenv SLEPC_DIR"        $SLEPC_DIR                                      >> $HOME/.cshrc_moris
 endif
 if ( $MKL_INSTALLED == "1" ) then
-echo "setenv MKL_DIR"          `spack location --install-dir intel-mkl`"/mkl"  >> $HOME/.cshrc_moris
+echo "setenv MKL_DIR"          `spack location --install-dir intel-oneapi-mkl`"/mkl"  >> $HOME/.cshrc_moris
 endif
 if ( $OBLAS_INSTALLED == "1" ) then
 setenv OPENBLAS_DIR `spack location --install-dir openblas`"/lib"
