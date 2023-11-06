@@ -44,7 +44,7 @@ class Moris(CMakePackage):
     variant("lbfgs",    default=True,  description="Compile with support for lbfgs algorithm")
     variant("mumps",    default=False, description="Compile with support for mumps solver")
     variant("openblas", default=False, description="Compile with support for openblas")
-    variant("mkl",      default=False, description="Compile with support for intel-mkl")
+    variant("mkl",      default=False, description="Compile with support for intel-oneapi-mkl")
     variant("lapack",   default=False, description="Compile with support generic blas and lapack")
     variant("tests",    default=False, description="Compile with unit tests")
     variant("examples", default=False, description="Compile with examples")
@@ -55,13 +55,13 @@ class Moris(CMakePackage):
     depends_on('eigen')
     depends_on('hdf5')
 
-    depends_on('gcmma',          when="+gcmma")
-    depends_on('snopt',          when="+snopt")
-    depends_on('netlib-lapack',  when="+lapack")
-    depends_on('openblas',       when="+openblas")
-    depends_on('intel-mkl',      when="+mkl")
-    depends_on('intel-mkl',      when="+pardiso")
-    depends_on('lbfgs',          when="+lbfgs")
+    depends_on('gcmma',             when="+gcmma")
+    depends_on('snopt',             when="+snopt")
+    depends_on('netlib-lapack',     when="+lapack")
+    depends_on('openblas',          when="+openblas")
+    depends_on('intel-oneapi-mkl',  when="+mkl")
+    depends_on('intel-oneapi-mkl',  when="+pardiso")
+    depends_on('lbfgs',             when="+lbfgs")
  
     depends_on('mpi')
  
@@ -75,7 +75,7 @@ class Moris(CMakePackage):
 
     depends_on('petsc@3.17.4',                       when="+petsc")
     depends_on('petsc+mpi+metis+hypre+suite-sparse', when="+petsc")
-    depends_on('petsc+mkl-pardiso',                  when="+petsc +pardiso")
+    #depends_on('petsc+mkl-pardiso',                  when="+petsc +pardiso")
     depends_on('petsc+mumps',                        when="+petsc +mumps")
 
     depends_on('slepc',                              when="+slepc")
