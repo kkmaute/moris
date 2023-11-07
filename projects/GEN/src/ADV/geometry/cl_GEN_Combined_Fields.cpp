@@ -109,23 +109,7 @@ namespace moris::ge
         // Create field if needed
         if ( tNeedMTKField )
         {
-            // Output field
-            auto tMTKField = std::make_shared< mtk::Field_Discrete >( mMeshPair );
-
-            // Get nodal values
-            uint tNumberOfNodes = mMeshPair.get_integration_mesh()->get_num_nodes();
-            Matrix< DDRMat > tNodalValues( tNumberOfNodes, 1 );
-            for ( uint tNodeIndex = 0; tNodeIndex < tNumberOfNodes; tNodeIndex++ )
-            {
-                tNodalValues( tNodeIndex ) =
-                        this->get_field_value( tNodeIndex, mMeshPair.get_integration_mesh()->get_node_coordinate( tNodeIndex ) );
-            }
-
-            // Set nodal values
-            tMTKField->unlock_field();
-            tMTKField->set_values( tNodalValues );
-
-            return tMTKField;
+            return this->create_mtk_field( mMeshPair.get_integration_mesh() );
         }
         else
         {

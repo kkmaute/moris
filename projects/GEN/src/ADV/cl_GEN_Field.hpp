@@ -34,6 +34,11 @@
 #define VARIABLE_CHECK( num_variables ) MORIS_ERROR( aFieldVariableIndices.length() + aConstants.length() == num_variables, \
         "A GEN %s must be created with a total of exactly %d variables (ADVs + constants)", __FUNCTION__, num_variables )
 
+namespace moris::mtk
+{
+    class Mesh;
+}
+
 namespace moris::ge
 {
     class Field
@@ -239,6 +244,17 @@ namespace moris::ge
          * @return MTK field
          */
         virtual std::shared_ptr< mtk::Field > get_mtk_field() = 0;
+
+      protected:
+
+        /**
+         * Creates an MTK field based on this field on a given mesh
+         *
+         * @param aMesh Mesh pointer
+         * @return MTK field
+         */
+        std::shared_ptr< mtk::Field > create_mtk_field(
+                mtk::Mesh*   aMesh );
 
       private:
 
