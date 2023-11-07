@@ -157,7 +157,7 @@ namespace moris
             mtk::Mesh_Pair tMeshPair( aMesh, tIntegrationMesh );
 
             // Distribute ADVs
-            this->distribute_advs( tMeshPair, {} );
+            this->distribute_advs( tMeshPair );
         }
 
         //--------------------------------------------------------------------------------------------------------------

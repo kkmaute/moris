@@ -506,7 +506,7 @@ namespace moris
              */
             void distribute_advs(
                     mtk::Mesh_Pair                        aMeshPair,
-                    Cell< std::shared_ptr< mtk::Field > > aFields,
+                    Cell< std::shared_ptr< mtk::Field > > aFields = {},
                     mtk::EntityRank                       aADVEntityRank = mtk::EntityRank::BSPLINE );
 
             //-------------------------------------------------------------------------------
