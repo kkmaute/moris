@@ -262,6 +262,7 @@ setParamsSTK(
 )
 {
   aSTKParameters(0)(0).set("input_file", "ut_xtk_bolted_bracket.exo");
+  aSTKParameters(0)(0).set("input_path", "/home/maguilo/Morphorm/build/debug/moris/");
 }
 
 void 
@@ -348,6 +349,7 @@ createParamListSTK(
   aSTKParameters.resize(1);
   aSTKParameters(0).resize(1);
   aSTKParameters(0)(0) = moris::prm::create_stk_parameter_list();
+  aSTKParameters(0)(0).insert("input_path","./");
 }
 
 void
@@ -408,27 +410,47 @@ setParamLists(
 }
 
 void 
-initializeBackgroundMesh(
+initBackgroundMeshHMR(
+  MorphTestWRK::InputMetaData & aInputParameters,
+  MorphTestWRK::Performers    & aPerformers
+)
+{
+  // initialize hmr performer 
+  aPerformers.mCurrentHMR = std::make_shared< moris::hmr::HMR >( aInputParameters.mMorisHMRParameters );
+  // set performer to HMR
+  aPerformers.mCurrentHMR->set_performer(aPerformers.mCurrentBGMTK);
+  // uniform initial refinement
+  aPerformers.mCurrentHMR->perform_initial_refinement();
+  // hmr finalize
+  aPerformers.mCurrentHMR->perform();  
+}
+
+void 
+initBackgroundMeshSTK(
+  MorphTestWRK::InputMetaData & aInputParameters,
+  MorphTestWRK::Performers    & aPerformers
+)
+{
+  auto tMeshPath = aInputParameters.mSTKParameters(0)(0).get<std::string>("input_path");
+  tMeshPath = tMeshPath.back() == '/' ? tMeshPath : tMeshPath + "/";
+  auto tMeshFile = aInputParameters.mSTKParameters(0)(0).get<std::string>("input_file");
+  std::string tMeshFilePlusPath = tMeshPath + tMeshFile;
+  aPerformers.mSTKIpMesh = std::make_shared<mtk::Interpolation_Mesh_STK>(tMeshFilePlusPath, nullptr);
+  aPerformers.mSTKIgMesh = std::make_shared<mtk::Integration_Mesh_STK>(*aPerformers.mSTKIpMesh, nullptr);
+  aPerformers.mCurrentBGMTK->register_mesh_pair(aPerformers.mSTKIpMesh.get(), aPerformers.mSTKIgMesh.get());
+}
+
+void 
+initBackgroundMesh(
   MorphTestWRK::InputMetaData & aInputParameters,
   MorphTestWRK::Performers    & aPerformers
 )
 {
   if( aInputParameters.mWorkflow == "HMR" ) {
-    // initialize hmr performer 
-    aPerformers.mCurrentHMR = std::make_shared< moris::hmr::HMR >( aInputParameters.mMorisHMRParameters );
-    // set performer to HMR
-    aPerformers.mCurrentHMR->set_performer(aPerformers.mCurrentBGMTK);
-    // uniform initial refinement
-    aPerformers.mCurrentHMR->perform_initial_refinement();
-    // hmr finalize
-    aPerformers.mCurrentHMR->perform();
+    MorphTestWRK::initBackgroundMeshHMR(aInputParameters,aPerformers);
   }
   else if( aInputParameters.mWorkflow == "STK" ) {
-    // construct the stk
-    auto tMeshFile = aInputParameters.mSTKParameters(0)(0).get<std::string>("input_file");
-    aPerformers.mSTKIpMesh = std::make_shared<mtk::Interpolation_Mesh_STK>(tMeshFile, nullptr);
-    aPerformers.mSTKIgMesh = std::make_shared<mtk::Integration_Mesh_STK>(*aPerformers.mSTKIpMesh, nullptr);
-    aPerformers.mCurrentBGMTK->register_mesh_pair(aPerformers.mSTKIpMesh.get(), aPerformers.mSTKIgMesh.get());
+    MorphTestWRK::initBackgroundMeshSTK(aInputParameters,aPerformers);
   }
   else {
     MORIS_ERROR(0, "Invalid workflow type: STK or HMR");
@@ -443,7 +465,7 @@ generateModel(
 {
   // initialize the background mesh
   //
-  MorphTestWRK::initializeBackgroundMesh(tInputParameters, aPerformers);
+  MorphTestWRK::initBackgroundMesh(tInputParameters, aPerformers);
   // initialize geometry engine
   //
   aPerformers.mCurrentGEN = 
@@ -614,25 +636,33 @@ TEST_CASE( "WRK_morph_xtk_initialize_hmr_params_test", "[WRK_morph_test]" )
   tPerformers.mCurrentOutputMTK = std::make_shared< mtk::Mesh_Manager >();
   // initialize the background mesh
   //
-  MorphTestWRK::initializeBackgroundMesh(tInputParameters, tPerformers);
+  MorphTestWRK::initBackgroundMesh(tInputParameters, tPerformers);
 }
 
 TEST_CASE( "WRK_morph_xtk_initialize_stk_params_test", "[WRK_morph_test]" )
 {
-  // set parameters
+  // create parameter lists
   //
   MorphTestWRK::InputMetaData tInputParameters;
   tInputParameters.mWorkflow = "STK";
   MorphTestWRK::createParamLists(tInputParameters);
-  // initialize geometry engine 
-  //        
+  // set parameters
+  //
+  moris::ParameterList tGeometryParameters;
+  tGeometryParameters.insert("design", true);
+  tGeometryParameters.insert("geometry_id", 0);
+  tGeometryParameters.insert("geometry_type", "swiss_cheese_slice");
+  tInputParameters.mGeometryParameters.push_back(tGeometryParameters);
+  MorphTestWRK::setParamLists(tInputParameters);
+  // initialize geometry engine
+  //
   MorphTestWRK::Performers tPerformers;
   tPerformers.mCurrentGEN = std::make_shared< ge::Geometry_Engine >( tInputParameters.mGENParameters, nullptr );
   tPerformers.mCurrentBGMTK = std::make_shared< mtk::Mesh_Manager >();
   tPerformers.mCurrentOutputMTK = std::make_shared< mtk::Mesh_Manager >();
   // initialize the background mesh
   //
-  MorphTestWRK::initializeBackgroundMesh(tInputParameters, tPerformers);
+  MorphTestWRK::initBackgroundMesh(tInputParameters, tPerformers);
 }
 
 TEST_CASE( "WRK_morph_xtk_generate_model_operation_stk", "[WRK_morph_test]" )
