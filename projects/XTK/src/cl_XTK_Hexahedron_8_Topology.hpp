@@ -37,7 +37,7 @@ public:
     // Required Interface Functions
     enum Topology_Type get_topology_type() const
     {
-        return Topology_Type::HEXA_8;
+        return Topology_Type::HEX_8;
     }
     moris::Matrix< moris::IndexMat > const & get_node_indices() const
     {

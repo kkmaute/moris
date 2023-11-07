@@ -17,13 +17,13 @@
 
 namespace xtk
 {
-class Decomposition_Algorithm;
+    class Decomposition_Algorithm;
 
-std::shared_ptr<Decomposition_Algorithm>
-create_decomposition_algorithm(
-  enum Subdivision_Method aSubdivisionMethod,
-  moris::ParameterList&   aParameterList);
+    std::shared_ptr< Decomposition_Algorithm >
+    create_decomposition_algorithm(
+            enum Subdivision_Method aSubdivisionMethod,
+            moris::ParameterList&   aParameterList );
 
-}// namespace xtk
+}    // namespace xtk
 
 #endif /* cl_XTK_Decomposition_Algorithm_Factory.hpp */

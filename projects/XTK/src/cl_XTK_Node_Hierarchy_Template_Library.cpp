@@ -26,7 +26,7 @@ namespace xtk
 // ----------------------------------------------------------------------------------
 
 void
-Node_Hierachy_Template_Library::load_template(
+Node_Hierarchy_Template_Library::load_template(
     moris_index              aSpatialDim,
     moris_index              aTemplateId,
     Node_Hierarchy_Template* aNodeHierTemplate )
@@ -41,14 +41,14 @@ Node_Hierachy_Template_Library::load_template(
     }
     else
     {
-        MORIS_ERROR( false, "Node_Hierachy_Template_Library::load_template() - Number of spatial dimensions not 2 or 3." );
+        MORIS_ERROR( false, "Node_Hierarchy_Template_Library::load_template() - Number of spatial dimensions not 2 or 3." );
     }
 }
 
 // ----------------------------------------------------------------------------------
 
 void
-Node_Hierachy_Template_Library::load_2d_template(
+Node_Hierarchy_Template_Library::load_2d_template(
     moris_index              aTemplateId,
     Node_Hierarchy_Template* aNodeHierTemplate )
 {
@@ -99,7 +99,7 @@ Node_Hierachy_Template_Library::load_2d_template(
 
         default:
         {
-            std::cout << "Node_Hierachy_Template_Library::load_2d_template(): \n" << std::flush;
+            std::cout << "Node_Hierarchy_Template_Library::load_2d_template(): \n" << std::flush;
             std::cout << "WARNING UNDEFINED TEMPLATE ID: " << aTemplateId << std::endl;
             break;
         }
@@ -109,7 +109,7 @@ Node_Hierachy_Template_Library::load_2d_template(
 // ----------------------------------------------------------------------------------
 
 void
-Node_Hierachy_Template_Library::load_3d_template(
+Node_Hierarchy_Template_Library::load_3d_template(
     moris_index              aTemplateId,
     Node_Hierarchy_Template* aNodeHierTemplate )
 {
@@ -822,7 +822,7 @@ Node_Hierachy_Template_Library::load_3d_template(
         break;
     default:
     {
-        std::cout << "Node_Hierachy_Template_Library::load_3d_template(): \n" << std::flush;
+        std::cout << "Node_Hierarchy_Template_Library::load_3d_template(): \n" << std::flush;
         std::cout << "WARNING UNDEFINED TEMPLATE ID: " << aTemplateId << std::endl;
         break;
     }

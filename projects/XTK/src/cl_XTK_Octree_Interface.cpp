@@ -350,7 +350,7 @@ Octree_Interface::perform_impl_vertex_requests(
     mNumNewCells = 0;
 
     aDecompositionData->mHasSecondaryIdentifier = true;
-    aDecompositionData->tDecompId               = this->get_signature();
+    aDecompositionData->mDecompId               = this->get_signature();
 
     // size the CM New Node Loc and param coord data
     moris_index const tNumChildMeshes        = aCutIntegrationMesh->get_num_ig_cell_groups();

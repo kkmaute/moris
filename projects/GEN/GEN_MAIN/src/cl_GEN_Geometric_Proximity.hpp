@@ -53,7 +53,7 @@ namespace moris
             // 1 - G(x) == threshold
             // 2 - G(x) > threshold
             // Max not set
-            moris::Cell< moris_index > mGeometricProximity;
+            moris::Cell< moris_index > mGeometricProximity; // input: vertex index || output: proximity value
         };
     }    // namespace ge
 }    // namespace moris
