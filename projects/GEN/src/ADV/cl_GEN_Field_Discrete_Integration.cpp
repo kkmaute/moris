@@ -18,7 +18,7 @@ namespace moris::ge
     Field_Discrete_Integration::Field_Discrete_Integration(
             Matrix< DDRMat > aConstants,
             uint             aNumOriginalNodes )
-            : Field( aConstants )
+            : Field( aConstants, "" )
     {
         mNumOriginalNodes = aNumOriginalNodes;
     }

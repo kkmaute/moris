@@ -31,9 +31,12 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    Field::Field( Matrix< DDRMat > aConstants )
+    Field::Field(
+            Matrix< DDRMat > aConstants,
+            std::string      aName )
             : mADVManager( aConstants )
             , mSensitivities( 1, aConstants.length(), 0.0 )
+            , mName( aName )
     {
     }
     

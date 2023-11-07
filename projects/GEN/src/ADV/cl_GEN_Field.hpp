@@ -66,13 +66,13 @@ namespace moris::ge
                 Matrix< DDRMat > aConstants,
                 std::string      aName );
 
-        //TODO add option for specifying a name, since a constant field can still be a dependency
         /**
          * Constructor using only constants (no ADVs).
          *
          * @param aConstants The parameters that define this field
          */
-        explicit Field( Matrix< DDRMat > aConstants );
+        Field( Matrix< DDRMat > aConstants,
+                std::string     aName );
 
         /**
          * Constructor that sets all field variables as consecutive ADVs. Assumes the use of distributed ADVs.

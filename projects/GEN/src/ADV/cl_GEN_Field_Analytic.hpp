@@ -45,7 +45,7 @@ namespace moris::ge
          * @param aParameters Additional parameters
          */
         explicit Field_Analytic( Matrix< DDRMat > aConstants )
-                : Field( aConstants )
+                : Field( aConstants, "" )
         {
         }
 

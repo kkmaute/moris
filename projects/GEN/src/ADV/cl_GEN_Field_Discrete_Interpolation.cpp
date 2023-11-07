@@ -18,11 +18,11 @@ namespace moris::ge
     Field_Discrete_Interpolation::Field_Discrete_Interpolation(
             Matrix< DDRMat > aConstants,
             mtk::Interpolation_Mesh* aMesh )
-            : Field( aConstants )
+            : Field( aConstants, "" )
     {
         if (aMesh)
         {
-            this->add_nodal_data(aMesh);
+            this->add_nodal_data( aMesh );
         }
     }
 

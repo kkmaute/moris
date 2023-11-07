@@ -175,7 +175,7 @@ namespace moris::ge
         this->create_fields_loop_x();
 
         // Create combined fields
-        return std::make_shared< Combined_Fields >( mCreatedFields, aMinimum );
+        return std::make_shared< Combined_Fields >( mCreatedFields, aMinimum, mCopyField->get_name() );
     }
 
     //--------------------------------------------------------------------------------------------------------------

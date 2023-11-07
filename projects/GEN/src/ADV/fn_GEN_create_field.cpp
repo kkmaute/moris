@@ -115,22 +115,11 @@ namespace moris::ge
         // Build field
         if ( tFieldType == "constant" )
         {
-            tField = std::make_shared< Constant_Property >(
-                    aADVs,
-                    tVariableIndices,
-                    tADVIndices,
-                    tConstants,
-                    tName );
+            tField = std::make_shared< Constant_Property >( aADVs, tVariableIndices, tADVIndices, tConstants, tName );
         }
         else if ( tFieldType == "scaled_field" )
         {
-            tField = std::make_shared< Scaled_Field >(
-                    aFieldDependencies( 0 ),
-                    aADVs,
-                    tVariableIndices,
-                    tADVIndices,
-                    tConstants,
-                    tName );
+            tField = std::make_shared< Scaled_Field >( aFieldDependencies( 0 ), aADVs, tVariableIndices, tADVIndices, tConstants, tName );
         }
         else if ( tFieldType == "circle" )
         {
@@ -159,7 +148,7 @@ namespace moris::ge
             {
                 tUseMinimum = tConstants( 0 );
             }
-            tField = std::make_shared< Combined_Fields >( aFieldDependencies, tUseMinimum );
+            tField = std::make_shared< Combined_Fields >( aFieldDependencies, tUseMinimum, tName );
         }
         else if ( tFieldType == "nodal_field" )
         {
@@ -263,6 +252,7 @@ namespace moris::ge
         // Check for definition of array parameters
         if ( aFieldParameterList.exists( "number_of_fields_x" ) )
         {
+            // Return field array
             Field_Array_Factory tFieldArrayFactory( aFieldParameterList );
             return tFieldArrayFactory.create_field_array(
                     tField,
@@ -270,6 +260,7 @@ namespace moris::ge
         }
         else
         {
+            // Return single field
             return tField;
         }
     }
