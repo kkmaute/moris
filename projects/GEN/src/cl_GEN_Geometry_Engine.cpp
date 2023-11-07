@@ -56,9 +56,6 @@ namespace moris
             // Requested IQIs
             mRequestedIQIs = string_to_cell< std::string >( aParameterLists( 0 )( 0 ).get< std::string >( "IQI_types" ) );
 
-            // Set library
-            mLibrary = aLibrary;
-
             // Geometries
             mGeometryFieldFile = aParameterLists( 0 )( 0 ).get< std::string >( "geometry_field_file" );
             mOutputMeshFile    = aParameterLists( 0 )( 0 ).get< std::string >( "output_mesh_file" );
@@ -93,7 +90,7 @@ namespace moris
             {
                 aParameterLists( 1 ).append( aParameterLists( iParameterIndex ) );
             }
-            Design_Factory tDesignFactory( aParameterLists( 1 ), mInitialPrimitiveADVs, mLibrary, aMesh );
+            Design_Factory tDesignFactory( aParameterLists( 1 ), mInitialPrimitiveADVs, aLibrary, aMesh );
 
             // Get geometries and properties from the factory
             mGeometries = tDesignFactory.get_geometries();

@@ -84,9 +84,6 @@ namespace moris
             // IQIs
             Cell< std::string > mRequestedIQIs;
 
-            // Library
-            std::shared_ptr< Library_IO > mLibrary;
-
             size_t      mActiveGeometryIndex = 0;
             std::string mGeometryFieldFile;
             std::string mOutputMeshFile;
