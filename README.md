@@ -1,6 +1,6 @@
 # MORIS
 
-Multi-physics Optimization Research and Innovation System (2022)
+Multi-physics Optimization Research and Innovation System (2023)
 
 ## Overview
 
@@ -11,7 +11,7 @@ This code provides a research platform for PDE constrained optimization with foc
 ## Documentation
 
 ### Installation 
-Install instructions can be found in [share/install](https://github.com/kkmaute/moris/tree/main/share/install). For workstations: Install.md. For linux clusters and gcc: Install_Cluster_gcc.md. For linux clusters and intel compilers: Install_Cluster_intel.md.
+A script to install instructions can be found in [InstallScript](https://github.com/kkmaute/moris/tree/main/share/install/InstallScript.sh). Edit the script and verify/update a small number of installation parameters. Should the script fail, detailed install instructions can be found at [Install_Step_By_Step.txt](https://github.com/kkmaute/moris/tree/main/share/install/Install_Step_By_Step.txt)
 
 ### Mesh Generation for Interpolation Based Finite Element Analysis
 Documentation for generating and outputting meshes and extraction operators as defined in this [paper](https://doi.org/10.1016/j.cma.2023.115890) can be found [here](https://github.com/kkmaute/moris/blob/main/share/doc/mesh_generation/main.pdf). GitHub's integrated PDF viewer doesn't support links, so please download the pdf to use them. Example input files can be found in [share/doc/mesh_generation/examples](https://github.com/kkmaute/moris/tree/main/share/doc/mesh_generation/examples).
