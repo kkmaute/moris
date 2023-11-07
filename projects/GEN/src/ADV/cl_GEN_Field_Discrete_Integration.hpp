@@ -47,17 +47,19 @@ namespace moris::ge
          */
         Field_Discrete_Integration(
                 Matrix< DDRMat > aConstants,
-                uint aNumOriginalNodes );
+                uint             aNumOriginalNodes );
 
         /**
          * Constructor that sets all field variables as consecutive ADVs. Assumes the use of distributed ADVs.
          *
          * @param aSharedADVIds Shared ADV IDs needed for this field
          * @param aNumOriginalNodes Number of original nodes for this field
+         * @param aName Name of this field
          */
         Field_Discrete_Integration(
                 const Matrix< DDSMat >& aSharedADVIds,
-                uint                    aNumOriginalNodes );
+                uint                    aNumOriginalNodes,
+                std::string             aName );
 
         /**
          * Given a node index or coordinate, returns the field value.

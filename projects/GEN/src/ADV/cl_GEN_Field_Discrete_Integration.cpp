@@ -27,8 +27,9 @@ namespace moris::ge
 
     Field_Discrete_Integration::Field_Discrete_Integration(
             const Matrix< DDSMat >& aSharedADVIds,
-            uint                    aNumOriginalNodes )
-            : Field( aSharedADVIds )
+            uint                    aNumOriginalNodes,
+            std::string             aName )
+            : Field( aSharedADVIds, aName )
     {
         mNumOriginalNodes = aNumOriginalNodes;
     }

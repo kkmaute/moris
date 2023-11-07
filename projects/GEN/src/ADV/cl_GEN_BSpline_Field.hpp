@@ -36,12 +36,12 @@ namespace moris::ge
          * @param aField Field for initializing the B-spline level set discretization
          */
         BSpline_Field(
-                mtk::Mesh_Pair         aMeshPair,
-                sol::Dist_Vector*      aOwnedADVs,
-                const Matrix<DDSMat>&  aSharedADVIds,
-                uint                   aADVOffsetID,
-                uint                   aDiscretizationIndex,
-                std::shared_ptr<Field> aField );
+                mtk::Mesh_Pair           aMeshPair,
+                sol::Dist_Vector*        aOwnedADVs,
+                const Matrix<DDSMat>&    aSharedADVIds,
+                uint                     aADVOffsetID,
+                uint                     aDiscretizationIndex,
+                std::shared_ptr< Field > aField );
 
         BSpline_Field(
                 mtk::Mesh_Pair         aMeshPair,

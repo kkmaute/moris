@@ -10,6 +10,8 @@
 
 #include "cl_GEN_Field.hpp"
 
+#include <utility>
+
 namespace moris::ge
 {
 
@@ -37,9 +39,12 @@ namespace moris::ge
     
     //--------------------------------------------------------------------------------------------------------------
     
-    Field::Field( const Matrix< DDSMat >& aSharedADVIds )
+    Field::Field(
+            const Matrix< DDSMat >& aSharedADVIds,
+            std::string             aName)
             : mADVManager( aSharedADVIds )
             , mSensitivities( 1, aSharedADVIds.length() )
+            , mName( std::move( aName ) )
     {
     }
 
@@ -50,6 +55,7 @@ namespace moris::ge
             const Cell< real >& aNewConstants )
             : mADVManager( aCopy.mADVManager, aReplaceVariables, aNewConstants )
             , mSensitivities( aCopy.mSensitivities )
+            , mName( aCopy.mName )
     {
     }
 
