@@ -243,5 +243,12 @@ namespace moris::ge
             return mField;
         }
 
+        /**
+         * Gets an MTK field, if this design field uses one that needs to be remapped to a new mesh
+         *
+         * @return
+         */
+        std::shared_ptr< mtk::Field > get_mtk_field();
+
     };
 }

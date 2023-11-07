@@ -233,6 +233,13 @@ namespace moris::ge
          */
         std::string get_name();
 
+        /**
+         * Gets an MTK field, if this field needs to be remapped to a new mesh
+         *
+         * @return MTK field
+         */
+        virtual std::shared_ptr< mtk::Field > get_mtk_field() = 0;
+
       private:
 
         /**

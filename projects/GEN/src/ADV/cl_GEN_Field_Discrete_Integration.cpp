@@ -9,6 +9,7 @@
  */
 
 #include "cl_GEN_Field_Discrete_Integration.hpp"
+#include "cl_MTK_Field_Discrete.hpp"
 
 namespace moris::ge
 {
@@ -126,7 +127,30 @@ namespace moris::ge
 
     void Field_Discrete_Integration::reset_nodal_data()
     {
-        mChildNodes.resize(0);
+        mChildNodes.resize( 0 );
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    std::shared_ptr< mtk::Field > Field_Discrete_Integration::get_mtk_field()
+    {
+        // Output field
+        auto tMTKField = std::make_shared< mtk::Field_Discrete >( mMeshPair );
+
+        // Get nodal values
+        uint tNumberOfNodes = mMeshPair.get_integration_mesh()->get_num_nodes();
+        Matrix< DDRMat > tNodalValues( tNumberOfNodes, 1 );
+        for ( uint tNodeIndex = 0; tNodeIndex < tNumberOfNodes; tNodeIndex++ )
+        {
+            tNodalValues( tNodeIndex ) =
+                    this->get_field_value( tNodeIndex, mMeshPair.get_integration_mesh()->get_node_coordinate( tNodeIndex ) );
+        }
+
+        // Set nodal values
+        tMTKField->unlock_field();
+        tMTKField->set_values( tNodalValues );
+
+        return tMTKField;
     }
 
     //--------------------------------------------------------------------------------------------------------------

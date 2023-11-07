@@ -907,8 +907,29 @@ namespace moris
         Cell< std::shared_ptr< mtk::Field > >
         Geometry_Engine::get_mtk_fields()
         {
-            // TODO
-            return {};
+            // Initialize vector of mtk fields
+            Cell< std::shared_ptr< mtk::Field > > tMTKFields;
+
+            // Loop over geometries
+            for ( auto iGeometry : mGeometries )
+            {
+                // Add MTK fields
+                tMTKFields.append( iGeometry->get_mtk_fields() );
+            }
+
+            // Loop over properties
+            for ( auto iProperty : mProperties )
+            {
+                // Add MTK field, if it exists
+                auto tMTKField = iProperty->get_mtk_field();
+                if ( tMTKField )
+                {
+                    tMTKFields.push_back( tMTKField );
+                }
+            }
+
+            // Return final list
+            return tMTKFields;
         }
 
         //--------------------------------------------------------------------------------------------------------------

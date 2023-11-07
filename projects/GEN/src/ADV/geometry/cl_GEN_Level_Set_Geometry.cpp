@@ -77,4 +77,22 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    Cell< std::shared_ptr< mtk::Field > > Level_Set_Geometry::get_mtk_fields()
+    {
+        // Get MTK field
+        std::shared_ptr< mtk::Field > tMTKField = this->get_mtk_field();
+
+        // Add to cell if it exists
+        if ( tMTKField )
+        {
+            return { this->get_mtk_field() };
+        }
+        else
+        {
+            return {};
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
 }

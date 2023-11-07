@@ -144,6 +144,16 @@ namespace moris::ge
         virtual void get_dfield_dcoordinates(
                 const Matrix< DDRMat >& aCoordinates,
                 Matrix< DDRMat >&       aSensitivities ) = 0;
+
+        /**
+         * Returns a nullptr, since all analytic fields by definition do not need to be remapped
+         *
+         * @return nullptr
+         */
+        std::shared_ptr< mtk::Field > get_mtk_field() final
+        {
+            return nullptr;
+        }
     };
 }
 

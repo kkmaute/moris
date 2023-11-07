@@ -67,5 +67,12 @@ namespace moris::ge
                 uint                    aNodeIndex,
                 const Matrix< DDRMat >& aCoordinates,
                 Matrix< DDRMat >&       aSensitivities );
+
+        /**
+         * Gets an MTK field, if this field needs to be remapped to a new mesh
+         *
+         * @return MTK field
+         */
+        std::shared_ptr< mtk::Field > get_mtk_field() override;
     };
 }

@@ -9,6 +9,7 @@
  */
 
 #include "cl_GEN_Combined_Fields.hpp"
+#include "cl_MTK_Field_Discrete.hpp"
 
 namespace moris::ge
 {
@@ -34,9 +35,9 @@ namespace moris::ge
             const Matrix<DDRMat>& aCoordinates)
     {
         real tResult = mScale * mFields( 0 )->get_field_value( aNodeIndex, aCoordinates );
-        for (uint tFieldIndex = 1; tFieldIndex < mFields.size(); tFieldIndex++)
+        for ( auto iField : mFields )
         {
-            tResult = std::min( tResult, mScale * mFields( tFieldIndex )->get_field_value( aNodeIndex, aCoordinates ) );
+            tResult = std::min( tResult, mScale * iField->get_field_value( aNodeIndex, aCoordinates ) );
         }
         return mScale * tResult;
     }
@@ -51,13 +52,13 @@ namespace moris::ge
         // Find which field is the minimum
         real tMin = mScale * mFields( 0 )->get_field_value( aNodeIndex, aCoordinates );
         uint tMinFieldIndex = 0;
-        for ( uint tFieldIndex = 1; tFieldIndex < mFields.size(); tFieldIndex++ )
+        for ( uint iFieldIndex = 1; iFieldIndex < mFields.size(); iFieldIndex++ )
         {
-            real tResult = mScale * mFields( tFieldIndex )->get_field_value( aNodeIndex, aCoordinates );
+            real tResult = mScale * mFields( iFieldIndex )->get_field_value( aNodeIndex, aCoordinates );
             if ( tResult < tMin )
             {
                 tMin = tResult;
-                tMinFieldIndex = tFieldIndex;
+                tMinFieldIndex = iFieldIndex;
             }
         }
 
@@ -76,13 +77,13 @@ namespace moris::ge
         // Find which field is the minimum
         real tMin = mScale * mFields( 0 )->get_field_value( aNodeIndex, aCoordinates );
         uint tMinFieldIndex = 0;
-        for ( uint tFieldIndex = 1; tFieldIndex < mFields.size(); tFieldIndex++ )
+        for ( uint iFieldIndex = 1; iFieldIndex < mFields.size(); iFieldIndex++ )
         {
-            real tResult = mScale * mFields( tFieldIndex )->get_field_value( aNodeIndex, aCoordinates );
+            real tResult = mScale * mFields( iFieldIndex )->get_field_value( aNodeIndex, aCoordinates );
             if ( tResult < tMin )
             {
                 tMin = tResult;
-                tMinFieldIndex = tFieldIndex;
+                tMinFieldIndex = iFieldIndex;
             }
         }
 
@@ -90,6 +91,48 @@ namespace moris::ge
         mFields( tMinFieldIndex )->get_dfield_dcoordinates( aNodeIndex, aCoordinates, aSensitivities );
     }
 
+    //--------------------------------------------------------------------------------------------------------------
+    
+    std::shared_ptr< mtk::Field > Combined_Fields::get_mtk_field()
+    {
+        // Test if MTK field is needed
+        bool tNeedMTKField = false;
+        for ( auto iField : mFields )
+        {
+            if ( iField->get_mtk_field() )
+            {
+                tNeedMTKField = true;
+                break;
+            }
+        }
+
+        // Create field if needed
+        if ( tNeedMTKField )
+        {
+            // Output field
+            auto tMTKField = std::make_shared< mtk::Field_Discrete >( mMeshPair );
+
+            // Get nodal values
+            uint tNumberOfNodes = mMeshPair.get_integration_mesh()->get_num_nodes();
+            Matrix< DDRMat > tNodalValues( tNumberOfNodes, 1 );
+            for ( uint tNodeIndex = 0; tNodeIndex < tNumberOfNodes; tNodeIndex++ )
+            {
+                tNodalValues( tNodeIndex ) =
+                        this->get_field_value( tNodeIndex, mMeshPair.get_integration_mesh()->get_node_coordinate( tNodeIndex ) );
+            }
+
+            // Set nodal values
+            tMTKField->unlock_field();
+            tMTKField->set_values( tNodalValues );
+
+            return tMTKField;
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
+    
     //--------------------------------------------------------------------------------------------------------------
 
 }

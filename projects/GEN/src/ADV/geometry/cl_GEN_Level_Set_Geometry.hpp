@@ -92,5 +92,12 @@ namespace moris::ge
          */
         real get_intersection_tolerance();
 
+        /**
+         * Gets an MTK field, if this geometry uses one that needs to be remapped to a new mesh
+         *
+         * @return MTK field
+         */
+        Cell< std::shared_ptr< mtk::Field > > get_mtk_fields() override;
+
     };
 }

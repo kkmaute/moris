@@ -9,6 +9,7 @@
  */
 
 #include "cl_GEN_Field_Discrete_Interpolation.hpp"
+#include "cl_MTK_Field_Discrete.hpp"
 
 namespace moris::ge
 {
@@ -110,6 +111,29 @@ namespace moris::ge
     {
         // until Property PDVs are defined on nodes of un-zipped mesh return trivial relation
         return aNodeIndex; //tNodeToBaseIndex(aNodeIndex);
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    std::shared_ptr< mtk::Field > Field_Discrete_Interpolation::get_mtk_field()
+    {
+        // Output field
+        auto tMTKField = std::make_shared< mtk::Field_Discrete >( mMeshPair );
+
+        // Get nodal values
+        uint tNumberOfNodes = mMeshPair.get_interpolation_mesh()->get_num_nodes();
+        Matrix< DDRMat > tNodalValues( tNumberOfNodes, 1 );
+        for ( uint tNodeIndex = 0; tNodeIndex < tNumberOfNodes; tNodeIndex++ )
+        {
+            tNodalValues( tNodeIndex ) =
+                    this->get_field_value( tNodeIndex, mMeshPair.get_interpolation_mesh()->get_node_coordinate( tNodeIndex ) );
+        }
+
+        // Set nodal values
+        tMTKField->unlock_field();
+        tMTKField->set_values( tNodalValues );
+
+        return tMTKField;
     }
 
     //--------------------------------------------------------------------------------------------------------------

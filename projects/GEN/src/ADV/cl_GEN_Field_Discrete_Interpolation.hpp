@@ -159,5 +159,12 @@ namespace moris::ge
          */
         uint get_base_node_index(uint aNodeIndex);
 
+        /**
+         * Gets an MTK field, if this field needs to be remapped to a new mesh
+         *
+         * @return MTK field
+         */
+        std::shared_ptr< mtk::Field > get_mtk_field() override;
+
     };
 }
