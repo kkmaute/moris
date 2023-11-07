@@ -42,8 +42,11 @@ struct InputMetaData
 {
   bool mVerbose = false;
   std::string mWorkflow = "";
+  size_t mSpatialDimensions = 3;
   
   moris::Cell< moris::ParameterList > mGeometryParameters;
+
+  moris::hmr::Parameters mMorisHMRParameters;
 
   moris::Cell< moris::Cell< moris::ParameterList > > mXTKParameters;
   moris::Cell< moris::Cell< moris::ParameterList > > mSTKParameters;
@@ -174,7 +177,7 @@ setParamsHMR(
   std::string tStateRefinement = "1,1,1";
   // "geom_refinement_level" keyword
   std::string tGeomRefinementLev = "1,1,1";
-
+  //
   std::string tLagrangeOrder = "1";
   std::string tBsplineOrder = "2,1";
   std::string tLagrangePattern = "1";
@@ -199,6 +202,58 @@ setParamsHMR(
   aHMRParameters(0)(0).set("severity_level", 0);
   aHMRParameters(0)(0).set("write_lagrange_output_mesh", "./HMR_Output_Lagrange.e");
   aHMRParameters(0)(0).set("use_advanced_T_matrix_scheme", 1);
+}
+
+void 
+setParamsHMR(
+  MorphTestWRK::InputMetaData & aInputParameters
+)
+{
+  // initialize moris data structures
+  //
+  moris::Matrix<DDLUMat> tElementsPerDimenson;
+  moris::Matrix<DDRMat> tDimensons;
+  moris::Matrix<DDRMat> tOffset;
+  moris::Matrix<DDUMat> tSideSets;
+
+  moris::Cell<enum Subdivision_Method> tDecompositionMethods(2);
+  if ( aInputParameters.mSpatialDimensions == 2u )
+  {
+    tElementsPerDimenson = { {22}, {8} };
+    tDimensons = { {6}, {2} };
+    tOffset = { {-3.0}, {-1.0} };
+    tSideSets = { {1},{2},{3},{4} };
+    tDecompositionMethods( 0 ) = Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4;
+    tDecompositionMethods( 1 ) = Subdivision_Method::C_TRI3;
+  }
+  else if ( aInputParameters.mSpatialDimensions == 3u )
+  {
+    tElementsPerDimenson = { {22}, {8}, {8} };
+    tDimensons = { {6}, {2}, {2} };
+    tOffset = { {-3.0}, {-1.0},{-1.0} };
+    tSideSets = {{1},{2},{3},{4},{5},{6}};
+    tDecompositionMethods( 0 ) = Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8;
+    tDecompositionMethods( 1 ) = Subdivision_Method::C_HIERARCHY_TET4;
+  }
+  // set lagrange and bspline integration order
+  //
+  moris::uint tBsplineOrder  = 1;
+  moris::uint tLagrangeOrder = tBsplineOrder;
+  // set hmr parameters 
+  //
+  aInputParameters.mMorisHMRParameters.set_number_of_elements_per_dimension( tElementsPerDimenson );
+  aInputParameters.mMorisHMRParameters.set_domain_dimensions( tDimensons );
+  aInputParameters.mMorisHMRParameters.set_domain_offset( tOffset );
+  aInputParameters.mMorisHMRParameters.set_bspline_truncation( true );
+  aInputParameters.mMorisHMRParameters.set_output_meshes( {{ {0} }} );
+  aInputParameters.mMorisHMRParameters.set_lagrange_orders  ( { {tLagrangeOrder} });
+  aInputParameters.mMorisHMRParameters.set_lagrange_patterns({ {0} });
+  aInputParameters.mMorisHMRParameters.set_bspline_orders   ( { {tBsplineOrder} } );
+  aInputParameters.mMorisHMRParameters.set_bspline_patterns ( { {0} } );
+  aInputParameters.mMorisHMRParameters.set_side_sets( tSideSets );
+  aInputParameters.mMorisHMRParameters.set_refinement_buffer( 2 );
+  aInputParameters.mMorisHMRParameters.set_staircase_buffer( 2 );
+  aInputParameters.mMorisHMRParameters.set_lagrange_to_bspline_mesh( {{ {0} }});
 }
 
 void 
@@ -227,7 +282,7 @@ setSwissCheeseParams(
   aGENParameters(1)(tGeometryID).set("hole_y_semidiameter",0.211);
   aGENParameters(1)(tGeometryID).set("number_of_x_holes",3);
   aGENParameters(1)(tGeometryID).set("number_of_y_holes",3);
-  aGENParameters(1)(tGeometryID).set("superellipse_exponent",4);         // Superellipse exponent
+  aGENParameters(1)(tGeometryID).set("superellipse_exponent",4.0);         // Superellipse exponent
   aGENParameters(1)(tGeometryID).set("superellipse_scaling",0.25);       // Superellipse scaling
   aGENParameters(1)(tGeometryID).set("superellipse_regularization",0.0); // Superellipse regularization
 }
@@ -338,7 +393,8 @@ setParamLists(
   MorphTestWRK::setParamsXTK(aInputParameters);
   // set hmr parameters
   //
-  MorphTestWRK::setParamsHMR(aInputParameters.mHMRParameters);
+  //MorphTestWRK::setParamsHMR(aInputParameters.mHMRParameters);
+  MorphTestWRK::setParamsHMR(aInputParameters);
   // set stk parameters
   //
   MorphTestWRK::setParamsSTK(aInputParameters.mSTKParameters);
@@ -353,16 +409,18 @@ setParamLists(
 
 void 
 initializeBackgroundMesh(
-  const MorphTestWRK::InputMetaData & aInputParameters,
-        MorphTestWRK::Performers    & aPerformers
+  MorphTestWRK::InputMetaData & aInputParameters,
+  MorphTestWRK::Performers    & aPerformers
 )
 {
   if( aInputParameters.mWorkflow == "HMR" ) {
-    // Set performer to HMR
+    // initialize hmr performer 
+    aPerformers.mCurrentHMR = std::make_shared< moris::hmr::HMR >( aInputParameters.mMorisHMRParameters );
+    // set performer to HMR
     aPerformers.mCurrentHMR->set_performer(aPerformers.mCurrentBGMTK);
     // uniform initial refinement
     aPerformers.mCurrentHMR->perform_initial_refinement();
-    // HMR finalize
+    // hmr finalize
     aPerformers.mCurrentHMR->perform();
   }
   else if( aInputParameters.mWorkflow == "STK" ) {
@@ -379,8 +437,8 @@ initializeBackgroundMesh(
 
 void 
 generateModel(
-  const MorphTestWRK::InputMetaData & tInputParameters,
-        MorphTestWRK::Performers    & aPerformers
+  MorphTestWRK::InputMetaData & tInputParameters,
+  MorphTestWRK::Performers    & aPerformers
 )
 {
   // initialize the background mesh
@@ -502,6 +560,15 @@ TEST_CASE( "WRK_morph_hmr_parse_params_test", "[WRK_morph_test]" )
   moris::prm::print(tHMRParameters(0)(0));
 }
 
+TEST_CASE( "WRK_morph_set_hmr_params_test", "[WRK_morph_test]" )
+{
+  // parse workflow params
+  //
+  MorphTestWRK::InputMetaData tInputParameters;
+  MorphTestWRK::setParamsHMR(tInputParameters);
+  tInputParameters.mMorisHMRParameters.print();
+}
+
 TEST_CASE( "WRK_morph_xtk_parse_gen_params_test", "[WRK_morph_test]" )
 {
   // create core geometry engine params
@@ -539,10 +606,15 @@ TEST_CASE( "WRK_morph_xtk_initialize_hmr_params_test", "[WRK_morph_test]" )
   tGeometryParameters.insert("geometry_type", "swiss_cheese_slice");
   tInputParameters.mGeometryParameters.push_back(tGeometryParameters);
   MorphTestWRK::setParamLists(tInputParameters);
+  // initialize geometry engine
+  //
+  MorphTestWRK::Performers tPerformers;
+  tPerformers.mCurrentGEN = std::make_shared< ge::Geometry_Engine >( tInputParameters.mGENParameters, nullptr );
+  tPerformers.mCurrentBGMTK = std::make_shared< mtk::Mesh_Manager >();
+  tPerformers.mCurrentOutputMTK = std::make_shared< mtk::Mesh_Manager >();
   // initialize the background mesh
   //
-  //MorphTestWRK::Performers tPerformers;
-  //MorphTestWRK::initializeBackgroundMesh(tInputParameters, tPerformers);
+  MorphTestWRK::initializeBackgroundMesh(tInputParameters, tPerformers);
 }
 
 TEST_CASE( "WRK_morph_xtk_initialize_stk_params_test", "[WRK_morph_test]" )
@@ -552,9 +624,14 @@ TEST_CASE( "WRK_morph_xtk_initialize_stk_params_test", "[WRK_morph_test]" )
   MorphTestWRK::InputMetaData tInputParameters;
   tInputParameters.mWorkflow = "STK";
   MorphTestWRK::createParamLists(tInputParameters);
+  // initialize geometry engine 
+  //        
+  MorphTestWRK::Performers tPerformers;
+  tPerformers.mCurrentGEN = std::make_shared< ge::Geometry_Engine >( tInputParameters.mGENParameters, nullptr );
+  tPerformers.mCurrentBGMTK = std::make_shared< mtk::Mesh_Manager >();
+  tPerformers.mCurrentOutputMTK = std::make_shared< mtk::Mesh_Manager >();
   // initialize the background mesh
   //
-  MorphTestWRK::Performers tPerformers;
   MorphTestWRK::initializeBackgroundMesh(tInputParameters, tPerformers);
 }
 
