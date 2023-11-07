@@ -84,6 +84,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char *argv[] )
             tIsOnlyMeshing = true;
             MORIS_LOG( "Valid input arguments are:" );
             MORIS_LOG( "option       : --meshgen or -mg :  generate foreground and background meshes (for EXHUME project)" );
+            MORIS_LOG( "option       : --pause   or -p  :  report process IDs and pause run upon user input (for debugging)" );
             MORIS_LOG( "last argument: <filename>.so    :  objective file with MORIS input" );
             MORIS_LOG( "last argument: <filename>.xml   :  xml file with MORIS input" );
             MORIS_LOG( " " );
