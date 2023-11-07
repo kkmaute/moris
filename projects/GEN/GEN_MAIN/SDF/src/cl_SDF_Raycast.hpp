@@ -18,14 +18,13 @@
 #include "SDF_Tools.hpp"
 
 #include "cl_SDF_Object.hpp"
-#include "cl_SDF_Data.hpp"
 
 namespace moris::sdf
 {
     class Raycast
     {
       private:
-        Object&               mObject;               // closed collection of facets that rays can hit               // BRENDAN: delete this once full functionality has been added
+        Object&               mObject;               // closed collection of facets that rays can hit               
         uint                  mDimension;            // number of coordinate axes for both the object and the cast point
         Matrix< DDRMat >      mPoint;                // global point coordinates, can change due to coordinate rotation
         Matrix< DDRMat >      mOriginalPoint;        // global point coordinates, needed to revert rotations that occur
@@ -40,8 +39,7 @@ namespace moris::sdf
         /**
          * Constructor for Raycast. Sets member data from input. Determines min and max facet coords and sets them accordingly. 
          * 
-         * @param aObject 
-         * @param mData 
+         * @param aObject closed collection of facets and vertices. generated from .obj or .stl file
          */
         Raycast( Object& aObject );
 
@@ -80,7 +78,7 @@ namespace moris::sdf
         /**
          * @brief Takes a point in 3D space and determines which triangles
          * in the positive and negative x direction the point could possibly intersect.
-         * These triangles are added to mData.mCandidateFacets. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
+         * These triangles are added to mCandidateFacets. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
          *
          * @param aPoint Point in space that lies within the bounding Y-Z plane of the candidate triangles
          */
@@ -91,7 +89,7 @@ namespace moris::sdf
         /**
          * @brief Takes a point in 3D space and determines which triangles
          * in the positive and negative y direction the point could possibly intersect.
-         * These triangles are added to mData.mCandidateFacets. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
+         * These triangles are added to mCandidateFacets. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
          *
          * @param aPoint Point in space that lies within the bounding X-Z plane of the candidate triangles
          */
@@ -103,7 +101,7 @@ namespace moris::sdf
         /**
          * @brief Takes a point in 3D space and determines which triangles
          * in the positive and negative z direction the point could possibly intersect.
-         * These triangles are added to mData.mCandidateFacets. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
+         * These triangles are added to mCandidateFacets. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
          *
          * @param aPoint Point in space that lies within the bounding X-Y plane of the candidate triangles
          */
@@ -115,8 +113,8 @@ namespace moris::sdf
         /**
          * @brief Takes a point in 2D space and determines which lines
          * in the positive aAxis direction the point could possibly intersect. The ray is being cast in the !aAxis direction
-         * These lines are added to mData.mIntersectedFacets. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
-         * Since preselection is sufficient for 2D, some of the lines are already marked as intersected. These are added to mData.mCandidateFacets
+         * These lines are added to mIntersectedFacets. Helps speed up the raycast by avoiding checking intersections with unrelated facets.
+         * Since preselection is sufficient for 2D, some of the lines are already marked as intersected. These are added to mCandidateFacets
          *
          * @param aAxis 0 for lines in the x direction of aPoint, 1 for lines in the y direction of aPoint
          * @param aPoint Location in space that lies within the bounding aAxis coordinates of the candidate triangles
@@ -138,7 +136,7 @@ namespace moris::sdf
         //-------------------------------------------------------------------------------
 
         /**
-         * Takes all of potential facets (in mData.mIntersectedFacets) and computes the coordinate axis intersection location
+         * Takes all of potential facets (in mIntersectedFacets) and computes the coordinate axis intersection location
          *  with the ray originating from aPoint
          *
          * @param aAxis coordinate axis to shoot ray in. 0 = x, 1 = y, 2 = z

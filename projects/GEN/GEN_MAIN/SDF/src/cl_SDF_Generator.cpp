@@ -48,11 +48,8 @@ namespace moris
             // create mesh wrapper
             Mesh tMesh( aMesh );
 
-            // create data container
-            Data tData( mObject );
-
             // create core
-            Core tCore( tMesh, tData, mObject );
+            Core tCore( tMesh, mObject );
 
             // perform raycast
             tCore.calculate_raycast( aElementsAtSurface );
@@ -67,11 +64,8 @@ namespace moris
             // create mesh wrapper
             Mesh tMesh( aMesh );
 
-            // create data container
-            Data tData( mObject );
-
             // create core
-            Core tCore( tMesh, tData, mObject );
+            Core tCore( tMesh, mObject );
 
             // perform raycast
             tCore.calculate_raycast( aElementsAtSurface );
@@ -88,11 +82,8 @@ namespace moris
             // create mesh wrapper
             Mesh tMesh( aMesh );
 
-            // create data container
-            Data tData( mObject );
-
             // create core
-            Core tCore( tMesh, tData, mObject );
+            Core tCore( tMesh, mObject );
 
             // perform raycast
             tCore.calculate_raycast( aElementsAtSurface, aElementsInVolume );
@@ -109,11 +100,8 @@ namespace moris
             // create mesh wrapper
             Mesh tMesh( aMesh, mVerboseFlag );
 
-            // create data container
-            Data tData( mObject );
-
             // create core
-            Core tCore( tMesh, tData, mObject, mVerboseFlag );
+            Core tCore( tMesh, mObject, mVerboseFlag );
 
             // perform raycast
             tCore.calculate_raycast( aElementsAtSurface, aElementsInVolume );
@@ -129,11 +117,8 @@ namespace moris
             // create mesh wrapper
             Mesh tMesh( aMesh, mVerboseFlag );
 
-            // create data container
-            Data tData( mObject );
-
             // create core
-            Core tCore( tMesh, tData, mObject, mVerboseFlag );
+            Core tCore( tMesh, mObject, mVerboseFlag );
 
             // calculate SDF
             tCore.calculate_raycast_and_sdf( aSDF );
@@ -150,11 +135,8 @@ namespace moris
             // create mesh wrapper
             Mesh tMesh( aMesh, mVerboseFlag );
 
-            // create data container
-            Data tData( mObject );
-
             // create core
-            Core tCore( tMesh, tData, mObject, mVerboseFlag );
+            Core tCore( tMesh, mObject, mVerboseFlag );
 
             // calculate SDF
             tCore.calculate_raycast_and_sdf( aSDF );

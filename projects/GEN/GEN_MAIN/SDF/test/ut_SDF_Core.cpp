@@ -32,7 +32,6 @@
 // SDF
 #include "cl_SDF_Mesh.hpp"
 #include "cl_SDF_Core.hpp"
-#include "cl_SDF_Data.hpp"
 #include "cl_SDF_Object.hpp"
 
 using namespace moris;
@@ -63,11 +62,8 @@ TEST_CASE(
             // create SDF wrapper for mesh
             sdf::Mesh tMesh( tInput );
 
-            // create data container
-            sdf::Data tData( tObject );
-
             // create core
-            sdf::Core tCore( tMesh, tData, tObject );
+            sdf::Core tCore( tMesh, tObject );
 
             Matrix< IndexMat > tElementsAtSurfaceExpect;
 

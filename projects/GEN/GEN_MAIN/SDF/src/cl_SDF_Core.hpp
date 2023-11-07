@@ -18,7 +18,6 @@
 #include "cl_SDF_Raycast.hpp"
 #include "cl_SDF_Mesh.hpp"
 #include "cl_SDF_Parameters.hpp"
-#include "cl_SDF_Data.hpp"
 
 namespace moris::sdf
 {
@@ -27,8 +26,11 @@ namespace moris::sdf
     class Core
     {
         Mesh& mMesh;
-        Data& mData;
         Object& mObject;
+
+        uint mSurfaceElements = 0;
+        uint mVolumeElements = 0;
+        real mBufferDiagonal;
 
         uint mCandidateSearchDepth        = 1;
         real mCandidateSearchDepthEpsilon = 0.01;
@@ -40,7 +42,6 @@ namespace moris::sdf
         //-------------------------------------------------------------------------------
 
         Core( Mesh&   aMesh,
-                Data& aData,
                 Object& aObject,
                 bool  aVerbose = false );
 

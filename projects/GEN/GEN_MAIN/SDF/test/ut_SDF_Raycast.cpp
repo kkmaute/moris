@@ -30,7 +30,6 @@
 #include "cl_MTK_Mesh_Factory.hpp"
 
 // SDF
-#include "cl_SDF_Data.hpp"
 #include "cl_SDF_Object.hpp"
 #include "cl_SDF_Raycast.hpp"
 #include "SDF_Tools.hpp"
@@ -105,7 +104,7 @@ TEST_CASE(
             CHECK( tIntersectedFacetsExpected( 0 ) == tIntersectedTriangles( 0 ) );
             CHECK( tIntersectedFacetsExpected( 1 ) == tIntersectedTriangles( 1 ) );
 
-            // compute the intersection locations and ensure they are correct BRENDAN FINISH UNIT TEST
+            // compute the intersection locations and ensure they are correct
             tRaycaster.intersect_ray_with_facets( 2 );
             Cell< real > tIntersectionCoordinatesExpected = { 0.4718, 0.9024 };
             Cell< real > tIntersectionCoordinates         = tRaycaster.get_intersection_coordinates();

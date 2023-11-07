@@ -24,9 +24,8 @@ namespace moris
     {
         //-------------------------------------------------------------------------------
 
-        Core::Core( Mesh& aMesh, Data& aData, Object& aObject, bool aVerbose )
+        Core::Core( Mesh& aMesh, Object& aObject, bool aVerbose )
                 : mMesh( aMesh )
-                , mData( aData )
                 , mObject( aObject )
                 , mVerbose( aVerbose )
         {
@@ -45,9 +44,9 @@ namespace moris
             this->raycast_mesh();
 
             // assign element containers
-            aElementsAtSurface.set_size( mData.mSurfaceElements, 1 );
+            aElementsAtSurface.set_size( mSurfaceElements, 1 );
 
-            aElementsInVolume.set_size( mData.mVolumeElements, 1 );
+            aElementsInVolume.set_size( mVolumeElements, 1 );
 
             // counters
             uint tSurfaceCount = 0;
@@ -73,15 +72,15 @@ namespace moris
             }
 
             // make sure that everything is OK
-            MORIS_ASSERT( tSurfaceCount == mData.mSurfaceElements,
+            MORIS_ASSERT( tSurfaceCount == mSurfaceElements,
                     "Number of surface elements does not match. Surface Count after raycast: %d\t Struct Surface Elements: %d.",
                     tSurfaceCount,
-                    mData.mSurfaceElements );
+                    mSurfaceElements );
 
-            MORIS_ASSERT( tVolumeCount == mData.mVolumeElements,
+            MORIS_ASSERT( tVolumeCount == mVolumeElements,
                     "Number of volume elements does not match. Volume Count after raycast: %d\t Struct Volume Elements: %d.",
                     tVolumeCount,
-                    mData.mVolumeElements );
+                    mVolumeElements );
         }
 
         //-------------------------------------------------------------------------------
@@ -95,7 +94,7 @@ namespace moris
             this->raycast_mesh();
 
             // assign element containers
-            aElementsAtSurface.set_size( mData.mSurfaceElements, 1 );
+            aElementsAtSurface.set_size( mSurfaceElements, 1 );
 
             // counters
             uint tSurfaceCount = 0;
@@ -116,7 +115,7 @@ namespace moris
             }
 
             // make sure that everything is OK
-            MORIS_ASSERT( tSurfaceCount = mData.mSurfaceElements,
+            MORIS_ASSERT( tSurfaceCount = mSurfaceElements,
                     "Number of surface elements does not match" );
         }
 
@@ -138,7 +137,6 @@ namespace moris
             {
                 mMesh.get_vertex( iNodeIndex )->reset();
             }
-            mData.mUnsureNodesCount = tNumberOfNodes;
 
             for ( uint iNodeIndex = 0; iNodeIndex < tNumberOfNodes; ++iNodeIndex )
             {
@@ -237,12 +235,12 @@ namespace moris
             tic tTimer;
 
             // get number of triangles
-            uint tNumberOfFacets = mData.mFacets.size();
+            uint tNumberOfFacets = mObject.get_num_facets();;
             // loop over all triangles
             for ( uint k = 0; k < tNumberOfFacets; ++k )
             {
                 // get pointer to triangle
-                Facet* tFacet = mData.mFacets( k );
+                Facet* tFacet = mObject.get_facets()( k );
 
                 // get nodes within triangle
                 moris::Cell< Vertex* > tNodes;
@@ -289,13 +287,13 @@ namespace moris
             uint tNumberOfElements = mMesh.get_num_elems();
 
             // counter for elements near surface
-            mData.mSurfaceElements = 0;
+            mSurfaceElements = 0;
 
             // counter for elements in volume
-            mData.mVolumeElements = 0;
+            mVolumeElements = 0;
 
             // reset buffer diagonal
-            mData.mBufferDiagonal = 0;
+            mBufferDiagonal = 0;
 
             // search all elements for sign change
             for ( uint e = 0; e < tNumberOfElements; ++e )
@@ -317,20 +315,6 @@ namespace moris
 
                 // get first sign
                 bool tIsInside = tNodes( 0 )->is_inside();
-
-
-                // if( e == 73 )
-                // {
-                for ( uint i = 0; i < tNumberOfNodes; i++ )
-                {
-                    // std::cout << "node index for element 73 " << tNodes( i )->get_index() << std::endl;
-                    std::cout << "node " << tNodes( i )->get_index() << " is inside? " << tNodes( i )->is_inside() << std::endl;
-                    if ( tNodes( i )->get_index() == 0 )
-                    {
-                        std::cout << "node 0 inside? " << tNodes( i )->is_inside() << std::endl;
-                    }
-                }
-                // }
 
                 // assume element is not intersected
                 bool tIsIntersected = false;
@@ -357,11 +341,11 @@ namespace moris
                     tElement->unset_volume_flag();
 
                     // increment counter
-                    ++mData.mSurfaceElements;
+                    ++mSurfaceElements;
 
                     // update buffer diagonal
-                    mData.mBufferDiagonal = std::max(
-                            mData.mBufferDiagonal,
+                    mBufferDiagonal = std::max(
+                            mBufferDiagonal,
                             tElement->get_buffer_diagonal() );
 
                     // flag to indicate that the buffer of this element
@@ -381,7 +365,7 @@ namespace moris
                     tElement->set_volume_flag();
 
                     // increment counter
-                    ++mData.mVolumeElements;
+                    ++mVolumeElements;
                 }
                 else
                 {
@@ -426,8 +410,8 @@ namespace moris
                         if ( tIsCandidate )
                         {
                             // update buffer diagonal
-                            mData.mBufferDiagonal = std::max(
-                                    mData.mBufferDiagonal,
+                            mBufferDiagonal = std::max(
+                                    mBufferDiagonal,
                                     tElement->get_buffer_diagonal() );
 
                             // flag this element
@@ -485,8 +469,8 @@ namespace moris
 
             for ( uint i = 0; i < 3; ++i )
             {
-                tMinCoord( i ) = aFacet->get_min_coord( i ) - mData.mBufferDiagonal;
-                tMaxCoord( i ) = aFacet->get_max_coord( i ) + mData.mBufferDiagonal;
+                tMinCoord( i ) = aFacet->get_min_coord( i ) - mBufferDiagonal;
+                tMaxCoord( i ) = aFacet->get_max_coord( i ) + mBufferDiagonal;
             }
 
             // why is this necessary?
