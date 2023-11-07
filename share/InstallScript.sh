@@ -5,6 +5,11 @@
 
 # tested on: ubuntu; OpenSUSE 15.5 
 
+# For special cases, such as building openmpi with scheduler, 
+# see moris/share/isntall/Install_Special_Cases.txt
+
+#------------------------------------------------------------
+# edit the following lines
 #------------------------------------------------------------
 
 # set spack and moris installation directory
@@ -14,7 +19,7 @@ export WORKSPACE=$HOME/codes
 export DEVELOPPER_MODE=0
 
 # define blas implementation INTEL_MKL: 0 for no; 1 for yes
-export INTEL_MKL=1
+export INTEL_MKL=0
 
 # set compiler and version (see out of gcc --version)
 export COMPILER='gcc@11.3.0'
@@ -26,6 +31,8 @@ export TMPDIR=/tmp
 export VERBOSE=0
 
 #------------------------------------------------------------
+# no need to edit script below
+#------------------------------------------------------------
 
 echo ""
 echo "MORIS installation parameters:"
@@ -35,10 +42,15 @@ echo "DEVELOPPER_MODE    $DEVELOPPER_MODE"
 echo "INTEL_MKL          $INTEL_MKL"
 echo "COMPILER           $COMPILER"
 echo "TMPDIR             $TMPDIR"
+echo "VERBOSE            $VERBOSE"
 echo ""
-echo "Press return to continue; to abort press ctrl+c"
-echo ""
-#read ans
+
+if [ $VERBOSE = "0" ];then
+    echo "Press return to continue; to abort press ctrl+c"
+    echo ""
+    read ans
+    echo ""
+fi
 
 #------------------------------------------------------------
 
@@ -157,9 +169,9 @@ spack install $VOPTION openmpi %"$COMPILER"
 if [ $DEVELOPPER_MODE = "1" ];then
     spack install $VOPTION --only dependencies moris %"$COMPILER"
     
-    spack install doxygen %"$COMPILER"
+    spack install $VOPTION doxygen %"$COMPILER"
 
-    spack install llvm %"$COMPILER"
+    spack install $VOPTION llvm %"$COMPILER"
 else
     spack install $VOPTION moris %"$COMPILER"
 fi
@@ -184,3 +196,13 @@ fi
 
 sed -rn 's/^\s*setenv\s+(\S+)\s+/export \1=/p' ~/.cshrc_moris > ~/.bashrc_moris
 
+#------------------------------------------------------------
+
+if [ $DEVELOPPER_MODE = "1" ];then
+    echo ""
+    echo ""
+    echo "Developers: follow build instructions under moris/share/install/Build_Instructions.txt"
+    echo "            to build moris in either debug or release (opt) mode"
+    echo ""
+    echo ""
+fi

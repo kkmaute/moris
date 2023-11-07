@@ -399,7 +399,7 @@ class Trilinos(CMakePackage, CudaPackage, ROCmPackage):
     depends_on("superlu@4.3 +pic", when="+superlu")
     depends_on("swig", when="+python")
     depends_on("zlib", when="+zoltan")
-    depends_on("intel-mkl", when="+pardiso")
+    depends_on("intel-oneapi-mkl", when="+pardiso")
     
     # Trilinos' Tribits config system is limited which makes it very tricky to
     # link Amesos with static MUMPS, see
@@ -731,7 +731,7 @@ class Trilinos(CMakePackage, CudaPackage, ROCmPackage):
             ("HDF5", "hdf5", "hdf5"),
             ("HYPRE", "hypre", "hypre"),
             ("MUMPS", "mumps", "mumps"),
-            ("PARDISO_MKL", "pardiso", "intel-mkl"),
+            ("PARDISO_MKL", "pardiso", "intel-oneapi-mkl"),
             ("UMFPACK", "suite-sparse", "suite-sparse"),
             ("SuperLU", "superlu", "superlu"),
             ("SuperLUDist", "superlu-dist", "superlu-dist"),
