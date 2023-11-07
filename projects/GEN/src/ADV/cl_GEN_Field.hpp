@@ -48,6 +48,7 @@ namespace moris::ge
 
       private:
         std::string mName;
+        inline static uint mCount = 0;
 
       public:
 
@@ -231,6 +232,13 @@ namespace moris::ge
          * @return Name
          */
         std::string get_name();
+
+      private:
+
+        /**
+         * Checks that a unique name has been given, and if not assigns a default name
+         */
+        void verify_name();
 
     };
 }

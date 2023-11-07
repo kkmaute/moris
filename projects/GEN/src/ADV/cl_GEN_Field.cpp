@@ -27,6 +27,7 @@ namespace moris::ge
             , mSensitivities( 1, aFieldVariableIndices.length() + aConstants.length() )
             , mName( std::move( aName ) )
     {
+        this->verify_name();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -38,6 +39,7 @@ namespace moris::ge
             , mSensitivities( 1, aConstants.length(), 0.0 )
             , mName( aName )
     {
+        this->verify_name();
     }
     
     //--------------------------------------------------------------------------------------------------------------
@@ -49,6 +51,7 @@ namespace moris::ge
             , mSensitivities( 1, aSharedADVIds.length() )
             , mName( std::move( aName ) )
     {
+        this->verify_name();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -60,6 +63,7 @@ namespace moris::ge
             , mSensitivities( aCopy.mSensitivities )
             , mName( aCopy.mName )
     {
+        // Do not verify name, as we are making a copy
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -141,6 +145,21 @@ namespace moris::ge
     std::string Field::get_name()
     {
         return mName;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Field::verify_name()
+    {
+        // Assign default name if needed
+        if ( mName.empty() )
+        {
+            mName = "Field " + std::to_string( Field::mCount );
+            std::cout << "default field name " << mName << std::endl;
+        }
+
+        // Increment count
+        Field::mCount++;
     }
 
     //--------------------------------------------------------------------------------------------------------------
