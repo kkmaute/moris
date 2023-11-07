@@ -155,7 +155,6 @@ namespace moris::ge
         if ( mName.empty() )
         {
             mName = "Field " + std::to_string( Field::mCount );
-            std::cout << "default field name " << mName << std::endl;
         }
 
         // Increment count
