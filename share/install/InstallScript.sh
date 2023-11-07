@@ -6,7 +6,7 @@
 # tested on: ubuntu; OpenSUSE 15.5 
 
 # For special cases, such as building openmpi with scheduler, 
-# see moris/share/isntall/Install_Special_Cases.txt
+# see moris/share/isntall/Install_Manual.txt
 
 #------------------------------------------------------------
 # edit the following lines
