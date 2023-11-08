@@ -4,8 +4,19 @@
 # script to generate resource files for bash and tcsh shells
 #-----------------------------------------------------------------
 
-rm -f $HOME/.cshrc_moris
-rm -f $HOME/.bashrc_moris
+if [ ! $WORKSPACE ];then
+    echo ""
+    echo "Environment variable WORKSPACE needs to be defined"
+    echo ""
+    exit
+fi
+
+if [ -f $HOME/.cshrc_moris ];then
+    mv $HOME/.cshrc_moris  $HOME/.cshrc_moris.org
+fi
+if [ -f $HOME/.bashrc_moris ];then
+    mv $HOME/.bashrc_moris $HOME/.bashrc_moris.org
+fi
 
 cd $WORKSPACE
 export SPACK_ROOT=$WORKSPACE/spack
@@ -83,7 +94,7 @@ export PETSC_DIR=`spack location --install-dir petsc`
 echo "setenv PETSC_DIR"        $PETSC_DIR                                      >> $HOME/.cshrc_moris
 fi
 if [ $SLEPC_INSTALLED == "1" ];then
-export SLEPC_DIR=`spack location --install-dir slepc`
+export SLEPC_DIR=`spack location/home/maute/codes/spack/opt/spack/linux-opensuse15-zen3/gcc-11.3.0/moris-main-2kikgsurryvtlduj746ehxpbbxdpq3kq/bin/ --install-dir slepc`
 echo "setenv SLEPC_DIR"        $SLEPC_DIR                                      >> $HOME/.cshrc_moris
 fi
 if [ $MKL_INSTALLED == "1" ];then
@@ -174,3 +185,5 @@ fi
 
 echo "setenv GFORTLIB $GFORTLIB"                                               >> $HOME/.cshrc_moris
 echo "setenv GFORTLIB_PATH $GFORTLIB_PATH"                                     >> $HOME/.cshrc_moris
+
+sed -rn 's/^\s*setenv\s+(\S+)\s+/export \1=/p' $HOME/.cshrc_moris > $HOME/.bashrc_moris
