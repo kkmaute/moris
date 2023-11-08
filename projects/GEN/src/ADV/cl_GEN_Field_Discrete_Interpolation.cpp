@@ -20,6 +20,7 @@ namespace moris::ge
             Matrix< DDRMat > aConstants,
             mtk::Interpolation_Mesh* aMesh )
             : Field( aConstants, "" )
+            , mMeshPair( nullptr, nullptr ) // FIXME
     {
         if (aMesh)
         {
@@ -117,7 +118,7 @@ namespace moris::ge
 
     std::shared_ptr< mtk::Field > Field_Discrete_Interpolation::get_mtk_field()
     {
-        return this->create_mtk_field();
+        return this->create_mtk_field( mMeshPair );
     }
 
     //--------------------------------------------------------------------------------------------------------------

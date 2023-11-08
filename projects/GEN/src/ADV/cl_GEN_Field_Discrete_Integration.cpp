@@ -20,6 +20,7 @@ namespace moris::ge
             Matrix< DDRMat > aConstants,
             uint             aNumOriginalNodes )
             : Field( aConstants, "" )
+            , mMeshPair( nullptr, nullptr ) // FIXME
     {
         mNumOriginalNodes = aNumOriginalNodes;
     }
@@ -28,11 +29,12 @@ namespace moris::ge
 
     Field_Discrete_Integration::Field_Discrete_Integration(
             const Matrix< DDSMat >& aSharedADVIds,
-            uint                    aNumOriginalNodes,
+            mtk::Mesh_Pair          aMeshPair,
             std::string             aName )
             : Field( aSharedADVIds, aName )
+            , mMeshPair( aMeshPair )
     {
-        mNumOriginalNodes = aNumOriginalNodes;
+        mNumOriginalNodes = mMeshPair.get_interpolation_mesh()->get_num_nodes();
     }
 
     //--------------------------------------------------------------------------------------------------------------
@@ -134,7 +136,7 @@ namespace moris::ge
 
     std::shared_ptr< mtk::Field > Field_Discrete_Integration::get_mtk_field()
     {
-        return this->create_mtk_field();
+        return this->create_mtk_field( mMeshPair );
     }
 
     //--------------------------------------------------------------------------------------------------------------

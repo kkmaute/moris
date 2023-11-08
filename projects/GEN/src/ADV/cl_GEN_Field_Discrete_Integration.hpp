@@ -17,28 +17,13 @@ namespace moris::ge
     class Field_Discrete_Integration : public Field
     {
 
+      protected:
+        mtk::Mesh_Pair mMeshPair;
+
       private:
         Cell< std::shared_ptr< Child_Node > > mChildNodes;
 
       public:
-
-        /**
-         * Constructor using pointers to ADVs for variable evaluations.
-         *
-         * @param aADVs ADV vector
-         * @param aFieldVariableIndices Indices of field variables to be filled by the ADVs
-         * @param aADVIndices The indices of the ADV vector to fill in the field variables
-         * @param aConstants The constant field variables not filled by ADVs
-         * @param aName Name of this field
-         * @param aNumOriginalNodes Number of nodes originally on the integration mesh, before intersections
-         */
-        Field_Discrete_Integration(
-                ADV_ARG_TYPES,
-                uint aNumOriginalNodes = 0 )
-                : Field( ADV_ARGS )
-        {
-            mNumOriginalNodes = aNumOriginalNodes;
-        }
 
         /**
          * Constructor using only constants (no ADVs).
@@ -53,12 +38,12 @@ namespace moris::ge
          * Constructor that sets all field variables as consecutive ADVs. Assumes the use of distributed ADVs.
          *
          * @param aSharedADVIds Shared ADV IDs needed for this field
-         * @param aNumOriginalNodes Number of original nodes for this field
+         * @param aMeshPair Mesh pair for this field
          * @param aName Name of this field
          */
         Field_Discrete_Integration(
                 const Matrix< DDSMat >& aSharedADVIds,
-                uint                    aNumOriginalNodes,
+                mtk::Mesh_Pair          aMeshPair,
                 std::string             aName );
 
         /**

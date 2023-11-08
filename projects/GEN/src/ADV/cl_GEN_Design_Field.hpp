@@ -242,10 +242,6 @@ namespace moris::ge
 
         // TODO where should I really put this stuff?
         void set_num_original_nodes( uint aNumOriginalNodes );
-        void set_mesh_pair( mtk::Mesh_Pair aMeshPair )
-        {
-            mField->mMeshPair = aMeshPair;
-        }
 
         /**
          * Allows for access to the GEN field

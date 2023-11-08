@@ -16,6 +16,7 @@
 
 namespace moris::ge
 {
+    // TODO a scaled field should not have this inheritance to begin with
     class Scaled_Field : public Field_Discrete_Interpolation
     {
 
@@ -36,7 +37,7 @@ namespace moris::ge
         Scaled_Field(
                 std::shared_ptr< Field > aField,
                 ADV_ARG_TYPES )
-                : Field_Discrete_Interpolation( ADV_ARGS )
+                : Field_Discrete_Interpolation( mtk::Mesh_Pair( nullptr, nullptr ), ADV_ARGS )
                 , mField( aField )
         {
             VARIABLE_CHECK( 1 );

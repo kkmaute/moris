@@ -95,21 +95,34 @@ namespace moris::ge
     
     std::shared_ptr< mtk::Field > Combined_Fields::get_mtk_field()
     {
+        // Trivial mesh pair, since it may or may not be needed
+        mtk::Mesh_Pair tMeshPair( nullptr, nullptr );
+
         // Test if MTK field is needed
         bool tNeedMTKField = false;
         for ( auto iField : mFields )
         {
-            if ( iField->get_mtk_field() )
+            // Get MTK field
+            auto tMTKField = iField->get_mtk_field();
+
+            // If field exists, we have at least one discrete field and need a full MTK field
+            if ( tMTKField )
             {
+                // Set that we need an MTK field
                 tNeedMTKField = true;
+
+                // Grab the relevant mesh pair
+                tMeshPair = tMTKField->get_mesh_pair();
+
+                // No use in testing the rest of the fields
                 break;
             }
         }
 
-        // Create field if needed
+        // Create MTK field if needed
         if ( tNeedMTKField )
         {
-            return this->create_mtk_field();
+            return this->create_mtk_field( tMeshPair );
         }
         else
         {

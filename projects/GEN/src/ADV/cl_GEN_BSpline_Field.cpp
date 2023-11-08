@@ -32,7 +32,7 @@ namespace moris::ge
             uint                     aADVOffsetID,
             uint                     aDiscretizationIndex,
             std::shared_ptr< Field > aField )
-            : Field_Discrete_Integration( aSharedADVIds, aMeshPair.get_interpolation_mesh()->get_num_nodes(), aField->get_name() )
+            : Field_Discrete_Integration( aSharedADVIds, aMeshPair, aField->get_name() )
             , mADVOffsetID( aADVOffsetID )
             , mMeshPair( aMeshPair )
             , mDiscretizationIndex( aDiscretizationIndex )
@@ -55,7 +55,7 @@ namespace moris::ge
             uint                          aADVOffsetID,
             uint                          aDiscretizationIndex,
             std::shared_ptr< mtk::Field > aMTKField )
-            : Field_Discrete_Integration( aSharedADVIds, aMTKField->get_mesh_pair().get_interpolation_mesh()->get_num_nodes(), aMTKField->get_label() )
+            : Field_Discrete_Integration( aSharedADVIds, aMTKField->get_mesh_pair(), aMTKField->get_label() )
             , mADVOffsetID( aADVOffsetID )
             , mMeshPair( aMTKField->get_mesh_pair() )
             , mDiscretizationIndex( aDiscretizationIndex )

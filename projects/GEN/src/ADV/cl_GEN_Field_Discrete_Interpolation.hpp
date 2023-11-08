@@ -11,18 +11,21 @@
 #pragma once
 
 #include "cl_GEN_Field.hpp"
+#include "cl_MTK_Mesh_Pair.hpp"
 #include "cl_MTK_Interpolation_Mesh.hpp"
 
 namespace moris::ge
 {
     class Field_Discrete_Interpolation : public Field
     {
-    private:
-        uint (Field_Discrete_Interpolation::*get_node_index)(uint) = &Field_Discrete_Interpolation::return_same_index;
-        Matrix<DDUMat> tNodeToBaseIndex;
+      protected:
+        mtk::Mesh_Pair mMeshPair;
 
-    public:
+      private:
+        uint ( Field_Discrete_Interpolation::*get_node_index )( uint ) = &Field_Discrete_Interpolation::return_same_index;
+        Matrix< DDUMat > tNodeToBaseIndex;
 
+      public:
         /**
          * Constructor using pointers to ADVs for variable evaluations.
          *
@@ -33,13 +36,14 @@ namespace moris::ge
          * @param aName Name of this field
          */
         Field_Discrete_Interpolation(
-              ADV_ARG_TYPES,
-              mtk::Interpolation_Mesh* aMesh = nullptr )
-              : Field( ADV_ARGS )
+                mtk::Mesh_Pair aMeshPair,
+                ADV_ARG_TYPES )
+                : Field( ADV_ARGS )
+                , mMeshPair( aMeshPair )
         {
-            if (aMesh)
+            if ( aMeshPair.get_interpolation_mesh() )
             {
-                this->add_nodal_data( aMesh );
+                this->add_nodal_data( aMeshPair.get_interpolation_mesh() );
             }
         }
 
@@ -49,7 +53,7 @@ namespace moris::ge
          * @param aConstants The parameters that define this field
          */
         Field_Discrete_Interpolation(
-                Matrix< DDRMat > aConstants,
+                Matrix< DDRMat >         aConstants,
                 mtk::Interpolation_Mesh* aMesh );
 
         /**
@@ -60,8 +64,8 @@ namespace moris::ge
          * @return Field value
          */
         real get_field_value(
-                uint                  aNodeIndex,
-                const Matrix<DDRMat>& aCoordinates);
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates );
 
         /**
          * Given a node index or coordinate, returns a matrix all sensitivities.
@@ -70,9 +74,9 @@ namespace moris::ge
          * @param aCoordinates Vector of coordinate values
          * @return Vector of sensitivities
          */
-        const Matrix<DDRMat>& get_dfield_dadvs(
-                uint                  aNodeIndex,
-                const Matrix<DDRMat>& aCoordinates);
+        const Matrix< DDRMat >& get_dfield_dadvs(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates );
 
         /**
          * Gets the IDs of ADVs which this field depends on for evaluations.
@@ -81,9 +85,9 @@ namespace moris::ge
          * @param aCoordinates Node coordinates
          * @return Determining ADV IDs at this node
          */
-        Matrix<DDSMat> get_determining_adv_ids(
-                uint                  aNodeIndex,
-                const Matrix<DDRMat>& aCoordinates);
+        Matrix< DDSMat > get_determining_adv_ids(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates );
 
         /**
          * Given a node index or coordinates, returns a vector of the field derivatives with respect to the nodal
@@ -94,9 +98,9 @@ namespace moris::ge
          * @param aSensitivities Sensitivities to be filled with d(field value)/d(coordinate_j)
          */
         void get_dfield_dcoordinates(
-                uint                  aNodeIndex,
-                const Matrix<DDRMat>& aCoordinates,
-                Matrix<DDRMat>&       aSensitivities);
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates,
+                Matrix< DDRMat >&       aSensitivities );
 
         /**
          * Uses additional information from the given interpolation mesh to define
@@ -104,15 +108,14 @@ namespace moris::ge
          *
          * @param aMesh Interpolation mesh with additional nodes
          */
-        void add_nodal_data(mtk::Interpolation_Mesh* aMesh);
+        void add_nodal_data( mtk::Interpolation_Mesh* aMesh );
 
         /**
          * Resets all nodal information. This should be called when a new XTK mesh is being created.
          */
         void reset_nodal_data();
 
-    private:
-
+      private:
         /**
          * Given a node index, returns the field value at the base node index
          *
@@ -120,8 +123,8 @@ namespace moris::ge
          * @return Field value
          */
         virtual real get_base_field_value(
-                uint                  aNodeIndex,
-                const Matrix<DDRMat>& aCoordinates) = 0;
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates ) = 0;
 
         /**
          * Given a node index, returns a vector of the field derivatives with respect to its ADVs.
@@ -130,9 +133,9 @@ namespace moris::ge
          * @param aCoordinates Node coordinates
          * @return Vector of sensitivities
          */
-        virtual const Matrix<DDRMat>& get_base_dfield_dadvs(
-                uint                  aNodeIndex,
-                const Matrix<DDRMat>& aCoordinates) = 0;
+        virtual const Matrix< DDRMat >& get_base_dfield_dadvs(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates ) = 0;
 
         /**
          * Gets the IDs of ADVs which this field depends on for evaluations.
@@ -141,23 +144,23 @@ namespace moris::ge
          * @param aCoordinates Node coordinates
          * @return Determining ADV IDs at this node
          */
-        virtual Matrix<DDSMat> get_base_determining_adv_ids(
-                uint                  aNodeIndex,
-                const Matrix<DDRMat>& aCoordinates);
+        virtual Matrix< DDSMat > get_base_determining_adv_ids(
+                uint                    aNodeIndex,
+                const Matrix< DDRMat >& aCoordinates );
 
         /**
          * Returns the same node index, for the case if there is no mesh information to go off of.
          *
          * @return Input node index
          */
-        uint return_same_index(uint aNodeIndex);
+        uint return_same_index( uint aNodeIndex );
 
         /**
          * Gets a base node index based on the information obtained from the mesh with nodal data.
          *
          * @return Base node index
          */
-        uint get_base_node_index(uint aNodeIndex);
+        uint get_base_node_index( uint aNodeIndex );
 
         /**
          * Gets an MTK field, if this field needs to be remapped to a new mesh
@@ -165,6 +168,5 @@ namespace moris::ge
          * @return MTK field
          */
         std::shared_ptr< mtk::Field > get_mtk_field() override;
-
     };
 }

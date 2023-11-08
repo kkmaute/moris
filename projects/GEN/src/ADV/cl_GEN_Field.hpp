@@ -13,7 +13,7 @@
 #include <utility>
 #include "cl_GEN_ADV_Manager.hpp"
 #include "cl_GEN_Child_Node.hpp"
-#include "cl_MTK_Mesh_Pair.hpp"
+#include "cl_MTK_Field.hpp"
 
 /**
  * \def ADV_ARG_TYPES
@@ -43,9 +43,6 @@ namespace moris::ge
 {
     class Field
     {
-      public:
-        mtk::Mesh_Pair mMeshPair = mtk::Mesh_Pair( nullptr, nullptr );
-
       protected:
         uint mNumOriginalNodes = 0;
         ADV_Manager mADVManager;
@@ -253,7 +250,7 @@ namespace moris::ge
          * @param aMesh Mesh pointer
          * @return MTK field
          */
-        std::shared_ptr< mtk::Field > create_mtk_field();
+        std::shared_ptr< mtk::Field > create_mtk_field( const mtk::Mesh_Pair& aMeshPair );
 
       private:
 

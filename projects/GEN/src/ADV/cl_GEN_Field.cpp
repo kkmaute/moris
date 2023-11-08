@@ -149,13 +149,13 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    std::shared_ptr< mtk::Field > Field::create_mtk_field()
+    std::shared_ptr< mtk::Field > Field::create_mtk_field( const mtk::Mesh_Pair& aMeshPair )
     {
         // Output field
-        auto tMTKField = std::make_shared< mtk::Field_Discrete >( mMeshPair );
+        auto tMTKField = std::make_shared< mtk::Field_Discrete >( aMeshPair );
 
         // Get interpolation mesh
-        mtk::Interpolation_Mesh* tInterpolationMesh = mMeshPair.get_interpolation_mesh();
+        mtk::Interpolation_Mesh* tInterpolationMesh = aMeshPair.get_interpolation_mesh();
 
         // Get nodal values
         uint tNumberOfNodes = tInterpolationMesh->get_num_nodes();
