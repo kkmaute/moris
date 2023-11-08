@@ -44,11 +44,11 @@ namespace moris::ge
                 std::shared_ptr< Field > aField );
 
         BSpline_Field(
-                mtk::Mesh_Pair         aMeshPair,
-                sol::Dist_Vector*      aOwnedADVs,
-                const Matrix<DDSMat>&  aSharedADVIds,
-                uint                   aADVOffsetID,
-                std::shared_ptr<mtk::Field> aMTKField );
+                sol::Dist_Vector*             aOwnedADVs,
+                const Matrix<DDSMat>&         aSharedADVIds,
+                uint                          aADVOffsetID,
+                uint                          aDiscretizationIndex,
+                std::shared_ptr< mtk::Field > aMTKField );
 
         /**
          * Destructor

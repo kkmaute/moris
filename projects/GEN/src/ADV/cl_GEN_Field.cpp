@@ -149,19 +149,21 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
-    std::shared_ptr< mtk::Field > Field::create_mtk_field(
-            mtk::Mesh* aMesh )
+    std::shared_ptr< mtk::Field > Field::create_mtk_field()
     {
         // Output field
         auto tMTKField = std::make_shared< mtk::Field_Discrete >( mMeshPair );
 
+        // Get interpolation mesh
+        mtk::Interpolation_Mesh* tInterpolationMesh = mMeshPair.get_interpolation_mesh();
+
         // Get nodal values
-        uint tNumberOfNodes = aMesh->get_num_nodes();
+        uint tNumberOfNodes = tInterpolationMesh->get_num_nodes();
         Matrix< DDRMat > tNodalValues( tNumberOfNodes, 1 );
         for ( uint tNodeIndex = 0; tNodeIndex < tNumberOfNodes; tNodeIndex++ )
         {
             tNodalValues( tNodeIndex ) =
-                    this->get_field_value( tNodeIndex, aMesh->get_node_coordinate( tNodeIndex ) );
+                    this->get_field_value( tNodeIndex, tInterpolationMesh->get_node_coordinate( tNodeIndex ) );
         }
 
         // Set nodal values

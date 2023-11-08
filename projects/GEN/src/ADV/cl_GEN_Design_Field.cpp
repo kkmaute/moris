@@ -75,6 +75,31 @@ namespace moris::ge
                     mField );
         }
     }
+
+    //--------------------------------------------------------------------------------------------------------------
+
+    void Design_Field::discretize(
+            std::shared_ptr< mtk::Field > aMTKField,
+            sol::Dist_Vector*             aOwnedADVs,
+            const Matrix<DDSMat>&         aSharedADVIds,
+            uint                          aADVOffsetID )
+    {
+        if ( mParameters.mDiscretizationIndex >= 0 )
+        {
+            // Create a B-spline field
+            mField = std::make_shared< BSpline_Field >(
+                    aOwnedADVs,
+                    aSharedADVIds,
+                    aADVOffsetID,
+                    mParameters.mDiscretizationIndex,
+                    aMTKField );
+        }
+        else if ( mParameters.mDiscretizationIndex == -1 )
+        {
+            // TODO
+            MORIS_ERROR( false, "Stored field cannot be remeshed for now" );
+        }
+    }
     
     //--------------------------------------------------------------------------------------------------------------
     

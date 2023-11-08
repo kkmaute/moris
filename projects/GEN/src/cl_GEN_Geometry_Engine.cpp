@@ -1472,12 +1472,31 @@ namespace moris
             // Loop to discretize geometries when requested
             for ( uint iGeometryIndex = 0; iGeometryIndex < mGeometries.size(); iGeometryIndex++ )
             {
-                // Discretize
-                mGeometries( iGeometryIndex )->discretize(
-                        aMeshPair,
-                        tNewOwnedADVs,
-                        tSharedADVIds( iGeometryIndex ),
-                        tAllOffsetIDs( iGeometryIndex ) );
+                // Loop over MTK fields to find a match
+                bool tUseMTKField = false;
+                for ( const auto& iMTKField : aFields )
+                {
+                    if ( mGeometries( iGeometryIndex )->get_name() == iMTKField->get_label() )
+                    {
+                        mGeometries( iGeometryIndex )->discretize(
+                                iMTKField,
+                                tNewOwnedADVs,
+                                tSharedADVIds( iGeometryIndex ),
+                                tAllOffsetIDs( iGeometryIndex ) );
+                        tUseMTKField = true;
+                        break;
+                    }
+                }
+
+                // Otherwise discretize with original field
+                if ( not tUseMTKField )
+                {
+                    mGeometries( iGeometryIndex )->discretize(
+                            aMeshPair,
+                            tNewOwnedADVs,
+                            tSharedADVIds( iGeometryIndex ),
+                            tAllOffsetIDs( iGeometryIndex ) );
+                }
 
                 // Shape sensitivities logic
                 mShapeSensitivities = ( mShapeSensitivities or mGeometries( iGeometryIndex )->depends_on_advs() );
@@ -1486,11 +1505,31 @@ namespace moris
             // Loop to discretize properties when requested
             for ( uint iPropertyIndex = 0; iPropertyIndex < mProperties.size(); iPropertyIndex++ )
             {
-                mProperties( iPropertyIndex )->discretize(
-                        aMeshPair,
-                        tNewOwnedADVs,
-                        tSharedADVIds( mGeometries.size() + iPropertyIndex ),
-                        tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
+                // Loop over MTK fields to find a match
+                bool tUseMTKField = false;
+                for ( const auto& iMTKField : aFields )
+                {
+                    if ( mProperties( iPropertyIndex )->get_name() == iMTKField->get_label() )
+                    {
+                        mProperties( iPropertyIndex )->discretize(
+                                iMTKField,
+                                tNewOwnedADVs,
+                                tSharedADVIds( mGeometries.size() + iPropertyIndex ),
+                                tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
+                        tUseMTKField = true;
+                        break;
+                    }
+                }
+
+                // Otherwise discretize with original field
+                if ( not tUseMTKField )
+                {
+                    mProperties( iPropertyIndex )->discretize(
+                            aMeshPair,
+                            tNewOwnedADVs,
+                            tSharedADVIds( mGeometries.size() + iPropertyIndex ),
+                            tAllOffsetIDs( mGeometries.size() + iPropertyIndex ) );
+                }
             }
 
             // Update dependencies

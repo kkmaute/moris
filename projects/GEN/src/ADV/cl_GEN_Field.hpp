@@ -248,13 +248,12 @@ namespace moris::ge
       protected:
 
         /**
-         * Creates an MTK field based on this field on a given mesh
+         * Creates an MTK field based on this field on a given mesh. Should only need to be called by discrete fields.
          *
          * @param aMesh Mesh pointer
          * @return MTK field
          */
-        std::shared_ptr< mtk::Field > create_mtk_field(
-                mtk::Mesh*   aMesh );
+        std::shared_ptr< mtk::Field > create_mtk_field();
 
       private:
 

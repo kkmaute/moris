@@ -67,16 +67,30 @@ namespace moris::ge
         /**
          * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
          *
+         * @param aMeshPair The mesh pair where the discretization information can be obtained
          * @param aOwnedADVs Pointer to the owned distributed ADVs
          * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
          * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
-         * @param aMeshPair The mesh pair where the discretization information can be obtained
          */
         void discretize(
                 mtk::Mesh_Pair        aMeshPair,
                 sol::Dist_Vector*     aOwnedADVs,
                 const Matrix<DDSMat>& aSharedADVIds,
                 uint                  aADVOffsetID );
+
+        /**
+         * If intended for this field, maps the field to B-spline coefficients or stores the nodal field values in a stored field object.
+         *
+         * @param aMTKField Input MTK field to map based on
+         * @param aOwnedADVs Pointer to the owned distributed ADVs
+         * @param aSharedADVIds All owned and shared ADV IDs for this B-spline field
+         * @param aADVOffsetID Offset in the owned ADV IDs for pulling ADV IDs
+         */
+        void discretize(
+                std::shared_ptr< mtk::Field > aMTKField,
+                sol::Dist_Vector*             aOwnedADVs,
+                const Matrix<DDSMat>&         aSharedADVIds,
+                uint                          aADVOffsetID );
 
         /**
          * Given a node index or coordinate, returns the field value.

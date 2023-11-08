@@ -134,7 +134,7 @@ namespace moris::ge
 
     std::shared_ptr< mtk::Field > Field_Discrete_Integration::get_mtk_field()
     {
-        return this->create_mtk_field( mMeshPair.get_integration_mesh() );
+        return this->create_mtk_field();
     }
 
     //--------------------------------------------------------------------------------------------------------------

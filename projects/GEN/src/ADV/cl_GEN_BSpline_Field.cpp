@@ -50,14 +50,15 @@ namespace moris::ge
     //--------------------------------------------------------------------------------------------------------------
 
     BSpline_Field::BSpline_Field(
-            mtk::Mesh_Pair                aMeshPair,
             sol::Dist_Vector*             aOwnedADVs,
             const Matrix< DDSMat >&       aSharedADVIds,
             uint                          aADVOffsetID,
+            uint                          aDiscretizationIndex,
             std::shared_ptr< mtk::Field > aMTKField )
-            : Field_Discrete_Integration( aSharedADVIds, aMeshPair.get_interpolation_mesh()->get_num_nodes(), aMTKField->get_label() )
+            : Field_Discrete_Integration( aSharedADVIds, aMTKField->get_mesh_pair().get_interpolation_mesh()->get_num_nodes(), aMTKField->get_label() )
             , mADVOffsetID( aADVOffsetID )
-            , mMeshPair( aMeshPair )
+            , mMeshPair( aMTKField->get_mesh_pair() )
+            , mDiscretizationIndex( aDiscretizationIndex )
     {
         // Map to B-splines
         const Matrix< DDRMat >& tTargetField = aMTKField->get_coefficients();

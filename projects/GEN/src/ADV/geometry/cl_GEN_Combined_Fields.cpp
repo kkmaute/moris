@@ -109,7 +109,7 @@ namespace moris::ge
         // Create field if needed
         if ( tNeedMTKField )
         {
-            return this->create_mtk_field( mMeshPair.get_integration_mesh() );
+            return this->create_mtk_field();
         }
         else
         {
