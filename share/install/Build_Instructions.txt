@@ -1,0 +1,113 @@
+* Build instructions of developers
+
+*------------------------------------------------------------
+* The following instructions assume that the InstallScript.sh  
+* was successfully run with the developer mode set to 1
+*
+*------------------------------------------------------------
+*
+* Important:  1. Start a new shell in case you loaded earlier a 
+*                spack environment
+*             2. Depending on the shell you use source either
+*                tcsh:   source ~/.cshrc_moris
+                 or
+                 bash:   source ~/.bashrc_moris
+*            
+* Recommendation: include .cshrc_moris  in your .cshrc file
+*                 or      .bashrc_moris in your .bschrc file
+*
+*------------------------------------------------------------
+
+* if you have disabled one of the default packages, for example using non-developer mode (EXHUME project)
+* add to the cmake options one or more of the following of the following directives:
+
+* without petsc:   -DMORIS_HAVE_PETSC=OFF
+* without slepc:   -DMORIS_HAVE_SLEPC=OFF
+* without pardiso: -DMORIS_USE_PARDISO=OFF 
+* without mumps:   -DMORIS_USE_MUMPS=OFF 
+* without gcmma:   -DMORIS_HAVE_GCMMA=OFF
+* without lbfgs:   -DMORIS_HAVE_LBFGS=OFF
+* without snopt:   -DMORIS_HAVE_SNOPT=OFF
+
+* if you have installed a trilinos version that uses modern cmake use the following option when
+* configuring moris
+
+* -DMORIS_HAVE_TRILINOS_NEW_CMAKE=ON
+
+*------------------------------------------------------------
+
+* build moris optimized version and run tests
+
+*------------------------------------------------------------
+
+source $HOME/.cshrc_moris
+* or
+source $HOME/.bshrc_moris
+
+cd $MORISROOT
+
+mkdir build_opt
+
+cd build_opt
+
+* depending on your spack installation setting, you may be able to use one of the following settings 
+
+cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON ..
+
+* Using an intel processor, use MKL instead of OPENBLAS
+
+cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_MKL=ON -DMORIS_USE_OPENBLAS=OFF ..
+
+* if you do not want to use neither MKL nor OPENBLAS 
+
+cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_OPENBLAS=OFF -DMORIS_USE_LAPACK=ON ..
+
+* if you do not have installed petsc, slepc, pardiso, and the optimization libraries:
+
+cmake -DBUILD_ALL=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_HAVE_PETSC=OFF -DMORIS_HAVE_SLEPC=OFF -DMORIS_USE_PARDISO=OFF -DMORIS_USE_MUMPS=OFF -DMORIS_HAVE_GCMMA=OFF -DMORIS_HAVE_LBFGS=OFF -DMORIS_HAVE_SNOPT=OFF ..
+
+* compile moris
+
+make -j 6
+
+* run tests
+
+ctest
+
+*------------------------------------------------------------
+
+* build debug version and run test
+
+*------------------------------------------------------------
+
+source $HOME/.cshrc_moris
+* or
+source $HOME/.bshrc_moris
+
+cd $MORISROOT
+
+mkdir build_dbg
+
+cd build_dbg
+
+cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON ..
+
+* Using an intel processor, use MKL instead of OPENBLAS
+
+cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_MKL=ON -DMORIS_USE_OPENBLAS=OFF ..
+
+* if you do not want to use neither MKL nor OPENBLAS 
+
+cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_USE_OPENBLAS=OFF -DMORIS_USE_LAPACK=ON ..
+
+* if you do not have installed petsc,slepc, pardiso, and the optimization libraries:
+
+cmake -DBUILD_ALL=ON -DMORIS_HAVE_DEBUG=ON -DMORIS_HAVE_SYMBOLIC=ON -DMORIS_HAVE_SYMBOLIC_STRONG=ON -DMORIS_USE_EXAMPLES=ON -DMORIS_HAVE_PETSC=OFF -DMORIS_HAVE_SLEPC=OFF -DMORIS_USE_PARDISO=OFF -DMORIS_USE_MUMPS=OFF -DMORIS_HAVE_GCMMA=OFF -DMORIS_HAVE_LBFGS=OFF -DMORIS_HAVE_SNOPT=OFF ..
+
+* compile moris
+
+make -j 6
+
+* run tests
+
+ctest

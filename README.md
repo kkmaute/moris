@@ -11,7 +11,9 @@ This code provides a research platform for PDE constrained optimization with foc
 ## Documentation
 
 ### Installation 
-A script to install instructions can be found in [InstallScript](https://github.com/kkmaute/moris/tree/main/share/install/InstallScript.sh). Edit the script and verify/update a small number of installation parameters. Should the script fail, detailed install instructions can be found at [Install_Step_By_Step.txt](https://github.com/kkmaute/moris/tree/main/share/install/Install_Step_By_Step.txt)
+A script to install moris can be found in [InstallScript](https://github.com/kkmaute/moris/tree/main/share/install/InstallScript.sh). Edit the script and verify/update a small number of installation parameters. Should the script fail, detailed install instructions can be found at [Install_Step_By_Step.txt](https://github.com/kkmaute/moris/tree/main/share/install/Install_Step_By_Step.txt)
+
+After installing moris, developers should follow the build instructions [Build_Instructions](https://github.com/kkmaute/moris/tree/main/share/install/Build_Instructions.txt) to build moris in either debug or release (opt) mode.
 
 ### Mesh Generation for Interpolation Based Finite Element Analysis
 Documentation for generating and outputting meshes and extraction operators as defined in this [paper](https://doi.org/10.1016/j.cma.2023.115890) can be found [here](https://github.com/kkmaute/moris/blob/main/share/doc/mesh_generation/main.pdf). GitHub's integrated PDF viewer doesn't support links, so please download the pdf to use them. Example input files can be found in [share/doc/mesh_generation/examples](https://github.com/kkmaute/moris/tree/main/share/doc/mesh_generation/examples).
