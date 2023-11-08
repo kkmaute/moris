@@ -6,7 +6,7 @@
 # tested on: ubuntu; OpenSUSE 15.5 
 
 # For special cases, such as building openmpi with scheduler, 
-# see moris/share/isntall/Install_Manual.txt
+# see moris/share/isntall/Install_Step_By_Step.txt
 
 #------------------------------------------------------------
 # edit the following lines
@@ -29,7 +29,7 @@ export COMPILER='gcc@11.3.0'
 # set directory for temporary files during built
 export TMPDIR=/tmp
 
-# verbose model for spack builds: 0 for no; 1 for yes
+# verbose mode for spack builds: 0 for no; 1 for yes
 export VERBOSE=0
 
 #------------------------------------------------------------
