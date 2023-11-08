@@ -727,10 +727,20 @@ namespace moris
                     }
                     else
                     {
+                        // Unlock field
                         aTargetFields( If )->unlock_field();
-                        // aTargetFields( If )->set_values( aSourceFields( If )->get_values() );
-                        aTargetFields( If )->set_coefficients( aSourceFields( If )->get_coefficients() );
-                        aTargetFields( If )->compute_nodal_values();
+
+                        // If coefficients exist, copy them over. If not, just copy values
+                        const Matrix< DDRMat >& tCoefficients = aSourceFields( If )->get_coefficients();
+                        if ( tCoefficients.length() > 0 )
+                        {
+                            aTargetFields( If )->set_coefficients( aSourceFields( If )->get_coefficients() );
+                            aTargetFields( If )->compute_nodal_values();
+                        }
+                        else
+                        {
+                            aTargetFields( If )->set_values( aSourceFields( If )->get_values() );
+                        }
                     }
                 }
                 else
