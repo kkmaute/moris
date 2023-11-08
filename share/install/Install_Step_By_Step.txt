@@ -322,8 +322,4 @@ spack clean
 
 * create the moris resource file (~/.moris_cshrc) which should be source before building moris
 
-tcsh $WORKSPACE/moris/share/spack/make_moris_cshrc.sh
-
-* create bash version (~/.moris_cshrc): 
-
-sed -rn 's/^\s*setenv\s+(\S+)\s+/export \1=/p' ~/.cshrc_moris > ~/.bashrc_moris
+bash $WORKSPACE/moris/share/spack/make_moris_resource.sh

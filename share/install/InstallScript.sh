@@ -16,6 +16,8 @@
 export WORKSPACE=$HOME/codes
 
 # define developper mode: 0 for users; 1 for developpers
+# note: developer mode requires access to github optimization packages
+#       under gitbub.com/kkmaute: gcmma, lbfgs,and snopt
 export DEVELOPPER_MODE=0
 
 # define blas implementation INTEL_MKL: 0 for no; 1 for yes
@@ -110,7 +112,11 @@ spack compiler find
 if [ $DEVELOPPER_MODE = "1" ];then
     spack add moris+pardiso+mumps
 else
-    spack add moris+openblas~petsc~slepc~pardiso~mumps~gcmma~lbfgs~snopt
+    if [ $INTEL_MKL = "0" ];then
+        spack add moris+openblas~petsc~slepc~pardiso~mumps~gcmma~lbfgs~snopt
+    else
+        spack add moris+mkl~petsc~slepc~pardiso~mumps~gcmma~lbfgs~snopt
+    end
 fi
 
 spack develop --path $WORKSPACE/moris moris@main
@@ -189,12 +195,10 @@ spack clean
 #------------------------------------------------------------
 
 if [ $DEVELOPPER_MODE = "1" ];then
-    tcsh $WORKSPACE/moris/share/spack/make_moris_cshrc.sh
+    bash $WORKSPACE/moris/share/spack/make_moris_resource.sh
 else
-    tcsh $WORKSPACE/moris/share/spack/make_moris_cshrc.sh view
+    bash $WORKSPACE/moris/share/spack/make_moris_resource.sh view
 fi
-
-sed -rn 's/^\s*setenv\s+(\S+)\s+/export \1=/p' ~/.cshrc_moris > ~/.bashrc_moris
 
 #------------------------------------------------------------
 
