@@ -260,6 +260,31 @@ namespace moris::ge
 
     //--------------------------------------------------------------------------------------------------------------
 
+    std::shared_ptr< mtk::Field > BSpline_Field::get_mtk_field()
+    {
+        // Output field
+        auto tMTKField = std::make_shared< mtk::Field_Discrete >( mMeshPair );
+
+        // Set coefficient vector TODO vector instead of matrix, like above
+        uint tNumberOfCoefficients = mADVManager.get_determining_adv_ids().length();
+        moris::Matrix< DDRMat > tCoefficients( tNumberOfCoefficients, 1 );
+        for ( uint iCoefficientIndex = 0; iCoefficientIndex < tNumberOfCoefficients; iCoefficientIndex++ )
+        {
+            tCoefficients( iCoefficientIndex ) = mADVManager.get_variable( iCoefficientIndex );
+        }
+
+        // Set coefficients
+        tMTKField->unlock_field();
+        tMTKField->set_coefficients( tCoefficients );
+
+        // Set name
+        tMTKField->set_label( this->get_name() );
+
+        return tMTKField;
+    }
+
+    //--------------------------------------------------------------------------------------------------------------
+
     Matrix< DDRMat >
     BSpline_Field::map_to_bsplines( std::shared_ptr< Field > aField )
     {

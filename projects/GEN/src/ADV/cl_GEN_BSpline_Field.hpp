@@ -88,6 +88,14 @@ namespace moris::ge
          */
         void import_advs( sol::Dist_Vector* aOwnedADVs ) override;
 
+        /**
+         * Gets an MTK field, if this field needs to be remapped to a new mesh. In this implementation, B-spline coefficients
+         * are set on the MTK field instead of just nodal values, as B-spline coefficients actually exist for a GEN B-spline field.
+         *
+         * @return MTK field
+         */
+        std::shared_ptr< mtk::Field > get_mtk_field() override;
+
     private:
 
         /**
