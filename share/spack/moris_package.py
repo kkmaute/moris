@@ -48,6 +48,7 @@ class Moris(CMakePackage):
     variant("lapack",   default=False, description="Compile with support generic blas and lapack")
     variant("tests",    default=False, description="Compile with unit tests")
     variant("examples", default=False, description="Compile with examples")
+    variant("debug",    default=False, description="Compile with debug support")
     
     depends_on('armadillo@9.800.3')
     depends_on('arpack-ng@3.8.0')
@@ -96,10 +97,15 @@ class Moris(CMakePackage):
         options = []
 
         options.extend(['-DBUILD_ALL=ON'])
-        options.extend(['-DMORIS_HAVE_DEBUG=ON'])
-        options.extend(['-DMORIS_HAVE_SYMBOLIC=ON'])
-        options.extend(['-DMORIS_HAVE_SYMBOLIC_STRONG=ON'])
+        options.extend(['-DMORIS_HAVE_DEBUG=OFF'])
+        options.extend(['-DMORIS_HAVE_SYMBOLIC=OFF'])
+        options.extend(['-DMORIS_HAVE_SYMBOLIC_STRONG=OFF'])
         options.extend(['-DMORIS_HAVE_TRILINOS_NEW_CMAKE=OFF'])
+
+        if '+debug' in spec:
+            options.extend(['-DMORIS_HAVE_DEBUG=ON'])
+            options.extend(['-DMORIS_HAVE_SYMBOLIC=ON'])
+            options.extend(['-DMORIS_HAVE_SYMBOLIC_STRONG=ON'])
 
         if '+mkl' in spec:
             options.extend(['-DMORIS_USE_MKL=ON'])
