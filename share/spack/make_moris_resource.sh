@@ -34,7 +34,7 @@ export CLANG_INSTALLED=`spack find llvm             | awk 'BEGIN{n=0}{ n=n+1; if
 
 export Trilinos_DIR=`spack location --install-dir trilinos`
 
-if [ $1 == "view" ];then
+if [ "$1" = "view" ];then
 export MORISROOT=`spack location --install-dir moris`
 echo 'setenv PATH $PATH/:'"$MORISROOT/bin/"                                    >> $HOME/.cshrc_moris
 else
@@ -69,7 +69,7 @@ echo 'setenv ZLIB_LIBRARY_DIR  $ZLIB_DIR/lib'                                  >
 echo 'setenv SSL_LIBRARY_DIR   $SSL_DIR/lib'                                   >> $HOME/.cshrc_moris 
 echo ""                                                                        >> $HOME/.cshrc_moris
 
-if [ $GCMMA_INSTALLED == "1"];then
+if [ $GCMMA_INSTALLED == "1" ];then
 echo "setenv GCMMA_DIR"        `spack location --install-dir gcmma`            >> $HOME/.cshrc_moris
 fi
 if [ $SNOPT_INSTALLED == "1" ];then
@@ -79,26 +79,26 @@ if [ $LBFGS_INSTALLED == "1" ];then
 echo "setenv LBFGSB_DIR"       `spack location --install-dir lbfgs`            >> $HOME/.cshrc_moris
 fi
 if [ $PETSC_INSTALLED == "1" ];then
-export PETSC_DIR    `spack location --install-dir petsc`
+export PETSC_DIR=`spack location --install-dir petsc`
 echo "setenv PETSC_DIR"        $PETSC_DIR                                      >> $HOME/.cshrc_moris
 fi
 if [ $SLEPC_INSTALLED == "1" ];then
-export SLEPC_DIR    `spack location --install-dir slepc`
+export SLEPC_DIR=`spack location --install-dir slepc`
 echo "setenv SLEPC_DIR"        $SLEPC_DIR                                      >> $HOME/.cshrc_moris
 fi
-if [ $MKL_INSTALLED == "1" ;then
+if [ $MKL_INSTALLED == "1" ];then
 echo "setenv MKL_DIR"          `spack location --install-dir intel-oneapi-mkl`"/mkl"  >> $HOME/.cshrc_moris
 fi
 if [ $OBLAS_INSTALLED == "1" ];then
-export OPENBLAS_DIR `spack location --install-dir openblas`"/lib"
+export OPENBLAS_DIR=`spack location --install-dir openblas`"/lib"
 echo "setenv OPENBLAS_DIR"     $OPENBLAS_DIR                                   >> $HOME/.cshrc_moris
 fi
 if [ $DOXY_INSTALLED == "1" ];then
-export DOXYGEN_DIR `spack location --install-dir doxygen`
+export DOXYGEN_DIR=`spack location --install-dir doxygen`
 echo "setenv DOXYGEN_DIR"     $DOXYGEN_DIR                                     >> $HOME/.cshrc_moris
 fi
 if [ $CLANG_INSTALLED == "1" ];then
-export CLANG_DIR `spack location --install-dir llvm`
+export CLANG_DIR=`spack location --install-dir llvm`
 echo "setenv CLANG_DIR"       $CLANG_DIR                                       >> $HOME/.cshrc_moris
 fi
 
@@ -165,11 +165,11 @@ echo "setenv F77 $F77"                                                         >
 echo ""                                                                        >> $HOME/.cshrc_moris
 
 if [ $PETSC_INSTALLED == "1" ];then
-setenv GFORTLIB      `ldd $PETSC_DIR/lib/libpetsc.so | grep gfortran | awk '{print $1}'`
-setenv GFORTLIB_PATH `ldd $PETSC_DIR/lib/libpetsc.so | grep gfortran | awk '{print $3}' | xargs dirname`
+export      GFORTLIB=`ldd $PETSC_DIR/lib/libpetsc.so | grep gfortran | awk '{print $1}'`
+export GFORTLIB_PATH=`ldd $PETSC_DIR/lib/libpetsc.so | grep gfortran | awk '{print $3}' | xargs dirname`
 else
-setenv GFORTLIB      `ldd $Trilinos_DIR/lib/libexodus.so | grep gfortran | awk '{print $1}'`
-setenv GFORTLIB_PATH `ldd $Trilinos_DIR/lib/libexodus.so | grep gfortran | awk '{print $3}' | xargs dirname`
+export      GFORTLIB=`ldd $Trilinos_DIR/lib/libexodus.so | grep gfortran | awk '{print $1}'`
+export GFORTLIB_PATH=`ldd $Trilinos_DIR/lib/libexodus.so | grep gfortran | awk '{print $3}' | xargs dirname`
 fi
 
 echo "setenv GFORTLIB $GFORTLIB"                                               >> $HOME/.cshrc_moris

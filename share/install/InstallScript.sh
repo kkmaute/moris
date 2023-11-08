@@ -116,7 +116,7 @@ else
         spack add moris+openblas~petsc~slepc~pardiso~mumps~gcmma~lbfgs~snopt
     else
         spack add moris+mkl~petsc~slepc~pardiso~mumps~gcmma~lbfgs~snopt
-    end
+    fi
 fi
 
 spack develop --path $WORKSPACE/moris moris@main
