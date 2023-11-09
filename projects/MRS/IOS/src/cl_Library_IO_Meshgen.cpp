@@ -461,14 +461,14 @@ namespace moris
     {
         // quick access to the parameter list
         ParameterList& tXtkParamList = mParameterLists( (uint)( Parameter_List_Type::XTK ) )( 0 )( 0 );
+        ParameterList& tHmrParamList = mParameterLists( (uint)( Parameter_List_Type::HMR ) )( 0 )( 0 );
 
         // turn on SPG based enrichment to make sure
         tXtkParamList.set( "use_SPG_based_enrichment", true );
 
         // enriched mesh indices
-        ParameterList& tHmrParamList       = mParameterLists( (uint)( Parameter_List_Type::HMR ) )( 0 )( 0 );
-        std::string    sLagrangeToBspline  = tHmrParamList.get< std::string >( "lagrange_to_bspline" );
-        std::string    sBsplineMeshIndices = sLagrangeToBspline.substr( 0, sLagrangeToBspline.find( ";" ) );
+        std::string sLagrangeToBspline  = tHmrParamList.get< std::string >( "lagrange_to_bspline" );
+        std::string sBsplineMeshIndices = sLagrangeToBspline.substr( 0, sLagrangeToBspline.find( ";" ) );
         tXtkParamList.set( "enrich_mesh_indices", sBsplineMeshIndices );
 
         // get whether to triangulate all
@@ -487,6 +487,14 @@ namespace moris
                     tNumBoundaryRefinements == 0,
                     "Library_IO_Meshgen::load_parameters_from_xml() - "
                     "Triangulation of all elements and boundary refinement at the same time are not supported yet due to hanging nodes." );
+        }
+
+        // option to output Lagrange meshes
+        bool tOutputDecompGrid = false;
+        mXmlReader->get( aXtkPath + ".OutputDecompositionGrid", tOutputDecompGrid, bool( false ) );
+        if ( tOutputDecompGrid )
+        {
+                tHmrParamList.set( "write_lagrange_output_mesh_to_exodus", "Decomposition_Grid.exo" );
         }
 
         // get the number of refinements of the Lagrange mesh at the boundary

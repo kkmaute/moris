@@ -141,6 +141,7 @@ namespace moris
 
                     // get the GEN interface performer
                     std::shared_ptr< ge::Geometry_Engine > tGeometryEngine = mPerformerManager->mGENPerformer( 0 );
+
                     std::shared_ptr< Performer > tGenInterfacePerformer = std::make_shared< wrk::Gen_Performer >( tGeometryEngine );
 
                     // perform initial refinement for GEN and user defined refinement functions
@@ -157,9 +158,9 @@ namespace moris
             else
             {
                 // get access to the performers
-                std::shared_ptr< ge::Geometry_Engine > tGeometryEngine = mPerformerManager->mGENPerformer( 0 );
-                std::shared_ptr< mdl::Model >                tModelPerformer     = mPerformerManager->mMDLPerformer( 0 );
-                std::shared_ptr< Remeshing_Mini_Performer >  tRemeshingPerformer = mPerformerManager->mRemeshingMiniPerformer( 0 );
+                std::shared_ptr< ge::Geometry_Engine >        tGeometryEngine     = mPerformerManager->mGENPerformer( 0 );
+                std::shared_ptr< mdl::Model >                 tModelPerformer     = mPerformerManager->mMDLPerformer( 0 );
+                std::shared_ptr< Remeshing_Mini_Performer >   tRemeshingPerformer = mPerformerManager->mRemeshingMiniPerformer( 0 );
                 Cell< std::shared_ptr< hmr::HMR > >&          tHmrPerformers      = mPerformerManager->mHMRPerformer;
                 Cell< std::shared_ptr< mtk::Mesh_Manager > >& tMtkPerformers      = mPerformerManager->mMTKPerformer;
 
@@ -184,7 +185,7 @@ namespace moris
 
                 // re-initialize GEN
                 ModuleParameterList tGENParameterList = tLibrary->get_parameters_for_module( Parameter_List_Type::GEN );
-                tGeometryEngine                         = std::make_shared< ge::Geometry_Engine >( tGENParameterList, tLibrary );
+                tGeometryEngine                       = std::make_shared< ge::Geometry_Engine >( tGENParameterList, tLibrary );
             }
 
             // Step 2: Initialize Level set field in GEN -----------------------------------------------
@@ -201,7 +202,6 @@ namespace moris
                 aLowerBounds = tGeometryEngine->get_lower_bounds();
                 aUpperBounds = tGeometryEngine->get_upper_bounds();
                 aIjklIDs     = tGeometryEngine->get_IjklIDs();
-
             }
 
         }    // end function: Workflow_HMR_XTK::initialize()
