@@ -12,6 +12,7 @@
 #include "cl_XTK_Integration_Mesh_Generator.hpp"
 #include "cl_XTK_Decomposition_Algorithm_Factory.hpp"
 #include "cl_XTK_Decomposition_Algorithm.hpp"
+#include "cl_XTK_Proximity.hpp"
 #include "fn_determine_cell_topology.hpp"
 #include "fn_mesh_flood_fill.hpp"
 #include "fn_XTK_find_most_frequent_int_in_cell.hpp"
@@ -717,7 +718,8 @@ namespace xtk
         {
             // get the Bulk-phase index for the IG cell
             // moris_index tBulkPhaseIndex = this->deduce_ig_cell_bulk_phase_index( &aCutIntegrationMesh->get_mtk_cell( iCell ) );
-            moris_index tBulkPhaseIndex = this->deduce_ig_cell_bulk_phase_from_vertices( &aCutIntegrationMesh->get_mtk_cell( iCell ) );
+            const mtk::Cell* tCell = &aCutIntegrationMesh->get_mtk_cell( iCell );
+            moris_index tBulkPhaseIndex = this->deduce_ig_cell_bulk_phase_index( tCell );
 
             // store the bulk-phase of the IG cell
             aCutIntegrationMesh->mIntegrationCellBulkPhase( iCell ) = tBulkPhaseIndex;
@@ -815,50 +817,98 @@ namespace xtk
     Integration_Mesh_Generator::deduce_ig_cell_bulk_phase_index( mtk::Cell const * aCell )
     {
         // cell vertices
-        moris::Cell< mtk::Vertex* > tVertices = aCell->get_vertex_pointers();
-        moris::size_t               tNumGeom  = mGeometryEngine->get_num_geometries();
+        moris::Cell< mtk::Vertex* > tVertices    = aCell->get_vertex_pointers();
+        moris::size_t               tNumGeom     = mGeometryEngine->get_num_geometries();
+        uint                        tNumVertices = tVertices.size();
 
-        // allocate phase on or off value (either 0 or 1)
-        Matrix< IndexMat > tPhaseVotes( 1, 2 );
-        tPhaseVotes.fill( 0 );
-
-        uint               tMaxRow = 0;
-        uint               tMaxCol = 0;
-        Matrix< IndexMat > tNodalPhaseVals( 1, tNumGeom, MORIS_INDEX_MAX );
+        // initialize array holding the inside-outside values for each geometry
+        Matrix< IndexMat > tGeomProximities( 1, tNumGeom, MORIS_INDEX_MAX );
 
         for ( uint iGeom = 0; iGeom < tNumGeom; iGeom++ )
         {
-            bool tFoundNonInterfaceNode = false;
+            // initialize list of node proximities
+            Cell< xtk::Geometric_Proximity > tVertexProximities( tNumVertices, xtk::Geometric_Proximity::UNDEFINED );
 
-            for ( uint iVert = 0; iVert < tVertices.size(); iVert++ )
+            for ( uint iVert = 0; iVert < tNumVertices; iVert++ )
             {
-                if ( !mGeometryEngine->is_interface_vertex( tVertices( iVert )->get_index(), iGeom ) )
+                // get the current vertex's index
+                moris_index tVertIndex = tVertices( iVert )->get_index();
+
+                // get the proximity of the current vertex wrt. the current geometry
+                moris_index tGenProximity = mGeometryEngine->get_node_proximity_wrt_a_geometry( tVertIndex, iGeom );
+
+                // convert to XTK proximity
+                // 0 - phi(x) <  threshold --> OUTSIDE
+                // 1 - phi(x) == threshold --> INTERFACE
+                // 2 - phi(x) >  threshold --> INSIDE
+                switch ( tGenProximity )
                 {
-                    moris_index tPhaseIndex = mGeometryEngine->get_node_phase_index_wrt_a_geometry( tVertices( iVert )->get_index(), iGeom );
-                    tFoundNonInterfaceNode  = true;
-                    tPhaseVotes( tPhaseIndex )++;
+                    case 0:
+                    {
+                        tVertexProximities( iVert ) = xtk::Geometric_Proximity::OUTSIDE;
+                        break;
+                    }
+                    case 1:
+                    {
+                        tVertexProximities( iVert ) = xtk::Geometric_Proximity::INTERFACE;
+                        break;
+                    }
+                    case 2:
+                    {
+                        tVertexProximities( iVert ) = xtk::Geometric_Proximity::INSIDE;
+                        break;
+                    }
+                    default:
+                    {
+                        MORIS_ERROR( false,
+                                "Integration_Mesh_Generator::deduce_ig_cell_bulk_phase_index() - "
+                                "Unknown GEN nodal proximity value." );
+                        break;
+                    }
                 }
             }    // end: loop over all vertices on IG cell
 
-            // take the phase with the maximum number of votes
-            tPhaseVotes.max( tMaxRow, tMaxCol );
-            tNodalPhaseVals( 0, iGeom ) = tMaxCol;
-            tPhaseVotes.fill( 0 );
+            // vote on whether cell is inside or outside
+            xtk::Geometric_Proximity tCellProximity = xtk::decide_proximity_from_parent_proximities( tVertexProximities );
 
-            //
-            if ( !tFoundNonInterfaceNode )
+            // if all vertices are detected as being on the interface something is wrong
+            if ( tCellProximity == xtk::Geometric_Proximity::INTERFACE )
             {
                 MORIS_LOG_WARNING(
-                        "IMG::deduce_ig_cell_bulk_phase_index() - Did not find a non-interface node for this element, set to dummy: %zu",
+                        "IMG::deduce_ig_cell_bulk_phase_index() - "
+                        "Did not find a non-interface node wrt. geometry #%i for this element, set to dummy: %zu",
+                        iGeom,
                         mGeometryEngine->get_num_phases() );
-                return mGeometryEngine->get_num_phases();
-            }
 
-            // MORIS_ERROR( tFoundNonInterfaceNode, "Did not find a non-interface node for this element" );
+                // return false
+                return -1;
+            }
+            else if ( tCellProximity == xtk::Geometric_Proximity::OUTSIDE )
+            {
+                tGeomProximities( iGeom ) = 0;
+            }
+            else if ( tCellProximity == xtk::Geometric_Proximity::INSIDE )
+            {
+                tGeomProximities( iGeom ) = 1;
+            }
+            else
+            {
+                MORIS_ERROR(
+                        false,
+                        "IMG::deduce_ig_cell_bulk_phase_index() - "
+                        "Invalid proximity value " );
+
+                // return false
+                return -1;
+            }
 
         }    // end: loop over all level-sets
 
-        return mGeometryEngine->get_elem_phase_index( tNodalPhaseVals );
+        // ask GEN for the material index associated with the computed inside-outside list
+        moris_index tBulkPhaseIndex = mGeometryEngine->get_elem_phase_index( tGeomProximities );
+
+        // return the bulk phase index
+        return tBulkPhaseIndex;
     }
 
     // ----------------------------------------------------------------------------------

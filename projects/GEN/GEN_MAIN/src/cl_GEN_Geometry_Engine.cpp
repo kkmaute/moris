@@ -845,6 +845,10 @@ namespace moris
         {
             moris_index tProxIndex = mVertexGeometricProximity( aNodeIndex ).get_geometric_proximity( aGeometryIndex );
 
+            // 0 - G(x) < threshold
+            // 1 - G(x) == threshold
+            // 2 - G(x) > threshold
+
             size_t tPhaseOnOff = 0;
 
             if ( tProxIndex == 2 )
@@ -853,6 +857,16 @@ namespace moris
             }
 
             return tPhaseOnOff;
+        }
+
+        //--------------------------------------------------------------------------------------------------------------
+
+        moris_index
+        Geometry_Engine::get_node_proximity_wrt_a_geometry(
+                uint aNodeIndex,
+                uint aGeometryIndex )
+        {
+            return mVertexGeometricProximity( aNodeIndex ).get_geometric_proximity( aGeometryIndex );
         }
 
         //--------------------------------------------------------------------------------------------------------------
