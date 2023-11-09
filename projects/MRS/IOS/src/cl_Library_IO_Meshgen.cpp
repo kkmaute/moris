@@ -463,6 +463,9 @@ namespace moris
         ParameterList& tXtkParamList = mParameterLists( (uint)( Parameter_List_Type::XTK ) )( 0 )( 0 );
         ParameterList& tHmrParamList = mParameterLists( (uint)( Parameter_List_Type::HMR ) )( 0 )( 0 );
 
+// debug
+tXtkParamList.set( "output_cut_ig_mesh", true );
+
         // turn on SPG based enrichment to make sure
         tXtkParamList.set( "use_SPG_based_enrichment", true );
 
@@ -848,7 +851,7 @@ namespace moris
             {
                 // initialize with the sdf field default parameter list
                 tGenParamList( 1 )( iGeom ) = prm::create_sdf_field_parameter_list();
-                tGenParamList( 1 )( iGeom ).set( "multilinear_intersections", tUseMultiLinearIntersections );
+                tGenParamList( 1 )( iGeom ).set( "multilinear_intersections", false );
                 // tGenParamList( 1 )( iGeom ).set( "discretization_mesh_index", -1 );
 
                 // FIXME: this functionality needs to get added
