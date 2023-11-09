@@ -492,7 +492,10 @@ namespace moris
         // option to output Lagrange meshes
         bool tOutputDecompGrid = false;
         mXmlReader->get( aXtkPath + ".OutputDecompositionGrid", tOutputDecompGrid, bool( false ) );
-        tHmrParamList.set( "write_lagrange_output_mesh_to_exodus", tOutputDecompGrid );
+        if ( tOutputDecompGrid )
+        {
+                tHmrParamList.set( "write_lagrange_output_mesh_to_exodus", "Decomposition_Grid.exo" );
+        }
 
         // get the number of refinements of the Lagrange mesh at the boundary
         bool tUseBasisExtensions = false;
