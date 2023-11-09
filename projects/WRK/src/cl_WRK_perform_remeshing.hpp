@@ -8,8 +8,7 @@
  *
  */
 
-#ifndef MORIS_FN_WRK_PERFORM_REFINEMENT_HPP
-#define MORIS_FN_WRK_PERFORM_REMESHING_HPP
+#pragma once
 
 #include "cl_Matrix.hpp"
 
@@ -160,6 +159,3 @@ namespace moris
         };
     }    // namespace wrk
 }    // namespace moris
-
-#endif    // MORIS_FN_WRK_PERFORM_REFINEMENT_HPP
-
