@@ -12,11 +12,18 @@ if [ ! $WORKSPACE ];then
 fi
 
 if [ -f $HOME/.cshrc_moris ];then
+    echo ""
+    echo "saving $HOME/.cshrc_moris to $HOME/.cshrc_moris.org"
     mv $HOME/.cshrc_moris  $HOME/.cshrc_moris.org
 fi
 if [ -f $HOME/.bashrc_moris ];then
+    echo ""
+    echo "saving $HOME/.bashrc_moris to $HOME/.bashrc_moris.org"
     mv $HOME/.bashrc_moris $HOME/.bashrc_moris.org
 fi
+
+echo ""
+echo "creating $HOME/.cshrc_moris"
 
 cd $WORKSPACE
 export SPACK_ROOT=$WORKSPACE/spack
@@ -94,7 +101,7 @@ export PETSC_DIR=`spack location --install-dir petsc`
 echo "setenv PETSC_DIR"        $PETSC_DIR                                      >> $HOME/.cshrc_moris
 fi
 if [ $SLEPC_INSTALLED == "1" ];then
-export SLEPC_DIR=`spack location/home/maute/codes/spack/opt/spack/linux-opensuse15-zen3/gcc-11.3.0/moris-main-2kikgsurryvtlduj746ehxpbbxdpq3kq/bin/ --install-dir slepc`
+export SLEPC_DIR=`spack location --install-dir slepc`
 echo "setenv SLEPC_DIR"        $SLEPC_DIR                                      >> $HOME/.cshrc_moris
 fi
 if [ $MKL_INSTALLED == "1" ];then
@@ -186,4 +193,8 @@ fi
 echo "setenv GFORTLIB $GFORTLIB"                                               >> $HOME/.cshrc_moris
 echo "setenv GFORTLIB_PATH $GFORTLIB_PATH"                                     >> $HOME/.cshrc_moris
 
+echo ""
+echo "creating $HOME/.bashrc_moris"
+
 sed -rn 's/^\s*setenv\s+(\S+)\s+/export \1=/p' $HOME/.cshrc_moris > $HOME/.bashrc_moris
+echo ""
