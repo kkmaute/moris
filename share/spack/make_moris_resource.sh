@@ -105,7 +105,7 @@ export SLEPC_DIR=`spack location --install-dir slepc`
 echo "setenv SLEPC_DIR"        $SLEPC_DIR                                      >> $HOME/.cshrc_moris
 fi
 if [ $MKL_INSTALLED == "1" ];then
-echo "setenv MKL_DIR"          `spack location --install-dir intel-oneapi-mkl`"/mkl"  >> $HOME/.cshrc_moris
+echo "setenv MKL_DIR"          `spack location --install-dir intel-oneapi-mkl`"/mkl/latest"  >> $HOME/.cshrc_moris
 fi
 if [ $OBLAS_INSTALLED == "1" ];then
 export OPENBLAS_DIR=`spack location --install-dir openblas`"/lib"
