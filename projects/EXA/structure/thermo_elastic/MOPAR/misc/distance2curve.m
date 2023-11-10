@@ -1319,7 +1319,7 @@ switch params.Subset
 
     elseif (ntotal>1000) && (((params.Metric == 0) && (params.Subset(1) == 'n')) || ...
         ((params.Metric == inf) && (params.Subset(1) == 'f')))
-      % nearest/farthest neighbour in n>1 dimensions, but for an
+      % nearest/farthest neighbor in n>1 dimensions, but for an
       % infinity norm metric. Reduce this to a sequence of
       % 1-d problems, each of which will be faster in general.
       % do this only if the problem is moderately large, since
@@ -1344,7 +1344,7 @@ switch params.Subset
 
         % did any of the distances change?
         if params.Metric == 0
-          % the 0 norm, with nearest neighbour, so take the
+          % the 0 norm, with nearest neighbor, so take the
           % smallest distance in any dimension.
           k = d.distance > di.distance;
         else

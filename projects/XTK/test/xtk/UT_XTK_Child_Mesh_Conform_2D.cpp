@@ -80,7 +80,7 @@ get_midside_coordinate(moris::moris_index const & aEdgeIndex,
     }
     else
     {
-        std::cout<<"INVALID EDGE"<<std::endl;
+        std::cout<<"UNDEFINED EDGE"<<std::endl;
     }
 }
 

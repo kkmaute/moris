@@ -1022,7 +1022,7 @@ namespace moris::hmr
         /**
          * reset all neigbors to nullptr
          */
-        virtual void reset_neigbors() = 0;
+        virtual void reset_neighbors() = 0;
 
         //-------------------------------------------------------------------------------
         /**
@@ -1043,7 +1043,7 @@ namespace moris::hmr
          * explicitly sets the minumum refinement level.
          */
         void
-        set_min_refimenent_level( uint aMinRefinementLevel )
+        set_min_refinement_level( uint aMinRefinementLevel )
         {
             mMinRefinementLevel = aMinRefinementLevel;
         }
@@ -1054,7 +1054,7 @@ namespace moris::hmr
          * updates sets the minumum refinement level.
          */
         void
-        update_min_refimenent_level( uint aMinRefinementLevel )
+        update_min_refinement_level( uint aMinRefinementLevel )
         {
             if ( mMinRefinementLevel < aMinRefinementLevel )
             {
@@ -1068,7 +1068,7 @@ namespace moris::hmr
          * returns the minimum refinement level.
          */
         uint
-        get_min_refimenent_level() const
+        get_min_refinement_level() const
         {
             return mMinRefinementLevel;
         }

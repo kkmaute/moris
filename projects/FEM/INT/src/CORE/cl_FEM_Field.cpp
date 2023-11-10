@@ -23,7 +23,7 @@ namespace moris
         //------------------------------------------------------------------------------
 
         Field::Field( mtk::Mesh_Pair        aMeshPair,
-                enum mtk::Field_Entity_Type aFieldEntityType,
+                mtk::Field_Entity_Type aFieldEntityType,
                 uint                        aDiscretizationMeshIndex )
                 : mtk::Field( aMeshPair, 1, aFieldEntityType )
         {

@@ -34,7 +34,7 @@ The enums are used for example by the FEM module, which needs to know which inte
         ◦ Serendipity
         ◦ Cubic
         
-@todo Move moris::EntityRank to moris::mtk::EntityRank namespace.
+@todo Move mtk::EntityRank to moris::mtk::EntityRank namespace.
 
 @todo STK Implementation assigns element types based on number of nodes and mesh dimension. This leads to the problem that a quadrilateral surface element would be interpreted as tetrahedron.  Switching to geometry and interpolation enums in the STK Implementation would easily resolve this issue.
 */

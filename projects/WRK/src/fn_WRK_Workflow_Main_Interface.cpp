@@ -8,12 +8,12 @@
  *
  */
 
-#include<iostream>
-#include<vector>
-#include<string>
-#include<fn_print.hpp>
+#include <iostream>
+#include <vector>
+#include <string>
+#include <fn_print.hpp>
 
-#include <cstdio>// nicer than streams in some respects
+#include <cstdio>    // nicer than streams in some respects
 // C system files
 #include <unistd.h>
 // C++ system files
@@ -25,19 +25,20 @@
 #include <ctime>
 
 #include "cl_Stopwatch.hpp"
-#include "cl_Communication_Manager.hpp" // COM/src
-#include "cl_Communication_Tools.hpp" // COM/src
-#include "typedefs.hpp" // COR/src
+#include "cl_Communication_Manager.hpp"    // COM/src
+#include "cl_Communication_Tools.hpp"      // COM/src
+#include "typedefs.hpp"                    // COR/src
 // other header files
-//#include <catch.hpp>
-//#include "fn_equal_to.hpp" //ALG
+// #include <catch.hpp>
+// #include "fn_equal_to.hpp" //ALG
+#include "cl_Tracer.hpp"
 #include "cl_Matrix.hpp"
 #include "linalg_typedefs.hpp"
-#include "cl_Stopwatch.hpp" //CHR/src
+#include "cl_Stopwatch.hpp"    //CHR/src
 #include "op_move.hpp"
 
 #include "cl_Matrix.hpp"
-#include "cl_Logger.hpp" // MRS/IOS/src
+#include "cl_Logger.hpp"    // MRS/IOS/src
 
 #include "cl_WRK_Workflow_Factory.hpp"
 #include "cl_WRK_Performer_Manager.hpp"
@@ -50,32 +51,34 @@
 
 using namespace moris;
 
-int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
+int
+fn_WRK_Workflow_Main_Interface( int argc, char *argv[] )
 {
     // --------------------------------------------- //
     // check arguments provided
-    
+
     // first, check if there are any arguments provided ...
-    if (argc < 2)
+    if ( argc < 2 )
     {
         // ... print an error if not
-        std::cout << "\n Error: input file required\n" << "\n";
+        std::cout << "\n Error: input file required\n"
+                  << "\n";
         return -1;
     }
 
     // initialize file names and flags that could be provided
-    std::string tSoFileName = "";
-    std::string tXmlFileName = "";
-    bool tIsOnlyMeshing = false;
-    bool tSoFileSpecified = false;
-    bool tXmlFileSpecified = false;
+    std::string tSoFileName       = "";
+    std::string tXmlFileName      = "";
+    bool        tIsOnlyMeshing    = false;
+    bool        tSoFileSpecified  = false;
+    bool        tXmlFileSpecified = false;
 
     // go through user arguments and look for flags
     for ( int k = 1; k < argc; ++k )
     {
         // get the current argument
-        std::string tArgString = std::string( argv[ k ] );
-        size_t tArgStrLength = tArgString.length();
+        std::string tArgString    = std::string( argv[ k ] );
+        size_t      tArgStrLength = tArgString.length();
 
         // check if user requests to just generate foreground and background meshes (for EXHUME project)
         if ( tArgString == "--meshgen" || tArgString == "-mg" )
@@ -93,17 +96,17 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
             {
                 MORIS_ERROR( !tSoFileSpecified, "Multiple .so files specified. Specify no more than one!" );
                 tSoFileSpecified = true;
-                tSoFileName = tArgString;
+                tSoFileName      = tArgString;
                 MORIS_LOG( "Reading dynamically linked input file: %s", tArgString.c_str() );
                 continue;
             }
 
             // check if an .xml file is provided
-            if ( tArgString.substr( tArgStrLength -4 ) == ".xml" || tArgString.substr( tArgStrLength -4 ) == ".XML" )
+            if ( tArgString.substr( tArgStrLength - 4 ) == ".xml" || tArgString.substr( tArgStrLength - 4 ) == ".XML" )
             {
                 MORIS_ERROR( !tXmlFileSpecified, "Multiple .xml files specified. Specify no more than one!" );
                 tXmlFileSpecified = true;
-                tXmlFileName = tArgString;
+                tXmlFileName      = tArgString;
                 MORIS_LOG( "Reading parameters from static input file: %s", tArgString.c_str() );
                 continue;
             }
@@ -122,7 +125,7 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
     }
 
     // check that the arguments provided by user are complete and make sense
-    if( tIsOnlyMeshing )
+    if ( tIsOnlyMeshing )
     {
         // FIXME: uncomment once complete
         // MORIS_ERROR( tXmlFileSpecified, "An .xml input file must be specified for mesh generation." );
@@ -137,31 +140,36 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
     // create library according to inputs
 
     // prepare library to be generated
-    moris::Library_Factory tLibraryFactory;
+    moris::Library_Factory        tLibraryFactory;
     std::shared_ptr< Library_IO > tLibrary = nullptr;
+    
+    {
+        // log & trace this set of operations
+        Tracer tTracer( "WRK", "Main Interface", "Load Parameters" );
 
-    // create the library based on the kind of workflow requested
-    if( tIsOnlyMeshing )
-    {
-        tLibrary = tLibraryFactory.create_Library( Library_Type::MESHGEN );
-    }
-    else // no meshing workflow
-    {
-        tLibrary = tLibraryFactory.create_Library( Library_Type::STANDARD );
-    }
+        // create the library based on the kind of workflow requested
+        if ( tIsOnlyMeshing )
+        {
+            tLibrary = tLibraryFactory.create_Library( Library_Type::MESHGEN );
+        }
+        else    // no meshing workflow
+        {
+            tLibrary = tLibraryFactory.create_Library( Library_Type::STANDARD );
+        }
 
-    // load input parameters specified
-    if( tSoFileSpecified )
-    {
-        tLibrary->load_parameter_list( tSoFileName, File_Type::SO_FILE );
-    }
-    if( tXmlFileSpecified )
-    {
-        tLibrary->load_parameter_list( tXmlFileName, File_Type::XML_FILE );
-    }
+        // load input parameters specified
+        if ( tSoFileSpecified )
+        {
+            tLibrary->load_parameter_list( tSoFileName, File_Type::SO_FILE );
+        }
+        if ( tXmlFileSpecified )
+        {
+            tLibrary->load_parameter_list( tXmlFileName, File_Type::XML_FILE );
+        }
 
-    // finish initializing the library and lock it from modification
-    tLibrary->finalize();
+        // finish initializing the library and lock it from modification
+        tLibrary->finalize();
+    }
 
     // --------------------------------------------- //
     // start workflow
@@ -173,23 +181,24 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
         wrk::Performer_Manager tPerformerManager( tLibrary );
 
         // FIXME: get this from parameter list "workflow"
-        std::string tWRKFlowStr = tOPTParameterList( 0 )( 0 ).get< std::string >("workflow");
+        // get which workflow is to be used
+        std::string tWRKFlowStr = tOPTParameterList( 0 )( 0 ).get< std::string >( "workflow" );
 
-        moris::Cell<std::shared_ptr<moris::opt::Criteria_Interface>> tWorkflows = {
-                wrk::create_workflow(tWRKFlowStr, &tPerformerManager) };
+        // create and initialize (this includes running HMR) an instance of this workflow
+        moris::Cell< std::shared_ptr< moris::opt::Criteria_Interface > > tWorkflows = { wrk::create_workflow( tWRKFlowStr, &tPerformerManager ) };
 
-        if( tOPTParameterList( 0 )( 0 ).get< bool >("is_optimization_problem") )
+        if ( tOPTParameterList( 0 )( 0 ).get< bool >( "is_optimization_problem" ) )
         {
             moris::opt::Manager tManager( tOPTParameterList, tWorkflows );
             tManager.perform();
         }
         else
         {
-            Matrix<DDRMat> tADVs(0, 0);
-            Matrix<DDRMat> tDummyBounds;
-            Matrix<IdMat> tDummy1(1, 1, 0.0);
-            tWorkflows(0)->initialize(tADVs, tDummyBounds, tDummyBounds,tDummy1);
-            Matrix<DDRMat> tIQIVal = tWorkflows(0)->get_criteria(tADVs);
+            Matrix< DDRMat > tADVs( 0, 0 );
+            Matrix< DDRMat > tDummyBounds;
+            Matrix< IdMat >  tDummy1( 1, 1, 0.0 );
+            tWorkflows( 0 )->initialize( tADVs, tDummyBounds, tDummyBounds, tDummy1 );
+            Matrix< DDRMat > tIQIVal = tWorkflows( 0 )->get_criteria( tADVs );
 
             // print out matrix of IQI values
             MORIS_LOG_SPEC( "IQI values", ios::stringify_log( tIQIVal ) );
@@ -199,4 +208,3 @@ int fn_WRK_Workflow_Main_Interface( int argc, char * argv[] )
     // return success
     return 0;
 }
-

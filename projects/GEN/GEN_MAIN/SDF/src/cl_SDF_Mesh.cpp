@@ -79,8 +79,8 @@ namespace moris
                 // get cell indices from mesh
                 mCells( k ) = new Cell(
                         k,
-                        aMesh->get_glb_entity_id_from_entity_loc_index( k, EntityRank::ELEMENT),
-                        aMesh->get_entity_connected_to_entity_loc_inds( k, EntityRank::ELEMENT, EntityRank::NODE ),
+                        aMesh->get_glb_entity_id_from_entity_loc_index( k, mtk::EntityRank::ELEMENT),
+                        aMesh->get_entity_connected_to_entity_loc_inds( k, mtk::EntityRank::ELEMENT, mtk::EntityRank::NODE ),
                         mVertices );
             }
 
@@ -125,7 +125,7 @@ namespace moris
             for( uint k=0; k<tNumberOfNodes; ++k )
             {
                 mNodeIDs( k )
-                        = aMesh->get_glb_entity_id_from_entity_loc_index( k, EntityRank::NODE );
+                        = aMesh->get_glb_entity_id_from_entity_loc_index( k, mtk::EntityRank::NODE );
             }
         }
 

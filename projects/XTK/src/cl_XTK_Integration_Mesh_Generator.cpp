@@ -468,7 +468,7 @@ namespace xtk
         // large coord matrix that I want to keep in scope for a long time avoid copying coordinate all the time.
         tGeometricQuery.set_coordinates_matrix( &aCutIntegrationMesh->mVertexCoordinates );
 
-        tGeometricQuery.set_query_entity_rank( EntityRank::ELEMENT );
+        tGeometricQuery.set_query_entity_rank( mtk::EntityRank::ELEMENT );
 
         // reserve memory for list of indices of intersected background cells
         // size estimate: tNumCells / tNumGeometries
@@ -544,7 +544,7 @@ namespace xtk
         // large coord matrix that I want to keep in scope for a long time avoid copying coordinate all the time.
         tGeometricQuery.set_coordinates_matrix( &aCutIntegrationMesh->mVertexCoordinates );
 
-        tGeometricQuery.set_query_entity_rank( EntityRank::ELEMENT );
+        tGeometricQuery.set_query_entity_rank( mtk::EntityRank::ELEMENT );
 
         // iterate through all cells
         for ( moris::uint iCell = 0; iCell < tNumCells; iCell++ )
@@ -704,7 +704,7 @@ namespace xtk
 
         // get an estimate how many IG cells will have issues with vertex-based phase assignment
         uint tNumGeometries                   = mGeometryEngine->get_num_geometries();
-        uint tNumIgCells                      = aCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 );
+        uint tNumIgCells                      = aCutIntegrationMesh->get_num_entities( mtk::EntityRank::ELEMENT, 0 );
         uint tExpectedNumNotAssignableIgCells = tNumGeometries * ( tNumIgCells / 1000 ) + 1;
 
         // initialize list of IG cells whose bulk-phase cannot be determined solely by the nodal Level-Set values
@@ -1137,9 +1137,9 @@ namespace xtk
         // get the number of children meshes (= number of Bg-Cells?)
         moris::uint tNumChildMeshes = aCutIntegrationMesh->get_num_ig_cell_groups();
 
-        moris::uint tNumIgCells = aCutIntegrationMesh->get_num_entities( EntityRank::ELEMENT, 0 );
+        moris::uint tNumIgCells = aCutIntegrationMesh->get_num_entities( mtk::EntityRank::ELEMENT, 0 );
 
-        moris::uint tTotalNumBgCells = aBackgroundMesh->get_num_entities( EntityRank::ELEMENT, 0 );
+        moris::uint tTotalNumBgCells = aBackgroundMesh->get_num_entities( mtk::EntityRank::ELEMENT, 0 );
 
         // first subphase index (this is incremented by child meshes on call to set_elemental_subphase)
         // proc local subphase index
@@ -1378,7 +1378,7 @@ namespace xtk
          */
 
         // get number of Bg-cells
-        moris::uint tNumIpCells = aBackgroundMesh->get_num_entities( EntityRank::ELEMENT );
+        moris::uint tNumIpCells = aBackgroundMesh->get_num_entities( mtk::EntityRank::ELEMENT );
 
         // iterate through background cells
         for ( moris_index iIpCell = 0; iIpCell < (moris_index)tNumIpCells; iIpCell++ )
@@ -1425,7 +1425,7 @@ namespace xtk
                 {
                     Matrix< IndexMat > tNeighborCellToFacetIndex =
                             aBackgroundMesh->get_entity_connected_to_entity_loc_inds( tOtherCell->get_index(),
-                                    EntityRank::ELEMENT,
+                                    mtk::EntityRank::ELEMENT,
                                     aBackgroundMesh->get_facet_rank() );
                     Cell< moris::moris_index > tNeighborSubphaseIndices( 0 );
                     Cell< moris::moris_index > tNeighborRepresentativeIgCells( 0 );
@@ -1699,7 +1699,7 @@ namespace xtk
         /* Step 1: Let each proc decide how many entity IDs it needs & communicate ID ranges */
 
         // Subphase IDs up to the number of IP cells have already been used. Hence, the first free ID is:
-        moris_index tFirstSubphaseId = aBackgroundMesh->get_max_entity_id( EntityRank::ELEMENT ) + 1;
+        moris_index tFirstSubphaseId = aBackgroundMesh->get_max_entity_id( mtk::EntityRank::ELEMENT ) + 1;
 
         // Get the number of subphases (on the current proc)
         moris_id tNumSubphases = (moris_id)aCutIntegrationMesh->get_num_subphases();
@@ -1950,7 +1950,7 @@ namespace xtk
                 moris_id tFirstChildCellId = aReceivedFirstChildIgCellIds( iProc )( iSP );
 
                 // get the IG cell's index on this processor
-                moris_index tFirstChildCellIndex = aCutIntegrationMesh->get_loc_entity_ind_from_entity_glb_id( tFirstChildCellId, EntityRank::ELEMENT );
+                moris_index tFirstChildCellIndex = aCutIntegrationMesh->get_loc_entity_ind_from_entity_glb_id( tFirstChildCellId, mtk::EntityRank::ELEMENT );
 
                 // find the subphase index on this processor
                 moris_index tSubphaseIndex = aCutIntegrationMesh->get_ig_cell_subphase_index( tFirstChildCellIndex );
@@ -2714,10 +2714,10 @@ namespace xtk
                 "Integration_Mesh_Generator::construct_bulk_phase_blocks() - We expect there to be a bulk phase cell group for each bulk phase and 1 for problematic cells" );
 
         // decide on cell topology of integration elements based on number of spatial dimensions
-        enum CellTopology tCellTopo = xtk::determine_cell_topology(
+        mtk::CellTopology tCellTopo = xtk::determine_cell_topology(
                 aCutIntegrationMesh->get_spatial_dim(),
                 aCutIntegrationMesh->mXTKModel->ig_element_order(),
-                CellShape::SIMPLEX );
+                mtk::CellShape::SIMPLEX );
 
         // iterate through and construct the names of the blocks
         std::string         tBlockBaseName = "cutblock";
@@ -2862,7 +2862,7 @@ namespace xtk
             moris::Cell< moris::mtk::Cell* >&           aCells,
             std::shared_ptr< Facet_Based_Connectivity > aFaceConnectivity )
     {
-        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Facets", mXTKModel->mVerboseLevel, 1 );
+        Tracer tTracer( "XTK", "Integration_Mesh_Generator", "Creating Facets" );
 
         // Note: this function assumes that all cells are of same type, i.e. have the same cell info
 
@@ -3307,8 +3307,8 @@ namespace xtk
                     ( *tEntityConnectedToParent( tFacetVertexParentRanks( iV ) ) ) =
                             aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
                                     aParentCellForDeduction( iFacet )->get_index(),
-                                    EntityRank::ELEMENT,
-                                    moris::get_entity_rank_from_index( tFacetVertexParentRanks( iV ) ) );
+                                    mtk::EntityRank::ELEMENT,
+                                    moris::mtk::get_entity_rank_from_index( tFacetVertexParentRanks( iV ) ) );
                 }
 
                 // figure out the ordinal
@@ -3353,7 +3353,7 @@ namespace xtk
                     ( *tEntityConnectedToParent( (uint)aCutIntegrationMesh->get_facet_rank() ) ) =
                             aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
                                     aParentCellForDeduction( iFacet )->get_index(),
-                                    EntityRank::ELEMENT,
+                                    mtk::EntityRank::ELEMENT,
                                     aCutIntegrationMesh->get_facet_rank() );
                 }
                 // mark the entity parent as the deduction cell
@@ -3436,7 +3436,7 @@ namespace xtk
         aIgEdgeAncestry->mEdgeParentEntityRank.resize( tNumEdges );
         aIgEdgeAncestry->mEdgeParentEntityOrdinalWrtBackgroundCell.resize( tNumEdges );
 
-        enum EntityRank tFacetRank = aCutIntegrationMesh->get_facet_rank();
+        mtk::EntityRank tFacetRank = aCutIntegrationMesh->get_facet_rank();
 
         // iterate through edges in the edge connectivity
         for ( moris::uint iEdge = 0; iEdge < tNumEdges; iEdge++ )
@@ -3491,8 +3491,8 @@ namespace xtk
                     // not as convenient to get the edge/facet ordinal
                     Matrix< IndexMat > tEntitiesConnectedToBaseCell = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
                             aParentCellForDeduction( iEdge )->get_index(),
-                            EntityRank::ELEMENT,
-                            moris::get_entity_rank_from_index( *tMaxIter ) );
+                            mtk::EntityRank::ELEMENT,
+                            moris::mtk::get_entity_rank_from_index( *tMaxIter ) );
 
                     moris_index tSecondEntityOrdinal = MORIS_INDEX_MAX;
                     for ( moris::uint iEnt = 0; iEnt < tEntitiesConnectedToBaseCell.numel(); iEnt++ )
@@ -3530,13 +3530,13 @@ namespace xtk
                 // edge to edge or edge to facet
                 Matrix< IndexMat > tEntitiesConnectedToBaseCellMaxRank = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
                         aParentCellForDeduction( iEdge )->get_index(),
-                        EntityRank::ELEMENT,
-                        moris::get_entity_rank_from_index( *tMaxIter ) );
+                        mtk::EntityRank::ELEMENT,
+                        moris::mtk::get_entity_rank_from_index( *tMaxIter ) );
 
                 Matrix< IndexMat > tEntitiesConnectedToBaseCellMinRank = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
                         aParentCellForDeduction( iEdge )->get_index(),
-                        EntityRank::ELEMENT,
-                        moris::get_entity_rank_from_index( *tMinIter ) );
+                        mtk::EntityRank::ELEMENT,
+                        moris::mtk::get_entity_rank_from_index( *tMinIter ) );
 
                 moris_index tMaxRankOrd = MORIS_INDEX_MAX;
                 moris_index tMinRankOrd = MORIS_INDEX_MAX;
@@ -3569,8 +3569,8 @@ namespace xtk
                 // need connectivity wrt the minimum path rank
                 Matrix< IndexMat > tParentEntityConnectivity = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
                         aParentCellForDeduction( iEdge )->get_index(),
-                        EntityRank::ELEMENT,
-                        moris::get_entity_rank_from_index( tParentOrdinalAndRank( 1 ) ) );
+                        mtk::EntityRank::ELEMENT,
+                        moris::mtk::get_entity_rank_from_index( tParentOrdinalAndRank( 1 ) ) );
 
                 // moris::print(tParentEntityConnectivity,"tParentEntityConnectivity");
 
@@ -3595,8 +3595,8 @@ namespace xtk
                 // not as convenient to get the edge/facet ordinal
                 Matrix< IndexMat > tEntitiesConnectedToBaseCell = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
                         aParentCellForDeduction( iEdge )->get_index(),
-                        EntityRank::ELEMENT,
-                        moris::get_entity_rank_from_index( *tMaxIter ) );
+                        mtk::EntityRank::ELEMENT,
+                        moris::mtk::get_entity_rank_from_index( *tMaxIter ) );
 
                 moris_index tSecondEntityOrdinal = MORIS_INDEX_MAX;
                 for ( moris::uint iEnt = 0; iEnt < tEntitiesConnectedToBaseCell.numel(); iEnt++ )
@@ -3614,8 +3614,8 @@ namespace xtk
                 // need connectivity wrt the minimum path rank
                 tEntitiesConnectedToBaseCell = aBackgroundMesh->get_entity_connected_to_entity_loc_inds(
                         aParentCellForDeduction( iEdge )->get_index(),
-                        EntityRank::ELEMENT,
-                        moris::get_entity_rank_from_index( tParentOrdinalAndRank( 1 ) ) );
+                        mtk::EntityRank::ELEMENT,
+                        moris::mtk::get_entity_rank_from_index( tParentOrdinalAndRank( 1 ) ) );
 
                 if ( tSecondEntityOrdinal == MORIS_INDEX_MAX )
                 {
@@ -3862,7 +3862,7 @@ namespace xtk
             // fixme: std::cout << "Integration_Mesh_Generator::allocate_child_meshes() - WARNING: GENERAlIZE NEEDED FOR MULTIPLE TOPOS" << std::endl;
 
             // get number of spatial dimensions and decide on cell topology of integration elements
-            moris_index tNumGeometricVertices = determine_num_nodes( this->get_spatial_dim(), mtk::Interpolation_Order::LINEAR, CellShape::RECTANGULAR );
+            moris_index tNumGeometricVertices = determine_num_nodes( this->get_spatial_dim(), mtk::Interpolation_Order::LINEAR, mtk::CellShape::RECTANGULAR );
 
             // get list of vertices in current parent IP cell on background mesh
             moris::Cell< moris::mtk::Vertex* > tParentCellVerts = tParentCell->get_vertex_pointers();
@@ -3893,11 +3893,8 @@ namespace xtk
             Cut_Integration_Mesh* aCutIntegrationMesh,
             moris::mtk::Mesh*     aBackgroundMesh )
     {
-        // TODO: This function should get a more thorough cleanup (readability, consistency of data formats)
 
-        Tracer tTracer( "XTK", "Decomposition_Algorithm", "Assign node IDs" );
-
-        moris_index tNodeIndex = aCutIntegrationMesh->get_first_available_index( EntityRank::NODE );
+        moris_index tNodeIndex = aCutIntegrationMesh->get_first_available_index( mtk::EntityRank::NODE );
 
         for ( moris::uint i = 0; i < aDecompData.tNewNodeIndex.size(); i++ )
         {
@@ -3939,7 +3936,7 @@ namespace xtk
         }
 
         // allocate ids for nodes I own
-        moris_id tNodeId = aCutIntegrationMesh->allocate_entity_ids( aDecompData.tNewNodeId.size(), EntityRank::NODE );
+        moris_id tNodeId = aCutIntegrationMesh->allocate_entity_ids( aDecompData.tNewNodeId.size(), mtk::EntityRank::NODE );
 
         // Assign owned request identifiers
         this->assign_owned_request_id( aDecompData, tOwnedRequest, tNodeId );
@@ -4010,7 +4007,7 @@ namespace xtk
         for ( moris::uint i = 0; i < tNumNewNodes; i++ )
         {
             // Parent Rank
-            enum EntityRank    tParentRank  = tDecompData.tNewNodeParentRank( i );
+            mtk::EntityRank    tParentRank  = tDecompData.tNewNodeParentRank( i );
             moris::moris_index tParentIndex = tDecompData.tNewNodeParentIndex( i );
 
             // get the owner processor
@@ -4100,16 +4097,16 @@ namespace xtk
                 moris_index     tRequestIndex = aNotOwnedRequests( tIndexInData )( j );
                 moris_index     tParentIndex  = aDecompData.tNewNodeParentIndex( tRequestIndex );
                 moris_index     tSecondaryId  = aDecompData.tSecondaryIdentifiers( tRequestIndex );
-                enum EntityRank tParentRank   = aDecompData.tNewNodeParentRank( tRequestIndex );
+                mtk::EntityRank tParentRank   = aDecompData.tNewNodeParentRank( tRequestIndex );
 
                 // swap out for hmr if needed (hmr calls edges in 2d faces)
-                if ( aBackgroundMesh->get_mesh_type() == MeshType::HMR )
+                if ( aBackgroundMesh->get_mesh_type() == mtk::MeshType::HMR )
                 {
                     if ( aBackgroundMesh->get_spatial_dim() == 2 )
                     {
-                        if ( tParentRank == EntityRank::EDGE )
+                        if ( tParentRank == mtk::EntityRank::EDGE )
                         {
-                            tParentRank = EntityRank::FACE;
+                            tParentRank = mtk::EntityRank::FACE;
                         }
                     }
                 }
@@ -4149,20 +4146,20 @@ namespace xtk
                 for ( moris::uint j = 0; j < tNumReceivedReqs; j++ )
                 {
                     moris_id        tParentId      = aReceiveData( i )( 0, j );
-                    enum EntityRank tParentRank    = (enum EntityRank)aReceiveData( i )( 1, j );
+                    mtk::EntityRank tParentRank    = (mtk::EntityRank)aReceiveData( i )( 1, j );
                     moris_id        tSecondaryId   = aReceiveData( i )( 2, j );
                     moris_index     tParentInd     = aBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tParentId, tParentRank );
                     bool            tRequestExists = false;
                     moris_index     tRequestIndex  = MORIS_INDEX_MAX;
 
                     // swap out for hmr if needed (hmr calls edges in 2d faces)
-                    if ( aBackgroundMesh->get_mesh_type() == MeshType::HMR )
+                    if ( aBackgroundMesh->get_mesh_type() == mtk::MeshType::HMR )
                     {
                         if ( aBackgroundMesh->get_spatial_dim() == 2 )
                         {
-                            if ( tParentRank == EntityRank::FACE )
+                            if ( tParentRank == mtk::EntityRank::FACE )
                             {
-                                tParentRank = EntityRank::EDGE;
+                                tParentRank = mtk::EntityRank::EDGE;
                             }
                         }
                     }
@@ -4172,14 +4169,14 @@ namespace xtk
                         tRequestExists = aDecompData.request_exists(
                                 tParentInd,
                                 tSecondaryId,
-                                (EntityRank)tParentRank,
+                                (mtk::EntityRank)tParentRank,
                                 tRequestIndex );
                     }
                     else
                     {
                         tRequestExists = aDecompData.request_exists(
                                 tParentInd,
-                                (EntityRank)tParentRank,
+                                (mtk::EntityRank)tParentRank,
                                 tRequestIndex );
                     }
 
@@ -4228,7 +4225,7 @@ namespace xtk
                 for ( moris::uint j = 0; j < tNumReceivedReqs; j++ )
                 {
                     moris_id        tParentId      = aRequests( i )( 0, j );
-                    enum EntityRank tParentRank    = (enum EntityRank)aRequests( i )( 1, j );
+                    mtk::EntityRank tParentRank    = (mtk::EntityRank)aRequests( i )( 1, j );
                     moris_id        tSecondaryId   = aRequests( i )( 2, j );
                     moris_index     tParentInd     = aBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tParentId, tParentRank );
                     bool            tRequestExists = false;
@@ -4236,13 +4233,13 @@ namespace xtk
 
 
                     // swap out for hmr if needed (hmr calls edges in 2d faces)
-                    if ( aBackgroundMesh->get_mesh_type() == MeshType::HMR )
+                    if ( aBackgroundMesh->get_mesh_type() == mtk::MeshType::HMR )
                     {
                         if ( aBackgroundMesh->get_spatial_dim() == 2 )
                         {
-                            if ( tParentRank == EntityRank::FACE )
+                            if ( tParentRank == mtk::EntityRank::FACE )
                             {
-                                tParentRank = EntityRank::EDGE;
+                                tParentRank = mtk::EntityRank::EDGE;
                             }
                         }
                     }
@@ -4250,11 +4247,11 @@ namespace xtk
 
                     if ( aDecompData.mHasSecondaryIdentifier )
                     {
-                        tRequestExists = aDecompData.request_exists( tParentInd, tSecondaryId, (EntityRank)tParentRank, tRequestIndex );
+                        tRequestExists = aDecompData.request_exists( tParentInd, tSecondaryId, (mtk::EntityRank)tParentRank, tRequestIndex );
                     }
                     else
                     {
-                        tRequestExists = aDecompData.request_exists( tParentInd, (EntityRank)tParentRank, tRequestIndex );
+                        tRequestExists = aDecompData.request_exists( tParentInd, (mtk::EntityRank)tParentRank, tRequestIndex );
                     }
 
                     if ( tRequestExists && aRequestAnswers( i )( j ) )
@@ -4287,7 +4284,7 @@ namespace xtk
 
                             // aDecompData.mNumNewNodesWithIds++;
 
-                            // mBackgroundMesh.update_first_available_index(tNodeIndex, EntityRank::NODE);
+                            // mBackgroundMesh.update_first_available_index(tNodeIndex, mtk::EntityRank::NODE);
                         }
                     }
                     else

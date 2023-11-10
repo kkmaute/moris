@@ -95,14 +95,14 @@ namespace moris::hmr
         mDatabase = aDatabase;
 
         MORIS_ASSERT( aLagrangeMeshIndex < mDatabase->get_number_of_lagrange_meshes(),
-                "Could not find mesh, Lagrange mesh index %-5i exceeds number of Lagrange meshes. Check input file",
+                "HMR::Mesh::Mesh() - Could not find mesh, Lagrange mesh index %-5i exceeds number of Lagrange meshes. Check input file.",
                 aLagrangeMeshIndex );
 
         mMesh = mDatabase->get_lagrange_mesh_by_index( aLagrangeMeshIndex );
 
-        MORIS_ERROR( mMesh != nullptr, "Pointer to Lagrange mesh %-5i is nullptr", aLagrangeMeshIndex );
+        MORIS_ERROR( mMesh != nullptr, "HMR::Mesh::Mesh() - Pointer to Lagrange mesh %-5i is nullptr", aLagrangeMeshIndex );
 
-        //            mDatabase->get_background_mesh()->set_activation_pattern( aLagrangeMeshIndex );
+        // mDatabase->get_background_mesh()->set_activation_pattern( aLagrangeMeshIndex );
         if ( mDatabase->is_finalized() )
         {
             setup_glb_to_local_maps();
@@ -125,13 +125,14 @@ namespace moris::hmr
         // Create factory
         Factory tFactory( mDatabase->get_parameters() );
 
-        for ( uint Ik = 0; Ik < 3; Ik++ )
+        for ( uint iBspMesh = 0; iBspMesh < 3; iBspMesh++ )
         {
             // FIXME only one mesh
-            mDummyBSplineMeshes( Ik ) = tFactory.create_bspline_mesh(
+            mDummyBSplineMeshes( iBspMesh ) = tFactory.create_bspline_mesh(
                     mDatabase->get_background_mesh(),
                     aBsplinePattern,
-                    aOrder );
+                    aOrder,
+                    MORIS_UINT_MAX );
         }
 
         // Create Lagrange mesh
@@ -183,13 +184,14 @@ namespace moris::hmr
         mDummyBSplineMeshes.resize( 1, nullptr );
         Factory tFactory( mDatabase->get_parameters() );
 
-        for ( uint Ik = 0; Ik < 1; Ik++ )
+        for ( uint iBspMesh = 0; iBspMesh < 1; iBspMesh++ )
         {
             // FIXME only one mesh
-            mDummyBSplineMeshes( Ik ) = tFactory.create_bspline_mesh(
+            mDummyBSplineMeshes( iBspMesh ) = tFactory.create_bspline_mesh(
                     mDatabase->get_background_mesh(),
                     aBSplinePattern,
-                    aBSplineOrder );
+                    aBSplineOrder,
+                    MORIS_UINT_MAX );
         }
 
         // Create Lagrange mesh
@@ -308,7 +310,7 @@ namespace moris::hmr
 
     uint
     Mesh::get_num_entities(
-            const enum EntityRank aEntityRank,
+            const mtk::EntityRank aEntityRank,
             const moris_index     aIndex ) const
     {
         if ( mMesh->get_activation_pattern() != mDatabase->get_background_mesh()->get_activation_pattern() )
@@ -317,27 +319,27 @@ namespace moris::hmr
         }
         switch ( aEntityRank )
         {
-            case EntityRank::NODE:
+            case mtk::EntityRank::NODE:
             {
                 return this->get_num_nodes();
                 break;
             }
-            case EntityRank::EDGE:
+            case mtk::EntityRank::EDGE:
             {
                 return this->get_num_edges();
                 break;
             }
-            case EntityRank::FACE:
+            case mtk::EntityRank::FACE:
             {
                 return this->get_num_faces();
                 break;
             }
-            case EntityRank::ELEMENT:
+            case mtk::EntityRank::ELEMENT:
             {
                 return this->get_num_elems();
                 break;
             }
-            case EntityRank::BSPLINE:
+            case mtk::EntityRank::BSPLINE:
             {
                 return this->get_max_num_coeffs_on_proc( aIndex );
                 break;
@@ -538,35 +540,35 @@ namespace moris::hmr
     Matrix< IndexMat >
     Mesh::get_entity_connected_to_entity_loc_inds(
             moris_index       aEntityIndex,
-            enum EntityRank   aInputEntityRank,
-            enum EntityRank   aOutputEntityRank,
+            mtk::EntityRank   aInputEntityRank,
+            mtk::EntityRank   aOutputEntityRank,
             const moris_index aIndex ) const
     {
         switch ( aOutputEntityRank )
         {
-            case EntityRank::NODE:
+            case mtk::EntityRank::NODE:
             {
                 switch ( aInputEntityRank )
                 {
-                    case EntityRank::NODE:
+                    case mtk::EntityRank::NODE:
                     {
                         return this->get_nodes_connected_to_node_loc_inds( aEntityIndex );
                         break;
                     }
-                    case EntityRank::EDGE:
+                    case mtk::EntityRank::EDGE:
                     {
                         Matrix< IndexMat > tNodeToEdge = this->get_nodes_connected_to_edge_loc_inds( aEntityIndex );
                         return tNodeToEdge;
 
                         break;
                     }
-                    case EntityRank::FACE:
+                    case mtk::EntityRank::FACE:
                     {
                         Matrix< IndexMat > tNodeToFace = this->get_nodes_connected_to_face_loc_inds( aEntityIndex );
                         return tNodeToFace;
                         break;
                     }
-                    case EntityRank::ELEMENT:
+                    case mtk::EntityRank::ELEMENT:
                     {
                         Matrix< IndexMat > tNodeToElement = this->get_nodes_connected_to_element_loc_inds( aEntityIndex );
                         return tNodeToElement;
@@ -581,28 +583,28 @@ namespace moris::hmr
                 }
                 break;
             }    // end output rank node
-            case EntityRank::EDGE:
+            case mtk::EntityRank::EDGE:
             {
                 switch ( aInputEntityRank )
                 {
-                    case EntityRank::NODE:
+                    case mtk::EntityRank::NODE:
                     {
                         return this->get_edges_connected_to_node_loc_inds( aEntityIndex );
                         break;
                     }
-                    case EntityRank::EDGE:
+                    case mtk::EntityRank::EDGE:
                     {
                         MORIS_ERROR( false, "HMR does not provide edge to edge connectivity" );
                         return Matrix< IndexMat >( 0, 0 );
                         break;
                     }
-                    case EntityRank::FACE:
+                    case mtk::EntityRank::FACE:
                     {
                         MORIS_ERROR( false, "HMR does not provide edge to face connectivity" );
                         return Matrix< IndexMat >( 0, 0 );
                         break;
                     }
-                    case EntityRank::ELEMENT:
+                    case mtk::EntityRank::ELEMENT:
                     {
                         if ( this->get_spatial_dim() == 3 )
                         {
@@ -623,28 +625,28 @@ namespace moris::hmr
                 }
                 break;
             }    // end output rank edge
-            case EntityRank::FACE:
+            case mtk::EntityRank::FACE:
             {
                 switch ( aInputEntityRank )
                 {
-                    case EntityRank::NODE:
+                    case mtk::EntityRank::NODE:
                     {
                         return this->get_faces_connected_to_node_loc_inds( aEntityIndex );
                         break;
                     }
-                    case EntityRank::EDGE:
+                    case mtk::EntityRank::EDGE:
                     {
                         MORIS_ERROR( false, "HMR does not provide face to edge connectivity" );
                         return Matrix< IndexMat >( 0, 0 );
                         break;
                     }
-                    case EntityRank::FACE:
+                    case mtk::EntityRank::FACE:
                     {
                         MORIS_ERROR( false, "HMR does not provide face to face connectivity" );
                         return Matrix< IndexMat >( 0, 0 );
                         break;
                     }
-                    case EntityRank::ELEMENT:
+                    case mtk::EntityRank::ELEMENT:
                     {
                         return this->get_faces_connected_to_element_loc_inds( aEntityIndex );
                         break;
@@ -658,27 +660,27 @@ namespace moris::hmr
                 }
                 break;
             }    // end output rank face
-            case EntityRank::ELEMENT:
+            case mtk::EntityRank::ELEMENT:
             {
                 switch ( aInputEntityRank )
                 {
-                    case EntityRank::NODE:
+                    case mtk::EntityRank::NODE:
                     {
                         return this->get_elements_connected_to_node_loc_inds( aEntityIndex );
                         break;
                     }
-                    case EntityRank::EDGE:
+                    case mtk::EntityRank::EDGE:
                     {
                         MORIS_ERROR( false, "HMR does not provide element to edge connectivity" );
                         return Matrix< IndexMat >( 0, 0 );
                         break;
                     }
-                    case EntityRank::FACE:
+                    case mtk::EntityRank::FACE:
                     {
                         return this->get_elements_connected_to_face_loc_inds( aEntityIndex );
                         break;
                     }
-                    case EntityRank::ELEMENT:
+                    case mtk::EntityRank::ELEMENT:
                     {
                         return this->get_elements_connected_to_element_and_face_ind_loc_inds( aEntityIndex );
                         break;
@@ -692,11 +694,11 @@ namespace moris::hmr
                 }
                 break;
             }    // end output rank element
-            case EntityRank::BSPLINE:
+            case mtk::EntityRank::BSPLINE:
             {
                 switch ( aInputEntityRank )
                 {
-                    case EntityRank::ELEMENT:
+                    case mtk::EntityRank::ELEMENT:
                     {
                         return this->get_inds_of_active_elements_connected_to_basis( mMesh->get_bspline_mesh( aIndex )
                                                                                              ->get_basis_by_index( aEntityIndex ) );
@@ -723,8 +725,8 @@ namespace moris::hmr
     Matrix< IndexMat >
     Mesh::get_entity_connected_to_entity_glob_ids(
             moris_index       aEntityId,
-            enum EntityRank   aInputEntityRank,
-            enum EntityRank   aOutputEntityRank,
+            mtk::EntityRank   aInputEntityRank,
+            mtk::EntityRank   aOutputEntityRank,
             const moris_index aIndex ) const
     {
 
@@ -1618,27 +1620,27 @@ namespace moris::hmr
     moris_id
     Mesh::get_glb_entity_id_from_entity_loc_index(
             moris_index       aEntityIndex,
-            enum EntityRank   aEntityRank,
+            mtk::EntityRank   aEntityRank,
             const moris_index aIndex ) const
     {
         switch ( aEntityRank )
         {
-            case EntityRank::NODE:
+            case mtk::EntityRank::NODE:
             {
                 return mMesh->get_node_by_index( aEntityIndex )->get_id();
                 break;
             }
-            case EntityRank::EDGE:
+            case mtk::EntityRank::EDGE:
             {
                 return mMesh->get_edge( aEntityIndex )->get_id();
                 break;
             }
-            case EntityRank::FACE:
+            case mtk::EntityRank::FACE:
             {
                 return mMesh->get_facet( aEntityIndex )->get_id();
                 break;
             }
-            case EntityRank::ELEMENT:
+            case mtk::EntityRank::ELEMENT:
             {
                 if ( mDatabase->get_parameters()->use_number_aura() and    //
                         mDatabase->get_parameters()->is_output_mesh( mMesh->get_index() ) )
@@ -1651,7 +1653,7 @@ namespace moris::hmr
                 }
                 break;
             }
-            case EntityRank::BSPLINE:
+            case mtk::EntityRank::BSPLINE:
             {
                 if ( !mMesh->get_bspline_mesh_is_trivial_interpolation( aIndex ) )
                 {
@@ -1659,7 +1661,7 @@ namespace moris::hmr
                 }
                 else
                 {
-                    return this->get_glb_entity_id_from_entity_loc_index( aEntityIndex, EntityRank::NODE, aIndex );
+                    return this->get_glb_entity_id_from_entity_loc_index( aEntityIndex, mtk::EntityRank::NODE, aIndex );
                 }
                 break;
             }
@@ -1684,14 +1686,14 @@ namespace moris::hmr
     moris_index
     Mesh::get_loc_entity_ind_from_entity_glb_id(
             moris_id          aEntityId,
-            enum EntityRank   aEntityRank,
+            mtk::EntityRank   aEntityRank,
             const moris_index aIndex ) const
     {
         auto tIter = mEntityGlobalToLocalMap( (uint)aEntityRank + aIndex ).find( aEntityId );
 
         MORIS_ERROR( tIter != mEntityGlobalToLocalMap( (uint)aEntityRank + aIndex ).end(),
                 "HMR::Mesh::get_loc_entity_ind_from_entity_glb_id() - "
-                "Provided Entity Id is not in the map. aEntityId = %u EntityRank = %u on process %u. Has the map been initialized?; Size of map: %zu",
+                "Provided Entity Id is not in the map. aEntityId = %u mtk::EntityRank = %u on process %u. Has the map been initialized?; Size of map: %zu",
                 aEntityId,
                 (uint)aEntityRank,
                 par_rank(),
@@ -1703,32 +1705,32 @@ namespace moris::hmr
     //-----------------------------------------------------------------------------
     moris_id
     Mesh::get_max_entity_id(
-            enum EntityRank   aEntityRank,
+            mtk::EntityRank   aEntityRank,
             const moris_index aIndex ) const
     {
         switch ( aEntityRank )
         {
-            case EntityRank::NODE:
+            case mtk::EntityRank::NODE:
             {
                 return mMesh->get_max_node_id();
                 break;
             }
-            case EntityRank::EDGE:
+            case mtk::EntityRank::EDGE:
             {
                 return mMesh->get_max_edge_id();
                 break;
             }
-            case EntityRank::FACE:
+            case mtk::EntityRank::FACE:
             {
                 return mMesh->get_max_facet_id();
                 break;
             }
-            case EntityRank::ELEMENT:
+            case mtk::EntityRank::ELEMENT:
             {
                 return mMesh->get_max_element_id();
                 break;
             }
-            case EntityRank::BSPLINE:
+            case mtk::EntityRank::BSPLINE:
             {
                 uint tNumEntities = this->get_num_entities( aEntityRank, aIndex );
 
@@ -1785,17 +1787,17 @@ namespace moris::hmr
     uint
     Mesh::get_entity_owner(
             moris_index       aEntityIndex,
-            enum EntityRank   aEntityRank,
+            mtk::EntityRank   aEntityRank,
             const moris_index aIndex ) const
     {
         switch ( aEntityRank )
         {
-            case EntityRank::NODE:
+            case mtk::EntityRank::NODE:
             {
                 return mMesh->get_node_by_index( aEntityIndex )->get_owner();
                 break;
             }
-            case EntityRank::EDGE:
+            case mtk::EntityRank::EDGE:
             {
                 if ( this->get_spatial_dim() == 3 )
                 {
@@ -1807,12 +1809,12 @@ namespace moris::hmr
                 }
                 break;
             }
-            case EntityRank::FACE:
+            case mtk::EntityRank::FACE:
             {
                 return mMesh->get_facet( aEntityIndex )->get_owner();
                 break;
             }
-            case EntityRank::ELEMENT:
+            case mtk::EntityRank::ELEMENT:
             {
                 if ( mDatabase->get_parameters()->use_number_aura() and    //
                         mDatabase->get_parameters()->is_output_mesh( mMesh->get_index() ) )
@@ -1825,7 +1827,7 @@ namespace moris::hmr
                 }
                 break;
             }
-            case EntityRank::BSPLINE:
+            case mtk::EntityRank::BSPLINE:
             {
                 if ( !mMesh->get_bspline_mesh_is_trivial_interpolation( aIndex ) )
                 {
@@ -1833,7 +1835,7 @@ namespace moris::hmr
                 }
                 else
                 {
-                    return this->get_entity_owner( aEntityIndex, EntityRank::NODE, aIndex );
+                    return this->get_entity_owner( aEntityIndex, mtk::EntityRank::NODE, aIndex );
                 }
                 break;
             }
@@ -1850,7 +1852,7 @@ namespace moris::hmr
     void
     Mesh::get_processors_whom_share_entity(
             moris_index      aEntityIndex,
-            enum EntityRank  aEntityRank,
+            mtk::EntityRank  aEntityRank,
             Matrix< IdMat >& aProcsWhomShareEntity ) const
     {
         MORIS_ASSERT( par_size() == 1, "Not implemented in HMR (pending completion of entity sharing info in HMR" );
@@ -1860,10 +1862,10 @@ namespace moris::hmr
 
     //-----------------------------------------------------------------------------
 
-    enum EntityRank
+    mtk::EntityRank
     Mesh::get_facet_rank() const
     {
-        return EntityRank::FACE;
+        return mtk::EntityRank::FACE;
     }
 
     //-----------------------------------------------------------------------------
@@ -1871,7 +1873,7 @@ namespace moris::hmr
     moris::Cell< mtk::Vertex const * >
     Mesh::get_all_vertices() const
     {
-        uint tNumVertices = this->get_num_entities( EntityRank::NODE );
+        uint tNumVertices = this->get_num_entities( mtk::EntityRank::NODE );
 
         moris::Cell< mtk::Vertex const * > tVertices( tNumVertices );
 
@@ -1922,17 +1924,17 @@ namespace moris::hmr
 
     uint
     Mesh::get_num_fields(
-            const enum EntityRank aEntityRank,
+            const mtk::EntityRank aEntityRank,
             const moris_index     aIndex ) const
     {
         switch ( aEntityRank )
         {
-            case EntityRank::NODE:
+            case mtk::EntityRank::NODE:
             {
                 return mMesh->get_number_of_real_scalar_fields();
                 break;
             }
-            case EntityRank::BSPLINE:
+            case mtk::EntityRank::BSPLINE:
             {
                 return mMesh->get_number_of_real_scalar_fields();
                 break;
@@ -1950,18 +1952,18 @@ namespace moris::hmr
     real&
     Mesh::get_value_of_scalar_field(
             const moris_index     aFieldIndex,
-            const enum EntityRank aEntityRank,
+            const mtk::EntityRank aEntityRank,
             const uint            aEntityIndex,
             const moris_index     aIndex )
     {
         switch ( aEntityRank )
         {
-            case EntityRank::NODE:
+            case mtk::EntityRank::NODE:
             {
                 return mMesh->get_real_scalar_field_data( aFieldIndex )( aEntityIndex );
                 break;
             }
-            case EntityRank::BSPLINE:
+            case mtk::EntityRank::BSPLINE:
             {
                 return mMesh->get_real_scalar_field_coeffs( aFieldIndex )( aEntityIndex );
                 break;
@@ -1980,18 +1982,18 @@ namespace moris::hmr
     const real&
     Mesh::get_value_of_scalar_field(
             const moris_index     aFieldIndex,
-            const enum EntityRank aEntityRank,
+            const mtk::EntityRank aEntityRank,
             const uint            aEntityIndex,
             const moris_index     aIndex ) const
     {
         switch ( aEntityRank )
         {
-            case EntityRank::NODE:
+            case mtk::EntityRank::NODE:
             {
                 return mMesh->get_real_scalar_field_data( aFieldIndex )( aEntityIndex );
                 break;
             }
-            case EntityRank::BSPLINE:
+            case mtk::EntityRank::BSPLINE:
             {
                 return mMesh->get_real_scalar_field_coeffs( aFieldIndex )( aEntityIndex );
                 break;
@@ -2009,17 +2011,17 @@ namespace moris::hmr
     Matrix< DDRMat >&
     Mesh::get_field(
             const moris_index     aFieldIndex,
-            const enum EntityRank aEntityRank,
+            const mtk::EntityRank aEntityRank,
             const moris_index     aIndex )
     {
         switch ( aEntityRank )
         {
-            case EntityRank::NODE:
+            case mtk::EntityRank::NODE:
             {
                 return mMesh->get_real_scalar_field_data( aFieldIndex );
                 break;
             }
-            case EntityRank::BSPLINE:
+            case mtk::EntityRank::BSPLINE:
             {
                 return mMesh->get_real_scalar_field_coeffs( aFieldIndex );
                 break;
@@ -2037,9 +2039,9 @@ namespace moris::hmr
     moris_index
     Mesh::get_field_ind(
             const std::string&    aFieldLabel,
-            const enum EntityRank aEntityRank ) const
+            const mtk::EntityRank aEntityRank ) const
     {
-        if ( aEntityRank == EntityRank::NODE || aEntityRank == EntityRank::BSPLINE )
+        if ( aEntityRank == mtk::EntityRank::NODE || aEntityRank == mtk::EntityRank::BSPLINE )
         {
             // fixme: this is not a good method. A map would be better
             moris_index aIndex          = gNoIndex;
@@ -2103,9 +2105,9 @@ namespace moris::hmr
     //-------------------------------------------------------------------------------
 
     moris::Cell< std::string >
-    Mesh::get_set_names( enum EntityRank aSetEntityRank ) const
+    Mesh::get_set_names( mtk::EntityRank aSetEntityRank ) const
     {
-        if ( aSetEntityRank == EntityRank::ELEMENT )
+        if ( aSetEntityRank == mtk::EntityRank::ELEMENT )
         {
             std::string tDummy = "HMR_dummy";
 
@@ -2113,7 +2115,7 @@ namespace moris::hmr
 
             return tSetNames;
         }
-        else if ( aSetEntityRank == EntityRank::FACE )
+        else if ( aSetEntityRank == mtk::EntityRank::FACE )
         {
             Matrix< DDUMat > tPatternList = mDatabase->create_output_pattern_list();
 
@@ -2135,13 +2137,13 @@ namespace moris::hmr
                 return Cell< std::string >( 0 );
             }
         }
-        else if ( aSetEntityRank == EntityRank::NODE )
+        else if ( aSetEntityRank == mtk::EntityRank::NODE )
         {
             return Cell< std::string >( 0 );
         }
         else
         {
-            MORIS_ERROR( false, "Mesh::get_set_names(), only EntityRank::ELEMENT/FACE is implemented for HMR. Rest can be implemented by you." );
+            MORIS_ERROR( false, "Mesh::get_set_names(), only mtk::EntityRank::ELEMENT/FACE is implemented for HMR. Rest can be implemented by you." );
         }
 
         return moris::Cell< std::string >( 0 );
@@ -2151,10 +2153,10 @@ namespace moris::hmr
 
     Matrix< IndexMat >
     Mesh::get_set_entity_loc_inds(
-            enum EntityRank aSetEntityRank,
+            mtk::EntityRank aSetEntityRank,
             std::string     aSetName ) const
     {
-        if ( aSetEntityRank == EntityRank::ELEMENT )
+        if ( aSetEntityRank == mtk::EntityRank::ELEMENT )
         {
             uint tNumEntities = mMesh->get_number_of_elements();
 
@@ -2168,7 +2170,7 @@ namespace moris::hmr
             return tOutputEntityInds;
         }
 
-        if ( aSetEntityRank == EntityRank::FACE )
+        if ( aSetEntityRank == mtk::EntityRank::FACE )
         {
             // todo: fix this
             Matrix< IndexMat > tSideSetElementInd = mDatabase->get_output_side_set( aSetName ).mElemIndices;
@@ -2177,7 +2179,7 @@ namespace moris::hmr
         }
         else
         {
-            MORIS_ERROR( false, "Mesh::get_set_entity_loc_inds(), only EntityRank::ELEMENT/FACE is implemented for HMR. Rest can be implemented by you." );
+            MORIS_ERROR( false, "Mesh::get_set_entity_loc_inds(), only mtk::EntityRank::ELEMENT/FACE is implemented for HMR. Rest can be implemented by you." );
         }
 
         return Matrix< IndexMat >( 0, 0 );
@@ -2187,21 +2189,21 @@ namespace moris::hmr
 
     uint
     Mesh::get_level_of_entity_loc_ind(
-            const enum EntityRank aEntityRank,
+            const mtk::EntityRank aEntityRank,
             const uint            aEntityIndex,
             const moris_index     aIndex )
     {
         switch ( aEntityRank )
         {
-            case EntityRank::ELEMENT:
+            case mtk::EntityRank::ELEMENT:
             {
                 return mMesh->get_element( aEntityIndex )->get_level();
             }
-            case EntityRank::NODE:
+            case mtk::EntityRank::NODE:
             {
                 return mMesh->get_node_by_index( aEntityIndex )->get_level();
             }
-            case EntityRank::BSPLINE:
+            case mtk::EntityRank::BSPLINE:
             {
                 return mMesh->get_bspline( aIndex, aEntityIndex )->get_level();
             }
@@ -2217,16 +2219,16 @@ namespace moris::hmr
 
     uint
     Mesh::get_max_level_of_entity(
-            const enum EntityRank aEntityRank,
+            const mtk::EntityRank aEntityRank,
             const moris_index     aIndex )
     {
         switch ( aEntityRank )
         {
-            case EntityRank::NODE:
+            case mtk::EntityRank::NODE:
             {
                 return mMesh->get_max_level();
             }
-            case EntityRank::BSPLINE:
+            case mtk::EntityRank::BSPLINE:
             {
                 return mMesh->get_bspline_mesh( aIndex )->get_max_level();
             }
@@ -2333,46 +2335,39 @@ namespace moris::hmr
     void
     Mesh::setup_glb_to_local_maps()
     {
-        tic tTimer;
+        // report on this operation
+        MORIS_LOG_INFO( "Setting up global to local maps on HMR mesh" );
 
         // Initialize global to local map
         mEntityGlobalToLocalMap = moris::Cell< std::unordered_map< moris_id, moris_index > >( 4 + mMesh->get_number_of_bspline_meshes() );
 
+        // count number of mesh entities
         uint tCounter = 0;
 
-        setup_entity_global_to_local_map( EntityRank::NODE, tCounter );
-        setup_entity_global_to_local_map( EntityRank::EDGE, tCounter );
-        setup_entity_global_to_local_map( EntityRank::FACE, tCounter );
-        setup_entity_global_to_local_map( EntityRank::ELEMENT, tCounter );
+        setup_entity_global_to_local_map( mtk::EntityRank::NODE, tCounter );
+        setup_entity_global_to_local_map( mtk::EntityRank::EDGE, tCounter );
+        setup_entity_global_to_local_map( mtk::EntityRank::FACE, tCounter );
+        setup_entity_global_to_local_map( mtk::EntityRank::ELEMENT, tCounter );
 
-        for ( uint Ik = 0; Ik < mMesh->get_number_of_bspline_meshes(); Ik++ )
+        for ( uint iBspMesh = 0; iBspMesh < mMesh->get_number_of_bspline_meshes(); iBspMesh++ )
         {
-            if ( mMesh->get_bspline_mesh( Ik ) != nullptr )
+            if ( mMesh->get_bspline_mesh( iBspMesh ) != nullptr )
             {
-                setup_entity_global_to_local_map( EntityRank::BSPLINE, tCounter, Ik );
+                setup_entity_global_to_local_map( mtk::EntityRank::BSPLINE, tCounter, iBspMesh );
             }
             else
             {
                 // trivial case when all t-matrices are 1
-                setup_entity_global_to_local_map( EntityRank::NODE, tCounter );
+                setup_entity_global_to_local_map( mtk::EntityRank::NODE, tCounter );
             }
         }
-
-        // stop timer
-        real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-
-        MORIS_LOG_INFO( "Creation of local-to-global maps on Lagrange Mesh of order %u on pattern %u took %5.3f seconds.",
-                mMesh->get_order(),
-                mMesh->get_activation_pattern(),
-                (double)tElapsedTime / 1000 );
-        MORIS_LOG_INFO( " " );
     }
 
     //-------------------------------------------------------------------------------
 
     void
     Mesh::setup_entity_global_to_local_map(
-            enum EntityRank   aEntityRank,
+            mtk::EntityRank   aEntityRank,
             uint&             aCounter,
             const moris_index aIndex )
     {
@@ -2401,14 +2396,14 @@ namespace moris::hmr
 
     //-------------------------------------------------------------------------------
 
-    enum CellTopology
+     mtk::CellTopology
     Mesh::get_blockset_topology( const std::string& aSetName )
     {
         uint tNumberOfDimensions = mDatabase->get_number_of_dimensions();
 
         uint tOrder = this->get_order();
 
-        enum CellTopology tCellTopology = CellTopology::END_ENUM;
+         mtk::CellTopology tCellTopology = mtk::CellTopology::UNDEFINED;
 
         switch ( tNumberOfDimensions )
         {
@@ -2423,17 +2418,17 @@ namespace moris::hmr
                 {
                     case 1:
                     {
-                        tCellTopology = CellTopology::QUAD4;
+                        tCellTopology = mtk::CellTopology::QUAD4;
                         break;
                     }
                     case 2:
                     {
-                        tCellTopology = CellTopology::QUAD9;
+                        tCellTopology = mtk::CellTopology::QUAD9;
                         break;
                     }
                     case 3:
                     {
-                        tCellTopology = CellTopology::QUAD16;
+                        tCellTopology = mtk::CellTopology::QUAD16;
                         break;
                     }
                     default:
@@ -2450,17 +2445,17 @@ namespace moris::hmr
                 {
                     case 1:
                     {
-                        tCellTopology = CellTopology::HEX8;
+                        tCellTopology = mtk::CellTopology::HEX8;
                         break;
                     }
                     case 2:
                     {
-                        tCellTopology = CellTopology::HEX27;
+                        tCellTopology = mtk::CellTopology::HEX27;
                         break;
                     }
                     case 3:
                     {
-                        tCellTopology = CellTopology::HEX64;
+                        tCellTopology = mtk::CellTopology::HEX64;
                         break;
                     }
                     default:
@@ -2482,18 +2477,18 @@ namespace moris::hmr
 
     //-------------------------------------------------------------------------------
 
-    enum CellShape
+    mtk::CellShape
     Mesh::get_IG_blockset_shape( const std::string& aSetName )
     {
-        return CellShape::RECTANGULAR;
+        return mtk::CellShape::RECTANGULAR;
     }
 
     //-------------------------------------------------------------------------------
 
-    enum CellShape
+    mtk::CellShape
     Mesh::get_IP_blockset_shape( const std::string& aSetName )
     {
-        return CellShape::RECTANGULAR;
+        return mtk::CellShape::RECTANGULAR;
     }
 
     //-------------------------------------------------------------------------------

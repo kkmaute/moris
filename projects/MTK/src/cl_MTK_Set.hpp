@@ -23,7 +23,7 @@
 #include "cl_MTK_Side_Cluster.hpp"     //MTK/src
 #include "cl_Communication_Tools.hpp"  //MTK/src
 
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 
 namespace moris
 {
@@ -52,11 +52,11 @@ namespace moris
 
             moris_index mSetIndex = MORIS_INDEX_MAX;
 
-            enum CellTopology mCellTopology = CellTopology::END_ENUM;
+            CellTopology mCellTopology = CellTopology::UNDEFINED;
 
-            enum CellShape mIGCellShape = CellShape::END_ENUM;
+            CellShape mIGCellShape = CellShape::UNDEFINED;
 
-            enum CellShape mIPCellShape = CellShape::END_ENUM;
+            CellShape mIPCellShape = CellShape::UNDEFINED;
 
             moris::uint mSpatialDim;
 
@@ -71,7 +71,7 @@ namespace moris
             // integration mesh geometry type
             mtk::Geometry_Type mIGGeometryType = mtk::Geometry_Type::UNDEFINED;
 
-            moris::SetType mSetType = moris::SetType::END_ENUM;
+            SetType mSetType = SetType::UNDEFINED;
 
             bool                          mOwendbyPeriodicBCFlag = false;
 
@@ -117,7 +117,7 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            enum moris::SetType get_set_type() const
+            SetType get_set_type() const
             {
                 return mSetType;
             }
@@ -155,46 +155,46 @@ namespace moris
 
             //------------------------------------------------------------------------------
 
-            void set_cell_topology( enum CellTopology aCellTopology )
+            void set_cell_topology( CellTopology aCellTopology )
             {
                 mCellTopology = aCellTopology;
             }
 
             //------------------------------------------------------------------------------
 
-            enum CellTopology get_cell_topology()
+            CellTopology get_cell_topology()
             {
-                MORIS_ASSERT( mCellTopology != CellTopology::END_ENUM, "Set::get_cell_topology(), Cell topology not set" );
+                MORIS_ASSERT( mCellTopology != CellTopology::UNDEFINED, "Set::get_cell_topology(), Cell topology not set" );
                 return mCellTopology;
             }
 
             //------------------------------------------------------------------------------
 
-            void set_IG_cell_shape( enum CellShape aCellShape )
+            void set_IG_cell_shape( CellShape aCellShape )
             {
                 mIGCellShape = aCellShape;
             }
 
             //------------------------------------------------------------------------------
 
-            void set_IP_cell_shape( enum CellShape aCellShape )
+            void set_IP_cell_shape( CellShape aCellShape )
             {
                 mIPCellShape = aCellShape;
             }
 
             //------------------------------------------------------------------------------
 
-            enum CellShape get_IG_cell_shape()
+            CellShape get_IG_cell_shape()
             {
-                MORIS_ASSERT( mIGCellShape != CellShape::END_ENUM, "Set::get_IG_cell_shape(), Cell shape not set" );
+                MORIS_ASSERT( mIGCellShape != CellShape::UNDEFINED, "Set::get_IG_cell_shape(), Cell shape not set" );
                 return mIGCellShape;
             }
 
             //------------------------------------------------------------------------------
 
-            enum CellShape get_IP_cell_shape()
+            CellShape get_IP_cell_shape()
             {
-                MORIS_ASSERT( mIPCellShape != CellShape::END_ENUM, "Set::get_IG_cell_shape(), Cell shape not set" );
+                MORIS_ASSERT( mIPCellShape != CellShape::UNDEFINED, "Set::get_IG_cell_shape(), Cell shape not set" );
                 return mIPCellShape;
             }
 
@@ -490,7 +490,7 @@ namespace moris
 
                 uint tRecIPGeometryType = min_all( (uint)tIPGeometryType );
 
-                mIPGeometryType = static_cast<enum mtk::Geometry_Type> (tRecIPGeometryType);
+                mIPGeometryType = static_cast<mtk::Geometry_Type> (tRecIPGeometryType);
 
                 //                MORIS_ASSERT( mIPGeometryType != mtk::Geometry_Type::UNDEFINED, " communicate_type(); undefined geometry type on all processors");
             };
@@ -528,8 +528,8 @@ namespace moris
                 uint tRecIPInterpolationOrder = min_all( (uint)tIPInterpolationOrder );
                 uint tRecIGInterpolationOrder = min_all( (uint)tIGInterpolationOrder );
 
-                mIPSpaceInterpolationOrder = static_cast<enum mtk::Interpolation_Order> (tRecIPInterpolationOrder);
-                mIGSpaceInterpolationOrder = static_cast<enum mtk::Interpolation_Order> (tRecIGInterpolationOrder);
+                mIPSpaceInterpolationOrder = static_cast<mtk::Interpolation_Order> (tRecIPInterpolationOrder);
+                mIGSpaceInterpolationOrder = static_cast<mtk::Interpolation_Order> (tRecIGInterpolationOrder);
 
                 //                MORIS_ASSERT( mIPSpaceInterpolationOrder != mtk::Interpolation_Order::UNDEFINED, " communicate_interpolation_order(); undefined ip interpolation order on this processor");
                 //                MORIS_ASSERT( mIGSpaceInterpolationOrder != mtk::Interpolation_Order::UNDEFINED, " communicate_interpolation_order(); undefined ig interpolation order on this processor");

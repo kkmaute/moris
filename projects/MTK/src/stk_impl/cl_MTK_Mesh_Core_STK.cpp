@@ -177,13 +177,13 @@ namespace moris
             // that this call is only required here (mesh from string or file).
 
             mSTKMeshData->mEntityLocaltoGlobalMap =
-                    moris::Cell< moris::Matrix< IdMat > >( (uint)EntityRank::END_ENUM, moris::Matrix< IndexMat >( 1, 1, 0 ) );
+                    moris::Cell< moris::Matrix< IdMat > >( (uint)EntityRank::UNDEFINED, moris::Matrix< IndexMat >( 1, 1, 0 ) );
 
             mSTKMeshData->mEntitySendList =
-                    moris::Cell< moris::Cell< moris::Matrix< IndexMat > > >( (uint)EntityRank::END_ENUM, moris::Cell< moris::Matrix< IndexMat > >( par_size(), moris::Matrix< IdMat >( 1, 1 ) ) );
+                    moris::Cell< moris::Cell< moris::Matrix< IndexMat > > >( (uint)EntityRank::UNDEFINED, moris::Cell< moris::Matrix< IndexMat > >( par_size(), moris::Matrix< IdMat >( 1, 1 ) ) );
 
             mSTKMeshData->mEntityReceiveList =
-                    moris::Cell< moris::Cell< moris::Matrix< IndexMat > > >( (uint)EntityRank::END_ENUM, moris::Cell< moris::Matrix< IndexMat > >( par_size(), moris::Matrix< IdMat >( 1, 1 ) ) );
+                    moris::Cell< moris::Cell< moris::Matrix< IndexMat > > >( (uint)EntityRank::UNDEFINED, moris::Cell< moris::Matrix< IndexMat > >( par_size(), moris::Matrix< IdMat >( 1, 1 ) ) );
 
             create_communication_lists_and_local_to_global_map( EntityRank::NODE );
             create_communication_lists_and_local_to_global_map( EntityRank::EDGE );
@@ -1197,12 +1197,12 @@ namespace moris
 
                 switch ( aFieldEntityRank )
                 {
-                    case ( moris::EntityRank::NODE ):
+                    case ( mtk::EntityRank::NODE ):
                     {
                         tRank = " node ";
                         break;
                     }
-                    case ( moris::EntityRank::ELEMENT ):
+                    case ( mtk::EntityRank::ELEMENT ):
                     {
                         tRank = " element ";
                         break;
@@ -2101,7 +2101,7 @@ namespace moris
                     break;
                 default:
                     MORIS_ERROR( 0, "Unhandled stk topology passed in, only ones currently used in MORIS have been added" );
-                    return CellTopology::INVALID;
+                    return CellTopology::UNDEFINED;
                     break;
             }
         }
@@ -2442,7 +2442,7 @@ namespace moris
             //                aMeshData.FieldsInfo[0].FieldsName( iField ) = "genericFieldName_"+std::to_string( iField );
             //            }
             //
-            //            MORIS_ASSERT( aMeshData.FieldsInfo[0].FieldsRank( iField ) != EntityRank::INVALID, "Field rank was not provided.");
+            //            MORIS_ASSERT( aMeshData.FieldsInfo[0].FieldsRank( iField ) != EntityRank::UNDEFINED, "Field rank was not provided.");
             //        }
             //
             //        // Loop over the number of fields
@@ -2627,9 +2627,9 @@ namespace moris
             // Generate additional local to global maps (only for meshes generated from data).
             // Elemental and nodal information has been taken care of already in this case.
             // setup maps which include the aura
-            mSTKMeshData->mEntityLocaltoGlobalMap = moris::Cell< moris::Matrix< IdMat > >( (uint)EntityRank::END_ENUM, moris::Matrix< IndexMat >( 1, 1, 0 ) );
-            mSTKMeshData->mEntitySendList         = moris::Cell< moris::Cell< moris::Matrix< IndexMat > > >( (uint)EntityRank::END_ENUM, moris::Cell< moris::Matrix< IndexMat > >( par_size(), moris::Matrix< IdMat >( 1, 1 ) ) );
-            mSTKMeshData->mEntityReceiveList      = moris::Cell< moris::Cell< moris::Matrix< IndexMat > > >( (uint)EntityRank::END_ENUM, moris::Cell< moris::Matrix< IndexMat > >( par_size(), moris::Matrix< IdMat >( 1, 1 ) ) );
+            mSTKMeshData->mEntityLocaltoGlobalMap = moris::Cell< moris::Matrix< IdMat > >( (uint)EntityRank::UNDEFINED, moris::Matrix< IndexMat >( 1, 1, 0 ) );
+            mSTKMeshData->mEntitySendList         = moris::Cell< moris::Cell< moris::Matrix< IndexMat > > >( (uint)EntityRank::UNDEFINED, moris::Cell< moris::Matrix< IndexMat > >( par_size(), moris::Matrix< IdMat >( 1, 1 ) ) );
+            mSTKMeshData->mEntityReceiveList      = moris::Cell< moris::Cell< moris::Matrix< IndexMat > > >( (uint)EntityRank::UNDEFINED, moris::Cell< moris::Matrix< IndexMat > >( par_size(), moris::Matrix< IdMat >( 1, 1 ) ) );
             create_communication_lists_and_local_to_global_map( EntityRank::NODE );
             create_communication_lists_and_local_to_global_map( EntityRank::EDGE );
             create_communication_lists_and_local_to_global_map( EntityRank::FACE );
@@ -2680,7 +2680,7 @@ namespace moris
                 // Declare and initialize topology type. Also check if element type is supported
 
                 stk::topology::topology_t tTopology;
-                if ( aMeshData.CellTopology( iET ) == CellTopology::INVALID )
+                if ( aMeshData.CellTopology( iET ) == CellTopology::UNDEFINED )
                 {
                     tTopology = get_mesh_topology( mSTKMeshData->mNumDims, tNumNodesPerElem );
                 }

@@ -60,8 +60,8 @@ namespace moris
     // define enums for input file types
     enum class Parameter_List_Type
     {
-        //! only have types here for which we have a standard parameter list (with the exception of "END_ENUM")
-        //! Make sure to include all enums defined here in the convert to string function below (with the exception of "END_ENUM")
+        //! only have types here for which we have a standard parameter list (with the exception of "UNDEFINED")
+        //! Make sure to include all enums defined here in the convert to string function below (with the exception of "UNDEFINED")
         OPT,
         HMR,
         STK,

@@ -124,7 +124,7 @@ verify_interface_vertices(
     moris::ge::Geometry_Engine* tGeomEngine = aModel->get_geom_engine();
 
     // number of vertices
-    moris::uint tNumVertices = tCutMesh->get_num_entities( EntityRank::NODE, 0 );
+    moris::uint tNumVertices = tCutMesh->get_num_entities( mtk::EntityRank::NODE, 0 );
 
     // keep track of problem vertices
     moris::Cell< moris_index > tProblemIgVertices( 0 );

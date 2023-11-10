@@ -308,7 +308,7 @@ namespace moris
 //         MORIS_ERROR( mXmlParserIsInitialized, "Library_IO::load_parameters_from_xml() - No XML file has been loaded." );
 // 
 //         // go through the various parameter list names and see if they exist in the provided xml file
-//         for( uint iParamListType = 0; iParamListType < (uint)( Parameter_List_Type::END_ENUM ); iParamListType++ )
+//         for( uint iParamListType = 0; iParamListType < (uint)( Parameter_List_Type::UNDEFINED ); iParamListType++ )
 //         {
 //             // get the current enum
 //             Parameter_List_Type tParamListType = (Parameter_List_Type)( iParamListType );

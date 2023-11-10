@@ -20,23 +20,23 @@
 #include "cl_Logger.hpp"
 #include "Log_Constants.hpp"
 
-//get access to the global clock in gLogger;
+// get access to the global clock in gLogger;
 extern moris::Logger gLogger;
 
 namespace moris
 {
-class Tracer
+    class Tracer
     {
 
-    //-------------------------------- PRIVATE --------------------------------//
-    private:
+        //-------------------------------- PRIVATE --------------------------------//
 
-    // class has no member variables / is empty
-    bool mSignOut = true;
+      private:
+        // class has no member variables / is empty
+        bool mSignOut = true;
 
-    //-------------------------------- PUBLIC ---------------------------------//
-    public:
+        //-------------------------------- PUBLIC ---------------------------------//
 
+      public:
         /**
          * Constructor for tracer
          *
@@ -44,13 +44,14 @@ class Tracer
          * @param aEntityType Entity type
          * @param aEntityAction Entity action
          */
-        Tracer(std::string aEntityBase,
-               std::string aEntityType,
-               std::string aEntityAction,
-               moris::uint aThreshold = 0,
-               moris::uint aLevel = 0)
+        Tracer(
+                std::string aEntityBase,
+                std::string aEntityType,
+                std::string aEntityAction,
+                moris::uint aThreshold = 0,
+                moris::uint aLevel     = 0 )
         {
-            if(aLevel <= aThreshold)
+            if ( aLevel <= aThreshold )
             {
                 gLogger.sign_in( aEntityBase, aEntityType, aEntityAction );
             }
@@ -60,6 +61,8 @@ class Tracer
             }
         }
 
+        //-----------------------------------------------------
+
         /**
          * Constructor
          * Use if no entity type can be specified
@@ -67,20 +70,22 @@ class Tracer
          * @param aEntityBase Entity base
          * @param aEntityAction Entity action
          */
-        Tracer(std::string aEntityBase,
-               std::string aEntityAction)
+        Tracer(
+                std::string aEntityBase,
+                std::string aEntityAction )
         {
             gLogger.sign_in( aEntityBase, LOGGER_NON_SPECIFIC_ENTITY_TYPE, aEntityAction );
         }
 
+        //-----------------------------------------------------
+
         // destructor: automatically perform sign out operation when tracer gets destructed
         ~Tracer()
         {
-            if(mSignOut){gLogger.sign_out();}
+            if ( mSignOut ) { gLogger.sign_out(); }
         };
 
-    }; // class Tracer
-} // namespace moris
+    };    // class Tracer
+}    // namespace moris
 
-#endif  /* MORIS_IOS_CL_TRACER_HPP_ */
-
+#endif /* MORIS_IOS_CL_TRACER_HPP_ */

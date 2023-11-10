@@ -24,7 +24,7 @@
 
 #include "xtk_typedefs.hpp"
 #include "cl_XTK_Matrix_Base_Utilities.hpp"    // For print and equal to for matrices
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "mesh/cl_Mesh_Builder.hpp"
 #include "mesh/cl_Mesh_Data_Stk.hpp"
 #include "mesh/cl_Mesh_Builder_Stk.hpp"
@@ -62,10 +62,10 @@ TEST_CASE( "STK Mesh Test Serial", "[MESH][STK]" )
             std::shared_ptr< mesh::Mesh_Data< xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat > > tMeshData = tMeshBuilder.build_mesh_from_string( tMeshFileName, tScalarFields, true );
 
             // Get information from Mesh
-            xtk::size_t tNumNodes    = tMeshData->get_num_entities( EntityRank::NODE );
-            xtk::size_t tNumEdges    = tMeshData->get_num_entities( EntityRank::EDGE );
-            xtk::size_t tNumFaces    = tMeshData->get_num_entities( EntityRank::FACE );
-            xtk::size_t tNumElements = tMeshData->get_num_entities( EntityRank::ELEMENT );
+            xtk::size_t tNumNodes    = tMeshData->get_num_entities( mtk::EntityRank::NODE );
+            xtk::size_t tNumEdges    = tMeshData->get_num_entities( mtk::EntityRank::EDGE );
+            xtk::size_t tNumFaces    = tMeshData->get_num_entities( mtk::EntityRank::FACE );
+            xtk::size_t tNumElements = tMeshData->get_num_entities( mtk::EntityRank::ELEMENT );
 
             REQUIRE( tNumNodes == 12 );
             REQUIRE( tNumEdges == 20 );
@@ -74,13 +74,13 @@ TEST_CASE( "STK Mesh Test Serial", "[MESH][STK]" )
 
             // Get information about element 1
             moris::Matrix< moris::DDSTMat > tElement1Nodes =
-                    tMeshData->get_entity_connected_to_entity_loc_inds( (xtk::size_t)0, EntityRank::ELEMENT, EntityRank::NODE );
+                    tMeshData->get_entity_connected_to_entity_loc_inds( (xtk::size_t)0, mtk::EntityRank::ELEMENT, mtk::EntityRank::NODE );
 
             moris::Matrix< moris::DDSTMat > tElement1Faces =
-                    tMeshData->get_entity_connected_to_entity_loc_inds( (xtk::size_t)0, EntityRank::ELEMENT, EntityRank::FACE );
+                    tMeshData->get_entity_connected_to_entity_loc_inds( (xtk::size_t)0, mtk::EntityRank::ELEMENT, mtk::EntityRank::FACE );
 
             moris::Matrix< moris::DDSTMat > tElement1Edges =
-                    tMeshData->get_entity_connected_to_entity_loc_inds( (xtk::size_t)0, EntityRank::ELEMENT, EntityRank::EDGE );
+                    tMeshData->get_entity_connected_to_entity_loc_inds( (xtk::size_t)0, mtk::EntityRank::ELEMENT, mtk::EntityRank::EDGE );
 
             // Define expected values
             moris::Matrix< moris::DDSTMat > tExpectedElement1Nodes( { { 0, 1, 3, 2, 4, 5, 7, 6 } } );
@@ -93,9 +93,9 @@ TEST_CASE( "STK Mesh Test Serial", "[MESH][STK]" )
             CHECK( xtk::equal_to( tElement1Edges, tExpectedElement1Edges ) );
             CHECK( xtk::equal_to( tElement1Faces, tExpectedElement1Faces ) );
 
-            moris::Matrix< moris::DDSTMat > tElement2Nodes = tMeshData->get_entity_connected_to_entity_loc_inds( (xtk::size_t)1, EntityRank::ELEMENT, EntityRank::NODE );
-            moris::Matrix< moris::DDSTMat > tElement2Edges = tMeshData->get_entity_connected_to_entity_loc_inds( (xtk::size_t)1, EntityRank::ELEMENT, EntityRank::EDGE );
-            moris::Matrix< moris::DDSTMat > tElement2Faces = tMeshData->get_entity_connected_to_entity_loc_inds( (xtk::size_t)1, EntityRank::ELEMENT, EntityRank::FACE );
+            moris::Matrix< moris::DDSTMat > tElement2Nodes = tMeshData->get_entity_connected_to_entity_loc_inds( (xtk::size_t)1, mtk::EntityRank::ELEMENT, mtk::EntityRank::NODE );
+            moris::Matrix< moris::DDSTMat > tElement2Edges = tMeshData->get_entity_connected_to_entity_loc_inds( (xtk::size_t)1, mtk::EntityRank::ELEMENT, mtk::EntityRank::EDGE );
+            moris::Matrix< moris::DDSTMat > tElement2Faces = tMeshData->get_entity_connected_to_entity_loc_inds( (xtk::size_t)1, mtk::EntityRank::ELEMENT, mtk::EntityRank::FACE );
             moris::Matrix< moris::DDSTMat > tExpectedElement2Nodes( { { 4, 5, 7, 6, 8, 9, 11, 10 } } );
             moris::Matrix< moris::DDSTMat > tExpectedElement2Edges( { { 4, 5, 6, 7, 12, 13, 14, 15, 16, 17, 18, 19 } } );
             moris::Matrix< moris::DDSTMat > tExpectedElement2Faces( { { 6, 7, 8, 9, 5, 10 } } );
@@ -151,12 +151,12 @@ TEST_CASE( "Batch Create New Nodes Functions", "[MESH][BATCH_CREATE]" )
     xtk::size_t tFirstId;
     if ( tProcRank == 0 )
     {
-        tFirstId = tMeshData->allocate_entity_ids( 2, EntityRank::NODE );
+        tFirstId = tMeshData->allocate_entity_ids( 2, mtk::EntityRank::NODE );
         CHECK( tFirstId == 13 );
     }
     else
     {
-        tFirstId = tMeshData->allocate_entity_ids( 2, EntityRank::NODE );
+        tFirstId = tMeshData->allocate_entity_ids( 2, mtk::EntityRank::NODE );
         CHECK( tFirstId == 15 );
     }
 
@@ -174,7 +174,7 @@ TEST_CASE( "Batch Create New Nodes Functions", "[MESH][BATCH_CREATE]" )
     /*
      * Setup Parent Element Topology with Nodes Corresponding to Element 1
      */
-    moris::Matrix< moris::DDSTMat >                                                               tElementNodesForTopology = tMeshData->get_entity_connected_to_entity_loc_inds( 0, EntityRank::ELEMENT, EntityRank::NODE );
+    moris::Matrix< moris::DDSTMat >                                                               tElementNodesForTopology = tMeshData->get_entity_connected_to_entity_loc_inds( 0, mtk::EntityRank::ELEMENT, mtk::EntityRank::NODE );
     xtk::Hexahedron_8_Topology< xtk::real, xtk::size_t, xtk::moris::DDRMat, xtk::moris::DDSTMat > tDummyTopology( tElementNodesForTopology );
 
     /*
@@ -215,7 +215,7 @@ TEST_CASE( "Batch Create New Nodes Functions", "[MESH][BATCH_CREATE]" )
 
     if ( tProcSize == 1 )
     {
-        CHECK( xtk::equal_to( tExpectedMap, tMeshData->get_local_to_global_map( EntityRank::NODE ) ) );
+        CHECK( xtk::equal_to( tExpectedMap, tMeshData->get_local_to_global_map( mtk::EntityRank::NODE ) ) );
     }
     //       tMeshData->batch_create_new_nodes(tPendingNodes);
 
@@ -223,7 +223,7 @@ TEST_CASE( "Batch Create New Nodes Functions", "[MESH][BATCH_CREATE]" )
 
     if ( tProcSize == 1 )
     {
-        CHECK( xtk::equal_to( tExpectedMap, tMeshData->get_local_to_global_map( EntityRank::NODE ) ) );
+        CHECK( xtk::equal_to( tExpectedMap, tMeshData->get_local_to_global_map( mtk::EntityRank::NODE ) ) );
     }
     /*
      * Check to see that the coordinates are correct
@@ -302,7 +302,7 @@ TEST_CASE( "Part Ordinals", "[MESH][PARTS][ORDINALS]" )
      * Get number of buckets in the mesh
      */
 
-    xtk::size_t tNumBuckets = tMeshData->get_num_buckets( EntityRank::ELEMENT );
+    xtk::size_t tNumBuckets = tMeshData->get_num_buckets( mtk::EntityRank::ELEMENT );
 
     /*
      * Iterate over buckets
@@ -312,8 +312,8 @@ TEST_CASE( "Part Ordinals", "[MESH][PARTS][ORDINALS]" )
 
     for ( xtk::size_t i = 0; i < tNumBuckets; i++ )
     {
-        moris::Matrix< moris::DDSTMat > tEntitiesInBucket = tMeshData->get_entities_in_bucket_loc_index( i, EntityRank::ELEMENT );
-        tMeshData->get_entity_part_membership_ordinals( (tEntitiesInBucket)( 0, 1 ), EntityRank::ELEMENT, tPartOrdinals );
+        moris::Matrix< moris::DDSTMat > tEntitiesInBucket = tMeshData->get_entities_in_bucket_loc_index( i, mtk::EntityRank::ELEMENT );
+        tMeshData->get_entity_part_membership_ordinals( (tEntitiesInBucket)( 0, 1 ), mtk::EntityRank::ELEMENT, tPartOrdinals );
         tMeshData->get_part_name_from_part_ordinals( tPartOrdinals, tPartNames );
     }
 
@@ -321,7 +321,7 @@ TEST_CASE( "Part Ordinals", "[MESH][PARTS][ORDINALS]" )
      * Ask for part ordinal of entity
      */
     size_t     tElementIndex = 14;
-    EntityRank tEntityRank   = EntityRank::ELEMENT;
+    mtk::EntityRank tEntityRank   = mtk::EntityRank::ELEMENT;
 
     tMeshData->get_entity_part_membership_ordinals( tElementIndex, tEntityRank, tPartOrdinals );
     tMeshData->get_part_name_from_part_ordinals( tPartOrdinals, tPartNames );
@@ -333,7 +333,7 @@ TEST_CASE( "Part Ordinals", "[MESH][PARTS][ORDINALS]" )
      * Do it for a different element
      */
     tElementIndex = 1500;
-    tEntityRank   = EntityRank::ELEMENT;
+    tEntityRank   = mtk::EntityRank::ELEMENT;
 
     tMeshData->get_entity_part_membership_ordinals( tElementIndex, tEntityRank, tPartOrdinals );
     tMeshData->get_part_name_from_part_ordinals( tPartOrdinals, tPartNames );
@@ -346,7 +346,7 @@ TEST_CASE( "Part Ordinals", "[MESH][PARTS][ORDINALS]" )
      */
 
     tElementIndex = 3000;
-    tEntityRank   = EntityRank::ELEMENT;
+    tEntityRank   = mtk::EntityRank::ELEMENT;
 
     tMeshData->get_entity_part_membership_ordinals( tElementIndex, tEntityRank, tPartOrdinals );
     tMeshData->get_part_name_from_part_ordinals( tPartOrdinals, tPartNames );
@@ -354,7 +354,7 @@ TEST_CASE( "Part Ordinals", "[MESH][PARTS][ORDINALS]" )
     CHECK( tPartOrdinals.size() == 1 );
     CHECK( tPartNames( 0 ).compare( "top_bread" ) == 0 );
 
-    tMeshData->get_all_part_names( EntityRank::ELEMENT, tPartNames );
+    tMeshData->get_all_part_names( mtk::EntityRank::ELEMENT, tPartNames );
 
     CHECK( tPartNames.size() == 3 );
     CHECK( tPartNames( 0 ).compare( "meat" ) == 0 );
@@ -378,7 +378,7 @@ TEST_CASE( "STK Mesh with Side Set", "[STK][SIDE_SET]" )
     /*
      * Iterate over buckets
      */
-    xtk::size_t                tNumBuckets = tMeshData->get_num_buckets( EntityRank::ELEMENT );
+    xtk::size_t                tNumBuckets = tMeshData->get_num_buckets( mtk::EntityRank::ELEMENT );
     moris::Cell< std::string > tPartNames;
     moris::Cell< xtk::size_t > tPartOrdinals;
     //    xtk::size_t tNumParts;
@@ -386,16 +386,16 @@ TEST_CASE( "STK Mesh with Side Set", "[STK][SIDE_SET]" )
     for ( xtk::size_t i = 0; i < tNumBuckets; i++ )
     {
 
-        moris::Matrix< moris::DDSTMat > tEntitiesInBucket = tMeshData->get_entities_in_bucket_loc_index( i, EntityRank::ELEMENT );
+        moris::Matrix< moris::DDSTMat > tEntitiesInBucket = tMeshData->get_entities_in_bucket_loc_index( i, mtk::EntityRank::ELEMENT );
 
         if ( tEntitiesInBucket.n_cols() != 0 )
         {
-            tMeshData->get_entity_part_membership_ordinals( (tEntitiesInBucket)( 0, 0 ), EntityRank::ELEMENT, tPartOrdinals );
+            tMeshData->get_entity_part_membership_ordinals( (tEntitiesInBucket)( 0, 0 ), mtk::EntityRank::ELEMENT, tPartOrdinals );
             tMeshData->get_part_name_from_part_ordinals( tPartOrdinals, tPartNames );
         }
     }
 
-    tMeshData->get_all_part_names( EntityRank::FACE, tPartNames );
+    tMeshData->get_all_part_names( mtk::EntityRank::FACE, tPartNames );
 
     //    CHECK(tPartNames.size());
     //    CHECK(tPartNames(0).compare("meat") == 0);
@@ -480,7 +480,7 @@ namespace xtk
 #include <stk_mesh/base/MetaData.hpp>     // for MetaData
 #include <stk_mesh/base/BulkData.hpp>     // for BulkData
 #include <stk_mesh/base/FieldBase.hpp>    // for FieldBase
-#include <stk_mesh/base/Types.hpp>        // for EntityRank, PropertyBase, etc
+#include <stk_mesh/base/Types.hpp>        // for mtk::EntityRank, PropertyBase, etc
     TEST_CASE( "MESH FIELDS TESTING", "[MESH_FIELDS]" )
     {
         //    Matrix_Factory<real, size_t> tMatrixFactory;
@@ -497,7 +497,7 @@ namespace xtk
          * also see if the interface function accesses the value correctly
          */
         //    moris::Cell<std::string> tFieldNames = {"levelset_field_01"};
-        //    CHECK(tMeshData->get_entity_field_value(0,tFieldNames(0), EntityRank::NODE)==Approx(275));
+        //    CHECK(tMeshData->get_entity_field_value(0,tFieldNames(0), mtk::EntityRank::NODE)==Approx(275));
     }
 
 #include <stk_mesh/base/GetEntities.hpp>    // for count_entities

@@ -54,7 +54,7 @@ TEST_CASE( "Geometry with a coincident bounrady to background cell", "[XTK_CONFO
 
     // Create Mesh --------------------------------------------------------------------
     std::string                     tMeshFileName = "generated:1x1x4";
-    moris::mtk::Interpolation_Mesh* tMeshData     = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
+    moris::mtk::Interpolation_Mesh* tMeshData     = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, NULL );
 
     moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
     tGeometryEngineParameters.mGeometries = tGeometry;
@@ -587,7 +587,7 @@ TEST_CASE( "Geometry with a center point of the regular subdivision", "[XTK_CONF
 
     // Create Mesh --------------------------------------------------------------------
     std::string                     tMeshFileName = "generated:1x1x4";
-    moris::mtk::Interpolation_Mesh* tMeshData     = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
+    moris::mtk::Interpolation_Mesh* tMeshData     = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, NULL );
 
     moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
     tGeometryEngineParameters.mGeometries = tGeometry;
@@ -1246,7 +1246,7 @@ TEST_CASE( "Geometry with a plane to trigger 2 edge intersected tets", "[XTK_CON
 
     // Create Mesh --------------------------------------------------------------------
     std::string                     tMeshFileName = "generated:1x1x4";
-    moris::mtk::Interpolation_Mesh* tMeshData     = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, NULL );
+    moris::mtk::Interpolation_Mesh* tMeshData     = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, NULL );
 
     moris::ge::Geometry_Engine_Parameters tGeometryEngineParameters;
     tGeometryEngineParameters.mGeometries = tGeometry;

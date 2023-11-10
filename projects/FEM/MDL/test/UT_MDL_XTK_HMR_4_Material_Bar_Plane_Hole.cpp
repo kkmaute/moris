@@ -300,7 +300,7 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole", "[XTK_HMR_PLA
         Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4, Subdivision_Method::C_TRI3 };
         tXTKModel.decompose( tDecompositionMethods );
 
-        tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
+        tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
 
         xtk::Enriched_Interpolation_Mesh& tEnrInterpMesh = tXTKModel.get_enriched_interp_mesh();
         xtk::Enriched_Integration_Mesh&   tEnrIntegMesh  = tXTKModel.get_enriched_integ_mesh();
@@ -717,23 +717,23 @@ TEST_CASE( "XTK HMR 4 Material Bar Intersected By Plane and Hole 3D", "[XTK_HMR_
         Cell< enum Subdivision_Method > tDecompositionMethods = { Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8, Subdivision_Method::C_HIERARCHY_TET4 };
         tXTKModel.decompose( tDecompositionMethods );
 
-        tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 );
+        tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 );
         tXTKModel.construct_face_oriented_ghost_penalization_cells();
 
         // Write mesh
         xtk::Enriched_Integration_Mesh& tEnrIgMesh = tXTKModel.get_enriched_integ_mesh( 0 );
 
         moris_index tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set( 6, "ghost_ss_0" );
-        tEnrIgMesh.create_block_set_from_cells_of_side_set( tSSIndex, "ghost_bs_0", CellTopology::HEX8 );
+        tEnrIgMesh.create_block_set_from_cells_of_side_set( tSSIndex, "ghost_bs_0", mtk::CellTopology::HEX8 );
 
         tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set( 7, "ghost_ss_1" );
-        tEnrIgMesh.create_block_set_from_cells_of_side_set( tSSIndex, "ghost_bs_1", CellTopology::HEX8 );
+        tEnrIgMesh.create_block_set_from_cells_of_side_set( tSSIndex, "ghost_bs_1", mtk::CellTopology::HEX8 );
 
         tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set( 8, "ghost_ss_2" );
-        tEnrIgMesh.create_block_set_from_cells_of_side_set( tSSIndex, "ghost_bs_2", CellTopology::HEX8 );
+        tEnrIgMesh.create_block_set_from_cells_of_side_set( tSSIndex, "ghost_bs_2", mtk::CellTopology::HEX8 );
 
         tSSIndex = tEnrIgMesh.create_side_set_from_dbl_side_set( 9, "ghost_ss_3" );
-        tEnrIgMesh.create_block_set_from_cells_of_side_set( tSSIndex, "ghost_bs_3", CellTopology::HEX8 );
+        tEnrIgMesh.create_block_set_from_cells_of_side_set( tSSIndex, "ghost_bs_3", mtk::CellTopology::HEX8 );
 
         moris::mtk::Writer_Exodus writer( &tEnrIgMesh );
         writer.write_mesh( "", "./mdl_exo/xtk_hmr_bar_hole_integ_ghost.exo", "", "temp.exo" );

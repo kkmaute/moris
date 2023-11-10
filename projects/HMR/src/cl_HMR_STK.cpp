@@ -182,13 +182,13 @@ namespace moris::hmr
 
             switch( mMesh->get_real_scalar_field_rank( f ) )
             {
-                case( EntityRank::NODE ) :
+                case( mtk::EntityRank::NODE ) :
                 {
                     mRealScalarFields( f ).add_field_data( & mNodeLocalToGlobal,
                                                            & mMesh->get_real_scalar_field_data( f ) );
                     break;
                 }
-                case( EntityRank::ELEMENT ) :
+                case( mtk::EntityRank::ELEMENT ) :
                 {
                     mRealScalarFields( f ).add_field_data( & mElementLocalToGlobal,
                                                            & mMesh->get_real_scalar_field_data( f ) );
@@ -302,7 +302,7 @@ namespace moris::hmr
             // get number of elements on mesh
             uint tNumberOfElements = mMesh->get_number_of_elements();
 
-            uint tFieldIndex = mMesh->create_real_scalar_field_data( "Refinement", EntityRank::ELEMENT );
+            uint tFieldIndex = mMesh->create_real_scalar_field_data( "Refinement", mtk::EntityRank::ELEMENT );
 
             // link to field
             Matrix< DDRMat > & tData = mMesh->get_real_scalar_field_data( tFieldIndex );

@@ -284,6 +284,14 @@ namespace moris
                 tNumBspMeshesSpecified );
 
         // ------------------------------
+        // turn on basis extensions for B-spline meshes if requested
+
+        // get the number of refinements of the Lagrange mesh at the boundary
+        bool tUseBasisExtensions = false;
+        mXmlReader->get( tXtkPath + ".UseCutBasisAgglomeration", tUseBasisExtensions, false );
+        tXtkParamList.set( "activate_basis_agglomeration", tUseBasisExtensions );
+
+        // ------------------------------
         // Lagrange mesh
 
         // get which grid is used for decomposition
@@ -858,7 +866,7 @@ namespace moris
             case Parameter_List_Type::END_ENUM:
                 MORIS_ERROR( false,
                         "Library_IO_Meshgen::create_standard_parameter_list_for_module() - "
-                        "No standard library defined for module END_ENUM" );
+                        "No standard library defined for module UNDEFINED" );
                 break;
 
             // create an empty parameter list for modules that are not needed

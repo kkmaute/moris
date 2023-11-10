@@ -16,7 +16,7 @@
 #include "cl_XTK_Face_Registry.hpp"
 
 // XTKL: Mesh Includes
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "fn_verify_tet_topology.hpp"
 
 // XTKL: Linear Algebra Includes

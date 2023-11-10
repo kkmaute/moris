@@ -9,15 +9,15 @@
  */
 
 #include <catch.hpp>
-#include "cl_HMR_Background_Mesh.hpp" //HMR/src
-#include "cl_HMR_BSpline_Mesh_Base.hpp" //HMR/src
-#include "cl_HMR_Element.hpp" //HMR/src
-#include "cl_HMR_Factory.hpp" //HMR/src
-#include "cl_HMR_Parameters.hpp" //HMR/src
+#include "cl_HMR_Background_Mesh.hpp"      //HMR/src
+#include "cl_HMR_BSpline_Mesh_Base.hpp"    //HMR/src
+#include "cl_HMR_Element.hpp"              //HMR/src
+#include "cl_HMR_Factory.hpp"              //HMR/src
+#include "cl_HMR_Parameters.hpp"           //HMR/src
 
-#include "cl_Communication_Tools.hpp" //COM/src
-#include "typedefs.hpp" //COR/src
-#include "cl_Matrix.hpp" //LINALG/src
+#include "cl_Communication_Tools.hpp"      //COM/src
+#include "typedefs.hpp"                    //COR/src
+#include "cl_Matrix.hpp"                   //LINALG/src
 
 // This test creates a simple refinement pattern and makes sure that each B-Spline
 // is only generated once.
@@ -43,12 +43,10 @@ namespace moris::hmr
                 if ( par_size() == 1 )
                 {
                     tNumberOfElementsPerDimension.set_size( 2, 1, 3 );
-
                 }
                 else if ( par_size() == 2 )
                 {
                     tNumberOfElementsPerDimension.set_size( 2, 1, 6 );
-
                 }
                 else if ( par_size() == 4 )
                 {
@@ -103,11 +101,14 @@ namespace moris::hmr
                     }
 
                     // create B-Spline mesh
-                    BSpline_Mesh_Base* tBSplineMesh = tFactory.create_bspline_mesh( tBackgroundMesh, 0,
-                                                                                                tOrder );
+                    BSpline_Mesh_Base* tBSplineMesh = tFactory.create_bspline_mesh(
+                            tBackgroundMesh,
+                            0,
+                            tOrder,
+                            MORIS_UINT_MAX );
 
                     // test basis uniqueness
-                    REQUIRE ( tBSplineMesh->test_for_double_basis() );
+                    REQUIRE( tBSplineMesh->test_for_double_basis() );
 
                     // tidy up
                     delete tBSplineMesh;
@@ -115,9 +116,8 @@ namespace moris::hmr
                 }
 
                 delete tParameters;
-
             }
-                //-------------------------------------------------------------------------------
+            //-------------------------------------------------------------------------------
 
             SECTION( "B-Spline Mesh 3D: test basis uniqueness" )
             {
@@ -130,17 +130,14 @@ namespace moris::hmr
                 if ( par_size() == 1 )
                 {
                     tNumberOfElementsPerDimension.set_size( 3, 1, 3 );
-
                 }
                 else if ( par_size() == 2 )
                 {
                     tNumberOfElementsPerDimension.set_size( 3, 1, 6 );
-
                 }
                 else if ( par_size() == 4 )
                 {
                     tNumberOfElementsPerDimension.set_size( 3, 1, 10 );
-
                 }
 
                 tParameters->set_number_of_elements_per_dimension( tNumberOfElementsPerDimension );
@@ -191,19 +188,17 @@ namespace moris::hmr
                     }
 
                     // create B-Spline mesh
-                    BSpline_Mesh_Base* tBSplineMesh = tFactory.create_bspline_mesh( tBackgroundMesh, 0,
-                                                                                                tOrder );
+                    BSpline_Mesh_Base* tBSplineMesh = tFactory.create_bspline_mesh( tBackgroundMesh, 0, tOrder, MORIS_UINT_MAX );
 
                     // test basis uniqueness
-                    REQUIRE ( tBSplineMesh->test_for_double_basis() );
-                    //std::cout << "check " << par_rank() << " " << tOrder << " " << tBSplineMesh->test_for_double_basis() << std::endl;
-                    // tidy up
+                    REQUIRE( tBSplineMesh->test_for_double_basis() );
+                    // std::cout << "check " << par_rank() << " " << tOrder << " " << tBSplineMesh->test_for_double_basis() << std::endl;
+                    //  tidy up
                     delete tBSplineMesh;
                     delete tBackgroundMesh;
                 }
 
                 delete tParameters;
-
             }
         }
     }
@@ -262,9 +257,9 @@ namespace moris::hmr
             tBackgroundMesh->perform_refinement( 1 );
 
             // create B-Spline mesh
-            //( Parameters, Backgroundmesh, Pattern, Order)
-            BSpline_Mesh_Base* tBSplineMesh_1 = tFactory.create_bspline_mesh( tBackgroundMesh, 0, 1 );
-            BSpline_Mesh_Base* tBSplineMesh_2 = tFactory.create_bspline_mesh( tBackgroundMesh, 1, 1 );
+            //( Parameters, Background mesh, Pattern, Order)
+            BSpline_Mesh_Base* tBSplineMesh_1 = tFactory.create_bspline_mesh( tBackgroundMesh, 0, 1, MORIS_UINT_MAX );
+            BSpline_Mesh_Base* tBSplineMesh_2 = tFactory.create_bspline_mesh( tBackgroundMesh, 1, 1, MORIS_UINT_MAX );
 
             tBSplineMesh_1->test_sanity();
             tBSplineMesh_2->test_sanity();
@@ -307,4 +302,4 @@ namespace moris::hmr
             delete tParameters;
         }
     }
-}
+}    // namespace moris::hmr

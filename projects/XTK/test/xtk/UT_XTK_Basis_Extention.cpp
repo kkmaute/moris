@@ -120,7 +120,7 @@ namespace xtk
             tXTKModel.decompose( tDecompositionMethods );
 
             // perform basis enrichment
-            tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 , false, true);
+            tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 , false, true);
 
             Enriched_Interpolation_Mesh & tEnrichedIPMesh = tXTKModel.get_enriched_interp_mesh(0);
 
@@ -238,7 +238,7 @@ namespace xtk
             tXTKModel.decompose( tDecompositionMethods );
 
             // perform basis enrichment based on the SPGs
-            tXTKModel.perform_basis_enrichment( EntityRank::BSPLINE, 0 , false, true);
+            tXTKModel.perform_basis_enrichment( mtk::EntityRank::BSPLINE, 0 , false, true);
 
             // get the enriched interpolation mesh
             Enriched_Interpolation_Mesh & tEnrichedIPMesh = tXTKModel.get_enriched_interp_mesh(0);

@@ -16,58 +16,78 @@
 
 namespace moris::hmr
 {
-    class Interpolation_Mesh_HMR : public virtual Mesh, public mtk::Interpolation_Mesh
+    class Interpolation_Mesh_HMR : public virtual Mesh
+            , public mtk::Interpolation_Mesh
     {
-        public:
+        //-------------------------------------------------------------------------------
+      public:
+        //-------------------------------------------------------------------------------
 
-            Interpolation_Mesh_HMR(
-                    std::shared_ptr< Database >   aDatabase,
-                    uint aLagrangeMeshIndex)
-        : Mesh( aDatabase,
-                aLagrangeMeshIndex )
+        Interpolation_Mesh_HMR(
+                std::shared_ptr< Database > aDatabase,
+                uint                        aLagrangeMeshIndex )
+                : Mesh(
+                        aDatabase,
+                        aLagrangeMeshIndex )
         {
         }
 
-            Interpolation_Mesh_HMR(
-                    std::shared_ptr< Database >   aDatabase,
-                    uint aLagrangeOrder,
-                    uint aLagrangePattern )
-            : Mesh( aDatabase,
-                    aLagrangeOrder,
-                    aLagrangePattern )
-            {
-            }
+        //-------------------------------------------------------------------------------
 
-            Interpolation_Mesh_HMR(
-                    std::shared_ptr< Database >   aDatabase,
-                    uint aOrder,
-                    uint aLagrangePattern,
-                    uint aBsplinePattern)
-            : Mesh( aDatabase,
-                    aOrder,
-                    aLagrangePattern,
-                    aBsplinePattern )
-            {
-            }
+        Interpolation_Mesh_HMR(
+                std::shared_ptr< Database > aDatabase,
+                uint                        aLagrangeOrder,
+                uint                        aLagrangePattern )
+                : Mesh(
+                        aDatabase,
+                        aLagrangeOrder,
+                        aLagrangePattern )
+        {
+        }
 
-            Interpolation_Mesh_HMR(
-                    std::shared_ptr< Database >   aDatabase,
-                    uint aLagrangeOrder,
-                    uint aLagrangePattern,
-                    uint aBSplineOrder,
-                    uint aBsplinePattern)
-            : Mesh( aDatabase,
-                    aLagrangeOrder,
-                    aLagrangePattern,
-                    aBSplineOrder,
-                    aBsplinePattern )
-            {
-            }
+        //-------------------------------------------------------------------------------
 
-            ~Interpolation_Mesh_HMR()
-            {
-            }
-    };
-}
+        Interpolation_Mesh_HMR(
+                std::shared_ptr< Database > aDatabase,
+                uint                        aOrder,
+                uint                        aLagrangePattern,
+                uint                        aBsplinePattern )
+                : Mesh(
+                        aDatabase,
+                        aOrder,
+                        aLagrangePattern,
+                        aBsplinePattern )
+        {
+        }
+
+        //-------------------------------------------------------------------------------
+
+        Interpolation_Mesh_HMR(
+                std::shared_ptr< Database > aDatabase,
+                uint                        aLagrangeOrder,
+                uint                        aLagrangePattern,
+                uint                        aBSplineOrder,
+                uint                        aBsplinePattern )
+                : Mesh(
+                        aDatabase,
+                        aLagrangeOrder,
+                        aLagrangePattern,
+                        aBSplineOrder,
+                        aBsplinePattern )
+        {
+        }
+
+        //-------------------------------------------------------------------------------
+
+        ~Interpolation_Mesh_HMR()
+        {
+        }
+
+        //-------------------------------------------------------------------------------
+
+    };    // end class: Interpolation_Mesh_HMR
+
+    //-------------------------------------------------------------------------------
+
+}    // namespace moris::hmr
 #endif /* PROJECTS_HMR_SRC_CL_HMR_MESH_INTERPOLATION_HPP_ */
-

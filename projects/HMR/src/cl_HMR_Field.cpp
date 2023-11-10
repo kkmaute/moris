@@ -476,9 +476,9 @@ namespace moris::hmr
 
     //------------------------------------------------------------------------------
 
-    EntityRank Field::get_bspline_rank() const
+    mtk::EntityRank Field::get_bspline_rank() const
     {
-        return EntityRank::BSPLINE;
+        return mtk::EntityRank::BSPLINE;
     }
 
     //------------------------------------------------------------------------------

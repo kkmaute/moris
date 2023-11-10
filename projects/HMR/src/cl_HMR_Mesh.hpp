@@ -13,7 +13,7 @@
 
 #include "cl_HMR_Lagrange_Mesh_Base.hpp"
 #include "cl_Cell.hpp"    //CNT/src
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "MTK_Tools.hpp"
 #include "cl_MTK_Mesh_Core.hpp"    //MTK/src
 
@@ -55,7 +55,7 @@ namespace moris::hmr
 
         //-------------------------------------------------------------------------------
 
-    public:
+      public:
         //-------------------------------------------------------------------------------
 
         /**
@@ -63,25 +63,25 @@ namespace moris::hmr
          */
         Mesh(
                 std::shared_ptr< Database > aDatabase,
-                uint                 aLagrangeOrder,
-                uint                 aLagrangePattern );
+                uint                        aLagrangeOrder,
+                uint                        aLagrangePattern );
 
         Mesh(
                 std::shared_ptr< Database > aDatabase,
-                uint                 aOrder,
-                uint                 aLagrangePattern,
-                uint                 aBsplinePattern );
+                uint                        aOrder,
+                uint                        aLagrangePattern,
+                uint                        aBsplinePattern );
 
         Mesh(
                 std::shared_ptr< Database > aDatabase,
-                uint                 aLagrangeOrder,
-                uint                 aLagrangePattern,
-                uint                 aBSplineOrder,
-                uint                 aBSplinePattern );
+                uint                        aLagrangeOrder,
+                uint                        aLagrangePattern,
+                uint                        aBSplineOrder,
+                uint                        aBSplinePattern );
 
         Mesh(
                 std::shared_ptr< Database > aDatabase,
-                uint                 aLagrangeMeshIndex );
+                uint                        aLagrangeMeshIndex );
 
         //-------------------------------------------------------------------------------
 
@@ -95,10 +95,10 @@ namespace moris::hmr
         /**
          * return the type of this mesh
          */
-        MeshType
+        mtk::MeshType
         get_mesh_type() const
         {
-            return MeshType::HMR;
+            return mtk::MeshType::HMR;
         }
 
         //-------------------------------------------------------------------------------
@@ -124,7 +124,7 @@ namespace moris::hmr
          */
         std::shared_ptr< Field > create_field(
                 const std::string& aLabel,
-                uint        aBSplineOrder );
+                uint               aBSplineOrder );
 
         //-------------------------------------------------------------------------------
 
@@ -173,14 +173,14 @@ namespace moris::hmr
         /**
          * Gets the polynomial order of this mesh
          *
-         * @return Polynomail degree
+         * @return Polynomial degree
          */
         uint get_order() override;
 
         //-------------------------------------------------------------------------------
 
         /**
-         * Gets the polynomial order of an underyling B-spline mesh
+         * Gets the polynomial order of an underlying B-spline mesh
          *
          * @param aDiscretizationIndex B-spline mesh index
          * @return Polynomial degree
@@ -189,7 +189,7 @@ namespace moris::hmr
 
         //-------------------------------------------------------------------------------
 
-        uint get_num_entities( const enum EntityRank aEntityRank,
+        uint get_num_entities( const mtk::EntityRank aEntityRank,
                 const moris_index                    aIndex = 0 ) const;
 
         //-------------------------------------------------------------------------------
@@ -266,16 +266,16 @@ namespace moris::hmr
 
         Matrix< IndexMat > get_entity_connected_to_entity_loc_inds(
                 moris_index       aEntityIndex,
-                enum EntityRank   aInputEntityRank,
-                enum EntityRank   aOutputEntityRank,
+                mtk::EntityRank   aInputEntityRank,
+                mtk::EntityRank   aOutputEntityRank,
                 const moris_index aIndex = 0 ) const;
 
         //-------------------------------------------------------------------------------
 
         Matrix< IndexMat > get_entity_connected_to_entity_glob_ids(
                 moris_index       aEntityId,
-                enum EntityRank   aInputEntityRank,
-                enum EntityRank   aOutputEntityRank,
+                mtk::EntityRank   aInputEntityRank,
+                mtk::EntityRank   aOutputEntityRank,
                 const moris_index aIndex = 0 ) const;
 
         //-------------------------------------------------------------------------------
@@ -381,12 +381,12 @@ namespace moris::hmr
 
         virtual void
         get_L2_projection_matrix(
-                moris_index                                 aDiscretizationMeshIndex,
-                const mtk::Cell*                            aRootBSplineCell,
-                const mtk::Cell*                            aExtendedBSplineCell,
+                moris_index                                       aDiscretizationMeshIndex,
+                const mtk::Cell*                                  aRootBSplineCell,
+                const mtk::Cell*                                  aExtendedBSplineCell,
                 moris::Cell< moris::Cell< const mtk::Vertex* > >& tRootBsplineBasis,
                 moris::Cell< const mtk::Vertex* >&                tExtendedBsplineBasis,
-                moris::Cell< Matrix< DDRMat > >&            tWeights ) override;
+                moris::Cell< Matrix< DDRMat > >&                  tWeights ) override;
 
         // ----------------------------------------------------------------------------
 
@@ -452,7 +452,7 @@ namespace moris::hmr
 
         moris_id get_glb_entity_id_from_entity_loc_index(
                 moris_index       aEntityIndex,
-                enum EntityRank   aEntityRank,
+                mtk::EntityRank   aEntityRank,
                 const moris_index aIndex = 0 ) const;
 
         moris_id get_glb_element_id_from_element_loc_index( moris_index aEntityIndex ) const;
@@ -460,12 +460,12 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
         moris_index get_loc_entity_ind_from_entity_glb_id(
                 moris_id          aEntityId,
-                enum EntityRank   aEntityRank,
+                mtk::EntityRank   aEntityRank,
                 const moris_index aIndex = 0 ) const;
 
         //-------------------------------------------------------------------------------
 
-        moris_id get_max_entity_id( enum EntityRank aEntityRank,
+        moris_id get_max_entity_id( mtk::EntityRank aEntityRank,
                 const moris_index                   aIndex ) const;
 
         //-------------------------------------------------------------------------------
@@ -496,17 +496,17 @@ namespace moris::hmr
 
         uint get_entity_owner(
                 moris_index       aEntityIndex,
-                enum EntityRank   aEntityRank,
+                mtk::EntityRank   aEntityRank,
                 const moris_index aIndex = 0 ) const;
 
         // FIXME Needs parallel implementation
         void
         get_processors_whom_share_entity(
                 moris_index      aEntityIndex,
-                enum EntityRank  aEntityRank,
+                mtk::EntityRank  aEntityRank,
                 Matrix< IdMat >& aProcsWhomShareEntity ) const;
 
-        enum EntityRank
+        mtk::EntityRank
         get_facet_rank() const;
 
         //-------------------------------------------------------------------------------
@@ -520,12 +520,12 @@ namespace moris::hmr
 
         //-------------------------------------------------------------------------------
 
-        moris::Cell< std::string > get_set_names( enum EntityRank aSetEntityRank ) const;
+        moris::Cell< std::string > get_set_names( mtk::EntityRank aSetEntityRank ) const;
 
         //-------------------------------------------------------------------------------
 
         Matrix< IndexMat > get_set_entity_loc_inds(
-                enum EntityRank aSetEntityRank,
+                mtk::EntityRank aSetEntityRank,
                 std::string     aSetName ) const;
 
         //-------------------------------------------------------------------------------
@@ -599,19 +599,19 @@ namespace moris::hmr
 
         moris_index get_field_ind(
                 const std::string&    aFieldLabel,
-                const enum EntityRank aEntityRank ) const;
+                const mtk::EntityRank aEntityRank ) const;
 
         //-------------------------------------------------------------------------------
 
         uint get_num_fields(
-                const enum EntityRank aEntityRank,
+                const mtk::EntityRank aEntityRank,
                 const moris_index     aIndex = 0 ) const;
 
         //-------------------------------------------------------------------------------
 
         real& get_value_of_scalar_field(
                 const moris_index     aFieldIndex,
-                const enum EntityRank aEntityRank,
+                const mtk::EntityRank aEntityRank,
                 const uint            aEntityIndex,
                 const moris_index     aIndex = 0 );
 
@@ -619,7 +619,7 @@ namespace moris::hmr
 
         const real& get_value_of_scalar_field(
                 const moris_index     aFieldIndex,
-                const enum EntityRank aEntityRank,
+                const mtk::EntityRank aEntityRank,
                 const uint            aEntityIndex,
                 const moris_index     aIndex = 0 ) const;
 
@@ -627,20 +627,20 @@ namespace moris::hmr
 
         Matrix< DDRMat >& get_field(
                 const moris_index     aFieldIndex,
-                const enum EntityRank aEntityRank,
+                const mtk::EntityRank aEntityRank,
                 const moris_index     aIndex = 0 );
 
         //-------------------------------------------------------------------------------
 
-        enum CellTopology get_blockset_topology( const std::string& aSetName );
+        mtk::CellTopology get_blockset_topology( const std::string& aSetName );
 
         //-------------------------------------------------------------------------------
 
-        enum CellShape get_IG_blockset_shape( const std::string& aSetName );
+        mtk::CellShape get_IG_blockset_shape( const std::string& aSetName );
 
         //-------------------------------------------------------------------------------
 
-        enum CellShape get_IP_blockset_shape( const std::string& aSetName );
+        mtk::CellShape get_IP_blockset_shape( const std::string& aSetName );
 
         //-------------------------------------------------------------------------------
 
@@ -688,13 +688,13 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         uint get_level_of_entity_loc_ind(
-                const enum EntityRank aEntityRank,
+                const mtk::EntityRank aEntityRank,
                 const uint            aEntityIndex,
                 const moris_index     aIndex = 0 );
 
         //-------------------------------------------------------------------------------
 
-        uint get_max_level_of_entity( const enum EntityRank aEntityRank, const moris_index aIndex = 0 );
+        uint get_max_level_of_entity( const mtk::EntityRank aEntityRank, const moris_index aIndex = 0 );
 
         //-------------------------------------------------------------------------------
 
@@ -707,7 +707,7 @@ namespace moris::hmr
         //-------------------------------------------------------------------------------
 
         void setup_entity_global_to_local_map(
-                enum EntityRank   aEntityRank,
+                mtk::EntityRank   aEntityRank,
                 uint&             aCounter,
                 const moris_index aIndex = 0 );
 
@@ -837,8 +837,11 @@ namespace moris::hmr
 #endif
 
         //-------------------------------------------------------------------------------
-    };
 
-} /* namespace moris */
+    };    // end class: hmr::Mesh
+
+    //-------------------------------------------------------------------------------
+
+}    // namespace moris::hmr
 
 #endif /* SRC_HMR_CL_HMR_INTERFACE_HPP_ */

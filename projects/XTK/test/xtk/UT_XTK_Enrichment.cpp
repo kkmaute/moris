@@ -59,7 +59,7 @@ TEST_CASE( "Enrichment Example 1", "[ENRICH_1]" )
         moris::mtk::Scalar_Field_Info< DDRMat > tLSF;
         std::string                             tLSFName = "lsf1";
         tLSF.set_field_name( tLSFName );
-        tLSF.set_field_entity_rank( moris::EntityRank::NODE );
+        tLSF.set_field_entity_rank( mtk::EntityRank::NODE );
 
         // Add to mesh input field container
         moris::mtk::MtkFieldsInfo tFieldsInfo;
@@ -70,20 +70,20 @@ TEST_CASE( "Enrichment Example 1", "[ENRICH_1]" )
         tSuppMeshData.FieldsInfo = &tFieldsInfo;
 
         // Create mesh with supplementary data
-        moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tSuppMeshData );
+        moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, &tSuppMeshData );
 
-        xtk::size_t tNumNodes = tMeshData->get_num_entities( moris::EntityRank::NODE );
+        xtk::size_t tNumNodes = tMeshData->get_num_entities( mtk::EntityRank::NODE );
 
         moris::Matrix< moris::DDRMat > tLevelsetVal( tNumNodes, 1, -1.3 );
 
-        moris_id tIndexOfNodeId6 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 6, EntityRank::NODE );
-        moris_id tIndexOfNodeId3 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 3, EntityRank::NODE );
+        moris_id tIndexOfNodeId6 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 6, mtk::EntityRank::NODE );
+        moris_id tIndexOfNodeId3 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 3, mtk::EntityRank::NODE );
 
         // Bottom face
         tLevelsetVal( tIndexOfNodeId3 ) = 1;
         tLevelsetVal( tIndexOfNodeId6 ) = 1;
 
-        tMeshData->add_mesh_field_real_scalar_data_loc_inds( tLSFName, moris::EntityRank::NODE, tLevelsetVal );
+        tMeshData->add_mesh_field_real_scalar_data_loc_inds( tLSFName, mtk::EntityRank::NODE, tLevelsetVal );
         tMeshData->mVerbose          = false;
         std::string tMeshOutputFile2 = "./xtk_exo/unit_enrichment_1_background.e";
         tMeshData->create_output_mesh( tMeshOutputFile2 );
@@ -108,7 +108,7 @@ TEST_CASE( "Enrichment Example 1", "[ENRICH_1]" )
         tXTKModel.decompose( tDecompositionMethods );
 
         // Perform the enrichment
-        tXTKModel.perform_basis_enrichment( EntityRank::NODE );
+        tXTKModel.perform_basis_enrichment( mtk::EntityRank::NODE );
 
         Enrichment const& tEnrichment = tXTKModel.get_basis_enrichment();
 
@@ -138,7 +138,7 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
         moris::mtk::Scalar_Field_Info< DDRMat > tLSF;
         std::string                             tLSFName = "lsf1";
         tLSF.set_field_name( tLSFName );
-        tLSF.set_field_entity_rank( moris::EntityRank::NODE );
+        tLSF.set_field_entity_rank( mtk::EntityRank::NODE );
 
         // Add to mesh input field container
         moris::mtk::MtkFieldsInfo tFieldsInfo;
@@ -149,26 +149,26 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
         tSuppMeshData.FieldsInfo = &tFieldsInfo;
 
         // Create mesh with supplementary data
-        moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( MeshType::STK, tMeshFileName, &tSuppMeshData );
+        moris::mtk::Interpolation_Mesh* tMeshData = moris::mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshFileName, &tSuppMeshData );
 
-        xtk::size_t tNumNodes = tMeshData->get_num_entities( moris::EntityRank::NODE );
+        xtk::size_t tNumNodes = tMeshData->get_num_entities( mtk::EntityRank::NODE );
 
         moris::Matrix< moris::DDRMat > tLevelsetVal( tNumNodes, 1, -1.2 );
 
-        moris_id tIndexOfNodeId1  = tMeshData->get_loc_entity_ind_from_entity_glb_id( 1, EntityRank::NODE );
-        moris_id tIndexOfNodeId3  = tMeshData->get_loc_entity_ind_from_entity_glb_id( 3, EntityRank::NODE );
-        moris_id tIndexOfNodeId5  = tMeshData->get_loc_entity_ind_from_entity_glb_id( 5, EntityRank::NODE );
-        moris_id tIndexOfNodeId7  = tMeshData->get_loc_entity_ind_from_entity_glb_id( 7, EntityRank::NODE );
-        moris_id tIndexOfNodeId9  = tMeshData->get_loc_entity_ind_from_entity_glb_id( 9, EntityRank::NODE );
-        moris_id tIndexOfNodeId11 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 11, EntityRank::NODE );
-        moris_id tIndexOfNodeId13 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 13, EntityRank::NODE );
-        moris_id tIndexOfNodeId15 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 15, EntityRank::NODE );
-        moris_id tIndexOfNodeId17 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 17, EntityRank::NODE );
-        moris_id tIndexOfNodeId19 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 19, EntityRank::NODE );
-        moris_id tIndexOfNodeId21 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 21, EntityRank::NODE );
-        moris_id tIndexOfNodeId23 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 23, EntityRank::NODE );
-        moris_id tIndexOfNodeId25 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 25, EntityRank::NODE );
-        moris_id tIndexOfNodeId27 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 27, EntityRank::NODE );
+        moris_id tIndexOfNodeId1  = tMeshData->get_loc_entity_ind_from_entity_glb_id( 1, mtk::EntityRank::NODE );
+        moris_id tIndexOfNodeId3  = tMeshData->get_loc_entity_ind_from_entity_glb_id( 3, mtk::EntityRank::NODE );
+        moris_id tIndexOfNodeId5  = tMeshData->get_loc_entity_ind_from_entity_glb_id( 5, mtk::EntityRank::NODE );
+        moris_id tIndexOfNodeId7  = tMeshData->get_loc_entity_ind_from_entity_glb_id( 7, mtk::EntityRank::NODE );
+        moris_id tIndexOfNodeId9  = tMeshData->get_loc_entity_ind_from_entity_glb_id( 9, mtk::EntityRank::NODE );
+        moris_id tIndexOfNodeId11 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 11, mtk::EntityRank::NODE );
+        moris_id tIndexOfNodeId13 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 13, mtk::EntityRank::NODE );
+        moris_id tIndexOfNodeId15 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 15, mtk::EntityRank::NODE );
+        moris_id tIndexOfNodeId17 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 17, mtk::EntityRank::NODE );
+        moris_id tIndexOfNodeId19 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 19, mtk::EntityRank::NODE );
+        moris_id tIndexOfNodeId21 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 21, mtk::EntityRank::NODE );
+        moris_id tIndexOfNodeId23 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 23, mtk::EntityRank::NODE );
+        moris_id tIndexOfNodeId25 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 25, mtk::EntityRank::NODE );
+        moris_id tIndexOfNodeId27 = tMeshData->get_loc_entity_ind_from_entity_glb_id( 27, mtk::EntityRank::NODE );
 
         // Bottom face
         tLevelsetVal( tIndexOfNodeId1 ) = 1.1;
@@ -189,7 +189,7 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
         tLevelsetVal( tIndexOfNodeId15 ) = 1.1;
         tLevelsetVal( tIndexOfNodeId13 ) = 1.1;
 
-        tMeshData->add_mesh_field_real_scalar_data_loc_inds( tLSFName, moris::EntityRank::NODE, tLevelsetVal );
+        tMeshData->add_mesh_field_real_scalar_data_loc_inds( tLSFName, mtk::EntityRank::NODE, tLevelsetVal );
         tMeshData->mVerbose          = false;
         std::string tMeshOutputFile2 = "./xtk_exo/enrichment_test_10_cluster_background.e";
         tMeshData->create_output_mesh( tMeshOutputFile2 );
@@ -215,7 +215,7 @@ TEST_CASE( "8 Element 10 enrichment Levels", "[ENRICH_10_EL_CLUSTER]" )
         tXTKModel.decompose( tDecompositionMethods );
 
         // Perform the enrichment
-        tXTKModel.perform_basis_enrichment( EntityRank::NODE );
+        tXTKModel.perform_basis_enrichment( mtk::EntityRank::NODE );
 
         Enrichment const& tEnrichment = tXTKModel.get_basis_enrichment();
 

@@ -26,7 +26,7 @@
 #include "cl_HMR_Side_Set.hpp"
 #include "cl_HMR_STK.hpp" //HMR/src
 #include "typedefs.hpp" //COR/src
-#include "cl_Mesh_Enums.hpp"
+#include "cl_MTK_Enums.hpp"
 #include "cl_MTK_Side_Sets_Info.hpp"
 
 #include "cl_Matrix.hpp" //LINALG/src
@@ -37,7 +37,7 @@ namespace moris::hmr
     class BSpline_Mesh_Base;
 
     /**
-     * \brief   Base class for Lagange_Mesh
+     * \brief   Base class for Lagrange_Mesh
      *
      */
     class Lagrange_Mesh_Base : public Mesh_Base
@@ -51,7 +51,7 @@ namespace moris::hmr
         //! Cells containing real field data
 
         Cell< std::string >      mRealScalarFieldLabels;
-        Cell< EntityRank >       mRealScalarFieldRanks;
+        Cell< mtk::EntityRank >  mRealScalarFieldRanks;
         Cell< Matrix< DDRMat > > mRealScalarFieldData;
         Cell< Matrix< DDRMat > > mRealScalarFieldBSplineCoeffs;
         Cell< uint >             mRealScalarFieldBSplineOrders;
@@ -121,13 +121,8 @@ namespace moris::hmr
          * called by field constructor
          */
         uint create_real_scalar_field_data(
-                const std::string     & aLabel,
-                const enum EntityRank   aEntityRank = EntityRank::NODE );
-
-        // ----------------------------------------------------------------------------
-
-        uint create_sint_scalar_field_data( const std::string & aLabel,
-                const enum EntityRank aEntityRank = EntityRank::NODE );
+                const std::string& aLabel,
+                mtk::EntityRank    aEntityRank = mtk::EntityRank::NODE );
 
         /**
          * Gets the number of bases per element on this mesh
@@ -165,7 +160,7 @@ namespace moris::hmr
 
         // ----------------------------------------------------------------------------
 
-        EntityRank get_real_scalar_field_rank( uint aFieldIndex ) const
+        mtk::EntityRank get_real_scalar_field_rank( uint aFieldIndex ) const
         {
             return mRealScalarFieldRanks( aFieldIndex );
         }
@@ -250,17 +245,17 @@ namespace moris::hmr
 
         //            uint get_number_of_nodes_on_proc_without_aura()
         //            {
-        //                uint tNumberElementsWoithoutAura = this->get_number_of_elements();
+        //                uint tNumberElementsWithoutAura = this->get_number_of_elements();
         //
         //                uint tNumBasisPerElement = this->get_number_of_bases_per_element();
         //
         //                Matrix< DDSMat > tBasisExistMat( )
         //
-        //                for( uint Ik = 0; Ik < tNumberElementsWoithoutAura; Ik++ )
+        //                for( uint Ik = 0; Ik < tNumberElementsWithoutAura; Ik++ )
         //                {
         //                    Element * tElement = this->get_element( Ik );
         //
-        //                    for( uint Ii = 0; Ii < tNumberElementsWoithoutAura; Ii++ )
+        //                    for( uint Ii = 0; Ii < tNumberElementsWithoutAura; Ii++ )
         //                    {
         //                        moris_index tBasisIndex = tElement->get_basis( Ii )->get_index();
         //                    }
@@ -793,7 +788,7 @@ namespace moris::hmr
          * < node id >
          * < number of bsplines >
          * < IDs of bsplines >
-         * < interpolation weihhts >
+         * < interpolation weights >
          *
          */
         void save_coeffs_to_binary_file( const uint aOrder, const std::string & aFilePath );

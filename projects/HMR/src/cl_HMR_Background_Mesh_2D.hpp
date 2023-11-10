@@ -145,7 +145,7 @@ namespace moris::hmr
     inline void
     Background_Mesh< 2 >::create_coarsest_frame()
     {
-        // calculate number of elements in frame
+        // calculate number of elements (without padding/aura) in frame
         luint tNumberOfElements = ( mMySubDomain.mFrameIJK[ 0 ][ 0 ][ 1 ]
                                           - mMySubDomain.mFrameIJK[ 0 ][ 0 ][ 0 ] + 1 )
                                 * ( mMySubDomain.mFrameIJK[ 0 ][ 1 ][ 1 ]
@@ -180,7 +180,7 @@ namespace moris::hmr
         // assign memory for coarsest elements
         mCoarsestElementsIncludingAura.resize( mMySubDomain.mNumberOfElementsOnLevelZero, nullptr );
 
-        // calculate number of elements on level zero per direction
+        // calculate number of elements on level zero per direction (including aura/padding)
         Matrix< DDLUMat > tNumberOfElements = this->get_number_of_subdomain_elements_per_direction_on_level_zero();
 
         luint* tIJK = new luint[ 2 ];
@@ -196,7 +196,8 @@ namespace moris::hmr
             {
                 tIJK[ 0 ] = i;
 
-                this->insert_zero_level_element( tCount++,
+                this->insert_zero_level_element(
+                        tCount++,
                         new Background_Element< 2 >( (Background_Element_Base*)nullptr,
                                 mActivePattern,
                                 tIJK,
@@ -290,7 +291,7 @@ namespace moris::hmr
         // loop over all quadrants
         for ( uint q = 0; q < 9; ++q )
         {
-            // loop over my own elments
+            // loop over my own elements
             if ( mMyProcNeighbors( q ) == par_rank() )
             {
                 // this is an active element
@@ -320,7 +321,7 @@ namespace moris::hmr
                 // reset counter
                 tCount = 0;
 
-                // this is an active element of a neigbor proc
+                // this is an active element of a neighbor proc
                 for ( auto j = tJmin[ q ]; j <= tJmax[ q ]; ++j )
                 {
                     for ( auto i = tImin[ q ]; i <= tImax[ q ]; ++i )
@@ -341,7 +342,7 @@ namespace moris::hmr
             }
             else
             {
-                // this is definetly a padding element
+                // this is definitely a padding element
                 for ( auto j = tJmin[ q ]; j <= tJmax[ q ]; ++j )
                 {
                     for ( auto i = tImin[ q ]; i <= tImax[ q ]; ++i )
@@ -442,7 +443,7 @@ namespace moris::hmr
                 }
             }
         }
-    }
+    }    // end function: Background_Mesh< 2 >::finalize_coarsest_elements()
 
     //-------------------------------------------------------------------------------
 
@@ -544,10 +545,10 @@ namespace moris::hmr
                         aElement->get_child( k )->set_padding_flag();
                     }
                 }
-            }
+            }       // end if: element does NOT have children
             else    // element has children
             {
-                // activate children if they are deactive
+                // activate children if they are inactive
                 for ( uint k = 0; k < 4; ++k )
                 {
                     // get child
@@ -564,7 +565,7 @@ namespace moris::hmr
                 // refine element
                 aElement->set_refined_flag( mActivePattern );
             }
-        }
+        }    // end if: element is
     }
 
     //-------------------------------------------------------------------------------
@@ -703,7 +704,7 @@ namespace moris::hmr
     template<>
     inline void
     Background_Mesh< 2 >::collect_coarsest_elements_on_side(
-            uint                       aSideOrdinal,
+            uint                              aSideOrdinal,
             Cell< Background_Element_Base* >& aCoarsestElementsOnSide )
     {
         // clear output cell
@@ -822,6 +823,6 @@ namespace moris::hmr
     }
 
     //-------------------------------------------------------------------------------
-}    // namespace moris
+}    // namespace moris::hmr
 
 #endif /* SRC_HMR_CL_HMR_BACKGROUND_MESH_2D_HPP_ */

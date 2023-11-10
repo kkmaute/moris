@@ -48,7 +48,7 @@ namespace xtk
 
     Enrichment::Enrichment(
             enum Enrichment_Method const & aMethod,
-            enum EntityRank const &        aBasisRank,
+            mtk::EntityRank const &        aBasisRank,
             Matrix< IndexMat > const &     aInterpIndex,
             moris_index const &            aNumBulkPhases,
             xtk::Model*                    aXTKModelPtr,
@@ -400,7 +400,7 @@ namespace xtk
 
             Tracer tTracer( "XTK", "Enrichment", "Mesh Index " + std::to_string( tMeshIndex ) );
 
-            // Number of basis functions (= number of B-Splines on the A-mesh ?)
+            // Number of basis functions (= number of B-Splines on the A-mesh )
             moris::size_t tNumBasisFunctions = mBackgroundMeshPtr->get_num_basis_functions( tMeshIndex );
 
             // allocate member variables
@@ -4435,7 +4435,7 @@ namespace xtk
 
                 // get the index of the base cell
                 moris_index tBaseCellIndex =
-                        mXTKModelPtr->mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tBaseCellId, EntityRank::ELEMENT );
+                        mXTKModelPtr->mBackgroundMesh->get_loc_entity_ind_from_entity_glb_id( tBaseCellId, mtk::EntityRank::ELEMENT );
 
                 // get the index of the requested UIPC on the current proc
                 moris_index tUipcIndex = mEnrIpCellIndices( tBaseCellIndex )( tUnzipping );

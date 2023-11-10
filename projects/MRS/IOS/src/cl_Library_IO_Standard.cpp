@@ -170,7 +170,7 @@ namespace moris
 
                 case Parameter_List_Type::END_ENUM :
                     MORIS_ERROR( false, "Library_IO_Standard::load_all_standard_parameters() - "
-                            "Parameter_List_Type is END_ENUM. This loop shouldn't get here." );
+                            "Parameter_List_Type is UNDEFINED. This loop shouldn't get here." );
                     break;
 
                 default : 

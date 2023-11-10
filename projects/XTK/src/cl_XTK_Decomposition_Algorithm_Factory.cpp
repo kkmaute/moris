@@ -24,21 +24,21 @@ xtk::create_decomposition_algorithm(
   switch (aSubdivisionMethod)
   {
   case Subdivision_Method::NC_REGULAR_SUBDIVISION_QUAD4:
-    return std::make_shared<xtk::Regular_Subdivision_Interface>( aParameterList, CellTopology::QUAD4 );
+    return std::make_shared<xtk::Regular_Subdivision_Interface>( aParameterList, mtk::CellTopology::QUAD4 );
     break;
 
   case Subdivision_Method::NC_REGULAR_SUBDIVISION_HEX8:
-    return std::make_shared<xtk::Regular_Subdivision_Interface>( aParameterList, CellTopology::HEX8 );
+    return std::make_shared<xtk::Regular_Subdivision_Interface>( aParameterList, mtk::CellTopology::HEX8 );
     break;
 
   case Subdivision_Method::C_TRI3:
     return std::make_shared<xtk::Node_Hierarchy_Interface>( aParameterList );
-    // return std::make_shared<xtk::Node_Hierarchy_Interface>( aParameterList, CellTopology::TRI3 );
+    // return std::make_shared<xtk::Node_Hierarchy_Interface>( aParameterList, mtk::CellTopology::TRI3 );
     break;
 
   case Subdivision_Method::C_HIERARCHY_TET4:
     return std::make_shared<xtk::Node_Hierarchy_Interface>( aParameterList );
-    // return std::make_shared<xtk::Node_Hierarchy_Interface>( aParameterList, CellTopology::TET4 );
+    // return std::make_shared<xtk::Node_Hierarchy_Interface>( aParameterList, mtk::CellTopology::TET4 );
     break;
 
   case Subdivision_Method::NC_OCTREE:
@@ -63,7 +63,7 @@ xtk::create_decomposition_algorithm(
 
   default:
     MORIS_ERROR( 0, "Decomposition algorithm corresponding to provided enum not implemented" );
-    return std::make_shared<xtk::Regular_Subdivision_Interface>( aParameterList, CellTopology::HEX8 );
+    return std::make_shared<xtk::Regular_Subdivision_Interface>( aParameterList, mtk::CellTopology::HEX8 );
     break;
   }
 }

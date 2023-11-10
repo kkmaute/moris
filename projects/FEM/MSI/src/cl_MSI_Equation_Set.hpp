@@ -83,8 +83,8 @@ namespace moris
             moris::Matrix< DDSMat > mFollowerDvTypeMap;
 
             // lists of leader and follower groups of field types
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > mLeaderFieldTypes;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > mFollowerFieldTypes;
+            moris::Cell< moris::Cell< mtk::Field_Type > > mLeaderFieldTypes;
+            moris::Cell< moris::Cell< mtk::Field_Type > > mFollowerFieldTypes;
 
             // maps for the leader and follower field type
             moris::Matrix< DDSMat > mLeaderFieldTypeMap;
@@ -117,12 +117,12 @@ namespace moris
             // unique list of dof and dv types
             moris::Cell< moris::Cell< enum MSI::Dof_Type > >   mUniqueDofTypeListLeaderFollower;
             moris::Cell< moris::Cell< enum PDV_Type > >        mUniqueDvTypeListLeaderFollower;
-            moris::Cell< moris::Cell< enum mtk::Field_Type > > mUniqueFieldTypeListLeaderFollower;
+            moris::Cell< moris::Cell< mtk::Field_Type > > mUniqueFieldTypeListLeaderFollower;
 
             // unique list of dof and dv types. Leader and Follower are combined
             moris::Cell< enum MSI::Dof_Type >   mUniqueDofTypeList;
             moris::Cell< enum PDV_Type >        mUniqueDvTypeList;
-            moris::Cell< enum mtk::Field_Type > mUniqueFieldTypeList;
+            moris::Cell< mtk::Field_Type > mUniqueFieldTypeList;
 
             // pointer to the model solver interface
             Model_Solver_Interface* mModelSolverInterface = nullptr;
@@ -300,7 +300,7 @@ namespace moris
              * @param[ out ] sint      non-consecutive index for field type
              */
             sint get_field_index_for_type_1(
-                    enum mtk::Field_Type aFieldType,
+                    mtk::Field_Type aFieldType,
                     mtk::Leader_Follower    aIsLeader = mtk::Leader_Follower::LEADER );
 
             //-------------------------------------------------------------------------------------------------
@@ -653,7 +653,7 @@ namespace moris
              * get unique field type list
              * @param[ out ] mUniqueFieldTypeList a unique list of field type
              */
-            const moris::Cell< enum mtk::Field_Type >&
+            const moris::Cell< mtk::Field_Type >&
             get_unique_field_type_list()
             {
                 return mUniqueFieldTypeList;
