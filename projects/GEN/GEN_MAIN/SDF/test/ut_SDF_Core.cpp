@@ -57,7 +57,7 @@ TEST_CASE(
             sdf::Object tObject( tObjectPath );
 
             // load MTK mesh from file
-            mtk::Mesh *tInput = mtk::create_interpolation_mesh( MeshType::STK, tMeshPath, nullptr );
+            mtk::Mesh *tInput = mtk::create_interpolation_mesh( mtk::MeshType::STK, tMeshPath, nullptr );
 
             // create SDF wrapper for mesh
             sdf::Mesh tMesh( tInput );
