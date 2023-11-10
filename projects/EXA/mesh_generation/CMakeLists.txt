@@ -5,10 +5,9 @@
 #------------------------------------------------------------------------------------
 #
 
-add_subdirectory(thermal)
-add_subdirectory(structure)
-add_subdirectory(fluid)
-add_subdirectory(optimization)
-add_subdirectory(mesh_generation)
+message(STATUS "Added mesh-generation example sub-directory")
 
+add_subdirectory(image_bear)
+add_subdirectory(obj_sphere)
+add_subdirectory(pre_defined_diamond)
 
