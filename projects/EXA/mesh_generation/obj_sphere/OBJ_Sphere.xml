@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Note: this example has a large mesh. Memory consumption ~10GB -->
+
+<!-- All parameters are nested under this root -->
+<MeshGenerationParameterList>
+
+    <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+    <!-- % Parameters defining the Geometries to be used % -->
+    <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+    <Geometries>
+
+        <Geometry type="object_file">
+            <FileName>Sphere.obj</FileName>
+            <ObjectOrigin>0.0,0.0,0.0</ObjectOrigin>
+            <SdfShift>0.00</SdfShift>
+        </Geometry>
+
+    </Geometries>
+    
+    <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+    <!-- % Parameters defining the background meshes to be used % -->
+    <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+    <BackgroundMeshes>
+
+        <!-- Define a uniform grid all grids and meshes will be derived from -->
+        <BaseGrid>
+            <Size>17,17,17</Size>
+            <Dimensions>80,80,80</Dimensions>
+            <Origin>-60.0,-50.0,-40.0</Origin>
+        </BaseGrid>
+        
+        <!-- Define the grids from which the background meshes will be generated and give them an index for identification -->
+        <MeshGrids>
+            <MeshGrid ind="0">
+                <InitialRefinements>0</InitialRefinements>
+                <InterfaceRefinements>0</InterfaceRefinements>
+            </MeshGrid>
+        </MeshGrids>
+        
+        <!-- Define B-spline background meshes for which a basis will be constructed  -->
+        <BsplineMeshes>
+            <BsplineMesh ind="0">
+                <MeshGridIndex>0</MeshGridIndex>
+                <PolynomialOrder>1</PolynomialOrder>
+            </BsplineMesh>
+        </BsplineMeshes>
+ 
+    </BackgroundMeshes>
+    
+    <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+    <!-- % Parameters defining the foreground mesh to be generated % -->
+    <!-- %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% -->
+    <ForegroundMesh>
+        <DecompositionGrid>0</DecompositionGrid>
+        <FgPolynomialOrder>1</FgPolynomialOrder>
+        <TriangulateAllFgElems>false</TriangulateAllFgElems>
+        <OutputExtractionOperators>false</OutputExtractionOperators>
+    </ForegroundMesh>
+
+</MeshGenerationParameterList>

@@ -258,11 +258,13 @@ namespace moris
         void
         Core::calculate_udf( moris::Cell< Vertex * > &aCandidateList )
         {
-            tic tTimer;
+            // time this function
+            Tracer tTracer( "SDF", "Compute UDF" );
 
-            // get number of triangles
+            // get and print the number of triangles
             uint tNumberOfTriangles = mData.mTriangles.size();
-            std::cout << "number of triangles            : " << tNumberOfTriangles << std::endl;    //======
+            MORIS_LOG_SPEC( "Number of triangles", tNumberOfTriangles );
+
             // loop over all triangles
             for ( uint k = 0; k < tNumberOfTriangles; ++k )
             {
@@ -288,21 +290,6 @@ namespace moris
 
             }    // end loop over all triangles
 
-            if ( mVerbose )
-            {
-                // stop the timer
-                real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-
-                // print elapsed time
-                if ( par_size() == 1 )
-                {
-                    std::fprintf( stdout, "Time for udf                   : %5.3f [sec]\n", tElapsedTime / 1000.0 );
-                }
-                else
-                {
-                    std::fprintf( stdout, "Proc % i - Time for udf                   : %5.3f [sec]\n", (int)par_rank(), tElapsedTime / 1000.0 );
-                }
-            }
         }
 
         //-------------------------------------------------------------------------------
@@ -985,6 +972,7 @@ namespace moris
         void
         Core::sweep()
         {
+            Tracer tTracer( "SDF", "Sweep" );
 
             uint tNumberOfVertices = mMesh.get_num_nodes();
 
@@ -1006,22 +994,6 @@ namespace moris
                     {
                         // sweep this vertex
                         tSweepCount += tVertex->sweep();
-                    }
-                }
-
-                if ( mVerbose )
-                {
-                    // stop the timer
-                    real tElapsedTime = tTimer.toc< moris::chronos::milliseconds >().wall;
-
-                    // print elapsed time
-                    if ( par_size() == 1 )
-                    {
-                        std::fprintf( stdout, "Time for sweeping              : %5.3f [sec]\nSwept %i nodes\n", tElapsedTime / 1000.0, (int)tSweepCount );
-                    }
-                    else
-                    {
-                        std::fprintf( stdout, "Proc % i - Time for sweeping              : %5.3f [sec]\nSwept %i nodes\n", (int)par_rank(), tElapsedTime / 1000.0, (int)tSweepCount );
                     }
                 }
             }
