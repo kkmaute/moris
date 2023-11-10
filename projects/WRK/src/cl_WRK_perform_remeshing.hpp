@@ -40,12 +40,9 @@ namespace moris
             bool mOutputMeshes = false;
 
             // mode ab_initio
-            moris::Cell< std::string > mRefinementsFieldNames_0;
             Cell< Matrix< DDSMat > >   mRefinementsMode_0;
             Cell< Matrix< DDSMat > >   mRefinementPatternMode_0;
             std::string                mRefinementFunction;
-
-            moris::Cell< moris::Cell< std::string > > mRefinementsFieldNames_1;
 
             Matrix< DDSMat > mMaxRefinementsMode_1;
             Matrix< DDSMat > mMinRefinementsMode_1;
@@ -132,20 +129,21 @@ namespace moris
 
             void prepare_input_for_refinement(
                     Cell< moris_index >&                       aPatternForRefinement,
-                    moris::Cell< moris::Cell< std::string > >& aFieldsForRefinement,
                     moris::Cell< moris::Cell< uint > >&        aRefinements,
                     moris::Cell< sint >&                       aMaxRefinementPerPattern );
 
             //------------------------------------------------------------------------------
 
             void create_refinement_input_list(
-                    moris::ParameterList& aRefinementParameterlist,
-                    uint                  aPattern );
+                    moris::ParameterList&                  aRefinementParameterlist,
+                    Cell< std::shared_ptr< mtk::Field > >& aFields,
+                    uint                                   aPattern );
 
             //------------------------------------------------------------------------------
 
             void create_refinement_input_list_2(
-                    moris::ParameterList& aRefinementParameterlist );
+                    moris::ParameterList&                  aRefinementParameterlist,
+                    Cell< std::shared_ptr< mtk::Field > >& aFields);
 
             //------------------------------------------------------------------------------
 
