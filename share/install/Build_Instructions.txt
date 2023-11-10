@@ -42,7 +42,7 @@
 
 source $HOME/.cshrc_moris
 * or
-source $HOME/.bshrc_moris
+source $HOME/.bashrc_moris
 
 cd $MORISROOT
 
@@ -82,7 +82,7 @@ ctest
 
 source $HOME/.cshrc_moris
 * or
-source $HOME/.bshrc_moris
+source $HOME/.bashrc_moris
 
 cd $MORISROOT
 
