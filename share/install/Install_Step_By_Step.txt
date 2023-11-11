@@ -277,8 +277,8 @@ spack location --install-dir python
 
 * if yes, skip the following steps; otherwise
 
-export PYIDIR=`find spack/opt/spack/ -type d -name "python-*"`
-export PYLVERS=`ls $PYIDIR/include`
+setenv PYIDIR `find spack/opt/spack/ -type d -name "python-*"`
+setenv PYLVERS `ls $PYIDIR/include`
 cp -R $PYIDIR/lib64/$PYLVERS/lib-dynload $PYIDIR/lib/$PYLVERS/.
 
 * check again if the following command works
