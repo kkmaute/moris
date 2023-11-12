@@ -58,10 +58,6 @@ class Moris(CMakePackage):
 
     depends_on('gcmma',             when="+gcmma")
     depends_on('snopt',             when="+snopt")
-    depends_on('netlib-lapack',     when="+lapack")
-    depends_on('openblas',          when="+openblas")
-    depends_on('mkl',               when="+mkl")
-    depends_on('mkl',               when="+pardiso")
     depends_on('lbfgs',             when="+lbfgs")
  
     depends_on('mpi')
@@ -76,21 +72,10 @@ class Moris(CMakePackage):
 
     depends_on('petsc@3.17.4',                       when="+petsc")
     depends_on('petsc+mpi+metis+hypre+suite-sparse', when="+petsc")
-    #depends_on('petsc+mkl-pardiso',                  when="+petsc +pardiso")
+    depends_on('petsc+mkl-pardiso',                  when="+petsc +pardiso")
     depends_on('petsc+mumps',                        when="+petsc +mumps")
 
     depends_on('slepc',                              when="+slepc")
-
-    conflicts('openblas',   when='+pardiso')
-    conflicts('openblas',   when='+mkl')
-    conflicts('openblas',   when='+lapack')
-    
-    conflicts('mkl',        when='+openblas')
-    conflicts('mkl',        when='+lapack')
-    
-    conflicts('+lapack',     when='+pardiso')
-    conflicts('+lapack',     when='+mkl')
-    conflicts('+lapack',     when='+openblas')
 
     def cmake_args(self):
         spec = self.spec
@@ -142,10 +127,6 @@ class Moris(CMakePackage):
 
         if '-pardiso' in spec:
             options.extend([ '-DMORIS_USE_PARDISO=OFF' ])
-
-        if '+pardiso' in spec:
-            options.extend([ '-DMORIS_USE_MKL=ON' ])
-            options.extend([ '-DMORIS_USE_OPENBLAS=OFF' ])
 
         if '+tests' in spec:
             options.extend([ '-DMORIS_USE_TESTS=ON' ])

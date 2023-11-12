@@ -44,10 +44,10 @@ export GCMMA_INSTALLED=`spack find gcmma            | awk 'BEGIN{n=0}{ n=n+1; if
 export SNOPT_INSTALLED=`spack find snopt            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 export LBFGS_INSTALLED=`spack find lbfgs            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 export PETSC_INSTALLED=`spack find petsc            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export   MKL_INSTALLED=`spack find intel-oneapi-mkl | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 export ABLIS_INSTALLED=`spack find amdblis          | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 export AFLAM_INSTALLED=`spack find amdlibflame      | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
-export   MKL_INSTALLED=`spack find intel-oneapi-mkl | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
+export OAMKL_INSTALLED=`spack find intel-oneapi-mkl | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
+export  IMKL_INSTALLED=`spack find intel-mkl        | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 export OBLAS_INSTALLED=`spack find openblas         | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 export SLEPC_INSTALLED=`spack find slepc            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 export  DOXY_INSTALLED=`spack find doxygen          | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
@@ -107,8 +107,11 @@ if [ $SLEPC_INSTALLED == "1" ];then
 export SLEPC_DIR=`spack location --install-dir slepc`
 echo "setenv SLEPC_DIR"        $SLEPC_DIR                                      >> $HOME/.cshrc_moris
 fi
-if [ $MKL_INSTALLED == "1" ];then
+if [ $OAMKL_INSTALLED == "1" ];then
 echo "setenv MKL_DIR"          `spack location --install-dir intel-oneapi-mkl`"/mkl/latest"  >> $HOME/.cshrc_moris
+fi
+if [ $IMKL_INSTALLED == "1" ];then
+echo "setenv MKL_DIR"          `spack location --install-dir intel-mkl`"/mkl"  >> $HOME/.cshrc_moris
 fi
 if [ $ABLIS_INSTALLED == "1" ];then
 echo "setenv AMDBLIS_DIR"      `spack location --install-dir amdblis`          >> $HOME/.cshrc_moris
@@ -172,7 +175,10 @@ fi
 if [ $SLEPC_INSTALLED == "1" ];then
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$SLEPC_DIR/lib'                 >> $HOME/.cshrc_moris 
 fi
-if [ $MKL_INSTALLED == "1" ];then
+if [ $OAMKL_INSTALLED == "1" ];then
+echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$MKL_DIR/lib'                   >> $HOME/.cshrc_moris 
+fi
+if [ $IMKL_INSTALLED == "1" ];then
 echo 'setenv LD_LIBRARY_PATH $LD_LIBRARY_PATH/:$MKL_DIR/lib'                   >> $HOME/.cshrc_moris 
 fi
 if [ $OBLAS_INSTALLED == "1" ];then

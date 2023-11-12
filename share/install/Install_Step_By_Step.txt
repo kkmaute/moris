@@ -129,6 +129,8 @@ spack create --name snopt --skip-editor
 * libraries even if you do not want to install them
 
 cp $WORKSPACE/moris/share/spack/trilinos_package.py  $WORKSPACE/spack/var/spack/repos/builtin/packages/trilinos/package.py
+cp $WORKSPACE/moris/share/spack/mumps_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/mumps/package.py
+
 cp $WORKSPACE/moris/share/spack/moris_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/moris/package.py
 cp $WORKSPACE/moris/share/spack/gcmma_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/gcmma/package.py
 cp $WORKSPACE/moris/share/spack/lbfgs_package.py     $WORKSPACE/spack/var/spack/repos/builtin/packages/lbfgs/package.py
@@ -185,9 +187,25 @@ spack external find
 
 *------------------------------------------------------------
 
+* set blas/lapack provider
+
+setenv balapro    intel-mkl   
+setenv lapackpro  intel-mkl
+setenv mklpro     intel-mkl
+
+echo "   packages:\n    all:\n      providers:\n        blas: [$blasapro]\n        lapack: [$lapackpro]\n        mkl: [$mkl]" >> spack.yaml
+
+*------------------------------------------------------------
+
 * By default MORIS is installed with support for petsc,slepc, pardiso, and mumps, 
 * as well as the optimization libraries;  to turn off one or all of these options, 
 * use for example:
+
+* users/non-developers with blas/lapack = intel-mkl or intel-oneapi-mkl
+
+spack add moris+mkl~petsc~slepc~pardiso~mumps~gcmma~lbfgs~snopt
+
+* users/non-developers with blas/lapack = openblas
 
 spack add moris+openblas~petsc~slepc~pardiso~mumps~gcmma~lbfgs~snopt
 
@@ -198,12 +216,6 @@ spack add moris+pardiso+mumps
 * set local moris directory as source for spack install
 
 spack develop --path $WORKSPACE/moris moris@main
-
-*------------------------------------------------------------
-
-* add openblas (only needed if not defined explicilty in spack add moris+xxxx)
-
-spack add openblas
 
 *------------------------------------------------------------
 
@@ -303,9 +315,7 @@ spack install moris
 
 spack install --only dependencies moris
 
-* for developers
-
-spack install openblas
+*------------------------------------------------------------
 
 * for developers if doxygen (optional)
 
