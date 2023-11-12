@@ -45,6 +45,9 @@ export SNOPT_INSTALLED=`spack find snopt            | awk 'BEGIN{n=0}{ n=n+1; if
 export LBFGS_INSTALLED=`spack find lbfgs            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 export PETSC_INSTALLED=`spack find petsc            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 export   MKL_INSTALLED=`spack find intel-oneapi-mkl | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
+export ABLIS_INSTALLED=`spack find amdblis          | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
+export AFLAM_INSTALLED=`spack find amdlibflame      | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
+export   MKL_INSTALLED=`spack find intel-oneapi-mkl | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 export OBLAS_INSTALLED=`spack find openblas         | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 export SLEPC_INSTALLED=`spack find slepc            | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
 export  DOXY_INSTALLED=`spack find doxygen          | awk 'BEGIN{n=0}{ n=n+1; if ($2 == "No" && n == 1) {print 0} else { if ( n == 1 ) {print 1}}}'`
@@ -106,6 +109,12 @@ echo "setenv SLEPC_DIR"        $SLEPC_DIR                                      >
 fi
 if [ $MKL_INSTALLED == "1" ];then
 echo "setenv MKL_DIR"          `spack location --install-dir intel-oneapi-mkl`"/mkl/latest"  >> $HOME/.cshrc_moris
+fi
+if [ $ABLIS_INSTALLED == "1" ];then
+echo "setenv AMDBLIS_DIR"      `spack location --install-dir amdblis`          >> $HOME/.cshrc_moris
+fi
+if [ $AFLAM_INSTALLED == "1" ];then
+echo "setenv AMDLIBFLAME_DIR"  `spack location --install-dir amdlibflame`      >> $HOME/.cshrc_moris
 fi
 if [ $OBLAS_INSTALLED == "1" ];then
 export OPENBLAS_DIR=`spack location --install-dir openblas`"/lib"
