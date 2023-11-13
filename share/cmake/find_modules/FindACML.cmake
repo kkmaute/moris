@@ -13,65 +13,69 @@ if (ACML_LIBRARIES)
 endif (ACML_LIBRARIES)
 
 set(ACML_ENV_VARS
-  $ENV{ACMLDIR}
-  $ENV{ACML_DIR}
-  $ENV{acml_DIR}
-  $ENV{ACML_ROOT}
-  $ENV{acml_ROOT}
-  $ENV{ACML_PATH}
-  $ENV{acml_PATH} )
-
-find_library(ACML_LIBRARIES
-  NAMES
-  acml_mp acml_mv
-  PATHS
-  ${ACML_ENV_VARS}
-  /usr/lib/acml
-  PATH_SUFFIXES
-  lib
+  $ENV{AMDBLIS_DIR}
+  $ENV{AMDLIBFLAME_DIR}
 )
 
-find_file(ACML_LIBRARIES
+find_library(AMBLIS_LIBRARIES
   NAMES
-  libacml_mp.so
+  blis
   PATHS
-  /usr/lib
   ${ACML_ENV_VARS}
-  ${LIB_INSTALL_DIR}
   PATH_SUFFIXES
   lib
+  lib64
 )
 
-if(NOT ACML_LIBRARIES)
-    message(STATUS "Multi-threaded library not found, looking for single-threaded")
-    find_library(ACML_LIBRARIES
-        NAMES
-        acml acml_mv
-        PATHS
-        ${ACML_ENV_VARS}
-        ${LIB_INSTALL_DIR}
-        PATH_SUFFIXES
-        lib
-        )
-    find_file(ACML_LIBRARIES
-        libacml.so libacml_mv.so
-        PATHS
-        /usr/lib
-        ${ACML_ENV_VARS}
-        ${LIB_INSTALL_DIR}
-        PATH_SUFFIXES
-        lib
-        )
-endif()
+find_library(AMDFLAME_LIBRARIES
+  NAMES
+  flame 
+  PATHS
+  ${ACML_ENV_VARS}
+  PATH_SUFFIXES
+  lib
+  lib64
+)
+find_library(AMDAOCLDTL_LIBRARIES
+  NAMES
+  aocldtl 
+  PATHS
+  ${ACML_ENV_VARS}
+  PATH_SUFFIXES
+  lib
+  lib64
+)
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(ACML DEFAULT_MSG ACML_LIBRARIES)
+find_package_handle_standard_args(ACML DEFAULT_MSG AMBLIS_LIBRARIES)
+find_package_handle_standard_args(ACML DEFAULT_MSG AMDFLAME_LIBRARIES)
+find_package_handle_standard_args(ACML DEFAULT_MSG AMDAOCLDTL_LIBRARIES)
 
-mark_as_advanced(ACML_LIBRARIES)
+SET(ACML_LIBRARIES "${AMBLIS_LIBRARIES}")
+LIST(APPEND ACML_LIBRARIES "${AMDFLAME_LIBRARIES}")
+LIST(APPEND ACML_LIBRARIES "${AMDAOCLDTL_LIBRARIES}")
 
-_import_libraries(ACML_LIBRARY_TARGETS ${ACML_LIBRARIES})
+mark_as_advanced(AMBLIS_LIBRARIES)
+mark_as_advanced(AMDFLAME_LIBRARIES)
+mark_as_advanced(AMDAOCLDTL_LIBRARIES)
 
-add_library(ACML::acml INTERFACE IMPORTED GLOBAL)
-target_link_libraries(ACML::acml INTERFACE ${ACML_LIBRARY_TARGETS})
+_import_libraries(AMBLIS_LIBRARY_TARGETS ${AMBLIS_LIBRARIES})
+_import_libraries(AMDFLAME_LIBRARY_TARGETS ${AMDFLAME_LIBRARIES})
+_import_libraries(AMDAOCLDTL_LIBRARY_TARGETS ${AMDAOCLDTL_LIBRARIES})
 
+if (NOT TARGET ACML::acml )
+    add_library(ACML::acml INTERFACE IMPORTED GLOBAL)
+    target_link_libraries(ACML::acml INTERFACE 
+         ${AMBLIS_LIBRARY_TARGETS} 
+         ${AMDFLAME_LIBRARY_TARGETS} 
+         ${AMDAOCLDTL_LIBRARY_TARGETS} )
+endif()
+
+if (NOT TARGET ACML::all_libs )
+    add_library(ACML::all_libs INTERFACE IMPORTED)
+    target_link_libraries(ACML::all_libs INTERFACE 
+         ${AMBLIS_LIBRARY_TARGETS} 
+         ${AMDFLAME_LIBRARY_TARGETS} 
+         ${AMDAOCLDTL_LIBRARY_TARGETS} )
+endif()
 
