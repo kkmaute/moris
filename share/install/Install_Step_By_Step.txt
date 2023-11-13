@@ -189,11 +189,19 @@ spack external find
 
 * set blas/lapack provider
 
-setenv balapro    intel-mkl   
+* blas:      amdblis      intel-mkl intel-oneapi-mkl openblas netlib-lapack
+* lapack:    amdlibflame  intel-mkl intel-oneapi-mkl openblas netlib-lapack 
+* scalapack: amdscalapack intel-mkl intel-oneapi-mkl netlib-scalapack
+* mkl:       intel-mkl intel-oneapi-mkl
+
+setenv blaspro    intel-mkl   
 setenv lapackpro  intel-mkl
+setenv sclpackpro intel-mkl   
 setenv mklpro     intel-mkl
 
-echo "   packages:\n    all:\n      providers:\n        blas: [$blasapro]\n        lapack: [$lapackpro]\n        mkl: [$mkl]" >> spack.yaml
+echo "  packages:\n    all:\n      providers:"                  >> spack.yaml
+echo "        blas: [$blaspro]\n        lapack: [$lapackpro]"   >> spack.yaml
+echo "        scalapack: [$sclpackpro]\n        mkl: [$mklpro]" >> spack.yaml
 
 *------------------------------------------------------------
 
